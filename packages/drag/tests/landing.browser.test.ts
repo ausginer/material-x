@@ -1,6 +1,6 @@
 /** `drag:DRI-13`: landing and elevation. */
 import { afterEach, describe, expect, it } from 'vitest';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -74,16 +74,16 @@ describe('drag:DRI-13 landing', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      settle(drag) {
-        const lift = drag.state.lift!;
+        const lift = lifter.acquire(drag);
 
-        lift.land(lift.rect.x, lift.rect.y);
+        return {
+          settle() {
+            lift.land(lift.rect.x, lift.rect.y);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await grab('#r0', 0, 20);
@@ -106,23 +106,22 @@ describe('drag:DRI-13 landing', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move: (drag) => {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
-      },
-      settle(drag) {
-        drag.state.lift!.land(0, 0, landing({ duration: -5 }));
-      },
-      end(_, outcome) {
-        outcomes.push(outcome);
+        const lift = lifter.acquire(drag);
+
+        return {
+          move: () => {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+          settle() {
+            lift.land(0, 0, landing({ duration: -5 }));
+          },
+          end(outcome) {
+            outcomes.push(outcome);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await dragAndDrop('#r1', 30);
@@ -231,22 +230,19 @@ describe('drag:DRI-13 landing', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move: (drag) => {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
-      },
-      settle(drag) {
-        const lift = drag.state.lift!;
+        const lift = lifter.acquire(drag);
 
-        lift.land(lift.rect.x, lift.rect.y);
+        return {
+          move: () => {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+          settle() {
+            lift.land(lift.rect.x, lift.rect.y);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
 
@@ -338,26 +334,23 @@ describe('drag:DRI-13 landing', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move: (drag) => {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
-      },
-      settle(drag) {
-        const lift = drag.state.lift!;
+        const lift = lifter.acquire(drag);
 
-        lift.land(
-          lift.rect.x,
-          lift.rect.y,
-          landing({ duration: 321, easing: 'linear' }),
-        );
+        return {
+          move: () => {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+          settle() {
+            lift.land(
+              lift.rect.x,
+              lift.rect.y,
+              landing({ duration: 321, easing: 'linear' }),
+            );
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await grab('#r0', 0, 45);
@@ -376,27 +369,23 @@ describe('drag:DRI-13 landing', () => {
     const reused = { duration: 321, easing: 'linear' };
     const timing = (): typeof reused => reused;
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
+        const lift = lifter.acquire(drag);
         // Added after the lift's, so it runs before the lift's release.
         drag.use(() => {
           reused.duration = 4321;
           reused.easing = 'ease-in';
         });
-        return undefined;
-      },
-      move: (drag) => {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
-      },
-      settle(drag) {
-        const lift = drag.state.lift!;
-
-        lift.land(lift.rect.x, lift.rect.y, timing);
+        return {
+          move: () => {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+          settle() {
+            lift.land(lift.rect.x, lift.rect.y, timing);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await grab('#r0', 0, 45);
@@ -420,25 +409,25 @@ describe('drag:DRI-13 landing', () => {
     row('r0').hidePopover = () => {
       throw hidden;
     };
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move: (drag) => {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
-      },
-      settle(drag) {
-        const lift = drag.state.lift!;
+        const lift = lifter.acquire(drag);
 
-        lift.land(lift.rect.x, lift.rect.y, landing({ duration: 5000 }));
-      },
-      end(_, outcome) {
-        ended.push({ outcome, animations: row('r0').getAnimations().length });
+        return {
+          move: () => {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+          settle() {
+            lift.land(lift.rect.x, lift.rect.y, landing({ duration: 5000 }));
+          },
+          end(outcome) {
+            ended.push({
+              outcome,
+              animations: row('r0').getAnimations().length,
+            });
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await grab('#r0', 0, 45);

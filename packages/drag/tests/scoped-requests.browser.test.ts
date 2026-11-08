@@ -4,7 +4,7 @@
  * destruction released its operation.
  */
 import { describe, expect, it } from 'vitest';
-import type { Drag, Outcome } from '../src/draggable.ts';
+import type { BehaviorOperation, Drag, Outcome } from '../src/draggable.ts';
 import {
   dragAndDrop,
   grab,
@@ -15,30 +15,33 @@ import {
   targetOf,
 } from './support/harness.ts';
 
+/** An operation that names its item, so a step can say which one it received. */
+type Named = BehaviorOperation & Readonly<{ item: HTMLElement }>;
+
 describe('drag:DRI-8 scoped requests', () => {
   it('should not run a step requested through a retained drag while a later operation is active', async () => {
     const list = makeList(3);
-    const kept: Drag[] = [];
+    const kept: Array<Drag<Named>> = [];
     const seen: Array<string | null> = [];
 
-    managed(list, {
+    managed<undefined, unknown, Named>(list, {
       admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
         kept.push(drag);
-        return undefined;
+        return { item: drag.item };
       },
     });
     await dragAndDrop('#r0', 40);
     await grab('#r2');
-    kept[0]!.requestStep((drag) => {
-      seen.push(drag ? drag.item.id : null);
+    kept[0]!.requestStep((operation) => {
+      seen.push(operation ? operation.item.id : null);
     });
     kept[0]!.requestCancel('stale');
     expect(seen).toEqual([]);
 
     // The current operation's own drag still reaches it.
-    kept[1]!.requestStep((drag) => {
-      seen.push(drag ? drag.item.id : null);
+    kept[1]!.requestStep((operation) => {
+      seen.push(operation ? operation.item.id : null);
     });
     expect(seen).toEqual(['r2']);
     await release();
@@ -51,9 +54,11 @@ describe('drag:DRI-8 scoped requests', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        kept = drag;
-      },
+      activate: (drag) => ({
+        start() {
+          kept = drag;
+        },
+      }),
     });
     await dragAndDrop('#r0', 40);
     kept!.requestStep(() => {
@@ -68,12 +73,14 @@ describe('drag:DRI-8 scoped requests', () => {
     const seen: Array<Outcome | null> = [];
     const controller = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        kept = drag;
-      },
-      end(_, outcome) {
-        log.push(outcome.type);
-      },
+      activate: (drag) => ({
+        start() {
+          kept = drag;
+        },
+        end(outcome) {
+          log.push(outcome.type);
+        },
+      }),
     });
 
     await dragAndDrop('#r0', 40);
@@ -91,9 +98,11 @@ describe('drag:DRI-8 scoped requests', () => {
     const seen: Array<Outcome | null> = [];
     const controller = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        kept = drag;
-      },
+      activate: (drag) => ({
+        start() {
+          kept = drag;
+        },
+      }),
     });
 
     await grab('#r0');

@@ -6,6 +6,6 @@ export type Admission<State> = Readonly<{
    * its own interaction and refuses the admission. Defaults to `item`.
    */
   handle?: HTMLElement;
-  /** The behavior's context for the operation, which becomes `drag.state`. */
+  /** What `activate` receives as its `state`. */
   state?: State;
 }>;

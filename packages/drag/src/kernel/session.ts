@@ -1,12 +1,7 @@
 import { deepActiveElement } from '../shared/focus.ts';
 import type { Admission } from './admission.ts';
-import type { Behavior } from './behavior.ts';
-import {
-  runDragDisposer,
-  type Drag,
-  type DragDisposer,
-  type KernelDrag,
-} from './drag.ts';
+import type { Behavior, BehaviorOperation } from './behavior.ts';
+import { runDragDisposer, type DragDisposer, type KernelDrag } from './drag.ts';
 import type { Gesture } from './gesture.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
 
@@ -129,18 +124,24 @@ const NOOP = (): void => {};
  * `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
  * the window, through `handleEvent`.
  */
-export class Session<State, Verdict> {
-  readonly #gesture: Gesture<State, Verdict>;
-  readonly #behavior: Behavior<State, Verdict>;
+export class Session<
+  State,
+  Verdict,
+  Operation extends BehaviorOperation<Verdict>,
+> {
+  readonly #gesture: Gesture<State, Verdict, Operation>;
+  readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #root: HTMLElement;
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
 
-  readonly #drag: KernelDrag<State>;
+  readonly #drag: KernelDrag<Operation>;
+  /** The admission's `state`, for `activate`. */
+  readonly #state: State;
   /** Pointer samples, closed at the drop or the decision. */
   readonly #motion = new AbortController();
   /** Escape and `drag.signal`, closed when the presentation is released. */
-  readonly #operation = new AbortController();
+  readonly #presentation = new AbortController();
   readonly #disposers: DragDisposer[] = [];
   #phase:
     | typeof PENDING
@@ -154,8 +155,11 @@ export class Session<State, Verdict> {
   #next: (() => void) | null = null;
   /** Aborts the verdict in flight. Never aborted after a completion. */
   #verdictAborter: AbortController | null = null;
-  /** `start` was reached. No start, no settle and no end. */
-  #started = false;
+  /**
+   * The operation `activate` returned, held from just before `start`: holding it
+   * means `start` was reached. No start, no settle and no end.
+   */
+  #operation: Operation | null = null;
   /** The element to give focus back to, recorded at the drop or the decision. */
   #focused: HTMLElement | null = null;
   /** What a disposer added after release receives: `null` after destruction. */
@@ -163,8 +167,8 @@ export class Session<State, Verdict> {
 
   /** Opens the operation: builds its `Drag` and installs its listeners. */
   constructor(
-    gesture: Gesture<State, Verdict>,
-    behavior: Behavior<State, Verdict>,
+    gesture: Gesture<State, Verdict, Operation>,
+    behavior: Behavior<State, Verdict, Operation>,
     root: HTMLElement,
     window: Window & typeof globalThis,
     threshold: number,
@@ -178,17 +182,17 @@ export class Session<State, Verdict> {
     this.#root = root;
     this.#window = window;
     this.#threshold = threshold;
+    this.#state = admission.state as State;
     this.#drag = {
       item: admission.item,
-      state: admission.state as State,
       pointerId,
       x,
       y,
       originX: x,
       originY: y,
-      signal: this.#operation.signal,
+      signal: this.#presentation.signal,
       use: (dispose) => {
-        if (this.#operation.signal.aborted) {
+        if (this.#presentation.signal.aborted) {
           runDragDisposer(dispose, this.#releasedWith, gesture.raise);
         } else {
           this.#disposers.push(dispose);
@@ -232,7 +236,7 @@ export class Session<State, Verdict> {
 
     window.addEventListener('keydown', this, {
       capture: true,
-      signal: this.#operation.signal,
+      signal: this.#presentation.signal,
     });
   }
 
@@ -264,11 +268,11 @@ export class Session<State, Verdict> {
   }
 
   /**
-   * What a deferred step receives: the `Drag` from the end of activation until
+   * What a deferred step receives: the operation from the end of activation until
    * the drop or the decision, and `null` otherwise.
    */
-  stepTarget(): Drag<State> | null {
-    return this.#phase === ACTIVE && !this.#decision ? this.#drag : null;
+  stepTarget(): Operation | null {
+    return this.#phase === ACTIVE && !this.#decision ? this.#operation : null;
   }
 
   /**
@@ -301,7 +305,7 @@ export class Session<State, Verdict> {
       // platform's close request doesn't also close the dialog or popover
       // holding the list. It still propagates.
       if ((event as KeyboardEvent).key === 'Escape' && this.#phase !== ENDED) {
-        if (this.#started && !this.#decision) {
+        if (this.#operation && !this.#decision) {
           event.preventDefault();
         }
 
@@ -362,8 +366,12 @@ export class Session<State, Verdict> {
     this.#drag.x = event.clientX;
     this.#drag.y = event.clientY;
 
-    if (this.#phase === ACTIVE) {
-      this.#behavior.move?.(this.#drag);
+    // Motion is open only while pending or active, and the operation is held
+    // exactly while active there.
+    const operation = this.#operation;
+
+    if (operation) {
+      operation.move?.();
       return;
     }
 
@@ -384,20 +392,24 @@ export class Session<State, Verdict> {
   /** A press that never activated ends quietly: no hook, no report. */
   readonly #endPending = (): void => {
     this.#motion.abort();
-    this.#operation.abort();
+    this.#presentation.abort();
     this.#phase = ENDED;
     this.#gesture.detach();
   };
 
   readonly #up = (event: PointerEvent): void => {
-    if (this.#phase === PENDING) {
+    // Motion is open only while pending or active, and the operation is held
+    // exactly while active there.
+    const operation = this.#operation;
+
+    if (!operation) {
       this.#endPending();
       return;
     }
 
     this.#drag.x = event.clientX;
     this.#drag.y = event.clientY;
-    this.#drop();
+    this.#drop(operation);
   };
 
   #activate(): void {
@@ -412,30 +424,32 @@ export class Session<State, Verdict> {
       this.#root.setPointerCapture(this.#drag.pointerId);
     }
 
-    if (this.#behavior.activate?.(this.#drag) === false) {
+    const operation = this.#behavior.activate(this.#drag, this.#state);
+
+    if (!operation) {
       this.#decision ??= SKIPPED;
       return;
     }
 
-    this.#started = true;
-    this.#behavior.start?.(this.#drag);
+    this.#operation = operation;
+    operation.start?.();
     this.#phase = ACTIVE;
 
     // A pointerless operation has no `pointerup`, so the sequence produces its
     // own release, after anything the hooks above requested.
     if (this.#drag.pointerId === COMMAND_POINTER_ID) {
       this.#next = () => {
-        this.#drop();
+        this.#drop(operation);
       };
     }
   }
 
-  #drop(): void {
+  #drop(operation: Operation): void {
     this.#phase = DROPPING;
     this.#closeMotion();
     this.#focused = focusedWithin(this.#drag.item);
 
-    const invoke = this.#behavior.drop?.(this.#drag);
+    const invoke = operation.drop?.();
 
     this.#next = invoke
       ? () => {
@@ -523,12 +537,12 @@ export class Session<State, Verdict> {
    * once: a destruction after the decision finds the operation released.
    */
   #release(outcome: Outcome | null): void {
-    if (this.#operation.signal.aborted) {
+    if (this.#presentation.signal.aborted) {
       return;
     }
 
     this.#releasedWith = outcome;
-    this.#operation.abort();
+    this.#presentation.abort();
 
     while (this.#disposers.length > 0) {
       runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture.raise);
@@ -558,9 +572,11 @@ export class Session<State, Verdict> {
       this.#verdictAborter?.abort();
     }
 
-    if (this.#started) {
+    const operation = this.#operation;
+
+    if (operation) {
       try {
-        this.#behavior.settle?.(this.#drag, outcome);
+        operation.settle?.(outcome);
       } catch (error) {
         this.#gesture.raise(error);
       }
@@ -570,13 +586,13 @@ export class Session<State, Verdict> {
 
     // `end` may reorder, and a reorder sends focus to `body`, so focus returns
     // after it, in the same step, whether it returns or throws.
-    if (this.#started) {
+    if (operation) {
       this.#next = () => {
         this.#phase = ENDED;
         this.#gesture.detach();
 
         try {
-          this.#behavior.end?.(this.#drag, outcome);
+          operation.end?.(outcome);
         } finally {
           restoreFocus(this.#focused, this.#drag.pointerId);
         }

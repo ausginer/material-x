@@ -12,10 +12,8 @@ export type DragDisposer = (outcome: Outcome | null) => void;
  * One operation, as a behavior sees it. The coordinates change between hooks, so
  * read them when needed.
  */
-export type Drag<State = undefined> = Readonly<{
+export type Drag<Operation = unknown> = Readonly<{
   item: HTMLElement;
-  /** The behavior's own value from admission. */
-  state: State;
   /** `-1` for an operation `command` admitted, which has no pointer. */
   pointerId: number;
   x: number;
@@ -28,24 +26,24 @@ export type Drag<State = undefined> = Readonly<{
   /**
    * Runs `step` in a pass: at once when no pass is running, otherwise between
    * steps, in request order. The same function requested again before it runs
-   * runs once. The step receives this `Drag` from the end of activation until the
-   * drop or the decision, and `null` otherwise.
+   * runs once. The step receives the operation `activate` returned, from the end
+   * of activation until the drop or the decision, and `null` otherwise.
    *
    * Acts only while this operation is the controller's current one, so a
    * retained `Drag` never reaches a later operation. Afterwards it does nothing:
    * cleanup after an operation belongs in `use`.
    *
    * Code outside a hook, such as a consumer's method or a frame callback, must
-   * write behavior state through this. Foreign code can run during any DOM write
+   * write operation state through this. Foreign code can run during any DOM write
    * the kernel makes, and a direct write would change the running step.
    */
-  requestStep(step: (drag: Drag<State> | null) => void): void;
+  requestStep(step: (operation: Operation | null) => void): void;
   /** Acts only while this operation is current and undecided. */
   requestCancel(reason?: unknown): void;
 }>;
 
 /** `Drag` as the kernel writes it. No public entry exports it. */
-export type KernelDrag<State> = Writable<Drag<State>>;
+export type KernelDrag<Operation> = Writable<Drag<Operation>>;
 
 /** Runs one disposer. Whatever it throws, the caller's walk continues. */
 export function runDragDisposer(

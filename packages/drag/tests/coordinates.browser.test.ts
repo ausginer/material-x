@@ -8,7 +8,7 @@ import {
   space,
 } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
 import {
@@ -61,16 +61,21 @@ function mountMove(node: HTMLElement, ownZoom = 1) {
   return managed(node, {
     threshold: 1,
     admit: () => ({ item: node }),
-    activate() {
+    activate(drag) {
       if (!ancestry(node, basis)) {
         throw new Error('no basis');
       }
-    },
-    move({ x, y: pointerY, originX, originY }) {
-      if (localDelta(basis, x - originX, pointerY - originY, local)) {
-        node.style.left = `${left + local[0]! / ownZoom}px`;
-        node.style.top = `${top + local[1]! / ownZoom}px`;
-      }
+
+      return {
+        move() {
+          const { x, y: pointerY, originX, originY } = drag;
+
+          if (localDelta(basis, x - originX, pointerY - originY, local)) {
+            node.style.left = `${left + local[0]! / ownZoom}px`;
+            node.style.top = `${top + local[1]! / ownZoom}px`;
+          }
+        },
+      };
     },
   });
 }
@@ -185,18 +190,17 @@ describe('drag:DRI-16 lifted', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(node, {
+    managed(node, {
       threshold: 1,
-      admit: () => ({ item: node, state: { lift: null } }),
+      admit: () => ({ item: node }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move(drag) {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
+        const lift = lifter.acquire(drag);
+
+        return {
+          move() {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
 
@@ -218,18 +222,17 @@ describe('drag:DRI-16 lifted', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(node, {
+    managed(node, {
       threshold: 1,
-      admit: () => ({ item: node, state: { lift: null } }),
+      admit: () => ({ item: node }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move(drag) {
-        drag.state.lift!.translate(
-          drag.x - drag.originX,
-          drag.y - drag.originY,
-        );
+        const lift = lifter.acquire(drag);
+
+        return {
+          move() {
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
 
@@ -251,12 +254,12 @@ describe('drag:DRI-16 lifted', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(node, {
+    managed(node, {
       threshold: 1,
-      admit: () => ({ item: node, state: { lift: null } }),
+      admit: () => ({ item: node }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
+        lifter.acquire(drag);
+        return {};
       },
     }).use(lifter.cancelLanding);
 

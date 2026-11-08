@@ -1,6 +1,6 @@
 /** `drag:DRI-18`: custom behaviors, written only on the public API. */
 import { describe, expect, it } from 'vitest';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { canvasGroup, type CanvasGroup } from './fixtures/canvas-group.ts';
 import { dropZone } from './fixtures/drop-zone.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
@@ -221,15 +221,17 @@ describe('drag:DRD-27 the lift in the behavior state', () => {
     const lifter = new Lifter(window);
     const keys = { drag: [] as string[], lift: [] as string[] };
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      start(drag) {
-        keys.drag = Object.keys(drag).toSorted();
-        keys.lift = Object.keys(drag.state.lift!).toSorted();
+        const lift = lifter.acquire(drag);
+
+        return {
+          start() {
+            keys.drag = Object.keys(drag).toSorted();
+            keys.lift = Object.keys(lift).toSorted();
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await grab('#r0');
@@ -246,7 +248,6 @@ describe('drag:DRD-27 the lift in the behavior state', () => {
       'requestCancel',
       'requestStep',
       'signal',
-      'state',
       'use',
       'x',
       'y',

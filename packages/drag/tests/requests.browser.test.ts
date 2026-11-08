@@ -1,8 +1,8 @@
 /** `drag:DRI-1`, `drag:DRI-2` and `drag:DRI-8`: requests, the reader and deferred writes. */
 import { describe, expect, it } from 'vitest';
-import type { Drag } from '../src/draggable.ts';
+import type { BehaviorOperation, Drag } from '../src/draggable.ts';
 import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -78,25 +78,26 @@ describe('drag:DRI-1 a request does not change the running step', () => {
       document.body.append(probe);
 
       const lifter = new Lifter(window);
-      const panel = managed<{ lift: Lift | null }>(list, {
-        admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      const panel = managed(list, {
+        admit: (event) => ({ item: targetOf(event) }),
         activate(drag) {
-          drag.state.lift = lifter.acquire(drag);
+          const lift = lifter.acquire(drag);
+
           log.push('activate:before');
           probe.setAttribute('data-poke', '1');
           log.push('activate:after');
-        },
-        start: () => {
-          log.push('start');
-        },
-        move(drag) {
-          drag.state.lift!.translate(
-            drag.x - drag.originX,
-            drag.y - drag.originY,
-          );
-        },
-        end: (_, outcome) => {
-          log.push(`end:${outcome.type}`);
+
+          return {
+            start: () => {
+              log.push('start');
+            },
+            move() {
+              lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+            },
+            end: (outcome) => {
+              log.push(`end:${outcome.type}`);
+            },
+          };
         },
       });
 
@@ -149,21 +150,25 @@ describe('drag:DRI-1 a request does not change the running step', () => {
     let cancelInSettle = false;
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      move() {
-        log.push('move:before');
-        panel.requestCancel('from move');
-        log.push('move:after');
-      },
-      settle(_, outcome) {
-        cancelInSettle = true;
-        panel.requestCancel('too late');
-        log.push(`settle:${String((outcome as { reason?: unknown }).reason)}`);
-      },
-      end(_, outcome) {
-        log.push(
-          `end:${String((outcome as { reason?: unknown }).reason)}:${cancelInSettle}`,
-        );
-      },
+      activate: () => ({
+        move() {
+          log.push('move:before');
+          panel.requestCancel('from move');
+          log.push('move:after');
+        },
+        settle(outcome) {
+          cancelInSettle = true;
+          panel.requestCancel('too late');
+          log.push(
+            `settle:${String((outcome as { reason?: unknown }).reason)}`,
+          );
+        },
+        end(outcome) {
+          log.push(
+            `end:${String((outcome as { reason?: unknown }).reason)}:${cancelInSettle}`,
+          );
+        },
+      }),
     });
 
     await grab('#r0');
@@ -180,9 +185,11 @@ describe('drag:DRI-1 a request does not change the running step', () => {
     const list = makeList(3);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      end: () => {
-        log.push('end');
-      },
+      activate: () => ({
+        end: () => {
+          log.push('end');
+        },
+      }),
     });
 
     await grab('#r0');
@@ -197,12 +204,14 @@ describe('drag:DRI-2 one reader and fixed precedence', () => {
     const list = makeList(4);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      settle() {
-        void panel.requestDestroy();
-      },
-      end: () => {
-        log.push('end');
-      },
+      activate: () => ({
+        settle() {
+          void panel.requestDestroy();
+        },
+        end: () => {
+          log.push('end');
+        },
+      }),
     });
 
     await dragAndDrop('#r0', 30);
@@ -212,19 +221,21 @@ describe('drag:DRI-2 one reader and fixed precedence', () => {
 
   it('should run deferred steps before the decision, with no drag behind it', async () => {
     const list = makeList(3);
-    const seen: Array<Drag | null> = [];
+    const seen: Array<BehaviorOperation | null> = [];
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        panel.requestCancel('first');
-        panel.requestStep((drag) => {
-          seen.push(drag);
-          log.push(`step:settled=${log.includes('settle')}`);
-        });
-      },
-      settle() {
-        log.push('settle');
-      },
+      activate: () => ({
+        start() {
+          panel.requestCancel('first');
+          panel.requestStep((operation) => {
+            seen.push(operation);
+            log.push(`step:settled=${log.includes('settle')}`);
+          });
+        },
+        settle() {
+          log.push('settle');
+        },
+      }),
     });
 
     await grab('#r0');
@@ -237,17 +248,19 @@ describe('drag:DRI-2 one reader and fixed precedence', () => {
     const list = makeList(3);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        panel.requestStep(() => {
-          log.push('first');
+      activate: () => ({
+        start() {
           panel.requestStep(() => {
-            log.push('nested');
+            log.push('first');
+            panel.requestStep(() => {
+              log.push('nested');
+            });
           });
-        });
-        panel.requestStep(() => {
-          log.push('second');
-        });
-      },
+          panel.requestStep(() => {
+            log.push('second');
+          });
+        },
+      }),
     });
 
     await grab('#r0');
@@ -338,11 +351,12 @@ describe('drag:DRI-8 deferred writes', () => {
     const list = makeList(1);
     const panel = managed(list, {
       admit: () => null,
+      activate: () => ({}),
     });
     const seen: unknown[] = [];
 
-    panel.requestStep((drag) => {
-      seen.push(drag);
+    panel.requestStep((operation) => {
+      seen.push(operation);
     });
     expect(seen).toEqual([null]);
   });
@@ -351,15 +365,17 @@ describe('drag:DRI-8 deferred writes', () => {
     const list = makeList(2);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        panel.requestStep(() => {
-          log.push('a');
-        });
-        panel.requestStep(() => {
-          log.push('b');
-        });
-        log.push('start finished');
-      },
+      activate: () => ({
+        start() {
+          panel.requestStep(() => {
+            log.push('a');
+          });
+          panel.requestStep(() => {
+            log.push('b');
+          });
+          log.push('start finished');
+        },
+      }),
     });
 
     await grab('#r0');
@@ -374,10 +390,12 @@ describe('drag:DRI-8 deferred writes', () => {
     };
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        panel.requestStep(step);
-        panel.requestStep(step);
-      },
+      activate: () => ({
+        start() {
+          panel.requestStep(step);
+          panel.requestStep(step);
+        },
+      }),
     });
 
     await grab('#r0');
@@ -410,29 +428,52 @@ describe('drag:DRI-8 deferred writes', () => {
     const seen: unknown[] = [];
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
     const { x, y } = centerOf('#r0');
 
     await commands.pointerMove(x, y);
     await commands.pointerDown();
-    panel.requestStep((drag) => {
-      seen.push(drag);
+    panel.requestStep((operation) => {
+      seen.push(operation);
     });
     expect(seen).toEqual([null]);
   });
 
-  it('should give a step the drag while the operation is active', async () => {
+  it('should give a step the operation activate returned while the operation is active', async () => {
+    type Held = BehaviorOperation & Readonly<{ item: HTMLElement }>;
+
     const list = makeList(2);
     const seen: unknown[] = [];
-    const panel = managed(list, {
+    const received: Array<Held | null> = [];
+    let returned: Held | null = null;
+    let held: Drag<Held> | null = null;
+    const panel = managed<undefined, unknown, Held>(list, {
       admit: (event) => ({ item: targetOf(event) }),
+      activate(drag) {
+        held = drag;
+        returned = { item: drag.item };
+        return returned;
+      },
     });
+    const receive = (operation: Held | null): void => {
+      received.push(operation);
+    };
 
     await grab('#r0');
-    panel.requestStep((drag) => {
-      seen.push(drag?.item);
+    panel.requestStep((operation) => {
+      seen.push(operation?.item);
     });
     expect(seen).toEqual([document.querySelector('#r0')]);
+    panel.requestStep(receive);
+    held!.requestStep(receive);
+    expect(received).toHaveLength(2);
+    expect(received[0]).toBe(returned);
+    expect(received[1]).toBe(returned);
+    await release();
+    panel.requestStep(receive);
+    expect(received).toHaveLength(3);
+    expect(received[2]).toBeNull();
   });
 
   it('should give a step null while a verdict is pending', async () => {
@@ -441,18 +482,20 @@ describe('drag:DRI-8 deferred writes', () => {
     let finish: (() => void) | null = null;
     const panel = managed<undefined, string>(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      drop: () => () =>
-        new Promise<string>((resolve) => {
-          finish = () => {
-            resolve('done');
-          };
-        }),
+      activate: () => ({
+        drop: () => () =>
+          new Promise<string>((resolve) => {
+            finish = () => {
+              resolve('done');
+            };
+          }),
+      }),
     });
 
     await grab('#r0');
     await release();
-    panel.requestStep((drag) => {
-      seen.push(drag);
+    panel.requestStep((operation) => {
+      seen.push(operation);
     });
     expect(seen).toEqual([null]);
     finish!();
@@ -463,12 +506,14 @@ describe('drag:DRI-8 deferred writes', () => {
     const seen: unknown[] = [];
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      move() {
-        panel.requestCancel('decided');
-        panel.requestStep((drag) => {
-          seen.push(drag);
-        });
-      },
+      activate: () => ({
+        move() {
+          panel.requestCancel('decided');
+          panel.requestStep((operation) => {
+            seen.push(operation);
+          });
+        },
+      }),
     });
 
     await grab('#r0');
@@ -479,9 +524,11 @@ describe('drag:DRI-8 deferred writes', () => {
     const list = makeList(2);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      end: (_, outcome) => {
-        log.push(`end:${outcome.type}`);
-      },
+      activate: () => ({
+        end: (outcome) => {
+          log.push(`end:${outcome.type}`);
+        },
+      }),
     });
 
     await grab('#r0');
@@ -493,7 +540,10 @@ describe('drag:DRI-8 deferred writes', () => {
   });
 
   it('should only report a throw in a step with no operation', () => {
-    const panel = managed(makeList(1), { admit: () => null });
+    const panel = managed(makeList(1), {
+      admit: () => null,
+      activate: () => ({}),
+    });
 
     panel.requestStep(() => {
       throw new Error('idle');
@@ -579,18 +629,20 @@ describe('drag:DRI-8 deferred writes', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      settle(drag) {
-        log.push('settle');
-        drag.requestStep((target) => {
-          log.push(target ? 'settle step:drag' : 'settle step:null');
-        });
-      },
-      end(drag) {
-        log.push('end');
-        drag.requestStep(() => {
-          log.push('end step');
-        });
-      },
+      activate: (drag) => ({
+        settle() {
+          log.push('settle');
+          drag.requestStep((target) => {
+            log.push(target ? 'settle step:drag' : 'settle step:null');
+          });
+        },
+        end() {
+          log.push('end');
+          drag.requestStep(() => {
+            log.push('end step');
+          });
+        },
+      }),
     });
 
     await grab('#r0');

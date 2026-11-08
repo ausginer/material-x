@@ -1,6 +1,6 @@
 /** `drag:DRI-9`: release order and cleanup. */
 import { describe, expect, it } from 'vitest';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -38,25 +38,29 @@ describe('drag:DRI-9 release order', () => {
     };
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
+        const lift = lifter.acquire(drag);
+
         dragSignal = drag.signal;
         drag.use((outcome) => {
           log.push(
             `dispose:${outcome?.type}:signal=${dragSignal!.aborted}:lifted=${row.matches(':popover-open')}`,
           );
         });
-      },
-      settle(drag) {
-        log.push(`settle:signal=${dragSignal!.aborted}`);
-        drag.state.lift!.land(300, 300, landing({ duration: 50 }));
-      },
-      end() {
-        log.push(
-          `end:lifted=${row.matches(':popover-open')}:animations=${row.getAnimations().length}`,
-        );
+
+        return {
+          settle() {
+            log.push(`settle:signal=${dragSignal!.aborted}`);
+            lift.land(300, 300, landing({ duration: 50 }));
+          },
+          end() {
+            log.push(
+              `end:lifted=${row.matches(':popover-open')}:animations=${row.getAnimations().length}`,
+            );
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await dragAndDrop('#r0', 30);
@@ -162,15 +166,18 @@ describe('drag:DRI-9 release order', () => {
         drag.use((outcome) => {
           outcomes.push(outcome);
         });
+
+        return {
+          drop: () =>
+            drag.item.id === 'r0'
+              ? () => 'verdict'
+              : drag.item.id === 'r1'
+                ? null
+                : () => {
+                    throw new Error('fault');
+                  },
+        };
       },
-      drop: (drag) =>
-        drag.item.id === 'r0'
-          ? () => 'verdict'
-          : drag.item.id === 'r1'
-            ? null
-            : () => {
-                throw new Error('fault');
-              },
     });
     await dragAndDrop('#r0', 30);
     await dragAndDrop('#r1', 30);
@@ -197,6 +204,8 @@ describe('drag:DRI-9 release order', () => {
         drag.use(() => {
           log.push('last added');
         });
+
+        return {};
       },
     });
     await dragAndDrop('#r0', 30);
@@ -212,9 +221,11 @@ describe('drag:DRI-9 release order', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        retained = drag;
-      },
+      activate: (drag) => ({
+        start() {
+          retained = drag;
+        },
+      }),
     });
     await dragAndDrop('#r0', 30);
     retained!.use((outcome) => {
@@ -229,9 +240,11 @@ describe('drag:DRI-9 release order', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        retained = drag;
-      },
+      activate: (drag) => ({
+        start() {
+          retained = drag;
+        },
+      }),
     });
     await dragAndDrop('#r0', 30);
     retained!.use(() => {
@@ -241,7 +254,10 @@ describe('drag:DRI-9 release order', () => {
   });
 
   it('should run a late use on a destroyed controller at once', async () => {
-    const panel = managed(makeList(1), { admit: () => null });
+    const panel = managed(makeList(1), {
+      admit: () => null,
+      activate: () => ({}),
+    });
 
     await panel.requestDestroy();
     panel.use(() => {
@@ -256,14 +272,15 @@ describe('drag:DRI-9 release order', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move() {
-        moves += 1;
+        lifter.acquire(drag);
+        return {
+          move() {
+            moves += 1;
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await dragAndDrop('#r0', 30);
@@ -283,9 +300,11 @@ describe('drag:DRI-9 release order', () => {
     onCleanup(() => {});
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      end: () => {
-        log.push('end');
-      },
+      activate: () => ({
+        end: () => {
+          log.push('end');
+        },
+      }),
     });
 
     const row = document.querySelector('#r0')!;

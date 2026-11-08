@@ -7,22 +7,23 @@
  * a request slot, and `#applyRequests` is the one reader of the slots, between
  * steps.
  *
- * A behavior receives `Drag`, which has no path to the session.
+ * A behavior receives `Drag`, which has no path to the session, and a step
+ * receives the behavior's operation.
  */
 import { DragFault } from '../fault.ts';
 import type { Admission } from './admission.ts';
-import type { Behavior } from './behavior.ts';
-import { runDragDisposer, type Drag } from './drag.ts';
+import type { Behavior, BehaviorOperation } from './behavior.ts';
+import { runDragDisposer } from './drag.ts';
 import { Session } from './session.ts';
 
 /** Each method works when detached from the controller. */
 export type DraggableController<Operation> = Readonly<{
   /**
    * As `Drag.requestStep`, for whichever operation is current: the step receives
-   * its `Drag` from the end of activation until the drop or the decision, and
-   * `null` otherwise.
+   * the operation `activate` returned, from the end of activation until the drop
+   * or the decision, and `null` otherwise.
    */
-  requestStep(step: (drag: Operation | null) => void): void;
+  requestStep(step: (operation: Operation | null) => void): void;
   /** The first decision wins. Nothing happens on an idle controller. */
   requestCancel(reason?: unknown): void;
   /** Every call returns one promise, settled after teardown. */
@@ -87,26 +88,33 @@ function countRefused(argument: unknown): void {
  * that holds the current session. Its members without `#` are the
  * session's way in and the public methods; `draggable` hands out only the latter.
  */
-export class Gesture<State, Verdict> {
+export class Gesture<
+  State,
+  Verdict,
+  Operation extends BehaviorOperation<Verdict>,
+> {
   readonly #root: HTMLElement;
-  readonly #behavior: Behavior<State, Verdict>;
+  readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
   readonly #listeners = new AbortController();
   readonly #disposers: Array<() => void> = [];
 
-  #session: Session<State, Verdict> | null = null;
+  #session: Session<State, Verdict, Operation> | null = null;
   #running = false;
 
   /** Deferred steps, in request order. Empty on the hot path. */
-  readonly #steps: Array<(drag: Drag<State> | null) => void> = [];
+  readonly #steps: Array<(operation: Operation | null) => void> = [];
 
   /** Set by the first destruction request, which also closes the controller. */
   #destroyed: Promise<void> | null = null;
   /** The destruction request slot: non-null until teardown has been applied. */
   #resolveDestroyed: (() => void) | null = null;
 
-  constructor(root: HTMLElement, behavior: Behavior<State, Verdict>) {
+  constructor(
+    root: HTMLElement,
+    behavior: Behavior<State, Verdict, Operation>,
+  ) {
     this.#root = root;
     this.#behavior = behavior;
     this.#window = root.ownerDocument.defaultView!;
@@ -204,7 +212,9 @@ export class Gesture<State, Verdict> {
     this.#session = null;
   }
 
-  readonly requestStep = (step: (drag: Drag<State> | null) => void): void => {
+  readonly requestStep = (
+    step: (operation: Operation | null) => void,
+  ): void => {
     if (this.#destroyed) {
       return;
     }
@@ -216,7 +226,7 @@ export class Gesture<State, Verdict> {
     }
   };
 
-  readonly #runStep = (step: (drag: Drag<State> | null) => void): void => {
+  readonly #runStep = (step: (operation: Operation | null) => void): void => {
     step(this.#session ? this.#session.stepTarget() : null);
   };
 

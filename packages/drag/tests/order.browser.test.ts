@@ -4,7 +4,10 @@
  * throws or requests destruction.
  */
 import { describe, expect, it } from 'vitest';
-import type { Behavior, DraggableController } from '../src/draggable.ts';
+import type {
+  BehaviorOperation,
+  DraggableController,
+} from '../src/draggable.ts';
 import { landing } from '../src/sortable/landing.ts';
 import {
   basicSortable,
@@ -40,7 +43,7 @@ const row = (id: string): HTMLElement =>
 function reorderInEnd(
   list: HTMLElement,
   afterMove: (controller: DraggableController<unknown>) => void = () => {},
-  extra: Partial<Behavior> = {},
+  extra: (item: HTMLElement) => BehaviorOperation = () => ({}),
 ): DraggableController<unknown> {
   const controller: DraggableController<unknown> = managed(list, {
     admit: () => null,
@@ -51,12 +54,14 @@ function reorderInEnd(
         ? { item }
         : null;
     },
-    end(drag) {
-      drag.item.nextElementSibling!.after(drag.item);
-      log.push('end');
-      afterMove(controller);
-    },
-    ...extra,
+    activate: (drag) => ({
+      end() {
+        drag.item.nextElementSibling!.after(drag.item);
+        log.push('end');
+        afterMove(controller);
+      },
+      ...extra(drag.item),
+    }),
   });
 
   return controller;
@@ -132,16 +137,16 @@ describe('drag:DRI-9 and drag:DRI-12 release order', () => {
     const list = focusableList(3);
     let controller: DraggableController<unknown> | null = null;
 
-    controller = reorderInEnd(list, undefined, {
-      drop(drag) {
+    controller = reorderInEnd(list, undefined, (item) => ({
+      drop() {
         // The reorder happens in the verdict, so focus goes to `body`.
-        drag.item.nextElementSibling!.after(drag.item);
+        item.nextElementSibling!.after(item);
         return null;
       },
       settle() {
         void controller!.requestDestroy();
       },
-    });
+    }));
     row('r0').focus();
     await commands.keyPress('ArrowDown');
     await frames();

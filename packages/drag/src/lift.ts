@@ -6,7 +6,7 @@
  *
  * A behavior composes it in its own code: one `Lifter` per controller, whose
  * `cancelLanding` goes to the controller's `use`, and `acquire` as the first
- * statement of `activate`, with the `Lift` kept in `drag.state`.
+ * statement of `activate`, with the `Lift` kept in the operation it returns.
  */
 import {
   ancestry,
@@ -307,7 +307,7 @@ export class Lifter {
    * fault.
    */
   acquire(
-    drag: Drag<unknown>,
+    drag: Drag,
     visual: HTMLElement = drag.item,
     box: HTMLElement = visual,
   ): Lift {

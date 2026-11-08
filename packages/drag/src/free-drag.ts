@@ -7,6 +7,7 @@ import {
   draggable,
   type Admission,
   type Behavior,
+  type BehaviorOperation,
   type Drag,
   type Outcome,
 } from './draggable.ts';
@@ -73,70 +74,206 @@ export type FreeDragController = Readonly<{
   requestDestroy(): Promise<void>;
 }>;
 
-type State = {
-  /** `config.visual` from admission, or the root. */
-  readonly visual: HTMLElement;
-  /** Acquired as the first statement of `activate`. */
-  lift: Lift | null;
-  offsetX: number;
-  offsetY: number;
-  request: FreeDragRequest | null;
-  result: FreeDragResult | null;
-};
+/**
+ * One activated free drag, from `start` to `end`. The kernel calls each hook as a
+ * method of this instance.
+ */
+class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
+  readonly #behavior: FreeDragBehavior;
+  readonly #drag: Drag<FreeDragOperation>;
+  readonly #lift: Lift;
+  #offsetX = 0;
+  #offsetY = 0;
+  /** `null` until the drop: a cancel before it has none. */
+  #request: FreeDragRequest | null = null;
+  /** Recorded at `settle` and reported at `end`. */
+  #result: FreeDragResult | null = null;
+
+  constructor(
+    behavior: FreeDragBehavior,
+    drag: Drag<FreeDragOperation>,
+    lift: Lift,
+  ) {
+    this.#behavior = behavior;
+    this.#drag = drag;
+    this.#lift = lift;
+  }
+
+  /** Computes the motion and moves the visual by it. */
+  translate(): void {
+    const { motion } = this.#behavior;
+
+    this.#computeMotion();
+    this.#lift.translate(motion.x, motion.y);
+  }
+
+  /** Places the visual at a viewport point and keeps following the pointer. */
+  moveTo(point: Point): void {
+    const drag = this.#drag;
+    const { rect } = this.#lift;
+
+    this.#offsetX = point.x - rect.left - (drag.x - drag.originX);
+    this.#offsetY = point.y - rect.top - (drag.y - drag.originY);
+    this.translate();
+  }
+
+  start(): void {
+    this.#behavior.config.onStart?.(this.#geometry());
+  }
+
+  move(): void {
+    this.translate();
+
+    if (this.#behavior.config.onMove) {
+      this.#behavior.config.onMove(this.#geometry());
+    }
+  }
+
+  drop() {
+    const behavior = this.#behavior;
+    const lift = this.#lift;
+
+    this.#computeMotion();
+
+    const request = buildRequest(
+      behavior.root,
+      this.#drag,
+      lift,
+      behavior.motion,
+      this.#home(),
+      behavior.window,
+    );
+
+    this.#request = request;
+    lift.translate(behavior.motion.x, behavior.motion.y);
+
+    return (signal: AbortSignal) => behavior.config.onDrop(request, { signal });
+  }
+
+  settle(outcome: Outcome<FreeDragResolution>): void {
+    const timing = this.#behavior.landing;
+    let home = true;
+
+    if (outcome.type === 'canceled') {
+      this.#result = {
+        type: 'canceled',
+        request: this.#request,
+        reason: outcome.reason,
+        origin: outcome.origin,
+      };
+      home = outcome.origin !== 'fault';
+    } else if (outcome.type === 'verdict' && outcome.value !== ACCEPTED) {
+      this.#result = {
+        type: 'rejected',
+        request: this.#request!,
+        reason: (outcome.value as RejectedResolution)[0],
+      };
+    } else {
+      this.#result = { type: 'accepted', request: this.#request! };
+      home = false;
+    }
+
+    if (!timing || !home) {
+      return;
+    }
+
+    const { x, y } = this.#home();
+
+    this.#lift.land(x, y, timing);
+  }
+
+  end(): void {
+    this.#behavior.config.onEnd?.(this.#result!);
+  }
+
+  /** Writes the delta the pointer and the operation's offset give into `motion`. */
+  #computeMotion(): void {
+    const behavior = this.#behavior;
+    const { motion } = behavior;
+    const drag = this.#drag;
+
+    motion.x = drag.x - drag.originX + this.#offsetX;
+    motion.y = drag.y - drag.originY + this.#offsetY;
+
+    if (behavior.axis === 'x') {
+      motion.y = 0;
+    } else if (behavior.axis === 'y') {
+      motion.x = 0;
+    }
+
+    behavior.bounds?.apply(motion, this.#lift.rect);
+  }
+
+  #geometry(): DragGeometry {
+    return buildGeometry(
+      this.#drag,
+      this.#lift,
+      this.#behavior.motion,
+      this.#behavior.window,
+    );
+  }
+
+  /** `config.home()` now, or the visual's rect at the grab without it. */
+  #home(): Point {
+    const { config, root } = this.#behavior;
+
+    return config.home
+      ? config.home({ item: root, visual: this.#lift.visual })
+      : { x: this.#lift.rect.left, y: this.#lift.rect.top };
+  }
+}
 
 /**
- * The behavior `draggable` runs for one root. The kernel calls each hook as a
- * method of this instance. Operation values live in `drag.state`; the instance
- * holds only controller-lifetime ones and the `#motion` scratch, which is written
- * before every read.
+ * The behavior `draggable` runs for one root: admission and activation. It holds
+ * only controller-lifetime values and the `motion` scratch, which is written
+ * before every read. The operation reads them through it.
  */
-class FreeDragBehavior implements Behavior<State, FreeDragResolution> {
+class FreeDragBehavior implements Behavior<
+  HTMLElement,
+  FreeDragResolution,
+  FreeDragOperation
+> {
   declare readonly threshold?: number;
 
-  readonly #root: HTMLElement;
-  readonly #config: FreeDragConfig;
-  readonly #window: Window & typeof globalThis;
+  readonly root: HTMLElement;
+  readonly config: FreeDragConfig;
+  readonly window: Window & typeof globalThis;
   readonly #lifter: Lifter;
-  readonly #axis: DragAxis;
-  readonly #bounds: MotionConstraint | null;
-  readonly #landing: LandingTiming | null;
+  readonly axis: DragAxis;
+  readonly bounds: MotionConstraint | null;
+  readonly landing: LandingTiming | null;
   /** The visual's viewport delta, axis-projected and clamped. */
-  readonly #motion = { x: 0, y: 0 };
+  readonly motion = { x: 0, y: 0 };
 
   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
     if (config.threshold !== undefined) {
       this.threshold = config.threshold;
     }
 
-    this.#root = root;
-    this.#config = config;
-    this.#window = root.ownerDocument.defaultView!;
+    this.root = root;
+    this.config = config;
+    this.window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
-    this.#axis = config.axis ?? 'both';
-    this.#bounds = config.bounds?.(this.#window) ?? null;
-    this.#landing = config.landing ?? null;
+    this.axis = config.axis ?? 'both';
+    this.bounds = config.bounds?.(this.window) ?? null;
+    this.landing = config.landing ?? null;
   }
 
   /** Step and invalidation listener: the bounds are re-read on the next sample. */
   invalidate = (): void => {
-    this.#bounds?.invalidate();
+    this.bounds?.invalidate();
   };
 
-  /** Computes the motion and moves the visual by it. */
-  translate(drag: Drag<State>): void {
-    this.#computeMotion(drag);
-    drag.state.lift!.translate(this.#motion.x, this.#motion.y);
-  }
-
-  admit(event: PointerEvent): Admission<State> | null {
+  /** The admission's `state` is the visual: `config.visual`, or the root. */
+  admit(event: PointerEvent): Admission<HTMLElement> | null {
     if (event.altKey) {
       return null;
     }
 
     let handle: HTMLElement | undefined;
 
-    if (this.#config.handle) {
-      const named = this.#config.handle(this.#root);
+    if (this.config.handle) {
+      const named = this.config.handle(this.root);
 
       if (!named || !event.composedPath().includes(named)) {
         return null;
@@ -146,125 +283,27 @@ class FreeDragBehavior implements Behavior<State, FreeDragResolution> {
     }
 
     return {
-      item: this.#root,
+      item: this.root,
       ...(handle ? { handle } : {}),
-      state: {
-        visual: this.#config.visual
-          ? this.#config.visual(this.#root)
-          : this.#root,
-        lift: null,
-        offsetX: 0,
-        offsetY: 0,
-        request: null,
-        result: null,
-      },
+      state: this.config.visual ? this.config.visual(this.root) : this.root,
     };
   }
 
-  activate(drag: Drag<State>): undefined {
+  activate(
+    drag: Drag<FreeDragOperation>,
+    visual: HTMLElement,
+  ): FreeDragOperation {
     // First, so that its release is the operation's first disposer and runs last.
-    drag.state.lift = this.#lifter.acquire(drag, drag.state.visual);
+    const lift = this.#lifter.acquire(drag, visual);
 
-    if (this.#bounds) {
-      listenForInvalidation(this.#window, drag.signal, this.invalidate);
+    if (this.bounds) {
+      listenForInvalidation(this.window, drag.signal, this.invalidate);
     }
 
-    this.translate(drag);
-    return undefined;
-  }
+    const operation = new FreeDragOperation(this, drag, lift);
 
-  start(drag: Drag<State>): void {
-    this.#config.onStart?.(this.#geometry(drag));
-  }
-
-  move(drag: Drag<State>): void {
-    this.translate(drag);
-
-    if (this.#config.onMove) {
-      this.#config.onMove(this.#geometry(drag));
-    }
-  }
-
-  drop(drag: Drag<State>) {
-    const lift = drag.state.lift!;
-
-    this.#computeMotion(drag);
-
-    const request = buildRequest(
-      this.#root,
-      drag,
-      lift,
-      this.#motion,
-      this.#home(lift),
-      this.#window,
-    );
-
-    drag.state.request = request;
-    lift.translate(this.#motion.x, this.#motion.y);
-
-    return (signal: AbortSignal) => this.#config.onDrop(request, { signal });
-  }
-
-  settle(drag: Drag<State>, outcome: Outcome<FreeDragResolution>): void {
-    const timing = this.#landing;
-    let home = true;
-
-    if (outcome.type === 'canceled') {
-      drag.state.result = {
-        type: 'canceled',
-        request: drag.state.request,
-        reason: outcome.reason,
-        origin: outcome.origin,
-      };
-      home = outcome.origin !== 'fault';
-    } else if (outcome.type === 'verdict' && outcome.value !== ACCEPTED) {
-      drag.state.result = {
-        type: 'rejected',
-        request: drag.state.request!,
-        reason: (outcome.value as RejectedResolution)[0],
-      };
-    } else {
-      drag.state.result = { type: 'accepted', request: drag.state.request! };
-      home = false;
-    }
-
-    if (!timing || !home) {
-      return;
-    }
-
-    const lift = drag.state.lift!;
-    const { x, y } = this.#home(lift);
-
-    lift.land(x, y, timing);
-  }
-
-  end(drag: Drag<State>): void {
-    this.#config.onEnd?.(drag.state.result!);
-  }
-
-  /** Writes the delta the pointer and the operation's offset give into `#motion`. */
-  #computeMotion(drag: Drag<State>): void {
-    this.#motion.x = drag.x - drag.originX + drag.state.offsetX;
-    this.#motion.y = drag.y - drag.originY + drag.state.offsetY;
-
-    if (this.#axis === 'x') {
-      this.#motion.y = 0;
-    } else if (this.#axis === 'y') {
-      this.#motion.x = 0;
-    }
-
-    this.#bounds?.apply(this.#motion, drag.state.lift!.rect);
-  }
-
-  #geometry(drag: Drag<State>): DragGeometry {
-    return buildGeometry(drag, drag.state.lift!, this.#motion, this.#window);
-  }
-
-  /** `config.home()` now, or the visual's rect at the grab without it. */
-  #home(lift: Lift): Point {
-    return this.#config.home
-      ? this.#config.home({ item: this.#root, visual: lift.visual })
-      : { x: lift.rect.left, y: lift.rect.top };
+    operation.translate();
+    return operation;
   }
 }
 
@@ -275,7 +314,10 @@ export function freeDrag(
 ): FreeDragController {
   const lifter = new Lifter(root.ownerDocument.defaultView!);
   const behavior = new FreeDragBehavior(root, config, lifter);
-  const kernel = draggable<State, FreeDragResolution>(root, behavior);
+  const kernel = draggable<HTMLElement, FreeDragResolution, FreeDragOperation>(
+    root,
+    behavior,
+  );
 
   kernel.use(lifter.cancelLanding);
 
@@ -283,14 +325,8 @@ export function freeDrag(
     invalidate: () => kernel.requestStep(behavior.invalidate),
     moveTo: (point) =>
       // One step per call: it carries the point, and DRI-8 keeps calls in order.
-      kernel.requestStep((drag) => {
-        if (drag) {
-          const { rect } = drag.state.lift!;
-
-          drag.state.offsetX = point.x - rect.left - (drag.x - drag.originX);
-          drag.state.offsetY = point.y - rect.top - (drag.y - drag.originY);
-          behavior.translate(drag);
-        }
+      kernel.requestStep((operation) => {
+        operation?.moveTo(point);
       }),
     requestCancel: (reason) => kernel.requestCancel(reason),
     requestDestroy: () => kernel.requestDestroy(),

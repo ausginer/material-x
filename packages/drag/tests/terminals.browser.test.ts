@@ -1,6 +1,6 @@
 /** `drag:DRI-3`, `drag:DRI-4` and `drag:DRI-6`: terminals, cancel and reentrant input. */
 import { describe, expect, it } from 'vitest';
-import type { Outcome } from '../src/draggable.ts';
+import type { BehaviorOperation, Outcome } from '../src/draggable.ts';
 import {
   basicSortable,
   centerOf,
@@ -21,7 +21,7 @@ import {
   wait,
 } from './support/harness.ts';
 
-const noteOutcome = (_: unknown, outcome: Outcome): void => {
+const noteOutcome = (outcome: Outcome): void => {
   log.push(
     outcome.type === 'canceled'
       ? `end:canceled:${outcome.origin}`
@@ -37,19 +37,24 @@ describe('drag:DRI-3 terminals', () => {
       const panel = managed(list, {
         admit: (event) => ({ item: targetOf(event) }),
         activate() {
+          // Constructed before the throw, so it never reaches the kernel.
+          const operation: BehaviorOperation = {
+            start: () => {
+              log.push('start');
+            },
+            end: () => {
+              log.push('end');
+            },
+          };
+
           if (kind === 'cancel') {
             panel.requestCancel('early');
           } else if (kind === 'destroy') {
             void panel.requestDestroy();
           }
 
+          void operation;
           throw new Error(kind);
-        },
-        start: () => {
-          log.push('start');
-        },
-        end: () => {
-          log.push('end');
         },
       });
 
@@ -65,12 +70,19 @@ describe('drag:DRI-3 terminals', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      activate: () => false,
-      start: () => {
-        log.push('start');
-      },
-      end: () => {
-        log.push('end');
+      activate() {
+        // Constructed and then declined, so it never reaches the kernel.
+        const operation: BehaviorOperation = {
+          start: () => {
+            log.push('start');
+          },
+          end: () => {
+            log.push('end');
+          },
+        };
+
+        void operation;
+        return null;
       },
     });
     await dragAndDrop('#r0', 30);
@@ -83,10 +95,12 @@ describe('drag:DRI-3 terminals', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        throw new Error('start');
-      },
-      end: noteOutcome,
+      activate: () => ({
+        start() {
+          throw new Error('start');
+        },
+        end: noteOutcome,
+      }),
     });
     await dragAndDrop('#r0', 30);
     expect(log).toEqual(['end:canceled:fault']);
@@ -97,7 +111,7 @@ describe('drag:DRI-3 terminals', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      end: noteOutcome,
+      activate: () => ({ end: noteOutcome }),
     });
     await dragAndDrop('#r0', 30);
     expect(log).toEqual(['end:skipped']);
@@ -114,7 +128,10 @@ describe('drag:DRI-3 terminals', () => {
 
 describe('drag:DRI-4 cancel', () => {
   it('should ignore a cancel on an idle controller', () => {
-    const panel = managed(makeList(1), { admit: () => null });
+    const panel = managed(makeList(1), {
+      admit: () => null,
+      activate: () => null,
+    });
 
     panel.requestCancel('idle');
     expect(faultMessages()).toEqual([]);
@@ -125,13 +142,15 @@ describe('drag:DRI-4 cancel', () => {
     const reasons: unknown[] = [];
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        panel.requestCancel('first');
-        panel.requestCancel('second');
-      },
-      end(_, outcome) {
-        reasons.push(outcome);
-      },
+      activate: () => ({
+        start() {
+          panel.requestCancel('first');
+          panel.requestCancel('second');
+        },
+        end(outcome) {
+          reasons.push(outcome);
+        },
+      }),
     });
 
     await grab('#r0');
@@ -145,12 +164,14 @@ describe('drag:DRI-4 cancel', () => {
     const outcomes: Outcome[] = [];
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      settle() {
-        panel.requestCancel('late');
-      },
-      end(_, outcome) {
-        outcomes.push(outcome);
-      },
+      activate: () => ({
+        settle() {
+          panel.requestCancel('late');
+        },
+        end(outcome) {
+          outcomes.push(outcome);
+        },
+      }),
     });
 
     await dragAndDrop('#r0', 30);
@@ -162,7 +183,7 @@ describe('drag:DRI-4 cancel', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      end: noteOutcome,
+      activate: () => ({ end: noteOutcome }),
     });
     await grab('#r0');
     await commands.keyPress('Escape');
@@ -174,10 +195,12 @@ describe('drag:DRI-4 cancel', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start: () => {
-        log.push('start');
-      },
-      end: noteOutcome,
+      activate: () => ({
+        start: () => {
+          log.push('start');
+        },
+        end: noteOutcome,
+      }),
     });
 
     const { x, y } = await press('#r0');
@@ -193,7 +216,7 @@ describe('drag:DRI-4 cancel', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      end: noteOutcome,
+      activate: () => ({ end: noteOutcome }),
     });
     await grab('#r0');
     // The capture is on the root, and removing it ends the capture.
@@ -221,10 +244,12 @@ describe('drag:DRI-4 cancel', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        first ??= drag;
-      },
-      end: noteOutcome,
+      activate: (drag) => ({
+        start() {
+          first ??= drag;
+        },
+        end: noteOutcome,
+      }),
     });
     await dragAndDrop('#r0', 30);
     await grab('#r1');
@@ -245,6 +270,7 @@ describe('admission', () => {
         admissions += 1;
         return { item: targetOf(event) };
       },
+      activate: () => ({}),
     });
     list.firstElementChild!.dispatchEvent(
       new PointerEvent('pointerdown', {
@@ -271,9 +297,11 @@ describe('admission', () => {
       '<span data-drag-ignore><b id="owned" style="display:block;height:40px"></b></span>';
     managed(list, {
       admit: () => ({ item: row }),
-      start: () => {
-        log.push('start');
-      },
+      activate: () => ({
+        start: () => {
+          log.push('start');
+        },
+      }),
     });
     await dragAndDrop('#owned', 30);
     expect(log).toEqual([]);
@@ -288,6 +316,7 @@ describe('admission', () => {
     });
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
     await grab('#r0');
     await frames();
@@ -300,9 +329,11 @@ describe('admission', () => {
     managed(list, {
       threshold: 30,
       admit: (event) => ({ item: targetOf(event) }),
-      start: () => {
-        log.push('start');
-      },
+      activate: () => ({
+        start: () => {
+          log.push('start');
+        },
+      }),
     });
 
     const { x, y } = await press('#r0');
@@ -329,8 +360,10 @@ describe('drag:DRI-6 reentrant input', () => {
         admissions += 1;
         return { item: targetOf(event) };
       },
-      start: nested,
-      end: noteOutcome,
+      activate: () => ({
+        start: nested,
+        end: noteOutcome,
+      }),
     });
     await dragAndDrop('#r1', 30);
     expect(admissions).toBe(1);

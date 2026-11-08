@@ -11,27 +11,31 @@
 import { ancestry, delta, localDelta, space } from '@ydinjs/box-quad';
 import {
   draggable,
+  type BehaviorOperation,
   type DraggableController,
-  type Drag,
 } from '../../src/draggable.ts';
 
 type Origin = Readonly<{ element: HTMLElement; left: number; top: number }>;
-type State = {
-  readonly origins: readonly Origin[];
+type State = Readonly<{
+  origins: readonly Origin[];
   /** The other nodes' edges, which the group's edge snaps to. */
-  readonly guidesX: readonly number[];
-  readonly guidesY: readonly number[];
+  guidesX: readonly number[];
+  guidesY: readonly number[];
   /** What a node inherits, so that a viewport delta converts to `translate`. */
-  readonly basis: Float64Array;
-  /** What `nudge` asked for, on top of the pointer's travel. */
-  nudgeX: number;
-  /** The offset last rendered, snapped. */
-  dx: number;
-  dy: number;
-};
+  basis: Float64Array;
+}>;
+
+/** One activated move of the group. */
+type GroupMove = BehaviorOperation<undefined> &
+  Readonly<{
+    /** Renders the pointer's travel and the nudge, snapped. */
+    render(): void;
+    /** Adds to the nudge and renders. */
+    nudge(amount: number): void;
+  }>;
 
 export type CanvasGroup = Readonly<{
-  panel: DraggableController<Drag<State>>;
+  panel: DraggableController<GroupMove>;
   /** Shifts the group during a drag, from a key handler or anywhere else. */
   nudge(amount: number): void;
 }>;
@@ -48,6 +52,11 @@ const snap = (value: number, guides: readonly number[]): number => {
   return value;
 };
 
+/** Step: renders the current move, if any. */
+const render = (move: GroupMove | null): void => {
+  move?.render();
+};
+
 export function canvasGroup(
   canvas: HTMLElement,
   save: (
@@ -60,39 +69,7 @@ export function canvasGroup(
   const local = delta();
   let handle = 0;
 
-  const render = (drag: Drag<State> | null): void => {
-    if (!drag) {
-      return;
-    }
-
-    const { state } = drag;
-    const [first] = state.origins;
-
-    localDelta(
-      state.basis,
-      drag.x - drag.originX,
-      drag.y - drag.originY,
-      local,
-    );
-
-    const rawX = local[0]! + state.nudgeX;
-    const rawY = local[1]!;
-    const snappedX = snap(first!.left + rawX, state.guidesX) - first!.left;
-    const snappedY = snap(first!.top + rawY, state.guidesY) - first!.top;
-
-    for (const { element } of state.origins) {
-      element.style.translate = `${snappedX}px ${snappedY}px`;
-    }
-
-    state.dx = snappedX;
-    state.dy = snappedY;
-    guide(
-      snappedX === rawX ? null : first!.left + snappedX,
-      snappedY === rawY ? null : first!.top + snappedY,
-    );
-  };
-
-  const panel = draggable<State, undefined>(canvas, {
+  const panel = draggable<State, undefined, GroupMove>(canvas, {
     threshold: 3,
 
     admit(event) {
@@ -124,17 +101,12 @@ export function canvasGroup(
           guidesX: others.map((node) => node.offsetLeft),
           guidesY: others.map((node) => node.offsetTop),
           basis: space(),
-          nudgeX: 0,
-          dx: 0,
-          dy: 0,
         },
       };
     },
 
-    activate(drag) {
-      const { state, item } = drag;
-
-      if (!ancestry(item, state.basis)) {
+    activate(drag, state) {
+      if (!ancestry(drag.item, state.basis)) {
         throw new Error('canvas-group/no-basis');
       }
 
@@ -157,46 +129,85 @@ export function canvasGroup(
           }
         }
       });
-    },
 
-    move(drag) {
-      handle ||= requestAnimationFrame(() => {
-        handle = 0;
-        drag.requestStep(render);
-      });
-    },
+      /** What `nudge` asked for, on top of the pointer's travel. */
+      let nudgeX = 0;
+      /** The offset last rendered, snapped. */
+      let dx = 0;
+      let dy = 0;
 
-    drop(drag) {
-      cancelAnimationFrame(handle);
-      handle = 0;
-      render(drag);
+      const move: GroupMove = {
+        render() {
+          const [first] = state.origins;
 
-      const { origins, dx, dy } = drag.state;
-      const moves = origins.map(
-        ({ element, left, top }) =>
-          [element, left + dx, top + dy] as [HTMLElement, number, number],
-      );
+          localDelta(
+            state.basis,
+            drag.x - drag.originX,
+            drag.y - drag.originY,
+            local,
+          );
 
-      return (signal) =>
-        save(moves, signal).then(() => {
-          for (const [element, left, top] of moves) {
-            element.style.left = `${left}px`;
-            element.style.top = `${top}px`;
+          const rawX = local[0]! + nudgeX;
+          const rawY = local[1]!;
+          const snappedX =
+            snap(first!.left + rawX, state.guidesX) - first!.left;
+          const snappedY = snap(first!.top + rawY, state.guidesY) - first!.top;
+
+          for (const { element } of state.origins) {
+            element.style.translate = `${snappedX}px ${snappedY}px`;
           }
 
-          return undefined;
-        });
+          dx = snappedX;
+          dy = snappedY;
+          guide(
+            snappedX === rawX ? null : first!.left + snappedX,
+            snappedY === rawY ? null : first!.top + snappedY,
+          );
+        },
+
+        nudge(amount) {
+          nudgeX += amount;
+          move.render();
+        },
+
+        move() {
+          handle ||= requestAnimationFrame(() => {
+            handle = 0;
+            drag.requestStep(render);
+          });
+        },
+
+        drop() {
+          cancelAnimationFrame(handle);
+          handle = 0;
+          move.render();
+
+          const moves = state.origins.map(
+            ({ element, left, top }) =>
+              [element, left + dx, top + dy] as [HTMLElement, number, number],
+          );
+
+          return (signal) =>
+            save(moves, signal).then(() => {
+              for (const [element, left, top] of moves) {
+                element.style.left = `${left}px`;
+                element.style.top = `${top}px`;
+              }
+
+              return undefined;
+            });
+        },
+      };
+
+      return move;
     },
   });
 
   return {
     panel,
     nudge(amount) {
-      panel.requestStep((drag) => {
-        if (drag) {
-          drag.state.nudgeX += amount;
-          render(drag);
-        }
+      panel.requestStep((move) => {
+        move?.nudge(amount);
       });
     },
   };

@@ -72,38 +72,40 @@ Without `home`, the offset is exact only when nothing moved the home during the 
 
 ## Writing a behavior
 
-`draggable(root, behavior)` calls your hooks with a `Drag`, a view of one operation. It does not give you the session or its state.
+`draggable(root, behavior)` gives `activate` a `Drag`, a view of one operation. It does not give you the session. The behavior holds what lasts as long as the controller: `threshold`, `admit`, `command` and `activate`. `activate` returns the operation, which holds the hooks from `start` to `end`. They take no `Drag`: an operation that needs it keeps it from `activate`.
 
 | Hook | When |  |
 | --- | --- | --- |
 | `admit(event)` | A primary press on the root | Return `{ item, handle?, state? }`, or `null` to decline |
 | `command(event)` | A key on the root | An admission runs one complete operation with no pointer. `pointerId` is `-1` |
-| `activate(drag)` | The pointer crossed the threshold | Set up everything that can fail. Return `false` to decline quietly. A throw is a fault. Neither gets `start` or `end`. An item disconnected by then declines with no hook at all |
-| `start(drag)` | After `activate` | From here `end` is guaranteed, unless destruction is applied first |
-| `move(drag)` | Each pointer sample | Read no layout here. Coalesce expensive work to a frame |
-| `drop(drag)` | The pointer was released | Return `(signal) => verdict`, or `null` to skip it |
-| `settle(drag, outcome)` | The outcome is decided, and `drag.signal` has not aborted | A lifted behavior names its landing here with `lift.land` |
-| `end(drag, outcome)` | After release, in the same task | A landing starts at release and does not delay it. Focus returns after it, so a reorder here keeps focus |
+| `activate(drag, state)` | The pointer crossed the threshold | Receives the admission's `state`. Set up everything that can fail, and return the operation. Return `null` to decline quietly. A throw is a fault. Neither gets `start` or `end`. An item disconnected by then declines with no hook at all |
+| `operation.start()` | After `activate` | From here `end` is guaranteed, unless destruction is applied first |
+| `operation.move()` | Each pointer sample | Read no layout here. Coalesce expensive work to a frame |
+| `operation.drop()` | The pointer was released | Return `(signal) => verdict`, or `null` to skip it |
+| `operation.settle(outcome)` | The outcome is decided, and `drag.signal` has not aborted | A lifted behavior names its landing here with `lift.land` |
+| `operation.end(outcome)` | After release, in the same task | A landing starts at release and does not delay it. Focus returns after it, so a reorder here keeps focus |
+
+The kernel calls each hook as a method, read when it is called, so a behavior and its operation may be class instances. An operation's resources are released with `drag.use`, registered when each is acquired, in `activate` or in the operation's constructor. The operation has no release hook.
 
 The `outcome` is `skipped`, `verdict` with its `value`, or `canceled` with its `reason` and `origin` (`request`, `escape`, `interrupted` or `fault`).
 
 ### The `requestStep` rule
 
-**A hook may write its own state directly. Code outside a hook writes behavior state through `requestStep`.** A consumer's method, a frame callback or a listener can run in the middle of a DOM write the kernel makes, so a direct write could change the running step. Nothing can detect a direct write, so this is a rule for you to keep.
+**A hook may write its own operation's state directly. Code outside a hook writes it through `requestStep`.** A consumer's method, a frame callback or a listener can run in the middle of a DOM write the kernel makes, so a direct write could change the running step. Nothing can detect a direct write, so this is a rule for you to keep.
 
 ```ts
-const controller = draggable(root, { ... });
+type Nudged = BehaviorOperation & { nudge(amount: number): void };
+
+const controller = draggable<undefined, unknown, Nudged>(root, { ... });
 
 function nudge(amount: number): void {
-  controller.requestStep((drag) => {
-    if (drag) {
-      drag.state.offset += amount;
-    }
+  controller.requestStep((operation) => {
+    operation?.nudge(amount);
   });
 }
 ```
 
-The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the `Drag` from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing. The same function requested twice before it runs runs once, so a stable function coalesces.
+The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the operation `activate` returned, from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing. The same function requested twice before it runs runs once, so a stable function coalesces.
 
 Hooks also have `drag.requestStep` and `drag.requestCancel`. **They are scoped to their operation:** they act only while it is the controller's current one, and afterwards do nothing, so a `drag` kept in a timer never reaches a later drag. Cleanup after an operation belongs in `use`. Every controller method works when detached, as in `return controller.requestDestroy`.
 
@@ -146,26 +148,26 @@ A behavior that does not compose the lift reads its basis in `activate`, and a `
 
 ### The lift
 
-`Lifter` from `@ydinjs/drag/lift.js` promotes the visual to the top layer, which escapes clipping, transformed and stacking ancestors. The kernel does not know about it: a behavior composes it in its own code and keeps the `Lift` in its state.
+`Lifter` from `@ydinjs/drag/lift.js` promotes the visual to the top layer, which escapes clipping, transformed and stacking ancestors. The kernel does not know about it: a behavior composes it in `activate` and keeps the `Lift` in the operation it returns.
 
 ```ts
 import { draggable } from '@ydinjs/drag/draggable.js';
-import { Lifter, type Lift } from '@ydinjs/drag/lift.js';
+import { Lifter } from '@ydinjs/drag/lift.js';
 
 const lifter = new Lifter(window);
-const controller = draggable<{ lift: Lift | null }>(root, {
-  admit: () => ({ item: card, state: { lift: null } }),
+const controller = draggable(root, {
+  admit: () => ({ item: card }),
   activate(drag) {
-    drag.state.lift = lifter.acquire(drag);
-    return undefined;
-  },
-  move(drag) {
-    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
-  },
-  settle(drag) {
-    const { rect } = drag.state.lift!;
+    const lift = lifter.acquire(drag);
 
-    drag.state.lift!.land(rect.left, rect.top);
+    return {
+      move() {
+        lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+      },
+      settle() {
+        lift.land(lift.rect.left, lift.rect.top);
+      },
+    };
   },
 });
 

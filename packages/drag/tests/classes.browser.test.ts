@@ -3,9 +3,9 @@
  * nothing that references a built-in's behavior instance.
  */
 import { describe, expect, it } from 'vitest';
-import { draggable } from '../src/draggable.ts';
+import { draggable, type BehaviorOperation } from '../src/draggable.ts';
 import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../src/sortable.ts';
 import {
@@ -22,20 +22,27 @@ import {
   wait,
 } from './support/harness.ts';
 
+/** An operation that names its item, for a step to read. */
+type Lifted = BehaviorOperation & Readonly<{ item: HTMLElement }>;
+
 describe('drag:DRD-20 detached controller methods', () => {
   it('should run draggable controller methods detached', async () => {
     const list = makeList(2);
     const lifter = new Lifter(window);
-    const { requestStep, requestCancel, requestDestroy, use } = draggable<{
-      lift: Lift | null;
-    }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    const { requestStep, requestCancel, requestDestroy, use } = draggable<
+      undefined,
+      unknown,
+      Lifted
+    >(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      end(_, outcome) {
-        log.push(`end:${outcome.type}`);
+        lifter.acquire(drag);
+        return {
+          item: drag.item,
+          end(outcome) {
+            log.push(`end:${outcome.type}`);
+          },
+        };
       },
     });
 
@@ -48,8 +55,8 @@ describe('drag:DRD-20 detached controller methods', () => {
 
     let seen: string | null = null;
 
-    requestStep((drag) => {
-      seen = drag ? drag.item.id : null;
+    requestStep((operation) => {
+      seen = operation ? operation.item.id : null;
     });
     requestCancel('detached');
     await release();

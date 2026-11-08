@@ -113,13 +113,15 @@ describe('drag:DRI-5 verdict', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start(drag) {
-        dragSignal = drag.signal;
-      },
-      drop: () => (signal) => {
-        verdictSignal = signal;
-        return 'yes';
-      },
+      activate: (drag) => ({
+        start() {
+          dragSignal = drag.signal;
+        },
+        drop: () => (signal) => {
+          verdictSignal = signal;
+          return 'yes';
+        },
+      }),
     });
     await dragAndDrop('#r0', 30);
     expect(dragSignal!.aborted).toBe(true);
@@ -134,19 +136,21 @@ describe('drag:DRI-5 verdict', () => {
 
     managed<undefined, string>(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      drop: () => () =>
-        ({
-          get then() {
-            reads += 1;
-            return (resolve: (value: string) => void) => {
-              resolve('settled');
-              resolve('again');
-            };
-          },
-        }) as unknown as PromiseLike<string>,
-      end(_, outcome) {
-        outcomes.push(outcome);
-      },
+      activate: () => ({
+        drop: () => () =>
+          ({
+            get then() {
+              reads += 1;
+              return (resolve: (value: string) => void) => {
+                resolve('settled');
+                resolve('again');
+              };
+            },
+          }) as unknown as PromiseLike<string>,
+        end(outcome) {
+          outcomes.push(outcome);
+        },
+      }),
     });
     await dragAndDrop('#r0', 30);
     expect(outcomes).toEqual([{ type: 'verdict', value: 'settled' }]);
@@ -177,10 +181,12 @@ describe('drag:DRI-5 verdict', () => {
 
       managed<undefined, string>(list, {
         admit: (event) => ({ item: targetOf(event) }),
-        drop: () => () => value as unknown as PromiseLike<string>,
-        end(_, outcome) {
-          log.push(`end:${outcome.type}`);
-        },
+        activate: () => ({
+          drop: () => () => value as unknown as PromiseLike<string>,
+          end(outcome) {
+            log.push(`end:${outcome.type}`);
+          },
+        }),
       });
       await dragAndDrop('#r0', 30);
       expect(faultMessages()).toEqual([name]);

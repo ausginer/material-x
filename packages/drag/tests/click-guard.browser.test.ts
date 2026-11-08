@@ -124,6 +124,7 @@ describe('drag:DRI-11 the click guard', () => {
     addOutside();
     managed(makeList(2), {
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
     await dragAndDrop('#r0', 30);
     await wait(0);
@@ -146,6 +147,7 @@ describe('drag:DRI-11 the click guard', () => {
     );
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
     await grab('#r0', 0, 20);
     await commands.keyPress('Escape');
@@ -219,6 +221,7 @@ describe('drag:DRI-11 the click guard', () => {
     addOutside();
     managed(makeList(2), {
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
     await dragAndDrop('#r0', 30);
     await wait(0);
@@ -239,6 +242,7 @@ describe('drag:DRI-11 the click guard', () => {
     managed(list, {
       threshold: 8,
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
 
     const { x, y } = centerOf('#r0');
@@ -298,11 +302,13 @@ describe('drag:DRI-11 the click guard', () => {
 
       managed(list, {
         admit: (event) => ({ item: targetOf(event) }),
-        end(_, outcome) {
-          origins.push(
-            outcome.type === 'canceled' ? outcome.origin : outcome.type,
-          );
-        },
+        activate: () => ({
+          end(outcome) {
+            origins.push(
+              outcome.type === 'canceled' ? outcome.origin : outcome.type,
+            );
+          },
+        }),
       });
 
       const { x, y } = centerOf('#r0');
@@ -347,6 +353,7 @@ describe('drag:DRI-11 the click guard', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({}),
     });
     window.addEventListener(
       'pointerdown',

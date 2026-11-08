@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Outcome } from '../src/draggable.ts';
 import { DragFault } from '../src/fault.ts';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import {
   dragAndDrop,
   faults,
@@ -25,14 +25,16 @@ describe('drag:DRI-7 faults', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      move() {
-        throw new Error('move');
-      },
-      end(_drag, outcome) {
-        ended.push(
-          `${outcome.type}:${(outcome as { origin?: string }).origin}`,
-        );
-      },
+      activate: () => ({
+        move() {
+          throw new Error('move');
+        },
+        end(outcome) {
+          ended.push(
+            `${outcome.type}:${(outcome as { origin?: string }).origin}`,
+          );
+        },
+      }),
     });
     await dragAndDrop('#r0', 30);
     expect(ended).toEqual(['canceled:fault']);
@@ -50,16 +52,18 @@ describe('drag:DRI-7 faults', () => {
         drag.use(() => {
           throw second;
         });
-      },
-      start() {
-        throw first;
-      },
-      end(_, outcome) {
-        const canceled = outcome as Extract<Outcome, { type: 'canceled' }>;
+        return {
+          start() {
+            throw first;
+          },
+          end(outcome) {
+            const canceled = outcome as Extract<Outcome, { type: 'canceled' }>;
 
-        log.push(
-          `${canceled.origin}:${(canceled.reason as DragFault).cause === first}:${canceled.reason === faults[0]}`,
-        );
+            log.push(
+              `${canceled.origin}:${(canceled.reason as DragFault).cause === first}:${canceled.reason === faults[0]}`,
+            );
+          },
+        };
       },
     });
     await grab('#r0');
@@ -79,9 +83,11 @@ describe('drag:DRI-7 faults', () => {
         drag.use(() => {
           throw new Error('disposer 2');
         });
-      },
-      end: () => {
-        log.push('end');
+        return {
+          end: () => {
+            log.push('end');
+          },
+        };
       },
     });
 
@@ -134,6 +140,7 @@ describe('drag:DRI-7 faults', () => {
         admit() {
           throw value;
         },
+        activate: () => ({}),
       });
 
       root.dispatchEvent(
@@ -160,14 +167,16 @@ describe('drag:DRI-7 faults', () => {
     const list = makeList(4);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        throw new Error('boom');
-      },
-      end(_, outcome) {
-        const canceled = outcome as Extract<Outcome, { type: 'canceled' }>;
+      activate: () => ({
+        start() {
+          throw new Error('boom');
+        },
+        end(outcome) {
+          const canceled = outcome as Extract<Outcome, { type: 'canceled' }>;
 
-        log.push(`${canceled.origin}:${canceled.reason === faults[0]}`);
-      },
+          log.push(`${canceled.origin}:${canceled.reason === faults[0]}`);
+        },
+      }),
     });
     const listener = (): void => {
       panel.requestCancel('from the listener');
@@ -186,13 +195,15 @@ describe('drag:DRI-7 faults', () => {
     const list = makeList(4);
     const panel = managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        log.push('start');
-        throw new Error('boom');
-      },
-      end: () => {
-        log.push('end');
-      },
+      activate: () => ({
+        start() {
+          log.push('start');
+          throw new Error('boom');
+        },
+        end: () => {
+          log.push('end');
+        },
+      }),
     });
     const listener = (): void => {
       void panel.requestDestroy().then(() => log.push('destroyed'));
@@ -214,12 +225,14 @@ describe('drag:DRI-7 faults', () => {
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      settle() {
-        throw new Error('settle');
-      },
-      end(_, outcome) {
-        outcomes.push(outcome);
-      },
+      activate: () => ({
+        settle() {
+          throw new Error('settle');
+        },
+        end(outcome) {
+          outcomes.push(outcome);
+        },
+      }),
     });
     await dragAndDrop('#r0', 30);
     expect(outcomes).toEqual([{ type: 'skipped' }]);
@@ -231,14 +244,15 @@ describe('drag:DRI-7 faults', () => {
     const liftModule = await import('../src/lift.ts');
     const lifter = new liftModule.Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      start: () => {
-        log.push('start');
+        lifter.acquire(drag);
+        return {
+          start: () => {
+            log.push('start');
+          },
+        };
       },
     }).use(lifter.cancelLanding);
 
@@ -277,20 +291,21 @@ describe('drag:DRI-7 a failed acquisition', () => {
     const lifter = new Lifter(window);
     const outcomes: Outcome[] = [];
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
         drag.use((outcome) => {
           outcomes.push(outcome!);
         });
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      start() {
-        log.push('start');
-      },
-      end() {
-        log.push('end');
+        lifter.acquire(drag);
+        return {
+          start() {
+            log.push('start');
+          },
+          end() {
+            log.push('end');
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await dragAndDrop(row, 30);

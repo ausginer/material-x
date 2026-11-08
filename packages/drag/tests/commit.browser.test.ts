@@ -11,7 +11,7 @@ import {
   type FreeDragConfig,
   FreeDragResolution,
 } from '../src/free-drag.ts';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../src/sortable.ts';
 import {
@@ -99,18 +99,18 @@ describe('drag:DRI-9 commit ownership', () => {
     row.style.marginLeft = '3px';
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      move(drag) {
-        const lift = drag.state.lift!;
+        const lift = lifter.acquire(drag);
 
-        lift.visual.style.marginLeft = '30px';
-        lift.visual.style.translate = '5px 5px';
-        lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+        return {
+          move() {
+            lift.visual.style.marginLeft = '30px';
+            lift.visual.style.translate = '5px 5px';
+            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          },
+        };
       },
     }).use(lifter.cancelLanding);
     await grab('#r0');

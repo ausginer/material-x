@@ -44,20 +44,25 @@ function ResizeDemo(): JSX.Element {
           basis: createBox(),
         },
       }),
-      activate({ state }) {
+      activate(drag, state) {
         if (!coordinates(target, state.basis)) {
           throw new Error('resize/no-basis');
         }
-      },
-      move({ state, x, y, originX, originY }) {
-        if (localDelta(state.basis, x - originX, y - originY, local)) {
-          write(state.width + local[0]!, state.height + local[1]!);
-        }
-      },
-      end({ state }, outcome) {
-        if (outcome.type === 'canceled') {
-          write(state.width, state.height);
-        }
+
+        return {
+          move() {
+            const { x, y, originX, originY } = drag;
+
+            if (localDelta(state.basis, x - originX, y - originY, local)) {
+              write(state.width + local[0]!, state.height + local[1]!);
+            }
+          },
+          end(outcome) {
+            if (outcome.type === 'canceled') {
+              write(state.width, state.height);
+            }
+          },
+        };
       },
     });
 

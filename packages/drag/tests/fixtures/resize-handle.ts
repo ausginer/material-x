@@ -5,8 +5,8 @@
 import { box, coordinates, delta, localDelta } from '@ydinjs/box-quad';
 import {
   draggable,
+  type BehaviorOperation,
   type DraggableController,
-  type Drag,
 } from '../../src/draggable.ts';
 
 type Size = Readonly<{ width: number; height: number }>;
@@ -16,7 +16,7 @@ export function resizeHandle(
   handle: HTMLElement,
   target: HTMLElement,
   onEnd: (size: Size | 'restored') => void,
-): DraggableController<Drag<State>> {
+): DraggableController<BehaviorOperation> {
   const local = delta();
   const write = (width: number, height: number): void => {
     target.style.width = `${width}px`;
@@ -35,28 +35,32 @@ export function resizeHandle(
       },
     }),
 
-    activate({ state }) {
+    activate(drag, state) {
       if (!coordinates(target, state.basis)) {
         throw new Error('resize-handle/no-basis');
       }
-    },
 
-    move({ state, x, y, originX, originY }) {
-      if (localDelta(state.basis, x - originX, y - originY, local)) {
-        write(
-          Math.max(80, state.width + local[0]!),
-          Math.max(60, state.height + local[1]!),
-        );
-      }
-    },
+      return {
+        move() {
+          const { x, y, originX, originY } = drag;
 
-    end({ state }, outcome) {
-      if (outcome.type === 'canceled') {
-        write(state.width, state.height);
-        onEnd('restored');
-      } else {
-        onEnd({ width: target.offsetWidth, height: target.offsetHeight });
-      }
+          if (localDelta(state.basis, x - originX, y - originY, local)) {
+            write(
+              Math.max(80, state.width + local[0]!),
+              Math.max(60, state.height + local[1]!),
+            );
+          }
+        },
+
+        end(outcome) {
+          if (outcome.type === 'canceled') {
+            write(state.width, state.height);
+            onEnd('restored');
+          } else {
+            onEnd({ width: target.offsetWidth, height: target.offsetHeight });
+          }
+        },
+      };
     },
   });
 }

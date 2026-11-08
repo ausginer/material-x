@@ -3,7 +3,7 @@
  * `__DEV__` false, so the development equivalence check is not in the census.
  */
 import { describe, expect, it } from 'vitest';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -249,18 +249,21 @@ describe('drag:DRI-17 hot path', () => {
       const list = makeList(20);
       const lifter = new Lifter(window);
 
-      managed<{ lift: Lift | null }>(list, {
-        admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      managed(list, {
+        admit: (event) => ({ item: targetOf(event) }),
         activate(drag) {
-          drag.state.lift = lifter.acquire(drag);
-          return undefined;
-        },
-        move(drag) {
-          // Off the integers, so every displacement `translate` receives is one.
-          drag.state.lift!.translate(
-            drag.x - drag.originX + 0.25,
-            drag.y - drag.originY + 0.5,
-          );
+          const lift = lifter.acquire(drag);
+
+          return {
+            move() {
+              // Off the integers, so every displacement `translate` receives is
+              // one.
+              lift.translate(
+                drag.x - drag.originX + 0.25,
+                drag.y - drag.originY + 0.5,
+              );
+            },
+          };
         },
       }).use(lifter.cancelLanding);
 

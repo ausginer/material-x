@@ -13,16 +13,21 @@ const lab = {
 
     draggable(box, {
       admit: () => ({ item: box }),
-      activate() {
+      activate(drag) {
         ancestry(box, basis);
-      },
-      move({ x, y, originX, originY }) {
-        if (localDelta(basis, x - originX, y - originY, local)) {
-          box.style.translate = `${local[0]!}px ${local[1]!}px`;
-        }
-      },
-      end(_, outcome) {
-        lab.log.push(outcome.type);
+
+        return {
+          move() {
+            const { x, y, originX, originY } = drag;
+
+            if (localDelta(basis, x - originX, y - originY, local)) {
+              box.style.translate = `${local[0]!}px ${local[1]!}px`;
+            }
+          },
+          end(outcome) {
+            lab.log.push(outcome.type);
+          },
+        };
       },
     });
   },

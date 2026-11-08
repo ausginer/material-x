@@ -5,7 +5,9 @@
  */
 import {
   draggable,
+  type Admission,
   type Behavior,
+  type BehaviorOperation,
   type Drag,
   type Outcome,
 } from './draggable.ts';
@@ -19,6 +21,7 @@ import type { LandingTiming } from './shared/landing.ts';
 import type {
   AxisContext,
   AxisInstaller,
+  AxisQuery,
   DisplacementInstaller,
   DisplacementSink,
   InsertionGeometry,
@@ -113,107 +116,260 @@ type Recovery =
   | typeof RECOVERY_HOME
   | typeof RECOVERY_IMMEDIATE;
 
-type State = {
-  readonly item: HTMLElement;
+/** What `activate` needs from the press. */
+type PressState = Readonly<{
   /** `config.visual` from admission, or the item. */
-  readonly visual: HTMLElement;
+  visual: HTMLElement;
   /** `config.box` from admission, or the visual. */
-  readonly box: HTMLElement;
+  box: HTMLElement;
   /** A command's direction, or `null` for a pointer operation. */
-  readonly direction: KeyboardDirection | null;
-  /** Acquired as the first statement of `activate`. */
-  lift: Lift | null;
-  snapshot: CollectionSnapshot;
-  insertion: Insertion | null;
-  pointerX: number;
-  pointerY: number;
-  request: ReorderRequest | null;
-  result: SortableResult | null;
-  placeholder: HTMLElement | null;
-  context: AxisContext | null;
-  frame: FrameTask | null;
-};
+  direction: KeyboardDirection | null;
+}>;
 
-/** Records the terminal result, and says where the visual goes. */
-function recordResult(
-  state: State,
-  outcome: Outcome<ReorderResolution>,
-): Recovery {
-  if (outcome.type === 'canceled') {
-    state.result = {
-      type: 'canceled',
-      reason: outcome.reason,
-      origin: outcome.origin,
-      request: state.request,
+/** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
+function updateInsertion(operation: SortableOperation | null): void {
+  operation?.updateInsertion();
+}
+
+/**
+ * One activated sortable operation, from `start` to `end`. The kernel calls each
+ * hook as a method of this instance. It is also the query the axis rule reads.
+ */
+class SortableOperation
+  implements BehaviorOperation<ReorderResolution>, AxisQuery
+{
+  readonly #behavior: SortableBehavior;
+  readonly #drag: Drag<SortableOperation>;
+  readonly #lift: Lift;
+  /** A command's direction, or `null` for a pointer operation. */
+  readonly #direction: KeyboardDirection | null;
+  readonly #frame: FrameTask;
+  readonly #context: AxisContext;
+  readonly item: HTMLElement;
+  snapshot: CollectionSnapshot;
+  insertion: Insertion;
+  pointerX = 0;
+  pointerY = 0;
+  /** `null` until the drop: a cancel before it has none. */
+  #request: ReorderRequest | null = null;
+  /** Recorded at `settle` and reported at `end`. */
+  #result: SortableResult | null = null;
+
+  constructor(
+    behavior: SortableBehavior,
+    drag: Drag<SortableOperation>,
+    lift: Lift,
+    direction: KeyboardDirection | null,
+    snapshot: CollectionSnapshot,
+    insertion: Insertion,
+    frame: FrameTask,
+    context: AxisContext,
+  ) {
+    this.#behavior = behavior;
+    this.#drag = drag;
+    this.#lift = lift;
+    this.#direction = direction;
+    this.#frame = frame;
+    this.#context = context;
+    this.item = drag.item;
+    this.snapshot = snapshot;
+    this.insertion = insertion;
+  }
+
+  start(): void {
+    this.#behavior.config.onStart?.(this.item);
+  }
+
+  move(): void {
+    const drag = this.#drag;
+
+    this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+    this.#frame.schedule();
+  }
+
+  drop() {
+    const behavior = this.#behavior;
+    const drag = this.#drag;
+    const isPointerOperation = this.#direction === null;
+
+    this.#frame.cancel();
+
+    if (isPointerOperation) {
+      behavior.axis.invalidate();
+      this.pointerX = drag.x;
+      this.pointerY = drag.y;
+      this.insertion =
+        behavior.axis.resolve(this, this.#context) ?? this.insertion;
+    }
+
+    const { insertion } = this;
+    const request = buildReorderRequest(this.snapshot, drag.item, insertion);
+
+    this.#request = request;
+    movePlaceholder(this.#context.placeholder, insertion);
+
+    if (isPointerOperation) {
+      this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+    }
+
+    return request.to === request.from
+      ? null
+      : (signal: AbortSignal) => behavior.config.onReorder(request, { signal });
+  }
+
+  settle(outcome: Outcome<ReorderResolution>): void {
+    const recovery = this.#recordResult(outcome);
+    const composed = this.#behavior.landing;
+
+    if (composed && recovery !== RECOVERY_IMMEDIATE) {
+      const { left, top } = this.#landingTarget(recovery);
+
+      this.#lift.land(left, top, composed);
+    }
+  }
+
+  end(): void {
+    this.#behavior.config.onEnd?.(this.#result!);
+  }
+
+  /** The collection was pulled again: rebases the gap, or cancels. */
+  rebase(next: CollectionSnapshot): void {
+    const drag = this.#drag;
+
+    this.snapshot = next;
+
+    if (next.items.includes(drag.item)) {
+      const insertion = reconcileCollection(next, drag.item, this.insertion);
+
+      if (insertion) {
+        this.insertion = insertion;
+      } else {
+        drag.requestCancel(CANCEL_COLLECTION_INVALIDATED);
+      }
+    } else {
+      drag.requestCancel(CANCEL_ITEM_REMOVED);
+    }
+
+    this.#behavior.axis.invalidate();
+  }
+
+  /** The gap under the pointer, and the placeholder moved to it. */
+  updateInsertion(): void {
+    const drag = this.#drag;
+    const context = this.#context;
+    const { axis, displacement } = this.#behavior;
+
+    this.pointerX = drag.x;
+    this.pointerY = drag.y;
+
+    const resolved = axis.resolve(this, context);
+
+    if (resolved === null) {
+      return;
+    }
+
+    this.insertion = resolved;
+
+    if (placeholderAt(context.placeholder, resolved)) {
+      return;
+    }
+
+    let stale = true;
+
+    try {
+      movePlaceholder(context.placeholder, resolved);
+      axis.moved(this, context, displacement?.report ?? null);
+      stale = false;
+    } finally {
+      if (stale) {
+        axis.invalidate();
+      }
+    }
+  }
+
+  /** Records the terminal result, and says where the visual goes. */
+  #recordResult(outcome: Outcome<ReorderResolution>): Recovery {
+    if (outcome.type === 'canceled') {
+      this.#result = {
+        type: 'canceled',
+        reason: outcome.reason,
+        origin: outcome.origin,
+        request: this.#request,
+      };
+
+      return outcome.origin === 'fault' ? RECOVERY_IMMEDIATE : RECOVERY_HOME;
+    }
+
+    if (outcome.type === 'skipped') {
+      this.#result = { type: 'noop', request: this.#request! };
+      return RECOVERY_IMMEDIATE;
+    }
+
+    if (outcome.value === ACCEPTED) {
+      this.#result = { type: 'accepted', request: this.#request! };
+      return RECOVERY_DESTINATION;
+    }
+
+    this.#result = {
+      type: 'rejected',
+      reason: (outcome.value as RejectedResolution)[0],
+      request: this.#request!,
     };
 
-    return outcome.origin === 'fault' ? RECOVERY_IMMEDIATE : RECOVERY_HOME;
+    return RECOVERY_HOME;
   }
 
-  if (outcome.type === 'skipped') {
-    state.result = { type: 'noop', request: state.request! };
-    return RECOVERY_IMMEDIATE;
-  }
+  /**
+   * Only with a landing composed: the one forced layout a drop adds. Returns the
+   * placeholder's rect, whose top-left is where the visual lands.
+   */
+  #landingTarget(recovery: Recovery): DOMRectReadOnly {
+    const { item } = this;
+    const { placeholder } = this.#context;
 
-  if (outcome.value === ACCEPTED) {
-    state.result = { type: 'accepted', request: state.request! };
-    return RECOVERY_DESTINATION;
-  }
-
-  state.result = {
-    type: 'rejected',
-    reason: (outcome.value as RejectedResolution)[0],
-    request: state.request!,
-  };
-
-  return RECOVERY_HOME;
-}
-
-/**
- * Only with a landing composed: the one forced layout a drop adds. Returns the
- * placeholder's rect, whose top-left is where the visual lands.
- */
-function landingTarget(drag: Drag<State>, recovery: Recovery): DOMRectReadOnly {
-  const placeholder = drag.state.placeholder!;
-
-  if (recovery === RECOVERY_DESTINATION) {
-    if (
-      drag.item.isConnected &&
-      drag.item.parentElement === placeholder.parentElement &&
-      placeholder.nextElementSibling !== drag.item
-    ) {
-      drag.item.before(placeholder);
+    if (recovery === RECOVERY_DESTINATION) {
+      if (
+        item.isConnected &&
+        item.parentElement === placeholder.parentElement &&
+        placeholder.nextElementSibling !== item
+      ) {
+        item.before(placeholder);
+      }
+    } else {
+      movePlaceholder(placeholder, homeInsertion(this.snapshot, item));
     }
-  } else {
-    movePlaceholder(placeholder, homeInsertion(drag.state.snapshot, drag.item));
-  }
 
-  if (
-    !placeholder.isConnected ||
-    placeholder.parentElement !== drag.item.parentElement
-  ) {
-    throw new Error('sortable/landing-placeholder-lost');
-  }
+    if (
+      !placeholder.isConnected ||
+      placeholder.parentElement !== item.parentElement
+    ) {
+      throw new Error('sortable/landing-placeholder-lost');
+    }
 
-  return placeholder.getBoundingClientRect();
+    return placeholder.getBoundingClientRect();
+  }
 }
 
 /**
- * The behavior `draggable` runs for one root. The kernel calls each hook as a
- * method of this instance. Every function handed elsewhere is created once per
- * instance, or once per operation when it closes over the operation, so the
- * kernel's identity coalescing sees the same step on every request. Operation
- * values live in `drag.state`; the instance holds only controller-lifetime ones.
+ * The behavior `draggable` runs for one root: admission and activation. Every
+ * function handed elsewhere is created once per instance, or once per operation
+ * when it closes over the operation, so the kernel's identity coalescing sees the
+ * same step on every request. It holds only controller-lifetime values, and the
+ * operation reads the ones it needs through it.
  */
-class SortableBehavior implements Behavior<State, ReorderResolution> {
+class SortableBehavior implements Behavior<
+  PressState,
+  ReorderResolution,
+  SortableOperation
+> {
   declare readonly threshold?: number;
 
-  readonly #config: SortableConfig;
+  readonly config: SortableConfig;
   readonly #window: Window;
   readonly #lifter: Lifter;
-  readonly #axis: InsertionGeometry;
-  readonly #displacement: DisplacementSink | undefined;
-  readonly #landing: LandingTiming | null;
+  readonly axis: InsertionGeometry;
+  readonly displacement: DisplacementSink | undefined;
+  readonly landing: LandingTiming | null;
   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
   /** The version the next pulled snapshot carries. */
   #version = 0;
@@ -228,40 +384,20 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
       this.threshold = config.threshold;
     }
 
-    this.#config = config;
+    this.config = config;
     this.#window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
-    this.#axis = config.axis();
-    this.#displacement = displacement;
-    this.#landing = config.landing ?? null;
+    this.axis = config.axis();
+    this.displacement = displacement;
+    this.landing = config.landing ?? null;
     this.#measuredBox = config.box ?? config.visual ?? null;
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly invalidate = (drag: Drag<State> | null): void => {
-    if (!drag) {
-      return;
+  readonly invalidate = (operation: SortableOperation | null): void => {
+    if (operation) {
+      operation.rebase(this.#pull());
     }
-
-    const next = this.#pull();
-
-    drag.state.snapshot = next;
-
-    if (next.items.includes(drag.item)) {
-      const insertion = drag.state.insertion
-        ? reconcileCollection(next, drag.item, drag.state.insertion)
-        : null;
-
-      if (insertion) {
-        drag.state.insertion = insertion;
-      } else {
-        drag.requestCancel(CANCEL_COLLECTION_INVALIDATED);
-      }
-    } else {
-      drag.requestCancel(CANCEL_ITEM_REMOVED);
-    }
-
-    this.#axis.invalidate();
   };
 
   admit(event: PointerEvent) {
@@ -274,13 +410,12 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     return direction === null ? null : this.#admission(event, direction);
   }
 
-  activate(drag: Drag<State>): false | undefined {
+  activate(
+    drag: Drag<SortableOperation>,
+    state: PressState,
+  ): SortableOperation | null {
     // First, so that its release is the operation's first disposer and runs last.
-    drag.state.lift = this.#lifter.acquire(
-      drag,
-      drag.state.visual,
-      drag.state.box,
-    );
+    const lift = this.#lifter.acquire(drag, state.visual, state.box);
 
     // The second pull closes the window between admission and activation, in
     // which foreign code runs: a press before its threshold, and a command
@@ -289,20 +424,17 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     const snapshot = this.#pull();
 
     if (!snapshot.items.includes(drag.item)) {
-      return false;
+      return null;
     }
 
     const insertion =
-      drag.state.direction === null
+      state.direction === null
         ? homeInsertion(snapshot, drag.item)
-        : keyboardInsertion(snapshot, drag.item, drag.state.direction);
+        : keyboardInsertion(snapshot, drag.item, state.direction);
 
     if (!insertion) {
-      return false;
+      return null;
     }
-
-    drag.state.snapshot = snapshot;
-    drag.state.insertion = insertion;
 
     const placeholder = createPlaceholder(
       this.#window.document,
@@ -310,17 +442,17 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
       // keep the operation.
       {
         item: drag.item,
-        visual: drag.state.lift.visual,
-        box: drag.state.lift.box,
-        rect: drag.state.lift.rect,
+        visual: lift.visual,
+        box: lift.box,
+        rect: lift.rect,
       },
-      drag.state.lift.boxWidth,
+      lift.boxWidth,
       // Across the lift: a box around the visual keeps the part of its height the
       // visual did not take with it.
-      drag.state.lift.visual.contains(drag.state.lift.box)
-        ? drag.state.lift.boxHeight
-        : drag.state.lift.boxHeight - drag.state.lift.box.offsetHeight,
-      this.#config.placeholder ?? null,
+      lift.visual.contains(lift.box)
+        ? lift.boxHeight
+        : lift.boxHeight - lift.box.offsetHeight,
+      this.config.placeholder ?? null,
     );
 
     drag.use(() => {
@@ -337,7 +469,7 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     }
 
     const frame = createFrameTask(this.#window, () => {
-      drag.requestStep(this.#updateInsertion);
+      drag.requestStep(updateInsertion);
     });
 
     drag.use(() => {
@@ -347,135 +479,52 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     listenForInvalidation(this.#window, drag.signal, () => {
       drag.requestStep(this.#invalidateGeometry);
     });
-    drag.state.placeholder = placeholder;
-    drag.state.frame = frame;
-    drag.state.context = {
-      placeholder,
-      box: this.#measuredBox,
-      settle: this.#displacement ? this.#displacement.settle : null,
-      space: drag.state.lift.itemSpace,
-    };
-    this.#axis.invalidate();
 
-    return undefined;
-  }
-
-  start(drag: Drag<State>): void {
-    this.#config.onStart?.(drag.item);
-  }
-
-  // oxlint-disable-next-line class-methods-use-this -- a hook the kernel calls as a method of the instance
-  move(drag: Drag<State>): void {
-    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
-    drag.state.frame!.schedule();
-  }
-
-  drop(drag: Drag<State>) {
-    const isPointerOperation = drag.state.direction === null;
-
-    drag.state.frame!.cancel();
-
-    if (isPointerOperation) {
-      this.#axis.invalidate();
-      drag.state.pointerX = drag.x;
-      drag.state.pointerY = drag.y;
-      drag.state.insertion =
-        this.#axis.resolve(drag.state, drag.state.context!) ??
-        drag.state.insertion;
-    }
-
-    const insertion = drag.state.insertion!;
-    const request = buildReorderRequest(
-      drag.state.snapshot,
-      drag.item,
+    const operation = new SortableOperation(
+      this,
+      drag,
+      lift,
+      state.direction,
+      snapshot,
       insertion,
+      frame,
+      {
+        placeholder,
+        box: this.#measuredBox,
+        settle: this.displacement ? this.displacement.settle : null,
+        space: lift.itemSpace,
+      },
     );
 
-    drag.state.request = request;
-    movePlaceholder(drag.state.placeholder!, insertion);
+    this.axis.invalidate();
 
-    if (isPointerOperation) {
-      drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
-    }
-
-    return request.to === request.from
-      ? null
-      : (signal: AbortSignal) => this.#config.onReorder(request, { signal });
-  }
-
-  settle(drag: Drag<State>, outcome: Outcome<ReorderResolution>): void {
-    const recovery = recordResult(drag.state, outcome);
-    const composed = this.#landing;
-
-    if (composed && recovery !== RECOVERY_IMMEDIATE) {
-      const { left, top } = landingTarget(drag, recovery);
-
-      drag.state.lift!.land(left, top, composed);
-    }
-  }
-
-  end(drag: Drag<State>): void {
-    this.#config.onEnd?.(drag.state.result!);
+    return operation;
   }
 
   /** Step, on scroll and resize: the cached geometry is stale. */
   readonly #invalidateGeometry = (): void => {
-    this.#axis.invalidate();
+    this.axis.invalidate();
   };
 
   /** Disposer, per operation: the cache releases the operation's elements. */
   readonly #retireAxis = (): void => {
-    this.#axis.retire();
+    this.axis.retire();
   };
 
   #pull(): CollectionSnapshot {
     this.#version += 1;
-    return { items: [...this.#config.items()], version: this.#version };
+    return { items: [...this.config.items()], version: this.#version };
   }
-
-  /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
-  readonly #updateInsertion = (drag: Drag<State> | null): void => {
-    if (!drag) {
-      return;
-    }
-
-    const context = drag.state.context!;
-    const axis = this.#axis;
-
-    drag.state.pointerX = drag.x;
-    drag.state.pointerY = drag.y;
-
-    const resolved = axis.resolve(drag.state, context);
-
-    if (resolved === null) {
-      return;
-    }
-
-    drag.state.insertion = resolved;
-
-    if (placeholderAt(context.placeholder, resolved)) {
-      return;
-    }
-
-    let stale = true;
-
-    try {
-      movePlaceholder(context.placeholder, resolved);
-      axis.moved(drag.state, context, this.#displacement?.report ?? null);
-      stale = false;
-    } finally {
-      if (stale) {
-        axis.invalidate();
-      }
-    }
-  };
 
   /**
    * The pressed item from a fresh collection, and the admission for it. A command
    * names its direction and is refused at the collection's edge, so that the key
    * keeps its native meaning there.
    */
-  #admission(event: Event, direction: KeyboardDirection | null) {
+  #admission(
+    event: Event,
+    direction: KeyboardDirection | null,
+  ): Admission<PressState> | null {
     const snapshot = this.#pull();
     const path = event.composedPath();
     const item = path.find((node) =>
@@ -488,8 +537,8 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
 
     let handle: HTMLElement | undefined;
 
-    if (this.#config.handle) {
-      const named = this.#config.handle(item);
+    if (this.config.handle) {
+      const named = this.config.handle(item);
 
       if (!named || !path.includes(named)) {
         return null;
@@ -502,28 +551,16 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
       return null;
     }
 
-    const visual = this.#config.visual?.(item) ?? item;
-    const state: State = {
-      item,
-      visual,
-      box: this.#config.box?.(item) ?? visual,
-      lift: null,
-      direction,
-      snapshot,
-      insertion: null,
-      pointerX: 0,
-      pointerY: 0,
-      request: null,
-      result: null,
-      placeholder: null,
-      context: null,
-      frame: null,
-    };
+    const visual = this.config.visual?.(item) ?? item;
 
     return {
       item,
       ...(handle ? { handle } : {}),
-      state,
+      state: {
+        visual,
+        box: this.config.box?.(item) ?? visual,
+        direction,
+      },
     };
   }
 }
@@ -536,7 +573,10 @@ export function sortable(
   const displacement = config.displacement?.();
   const lifter = new Lifter(root.ownerDocument.defaultView!);
   const behavior = new SortableBehavior(root, config, displacement, lifter);
-  const kernel = draggable<State, ReorderResolution>(root, behavior);
+  const kernel = draggable<PressState, ReorderResolution, SortableOperation>(
+    root,
+    behavior,
+  );
 
   if (displacement) {
     kernel.use(() => {

@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   draggable,
+  type BehaviorOperation,
   type Drag,
   type DraggableController,
 } from '../src/draggable.ts';
@@ -49,7 +50,7 @@ type Hook =
 async function destroyFrom(where: Hook) {
   const list = makeList(3);
   const probe = document.createElement('reaction-probe');
-  let panel: DraggableController<Drag<{ lift: Lift | null }>> | null = null;
+  let panel: DraggableController<BehaviorOperation> | null = null;
   let destroyed: Promise<void> | null = null;
   const after: string[] = [];
   let requested = false;
@@ -66,13 +67,13 @@ async function destroyFrom(where: Hook) {
 
   const lifter = new Lifter(window);
 
-  panel = draggable<{ lift: Lift | null }>(list, {
+  panel = draggable(list, {
     admit(event) {
       destroyHere('admit');
-      return { item: targetOf(event), state: { lift: null } };
+      return { item: targetOf(event) };
     },
     activate(drag) {
-      drag.state.lift = lifter.acquire(drag);
+      lifter.acquire(drag);
       destroyHere('activate');
 
       if (where === 'reaction') {
@@ -90,25 +91,28 @@ async function destroyFrom(where: Hook) {
           destroyHere('dispose');
         }
       });
-    },
-    start() {
-      destroyHere('start');
-    },
-    move() {
-      destroyHere('move');
-    },
-    drop() {
-      destroyHere('drop');
-      return () => {
-        destroyHere('verdict');
-        return 'done';
+
+      return {
+        start() {
+          destroyHere('start');
+        },
+        move() {
+          destroyHere('move');
+        },
+        drop() {
+          destroyHere('drop');
+          return () => {
+            destroyHere('verdict');
+            return 'done';
+          };
+        },
+        settle() {
+          destroyHere('settle');
+        },
+        end() {
+          destroyHere('end');
+        },
       };
-    },
-    settle() {
-      destroyHere('settle');
-    },
-    end() {
-      destroyHere('end');
     },
   });
   panel.use(lifter.cancelLanding);
@@ -144,6 +148,7 @@ describe('drag:DRI-10 destruction', () => {
         admissions += 1;
         return { item: targetOf(event) };
       },
+      activate: () => ({}),
     });
 
     await controller.requestDestroy();
@@ -192,7 +197,10 @@ describe('drag:DRI-10 destruction', () => {
   });
 
   it('should return one promise by identity on every call', async () => {
-    const panel = draggable(makeList(1), { admit: () => null });
+    const panel = draggable(makeList(1), {
+      admit: () => null,
+      activate: () => ({}),
+    });
     const first = panel.requestDestroy();
 
     expect(panel.requestDestroy()).toBe(first);
@@ -201,7 +209,10 @@ describe('drag:DRI-10 destruction', () => {
   });
 
   it('should settle the promise after teardown', async () => {
-    const panel = draggable(makeList(1), { admit: () => null });
+    const panel = draggable(makeList(1), {
+      admit: () => null,
+      activate: () => ({}),
+    });
 
     panel.use(() => {
       log.push('teardown');
@@ -215,19 +226,21 @@ describe('drag:DRI-10 destruction', () => {
     const list = makeList(2);
     const seen: unknown[] = [];
     const lifter = new Lifter(window);
-    const panel = draggable<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    const panel = draggable(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
+        lifter.acquire(drag);
         drag.use((outcome) => {
           seen.push(outcome);
         });
-      },
-      settle() {
-        log.push('settle');
-      },
-      end: () => {
-        log.push('end');
+        return {
+          settle() {
+            log.push('settle');
+          },
+          end: () => {
+            log.push('end');
+          },
+        };
       },
     });
 
@@ -244,9 +257,11 @@ describe('drag:DRI-10 destruction', () => {
     const list = makeList(2);
     const panel = draggable(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start: () => {
-        log.push('start');
-      },
+      activate: () => ({
+        start: () => {
+          log.push('start');
+        },
+      }),
     });
 
     await panel.requestDestroy();
@@ -260,17 +275,18 @@ describe('drag:DRI-10 destruction', () => {
 
   it('should run a later use at once on the operation scope, with null', async () => {
     const list = makeList(2);
-    let retained: Drag<{ lift: Lift | null }> | null = null;
+    let retained: Drag | null = null;
     const seen: unknown[] = [];
     const lifter = new Lifter(window);
-    const panel = draggable<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    const panel = draggable(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
-        return undefined;
-      },
-      start(drag) {
-        retained = drag;
+        lifter.acquire(drag);
+        return {
+          start() {
+            retained = drag;
+          },
+        };
       },
     });
 
@@ -338,12 +354,13 @@ describe('drag:DRI-10 destruction', () => {
           refs.push(new WeakRef(state));
           return { item: targetOf(event), state };
         },
-        activate(drag) {
-          drag.state.lift = lifter.acquire(drag);
-          return undefined;
-        },
-        start(drag) {
-          refs.push(new WeakRef(drag));
+        activate(drag, state) {
+          state.lift = lifter.acquire(drag);
+          return {
+            start() {
+              refs.push(new WeakRef(drag));
+            },
+          };
         },
       });
 
@@ -429,28 +446,30 @@ describe('drag:DRI-10 destruction', () => {
     const prevented: boolean[] = [];
     const panel = managed<undefined, string>(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      start() {
-        log.push('start');
-      },
-      drop: () => (signal) => {
-        signal.addEventListener('abort', () => {
-          const escape = new KeyboardEvent('keydown', {
-            key: 'Escape',
-            bubbles: true,
-            cancelable: true,
-          });
+      activate: () => ({
+        start() {
+          log.push('start');
+        },
+        drop: () => (signal) => {
+          signal.addEventListener('abort', () => {
+            const escape = new KeyboardEvent('keydown', {
+              key: 'Escape',
+              bubbles: true,
+              cancelable: true,
+            });
 
-          document.dispatchEvent(escape);
-          prevented.push(escape.defaultPrevented);
-        });
-        return new Promise<string>(() => {});
-      },
-      settle() {
-        log.push('settle');
-      },
-      end() {
-        log.push('end');
-      },
+            document.dispatchEvent(escape);
+            prevented.push(escape.defaultPrevented);
+          });
+          return new Promise<string>(() => {});
+        },
+        settle() {
+          log.push('settle');
+        },
+        end() {
+          log.push('end');
+        },
+      }),
     });
 
     await grab('#r0');
@@ -468,22 +487,24 @@ describe('drag:DRI-10 destruction', () => {
     let rejected = false;
     const panel = managed<undefined, string>(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      drop: () => (signal) => {
-        let reject: ((error: unknown) => unknown) | null = null;
+      activate: () => ({
+        drop: () => (signal) => {
+          let reject: ((error: unknown) => unknown) | null = null;
 
-        signal.addEventListener('abort', () => {
-          reject!(new Error('late rejection'));
-          rejected = true;
-        });
-        const verdict: PromiseLike<string> = {
-          then(_, onRejected) {
-            reject = onRejected ?? null;
-            return verdict as never;
-          },
-        };
+          signal.addEventListener('abort', () => {
+            reject!(new Error('late rejection'));
+            rejected = true;
+          });
+          const verdict: PromiseLike<string> = {
+            then(_, onRejected) {
+              reject = onRejected ?? null;
+              return verdict as never;
+            },
+          };
 
-        return verdict;
-      },
+          return verdict;
+        },
+      }),
     });
 
     await grab('#r0');

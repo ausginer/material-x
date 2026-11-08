@@ -5,7 +5,7 @@
  * the placeholder faults name themselves, and samples coalesce to one frame.
  */
 import { describe, expect, it } from 'vitest';
-import { Lifter, type Lift } from '../src/lift.ts';
+import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -51,21 +51,22 @@ describe('drag:DRI-3 activation', () => {
 
     const lifter = new Lifter(window);
 
-    managed<{ lift: Lift | null }>(list, {
-      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        drag.state.lift = lifter.acquire(drag);
+        lifter.acquire(drag);
         log.push('activate');
-        return undefined;
-      },
-      start() {
-        log.push('start');
-      },
-      settle() {
-        log.push('settle');
-      },
-      end() {
-        log.push('end');
+        return {
+          start() {
+            log.push('start');
+          },
+          settle() {
+            log.push('settle');
+          },
+          end() {
+            log.push('end');
+          },
+        };
       },
     }).use(lifter.cancelLanding);
 
