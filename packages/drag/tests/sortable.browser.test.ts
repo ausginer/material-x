@@ -2,7 +2,8 @@
  * `drag:DRI-14`, `drag:DRI-15`, the sortable options `sortable` adds, and
  * `drag:DRD-25`: an option callback receives only its documented values.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import type { DisplacementSink } from '../src/sortable/axis.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import type { PlaceholderContext } from '../src/sortable/placement.ts';
@@ -885,6 +886,49 @@ describe('sortable options', () => {
     expect(count()).toBeGreaterThan(0);
     await controller.requestDestroy();
     expect(count()).toBe(0);
+  });
+
+  it('should call the layoutAnimation sink with its receiver, with rows in flight', async () => {
+    const list = makeList(4);
+    const install = layoutAnimation({ duration: 3000 });
+    let sink: DisplacementSink | null = null;
+
+    basicSortable(list, {
+      displacement: () => {
+        sink = install();
+        return sink;
+      },
+    });
+
+    // The spies call the class's methods with the receiver they are given.
+    const report = vi.spyOn(sink!, 'report');
+    const settle = vi.spyOn(sink!, 'settle');
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await commands.pointerMove(start.x, start.y + 62, 3);
+    await frames(3);
+    await commands.pointerMove(start.x, start.y + 65);
+    await frames(3);
+
+    const firstReport = report.mock.invocationCallOrder[0]!;
+    const settledInFlight = settle.mock.contexts.filter(
+      (_, call) => settle.mock.invocationCallOrder[call]! > firstReport,
+    );
+    const running = rowsOf(list).reduce(
+      (sum, row) => sum + row.getAnimations().length,
+      0,
+    );
+
+    await release();
+    expect(faults).toEqual([]);
+    expect(running).toBeGreaterThan(0);
+    expect(report.mock.contexts.length).toBeGreaterThan(0);
+    expect(report.mock.contexts.every((context) => context === sink)).toBe(
+      true,
+    );
+    expect(settledInFlight.length).toBeGreaterThan(0);
+    expect(settledInFlight.every((context) => context === sink)).toBe(true);
   });
 
   it('should re-measure on scroll during a drag, nested scrollers included', async () => {
