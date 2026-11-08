@@ -245,3 +245,50 @@ Then push and stop.
 - the combined review follows those, as recorded.
 
 **Note for the combined review.** `DRF-4` (b) is a migrated test whose subject changed: the step's target was the `Drag`, and became the operation. Other migrated tests can fail the same way, and this record didn't search for them.
+
+## 7. Remediation report
+
+**Commit:** `79be2c938` on `drag/production`, from `4babe0758`. It touches only the five files §6 lists.
+
+**Items:**
+
+1. **Motion.** `FreeDragOperation` owns `readonly #motion = { x: 0, y: 0 }`. `translate`, `drop`, `#computeMotion` and `#geometry` read it. `FreeDragBehavior` has no `motion`, its doc comment no longer mentions scratch, and no operation writes a behavior member. `activate`'s `translate` still writes the motion that `start`'s geometry reads. No test expectation changed.
+2. **`DRF-4` (a).** `freeDrag` and `sortable` call `draggable(root, behavior)`, and the type-check passes. The class witness has no comment and no type arguments. Its operation gained `nudge()`, and a step through the controller calls `operation?.nudge()`, which only the inferred class type allows.
+3. **`DRF-4` (b).** The session test again asserts, on the `Drag` that a literal's `activate` receives, that it has no `phase`, `next` or `decision`. The operation assertions stay.
+4. **Labels and documentation.** `authoring.browser`'s title is "the lift in the operation". `README.md` § The `requestStep` rule says, after the `Nudged` example, when a literal names the type arguments and that a class instance infers them.
+
+**Checks:**
+
+- The handoff loop ran on the four TypeScript files: `fmt`, `lint-fix`, `fmt`, then `lint`, with no diagnostic left. `README.md` was formatted. No link changed, and `git diff --check` is clean.
+- `just typecheck` passes. All `@ts-expect-error` directives are used.
+- `just test`: 339 of 342 passed. The three failures are the size rows (`draggable alone`, `freeDrag`, `freeDrag + bounds + landing`).
+- `just test-engines`: 930 passed and 18 skipped, across 66 files.
+- **Kernel per-sample test:** passed in both runs (Chromium only). Not interpreted.
+- **`DRF-2` test:** passed in `just test` (Chromium only). It was not run further, so no B-per-move figure was recorded.
+
+**Size for `DRO-8`.** `just size` at `4babe0758` and at `79be2c938`. Not accepted, and no ceiling was re-based.
+
+| Row | Before min | After min | Δ | Before br | After br | Δ |
+| --- | --: | --: | --: | --: | --: | --: |
+| draggable alone | 6435 | 6435 | 0 | 2123 | 2123 | 0 |
+| draggable + lift | 11891 | 11891 | 0 | 4129 | 4129 | 0 |
+| example: resize handle | 9092 | 9092 | 0 | 3229 | 3229 | 0 |
+| example: drop zone | 12690 | 12690 | 0 | 4420 | 4420 | 0 |
+| example: canvas group | 9228 | 9228 | 0 | 3230 | 3230 | 0 |
+| freeDrag | 15080 | 15047 | −33 | 5119 | 5097 | −22 |
+| freeDrag + bounds + landing | 15765 | 15732 | −33 | 5368 | 5353 | −15 |
+| sortable + y | 20122 | 20122 | 0 | 6668 | 6668 | 0 |
+| sortable + xy | 19738 | 19738 | 0 | 6608 | 6608 | 0 |
+| complete | 21155 | 21155 | 0 | 7054 | 7054 | 0 |
+
+- `freeDrag` is now 130 B over its 4967 B ceiling, down from 152.
+- `freeDrag` + `bounds` + `landing` is 143 B over its 5210 B ceiling, down from 158.
+- The control row is still 99 B off.
+- Removing the type arguments changes no emitted code. The `freeDrag` change is the motion move. I made no ablation to attribute it further.
+
+**Allocation, counted by reading:**
+
+- `freeDrag`: one object more per activation (the operation's `#motion`), and one fewer per controller (the behavior's `motion`). Nothing changes per press or per sample.
+- `sortable`, the kernel and the examples: unchanged.
+
+**Open:** `DRO-7` and `DRO-8` for the owner. `DRF-1` and the kernel per-sample reading stay open, apart from this unit. Then the combined review.
