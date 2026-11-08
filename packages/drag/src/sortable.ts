@@ -31,6 +31,7 @@ export type {
   SortableCanceledResult,
   SortableNoopResult,
   SortableRejectedResult,
+  SortableConfig,
   SortableResult,
 };
 

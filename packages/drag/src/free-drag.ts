@@ -23,6 +23,7 @@ export type {
   DragGeometry,
   FreeDragAcceptedResult,
   FreeDragCanceledResult,
+  FreeDragConfig,
   FreeDragRejectedResult,
   FreeDragRequest,
   FreeDragResult,

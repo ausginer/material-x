@@ -35,11 +35,7 @@ type Recovery =
 
 /**
  * One activated sortable operation, from `start` to `end`. The kernel calls each
- * hook as a method of this instance. It is also the query the axis rule reads.
- */
-/**
- * One activated sortable operation, from `start` to `end`. The kernel calls each
- * hook as a method of this instance. It is also the query the axis rule reads.
+ * hook as a method of this instance.
  */
 export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   readonly #behavior: SortableBehavior;
@@ -49,6 +45,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   readonly #direction: KeyboardDirection | null;
   readonly #frame: FrameTask;
   readonly #context: AxisContext;
+  /** The operation state the axis rule reads. */
   readonly #query: Writable<SetNonNullable<AxisQuery>>;
   /** `null` until the drop: a cancel before it has none. */
   #request: ReorderRequest | null = null;
