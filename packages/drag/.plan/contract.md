@@ -1,12 +1,13 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
 | Term | Meaning |
 | --- | --- |
-| **Behavior** | The hooks passed to `draggable`. `sortable` and `freeDrag` are behaviors |
+| **Behavior** | What is passed to `draggable`. It lasts as long as its controller, and admits and activates. `sortable` and `freeDrag` are behaviors |
+| **Behavior operation** | What `activate` returns: the hooks from `start` to `end` for one activated operation |
 | **Operation** | One press or command, from admission to its end |
 | **Pass** | One synchronous run of library work, from a native event, a frame, a settled verdict or a request made while idle. Passes do not nest |
 | **Step** | One unit inside a pass. The library reads requests only between steps |
@@ -19,8 +20,8 @@
 
 | Entry | Exports |
 | --- | --- |
-| `draggable.js` | `draggable`, and the types `Behavior`, `Admission`, `Drag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome` and `CancelOrigin` |
-| `lift.js` | `createLifter`, and the types `Lifter`, `Lift` and `Landing` |
+| `draggable.js` | `draggable`, and the types `Behavior`, `BehaviorOperation`, `Admission`, `Drag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome` and `CancelOrigin` |
+| `lift.js` | `Lifter`, and the types `Lift` and `LandingTiming` |
 | `fault.js` | `DragFault` |
 | `sortable.js` | `sortable`, `ReorderResolution` |
 | `sortable/y.js`, `sortable/xy.js` | `y`, `xy` |
@@ -28,11 +29,11 @@
 | `free-drag.js` | `freeDrag`, `FreeDragResolution` |
 | `free-drag/bounds.js`, `free-drag/landing.js` | `bounds`, `landing` |
 
-`@ydinjs/box-quad` is the coordinate API for behaviors. This package does not re-export it. The `sortable` and `freeDrag` options are those of the prototype's `sortable.ts` and `free-drag.ts`, with the changes below. **A callback in those options receives only the values its type documents, in an object of its own.** It never receives the kernel's `Drag` or a behavior's operation state.
+`@ydinjs/box-quad` is the coordinate API for behaviors. This package does not re-export it. The `sortable` and `freeDrag` options are those of the prototype's `sortable.ts` and `free-drag.ts`, with the changes below. **A callback in those options receives only the values its type documents, in an object of its own.** It never receives the kernel's `Drag` or a behavior's operation.
 
 ### `draggable`
 
-Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook from the behavior when it calls it, and calls it as a method of the behavior object**, so a behavior may be a class instance. **No controller method depends on `this`**, so each works when detached.
+Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **No controller method depends on `this`**, so each works when detached.
 
 ```ts
 type Outcome<Verdict> =
@@ -44,27 +45,29 @@ type Outcome<Verdict> =
       origin: 'request' | 'escape' | 'interrupted' | 'fault';
     };
 
-type Behavior<State, Verdict> = {
+type Behavior<State, Verdict, Operation extends BehaviorOperation<Verdict>> = {
   threshold?: number;
   admit(event: PointerEvent): Admission<State> | null;
   command?(event: KeyboardEvent): Admission<State> | null; // One complete operation with no pointer.
-  activate?(drag): void | false; // `false` declines. A throw is a fault. Neither gets `start` or `end`.
-  start?(drag): void;
-  move?(drag): void;
-  drop?(drag): ((signal: AbortSignal) => Verdict | PromiseLike<Verdict>) | null;
-  settle?(drag, outcome: Outcome<Verdict>): void; // The presentation is still held.
-  end?(drag, outcome: Outcome<Verdict>): void;
+  activate(drag: Drag<Operation>, state: State): Operation | null; // `null` declines. A throw is a fault. Neither gets `start` or `end`.
+};
+
+type BehaviorOperation<Verdict> = {
+  start?(): void;
+  move?(): void;
+  drop?(): ((signal: AbortSignal) => Verdict | PromiseLike<Verdict>) | null;
+  settle?(outcome: Outcome<Verdict>): void; // The presentation is still held.
+  end?(outcome: Outcome<Verdict>): void; // After release.
 };
 
 type Admission<State> = {
   item: HTMLElement;
   handle?: HTMLElement;
-  state?: State; // The behavior's context for the operation.
+  state?: State; // Passed to `activate` by identity. The kernel never reads it.
 };
 
-type Drag<State> = {
+type Drag<Operation> = {
   item: HTMLElement;
-  state: State; // The admission's `state`, by identity. The kernel never reads or writes it.
   pointerId: number; // -1 for a command.
   x: number;
   y: number;
@@ -72,24 +75,23 @@ type Drag<State> = {
   originY: number; // Viewport.
   signal: AbortSignal; // Aborts when the operation releases its presentation.
   use(dispose: (outcome: Outcome<unknown> | null) => void): void; // `null`: destruction released this operation.
-  requestStep(step: (drag: Drag<State> | null) => void): void; // Acts only while this operation is the controller's current one.
+  requestStep(step: (operation: Operation | null) => void): void; // Acts only while this operation is the controller's current one.
   requestCancel(reason?: unknown): void; // The same scope.
 };
 
-type DraggableController<State> = {
-  requestStep(step: (drag: Drag<State> | null) => void): void;
+type DraggableController<Operation> = {
+  requestStep(step: (operation: Operation | null) => void): void;
   requestCancel(reason?: unknown): void;
   requestDestroy(): Promise<void>;
   use(dispose: () => void): void; // Runs on destruction.
 };
 
 // `lift.js`. Nothing in `draggable.js` names these.
-function createLifter(window: Window): Lifter; // One per controller.
-
-type Lifter = {
+class Lifter {
+  constructor(window: Window); // One per controller.
   acquire(drag: Drag<unknown>, visual?: HTMLElement, box?: HTMLElement): Lift; // First in `activate`. `visual` defaults to `drag.item`, `box` to `visual`.
-  cancelLanding(): void; // Pass it to the controller's `use`. Works when detached.
-};
+  readonly cancelLanding: () => void; // Pass it to the controller's `use`. Works when detached.
+}
 
 type Lift = {
   visual: HTMLElement;
@@ -99,20 +101,23 @@ type Lift = {
   boxHeight: number;
   visualSpace: Space;
   itemSpace: Space; // From `@ydinjs/box-quad`.
-  translatedX: number;
-  translatedY: number;
   translate(x: number, y: number): void; // Viewport delta.
-  land(landing: Landing): void; // From `settle`. The landing starts when the lift is released.
+  land(x: number, y: number, timing?: LandingTiming): void; // From `settle`: the viewport position of the visual's top-left. `timing` is called once, now, and its values are copied. The landing starts when the lift is released.
 };
 
-type Landing = { x: number; y: number; duration?: number; easing?: string }; // Viewport position of the visual's top-left.
+type LandingTiming = (
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+) => { duration: number; easing: string };
 ```
 
-**Type requirement:** `Drag`, `Behavior` and `Admission` name no lift member, and `draggable` has one signature. Declaration tests assert that a `Drag` has no `lift`, `visual` or `translate`, and that an admission has no `visual` or `box`. The mechanism is the implementer's.
+**Type requirement:** `Drag`, `Behavior`, `BehaviorOperation` and `Admission` name no lift member, and `draggable` has one signature. Declaration tests assert that a `Drag` has no `lift`, `visual`, `translate` or `state`, that an admission has no `visual` or `box`, and that a behavior has no `start`, `move`, `drop`, `settle` or `end`. The mechanism is the implementer's.
 
-**The operation and the behavior's context.** The kernel builds a `Drag` when the operation opens, and writes only its `x` and `y` afterwards. `drag.state` is the behavior's context. The kernel carries it from the admission and never reads or writes it. No kernel module names the lift or the landing (`DRD-27`).
+**The behavior and its operation.** The kernel builds a `Drag` when the operation opens, and writes only its `x` and `y` afterwards. It carries the admission's `state` to `activate` and never reads or writes it. It keeps the operation `activate` returns until the operation ends, and reads only its hooks. A step receives that operation. No kernel module names the lift, the landing or a behavior's resources (`DRD-27`, `DRD-30`). Each resource of an operation is released by a `use` disposer registered when it is acquired, by `activate` or by the operation, so a declined or failed activation is restored at release.
 
-**Composing the lift.** A behavior that lifts creates one `Lifter` with its controller, and passes `cancelLanding` to the controller's `use`. In `activate` it calls `acquire` before any other `drag.use`, and keeps the `Lift` in `drag.state`. `acquire` registers the lift's release with `drag.use` before it writes anything. So the release runs after every disposer that the behavior adds later, and it also restores a failed acquisition. `land` from `settle` names the landing, and the lift starts it right after its release. The next `acquire` cancels a running landing after it has measured, and so does `cancelLanding`.
+**Composing the lift.** A behavior that lifts creates one `Lifter` with its controller, and passes `cancelLanding` to the controller's `use`. In `activate` it calls `acquire` before any other `drag.use`, and the operation it returns keeps the `Lift`. `acquire` registers the lift's release with `drag.use` before it writes anything. So the release runs after every disposer that the behavior adds later, and it also restores a failed acquisition. `land` from the operation's `settle` names the landing, and the lift starts it right after its release. The next `acquire` cancels a running landing after it has measured, and so does `cancelLanding`.
 
 **What a behavior does not receive:** the session, its slots, its state or its next step, in types or at runtime.
 
@@ -132,7 +137,7 @@ One reader takes requests between steps, in this order: destruction, deferred st
 
 #### DRI-3 — Terminals
 
-`end` runs exactly once for an operation that reached `start`, unless destruction is applied first. `end` does not run without `start`. `start` runs only after `activate` returned and did not decline. An item disconnected at activation declines the operation quietly for every behavior: no `activate`, no `start`, no `end`, no report.
+`end` runs exactly once for an operation that reached `start`, unless destruction is applied first. `end` does not run without `start`. `start` runs only after `activate` returned an operation. An item disconnected at activation declines the operation quietly for every behavior: no `activate`, no `start`, no `end`, no report.
 
 #### DRI-4 — Cancel
 
@@ -156,7 +161,7 @@ Code outside a hook writes behavior state through `requestStep`.
 
 - When no pass is running, the step runs at once. During a pass, it runs between steps, in request order.
 - The same function requested again before it runs runs once. So a stable `invalidate` coalesces, and closures such as `moveTo` keep their order.
-- **Through the controller,** the step receives the operation's `Drag` only from the end of activation until the drop or the decision, whichever comes first. Otherwise it receives `null`, including before activation, while a verdict is pending and behind a cancel. So a `moveTo` behind a cancel changes nothing, and neither the view nor a landing moves.
+- **Through the controller,** the step receives the operation that `activate` returned only from the end of activation until the drop or the decision, whichever comes first. Otherwise it receives `null`, including before activation, while a verdict is pending and behind a cancel. So a `moveTo` behind a cancel changes nothing, and neither the view nor a landing moves.
 - **Through a `Drag`,** a request acts only while that operation is the controller's current one, and the same window applies. Afterwards it does nothing, and so does `drag.requestCancel`. A retained `Drag` never reaches a later operation.
 - A throw is a fault under DRI-7.
 - A pass with no deferred step allocates nothing for this mechanism.
@@ -170,7 +175,7 @@ A hook may write its own state directly. Foreign code cannot be stopped from wri
 When a decision is applied, the order is:
 
 1. Motion closes and the pointer capture is released. The verdict's signal aborts if the decision is a cancel.
-2. `settle` runs if `start` was reached. A lifted behavior names the landing there with `lift.land`.
+2. The operation's `settle` runs if `start` was reached. A lifted behavior names the landing there with `lift.land`.
 3. `drag.signal` aborts.
 4. `use` disposers run last in first out, each with the outcome.
 5. With the lift composed, the lift is released as the last disposer of step 4, because `acquire` registered it first. The visual's inline declarations and popover state are exactly as they were.
@@ -255,7 +260,7 @@ The kernel allocates nothing per pointer sample. The lift's `translate` allocate
 
 #### DRI-18 — Custom behaviors get the same guarantees
 
-DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no code from its author beyond its hooks and no `try`. **The lift's guarantees** are DRI-9's steps 5 and 6, DRI-12's promotion and DRI-13. They hold for a behavior that composes the lift as `lift.js` documents: one `Lifter` per controller whose `cancelLanding` is passed to the controller's `use`, and `acquire` first in `activate`. `sortable` and `freeDrag` import only public `draggable` and `lift` values and types from the kernel. Importing `draggable` alone brings no lift, `box-quad`, sortable, axis, cache or landing code.
+DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no code from its author beyond its behavior and its operation, and no `try`. **The lift's guarantees** are DRI-9's steps 5 and 6, DRI-12's promotion and DRI-13. They hold for a behavior that composes the lift as `lift.js` documents: one `Lifter` per controller whose `cancelLanding` is passed to the controller's `use`, and `acquire` first in `activate`. `sortable` and `freeDrag` import only public `draggable` and `lift` values and types from the kernel. Importing `draggable` alone brings no lift, `box-quad`, sortable, axis, cache or landing code.
 
 ### Input
 
@@ -285,6 +290,8 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-08 | Vocabulary, public surface, `DRI-3`, `DRI-8`, `DRI-9`, `DRI-18` | **Changed:** `activate` returns the behavior's operation, which holds `start`, `move`, `drop`, `settle` and `end`, or `null` to decline. It used to return `undefined` or `false`, and those hooks were the behavior's, called with the `Drag`. A step receives the operation, and used to receive the `Drag`. The `Drag` has no `state`: `activate` receives it. `activate` is required. **Added:** the type `BehaviorOperation`. `DRD-30` |
+| 2026-11-08 | Public surface | **Changed:** `lift.js` exports the class `Lifter` and the type `LandingTiming`. `Lift` has no `translatedX` or `translatedY`, and `land(x, y, timing?)` copies the timing's values at the call. It used to export `createLifter` and `Landing`, and `land` took a `Landing`. This entry was not updated when `DRD-29` was implemented at `b33890461`. `DRD-29`, `DRF-3` |
 | 2026-11-07 | Public surface, `DRI-9`, `DRI-10`, `DRI-13`, `DRI-17`, `DRI-18` | **Changed:** the kernel has no lift. A behavior composes it with `createLifter`, acquires it in `activate`, keeps the `Lift` in its state and calls `land` in `settle`. The lift's release and landing are its first `use` disposer, and its landing's cancel is a controller disposer. It used to be the behavior's `lift` member: the kernel acquired it, released it after the disposers, started the landing that `settle` returned and cancelled it at destruction, and the ten lifted members were on the `Drag`. `Behavior.lift`, the lifted types and `Admission`'s `visual` and `box` are removed, and `settle` returns nothing. `Landing` is exported from `lift.js`, and it used to be exported from `draggable.js`. **Added:** each entry's types. This replaces the text at `6d5ba89e7`, never implemented, in which the members moved to `drag.lift`. `DRD-27`, `DRD-28` |
 | 2026-11-07 | Public surface | **Added:** an option callback of `sortable` or `freeDrag` receives only its documented values. The `placeholder` factory had received the operation's `Drag` at `3084191bb`. `DRD-25` |
 | 2026-11-07 | `DRI-14` | **Added:** each pull copies the array that `items()` returns. `DRD-25` |

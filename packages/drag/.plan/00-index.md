@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The same record recommends an operation object for each built-in's activation resources, which waits for the owner's answers.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -551,6 +551,126 @@ No change to event order, hooks, outcomes, the built-ins' landings or timing is 
 
 **Before implementation:** `DRF-2`'s repair, so that the per-sample property can be shown.
 
+#### DRD-30 — `activate` returns the behavior's operation
+
+**`Behavior` keeps what lasts as long as its controller: `threshold`, `admit`, `command` and `activate`. `activate(drag, state)` returns a `BehaviorOperation`, which holds the hooks `start`, `move`, `drop`, `settle` and `end` for that operation, or `null` to decline. The kernel keeps the operation `activate` returned, calls those hooks on it, and gives it to steps. The `Drag` loses `state`. The kernel names no lift and no behavior resource. `sortable` and `freeDrag` implement `SortableOperation` and `FreeDragOperation`.**
+
+Decided on 2026-11-08 on the owner's proposal. It replaces [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2, where each hook forwarded through one nullable operation reference with an assertion. **The owner's terms:** nothing is published, so a public authoring change is allowed and compatibility is no reason to keep the current shape. The kernel stays independent of the lift and of behavior resources. The behavior need not acquire every resource or pass every resource to a constructor.
+
+**Why it fits.** At `f40c32f32`, 16 of the 23 non-null assertions in the built-ins read a value that exists exactly from the end of a successful `activate` to the release (assessment §2). The kernel already runs `start` to `end` and gives a step its target only in that interval. A return value from `activate` is the type of that interval. The behavior never needs the operation outside it, so neither side holds a nullable reference to it.
+
+**The contract.** Type parameters are illustrative. The implementer may arrange them differently if inference needs it, and reports why:
+
+```ts
+type Behavior<State, Verdict, Operation extends BehaviorOperation<Verdict>> = {
+  threshold?: number;
+  admit(event: PointerEvent): Admission<State> | null;
+  command?(event: KeyboardEvent): Admission<State> | null;
+  /** `null` declines quietly. A throw is a fault. Neither gets `start`. */
+  activate(drag: Drag<Operation>, state: State): Operation | null;
+};
+
+type BehaviorOperation<Verdict> = {
+  start?(): void;
+  move?(): void;
+  drop?(): ((signal: AbortSignal) => Verdict | PromiseLike<Verdict>) | null;
+  settle?(outcome: Outcome<Verdict>): void;
+  end?(outcome: Outcome<Verdict>): void;
+};
+
+type Drag<Operation> = {
+  item: HTMLElement;
+  pointerId: number;
+  x: number;
+  y: number;
+  originX: number;
+  originY: number;
+  signal: AbortSignal;
+  use(dispose: DragDisposer): void;
+  requestStep(step: (operation: Operation | null) => void): void;
+  requestCancel(reason?: unknown): void;
+};
+
+type DraggableController<Operation> = {
+  requestStep(step: (operation: Operation | null) => void): void;
+  requestCancel(reason?: unknown): void;
+  requestDestroy(): Promise<void>;
+  use(dispose: () => void): void;
+};
+```
+
+- **`Admission` is unchanged.** Its `state` is passed to `activate` by identity, and the kernel never reads it.
+- **`activate` is required,** because without it no operation exists.
+- **The operation's hooks take no `Drag`.** An operation that needs the `Drag` keeps it from `activate`.
+- **A step receives the operation `activate` returned,** from the end of activation until the drop or the decision, and `null` otherwise. This holds through the controller and through a `Drag`.
+- **`draggable.js` also exports the type `BehaviorOperation`.** `lift.js` is unchanged.
+
+**The lifecycle.** Every row keeps the order the kernel has at `f40c32f32`. Only where a hook lives changes.
+
+| Case | What happens |
+| --- | --- |
+| Item disconnected at activation | `activate` isn't called. The operation is skipped quietly, as now |
+| `activate` returns `null` | Skipped, unless a decision was already recorded, which then stands. No `start`, `settle` or `end`. The disposers `activate` registered run at release with the outcome |
+| `activate` throws | A fault, unless a decision was already recorded. Released as above. An operation constructed before the throw never reaches the kernel |
+| Partial acquisition | Each resource's release is registered with `drag.use` when that resource is acquired, before the next acquisition. Either `activate` or the operation's constructor may do this. The kernel never calls the operation to clean up. `BehaviorOperation` has no release member |
+| A step requested during `activate` | Deferred. It runs after the step that called `activate`, and receives the returned operation if that operation is then active and undecided |
+| A cancel during `activate` | Recorded. If `activate` returns an operation, `start` still runs, then `settle` and `end` with the cancel, as now |
+| Destruction during `activate` | Applied after that step. `start` has run, and `settle` and `end` don't run (DRI-10) |
+| Verdict | `drop` returns it, and the operation's `settle` and `end` receive its outcome. A completion behind a decision or after the end reaches nothing |
+| After release | `end` runs as the next step, after every disposer. So the operation's resources are already released, and `end` uses only the outcome and its own values. A disposer added after release runs at once |
+
+**Kernel requirements:**
+
+- **One gate, one reader, its precedence, the three points where the slot is cleared, and DRI-9's order all stay** (`DRD-1`, `DRD-24`, `DRD-26`).
+- **The session keeps the operation from `activate`'s return.** "`start` was reached" is the same as holding it. So the reference may replace `#started`, and no field holds both.
+- **No new non-null assertion or cast in the kernel.** Where a phase test now guards a hook call, it may become a test of the reference only where the two agree. The report gives the argument for each such site.
+- **Hooks are called as methods,** read when called: `admit`, `command` and `activate` on the behavior, and the rest on the operation.
+- **Nothing per sample:** `move` is called with no argument. DRI-17 holds.
+- **The admission's `state` is kept by the session until `activate`.** The kernel's one cast, `as State`, moves with it.
+- `grep -rniE 'lift|landing' src/kernel src/draggable.ts` stays empty.
+
+**The built-ins:**
+
+- **Two classes in each built-in, both module-private.**
+  - The behavior, `FreeDragBehavior` or `SortableBehavior`, keeps the controller-lifetime values that `DRD-20` lists, and admits and activates.
+  - The operation, `FreeDragOperation` or `SortableOperation`, owns one activated operation: its `Drag`, its `Lift`, its resources, its transitions and its steps.
+  - No base class is shared (`DRD-20`).
+- **`activate` acquires the lift as its first statement** (`DRD-27`). In `sortable` it then pulls again and declines with `null`, before any operation exists.
+  - The remaining resources may be acquired in `activate` or in the operation's constructor, in the order they have at `f40c32f32`, statement by statement.
+  - That order is the placeholder and its removal, its insertion and check, the frame task and its cancel, the axis retirement, the invalidation listener, and then the axis invalidation.
+- **No activation resource is nullable.** `insertion` isn't either. `request` may stay nullable, because a cancel before the drop has none. Whether `result` stays a field or is built in `end` is the implementer's choice.
+- **The admission's `state` holds only what `activate` needs from the press:**
+  - `freeDrag`: the visual, which needs no object;
+  - `sortable`: the visual, the box and the direction. The admission's snapshot isn't kept, because activation pulls again.
+- **Function identities follow `DRD-20`.**
+  - Controller steps such as `invalidate` stay one per controller, and receive the operation or `null`.
+  - A step or callback that belongs to the operation is created once per operation.
+  - `moveTo` stays one step per call (`DRD-25`).
+- **The operation doesn't own controller-lifetime state.** It receives the references it uses at construction. `sortable`'s collection version stays on the behavior.
+- **`SortableOperation` may serve as the `AxisQuery` and the `AxisContext`,** which would remove the context literal. That needs `AxisContext`'s internal `settle` member renamed, because it would collide with the hook. The implementer chooses, and reports the allocation either way.
+- **Option callbacks receive what they receive now** (`DRD-25`).
+
+**Changes a consumer sees:**
+
+- the hooks after activation move to the operation that `activate` returns;
+- `activate` is required, receives the admission's `state` and declines with `null`;
+- `Drag` has no `state`, and a step receives the operation;
+- `BehaviorOperation` is exported.
+
+The built-ins' options and controllers don't change.
+
+**Rejected:**
+
+- **One nullable operation reference in `state`, with an assertion in each hook** (assessment §2). The owner's proposal removes both.
+- **Hooks that also receive the `Drag`.** That gives each hook two ways to reach the same values, and typing the `Drag` inside a hook needs a self-referential type. It would let a behavior share one operation across activations. Without it, a behavior whose hooks need the `Drag` allocates its operation each activation. That cost is reported.
+- **Keeping `drag.state`.** Only `activate` reads it. After activation it would be a second per-operation record beside the operation.
+- **Steps that receive the `Drag`.** A controller step such as `invalidate` or `moveTo` would then reach the operation only through a field on `state`, which is the nullable forward this decision removes.
+- **Different targets for a step through a `Drag` and one through the controller.** The step list would need a tag, which `DRD-6` excludes.
+- **A release hook on the operation.** `drag.use` already orders every release, including a failed acquisition's. A second mechanism would split that order.
+- **Any knowledge of the lift or of a behavior's resources in the kernel.**
+
+**Costs: `DRO-8`.** None is accepted here, and timing stays deferred. **Before implementation:** the `DRF-3` repair ([`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §3), as its own unit. [`activation-result-handoff.md`](activation-result-handoff.md) implements this decision.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -760,21 +880,39 @@ No timing was taken.
 
 **Status, 2026-11-07:** the figures are in the [ownership report](ownership-report.md), measured at `039e8e153`, `433a0e06c` and `89995c27e`. One is incomplete. **The per-sample test passed, but its kernel assertion couldn't fail** (§Disposition of the ownership report). So that result covers only the lift's `translate`. The kernel's per-sample figure comes from [`instrument-repair-handoff.md`](instrument-repair-handoff.md) item 1's unmutated runs. The size and allocation figures don't depend on it. **Added 2026-11-08:** `DRD-29`'s figures come from [`lift-representation-handoff.md`](lift-representation-handoff.md) item 4: size, allocation by reading, and the lift's bytes per sample before and after, which `DRF-2`'s repair makes measurable. They are reported apart from the kernel's per-sample reading, which is still open. **Added 2026-11-08, after the unit:** the [report](lift-representation-report.md) has them, and the architect reviewed them in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §1, without accepting any. The size table is consistent. The allocation count by reading agrees: one function less per lifted controller, one object more per lifted activation, and no change per landing. Per sample, the result is only that `DRD-29` adds no allocation the size of `DRF-2`'s mutation.
 
+#### DRO-8 — The costs of the activation result
+
+**Default: none is accepted until you read it.** [`activation-result-handoff.md`](activation-result-handoff.md) implements `DRD-30`, and its report gives these figures, each with the commit it measured:
+
+- **Size:** every row of `just size`, minified and Brotli, at the unit's base and at each of its commits.
+- **Allocation, counted by reading with the method of the ownership report:** per press that never activates, per activation, per controller and per landing. The kernel, `freeDrag`, `sortable` and each example in the size table are counted separately.
+- **Per sample:** the `DRF-2` test's `lift.ts:translate` figures, and the kernel per-sample test's results as the suites report them, not interpreted.
+
+**Expected by reading, not measured:**
+
+- `freeDrag`: one object less per press, because its admission's `state` is the visual, and one more per activation, the operation.
+- `sortable`: no change per activation if the operation also serves as the axis context. Otherwise one more.
+- The examples: one operation per activation where the example has no state object today.
+- The kernel: no change per operation. The admission's `state` moves from the `Drag` to the session.
+- Size: the operation classes' member names aren't shortened by the minifier. No figure is estimated. `freeDrag` is already over its ceiling.
+
+**What reading decides:** you accept the figures, or name a part to remove before merge.
+
 ## Decision status
 
 | Decision | Status |
 | --- | --- |
 | DRD-1 | active |
-| DRD-2 | active |
+| DRD-2 | active. `DRD-30` changes the authoring API: the hooks after activation are on the operation that `activate` returns |
 | DRD-3 | active |
 | DRD-4 | active, amended by `DRD-27`: the lift is no longer a behavior member. A behavior composes it with `createLifter`, and its members are on the `Lift` that the behavior keeps in its state. Its purpose holds: without that import, no lift code |
 | DRD-5 | active |
-| DRD-6 | active, scoping amended by `DRD-16` |
+| DRD-6 | active, scoping amended by `DRD-16`. Under `DRD-30` a step receives the behavior's operation instead of the `Drag` |
 | DRD-7 | active |
 | DRD-8 | active |
 | DRD-9 | active, the restore's place amended by `DRD-15` |
 | DRD-10 | active, a grab during a landing amended by `DRD-18` |
-| DRD-11 | active. `DRD-18` applies the activation pull to commands |
+| DRD-11 | active. `DRD-18` applies the activation pull to commands. Under `DRD-30`, `activate` declines with `null` |
 | DRD-12 | active |
 | DRD-13 | active, its performance rules amended by `DRD-22` |
 | DRD-14 | active, implemented at `b91db2818`. Under `DRD-27` the release is the lift's own disposer, in the same place |
@@ -783,13 +921,14 @@ No timing was taken.
 | DRD-17 | active, implemented at `b91db2818` |
 | DRD-18 | active, implemented at `b91db2818`. Under `DRD-27` the lifter measures and then cancels its own running landing |
 | DRD-19 | active, implemented at `b91db2818` |
-| DRD-20 | active, implemented at `b91db2818`. `DRD-24` amends its sentence on the class that holds a session |
+| DRD-20 | active, implemented at `b91db2818`. `DRD-24` amends its sentence on the class that holds a session. Under `DRD-30`, operation values live in the behavior's operation, the hooks after activation are its methods, and the operation may keep its `Drag` |
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
 | DRD-23 | active. Its last bullet, on instrument selection, was added on 2026-11-07. [`instrument-repair-handoff.md`](instrument-repair-handoff.md) applies it. `DRF-1` is open under it |
 | DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller |
 | DRD-25 | active, implemented at `2506dcbb6` |
 | DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2) |
-| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18. Its `type-fest` sentence was corrected on 2026-11-08. `DRD-29` amends its `lift.js` types and its "Only `translate` writes `translatedX` and `translatedY`" |
+| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18. Its `type-fest` sentence was corrected on 2026-11-08. `DRD-29` amends its `lift.js` types and its "Only `translate` writes `translatedX` and `translatedY`". Under `DRD-30` the operation that `activate` returns keeps the `Lift`, instead of `drag.state` |
 | DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1). Its `type-fest` packaging line was corrected on 2026-11-08. `DRD-29` amends its `lift.js` row |
 | DRD-29 | active, decided on 2026-11-08 on the owner's clarifications. Implemented at `b33890461` ([`lift-representation-report.md`](lift-representation-report.md) item 3). Read by the architect at `d258573fa`: it conforms except `DRF-3`, whose required property was added to its `land` bullets on 2026-11-08. Amends `DRD-27`'s public types and lift properties and `DRD-28`'s `lift.js` row |
+| DRD-30 | active, decided on 2026-11-08 on the owner's proposal, not implemented. [`activation-result-handoff.md`](activation-result-handoff.md) implements it, after `DRF-3`'s repair. Amends `DRD-2`, `DRD-6`, `DRD-11`, `DRD-20`, `DRD-27`, and the contract's vocabulary, public surface, DRI-3, DRI-8, DRI-9 and DRI-18. Replaces [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2 |

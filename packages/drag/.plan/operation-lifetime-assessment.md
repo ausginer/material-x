@@ -1,6 +1,6 @@
 # Activation lifetime in the built-ins, and the lift representation report
 
-**Status, 2026-11-08: assessed by the architect, not decided.** Section 1 reads the [lift representation report](lift-representation-report.md) and is recorded in [`00-index.md`](00-index.md) as `DRF-2`'s closure, `DRF-3` and `DRD-29`'s status. Section 2 recommends a design for the built-ins' activation resources, which becomes a decision only after the owner answers §Questions for the owner. Section 3 is the next bounded handoff.
+**Status, 2026-11-08: assessed by the architect, not decided.** Section 1 reads the [lift representation report](lift-representation-report.md) and is recorded in [`00-index.md`](00-index.md) as `DRF-2`'s closure, `DRF-3` and `DRD-29`'s status. Section 2 recommended a design for the built-ins' activation resources. **Its recommendation is replaced by `DRD-30`,** on the owner's proposal that `activate` return the behavior's operation. Its evidence, the assertion inventory, still stands, and `DRD-30` cites it. Of its questions, the owner answered the first two: the design is `DRD-30`, and the unit reports its costs without a preset limit (`DRO-8`). The third, the owner's uncommitted edits, is item 1 of [`activation-result-handoff.md`](activation-result-handoff.md). Section 3 is the `DRF-3` repair, which stays a separate unit and goes first.
 
 **Read at:** `d258573fa` on `drag/production`, with the owner's uncommitted edits to `src/free-drag.ts` and `src/sortable.ts`. Those edits are left as they are: `git diff -- packages/drag/src | sha256sum` gives `bdcb626a5b1b0737febb6f657a223c38f535e0bfc69c222c42b787a9f2267e45`, and `--shortstat` gives `2 files changed, 24 insertions(+), 23 deletions(-)`.
 
@@ -88,6 +88,8 @@ The owner's uncommitted `sortable` edit reads `drag.state.lift.visual` six times
 Neither belongs in an object constructed at activation. Both are out of scope here.
 
 ### Recommendation: one activated-operation object per built-in
+
+**Replaced by `DRD-30` on 2026-11-08.** Kept as the record of what was recommended.
 
 **These responsibilities belong to an operation object constructed at the end of `activate`, with its resources as constructor arguments.** It is the smallest design that matches the interval above, and it needs no change to the kernel or to any public type.
 
