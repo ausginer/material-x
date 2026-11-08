@@ -370,6 +370,47 @@ describe('drag:DRI-13 landing', () => {
     expect(timing.easing).toBe('linear');
   });
 
+  it('should keep the timing values returned at the land call when the timing reuses its object', async () => {
+    const list = makeList(3);
+    const lifter = new Lifter(window);
+    const reused = { duration: 321, easing: 'linear' };
+    const timing = (): typeof reused => reused;
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        // Added after the lift's, so it runs before the lift's release.
+        drag.use(() => {
+          reused.duration = 4321;
+          reused.easing = 'ease-in';
+        });
+        return undefined;
+      },
+      move: (drag) => {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+      settle(drag) {
+        const lift = drag.state.lift!;
+
+        lift.land(lift.rect.x, lift.rect.y, timing);
+      },
+    }).use(lifter.cancelLanding);
+    await grab('#r0', 0, 45);
+    await commands.pointerUp();
+
+    const [flight] = row('r0').getAnimations();
+    const flightTiming = flight!.effect!.getTiming();
+
+    expect([flightTiming.duration, flightTiming.easing]).toEqual([
+      321,
+      'linear',
+    ]);
+  });
+
   it('should start a named landing when releasing the top layer throws, and let the outcome stand', async () => {
     const list = makeList(3);
     const hidden = new Error('hide');

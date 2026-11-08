@@ -54,11 +54,16 @@ export type Lift = Readonly<{
   land(x: number, y: number, timing?: LandingTiming): void;
 }>;
 
-/** What `land` records: the timing is `null` for the defaults. */
+/**
+ * What `land` records. The timing's values are copied at the call, because a
+ * timing may reuse the object it returns and code runs between `land` and the
+ * landing's start.
+ */
 type Landing = Readonly<{
   x: number;
   y: number;
-  timing: ReturnType<LandingTiming> | null;
+  duration: number;
+  easing: string;
 }>;
 
 const BOX_A = 0;
@@ -249,12 +254,12 @@ function startLandingAnimation(
 
   const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 0
-    : (landing.timing?.duration ?? DEFAULT_LANDING_DURATION);
+    : landing.duration;
   const flight = lift.visual.animate(
     [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
     {
       duration,
-      easing: landing.timing?.easing ?? DEFAULT_LANDING_EASING,
+      easing: landing.easing,
       composite: 'add',
     },
   );
@@ -350,12 +355,18 @@ export class Lifter {
           displacement.y = y;
         },
         land: (x, y, timing) => {
+          const named = timing?.(
+            displacement.x,
+            displacement.y,
+            x - rect.x,
+            y - rect.y,
+          );
+
           landing = {
             x,
             y,
-            timing: timing
-              ? timing(displacement.x, displacement.y, x - rect.x, y - rect.y)
-              : null,
+            duration: named ? named.duration : DEFAULT_LANDING_DURATION,
+            easing: named ? named.easing : DEFAULT_LANDING_EASING,
           };
         },
       };
