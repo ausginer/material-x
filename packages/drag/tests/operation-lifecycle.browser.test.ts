@@ -81,6 +81,38 @@ describe('drag:DRD-30 operation lifecycle', () => {
     expect(faultMessages()).toEqual(['constructor']);
   });
 
+  it.each(['declines', 'throws'] as const)(
+    'should keep a cancel recorded in activate when activate then %s',
+    async (ending) => {
+      const list = makeList(2);
+      const outcomes: Array<Outcome | null> = [];
+      const panel = managed(list, {
+        admit: (event) => ({ item: targetOf(event) }),
+        activate(drag) {
+          drag.use((outcome) => {
+            outcomes.push(outcome);
+          });
+          panel.requestCancel('early');
+
+          if (ending === 'throws') {
+            throw new Error('after the cancel');
+          }
+
+          return null;
+        },
+      });
+
+      await dragAndDrop('#r0', 30);
+      expect(log).toEqual([]);
+      expect(outcomes).toEqual([
+        { type: 'canceled', reason: 'early', origin: 'request' },
+      ]);
+      expect(faultMessages()).toEqual(
+        ending === 'throws' ? ['after the cancel'] : [],
+      );
+    },
+  );
+
   it('should run a step requested in activate after it, with the returned operation', async () => {
     const list = makeList(2);
     const received: Array<BehaviorOperation | null> = [];
