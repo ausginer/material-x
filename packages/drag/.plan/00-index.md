@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a narrower `Lift` for the owner's discussion, in [`lift-representation-proposal.md`](lift-representation-proposal.md). Nothing in it is decided, and `DRF-2` is open with it.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`, and its implementation handoff isn't prepared yet. `DRF-2` is open with it.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -411,7 +411,7 @@ drag2 is the reference for this split only. Its kernel itself held the lift: `Be
 - **No kernel module or `draggable.ts` names the lift or the landing.** `grep -rniE 'lift|landing' src/kernel src/draggable.ts` finds nothing, comments included.
 - **`Gesture` has no landing slot.** `takeLanding`, `keepLanding` and `#cancelLanding` go. Teardown closes the controller, clears the slot and the steps, terminates the session, runs the controller disposers and aborts the root's listeners, in that order.
 - **`Session` keeps no lift and no admission for one.** Activation is the decline for a disconnected item, capture, `activate`, then `start`. Conclusion closes motion, aborts the verdict on a cancel, runs `settle` if `start` was reached, releases, and then detaches or sets the terminal step, as `DRD-26` states.
-- **The `Drag` is built when the session opens, as at `0dcb80fb1`.** Every member it has exists for every behavior, so its type is honest from construction. The kernel holds it under a kernel-internal type whose members are writable, declared in `src/kernel/drag.ts`, and assigns the object literal to it with no assertion. **`6d5ba89e7`'s construction at activation is withdrawn,** because it existed only to build the view first. `type-fest` and `Writable` leave the package.
+- **The `Drag` is built when the session opens, as at `0dcb80fb1`.** Every member it has exists for every behavior, so its type is honest from construction. The kernel holds it under a kernel-internal type whose members are writable, declared in `src/kernel/drag.ts`, and assigns the object literal to it with no assertion. **`6d5ba89e7`'s construction at activation is withdrawn,** because it existed only to build the view first. **Corrected 2026-11-08:** this used to say "`type-fest` and `Writable` leave the package". That was a consequence of the code at the time, not a rule. CONTRIBUTING's TypeScript section prefers a `type-fest` utility over a handwritten type that does the same, and `DRD-29` applies it to this type.
 - **`DRD-1`, `DRD-24` and `DRD-26` stand:** one gate, one reader with its precedence, requests that only fill slots, the slot's three detaches and teardown's order. Nothing is allocated per sample (DRI-17).
 
 **Public types:**
@@ -486,9 +486,69 @@ The owner moved `lift` into `src/kernel/` at `bb644d6d7`, and said on 2026-11-07
 
   The kernel's types are type-only re-exports, so importing `draggable` alone still brings no lift code. This is the table after `DRD-27`. Until `DRD-27` is implemented, `draggable.js` also exports the lifted types and `lift.js` exports `lift`, `Landing` and `LiftHold`.
 
-- **Packaging.** The build is unbundled, so it writes `kernel/*.js` beside `shared/`. `package.json`'s `files` and `files.json`'s `clean.extras` list `kernel` as they list `shared`. `type-fest` leaves the dependencies (`DRD-27`).
+- **Packaging.** The build is unbundled, so it writes `kernel/*.js` beside `shared/`. `package.json`'s `files` and `files.json`'s `clean.extras` list `kernel` as they list `shared`. **Corrected 2026-11-08:** this used to say "`type-fest` leaves the dependencies (`DRD-27`)". The package declares `type-fest` as `DRD-29` states.
 - **The four assertions return as they were at `0dcb80fb1`.**
 - **Tests change only where the layout requires it.** The size test's exact module list for `draggable` alone becomes the new graph. That list is the kernel's modules that have code, and still no lift, `box-quad`, sortable or landing module.
+
+#### DRD-29 — The lift's displacement is private, and `land` composes the landing
+
+**`Lift` keeps its acquisition snapshot, read-only and set once: `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace` and `itemSpace`. It loses `translatedX` and `translatedY`. `land(x, y, timing?)` calls the timing with the private displacement and records the landing. `lift.js`'s value is the owner's class `Lifter`. Nothing else in acquisition, release, failed acquisition or the kernel changes.**
+
+Decided on 2026-11-08 on the owner's clarifications. The reading, the questions and the rejected directions are in [`lift-representation-proposal.md`](lift-representation-proposal.md). Its first version is at `793bb6713`.
+
+**The owner's clarifications:**
+
+- `type-fest`'s utilities are preferred over equivalent handwritten types.
+- The displacement becomes private, and `land` composes the landing.
+- The goal is stable data that is immutable from outside, not a new object on every update. Private mutation and DOM writes are fine.
+- The `Lifter` class stays.
+- No incidental behavior change or performance cost is authorized.
+
+**Public surface of `lift.js`.** This amends `DRD-27`'s public types and `DRD-28`'s export table:
+
+| Values | Types |
+| --- | --- |
+| `Lifter`, a class with `constructor(window)`, `acquire(drag, visual?, box?): Lift` and a read-only `cancelLanding` | `Lifter`, `Lift`, and `LandingTiming` as a type re-export |
+
+`Landing` is no longer exported. `createLifter` goes.
+
+**Required properties:**
+
+- **Only `translate` writes the displacement, and no public member exposes it.** It isn't an own property of the `Lift`. Every public member of the `Lift` is set in `acquire` and never written again.
+- **`land(x, y, timing?)`:**
+  - `x` and `y` are the viewport position of the visual's top-left;
+  - `timing` is called once, when `land` is called, with the displacement and then `x - rect.x` and `y - rect.y`. Those are the arguments the built-ins pass now;
+  - without `timing`, the default duration and easing apply;
+  - when `timing` throws, nothing is recorded;
+  - the last call wins, and without a call nothing lands.
+- **The landing disposer reads the displacement at release,** as now. So a `translate` after `land` moves where the flight starts, as at `b5f5f4046`. Reduced motion and the restored position are read there too, as now.
+- **`acquire`, the release, the failed-acquisition path and the composition rules are `DRD-27`'s, unchanged.** That includes "`acquire` as the first statement of `activate`", measuring `itemSpace` inside `acquire`, and the cancel of the running landing in its `finally`.
+- **Types:**
+  - `lift.ts` uses `type-fest`'s `Writable` wherever it needs a writable view of a read-only type, and writes no handwritten equivalent.
+  - `KernelDrag` in `src/kernel/drag.ts` becomes `Writable<Drag<State>>` if that type checks at the kernel's generic sites with no new assertion. If it doesn't, the handwritten type stays and the report says why.
+  - The package declares `type-fest` at `5.10.0`: in `dependencies` when an emitted declaration imports it, and otherwise in `devDependencies`.
+- **No new cost on every sample.** `translate` allocates only its CSS string, also at a non-integer displacement. `DRF-2`'s repaired test has to show this.
+- **A cost on every operation is reported, not accepted.** A private displacement record adds about one object header, by reading. It goes to the owner with `DRO-7`'s figures.
+- **The kernel doesn't change,** apart from the `KernelDrag` type. The lift grep stays empty.
+
+**Changes a consumer sees:**
+
+- `Lift` loses `translatedX` and `translatedY`.
+- `land(landing)` becomes `land(x, y, timing?)`.
+- `createLifter(window)` becomes `new Lifter(window)`.
+- `Landing` is no longer exported.
+
+No change to event order, hooks, outcomes, the built-ins' landings or timing is intended.
+
+**Rejected:**
+
+- **A new immutable value on every update.** It allocates an object on every sample. The disposers would still need a mutable reference, and every caller would have to write the value back.
+- **The operations on the `Lifter`.** A retained `Drag`'s step would act on a later operation, which `DRD-27` already rejected.
+- **Moving the snapshot's caller-only members to the callers.** It changes the failed-acquisition path and gains only fewer members.
+- **Computing the flight's geometry in `land`.** It changes a `translate` after `land`.
+- **Keeping `Landing`, an object argument, or two argument forms.**
+
+**Before implementation:** `DRF-2`'s repair, so that the per-sample property can be shown.
 
 ## Disposition of the 2026-11-07 reviews
 
@@ -564,7 +624,7 @@ Tier B, open. Found by the architect while reading the lift at `b5f5f4046` for [
 - **Why it is a problem:** the title says the lift allocates only the CSS string on each sample, and the test checks only which lift function allocates. An object or a boxed number allocated in `translate` on every sample would pass. So the test can't judge whether a change to the lift's representation adds a per-sample cost.
 - **Evidence:** the `liftFunctions` assertion in `tests/hot-path.browser.test.ts`.
 - **Required property:** an allocation of one small object per sample in `translate` fails the test, shown by a mutation as `DRD-23`'s last bullet requires. The bound comes from the unmutated figure at a non-integer displacement. It is set in the repair's handoff, not by the implementer.
-- **When:** before any change to the lift's per-sample path is accepted, which includes the proposal's.
+- **When:** before any change to the lift's per-sample path is accepted. `DRD-29` is such a change.
 
 ## Owner decisions
 
@@ -717,5 +777,6 @@ No timing was taken.
 | DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller |
 | DRD-25 | active, implemented at `2506dcbb6` |
 | DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2) |
-| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18 |
-| DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1) |
+| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18. Its `type-fest` sentence was corrected on 2026-11-08. `DRD-29` amends its `lift.js` types and its "Only `translate` writes `translatedX` and `translatedY`" |
+| DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1). Its `type-fest` packaging line was corrected on 2026-11-08. `DRD-29` amends its `lift.js` row |
+| DRD-29 | active, decided on 2026-11-08 on the owner's clarifications, not implemented. Amends `DRD-27`'s public types and lift properties and `DRD-28`'s `lift.js` row |
