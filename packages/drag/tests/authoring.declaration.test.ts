@@ -97,6 +97,10 @@ describe('drag:DRI-18 the type requirement', () => {
       move(): void {
         this.lift.translate(0, 0);
       }
+
+      nudge(): void {
+        this.lift.translate(1, 1);
+      }
     }
 
     class Behaving implements Behavior<undefined, unknown, Operation> {
@@ -113,8 +117,11 @@ describe('drag:DRI-18 the type requirement', () => {
       }
     }
 
-    // A class instance gives no inference site for the operation, so it is named.
-    draggable<undefined, unknown, Operation>(root, new Behaving());
+    const panel = draggable(root, new Behaving());
+
+    panel.requestStep((operation) => {
+      operation?.nudge();
+    });
   });
 
   it('should not let a controller or a drag reach the session', () => {
@@ -122,6 +129,18 @@ describe('drag:DRI-18 the type requirement', () => {
 
     // @ts-expect-error The controller has no session member.
     void panel.session;
+    draggable(root, {
+      admit: () => null,
+      activate(drag) {
+        // @ts-expect-error A drag has no state machine.
+        void drag.phase;
+        // @ts-expect-error A drag has no next step.
+        void drag.next;
+        // @ts-expect-error A drag has no decision.
+        void drag.decision;
+        return null;
+      },
+    });
     panel.requestStep((operation: BehaviorOperation | null) => {
       // @ts-expect-error The operation has no state machine.
       void operation?.phase;

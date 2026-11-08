@@ -214,7 +214,7 @@ describe('drag:DRI-18 canvas group', () => {
   });
 });
 
-describe('drag:DRD-27 the lift in the behavior state', () => {
+describe('drag:DRD-27 the lift in the operation', () => {
   /** A behavior that composes the lift, and the keys its hooks see at `start`. */
   async function liftedKeys(): Promise<{ drag: string[]; lift: string[] }> {
     const list = makeList(2);

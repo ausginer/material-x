@@ -573,10 +573,7 @@ export function sortable(
   const displacement = config.displacement?.();
   const lifter = new Lifter(root.ownerDocument.defaultView!);
   const behavior = new SortableBehavior(root, config, displacement, lifter);
-  const kernel = draggable<PressState, ReorderResolution, SortableOperation>(
-    root,
-    behavior,
-  );
+  const kernel = draggable(root, behavior);
 
   if (displacement) {
     kernel.use(() => {

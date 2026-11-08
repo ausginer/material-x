@@ -105,6 +105,8 @@ function nudge(amount: number): void {
 }
 ```
 
+A literal behavior names `draggable`'s type arguments, as here, when a step reads its operation's own members or a hook needs the verdict's type. A class instance infers them.
+
 The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the operation `activate` returned, from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing. The same function requested twice before it runs runs once, so a stable function coalesces.
 
 Hooks also have `drag.requestStep` and `drag.requestCancel`. **They are scoped to their operation:** they act only while it is the controller's current one, and afterwards do nothing, so a `drag` kept in a timer never reaches a later drag. Cleanup after an operation belongs in `use`. Every controller method works when detached, as in `return controller.requestDestroy`.

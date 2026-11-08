@@ -84,6 +84,8 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
   readonly #lift: Lift;
   #offsetX = 0;
   #offsetY = 0;
+  /** The visual's viewport delta, axis-projected and clamped. */
+  readonly #motion = { x: 0, y: 0 };
   /** `null` until the drop: a cancel before it has none. */
   #request: FreeDragRequest | null = null;
   /** Recorded at `settle` and reported at `end`. */
@@ -101,7 +103,7 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
 
   /** Computes the motion and moves the visual by it. */
   translate(): void {
-    const { motion } = this.#behavior;
+    const motion = this.#motion;
 
     this.#computeMotion();
     this.#lift.translate(motion.x, motion.y);
@@ -132,6 +134,7 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
   drop() {
     const behavior = this.#behavior;
     const lift = this.#lift;
+    const motion = this.#motion;
 
     this.#computeMotion();
 
@@ -139,13 +142,13 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
       behavior.root,
       this.#drag,
       lift,
-      behavior.motion,
+      motion,
       this.#home(),
       behavior.window,
     );
 
     this.#request = request;
-    lift.translate(behavior.motion.x, behavior.motion.y);
+    lift.translate(motion.x, motion.y);
 
     return (signal: AbortSignal) => behavior.config.onDrop(request, { signal });
   }
@@ -186,10 +189,10 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
     this.#behavior.config.onEnd?.(this.#result!);
   }
 
-  /** Writes the delta the pointer and the operation's offset give into `motion`. */
+  /** Writes the delta the pointer and the operation's offset give into `#motion`. */
   #computeMotion(): void {
     const behavior = this.#behavior;
-    const { motion } = behavior;
+    const motion = this.#motion;
     const drag = this.#drag;
 
     motion.x = drag.x - drag.originX + this.#offsetX;
@@ -208,7 +211,7 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
     return buildGeometry(
       this.#drag,
       this.#lift,
-      this.#behavior.motion,
+      this.#motion,
       this.#behavior.window,
     );
   }
@@ -225,8 +228,7 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
 
 /**
  * The behavior `draggable` runs for one root: admission and activation. It holds
- * only controller-lifetime values and the `motion` scratch, which is written
- * before every read. The operation reads them through it.
+ * only controller-lifetime values, which the operation reads through it.
  */
 class FreeDragBehavior implements Behavior<
   HTMLElement,
@@ -242,8 +244,6 @@ class FreeDragBehavior implements Behavior<
   readonly axis: DragAxis;
   readonly bounds: MotionConstraint | null;
   readonly landing: LandingTiming | null;
-  /** The visual's viewport delta, axis-projected and clamped. */
-  readonly motion = { x: 0, y: 0 };
 
   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
     if (config.threshold !== undefined) {
@@ -314,10 +314,7 @@ export function freeDrag(
 ): FreeDragController {
   const lifter = new Lifter(root.ownerDocument.defaultView!);
   const behavior = new FreeDragBehavior(root, config, lifter);
-  const kernel = draggable<HTMLElement, FreeDragResolution, FreeDragOperation>(
-    root,
-    behavior,
-  );
+  const kernel = draggable(root, behavior);
 
   kernel.use(lifter.cancelLanding);
 
