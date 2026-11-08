@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`. `DRF-3` was repaired at `d7828a280`. `DRD-30` was implemented at `da139407e` and `3a67df0ea` and reported at `d99ebd304`. The architect read both at `d99ebd304`, in [`activation-result-assessment.md`](activation-result-assessment.md). `DRD-30` conforms, and is amended so that `freeDrag`'s motion belongs to its operation. `DRF-3` is closed, and `DRF-4` is open. That record's §6 is the remediation before the combined review. The owner then directed that `sortable` stop copying the `items()` array, decided as `DRD-31` from [`items-copy-assessment.md`](items-copy-assessment.md). [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`. `DRF-3` was repaired at `d7828a280`. `DRD-30` was implemented at `da139407e` and `3a67df0ea` and reported at `d99ebd304`. The architect read both at `d99ebd304`, in [`activation-result-assessment.md`](activation-result-assessment.md). `DRD-30` conforms, and is amended so that `freeDrag`'s motion belongs to its operation. `DRF-3` is closed, and `DRF-4` is open. That record's §6 is the remediation before the combined review. The owner then directed that `sortable` stop copying the `items()` array, decided as `DRD-31` from [`items-copy-assessment.md`](items-copy-assessment.md). [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner approved the gate's revision in [`execution-boundary-assessment.md`](execution-boundary-assessment.md), decided as `DRD-32` with its cost in `DRO-9`, implemented from `8943f14e5`.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -727,6 +727,51 @@ A saved gap answers both of these reads with two element references and the inde
 
 The unit reports its size and allocation under CONTRIBUTING §15. No ceiling is re-based, and no timing is run. [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it.
 
+#### DRD-32 — Input enters the gate with its handler, and requests through one named entry
+
+**`Gesture.enter(handler, event)` takes input only, and calls the handler's `handleInput(event)` as the pass's first step. A request fills its slot and calls `apply()`, which applies it now unless a pass is running. A step requested while idle, `apply()` and a verdict's fault share one private pass. Its optional first step is a function only where the work is one already: the consumer's step, or `raise`. The reader applies every request, including destruction requested while idle. Development builds count each refused event once. Pass execution stays the controller's.**
+
+Decided on 2026-11-08 on the owner's approval of v3 from [`execution-boundary-assessment.md`](execution-boundary-assessment.md) §3, with its reported cost (`DRO-9`) and counting each refused event once. The prototype is [`probes/execution-boundary/`](probes/execution-boundary/README.md).
+
+**Why.** The owner asked whether preventing nested passes and applying deferred requests deserve a separate owner, because `enter(fn, argument)` made `Gesture` and `Session` hand internal work to the gate as functions.
+
+- **No separate owner.** The gate's state has the controller's lifetime, and its reader is where destruction, the deferred steps and the operation's decision meet. A separate owner would need a two-way interface with `Gesture` and wouldn't change how work is passed in (assessment §2).
+- **The signature was the gap.** One `enter(fn, argument)` served four kinds of entry. So internal work had to be arrow fields, "no work" needed `NOOP`, "refused" meant "lost" for input and "deferred" for a request, and destruction requested while idle was applied outside the reader (assessment §1).
+
+**The required properties,** G1 to G8 of the assessment's §3:
+
+- **Input:** one gate, `enter(handler, event)`. A running pass or a closed controller refuses it. A throw from the work is a fault, the reader follows, and the gate reopens in `finally`.
+- **`Gesture` and `Session` are each the platform's listener object and the gate's handler.** `handleEvent` runs outside a pass: it filters, and it turns `Escape`, `pointercancel` and `lostpointercapture` into requests. `handleInput` runs inside the pass and dispatches on `event.type` to private methods.
+- **Requests:** `requestCancel`, the session's cancel, a verdict's acceptance and `requestDestroy` fill their slots and call `apply()`. It refuses nothing and counts nothing.
+- **A step requested while idle is the first step of its own pass, and never enters the list.** Through the list it allocated on every sample (assessment §3, G4).
+- **A verdict's fault** is raised at once in a running pass, and is otherwise the first step of a new pass.
+- **One private pass** serves idle steps, requests and faults. `#running` is set there and in the input gate, and nowhere else.
+- **The reader is unchanged:** its precedence, its catch on each turn, and a step's argument computed when the step runs.
+- **The development count counts each refused event once.** A nested primary press during `activate` or `start` reaches the session's pending-press listener and the root's listener. It counts once, through a set that exists only in development builds.
+
+**What this amends:**
+
+- **`DRD-24`'s interface table.** From the session to the controller, the gate's row becomes "the input gate: `enter(handler, event)` runs the handler's `handleInput` as the first step of a new pass, or refuses". A row is added for `apply()`, which applies the requests now unless a pass is running and replaces `enter(NOOP, null)`. The handler interface has one method, in method syntax, and stays inside the kernel. Its required property "a step passed to the gate is a stable function" becomes: the gate receives no function for input, and the only function that opens a pass is the consumer's step or `raise`.
+- **`DRD-26`'s member list.** The session reaches the controller through `enter`, `apply`, `raise`, `raiseInPass`, `detach` and `requestStep`.
+- **`DRD-1`.** One reader applies every request, including destruction requested while idle, which used to tear down outside the reader.
+- **`DRO-6`'s accepted cost.** The three functions per operation, `#move`, `#up` and `#endPending`, are no longer created.
+- **The contract's `DRI-6`:** development builds count each event a running pass refuses once.
+
+**Unchanged:** the public types, `DraggableController`, every other contract entry, the reader's precedence, and `raise` as an arrow field, because `runDragDisposer` receives it detached.
+
+**Rejected,** in the assessment's §2 and §6: a separate pass owner, a receiver argument `enter(step, receiver, argument)`, a bracket at each call site, running all of `handleEvent` inside the gate, an idle step through the list, and four explicit brackets.
+
+**Implementation.** One unit, recipient `implementer`, **based on `8943f14e5`** on `drag/production`.
+
+- **v3's diff was written against `ef8c6cd96` and doesn't apply verbatim at `8943f14e5`.** That commit already makes `Gesture` the root's listener object: its `handleEvent` dispatches on `event.type` to `enter(this.#press, …)` and `enter(this.#command, …)`. The unit ports v3's properties onto it, and the dispatch belongs in `handleInput`.
+- **One commit, with no test edited.**
+- **Checks:** the suite in Chromium, Firefox and WebKit, the per-sample test, typecheck, and the handoff loop on each changed file.
+- **Mutations,** each run, shown to fail, reverted and not committed, as the assessment's §7 lists: an idle step through the list, no per-event set in the count, `apply` refusing on a closed controller, and `enter` not refusing during a pass.
+- **A report,** `execution-boundary-report.md`, with the diff, each mutation's failing assertion, and size and allocation at `8943f14e5` and after the commit, against `DRO-9`'s figures.
+- **Not authorized:** timing, a re-based ceiling, or any test or instrument edit beyond the counting change.
+
+The `unbound-method` gap in the assessment's §1, point 5, is a repository instrument question, and it isn't part of this unit.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -835,7 +880,7 @@ Tier C, open. Found by the architect while reading `d99ebd304` ([`activation-res
 
 ## Owner decisions
 
-None blocks the remediation. Each has a default the handoff builds. `DRO-6` is approved. `DRO-7`'s figures are in the [ownership report](ownership-report.md). Its per-sample kernel figure comes from the instrument repair.
+None blocks the remediation. Each has a default the handoff builds. `DRO-6` and `DRO-9` are approved. `DRO-7`'s figures are in the [ownership report](ownership-report.md). Its per-sample kernel figure comes from the instrument repair.
 
 #### DRO-1 — Press cost under CONTRIBUTING §0
 
@@ -979,11 +1024,21 @@ No timing was taken.
 - **Per sample.** The `DRF-2` figures are 136.73 to 140.09 B per move, inside the earlier unmutated range. So no added allocation the size of `DRF-2`'s mutation.
 - **The amendment's motion object.** It adds one object per `freeDrag` activation and removes one per controller. Its size comes from the assessment's §6 unit.
 
+#### DRO-9 — The costs of the execution boundary
+
+**Approved by the owner on 2026-11-08: `DRD-32` at the cost the [assessment](execution-boundary-assessment.md) §5 reports, and counting each refused event once.** The figures were measured on the v3 prototype at `ef8c6cd96`.
+
+- **Size, Brotli:** `draggable alone` +13 B. The other compositions +16 to +23 B. `example: drop zone` goes over its 4431 B ceiling by 11 B. `freeDrag`, `freeDrag + bounds + landing` and the control row were over at the base.
+- **Allocation, by reading:** 5 fewer functions per controller, 3 fewer per operation, pointer or command, and the two module-level `NOOP`s removed. Nothing per sample, which the per-sample test showed. A sample makes one more string comparison. No timing was taken.
+- **The instrument:** `DRI-6`'s development count counts each refused event once. The set it uses exists only in development builds, and the production bundle doesn't contain it.
+
+**What the approval covers:** those figures. **It re-bases nothing.** The drop-zone row lands red, as the `freeDrag` rows do, until a re-base under `DRO-4`. The implementation's report measures at `8943f14e5` and after its commit. A figure beyond those above isn't covered and goes back to the owner: more than +23 B Brotli on a row, or any allocation per sample.
+
 ## Decision status
 
 | Decision | Status |
 | --- | --- |
-| DRD-1 | active |
+| DRD-1 | active. `DRD-32`: the reader also applies destruction requested while idle |
 | DRD-2 | active. `DRD-30` changes the authoring API: the hooks after activation are on the operation that `activate` returns |
 | DRD-3 | active |
 | DRD-4 | active, amended by `DRD-27`: the lift is no longer a behavior member. A behavior composes it with `createLifter`, and its members are on the `Lift` that the behavior keeps in its state. Its purpose holds: without that import, no lift code |
@@ -1006,11 +1061,12 @@ No timing was taken.
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
 | DRD-23 | active. Its last bullet, on instrument selection, was added on 2026-11-07. [`instrument-repair-handoff.md`](instrument-repair-handoff.md) applies it. `DRF-1` is open under it |
-| DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller |
+| DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller. `DRD-32` changes the gate's row, adds `apply`, and removes the three per-operation gate steps that `DRO-6` accepted |
 | DRD-25 | active, implemented at `2506dcbb6`. `DRD-31` supersedes its `items()` copy bullet |
-| DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2) |
+| DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2). `DRD-32` adds `apply` to the session's members on the controller |
 | DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18. Its `type-fest` sentence was corrected on 2026-11-08. `DRD-29` amends its `lift.js` types and its "Only `translate` writes `translatedX` and `translatedY`". Under `DRD-30` the operation that `activate` returns keeps the `Lift`, instead of `drag.state` |
 | DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1). Its `type-fest` packaging line was corrected on 2026-11-08. `DRD-29` amends its `lift.js` row |
 | DRD-29 | active, decided on 2026-11-08 on the owner's clarifications. Implemented at `b33890461` ([`lift-representation-report.md`](lift-representation-report.md) item 3). Read by the architect at `d258573fa`: it conforms except `DRF-3`, whose required property was added to its `land` bullets on 2026-11-08. Amends `DRD-27`'s public types and lift properties and `DRD-28`'s `lift.js` row |
 | DRD-30 | active, decided on 2026-11-08 on the owner's proposal. Implemented at `da139407e` and `3a67df0ea` ([report](activation-result-report.md)). Read by the architect at `d99ebd304` ([assessment](activation-result-assessment.md)): conforms. Amended the same day: the behavior keeps no operation state, the operation may keep its behavior, and the type-argument rule. [`activation-result-assessment.md`](activation-result-assessment.md) §6 implements the amendment, with `DRF-4`. Amends `DRD-2`, `DRD-6`, `DRD-11`, `DRD-20`, `DRD-27`, and the contract's vocabulary, public surface, DRI-3, DRI-8, DRI-9 and DRI-18. Replaces [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2 |
 | DRD-31 | active, decided on 2026-11-08 on the owner's direction, from [`items-copy-assessment.md`](items-copy-assessment.md). Supersedes `DRD-25`'s `items()` copy bullet and amends the contract's DRI-14. Not implemented: [`items-borrowing-handoff.md`](items-borrowing-handoff.md) |
+| DRD-32 | active, decided on 2026-11-08 on the owner's approval of v3, from [`execution-boundary-assessment.md`](execution-boundary-assessment.md), with its cost in `DRO-9`. Amends `DRD-1`, `DRD-24`, `DRD-26`, `DRO-6`'s accepted functions and the contract's DRI-6. Not implemented: its base is `8943f14e5` |

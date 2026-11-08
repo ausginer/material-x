@@ -1,6 +1,6 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
@@ -149,7 +149,7 @@ The first completion wins. `then` is read once. A throwing `then` accessor or ca
 
 #### DRI-6 — Reentrant input
 
-Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. Development builds count refusals by a running pass so that the suite can assert this. A press whose release the library missed is DRI-19's.
+Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. Development builds count each event a running pass refuses once, so that the suite can assert this. A press whose release the library missed is DRI-19's.
 
 #### DRI-7 — Faults
 
@@ -306,6 +306,7 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-08 | `DRI-6` | **Changed:** development builds count each refused event once. An event refused by both the session's listener on the window and the root's listener used to count only where the root refused it, because the session passed no event. `DRD-32` |
 | 2026-11-08 | `DRI-14` | **Changed:** the library borrows the `items()` array, keeps it from activation or the last rebase until the drop, and lands at a home gap saved at those pulls. The consumer keeps the retained array consistent: it completes an in-place change before the library can read again, or it replaces the array. It used to say that each pull copies the array, and that the consumer may change it at any time. `DRD-31` |
 | 2026-11-08 | Vocabulary, public surface, `DRI-3`, `DRI-8`, `DRI-9`, `DRI-18` | **Changed:** `activate` returns the behavior's operation, which holds `start`, `move`, `drop`, `settle` and `end`, or `null` to decline. It used to return `undefined` or `false`, and those hooks were the behavior's, called with the `Drag`. A step receives the operation, and used to receive the `Drag`. The `Drag` has no `state`: `activate` receives it. `activate` is required. **Added:** the type `BehaviorOperation`. `DRD-30` |
 | 2026-11-08 | Public surface | **Changed:** `lift.js` exports the class `Lifter` and the type `LandingTiming`. `Lift` has no `translatedX` or `translatedY`, and `land(x, y, timing?)` copies the timing's values at the call. It used to export `createLifter` and `Landing`, and `land` took a `Landing`. This entry was not updated when `DRD-29` was implemented at `b33890461`. `DRD-29`, `DRF-3` |

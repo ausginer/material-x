@@ -1,6 +1,6 @@
 # The execution boundary around `Gesture.enter`
 
-**Status, 2026-11-08: assessed by the architect, not decided.** No `DRD`, `DRF` or `DRO` entry is minted or amended. The proposal in §3 waits for the owner's discussion.
+**Status, 2026-11-08: decided as `DRD-32`.** The owner approved v3 (§3), its reported cost (§5, recorded as `DRO-9`) and counting each refused event once (G8). The implementation's base is `8943f14e5`, where v3's diff doesn't apply verbatim. `DRD-32` says how the unit ports it.
 
 **Read at:** `ef8c6cd96`, in a worktree on the new branch `drag/execution-boundary`. The main checkout holds an uncommitted edit by the owner to `src/kernel/gesture.ts`. That edit moves the `#steps` declaration above `#session` and `#running`, and nothing here depends on it. It was read with `git diff` and left as it was.
 
