@@ -1,6 +1,6 @@
 /** `drag:DRI-9`: release order and cleanup. */
 import { describe, expect, it } from 'vitest';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -36,7 +36,7 @@ describe('drag:DRI-9 release order', () => {
       log.push(`animate:lifted=${row.matches(':popover-open')}`);
       return animate(...args);
     };
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
@@ -254,7 +254,7 @@ describe('drag:DRI-9 release order', () => {
     const list = makeList(3);
     let moves = 0;
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),

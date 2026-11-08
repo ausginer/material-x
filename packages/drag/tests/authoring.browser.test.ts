@@ -1,6 +1,6 @@
 /** `drag:DRI-18`: custom behaviors, written only on the public API. */
 import { describe, expect, it } from 'vitest';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { canvasGroup, type CanvasGroup } from './fixtures/canvas-group.ts';
 import { dropZone } from './fixtures/drop-zone.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
@@ -218,7 +218,7 @@ describe('drag:DRD-27 the lift in the behavior state', () => {
   /** A behavior that composes the lift, and the keys its hooks see at `start`. */
   async function liftedKeys(): Promise<{ drag: string[]; lift: string[] }> {
     const list = makeList(2);
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
     const keys = { drag: [] as string[], lift: [] as string[] };
 
     managed<{ lift: Lift | null }>(list, {

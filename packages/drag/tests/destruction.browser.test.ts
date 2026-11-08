@@ -5,7 +5,7 @@ import {
   type Drag,
   type DraggableController,
 } from '../src/draggable.ts';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import { y } from '../src/sortable/y.ts';
@@ -64,7 +64,7 @@ async function destroyFrom(where: Hook) {
 
   document.body.append(probe);
 
-  const lifter = createLifter(window);
+  const lifter = new Lifter(window);
 
   panel = draggable<{ lift: Lift | null }>(list, {
     admit(event) {
@@ -214,7 +214,7 @@ describe('drag:DRI-10 destruction', () => {
   it('should give disposers null and deliver no settle or end', async () => {
     const list = makeList(2);
     const seen: unknown[] = [];
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
     const panel = draggable<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
       activate(drag) {
@@ -262,7 +262,7 @@ describe('drag:DRI-10 destruction', () => {
     const list = makeList(2);
     let retained: Drag<{ lift: Lift | null }> | null = null;
     const seen: unknown[] = [];
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
     const panel = draggable<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
       activate(drag) {
@@ -330,7 +330,7 @@ describe('drag:DRI-10 destruction', () => {
     async () => {
       const list = makeList(3);
       const refs: Array<WeakRef<object>> = [];
-      const lifter = createLifter(window);
+      const lifter = new Lifter(window);
       const panel = draggable<{ lift: Lift | null }>(list, {
         admit(event) {
           const state = { lift: null };

@@ -1,6 +1,6 @@
 /** `drag:DRI-13`: landing and elevation. */
 import { afterEach, describe, expect, it } from 'vitest';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -72,7 +72,7 @@ describe('drag:DRI-13 landing', () => {
   it('should start nothing when the visual is already where it lands', async () => {
     const list = makeList(3);
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
@@ -107,7 +107,7 @@ describe('drag:DRI-13 landing', () => {
     const list = makeList(3);
     const outcomes: unknown[] = [];
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
@@ -232,7 +232,7 @@ describe('drag:DRI-13 landing', () => {
     const list = makeList(3);
     const durations: unknown[] = [];
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
@@ -339,7 +339,7 @@ describe('drag:DRI-13 landing', () => {
   it('should keep timing a custom landing named', async () => {
     const list = makeList(3);
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
@@ -378,7 +378,7 @@ describe('drag:DRI-13 landing', () => {
     const list = makeList(3);
     const hidden = new Error('hide');
     const ended: Array<{ outcome: unknown; animations: number }> = [];
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     row('r0').hidePopover = () => {
       throw hidden;

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Drag } from '../src/draggable.ts';
 import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -77,7 +77,7 @@ describe('drag:DRI-1 a request does not change the running step', () => {
 
       document.body.append(probe);
 
-      const lifter = createLifter(window);
+      const lifter = new Lifter(window);
       const panel = managed<{ lift: Lift | null }>(list, {
         admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
         activate(drag) {

@@ -8,7 +8,7 @@ import {
   space,
 } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
 import {
@@ -183,7 +183,7 @@ describe('drag:DRI-16 lifted', () => {
     const parent = host(css);
     const node = makeNode(parent, name.startsWith('own') ? 'rotate:15deg' : '');
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(node, {
       threshold: 1,
@@ -216,7 +216,7 @@ describe('drag:DRI-16 lifted', () => {
     const parent = host('transform:scale(.5)');
     const node = makeNode(parent, 'zoom:2');
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(node, {
       threshold: 1,
@@ -249,7 +249,7 @@ describe('drag:DRI-16 lifted', () => {
     const parent = host('zoom:1.5;transform:scale(.5)');
     const node = makeNode(parent);
 
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(node, {
       threshold: 1,

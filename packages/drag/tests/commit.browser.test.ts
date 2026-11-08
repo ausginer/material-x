@@ -11,7 +11,7 @@ import {
   type FreeDragConfig,
   FreeDragResolution,
 } from '../src/free-drag.ts';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../src/sortable.ts';
 import {
@@ -97,7 +97,7 @@ describe('drag:DRI-9 commit ownership', () => {
     const row = list.querySelector<HTMLElement>('#r0')!;
 
     row.style.marginLeft = '3px';
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),

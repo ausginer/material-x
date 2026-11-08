@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Outcome } from '../src/draggable.ts';
 import { DragFault } from '../src/fault.ts';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import {
   dragAndDrop,
   faults,
@@ -228,8 +228,8 @@ describe('drag:DRI-7 faults', () => {
 
   it('should report a platform throw and keep the controller: a hidden visual has no box', async () => {
     const list = makeList(3);
-    const { createLifter } = await import('../src/lift.ts');
-    const lifter = createLifter(window);
+    const liftModule = await import('../src/lift.ts');
+    const lifter = new liftModule.Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
@@ -274,7 +274,7 @@ describe('drag:DRI-7 a failed acquisition', () => {
    */
   async function failAcquisition(row: HTMLElement): Promise<Outcome[]> {
     const list = row.parentElement!;
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
     const outcomes: Outcome[] = [];
 
     managed<{ lift: Lift | null }>(list, {

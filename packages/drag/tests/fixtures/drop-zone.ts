@@ -7,7 +7,7 @@ import {
   type Drag,
   type DraggableController,
 } from '../../src/draggable.ts';
-import { createLifter, type Lift } from '../../src/lift.ts';
+import { Lifter, type Lift } from '../../src/lift.ts';
 
 type State = { lift: Lift | null; zone: HTMLElement | null };
 type Save = (
@@ -37,7 +37,7 @@ export function dropZone(
   board: HTMLElement,
   save: Save,
 ): DraggableController<Drag<State>> {
-  const lifter = createLifter(board.ownerDocument.defaultView!);
+  const lifter = new Lifter(board.ownerDocument.defaultView!);
   const controller = draggable<State, boolean>(board, {
     admit(event) {
       const item = (event.target as Element).closest<HTMLElement>('.card');

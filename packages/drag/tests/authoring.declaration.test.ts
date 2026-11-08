@@ -8,7 +8,7 @@ import {
   type Behavior,
   type Drag,
 } from '../src/draggable.ts';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 
 const root = document.createElement('div');
 
@@ -53,7 +53,7 @@ describe('drag:DRI-18 the type requirement', () => {
   });
 
   it('should compose the lift in the behavior state', () => {
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
     const panel = draggable<{ lift: Lift | null }>(root, {
       admit: () => ({ item: root, state: { lift: null } }),
       activate(drag) {
@@ -82,7 +82,7 @@ describe('drag:DRI-18 the type requirement', () => {
 
     class Lifted implements Behavior<State> {
       readonly extra = 1;
-      readonly #lifter = createLifter(window);
+      readonly #lifter = new Lifter(window);
 
       // oxlint-disable-next-line class-methods-use-this -- a hook the kernel calls as a method
       admit() {

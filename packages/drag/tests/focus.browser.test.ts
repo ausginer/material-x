@@ -1,6 +1,6 @@
 /** `drag:DRI-12`: focus. */
 import { describe, expect, it } from 'vitest';
-import { createLifter, type Lift } from '../src/lift.ts';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
   basicSortable,
@@ -156,7 +156,7 @@ describe('drag:DRI-12 focus', () => {
     input.autofocus = true;
     input.style.cssText = 'width:20px;float:right';
     row('r0').append(input);
-    const lifter = createLifter(window);
+    const lifter = new Lifter(window);
 
     managed<{ lift: Lift | null }>(list, {
       admit: () => ({ item: row('r0'), state: { lift: null } }),
