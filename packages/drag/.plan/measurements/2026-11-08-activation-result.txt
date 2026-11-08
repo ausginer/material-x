@@ -1,0 +1,250 @@
+# Activation result unit: raw output
+# Base 1d5d3fa13 (owner's commit, item 1). Item 2 da139407e. Lifecycle witness 3a67df0ea.
+
+## Item 1: owner's commit fingerprint
+$ git diff 02a2d74c2 1d5d3fa13 -- packages/drag/src | sha256sum
+bdcb626a5b1b0737febb6f657a223c38f535e0bfc69c222c42b787a9f2267e45  -
+$ git diff --shortstat 02a2d74c2 1d5d3fa13 -- packages/drag/src
+ 2 files changed, 24 insertions(+), 23 deletions(-)
+
+## just test at 1d5d3fa13
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 83 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 56 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 66 B' ] to deeply equal []
+ Test Files  1 failed | 23 passed (24)
+      Tests  3 failed | 327 passed (330)
+kernel per-sample test failures in this run: 0
+
+## just test, item 2 working copy before the lifecycle tests
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 99 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 152 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 158 B' ] to deeply equal []
+ Test Files  1 failed | 23 passed (24)
+      Tests  3 failed | 332 passed (335)
+kernel per-sample test failures in this run: 0
+
+## just test-engines, item 2 working copy with the first five lifecycle tests
+ Test Files  66 passed (66)
+      Tests  924 passed | 18 skipped (942)
+kernel per-sample test failures in this run: 0
+
+## just test at da139407e's content
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 99 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 152 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 158 B' ] to deeply equal []
+ Test Files  1 failed | 24 passed (25)
+      Tests  3 failed | 337 passed (340)
+kernel per-sample test failures in this run: 0
+
+## just test at 3a67df0ea
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 99 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 152 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 158 B' ] to deeply equal []
+ Test Files  1 failed | 24 passed (25)
+      Tests  3 failed | 339 passed (342)
+kernel per-sample test failures in this run: 0
+
+## just test-engines at 3a67df0ea
+ Test Files  66 passed (66)
+      Tests  930 passed | 18 skipped (948)
+kernel per-sample test failures in this run: 0
+
+## DRF-2 test, 5 runs, Chromium (temporary console.log, removed after)
+run 1:
+DRF2 translatePerMove=136.73 bytes={"kernel/session.ts:handleEvent":1760,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":92,"kernel/session.ts:#move":676,"lift.ts:translate":41020}
+      Tests  1 passed | 6 skipped (7)
+run 2:
+DRF2 translatePerMove=136.97 bytes={"kernel/session.ts:handleEvent":1668,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":140,"kernel/session.ts:#move":668,"lift.ts:translate":41092}
+      Tests  1 passed | 6 skipped (7)
+run 3:
+DRF2 translatePerMove=140.09 bytes={"kernel/session.ts:handleEvent":1740,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":428,"kernel/session.ts:advance":124,"kernel/session.ts:#move":668,"lift.ts:translate":42028}
+      Tests  1 passed | 6 skipped (7)
+run 4:
+DRF2 translatePerMove=138.15 bytes={"kernel/session.ts:handleEvent":1736,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":508,"kernel/session.ts:advance":92,"kernel/session.ts:#move":604,"lift.ts:translate":41444}
+      Tests  1 passed | 6 skipped (7)
+run 5:
+DRF2 translatePerMove=139.39 bytes={"kernel/session.ts:handleEvent":1800,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":444,"kernel/session.ts:advance":140,"kernel/session.ts:#move":612,"lift.ts:translate":41816}
+      Tests  1 passed | 6 skipped (7)
+
+## just size at base (1d5d3fa13)
+draggable alone                  6464 min   2107 br  6 modules
+  VIOLATION: control moved by 83 B
+draggable + lift                11920 min   4112 br  9 modules
+example: resize handle           9131 min   3210 br  8 modules
+example: drop zone              12790 min   4420 br  10 modules
+example: canvas group            9285 min   3235 br  8 modules
+freeDrag                        14978 min   5023 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 56 B
+freeDrag + bounds + landing     15663 min   5276 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 66 B
+sortable + y                    20202 min   6606 br  18 modules
+sortable + xy                   19818 min   6545 br  17 modules
+complete                        21235 min   6985 br  20 modules
+
+## just size after item 2 (da139407e's content)
+draggable alone                  6435 min   2123 br  6 modules
+  VIOLATION: control moved by 99 B
+draggable + lift                11891 min   4129 br  9 modules
+example: resize handle           9092 min   3229 br  8 modules
+example: drop zone              12690 min   4420 br  10 modules
+example: canvas group            9228 min   3230 br  8 modules
+freeDrag                        15080 min   5119 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 152 B
+freeDrag + bounds + landing     15765 min   5368 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 158 B
+sortable + y                    20122 min   6668 br  18 modules
+sortable + xy                   19738 min   6608 br  17 modules
+complete                        21155 min   7054 br  20 modules
+
+## compare.ts injections: find text present
+about 1 ms of script per cycle, at the drop | sortable.ts | base false | after false
+one object of about 1 KB retained per operation past destruction | sortable.ts | base true | after false
+one forced layout per move | sortable.ts | base true | after false
+one O(n) walk per move | sortable.ts | base true | after false
+1 KB allocated per move | draggable.ts | base false | after false
+one entry on the step list per frame | draggable.ts | base false | after false
+
+## just docs-api-prepare
+[warning] Found 0 errors and 5 warnings
+(base 1d5d3fa13: Found 0 errors and 5 warnings)
+
+## grep -rniE 'lift|landing' src/kernel src/draggable.ts
+(exit 1: no match)
+
+## Non-null assertions, base (1d5d3fa13)
+src/sortable.ts:154:    state.result = { type: 'noop', request: state.request! };
+src/sortable.ts:159:    state.result = { type: 'accepted', request: state.request! };
+src/sortable.ts:166:    request: state.request!,
+src/sortable.ts:177:  const placeholder = drag.state.placeholder!;
+src/sortable.ts:232:    this.#window = root.ownerDocument.defaultView!;
+src/sortable.ts:369:    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
+src/sortable.ts:370:    drag.state.frame!.schedule();
+src/sortable.ts:376:    drag.state.frame!.cancel();
+src/sortable.ts:383:        this.#axis.resolve(drag.state, drag.state.context!) ??
+src/sortable.ts:387:    const insertion = drag.state.insertion!;
+src/sortable.ts:395:    movePlaceholder(drag.state.placeholder!, insertion);
+src/sortable.ts:398:      drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
+src/sortable.ts:413:      drag.state.lift!.land(left, top, composed);
+src/sortable.ts:418:    this.#config.onEnd?.(drag.state.result!);
+src/sortable.ts:442:    const context = drag.state.context!;
+src/sortable.ts:537:  const lifter = new Lifter(root.ownerDocument.defaultView!);
+src/sortable/xy.ts:51:        const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
+src/sortable/xy.ts:52:        const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
+src/sortable/xy.ts:58:          const dx = pointerX - values[offset + CENTER_X]!;
+src/sortable/xy.ts:59:          const dy = pointerY - values[offset + CENTER_Y]!;
+src/sortable/xy.ts:73:          items[nearest]!,
+src/sortable/xy.ts:84:        const gap = query.insertion!.index;
+src/sortable/xy.ts:100:          before[i * 2] = stale[i * STRIDE + LEFT]!;
+src/sortable/xy.ts:101:          before[i * 2 + 1] = stale[i * STRIDE + TOP]!;
+src/sortable/xy.ts:121:          const dx = before[i * 2]! - values[offset + LEFT]!;
+src/sortable/xy.ts:122:          const dy = before[i * 2 + 1]! - values[offset + TOP]!;
+src/sortable/xy.ts:125:            report(items[i]!, dx, dy, context.space);
+src/kernel/session.ts:534:      runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture.raise);
+src/sortable/y.ts:46:        const anchor = placeholderRect[CENTER_Y]!;
+src/sortable/y.ts:51:          const distance = Math.abs(pointerY - values[i * STRIDE + CENTER_Y]!);
+src/sortable/y.ts:66:          values[nearest * STRIDE + CENTER_Y]! > anchor ? nearest + 1 : nearest;
+src/sortable/y.ts:76:        shift.moved(query.insertion!.index, query.snapshot, context, report);
+src/sortable/placement.ts:83:  const anchor = insertion.after ?? insertion.before!;
+src/sortable/placement.ts:92:    insertion.before!.after(placeholder);
+src/free-drag.ts:113:    this.#window = root.ownerDocument.defaultView!;
+src/free-drag.ts:128:    drag.state.lift!.translate(this.#motion.x, this.#motion.y);
+src/free-drag.ts:189:    const lift = drag.state.lift!;
+src/free-drag.ts:223:        request: drag.state.request!,
+src/free-drag.ts:227:      drag.state.result = { type: 'accepted', request: drag.state.request! };
+src/free-drag.ts:235:    const lift = drag.state.lift!;
+src/free-drag.ts:242:    this.#config.onEnd?.(drag.state.result!);
+src/free-drag.ts:256:    this.#bounds?.apply(this.#motion, drag.state.lift!.rect);
+src/free-drag.ts:260:    return buildGeometry(drag, drag.state.lift!, this.#motion, this.#window);
+src/free-drag.ts:276:  const lifter = new Lifter(root.ownerDocument.defaultView!);
+src/free-drag.ts:288:          const { rect } = drag.state.lift!;
+src/free-drag/geometry.ts:53:    localDeltaX: local[0]!,
+src/free-drag/geometry.ts:54:    localDeltaY: local[1]!,
+src/free-drag/geometry.ts:87:    localDeltaX: local[0]!,
+src/free-drag/geometry.ts:88:    localDeltaY: local[1]!,
+src/sortable/rect-index.ts:172:      const top = values[offset + TOP]! + delta;
+src/sortable/rect-index.ts:173:      const bottom = values[offset + BOTTOM]! + delta;
+src/sortable/rect-index.ts:252:      differs(predicted[i]!, values[i]!)
+src/sortable/rect-index.ts:259:    if (differs(predictedPlaceholder[field]!, placeholderRect[field]!)) {
+src/kernel/gesture.ts:112:    this.#window = root.ownerDocument.defaultView!;
+src/kernel/gesture.ts:168:          this.#runStep(this.#steps.shift()!);
+src/kernel/gesture.ts:319:    const resolveDestroyed = this.#resolveDestroyed!;
+src/kernel/gesture.ts:327:      runDragDisposer(this.#disposers.pop()!, null, this.raise);
+src/sortable/layout-animation.ts:51:  const { progress } = animation.effect!.getComputedTiming();
+src/sortable/layout-animation.ts:125:          const held = running.get(items[i]!);
+src/sortable/layout-animation.ts:132:            const left = values[offset + LEFT]! - dx;
+src/sortable/layout-animation.ts:133:            const right = values[offset + RIGHT]! - dx;
+src/sortable/layout-animation.ts:134:            const top = values[offset + TOP]! - dy;
+src/sortable/layout-animation.ts:135:            const bottom = values[offset + BOTTOM]! - dy;
+src/sortable/linear-shift.ts:144:      const probe = items[lo]!;
+src/sortable/linear-shift.ts:156:        observed = scratch[TOP]!;
+src/sortable/linear-shift.ts:159:      delta = observed - values[lo * STRIDE + TOP]!;
+src/sortable/linear-shift.ts:169:        report(items[i]!, 0, -delta, context.space);
+
+## Non-null assertions, after (da139407e)
+src/sortable.ts:232:    this.#behavior.config.onEnd?.(this.#result!);
+src/sortable.ts:304:      this.#result = { type: 'noop', request: this.#request! };
+src/sortable.ts:309:      this.#result = { type: 'accepted', request: this.#request! };
+src/sortable.ts:316:      request: this.#request!,
+src/sortable.ts:388:    this.#window = root.ownerDocument.defaultView!;
+src/sortable.ts:574:  const lifter = new Lifter(root.ownerDocument.defaultView!);
+src/sortable/xy.ts:51:        const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
+src/sortable/xy.ts:52:        const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
+src/sortable/xy.ts:58:          const dx = pointerX - values[offset + CENTER_X]!;
+src/sortable/xy.ts:59:          const dy = pointerY - values[offset + CENTER_Y]!;
+src/sortable/xy.ts:73:          items[nearest]!,
+src/sortable/xy.ts:84:        const gap = query.insertion!.index;
+src/sortable/xy.ts:100:          before[i * 2] = stale[i * STRIDE + LEFT]!;
+src/sortable/xy.ts:101:          before[i * 2 + 1] = stale[i * STRIDE + TOP]!;
+src/sortable/xy.ts:121:          const dx = before[i * 2]! - values[offset + LEFT]!;
+src/sortable/xy.ts:122:          const dy = before[i * 2 + 1]! - values[offset + TOP]!;
+src/sortable/xy.ts:125:            report(items[i]!, dx, dy, context.space);
+src/free-drag/geometry.ts:53:    localDeltaX: local[0]!,
+src/free-drag/geometry.ts:54:    localDeltaY: local[1]!,
+src/free-drag/geometry.ts:87:    localDeltaX: local[0]!,
+src/free-drag/geometry.ts:88:    localDeltaY: local[1]!,
+src/free-drag.ts:168:        request: this.#request!,
+src/free-drag.ts:172:      this.#result = { type: 'accepted', request: this.#request! };
+src/free-drag.ts:186:    this.#behavior.config.onEnd?.(this.#result!);
+src/free-drag.ts:255:    this.window = root.ownerDocument.defaultView!;
+src/free-drag.ts:315:  const lifter = new Lifter(root.ownerDocument.defaultView!);
+src/sortable/layout-animation.ts:51:  const { progress } = animation.effect!.getComputedTiming();
+src/sortable/layout-animation.ts:125:          const held = running.get(items[i]!);
+src/sortable/layout-animation.ts:132:            const left = values[offset + LEFT]! - dx;
+src/sortable/layout-animation.ts:133:            const right = values[offset + RIGHT]! - dx;
+src/sortable/layout-animation.ts:134:            const top = values[offset + TOP]! - dy;
+src/sortable/layout-animation.ts:135:            const bottom = values[offset + BOTTOM]! - dy;
+src/sortable/y.ts:46:        const anchor = placeholderRect[CENTER_Y]!;
+src/sortable/y.ts:51:          const distance = Math.abs(pointerY - values[i * STRIDE + CENTER_Y]!);
+src/sortable/y.ts:66:          values[nearest * STRIDE + CENTER_Y]! > anchor ? nearest + 1 : nearest;
+src/sortable/y.ts:76:        shift.moved(query.insertion!.index, query.snapshot, context, report);
+src/kernel/session.ts:548:      runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture.raise);
+src/sortable/placement.ts:83:  const anchor = insertion.after ?? insertion.before!;
+src/sortable/placement.ts:92:    insertion.before!.after(placeholder);
+src/sortable/rect-index.ts:172:      const top = values[offset + TOP]! + delta;
+src/sortable/rect-index.ts:173:      const bottom = values[offset + BOTTOM]! + delta;
+src/sortable/rect-index.ts:252:      differs(predicted[i]!, values[i]!)
+src/sortable/rect-index.ts:259:    if (differs(predictedPlaceholder[field]!, placeholderRect[field]!)) {
+src/sortable/linear-shift.ts:144:      const probe = items[lo]!;
+src/sortable/linear-shift.ts:156:        observed = scratch[TOP]!;
+src/sortable/linear-shift.ts:159:      delta = observed - values[lo * STRIDE + TOP]!;
+src/sortable/linear-shift.ts:169:        report(items[i]!, 0, -delta, context.space);
+src/kernel/gesture.ts:120:    this.#window = root.ownerDocument.defaultView!;
+src/kernel/gesture.ts:176:          this.#runStep(this.#steps.shift()!);
+src/kernel/gesture.ts:329:    const resolveDestroyed = this.#resolveDestroyed!;
+src/kernel/gesture.ts:337:      runDragDisposer(this.#disposers.pop()!, null, this.raise);
