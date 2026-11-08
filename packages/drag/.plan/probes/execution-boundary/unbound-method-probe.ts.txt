@@ -1,0 +1,30 @@
+// Linted as `src/kernel/zz-receiver-probe.ts`, with the repository configuration at `ef8c6cd96`, from `packages/drag`:
+//   npx eslint --flag unstable_native_nodejs_ts_config -c ../../eslint.config.ts src/kernel/zz-receiver-probe.ts
+// and then deleted. Output:
+//   12:22  error  A method that is not declared with `this: void` may cause unintentional scoping of `this`
+//                 when separated from its object.  @typescript-eslint/unbound-method
+//   ✖ 1 problem (1 error, 0 warnings)
+// In the linted file, which had no header, line 12 is the public `this.move`, and line 11,
+// the private `this.#move`, is not reported.
+export class Gate {
+  enter<T, A>(step: (this: T, argument: A) => void, receiver: T, argument: A): void {
+    step.call(receiver, argument);
+  }
+}
+
+export class Probe {
+  readonly #gate = new Gate();
+
+  handleEvent(event: Event): void {
+    this.#gate.enter(this.#move, this, event);
+    this.#gate.enter(this.move, this, event);
+  }
+
+  #move(event: Event): void {
+    void event;
+  }
+
+  move(event: Event): void {
+    void event;
+  }
+}

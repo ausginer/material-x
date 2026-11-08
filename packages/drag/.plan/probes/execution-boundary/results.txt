@@ -1,0 +1,139 @@
+# Execution-boundary prototype: raw summaries
+# Base ef8c6cd96, packages/drag. WebKit did not launch (missing host libraries), so test-engines covers Chromium and Firefox.
+
+## Base: typecheck
+tsc -p tsconfig.json --noEmit
+typecheck exit 0
+
+## Base: npx just test (Chromium)
+Test Files  1 failed | 24 passed (25)
+Tests  3 failed | 344 passed (347)
+test exit 1
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'control moved by 99 B' ] to deeply equal []
+AssertionError: expected [ 'over its 4967 B ceiling by 92 B' ] to deeply equal []
+AssertionError: expected [ 'over its 5210 B ceiling by 100 B' ] to deeply equal []
+
+## Base: npx just test-engines
+Test Files  44 passed (66)
+Tests  633 passed | 9 skipped (642)
+engines exit 1
+
+## Base: size
+draggable alone                  6435 min   2123 br  6 modules
+  VIOLATION: control moved by 99 B
+draggable + lift                11891 min   4129 br  9 modules
+example: resize handle           9092 min   3229 br  8 modules
+example: drop zone              12690 min   4420 br  10 modules
+example: canvas group            9228 min   3230 br  8 modules
+freeDrag                        15104 min   5059 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 92 B
+freeDrag + bounds + landing     15789 min   5310 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 100 B
+sortable + y                    20372 min   6641 br  20 modules
+sortable + xy                   19992 min   6584 br  19 modules
+complete                        21525 min   7041 br  22 modules
+
+## v1: npx just test (Chromium)
+Test Files  4 failed | 21 passed (25)
+Tests  6 failed | 341 passed (347)
+test exit 1
+FAIL  |browser (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:349 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: expected 2 to be 1 // Object.is equality
+AssertionError: expected [ 'control moved by 102 B' ] to deeply equal []
+AssertionError: expected [ 'over its 4967 B ceiling by 92 B' ] to deeply equal []
+AssertionError: expected [ 'over its 5210 B ceiling by 117 B' ] to deeply equal []
+AssertionError: expected { trusted: +0, untrusted: 2 } to deeply equal { trusted: +0, untrusted: 1 }
+AssertionError: {"sortable/operation.ts:updateInsertion":7296,"sortable/y.ts:resolve":35868,"sortable/rect-index.ts:refresh":1444,"kernel/gesture.ts:requestStep":23636,"kernel/session.ts:handleEvent":84,"sortable/operation.ts:move":14736,"lift.ts:translate":29584}: expected 79.06666666666666 to be less than 16
+
+## v1: npx just test-engines
+Test Files  5 failed | 39 passed (66)
+Tests  5 failed | 628 passed | 9 skipped (642)
+engines exit 1
+FAIL  |browser (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:349 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one
+FAIL  |browser/firefox (firefox)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate
+FAIL  |browser/firefox (firefox)| tests/terminals.browser.test.ts:349 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one
+FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: expected 2 to be 1 // Object.is equality
+AssertionError: expected { trusted: +0, untrusted: 2 } to deeply equal { trusted: +0, untrusted: 1 }
+AssertionError: {"sortable/operation.ts:updateInsertion":7224,"sortable/y.ts:resolve":36432,"sortable/rect-index.ts:refresh":1236,"kernel/gesture.ts:requestStep":22116,"sortable/operation.ts:move":14952,"lift.ts:translate":30092}: expected 73.72 to be less than 16
+
+## v1: size
+draggable alone                  6560 min   2126 br  6 modules
+  VIOLATION: control moved by 102 B
+draggable + lift                12016 min   4129 br  9 modules
+example: resize handle           9217 min   3224 br  8 modules
+example: drop zone              12815 min   4427 br  10 modules
+example: canvas group            9353 min   3234 br  8 modules
+freeDrag                        15229 min   5059 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 92 B
+freeDrag + bounds + landing     15914 min   5327 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 117 B
+sortable + y                    20493 min   6643 br  20 modules
+sortable + xy                   20113 min   6580 br  19 modules
+complete                        21646 min   7048 br  22 modules
+
+## v2: npx just test-engines
+Test Files  44 passed (66)
+Tests  633 passed | 9 skipped (642)
+engines exit 1
+
+## v2: size
+draggable alone                  6659 min   2133 br  6 modules
+  VIOLATION: control moved by 109 B
+draggable + lift                12115 min   4147 br  9 modules
+example: resize handle           9316 min   3235 br  8 modules
+example: drop zone              12914 min   4445 br  10 modules
+  VIOLATION: over its 4431 B ceiling by 14 B
+example: canvas group            9452 min   3247 br  8 modules
+freeDrag                        15328 min   5071 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 104 B
+freeDrag + bounds + landing     16013 min   5342 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 132 B
+sortable + y                    20592 min   6659 br  20 modules
+sortable + xy                   20212 min   6592 br  19 modules
+complete                        21745 min   7056 br  22 modules
+
+## v3: typecheck and lint of both kernel files: no output, exit 0
+
+## v3: npx just test (Chromium)
+Test Files  1 failed | 24 passed (25)
+Tests  4 failed | 343 passed (347)
+test exit 1
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'control moved by 112 B' ] to deeply equal []
+AssertionError: expected [ 'over its 4431 B ceiling by 11 B' ] to deeply equal []
+AssertionError: expected [ 'over its 4967 B ceiling by 110 B' ] to deeply equal []
+AssertionError: expected [ 'over its 5210 B ceiling by 122 B' ] to deeply equal []
+
+## v3: npx just test-engines
+Test Files  44 passed (66)
+Tests  633 passed | 9 skipped (642)
+engines exit 1
+
+## v3: size
+draggable alone                  6596 min   2136 br  6 modules
+  VIOLATION: control moved by 112 B
+draggable + lift                12052 min   4152 br  9 modules
+example: resize handle           9253 min   3247 br  8 modules
+example: drop zone              12851 min   4442 br  10 modules
+  VIOLATION: over its 4431 B ceiling by 11 B
+example: canvas group            9389 min   3250 br  8 modules
+freeDrag                        15265 min   5077 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 110 B
+freeDrag + bounds + landing     15950 min   5332 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 122 B
+sortable + y                    20529 min   6659 br  20 modules
+sortable + xy                   20149 min   6606 br  19 modules
+complete                        21682 min   7057 br  22 modules
