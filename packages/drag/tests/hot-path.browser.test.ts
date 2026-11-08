@@ -3,6 +3,7 @@
  * `__DEV__` false, so the development equivalence check is not in the census.
  */
 import { describe, expect, it } from 'vitest';
+import { Lifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -13,11 +14,13 @@ import {
   isChromium,
   log,
   makeList,
+  managed,
   moveHeld,
   press,
   release,
   rowsOf,
   onCleanup,
+  targetOf,
 } from './support/harness.ts';
 
 /** Counts every layout-reading call on the prototypes that hold them. */
@@ -237,6 +240,59 @@ describe('drag:DRI-17 hot path', () => {
       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
         'lift.ts:translate',
       ]);
+    },
+  );
+
+  it.runIf(isChromium)(
+    'drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement',
+    async () => {
+      const list = makeList(20);
+      const lifter = new Lifter(window);
+
+      managed<{ lift: Lift | null }>(list, {
+        admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+        activate(drag) {
+          drag.state.lift = lifter.acquire(drag);
+          return undefined;
+        },
+        move(drag) {
+          // Off the integers, so every displacement `translate` receives is one.
+          drag.state.lift!.translate(
+            drag.x - drag.originX + 0.25,
+            drag.y - drag.originY + 0.5,
+          );
+        },
+      }).use(lifter.cancelLanding);
+
+      const start = await press('#r0');
+
+      await commands.pointerMove(start.x, start.y + 10, 2);
+      await frames();
+      await commands.startHeapSampling(16);
+
+      for (let i = 0; i < 300; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one sample per step
+        await commands.pointerMove(start.x + (i % 40), start.y + 12);
+      }
+
+      const bytes = await commands.stopHeapSampling('/src/');
+
+      await commands.keyPress('Escape');
+
+      const liftFunctions = Object.keys(bytes).filter((key) =>
+        key.startsWith('lift.ts:'),
+      );
+      const translatePerMove = (bytes['lift.ts:translate'] ?? 0) / 300;
+
+      expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+        'lift.ts:translate',
+      ]);
+      // The bound is set by a rule, not chosen: the largest of five runs of this
+      // test without it, rounded up to a whole byte, plus 8. Measured at the commit
+      // that added this test, the five read 140.03 to 144.85 B per move. If they
+      // had differed by more than 8 B, the interval could not resolve a small
+      // object.
+      expect(translatePerMove, JSON.stringify(bytes)).toBeLessThan(153);
     },
   );
 });
