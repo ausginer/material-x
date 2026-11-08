@@ -1,0 +1,1024 @@
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index 32f2fc2f1..d7c497a17 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -10,7 +10,11 @@ import type {
+   OnDrop,
+   ResolveHome,
+ } from './domain.ts';
+-import type { LandingTiming } from './landing.ts';
++import type {
++  DropTargetRuntime,
++  DropTargetsInstaller,
++} from './drop-targets.ts';
++import type { Landing } from './landing.ts';
+ import { FreeDragOperation } from './operation.ts';
+ 
+ export type FreeDragConfig = Readonly<{
+@@ -31,7 +35,9 @@ export type FreeDragConfig = Readonly<{
+   visual?(root: HTMLElement): HTMLElement;
+   home?: ResolveHome;
+   bounds?: BoundsInstaller;
+-  landing?: LandingTiming;
++  landing?: Landing;
++  /** From `free-drag/drop-targets.js`. Absent means no target tracking, and no code for it. */
++  targets?: DropTargetsInstaller;
+ }>;
+ 
+ /**
+@@ -49,7 +55,8 @@ export class FreeDragBehavior implements Behavior<
+   readonly window: Window & typeof globalThis;
+   readonly axis: DragAxis;
+   readonly bounds: MotionConstraint | null;
+-  readonly landing: LandingTiming | null;
++  readonly landing: Landing | null;
++  readonly targets: DropTargetRuntime | null;
+   readonly #lifter: Lifter;
+ 
+   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
+@@ -61,11 +68,13 @@ export class FreeDragBehavior implements Behavior<
+     this.axis = config.axis ?? 'both';
+     this.bounds = config.bounds?.(this.window) ?? null;
+     this.landing = config.landing ?? null;
++    this.targets = config.targets?.(this.window) ?? null;
+   }
+ 
+-  /** Step and invalidation listener: the bounds are re-read on the next sample. */
++  /** Step and invalidation listener: the bounds and the targets are re-read on the next sample. */
+   readonly invalidate = (): void => {
+     this.bounds?.invalidate();
++    this.targets?.invalidate();
+   };
+ 
+   /** The admission's `state` is the visual: `config.visual`, or the root. */
+@@ -100,7 +109,9 @@ export class FreeDragBehavior implements Behavior<
+     // First, so that its release is the operation's first disposer and runs last.
+     const lift = this.#lifter.acquire(drag, visual);
+ 
+-    if (this.bounds) {
++    this.targets?.activate(drag);
++
++    if (this.bounds || this.targets) {
+       listenForInvalidation(this.window, drag.signal, this.invalidate);
+     }
+ 
+diff --git a/packages/drag/src/free-drag/domain.ts b/packages/drag/src/free-drag/domain.ts
+index 02add3e45..d8aa78205 100644
+--- a/packages/drag/src/free-drag/domain.ts
++++ b/packages/drag/src/free-drag/domain.ts
+@@ -53,6 +53,8 @@ export type FreeDragRequest = FreeDragSubject &
+     localDeltaX: number;
+     localDeltaY: number;
+     visualRect: DOMRectReadOnly;
++    /** The drop target under the pointer at release: `null` without `targets` or outside every target. */
++    target: HTMLElement | null;
+   }>;
+ 
+ /**
+diff --git a/packages/drag/src/free-drag/drop-targets.ts b/packages/drag/src/free-drag/drop-targets.ts
+new file mode 100644
+index 000000000..8697c7328
+--- /dev/null
++++ b/packages/drag/src/free-drag/drop-targets.ts
+@@ -0,0 +1,133 @@
++/**
++ * `dropTargets()`: drag and drop for `freeDrag`. The target under the pointer
++ * is marked with `data-drop-over` while the drag is over it, and the drop's
++ * request names it. A composition without it carries none of this code.
++ */
++import type { Drag } from '../draggable.ts';
++import { createFrameTask, type FrameTask } from '../shared/invalidation.ts';
++
++export type DropTargetsOptions = Readonly<{
++  /**
++   * The targets, pulled once per operation. Where targets overlap, the first in
++   * the array wins.
++   */
++  targets(): readonly HTMLElement[];
++}>;
++
++/** What the capability may use of the operation. Nothing enforces it at runtime. */
++export type DropTargetDrag = Pick<Drag, 'x' | 'y' | 'use' | 'requestStep'>;
++
++/**
++ * One controller's drop-target runtime. `freeDrag` creates it with the
++ * controller and calls it only from its own hooks and steps. Its operation
++ * state lives from `activate` to that operation's release.
++ */
++export interface DropTargetRuntime {
++  /** The target under the pointer at the last resolution, or `null`. */
++  readonly current: HTMLElement | null;
++  /**
++   * Starts tracking for one operation, from `freeDrag`'s `activate`. What it
++   * acquires is released through the operation's `use`.
++   */
++  activate(drag: DropTargetDrag): void;
++  /** A sample: resolution is coalesced to the next frame, which runs as a step. */
++  move(): void;
++  /** Resolves at the release position now, in the drop step. */
++  drop(): void;
++  /** Staleness only: the rects are re-read at the next resolution. */
++  invalidate(): void;
++}
++
++/**
++ * The value a `freeDrag` config holds. It is called once per controller, so one
++ * config serves every controller. It is inert: it allocates, and acquires
++ * nothing. A third party may supply its own.
++ */
++export type DropTargetsInstaller = (window: Window) => DropTargetRuntime;
++
++const OVER = 'data-drop-over';
++
++export function dropTargets(options: DropTargetsOptions): DropTargetsInstaller {
++  return (window) => {
++    let drag: DropTargetDrag | null = null;
++    let frame: FrameTask | null = null;
++    let elements: readonly HTMLElement[] = [];
++    const rects: DOMRectReadOnly[] = [];
++    let stale = true;
++    let current: HTMLElement | null = null;
++
++    const mark = (next: HTMLElement | null): void => {
++      if (next !== current) {
++        current?.removeAttribute(OVER);
++        next?.setAttribute(OVER, '');
++        current = next;
++      }
++    };
++
++    /** Reads layout only when stale, and allocates nothing otherwise. */
++    const resolve = (): void => {
++      if (stale) {
++        stale = false;
++
++        for (let i = 0; i < elements.length; i += 1) {
++          rects[i] = elements[i]!.getBoundingClientRect();
++        }
++      }
++
++      const { x, y } = drag!;
++      let hit: HTMLElement | null = null;
++
++      for (let i = 0; i < elements.length && !hit; i += 1) {
++        const rect = rects[i]!;
++
++        if (
++          x >= rect.left &&
++          x < rect.right &&
++          y >= rect.top &&
++          y < rect.bottom
++        ) {
++          hit = elements[i]!;
++        }
++      }
++
++      mark(hit);
++    };
++
++    return {
++      get current() {
++        return current;
++      },
++      activate(operation) {
++        const task = createFrameTask(window, () => {
++          // A frame is foreign code, so its write goes through a step (DRI-8).
++          operation.requestStep(resolve);
++        });
++
++        drag = operation;
++        frame = task;
++        elements = options.targets();
++        stale = true;
++        // The mark and the frame are the operation's, and so is the pull: its
++        // release ends all three, at a terminal, a cancel or destruction.
++        operation.use(() => {
++          task.cancel();
++          mark(null);
++          drag = null;
++          frame = null;
++          elements = [];
++          rects.length = 0;
++        });
++      },
++      move() {
++        frame!.schedule();
++      },
++      drop() {
++        frame!.cancel();
++        resolve();
++      },
++      invalidate() {
++        stale = true;
++      },
++    };
++  };
++}
+diff --git a/packages/drag/src/free-drag/geometry.ts b/packages/drag/src/free-drag/geometry.ts
+index d88cda49b..e2fee52fb 100644
+--- a/packages/drag/src/free-drag/geometry.ts
++++ b/packages/drag/src/free-drag/geometry.ts
+@@ -68,6 +68,7 @@ export function buildRequest(
+   lift: Lift,
+   motion: Point,
+   home: Point,
++  target: HTMLElement | null,
+   window: Window & typeof globalThis,
+ ): FreeDragRequest {
+   const visualRect = currentRect(lift.rect, motion.x, motion.y, window);
+@@ -87,5 +88,6 @@ export function buildRequest(
+     localDeltaX: local[0]!,
+     localDeltaY: local[1]!,
+     visualRect,
++    target,
+   };
+ }
+diff --git a/packages/drag/src/free-drag/landing.ts b/packages/drag/src/free-drag/landing.ts
+index 0cbf3e34c..5f0987f60 100644
+--- a/packages/drag/src/free-drag/landing.ts
++++ b/packages/drag/src/free-drag/landing.ts
+@@ -1,6 +1,6 @@
+ export { landing } from '../shared/landing.ts';
+ export type {
++  Landing,
+   LandingOptions,
+-  LandingTiming,
+   LandingTimingContext,
+ } from '../shared/landing.ts';
+diff --git a/packages/drag/src/free-drag/operation.ts b/packages/drag/src/free-drag/operation.ts
+index da8052bb1..916f1eaab 100644
+--- a/packages/drag/src/free-drag/operation.ts
++++ b/packages/drag/src/free-drag/operation.ts
+@@ -61,6 +61,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+ 
+   move(): void {
+     this.translate();
++    this.#behavior.targets?.move();
+ 
+     if (this.#behavior.config.onMove) {
+       this.#behavior.config.onMove(this.#geometry());
+@@ -69,6 +70,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+ 
+   drop(): VerdictAwaiter<FreeDragResolution> | null {
+     this.#computeMotion();
++    // `pointerup` moved the pointer, and a drop may follow no frame at all.
++    this.#behavior.targets?.drop();
+ 
+     const request = buildRequest(
+       this.#behavior.root,
+@@ -76,6 +79,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+       this.#lift,
+       this.#motion,
+       this.#home(),
++      this.#behavior.targets?.current ?? null,
+       this.#behavior.window,
+     );
+ 
+diff --git a/packages/drag/src/lift.ts b/packages/drag/src/lift.ts
+index cdeebd16a..8d9487a58 100644
+--- a/packages/drag/src/lift.ts
++++ b/packages/drag/src/lift.ts
+@@ -12,20 +12,14 @@ import {
+   ancestry,
+   box as createBox,
+   coordinates,
+-  delta,
+-  localDelta,
+   space,
+   type Space,
+ } from '@ydinjs/box-quad';
+ import type { Drag } from './draggable.ts';
+ import { deepActiveElement } from './shared/focus.ts';
+-import type { LandingTiming } from './shared/landing.ts';
+-import {
+-  DEFAULT_LANDING_DURATION,
+-  DEFAULT_LANDING_EASING,
+-} from './shared/timing.ts';
++import type { Landing } from './shared/landing.ts';
+ 
+-export type { LandingTiming } from './shared/landing.ts';
++export type { Landing } from './shared/landing.ts';
+ 
+ /** One operation's lift, from `Lifter.acquire` until the operation's release. */
+ export interface Lift {
+@@ -45,13 +39,13 @@ export interface Lift {
+   translate(x: number, y: number): void;
+   /**
+    * Names where the visual lands: `x` and `y` are the viewport position of its
+-   * top-left. Call it from `settle`. `timing`, if given, is called once, now,
+-   * with the delta last translated to and the delta to the landing, and without
+-   * it the default duration and easing apply. When `timing` throws, nothing is
+-   * recorded. The landing starts right after the lift is released, from where the
+-   * visual is then, and the last call wins. Without a call, nothing lands.
++   * top-left. Call it from `settle`. `landing`'s timing is called once, now,
++   * with the delta last translated to and the delta to the landing. When it
++   * throws, nothing is recorded. `landing` starts the animation right after the
++   * lift is released, from where the visual is then, and the last call wins.
++   * Without a call, nothing lands.
+    */
+-  land(x: number, y: number, timing?: LandingTiming): void;
++  land(x: number, y: number, landing: Landing): void;
+ }
+ 
+ /**
+@@ -59,11 +53,12 @@ export interface Lift {
+  * timing may reuse the object it returns and code runs between `land` and the
+  * landing's start.
+  */
+-type Landing = Readonly<{
++type NamedLanding = Readonly<{
+   x: number;
+   y: number;
+   duration: number;
+   easing: string;
++  landing: Landing;
+ }>;
+ 
+ const BOX_A = 0;
+@@ -76,8 +71,6 @@ const BOX_WIDTH = 6;
+ const BOX_HEIGHT = 7;
+ const SPACE_ANCESTOR_ZOOM = 4;
+ 
+-const TOP_Z_INDEX = 2_147_483_647;
+-
+ /**
+  * UA popover properties that would change the visual's box or appearance,
+  * written again from the authored computed value so promotion is transparent.
+@@ -227,61 +220,6 @@ function captureTopLayer(visual: HTMLElement): () => void {
+  */
+ type Displacement = { x: number; y: number };
+ 
+-/**
+- * The flight is additive, so it composes with whatever else animates the visual.
+- * Elevation is a separate replacing animation: added to an item's own `z-index`,
+- * the sum wraps in WebKit and the item goes under its siblings.
+- */
+-function startLandingAnimation(
+-  lift: Lift,
+-  window: Window,
+-  displacement: Displacement,
+-  landing: Landing,
+-): (() => void) | null {
+-  const local = delta();
+-
+-  if (
+-    !localDelta(
+-      lift.visualSpace,
+-      displacement.x - (landing.x - lift.rect.x),
+-      displacement.y - (landing.y - lift.rect.y),
+-      local,
+-    ) ||
+-    (local[0] === 0 && local[1] === 0)
+-  ) {
+-    return null;
+-  }
+-
+-  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+-    ? 0
+-    : landing.duration;
+-  const flight = lift.visual.animate(
+-    [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
+-    {
+-      duration,
+-      easing: landing.easing,
+-      composite: 'add',
+-    },
+-  );
+-
+-  if (duration === 0) {
+-    return () => {
+-      flight.cancel();
+-    };
+-  }
+-
+-  const keyframe =
+-    window.getComputedStyle(lift.visual).position === 'static'
+-      ? { zIndex: TOP_Z_INDEX, position: 'relative' }
+-      : { zIndex: TOP_Z_INDEX };
+-  const elevation = lift.visual.animate([keyframe, keyframe], { duration });
+-
+-  return () => {
+-    flight.cancel();
+-    elevation.cancel();
+-  };
+-}
+-
+ /**
+  * The lift for one controller. Create it with the controller and pass
+  * `cancelLanding` to the controller's `use`. It keeps the running landing, which
+@@ -339,7 +277,7 @@ export class Lifter {
+       const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
+       const displacement: Displacement = { x: 0, y: 0 };
+       let promoted = false;
+-      let landing: Landing | null = null;
++      let named: NamedLanding | null = null;
+ 
+       const lift: Lift = {
+         visual,
+@@ -354,19 +292,20 @@ export class Lifter {
+           displacement.x = x;
+           displacement.y = y;
+         },
+-        land: (x, y, timing) => {
+-          const named = timing?.(
++        land: (x, y, landing) => {
++          const timing = landing.timing(
+             displacement.x,
+             displacement.y,
+             x - rect.x,
+             y - rect.y,
+           );
+ 
+-          landing = {
++          named = {
+             x,
+             y,
+-            duration: named ? named.duration : DEFAULT_LANDING_DURATION,
+-            easing: named ? named.easing : DEFAULT_LANDING_EASING,
++            duration: timing.duration,
++            easing: timing.easing,
++            landing,
+           };
+         },
+       };
+@@ -376,12 +315,15 @@ export class Lifter {
+       // that the landing starts right after the release even when the release
+       // throws, and each throw is reported once.
+       drag.use(() => {
+-        if (landing) {
+-          this.#runningAnimationCanceller = startLandingAnimation(
+-            lift,
++        if (named) {
++          this.#runningAnimationCanceller = named.landing.start(
++            visual,
++            visualSpace,
++            displacement.x - (named.x - rect.x),
++            displacement.y - (named.y - rect.y),
++            named.duration,
++            named.easing,
+             this.#window,
+-            displacement,
+-            landing,
+           );
+         }
+       });
+diff --git a/packages/drag/src/lift/landing.ts b/packages/drag/src/lift/landing.ts
+new file mode 100644
+index 000000000..5f0987f60
+--- /dev/null
++++ b/packages/drag/src/lift/landing.ts
+@@ -0,0 +1,6 @@
++export { landing } from '../shared/landing.ts';
++export type {
++  Landing,
++  LandingOptions,
++  LandingTimingContext,
++} from '../shared/landing.ts';
+diff --git a/packages/drag/src/shared/landing.ts b/packages/drag/src/shared/landing.ts
+index 6dbaaf94e..cba65cd90 100644
+--- a/packages/drag/src/shared/landing.ts
++++ b/packages/drag/src/shared/landing.ts
+@@ -1,3 +1,4 @@
++import { delta, localDelta, type Space } from '@ydinjs/box-quad';
+ import { DEFAULT_LANDING_DURATION, DEFAULT_LANDING_EASING } from './timing.ts';
+ 
+ export type LandingTimingContext = Readonly<{
+@@ -14,35 +15,114 @@ export type LandingOptions = Readonly<{
+   easing?: string;
+ }>;
+ 
+-export type LandingTiming = (
+-  fromX: number,
+-  fromY: number,
+-  toX: number,
+-  toY: number,
+-) => Readonly<{ duration: number; easing: string }>;
++/**
++ * The landing capability: what animates a released visual to where it lands.
++ * A lift without one starts no animation and carries no animation code. It
++ * holds no controller or operation state, so one value serves every controller.
++ */
++export interface Landing {
++  /**
++   * Called once, at `land`, with the displacement and the delta to the landing.
++   * The lift copies the values it returns.
++   */
++  timing(
++    fromX: number,
++    fromY: number,
++    toX: number,
++    toY: number,
++  ): Readonly<{ duration: number; easing: string }>;
++  /**
++   * Called right after the lift's release. `dx` and `dy` are the viewport offset
++   * of the visual from where it lands. Returns the cancel, or `null` when
++   * nothing animates.
++   */
++  start(
++    visual: HTMLElement,
++    visualSpace: Space,
++    dx: number,
++    dy: number,
++    duration: number,
++    easing: string,
++    window: Window,
++  ): (() => void) | null;
++}
++
++const TOP_Z_INDEX = 2_147_483_647;
++
++/**
++ * The flight is additive, so it composes with whatever else animates the visual.
++ * Elevation is a separate replacing animation: added to an item's own `z-index`,
++ * the sum wraps in WebKit and the item goes under its siblings.
++ */
++function startLandingAnimation(
++  visual: HTMLElement,
++  visualSpace: Space,
++  dx: number,
++  dy: number,
++  duration: number,
++  easing: string,
++  window: Window,
++): (() => void) | null {
++  const local = delta();
++
++  if (
++    !localDelta(visualSpace, dx, dy, local) ||
++    (local[0] === 0 && local[1] === 0)
++  ) {
++    return null;
++  }
++
++  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
++    ? 0
++    : duration;
++  const flight = visual.animate(
++    [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
++    { duration: reduced, easing, composite: 'add' },
++  );
++
++  if (reduced === 0) {
++    return () => {
++      flight.cancel();
++    };
++  }
++
++  const keyframe =
++    window.getComputedStyle(visual).position === 'static'
++      ? { zIndex: TOP_Z_INDEX, position: 'relative' }
++      : { zIndex: TOP_Z_INDEX };
++  const elevation = visual.animate([keyframe, keyframe], { duration: reduced });
++
++  return () => {
++    flight.cancel();
++    elevation.cancel();
++  };
++}
+ 
+ /**
+- * Composes a landing. Without it, a behavior measures no landing target. With
+- * `prefers-reduced-motion: reduce`, every landing has zero duration, and the
+- * `duration` function is still called.
++ * Composes a landing. Without it, a behavior measures no landing target and the
++ * lift starts no animation. With `prefers-reduced-motion: reduce`, every landing
++ * has zero duration, and the `duration` function is still called.
+  */
+-export function landing(options: LandingOptions = {}): LandingTiming {
++export function landing(options: LandingOptions = {}): Landing {
+   const {
+     duration = DEFAULT_LANDING_DURATION,
+     easing = DEFAULT_LANDING_EASING,
+   } = options;
+ 
+-  return (fromX, fromY, toX, toY) => ({
+-    duration:
+-      typeof duration === 'function'
+-        ? duration({
+-            fromX,
+-            fromY,
+-            toX,
+-            toY,
+-            distance: Math.hypot(toX - fromX, toY - fromY),
+-          })
+-        : duration,
+-    easing,
+-  });
++  return {
++    timing: (fromX, fromY, toX, toY) => ({
++      duration:
++        typeof duration === 'function'
++          ? duration({
++              fromX,
++              fromY,
++              toX,
++              toY,
++              distance: Math.hypot(toX - fromX, toY - fromY),
++            })
++          : duration,
++      easing,
++    }),
++    start: startLandingAnimation,
++  };
+ }
+diff --git a/packages/drag/src/shared/timing.ts b/packages/drag/src/shared/timing.ts
+index d8c30f075..9d974d45b 100644
+--- a/packages/drag/src/shared/timing.ts
++++ b/packages/drag/src/shared/timing.ts
+@@ -1,6 +1,3 @@
+-/**
+- * A landing's timing when nothing names it: the lift's default for a behavior that
+- * returns none, and `landing()`'s.
+- */
++/** A landing's timing when `landing()` is given no options. */
+ export const DEFAULT_LANDING_DURATION = 200;
+ export const DEFAULT_LANDING_EASING = 'ease';
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index d34b25428..bd895fbcc 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -22,7 +22,7 @@ import {
+   directionOf,
+   keyboardInsertion,
+ } from './keyboard.ts';
+-import type { LandingTiming } from './landing.ts';
++import type { Landing } from './landing.ts';
+ import { SortableOperation } from './operation.ts';
+ import { type PlaceholderFactory, createPlaceholder } from './placement.ts';
+ 
+@@ -56,7 +56,7 @@ export type SortableConfig = Readonly<{
+   /** The geometry source. Defaults to `visual`. */
+   box?(item: HTMLElement): HTMLElement;
+   placeholder?: PlaceholderFactory;
+-  landing?: LandingTiming;
++  landing?: Landing;
+   displacement?: DisplacementInstaller;
+ }>;
+ 
+@@ -94,7 +94,7 @@ export class SortableBehavior implements Behavior<
+   readonly #lifter: Lifter;
+   readonly axis: InsertionGeometry;
+   readonly displacement: DisplacementSink | undefined;
+-  readonly landing: LandingTiming | null;
++  readonly landing: Landing | null;
+   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
+   /** The version the next pulled snapshot carries. */
+   #version = 0;
+diff --git a/packages/drag/src/sortable/landing.ts b/packages/drag/src/sortable/landing.ts
+index 0cbf3e34c..5f0987f60 100644
+--- a/packages/drag/src/sortable/landing.ts
++++ b/packages/drag/src/sortable/landing.ts
+@@ -1,6 +1,6 @@
+ export { landing } from '../shared/landing.ts';
+ export type {
++  Landing,
+   LandingOptions,
+-  LandingTiming,
+   LandingTimingContext,
+ } from '../shared/landing.ts';
+diff --git a/packages/drag/tests/authoring.declaration.test.ts b/packages/drag/tests/authoring.declaration.test.ts
+index 1e330be07..9ba462a9b 100644
+--- a/packages/drag/tests/authoring.declaration.test.ts
++++ b/packages/drag/tests/authoring.declaration.test.ts
+@@ -9,6 +9,7 @@ import {
+   type BehaviorOperation,
+   type Drag,
+ } from '../src/draggable.ts';
++import { landing } from '../src/lift/landing.ts';
+ import { Lifter, type Lift } from '../src/lift.ts';
+ 
+ const root = document.createElement('div');
+@@ -75,7 +76,7 @@ describe('drag:DRI-18 the type requirement', () => {
+           settle() {
+             // @ts-expect-error A lift has no `translatedX`.
+             void lift.translatedX;
+-            lift.land(lift.rect.x, lift.rect.y);
++            lift.land(lift.rect.x, lift.rect.y, landing());
+           },
+         };
+       },
+diff --git a/packages/drag/tests/feature-composition.browser.test.ts b/packages/drag/tests/feature-composition.browser.test.ts
+new file mode 100644
+index 000000000..11bc3eae8
+--- /dev/null
++++ b/packages/drag/tests/feature-composition.browser.test.ts
+@@ -0,0 +1,253 @@
++/**
++ * The feature-composition prototype: capabilities imported on their own extend
++ * `freeDrag` and the lift, and one config serves several controllers.
++ */
++import { describe, expect, it } from 'vitest';
++import { bounds } from '../src/free-drag/bounds.ts';
++import { dropTargets } from '../src/free-drag/drop-targets.ts';
++import { landing } from '../src/free-drag/landing.ts';
++import {
++  freeDrag,
++  FreeDragResolution,
++  type FreeDragConfig,
++  type FreeDragResult,
++} from '../src/free-drag.ts';
++import {
++  centerOf,
++  commands,
++  faults,
++  grab,
++  moveHeld,
++  onCleanup,
++  release,
++} from './support/harness.ts';
++
++function makeBox(id: string, left: number): HTMLElement {
++  const box = document.createElement('div');
++
++  box.id = id;
++  box.style.cssText = `position:absolute;left:${left}px;top:20px;width:40px;height:40px;background:#ccd;touch-action:none;user-select:none`;
++  document.body.append(box);
++  return box;
++}
++
++function makeZone(id: string, left: number): HTMLElement {
++  const zone = document.createElement('div');
++
++  zone.id = id;
++  zone.className = 'zone';
++  zone.style.cssText = `position:absolute;left:${left}px;top:200px;width:120px;height:120px;outline:1px solid`;
++  document.body.append(zone);
++  return zone;
++}
++
++const zones = (): HTMLElement[] => [
++  ...document.querySelectorAll<HTMLElement>('.zone'),
++];
++
++describe('freeDrag + dropTargets', () => {
++  it('should mark the target under the pointer, name it at the drop and clear the mark at release', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 20);
++    const results: FreeDragResult[] = [];
++    const controller = freeDrag(box, {
++      targets: dropTargets({ targets: zones }),
++      onDrop: (request) =>
++        request.target
++          ? FreeDragResolution.accept()
++          : FreeDragResolution.reject(),
++      onEnd(result) {
++        results.push(result);
++      },
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    const start = await grab(box, 0, 30);
++
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++
++    const over = centerOf(zone);
++
++    await moveHeld(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(true);
++    await moveHeld(start.x, start.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    await moveHeld(over.x, over.y);
++    await release();
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    expect(results.map((result) => result.type)).toEqual(['accepted']);
++    const [result] = results;
++
++    expect(result!.type === 'accepted' && result!.request.target).toBe(zone);
++    expect(faults).toEqual([]);
++  });
++
++  it('should resolve the target at the release, with no frame before it', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 20);
++    const targets: unknown[] = [];
++    const controller = freeDrag(box, {
++      targets: dropTargets({ targets: zones }),
++      onDrop(request) {
++        targets.push(request.target);
++        return FreeDragResolution.accept();
++      },
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    const over = centerOf(zone);
++
++    await grab(box, 0, 30);
++
++    // No frame runs from here, so only the drop can resolve the target.
++    const requestFrame = window.requestAnimationFrame.bind(window);
++
++    window.requestAnimationFrame = () => 1;
++    onCleanup(() => {
++      window.requestAnimationFrame = requestFrame;
++    });
++    await commands.pointerMove(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    await commands.pointerUp();
++    expect(targets).toEqual([zone]);
++  });
++
++  it('should clear the mark when the controller is destroyed mid-drag', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 20);
++    const controller = freeDrag(box, {
++      targets: dropTargets({ targets: zones }),
++      onDrop: () => FreeDragResolution.accept(),
++    });
++
++    await grab(box, 0, 30);
++
++    const over = centerOf(zone);
++
++    await moveHeld(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(true);
++    await controller.requestDestroy();
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    await commands.pointerUp();
++  });
++
++  it('should re-read the targets on invalidate', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 300);
++    const controller = freeDrag(box, {
++      targets: dropTargets({ targets: zones }),
++      onDrop: () => FreeDragResolution.reject(),
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    const at = await grab(box, 0, 200);
++
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    zone.style.left = '0px';
++    controller.invalidate();
++    await moveHeld(at.x + 1, at.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(true);
++    await commands.keyPress('Escape');
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++  });
++
++  it('should name no target without the capability', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 20);
++    const targets: unknown[] = [];
++    const controller = freeDrag(box, {
++      onDrop(request) {
++        targets.push(request.target);
++        return FreeDragResolution.accept();
++      },
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    const over = centerOf(zone);
++
++    await grab(box, 0, 30);
++    await moveHeld(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    await release();
++    expect(targets).toEqual([null]);
++  });
++});
++
++describe('one config across controllers', () => {
++  it('should give each controller its own runtime', async () => {
++    const arena = document.createElement('div');
++
++    arena.style.cssText =
++      'position:absolute;left:0;top:0;width:400px;height:400px';
++    document.body.append(arena);
++
++    const a = makeBox('a', 20);
++    const b = makeBox('b', 220);
++    const zone = makeZone('z1', 20);
++    const ends: string[] = [];
++    // One object, passed as it is to both controllers.
++    const config: FreeDragConfig = {
++      bounds: bounds(arena),
++      landing: landing({ duration: 100 }),
++      targets: dropTargets({ targets: zones }),
++      onDrop: (request) =>
++        request.target
++          ? FreeDragResolution.accept()
++          : FreeDragResolution.reject(),
++      onEnd(result) {
++        ends.push(
++          `${result.type === 'canceled' ? '' : result.request.item.id}:${result.type}`,
++        );
++      },
++    };
++    const first = freeDrag(a, config);
++    const second = freeDrag(b, config);
++
++    onCleanup(() => second.requestDestroy());
++
++    // The first controller's operation marks the zone; the second's runtime is untouched.
++    const over = centerOf(zone);
++
++    await grab(a, 0, 30);
++    await moveHeld(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(true);
++    await release();
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++
++    // Destroying the first leaves the second's bounds, targets and landing working.
++    await first.requestDestroy();
++
++    const before = centerOf(b);
++
++    // Within the viewport: an 800 px move left Firefox's, and the pointer went elsewhere.
++    await grab(b, 300, 0);
++    expect(b.getBoundingClientRect().right).toBeCloseTo(400, 0);
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    // No frame wait here, or the landing could finish before it is seen.
++    await commands.pointerUp();
++    expect(b.getAnimations().length).toBeGreaterThan(0);
++    await Promise.all(b.getAnimations().map((each) => each.finished));
++    expect(centerOf(b).x).toBeCloseTo(before.x, 0);
++    expect(ends).toEqual(['a:accepted', 'b:rejected']);
++    expect(faults).toEqual([]);
++  });
++});
++
++describe('the lift without the landing capability', () => {
++  it('should start no animation when no landing is composed', async () => {
++    const box = makeBox('a', 20);
++    const controller = freeDrag(box, {
++      onDrop: () => FreeDragResolution.reject(),
++    });
++
++    onCleanup(() => controller.requestDestroy());
++    await grab(box, 60, 40);
++    await commands.pointerUp();
++    expect(box.getAnimations()).toEqual([]);
++    expect(centerOf(box).x).toBeCloseTo(40, 0);
++  });
++});
+diff --git a/packages/drag/tests/fixtures/drop-zone.ts b/packages/drag/tests/fixtures/drop-zone.ts
+index adb38a00c..bb5d1ce25 100644
+--- a/packages/drag/tests/fixtures/drop-zone.ts
++++ b/packages/drag/tests/fixtures/drop-zone.ts
+@@ -8,9 +8,12 @@ import {
+   type Drag,
+   type DraggableController,
+ } from '../../src/draggable.ts';
++import { landing } from '../../src/lift/landing.ts';
+ import { Lifter, type Lift } from '../../src/lift.ts';
+ 
+ type Over = { zone: HTMLElement | null };
++
++const cardLanding = landing();
+ type Save = (
+   card: HTMLElement,
+   zone: HTMLElement,
+@@ -65,7 +68,7 @@ export function dropZone(
+         settle(outcome) {
+           if (outcome.type !== 'verdict' || !outcome.value) {
+             highlight(over, null);
+-            lift.land(lift.rect.left, lift.rect.top);
++            lift.land(lift.rect.left, lift.rect.top, cardLanding);
+             return;
+           }
+ 
+@@ -79,7 +82,7 @@ export function dropZone(
+ 
+           standIn.replaceWith(drag.item);
+           highlight(over, null);
+-          lift.land(x, y);
++          lift.land(x, y, cardLanding);
+         },
+       };
+     },
+diff --git a/packages/drag/tests/landing.browser.test.ts b/packages/drag/tests/landing.browser.test.ts
+index 27300e1cc..28231c429 100644
+--- a/packages/drag/tests/landing.browser.test.ts
++++ b/packages/drag/tests/landing.browser.test.ts
+@@ -81,7 +81,7 @@ describe('drag:DRI-13 landing', () => {
+ 
+         return {
+           settle() {
+-            lift.land(lift.rect.x, lift.rect.y);
++            lift.land(lift.rect.x, lift.rect.y, landing());
+           },
+         };
+       },
+@@ -240,7 +240,7 @@ describe('drag:DRI-13 landing', () => {
+             lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+           },
+           settle() {
+-            lift.land(lift.rect.x, lift.rect.y);
++            lift.land(lift.rect.x, lift.rect.y, landing());
+           },
+         };
+       },
+@@ -383,7 +383,7 @@ describe('drag:DRI-13 landing', () => {
+             lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+           },
+           settle() {
+-            lift.land(lift.rect.x, lift.rect.y, timing);
++            lift.land(lift.rect.x, lift.rect.y, { ...landing(), timing });
+           },
+         };
+       },

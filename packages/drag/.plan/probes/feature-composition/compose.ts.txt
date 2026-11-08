@@ -1,0 +1,190 @@
+/* oxlint-disable no-await-in-loop, no-console -- a probe: serial, and it prints */
+/**
+ * Bundles each composition of the feature-composition probe with Rolldown, as
+ * `bench/size/measure.ts` does, and reports minified and Brotli bytes, the
+ * module graph, and which marker strings the bundle carries.
+ *
+ * `node compose.ts <package root> [--json]`. Run it from the package root of
+ * the tree to measure: the base or the prototype. A composition whose imports
+ * don't resolve in that tree is reported as `n/a`.
+ */
+import { existsSync } from 'node:fs';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, relative } from 'node:path';
+import { brotliCompressSync } from 'node:zlib';
+import { rolldown } from 'rolldown';
+
+const ROOT = process.argv[2] ?? process.cwd();
+const BOX_QUAD = join(ROOT, '../box-quad/src/index.ts');
+
+/** Code that only a capability brings. A marker in a composition that omits the capability is a leak. */
+const MARKERS: Readonly<Record<string, string>> = {
+  'landing animation': 'prefers-reduced-motion',
+  'landing timing': 'hypot',
+  'drop targets': 'data-drop-over',
+  bounds: 'innerHeight',
+  'layout animation': 'getComputedTiming',
+};
+
+type Row = Readonly<{
+  name: string;
+  imports: Readonly<Record<string, readonly string[]>>;
+}>;
+
+const ROWS: readonly Row[] = [
+  { name: 'draggable alone', imports: { 'src/draggable': ['draggable'] } },
+  {
+    name: 'draggable + lift',
+    imports: { 'src/draggable': ['draggable'], 'src/lift': ['Lifter'] },
+  },
+  {
+    name: 'draggable + lift + landing',
+    imports: {
+      'src/draggable': ['draggable'],
+      'src/lift': ['Lifter'],
+      'src/lift/landing': ['landing'],
+    },
+  },
+  { name: 'freeDrag', imports: { 'src/free-drag': ['freeDrag'] } },
+  {
+    name: 'freeDrag + landing',
+    imports: {
+      'src/free-drag': ['freeDrag'],
+      'src/free-drag/landing': ['landing'],
+    },
+  },
+  {
+    name: 'freeDrag + bounds + landing',
+    imports: {
+      'src/free-drag': ['freeDrag'],
+      'src/free-drag/bounds': ['bounds'],
+      'src/free-drag/landing': ['landing'],
+    },
+  },
+  {
+    name: 'freeDrag + dropTargets',
+    imports: {
+      'src/free-drag': ['freeDrag'],
+      'src/free-drag/drop-targets': ['dropTargets'],
+    },
+  },
+  {
+    name: 'freeDrag + dropTargets + landing',
+    imports: {
+      'src/free-drag': ['freeDrag'],
+      'src/free-drag/drop-targets': ['dropTargets'],
+      'src/free-drag/landing': ['landing'],
+    },
+  },
+  {
+    name: 'example: drop zone',
+    imports: { 'tests/fixtures/drop-zone': ['dropZone'] },
+  },
+  {
+    name: 'sortable + y',
+    imports: { 'src/sortable': ['sortable'], 'src/sortable/y': ['y'] },
+  },
+  {
+    name: 'complete',
+    imports: {
+      'src/sortable': ['sortable'],
+      'src/sortable/y': ['y'],
+      'src/sortable/landing': ['landing'],
+      'src/sortable/layout-animation': ['layoutAnimation'],
+    },
+  },
+];
+
+async function bundle(row: Row): Promise<
+  | Readonly<{
+      minified: number;
+      brotli: number;
+      modules: string[];
+      markers: string[];
+    }>
+  | null
+> {
+  const lines: string[] = [];
+  const names: string[] = [];
+
+  for (const [path, exported] of Object.entries(row.imports)) {
+    if (!existsSync(join(ROOT, `${path}.ts`))) {
+      return null;
+    }
+
+    names.push(...exported);
+    lines.push(
+      `import { ${exported.join(', ')} } from ${JSON.stringify(join(ROOT, `${path}.ts`))};`,
+    );
+  }
+
+  const directory = await mkdtemp(join(tmpdir(), 'drag-compose-'));
+
+  try {
+    const input = join(directory, 'entry.js');
+
+    await writeFile(
+      input,
+      `${lines.join('\n')}\nglobalThis.keep = [${names.join(', ')}];\n`,
+    );
+
+    const build = await rolldown({
+      input,
+      platform: 'neutral',
+      resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+      transform: { define: { __DEV__: 'false' } },
+      onLog(level, log, handler) {
+        if (log.code === 'UNRESOLVED_IMPORT') {
+          throw new Error(`compose: ${log.message}`);
+        }
+
+        handler(level, log);
+      },
+    });
+
+    try {
+      const { output } = await build.generate({ format: 'es', minify: true });
+      const chunks = output.filter((chunk) => chunk.type === 'chunk');
+      const code = chunks.map((chunk) => chunk.code).join('');
+      const bytes = new TextEncoder().encode(code);
+
+      return {
+        minified: bytes.byteLength,
+        brotli: brotliCompressSync(bytes).byteLength,
+        modules: chunks.flatMap((chunk) =>
+          (Object.keys(chunk.modules) as readonly string[])
+            .filter((id) => id !== input)
+            .map((id) => relative(ROOT, id)),
+        ),
+        markers: Object.entries(MARKERS)
+          .filter(([, marker]) => code.includes(marker))
+          .map(([name]) => name),
+      };
+    } finally {
+      await build.close();
+    }
+  } finally {
+    await rm(directory, { force: true, recursive: true });
+  }
+}
+
+const json: Record<string, unknown> = {};
+
+for (const row of ROWS) {
+  const result = await bundle(row);
+
+  json[row.name] = result;
+
+  if (!process.argv.includes('--json')) {
+    console.log(
+      result
+        ? `${row.name.padEnd(34)} ${String(result.minified).padStart(6)} min ${String(result.brotli).padStart(5)} br  carries: ${result.markers.join(', ') || '-'}`
+        : `${row.name.padEnd(34)}    n/a`,
+    );
+  }
+}
+
+if (process.argv.includes('--json')) {
+  console.log(JSON.stringify(json, null, 2));
+}
