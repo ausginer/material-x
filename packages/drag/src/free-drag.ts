@@ -82,10 +82,10 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
   readonly #behavior: FreeDragBehavior;
   readonly #drag: Drag<FreeDragOperation>;
   readonly #lift: Lift;
-  #offsetX = 0;
-  #offsetY = 0;
   /** The visual's viewport delta, axis-projected and clamped. */
   readonly #motion = { x: 0, y: 0 };
+  #offsetX = 0;
+  #offsetY = 0;
   /** `null` until the drop: a cancel before it has none. */
   #request: FreeDragRequest | null = null;
   /** Recorded at `settle` and reported at `end`. */
@@ -103,19 +103,16 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
 
   /** Computes the motion and moves the visual by it. */
   translate(): void {
-    const motion = this.#motion;
-
     this.#computeMotion();
-    this.#lift.translate(motion.x, motion.y);
+    this.#lift.translate(this.#motion.x, this.#motion.y);
   }
 
   /** Places the visual at a viewport point and keeps following the pointer. */
   moveTo(point: Point): void {
-    const drag = this.#drag;
-    const { rect } = this.#lift;
-
-    this.#offsetX = point.x - rect.left - (drag.x - drag.originX);
-    this.#offsetY = point.y - rect.top - (drag.y - drag.originY);
+    this.#offsetX =
+      point.x - this.#lift.rect.left - (this.#drag.x - this.#drag.originX);
+    this.#offsetY =
+      point.y - this.#lift.rect.top - (this.#drag.y - this.#drag.originY);
     this.translate();
   }
 
@@ -132,29 +129,25 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
   }
 
   drop() {
-    const behavior = this.#behavior;
-    const lift = this.#lift;
-    const motion = this.#motion;
-
     this.#computeMotion();
 
     const request = buildRequest(
-      behavior.root,
+      this.#behavior.root,
       this.#drag,
-      lift,
-      motion,
+      this.#lift,
+      this.#motion,
       this.#home(),
-      behavior.window,
+      this.#behavior.window,
     );
 
     this.#request = request;
-    lift.translate(motion.x, motion.y);
+    this.#lift.translate(this.#motion.x, this.#motion.y);
 
-    return (signal: AbortSignal) => behavior.config.onDrop(request, { signal });
+    return (signal: AbortSignal) =>
+      this.#behavior.config.onDrop(request, { signal });
   }
 
   settle(outcome: Outcome<FreeDragResolution>): void {
-    const timing = this.#behavior.landing;
     let home = true;
 
     if (outcome.type === 'canceled') {
@@ -176,13 +169,13 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
       home = false;
     }
 
-    if (!timing || !home) {
+    if (!this.#behavior.landing || !home) {
       return;
     }
 
     const { x, y } = this.#home();
 
-    this.#lift.land(x, y, timing);
+    this.#lift.land(x, y, this.#behavior.landing);
   }
 
   end(): void {
@@ -191,20 +184,16 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
 
   /** Writes the delta the pointer and the operation's offset give into `#motion`. */
   #computeMotion(): void {
-    const behavior = this.#behavior;
-    const motion = this.#motion;
-    const drag = this.#drag;
+    this.#motion.x = this.#drag.x - this.#drag.originX + this.#offsetX;
+    this.#motion.y = this.#drag.y - this.#drag.originY + this.#offsetY;
 
-    motion.x = drag.x - drag.originX + this.#offsetX;
-    motion.y = drag.y - drag.originY + this.#offsetY;
-
-    if (behavior.axis === 'x') {
-      motion.y = 0;
-    } else if (behavior.axis === 'y') {
-      motion.x = 0;
+    if (this.#behavior.axis === 'x') {
+      this.#motion.y = 0;
+    } else if (this.#behavior.axis === 'y') {
+      this.#motion.x = 0;
     }
 
-    behavior.bounds?.apply(motion, this.#lift.rect);
+    this.#behavior.bounds?.apply(this.#motion, this.#lift.rect);
   }
 
   #geometry(): DragGeometry {
@@ -218,10 +207,11 @@ class FreeDragOperation implements BehaviorOperation<FreeDragResolution> {
 
   /** `config.home()` now, or the visual's rect at the grab without it. */
   #home(): Point {
-    const { config, root } = this.#behavior;
-
-    return config.home
-      ? config.home({ item: root, visual: this.#lift.visual })
+    return this.#behavior.config.home
+      ? this.#behavior.config.home({
+          item: this.#behavior.root,
+          visual: this.#lift.visual,
+        })
       : { x: this.#lift.rect.left, y: this.#lift.rect.top };
   }
 }
@@ -235,21 +225,17 @@ class FreeDragBehavior implements Behavior<
   FreeDragResolution,
   FreeDragOperation
 > {
-  declare readonly threshold?: number;
-
+  readonly threshold?: number;
   readonly root: HTMLElement;
   readonly config: FreeDragConfig;
   readonly window: Window & typeof globalThis;
-  readonly #lifter: Lifter;
   readonly axis: DragAxis;
   readonly bounds: MotionConstraint | null;
   readonly landing: LandingTiming | null;
+  readonly #lifter: Lifter;
 
   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
-    if (config.threshold !== undefined) {
-      this.threshold = config.threshold;
-    }
-
+    this.threshold = config.threshold;
     this.root = root;
     this.config = config;
     this.window = root.ownerDocument.defaultView!;

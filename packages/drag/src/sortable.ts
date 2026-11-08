@@ -3,6 +3,7 @@
  * consumer owns the DOM order: a drop proposes a reorder and the consumer commits or
  * rejects it.
  */
+import type { SetNonNullable, Writable } from 'type-fest';
 import {
   draggable,
   type Admission,
@@ -135,9 +136,7 @@ function updateInsertion(operation: SortableOperation | null): void {
  * One activated sortable operation, from `start` to `end`. The kernel calls each
  * hook as a method of this instance. It is also the query the axis rule reads.
  */
-class SortableOperation
-  implements BehaviorOperation<ReorderResolution>, AxisQuery
-{
+class SortableOperation implements BehaviorOperation<ReorderResolution> {
   readonly #behavior: SortableBehavior;
   readonly #drag: Drag<SortableOperation>;
   readonly #lift: Lift;
@@ -145,11 +144,7 @@ class SortableOperation
   readonly #direction: KeyboardDirection | null;
   readonly #frame: FrameTask;
   readonly #context: AxisContext;
-  readonly item: HTMLElement;
-  snapshot: CollectionSnapshot;
-  insertion: Insertion;
-  pointerX = 0;
-  pointerY = 0;
+  readonly #query: Writable<SetNonNullable<AxisQuery>>;
   /** `null` until the drop: a cancel before it has none. */
   #request: ReorderRequest | null = null;
   /** Recorded at `settle` and reported at `end`. */
@@ -171,13 +166,17 @@ class SortableOperation
     this.#direction = direction;
     this.#frame = frame;
     this.#context = context;
-    this.item = drag.item;
-    this.snapshot = snapshot;
-    this.insertion = insertion;
+    this.#query = {
+      item: drag.item,
+      snapshot,
+      insertion,
+      pointerX: 0,
+      pointerY: 0,
+    };
   }
 
   start(): void {
-    this.#behavior.config.onStart?.(this.item);
+    this.#behavior.config.onStart?.(this.#query.item);
   }
 
   move(): void {
@@ -188,33 +187,39 @@ class SortableOperation
   }
 
   drop() {
-    const behavior = this.#behavior;
-    const drag = this.#drag;
     const isPointerOperation = this.#direction === null;
 
     this.#frame.cancel();
 
     if (isPointerOperation) {
-      behavior.axis.invalidate();
-      this.pointerX = drag.x;
-      this.pointerY = drag.y;
-      this.insertion =
-        behavior.axis.resolve(this, this.#context) ?? this.insertion;
+      this.#behavior.axis.invalidate();
+      this.#query.pointerX = this.#drag.x;
+      this.#query.pointerY = this.#drag.y;
+      this.#query.insertion =
+        this.#behavior.axis.resolve(this.#query, this.#context) ??
+        this.#query.insertion;
     }
 
-    const { insertion } = this;
-    const request = buildReorderRequest(this.snapshot, drag.item, insertion);
+    const request = buildReorderRequest(
+      this.#query.snapshot,
+      this.#drag.item,
+      this.#query.insertion,
+    );
 
     this.#request = request;
-    movePlaceholder(this.#context.placeholder, insertion);
+    movePlaceholder(this.#context.placeholder, this.#query.insertion);
 
     if (isPointerOperation) {
-      this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+      this.#lift.translate(
+        this.#drag.x - this.#drag.originX,
+        this.#drag.y - this.#drag.originY,
+      );
     }
 
     return request.to === request.from
       ? null
-      : (signal: AbortSignal) => behavior.config.onReorder(request, { signal });
+      : (signal: AbortSignal) =>
+          this.#behavior.config.onReorder(request, { signal });
   }
 
   settle(outcome: Outcome<ReorderResolution>): void {
@@ -234,20 +239,22 @@ class SortableOperation
 
   /** The collection was pulled again: rebases the gap, or cancels. */
   rebase(next: CollectionSnapshot): void {
-    const drag = this.#drag;
+    this.#query.snapshot = next;
 
-    this.snapshot = next;
-
-    if (next.items.includes(drag.item)) {
-      const insertion = reconcileCollection(next, drag.item, this.insertion);
+    if (next.items.includes(this.#drag.item)) {
+      const insertion = reconcileCollection(
+        next,
+        this.#drag.item,
+        this.#query.insertion,
+      );
 
       if (insertion) {
-        this.insertion = insertion;
+        this.#query.insertion = insertion;
       } else {
-        drag.requestCancel(CANCEL_COLLECTION_INVALIDATED);
+        this.#drag.requestCancel(CANCEL_COLLECTION_INVALIDATED);
       }
     } else {
-      drag.requestCancel(CANCEL_ITEM_REMOVED);
+      this.#drag.requestCancel(CANCEL_ITEM_REMOVED);
     }
 
     this.#behavior.axis.invalidate();
@@ -255,34 +262,34 @@ class SortableOperation
 
   /** The gap under the pointer, and the placeholder moved to it. */
   updateInsertion(): void {
-    const drag = this.#drag;
-    const context = this.#context;
-    const { axis, displacement } = this.#behavior;
+    this.#query.pointerX = this.#drag.x;
+    this.#query.pointerY = this.#drag.y;
 
-    this.pointerX = drag.x;
-    this.pointerY = drag.y;
-
-    const resolved = axis.resolve(this, context);
+    const resolved = this.#behavior.axis.resolve(this.#query, this.#context);
 
     if (resolved === null) {
       return;
     }
 
-    this.insertion = resolved;
+    this.#query.insertion = resolved;
 
-    if (placeholderAt(context.placeholder, resolved)) {
+    if (placeholderAt(this.#context.placeholder, resolved)) {
       return;
     }
 
     let stale = true;
 
     try {
-      movePlaceholder(context.placeholder, resolved);
-      axis.moved(this, context, displacement?.report ?? null);
+      movePlaceholder(this.#context.placeholder, resolved);
+      this.#behavior.axis.moved(
+        this.#query,
+        this.#context,
+        this.#behavior.displacement?.report ?? null,
+      );
       stale = false;
     } finally {
       if (stale) {
-        axis.invalidate();
+        this.#behavior.axis.invalidate();
       }
     }
   }
@@ -324,29 +331,30 @@ class SortableOperation
    * placeholder's rect, whose top-left is where the visual lands.
    */
   #landingTarget(recovery: Recovery): DOMRectReadOnly {
-    const { item } = this;
-    const { placeholder } = this.#context;
-
     if (recovery === RECOVERY_DESTINATION) {
       if (
-        item.isConnected &&
-        item.parentElement === placeholder.parentElement &&
-        placeholder.nextElementSibling !== item
+        this.#query.item.isConnected &&
+        this.#query.item.parentElement ===
+          this.#context.placeholder.parentElement &&
+        this.#context.placeholder.nextElementSibling !== this.#query.item
       ) {
-        item.before(placeholder);
+        this.#query.item.before(this.#context.placeholder);
       }
     } else {
-      movePlaceholder(placeholder, homeInsertion(this.snapshot, item));
+      movePlaceholder(
+        this.#context.placeholder,
+        homeInsertion(this.#query.snapshot, this.#query.item),
+      );
     }
 
     if (
-      !placeholder.isConnected ||
-      placeholder.parentElement !== item.parentElement
+      !this.#context.placeholder.isConnected ||
+      this.#context.placeholder.parentElement !== this.#query.item.parentElement
     ) {
       throw new Error('sortable/landing-placeholder-lost');
     }
 
-    return placeholder.getBoundingClientRect();
+    return this.#context.placeholder.getBoundingClientRect();
   }
 }
 

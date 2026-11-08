@@ -2,6 +2,10 @@ import type { Admission } from './admission.ts';
 import type { Drag } from './drag.ts';
 import type { Outcome } from './outcome.ts';
 
+export type VerdictAwaiter<Verdict> = (
+  signal: AbortSignal,
+) => Verdict | PromiseLike<Verdict>;
+
 /**
  * One activated operation's hooks, from `start` to `end`. `activate` returns it,
  * and steps receive it.
@@ -11,7 +15,7 @@ export type BehaviorOperation<Verdict = unknown> = Readonly<{
   start?(): void;
   move?(): void;
   /** Returns the verdict to wait for, or `null` to skip it. */
-  drop?(): ((signal: AbortSignal) => Verdict | PromiseLike<Verdict>) | null;
+  drop?(): VerdictAwaiter<Verdict> | null;
   /**
    * The outcome is decided, and `drag.signal` has not aborted yet. Runs only if
    * `start` was reached.
