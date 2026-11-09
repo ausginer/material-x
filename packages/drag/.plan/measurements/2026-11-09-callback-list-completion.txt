@@ -1,0 +1,207 @@
+# Callback list completion: raw output, 2026-11-09
+# Implementation commit 50ed18a17. Base 25a67d4a9. node v26.13.0.
+
+## eslint --print-config, rule @typescript-eslint/unbound-method
+packages/drag config, src/kernel/drag.ts: [0,{"ignoreStatic":true}]
+packages/drag config, tests/callback-list.declaration.test.ts: [0,{"ignoreStatic":true}]
+packages/drag config, .plan/probes/callback-list/allocation.ts: [0,{"ignoreStatic":true}]
+packages/core config, src/attribute.ts: [2,{"ignoreStatic":true}]
+
+## node bench/size/measure.ts at 25a67d4a9 (scratch worktree, removed)
+draggable alone                  6321 min   2066 br  6 modules
+  VIOLATION: control moved by 42 B
+draggable + lift                11132 min   3838 br  8 modules
+example: resize handle           8978 min   3181 br  8 modules
+example: drop zone              12771 min   4462 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9114 min   3179 br  8 modules
+freeDrag                        14770 min   4897 br  14 modules
+freeDrag + bounds + landing     15935 min   5331 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 121 B
+sortable + y                    19474 min   6345 br  19 modules
+sortable + xy                   19293 min   6303 br  18 modules
+complete                        21147 min   6968 br  23 modules
+
+## node bench/size/measure.ts at 50ed18a17, run 1
+draggable alone                  6737 min   2202 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 63 B
+  VIOLATION: control moved by 178 B
+draggable + lift                11548 min   3975 br  9 modules
+example: resize handle           9394 min   3317 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 4 B
+example: drop zone              13187 min   4608 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 177 B
+example: canvas group            9530 min   3311 br  9 modules
+freeDrag                        15186 min   5040 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 73 B
+freeDrag + bounds + landing     16351 min   5475 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 265 B
+sortable + y                    19866 min   6475 br  20 modules
+sortable + xy                   19685 min   6447 br  19 modules
+complete                        21543 min   7106 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 41 B
+
+## node bench/size/measure.ts at 50ed18a17, run 2
+draggable alone                  6737 min   2202 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 63 B
+  VIOLATION: control moved by 178 B
+draggable + lift                11548 min   3975 br  9 modules
+example: resize handle           9394 min   3317 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 4 B
+example: drop zone              13187 min   4608 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 177 B
+example: canvas group            9530 min   3311 br  9 modules
+freeDrag                        15186 min   5040 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 73 B
+freeDrag + bounds + landing     16351 min   5475 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 265 B
+sortable + y                    19866 min   6475 br  20 modules
+sortable + xy                   19685 min   6447 br  19 modules
+complete                        21543 min   7106 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 41 B
+
+## node --expose-gc .plan/probes/callback-list/allocation.ts at 50ed18a17, three runs
+## run 1
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   179.1 B
+queue(), empty     72.1 B
+stack(), empty     72.0 B
+queue(), used      239.5 B
+stack(), used      239.2 B
+## run 2
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   177.5 B
+queue(), empty     72.1 B
+stack(), empty     72.0 B
+queue(), used      239.5 B
+stack(), used      239.1 B
+## run 3
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   179.2 B
+queue(), empty     72.1 B
+stack(), empty     72.0 B
+queue(), used      239.7 B
+stack(), used      239.2 B
+
+## npx just test-engines at 50ed18a17, webkit-env.sh sourced (verbose reporter), counts per project
+      7 ↓ |browser/firefox (firefox)|
+      7 ↓ |browser/webkit (webkit)|
+      2 ↓ |shipped/firefox (firefox)|
+      2 ↓ |shipped/webkit (webkit)|
+    346 ✓ |browser (chromium)|
+    339 ✓ |browser/firefox (firefox)|
+    339 ✓ |browser/webkit (webkit)|
+      7 ✓ |shipped (chromium)|
+      5 ✓ |shipped/firefox (firefox)|
+      5 ✓ |shipped/webkit (webkit)|
+ Test Files  72 passed (72)
+      Tests  1041 passed | 18 skipped (1059)
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:246 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:246 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:246 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+
+## npx just test at 50ed18a17 (Chromium, node and declaration projects)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+ Test Files  1 failed | 27 passed (28)
+      Tests  6 failed | 379 passed (385)
+
+## npx just lint in packages/drag at 50ed18a17
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+exit 0
+
+## Mutations
+### M1
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass
+AssertionError: expected 100 to be close to 200, received difference is 100, but expected 0.5
+      Tests  1 failed | 26 skipped (27)
+### M2
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+AssertionError: expected [ 'first added', 'last added' ] to deeply equal [ 'last added', 'first added' ]
+      Tests  1 failed | 14 skipped (15)
+### M3
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+AssertionError: expected [ undefined ] to deeply equal [ { …(4) } ]
+      Tests  1 failed | 19 skipped (20)
+### M4
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order
+AssertionError: expected [ 'start finished', 'a' ] to deeply equal [ 'start finished', 'a', 'b' ]
+      Tests  1 failed | 19 skipped (20)
+### M5 (npx just typecheck)
+src/sortable/behavior.ts(207,14): error TS2345: Argument of type '(this: InsertionGeometry) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+### M6 (npx just typecheck)
+src/sortable.ts(59,16): error TS2345: Argument of type '(this: DisplacementSink) => void' is not assignable to parameter of type '(this: undefined) => void'.
+### M7 (npx just lint)
+/workspaces/material-x/packages/drag/src/kernel/gesture.ts
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/src/sortable.ts
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/src/sortable/behavior.ts
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/tests/activation.browser.test.ts
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/tests/callback-list.browser.test.ts
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.                                                                               @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.                                                                               @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.                                                                               @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/tests/callback-list.declaration.test.ts
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+Consider using an arrow function or explicitly `.bind()`ing the method to avoid calling the method with an unintended `this` value.   @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/tests/hot-path.browser.test.ts
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/tests/landing.browser.test.ts
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+/workspaces/material-x/packages/drag/tests/order.browser.test.ts
+If a function does not access `this`, it can be annotated with `this: void`  @typescript-eslint/unbound-method
+✖ 27 problems (27 errors, 0 warnings)
+### M8 (npx just lint, exit 0)
+/workspaces/material-x/packages/drag/src/kernel/gesture.ts
+251:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/unbound-method')
+✖ 1 problem (0 errors, 1 warning)
+0 errors and 1 warning potentially fixable with the `--fix` option.
