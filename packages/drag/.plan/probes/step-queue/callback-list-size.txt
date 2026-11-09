@@ -1,0 +1,18 @@
+# bench/size/measure.ts at d50e4b67a (callback list), two identical runs
+node bench/size/measure.ts
+draggable alone                  6683 min   2174 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 35 B
+  VIOLATION: control moved by 150 B
+draggable + lift                11494 min   3951 br  9 modules
+example: resize handle           9340 min   3293 br  9 modules
+example: drop zone              13133 min   4581 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 150 B
+example: canvas group            9476 min   3286 br  9 modules
+freeDrag                        15132 min   5006 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 39 B
+freeDrag + bounds + landing     16297 min   5446 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 236 B
+sortable + y                    19812 min   6447 br  20 modules
+sortable + xy                   19631 min   6415 br  19 modules
+complete                        21489 min   7085 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 20 B

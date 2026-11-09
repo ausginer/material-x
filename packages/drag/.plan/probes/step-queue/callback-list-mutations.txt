@@ -1,0 +1,80 @@
+# Mutations of d50e4b67a, each applied alone and restored with git checkout. Lines: typecheck result, then the failing tests and the count for the named files.
+=== C1-has-ignores-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:47 > callback-list model: the list alone > should keep duplicate checking apart from insertion
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:109 > callback-list model: steps through the kernel > should run one method once per receiver, in request order
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:147 > callback-list model: steps through the kernel > should keep a step requested with no receiver apart from the same step with one
+      Tests  3 failed | 96 passed (99)
+=== C2-steps-not-coalesced
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:109 > callback-list model: steps through the kernel > should run one method once per receiver, in request order
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:147 > callback-list model: steps through the kernel > should keep a step requested with no receiver apart from the same step with one
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:172 > callback-list model: steps through the kernel > should run a pair again when its running step requests it, and coalesce a waiting one
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+      Tests  5 failed | 94 passed (99)
+=== C3-controller-disposers-coalesced
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:401 > callback-list model: use with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+      Tests  1 failed | 98 passed (99)
+=== C4-session-disposers-coalesced
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:315 > callback-list model: use with a receiver > should run operation cleanup last in first out, on each receiver, once per call
+      Tests  1 failed | 98 passed (99)
+=== C5-cleanup-first-in-first-out
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:315 > callback-list model: use with a receiver > should run operation cleanup last in first out, on each receiver, once per call
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:366 > callback-list model: use with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it
+ FAIL  |browser (chromium)| tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:29 > drag:DRI-9 release order > should release in the fixed order
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:321 > drag:DRI-9 release order > should remove the sortable placeholder before the lift is released
+      Tests  6 failed | 93 passed (99)
+=== C6-runLast-drops-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:315 > callback-list model: use with a receiver > should run operation cleanup last in first out, on each receiver, once per call
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:340 > callback-list model: use with a receiver > should continue the walk past a throwing receiver disposer
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:401 > callback-list model: use with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:449 > callback-list model: capabilities passed with their receivers > should call the axis and the sink on themselves
+      Tests  4 failed | 143 passed (147)
+=== C7-walk-stops-at-throw
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:340 > callback-list model: use with a receiver > should continue the walk past a throwing receiver disposer
+ FAIL  |browser (chromium)| tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+ FAIL  |browser (chromium)| tests/faults.browser.test.ts:334 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+      Tests  4 failed | 95 passed (99)
+=== C8-session-late-use-queued
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:366 > callback-list model: use with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:216 > drag:DRI-9 release order > should run a late use at once with the outcome
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+ FAIL  |browser (chromium)| tests/scoped-requests.browser.test.ts:72 > drag:DRI-8 scoped requests > should give a late disposer the outcome after destruction of a concluded operation
+ FAIL  |browser (chromium)| tests/scoped-requests.browser.test.ts:97 > drag:DRI-8 scoped requests > should give a late disposer null when destruction released its operation
+      Tests  6 failed | 93 passed (99)
+=== C9-controller-late-use-queued
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:401 > callback-list model: use with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:256 > drag:DRI-9 release order > should run a late use on a destroyed controller at once
+      Tests  2 failed | 97 passed (99)
+=== C10-late-use-drops-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:366 > callback-list model: use with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:401 > callback-list model: use with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+      Tests  2 failed | 97 passed (99)
+=== C11-axis-retire-no-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:449 > callback-list model: capabilities passed with their receivers > should call the axis and the sink on themselves
+      Tests  1 failed | 66 passed (67)
+=== C12-axis-invalidate-no-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:449 > callback-list model: capabilities passed with their receivers > should call the axis and the sink on themselves
+      Tests  1 failed | 66 passed (67)
+=== C13-sink-retire-no-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:449 > callback-list model: capabilities passed with their receivers > should call the axis and the sink on themselves
+      Tests  1 failed | 66 passed (67)
+=== C14-teardown-keeps-steps
+typecheck: pass
+      Tests  99 passed (99)

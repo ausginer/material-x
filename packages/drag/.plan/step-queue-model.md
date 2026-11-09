@@ -1,11 +1,13 @@
 # Step-queue model
 
+**Superseded in the worktree by the [callback-list model](callback-list-model.md) at `d50e4b67a`,** which renames `step-queue.ts` and its tests. Paths below are as at `72ae8d715`.
+
 **A model for the owner's inspection, not a decision.** Nothing here is adopted. No `D-*` is minted, and the contract and `00-index.md` are unchanged.
 
 **Base:** `25a67d4a9` on `drag/feature-composition`. **Branch:** `drag/step-queue-model`, with two commits:
 
 - `454d7412d`: **inline pairs.** Receiver-aware `requestStep`, with each step and its receiver stored in two adjacent slots of `Gesture`'s own array.
-- `72ae8d715`: **the queue model.** It moves that storage into [`src/kernel/step-queue.ts`](../src/kernel/step-queue.ts), a `StepQueue` with `waiting`, `add`, `runFirst` and `clear`. `git diff 454d7412d 72ae8d715` is the queue object alone.
+- `72ae8d715`: **the queue model.** It moves that storage into `src/kernel/step-queue.ts`, a `StepQueue` with `waiting`, `add`, `runFirst` and `clear`. `git diff 454d7412d 72ae8d715` is the queue object alone.
 
 **Governing records:** `DRD-6`, `DRD-32` and `DRD-34` in [`00-index.md`](00-index.md), and DRI-8 and DRI-17 in [`contract.md`](contract.md). `DRD-34` left "receiver support for `requestStep`" out of scope, and this model only explores it.
 
@@ -33,8 +35,8 @@ At `72ae8d715`, in the worktree:
 - **`npx just lint` passes** on the seven changed or added `.ts` files.
 - **`npx just test` in Chromium:** 365 passed and 5 failed. Every failure is a size row in `size.node.test.ts`, as §3 explains. At `454d7412d`: 365 passed and 3 failed, all size rows.
 - **The focused checks:**
-  - [`tests/step-queue.browser.test.ts`](../tests/step-queue.browser.test.ts) checks pair identity across instances, the receiver-free step kept apart, an idle step's receiver, requeueing and coalescing during a run, precedence over a decision and under destruction, operation scope and faults. Its first two tests check the queue alone.
-  - [`tests/step-queue.declaration.test.ts`](../tests/step-queue.declaration.test.ts) checks the typing and the lint in §4.
+  - `tests/step-queue.browser.test.ts` checks pair identity across instances, the receiver-free step kept apart, an idle step's receiver, requeueing and coalescing during a run, precedence over a decision and under destruction, operation scope and faults. Its first two tests check the queue alone.
+  - `tests/step-queue.declaration.test.ts` checks the typing and the lint in §4.
 - **The per-sample allocation test passes** (`hot-path.browser.test.ts`, in the shipped project).
 
 **Mutations** ([`mutations.txt`](probes/step-queue/mutations.txt)). Each was applied alone to `72ae8d715` and then restored. All eight typecheck.
