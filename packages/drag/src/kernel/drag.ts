@@ -26,9 +26,11 @@ export interface Drag<Operation = unknown> {
   use(dispose: DragDisposer): void;
   /**
    * Runs `step` in a pass: at once when no pass is running, otherwise between
-   * steps, in request order. The same function requested again before it runs
-   * runs once. The step receives the operation `activate` returned, from the end
-   * of activation until the drop or the decision, and `null` otherwise.
+   * steps, in request order. A request whose `key` is already waiting is dropped,
+   * so the first request for a key runs, with the values its step captured. The
+   * key defaults to the step, so the same function requested again before it
+   * runs runs once. The step receives the operation `activate` returned, from the
+   * end of activation until the drop or the decision, and `null` otherwise.
    *
    * Acts only while this operation is the controller's current one, so a
    * retained `Drag` never reaches a later operation. Afterwards it does nothing:
@@ -38,7 +40,7 @@ export interface Drag<Operation = unknown> {
    * write operation state through this. Foreign code can run during any DOM write
    * the kernel makes, and a direct write would change the running step.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(step: (operation: Operation | null) => void, key?: object): void;
   /** Acts only while this operation is current and undecided. */
   requestCancel(reason?: unknown): void;
 }

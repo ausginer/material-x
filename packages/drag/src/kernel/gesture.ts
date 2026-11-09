@@ -26,7 +26,7 @@ export interface DraggableController<Operation> {
    * the operation `activate` returned, from the end of activation until the drop
    * or the decision, and `null` otherwise.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(step: (operation: Operation | null) => void, key?: object): void;
   /** The first decision wins. Nothing happens on an idle controller. */
   requestCancel(reason?: unknown): void;
   /** Every call returns one promise, settled after teardown. */
@@ -110,6 +110,8 @@ export class Gesture<
 
   /** Deferred steps, in request order. Empty on the hot path. */
   readonly #steps: Array<(operation: Operation | null) => void> = [];
+  /** The key of each deferred step, at the step's index. */
+  readonly #keys: object[] = [];
 
   #session: Session<State, Verdict, Operation> | null = null;
   #running = false;
@@ -231,18 +233,25 @@ export class Gesture<
     this.#session = null;
   }
 
-  requestStep(step: (operation: Operation | null) => void): void {
+  requestStep(
+    step: (operation: Operation | null) => void,
+    key: object = step,
+  ): void {
     if (this.#destroyed) {
       return;
     }
 
     if (this.#running) {
-      if (!this.#steps.includes(step)) {
+      // The first request for a key wins: a later step with the same key is
+      // dropped, whatever it captures.
+      if (!this.#keys.includes(key)) {
+        this.#keys.push(key);
         this.#steps.push(step);
       }
     } else {
-      // Requested while idle, the step is the first step of its own pass. The
-      // list stays empty, so an idle request allocates nothing.
+      // Requested while idle, the step is the first step of its own pass, and
+      // its key is not kept. The lists stay empty, so an idle request allocates
+      // nothing.
       this.enter(step, this.#session ? this.#session.stepTarget() : null);
     }
   }
@@ -287,6 +296,9 @@ export class Gesture<
         }
 
         if (this.#steps.length > 0) {
+          // Taken off with its key before it runs, so a step that requests its
+          // own key again runs again.
+          this.#keys.shift();
           const step = this.#steps.shift()!;
 
           step(this.#session ? this.#session.stepTarget() : null);
@@ -363,6 +375,7 @@ export class Gesture<
     this.#resolveDestroyed = null;
     this.#session = null;
     this.#steps.length = 0;
+    this.#keys.length = 0;
     session?.terminate();
 
     while (this.#disposers.length > 0) {
