@@ -1,0 +1,8 @@
+src/kernel/callback-list.ts:9:18: error typescript(no-unsafe-function-type): The `Function` type accepts any function-like value. help: Prefer explicitly defining any function parameters and return type.
+src/kernel/callback-list.ts:40:28: error typescript(no-unsafe-function-type): The `Function` type accepts any function-like value. help: Prefer explicitly defining any function parameters and return type.
+src/kernel/gesture.ts:16:24: error eslint(no-unused-vars): Identifier 'QUEUE' is imported but never used. help: Consider removing this import.
+src/kernel/gesture.ts:16:31: error eslint(no-unused-vars): Identifier 'STACK' is imported but never used. help: Consider removing this import.
+src/kernel/drag.ts:98:7: error typescript(no-unsafe-call): Unsafe call of a(n) `error` type typed value.
+src/kernel/session.ts:201:11: error typescript(no-unsafe-call): Unsafe call of a(n) `error` type typed value.
+src/kernel/session.ts:201:27: error typescript(no-unsafe-member-access): Unsafe member access .add on an `error` typed value.
+oxlint exit=1
