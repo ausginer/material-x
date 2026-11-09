@@ -11,6 +11,7 @@ import {
 import {
   centerOf,
   commands,
+  dragAndDrop,
   faultMessages,
   frames,
   grab,
@@ -114,6 +115,47 @@ describe('freeDrag', () => {
     await moveHeld(at.x + 1, at.y);
     expect(box.getBoundingClientRect().right).toBeCloseTo(200, 0);
     await commands.keyPress('Escape');
+  });
+
+  it('should clamp against bounds measured again after a scroll between operations (drag:DRF-5)', async () => {
+    // The container scrolls, not the document: in Firefox the test frame's
+    // document does not scroll.
+    const container = document.createElement('div');
+    const content = document.createElement('div');
+    const arena = document.createElement('div');
+
+    container.style.cssText =
+      'position:fixed;left:0;top:0;width:400px;height:400px;overflow:auto';
+    content.style.cssText = 'position:relative;height:1200px';
+    arena.style.cssText =
+      'position:absolute;left:0;top:200px;width:300px;height:300px';
+    content.append(arena);
+    container.append(content);
+    document.body.append(container);
+
+    const box = makeBox(arena);
+
+    mount(box, { bounds: bounds(arena) });
+
+    const arenaBefore = arena.getBoundingClientRect().top;
+
+    await dragAndDrop(box, 40);
+    container.scrollTop = 150;
+    await frames();
+
+    const arenaAfter = arena.getBoundingClientRect().top;
+
+    // Past the arena's top edge, which is now above the box.
+    await grab(box, 0, -80);
+
+    const boxTop = box.getBoundingClientRect().top;
+
+    await release();
+    expect({ arenaBefore, arenaAfter, boxTop }).toEqual({
+      arenaBefore: 200,
+      arenaAfter: 50,
+      boxTop: 50,
+    });
   });
 
   it('should land home on a rejection, only with a landing', async () => {

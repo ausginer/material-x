@@ -100,6 +100,10 @@ export class FreeDragBehavior implements Behavior<
     // First, so that its release is the operation's first disposer and runs last.
     const lift = this.#lifter.acquire(drag, visual);
 
+    // The box may be from before a scroll between operations, and no operation
+    // clamps against a box measured before it activated.
+    this.bounds?.invalidate();
+
     if (this.bounds) {
       listenForInvalidation(this.window, drag.signal, this.invalidate);
     }
