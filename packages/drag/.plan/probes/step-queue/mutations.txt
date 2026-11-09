@@ -1,0 +1,53 @@
+# Mutations of 72ae8d715, each applied alone and restored with git checkout. Lines: typecheck result, then the failing tests and the count for the named files.
+=== Q1-identity-step-only
+typecheck: pass
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:44 > step-queue model: the queue alone > should coalesce by step and receiver together
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:86 > step-queue model: through the kernel > should run one method once per receiver, in request order
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:124 > step-queue model: through the kernel > should keep a step requested with no receiver apart from the same step with one
+      Tests  3 failed | 35 passed (38)
+=== Q2-no-dedupe
+typecheck: pass
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:44 > step-queue model: the queue alone > should coalesce by step and receiver together
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:86 > step-queue model: through the kernel > should run one method once per receiver, in request order
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:124 > step-queue model: through the kernel > should keep a step requested with no receiver apart from the same step with one
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:149 > step-queue model: through the kernel > should run a pair again when its running step requests it, and coalesce a waiting one
+      Tests  6 failed | 32 passed (38)
+=== Q3-drop-receiver-on-run
+typecheck: pass
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:44 > step-queue model: the queue alone > should coalesce by step and receiver together
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:86 > step-queue model: through the kernel > should run one method once per receiver, in request order
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:124 > step-queue model: through the kernel > should keep a step requested with no receiver apart from the same step with one
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:149 > step-queue model: through the kernel > should run a pair again when its running step requests it, and coalesce a waiting one
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:196 > step-queue model: through the kernel > should keep precedence: destruction before steps, steps before the decision
+      Tests  5 failed | 87 passed (92)
+=== Q4-idle-drops-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:934 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:112 > step-queue model: through the kernel > should call a step requested while idle on its receiver at once
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:232 > step-queue model: through the kernel > should scope a receiver step to its operation
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:256 > step-queue model: through the kernel > should report a throw from a receiver step as a fault
+      Tests  4 failed | 55 passed (59)
+=== Q5-drag-drops-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:934 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:86 > step-queue model: through the kernel > should run one method once per receiver, in request order
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:124 > step-queue model: through the kernel > should keep a step requested with no receiver apart from the same step with one
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:149 > step-queue model: through the kernel > should run a pair again when its running step requests it, and coalesce a waiting one
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:196 > step-queue model: through the kernel > should keep precedence: destruction before steps, steps before the decision
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:232 > step-queue model: through the kernel > should scope a receiver step to its operation
+      Tests  6 failed | 53 passed (59)
+=== Q6-sortable-site-no-receiver
+typecheck: pass
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:934 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+      Tests  1 failed | 47 passed (48)
+=== Q7-no-clear-at-teardown
+typecheck: pass
+      Tests  34 passed (34)
+=== Q8-drag-scope-ignored
+typecheck: pass
+ FAIL  |browser (chromium)| tests/scoped-requests.browser.test.ts:24 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while a later operation is active
+ FAIL  |browser (chromium)| tests/scoped-requests.browser.test.ts:52 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while idle
+ FAIL  |browser (chromium)| tests/step-queue.browser.test.ts:232 > step-queue model: through the kernel > should scope a receiver step to its operation
+      Tests  3 failed | 12 passed (15)

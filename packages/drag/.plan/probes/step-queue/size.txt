@@ -1,0 +1,49 @@
+# bench/size/measure.ts at 25a67d4a9 (base)
+node bench/size/measure.ts
+draggable alone                  6321 min   2066 br  6 modules
+  VIOLATION: control moved by 42 B
+draggable + lift                11132 min   3838 br  8 modules
+example: resize handle           8978 min   3181 br  8 modules
+example: drop zone              12771 min   4462 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9114 min   3179 br  8 modules
+freeDrag                        14770 min   4897 br  14 modules
+freeDrag + bounds + landing     15935 min   5331 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 121 B
+sortable + y                    19474 min   6345 br  19 modules
+sortable + xy                   19293 min   6303 br  18 modules
+complete                        21147 min   6968 br  23 modules
+
+# at 454d7412d (inline pairs), one run
+node bench/size/measure.ts
+draggable alone                  6412 min   2105 br  6 modules
+  VIOLATION: control moved by 81 B
+draggable + lift                11223 min   3876 br  8 modules
+example: resize handle           9069 min   3231 br  8 modules
+example: drop zone              12862 min   4515 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 84 B
+example: canvas group            9205 min   3228 br  8 modules
+freeDrag                        14861 min   4940 br  14 modules
+freeDrag + bounds + landing     16026 min   5388 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 178 B
+sortable + y                    19566 min   6385 br  19 modules
+sortable + xy                   19385 min   6353 br  18 modules
+complete                        21239 min   7008 br  23 modules
+
+# at 72ae8d715 (StepQueue), two identical runs
+node bench/size/measure.ts
+draggable alone                  6538 min   2145 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 6 B
+  VIOLATION: control moved by 121 B
+draggable + lift                11349 min   3931 br  9 modules
+example: resize handle           9195 min   3262 br  9 modules
+example: drop zone              12988 min   4556 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 125 B
+example: canvas group            9331 min   3260 br  9 modules
+freeDrag                        14987 min   4987 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 20 B
+freeDrag + bounds + landing     16152 min   5418 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 208 B
+sortable + y                    19692 min   6429 br  20 modules
+sortable + xy                   19511 min   6391 br  19 modules
+complete                        21367 min   7062 br  24 modules
