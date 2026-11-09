@@ -1,5 +1,7 @@
 # Gesture receiver handoff
 
+**Status, 2026-11-09:** implemented at `fd7ae3e43` and read by the architect in [`gesture-receiver-assessment.md`](gesture-receiver-assessment.md). The assessment's §3, item 1, corrects G1, G5 and G6 below against the saved base: that base has no second argument to `requestStep`, and its `freeDrag` wraps `cancelLanding`.
+
 **One bounded unit for one implementer.** It completes the owner's uncommitted `Gesture` edit so that it meets `DRD-34` in [`00-index.md`](00-index.md). It then updates the tests and documentation that the decision affects.
 
 **Read before starting:**
