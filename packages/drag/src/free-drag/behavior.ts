@@ -73,10 +73,10 @@ export class FreeDragBehavior implements Behavior<
    * Step: the bounds are re-read at their next read, and so are the current
    * operation's drop targets.
    */
-  readonly invalidate = (operation: FreeDragOperation | null): void => {
+  invalidate(operation: FreeDragOperation | null): void {
     this.bounds?.invalidate();
     operation?.handleEvent();
-  };
+  }
 
   /** The admission's `state` is the visual: `config.visual`, or the root. */
   admit(event: PointerEvent): Admission<HTMLElement> | null {

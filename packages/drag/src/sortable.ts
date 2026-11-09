@@ -66,7 +66,10 @@ export function sortable(
 
   return {
     invalidate: () => {
-      kernel.requestStep(behavior.invalidate);
+      // Keyed by the behavior, so calls in one pass pull once.
+      kernel.requestStep((operation) => {
+        behavior.invalidate(operation);
+      }, behavior);
     },
     requestCancel: (reason) => {
       kernel.requestCancel(reason);

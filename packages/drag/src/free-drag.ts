@@ -55,7 +55,11 @@ export function freeDrag(
   kernel.use(lifter.cancelLanding);
 
   return {
-    invalidate: () => kernel.requestStep(behavior.invalidate),
+    // Keyed by the behavior, so calls in one pass run it once.
+    invalidate: () =>
+      kernel.requestStep((operation) => {
+        behavior.invalidate(operation);
+      }, behavior),
     moveTo: (point) =>
       // One step per call: it carries the point, and DRI-8 keeps calls in order.
       kernel.requestStep((operation) => {

@@ -76,11 +76,11 @@ function updateInsertion(operation: SortableOperation | null): void {
 }
 
 /**
- * The behavior `draggable` runs for one root: admission and activation. Every
- * function handed elsewhere is created once per instance, or once per operation
- * when it closes over the operation, so the kernel's identity coalescing sees the
- * same step on every request. It holds only controller-lifetime values, and the
- * operation reads the ones it needs through it.
+ * The behavior `draggable` runs for one root: admission and activation. A step
+ * is either one function, reused on every request, or a closure created per
+ * request with a stable key, so the kernel coalesces repeated requests either
+ * way. It holds only controller-lifetime values, and the operation reads the
+ * ones it needs through it.
  */
 export class SortableBehavior implements Behavior<
   PressState,
@@ -119,11 +119,11 @@ export class SortableBehavior implements Behavior<
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly invalidate = (operation: SortableOperation | null): void => {
+  invalidate(operation: SortableOperation | null): void {
     if (operation) {
       operation.rebase(this.#pull());
     }
-  };
+  }
 
   admit(event: PointerEvent): Admission<PressState> | null {
     return event.altKey ? null : this.#admission(event, null);
@@ -203,8 +203,11 @@ export class SortableBehavior implements Behavior<
       frame.cancel();
     });
     drag.use(this.#retireAxis);
+    // Keyed by the axis: the cached geometry is stale.
     listenForInvalidation(this.#window, drag.signal, () => {
-      drag.requestStep(this.#invalidateGeometry);
+      drag.requestStep(() => {
+        this.axis.invalidate();
+      }, this.axis);
     });
 
     const operation = new SortableOperation(
@@ -228,11 +231,6 @@ export class SortableBehavior implements Behavior<
 
     return operation;
   }
-
-  /** Step, on scroll and resize: the cached geometry is stale. */
-  readonly #invalidateGeometry = (): void => {
-    this.axis.invalidate();
-  };
 
   /** Disposer, per operation: the cache releases the operation's elements. */
   readonly #retireAxis = (): void => {
