@@ -13,32 +13,29 @@
 import { DragFault } from '../fault.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
-import { runDragDisposer } from './drag.ts';
+import { runDragDisposer, type DragDisposer } from './drag.ts';
 import { Session } from './session.ts';
 
-/** Each method works when detached from the controller. */
+/**
+ * Call each method on the controller, as in `controller.requestDestroy()`: a
+ * method may depend on the controller as its receiver.
+ */
 export interface DraggableController<Operation> {
   /**
    * As `Drag.requestStep`, for whichever operation is current: the step receives
    * the operation `activate` returned, from the end of activation until the drop
    * or the decision, and `null` otherwise.
    */
-  readonly requestStep: (step: (operation: Operation | null) => void) => void;
+  requestStep(step: (operation: Operation | null) => void): void;
   /** The first decision wins. Nothing happens on an idle controller. */
-  readonly requestCancel: (reason?: unknown) => void;
+  requestCancel(reason?: unknown): void;
   /** Every call returns one promise, settled after teardown. */
-  readonly requestDestroy: () => Promise<void>;
+  requestDestroy(): Promise<void>;
   /** Controller-lifetime cleanup: runs on destruction, last in first out. */
-  readonly use: (dispose: () => void) => void;
+  use(dispose: () => void): void;
 }
 
 const DEFAULT_THRESHOLD = 8;
-
-/** What the gate runs as the first step of a pass: the work for one input event. */
-export interface InputHandler {
-  /** Called only by the gate, inside the pass it opened for `event`. */
-  handleInput(event: Event): void;
-}
 
 /**
  * Events a controller of this library copy has admitted. Bubbling reaches the
@@ -94,21 +91,22 @@ function countRefused(event: Event): void {
 
 /**
  * What exists across operations or with no operation: the root's listeners,
- * admission, the gate, the deferred steps, destruction, the reader and the slot
- * that holds the current session. Its members without `#` are the
- * session's way in and the public methods; `draggable` hands out only the latter.
+ * admission, the pass, the deferred steps, destruction, the reader and the slot
+ * that holds the current session. Its members without `#` are the public
+ * methods and the session's way in. `draggable` returns the instance typed as
+ * `DraggableController`, which names only the public methods.
  */
 export class Gesture<
   State,
   Verdict,
   Operation extends BehaviorOperation<Verdict>,
-> implements InputHandler {
+> implements DraggableController<Operation> {
   readonly #root: HTMLElement;
   readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
   readonly #listeners = new AbortController();
-  readonly #disposers: Array<() => void> = [];
+  readonly #disposers: DragDisposer[] = [];
 
   /** Deferred steps, in request order. Empty on the hot path. */
   readonly #steps: Array<(operation: Operation | null) => void> = [];
@@ -142,14 +140,37 @@ export class Gesture<
   }
 
   /**
-   * The gate for input: runs `handler`'s work for `event` as the first step of a
-   * new pass, then the reader. A running pass or a closed controller refuses the
-   * input. Nothing is allocated here, so a pointer sample allocates nothing.
+   * The one pass: runs `step`, if any, as its first step, called on `receiver`,
+   * then the reader. A throw from `step` is a fault.
+   *
+   * - **Input** passes the receiving object's private method, the event and that
+   *   object. A running pass refuses it, and it is lost.
+   * - **A request** that has filled its slot passes nothing. A running pass's
+   *   reader applies it.
+   * - **A step requested while idle** passes no receiver, so it runs with none.
+   * - **A verdict's fault while idle** passes `raise` and the controller.
+   *
+   * After teardown, everything is refused. Destruction requested while idle is
+   * not refused, because its slot is still filled. Nothing is allocated here, so
+   * a pointer sample allocates nothing.
    */
-  enter(handler: InputHandler, event: Event): void {
-    if (this.#running || this.#destroyed) {
-      if (__DEV__ && this.#running) {
-        countRefused(event);
+  enter(): void;
+  enter<A>(step: (argument: A) => void, argument: A): void;
+  enter<A, R extends object>(
+    step: (this: R, argument: A) => void,
+    argument: A,
+    receiver: R,
+  ): void;
+  enter(
+    step?: (this: object | undefined, argument: unknown) => void,
+    argument?: unknown,
+    receiver?: object,
+  ): void {
+    if (this.#running || (this.#destroyed && !this.#resolveDestroyed)) {
+      // While a pass runs, only input arrives here with a step: a request has
+      // none, and a step or a fault requested in a pass does not enter.
+      if (__DEV__ && this.#running && step) {
+        countRefused(argument as Event);
       }
 
       return;
@@ -158,10 +179,12 @@ export class Gesture<
     this.#running = true;
 
     try {
-      try {
-        handler.handleInput(event);
-      } catch (error) {
-        this.raise(error);
+      if (step) {
+        try {
+          step.call(receiver, argument);
+        } catch (error) {
+          this.raise(error);
+        }
       }
 
       this.#applyRequests();
@@ -171,50 +194,82 @@ export class Gesture<
   }
 
   handleEvent(event: KeyboardEvent | PointerEvent): void {
-    this.enter(this, event);
-  }
-
-  /** The root listens only for `pointerdown` and `keydown`. */
-  handleInput(event: KeyboardEvent | PointerEvent): void {
     if (event.type === 'pointerdown') {
-      this.#press(event as PointerEvent);
+      this.enter(this.#press, event as PointerEvent, this);
     } else {
-      this.#command(event as KeyboardEvent);
+      this.enter(this.#command, event as KeyboardEvent, this);
     }
   }
 
   /**
-   * The gate for requests: a request has filled its slot, and this applies it
-   * now unless a pass is running, whose reader applies it (DRI-1). Nothing is
-   * refused.
+   * Reports when caught, and decides if nothing has. The slot is filled before
+   * the report, because `reportError` dispatches synchronously and a listener's
+   * cancel must find the outcome already decided.
    */
-  apply(): void {
-    if (!this.#running) {
-      this.#run(null, null);
-    }
+  raise(error: unknown): void {
+    const fault = new DragFault(error);
+
+    this.#session?.decide(fault, 'fault');
+    reportError(fault);
   }
 
   /**
-   * Opens a pass that no input started: `first`, if any, is its first step, and
-   * the reader follows. The caller has checked that no pass is running. `first`
-   * is a function only where the work is one already: the consumer's step, or
-   * `raise`.
+   * A verdict's fault: raised in the running pass, whose reader then applies it,
+   * or else in a new pass.
    */
-  #run<A>(first: ((argument: A) => void) | null, argument: A): void {
-    this.#running = true;
+  raiseInPass(error: unknown): void {
+    if (this.#running) {
+      this.raise(error);
+    } else {
+      // eslint-disable-next-line @typescript-eslint/unbound-method -- the pass calls `raise` on the receiver passed with it
+      this.enter(this.raise, error, this);
+    }
+  }
 
-    try {
-      if (first) {
-        try {
-          first(argument);
-        } catch (error) {
-          this.raise(error);
-        }
+  /** Clears the slot. The session calls it when its operation ends. */
+  detach(): void {
+    this.#session = null;
+  }
+
+  requestStep(step: (operation: Operation | null) => void): void {
+    if (this.#destroyed) {
+      return;
+    }
+
+    if (this.#running) {
+      if (!this.#steps.includes(step)) {
+        this.#steps.push(step);
       }
+    } else {
+      // Requested while idle, the step is the first step of its own pass. The
+      // list stays empty, so an idle request allocates nothing.
+      this.enter(step, this.#session ? this.#session.stepTarget() : null);
+    }
+  }
 
-      this.#applyRequests();
-    } finally {
-      this.#running = false;
+  requestCancel(reason?: unknown): void {
+    if (this.#session) {
+      this.#session.decide(reason, 'request');
+      this.enter();
+    }
+  }
+
+  requestDestroy(): Promise<void> {
+    if (!this.#destroyed) {
+      this.#destroyed = new Promise((resolve) => {
+        this.#resolveDestroyed = resolve;
+      });
+      this.enter();
+    }
+
+    return this.#destroyed;
+  }
+
+  use(dispose: () => void): void {
+    if (this.#destroyed && !this.#resolveDestroyed) {
+      runDragDisposer(dispose, null, this);
+    } else {
+      this.#disposers.push(dispose);
     }
   }
 
@@ -243,79 +298,6 @@ export class Gesture<
       }
     }
   }
-
-  /**
-   * Reports when caught, and decides if nothing has. The slot is filled before
-   * the report, because `reportError` dispatches synchronously and a listener's
-   * cancel must find the outcome already decided.
-   */
-  readonly raise = (error: unknown): void => {
-    const fault = new DragFault(error);
-
-    this.#session?.decide(fault, 'fault');
-    reportError(fault);
-  };
-
-  /**
-   * A verdict's fault: raised in the running pass, whose reader then applies it,
-   * or else in a new pass.
-   */
-  raiseInPass(error: unknown): void {
-    if (this.#running) {
-      this.raise(error);
-    } else {
-      this.#run(this.raise, error);
-    }
-  }
-
-  /** Clears the slot. The session calls it when its operation ends. */
-  detach(): void {
-    this.#session = null;
-  }
-
-  readonly requestStep = (
-    step: (operation: Operation | null) => void,
-  ): void => {
-    if (this.#destroyed) {
-      return;
-    }
-
-    if (this.#running) {
-      if (!this.#steps.includes(step)) {
-        this.#steps.push(step);
-      }
-    } else {
-      // Requested while idle, the step is the first step of its own pass. The
-      // list stays empty, so an idle request allocates nothing.
-      this.#run(step, this.#session ? this.#session.stepTarget() : null);
-    }
-  };
-
-  readonly requestCancel = (reason?: unknown): void => {
-    if (this.#session) {
-      this.#session.decide(reason, 'request');
-      this.apply();
-    }
-  };
-
-  readonly requestDestroy = (): Promise<void> => {
-    if (!this.#destroyed) {
-      this.#destroyed = new Promise((resolve) => {
-        this.#resolveDestroyed = resolve;
-      });
-      this.apply();
-    }
-
-    return this.#destroyed;
-  };
-
-  readonly use = (dispose: () => void): void => {
-    if (this.#destroyed && !this.#resolveDestroyed) {
-      runDragDisposer(dispose, null, this.raise);
-    } else {
-      this.#disposers.push(dispose);
-    }
-  };
 
   #press(event: PointerEvent): void {
     if (
@@ -384,7 +366,7 @@ export class Gesture<
     session?.terminate();
 
     while (this.#disposers.length > 0) {
-      runDragDisposer(this.#disposers.pop()!, null, this.raise);
+      runDragDisposer(this.#disposers.pop()!, null, this);
     }
 
     this.#listeners.abort();

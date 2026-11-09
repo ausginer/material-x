@@ -1,4 +1,5 @@
 import type { Writable } from 'type-fest';
+import type { Gesture } from './gesture.ts';
 import type { Outcome } from './outcome.ts';
 
 /**
@@ -45,15 +46,18 @@ export interface Drag<Operation = unknown> {
 /** `Drag` as the kernel writes it. No public entry exports it. */
 export type KernelDrag<Operation> = Writable<Drag<Operation>>;
 
-/** Runs one disposer. Whatever it throws, the caller's walk continues. */
+/**
+ * Runs one disposer with no receiver. A throw is reported through `raise`,
+ * called on the controller, and the caller's walk continues.
+ */
 export function runDragDisposer(
   dispose: DragDisposer,
   outcome: Outcome | null,
-  raise: (error: unknown) => void,
+  controller: Pick<Gesture<never, never, never>, 'raise'>,
 ): void {
   try {
     dispose(outcome);
   } catch (error) {
-    raise(error);
+    controller.raise(error);
   }
 }

@@ -61,7 +61,9 @@ export function freeDrag(
       kernel.requestStep((operation) => {
         operation?.moveTo(point);
       }),
-    requestCancel: kernel.requestCancel,
-    requestDestroy: kernel.requestDestroy,
+    requestCancel: (reason) => {
+      kernel.requestCancel(reason);
+    },
+    requestDestroy: () => kernel.requestDestroy(),
   };
 }

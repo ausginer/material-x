@@ -38,13 +38,5 @@ export function draggable<
   root: HTMLElement,
   behavior: Behavior<State, Verdict, Operation>,
 ): DraggableController<Operation> {
-  const gesture = new Gesture(root, behavior);
-
-  // Not the instance, so the session's way into it stays inside this module.
-  return {
-    requestStep: gesture.requestStep,
-    requestCancel: gesture.requestCancel,
-    requestDestroy: gesture.requestDestroy,
-    use: gesture.use,
-  };
+  return new Gesture(root, behavior);
 }

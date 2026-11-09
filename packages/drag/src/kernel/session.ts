@@ -2,7 +2,7 @@ import { deepActiveElement } from '../shared/focus.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
 import { runDragDisposer, type DragDisposer, type KernelDrag } from './drag.ts';
-import type { Gesture, InputHandler } from './gesture.ts';
+import type { Gesture } from './gesture.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
 
 const COMMAND_POINTER_ID = -1;
@@ -120,14 +120,14 @@ function armClickGuard(target: Window, pointerId: number): void {
  * The session reads and writes only its own fields. It reaches the controller
  * through the controller's interface, and the controller reaches it through
  * `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
- * the window, through `handleEvent`, and the gate runs its input work through
- * `handleInput`.
+ * the window, through `handleEvent`, which enters the controller's pass with the
+ * private method for the event and this session as its receiver.
  */
 export class Session<
   State,
   Verdict,
   Operation extends BehaviorOperation<Verdict>,
-> implements InputHandler {
+> {
   readonly #gesture: Gesture<State, Verdict, Operation>;
   readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #root: HTMLElement;
@@ -192,7 +192,7 @@ export class Session<
       signal: this.#presentation.signal,
       use: (dispose) => {
         if (this.#presentation.signal.aborted) {
-          runDragDisposer(dispose, this.#releasedWith, gesture.raise);
+          runDragDisposer(dispose, this.#releasedWith, gesture);
         } else {
           this.#disposers.push(dispose);
         }
@@ -324,7 +324,7 @@ export class Session<
         pointer.isPrimary &&
         pointer.button === 0
       ) {
-        this.#gesture.enter(this, pointer);
+        this.#gesture.enter(this.#endPending, pointer, this);
       }
 
       return;
@@ -334,8 +334,10 @@ export class Session<
       return;
     }
 
-    if (pointer.type === 'pointermove' || pointer.type === 'pointerup') {
-      this.#gesture.enter(this, pointer);
+    if (pointer.type === 'pointermove') {
+      this.#gesture.enter(this.#move, pointer, this);
+    } else if (pointer.type === 'pointerup') {
+      this.#gesture.enter(this.#up, pointer, this);
     } else if (
       pointer.type === 'pointercancel' ||
       // Taking a touch's implicit capture from the pressed element also fires
@@ -348,21 +350,7 @@ export class Session<
 
   #cancel(reason: unknown, origin: CancelOrigin): void {
     this.decide(reason, origin);
-    this.#gesture.apply();
-  }
-
-  /**
-   * The gate's step for the input `handleEvent` passed it: a sample, a release,
-   * or a primary press that ends the pending one.
-   */
-  handleInput(event: Event): void {
-    if (event.type === 'pointermove') {
-      this.#move(event as PointerEvent);
-    } else if (event.type === 'pointerup') {
-      this.#up(event as PointerEvent);
-    } else {
-      this.#endPending();
-    }
+    this.#gesture.enter();
   }
 
   #move(event: PointerEvent): void {
@@ -494,7 +482,7 @@ export class Session<
       if (!faulted) {
         // Inside a pass, that pass's reader applies it.
         this.#decision = { type: 'verdict', value: value as Verdict };
-        this.#gesture.apply();
+        this.#gesture.enter();
       } else {
         this.#gesture.raiseInPass(value);
       }
@@ -556,7 +544,7 @@ export class Session<
     this.#presentation.abort();
 
     while (this.#disposers.length > 0) {
-      runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture.raise);
+      runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture);
     }
   }
 
