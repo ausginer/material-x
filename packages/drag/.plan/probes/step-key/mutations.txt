@@ -1,0 +1,133 @@
+# Mutations on drag/step-key-model, each applied alone to ecefbf5e5 (plus the
+# focused browser test) and restored. Each ran `npx just typecheck` and then
+# `npx just test --exclude tests/size.node.test.ts` in Chromium: 362 tests.
+
+## K1: typecheck ok
+   in src/kernel/gesture.ts
+   - if (!this.#keys.includes(key)) {
+   + if (!this.#steps.includes(step)) {
+   failed 9:
+     tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+     tests/step-key.browser.test.ts:110 > step-key model: deduplication by key > should keep instances apart when each keys its closure by itself
+     tests/step-key.browser.test.ts:198 > step-key model: execution > should run a key again when its running step requests it, and coalesce while it waits
+     tests/step-key.browser.test.ts:225 > step-key model: execution > should take a throwing step off with its key, so its key runs again later
+     tests/step-key.browser.test.ts:313 > step-key model: the converted call sites > should run freeDrag's invalidate step once for two calls, between moveTo calls kept in order
+     tests/step-key.browser.test.ts:353 > step-key model: the converted call sites > should keep sortable's collection and geometry keys apart, each coalesced
+     tests/step-key.browser.test.ts:54 > step-key model: deduplication by key > should run the first request for a key, with the values its step captured
+     tests/step-key.browser.test.ts:73 > step-key model: deduplication by key > should keep the default key as the step, so one function coalesces
+     tests/step-key.browser.test.ts:91 > step-key model: deduplication by key > should keep different keys apart, even for one function
+
+## K2: typecheck ok
+   in src/kernel/gesture.ts
+   - if (!this.#keys.includes(key)) {
+   + if (key) {
+   failed 10:
+     tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs
+     tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+     tests/step-key.browser.test.ts:110 > step-key model: deduplication by key > should keep instances apart when each keys its closure by itself
+     tests/step-key.browser.test.ts:198 > step-key model: execution > should run a key again when its running step requests it, and coalesce while it waits
+     tests/step-key.browser.test.ts:225 > step-key model: execution > should take a throwing step off with its key, so its key runs again later
+     tests/step-key.browser.test.ts:313 > step-key model: the converted call sites > should run freeDrag's invalidate step once for two calls, between moveTo calls kept in order
+     tests/step-key.browser.test.ts:353 > step-key model: the converted call sites > should keep sortable's collection and geometry keys apart, each coalesced
+     tests/step-key.browser.test.ts:54 > step-key model: deduplication by key > should run the first request for a key, with the values its step captured
+     tests/step-key.browser.test.ts:73 > step-key model: deduplication by key > should keep the default key as the step, so one function coalesces
+     tests/step-key.browser.test.ts:91 > step-key model: deduplication by key > should keep different keys apart, even for one function
+
+## K3: typecheck ok
+   in src/kernel/gesture.ts
+   -       if (!this.#keys.includes(key)) {
+   -         this.#keys.push(key);
+   -         this.#steps.push(step);
+   -       }
+   +       const index = this.#keys.indexOf(key);
+   + 
+   +       if (index < 0) {
+   +         this.#keys.push(key);
+   +         this.#steps.push(step);
+   +       } else {
+   +         this.#steps[index] = step;
+   +       }
+   failed 4:
+     tests/step-key.browser.test.ts:198 > step-key model: execution > should run a key again when its running step requests it, and coalesce while it waits
+     tests/step-key.browser.test.ts:225 > step-key model: execution > should take a throwing step off with its key, so its key runs again later
+     tests/step-key.browser.test.ts:54 > step-key model: deduplication by key > should run the first request for a key, with the values its step captured
+     tests/step-key.browser.test.ts:73 > step-key model: deduplication by key > should keep the default key as the step, so one function coalesces
+
+## K4: typecheck ok
+   in src/kernel/gesture.ts
+   -           this.#keys.shift();
+   -           const step = this.#steps.shift()!;
+   - 
+   -           step(this.#session ? this.#session.stepTarget() : null);
+   +           const step = this.#steps.shift()!;
+   + 
+   +           step(this.#session ? this.#session.stepTarget() : null);
+   +           this.#keys.shift();
+   failed 2:
+     tests/step-key.browser.test.ts:198 > step-key model: execution > should run a key again when its running step requests it, and coalesce while it waits
+     tests/step-key.browser.test.ts:225 > step-key model: execution > should take a throwing step off with its key, so its key runs again later
+
+## K5: typecheck ok
+   in src/kernel/session.ts
+   - gesture.requestStep(step, key);
+   + gesture.requestStep(step);
+   failed 7:
+     tests/step-key.browser.test.ts:110 > step-key model: deduplication by key > should keep instances apart when each keys its closure by itself
+     tests/step-key.browser.test.ts:198 > step-key model: execution > should run a key again when its running step requests it, and coalesce while it waits
+     tests/step-key.browser.test.ts:225 > step-key model: execution > should take a throwing step off with its key, so its key runs again later
+     tests/step-key.browser.test.ts:353 > step-key model: the converted call sites > should keep sortable's collection and geometry keys apart, each coalesced
+     tests/step-key.browser.test.ts:54 > step-key model: deduplication by key > should run the first request for a key, with the values its step captured
+     tests/step-key.browser.test.ts:73 > step-key model: deduplication by key > should keep the default key as the step, so one function coalesces
+     tests/step-key.browser.test.ts:91 > step-key model: deduplication by key > should keep different keys apart, even for one function
+
+## K6: typecheck ok
+   in src/kernel/gesture.ts
+   - key: object = step,
+   + key: object = {},
+   failed 3:
+     tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+     tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs
+     tests/step-key.browser.test.ts:73 > step-key model: deduplication by key > should keep the default key as the step, so one function coalesces
+
+## K7: typecheck ok
+   in src/kernel/gesture.ts
+   -     this.#keys.length = 0;
+   - 
+   + 
+   failed: none (362 passed)
+
+## K8: typecheck ok
+   in src/sortable/behavior.ts
+   -       }, this.axis);
+   +       }, this);
+   failed 1:
+     tests/step-key.browser.test.ts:353 > step-key model: the converted call sites > should keep sortable's collection and geometry keys apart, each coalesced
+
+## K9: typecheck ok
+   in src/sortable.ts
+   -       }, behavior);
+   +       });
+   failed 2:
+     tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+     tests/step-key.browser.test.ts:353 > step-key model: the converted call sites > should keep sortable's collection and geometry keys apart, each coalesced
+
+## K10: typecheck ok
+   in src/free-drag.ts
+   -       }, behavior),
+   +       }),
+   failed 2:
+     tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+     tests/step-key.browser.test.ts:313 > step-key model: the converted call sites > should run freeDrag's invalidate step once for two calls, between moveTo calls kept in order
+   note: activation.browser.test.ts:145 asserts a position within 1 px during a
+   landing and calls no invalidate. It passed 3 of 3 runs on the unmutated tree, so
+   it is counted as timing noise, not as catching K10.
+
+## K11: typecheck ok
+   in src/free-drag.ts
+   -         operation?.moveTo(point);
+   -       }),
+   +         operation?.moveTo(point);
+   +       }, behavior),
+   failed 2:
+     tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass
+     tests/step-key.browser.test.ts:313 > step-key model: the converted call sites > should run freeDrag's invalidate step once for two calls, between moveTo calls kept in order

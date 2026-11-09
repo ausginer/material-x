@@ -1,0 +1,61 @@
+# node bench/size/measure.ts, minified / Brotli bytes, on drag/step-key-model
+
+# at 25a67d4a9 (base): src checked out from the base, measured, restored
+draggable alone                  6321 min   2066 br  6 modules
+  VIOLATION: control moved by 42 B
+draggable + lift                11132 min   3838 br  8 modules
+example: resize handle           8978 min   3181 br  8 modules
+example: drop zone              12771 min   4462 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9114 min   3179 br  8 modules
+freeDrag                        14770 min   4897 br  14 modules
+freeDrag + bounds + landing     15935 min   5331 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 121 B
+sortable + y                    19474 min   6345 br  19 modules
+sortable + xy                   19293 min   6303 br  18 modules
+complete                        21147 min   6968 br  23 modules
+
+# at b6cc320ac (kernel only): the four call-site files checked out from b6cc320ac
+draggable alone                  6388 min   2078 br  6 modules
+  VIOLATION: control moved by 54 B
+draggable + lift                11199 min   3854 br  8 modules
+example: resize handle           9045 min   3194 br  8 modules
+example: drop zone              12838 min   4485 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 54 B
+example: canvas group            9181 min   3191 br  8 modules
+freeDrag                        14837 min   4916 br  14 modules
+freeDrag + bounds + landing     16002 min   5350 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 140 B
+sortable + y                    19541 min   6352 br  19 modules
+sortable + xy                   19360 min   6307 br  18 modules
+complete                        21214 min   6978 br  23 modules
+
+# at ecefbf5e5 (the model), two runs
+draggable alone                  6388 min   2078 br  6 modules
+  VIOLATION: control moved by 54 B
+draggable + lift                11199 min   3854 br  8 modules
+example: resize handle           9045 min   3194 br  8 modules
+example: drop zone              12838 min   4485 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 54 B
+example: canvas group            9181 min   3191 br  8 modules
+freeDrag                        14845 min   4915 br  14 modules
+freeDrag + bounds + landing     16010 min   5360 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 150 B
+sortable + y                    19548 min   6357 br  19 modules
+sortable + xy                   19367 min   6312 br  18 modules
+complete                        21221 min   6983 br  23 modules
+draggable alone                  6388 min   2078 br  6 modules
+draggable + lift                11199 min   3854 br  8 modules
+example: resize handle           9045 min   3194 br  8 modules
+example: drop zone              12838 min   4485 br  12 modules
+example: canvas group            9181 min   3191 br  8 modules
+freeDrag                        14845 min   4915 br  14 modules
+freeDrag + bounds + landing     16010 min   5360 br  18 modules
+sortable + y                    19548 min   6357 br  19 modules
+sortable + xy                   19367 min   6312 br  18 modules
+complete                        21221 min   6983 br  23 modules
+
+# not kept: ecefbf5e5 with one array holding each key and step in adjacent slots, one run
+draggable alone 6399/2093, draggable + lift 11210/3862, resize handle 9056/3207, drop zone 12849/4486,
+canvas group 9192/3208, freeDrag 14856/4922, freeDrag + bounds + landing 16021/5359,
+sortable + y 19559/6365, sortable + xy 19378/6328, complete 21232/6990

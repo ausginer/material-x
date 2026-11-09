@@ -1,0 +1,33 @@
+round 0
+  deferred duplicate: stable function, default key           0.7 B
+  deferred duplicate: closure keyed by its behavior          56.5 B
+  deferred duplicate: bound method keyed by its behavior     48.1 B
+  idle, run at once: stable function                         0.1 B
+  idle, run at once: closure keyed by its behavior           56.0 B
+  retained: an empty array (the added key list)              32.1 B
+  retained: behavior with an arrow-field step                136.1 B
+  retained: behavior with a method step                      32.0 B
+  retained: behavior with two arrow-field steps              200.1 B
+  retained: behavior with one arrow field and one method     136.1 B
+round 1
+  deferred duplicate: stable function, default key           0.4 B
+  deferred duplicate: closure keyed by its behavior          56.1 B
+  deferred duplicate: bound method keyed by its behavior     48.1 B
+  idle, run at once: stable function                         0.1 B
+  idle, run at once: closure keyed by its behavior           56.0 B
+  retained: an empty array (the added key list)              32.1 B
+  retained: behavior with an arrow-field step                136.1 B
+  retained: behavior with a method step                      31.9 B
+  retained: behavior with two arrow-field steps              200.0 B
+  retained: behavior with one arrow field and one method     136.0 B
+round 2
+  deferred duplicate: stable function, default key           0.0 B
+  deferred duplicate: closure keyed by its behavior          56.0 B
+  deferred duplicate: bound method keyed by its behavior     48.1 B
+  idle, run at once: stable function                         0.1 B
+  idle, run at once: closure keyed by its behavior           56.1 B
+  retained: an empty array (the added key list)              32.0 B
+  retained: behavior with an arrow-field step                136.1 B
+  retained: behavior with a method step                      32.0 B
+  retained: behavior with two arrow-field steps              200.0 B
+  retained: behavior with one arrow field and one method     136.0 B
