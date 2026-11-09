@@ -1,4 +1,5 @@
 import type { Writable } from 'type-fest';
+import type { CallbackList } from './callback-list.ts';
 import type { Gesture } from './gesture.ts';
 import type { Outcome } from './outcome.ts';
 
@@ -23,7 +24,15 @@ export interface Drag<Operation = unknown> {
   readonly originY: number;
   /** Aborts when the operation releases its presentation. */
   readonly signal: AbortSignal;
-  use(dispose: DragDisposer): void;
+  use(dispose: (this: undefined, outcome: Outcome | null) => void): void;
+  /**
+   * As above, with `dispose` called on `receiver`. Each call adds an entry, so
+   * the same pair added twice runs twice.
+   */
+  use<Receiver>(
+    dispose: (this: Receiver, outcome: Outcome | null) => void,
+    receiver: Receiver,
+  ): void;
   /**
    * Runs `step` in a pass: at once when no pass is running, otherwise between
    * steps, in request order. The same function requested again before it runs
@@ -59,17 +68,36 @@ export interface Drag<Operation = unknown> {
 export type KernelDrag<Operation> = Writable<Drag<Operation>>;
 
 /**
- * Runs one disposer with no receiver. A throw is reported through `raise`,
- * called on the controller, and the caller's walk continues.
+ * Runs one disposer added after release, on its receiver or with none. A throw
+ * is reported through `raise`, called on the controller.
  */
-export function runDragDisposer(
-  dispose: DragDisposer,
-  outcome: Outcome | null,
+export function runDragDisposer<Argument>(
+  dispose: (this: unknown, argument: Argument) => void,
+  argument: Argument,
   controller: Pick<Gesture<never, never, never>, 'raise'>,
+  receiver: unknown,
 ): void {
   try {
-    dispose(outcome);
+    dispose.call(receiver, argument);
   } catch (error) {
     controller.raise(error);
+  }
+}
+
+/**
+ * Runs every disposer in `disposers`, last in first out. A throw is reported
+ * through `raise`, called on the controller, and the walk continues.
+ */
+export function runDisposers<Argument>(
+  disposers: CallbackList<Argument>,
+  argument: Argument,
+  controller: Pick<Gesture<never, never, never>, 'raise'>,
+): void {
+  while (disposers.waiting) {
+    try {
+      disposers.runLast(argument);
+    } catch (error) {
+      controller.raise(error);
+    }
   }
 }

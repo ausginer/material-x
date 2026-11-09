@@ -13,9 +13,9 @@
 import { DragFault } from '../fault.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
-import { runDragDisposer, type DragDisposer } from './drag.ts';
+import { CallbackList } from './callback-list.ts';
+import { runDisposers, runDragDisposer } from './drag.ts';
 import { Session } from './session.ts';
-import { StepQueue } from './step-queue.ts';
 
 /**
  * Call each method on the controller, as in `controller.requestDestroy()`: a
@@ -40,7 +40,9 @@ export interface DraggableController<Operation> {
   /** Every call returns one promise, settled after teardown. */
   requestDestroy(): Promise<void>;
   /** Controller-lifetime cleanup: runs on destruction, last in first out. */
-  use(dispose: () => void): void;
+  use(dispose: (this: undefined) => void): void;
+  /** As above, with `dispose` called on `receiver`. Each call adds an entry. */
+  use<Receiver>(dispose: (this: Receiver) => void, receiver: Receiver): void;
 }
 
 const DEFAULT_THRESHOLD = 8;
@@ -114,10 +116,11 @@ export class Gesture<
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
   readonly #listeners = new AbortController();
-  readonly #disposers: DragDisposer[] = [];
+  /** Controller-lifetime cleanup, run last in first out at teardown. */
+  readonly #disposers = new CallbackList<null>();
 
   /** Deferred steps, in request order. Empty on the hot path. */
-  readonly #steps = new StepQueue<Operation | null>();
+  readonly #steps = new CallbackList<Operation | null>();
 
   #session: Session<State, Verdict, Operation> | null = null;
   #running = false;
@@ -255,7 +258,11 @@ export class Gesture<
     }
 
     if (this.#running) {
-      this.#steps.add(step, receiver);
+      // Steps coalesce by step and receiver. A running step is no longer
+      // waiting, so a request it makes for itself adds it again.
+      if (!this.#steps.has(step, receiver)) {
+        this.#steps.add(step, receiver);
+      }
     } else {
       // Requested while idle, the step is the first step of its own pass. The
       // queue stays empty, so an idle request allocates nothing.
@@ -285,11 +292,14 @@ export class Gesture<
     return this.#destroyed;
   }
 
-  use(dispose: () => void): void {
+  use(dispose: (this: undefined) => void): void;
+  use<Receiver>(dispose: (this: Receiver) => void, receiver: Receiver): void;
+  use(dispose: (this: unknown) => void, receiver?: unknown): void {
     if (this.#destroyed && !this.#resolveDestroyed) {
-      runDragDisposer(dispose, null, this);
+      runDragDisposer(dispose, null, this, receiver);
     } else {
-      this.#disposers.push(dispose);
+      // Every registration is its own entry, so the same pair runs once per call.
+      this.#disposers.add(dispose, receiver);
     }
   }
 
@@ -385,9 +395,7 @@ export class Gesture<
     this.#steps.clear();
     session?.terminate();
 
-    while (this.#disposers.length > 0) {
-      runDragDisposer(this.#disposers.pop()!, null, this);
-    }
+    runDisposers(this.#disposers, null, this);
 
     this.#listeners.abort();
     resolveDestroyed();

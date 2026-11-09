@@ -1,12 +1,13 @@
 /**
- * The typing of receiver-aware `requestStep` on `drag/step-queue-model`. Not
- * adopted. Checked by `tsc`, with no run.
+ * The typing of receiver-aware `requestStep` and `use` on `drag/step-queue-model`.
+ * Not adopted. Checked by `tsc`, with no run.
  */
 import { describe, it } from 'vitest';
 import {
   draggable,
   type BehaviorOperation,
   type Drag,
+  type Outcome,
 } from '../src/draggable.ts';
 
 const root = document.createElement('div');
@@ -43,7 +44,7 @@ class Holder {
   }
 }
 
-describe('step-queue model: receiver typing', () => {
+describe('callback-list model: requestStep receiver typing', () => {
   it('should check a declared receiver at a Drag and at the controller', () => {
     const holder = new Holder();
     const panel = draggable(root, {
@@ -71,6 +72,57 @@ describe('step-queue model: receiver typing', () => {
     });
     panel.requestStep(function step(this: unknown) {
       void this;
+    });
+  });
+});
+
+/** Cleanup that declares its receiver. */
+class Resource {
+  released = false;
+
+  request(drag: Drag): void {
+    drag.use(this.#release, this);
+    // @ts-expect-error Cleanup that declares its receiver needs one.
+    drag.use(this.#release);
+    // @ts-expect-error The receiver must be the cleanup's `this` type.
+    drag.use(this.#release, { released: false } as object);
+    // @ts-expect-error Operation cleanup receives an outcome, not an operation.
+    drag.use(this.#step, this);
+  }
+
+  #release(this: Resource, outcome: Outcome | null): void {
+    this.released = outcome !== null;
+  }
+
+  #step(this: Resource, operation: BehaviorOperation | null): void {
+    this.released = operation === null;
+  }
+}
+
+describe('callback-list model: use receiver typing', () => {
+  it('should check a declared receiver at a Drag and at the controller', () => {
+    const resource = new Resource();
+    const panel = draggable(root, {
+      admit: () => null,
+      activate(drag) {
+        resource.request(drag);
+        return null;
+      },
+    });
+    const sink = {
+      retired: false,
+      retire(this: { retired: boolean }): void {
+        this.retired = true;
+      },
+    };
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `sink`, passed with it
+    panel.use(sink.retire, sink);
+    // @ts-expect-error Cleanup that declares its receiver needs one.
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- the type error is the point
+    panel.use(sink.retire);
+    panel.use(() => {
+      sink.retired = true;
     });
   });
 });

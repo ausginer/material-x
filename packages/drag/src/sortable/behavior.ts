@@ -202,9 +202,11 @@ export class SortableBehavior implements Behavior<
     drag.use(() => {
       frame.cancel();
     });
-    drag.use(this.#retireAxis);
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `this.axis`, passed with it
+    drag.use(this.axis.retire, this.axis);
     listenForInvalidation(this.#window, drag.signal, () => {
-      drag.requestStep(this.#invalidateGeometry, this);
+      // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `this.axis`, passed with it
+      drag.requestStep(this.axis.invalidate, this.axis);
     });
 
     const operation = new SortableOperation(
@@ -228,16 +230,6 @@ export class SortableBehavior implements Behavior<
 
     return operation;
   }
-
-  /** Step, on scroll and resize, called on this behavior: the cached geometry is stale. */
-  #invalidateGeometry(): void {
-    this.axis.invalidate();
-  }
-
-  /** Disposer, per operation: the cache releases the operation's elements. */
-  readonly #retireAxis = (): void => {
-    this.axis.retire();
-  };
 
   #pull(): CollectionSnapshot {
     this.#version += 1;
