@@ -20,14 +20,14 @@
  */
 import type { AxisInstaller } from './axis.ts';
 import { insertionAt } from './domain.ts';
-import { LinearShift } from './linear-shift.ts';
+import { linearShift } from './linear-shift.ts';
 import { CENTER_Y, RectIndex, STRIDE } from './rect-index.ts';
 
 /** The axis rule for a single column. */
 export function y(): AxisInstaller {
   return () => {
     const index = new RectIndex();
-    const shift = new LinearShift(index);
+    const shift = linearShift(index);
 
     return {
       resolve(query, context) {
