@@ -1,9 +1,10 @@
 /**
- * Receiver-aware `requestStep` on `drag/step-queue-model`. Not adopted, and the
- * contract does not describe it.
+ * The step-queue model on `drag/step-queue-model`: receiver-aware `requestStep`.
+ * Not adopted, and the contract does not describe it.
  */
 import { describe, expect, it } from 'vitest';
 import type { BehaviorOperation, Drag } from '../src/draggable.ts';
+import { StepQueue } from '../src/kernel/step-queue.ts';
 import {
   dragAndDrop,
   faultMessages,
@@ -38,6 +39,48 @@ class Recorder {
     log.push(this.name);
   }
 }
+
+describe('step-queue model: the queue alone', () => {
+  it('should coalesce by step and receiver together', () => {
+    const queue = new StepQueue<number>();
+    const calls: Array<[unknown, number]> = [];
+
+    function step(this: unknown, argument: number): void {
+      calls.push([this, argument]);
+    }
+
+    const a = {};
+    const b = {};
+
+    queue.add(step, a);
+    queue.add(step, b);
+    queue.add(step, a);
+    queue.add(step, undefined);
+    queue.add(step, undefined);
+
+    while (queue.waiting) {
+      queue.runFirst(1);
+    }
+
+    expect(calls).toEqual([
+      [a, 1],
+      [b, 1],
+      [undefined, 1],
+    ]);
+  });
+
+  it('should drop every pair on clear', () => {
+    const queue = new StepQueue<number>();
+    let ran = false;
+
+    queue.add(() => {
+      ran = true;
+    }, undefined);
+    queue.clear();
+    expect(queue.waiting).toBe(false);
+    expect(ran).toBe(false);
+  });
+});
 
 describe('step-queue model: through the kernel', () => {
   it('should run one method once per receiver, in request order', async () => {

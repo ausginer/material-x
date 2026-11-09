@@ -15,6 +15,7 @@ import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
 import { runDragDisposer, type DragDisposer } from './drag.ts';
 import { Session } from './session.ts';
+import { StepQueue } from './step-queue.ts';
 
 /**
  * Call each method on the controller, as in `controller.requestDestroy()`: a
@@ -115,11 +116,8 @@ export class Gesture<
   readonly #listeners = new AbortController();
   readonly #disposers: DragDisposer[] = [];
 
-  /**
-   * Deferred steps, in request order, each followed by the receiver it is called
-   * on, or `undefined` for none. Empty on the hot path.
-   */
-  readonly #steps: unknown[] = [];
+  /** Deferred steps, in request order. Empty on the hot path. */
+  readonly #steps = new StepQueue<Operation | null>();
 
   #session: Session<State, Verdict, Operation> | null = null;
   #running = false;
@@ -257,19 +255,10 @@ export class Gesture<
     }
 
     if (this.#running) {
-      const steps = this.#steps;
-
-      // A pair is waiting only with the same step and the same receiver.
-      for (let i = 0; i < steps.length; i += 2) {
-        if (steps[i] === step && steps[i + 1] === receiver) {
-          return;
-        }
-      }
-
-      steps.push(step, receiver);
+      this.#steps.add(step, receiver);
     } else {
       // Requested while idle, the step is the first step of its own pass. The
-      // list stays empty, so an idle request allocates nothing.
+      // queue stays empty, so an idle request allocates nothing.
       this.enter(
         step,
         this.#session ? this.#session.stepTarget() : null,
@@ -317,14 +306,8 @@ export class Gesture<
           return;
         }
 
-        if (this.#steps.length > 0) {
-          const step = this.#steps.shift() as (
-            this: unknown,
-            operation: Operation | null,
-          ) => void;
-
-          step.call(
-            this.#steps.shift(),
+        if (this.#steps.waiting) {
+          this.#steps.runFirst(
             this.#session ? this.#session.stepTarget() : null,
           );
         } else if (!this.#session?.advance()) {
@@ -399,7 +382,7 @@ export class Gesture<
 
     this.#resolveDestroyed = null;
     this.#session = null;
-    this.#steps.length = 0;
+    this.#steps.clear();
     session?.terminate();
 
     while (this.#disposers.length > 0) {
