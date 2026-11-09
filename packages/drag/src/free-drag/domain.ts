@@ -53,6 +53,11 @@ export type FreeDragRequest = FreeDragSubject &
     localDeltaX: number;
     localDeltaY: number;
     visualRect: DOMRectReadOnly;
+    /**
+     * The drop target under the pointer at the drop, or `null` outside every
+     * target and without `targets`.
+     */
+    target: HTMLElement | null;
   }>;
 
 /**

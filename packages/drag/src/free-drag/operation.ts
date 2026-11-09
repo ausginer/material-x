@@ -11,6 +11,7 @@ import {
   type Point,
   type RejectedResolution,
 } from './domain.ts';
+import type { DropTargetTracker } from './drop-targets.ts';
 import { buildGeometry, buildRequest } from './geometry.ts';
 
 /**
@@ -21,6 +22,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
   readonly #behavior: FreeDragBehavior;
   readonly #drag: Drag<FreeDragOperation>;
   readonly #lift: Lift;
+  /** `config.targets`' state for this operation, released with it. */
+  readonly #targets: DropTargetTracker | null;
   /** The visual's viewport delta, axis-projected and clamped. */
   readonly #motion = { x: 0, y: 0 };
   #offsetX = 0;
@@ -34,10 +37,21 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
     behavior: FreeDragBehavior,
     drag: Drag<FreeDragOperation>,
     lift: Lift,
+    targets: DropTargetTracker | null,
   ) {
     this.#behavior = behavior;
     this.#drag = drag;
     this.#lift = lift;
+    this.#targets = targets;
+  }
+
+  /**
+   * The scroll and resize listener: the bounds and the drop targets are re-read
+   * at their next read.
+   */
+  handleEvent(): void {
+    this.#behavior.bounds?.invalidate();
+    this.#targets?.invalidate();
   }
 
   /** Computes the motion and moves the visual by it. */
@@ -61,6 +75,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
 
   move(): void {
     this.translate();
+    this.#targets?.move();
 
     if (this.#behavior.config.onMove) {
       this.#behavior.config.onMove(this.#geometry());
@@ -69,6 +84,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
 
   drop(): VerdictAwaiter<FreeDragResolution> | null {
     this.#computeMotion();
+    // `pointerup` moved the pointer, and a drop may follow no frame at all.
+    this.#targets?.drop();
 
     const request = buildRequest(
       this.#behavior.root,
@@ -76,6 +93,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
       this.#lift,
       this.#motion,
       this.#home(),
+      this.#targets?.current ?? null,
       this.#behavior.window,
     );
 

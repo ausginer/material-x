@@ -71,6 +71,10 @@
       "types": "./free-drag/bounds.d.ts",
       "default": "./free-drag/bounds.js"
     },
+    "./free-drag/drop-targets.js": {
+      "types": "./free-drag/drop-targets.d.ts",
+      "default": "./free-drag/drop-targets.js"
+    },
     "./free-drag/landing.js": {
       "types": "./free-drag/landing.d.ts",
       "default": "./free-drag/landing.js"

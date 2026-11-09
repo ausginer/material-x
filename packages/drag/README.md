@@ -103,6 +103,34 @@ freeDrag(box, {
 
 Without `home`, the offset is exact only when nothing moved the home during the drag.
 
+For drag and drop, import `dropTargets` from `free-drag/drop-targets.js` and give it to `targets`. `targets()` is pulled once per drag, at activation, and where targets overlap the first in the array wins. During the drag, the target under the pointer has the `data-drop-over` attribute, so it can be styled, and the request's `target` names the target under the release position, or `null` outside every target and without `targets`:
+
+```ts
+import { dropTargets } from '@ydinjs/drag/free-drag/drop-targets.js';
+import { freeDrag, FreeDragResolution } from '@ydinjs/drag/free-drag.js';
+
+freeDrag(card, {
+  targets: dropTargets({
+    targets: () => [...document.querySelectorAll<HTMLElement>('.zone')],
+  }),
+  onDrop: (request) =>
+    request.target ? FreeDragResolution.accept() : FreeDragResolution.reject(),
+  onEnd(result) {
+    if (result.type === 'accepted') {
+      result.request.target!.append(card);
+    }
+  },
+});
+```
+
+```css
+.zone[data-drop-over] {
+  outline: 2px solid;
+}
+```
+
+The mark follows the pointer at most once per frame, and the targets are measured again after a scroll, a resize or `controller.invalidate()`. The drag's release removes the mark, however the drag ends. **An accepted drop stays where it was dropped:** nothing lands into the target, and `onEnd` commits the new parent or position, as for any accepted drop. A rejected drop or a cancel lands home when a `landing` is composed. Drop targets are pointer-only, because `freeDrag` has no keyboard command.
+
 ## Writing a behavior
 
 `draggable(root, behavior)` gives `activate` a `Drag`, a view of one operation. It does not give you the session. The behavior holds what lasts as long as the controller: `threshold`, `admit`, `command` and `activate`. `activate` returns the operation, which holds the hooks from `start` to `end`. They take no `Drag`: an operation that needs it keeps it from `activate`.

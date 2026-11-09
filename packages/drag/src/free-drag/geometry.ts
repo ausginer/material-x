@@ -68,6 +68,7 @@ export function buildRequest(
   lift: Lift,
   motion: Point,
   home: Point,
+  target: HTMLElement | null,
   window: Window & typeof globalThis,
 ): FreeDragRequest {
   const visualRect = currentRect(lift.rect, motion.x, motion.y, window);
@@ -87,5 +88,6 @@ export function buildRequest(
     localDeltaX: local[0]!,
     localDeltaY: local[1]!,
     visualRect,
+    target,
   };
 }

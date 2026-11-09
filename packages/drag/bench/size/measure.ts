@@ -92,7 +92,12 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: { 'src/free-drag': ['freeDrag'] },
     budget: 4967,
     present: ['src/lift'],
-    absent: [...SORTABLE_ONLY, ...OPTIONAL, 'free-drag/bounds'],
+    absent: [
+      ...SORTABLE_ONLY,
+      ...OPTIONAL,
+      'free-drag/bounds',
+      'free-drag/drop-targets',
+    ],
   },
   {
     name: 'freeDrag + bounds + landing',
@@ -103,7 +108,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     },
     budget: 5210,
     present: ['free-drag/bounds', 'shared/landing'],
-    absent: [...SORTABLE_ONLY, 'layout-animation'],
+    absent: [...SORTABLE_ONLY, 'layout-animation', 'free-drag/drop-targets'],
   },
   {
     name: 'sortable + y',

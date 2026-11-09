@@ -10,6 +10,7 @@ import type {
   OnDrop,
   ResolveHome,
 } from './domain.ts';
+import type { DropTargets } from './drop-targets.ts';
 import type { Landing } from './landing.ts';
 import { FreeDragOperation } from './operation.ts';
 
@@ -32,6 +33,11 @@ export type FreeDragConfig = Readonly<{
   home?: ResolveHome;
   bounds?: BoundsInstaller;
   landing?: Landing;
+  /**
+   * Drop targets, from `dropTargets()` in `free-drag/drop-targets.js`. Without
+   * it, no target is tracked and the request's `target` is `null`.
+   */
+  targets?: DropTargets;
 }>;
 
 /**
@@ -63,9 +69,13 @@ export class FreeDragBehavior implements Behavior<
     this.landing = config.landing ?? null;
   }
 
-  /** Step and invalidation listener: the bounds are re-read on the next sample. */
-  readonly invalidate = (): void => {
+  /**
+   * Step: the bounds are re-read at their next read, and so are the current
+   * operation's drop targets.
+   */
+  readonly invalidate = (operation: FreeDragOperation | null): void => {
     this.bounds?.invalidate();
+    operation?.handleEvent();
   };
 
   /** The admission's `state` is the visual: `config.visual`, or the root. */
@@ -104,11 +114,17 @@ export class FreeDragBehavior implements Behavior<
     // clamps against a box measured before it activated.
     this.bounds?.invalidate();
 
-    if (this.bounds) {
-      listenForInvalidation(this.window, drag.signal, this.invalidate);
-    }
+    // `targets` registers its release before it pulls the consumer's targets.
+    const operation = new FreeDragOperation(
+      this,
+      drag,
+      lift,
+      this.config.targets?.(drag, this.window) ?? null,
+    );
 
-    const operation = new FreeDragOperation(this, drag, lift);
+    if (this.bounds || this.config.targets) {
+      listenForInvalidation(this.window, drag.signal, operation);
+    }
 
     operation.translate();
     return operation;

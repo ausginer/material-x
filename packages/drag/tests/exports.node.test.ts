@@ -25,6 +25,7 @@ const ENTRIES = [
   'sortable/layout-animation',
   'free-drag',
   'free-drag/bounds',
+  'free-drag/drop-targets',
   'free-drag/landing',
 ];
 

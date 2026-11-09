@@ -32,7 +32,10 @@ export type {
 };
 
 export interface FreeDragController {
-  /** The bounds are stale: re-read them on the next sample. */
+  /**
+   * The bounds, and during a drag the drop targets, are stale: re-read them at
+   * their next read.
+   */
   readonly invalidate: () => void;
   /** Places the visual at a viewport point and keeps following the pointer. */
   readonly moveTo: (point: Point) => void;
