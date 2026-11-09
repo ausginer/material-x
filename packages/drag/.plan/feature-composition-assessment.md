@@ -1,10 +1,12 @@
 # Extension by capability: the lift, `freeDrag` and their slots
 
-**Status, 2026-11-09: the extension model is accepted. The revised prototype awaits the owner's evaluation.**
+**Status, 2026-11-09: decided as `DRD-33`, which amends `DRD-2`.** [`feature-composition-handoff.md`](feature-composition-handoff.md) implements it.
 
-- **Accepted by the owner on 2026-11-09:** closed, named capability slots are v1's extension model. A whole new behavior remains the fallback when the existing slots are insufficient.
-- **Not accepted:** the other API choices (§9) and every cost (§8).
-- **No `D-*` entry is minted or amended yet.** §5's amendment of `DRD-2` adopts the properties C1 to C10, and this revision changes C2, C3 and C4 (§3.1). The architect records the amendment once the owner has evaluated them.
+- **Accepted by the owner on 2026-11-09:** closed, named capability slots are v1's extension model, and a whole new behavior remains the fallback when the existing slots are insufficient. The owner also approved the `targets` slot's 45 B Brotli charge to `freeDrag` without `dropTargets`. Both are `DRO-10`.
+- **C1 to C10 are final in `DRD-33`.** C4 there separates the release of operation references and resources from the invalidation of reusable geometry caches, and it doesn't require a numeric cache to be discarded. §3.1 below keeps the text the owner evaluated.
+- **§9's choices:** the architect settled every choice in `DRD-33` except choice 5, an accepted drop's landing into its target, which is the product choice `DRO-11`.
+- **Not accepted:** every cost in §8 except the slot's charge. Optimization and timing stay deferred.
+- **§10's defect is `DRF-5`,** now reproduced in Chromium, Firefox and WebKit.
 
 **Revision, 2026-11-09.** The owner found two defects in the first prototype, recorded at `82b045f8a`:
 
@@ -33,7 +35,8 @@ The owner also asked for:
 
 - **Reading** of drag at the base, and of drag2's composition model as reference: `src/shared/composition.ts`, `src/free-drag/{feature,assemble,config}.ts` and `src/sortable/{feature,assemble,config}.ts`.
 - **A prototype** in the worktree's source, run and then reverted. Its diff, a separate `RectIndex` diff, the composition probe and raw results are in [`probes/feature-composition/`](probes/feature-composition/README.md). Production source on the branch is unchanged.
-- **Runs:** a composition probe that reports bytes and which capability code each bundle carries, the size instrument, typecheck, lint, format, the suite in Chromium and Firefox, and mutations: four in the first version and seven in the revision. **WebKit did not launch in this environment**, so no WebKit result is claimed. **No timing.**
+- **Runs:** a composition probe that reports bytes and which capability code each bundle carries, the size instrument, typecheck, lint, format, the suite in Chromium and Firefox, and mutations: four in the first version and seven in the revision. **No timing.**
+- **WebKit, corrected on 2026-11-09.** The prototype's runs said that WebKit didn't launch in this environment. That was a method gap, not an environment limit: the runs didn't source `~/.cache/ms-playwright/webkit-env.sh`, which earlier units used. At finalization, the architect ran the revised prototype's full suite in Chromium, Firefox and WebKit with that script (§7).
 
 **[E]** marks a claim established by a run recorded in the probe. **[R]** marks a claim established by reading.
 
@@ -83,6 +86,7 @@ The owner also asked for:
 - **Suites, revision [E]:**
   - Chromium: 353 of 356 pass with the prototype, and 343 of 347 at the base. Every failure is a size row: at the base, the control row and three over their ceilings; with the prototype, three, where the `freeDrag` row turns green.
   - Chromium and Firefox: 651 pass in two of three full runs, and 633 at the base. The other run failed one sortable landing test in Chromium, in code the revision doesn't touch, and eight isolated runs of it passed (§7).
+  - Chromium, Firefox and WebKit, at finalization: 972 pass in each of three full runs (§7).
 
 ## 1. What the existing extension points can do
 
@@ -140,7 +144,7 @@ That is `DRD-30`'s ownership, applied to a capability: the operation's state is 
 | C1 | **Closed slots.** A host declares each slot by name and type. One value fills a slot. There is no list of extensions, no registry, no runtime discriminator and no merge. A new slot is a library decision |
 | C2 | **A slot value holds no controller or operation state.** It is one of three things: a stateless value, such as `landing()`; an installer that the host calls once per controller, such as `bounds()`; or a factory that the host calls once per operation, such as `dropTargets()`. So one configuration serves any number of controllers |
 | C3 | **Inert installation.** An installer allocates. It attaches no listener, writes no DOM and acquires nothing that needs release. A per-operation factory acquires only what that operation releases (C4) |
-| C4 | **Ownership by lifetime.** A controller runtime holds no reference to an operation or its `Drag`, and reaches no operation state through a non-null assertion. A controller runtime that holds something is disposed through the controller's `use`, registered in the factory that installed it (`DRD-25`). A capability gets an operation's state in one of two ways: the host passes it as arguments, as `sortable`'s axis receives its query and context; or the operation holds an object that the capability created for it, as with `dropTargets`. A controller-lifetime cache of what one operation measured is allowed only when the host invalidates it at activation and retires it through the operation's `use`, as `sortable` does for its axis. That is how buffers are reused across operations. An operation's resources are released through that operation's `use`, and the release is registered before the capability calls consumer code. So a throw from that code faults the operation under DRI-7, and the operation's release frees what it holds |
+| C4 | **Superseded by `DRD-33`'s C4,** which separates operation references and resources from reusable geometry caches. The text the owner evaluated: **Ownership by lifetime.** A controller runtime holds no reference to an operation or its `Drag`, and reaches no operation state through a non-null assertion. A controller runtime that holds something is disposed through the controller's `use`, registered in the factory that installed it (`DRD-25`). A capability gets an operation's state in one of two ways: the host passes it as arguments, as `sortable`'s axis receives its query and context; or the operation holds an object that the capability created for it, as with `dropTargets`. A controller-lifetime cache of what one operation measured is allowed only when the host invalidates it at activation and retires it through the operation's `use`, as `sortable` does for its axis. That is how buffers are reused across operations. An operation's resources are released through that operation's `use`, and the release is registered before the capability calls consumer code. So a throw from that code faults the operation under DRI-7, and the operation's release frees what it holds |
 | C5 | **Single pass.** A capability's code runs only when its host calls it from a hook or a step, or in a step it requested through the operation's `requestStep`. It never opens a pass, listens for input or calls the gate |
 | C6 | **Requests and effects.** A capability's foreign callback, such as a frame, only requests a step, and its effect runs in that step (DRI-8). The one exception follows `bounds`: a scroll or resize listener sets a staleness flag directly (§9, choice 6) |
 | C7 | **Tree-shaking.** The host names only the slot's type. A capability's code reaches a bundle only through the consumer's import. A composition that omits it pays only the host's call sites. Each new slot's call-site cost is measured and is the owner's to accept |
@@ -280,6 +284,8 @@ drag2 merged fragments so that a consumer could compose a config from parts. Her
 
 ## 5. Proposed text for `DRD-2`
 
+**Adopted on 2026-11-09, with changes.** `DRD-2`'s rule now names `DRD-33`'s properties instead of this record's, and keeps the `axis` and `displacement` interfaces private. The amendments listed below are in `DRD-33`. The text here is the proposal as made.
+
 **Current:** "`draggable` is public, and `sortable` and `freeDrag` use only its public values and types. A behavior never receives the session. Extension is by whole behavior. No third-party `axis` or plugin seam is published."
 
 **Proposed:** "`draggable` is public, and `sortable` and `freeDrag` use only its public values and types. A behavior never receives the session. **A behavior and the lift are extended by capabilities:** each declares a closed set of named slots, and a capability imported on its own fills one. A third party may fill a published slot. A capability has the properties C1 to C10 of [`feature-composition-assessment.md`](feature-composition-assessment.md) §3.1. A new slot is a library decision, and its call-site cost on compositions that omit it is the owner's. There is no plugin list, no generic hook seam and no kernel hook. A whole behavior on `draggable` remains the way to get what no slot offers."
@@ -343,6 +349,8 @@ It costs 52 B minified and 13 to 16 B Brotli on the sortable rows [E]. Typecheck
 | Chromium and Firefox, `npx just test-engines` | 633 passed, 9 skipped | 647 passed, 9 skipped, in two consecutive runs | 651 passed, 9 skipped, in runs 1 and 3 of three |
 | New tests | — | 7, in both engines | 9, in both engines |
 
+**Three engines, at finalization on 2026-11-09 [E].** With `webkit-env.sh` sourced, `npx just test-engines` on the revised prototype passed in three consecutive full runs: 972 passed, 18 skipped, all 69 files, in Chromium, Firefox and WebKit. None failed the landing test below.
+
 **The revision's second full run** failed one test in Chromium: the grab during a 20 s rejected landing, in `tests/activation.browser.test.ts`. That test runs `sortable` and the lift, which the revision doesn't change from the first version. Eight isolated runs of its block passed in both engines. It isn't reproduced, and it isn't attributed. At the first version, one run failed the reuse test, and the test was changed (results).
 
 **Size, Brotli bytes from the composition probe [E],** with the revision. "Carries" names the capability code found in the bundle. The rows that the revision changes were, at the first version: `freeDrag` 4957, `freeDrag + landing` 5223, `freeDrag + bounds + landing` 5400, `freeDrag + dropTargets` 5242 and `freeDrag + dropTargets + landing` 5489.
@@ -374,6 +382,8 @@ Brotli differences of about ten bytes are within the noise between neighboring e
 
 ## 8. Costs, reported and not accepted
 
+**On 2026-11-09 the owner approved the slot's call sites, the first bullet below (`DRO-10`).** The rest remain reported and not accepted. The implementation reports them again at its own commits.
+
 - **The slot's call sites:** +45 B Brotli and +209 B minified on `freeDrag` without drag and drop, against +54 B and +211 B at the first version. This is the one charge to a composition that omits the capability. It includes the invalidation listener's move to the operation, which `bounds` uses too.
 - **The landing as a capability:**
   - neutral to +27 B on compositions that compose a landing;
@@ -396,6 +406,19 @@ Brotli differences of about ten bytes are within the noise between neighboring e
 
 ## 9. Remaining choices for the owner
 
+**Disposed on 2026-11-09.** Choice 1 is the owner's approval in `DRO-10`. Choice 5 is the product choice `DRO-11`, with no landing into the target as its default. Every other choice is settled in `DRD-33`:
+
+- choice 2: `lift/landing.js`;
+- choice 3: the argument is required;
+- choice 4: the attribute only;
+- choice 6: the flag is set directly;
+- choice 7: the mark is updated at the next sample, and the drop is always resolved afresh;
+- choice 8: the landing and drop-target types are published, and `axis` and `displacement` stay private;
+- choice 9: the getter variant;
+- choice 10: the names as prototyped.
+
+The list below is the text as put to the owner.
+
 1. **The slot's cost.** Accept about 45 B on `freeDrag` without drag and drop, or reduce it. Ways to reduce it:
    - keep the target out of the request, at the price of a typed answer to `onDrop`;
    - one generic per-operation slot on `freeDrag`, paid once for every later capability. It is not measured, and it reopens the ordering question of §3.5 as soon as two capabilities exist.
@@ -411,7 +434,19 @@ Brotli differences of about ten bytes are within the noise between neighboring e
 
 ## 10. Found outside the scope: `bounds` after a scroll between operations
 
-**`bounds` keeps a stale clamp across operations [R] [E, Chromium].**
+**Registered as `DRF-5`, Tier A, on 2026-11-09.** The fix recommended below is `DRD-33`'s `bounds` repair, and the handoff's item 1. **At finalization, the architect reproduced the defect in all three engines [E]:**
+
+- **The witness** scrolls a container instead of the document: a box in a 300 × 300 arena at `top: 200px` inside a scrolling container, one drag and release, the container scrolled by 150 px, then a drag 400 px up.
+- **At `688613863`:** the arena's top was at 50 and the box stopped at 200, in Chromium, Firefox and WebKit.
+- **With one `this.bounds?.invalidate()` added to `activate`:** the witness and `tests/free-drag.browser.test.ts` passed in all three engines, 27 tests.
+- **Size of that probe [E]:**
+  - `freeDrag`: +26 B minified and +3 B Brotli;
+  - `freeDrag + bounds + landing`: +26 B minified and +17 B Brotli;
+  - `draggable alone` unchanged.
+
+  Not accepted.
+
+**The original finding, as recorded before finalization: `bounds` keeps a stale clamp across operations [R] [E, Chromium].**
 
 - **Cause [R]:**
   - its runtime is per controller, and so are the cached box and the staleness flag;
@@ -431,4 +466,4 @@ Brotli differences of about ten bytes are within the noise between neighboring e
 
 ## Next
 
-The owner evaluates the revision, the revised C2, C3 and C4, and §9. On approval, the architect amends `DRD-2` as §5 lists, recording the accepted model and the §9 choices the owner decides. An implementer unit would then port `composition.diff.txt` and, if chosen, `rect-index.diff.txt`, update packaging and the size rows, and report the costs for acceptance. §10 goes to the owner separately.
+**Recipient: `implementer`,** with [`feature-composition-handoff.md`](feature-composition-handoff.md). The unit repairs `DRF-5`, ports the landing capability, the drop-target capability and `RectIndex`'s encapsulation, and reports every cost for the owner. **The owner decides `DRO-11`** whenever convenient. Its default is built, and adding a landing into the target later breaks nothing. The combined review is a separate unit.

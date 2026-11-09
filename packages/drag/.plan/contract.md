@@ -1,6 +1,6 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. On 2026-11-09, `DRD-33` made the built-ins and the lift extensible by capability slots, moved the landing animation out of the lift into the `Landing` capability, added `freeDrag`'s drop targets as DRI-21, and repaired `bounds` after a scroll between operations (`DRF-5`). [`feature-composition-handoff.md`](feature-composition-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
@@ -15,21 +15,29 @@
 | **Decision** | The operation's first cancel, fault or verdict |
 | **Lift** | Top-layer promotion of the visual, with the visual's rendering preserved |
 | **Landing** | The animation from the drop position to the visual's target. It outlives the operation |
+| **Host** | A built-in behavior or the lift, which declares a closed set of named slots |
+| **Capability** | A value imported on its own that fills one slot of a host, such as `landing()`, `bounds()` or `dropTargets()`. It holds no controller or operation state |
 
 ## Public surface
 
 | Entry | Exports |
 | --- | --- |
 | `draggable.js` | `draggable`, and the types `Behavior`, `BehaviorOperation`, `Admission`, `Drag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome` and `CancelOrigin` |
-| `lift.js` | `Lifter`, and the types `Lift` and `LandingTiming` |
+| `lift.js` | `Lifter`, and the types `Lift` and `Landing` |
+| `lift/landing.js` | `landing` |
 | `fault.js` | `DragFault` |
 | `sortable.js` | `sortable`, `ReorderResolution` |
 | `sortable/y.js`, `sortable/xy.js` | `y`, `xy` |
 | `sortable/landing.js`, `sortable/layout-animation.js` | `landing`, `layoutAnimation` |
 | `free-drag.js` | `freeDrag`, `FreeDragResolution` |
 | `free-drag/bounds.js`, `free-drag/landing.js` | `bounds`, `landing` |
+| `free-drag/drop-targets.js` | `dropTargets` |
+
+Each landing entry also exports the types `Landing`, `LandingOptions` and `LandingTimingContext`. `free-drag/drop-targets.js` exports the types `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions`.
 
 `@ydinjs/box-quad` is the coordinate API for behaviors. This package does not re-export it. The `sortable` and `freeDrag` options are those of the prototype's `sortable.ts` and `free-drag.ts`, with the changes below. **A callback in those options receives only the values its type documents, in an object of its own.** It never receives the kernel's `Drag` or a behavior's operation.
+
+**Capabilities.** An option of `sortable` or `freeDrag` that holds a capability, and `land`'s `Landing`, are slots. A host calls a capability only from its own hooks and steps. A capability holds no controller or operation state, so one configuration serves every controller. A per-operation capability receives the operation's `Drag` narrowed by type, and that operation holds what it returns. **A geometry cache that lasts as long as the controller,** such as `bounds`' box, is measured again in each operation before that operation first uses it. The required properties are C1 to C10 of `DRD-33`. A third party may fill a slot whose type is published. The `axis` and `displacement` slots' types are not published.
 
 ### `draggable`
 
@@ -102,22 +110,33 @@ type Lift = {
   visualSpace: Space;
   itemSpace: Space; // From `@ydinjs/box-quad`.
   translate(x: number, y: number): void; // Viewport delta.
-  land(x: number, y: number, timing?: LandingTiming): void; // From `settle`: the viewport position of the visual's top-left. `timing` is called once, now, and its values are copied. The landing starts when the lift is released.
+  land(x: number, y: number, landing: Landing): void; // From `settle`: the viewport position of the visual's top-left. `landing.timing` is called once, now, and its values are copied. `landing.start` is called when the lift is released.
 };
 
-type LandingTiming = (
-  fromX: number,
-  fromY: number,
-  toX: number,
-  toY: number,
-) => { duration: number; easing: string };
+interface Landing {
+  timing(
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+  ): { duration: number; easing: string };
+  start(
+    visual: HTMLElement,
+    visualSpace: Space,
+    dx: number,
+    dy: number, // Viewport offset of the visual from where it lands.
+    duration: number,
+    easing: string,
+    window: Window,
+  ): (() => void) | null; // The cancel, or `null` when nothing animates.
+}
 ```
 
 **Type requirement:** `Drag`, `Behavior`, `BehaviorOperation` and `Admission` name no lift member, and `draggable` has one signature. Declaration tests assert that a `Drag` has no `lift`, `visual`, `translate` or `state`, that an admission has no `visual` or `box`, and that a behavior has no `start`, `move`, `drop`, `settle` or `end`. The mechanism is the implementer's.
 
 **The behavior and its operation.** The kernel builds a `Drag` when the operation opens, and writes only its `x` and `y` afterwards. It carries the admission's `state` to `activate` and never reads or writes it. It keeps the operation `activate` returns until the operation ends, and reads only its hooks. A step receives that operation. No kernel module names the lift, the landing or a behavior's resources (`DRD-27`, `DRD-30`). Each resource of an operation is released by a `use` disposer registered when it is acquired, by `activate` or by the operation, so a declined or failed activation is restored at release.
 
-**Composing the lift.** A behavior that lifts creates one `Lifter` with its controller, and passes `cancelLanding` to the controller's `use`. In `activate` it calls `acquire` before any other `drag.use`, and the operation it returns keeps the `Lift`. `acquire` registers the lift's release with `drag.use` before it writes anything. So the release runs after every disposer that the behavior adds later, and it also restores a failed acquisition. `land` from the operation's `settle` names the landing, and the lift starts it right after its release. The next `acquire` cancels a running landing after it has measured, and so does `cancelLanding`.
+**Composing the lift.** A behavior that lifts creates one `Lifter` with its controller, and passes `cancelLanding` to the controller's `use`. In `activate` it calls `acquire` before any other `drag.use`, and the operation it returns keeps the `Lift`. `acquire` registers the lift's release with `drag.use` before it writes anything. So the release runs after every disposer that the behavior adds later, and it also restores a failed acquisition. `land` from the operation's `settle` names the landing with a `Landing`, and the lift calls its `start` right after its release. Without `land`, nothing lands, and a lift composed without a landing carries no animation code. The next `acquire` cancels a running landing after it has measured, and so does `cancelLanding`.
 
 **What a behavior does not receive:** the session, its slots, its state or its next step, in types or at runtime.
 
@@ -179,7 +198,7 @@ When a decision is applied, the order is:
 3. `drag.signal` aborts.
 4. `use` disposers run last in first out, each with the outcome.
 5. With the lift composed, the lift is released as the last disposer of step 4, because `acquire` registered it first. The visual's inline declarations and popover state are exactly as they were.
-6. The landing starts right after the release, in the same disposer, with its target measured only if `settle` named one.
+6. The landing starts right after the release, in the same disposer, through the `Landing` that `land` named, with its target measured only if `settle` named one.
 7. `end` runs as the next step, in the same task as the decision. A landing does not delay it.
 8. Focus is restored under DRI-12 when `end` returns or throws, in the same step. Without `start`, it is restored right after step 4.
 
@@ -218,12 +237,14 @@ The consumer still owns `tabindex`, roles and any announcement of the new order.
 
 #### DRI-13 — Landing
 
-The landing is additive and starts from the position last translated to. A landing that can't run is reported and skipped, and the outcome stands. It is cancelled by the same `Lifter`'s next `acquire` or by its `cancelLanding` at destruction, and not by a press that never activates. **A grab during a landing keeps the visual under the pointer:** the activation measures the visual with the flight's current offset, then cancels the flight before the first lifted frame.
+A landing runs only when `settle` named one with a `Landing`. It starts from the position last translated to. A landing that can't run, including a throw from `start`, is reported and skipped, and the outcome stands. It is cancelled by the same `Lifter`'s next `acquire` or by its `cancelLanding` at destruction, and not by a press that never activates. **A grab during a landing keeps the visual under the pointer:** the activation measures the visual with the flight's current offset, then cancels the flight before the first lifted frame.
+
+The library's `landing()` is additive and has these properties. A third-party `Landing` owns its own animation. Its cancel is held and called as above.
 
 - **Elevation.** For the whole flight the visual is above its siblings in its stacking context, including siblings with their own `z-index`.
 - **No residue.** Elevation leaves no inline style. It uses a replacing animation for `z-index`, separate from the additive flight, and `position: relative` only when the computed position is `static`.
 - **Limit.** The visual has left the top layer, so an ancestor can still clip it or stack above it during the flight. `drag:DRO-2` records this choice.
-- **Reduced motion.** With `prefers-reduced-motion: reduce`, every landing has zero duration, including one a custom behavior named with no timing.
+- **Reduced motion.** With `prefers-reduced-motion: reduce`, every landing that `landing()` starts has zero duration.
 
 ### Sortable and free drag
 
@@ -272,11 +293,11 @@ Every coordinate conversion in this package and its examples uses `@ydinjs/box-q
 
 #### DRI-17 — Hot path
 
-The kernel allocates nothing per pointer sample. The lift's `translate` allocates only the CSS string it writes. A sample reads no layout. The spatial search is coalesced to a frame. No consumer callback runs per sample unless a behavior makes one. `sortable` measures a landing target only when a landing is composed.
+The kernel allocates nothing per pointer sample. The lift's `translate` allocates only the CSS string it writes. A sample reads no layout. The spatial search is coalesced to a frame. No consumer callback runs per sample unless a behavior makes one. `sortable` measures a landing target only when a landing is composed. **A capability** called on a sample reads no layout and allocates nothing, and coalesces any spatial search to a frame.
 
 #### DRI-18 — Custom behaviors get the same guarantees
 
-DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no code from its author beyond its behavior and its operation, and no `try`. **The lift's guarantees** are DRI-9's steps 5 and 6, DRI-12's promotion and DRI-13. They hold for a behavior that composes the lift as `lift.js` documents: one `Lifter` per controller whose `cancelLanding` is passed to the controller's `use`, and `acquire` first in `activate`. `sortable` and `freeDrag` import only public `draggable` and `lift` values and types from the kernel. Importing `draggable` alone brings no lift, `box-quad`, sortable, axis, cache or landing code.
+DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no code from its author beyond its behavior and its operation, and no `try`. **The lift's guarantees** are DRI-9's steps 5 and 6, DRI-12's promotion and DRI-13. They hold for a behavior that composes the lift as `lift.js` documents: one `Lifter` per controller whose `cancelLanding` is passed to the controller's `use`, and `acquire` first in `activate`. `sortable` and `freeDrag` import only public `draggable` and `lift` values and types from the kernel. Importing `draggable` alone brings no lift, `box-quad`, sortable, axis, cache or landing code. **A capability's code** reaches a bundle only through the consumer's import of it. A composition that omits it carries only the host's call sites. A lifted composition without a landing carries no landing animation.
 
 ### Input
 
@@ -292,7 +313,21 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 #### DRI-20 — Committed position
 
-`localDeltaX` and `localDeltaY` in the request are the offset from home to the drop position, in the space a transform authored on the visual acts in. Home is `config.home()`, read once at the drop, or the activation rect without `home`. Without `home`, the value is exact only when nothing moved the home during the drag, such as a scrolling ancestor. A home landing reads `home()` at `settle`. `onMove`'s geometry is pointer travel. An accepted position is committed in `onEnd` (DRI-9).
+`localDeltaX` and `localDeltaY` in the request are the offset from home to the drop position, in the space a transform authored on the visual acts in. The request's `target` is DRI-21's, and `null` without `dropTargets`. Home is `config.home()`, read once at the drop, or the activation rect without `home`. Without `home`, the value is exact only when nothing moved the home during the drag, such as a scrolling ancestor. A home landing reads `home()` at `settle`. `onMove`'s geometry is pointer travel. An accepted position is committed in `onEnd` (DRI-9).
+
+#### DRI-21 — Drop targets
+
+With `targets: dropTargets({ targets })`:
+
+- **The pull.** `targets()` is pulled once per operation, at activation, after the lift's acquisition. Where targets overlap, the first in the array wins.
+- **The mark.** The target under the pointer has the `data-drop-over` attribute, and at most one target has it. The mark follows the pointer at most once per frame. A sample reads no layout, and the targets are measured only when stale.
+- **Staleness.** A scroll or resize during the operation, or the controller's `invalidate()`, makes the next resolution measure the targets again. Each operation starts stale. With the pointer still, a scroll updates the mark at the next sample.
+- **The drop.** The request's `target` is the target under the release position, resolved at the drop against geometry measured after any invalidation. It is `null` outside every target. A drop with no frame before it is resolved too.
+- **Release.** The operation's release removes the mark, whatever ends it: a terminal, a cancel, a fault or destruction. No attribute from the library remains.
+- **A throw from `targets()`** is the operation's fault under DRI-7. The operation is released as a failed activation is: the lift is restored, nothing is marked, and no `onStart` or `onEnd` runs. The controller's next drag works.
+- **An accepted drop** keeps `freeDrag`'s accepted semantics: the visual stays where it was dropped, and the consumer commits in `onEnd` (DRI-9, DRI-20). A rejected drop or a cancel lands home as before. `drag:DRO-11` records this default.
+
+`freeDrag` has no keyboard command, so drop targets are pointer-only.
 
 ## Accepted differences from drag2
 
@@ -306,6 +341,8 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-09 | Vocabulary, public surface, `DRI-9`, `DRI-13`, `DRI-17`, `DRI-18`, `DRI-20` | **Changed:** the built-ins and the lift are extended by capabilities, each filling one named slot. `land(x, y, landing)` requires a `Landing`, `{ timing, start }`, and the lift starts no animation of its own. `lift.js` exports the type `Landing`, and `landing` is also exported from `lift/landing.js`. DRI-13's elevation, residue and reduced-motion properties are `landing()`'s. Without a `Landing`, nothing animates. It used to say that `land(x, y, timing?)` took an optional `LandingTiming` and applied the default duration and easing without one, that `lift.js` exported `LandingTiming`, and that reduced motion covered a landing that a custom behavior named with no timing. **Added:** `Host` and `Capability` in the vocabulary, the capability paragraph, `free-drag/drop-targets.js`, the request's `target`, and capability clauses in DRI-17 and DRI-18. **Repaired:** a controller-lifetime geometry cache is measured again in each operation. `bounds` used to clamp against a box read before a scroll between operations. `DRD-33`, `DRF-5` |
+| 2026-11-09 | `DRI-21` | **Added:** `freeDrag`'s drop targets. `DRD-33`, `DRO-11` |
 | 2026-11-08 | `DRI-6` | **Changed:** development builds count each refused event once. An event refused by both the session's listener on the window and the root's listener used to count only where the root refused it, because the session passed no event. `DRD-32` |
 | 2026-11-08 | `DRI-14` | **Changed:** the library borrows the `items()` array, keeps it from activation or the last rebase until the drop, and lands at a home gap saved at those pulls. The consumer keeps the retained array consistent: it completes an in-place change before the library can read again, or it replaces the array. It used to say that each pull copies the array, and that the consumer may change it at any time. `DRD-31` |
 | 2026-11-08 | Vocabulary, public surface, `DRI-3`, `DRI-8`, `DRI-9`, `DRI-18` | **Changed:** `activate` returns the behavior's operation, which holds `start`, `move`, `drop`, `settle` and `end`, or `null` to decline. It used to return `undefined` or `false`, and those hooks were the behavior's, called with the `Drag`. A step receives the operation, and used to receive the `Drag`. The `Drag` has no `state`: `activate` receives it. `activate` is required. **Added:** the type `BehaviorOperation`. `DRD-30` |

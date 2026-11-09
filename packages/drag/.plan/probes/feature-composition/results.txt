@@ -215,3 +215,29 @@ firefox  box=220 arena=200 scrollY=0    (the test frame did not scroll: inconclu
 ### Static checks on the prototype v2
 npx just fmt, lint-fix, fmt, lint on the changed files: pass. npx just typecheck: pass. npx just fmt-check: pass.
 git apply --check of composition.diff.txt on a 688613863 tree: applies.
+
+## Finalization, 2026-11-09 (architect), Chromium, Firefox and WebKit
+
+All runs below sourced ~/.cache/ms-playwright/webkit-env.sh, and WebKit launched. The prototype's earlier runs
+did not source it, which is why WebKit failed to launch there.
+
+### bounds after a container scroll between operations, scratch witness, not kept
+A box in a 300 x 300 arena at top 200, inside a position:fixed 400 x 400 overflow:auto container whose content
+is 1200 px tall. bounds(arena). Drag and release, container scrollTop = 150, then drag 400 px up. One assertion
+of { arenaBefore, arenaAfter, boxTop }; expected { 200, 50, 50 }.
+At 688613863 (no prototype applied):
+  chromium  received { arenaBefore: 200, arenaAfter: 50, boxTop: 200 }  FAIL
+  firefox   received { arenaBefore: 200, arenaAfter: 50, boxTop: 200 }  FAIL
+  webkit    received { arenaBefore: 200, arenaAfter: 50, boxTop: 200 }  FAIL (same assertion)
+With `this.bounds?.invalidate();` added to FreeDragBehavior.activate after the lift's acquisition:
+  the witness and tests/free-drag.browser.test.ts, three engines: Tests 27 passed (27)
+Size of that one-line probe (node bench/size/measure.ts), against 688613863:
+  draggable alone                  6600 min  2138 br   (unchanged)
+  freeDrag                        15295 min  5078 br   (base 15269 / 5075: +26 min, +3 br)
+  freeDrag + bounds + landing     15980 min  5347 br   (base 15954 / 5330: +26 min, +17 br)
+
+### Prototype v2 (composition.diff.txt applied to 5cf267d6d's tree, whose source is 688613863's), npx just test-engines
+run 1:  Test Files  69 passed (69)   Tests  972 passed | 18 skipped (990)
+run 2:  Test Files  69 passed (69)   Tests  972 passed | 18 skipped (990)
+run 3:  Test Files  69 passed (69)   Tests  972 passed | 18 skipped (990)
+No failure in any engine, including activation.browser.test.ts's "a grab during a landing".

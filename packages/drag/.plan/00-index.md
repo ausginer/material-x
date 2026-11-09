@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`. `DRF-3` was repaired at `d7828a280`. `DRD-30` was implemented at `da139407e` and `3a67df0ea` and reported at `d99ebd304`. The architect read both at `d99ebd304`, in [`activation-result-assessment.md`](activation-result-assessment.md). `DRD-30` conforms, and is amended so that `freeDrag`'s motion belongs to its operation. `DRF-3` is closed, and `DRF-4` is open. That record's §6 is the remediation before the combined review. The owner then directed that `sortable` stop copying the `items()` array, decided as `DRD-31` from [`items-copy-assessment.md`](items-copy-assessment.md). [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner approved the gate's revision in [`execution-boundary-assessment.md`](execution-boundary-assessment.md), decided as `DRD-32` with its cost in `DRO-9`. It was implemented from `8943f14e5` at `a8327a7c8`, inside `DRO-9`'s figures, and [`execution-boundary-report.md`](execution-boundary-report.md) reports it. The owner inspects it before any review.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`. `DRF-3` was repaired at `d7828a280`. `DRD-30` was implemented at `da139407e` and `3a67df0ea` and reported at `d99ebd304`. The architect read both at `d99ebd304`, in [`activation-result-assessment.md`](activation-result-assessment.md). `DRD-30` conforms, and is amended so that `freeDrag`'s motion belongs to its operation. `DRF-3` is closed, and `DRF-4` is open. That record's §6 is the remediation before the combined review. The owner then directed that `sortable` stop copying the `items()` array, decided as `DRD-31` from [`items-copy-assessment.md`](items-copy-assessment.md). [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner approved the gate's revision in [`execution-boundary-assessment.md`](execution-boundary-assessment.md), decided as `DRD-32` with its cost in `DRO-9`. It was implemented from `8943f14e5` at `a8327a7c8`, inside `DRO-9`'s figures, and [`execution-boundary-report.md`](execution-boundary-report.md) reports it. The owner inspects it before any review. On 2026-11-09 the owner accepted closed, named capability slots for v1 from [`feature-composition-assessment.md`](feature-composition-assessment.md), decided as `DRD-33`, which amends `DRD-2`. The slot's charge is `DRO-10`, an accepted drop's landing into its target is `DRO-11`, and the `bounds` defect found there is `DRF-5`. [`feature-composition-handoff.md`](feature-composition-handoff.md) implements them.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -24,9 +24,11 @@ Foreign code runs synchronously inside DOM writes, and the independent model's c
 
 #### DRD-2 — One public authoring API
 
-**`draggable` is public, and `sortable` and `freeDrag` use only its public values and types. A behavior never receives the session. Extension is by whole behavior. No third-party `axis` or plugin seam is published.**
+**`draggable` is public, and `sortable` and `freeDrag` use only its public values and types. A behavior never receives the session. A built-in behavior and the lift are extended by capabilities: each declares a closed set of named slots, and a capability imported on its own fills one, with the properties C1 to C10 of `DRD-33`. A third party may fill a slot whose type is published. A new slot is a library decision, and its call-site cost on compositions that omit it is the owner's. There is no plugin list, no generic hook seam and no kernel hook. A whole behavior on `draggable` remains the way to get what no slot offers. The `axis` and `displacement` slots' interfaces are not published.**
 
-Owner requirement, with possible Readymag use. The prototype showed no private kernel path was needed, and `Drag` has no reference to the session. Its additions are accepted: `command`, `handle` with `data-drag-ignore`, `settle` returning timing, `panel.use`, and `onEnd` carrying `request`. An axis seam stays out because no example wanted one, and adding it later breaks nothing. `createFrameTask`, `listenForInvalidation` and the landing policy stay private (CONTRIBUTING §4), because a behavior can write each in a few lines. A kernel frame hook is rejected for the same reason: every composition would pay for it.
+Owner requirement, with possible Readymag use. The prototype showed no private kernel path was needed, and `Drag` has no reference to the session. Its additions are accepted: `command`, `handle` with `data-drag-ignore`, `settle` returning timing, `panel.use`, and `onEnd` carrying `request`. An axis seam stays out because no example wanted one, and adding it later breaks nothing. `createFrameTask` and `listenForInvalidation` stay private (CONTRIBUTING §4), because a behavior or a capability can write each in a few lines. A kernel frame hook is rejected for the same reason: every composition would pay for it.
+
+**Amended 2026-11-09 by `DRD-33`,** on the owner's acceptance of closed, named slots for v1 with a whole behavior as the fallback (`DRO-10`). The rule used to end: "Extension is by whole behavior. No third-party `axis` or plugin seam is published." Its rationale used to keep "the landing policy" private beside `createFrameTask` and `listenForInvalidation`. The landing is now the `Landing` capability, whose type is published. The `axis` and `displacement` interfaces stay private for the original reason: no example wants one, and publishing them later breaks nothing.
 
 #### DRD-3 — Faults through `reportError`
 
@@ -772,6 +774,127 @@ Decided on 2026-11-08 on the owner's approval of v3 from [`execution-boundary-as
 
 The `unbound-method` gap in the assessment's §1, point 5, is a repository instrument question, and it isn't part of this unit.
 
+#### DRD-33 — Capability slots extend the built-ins and the lift
+
+**A host, which is `freeDrag`, `sortable` or the lift, declares a closed set of named, typed slots. A capability is a value imported on its own that fills one slot, and it meets C1 to C10 below. The landing animation leaves the lift and becomes the `Landing` capability, which `land` requires. `freeDrag` gains the `targets` slot, which `dropTargets()` fills. Its state for one operation is an object that operation holds. `freeDrag` invalidates its `bounds` at each activation. The kernel doesn't change.**
+
+Decided on 2026-11-09, on the owner's acceptance of closed, named slots for v1, with a whole behavior as the fallback (`DRO-10`). The reading, the alternatives and the evidence are in [`feature-composition-assessment.md`](feature-composition-assessment.md), and the revised prototype is [`probes/feature-composition/`](probes/feature-composition/README.md) at `5cf267d6d`. **The owner's terms:** a lift without its landing animation, and drag and drop added to `freeDrag` with nothing charged to a composition that omits it beyond the slot's call sites. The terms also keep:
+
+- one configuration reused across controllers;
+- the single pass, the separation of requests from their effects, and resource ownership;
+- CONTRIBUTING's class-encapsulation rule;
+- the owner's closure-based `layoutAnimation`;
+- no runtime readonly enforcement.
+
+**Required properties of every capability and slot:**
+
+|  | Property |
+| --- | --- |
+| C1 | **Closed slots.** A host declares each slot by name and type. One value fills a slot. There is no list of extensions, no registry, no runtime discriminator and no merge. A new slot is a library decision |
+| C2 | **A slot value holds no controller or operation state.** It is one of three things: a stateless value, such as `landing()`; an installer that the host calls once per controller, such as `bounds()`; or a factory that the host calls once per operation, such as `dropTargets()`. So one configuration serves any number of controllers |
+| C3 | **Inert installation.** An installer allocates. It attaches no listener, writes no DOM and acquires nothing that needs release. A per-operation factory acquires only what that operation releases (C4) |
+| C4 | **Ownership by lifetime.** See below |
+| C5 | **Single pass.** A capability's code runs only when its host calls it from a hook or a step, or in a step it requested through the operation's `requestStep`. It never opens a pass, listens for input or calls the gate |
+| C6 | **Requests and effects.** A capability's foreign callback, such as a frame, only requests a step, and its effect runs in that step (DRI-8). **One exception:** a scroll or resize listener may set a staleness flag directly. A staleness flag only makes the next read measure again, so nothing observes the write before that read |
+| C7 | **Tree-shaking.** The host names only the slot's type. A capability's code reaches a bundle only through the consumer's import. A composition that omits it pays only the host's call sites. Each new slot's call-site cost is measured and is the owner's to accept |
+| C8 | **The hot path.** A capability reads no layout on a sample, and coalesces any spatial search to a frame (DRI-17). It allocates nothing per sample |
+| C9 | **Types grant, and nothing enforces.** A capability receives the operation's `Drag` narrowed by type, such as `Pick<Drag, 'x' \| 'y' \| 'use' \| 'requestStep'>`. Nothing wraps or freezes it at runtime |
+| C10 | **The kernel doesn't change.** `draggable alone` stays byte-identical |
+
+**C4, ownership by lifetime.** It separates what an operation must release from what a controller may keep and reuse.
+
+- **Operation references and resources are released with the operation.**
+  - An operation reference is the operation, its `Drag` or its `Lift`, or an element pulled from the consumer for that operation, such as `items()` or `targets()`.
+  - A resource is anything that needs release, such as a listener, a frame request, an animation, a placeholder, or an attribute or inline style the library wrote.
+  - Each resource is released by a disposer registered with the operation's `drag.use` when it is acquired. When a capability calls consumer code after acquiring something, the release of that thing is registered before the call. So a throw from consumer code faults the operation under DRI-7, and the operation's release frees what was acquired.
+  - **A controller-lifetime runtime never holds the operation, its `Drag` or its `Lift`.** It may hold an operation's elements only while that operation runs. The operation's release drops them, as `sortable`'s axis retirement empties its element array. It never keeps an operation's reference in a field that is `null` between operations and read with a non-null assertion.
+  - A per-operation object, such as the drop-target tracker, may hold any of these. It becomes unreachable with its operation, and its release disposes its resources.
+- **Reusable geometry caches are invalidated, not discarded.**
+  - Numeric state derived from layout may live as long as the controller and be reused by later operations without being discarded, zeroed or reallocated. Examples are buffers, boxes, distances and staleness flags, such as `RectIndex`'s `Float64Array` and `bounds`' box.
+  - What such a cache owes is validity. **No operation uses a value that was measured before that operation activated.** So the host invalidates the cache at activation, as `sortable` does for its axis, and the invalidation listener invalidates it during the operation.
+  - Invalidating only marks the cache stale, and it releases nothing. Discarding or resetting numeric state at release is allowed and never required.
+- **How a capability receives operation state.** Either the host passes it as arguments, as `sortable`'s axis receives its query and context, or the operation holds an object the capability created for it, as with `dropTargets`.
+- **A controller-lifetime runtime that holds a resource** is disposed through the controller's `use`, registered in the factory that installed it (`DRD-25`).
+
+**The landing capability:**
+
+- **`Landing` is `{ timing, start }`.**
+  - `timing(fromX, fromY, toX, toY)` returns `{ duration, easing }`, as `LandingTiming` did.
+  - `start(visual, visualSpace, dx, dy, duration, easing, window)` starts the animation and returns its cancel, or `null` when nothing animates.
+  - `landing(options)` returns one. Its `start` is the animation that `lift.ts` held: additive flight, separate elevation, and zero duration under reduced motion. It returns a new object per call, and holds no state.
+- **`Lift.land(x, y, landing)` requires its `Landing`.** It calls `landing.timing` once and copies `duration` and `easing`. It keeps the `Landing` value, which is configuration under C2, and keeps no object that `timing` returned. When `timing` throws, nothing is recorded. The last call wins, and without a call nothing lands.
+- **The lift's release disposer calls the recorded `Landing`'s `start` right after the release,** with the offset of the visual from where it lands, read at release as now. The `Lifter` keeps the returned cancel. Its next `acquire`, after measuring, and its `cancelLanding` both cancel it, as now.
+- **The lift holds no animation code, no elevation constant and no default timing.** A lifted composition that composes no landing carries none of them.
+- The built-ins pass `config.landing` as before, and call `land` only when a landing is composed.
+- Custom behaviors import `landing` from `lift/landing.js`, as `free-drag/landing.js` and `sortable/landing.js` re-export it.
+
+**The drop-target capability:**
+
+- **`dropTargets({ targets })`** returns a `DropTargets`, `(drag: DropTargetDrag, window: Window) => DropTargetTracker`.
+- **`freeDrag`'s `activate` calls it once per operation,** after acquiring the lift. The `FreeDragOperation` holds the tracker in a read-only private field, and nothing else holds it. `FreeDragBehavior` gains no field.
+- **The factory runs in this order:**
+  1. it allocates its state and the frame task, neither of which acquires anything;
+  2. it registers its release with `drag.use`. The release cancels the frame and removes the mark;
+  3. it pulls the consumer's `targets()`.
+- **The tracker:**
+  - `move()` only schedules the frame;
+  - the frame's callback only requests a step, and the step measures the targets when stale, hit-tests `drag.x` and `drag.y` against the cached rects, and moves the `data-drop-over` mark;
+  - `drop()` cancels the frame and resolves at once;
+  - `invalidate()` sets the staleness flag;
+  - `current` is the marked target, or `null`.
+- **Invalidation reaches the operation.** The scroll and resize listener is the `FreeDragOperation`, through a `handleEvent` method that invalidates the bounds and the tracker. It is registered when `bounds` or `targets` is configured. The behavior's `invalidate` step receives the current operation under DRI-8, and reaches the operation's `handleEvent` as well as the bounds.
+- **`FreeDragRequest.target`** is `HTMLElement | null`, so `onDrop` and `onEnd`'s result carry it. It is `null` without the capability.
+
+**The `bounds` repair (`DRF-5`).** `freeDrag`'s `activate` invalidates `bounds` before its first read in the operation. That is C4 applied to an existing controller-lifetime cache. `bounds` holds no operation reference, so it needs no retirement.
+
+**Settled here,** from the assessment's §9, so that none goes to the owner:
+
+- **Choice 2, where custom behaviors import `landing`:** `lift/landing.js`. It follows the pattern of the two existing landing entries, and keeps `lift.js` a one-value entry.
+- **Choice 3, `land` without a landing:** the argument is required. Without a call nothing lands, so an optional argument would be a second way to say the same thing. `DRD-29` already rejected two argument forms.
+- **Choice 4, how a target is shown:** the `data-drop-over` attribute only, whose release the capability owns. A consumer callback would run consumer code once per frame, and its cleanup would be the consumer's. One can be added later without breaking anything. A third party that needs another presentation fills the slot with its own tracker.
+- **Choice 6, how the targets' staleness is set:** directly, as `bounds` does, under C6's exception. A step per scroll event cost bytes on every composition in the first draft.
+- **Choice 7, a scroll with the pointer still:** the mark is updated at the next sample, as `sortable`'s insertion is. A sample does no work without movement (DRI-17). **The drop is always correct:** `drop()` resolves at the release position and measures again after any invalidation.
+- **Choice 8, published slot interfaces:** `Landing`, `LandingOptions` and `LandingTimingContext` from each landing entry. `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions` from `free-drag/drop-targets.js`. `bounds.js` keeps exporting its types as now. The `axis` and `displacement` interfaces stay private (`DRD-2`).
+- **Choice 9, `RectIndex`:** private fields read through getters typed as read-only views, as measured in [`rect-index.diff.txt`](probes/feature-composition/rect-index.diff.txt). CONTRIBUTING's class-encapsulation rule requires the change, and this is the form chosen. A closure is also allowed, but a class keeps the development check's access in one declaration.
+- **Choice 10, names:** `targets`, `free-drag/drop-targets.js`, `dropTargets`, `target`, `data-drop-over`, `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions`, as prototyped. They may change only for clarity.
+
+**Returned to the owner:** choice 5, an accepted drop's landing into its target, is `DRO-11`. Choice 1, the slot's cost, is `DRO-10`.
+
+**What this amends:**
+
+- **`DRD-2`'s rule and rationale,** in place.
+- **`DRD-27`:**
+  - the table row "The landing after release": the release disposer calls the recorded `Landing`'s `start`;
+  - the public types, through `DRD-29`'s.
+- **`DRD-28`'s export table:**
+  - `lift.js` exports `Lifter` and the types `Lift` and `Landing`;
+  - `lift/landing.js` and `free-drag/drop-targets.js` are new entries.
+- **`DRD-29`:**
+  - `land(x, y, landing)` replaces `land(x, y, timing?)`;
+  - `Landing` replaces `LandingTiming`;
+  - the default timing leaves the lift;
+  - the `DRF-3` bullet now reads: the record copies `duration` and `easing` at the call, keeps the `Landing` value that the caller passed, and keeps no object that `timing` returned.
+- **The contract:** the vocabulary, the public surface, DRI-9, DRI-13, DRI-17, DRI-18, DRI-20, and the new DRI-21.
+
+**Unchanged:**
+
+- `DRD-25`. `targets` is not a controller-lifetime installer: its factory runs once per operation, and its state is the operation's.
+- `DRD-1`, `DRD-30`, `DRD-32` and every kernel order.
+
+**Rejected,** with reasons in the assessment's §2, §3.3 and §3.5:
+
+- an open extension list on a behavior;
+- drag2's `plugins`, fragments and `mergeFragments`;
+- a capability that wraps the operation;
+- a kernel hook for capabilities;
+- a hit test on each sample;
+- a default animation kept in the lift;
+- runtime enforcement of what a capability may use;
+- the first prototype's controller-held drop-target state, and its pull of `targets()` before registering the release;
+- the first draft's per-sample hit test and step-routed invalidation.
+
+**Costs:** `DRO-10` approves the slot's charge. Every other cost is reported and not accepted, and timing and optimization stay deferred. [`feature-composition-handoff.md`](feature-composition-handoff.md) implements this decision.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -824,7 +947,7 @@ The [ownership report](ownership-report.md) and the code at `ff69cb8d7`, read ag
 
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-4`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-5`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -878,9 +1001,19 @@ Tier C, open. Found by the architect while reading `d99ebd304` ([`activation-res
   - (b) The session-reach test asserts that the `Drag` `activate` receives has no `phase`, `next` or `decision`.
 - **When:** before the combined review, in [`activation-result-assessment.md`](activation-result-assessment.md) §6.
 
+#### DRF-5 — `bounds` clamps against a box read before a scroll between operations
+
+Tier A, open. Found by the architect while revising the feature-composition prototype on 2026-11-09 ([`feature-composition-assessment.md`](feature-composition-assessment.md) §10).
+
+- **Current behavior:** `bounds`' runtime is per controller, and so are its cached box and its staleness flag. Only the invalidation listener and the controller's `invalidate()` set the flag, and the listener exists only during an operation. So a scroll or resize between two operations leaves the next operation clamping against the box from before it.
+- **Why it is a problem:** a correctly integrated `freeDrag` with `bounds` lets the visual leave its bounds, or stops it short of them, on the first drag after a scroll. The consumer did nothing wrong: `invalidate()` is documented for changes during a drag.
+- **Evidence:** `bounds()` in `src/free-drag/bounds.ts` and `FreeDragBehavior.activate` in `src/free-drag/behavior.ts` at `688613863`. A scratch witness at that source, not kept and recorded in the probe's `results.txt`, puts a box in a 300 × 300 arena at `top: 200px` inside a scrolling container. It drags and releases once, scrolls the container by 150 px, and then drags 400 px up. **In Chromium, Firefox and WebKit,** the arena's top is at 50 and the box stops at 200. With one `this.bounds?.invalidate()` added to `activate` after the lift's acquisition, the witness and `tests/free-drag.browser.test.ts` pass in all three engines.
+- **Required property:** C4 of `DRD-33`. No operation clamps against a box read before it activated. The regression test must fail at `688613863` in all three engines, and it must assert that the scroll happened, so that it can't pass with no scroll.
+- **When:** the first commit of [`feature-composition-handoff.md`](feature-composition-handoff.md), as a repair of its own.
+
 ## Owner decisions
 
-None blocks the remediation. Each has a default the handoff builds. `DRO-6` and `DRO-9` are approved. `DRO-7`'s figures are in the [ownership report](ownership-report.md). Its per-sample kernel figure comes from the instrument repair.
+None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved. `DRO-7`'s figures are in the [ownership report](ownership-report.md). Its per-sample kernel figure comes from the instrument repair.
 
 #### DRO-1 — Press cost under CONTRIBUTING §0
 
@@ -1034,12 +1167,38 @@ No timing was taken.
 
 **What the approval covers:** those figures. **It re-bases nothing.** The drop-zone row lands red, as the `freeDrag` rows do, until a re-base under `DRO-4`. The implementation's report measures at `8943f14e5` and after its commit. A figure beyond those above isn't covered and goes back to the owner: more than +23 B Brotli on a row, or any allocation per sample.
 
+#### DRO-10 — The capability model and the `targets` slot's charge
+
+**Approved by the owner on 2026-11-09:**
+
+- closed, named capability slots are v1's extension model, and a whole new behavior remains the fallback when the existing slots are insufficient (`DRD-2`, `DRD-33`);
+- the `targets` slot's charge to `freeDrag` without `dropTargets`: **45 B Brotli**, measured on the revised prototype ([assessment](feature-composition-assessment.md) §7 and §8).
+
+**How the charge is read.** It is the slot's call sites, including the invalidation listener's move to the operation. It is measured over the state with the landing capability and without the slot. On the prototype it was +45 B on `freeDrag`, +44 B on `freeDrag + landing` and +35 B on `freeDrag + bounds + landing`, and +209 B minified on `freeDrag`. The architect reads the approval as covering each `freeDrag` composition that omits `dropTargets`, up to 45 B. The owner corrects that reading if it is wrong.
+
+**Not covered,** reported and not accepted:
+
+- the landing capability: +2 to +27 B on compositions that compose a landing, −172 to −240 B on lifted compositions that don't, and +90 B on the drop-zone fixture;
+- the drop-target capability when composed: 261 B Brotli, and its allocation per operation;
+- the `bounds` repair (`DRF-5`);
+- `RectIndex`'s encapsulation, +13 to +16 B.
+
+**Optimization and timing stay deferred.** The approval re-bases nothing. A port whose slot charge is above 45 B Brotli on a composition that omits `dropTargets` isn't covered, and the report puts that figure to the owner.
+
+#### DRO-11 — An accepted drop's landing into its target
+
+**Default: no landing into the target.** With `dropTargets`, an accepted drop keeps `freeDrag`'s accepted semantics: the visual stays where it was dropped, and the consumer commits the new position or parent in `onEnd` (DRI-9, DRI-20). A rejected drop or a cancel lands home, as now. The handoff builds the default.
+
+**The alternative** is to land the visual into the target, for example at its origin or center, before the consumer commits. The target would then have to be measured before the release, and `freeDrag` would name that landing in `settle`. The drop-zone fixture does this with a stand-in element.
+
+**Recommendation: keep the default for v1.** It needs no new option, and a landing into the target can be added later as an option without breaking anything. This is a product choice, because it decides what the user sees at an accepted drop.
+
 ## Decision status
 
 | Decision | Status |
 | --- | --- |
 | DRD-1 | active. `DRD-32`: the reader also applies destruction requested while idle |
-| DRD-2 | active. `DRD-30` changes the authoring API: the hooks after activation are on the operation that `activate` returns |
+| DRD-2 | active. `DRD-30` changes the authoring API: the hooks after activation are on the operation that `activate` returns. Amended in place on 2026-11-09 by `DRD-33`: extension is by capability slots, with a whole behavior as the fallback |
 | DRD-3 | active |
 | DRD-4 | active, amended by `DRD-27`: the lift is no longer a behavior member. A behavior composes it with `createLifter`, and its members are on the `Lift` that the behavior keeps in its state. Its purpose holds: without that import, no lift code |
 | DRD-5 | active |
@@ -1064,9 +1223,10 @@ No timing was taken.
 | DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller. `DRD-32` changes the gate's row, adds `apply`, and removes the three per-operation gate steps that `DRO-6` accepted |
 | DRD-25 | active, implemented at `2506dcbb6`. `DRD-31` supersedes its `items()` copy bullet |
 | DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2). `DRD-32` adds `apply` to the session's members on the controller |
-| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18. Its `type-fest` sentence was corrected on 2026-11-08. `DRD-29` amends its `lift.js` types and its "Only `translate` writes `translatedX` and `translatedY`". Under `DRD-30` the operation that `activate` returns keeps the `Lift`, instead of `drag.state` |
-| DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1). Its `type-fest` packaging line was corrected on 2026-11-08. `DRD-29` amends its `lift.js` row |
-| DRD-29 | active, decided on 2026-11-08 on the owner's clarifications. Implemented at `b33890461` ([`lift-representation-report.md`](lift-representation-report.md) item 3). Read by the architect at `d258573fa`: it conforms except `DRF-3`, whose required property was added to its `land` bullets on 2026-11-08. Amends `DRD-27`'s public types and lift properties and `DRD-28`'s `lift.js` row |
+| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18. Its `type-fest` sentence was corrected on 2026-11-08. `DRD-29` amends its `lift.js` types and its "Only `translate` writes `translatedX` and `translatedY`". Under `DRD-30` the operation that `activate` returns keeps the `Lift`, instead of `drag.state`. `DRD-33` amends its row "The landing after release": the release disposer calls the recorded `Landing`'s `start` |
+| DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1). Its `type-fest` packaging line was corrected on 2026-11-08. `DRD-29` amends its `lift.js` row. `DRD-33` amends it again and adds `lift/landing.js` and `free-drag/drop-targets.js` |
+| DRD-29 | active, decided on 2026-11-08 on the owner's clarifications. Implemented at `b33890461` ([`lift-representation-report.md`](lift-representation-report.md) item 3). Read by the architect at `d258573fa`: it conforms except `DRF-3`, whose required property was added to its `land` bullets on 2026-11-08. Amends `DRD-27`'s public types and lift properties and `DRD-28`'s `lift.js` row. `DRD-33` amends it: `land(x, y, landing)` requires a `Landing`, which replaces `LandingTiming`, the default timing leaves the lift, and the `DRF-3` bullet keeps the caller's `Landing` value |
 | DRD-30 | active, decided on 2026-11-08 on the owner's proposal. Implemented at `da139407e` and `3a67df0ea` ([report](activation-result-report.md)). Read by the architect at `d99ebd304` ([assessment](activation-result-assessment.md)): conforms. Amended the same day: the behavior keeps no operation state, the operation may keep its behavior, and the type-argument rule. [`activation-result-assessment.md`](activation-result-assessment.md) §6 implements the amendment, with `DRF-4`. Amends `DRD-2`, `DRD-6`, `DRD-11`, `DRD-20`, `DRD-27`, and the contract's vocabulary, public surface, DRI-3, DRI-8, DRI-9 and DRI-18. Replaces [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2 |
 | DRD-31 | active, decided on 2026-11-08 on the owner's direction, from [`items-copy-assessment.md`](items-copy-assessment.md). Supersedes `DRD-25`'s `items()` copy bullet and amends the contract's DRI-14. Not implemented: [`items-borrowing-handoff.md`](items-borrowing-handoff.md) |
 | DRD-32 | active, decided on 2026-11-08 on the owner's approval of v3, from [`execution-boundary-assessment.md`](execution-boundary-assessment.md), with its cost in `DRO-9`. Amends `DRD-1`, `DRD-24`, `DRD-26`, `DRO-6`'s accepted functions and the contract's DRI-6. Implemented at `a8327a7c8` from `8943f14e5`. Reported in [`execution-boundary-report.md`](execution-boundary-report.md), with every row inside `DRO-9`. No review has read it |
+| DRD-33 | active, decided on 2026-11-09 on the owner's acceptance of the slot model, from [`feature-composition-assessment.md`](feature-composition-assessment.md), with the slot's charge in `DRO-10`. Amends `DRD-2` in place, `DRD-27`, `DRD-28`, `DRD-29`, and the contract's vocabulary, public surface, DRI-9, DRI-13, DRI-17, DRI-18 and DRI-20, and adds DRI-21. Repairs `DRF-5`. Not implemented: [`feature-composition-handoff.md`](feature-composition-handoff.md) |
