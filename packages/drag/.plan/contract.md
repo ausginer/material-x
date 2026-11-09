@@ -1,6 +1,6 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. On 2026-11-09, `DRD-33` made the built-ins and the lift extensible by capability slots, moved the landing animation out of the lift into the `Landing` capability, added `freeDrag`'s drop targets as DRI-21, and repaired `bounds` after a scroll between operations (`DRF-5`). [`feature-composition-handoff.md`](feature-composition-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. On 2026-11-09, `DRD-33` made the built-ins and the lift extensible by capability slots, moved the landing animation out of the lift into the `Landing` capability, added `freeDrag`'s drop targets as DRI-21, and repaired `bounds` after a scroll between operations (`DRF-5`). [`feature-composition-handoff.md`](feature-composition-handoff.md) implements it. On the same day `DRD-34` withdrew the detached-call guarantee for `DraggableController`, and [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
@@ -41,7 +41,7 @@ Each landing entry also exports the types `Landing`, `LandingOptions` and `Landi
 
 ### `draggable`
 
-Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **No controller method depends on `this`**, so each works when detached.
+Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **Call `DraggableController`'s methods on the controller:** they may depend on it as their receiver. The members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. A step and a disposer are called with no receiver.
 
 ```ts
 type Outcome<Verdict> =
@@ -88,6 +88,7 @@ type Drag<Operation> = {
 };
 
 type DraggableController<Operation> = {
+  // Methods: call them on the controller.
   requestStep(step: (operation: Operation | null) => void): void;
   requestCancel(reason?: unknown): void;
   requestDestroy(): Promise<void>;
@@ -341,6 +342,7 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-09 | Public surface | **Changed:** `DraggableController`'s methods are called on the controller and may depend on it as their receiver. **Added:** a step and a disposer are called with no receiver. It used to say that no controller method depends on `this`, so each works when detached, for `draggable`'s controller too. The `sortable` and `freeDrag` controllers and `cancelLanding` still work when detached. `DRD-34` |
 | 2026-11-09 | Vocabulary, public surface, `DRI-9`, `DRI-13`, `DRI-17`, `DRI-18`, `DRI-20` | **Changed:** the built-ins and the lift are extended by capabilities, each filling one named slot. `land(x, y, landing)` requires a `Landing`, `{ timing, start }`, and the lift starts no animation of its own. `lift.js` exports the type `Landing`, and `landing` is also exported from `lift/landing.js`. DRI-13's elevation, residue and reduced-motion properties are `landing()`'s. Without a `Landing`, nothing animates. It used to say that `land(x, y, timing?)` took an optional `LandingTiming` and applied the default duration and easing without one, that `lift.js` exported `LandingTiming`, and that reduced motion covered a landing that a custom behavior named with no timing. **Added:** `Host` and `Capability` in the vocabulary, the capability paragraph, `free-drag/drop-targets.js`, the request's `target`, and capability clauses in DRI-17 and DRI-18. **Repaired:** a controller-lifetime geometry cache is measured again in each operation. `bounds` used to clamp against a box read before a scroll between operations. `DRD-33`, `DRF-5` |
 | 2026-11-09 | `DRI-21` | **Added:** `freeDrag`'s drop targets. `DRD-33`, `DRO-11` |
 | 2026-11-08 | `DRI-6` | **Changed:** development builds count each refused event once. An event refused by both the session's listener on the window and the root's listener used to count only where the root refused it, because the session passed no event. `DRD-32` |

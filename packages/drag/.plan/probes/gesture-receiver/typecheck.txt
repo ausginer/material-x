@@ -1,0 +1,9 @@
+src/kernel/session.ts(5,24): error TS2305: Module '"./gesture.ts"' has no exported member 'InputHandler'.
+src/kernel/session.ts(327,29): error TS2345: Argument of type 'this' is not assignable to parameter of type '(argument: PointerEvent) => void'.
+  Type 'Session<State, Verdict, Operation>' is not assignable to type '(argument: PointerEvent) => void'.
+    Type 'Session<State, Verdict, Operation>' provides no match for the signature '(argument: PointerEvent): void'.
+src/kernel/session.ts(338,27): error TS2345: Argument of type 'this' is not assignable to parameter of type '(argument: PointerEvent) => void'.
+  Type 'Session<State, Verdict, Operation>' is not assignable to type '(argument: PointerEvent) => void'.
+    Type 'Session<State, Verdict, Operation>' provides no match for the signature '(argument: PointerEvent): void'.
+src/kernel/session.ts(351,19): error TS2339: Property 'apply' does not exist on type 'Gesture<State, Verdict, Operation>'.
+src/kernel/session.ts(497,23): error TS2339: Property 'apply' does not exist on type 'Gesture<State, Verdict, Operation>'.
