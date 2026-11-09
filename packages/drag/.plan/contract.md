@@ -1,6 +1,6 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. On 2026-11-09, `DRD-33` made the built-ins and the lift extensible by capability slots, moved the landing animation out of the lift into the `Landing` capability, added `freeDrag`'s drop targets as DRI-21, and repaired `bounds` after a scroll between operations (`DRF-5`). [`feature-composition-handoff.md`](feature-composition-handoff.md) implements it. On the same day `DRD-34` withdrew the detached-call guarantee for `DraggableController`. It was implemented at `fd7ae3e43`, as [`gesture-receiver-assessment.md`](gesture-receiver-assessment.md) records. Later that day `DRD-35` let `requestStep` and `use` take a receiver, changing the public surface, DRI-8, DRI-9 and DRI-10, and [`callback-list-handoff.md`](callback-list-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. `DRD-27` and `DRD-28` changed the public surface, DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18, and [`ownership-handoff.md`](ownership-handoff.md) implements them. `DRD-29` changed `lift.js`'s surface and was implemented at `b33890461`. On 2026-11-08, `DRD-30` moved the hooks after activation to the operation that `activate` returns, and [`activation-result-handoff.md`](activation-result-handoff.md) implements it. `DRD-31` changed DRI-14, and `DRD-32` changed DRI-6's development count. On 2026-11-09, `DRD-33` made the built-ins and the lift extensible by capability slots, moved the landing animation out of the lift into the `Landing` capability, added `freeDrag`'s drop targets as DRI-21, and repaired `bounds` after a scroll between operations (`DRF-5`). [`feature-composition-handoff.md`](feature-composition-handoff.md) implements it. On the same day `DRD-34` withdrew the detached-call guarantee for `DraggableController`. It was implemented at `fd7ae3e43`, as [`gesture-receiver-assessment.md`](gesture-receiver-assessment.md) records. Later that day `DRD-35` let `requestStep` and `use` take a receiver, changing the public surface, DRI-8, DRI-9 and DRI-10, and [`callback-list-handoff.md`](callback-list-handoff.md) implemented it at `53c87f988`. `DRD-38` then made `Drag` and `Lift` types of values the library creates, and [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md) implements it. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
@@ -41,7 +41,7 @@ Each landing entry also exports the types `Landing`, `LandingOptions` and `Landi
 
 ### `draggable`
 
-Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **Call `DraggableController`'s methods on the controller:** they may depend on it as their receiver. The members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. **A step or a disposer passed alone is called with no receiver.** Passed with a receiver, which is an object, it is called on that receiver.
+Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **Call `DraggableController`'s methods on the controller:** they may depend on it as their receiver. The members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. **A step or a disposer passed alone is called with no receiver.** Passed with a receiver, which is an object, it is called on that receiver. **`Drag` and `Lift` are types of values the library creates and gives to a behavior.** A consumer uses them and doesn't implement or augment them (`DRD-38`).
 
 ```ts
 type Outcome<Verdict> =
@@ -74,7 +74,7 @@ type Admission<State> = {
   state?: State; // Passed to `activate` by identity. The kernel never reads it.
 };
 
-type Drag<Operation> = {
+type Drag<Operation> = Readonly<{
   item: HTMLElement;
   pointerId: number; // -1 for a command.
   x: number;
@@ -82,29 +82,35 @@ type Drag<Operation> = {
   originX: number;
   originY: number; // Viewport.
   signal: AbortSignal; // Aborts when the operation releases its presentation.
-  use(dispose: (outcome: Outcome<unknown> | null) => void): void; // `null`: destruction released this operation.
+  use(
+    dispose: (this: undefined, outcome: Outcome<unknown> | null) => void,
+  ): void; // `null`: destruction released this operation.
   use<Receiver extends object>(
     dispose: (this: Receiver, outcome: Outcome<unknown> | null) => void,
     receiver: Receiver,
   ): void; // Each call is its own registration.
-  requestStep(step: (operation: Operation | null) => void): void; // Acts only while this operation is the controller's current one.
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void; // Acts only while this operation is the controller's current one.
   requestStep<Receiver extends object>(
     step: (this: Receiver, operation: Operation | null) => void,
     receiver: Receiver,
   ): void;
   requestCancel(reason?: unknown): void; // The same scope.
-};
+}>;
 
 type DraggableController<Operation> = {
   // Methods: call them on the controller.
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
   requestStep<Receiver extends object>(
     step: (this: Receiver, operation: Operation | null) => void,
     receiver: Receiver,
   ): void;
   requestCancel(reason?: unknown): void;
   requestDestroy(): Promise<void>;
-  use(dispose: () => void): void; // Runs on destruction.
+  use(dispose: (this: undefined) => void): void; // Runs on destruction.
   use<Receiver extends object>(
     dispose: (this: Receiver) => void,
     receiver: Receiver,
@@ -118,7 +124,7 @@ class Lifter {
   readonly cancelLanding: () => void; // Pass it to the controller's `use`. Works when detached.
 }
 
-type Lift = {
+type Lift = Readonly<{
   visual: HTMLElement;
   box: HTMLElement;
   rect: DOMRectReadOnly;
@@ -128,7 +134,7 @@ type Lift = {
   itemSpace: Space; // From `@ydinjs/box-quad`.
   translate(x: number, y: number): void; // Viewport delta.
   land(x: number, y: number, landing: Landing): void; // From `settle`: the viewport position of the visual's top-left. `landing.timing` is called once, now, and its values are copied. `landing.start` is called when the lift is released.
-};
+}>;
 
 interface Landing {
   timing(
@@ -359,6 +365,7 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-09 | Public surface | **Added:** `Drag` and `Lift` are types of values the library creates, wrapped in `Readonly<>`, and a consumer doesn't implement or augment them. The code declared them as interfaces, which a consumer could augment. **Corrected:** the overloads without a receiver declare `this: undefined` on the callback, as `DRD-35` property 1 and the code have it. The sketch had no `this` there. `DRD-38`, and the callback list report's finding 2 |
 | 2026-11-09 | Public surface, `DRI-8`, `DRI-9`, `DRI-10` | **Added:** `requestStep` and `use`, on the controller and on a `Drag`, take an optional receiver, which is an object, and call the callback on it. A disposer registered twice runs twice. **Changed:** steps coalesce by step and receiver. It used to say that a step and a disposer are called with no receiver, and that the same function requested again before it runs runs once. `DRD-35` |
 | 2026-11-09 | Public surface | **Changed:** `DraggableController`'s methods are called on the controller and may depend on it as their receiver. **Added:** a step and a disposer are called with no receiver. It used to say that no controller method depends on `this`, so each works when detached, for `draggable`'s controller too. The `sortable` and `freeDrag` controllers and `cancelLanding` still work when detached. `DRD-34` |
 | 2026-11-09 | Vocabulary, public surface, `DRI-9`, `DRI-13`, `DRI-17`, `DRI-18`, `DRI-20` | **Changed:** the built-ins and the lift are extended by capabilities, each filling one named slot. `land(x, y, landing)` requires a `Landing`, `{ timing, start }`, and the lift starts no animation of its own. `lift.js` exports the type `Landing`, and `landing` is also exported from `lift/landing.js`. DRI-13's elevation, residue and reduced-motion properties are `landing()`'s. Without a `Landing`, nothing animates. It used to say that `land(x, y, timing?)` took an optional `LandingTiming` and applied the default duration and easing without one, that `lift.js` exported `LandingTiming`, and that reduced motion covered a landing that a custom behavior named with no timing. **Added:** `Host` and `Capability` in the vocabulary, the capability paragraph, `free-drag/drop-targets.js`, the request's `target`, and capability clauses in DRI-17 and DRI-18. **Repaired:** a controller-lifetime geometry cache is measured again in each operation. `bounds` used to clamp against a box read before a scroll between operations. `DRD-33`, `DRF-5` |
