@@ -5,6 +5,7 @@
   "entryPoints": [
     "./src/draggable.ts",
     "./src/lift.ts",
+    "./src/lift/landing.ts",
     "./src/fault.ts",
     "./src/sortable.ts",
     "./src/sortable/y.ts",

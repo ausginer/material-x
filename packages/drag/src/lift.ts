@@ -12,20 +12,14 @@ import {
   ancestry,
   box as createBox,
   coordinates,
-  delta,
-  localDelta,
   space,
   type Space,
 } from '@ydinjs/box-quad';
 import type { Drag } from './draggable.ts';
 import { deepActiveElement } from './shared/focus.ts';
-import type { LandingTiming } from './shared/landing.ts';
-import {
-  DEFAULT_LANDING_DURATION,
-  DEFAULT_LANDING_EASING,
-} from './shared/timing.ts';
+import type { Landing } from './shared/landing.ts';
 
-export type { LandingTiming } from './shared/landing.ts';
+export type { Landing } from './shared/landing.ts';
 
 /** One operation's lift, from `Lifter.acquire` until the operation's release. */
 export interface Lift {
@@ -45,13 +39,13 @@ export interface Lift {
   translate(x: number, y: number): void;
   /**
    * Names where the visual lands: `x` and `y` are the viewport position of its
-   * top-left. Call it from `settle`. `timing`, if given, is called once, now,
-   * with the delta last translated to and the delta to the landing, and without
-   * it the default duration and easing apply. When `timing` throws, nothing is
-   * recorded. The landing starts right after the lift is released, from where the
-   * visual is then, and the last call wins. Without a call, nothing lands.
+   * top-left. Call it from `settle`. `landing.timing` is called once, now, with
+   * the delta last translated to and the delta to the landing, and when it
+   * throws, nothing is recorded. `landing.start` starts the animation right after
+   * the lift is released, from where the visual is then. The last call wins.
+   * Without a call, nothing lands and nothing animates.
    */
-  land(x: number, y: number, timing?: LandingTiming): void;
+  land(x: number, y: number, landing: Landing): void;
 }
 
 /**
@@ -59,11 +53,12 @@ export interface Lift {
  * timing may reuse the object it returns and code runs between `land` and the
  * landing's start.
  */
-type Landing = Readonly<{
+type NamedLanding = Readonly<{
   x: number;
   y: number;
   duration: number;
   easing: string;
+  landing: Landing;
 }>;
 
 const BOX_A = 0;
@@ -75,8 +70,6 @@ const BOX_F = 5;
 const BOX_WIDTH = 6;
 const BOX_HEIGHT = 7;
 const SPACE_ANCESTOR_ZOOM = 4;
-
-const TOP_Z_INDEX = 2_147_483_647;
 
 /**
  * UA popover properties that would change the visual's box or appearance,
@@ -228,61 +221,6 @@ function captureTopLayer(visual: HTMLElement): () => void {
 type Displacement = { x: number; y: number };
 
 /**
- * The flight is additive, so it composes with whatever else animates the visual.
- * Elevation is a separate replacing animation: added to an item's own `z-index`,
- * the sum wraps in WebKit and the item goes under its siblings.
- */
-function startLandingAnimation(
-  lift: Lift,
-  window: Window,
-  displacement: Displacement,
-  landing: Landing,
-): (() => void) | null {
-  const local = delta();
-
-  if (
-    !localDelta(
-      lift.visualSpace,
-      displacement.x - (landing.x - lift.rect.x),
-      displacement.y - (landing.y - lift.rect.y),
-      local,
-    ) ||
-    (local[0] === 0 && local[1] === 0)
-  ) {
-    return null;
-  }
-
-  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 0
-    : landing.duration;
-  const flight = lift.visual.animate(
-    [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
-    {
-      duration,
-      easing: landing.easing,
-      composite: 'add',
-    },
-  );
-
-  if (duration === 0) {
-    return () => {
-      flight.cancel();
-    };
-  }
-
-  const keyframe =
-    window.getComputedStyle(lift.visual).position === 'static'
-      ? { zIndex: TOP_Z_INDEX, position: 'relative' }
-      : { zIndex: TOP_Z_INDEX };
-  const elevation = lift.visual.animate([keyframe, keyframe], { duration });
-
-  return () => {
-    flight.cancel();
-    elevation.cancel();
-  };
-}
-
-/**
  * The lift for one controller. Create it with the controller and pass
  * `cancelLanding` to the controller's `use`. It keeps the running landing, which
  * outlives its operation.
@@ -339,7 +277,7 @@ export class Lifter {
       const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
       const displacement: Displacement = { x: 0, y: 0 };
       let promoted = false;
-      let landing: Landing | null = null;
+      let named: NamedLanding | null = null;
 
       const lift: Lift = {
         visual,
@@ -354,19 +292,20 @@ export class Lifter {
           displacement.x = x;
           displacement.y = y;
         },
-        land: (x, y, timing) => {
-          const named = timing?.(
+        land: (x, y, landing) => {
+          const timing = landing.timing(
             displacement.x,
             displacement.y,
             x - rect.x,
             y - rect.y,
           );
 
-          landing = {
+          named = {
             x,
             y,
-            duration: named ? named.duration : DEFAULT_LANDING_DURATION,
-            easing: named ? named.easing : DEFAULT_LANDING_EASING,
+            duration: timing.duration,
+            easing: timing.easing,
+            landing,
           };
         },
       };
@@ -376,12 +315,15 @@ export class Lifter {
       // that the landing starts right after the release even when the release
       // throws, and each throw is reported once.
       drag.use(() => {
-        if (landing) {
-          this.#runningAnimationCanceller = startLandingAnimation(
-            lift,
+        if (named) {
+          this.#runningAnimationCanceller = named.landing.start(
+            visual,
+            visualSpace,
+            displacement.x - (named.x - rect.x),
+            displacement.y - (named.y - rect.y),
+            named.duration,
+            named.easing,
             this.#window,
-            displacement,
-            landing,
           );
         }
       });

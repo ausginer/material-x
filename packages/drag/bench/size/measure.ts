@@ -77,8 +77,8 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'example: drop zone',
     imports: { 'tests/fixtures/drop-zone': ['dropZone'] },
     budget: 4431,
-    present: ['src/lift'],
-    absent: [...SORTABLE_ONLY, ...OPTIONAL],
+    present: ['src/lift', 'shared/landing'],
+    absent: [...SORTABLE_ONLY, 'layout-animation'],
   },
   {
     name: 'example: canvas group',

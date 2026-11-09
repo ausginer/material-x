@@ -9,6 +9,7 @@ import {
   type BehaviorOperation,
   type Drag,
 } from '../src/draggable.ts';
+import { landing } from '../src/lift/landing.ts';
 import { Lifter, type Lift } from '../src/lift.ts';
 
 const root = document.createElement('div');
@@ -75,7 +76,7 @@ describe('drag:DRI-18 the type requirement', () => {
           settle() {
             // @ts-expect-error A lift has no `translatedX`.
             void lift.translatedX;
-            lift.land(lift.rect.x, lift.rect.y);
+            lift.land(lift.rect.x, lift.rect.y, landing());
           },
         };
       },

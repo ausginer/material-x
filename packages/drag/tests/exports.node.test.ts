@@ -16,6 +16,7 @@ const read = async (name: string): Promise<Manifest> =>
 const ENTRIES = [
   'draggable',
   'lift',
+  'lift/landing',
   'fault',
   'sortable',
   'sortable/y',

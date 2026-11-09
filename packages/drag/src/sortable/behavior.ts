@@ -22,7 +22,7 @@ import {
   directionOf,
   keyboardInsertion,
 } from './keyboard.ts';
-import type { LandingTiming } from './landing.ts';
+import type { Landing } from './landing.ts';
 import { SortableOperation } from './operation.ts';
 import { type PlaceholderFactory, createPlaceholder } from './placement.ts';
 
@@ -56,7 +56,7 @@ export type SortableConfig = Readonly<{
   /** The geometry source. Defaults to `visual`. */
   box?(item: HTMLElement): HTMLElement;
   placeholder?: PlaceholderFactory;
-  landing?: LandingTiming;
+  landing?: Landing;
   displacement?: DisplacementInstaller;
 }>;
 
@@ -94,7 +94,7 @@ export class SortableBehavior implements Behavior<
   readonly #lifter: Lifter;
   readonly axis: InsertionGeometry;
   readonly displacement: DisplacementSink | undefined;
-  readonly landing: LandingTiming | null;
+  readonly landing: Landing | null;
   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
   /** The version the next pulled snapshot carries. */
   #version = 0;

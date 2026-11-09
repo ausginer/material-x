@@ -1,6 +1,6 @@
 export { landing } from '../shared/landing.ts';
 export type {
+  Landing,
   LandingOptions,
-  LandingTiming,
   LandingTimingContext,
 } from '../shared/landing.ts';

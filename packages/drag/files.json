@@ -2,6 +2,7 @@
   "runtime": [
     "draggable",
     "lift",
+    "lift/landing",
     "fault",
     "sortable",
     "sortable/y",

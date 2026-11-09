@@ -8,9 +8,12 @@ import {
   type Drag,
   type DraggableController,
 } from '../../src/draggable.ts';
+import { landing } from '../../src/lift/landing.ts';
 import { Lifter, type Lift } from '../../src/lift.ts';
 
 type Over = { zone: HTMLElement | null };
+
+const cardLanding = landing();
 type Save = (
   card: HTMLElement,
   zone: HTMLElement,
@@ -65,7 +68,7 @@ export function dropZone(
         settle(outcome) {
           if (outcome.type !== 'verdict' || !outcome.value) {
             highlight(over, null);
-            lift.land(lift.rect.left, lift.rect.top);
+            lift.land(lift.rect.left, lift.rect.top, cardLanding);
             return;
           }
 
@@ -79,7 +82,7 @@ export function dropZone(
 
           standIn.replaceWith(drag.item);
           highlight(over, null);
-          lift.land(x, y);
+          lift.land(x, y, cardLanding);
         },
       };
     },

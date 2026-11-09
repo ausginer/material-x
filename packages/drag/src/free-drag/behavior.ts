@@ -10,7 +10,7 @@ import type {
   OnDrop,
   ResolveHome,
 } from './domain.ts';
-import type { LandingTiming } from './landing.ts';
+import type { Landing } from './landing.ts';
 import { FreeDragOperation } from './operation.ts';
 
 export type FreeDragConfig = Readonly<{
@@ -31,7 +31,7 @@ export type FreeDragConfig = Readonly<{
   visual?(root: HTMLElement): HTMLElement;
   home?: ResolveHome;
   bounds?: BoundsInstaller;
-  landing?: LandingTiming;
+  landing?: Landing;
 }>;
 
 /**
@@ -49,7 +49,7 @@ export class FreeDragBehavior implements Behavior<
   readonly window: Window & typeof globalThis;
   readonly axis: DragAxis;
   readonly bounds: MotionConstraint | null;
-  readonly landing: LandingTiming | null;
+  readonly landing: Landing | null;
   readonly #lifter: Lifter;
 
   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {

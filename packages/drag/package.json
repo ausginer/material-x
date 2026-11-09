@@ -10,6 +10,7 @@
     "lift.js",
     "lift.js.map",
     "lift.d.ts",
+    "lift",
     "fault.js",
     "fault.js.map",
     "fault.d.ts",
@@ -33,6 +34,10 @@
     "./lift.js": {
       "types": "./lift.d.ts",
       "default": "./lift.js"
+    },
+    "./lift/landing.js": {
+      "types": "./lift/landing.d.ts",
+      "default": "./lift/landing.js"
     },
     "./fault.js": {
       "types": "./fault.d.ts",

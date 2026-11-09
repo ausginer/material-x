@@ -1,5 +1,6 @@
 /** `drag:DRI-13`: landing and elevation. */
 import { afterEach, describe, expect, it } from 'vitest';
+import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
 import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
@@ -15,6 +16,7 @@ import {
   log,
   makeList,
   managed,
+  onCleanup,
   release,
   rowsOf,
   targetOf,
@@ -81,7 +83,7 @@ describe('drag:DRI-13 landing', () => {
 
         return {
           settle() {
-            lift.land(lift.rect.x, lift.rect.y);
+            lift.land(lift.rect.x, lift.rect.y, landing());
           },
         };
       },
@@ -222,7 +224,25 @@ describe('drag:DRI-13 landing', () => {
     expect(getComputedStyle(row('r0')).zIndex).toBe('auto');
   });
 
-  it('should give every landing zero duration with reduced motion, including a custom behavior with no timing', async () => {
+  it('should start no animation when no landing is composed', async () => {
+    const box = document.createElement('div');
+
+    box.style.cssText =
+      'position:absolute;left:20px;top:20px;width:40px;height:40px;background:#ccd;touch-action:none;user-select:none';
+    document.body.append(box);
+
+    const controller = freeDrag(box, {
+      onDrop: () => FreeDragResolution.reject(),
+    });
+
+    onCleanup(() => controller.requestDestroy());
+    await grab(box, 60, 40);
+    await commands.pointerUp();
+    expect(box.getAnimations()).toEqual([]);
+    expect(centerOf(box).x).toBeCloseTo(40, 0);
+  });
+
+  it("should give every landing zero duration with reduced motion, including a custom behavior's `landing()`", async () => {
     await commands.emulateReducedMotion(true);
 
     const list = makeList(3);
@@ -240,7 +260,7 @@ describe('drag:DRI-13 landing', () => {
             lift.translate(drag.x - drag.originX, drag.y - drag.originY);
           },
           settle() {
-            lift.land(lift.rect.x, lift.rect.y);
+            lift.land(lift.rect.x, lift.rect.y, landing());
           },
         };
       },
@@ -383,7 +403,7 @@ describe('drag:DRI-13 landing', () => {
             lift.translate(drag.x - drag.originX, drag.y - drag.originY);
           },
           settle() {
-            lift.land(lift.rect.x, lift.rect.y, timing);
+            lift.land(lift.rect.x, lift.rect.y, { ...landing(), timing });
           },
         };
       },

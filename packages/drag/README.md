@@ -188,8 +188,10 @@ A behavior that does not compose the lift reads its basis in `activate`, and a `
 ```ts
 import { draggable } from '@ydinjs/drag/draggable.js';
 import { Lifter } from '@ydinjs/drag/lift.js';
+import { landing } from '@ydinjs/drag/lift/landing.js';
 
 const lifter = new Lifter(window);
+const cardLanding = landing();
 const controller = draggable(root, {
   admit: () => ({ item: card }),
   activate(drag) {
@@ -200,7 +202,7 @@ const controller = draggable(root, {
         lift.translate(drag.x - drag.originX, drag.y - drag.originY);
       },
       settle() {
-        lift.land(lift.rect.left, lift.rect.top);
+        lift.land(lift.rect.left, lift.rect.top, cardLanding);
       },
     };
   },
@@ -209,7 +211,7 @@ const controller = draggable(root, {
 controller.use(lifter.cancelLanding);
 ```
 
-`acquire(drag, visual?, box?)` returns a `Lift` with `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace` and `itemSpace`, all measured at the grab, and `translate(x, y)` and `land(x, y, timing?)`. `visual` defaults to the item, and `box` to `visual`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `land` takes the viewport position of the visual's top-left, and a `LandingTiming` such as `landing()` from `sortable/landing.js`. The timing is called once, at the call, with the delta last translated to and the delta to the landing. Without it the default duration and easing apply, and when it throws nothing is recorded. The landing starts right after the lift is released, from where the visual is then, and the last call wins. A behavior that does not import `lift.js` carries no lift code.
+`acquire(drag, visual?, box?)` returns a `Lift` with `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace` and `itemSpace`, all measured at the grab, and `translate(x, y)` and `land(x, y, landing)`. `visual` defaults to the item, and `box` to `visual`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `land` takes the viewport position of the visual's top-left, and a `Landing` such as `landing()` from `lift/landing.js`. Its `timing` is called once, at the call, with the delta last translated to and the delta to the landing, and when it throws nothing is recorded. Its `start` starts the animation right after the lift is released, from where the visual is then, and the last call wins. **Without a landing, nothing animates:** the lift has no default animation or timing, so a behavior that never calls `land` carries no animation code, and one that does not import `lift.js` carries no lift code. `landing()` takes the same options as `landing` from `sortable/landing.js` and `free-drag/landing.js`, and a custom timing is `{ ...landing(), timing }`.
 
 **The lift's guarantees hold when you compose it this way:** one `Lifter` per controller, with its `cancelLanding` passed to the controller's `use`, and `acquire` as the first statement of `activate`, before any other `drag.use`. `acquire` registers the release with `drag.use` before it writes anything. So the release runs after every disposer you add later, a failed acquisition is restored at release, and the landing starts after the release and before `end`. Nothing checks a composition that differs.
 
