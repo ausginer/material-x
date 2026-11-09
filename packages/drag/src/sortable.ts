@@ -56,7 +56,6 @@ export function sortable(
   const kernel = draggable(root, behavior);
 
   if (displacement) {
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `displacement`, passed with it
     kernel.use(displacement.retire, displacement);
   }
 

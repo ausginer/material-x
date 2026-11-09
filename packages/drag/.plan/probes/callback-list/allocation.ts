@@ -1,14 +1,16 @@
-/// <reference types="node" />
 /**
  * Retained bytes per list that `CallbackList.queue()` and `CallbackList.stack()`
- * make, each with its own direction function, and per bare array, which is what
- * the base holds for each of the three lists. Each figure is the heap growth
- * across `COUNT` retained instances, read after a full collection, divided by
- * `COUNT`.
+ * make, against a bare array, which is what the base holds for each of the three
+ * lists. Under drag:DRD-36 a list is its object and its array, and holds the
+ * name of the array method it adds with. Each figure is the heap growth across
+ * `COUNT` retained instances, read after a full collection, divided by `COUNT`.
  *
- * "Empty" is the list as made. "Used" is the list after one entry was added and
- * run, so its array holds a backing store. A bare array is used with one `push`
- * and one `pop`, as the base's lists are.
+ * "Empty" is the list as made: the `DRO-12` figure. "Used" is the list after one
+ * entry was added and run, so its array holds a backing store. Those rows are an
+ * observation. A bare array is used with one `push` and one `pop`, as the base's
+ * lists are.
+ *
+ * The package's tsconfig includes this file, so typecheck and lint cover it.
  *
  * Run from `packages/drag`: `node --expose-gc .plan/probes/callback-list/allocation.ts`.
  */
@@ -67,8 +69,10 @@ const rows: Array<[string, () => unknown]> = [
   ['stack(), used', () => used(CallbackList.stack<null>())],
 ];
 
-console.log(`node ${process.version}, ${COUNT} instances per row`);
+process.stdout.write(`node ${process.version}, ${COUNT} instances per row\n`);
 
 for (const [name, make] of rows) {
-  console.log(`${name.padEnd(18)} ${retainedPerItem(make).toFixed(1)} B`);
+  process.stdout.write(
+    `${name.padEnd(18)} ${retainedPerItem(make).toFixed(1)} B\n`,
+  );
 }

@@ -266,7 +266,6 @@ describe('drag:DRI-13 landing', () => {
       },
     }).use(lifter.cancelLanding);
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- restored and called with `this`
     const { animate } = Element.prototype;
 
     Element.prototype.animate = function capture(keyframes, options) {

@@ -354,7 +354,6 @@ describe('drag:DRI-8 steps with a receiver', () => {
       },
     };
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- passed with its receiver
     panel.requestStep(thrower.step, thrower);
     expect(faultMessages()).toEqual(['from a receiver step']);
   });
@@ -386,7 +385,6 @@ describe('drag:DRI-9 operation cleanup with a receiver', () => {
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        /* eslint-disable @typescript-eslint/unbound-method -- each is passed with its receiver */
         drag.use(a.dispose, a);
         drag.use(() => {
           log.push('free');
@@ -394,7 +392,6 @@ describe('drag:DRI-9 operation cleanup with a receiver', () => {
         drag.use(b.dispose, b);
         // Not coalesced: every registration runs.
         drag.use(a.dispose, a);
-        /* eslint-enable @typescript-eslint/unbound-method */
         return {};
       },
     });
@@ -416,10 +413,8 @@ describe('drag:DRI-9 operation cleanup with a receiver', () => {
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
       activate(drag) {
-        /* eslint-disable @typescript-eslint/unbound-method -- each is passed with its receiver */
         drag.use(a.dispose, a);
         drag.use(thrower.dispose, thrower);
-        /* eslint-enable @typescript-eslint/unbound-method */
         return {};
       },
     });
@@ -443,7 +438,6 @@ describe('drag:DRI-9 operation cleanup with a receiver', () => {
         });
         drag.use(() => {
           log.push('adder before');
-          // eslint-disable-next-line @typescript-eslint/unbound-method -- passed with its receiver
           drag.use(late.dispose, late);
           log.push('adder after');
         });
@@ -459,7 +453,6 @@ describe('drag:DRI-9 operation cleanup with a receiver', () => {
       'first registered',
     ]);
     log.length = 0;
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- passed with its receiver
     kept!.use(late.dispose, late);
     expect(log).toEqual(['late:skipped']);
   });
@@ -472,7 +465,6 @@ describe('drag:DRI-10 controller cleanup with a receiver', () => {
     const b = new Cleanup('b');
     const panel = managed(list, { admit: () => null, activate: () => null });
 
-    /* eslint-disable @typescript-eslint/unbound-method -- each is passed with its receiver */
     panel.use(a.dispose, a);
     panel.use(() => {
       log.push('adder before');
@@ -490,7 +482,6 @@ describe('drag:DRI-10 controller cleanup with a receiver', () => {
     ]);
     log.length = 0;
     panel.use(b.dispose, b);
-    /* eslint-enable @typescript-eslint/unbound-method */
     expect(log).toEqual(['b:null']);
   });
 
@@ -505,7 +496,6 @@ describe('drag:DRI-10 controller cleanup with a receiver', () => {
     const panel = managed(list, { admit: () => null, activate: () => null });
 
     panel.use(() => {
-      // eslint-disable-next-line @typescript-eslint/unbound-method -- passed with its receiver
       panel.requestStep(stepper.step, stepper);
     });
     await panel.requestDestroy();

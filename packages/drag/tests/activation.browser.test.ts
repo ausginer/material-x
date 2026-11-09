@@ -225,7 +225,6 @@ describe('drag:DRI-15 placeholder faults', () => {
 describe('drag:DRI-17 coalescing', () => {
   it('should schedule one frame for several samples in one task', async () => {
     const list = makeList(4);
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- kept only to be put back
     const { requestAnimationFrame: schedule } = window;
     let scheduled = 0;
     let pointerId = 0;

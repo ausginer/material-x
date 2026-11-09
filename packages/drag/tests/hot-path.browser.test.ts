@@ -140,7 +140,6 @@ describe('drag:DRI-17 hot path', () => {
     'should measure a landing target only with a landing composed: %s',
     async (composed, expected) => {
       const list = makeList(4);
-      // eslint-disable-next-line @typescript-eslint/unbound-method -- restored and called with `this`
       const original = Element.prototype.getBoundingClientRect;
       let placeholderReads = 0;
 

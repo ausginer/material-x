@@ -22,19 +22,19 @@ import type { Landing } from './shared/landing.ts';
 export type { Landing } from './shared/landing.ts';
 
 /** One operation's lift, from `Lifter.acquire` until the operation's release. */
-export interface Lift {
+export type Lift = Readonly<{
   /** The element lifted and translated. */
-  readonly visual: HTMLElement;
+  visual: HTMLElement;
   /** The element whose offset size `boxWidth` and `boxHeight` report. */
-  readonly box: HTMLElement;
+  box: HTMLElement;
   /** The visual's rect at the grab. */
-  readonly rect: DOMRectReadOnly;
-  readonly boxWidth: number;
-  readonly boxHeight: number;
+  rect: DOMRectReadOnly;
+  boxWidth: number;
+  boxHeight: number;
   /** What the visual inherits. Pass it to `localDelta` from `@ydinjs/box-quad`. */
-  readonly visualSpace: Space;
+  visualSpace: Space;
   /** What the item inherits. */
-  readonly itemSpace: Space;
+  itemSpace: Space;
   /** Moves the lifted visual to a viewport delta from the grab. */
   translate(x: number, y: number): void;
   /**
@@ -46,7 +46,7 @@ export interface Lift {
    * Without a call, nothing lands and nothing animates.
    */
   land(x: number, y: number, landing: Landing): void;
-}
+}>;
 
 /**
  * What `land` records. The timing's values are copied at the call, because a

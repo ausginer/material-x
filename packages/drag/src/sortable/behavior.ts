@@ -204,10 +204,8 @@ export class SortableBehavior implements Behavior<
     drag.use(() => {
       frame.cancel();
     });
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `this.axis`, passed with it
     drag.use(this.axis.retire, this.axis);
     listenForInvalidation(this.#window, drag.signal, () => {
-      // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `this.axis`, passed with it
       drag.requestStep(this.axis.invalidate, this.axis);
     });
 

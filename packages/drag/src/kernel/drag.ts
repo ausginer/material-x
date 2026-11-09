@@ -14,16 +14,16 @@ export type DragDisposer = (outcome: Outcome | null) => void;
  * One operation, as a behavior sees it. The coordinates change between hooks, so
  * read them when needed.
  */
-export interface Drag<Operation = unknown> {
-  readonly item: HTMLElement;
+export type Drag<Operation = unknown> = Readonly<{
+  item: HTMLElement;
   /** `-1` for an operation `command` admitted, which has no pointer. */
-  readonly pointerId: number;
-  readonly x: number;
-  readonly y: number;
-  readonly originX: number;
-  readonly originY: number;
+  pointerId: number;
+  x: number;
+  y: number;
+  originX: number;
+  originY: number;
   /** Aborts when the operation releases its presentation. */
-  readonly signal: AbortSignal;
+  signal: AbortSignal;
   /**
    * Runs `dispose` when the operation releases its presentation, last in first
    * out. It receives the outcome, or `null` when destruction released the
@@ -67,7 +67,7 @@ export interface Drag<Operation = unknown> {
   ): void;
   /** Acts only while this operation is current and undecided. */
   requestCancel(reason?: unknown): void;
-}
+}>;
 
 /** `Drag` as the kernel writes it. No public entry exports it. */
 export type KernelDrag<Operation> = Writable<Drag<Operation>>;

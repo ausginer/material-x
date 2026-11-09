@@ -248,7 +248,6 @@ export class Gesture<
     if (this.#running) {
       this.raise(error);
     } else {
-      // eslint-disable-next-line @typescript-eslint/unbound-method -- the pass calls `raise` on the receiver passed with it
       this.enter(this.raise, error, this);
     }
   }

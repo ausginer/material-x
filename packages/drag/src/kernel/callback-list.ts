@@ -7,20 +7,15 @@ type ListedCallback<Argument> = (
 /** `callback, receiver, callback, receiver, …`. `undefined` is no receiver. */
 type Entries<Argument> = Array<ListedCallback<Argument> | object | undefined>;
 
-/** Removes one entry from `entries` and calls its callback. */
-type Direction<Argument> = (
-  entries: Entries<Argument>,
-  argument: Argument,
-) => void;
-
 /**
  * Callbacks, each with the receiver it is called on, kept in two adjacent slots
  * of one array, so an entry allocates no object. A callback added with no
  * receiver is called with none.
  *
- * `queue()` makes a list whose `run` calls its first entry, and `stack()` one
- * whose `run` calls its last. Each list holds its own direction function, so
- * `run` does not branch on direction.
+ * A list holds only the name of the array method it adds with. `queue()` makes
+ * a list that adds at the start of the array, and `stack()` one that adds at
+ * the end. `run` takes the entry at the end for both, so a queue runs its
+ * oldest entry and a stack its newest, and `run` does not branch on the kind.
  *
  * The list decides nothing about when or whether its callbacks run, or what
  * happens when one throws. An owner whose entries coalesce checks `has` before
@@ -31,25 +26,19 @@ type Direction<Argument> = (
 export class CallbackList<Argument> {
   /** A list run first in first out. */
   static queue<Argument>(): CallbackList<Argument> {
-    return new CallbackList<Argument>((entries, argument) => {
-      const callback = entries.shift() as ListedCallback<Argument>;
-      callback.call(entries.shift(), argument);
-    });
+    return new CallbackList<Argument>('unshift');
   }
 
   /** A list run last in first out. */
   static stack<Argument>(): CallbackList<Argument> {
-    return new CallbackList<Argument>((entries, argument) => {
-      const receiver = entries.pop();
-      (entries.pop() as ListedCallback<Argument>).call(receiver, argument);
-    });
+    return new CallbackList<Argument>('push');
   }
 
   readonly #entries: Entries<Argument> = [];
-  readonly #direction: Direction<Argument>;
+  readonly #insertName: 'push' | 'unshift';
 
-  private constructor(direction: Direction<Argument>) {
-    this.#direction = direction;
+  private constructor(insertName: 'push' | 'unshift') {
+    this.#insertName = insertName;
   }
 
   /** Whether no entry is waiting. */
@@ -71,20 +60,24 @@ export class CallbackList<Argument> {
     return false;
   }
 
-  /** Adds an entry at the end, whether or not the same pair is waiting. */
+  /**
+   * Adds an entry, at the start of a queue's array and at the end of a stack's,
+   * whether or not the same pair is waiting.
+   */
   add<Receiver extends object>(
     callback: (this: Receiver, argument: Argument) => void,
     receiver?: Receiver,
   ): void {
-    this.#entries.push(callback, receiver);
+    this.#entries[this.#insertName](callback, receiver);
   }
 
   /**
-   * Removes the next entry and calls its callback with `argument`, on its
-   * receiver. Call it only when an entry is waiting.
+   * Removes the entry at the end of the array and calls its callback with
+   * `argument`, on its receiver. Call it only when an entry is waiting.
    */
   run(argument: Argument): void {
-    this.#direction(this.#entries, argument);
+    const receiver = this.#entries.pop();
+    (this.#entries.pop() as ListedCallback<Argument>).call(receiver, argument);
   }
 
   /** Drops every entry and the references it holds. */

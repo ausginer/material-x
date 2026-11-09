@@ -71,7 +71,6 @@ describe('drag:DRI-9 and drag:DRI-12 release order', () => {
   it('should start the landing before the focus call', async () => {
     const list = focusableList(4);
     const seen: number[] = [];
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- kept only to be put back
     const { focus } = HTMLElement.prototype;
 
     onCleanup(() => {

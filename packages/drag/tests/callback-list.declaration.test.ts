@@ -34,8 +34,8 @@ class Holder {
     drag.requestStep(this.#bumpDeclared, { count: 0 } as object);
 
     // The gap: a method with no `this` parameter is accepted with no receiver,
-    // and reads `this` as `undefined` when it runs. Neither `tsc` nor
-    // `unbound-method` reports a private method passed this way.
+    // and reads `this` as `undefined` when it runs. Typecheck doesn't report it,
+    // and lint doesn't check this package for it (drag:DRD-37).
     drag.requestStep(this.#bumpUndeclared);
     drag.requestStep(this.#bumpUndeclared, this);
   }
@@ -60,12 +60,8 @@ describe('drag:DRI-8 requestStep receiver typing', () => {
       },
     });
 
-    // A public method needs a line-scoped disable even with its receiver:
-    // `unbound-method` does not read the second argument.
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `holder`, passed with it
     panel.requestStep(holder.bump, holder);
     // @ts-expect-error A step that declares its receiver needs one.
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- the type error is the point
     panel.requestStep(holder.bump);
   });
 
@@ -121,10 +117,8 @@ describe('drag:DRI-9 and drag:DRI-10 use receiver typing', () => {
       },
     };
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `sink`, passed with it
     panel.use(sink.retire, sink);
     // @ts-expect-error Cleanup that declares its receiver needs one.
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- the type error is the point
     panel.use(sink.retire);
     panel.use(() => {
       sink.retired = true;
@@ -173,10 +167,8 @@ function passAlone(
   sink: DisplacementSink,
 ): void {
   // @ts-expect-error `retire` declares the axis as its receiver.
-  // eslint-disable-next-line @typescript-eslint/unbound-method -- the type error is the point
   drag.use(geometry.retire);
   // @ts-expect-error `retire` declares the sink as its receiver.
-  // eslint-disable-next-line @typescript-eslint/unbound-method -- the type error is the point
   controller.use(sink.retire);
 }
 
