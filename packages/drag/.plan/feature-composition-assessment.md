@@ -1,8 +1,19 @@
 # Extension by capability: the lift, `freeDrag` and their slots
 
-**Status, 2026-11-08: a recommendation for the owner's evaluation.** Nothing here is decided, and no `D-*` entry is minted or amended. No cost is accepted. §5 is the proposed text for `DRD-2`, and §9 lists the choices that remain the owner's.
+**Status, 2026-11-09: the extension model is accepted. The revised prototype awaits the owner's evaluation.**
 
-**Read at:** `688613863` on `drag/production`, in a worktree on the new branch `drag/feature-composition`. The main checkout was not touched.
+- **Accepted by the owner on 2026-11-09:** closed, named capability slots are v1's extension model. A whole new behavior remains the fallback when the existing slots are insufficient.
+- **Not accepted:** the other API choices (§9) and every cost (§8).
+- **No `D-*` entry is minted or amended yet.** §5's amendment of `DRD-2` adopts the properties C1 to C10, and this revision changes C2, C3 and C4 (§3.1). The architect records the amendment once the owner has evaluated them.
+
+**Revision, 2026-11-09.** The owner found two defects in the first prototype, recorded at `82b045f8a`:
+
+- `dropTargets` kept one operation's state in the controller's runtime, behind nullable fields and non-null assertions;
+- it called `options.targets()` before it registered its cleanup.
+
+§3.3 describes the revised capability, §7 and §8 its evidence and costs. The prototype in [`probes/feature-composition/`](probes/feature-composition/README.md) is the revision, and the first version's diff stays at `82b045f8a`. The revision also found a defect in `bounds` at the base (§10).
+
+**Read at:** `688613863` on `drag/production`, in a worktree on the new branch `drag/feature-composition`. The revision was built on `82b045f8a`, the first version's record, against the same base. The main checkout was not touched.
 
 **The owner's requirement:** extend existing behaviors with capabilities imported on their own, instead of replacing the whole behavior. Two scenarios demonstrate it:
 
@@ -22,7 +33,7 @@ The owner also asked for:
 
 - **Reading** of drag at the base, and of drag2's composition model as reference: `src/shared/composition.ts`, `src/free-drag/{feature,assemble,config}.ts` and `src/sortable/{feature,assemble,config}.ts`.
 - **A prototype** in the worktree's source, run and then reverted. Its diff, a separate `RectIndex` diff, the composition probe and raw results are in [`probes/feature-composition/`](probes/feature-composition/README.md). Production source on the branch is unchanged.
-- **Runs:** a composition probe that reports bytes and which capability code each bundle carries, the size instrument, typecheck, lint, format, the suite in Chromium and Firefox, and four mutations. **WebKit did not launch in this environment**, so no WebKit result is claimed. **No timing.**
+- **Runs:** a composition probe that reports bytes and which capability code each bundle carries, the size instrument, typecheck, lint, format, the suite in Chromium and Firefox, and mutations: four in the first version and seven in the revision. **WebKit did not launch in this environment**, so no WebKit result is claimed. **No timing.**
 
 **[E]** marks a claim established by a run recorded in the probe. **[R]** marks a claim established by reading.
 
@@ -64,13 +75,14 @@ The owner also asked for:
     - `draggable + lift` loses 240 B Brotli, `freeDrag` 172 B and `sortable + y` 238 B.
     - None of them carries animation code any more.
   - **`freeDrag` with drag and drop.** `dropTargets()` fills a new `targets` slot.
-    - `freeDrag` without it carries none of its code, and pays 54 B Brotli for the slot's call sites.
-    - The capability itself is 285 B Brotli.
-- **One configuration reused across controllers works** for a stateless capability (`landing()`) and for installers (`bounds()`, `dropTargets()`). A browser test witnesses it [E].
+    - `freeDrag` without it carries none of its code, and pays 45 B Brotli for the slot's call sites.
+    - The capability itself is 261 B Brotli.
+    - Its state for one operation is an object that operation holds, and its release is registered before it calls the consumer's `targets()`.
+- **One configuration reused across controllers works** for a stateless capability (`landing()`), a per-controller installer (`bounds()`) and a per-operation factory (`dropTargets()`). A browser test witnesses it [E].
 - **`RectIndex` breaks the encapsulation rule.** A compliant variant passes the sortable tests and costs 13 to 16 B Brotli (§6) [E].
-- **Suites [E]:**
-  - Chromium: 351 of 354 pass with the prototype, and 343 of 347 at the base. Every failure is a size row: at the base, the control row and three over their ceilings; with the prototype, three, where the `freeDrag` row turns green.
-  - Chromium and Firefox: 647 pass, twice in a row, and 633 at the base.
+- **Suites, revision [E]:**
+  - Chromium: 353 of 356 pass with the prototype, and 343 of 347 at the base. Every failure is a size row: at the base, the control row and three over their ceilings; with the prototype, three, where the `freeDrag` row turns green.
+  - Chromium and Firefox: 651 pass in two of three full runs, and 633 at the base. The other run failed one sortable landing test in Chromium, in code the revision doesn't touch, and eight isolated runs of it passed (§7).
 
 ## 1. What the existing extension points can do
 
@@ -112,7 +124,12 @@ drag2's closed-slot rule says it directly: "a new semantic call into behavior co
 | `plugins` | **Rejected** | It can't express either scenario. With hooks added it becomes the generic pipeline that CONTRIBUTING §2.2 warns against, charged to every composition at every hook |
 | `Composed`, `Misplaced`, `UniqueSlot` | **Not needed** | They guard a list in which an installer could be misplaced, and there is no list |
 
-**New here:** the operation part. drag2's slots were controller-scoped closures that received a frame view on each call. Here a capability also takes part in one operation: the host calls `activate(drag)` from its own `activate`, and the capability registers its release with `drag.use`. That is `DRD-30`'s ownership, applied to a capability.
+**New here:** the operation part. drag2's slots were controller-scoped closures that received a frame view on each call. Here a capability also takes part in one operation:
+
+- the host's `activate` calls the slot's factory with the operation's `Drag`, and the operation holds what it returns;
+- the capability registers its release with `drag.use` before it calls consumer code.
+
+That is `DRD-30`'s ownership, applied to a capability: the operation's state is the operation's object.
 
 ## 3. The recommendation: capability slots
 
@@ -121,9 +138,9 @@ drag2's closed-slot rule says it directly: "a new semantic call into behavior co
 |  | Property |
 | --- | --- |
 | C1 | **Closed slots.** A host declares each slot by name and type. One value fills a slot. There is no list of extensions, no registry, no runtime discriminator and no merge. A new slot is a library decision |
-| C2 | **A slot value holds no controller or operation state.** It is either a stateless value, such as `landing()`, or an installer that the host calls once per controller, such as `bounds()` or `dropTargets()`. So one configuration serves any number of controllers |
-| C3 | **Inert installation.** An installer allocates. It attaches no listener, writes no DOM and acquires nothing that needs release |
-| C4 | **Ownership by lifetime.** A controller-lifetime runtime that holds something is disposed through the controller's `use`, registered in the factory that installed it (`DRD-25`). An operation's resources are acquired in the host's `activate`, or later inside the operation, and released through that operation's `use` |
+| C2 | **A slot value holds no controller or operation state.** It is one of three things: a stateless value, such as `landing()`; an installer that the host calls once per controller, such as `bounds()`; or a factory that the host calls once per operation, such as `dropTargets()`. So one configuration serves any number of controllers |
+| C3 | **Inert installation.** An installer allocates. It attaches no listener, writes no DOM and acquires nothing that needs release. A per-operation factory acquires only what that operation releases (C4) |
+| C4 | **Ownership by lifetime.** A controller runtime holds no reference to an operation or its `Drag`, and reaches no operation state through a non-null assertion. A controller runtime that holds something is disposed through the controller's `use`, registered in the factory that installed it (`DRD-25`). A capability gets an operation's state in one of two ways: the host passes it as arguments, as `sortable`'s axis receives its query and context; or the operation holds an object that the capability created for it, as with `dropTargets`. A controller-lifetime cache of what one operation measured is allowed only when the host invalidates it at activation and retires it through the operation's `use`, as `sortable` does for its axis. That is how buffers are reused across operations. An operation's resources are released through that operation's `use`, and the release is registered before the capability calls consumer code. So a throw from that code faults the operation under DRI-7, and the operation's release frees what it holds |
 | C5 | **Single pass.** A capability's code runs only when its host calls it from a hook or a step, or in a step it requested through the operation's `requestStep`. It never opens a pass, listens for input or calls the gate |
 | C6 | **Requests and effects.** A capability's foreign callback, such as a frame, only requests a step, and its effect runs in that step (DRI-8). The one exception follows `bounds`: a scroll or resize listener sets a staleness flag directly (§9, choice 6) |
 | C7 | **Tree-shaking.** The host names only the slot's type. A capability's code reaches a bundle only through the consumer's import. A composition that omits it pays only the host's call sites. Each new slot's call-site cost is measured and is the owner's to accept |
@@ -164,42 +181,78 @@ drag2's closed-slot rule says it directly: "a new semantic call into behavior co
 
 ### 3.3 The drop-target capability extends `freeDrag`
 
-**`dropTargets({ targets })`** returns an installer. The host calls it once per controller with the window, and gets a runtime:
+**`dropTargets({ targets })`** returns a factory. `freeDrag`'s `activate` calls it once per operation, with that operation's `Drag` and the window, after the lift. The `FreeDragOperation` holds the tracker it returns in a read-only private field, and nothing else holds it.
 
-| Member | Called by `freeDrag` | What it does |
+**The tracker's state is the operation's.** The factory's closure holds:
+
+- the operation's `Drag` and the frame task, set once and never `null`;
+- the pulled targets, their cached rects and the staleness flag. Each operation starts stale;
+- the marked target.
+
+When the operation ends, the tracker becomes unreachable with it. The controller holds no state of the capability, so no field is cleared at release, and nothing needs a non-null assertion [R].
+
+**In order, the factory:**
+
+1. allocates its state and creates the frame task. Neither acquires anything, because the task only requests a frame when it is scheduled;
+2. registers its release with `drag.use`. The release cancels the frame and removes the mark;
+3. pulls `options.targets()`. This is consumer code, and its release is already registered.
+
+**The tracker:**
+
+| Member | Called by | What it does |
 | --- | --- | --- |
-| `activate(drag)` | `activate`, after the lift | Pulls `targets()` and creates a frame task whose callback requests a step. Through `drag.use` it registers a release that cancels the frame, removes the mark and drops the pull |
-| `move()` | `move`, per sample | Schedules the frame. It reads no layout and allocates nothing [R] |
-| (the frame's step) | the kernel, in a pass | Measures the targets only when stale, hit-tests `drag.x` and `drag.y` against the cached rects, and moves the `data-drop-over` mark |
-| `drop()` | `drop` | Cancels the frame and resolves at the release position, because `pointerup` updates the pointer and a drop may follow no frame |
-| `invalidate()` | `freeDrag`'s invalidation step and listener | Sets the staleness flag |
-| `current` | `drop`, to build the request | The target, or `null` |
+| `move()` | the operation's `move`, per sample | Schedules the frame. It reads no layout and allocates nothing [R] |
+| (the frame's step) | the kernel, in a pass | The frame callback only requests a step. The step measures the targets only when stale, hit-tests `drag.x` and `drag.y` against the cached rects, and moves the `data-drop-over` mark |
+| `drop()` | the operation's `drop` | Cancels the frame and resolves at the release position, because `pointerup` updates the pointer and a drop may follow no frame |
+| `invalidate()` | the operation's `handleEvent` | Sets the staleness flag |
+| `current` | the operation's `drop`, to build the request | The target, or `null` |
 
 **The host's changes:**
 
 - the `targets` key in `FreeDragConfig`;
-- one read-only field, set from the installer in the constructor;
-- one call in each of `activate`, `move`, `drop` and `invalidate`;
-- `this.bounds || this.targets` as the condition for the invalidation listener;
+- in `activate`, one call of `config.targets`, whose result is passed to the `FreeDragOperation` constructor;
+- one read-only private field and one constructor parameter on `FreeDragOperation`, and one call in each of its `move` and `drop`;
+- **invalidation through the operation:**
+  - The scroll and resize listener is now the operation, through a `handleEvent` method that invalidates the bounds and the targets. The kernel's `Session` and `Gesture` are listeners the same way, and it allocates no closure.
+  - The listener is registered when `bounds` or `targets` is configured.
+  - The behavior's invalidation step receives the current operation, under DRI-8, and calls its `handleEvent` as well as the bounds' `invalidate`. Between operations it reaches only the bounds, and the next tracker starts stale;
 - `target: HTMLElement | null` on `FreeDragRequest`. It is `null` without the capability, and `onEnd`'s result carries it through the request.
 
-**Properties [E], from `tests/feature-composition.browser.test.ts`:**
+`FreeDragBehavior` gains no field. At the first version it held the tracker's controller runtime.
+
+**Properties [E], from `tests/feature-composition.browser.test.ts` (9 tests):**
 
 - The mark follows the pointer: it is set over a target and removed off it.
 - The request and `onEnd` name the target.
-- The release removes the mark, both at a terminal and when the controller is destroyed mid-drag.
-- `invalidate()` re-reads the targets' geometry.
+- The release removes the mark, at a terminal and when the controller is destroyed mid-drag.
+- `invalidate()` re-reads the targets' geometry, and so does a scroll during the drag.
 - The drop resolves the target with no frame before it. The test stubs `requestAnimationFrame`.
+- **A throw from `targets()`:**
+  - is reported once as the operation's fault, with the thrown value as its `cause`;
+  - the lift's release restores the visual's inline style and leaves the top layer, and nothing is marked;
+  - no `onEnd` runs, because `start` was never reached;
+  - the controller's next drag pulls the targets again, marks and names the target, and reports no further fault.
 - Without the capability, the request's `target` is `null` and nothing is marked.
 
 **Mutations [E]:**
 
-- Removing the unmark at release fails 4 tests.
-- Removing the invalidation fan-out fails 1.
-- Removing the drop's resolution fails 1.
-- Removing the frame's cancel at release fails none, because a late frame's `requestStep` through a released `Drag` does nothing (DRI-8). The cancel is cleanup.
+| Mutation | Tests failed |
+| --- | --- |
+| The release no longer removes the mark | 5 |
+| The invalidation step no longer reaches the operation | 1 |
+| The operation's `handleEvent` no longer reaches the targets | 2 |
+| No invalidation listener without `bounds` | 1 |
+| `drop()` cancels the frame but doesn't resolve | 1 |
+| The release no longer cancels the frame | 0. A late frame's `requestStep` through a released `Drag` does nothing (DRI-8), so the cancel is cleanup |
+| `targets()` pulled before the release is registered | 0 |
 
-**A first draft was rejected [E].** It had a per-operation tracker object, hit-tested on every sample and routed invalidation through a step. It charged `freeDrag` without the capability 71 B Brotli, and it read layout on a sample, which DRI-17 forbids. The installer shape that `bounds` uses costs less, and the frame shape that `sortable`'s axis uses keeps DRI-17.
+**The last mutation can't be observed:** nothing that needs release exists before the pull. The throw test shows that a throw from `targets()` leaves nothing held, and it does whichever runs first. Registering first keeps the throw covered if a later change acquires something earlier. It is the same statements in another order.
+
+**Why not `sortable`'s shape [R].** In that shape the host passes the operation's state to a per-controller runtime as arguments. Here the frame callback has to reach the operation's `Drag` to request a step, so a per-controller runtime would hold the `Drag` between calls. That was the first version's defect.
+
+**What the first version got wrong [R] [E].** Its runtime was per controller, and it held the operation's `Drag`, frame and pulled targets in fields that were `null` between operations. `move` and `drop` used them through non-null assertions. `activate` set the `Drag` and the frame before it pulled `targets()`, and registered the release after the pull. So a throw left the released `Drag` and its frame referenced by the controller until the next activation overwrote them. No behavior observes that retention: the throw test passes against the first version too, so it doesn't distinguish the two versions. The revision removes the retention by construction, because the controller holds nothing to retain it in.
+
+**A first draft was rejected [E].** It had a per-operation tracker, hit-tested on every sample and routed invalidation through a step. It charged `freeDrag` without the capability 71 B Brotli, and it read layout on a sample, which DRI-17 forbids. Its defects were the per-sample hit test and the step-routed invalidation, not the per-operation tracker. The revision keeps the tracker and the frame-coalesced resolve from `sortable`'s axis, with the invalidation flag set directly, as `bounds` does.
 
 ### 3.4 One configuration across controllers
 
@@ -209,7 +262,7 @@ drag2's closed-slot rule says it directly: "a new semantic call into behavior co
 - destroying the first controller leaves the second's bounds clamp, its landing and its targets working;
 - each controller's result is its own.
 
-This follows from C2. drag2's fragments aren't needed for it. A consumer who wants one base config with per-controller overrides spreads objects: `freeDrag(root, { ...shared, onDrop })`.
+This follows from C2. Each controller's `bounds` runtime is its own, and each operation's tracker is that operation's. drag2's fragments aren't needed for it. A consumer who wants one base config with per-controller overrides spreads objects: `freeDrag(root, { ...shared, onDrop })`.
 
 ### 3.5 Rejected
 
@@ -241,7 +294,7 @@ drag2 merged fragments so that a consumer could compose a config from parts. Her
   - `land(x, y, landing)` replaces `land(x, y, timing?)`;
   - `Landing` replaces `LandingTiming`;
   - the default timing leaves the lift.
-- **`DRD-25`:** `targets` joins the controller-lifetime installers that the factory installs once.
+- **`DRD-25`:** unchanged. `targets` is not a controller-lifetime installer, because its factory runs once per operation and its state is the operation's (C4).
 - **The contract:**
   - the public surface, with `lift/landing.js` and `free-drag/drop-targets.js`;
   - `Lift.land`'s line;
@@ -277,31 +330,33 @@ It costs 52 B minified and 13 to 16 B Brotli on the sortable rows [E]. Typecheck
 
 - `Gesture`, `Session`, `Lifter`, `LinearShift`, `FreeDragOperation` and `SortableOperation` keep their mutable state in `#private` fields.
 - `FreeDragBehavior` and `SortableBehavior` expose only `readonly` fields. Their runtimes are changed through methods.
-- The prototype adds no class. `dropTargets()` and `landing()` are closures, as `bounds()` and the owner's `layoutAnimation` are.
-- `FreeDragBehavior.targets` is a `readonly` field.
+- The prototype adds no class. `dropTargets()` and `landing()` are closures, as `bounds()` and the owner's `layoutAnimation` are. A tracker's mutable state is in its closure, and its object exposes only methods and a getter.
+- `FreeDragOperation` holds the tracker in a `readonly #targets` field. `FreeDragBehavior` gains no field.
 - `layoutAnimation` is not changed.
 
 ## 7. Evidence
 
-| Check | Base `688613863` | Prototype |
-| --- | --- | --- |
-| Typecheck, lint, format | Pass | Pass [E] |
-| Chromium, `npx just test` | 343 passed, 4 failed. All 4 are size rows: the `draggable alone` control, `example: drop zone`, `freeDrag`, and `freeDrag + bounds + landing` | 351 passed, 3 failed. All 3 are size rows: the control, the drop zone and `freeDrag + bounds + landing`. The `freeDrag` row passes |
-| Chromium and Firefox, `npx just test-engines` | 633 passed, 9 skipped | 647 passed, 9 skipped, in two consecutive runs. One earlier run failed the reuse test, and the test was changed (results) |
-| New tests | — | 7, in both engines |
+| Check | Base `688613863` | First version | Revision |
+| --- | --- | --- | --- |
+| Typecheck, lint, format | Pass | Pass [E] | Pass [E] |
+| Chromium, `npx just test` | 343 passed, 4 failed. All 4 are size rows: the `draggable alone` control, `example: drop zone`, `freeDrag`, and `freeDrag + bounds + landing` | 351 passed, 3 failed | 353 passed, 3 failed. All 3 are size rows: the control, the drop zone and `freeDrag + bounds + landing`. The `freeDrag` row passes |
+| Chromium and Firefox, `npx just test-engines` | 633 passed, 9 skipped | 647 passed, 9 skipped, in two consecutive runs | 651 passed, 9 skipped, in runs 1 and 3 of three |
+| New tests | — | 7, in both engines | 9, in both engines |
 
-**Size, Brotli bytes from the composition probe [E].** "Carries" names the capability code found in the bundle.
+**The revision's second full run** failed one test in Chromium: the grab during a 20 s rejected landing, in `tests/activation.browser.test.ts`. That test runs `sortable` and the lift, which the revision doesn't change from the first version. Eight isolated runs of its block passed in both engines. It isn't reproduced, and it isn't attributed. At the first version, one run failed the reuse test, and the test was changed (results).
+
+**Size, Brotli bytes from the composition probe [E],** with the revision. "Carries" names the capability code found in the bundle. The rows that the revision changes were, at the first version: `freeDrag` 4957, `freeDrag + landing` 5223, `freeDrag + bounds + landing` 5400, `freeDrag + dropTargets` 5242 and `freeDrag + dropTargets + landing` 5489.
 
 | Composition | Base | Prototype | Δ | Carries, prototype |
 | --- | --- | --- | --- | --- |
 | `draggable alone` | 2138 | 2138 | 0 | — |
 | `draggable + lift` | 4152 | 3912 | −240 | — (base: the landing animation) |
 | `draggable + lift + landing` | — | 4246 | — | landing animation, landing timing |
-| `freeDrag` | 5075 | 4957 | −118 | — (base: the landing animation) |
-| `freeDrag + landing` | 5172 | 5223 | +51 | landing animation, landing timing |
-| `freeDrag + bounds + landing` | 5330 | 5400 | +70 | landing, bounds |
-| `freeDrag + dropTargets` | — | 5242 | — | drop targets |
-| `freeDrag + dropTargets + landing` | — | 5489 | — | landing, drop targets |
+| `freeDrag` | 5075 | 4948 | −127 | — (base: the landing animation) |
+| `freeDrag + landing` | 5172 | 5218 | +46 | landing animation, landing timing |
+| `freeDrag + bounds + landing` | 5330 | 5392 | +62 | landing, bounds |
+| `freeDrag + dropTargets` | — | 5209 | — | drop targets |
+| `freeDrag + dropTargets + landing` | — | 5465 | — | landing, drop targets |
 | `example: drop zone` | 4439 | 4529 | +90 | landing |
 | `sortable + y` | 6652 | 6414 | −238 | — (base: the landing animation) |
 | `sortable + xy` | 6594 | 6349 | −245 | — |
@@ -309,23 +364,29 @@ It costs 52 B minified and 13 to 16 B Brotli on the sortable rows [E]. Typecheck
 
 **Separated by an intermediate measurement [E]**, with the lift split applied and `freeDrag`'s host at the base:
 
-| Composition                   | Lift split alone | The `targets` slot added |
-| ----------------------------- | ---------------- | ------------------------ |
-| `freeDrag`                    | −172 (4903)      | +54                      |
-| `freeDrag + landing`          | +2 (5174)        | +49                      |
-| `freeDrag + bounds + landing` | +27 (5357)       | +43                      |
+| Composition | Lift split alone | The `targets` slot added, revision | First version |
+| --- | --- | --- | --- |
+| `freeDrag` | −172 (4903) | +45 | +54 |
+| `freeDrag + landing` | +2 (5174) | +44 | +49 |
+| `freeDrag + bounds + landing` | +27 (5357) | +35 | +43 |
 
 Brotli differences of about ten bytes are within the noise between neighboring edits.
 
 ## 8. Costs, reported and not accepted
 
-- **The slot's call sites:** +54 B Brotli and +211 B minified on `freeDrag` without drag and drop. This is the one charge to a composition that omits the capability.
+- **The slot's call sites:** +45 B Brotli and +209 B minified on `freeDrag` without drag and drop, against +54 B and +211 B at the first version. This is the one charge to a composition that omits the capability. It includes the invalidation listener's move to the operation, which `bounds` uses too.
 - **The landing as a capability:**
   - neutral to +27 B on compositions that compose a landing;
   - −172 to −240 B on lifted compositions that don't;
   - +90 B on the drop-zone fixture, which now imports `landing()` with its options. It used to get the default timing inside the lift.
-- **The drop-target capability:** 285 B Brotli when composed. That includes the frame task, which `freeDrag` didn't bundle before.
-- **Per operation, when composed [R]:** one frame task, one closure for its callback and one for the release, and one `DOMRect` per target at each measurement.
+- **The drop-target capability:** 261 B Brotli and 670 B minified when composed, against 285 B and 740 B at the first version. That includes the frame task, which `freeDrag` didn't bundle before.
+- **Per operation, when composed [R]:**
+  - the tracker, its closures, the rects array and the frame task with its two closures;
+  - one `DOMRect` per target at each measurement.
+
+  The first version made the mark and resolve closures once per controller. The revision makes them once per operation, which is the price of keeping the operation's state in the operation. Not measured.
+
+- **Per operation, without the capability [R]:** nothing added. The listener is the operation itself, with no closure.
 - **Per sample [R]:** nothing allocated. Scheduling a frame reads no layout.
 - **`RectIndex`'s encapsulation:** +13 to +16 B Brotli.
 - **Size rows:**
@@ -335,19 +396,39 @@ Brotli differences of about ten bytes are within the noise between neighboring e
 
 ## 9. Remaining choices for the owner
 
-1. **The slot's cost.** Accept about 54 B on `freeDrag` without drag and drop, or reduce it. Ways to reduce it:
+1. **The slot's cost.** Accept about 45 B on `freeDrag` without drag and drop, or reduce it. Ways to reduce it:
    - keep the target out of the request, at the price of a typed answer to `onDrop`;
    - one generic per-operation slot on `freeDrag`, paid once for every later capability. It is not measured, and it reopens the ordering question of §3.5 as soon as two capabilities exist.
 2. **Where custom behaviors import `landing`:** `lift/landing.js`, as prototyped, or a second named export of `lift.js`. A named export that a consumer doesn't import is shaken out in the same way.
 3. **`land` without a landing.** In the prototype the argument is required. An optional argument, meaning "nothing lands", saves a branch in no one's code.
 4. **How a target is shown:** the `data-drop-over` attribute, as prototyped, a consumer callback such as `over(target, previous)`, or both. The attribute's release is owned by the capability. A callback's would be the consumer's.
 5. **An accepted drop's landing into the target.** The prototype keeps `freeDrag`'s accepted semantics: the visual stays where it was dropped, and the consumer commits in `onEnd`. A landing into the target needs that target measured before release. The drop-zone fixture does it with a stand-in.
-6. **How the targets' staleness is set.** The prototype follows `bounds`: the scroll listener and the invalidation step set the flag directly. The alternative is `sortable`'s precedent, where the listener requests a step. The first draft did that, and it cost bytes on every composition.
+6. **How the targets' staleness is set.** The prototype follows `bounds`: the scroll listener, which is now the operation, and the invalidation step set the flag directly. The alternative is `sortable`'s precedent, where the listener requests a step. The first draft did that, and it cost bytes on every composition.
 7. **A scroll with the pointer still.** The hovered target is re-resolved at the next sample, as `sortable`'s insertion is.
-8. **Publishing slot interfaces.** The proposed `DRD-2` lets a third party fill a published slot. Which interfaces to publish is the owner's: `Landing`, `DropTargetsInstaller` and `BoundsInstaller`, and also `AxisInstaller` and `DisplacementInstaller`, which `DRD-2` kept private.
+8. **Publishing slot interfaces.** The proposed `DRD-2` lets a third party fill a published slot. Which interfaces to publish is the owner's: `Landing`, `DropTargets` with `DropTargetTracker`, and `BoundsInstaller`, and also `AxisInstaller` and `DisplacementInstaller`, which `DRD-2` kept private.
 9. **`RectIndex`:** the getter variant (§6) or a closure.
-10. **Names:** the `targets` key, the `free-drag/drop-targets.js` entry, the `target` request field and the `data-drop-over` attribute.
+10. **Names:** the `targets` key, the `free-drag/drop-targets.js` entry, the `target` request field, the `data-drop-over` attribute, and the types `DropTargets` and `DropTargetTracker`.
+
+## 10. Found outside the scope: `bounds` after a scroll between operations
+
+**`bounds` keeps a stale clamp across operations [R] [E, Chromium].**
+
+- **Cause [R]:**
+  - its runtime is per controller, and so are the cached box and the staleness flag;
+  - only the invalidation listener and the controller's `invalidate()` set the flag, and the listener exists only during an operation.
+
+  So a scroll between two operations leaves the next operation clamping against the box from before the scroll. In C4's terms it is a controller-lifetime cache of what one operation measured that the host doesn't invalidate at activation. `sortable`'s `activate` does invalidate its axis.
+
+- **Witness [E]:** a scratch test, not kept, recorded in `results.txt`.
+  - Setup: a box in a 300 × 300 arena at `top: 200px`, with `bounds(arena)`. One drag and release, a document scroll by 150 px, then a drag 400 px up.
+  - Chromium: the box stopped at 200, while the arena's top was at 50.
+  - Firefox: the test frame didn't scroll, so that run is inconclusive.
+- **Scope:** the code is the base's `bounds.ts`, which neither version of the prototype changes. Nothing is fixed here.
+- **Recommended:**
+  - Treat it as a finding against the base, for the owner to route.
+  - The fix is C4 applied to `bounds`: the host invalidates the bounds at activation, as `sortable` invalidates its axis. That is one call, and it costs a few bytes on the compositions that compose `bounds`. It isn't measured.
+  - The revised drop-target tracker has no such state, because each operation starts stale.
 
 ## Next
 
-The owner evaluates the recommendation and §9. On approval, the architect records the decision and amends `DRD-2` as §5 lists. An implementer unit would then port `composition.diff.txt` and, if chosen, `rect-index.diff.txt`, update packaging and the size rows, and report the costs for acceptance.
+The owner evaluates the revision, the revised C2, C3 and C4, and §9. On approval, the architect amends `DRD-2` as §5 lists, recording the accepted model and the §9 choices the owner decides. An implementer unit would then port `composition.diff.txt` and, if chosen, `rect-index.diff.txt`, update packaging and the size rows, and report the costs for acceptance. §10 goes to the owner separately.

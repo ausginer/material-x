@@ -2,14 +2,16 @@
 
 The prototype for [`feature-composition-assessment.md`](../../feature-composition-assessment.md). It tests whether `freeDrag` and the lift can be extended by capabilities imported on their own, with nothing charged to a composition that omits them beyond the host's call sites. The behavior owed is [`contract.md`](../../contract.md), apart from the changes the assessment lists.
 
-**Base:** `688613863` on `drag/production`. The prototype was built in a worktree on `drag/feature-composition`. **Nothing is merged, and production source on the branch is unchanged:** the source was reverted before the record was committed. drag2 was read as reference and not changed.
+**Base:** `688613863` on `drag/production`. The prototype was built in a worktree on `drag/feature-composition`.
+
+**Two versions.** The first was recorded at `82b045f8a`. The revision, recorded on 2026-11-09, makes each operation own its drop-target state and registers the release before `targets()` runs. The files here are the revision's, and `results.txt` keeps both versions' runs. The first version's diff is `git show 82b045f8a:packages/drag/.plan/probes/feature-composition/composition.diff.txt`. **Nothing is merged, and production source on the branch is unchanged:** the source was reverted before the record was committed. drag2 was read as reference and not changed.
 
 | File | What it is |
 | --- | --- |
-| [`composition.diff.txt`](composition.diff.txt) | **The prototype.** A unified diff against `688613863`: the landing capability, the drop-target capability and slot, the updated tests and fixture, and the new test file. From the repository root, `git apply packages/drag/.plan/probes/feature-composition/composition.diff.txt` applies it |
+| [`composition.diff.txt`](composition.diff.txt) | **The prototype, revised.** A unified diff against `688613863`: the landing capability, the drop-target capability and slot, the updated tests and fixture, and the new test file. From the repository root, `git apply packages/drag/.plan/probes/feature-composition/composition.diff.txt` applies it |
 | [`rect-index.diff.txt`](rect-index.diff.txt) | `RectIndex` under CONTRIBUTING's class-encapsulation rule. A separate diff against `688613863`, measured but not part of the recommendation's code |
 | [`compose.ts.txt`](compose.ts.txt) | The composition probe: bundles each composition as `bench/size/measure.ts` does, and reports bytes and which capability code each bundle carries |
-| [`results.txt`](results.txt) | Raw output: the probe and the size instrument at the base, at an intermediate state and with the prototype, the suites, the mutations and the static checks |
+| [`results.txt`](results.txt) | Raw output: the probe and the size instrument at the base, at an intermediate state and with each version, the suites, the mutations, the static checks, and the scratch witness for `bounds` after a scroll between operations |
 
 **How the runs were made:**
 

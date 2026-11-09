@@ -1,6 +1,10 @@
 # Raw results of the feature-composition probe
 
 Base: 688613863 on drag/feature-composition. Prototype: composition.diff.txt applied to the base.
+Two prototype versions. The first (v1) was recorded at 82b045f8a. The revision (v2, 2026-11-09) moves the
+drop-target state into an object each operation owns, and registers its release before targets() runs.
+composition.diff.txt is v2. v1's diff is composition.diff.txt at 82b045f8a. The sections up to "Static checks
+on the prototype" are v1's, and the section "Revision (v2)" at the end is v2's.
 Composition probe: node compose.ts <packages/drag>, run from packages/drag (copied into bench/ for the run so that rolldown resolves).
 
 ## Composition probe, base
@@ -17,7 +21,7 @@ example: drop zone                  12855 min  4439 br  carries: landing animati
 sortable + y                        20533 min  6652 br  carries: landing animation
 complete                            21552 min  7037 br  carries: landing animation, landing timing, layout animation
 
-## Composition probe, prototype (final)
+## Composition probe, prototype v1
 
 draggable alone                      6600 min  2138 br  carries: -
 draggable + lift                    11411 min  3912 br  carries: -
@@ -59,7 +63,7 @@ sortable + y                    20533 min   6652 br  20 modules
 sortable + xy                   20153 min   6594 br  19 modules
 complete                        21552 min   7037 br  22 modules
 
-## Size instrument, prototype
+## Size instrument, prototype v1
 
 draggable alone                  6600 min   2138 br  6 modules
   VIOLATION: control moved by 114 B
@@ -95,7 +99,7 @@ tests/sortable, tests/hot-path and tests/landing: 73 passed (Chromium).
       Tests  4 failed | 343 passed (347)
 Type Errors  no errors
 
-### Chromium (npx just test), prototype
+### Chromium (npx just test), prototype v1
  FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
  FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
  FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
@@ -108,7 +112,7 @@ Type Errors  no errors
       1  Test Files  44 passed (66)
       5 ║     libpulsecommon-17.0.so                           ║
 
-### Chromium and Firefox, prototype, two consecutive runs
+### Chromium and Firefox, prototype v1, two consecutive runs
       1       Tests  647 passed | 9 skipped (656)
       1  Test Files  46 passed (69)
       5 ║     libpulsecommon-17.0.so                           ║
@@ -120,7 +124,7 @@ Before the last test edit, one engines run failed 'should give each controller i
 Not reproduced, and the cause is inferred by reading: the landing lasted 50 ms, and the test waited two frames
 after the release before looking for it. The test now uses 100 ms and looks right after pointerUp. An earlier draft moved the pointer 800 px, which left Firefox's viewport.
 
-## Mutations against tests/feature-composition.browser.test.ts (Chromium)
+## Mutations against tests/feature-composition.browser.test.ts (Chromium), v1
 
 M1 drop-targets: release no longer clears the mark            -> 4 failed (mark, destroy, invalidate, reuse)
 M2 behavior: invalidate() no longer reaches the targets        -> 1 failed (re-read on invalidate)
@@ -128,6 +132,86 @@ M3 drop-targets: drop() cancels the frame but doesn't resolve  -> 1 failed (reso
 M4 drop-targets: release no longer cancels the frame           -> 0 failed: a late frame's requestStep through the
    released Drag does nothing (DRI-8), so the cancel is hygiene, not correctness
 
-## Static checks on the prototype
+## Static checks on the prototype v1
 
 npx just typecheck: pass. npx just lint: pass. npx just fmt-check: pass.
+
+## Revision (v2), 2026-11-09
+
+### Composition probe, prototype v2
+
+draggable alone                      6600 min  2138 br  carries: -
+draggable + lift                    11411 min  3912 br  carries: -
+draggable + lift + landing          12251 min  4246 br  carries: landing animation, landing timing
+freeDrag                            15005 min  4948 br  carries: -
+freeDrag + landing                  15665 min  5218 br  carries: landing animation, landing timing
+freeDrag + bounds + landing         16170 min  5392 br  carries: landing animation, landing timing, bounds
+freeDrag + dropTargets              15675 min  5209 br  carries: drop targets
+freeDrag + dropTargets + landing    16335 min  5465 br  carries: landing animation, landing timing, drop targets
+example: drop zone                  13050 min  4529 br  carries: landing animation, landing timing
+sortable + y                        19884 min  6414 br  carries: -
+complete                            21557 min  7047 br  carries: landing animation, landing timing, layout animation
+
+The slot over the split-only state (freeDrag 14796 / 4903): +209 min, +45 br (v1: +211, +54).
+The capability over freeDrag: +670 min, +261 br (v1: +740, +285).
+
+### Size instrument, prototype v2
+
+draggable alone                  6600 min   2138 br  6 modules
+  VIOLATION: control moved by 114 B
+draggable + lift                11411 min   3912 br  8 modules
+example: resize handle           9257 min   3249 br  8 modules
+example: drop zone              13050 min   4529 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 98 B
+  VIOLATION: must not contain src/shared/landing.ts
+example: canvas group            9393 min   3248 br  8 modules
+freeDrag                        15005 min   4948 br  14 modules
+freeDrag + bounds + landing     16170 min   5392 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 182 B
+sortable + y                    19884 min   6414 br  19 modules
+sortable + xy                   19506 min   6349 br  18 modules
+complete                        21557 min   7047 br  23 modules
+
+### Chromium (npx just test), prototype v2
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ Test Files  1 failed | 25 passed (26)
+      Tests  3 failed | 353 passed (356)
+Type Errors  no errors
+
+### Chromium and Firefox (npx just test-engines), prototype v2, three full runs
+run 1:       Tests  651 passed | 9 skipped (660)
+run 2:       Tests  1 failed | 650 passed | 9 skipped (660)
+             FAIL  |browser (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+run 3:       Tests  651 passed | 9 skipped (660)
+WebKit did not launch in any run (libpulsecommon-17.0.so missing).
+The run-2 failure is in a sortable test of the grab during a 20 s landing, in code v2 does not change from v1.
+Eight isolated runs of that describe block (-t "a grab during a landing"), both engines: 4 passed each time.
+Not reproduced, and not attributed.
+
+### New tests in v2 (tests/feature-composition.browser.test.ts, 9 tests, 7 in v1)
+should re-read the targets after a scroll
+should release the operation and keep the controller when targets() throws
+The throw test also passes against v1 (9 passed with v1's drop-targets.ts, behavior.ts, operation.ts and
+free-drag.ts): v1's defect was retention of the released Drag and frame in the controller runtime, which no
+behavior observes.
+
+### Mutations against tests/feature-composition.browser.test.ts (Chromium), v2
+M1 release no longer clears the mark                          -> 5 failed (mark, destroy, invalidate, reuse, throw)
+M2 the invalidation step no longer reaches the operation      -> 1 failed (re-read on invalidate)
+M3 the operation listener no longer reaches the targets       -> 2 failed (re-read after a scroll, re-read on invalidate)
+M4 no invalidation listener without bounds                    -> 1 failed (re-read after a scroll)
+M5 drop() cancels the frame but does not resolve              -> 1 failed (resolve at the release, no frame)
+M6 release no longer cancels the frame                        -> 0 failed: as v1's M4, DRI-8
+M7 targets() pulled before the release is registered          -> 0 failed: nothing that needs release exists before
+   the pull, so the order is not observable. Registering first keeps a throw covered if a later edit acquires earlier
+
+### bounds after a scroll between operations, at the base's bounds.ts (unchanged by v2), scratch test, not kept
+A box in a 300 x 300 arena at top 200, bounds(arena). Drag and release, scroll the document by 150, then drag 400 px up.
+chromium box=200 arena=50 scrollY=150   (expected box=50: the clamp used the arena's rect from before the scroll)
+firefox  box=220 arena=200 scrollY=0    (the test frame did not scroll: inconclusive)
+
+### Static checks on the prototype v2
+npx just fmt, lint-fix, fmt, lint on the changed files: pass. npx just typecheck: pass. npx just fmt-check: pass.
+git apply --check of composition.diff.txt on a 688613863 tree: applies.

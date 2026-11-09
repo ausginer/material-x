@@ -1,67 +1,87 @@
+diff --git a/packages/drag/src/free-drag.ts b/packages/drag/src/free-drag.ts
+index 48a2937d8..99fce00f1 100644
+--- a/packages/drag/src/free-drag.ts
++++ b/packages/drag/src/free-drag.ts
+@@ -32,7 +32,7 @@ export type {
+ };
+ 
+ export interface FreeDragController {
+-  /** The bounds are stale: re-read them on the next sample. */
++  /** The bounds, and during a drag the drop targets, are stale: re-read them on the next sample. */
+   readonly invalidate: () => void;
+   /** Places the visual at a viewport point and keeps following the pointer. */
+   readonly moveTo: (point: Point) => void;
 diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
-index 32f2fc2f1..d7c497a17 100644
+index 32f2fc2f1..1a7d809cf 100644
 --- a/packages/drag/src/free-drag/behavior.ts
 +++ b/packages/drag/src/free-drag/behavior.ts
-@@ -10,7 +10,11 @@ import type {
+@@ -10,7 +10,8 @@ import type {
    OnDrop,
    ResolveHome,
  } from './domain.ts';
 -import type { LandingTiming } from './landing.ts';
-+import type {
-+  DropTargetRuntime,
-+  DropTargetsInstaller,
-+} from './drop-targets.ts';
++import type { DropTargets } from './drop-targets.ts';
 +import type { Landing } from './landing.ts';
  import { FreeDragOperation } from './operation.ts';
  
  export type FreeDragConfig = Readonly<{
-@@ -31,7 +35,9 @@ export type FreeDragConfig = Readonly<{
+@@ -31,7 +32,9 @@ export type FreeDragConfig = Readonly<{
    visual?(root: HTMLElement): HTMLElement;
    home?: ResolveHome;
    bounds?: BoundsInstaller;
 -  landing?: LandingTiming;
 +  landing?: Landing;
 +  /** From `free-drag/drop-targets.js`. Absent means no target tracking, and no code for it. */
-+  targets?: DropTargetsInstaller;
++  targets?: DropTargets;
  }>;
  
  /**
-@@ -49,7 +55,8 @@ export class FreeDragBehavior implements Behavior<
+@@ -49,7 +52,7 @@ export class FreeDragBehavior implements Behavior<
    readonly window: Window & typeof globalThis;
    readonly axis: DragAxis;
    readonly bounds: MotionConstraint | null;
 -  readonly landing: LandingTiming | null;
 +  readonly landing: Landing | null;
-+  readonly targets: DropTargetRuntime | null;
    readonly #lifter: Lifter;
  
    constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
-@@ -61,11 +68,13 @@ export class FreeDragBehavior implements Behavior<
-     this.axis = config.axis ?? 'both';
-     this.bounds = config.bounds?.(this.window) ?? null;
+@@ -63,9 +66,13 @@ export class FreeDragBehavior implements Behavior<
      this.landing = config.landing ?? null;
-+    this.targets = config.targets?.(this.window) ?? null;
    }
  
 -  /** Step and invalidation listener: the bounds are re-read on the next sample. */
-+  /** Step and invalidation listener: the bounds and the targets are re-read on the next sample. */
-   readonly invalidate = (): void => {
+-  readonly invalidate = (): void => {
++  /**
++   * Step: the bounds are re-read on the next sample, and so are the current
++   * operation's targets.
++   */
++  readonly invalidate = (operation: FreeDragOperation | null): void => {
      this.bounds?.invalidate();
-+    this.targets?.invalidate();
++    operation?.handleEvent();
    };
  
    /** The admission's `state` is the visual: `config.visual`, or the root. */
-@@ -100,7 +109,9 @@ export class FreeDragBehavior implements Behavior<
+@@ -100,11 +107,16 @@ export class FreeDragBehavior implements Behavior<
      // First, so that its release is the operation's first disposer and runs last.
      const lift = this.#lifter.acquire(drag, visual);
  
 -    if (this.bounds) {
-+    this.targets?.activate(drag);
-+
-+    if (this.bounds || this.targets) {
-       listenForInvalidation(this.window, drag.signal, this.invalidate);
-     }
+-      listenForInvalidation(this.window, drag.signal, this.invalidate);
+-    }
++    const operation = new FreeDragOperation(
++      this,
++      drag,
++      lift,
++      this.config.targets?.(drag, this.window) ?? null,
++    );
  
+-    const operation = new FreeDragOperation(this, drag, lift);
++    if (this.bounds || this.config.targets) {
++      listenForInvalidation(this.window, drag.signal, operation);
++    }
+ 
+     operation.translate();
+     return operation;
 diff --git a/packages/drag/src/free-drag/domain.ts b/packages/drag/src/free-drag/domain.ts
 index 02add3e45..d8aa78205 100644
 --- a/packages/drag/src/free-drag/domain.ts
@@ -77,17 +97,17 @@ index 02add3e45..d8aa78205 100644
  /**
 diff --git a/packages/drag/src/free-drag/drop-targets.ts b/packages/drag/src/free-drag/drop-targets.ts
 new file mode 100644
-index 000000000..8697c7328
+index 000000000..c5ae037b7
 --- /dev/null
 +++ b/packages/drag/src/free-drag/drop-targets.ts
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,120 @@
 +/**
 + * `dropTargets()`: drag and drop for `freeDrag`. The target under the pointer
 + * is marked with `data-drop-over` while the drag is over it, and the drop's
 + * request names it. A composition without it carries none of this code.
 + */
 +import type { Drag } from '../draggable.ts';
-+import { createFrameTask, type FrameTask } from '../shared/invalidation.ts';
++import { createFrameTask } from '../shared/invalidation.ts';
 +
 +export type DropTargetsOptions = Readonly<{
 +  /**
@@ -101,18 +121,12 @@ index 000000000..8697c7328
 +export type DropTargetDrag = Pick<Drag, 'x' | 'y' | 'use' | 'requestStep'>;
 +
 +/**
-+ * One controller's drop-target runtime. `freeDrag` creates it with the
-+ * controller and calls it only from its own hooks and steps. Its operation
-+ * state lives from `activate` to that operation's release.
++ * One operation's drop-target state. `freeDrag` creates it in `activate`, its
++ * operation holds it, and that operation's release ends it.
 + */
-+export interface DropTargetRuntime {
++export interface DropTargetTracker {
 +  /** The target under the pointer at the last resolution, or `null`. */
 +  readonly current: HTMLElement | null;
-+  /**
-+   * Starts tracking for one operation, from `freeDrag`'s `activate`. What it
-+   * acquires is released through the operation's `use`.
-+   */
-+  activate(drag: DropTargetDrag): void;
 +  /** A sample: resolution is coalesced to the next frame, which runs as a step. */
 +  move(): void;
 +  /** Resolves at the release position now, in the drop step. */
@@ -122,20 +136,21 @@ index 000000000..8697c7328
 +}
 +
 +/**
-+ * The value a `freeDrag` config holds. It is called once per controller, so one
-+ * config serves every controller. It is inert: it allocates, and acquires
-+ * nothing. A third party may supply its own.
++ * The value a `freeDrag` config holds. It holds no state, so one config serves
++ * every controller. `freeDrag` calls it once per operation, from `activate`. A
++ * third party may supply its own.
 + */
-+export type DropTargetsInstaller = (window: Window) => DropTargetRuntime;
++export type DropTargets = (
++  drag: DropTargetDrag,
++  window: Window,
++) => DropTargetTracker;
 +
 +const OVER = 'data-drop-over';
 +
-+export function dropTargets(options: DropTargetsOptions): DropTargetsInstaller {
-+  return (window) => {
-+    let drag: DropTargetDrag | null = null;
-+    let frame: FrameTask | null = null;
-+    let elements: readonly HTMLElement[] = [];
++export function dropTargets(options: DropTargetsOptions): DropTargets {
++  return (drag, window) => {
 +    const rects: DOMRectReadOnly[] = [];
++    let elements: readonly HTMLElement[] = [];
 +    let stale = true;
 +    let current: HTMLElement | null = null;
 +
@@ -157,7 +172,7 @@ index 000000000..8697c7328
 +        }
 +      }
 +
-+      const { x, y } = drag!;
++      const { x, y } = drag;
 +      let hit: HTMLElement | null = null;
 +
 +      for (let i = 0; i < elements.length && !hit; i += 1) {
@@ -176,36 +191,28 @@ index 000000000..8697c7328
 +      mark(hit);
 +    };
 +
++    const frame = createFrameTask(window, () => {
++      // A frame is foreign code, so its write goes through a step (DRI-8).
++      drag.requestStep(resolve);
++    });
++
++    // Registered before the consumer's `targets()` runs, so the release covers a
++    // throw from it as well as a terminal, a cancel or destruction.
++    drag.use(() => {
++      frame.cancel();
++      mark(null);
++    });
++    elements = options.targets();
++
 +    return {
 +      get current() {
 +        return current;
 +      },
-+      activate(operation) {
-+        const task = createFrameTask(window, () => {
-+          // A frame is foreign code, so its write goes through a step (DRI-8).
-+          operation.requestStep(resolve);
-+        });
-+
-+        drag = operation;
-+        frame = task;
-+        elements = options.targets();
-+        stale = true;
-+        // The mark and the frame are the operation's, and so is the pull: its
-+        // release ends all three, at a terminal, a cancel or destruction.
-+        operation.use(() => {
-+          task.cancel();
-+          mark(null);
-+          drag = null;
-+          frame = null;
-+          elements = [];
-+          rects.length = 0;
-+        });
-+      },
 +      move() {
-+        frame!.schedule();
++        frame.schedule();
 +      },
 +      drop() {
-+        frame!.cancel();
++        frame.cancel();
 +        resolve();
 +      },
 +      invalidate() {
@@ -246,31 +253,67 @@ index 0cbf3e34c..5f0987f60 100644
    LandingTimingContext,
  } from '../shared/landing.ts';
 diff --git a/packages/drag/src/free-drag/operation.ts b/packages/drag/src/free-drag/operation.ts
-index da8052bb1..916f1eaab 100644
+index da8052bb1..296aaba13 100644
 --- a/packages/drag/src/free-drag/operation.ts
 +++ b/packages/drag/src/free-drag/operation.ts
-@@ -61,6 +61,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+@@ -11,6 +11,7 @@ import {
+   type Point,
+   type RejectedResolution,
+ } from './domain.ts';
++import type { DropTargetTracker } from './drop-targets.ts';
+ import { buildGeometry, buildRequest } from './geometry.ts';
+ 
+ /**
+@@ -21,6 +22,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+   readonly #behavior: FreeDragBehavior;
+   readonly #drag: Drag<FreeDragOperation>;
+   readonly #lift: Lift;
++  /** `config.targets`' state for this operation, released with it. */
++  readonly #targets: DropTargetTracker | null;
+   /** The visual's viewport delta, axis-projected and clamped. */
+   readonly #motion = { x: 0, y: 0 };
+   #offsetX = 0;
+@@ -34,10 +37,18 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+     behavior: FreeDragBehavior,
+     drag: Drag<FreeDragOperation>,
+     lift: Lift,
++    targets: DropTargetTracker | null,
+   ) {
+     this.#behavior = behavior;
+     this.#drag = drag;
+     this.#lift = lift;
++    this.#targets = targets;
++  }
++
++  /** The invalidation listener: the bounds and the targets are re-read at their next read. */
++  handleEvent(): void {
++    this.#behavior.bounds?.invalidate();
++    this.#targets?.invalidate();
+   }
+ 
+   /** Computes the motion and moves the visual by it. */
+@@ -61,6 +72,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
  
    move(): void {
      this.translate();
-+    this.#behavior.targets?.move();
++    this.#targets?.move();
  
      if (this.#behavior.config.onMove) {
        this.#behavior.config.onMove(this.#geometry());
-@@ -69,6 +70,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+@@ -69,6 +81,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
  
    drop(): VerdictAwaiter<FreeDragResolution> | null {
      this.#computeMotion();
 +    // `pointerup` moved the pointer, and a drop may follow no frame at all.
-+    this.#behavior.targets?.drop();
++    this.#targets?.drop();
  
      const request = buildRequest(
        this.#behavior.root,
-@@ -76,6 +79,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+@@ -76,6 +90,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
        this.#lift,
        this.#motion,
        this.#home(),
-+      this.#behavior.targets?.current ?? null,
++      this.#targets?.current ?? null,
        this.#behavior.window,
      );
  
@@ -699,10 +742,10 @@ index 1e330be07..9ba462a9b 100644
        },
 diff --git a/packages/drag/tests/feature-composition.browser.test.ts b/packages/drag/tests/feature-composition.browser.test.ts
 new file mode 100644
-index 000000000..11bc3eae8
+index 000000000..56d7c6e1c
 --- /dev/null
 +++ b/packages/drag/tests/feature-composition.browser.test.ts
-@@ -0,0 +1,253 @@
+@@ -0,0 +1,342 @@
 +/**
 + * The feature-composition prototype: capabilities imported on their own extend
 + * `freeDrag` and the lift, and one config serves several controllers.
@@ -721,6 +764,7 @@ index 000000000..11bc3eae8
 +  centerOf,
 +  commands,
 +  faults,
++  frames,
 +  grab,
 +  moveHeld,
 +  onCleanup,
@@ -857,6 +901,94 @@ index 000000000..11bc3eae8
 +    expect(zone.hasAttribute('data-drop-over')).toBe(true);
 +    await commands.keyPress('Escape');
 +    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++  });
++
++  it('should re-read the targets after a scroll', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 300);
++    const spacer = document.createElement('div');
++
++    spacer.style.cssText = 'position:absolute;top:0;width:1px;height:3000px';
++    document.body.append(spacer);
++    onCleanup(() => {
++      window.scrollTo(0, 0);
++    });
++
++    const controller = freeDrag(box, {
++      targets: dropTargets({ targets: zones }),
++      onDrop: () => FreeDragResolution.reject(),
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    // The grab's frame measures the zone, and the scroll then moves it up.
++    await grab(box, 0, 30);
++    window.scrollTo(0, 150);
++    await frames();
++
++    const over = centerOf(zone);
++
++    await moveHeld(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(true);
++    await commands.keyPress('Escape');
++  });
++
++  it('should release the operation and keep the controller when targets() throws', async () => {
++    const box = makeBox('a', 20);
++    const zone = makeZone('z1', 20);
++    const style = box.style.cssText;
++    const thrown = new Error('targets');
++    let pulls = 0;
++    const results: FreeDragResult[] = [];
++    const controller = freeDrag(box, {
++      targets: dropTargets({
++        targets() {
++          pulls += 1;
++
++          if (pulls === 1) {
++            throw thrown;
++          }
++
++          return zones();
++        },
++      }),
++      onDrop: (request) =>
++        request.target
++          ? FreeDragResolution.accept()
++          : FreeDragResolution.reject(),
++      onEnd(result) {
++        results.push(result);
++      },
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    const over = centerOf(zone);
++
++    // The first activation faults inside the pull: its release runs, so the lift
++    // is released and nothing is marked or scheduled.
++    await grab(box, 0, 30);
++    await moveHeld(over.x, over.y);
++    expect(faults.map((fault) => fault.cause)).toEqual([thrown]);
++    expect(box.style.cssText).toBe(style);
++    expect(box.matches(':popover-open')).toBe(false);
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    await release();
++    expect(results).toEqual([]);
++
++    // The controller holds nothing of that operation, so the next one works.
++    await grab(box, 0, 30);
++    await moveHeld(over.x, over.y);
++    expect(zone.hasAttribute('data-drop-over')).toBe(true);
++    await release();
++    expect(zone.hasAttribute('data-drop-over')).toBe(false);
++    expect(
++      results.map(
++        (result) => result.type === 'accepted' && result.request.target,
++      ),
++    ).toEqual([zone]);
++    expect(pulls).toBe(2);
++    expect(faults).toHaveLength(1);
 +  });
 +
 +  it('should name no target without the capability', async () => {
