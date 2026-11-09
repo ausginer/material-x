@@ -28,7 +28,8 @@ export interface Drag<Operation = unknown> {
    * Runs `step` in a pass: at once when no pass is running, otherwise between
    * steps, in request order. The same function requested again before it runs
    * runs once. The step receives the operation `activate` returned, from the end
-   * of activation until the drop or the decision, and `null` otherwise.
+   * of activation until the drop or the decision, and `null` otherwise. It is
+   * called with no receiver.
    *
    * Acts only while this operation is the controller's current one, so a
    * retained `Drag` never reaches a later operation. Afterwards it does nothing:
@@ -38,7 +39,18 @@ export interface Drag<Operation = unknown> {
    * write operation state through this. Foreign code can run during any DOM write
    * the kernel makes, and a direct write would change the running step.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
+  /**
+   * As above, with `step` called on `receiver`. The same step requested again
+   * before it runs runs once only with the same receiver, so one method requested
+   * for two objects runs once for each.
+   */
+  requestStep<Receiver>(
+    step: (this: Receiver, operation: Operation | null) => void,
+    receiver: Receiver,
+  ): void;
   /** Acts only while this operation is current and undecided. */
   requestCancel(reason?: unknown): void;
 }

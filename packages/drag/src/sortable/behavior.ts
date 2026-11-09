@@ -204,7 +204,7 @@ export class SortableBehavior implements Behavior<
     });
     drag.use(this.#retireAxis);
     listenForInvalidation(this.#window, drag.signal, () => {
-      drag.requestStep(this.#invalidateGeometry);
+      drag.requestStep(this.#invalidateGeometry, this);
     });
 
     const operation = new SortableOperation(
@@ -229,10 +229,10 @@ export class SortableBehavior implements Behavior<
     return operation;
   }
 
-  /** Step, on scroll and resize: the cached geometry is stale. */
-  readonly #invalidateGeometry = (): void => {
+  /** Step, on scroll and resize, called on this behavior: the cached geometry is stale. */
+  #invalidateGeometry(): void {
     this.axis.invalidate();
-  };
+  }
 
   /** Disposer, per operation: the cache releases the operation's elements. */
   readonly #retireAxis = (): void => {

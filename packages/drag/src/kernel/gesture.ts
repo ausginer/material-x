@@ -26,7 +26,14 @@ export interface DraggableController<Operation> {
    * the operation `activate` returned, from the end of activation until the drop
    * or the decision, and `null` otherwise.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
+  /** As above, with `step` called on `receiver`. */
+  requestStep<Receiver>(
+    step: (this: Receiver, operation: Operation | null) => void,
+    receiver: Receiver,
+  ): void;
   /** The first decision wins. Nothing happens on an idle controller. */
   requestCancel(reason?: unknown): void;
   /** Every call returns one promise, settled after teardown. */
@@ -108,8 +115,11 @@ export class Gesture<
   readonly #listeners = new AbortController();
   readonly #disposers: DragDisposer[] = [];
 
-  /** Deferred steps, in request order. Empty on the hot path. */
-  readonly #steps: Array<(operation: Operation | null) => void> = [];
+  /**
+   * Deferred steps, in request order, each followed by the receiver it is called
+   * on, or `undefined` for none. Empty on the hot path.
+   */
+  readonly #steps: unknown[] = [];
 
   #session: Session<State, Verdict, Operation> | null = null;
   #running = false;
@@ -156,15 +166,15 @@ export class Gesture<
    */
   enter(): void;
   enter<A>(step: (argument: A) => void, argument: A): void;
-  enter<A, R extends object>(
+  enter<A, R>(
     step: (this: R, argument: A) => void,
     argument: A,
     receiver: R,
   ): void;
   enter(
-    step?: (this: object | undefined, argument: unknown) => void,
+    step?: (this: unknown, argument: unknown) => void,
     argument?: unknown,
-    receiver?: object,
+    receiver?: unknown,
   ): void {
     if (this.#running || (this.#destroyed && !this.#resolveDestroyed)) {
       // While a pass runs, only input arrives here with a step: a request has
@@ -231,19 +241,40 @@ export class Gesture<
     this.#session = null;
   }
 
-  requestStep(step: (operation: Operation | null) => void): void {
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
+  requestStep<Receiver>(
+    step: (this: Receiver, operation: Operation | null) => void,
+    receiver: Receiver,
+  ): void;
+  requestStep(
+    step: (this: unknown, operation: Operation | null) => void,
+    receiver?: unknown,
+  ): void {
     if (this.#destroyed) {
       return;
     }
 
     if (this.#running) {
-      if (!this.#steps.includes(step)) {
-        this.#steps.push(step);
+      const steps = this.#steps;
+
+      // A pair is waiting only with the same step and the same receiver.
+      for (let i = 0; i < steps.length; i += 2) {
+        if (steps[i] === step && steps[i + 1] === receiver) {
+          return;
+        }
       }
+
+      steps.push(step, receiver);
     } else {
       // Requested while idle, the step is the first step of its own pass. The
       // list stays empty, so an idle request allocates nothing.
-      this.enter(step, this.#session ? this.#session.stepTarget() : null);
+      this.enter(
+        step,
+        this.#session ? this.#session.stepTarget() : null,
+        receiver,
+      );
     }
   }
 
@@ -287,9 +318,15 @@ export class Gesture<
         }
 
         if (this.#steps.length > 0) {
-          const step = this.#steps.shift()!;
+          const step = this.#steps.shift() as (
+            this: unknown,
+            operation: Operation | null,
+          ) => void;
 
-          step(this.#session ? this.#session.stepTarget() : null);
+          step.call(
+            this.#steps.shift(),
+            this.#session ? this.#session.stepTarget() : null,
+          );
         } else if (!this.#session?.advance()) {
           return;
         }

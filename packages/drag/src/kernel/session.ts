@@ -200,9 +200,12 @@ export class Session<
       // Steps drain before the pass that requested them ends, and an operation
       // opens only as the first step of a pass, so a step requested before this
       // operation ends never runs under a later one.
-      requestStep: (step) => {
+      requestStep: (
+        step: (this: unknown, operation: Operation | null) => void,
+        receiver?: unknown,
+      ) => {
         if (this.#phase !== ENDED) {
-          gesture.requestStep(step);
+          gesture.requestStep(step, receiver);
         }
       },
       requestCancel: (reason) => {
