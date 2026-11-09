@@ -56,8 +56,8 @@ Part II is senior to Part I wherever the two meet.
 
 ## TypeScript
 
-- Use `interface` for object contracts intended for classes or interchangeable implementations, even when the current implementation is an object literal, and when extending a global interface. Use `type` for data records, unions, function types and type transformations.
-- Wrap data-record types in `Readonly<>` and mark interface data properties `readonly` unless mutability is required. Declare receiver-dependent interface members as methods; keep detached-safe callback properties as function types. Do not wrap implementation interfaces in `Readonly<>`.
+- Use `interface` for contracts that other code is expected to implement, through classes or interchangeable objects, and when extending a global interface. Use `type` for the shapes of concrete values the library creates and gives to callers, including objects with function members, as well as data records, unions, function types and type transformations. The presence of methods or the possibility of writing `implements` does not make a value shape an implementation contract. Choose by intended use, not by lint behavior.
+- Wrap data records and object-value shapes in `Readonly<>` and mark interface data properties `readonly` unless mutability is required. Declare receiver-dependent interface members as methods; keep detached-safe callback properties as function types. Do not wrap implementation interfaces in `Readonly<>`.
 - Prefer a `type-fest` utility over a handwritten type that does the same, such as `Writable<T>` over a `-readonly` mapped type. `type-fest` is a shared project dependency. Write the type by hand only when the utility can't express it where it is used, and say why.
 
 ## Nullish checks
@@ -408,3 +408,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-08 | Part I, TypeScript | **Added:** the preference for `type-fest`'s utilities over equivalent handwritten types, stated by the owner. It corrects a reading of `DRD-27` that took the removal of `type-fest` from `@ydinjs/drag` as a rule. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-29 |
 | 2026-11-08 | Part I, TypeScript | **Changed:** at the owner's direction, implementation contracts use interfaces, including contracts currently implemented by object literals. This replaces the preference for `type` except where a class already implements it. The blanket `Readonly<>` guidance now distinguishes data records from implementation interfaces; interface data properties remain `readonly` unless mutation is required |
 | 2026-11-08 | Part I, Class encapsulation | **Added:** at the owner's direction, mutable class state is private and public fields are read-only. Read-only interfaces and reference bindings do not permit exposing writable class-owned state |
+| 2026-11-09 | Part I, TypeScript | **Clarified:** interfaces describe intended implementation contracts. Library-created object values remain types even when they contain functions. Method presence and lint behavior do not determine the declaration kind |
