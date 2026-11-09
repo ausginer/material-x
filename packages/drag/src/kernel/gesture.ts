@@ -13,7 +13,8 @@
 import { DragFault } from '../fault.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
-import { runDragDisposer, type DragDisposer } from './drag.ts';
+import { CallbackList } from './callback-list.ts';
+import { runDisposers, runDragDisposer } from './drag.ts';
 import { Session } from './session.ts';
 
 /**
@@ -24,15 +25,36 @@ export interface DraggableController<Operation> {
   /**
    * As `Drag.requestStep`, for whichever operation is current: the step receives
    * the operation `activate` returned, from the end of activation until the drop
-   * or the decision, and `null` otherwise.
+   * or the decision, and `null` otherwise. Called with no receiver.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
+  /**
+   * As above, with `step` called on `receiver`. The same step requested again
+   * before it runs runs once only when it comes with the same receiver.
+   */
+  requestStep<Receiver extends object>(
+    step: (this: Receiver, operation: Operation | null) => void,
+    receiver: Receiver,
+  ): void;
   /** The first decision wins. Nothing happens on an idle controller. */
   requestCancel(reason?: unknown): void;
   /** Every call returns one promise, settled after teardown. */
   requestDestroy(): Promise<void>;
-  /** Controller-lifetime cleanup: runs on destruction, last in first out. */
-  use(dispose: () => void): void;
+  /**
+   * Controller-lifetime cleanup: runs on destruction, last in first out. Added
+   * after teardown, it runs at once. Called with no receiver.
+   */
+  use(dispose: (this: undefined) => void): void;
+  /**
+   * As above, with `dispose` called on `receiver`. Every call is its own
+   * registration, so the same disposer registered twice runs twice.
+   */
+  use<Receiver extends object>(
+    dispose: (this: Receiver) => void,
+    receiver: Receiver,
+  ): void;
 }
 
 const DEFAULT_THRESHOLD = 8;
@@ -106,10 +128,14 @@ export class Gesture<
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
   readonly #listeners = new AbortController();
-  readonly #disposers: DragDisposer[] = [];
+  /** Controller-lifetime cleanup, each with its receiver, run at teardown. */
+  readonly #disposers = CallbackList.stack<null>();
 
-  /** Deferred steps, in request order. Empty on the hot path. */
-  readonly #steps: Array<(operation: Operation | null) => void> = [];
+  /**
+   * Deferred steps with their receivers, in request order. Empty on the hot
+   * path.
+   */
+  readonly #steps = CallbackList.queue<Operation | null>();
 
   #session: Session<State, Verdict, Operation> | null = null;
   #running = false;
@@ -147,7 +173,8 @@ export class Gesture<
    *   object. A running pass refuses it, and it is lost.
    * - **A request** that has filled its slot passes nothing. A running pass's
    *   reader applies it.
-   * - **A step requested while idle** passes no receiver, so it runs with none.
+   * - **A step requested while idle** passes the receiver it was requested with,
+   *   if any.
    * - **A verdict's fault while idle** passes `raise` and the controller.
    *
    * After teardown, everything is refused. Destruction requested while idle is
@@ -159,7 +186,7 @@ export class Gesture<
   enter<A, R extends object>(
     step: (this: R, argument: A) => void,
     argument: A,
-    receiver: R,
+    receiver: R | undefined,
   ): void;
   enter(
     step?: (this: object | undefined, argument: unknown) => void,
@@ -231,19 +258,40 @@ export class Gesture<
     this.#session = null;
   }
 
-  requestStep(step: (operation: Operation | null) => void): void {
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
+  requestStep<Receiver extends object>(
+    step: (this: Receiver, operation: Operation | null) => void,
+    receiver: Receiver,
+  ): void;
+  /** The session's `Drag` forwards a step with its receiver, or with none. */
+  requestStep(
+    step: (this: object | undefined, operation: Operation | null) => void,
+    receiver: object | undefined,
+  ): void;
+  requestStep(
+    step: (this: object | undefined, operation: Operation | null) => void,
+    receiver?: object,
+  ): void {
     if (this.#destroyed) {
       return;
     }
 
     if (this.#running) {
-      if (!this.#steps.includes(step)) {
-        this.#steps.push(step);
+      // Steps coalesce by step and receiver. A running step is no longer
+      // waiting, so a request it makes for itself adds it again.
+      if (!this.#steps.has(step, receiver)) {
+        this.#steps.add(step, receiver);
       }
     } else {
       // Requested while idle, the step is the first step of its own pass. The
       // list stays empty, so an idle request allocates nothing.
-      this.enter(step, this.#session ? this.#session.stepTarget() : null);
+      this.enter(
+        step,
+        this.#session ? this.#session.stepTarget() : null,
+        receiver,
+      );
     }
   }
 
@@ -265,11 +313,18 @@ export class Gesture<
     return this.#destroyed;
   }
 
-  use(dispose: () => void): void {
+  use(dispose: (this: undefined) => void): void;
+  use<Receiver extends object>(
+    dispose: (this: Receiver) => void,
+    receiver: Receiver,
+  ): void;
+  use(dispose: (this: object | undefined) => void, receiver?: object): void {
     if (this.#destroyed && !this.#resolveDestroyed) {
-      runDragDisposer(dispose, null, this);
+      runDragDisposer(dispose, null, this, receiver);
     } else {
-      this.#disposers.push(dispose);
+      // Every registration is its own entry, so the same pair runs once per
+      // call.
+      this.#disposers.add(dispose, receiver);
     }
   }
 
@@ -286,10 +341,8 @@ export class Gesture<
           return;
         }
 
-        if (this.#steps.length > 0) {
-          const step = this.#steps.shift()!;
-
-          step(this.#session ? this.#session.stepTarget() : null);
+        if (!this.#steps.empty) {
+          this.#steps.run(this.#session ? this.#session.stepTarget() : null);
         } else if (!this.#session?.advance()) {
           return;
         }
@@ -362,12 +415,10 @@ export class Gesture<
 
     this.#resolveDestroyed = null;
     this.#session = null;
-    this.#steps.length = 0;
+    this.#steps.clear();
     session?.terminate();
 
-    while (this.#disposers.length > 0) {
-      runDragDisposer(this.#disposers.pop()!, null, this);
-    }
+    runDisposers(this.#disposers, null, this);
 
     this.#listeners.abort();
     resolveDestroyed();

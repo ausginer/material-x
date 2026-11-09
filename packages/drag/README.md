@@ -168,13 +168,15 @@ function nudge(amount: number): void {
 
 A literal behavior names `draggable`'s type arguments, as here, when a step reads its operation's own members or a hook needs the verdict's type. A class instance infers them.
 
-The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the operation `activate` returned, from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing. The same function requested twice before it runs runs once, so a stable function coalesces.
+The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the operation `activate` returned, from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing.
+
+A step passed alone is called with no receiver. Pass an object after it, as in `controller.requestStep(this.refresh, this)`, and the step is called on that object. The same step requested twice before it runs runs once only when it comes with the same receiver, or with none both times. So a stable function coalesces, and one method requested for two objects runs once for each.
 
 Hooks also have `drag.requestStep` and `drag.requestCancel`. **They are scoped to their operation:** they act only while it is the controller's current one, and afterwards do nothing, so a `drag` kept in a timer never reaches a later drag. Cleanup after an operation belongs in `use`. Call `draggable`'s controller methods on the controller, as in `return () => controller.requestDestroy()`. The members of the `sortable` and `freeDrag` controllers also work when detached.
 
 ### Cleanup with `use`
 
-`drag.use(dispose)` runs when the operation releases its presentation, last in first out, and every disposer runs whatever another one throws. A disposer receives the outcome, or `null` when destruction released the operation, where neither `settle` nor `end` runs. A disposer added after release runs at once with the same value. So one disposer can state a rollback:
+`drag.use(dispose)` runs when the operation releases its presentation, last in first out, and every disposer runs whatever another one throws. Like a step, a disposer passed with an object, as in `drag.use(this.release, this)`, is called on that object, and one passed alone is called with no receiver. Every `use` call is its own registration, so the same disposer registered twice runs twice. A disposer receives the outcome, or `null` when destruction released the operation, where neither `settle` nor `end` runs. A disposer added after release runs at once with the same value. So one disposer can state a rollback:
 
 ```ts
 drag.use((outcome) => {
@@ -184,7 +186,7 @@ drag.use((outcome) => {
 });
 ```
 
-`controller.use(dispose)` is cleanup for the controller's lifetime. A disposer added too late runs at once.
+`controller.use(dispose)` is cleanup for the controller's lifetime, and takes a receiver in the same way. A disposer added too late runs at once, on its receiver.
 
 ### Faults
 

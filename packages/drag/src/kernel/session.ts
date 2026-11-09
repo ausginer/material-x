@@ -1,7 +1,8 @@
 import { deepActiveElement } from '../shared/focus.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
-import { runDragDisposer, type DragDisposer, type KernelDrag } from './drag.ts';
+import { CallbackList } from './callback-list.ts';
+import { runDisposers, runDragDisposer, type KernelDrag } from './drag.ts';
 import type { Gesture } from './gesture.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
 
@@ -141,7 +142,8 @@ export class Session<
   readonly #motion = new AbortController();
   /** Escape and `drag.signal`, closed when the presentation is released. */
   readonly #presentation = new AbortController();
-  readonly #disposers: DragDisposer[] = [];
+  /** Operation cleanup, each with its receiver, run at release. */
+  readonly #disposers = CallbackList.stack<Outcome | null>();
   #phase:
     | typeof PENDING
     | typeof ACTIVE
@@ -190,19 +192,25 @@ export class Session<
       originX: x,
       originY: y,
       signal: this.#presentation.signal,
-      use: (dispose) => {
+      use: (
+        dispose: (this: object | undefined, outcome: Outcome | null) => void,
+        receiver?: object,
+      ) => {
         if (this.#presentation.signal.aborted) {
-          runDragDisposer(dispose, this.#releasedWith, gesture);
+          runDragDisposer(dispose, this.#releasedWith, gesture, receiver);
         } else {
-          this.#disposers.push(dispose);
+          this.#disposers.add(dispose, receiver);
         }
       },
       // Steps drain before the pass that requested them ends, and an operation
       // opens only as the first step of a pass, so a step requested before this
       // operation ends never runs under a later one.
-      requestStep: (step) => {
+      requestStep: (
+        step: (this: object | undefined, operation: Operation | null) => void,
+        receiver?: object,
+      ) => {
         if (this.#phase !== ENDED) {
-          gesture.requestStep(step);
+          gesture.requestStep(step, receiver);
         }
       },
       requestCancel: (reason) => {
@@ -543,9 +551,7 @@ export class Session<
     this.#releasedWith = outcome;
     this.#presentation.abort();
 
-    while (this.#disposers.length > 0) {
-      runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture);
-    }
+    runDisposers(this.#disposers, outcome, this.#gesture);
   }
 
   /**

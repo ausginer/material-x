@@ -24,7 +24,7 @@ export interface DisplacementSink {
     items: readonly HTMLElement[],
     count: number,
   ): void;
-  retire(): void;
+  retire(this: DisplacementSink): void;
 }
 
 export type DisplacementInstaller = () => DisplacementSink;
@@ -54,10 +54,10 @@ export interface InsertionGeometry {
   /** A new gap, or `null` when the committed one still wins. */
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /** Staleness only, because scroll calls it many times a second. */
-  invalidate(): void;
+  invalidate(this: InsertionGeometry): void;
   /** The committed move landed: keep the cache true and report what moved. */
   moved(query: AxisQuery, context: AxisContext): void;
-  retire(): void;
+  retire(this: InsertionGeometry): void;
 }
 
 export type AxisInstaller = () => InsertionGeometry;

@@ -76,11 +76,13 @@ function updateInsertion(operation: SortableOperation | null): void {
 }
 
 /**
- * The behavior `draggable` runs for one root: admission and activation. Every
- * function handed elsewhere is created once per instance, or once per operation
- * when it closes over the operation, so the kernel's identity coalescing sees the
- * same step on every request. It holds only controller-lifetime values, and the
- * operation reads the ones it needs through it.
+ * The behavior `draggable` runs for one root: admission and activation. Each
+ * step it requests is the same function on every request, or the axis's method
+ * passed with the axis, so the kernel coalesces a step requested again before it
+ * runs. A function it creates to hand elsewhere is created once per instance, or
+ * once per operation when it closes over the operation. It holds only
+ * controller-lifetime values, and the operation reads the ones it needs through
+ * it.
  */
 export class SortableBehavior implements Behavior<
   PressState,
@@ -202,9 +204,11 @@ export class SortableBehavior implements Behavior<
     drag.use(() => {
       frame.cancel();
     });
-    drag.use(this.#retireAxis);
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `this.axis`, passed with it
+    drag.use(this.axis.retire, this.axis);
     listenForInvalidation(this.#window, drag.signal, () => {
-      drag.requestStep(this.#invalidateGeometry);
+      // eslint-disable-next-line @typescript-eslint/unbound-method -- called on `this.axis`, passed with it
+      drag.requestStep(this.axis.invalidate, this.axis);
     });
 
     const operation = new SortableOperation(
@@ -228,16 +232,6 @@ export class SortableBehavior implements Behavior<
 
     return operation;
   }
-
-  /** Step, on scroll and resize: the cached geometry is stale. */
-  readonly #invalidateGeometry = (): void => {
-    this.axis.invalidate();
-  };
-
-  /** Disposer, per operation: the cache releases the operation's elements. */
-  readonly #retireAxis = (): void => {
-    this.axis.retire();
-  };
 
   #pull(): CollectionSnapshot {
     this.#version += 1;

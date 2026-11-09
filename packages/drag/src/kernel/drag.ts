@@ -1,4 +1,5 @@
 import type { Writable } from 'type-fest';
+import type { CallbackList } from './callback-list.ts';
 import type { Gesture } from './gesture.ts';
 import type { Outcome } from './outcome.ts';
 
@@ -23,12 +24,26 @@ export interface Drag<Operation = unknown> {
   readonly originY: number;
   /** Aborts when the operation releases its presentation. */
   readonly signal: AbortSignal;
-  use(dispose: DragDisposer): void;
+  /**
+   * Runs `dispose` when the operation releases its presentation, last in first
+   * out. It receives the outcome, or `null` when destruction released the
+   * operation. Added after release, it runs at once. Called with no receiver.
+   */
+  use(dispose: (this: undefined, outcome: Outcome | null) => void): void;
+  /**
+   * As above, with `dispose` called on `receiver`. Every call is its own
+   * registration, so the same disposer registered twice runs twice.
+   */
+  use<Receiver extends object>(
+    dispose: (this: Receiver, outcome: Outcome | null) => void,
+    receiver: Receiver,
+  ): void;
   /**
    * Runs `step` in a pass: at once when no pass is running, otherwise between
-   * steps, in request order. The same function requested again before it runs
-   * runs once. The step receives the operation `activate` returned, from the end
-   * of activation until the drop or the decision, and `null` otherwise.
+   * steps, in request order. The same step requested again before it runs runs
+   * once. The step receives the operation `activate` returned, from the end of
+   * activation until the drop or the decision, and `null` otherwise. Called with
+   * no receiver.
    *
    * Acts only while this operation is the controller's current one, so a
    * retained `Drag` never reaches a later operation. Afterwards it does nothing:
@@ -38,7 +53,18 @@ export interface Drag<Operation = unknown> {
    * write operation state through this. Foreign code can run during any DOM write
    * the kernel makes, and a direct write would change the running step.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  requestStep(
+    step: (this: undefined, operation: Operation | null) => void,
+  ): void;
+  /**
+   * As above, with `step` called on `receiver`. The same step requested again
+   * before it runs runs once only when it comes with the same receiver, so one
+   * method requested for two receivers runs once for each.
+   */
+  requestStep<Receiver extends object>(
+    step: (this: Receiver, operation: Operation | null) => void,
+    receiver: Receiver,
+  ): void;
   /** Acts only while this operation is current and undecided. */
   requestCancel(reason?: unknown): void;
 }
@@ -47,17 +73,37 @@ export interface Drag<Operation = unknown> {
 export type KernelDrag<Operation> = Writable<Drag<Operation>>;
 
 /**
- * Runs one disposer with no receiver. A throw is reported through `raise`,
- * called on the controller, and the caller's walk continues.
+ * Runs one disposer added after release, on its receiver or with none. A throw
+ * is reported through `raise`, called on the controller.
  */
-export function runDragDisposer(
-  dispose: DragDisposer,
-  outcome: Outcome | null,
+export function runDragDisposer<Argument>(
+  dispose: (this: object | undefined, argument: Argument) => void,
+  argument: Argument,
   controller: Pick<Gesture<never, never, never>, 'raise'>,
+  receiver: object | undefined,
 ): void {
   try {
-    dispose(outcome);
+    dispose.call(receiver, argument);
   } catch (error) {
     controller.raise(error);
+  }
+}
+
+/**
+ * Runs every disposer in `disposers`, a list `CallbackList.stack()` made, so
+ * last in first out. A throw is reported through `raise`, called on the
+ * controller, and the walk continues.
+ */
+export function runDisposers<Argument>(
+  disposers: CallbackList<Argument>,
+  argument: Argument,
+  controller: Pick<Gesture<never, never, never>, 'raise'>,
+): void {
+  while (!disposers.empty) {
+    try {
+      disposers.run(argument);
+    } catch (error) {
+      controller.raise(error);
+    }
   }
 }
