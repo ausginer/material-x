@@ -1,0 +1,13 @@
+## ablation: item 1's activation invalidation removed from both states
+# parent (item 2 without the line)
+freeDrag                            14796 min  4903 br  carries: -
+freeDrag + landing                  15456 min  5174 br  carries: landing animation, landing timing
+freeDrag + bounds + landing         15961 min  5357 br  carries: landing animation, landing timing, bounds
+freeDrag + dropTargets                n/a
+freeDrag + dropTargets + landing      n/a
+# item 3 without the line
+freeDrag                            15005 min  4948 br  carries: -
+freeDrag + landing                  15665 min  5218 br  carries: landing animation, landing timing
+freeDrag + bounds + landing         16170 min  5392 br  carries: landing animation, landing timing, bounds
+freeDrag + dropTargets              15675 min  5209 br  carries: drop targets
+freeDrag + dropTargets + landing    16335 min  5465 br  carries: landing animation, landing timing, drop targets

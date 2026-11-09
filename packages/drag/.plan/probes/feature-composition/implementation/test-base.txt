@@ -1,0 +1,16 @@
+ ❯ |node| tests/size.node.test.ts (11 tests | 4 failed) 184ms
+     × should satisfy the declared graph and ceiling of draggable alone 4ms
+     × should satisfy the declared graph and ceiling of example: drop zone 0ms
+     × should satisfy the declared graph and ceiling of freeDrag 0ms
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing 0ms
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ ❯ tests/size.node.test.ts:24:47
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ ❯ tests/size.node.test.ts:24:47
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ ❯ tests/size.node.test.ts:24:47
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ ❯ tests/size.node.test.ts:24:47
+ Test Files  1 failed | 24 passed (25)
+      Tests  4 failed | 343 passed (347)
+exit 1
