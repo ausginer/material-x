@@ -31,17 +31,6 @@ export type ReadonlyFloat64Array = Readonly<{
   slice(start?: number, end?: number): Float64Array;
 }>;
 
-/**
- * What a collaborator may read from the cache. The owner writes through the class's
- * own declarations of the same members.
- */
-export interface RectIndexView {
-  readonly values: ReadonlyFloat64Array;
-  readonly placeholderRect: ReadonlyFloat64Array;
-  readonly items: readonly HTMLElement[];
-  readonly count: number;
-}
-
 function capacityFor(needed: number): number {
   let capacity = 1;
 
@@ -57,7 +46,7 @@ function capacityFor(needed: number): number {
  * resolution, and `items` only when proposing a gap change. Do not add a read
  * inside the candidate loop.
  */
-export class RectIndex implements RectIndexView {
+export class RectIndex {
   /**
    * Re-allocated only when the collection outgrows it. It never shrinks: it is
    * bounded by the largest collection the controller saw, and released with it.
