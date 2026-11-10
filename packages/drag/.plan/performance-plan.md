@@ -27,7 +27,7 @@ One implementer unit: [`performance-instrument-handoff.md`](performance-instrume
 1. `DRF-7`: every injection applies to the current source, and a dry check proves it with no browser.
 2. `DRF-1`: the bytes rule selects the kernel by module location.
 3. A graded series of injected regressions gives each judged row type its detection floor. The series is recorded and doesn't gate.
-4. `--prove`: every gate injection flags, and the A/A pass is quiet.
+4. `--prove`: every injection expected to flag flags, the step-list injection stays quiet, and the A/A pass is quiet. **Amended on 2026-11-10 by `DRD-41`:** it said "every gate injection flags". At the current source the step list allocates nothing per entry, so that injection shows that the bytes rule doesn't flag kernel work with no allocation.
 5. The kernel per-sample test is run in four launch contexts, with M1 and M2, to find what its result depends on. Nothing in the test changes in this unit.
 6. The baseline: two full comparisons at the unit's last commit against drag2 and the prototype, one `--before` A/A run of the baseline commit against itself, and the size table.
 

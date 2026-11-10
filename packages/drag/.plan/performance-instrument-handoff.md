@@ -13,10 +13,36 @@
 - anything under `src/`;
 - any test file. Item 4 uses temporary edits that are restored and never committed;
 - `judge`'s rules, its 16 B per function, the rounds, the A/A pass, and every scenario's events, counts and waits;
-- each existing injection's `name`, `scenario`, `expect` and injected cost. Only its `file`, `find` and the form of its `replace` move;
+- each existing injection's `name`, `scenario`, `expect` and injected cost. Only its `file`, `find` and the form of its `replace` move. **Amended on 2026-11-10 by `DRD-41`:** the step-list injection's expectation changes to "doesn't flag", in item 2a;
 - the per-sample test's `< 16`, its 64-byte interval and 300 samples, the `DRF-2` test's bound, and every size ceiling, control and `absent` list.
 
 **Machine state, for every browser run:** nothing else from this session runs at the same time. Record `nproc`, `node --version` and `uptime` before and after each run. Chrome's version is in `compare.ts`'s JSON.
+
+## Resumption after the return at `b8f1d1b35`
+
+Added on 2026-11-10. The unit returned during item 2's proof: the step-list injection adds no bytes at the current source ([report](performance-instrument-report.md) §Returned). `DRD-41` decides it. Resume from the commit that carries this section.
+
+| Item | State | What remains |
+| --- | --- | --- |
+| 1, `DRF-7` | Done at `f50f4a35a`. `DRF-7` is closed | Nothing. Don't repeat D1 to D3. The dry check runs again in 2a |
+| 2, `DRF-1` | Done at `ab14380c1`. Properties 1 to 6 hold. N1, N2's 1 KB and N3 passed in the pre-check ([`n3-prove`](measurements/2026-11-10-performance-n3-prove.txt)) | Nothing apart from 2a. Don't repeat N3 or the key checks. N1, N2 and N4 are read from item 5 step 1, which runs anyway |
+| 2a | New | One commit, below |
+| 3, 4, 5 | Not run | As written, with item 2's proof table and item 5 step 1 as amended |
+
+**The report.** Add a section "Resumed" to [`performance-instrument-report.md`](performance-instrument-report.md) for 2a and items 3 to 5. Don't rewrite its earlier sections.
+
+### 2a. The step-list injection is the quiet witness (`DRD-41`)
+
+**Required properties:** `DRD-41` properties 1 to 4. An injection says whether it must flag or must stay quiet. `--prove` fails on a quiet injection that flags as it does on a flagging injection that doesn't. The output names which expectation was broken.
+
+**Verification:**
+
+| Run | Required result |
+| --- | --- |
+| `--prove --dry`, with no browser | Exit 0. Seven injections apply, and the step-list injection is listed as expected to stay quiet |
+| Q1: the four-number injection's expectation temporarily set to quiet, `--prove --only 'four numbers' --rounds 3`, with `--out` | Exit non-zero. The output names the injection and says that a quiet expectation was broken. Restore `compare.ts` and compare it byte for byte. Keep the raw output, labeled as a mutation |
+
+Q1 also runs the A/A pass, at 3 rounds. That pass isn't a reading for this unit.
 
 ## Items
 
@@ -57,7 +83,8 @@ Items 1 to 3 are each one commit, in this order. Items 4 and 5 commit only their
 | Run | Required result |
 | --- | --- |
 | N1: the new injection, from item 5's `--prove` | Flags, under `kernel/gesture.ts:enter` |
-| N2: "1 KB allocated per move" and "one entry on the step list per frame", from the same run | Each flags, under its kernel module's key |
+| N2: "1 KB allocated per move", from the same run | Flags, under `kernel/session.ts:#move`. **Amended on 2026-11-10 by `DRD-41`:** it also required "one entry on the step list per frame" to flag |
+| N4: "one entry on the step list per frame", from the same run | Doesn't flag. Report the injected arms' keys under `kernel/callback-list.ts` and `requestStep`, if they were sampled. Whether they appear isn't a condition |
 | N3: the same four-number array in `sortable/operation.ts`'s `move`, as a temporary injection, `--prove --only`, 3 rounds | Doesn't flag. The raw reading shows it under `sortable/operation.ts:move` |
 
 ### 3. Detection floors: a graded series of injections that doesn't gate
@@ -111,7 +138,7 @@ Report each context's minimum, median, maximum and failure count; whether D's di
 
 Run in this order, at the unit's last commit:
 
-1. **`node bench/compare.ts --prove`,** with `--out`. Every gate injection flags (seven) and the A/A pass is quiet on all 12 validation rows. **If it fails, stop here and return.** Don't take the baseline, and don't change an injection's cost.
+1. **`node bench/compare.ts --prove`,** with `--out`. The six injections expected to flag flag, the step-list injection doesn't flag, and the A/A pass is quiet on all 12 validation rows. **If it fails, stop here and return.** Don't take the baseline, and don't change an injection's cost or expectation. **Amended on 2026-11-10 by `DRD-41`:** it said "every gate injection flags (seven)".
 2. **The series of item 3,** with `--out`.
 3. **B1:** `node bench/compare.ts`, all rows, 7 rounds, arms drag2, prototype, production and control, with `--out`.
 4. **B2:** the same, in a new process.
