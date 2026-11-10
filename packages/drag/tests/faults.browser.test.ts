@@ -239,7 +239,7 @@ describe('drag:DRI-7 faults', () => {
     expect(faultMessages()).toEqual(['settle']);
   });
 
-  it('should report a platform throw and keep the controller: a hidden visual has no box', async () => {
+  it('should report one fault when the lift acquires a visual with no box, and keep the controller', async () => {
     const list = makeList(3);
     const liftModule = await import('../src/lift.ts');
     const lifter = new liftModule.Lifter(window);
@@ -266,7 +266,7 @@ describe('drag:DRI-7 faults', () => {
     await commands.pointerMove(x + 10, y + 40, 3);
     await release();
     expect(log).toEqual([]);
-    expect(faults).toHaveLength(1);
+    expect(faultMessages()).toEqual(['lift/visual-no-box-space']);
     row.style.display = '';
     await dragAndDrop('#r1', 30);
     expect(log).toEqual(['start']);

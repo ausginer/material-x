@@ -30,9 +30,13 @@ const noteOutcome = (outcome: Outcome): void => {
 };
 
 describe('drag:DRI-3 terminals', () => {
-  it.each(['cancel', 'destroy', 'fault'] as const)(
-    'should report a throw from activate once and leave the list clean: %s before the throw',
-    async (kind) => {
+  it.each([
+    { kind: 'cancel', before: 'requestCancel' },
+    { kind: 'destroy', before: 'requestDestroy' },
+    { kind: 'fault', before: 'nothing' },
+  ] as const)(
+    'should report a throw from activate once and leave the list clean: $before before the throw',
+    async ({ kind }) => {
       const list = makeList(1);
       const panel = managed(list, {
         admit: (event) => ({ item: targetOf(event) }),
