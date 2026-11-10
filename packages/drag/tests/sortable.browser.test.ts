@@ -163,6 +163,9 @@ describe('drag:DRI-14 collection', () => {
 
     await grab('#r1', 0, 12);
     rows.splice(rows.indexOf(item) + 1, 0, added);
+
+    const canceled = item.getBoundingClientRect().top;
+
     controller.requestCancel();
     item.after(added);
     controller.invalidate();
@@ -170,6 +173,20 @@ describe('drag:DRI-14 collection', () => {
     expect(results).toEqual([
       { type: 'canceled', reason: undefined, origin: 'request', request: null },
     ]);
+
+    // At its first frame the flight shows the visual where it was canceled only
+    // when its target is the item's home, where the release puts the item.
+    const animations = item.getAnimations();
+
+    for (const animation of animations) {
+      animation.pause();
+      animation.currentTime = 0;
+    }
+
+    expect(animations.length).toBeGreaterThan(0);
+    expect(Math.abs(item.getBoundingClientRect().top - canceled)).toBeLessThan(
+      1,
+    );
   });
 
   it('should land at the rebased home when a drag is canceled after a rebase', async () => {

@@ -34,7 +34,7 @@ interface Lifted extends BehaviorOperation {
 }
 
 describe('drag:DRD-20 detached controller methods', () => {
-  it('should run draggable controller methods called on the controller, with cancelLanding passed detached', async () => {
+  it('should run draggable controller methods called on the controller', async () => {
     const list = makeList(2);
     const lifter = new Lifter(window);
     const controller = draggable<undefined, unknown, Lifted>(list, {
