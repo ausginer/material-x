@@ -1,4 +1,4 @@
-/** Calls `onInvalidate` on scroll, nested scrollers included, and on resize. */
+/** Calls `listener` on scroll, nested scrollers included, and on resize. */
 export function listenForInvalidation(
   window: Window,
   signal: AbortSignal,

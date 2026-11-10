@@ -81,7 +81,7 @@ export function linearShift(index: RectIndex): LinearShift {
   /** A committed move left the cached placeholder rect out of date. */
   let placeholderIsStale = false;
 
-  /** Written only inside `DEV` branches, so it folds away with them. */
+  /** Written only inside `__DEV__` branches, so it folds away with them. */
   let advanceUnchecked = false;
 
   return {

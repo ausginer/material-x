@@ -212,7 +212,7 @@ describe('drag:DRD-30 the activation result', () => {
   it('should let activate return the operation or null, and nothing else', () => {
     draggable(root, { admit: () => null, activate: () => ({}) });
     draggable(root, { admit: () => null, activate: () => null });
-    // @ts-expect-error `false` no longer declines.
+    // @ts-expect-error `false` is not an operation.
     draggable(root, { admit: () => null, activate: () => false });
     // @ts-expect-error `undefined` is not an operation.
     draggable(root, { admit: () => null, activate: () => undefined });
