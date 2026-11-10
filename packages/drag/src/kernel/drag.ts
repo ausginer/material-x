@@ -1,7 +1,10 @@
 import type { Writable } from 'type-fest';
 import type { CallbackList } from './callback-list.ts';
-import type { Gesture } from './gesture.ts';
 import type { Outcome } from './outcome.ts';
+
+export interface Fallible {
+  raise(error: unknown): void;
+}
 
 /**
  * Cleanup for an operation. It receives the outcome, or `null` on destruction,
@@ -79,7 +82,7 @@ export type KernelDrag<Operation> = Writable<Drag<Operation>>;
 export function runDragDisposer<Argument>(
   dispose: (this: object | undefined, argument: Argument) => void,
   argument: Argument,
-  controller: Pick<Gesture<never, never, never>, 'raise'>,
+  controller: Fallible,
   receiver: object | undefined,
 ): void {
   try {
@@ -97,7 +100,7 @@ export function runDragDisposer<Argument>(
 export function runDisposers<Argument>(
   disposers: CallbackList<Argument>,
   argument: Argument,
-  controller: Pick<Gesture<never, never, never>, 'raise'>,
+  controller: Fallible,
 ): void {
   while (!disposers.empty) {
     try {

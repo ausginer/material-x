@@ -14,7 +14,7 @@ import { DragFault } from '../fault.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
 import { CallbackList } from './callback-list.ts';
-import { runDisposers, runDragDisposer } from './drag.ts';
+import { runDisposers, runDragDisposer, type Fallible } from './drag.ts';
 import { Session } from './session.ts';
 
 /**
@@ -122,7 +122,9 @@ export class Gesture<
   State,
   Verdict,
   Operation extends BehaviorOperation<Verdict>,
-> implements DraggableController<Operation> {
+>
+  implements DraggableController<Operation>, Fallible
+{
   readonly #root: HTMLElement;
   readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #window: Window & typeof globalThis;
