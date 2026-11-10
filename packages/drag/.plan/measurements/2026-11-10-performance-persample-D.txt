@@ -1,0 +1,634 @@
+# item 4, context D, mutation none, 10 runs
+# command: npx just test tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+
+## run 1
+# before: nproc 12, node v26.13.0, uptime: 15:53:28 up 1 day, 12:16,  0 users,  load average: 6.28, 6.09, 4.75
+# after: nproc 12, node v26.13.0, uptime: 15:53:48 up 1 day, 12:16,  0 users,  load average: 5.48, 5.92, 4.72
+# summary: {"run": 1, "kernelPerMove": 1.0266666666666666, "result": "pass", "drf2": 136.93333333333334, "exit": 0, "seconds": 20}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":1.0266666666666666,"bytes":{"kernel/gesture.ts:requestStep":84,"kernel/session.ts:handleEvent":224,"sortable/operation.ts:move":9064,"lift.ts:translate":21000}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10476ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 136.93333333333334
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5224ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:53:30
+   Duration  18.39s (tests 97%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:53:30 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:53:32 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 2
+# before: nproc 12, node v26.13.0, uptime: 15:53:48 up 1 day, 12:16,  0 users,  load average: 5.48, 5.92, 4.72
+# after: nproc 12, node v26.13.0, uptime: 15:54:09 up 1 day, 12:17,  0 users,  load average: 7.78, 6.44, 4.92
+# summary: {"run": 2, "kernelPerMove": 0.7466666666666667, "result": "pass", "drf2": 139.42666666666668, "exit": 0, "seconds": 21}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":0.7466666666666667,"bytes":{"kernel/session.ts:handleEvent":224,"sortable/operation.ts:move":10128,"lift.ts:translate":21000}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 11436ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 139.42666666666668
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5314ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:53:50
+   Duration  19.17s (tests 97%, worker 3%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:53:50 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:53:52 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 3
+# before: nproc 12, node v26.13.0, uptime: 15:54:09 up 1 day, 12:17,  0 users,  load average: 7.78, 6.44, 4.92
+# after: nproc 12, node v26.13.0, uptime: 15:54:28 up 1 day, 12:17,  0 users,  load average: 6.64, 6.28, 4.90
+# summary: {"run": 3, "kernelPerMove": 0.28, "result": "pass", "drf2": 137.46666666666667, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":0.28,"bytes":{"kernel/session.ts:handleEvent":84,"sortable/operation.ts:move":8716,"lift.ts:translate":22564}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10810ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 137.46666666666667
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5236ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:54:10
+   Duration  17.74s (tests 97%, worker 1%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:54:10 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:54:11 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 4
+# before: nproc 12, node v26.13.0, uptime: 15:54:28 up 1 day, 12:17,  0 users,  load average: 6.64, 6.28, 4.90
+# after: nproc 12, node v26.13.0, uptime: 15:54:47 up 1 day, 12:17,  0 users,  load average: 5.78, 6.12, 4.88
+# summary: {"run": 4, "kernelPerMove": 1.3066666666666666, "result": "pass", "drf2": 135.04, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":1.3066666666666666,"bytes":{"kernel/session.ts:handleEvent":392,"sortable/operation.ts:move":8720,"lift.ts:translate":22540}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10490ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 135.04
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5206ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:54:29
+   Duration  17.57s (tests 98%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:54:29 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:54:30 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 5
+# before: nproc 12, node v26.13.0, uptime: 15:54:47 up 1 day, 12:17,  0 users,  load average: 5.78, 6.12, 4.88
+# after: nproc 12, node v26.13.0, uptime: 15:55:05 up 1 day, 12:18,  0 users,  load average: 6.04, 6.18, 4.91
+# summary: {"run": 5, "kernelPerMove": 1.0266666666666666, "result": "pass", "drf2": 138.81333333333333, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":1.0266666666666666,"bytes":{"kernel/session.ts:handleEvent":308,"sortable/operation.ts:move":7968,"lift.ts:translate":23704}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10928ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 138.81333333333333
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5197ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:54:47
+   Duration  17.58s (tests 98%, worker 2%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:54:48 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:54:48 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 6
+# before: nproc 12, node v26.13.0, uptime: 15:55:05 up 1 day, 12:18,  0 users,  load average: 6.04, 6.18, 4.91
+# after: nproc 12, node v26.13.0, uptime: 15:55:23 up 1 day, 12:18,  0 users,  load average: 4.96, 5.92, 4.86
+# summary: {"run": 6, "kernelPerMove": 0.28, "result": "pass", "drf2": 135.36, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":0.28,"bytes":{"kernel/session.ts:handleEvent":84,"sortable/operation.ts:move":8704,"lift.ts:translate":21904}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10732ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 135.36
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5246ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:55:06
+   Duration  17.12s (tests 99%, worker 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:55:06 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:55:06 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 7
+# before: nproc 12, node v26.13.0, uptime: 15:55:23 up 1 day, 12:18,  0 users,  load average: 4.96, 5.92, 4.86
+# after: nproc 12, node v26.13.0, uptime: 15:55:42 up 1 day, 12:18,  0 users,  load average: 5.43, 5.99, 4.90
+# summary: {"run": 7, "kernelPerMove": 0.56, "result": "pass", "drf2": 134.94666666666666, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":0.56,"bytes":{"kernel/session.ts:handleEvent":168,"sortable/operation.ts:move":10428,"lift.ts:translate":21740}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10850ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 134.94666666666666
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5222ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:55:24
+   Duration  17.96s (tests 98%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:55:25 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:55:25 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 8
+# before: nproc 12, node v26.13.0, uptime: 15:55:42 up 1 day, 12:18,  0 users,  load average: 5.43, 5.99, 4.90
+# after: nproc 12, node v26.13.0, uptime: 15:56:01 up 1 day, 12:18,  0 users,  load average: 5.01, 5.87, 4.89
+# summary: {"run": 8, "kernelPerMove": 1.3066666666666666, "result": "pass", "drf2": 140.24, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":1.3066666666666666,"bytes":{"kernel/session.ts:handleEvent":392,"sortable/operation.ts:move":8340,"lift.ts:translate":22320}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10551ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 140.24
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5205ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:55:44
+   Duration  17.67s (tests 98%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:55:45 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:55:45 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 9
+# before: nproc 12, node v26.13.0, uptime: 15:56:02 up 1 day, 12:18,  0 users,  load average: 5.01, 5.87, 4.89
+# after: nproc 12, node v26.13.0, uptime: 15:56:20 up 1 day, 12:19,  0 users,  load average: 4.96, 5.83, 4.89
+# summary: {"run": 9, "kernelPerMove": 1.0266666666666666, "result": "pass", "drf2": 139.58666666666667, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":1.0266666666666666,"bytes":{"kernel/session.ts:handleEvent":308,"sortable/operation.ts:move":9160,"lift.ts:translate":22688}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10571ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 139.58666666666667
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5221ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:56:02
+   Duration  17.81s (tests 97%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:56:03 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:56:04 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 10
+# before: nproc 12, node v26.13.0, uptime: 15:56:20 up 1 day, 12:19,  0 users,  load average: 4.64, 5.75, 4.87
+# after: nproc 12, node v26.13.0, uptime: 15:56:39 up 1 day, 12:19,  0 users,  load average: 4.17, 5.59, 4.83
+# summary: {"run": 10, "kernelPerMove": 0.28, "result": "pass", "drf2": 140.97333333333333, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there
+ ↓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > should run no consumer callback per sample
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":0.28,"bytes":{"kernel/session.ts:handleEvent":84,"sortable/operation.ts:move":9668,"lift.ts:translate":20692}}
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10464ms
+stdout | tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+DRF2 140.97333333333333
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:251 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5207ms
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:56:21
+   Duration  18.06s (tests 97%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:56:22 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:56:23 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+# summary of all runs
+{"run": 1, "kernelPerMove": 1.0266666666666666, "result": "pass", "drf2": 136.93333333333334, "exit": 0, "seconds": 20}
+{"run": 2, "kernelPerMove": 0.7466666666666667, "result": "pass", "drf2": 139.42666666666668, "exit": 0, "seconds": 21}
+{"run": 3, "kernelPerMove": 0.28, "result": "pass", "drf2": 137.46666666666667, "exit": 0, "seconds": 19}
+{"run": 4, "kernelPerMove": 1.3066666666666666, "result": "pass", "drf2": 135.04, "exit": 0, "seconds": 19}
+{"run": 5, "kernelPerMove": 1.0266666666666666, "result": "pass", "drf2": 138.81333333333333, "exit": 0, "seconds": 18}
+{"run": 6, "kernelPerMove": 0.28, "result": "pass", "drf2": 135.36, "exit": 0, "seconds": 18}
+{"run": 7, "kernelPerMove": 0.56, "result": "pass", "drf2": 134.94666666666666, "exit": 0, "seconds": 19}
+{"run": 8, "kernelPerMove": 1.3066666666666666, "result": "pass", "drf2": 140.24, "exit": 0, "seconds": 19}
+{"run": 9, "kernelPerMove": 1.0266666666666666, "result": "pass", "drf2": 139.58666666666667, "exit": 0, "seconds": 19}
+{"run": 10, "kernelPerMove": 0.28, "result": "pass", "drf2": 140.97333333333333, "exit": 0, "seconds": 19}

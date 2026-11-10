@@ -1,0 +1,455 @@
+# DISCARDED: the default reporter prints no console output for a passing test, so a passing run has no reading. Rerun with --reporter=verbose as 2026-11-10-performance-persample-D.txt
+# item 4, context D, mutation none, 10 runs
+# command: npx just test tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+
+## run 1
+# before: nproc 12, node v26.13.0, uptime: 15:41:15 up 1 day, 12:04,  0 users,  load average: 3.53, 3.61, 3.17
+# after: nproc 12, node v26.13.0, uptime: 15:41:33 up 1 day, 12:04,  0 users,  load average: 3.25, 3.54, 3.15
+# summary: {"run": 1, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:41:16
+   Duration  17.25s (tests 98%, worker 1%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:41:16 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:41:17 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 2
+# before: nproc 12, node v26.13.0, uptime: 15:41:33 up 1 day, 12:04,  0 users,  load average: 3.25, 3.54, 3.15
+# after: nproc 12, node v26.13.0, uptime: 15:41:52 up 1 day, 12:04,  0 users,  load average: 3.46, 3.60, 3.18
+# summary: {"run": 2, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:41:34
+   Duration  17.65s (tests 98%, worker 2%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:41:35 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:41:36 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 3
+# before: nproc 12, node v26.13.0, uptime: 15:41:52 up 1 day, 12:04,  0 users,  load average: 3.46, 3.60, 3.18
+# after: nproc 12, node v26.13.0, uptime: 15:42:11 up 1 day, 12:05,  0 users,  load average: 3.96, 3.73, 3.23
+# summary: {"run": 3, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:41:53
+   Duration  17.58s (tests 97%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:41:54 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:41:55 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 4
+# before: nproc 12, node v26.13.0, uptime: 15:42:11 up 1 day, 12:05,  0 users,  load average: 3.96, 3.73, 3.23
+# after: nproc 12, node v26.13.0, uptime: 15:42:29 up 1 day, 12:05,  0 users,  load average: 4.75, 3.93, 3.31
+# summary: {"run": 4, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:42:11
+   Duration  16.99s (tests 98%, worker 1%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:42:12 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:42:12 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 5
+# before: nproc 12, node v26.13.0, uptime: 15:42:29 up 1 day, 12:05,  0 users,  load average: 4.75, 3.93, 3.31
+# after: nproc 12, node v26.13.0, uptime: 15:42:47 up 1 day, 12:05,  0 users,  load average: 4.53, 3.95, 3.33
+# summary: {"run": 5, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:42:29
+   Duration  17.39s (tests 98%, worker 2%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:42:30 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:42:31 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 6
+# before: nproc 12, node v26.13.0, uptime: 15:42:47 up 1 day, 12:05,  0 users,  load average: 4.53, 3.95, 3.33
+# after: nproc 12, node v26.13.0, uptime: 15:43:06 up 1 day, 12:06,  0 users,  load average: 4.55, 4.01, 3.36
+# summary: {"run": 6, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:42:48
+   Duration  17.76s (tests 97%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:42:48 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:42:49 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 7
+# before: nproc 12, node v26.13.0, uptime: 15:43:06 up 1 day, 12:06,  0 users,  load average: 4.55, 4.01, 3.36
+# after: nproc 12, node v26.13.0, uptime: 15:43:23 up 1 day, 12:06,  0 users,  load average: 3.98, 3.91, 3.34
+# summary: {"run": 7, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:43:06
+   Duration  16.73s (tests 99%, worker 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:43:07 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:43:07 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 8
+# before: nproc 12, node v26.13.0, uptime: 15:43:23 up 1 day, 12:06,  0 users,  load average: 3.98, 3.91, 3.34
+# after: nproc 12, node v26.13.0, uptime: 15:43:42 up 1 day, 12:06,  0 users,  load average: 4.52, 4.07, 3.41
+# summary: {"run": 8, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:43:24
+   Duration  17.42s (tests 98%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:43:24 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:43:25 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 9
+# before: nproc 12, node v26.13.0, uptime: 15:43:42 up 1 day, 12:06,  0 users,  load average: 4.52, 4.07, 3.41
+# after: nproc 12, node v26.13.0, uptime: 15:44:01 up 1 day, 12:06,  0 users,  load average: 3.83, 3.95, 3.38
+# summary: {"run": 9, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:43:43
+   Duration  17.93s (tests 97%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:43:43 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:43:44 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+## run 10
+# before: nproc 12, node v26.13.0, uptime: 15:44:01 up 1 day, 12:06,  0 users,  load average: 3.83, 3.95, 3.38
+# after: nproc 12, node v26.13.0, uptime: 15:44:19 up 1 day, 12:07,  0 users,  load average: 3.74, 3.93, 3.39
+# summary: {"run": 10, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+
+ Test Files  1 passed | 1 skipped (2)
+      Tests  2 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:44:02
+   Duration  17.16s (tests 98%, worker 1%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:44:02 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:44:03 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+# summary of all runs
+{"run": 1, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+{"run": 2, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+{"run": 3, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+{"run": 4, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+{"run": 5, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+{"run": 6, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+{"run": 7, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+{"run": 8, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
+{"run": 9, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 19}
+{"run": 10, "kernelPerMove": null, "result": "no reading", "drf2": null, "exit": 0, "seconds": 18}
