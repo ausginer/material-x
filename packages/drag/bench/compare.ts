@@ -26,7 +26,7 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
 import { type Browser, type CDPSession, chromium, type Page } from 'playwright';
@@ -59,8 +59,19 @@ declare const lab: Readonly<{
 type Metrics = Readonly<Record<string, number>>;
 type Reading = Readonly<Record<string, number>>;
 
-/** Lab source bundled into an IIFE, unminified so that functions keep their names. */
-async function bundle(lab: string, sourceRoot: string): Promise<string> {
+/** The 0-based line at which a module's code starts in a bundle, and its key. */
+type ModuleStart = Readonly<{ line: number; key: string }>;
+type Bundle = Readonly<{ code: string; modules: readonly ModuleStart[] }>;
+
+/**
+ * Lab source bundled into an IIFE, unminified so that functions keep their names.
+ * The bundler writes a line `// <path from the working directory>` where each
+ * module starts. A module's key is its path under `sourceRoot`, such as
+ * `kernel/session.ts`, so that every arm built from this package's source keys a
+ * module alike. Any other module is keyed by its path from the package, such as
+ * `bench/lab.ts`.
+ */
+async function bundle(lab: string, sourceRoot: string): Promise<Bundle> {
   const built = await rolldown({
     input: lab,
     platform: 'browser',
@@ -91,10 +102,46 @@ async function bundle(lab: string, sourceRoot: string): Promise<string> {
       name: 'labExports',
     });
 
-    return output[0].code;
+    const [chunk] = output;
+    const ids = new Set(chunk.moduleIds);
+    const modules: ModuleStart[] = [];
+
+    chunk.code.split('\n').forEach((text, line) => {
+      const marker = /^\t\/\/ (\S+)$/u.exec(text)?.[1];
+      const path = marker && resolve(marker);
+
+      if (path && ids.has(path)) {
+        const key = relative(sourceRoot, path);
+
+        modules.push({
+          line,
+          key: key.startsWith('..') ? relative(ROOT, path) : key,
+        });
+      }
+    });
+
+    return { code: chunk.code, modules };
   } finally {
     await built.close();
   }
+}
+
+/** The key of the module whose code holds `line`, or `null` before the first one. */
+function moduleAt(
+  modules: readonly ModuleStart[],
+  line: number,
+): string | null {
+  let found: string | null = null;
+
+  for (const start of modules) {
+    if (start.line > line) {
+      break;
+    }
+
+    found = start.key;
+  }
+
+  return found;
 }
 
 interface PageContext {
@@ -106,7 +153,7 @@ interface PageContext {
 }
 
 /** One arm: its lab bundle, and whether its library restores focus itself. */
-type Arm = Readonly<{ code: string; restoresFocus: boolean }>;
+type Arm = Bundle & Readonly<{ restoresFocus: boolean }>;
 
 async function openPage(browser: Browser, arm: Arm): Promise<PageContext> {
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
@@ -200,17 +247,40 @@ function movesScenario(count: number): Scenario {
 }
 
 type HeapNode = Readonly<{
-  callFrame: Readonly<{ functionName: string; scriptId: string }>;
+  callFrame: Readonly<{
+    functionName: string;
+    scriptId: string;
+    lineNumber: number;
+  }>;
   selfSize: number;
   children: readonly HeapNode[];
 }>;
 
-/** Bytes per move by function, with no harness `evaluate` during the run. */
+/**
+ * Bytes per move by function, with no harness `evaluate` during the run. A frame
+ * in the lab bundle is keyed `<module>:<function>`, such as
+ * `kernel/session.ts:#move`.
+ */
 async function samplingProfile(
   context: PageContext,
   moves: (i: number) => Promise<void>,
 ): Promise<Reading> {
-  const { cdp } = context;
+  const { cdp, arm } = context;
+
+  // A sampled frame of an inline script has no url, so the lab bundle's script is
+  // found from one of its functions, before sampling starts.
+  const { result } = await cdp.send('Runtime.evaluate', {
+    expression:
+      "Object.values(lab).find((value) => typeof value === 'function')",
+  });
+  const { internalProperties } = await cdp.send('Runtime.getProperties', {
+    objectId: result.objectId!,
+    ownProperties: true,
+  });
+  const labScript = (
+    internalProperties?.find(({ name }) => name === '[[FunctionLocation]]')
+      ?.value?.value as { scriptId: string } | undefined
+  )?.scriptId;
 
   await cdp.send('HeapProfiler.enable');
   await cdp.send('HeapProfiler.startSampling', {
@@ -228,10 +298,13 @@ async function samplingProfile(
   // A built-in such as `push` has no script, and its bytes belong to its caller.
   // Counted under its own name, the kernel's allocation would escape the rule.
   const walk = (node: HeapNode, caller: string): void => {
+    const { scriptId, lineNumber, functionName } = node.callFrame;
+    const module =
+      scriptId === labScript ? moduleAt(arm.modules, lineNumber) : null;
     const name =
-      node.callFrame.scriptId === '0' && caller
+      scriptId === '0' && caller
         ? caller
-        : node.callFrame.functionName || '(anonymous)';
+        : `${module ? `${module}:` : ''}${functionName || '(anonymous)'}`;
 
     bytes.set(name, (bytes.get(name) ?? 0) + node.selfSize);
     node.children.forEach((child) => {
@@ -529,9 +602,12 @@ const median = (values: readonly number[]): number => {
     : (sorted[middle - 1]! + sorted[middle]!) / 2;
 };
 
-/** The kernel's methods are private, so their names start with `#`, except these. */
-const isKernelFunction = (name: string): boolean =>
-  name.startsWith('#') || name === 'requestStep' || name === 'requestCancel';
+/** A bytes key in a kernel module: one under `kernel/`, or `draggable.ts`. */
+const isKernelKey = (key: string): boolean =>
+  key.startsWith('kernel/') || key.startsWith('draggable.ts:');
+
+/** Whether a bytes key names its module, as `samplingProfile` keys a lab frame. */
+const hasModule = (key: string): boolean => /^[^:]+\.[cm]?[jt]sx?:/u.test(key);
 
 type ArmReadings = Readonly<Record<string, readonly Reading[]>>;
 export type Verdict = Readonly<{
@@ -602,7 +678,8 @@ function pairedVerdict(
  *   minus the before arm's, and control's minus production's. Retains more when
  *   positive in every round and the median exceeds the largest absolute A/A
  *   difference, which may be 0 B. Retains less is the mirror.
- * - **Bytes:** only the lift's CSS string may appear from the kernel and the lift.
+ * - **Bytes, production only:** a function in a kernel module, under `kernel/` or
+ *   `draggable.ts`, flags at 16 B per move or more. No other module is judged.
  *
  * Readings are paired by index, which is the round.
  */
@@ -620,7 +697,7 @@ export function judge(
   if (rule === 'bytes') {
     for (const reading of arms[after] ?? []) {
       for (const [name, bytes] of Object.entries(reading)) {
-        if (isKernelFunction(name) && bytes >= 16) {
+        if (isKernelKey(name) && bytes >= 16) {
           verdicts.push({
             against: 'rule',
             measure: name,
@@ -806,13 +883,15 @@ const VALIDATION_ROWS: readonly string[] = [
 
 /**
  * A text patch on a scratch copy of production's `src`. `file` is the module's path
- * under `src`, and `find` must occur in it exactly once.
+ * under `src`, and `find` must occur in it exactly once. `declaration` is appended
+ * to the module, for a module-level variable the patch stores into.
  */
 type Injection = Readonly<{
   name: string;
   file: string;
   find: string;
   replace: string;
+  declaration?: string;
 }>;
 
 /** Each entry: an injection, and the row that must flag it. */
@@ -875,6 +954,18 @@ const INJECTIONS: ReadonlyArray<
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
+  {
+    // Every sample and every frame enters a pass, and the module is the kernel's
+    // whatever the function's name.
+    name: 'an array of four numbers per sample, in Gesture.enter',
+    file: 'kernel/gesture.ts',
+    find: 'this.#running = true;',
+    replace:
+      'enterCount += 1;\n    enterWitness = [enterCount, enterCount, enterCount, enterCount];\n    this.#running = true;',
+    declaration: 'let enterCount = 0;\nlet enterWitness: number[] = [];\n',
+    scenario: 'bytes per move by function, 20 items',
+    expect: /FLAG/u,
+  },
 ];
 
 /** The selected entries: those whose name contains one of `only`'s `|`-separated texts. */
@@ -893,7 +984,7 @@ const select = <Entry extends Readonly<{ name: string }>>(
  * another directory differs by its module paths.
  */
 async function applyInjection(injection: Injection): Promise<Arm> {
-  const { name, file, find, replace } = injection;
+  const { name, file, find, replace, declaration = '' } = injection;
   const directory = await mkdtemp(join(tmpdir(), 'drag-inject-'));
 
   try {
@@ -909,22 +1000,19 @@ async function applyInjection(injection: Injection): Promise<Arm> {
     }
 
     const lab = join(ROOT, 'bench/lab.ts');
-    const unpatched = await bundle(lab, source);
+    const unpatched = (await bundle(lab, source)).code;
 
-    await writeFile(
-      path,
-      text.replace(find, () => replace),
-    );
+    await writeFile(path, text.replace(find, () => replace) + declaration);
 
-    const code = await bundle(lab, source);
+    const patched = await bundle(lab, source);
 
-    if (code === unpatched) {
+    if (patched.code === unpatched) {
       throw new Error(
         `injection does not apply: ${name} leaves the bundle unchanged`,
       );
     }
 
-    return { code, restoresFocus: true };
+    return { ...patched, restoresFocus: true };
   } finally {
     await rm(directory, { force: true, recursive: true });
   }
@@ -1214,18 +1302,18 @@ async function beforeArms(
 ): Promise<Readonly<{ drag2: Arm; prototype: Arm }>> {
   return {
     drag2: {
-      code: await bundle(join(ROOT, 'bench/lab-drag2.ts'), join(ROOT, 'src')),
+      ...(await bundle(join(ROOT, 'bench/lab-drag2.ts'), join(ROOT, 'src'))),
       restoresFocus: false,
     },
     prototype: {
-      code: await bundle(
+      ...(await bundle(
         lab,
         await archivedSource(
           scratch,
           PROTOTYPE_REVISION,
           'packages/drag/prototype/src',
         ),
-      ),
+      )),
       restoresFocus: false,
     },
   };
@@ -1270,11 +1358,11 @@ async function run(
   try {
     const lab = join(ROOT, 'bench/lab.ts');
     const production: Arm = {
-      code: await bundle(lab, join(ROOT, 'src')),
+      ...(await bundle(lab, join(ROOT, 'src'))),
       restoresFocus: true,
     };
     const noLift: Arm = {
-      code: await bundle(join(ROOT, 'bench/lab-no-lift.ts'), join(ROOT, 'src')),
+      ...(await bundle(join(ROOT, 'bench/lab-no-lift.ts'), join(ROOT, 'src'))),
       restoresFocus: true,
     };
     const browser = await chromium.launch({
@@ -1301,10 +1389,10 @@ async function run(
         });
       } else if (values.before) {
         const before: Arm = {
-          code: await bundle(
+          ...(await bundle(
             lab,
             await archivedSource(scratch, values.before, 'packages/drag/src'),
-          ),
+          )),
           restoresFocus: true,
         };
 
@@ -1337,10 +1425,28 @@ if (values.rejudge) {
     raw: Record<string, ArmReadings>;
   };
   // The retained rule reads per-round growth, which a recorded absolute heap does
-  // not carry, so those rows keep their recorded verdicts.
+  // not carry. The bytes rule selects by module, which a recording keyed by
+  // function name alone does not carry. Such rows keep their recorded verdicts.
   const rules = Object.fromEntries(
     recorded.summary
-      .filter((row) => row.rule !== 'retained')
+      .filter((row) => {
+        const kept =
+          row.rule === 'bytes'
+            ? Object.values(recorded.raw[row.scenario] ?? {}).some((readings) =>
+                readings.some((reading) =>
+                  Object.keys(reading).some(hasModule),
+                ),
+              )
+            : row.rule !== 'retained';
+
+        if (!kept) {
+          console.log(
+            `not judged, the recording cannot carry its rule: ${row.scenario}`,
+          );
+        }
+
+        return kept;
+      })
       .map((row) => [row.scenario, row.rule]),
   );
   const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);

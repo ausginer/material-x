@@ -1,0 +1,195 @@
+# --rejudge of name-keyed recordings, no browser, 2026-11-10T09:58:42+00:00
+$ node bench/compare.ts --rejudge .plan/measurements/2026-11-06-compare.json
+not judged, the recording cannot carry its rule: bytes per move by function, 20 items
+not judged, the recording cannot carry its rule: 200 operations, then destroy: retained heap against an empty page
+not judged, the recording cannot carry its rule: 0 operations, then destroy: retained heap against an empty page
+not judged, the recording cannot carry its rule: draggable no-lift, move: bytes per move by function
+
+300 moves, one frame each, 20 items
+  drag2 layouts: at or below: 83 against 83
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -29 µs, A/A bound 55 µs
+  drag2 taskUs: no difference shown: higher in 6 of 7, median 84 µs, A/A bound 790 µs
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 11 µs, A/A bound 55 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 97 µs, A/A bound 790 µs
+
+300 moves, one frame each, 2000 items
+  drag2 layouts: at or below: 83 against 83
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -49 µs, A/A bound 55 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -96 µs, A/A bound 947 µs
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 2 of 7, median -7 µs, A/A bound 55 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -44 µs, A/A bound 947 µs
+
+press and release below the threshold, 20 items, [...root.children]
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -25 µs, A/A bound 53 µs
+  drag2 taskUs: no difference shown: higher in 2 of 7, median -33 µs, A/A bound 193 µs
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -12 µs, A/A bound 53 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -60 µs, A/A bound 193 µs
+
+press and release below the threshold, 20 items, cached array
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -12 µs, A/A bound 24 µs
+  drag2 taskUs: no difference shown: higher in 5 of 7, median 59 µs, A/A bound 122 µs
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 1 µs, A/A bound 24 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 37 µs, A/A bound 122 µs
+
+press and release below the threshold, 2000 items, [...root.children]
+  drag2 scriptUs: FLAG slower: higher in 7 of 7, median 255 µs, A/A bound 131 µs
+  drag2 taskUs: FLAG slower: higher in 7 of 7, median 284 µs, A/A bound 212 µs
+  prototype scriptUs: no difference shown: higher in 2 of 7, median -65 µs, A/A bound 131 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -119 µs, A/A bound 212 µs
+
+press and release below the threshold, 2000 items, cached array
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -15 µs, A/A bound 38 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 17 µs, A/A bound 129 µs
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -3 µs, A/A bound 38 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -22 µs, A/A bound 129 µs
+
+50 activate-and-drop cycles, 20 items, no landing
+  drag2 layouts: at or below: 250 against 300
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -217 µs, A/A bound 347 µs
+  drag2 taskUs: no difference shown: higher in 7 of 7, median 1804 µs, A/A bound 2312 µs
+  prototype layouts: at or below: 250 against 250
+  prototype scriptUs: no difference shown: higher in 7 of 7, median 334 µs, A/A bound 347 µs
+  prototype taskUs: no difference shown: higher in 7 of 7, median 1364 µs, A/A bound 2312 µs
+
+50 activate-and-drop cycles, 20 items, with landing
+  drag2 layouts: FLAG more: 400 against 350
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -277 µs, A/A bound 421 µs
+  drag2 taskUs: no difference shown: higher in 5 of 7, median 479 µs, A/A bound 1614 µs
+  prototype layouts: FLAG more: 400 against 350
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 112 µs, A/A bound 421 µs
+  prototype taskUs: no difference shown: higher in 3 of 7, median -147 µs, A/A bound 1614 µs
+
+50 activate-and-drop cycles, 2000 items, no landing
+  drag2 layouts: at or below: 250 against 300
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -529 µs, A/A bound 805 µs
+  drag2 taskUs: no difference shown: higher in 7 of 7, median 3984 µs, A/A bound 5413 µs
+  prototype layouts: at or below: 250 against 250
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 36 µs, A/A bound 805 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 599 µs, A/A bound 5413 µs
+
+50 activate-and-drop cycles, 2000 items, with landing
+  drag2 layouts: FLAG more: 400 against 350
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -331 µs, A/A bound 2101 µs
+  drag2 taskUs: no difference shown: higher in 5 of 7, median 1817 µs, A/A bound 11899 µs
+  prototype layouts: FLAG more: 400 against 350
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 67 µs, A/A bound 2101 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -1468 µs, A/A bound 11899 µs
+
+50 keyboard reorders, 20 items, with focus restoration
+  drag2 layouts: at or below: 50 against 100
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -20 µs, A/A bound 129 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 42 µs, A/A bound 324 µs
+  prototype layouts: at or below: 50 against 50
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 97 µs, A/A bound 129 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 167 µs, A/A bound 324 µs
+
+50 keyboard reorders, 2000 items, with focus restoration
+  drag2 layouts: at or below: 50 against 100
+  drag2 scriptUs: no difference shown: higher in 4 of 7, median 3 µs, A/A bound 182 µs
+  drag2 taskUs: no difference shown: higher in 1 of 7, median -309 µs, A/A bound 357 µs
+  prototype layouts: at or below: 50 against 50
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 64 µs, A/A bound 182 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 69 µs, A/A bound 357 µs
+
+free drag, 300 moves, one frame each
+  drag2 layouts: at or below: 0 against 0
+  drag2 scriptUs: no difference shown: higher in 1 of 7, median -30 µs, A/A bound 31 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -3 µs, A/A bound 531 µs
+  prototype layouts: at or below: 0 against 0
+  prototype scriptUs: no difference shown: higher in 5 of 7, median 2 µs, A/A bound 31 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 34 µs, A/A bound 531 µs
+
+draggable no-lift, move: script
+exit=0
+
+$ node bench/compare.ts --rejudge .plan/measurements/2026-11-07-compare.json
+not judged, the recording cannot carry its rule: 200 operations, then destroy: retained JavaScript objects
+
+300 moves, one frame each, 20 items
+  drag2 layouts: at or below: 83 against 83
+  drag2 scriptUs: faster: higher in 1 of 7, median -48 µs, A/A bound 44 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 23 µs, A/A bound 719 µs
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 1 µs, A/A bound 44 µs
+  prototype taskUs: no difference shown: higher in 3 of 7, median -41 µs, A/A bound 719 µs
+
+300 moves, one frame each, 2000 items
+  drag2 layouts: at or below: 83 against 83
+  drag2 scriptUs: faster: higher in 0 of 7, median -64 µs, A/A bound 53 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -206 µs, A/A bound 940 µs
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 5 of 7, median 9 µs, A/A bound 53 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 61 µs, A/A bound 940 µs
+
+press and release below the threshold, 20 items, [...root.children]
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -2 µs, A/A bound 27 µs
+  drag2 taskUs: no difference shown: higher in 6 of 7, median 48 µs, A/A bound 91 µs
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 14 µs, A/A bound 27 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 26 µs, A/A bound 91 µs
+
+press and release below the threshold, 20 items, cached array
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -31 µs, A/A bound 32 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -13 µs, A/A bound 105 µs
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -4 µs, A/A bound 32 µs
+  prototype taskUs: no difference shown: higher in 3 of 7, median -3 µs, A/A bound 105 µs
+
+press and release below the threshold, 2000 items, [...root.children]
+  drag2 scriptUs: FLAG slower: higher in 7 of 7, median 290 µs, A/A bound 147 µs
+  drag2 taskUs: no difference shown: higher in 7 of 7, median 295 µs, A/A bound 306 µs
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 6 µs, A/A bound 147 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 10 µs, A/A bound 306 µs
+
+press and release below the threshold, 2000 items, cached array
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -26 µs, A/A bound 29 µs
+  drag2 taskUs: no difference shown: higher in 5 of 7, median 6 µs, A/A bound 150 µs
+  prototype scriptUs: no difference shown: higher in 2 of 7, median -6 µs, A/A bound 29 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -25 µs, A/A bound 150 µs
+
+50 activate-and-drop cycles, 20 items, no landing
+  drag2 layouts: at or below: 250 against 300
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -138 µs, A/A bound 387 µs
+  drag2 taskUs: no difference shown: higher in 6 of 7, median 1646 µs, A/A bound 2639 µs
+  prototype layouts: at or below: 250 against 250
+  prototype scriptUs: no difference shown: higher in 6 of 7, median 260 µs, A/A bound 387 µs
+  prototype taskUs: no difference shown: higher in 6 of 7, median 1294 µs, A/A bound 2639 µs
+
+50 activate-and-drop cycles, 20 items, with landing
+  drag2 layouts: at or below: 350 against 350
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -37 µs, A/A bound 259 µs
+  drag2 taskUs: no difference shown: higher in 5 of 7, median 617 µs, A/A bound 1574 µs
+  prototype layouts: at or below: 350 against 350
+  prototype scriptUs: FLAG slower: higher in 7 of 7, median 299 µs, A/A bound 259 µs
+  prototype taskUs: no difference shown: higher in 7 of 7, median 981 µs, A/A bound 1574 µs
+
+50 activate-and-drop cycles, 2000 items, no landing
+  drag2 layouts: at or below: 250 against 300
+  drag2 scriptUs: no difference shown: higher in 1 of 7, median -246 µs, A/A bound 1612 µs
+  drag2 taskUs: no difference shown: higher in 6 of 7, median 4111 µs, A/A bound 8996 µs
+  prototype layouts: at or below: 250 against 250
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 9 µs, A/A bound 1612 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 799 µs, A/A bound 8996 µs
+
+50 activate-and-drop cycles, 2000 items, with landing
+  drag2 layouts: at or below: 350 against 350
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -11 µs, A/A bound 1594 µs
+  drag2 taskUs: no difference shown: higher in 7 of 7, median 4124 µs, A/A bound 6511 µs
+  prototype layouts: at or below: 350 against 350
+  prototype scriptUs: no difference shown: higher in 5 of 7, median 722 µs, A/A bound 1594 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 1176 µs, A/A bound 6511 µs
+
+50 keyboard reorders, 20 items, with focus restoration
+  drag2 layouts: at or below: 50 against 100
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -94 µs, A/A bound 96 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -72 µs, A/A bound 160 µs
+  prototype layouts: at or below: 50 against 50
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 28 µs, A/A bound 96 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 67 µs, A/A bound 160 µs
+exit=0
+
+## the bytes keys of a judged module-keyed recording (keys-arms.json, this unit), for contrast
+$ node bench/compare.ts --rejudge keys-arms.json
+
+bytes per move by function, 20 items
+exit=0

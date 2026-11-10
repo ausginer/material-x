@@ -1,0 +1,21 @@
+diff --git a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item2.ts b/bench/compare.ts
+index 910469153..910189e1f 100644
+--- a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item2.ts
++++ b/bench/compare.ts
+@@ -966,6 +966,16 @@ const INJECTIONS: ReadonlyArray<
+     scenario: 'bytes per move by function, 20 items',
+     expect: /FLAG/u,
+   },
++  {
++    name: 'N3, temporary: an array of four numbers per sample, in SortableOperation.move',
++    file: 'sortable/operation.ts',
++    find: 'move(): void {\n    const drag = this.#drag;',
++    replace:
++      'move(): void {\n    moveCount += 1;\n    moveWitness = [moveCount, moveCount, moveCount, moveCount];\n    const drag = this.#drag;',
++    declaration: 'let moveCount = 0;\nlet moveWitness: number[] = [];\n',
++    scenario: 'bytes per move by function, 20 items',
++    expect: /FLAG/u,
++  },
+ ];
+ 
+ /** The selected entries: those whose name contains one of `only`'s `|`-separated texts. */

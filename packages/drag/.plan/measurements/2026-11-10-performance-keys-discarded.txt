@@ -1,0 +1,10 @@
+# 2026-11-10T09:35:37+00:00
+commit: f50f4a35a + uncommitted working copy (see report)
+nproc: 12; node: v26.13.0
+uptime before:  09:35:37 up 1 day,  5:58,  0 users,  load average: 2.46, 2.67, 2.93
+$ node bench/compare.ts --only bytes per move by function, 20 --rounds 1 --out /tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/keys-arms.json
+round 1/1: bytes per move by function, 20 items
+
+bytes per move by function, 20 items
+exit: 0
+uptime after:  09:36:19 up 1 day,  5:59,  0 users,  load average: 2.21, 2.57, 2.88
