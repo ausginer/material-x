@@ -21,6 +21,12 @@
  * not occur exactly once, or whose patch leaves the bundle unchanged, ends the run.
  * `--prove --dry` stops after that check: it launches no browser, and exits 0 when
  * every selected injection applies.
+ * `node bench/compare.ts --floors [--only a|b] [--out file]` runs the detection
+ * floors: graded injections, each run as a `--prove` injection is, that record
+ * their verdicts and readings and never change the exit code. `--prove` doesn't
+ * run them, and `--floors --dry` applies them with no browser. Their work is a
+ * fixed number of loop iterations, calibrated once at 60 per µs; the size is
+ * nominal, and the reading's median script difference is the measured one.
  * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
  * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
  * and `--attribute` gives the retained row's growth per constructor per arm.
@@ -977,6 +983,59 @@ const INJECTIONS: ReadonlyArray<
   },
 ];
 
+/**
+ * Loop iterations per µs of script for the floors' fixed work, from one
+ * calibration in this machine's Chrome (performance-instrument-report.md). Fixed
+ * work, because a page that isn't cross-origin isolated can coarsen
+ * `performance.now()` to 100 µs.
+ */
+const ITERATIONS_PER_US = 60;
+const FLOOR_WORK_DECLARATION = 'let floorWork = 0;\n';
+const DROP_SITE = 'const request = buildReorderRequest(';
+const MOVE_SITE =
+  'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);';
+
+/** `us` µs of script, nominal, before `site`. */
+const work = (us: number, site: string): string =>
+  `for (let i = 0; i < ${us * ITERATIONS_PER_US}; i += 1) { floorWork = Math.imul(floorWork ^ i, 0x5bd1e995); }\n    ${site}`;
+
+/** The detection floors: each at the site of the gate injection on its row. */
+const FLOORS: ReadonlyArray<Injection & Readonly<{ scenario: string }>> = [
+  ...[300, 100].map((us) => ({
+    name: `${us} µs of script per cycle, at the drop`,
+    file: 'sortable/operation.ts',
+    find: DROP_SITE,
+    replace: work(us, DROP_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: '50 activate-and-drop cycles, 20 items, no landing',
+  })),
+  ...[100, 30, 10].map((us) => ({
+    name: `${us} µs of script per move`,
+    file: 'sortable/operation.ts',
+    find: MOVE_SITE,
+    replace: work(us, MOVE_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: '300 moves, one frame each, 20 items',
+  })),
+  {
+    name: "one object with two number properties per sample, in Session's #move",
+    file: 'kernel/session.ts',
+    find: 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
+    replace:
+      'floorObject = { x: event.clientX, y: event.clientY };\n    this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
+    declaration: 'let floorObject: object | null = null;\n',
+    scenario: 'bytes per move by function, 20 items',
+  },
+  {
+    name: 'one object with two number properties retained per operation',
+    file: 'sortable/operation.ts',
+    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
+    replace:
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior.config.onStart?.(this.#query.item);",
+    scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
+  },
+];
+
 /** The selected entries: those whose name contains one of `only`'s `|`-separated texts. */
 const select = <Entry extends Readonly<{ name: string }>>(
   entries: readonly Entry[],
@@ -1262,6 +1321,7 @@ const { values } = parseArgs({
     profile: { type: 'boolean', default: false },
     attribute: { type: 'boolean', default: false },
     dry: { type: 'boolean', default: false },
+    floors: { type: 'boolean', default: false },
   },
 });
 
@@ -1381,10 +1441,78 @@ async function diagnose(
   }
 }
 
+/**
+ * Each floor runs as a `--prove` injection does, and its verdicts and readings are
+ * recorded whatever they are. For the bytes row, the difference per round is the
+ * injected arm's kernel bytes per move minus base's.
+ */
+async function floors(
+  browser: Browser,
+  entries: ReadonlyArray<
+    Readonly<{ entry: (typeof FLOORS)[number]; arm: Arm }>
+  >,
+  production: Arm,
+  noLift: Arm,
+  rounds: number,
+  out?: string,
+): Promise<void> {
+  const results: unknown[] = [];
+
+  for (const { entry, arm: injected } of entries) {
+    const scenario = SCENARIOS.find((each) => each.id === entry.scenario)!;
+    const raw = await runScenarios(
+      browser,
+      [scenario],
+      { production: injected, base: production, control: injected },
+      noLift,
+      scenario.rule === 'bytes' ? 3 : rounds,
+    );
+    const arms = raw[scenario.id]!;
+    const verdicts = judge(scenario.rule, arms, 'production', 'control', [
+      'base',
+    ]);
+    const kernel = (reading: Reading): number =>
+      Object.entries(reading)
+        .filter(([key]) => isKernelKey(key))
+        .reduce((sum, [, bytes]) => sum + bytes, 0);
+    const kernelDifferences =
+      scenario.rule === 'bytes'
+        ? (arms['production'] ?? []).map(
+            (reading, round) => kernel(reading) - kernel(arms['base']![round]!),
+          )
+        : undefined;
+
+    results.push({
+      floor: entry.name,
+      scenario: scenario.id,
+      flagged: verdicts.some((verdict) => verdict.result.startsWith('FLAG')),
+      verdicts,
+      ...(kernelDifferences && {
+        kernelBytes: {
+          differences: kernelDifferences,
+          higher: kernelDifferences.filter((value) => value > 0).length,
+          median: median(kernelDifferences),
+        },
+      }),
+      raw: arms,
+    });
+    console.log(
+      `floor: ${entry.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}${kernelDifferences ? ` kernel bytes per move, injected minus base: ${JSON.stringify(kernelDifferences)}` : ''}`,
+    );
+  }
+
+  if (out) {
+    await writeFile(out, `${JSON.stringify(results, null, 1)}\n`);
+  }
+}
+
 /** Every mode that launches a browser. */
 async function run(
   injections: ReadonlyArray<
     Readonly<{ entry: (typeof INJECTIONS)[number]; arm: Arm }>
+  >,
+  floorEntries: ReadonlyArray<
+    Readonly<{ entry: (typeof FLOORS)[number]; arm: Arm }>
   >,
 ): Promise<void> {
   const scratch = await mkdtemp(join(tmpdir(), 'drag-compare-'));
@@ -1416,6 +1544,15 @@ async function run(
         ))
           ? 0
           : 1;
+      } else if (values.floors) {
+        await floors(
+          browser,
+          floorEntries,
+          production,
+          noLift,
+          Number(values.rounds),
+          values.out,
+        );
       } else if (values.profile || values.attribute) {
         await diagnose(browser, {
           ...(await beforeArms(scratch, lab)),
@@ -1494,10 +1631,15 @@ if (values.rejudge) {
   const injections = values.prove
     ? await applyAll(select(INJECTIONS, values.only))
     : [];
+  const floorEntries = values.floors
+    ? await applyAll(select(FLOORS, values.only))
+    : [];
 
   if (values.dry) {
-    console.log(`${injections.length} applied, no browser launched`);
+    console.log(
+      `${injections.length + floorEntries.length} applied, no browser launched`,
+    );
   } else {
-    await run(injections);
+    await run(injections, floorEntries);
   }
 }

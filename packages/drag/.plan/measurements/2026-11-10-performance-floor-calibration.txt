@@ -1,0 +1,10 @@
+# before: nproc 12, node v26.13.0, uptime:  15:29:47 up 1 day, 11:52,  0 users,  load average: 1.62, 2.63, 2.48
+$ node bench/.calibrate-tmp.ts
+chrome 157.0.8103.38
+trial 1: 1000 iterations: 8.70 µs per call, 114.9 per µs; 10000 iterations: 94.15 µs per call, 106.2 per µs; 100000 iterations: 1015.85 µs per call, 98.4 per µs
+trial 2: 1000 iterations: 9.70 µs per call, 103.1 per µs; 10000 iterations: 130.95 µs per call, 76.4 per µs; 100000 iterations: 1724.05 µs per call, 58.0 per µs
+trial 3: 1000 iterations: 19.15 µs per call, 52.2 per µs; 10000 iterations: 260.70 µs per call, 38.4 per µs; 100000 iterations: 1691.00 µs per call, 59.1 per µs
+trial 4: 1000 iterations: 19.40 µs per call, 51.5 per µs; 10000 iterations: 191.15 µs per call, 52.3 per µs; 100000 iterations: 1557.00 µs per call, 64.2 per µs
+trial 5: 1000 iterations: 20.45 µs per call, 48.9 per µs; 10000 iterations: 238.15 µs per call, 42.0 per µs; 100000 iterations: 1597.00 µs per call, 62.6 per µs
+exit 0
+# after: nproc 12, node v26.13.0, uptime:  15:30:08 up 1 day, 11:53,  0 users,  load average: 3.02, 2.89, 2.57
