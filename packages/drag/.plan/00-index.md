@@ -1174,7 +1174,7 @@ The [completion report](callback-list-completion-report.md) at `36dbd55db`, on t
 
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-5`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-18`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -1237,6 +1237,124 @@ Tier A, open, **repaired at `8626b04fd`** ([`feature-composition-report.md`](fea
 - **Evidence:** `bounds()` in `src/free-drag/bounds.ts` and `FreeDragBehavior.activate` in `src/free-drag/behavior.ts` at `688613863`. A scratch witness at that source, not kept and recorded in the probe's `results.txt`, puts a box in a 300 × 300 arena at `top: 200px` inside a scrolling container. It drags and releases once, scrolls the container by 150 px, and then drags 400 px up. **In Chromium, Firefox and WebKit,** the arena's top is at 50 and the box stops at 200. With one `this.bounds?.invalidate()` added to `activate` after the lift's acquisition, the witness and `tests/free-drag.browser.test.ts` pass in all three engines.
 - **Required property:** C4 of `DRD-33`. No operation clamps against a box read before it activated. The regression test must fail at `688613863` in all three engines, and it must assert that the scroll happened, so that it can't pass with no scroll.
 - **When:** the first commit of [`feature-composition-handoff.md`](feature-composition-handoff.md), as a repair of its own.
+
+#### DRF-6 — The README and the accessibility record give every landing the reduced-motion guarantee that DRI-13 limits to `landing()`
+
+Tier B, open. Found by the combined review at `b01a0283d` (`reviewer-3`, `integrity-2`; [summary](reviews/combined-ownership/combined-ownership-summary.md)).
+
+- **Current behavior:** `README.md` § Focus and landing limits says "With `prefers-reduced-motion: reduce`, every landing has zero duration." `.agents/docs/accessibility.md`'s fulfilled requirements say the same, "including one a custom behavior returned with no timing", a path `DRD-33` removed.
+- **Why it is a problem:** since `DRD-33`, DRI-13 covers only "every landing that `landing()` starts", and "a third-party `Landing` owns its own animation". The reduced-motion check is in `landing()`'s `start`, and `land` calls a third-party `start` as it is. An integrator who writes a `Landing` is told that the library already honors the preference.
+- **Evidence:** `README.md:251`, `.agents/docs/accessibility.md:73`, `contract.md:266` and `:271`, `src/shared/landing.ts`.
+- **Required property:** each statement about reduced motion for landings covers the landings `landing()` starts, and says that a custom `Landing` owns the preference.
+
+#### DRF-7 — `compare.ts --prove` has no injection that applies, and the dry check `DRD-23` states doesn't exist
+
+Tier B, open. Found by the combined review at `b01a0283d` (`integrity-1`). Recorded as not run in [`instrument-repair-report.md`](instrument-repair-report.md) §Not run, item 2. The combined review's handover, [`callback-list-completion-assessment.md`](callback-list-completion-assessment.md) §6, says the instrument repair is done.
+
+- **Current behavior:** none of the six `find` strings in `INJECTIONS` occurs in the file it names (`src/sortable.ts`, `src/draggable.ts`). `prove()` applies them one at a time inside the browser run, and has no earlier pass and no dry option.
+- **Why it is a problem:** `DRD-23`'s last bullet states that `--prove` checks every injection before it runs any scenario. The first `--prove` after the timing deferral fails at its first injection after a browser has launched, and the proof that the comparison can see a cost isn't available.
+- **Evidence:** a text search of each `find` literal against its file at `b01a0283d`, repeated by the consolidator: 0 of 6 apply. [`activation-result-report.md`](activation-result-report.md) recorded the same at `da139407e`.
+- **Required property:** as [`instrument-repair-handoff.md`](instrument-repair-handoff.md) §2: every injection applies to the current source exactly once, and `--prove` finds one that doesn't before it runs any scenario.
+- **When:** before the next `compare.ts --prove` run. Timing stays deferred.
+
+#### DRF-8 — The DRI-3 "no terminal" tests assert on hooks the kernel never receives
+
+Tier C, open. Found by the combined review at `b01a0283d` (`reviewer-1`).
+
+- **Current behavior:** in `terminals.browser.test.ts`, "should deliver no terminal without a start" (three cases) and "should deliver no start or end when activate declines" put `start` and `end` on a local operation that `activate` discards before it throws or returns `null`, then assert `expect(log).toEqual([])`. At `d7e7b0d3a` the hooks were the behavior's, which the kernel could call.
+- **Why it is a problem:** the `log` assertion can't fail, whatever the kernel does, and the tests present it as DRI-3's witness. The defect class is `DRF-4` (b)'s. The same assertion appears in three `operation-lifecycle` tests and the failed-acquisition block of `faults`, whose other assertions carry their subject.
+- **Evidence:** `tests/terminals.browser.test.ts` L33–91. `git show d7e7b0d3a:packages/drag/tests/terminals.browser.test.ts`.
+- **Required property:** every assertion in a DRI-3 terminal test can fail when the kernel violates the property its title names. An assertion that can't fail under the current API isn't presented as its witness.
+
+#### DRF-9 — Two test titles name properties their bodies can't fail on
+
+Tier C, open. Found by the combined review at `b01a0283d` (`reviewer-2`).
+
+- **Current behavior:** `classes` › "…with cancelLanding passed detached" starts no landing and checks no fault. A prototype `cancelLanding` would throw when detached, be reported as a fault, and leave the test passing. `sortable` › "should land at home when a cancel comes between an in-place change and invalidate" checks no position.
+- **Why it is a problem:** each title claims a guarantee its body doesn't witness. The detached `cancelLanding` is still witnessed by `destruction` › "should cancel a running landing and the row animations".
+- **Evidence:** `tests/classes.browser.test.ts` L37–70, `tests/sortable.browser.test.ts` L150–172, and `tests/support/harness.ts`, whose `afterEach` checks no fault.
+- **Required property:** a test's title names only properties that its assertions can fail on.
+
+#### DRF-10 — The built-ins import a kernel type no entry exports, and published signatures name unexported types
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-5`, `integrity-3`).
+
+- **Current behavior:** `src/sortable/operation.ts` and `src/free-drag/operation.ts` import `VerdictAwaiter` from `../kernel/behavior.ts`. `draggable.ts` doesn't export it, and `BehaviorOperation.drop` names it. `typedoc` also warns that `FreeDragSubject`, `DragAxis` and `ResolveHome` are named by published `freeDrag` types and not exported.
+- **Why it is a problem:** DRI-18 says the built-ins import only public kernel types, which is false in two places, and a consumer can't name a type a published signature uses. Type-only: no module-graph effect.
+- **Evidence:** the two import lines. `contract.md:324`. `typedoc` output: 6 warnings, of which `AxisInstaller` and `DisplacementInstaller` are deliberately unpublished (`contract.md:40`).
+- **Required property:** the built-ins' kernel imports agree with DRI-18, or DRI-18 names the exception. A type a published signature names is exported from an entry or recorded as unpublished. Which side changes is a surface decision.
+
+#### DRF-11 — DRI-9 steps 5 and 6 describe one release disposer, and `acquire` registers two
+
+Tier C, open. Found by the combined review at `b01a0283d` (`integrity-4`).
+
+- **Current behavior:** `contract.md` DRI-9 step 5 says the lift is released as the last disposer, and step 6 that the landing starts "in the same disposer". `Lifter.acquire` registers the landing's start and then the release, so the release runs first and the start runs last, even when the release throws. The README and `acquire`'s JSDoc agree with the code.
+- **Why it is a problem:** the contract implies that a throwing release stops the landing. The code starts it and reports each throw once.
+- **Evidence:** `contract.md:224-225`. `src/lift.ts`, the two `drag.use` calls in `acquire` and the comment above them.
+- **Required property:** DRI-9 states the order the code has: the release, then the landing's start as its own disposer, and what a throw in the release does to the start.
+
+#### DRF-12 — `RectIndexView` has one implementer and no use, and its comment describes writable fields
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-1`).
+
+- **Current behavior:** `src/sortable/rect-index.ts` declares `RectIndexView`, which only `RectIndex` implements and nothing names as a type. Its comment says the owner writes through the class's own declarations, which `11950690f` made private fields behind getters.
+- **Why it is a problem:** an abstraction with no consumer, whose comment states an arrangement the code no longer has.
+- **Evidence:** `grep -rn RectIndexView src tests bench` matches lines 38 and 60 only.
+- **Required property:** the cache's read-only view has one declaration, and its comment describes the code.
+
+#### DRF-13 — `AxisQuery.insertion` admits `null`, which no producer supplies
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-2`). Noted earlier in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) item 8.
+
+- **Current behavior:** `AxisQuery.insertion` is `Insertion | null`. `SortableOperation` holds it as `SetNonNullable`, `y.ts` and `xy.ts` test it for `null`, and both assert it with `!`.
+- **Why it is a problem:** branches and a type-level narrowing serve a state that correct use can't reach. The axis types aren't published.
+- **Evidence:** `src/sortable/axis.ts:38`, `operation.ts:49`, `y.ts:42` and `:76`, `xy.ts:48` and `:85`.
+- **Required property:** the committed gap's type says whether it can be absent, and the producer and the consumers agree.
+
+#### DRF-14 — `freeDrag`'s invalidation calls `handleEvent()` with no event and invalidates the bounds twice
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-3`).
+
+- **Current behavior:** `FreeDragBehavior.invalidate` calls `this.bounds?.invalidate()` and then `operation?.handleEvent()`, which invalidates the bounds again and the tracker.
+- **Why it is a problem:** the stale-marking entry carries the DOM listener's name where it is called as a method, and one of the two bounds calls is redundant. Idempotent: no behavior changes.
+- **Evidence:** `src/free-drag/behavior.ts:76-79`, `src/free-drag/operation.ts:52-55`.
+- **Required property:** each cache is marked stale once per invalidation, and the entry is named for what it does where it is called outside a listener.
+
+#### DRF-15 — `shared/timing.ts` has one importer since the lift stopped using the defaults
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-4`).
+
+- **Current behavior:** only `src/shared/landing.ts` imports it. It was drawn so that the lift and the landing shared the defaults, and `DRD-33` took the animation out of the lift.
+- **Why it is a problem:** the boundary's reason has expired. No bytes change.
+- **Evidence:** `grep -rn timing.ts src`.
+- **Required property:** a module boundary has a reason that the one module using it couldn't own.
+
+#### DRF-16 — Comments name a parameter, a flag and a contract that the code no longer has
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-6`).
+
+- **Current behavior:** `src/shared/invalidation.ts:1` names `onInvalidate`, now `listener`. `src/sortable/linear-shift.ts:84` says `DEV` for `__DEV__`. `tests/authoring.declaration.test.ts:215` says "`false` no longer declines".
+- **Why it is a problem:** a comment's factual claim disagrees with the code, or argues about what was.
+- **Evidence:** the three lines.
+- **Required property:** each comment names the code as it is and states the property it checks.
+
+#### DRF-17 — The `tap` browser command has no caller
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-7`).
+
+- **Current behavior:** `tests/support/commands.node.ts:80` defines `tap`, and `tests/support/browser-commands.ts:13` declares it. No test or bench calls it.
+- **Why it is a problem:** harness machinery a reader must understand and keep compiling, for no test.
+- **Evidence:** `grep -rnw tap tests bench`.
+- **Required property:** the harness declares the commands that a test uses.
+
+#### DRF-18 — Test and bench helpers have several definitions
+
+Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-8`).
+
+- **Current behavior:** `row` is in the `activation`, `focus`, `landing` and `order` tests. `focusableList` is in `focus` and `order`. `makeBox` and `mount` are in `free-drag` and `commit`. Heap-snapshot reading is in `tests/support/commands.node.ts` and `bench/heap-snapshot.ts`. `PROTOTYPE_REVISION` is in `bench/compare.ts` and `bench/size/measure.ts`.
+- **Why it is a problem:** a change to one helper or to the pinned revision has to find every copy. `tests/support/harness.ts` is already the shared place for the test helpers.
+- **Evidence:** `grep -n "^const row\|^function focusableList\|^function makeBox\|^function mount" tests/*.ts`, and the two `PROTOTYPE_REVISION` lines.
+- **Required property:** each shared helper and the pinned revision have one definition, or the file says why it stays standalone.
 
 ## Owner decisions
 
