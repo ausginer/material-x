@@ -1,0 +1,3507 @@
+{
+ "chrome": "157.0.8103.38",
+ "rounds": 7,
+ "moves": 300,
+ "arms": [
+  "before",
+  "production",
+  "control"
+ ],
+ "before": "a9c323f6a",
+ "summary": [
+  {
+   "scenario": "300 moves, one frame each, 20 items",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 36,
+      "min": 29,
+      "max": 40
+     },
+     "styleUs": {
+      "median": 199,
+      "min": 154,
+      "max": 212
+     },
+     "scriptUs": {
+      "median": 172,
+      "min": 128,
+      "max": 188
+     },
+     "taskUs": {
+      "median": 2085,
+      "min": 1591,
+      "max": 2484
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 34,
+      "min": 32,
+      "max": 36
+     },
+     "styleUs": {
+      "median": 191,
+      "min": 173,
+      "max": 196
+     },
+     "scriptUs": {
+      "median": 165,
+      "min": 146,
+      "max": 171
+     },
+     "taskUs": {
+      "median": 2014,
+      "min": 1788,
+      "max": 2211
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 35,
+      "min": 32,
+      "max": 39
+     },
+     "styleUs": {
+      "median": 191,
+      "min": 176,
+      "max": 205
+     },
+     "scriptUs": {
+      "median": 169,
+      "min": 147,
+      "max": 181
+     },
+     "taskUs": {
+      "median": 2018,
+      "min": 1805,
+      "max": 2210
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 83 against 83"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 3 of 7, median -2 µs, A/A bound 35 µs",
+     "differences": [
+      -15,
+      12,
+      2,
+      -7,
+      -2,
+      18,
+      -31
+     ],
+     "aa": [
+      9,
+      14,
+      -2,
+      -8,
+      14,
+      -35,
+      -11
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -2,
+     "bound": 35
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 3 of 7, median -47 µs, A/A bound 368 µs",
+     "differences": [
+      -444,
+      172,
+      -47,
+      -209,
+      125,
+      197,
+      -550
+     ],
+     "aa": [
+      113,
+      187,
+      -192,
+      -74,
+      293,
+      -368,
+      -84
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -47,
+     "bound": 368
+    }
+   ]
+  },
+  {
+   "scenario": "300 moves, one frame each, 2000 items",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 289,
+      "min": 248,
+      "max": 301
+     },
+     "styleUs": {
+      "median": 268,
+      "min": 241,
+      "max": 293
+     },
+     "scriptUs": {
+      "median": 169,
+      "min": 149,
+      "max": 179
+     },
+     "taskUs": {
+      "median": 2695,
+      "min": 2330,
+      "max": 3047
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 287,
+      "min": 238,
+      "max": 330
+     },
+     "styleUs": {
+      "median": 271,
+      "min": 247,
+      "max": 295
+     },
+     "scriptUs": {
+      "median": 170,
+      "min": 156,
+      "max": 185
+     },
+     "taskUs": {
+      "median": 2697,
+      "min": 2304,
+      "max": 2837
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 299,
+      "min": 264,
+      "max": 336
+     },
+     "styleUs": {
+      "median": 284,
+      "min": 266,
+      "max": 298
+     },
+     "scriptUs": {
+      "median": 176,
+      "min": 165,
+      "max": 183
+     },
+     "taskUs": {
+      "median": 2762,
+      "min": 2545,
+      "max": 3238
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 83 against 83"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 4 of 7, median 1 µs, A/A bound 22 µs",
+     "differences": [
+      -7,
+      1,
+      -14,
+      13,
+      36,
+      12,
+      -17
+     ],
+     "aa": [
+      -1,
+      -8,
+      -18,
+      6,
+      10,
+      -22,
+      -9
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 1,
+     "bound": 22
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 4 of 7, median 107 µs, A/A bound 704 µs",
+     "differences": [
+      -350,
+      107,
+      -107,
+      142,
+      426,
+      204,
+      -456
+     ],
+     "aa": [
+      -64,
+      23,
+      -193,
+      60,
+      268,
+      -704,
+      -247
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 107,
+     "bound": 704
+    }
+   ]
+  },
+  {
+   "scenario": "press and release below the threshold, 20 items, [...root.children]",
+   "rule": "report",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 80,
+      "min": 44,
+      "max": 124
+     },
+     "taskUs": {
+      "median": 228,
+      "min": 139,
+      "max": 373
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 85,
+      "min": 61,
+      "max": 96
+     },
+     "taskUs": {
+      "median": 251,
+      "min": 175,
+      "max": 289
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 1
+     },
+     "scriptUs": {
+      "median": 80,
+      "min": 62,
+      "max": 113
+     },
+     "taskUs": {
+      "median": 241,
+      "min": 182,
+      "max": 337
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 4 of 7, median 4 µs, A/A bound 53 µs",
+     "differences": [
+      -15,
+      4,
+      15,
+      -27,
+      -33,
+      23,
+      33
+     ],
+     "aa": [
+      -53,
+      -9,
+      34,
+      12,
+      -4,
+      -13,
+      30
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 4,
+     "bound": 53
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 4 of 7, median 28 µs, A/A bound 161 µs",
+     "differences": [
+      -53,
+      28,
+      43,
+      -70,
+      -102,
+      61,
+      92
+     ],
+     "aa": [
+      -161,
+      -32,
+      99,
+      27,
+      -12,
+      -41,
+      97
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 28,
+     "bound": 161
+    }
+   ]
+  },
+  {
+   "scenario": "press and release below the threshold, 20 items, cached array",
+   "rule": "report",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 1
+     },
+     "scriptUs": {
+      "median": 72,
+      "min": 51,
+      "max": 177
+     },
+     "taskUs": {
+      "median": 235,
+      "min": 168,
+      "max": 729
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 62,
+      "min": 40,
+      "max": 173
+     },
+     "taskUs": {
+      "median": 197,
+      "min": 129,
+      "max": 634
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 104,
+      "min": 66,
+      "max": 134
+     },
+     "taskUs": {
+      "median": 339,
+      "min": 218,
+      "max": 555
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 1 of 7, median -5 µs, A/A bound 56 µs",
+     "differences": [
+      -5,
+      42,
+      -42,
+      -32,
+      -12,
+      -4,
+      -3
+     ],
+     "aa": [
+      -50,
+      23,
+      -22,
+      -40,
+      0,
+      39,
+      -56
+     ],
+     "higher": 1,
+     "lower": 6,
+     "median": -5,
+     "bound": 56
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 1 of 7, median -46 µs, A/A bound 183 µs",
+     "differences": [
+      -23,
+      164,
+      -149,
+      -107,
+      -46,
+      -95,
+      -13
+     ],
+     "aa": [
+      -169,
+      65,
+      -65,
+      -135,
+      -10,
+      79,
+      -183
+     ],
+     "higher": 1,
+     "lower": 6,
+     "median": -46,
+     "bound": 183
+    }
+   ]
+  },
+  {
+   "scenario": "press and release below the threshold, 2000 items, [...root.children]",
+   "rule": "report",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 467,
+      "min": 393,
+      "max": 777
+     },
+     "taskUs": {
+      "median": 730,
+      "min": 593,
+      "max": 1468
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 407,
+      "min": 349,
+      "max": 708
+     },
+     "taskUs": {
+      "median": 647,
+      "min": 536,
+      "max": 1116
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 1
+     },
+     "scriptUs": {
+      "median": 528,
+      "min": 369,
+      "max": 932
+     },
+     "taskUs": {
+      "median": 811,
+      "min": 689,
+      "max": 1674
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 1 of 7, median -60 µs, A/A bound 355 µs",
+     "differences": [
+      -20,
+      -106,
+      -60,
+      -51,
+      142,
+      -200,
+      -62
+     ],
+     "aa": [
+      -64,
+      -168,
+      -92,
+      -20,
+      73,
+      -355,
+      98
+     ],
+     "higher": 1,
+     "lower": 6,
+     "median": -60,
+     "bound": 355
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 1 of 7, median -83 µs, A/A bound 798 µs",
+     "differences": [
+      -55,
+      -131,
+      -61,
+      -83,
+      207,
+      -592,
+      -106
+     ],
+     "aa": [
+      -161,
+      -275,
+      -122,
+      -42,
+      180,
+      -798,
+      72
+     ],
+     "higher": 1,
+     "lower": 6,
+     "median": -83,
+     "bound": 798
+    }
+   ]
+  },
+  {
+   "scenario": "press and release below the threshold, 2000 items, cached array",
+   "rule": "report",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 98,
+      "min": 83,
+      "max": 172
+     },
+     "taskUs": {
+      "median": 481,
+      "min": 334,
+      "max": 709
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 104,
+      "min": 57,
+      "max": 143
+     },
+     "taskUs": {
+      "median": 421,
+      "min": 225,
+      "max": 603
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "scriptUs": {
+      "median": 104,
+      "min": 86,
+      "max": 222
+     },
+     "taskUs": {
+      "median": 447,
+      "min": 347,
+      "max": 888
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 4 of 7, median 14 µs, A/A bound 121 µs",
+     "differences": [
+      14,
+      -41,
+      -66,
+      19,
+      -89,
+      15,
+      20
+     ],
+     "aa": [
+      -9,
+      -34,
+      2,
+      -121,
+      -46,
+      16,
+      30
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 14,
+     "bound": 121
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 4 of 7, median 10 µs, A/A bound 489 µs",
+     "differences": [
+      122,
+      -269,
+      -242,
+      66,
+      -413,
+      68,
+      10
+     ],
+     "aa": [
+      23,
+      -179,
+      -89,
+      -489,
+      -151,
+      74,
+      73
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 10,
+     "bound": 489
+    }
+   ]
+  },
+  {
+   "scenario": "50 activate-and-drop cycles, 20 items, no landing",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 480,
+      "min": 404,
+      "max": 584
+     },
+     "styleUs": {
+      "median": 1022,
+      "min": 881,
+      "max": 1104
+     },
+     "scriptUs": {
+      "median": 1929,
+      "min": 1646,
+      "max": 2193
+     },
+     "taskUs": {
+      "median": 10396,
+      "min": 8697,
+      "max": 13490
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 484,
+      "min": 420,
+      "max": 561
+     },
+     "styleUs": {
+      "median": 1023,
+      "min": 903,
+      "max": 1167
+     },
+     "scriptUs": {
+      "median": 1917,
+      "min": 1642,
+      "max": 2573
+     },
+     "taskUs": {
+      "median": 10463,
+      "min": 8796,
+      "max": 14376
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 480,
+      "min": 395,
+      "max": 597
+     },
+     "styleUs": {
+      "median": 1003,
+      "min": 907,
+      "max": 1142
+     },
+     "scriptUs": {
+      "median": 1904,
+      "min": 1677,
+      "max": 2252
+     },
+     "taskUs": {
+      "median": 10365,
+      "min": 9009,
+      "max": 13156
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 250 against 250"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 3 of 7, median -62 µs, A/A bound 885 µs",
+     "differences": [
+      34,
+      500,
+      -62,
+      -276,
+      926,
+      -287,
+      -255
+     ],
+     "aa": [
+      216,
+      70,
+      -472,
+      240,
+      885,
+      -609,
+      -66
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -62,
+     "bound": 885
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 2 of 7, median -994 µs, A/A bound 5240 µs",
+     "differences": [
+      -994,
+      3755,
+      -414,
+      -3027,
+      5679,
+      -1600,
+      -2725
+     ],
+     "aa": [
+      515,
+      1959,
+      -3826,
+      1454,
+      5240,
+      -4015,
+      -204
+     ],
+     "higher": 2,
+     "lower": 5,
+     "median": -994,
+     "bound": 5240
+    }
+   ]
+  },
+  {
+   "scenario": "50 activate-and-drop cycles, 20 items, with landing",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 350,
+      "min": 350,
+      "max": 350
+     },
+     "layoutUs": {
+      "median": 600,
+      "min": 579,
+      "max": 656
+     },
+     "styleUs": {
+      "median": 1455,
+      "min": 1356,
+      "max": 1519
+     },
+     "scriptUs": {
+      "median": 2041,
+      "min": 1969,
+      "max": 2353
+     },
+     "taskUs": {
+      "median": 12714,
+      "min": 11162,
+      "max": 14430
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 350,
+      "min": 350,
+      "max": 350
+     },
+     "layoutUs": {
+      "median": 600,
+      "min": 556,
+      "max": 696
+     },
+     "styleUs": {
+      "median": 1394,
+      "min": 1284,
+      "max": 1568
+     },
+     "scriptUs": {
+      "median": 2027,
+      "min": 1941,
+      "max": 2363
+     },
+     "taskUs": {
+      "median": 11611,
+      "min": 10868,
+      "max": 15551
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 350,
+      "min": 350,
+      "max": 350
+     },
+     "layoutUs": {
+      "median": 603,
+      "min": 584,
+      "max": 677
+     },
+     "styleUs": {
+      "median": 1402,
+      "min": 1368,
+      "max": 1587
+     },
+     "scriptUs": {
+      "median": 2091,
+      "min": 2011,
+      "max": 2484
+     },
+     "taskUs": {
+      "median": 12018,
+      "min": 11260,
+      "max": 15195
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 350 against 350"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 3 of 7, median -74 µs, A/A bound 543 µs",
+     "differences": [
+      -194,
+      352,
+      -74,
+      -291,
+      143,
+      -372,
+      78
+     ],
+     "aa": [
+      0,
+      308,
+      -543,
+      -108,
+      -10,
+      -164,
+      109
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -74,
+     "bound": 543
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 3 of 7, median -1109 µs, A/A bound 4247 µs",
+     "differences": [
+      -1304,
+      4301,
+      108,
+      -3563,
+      1728,
+      -1326,
+      -1109
+     ],
+     "aa": [
+      150,
+      4247,
+      -3925,
+      -690,
+      748,
+      -927,
+      -408
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -1109,
+     "bound": 4247
+    }
+   ]
+  },
+  {
+   "scenario": "50 activate-and-drop cycles, 2000 items, no landing",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 3948,
+      "min": 3513,
+      "max": 5357
+     },
+     "styleUs": {
+      "median": 1588,
+      "min": 1453,
+      "max": 1960
+     },
+     "scriptUs": {
+      "median": 6401,
+      "min": 5457,
+      "max": 8708
+     },
+     "taskUs": {
+      "median": 26164,
+      "min": 23979,
+      "max": 36425
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 3762,
+      "min": 3681,
+      "max": 5195
+     },
+     "styleUs": {
+      "median": 1591,
+      "min": 1510,
+      "max": 1905
+     },
+     "scriptUs": {
+      "median": 6435,
+      "min": 6026,
+      "max": 8359
+     },
+     "taskUs": {
+      "median": 26829,
+      "min": 25166,
+      "max": 35665
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 3953,
+      "min": 3508,
+      "max": 5172
+     },
+     "styleUs": {
+      "median": 1573,
+      "min": 1437,
+      "max": 1975
+     },
+     "scriptUs": {
+      "median": 6310,
+      "min": 5417,
+      "max": 8355
+     },
+     "taskUs": {
+      "median": 26609,
+      "min": 23656,
+      "max": 35572
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 250 against 250"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 4 of 7, median 33 µs, A/A bound 1920 µs",
+     "differences": [
+      -945,
+      2315,
+      33,
+      -1895,
+      1326,
+      76,
+      -2631
+     ],
+     "aa": [
+      -85,
+      1861,
+      -1920,
+      1111,
+      961,
+      -292,
+      46
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 33,
+     "bound": 1920
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 4 of 7, median 28 µs, A/A bound 8931 µs",
+     "differences": [
+      -5959,
+      9919,
+      1210,
+      -8184,
+      4880,
+      28,
+      -11234
+     ],
+     "aa": [
+      -1105,
+      8931,
+      -8198,
+      3173,
+      3188,
+      -2946,
+      233
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 28,
+     "bound": 8931
+    }
+   ]
+  },
+  {
+   "scenario": "50 activate-and-drop cycles, 2000 items, with landing",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 350,
+      "min": 350,
+      "max": 350
+     },
+     "layoutUs": {
+      "median": 4977,
+      "min": 4457,
+      "max": 5970
+     },
+     "styleUs": {
+      "median": 2266,
+      "min": 2037,
+      "max": 2430
+     },
+     "scriptUs": {
+      "median": 6389,
+      "min": 5622,
+      "max": 8121
+     },
+     "taskUs": {
+      "median": 29220,
+      "min": 27623,
+      "max": 36025
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 350,
+      "min": 350,
+      "max": 350
+     },
+     "layoutUs": {
+      "median": 4890,
+      "min": 4151,
+      "max": 5233
+     },
+     "styleUs": {
+      "median": 2107,
+      "min": 2001,
+      "max": 2259
+     },
+     "scriptUs": {
+      "median": 6144,
+      "min": 5574,
+      "max": 7041
+     },
+     "taskUs": {
+      "median": 28965,
+      "min": 25827,
+      "max": 31394
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 350,
+      "min": 350,
+      "max": 350
+     },
+     "layoutUs": {
+      "median": 4635,
+      "min": 4390,
+      "max": 5542
+     },
+     "styleUs": {
+      "median": 2146,
+      "min": 2014,
+      "max": 2356
+     },
+     "scriptUs": {
+      "median": 6095,
+      "min": 5434,
+      "max": 7523
+     },
+     "taskUs": {
+      "median": 27562,
+      "min": 27003,
+      "max": 34178
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 350 against 350"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 3 of 7, median -195 µs, A/A bound 1337 µs",
+     "differences": [
+      -1711,
+      1251,
+      -195,
+      -1190,
+      1102,
+      490,
+      -1976
+     ],
+     "aa": [
+      -414,
+      1337,
+      -1082,
+      139,
+      693,
+      -643,
+      50
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -195,
+     "bound": 1337
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 3 of 7, median -1320 µs, A/A bound 4991 µs",
+     "differences": [
+      -8830,
+      3368,
+      -1320,
+      -5353,
+      3334,
+      1565,
+      -7060
+     ],
+     "aa": [
+      -1436,
+      4113,
+      -2959,
+      -1014,
+      3959,
+      -4991,
+      793
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -1320,
+     "bound": 4991
+    }
+   ]
+  },
+  {
+   "scenario": "50 keyboard reorders, 20 items, with focus restoration",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 50,
+      "min": 50,
+      "max": 50
+     },
+     "layoutUs": {
+      "median": 45,
+      "min": 28,
+      "max": 60
+     },
+     "styleUs": {
+      "median": 133,
+      "min": 73,
+      "max": 184
+     },
+     "scriptUs": {
+      "median": 421,
+      "min": 281,
+      "max": 597
+     },
+     "taskUs": {
+      "median": 732,
+      "min": 492,
+      "max": 1062
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 50,
+      "min": 50,
+      "max": 50
+     },
+     "layoutUs": {
+      "median": 33,
+      "min": 26,
+      "max": 73
+     },
+     "styleUs": {
+      "median": 95,
+      "min": 72,
+      "max": 328
+     },
+     "scriptUs": {
+      "median": 363,
+      "min": 285,
+      "max": 841
+     },
+     "taskUs": {
+      "median": 606,
+      "min": 480,
+      "max": 1589
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 50,
+      "min": 50,
+      "max": 50
+     },
+     "layoutUs": {
+      "median": 49,
+      "min": 37,
+      "max": 52
+     },
+     "styleUs": {
+      "median": 141,
+      "min": 111,
+      "max": 157
+     },
+     "scriptUs": {
+      "median": 474,
+      "min": 384,
+      "max": 516
+     },
+     "taskUs": {
+      "median": 798,
+      "min": 668,
+      "max": 904
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 50 against 50"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 4 of 7, median 47 µs, A/A bound 325 µs",
+     "differences": [
+      -164,
+      -125,
+      165,
+      -58,
+      47,
+      244,
+      194
+     ],
+     "aa": [
+      -218,
+      -136,
+      -29,
+      -21,
+      -100,
+      325,
+      86
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 47,
+     "bound": 325
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 4 of 7, median 99 µs, A/A bound 685 µs",
+     "differences": [
+      -292,
+      -233,
+      266,
+      -132,
+      99,
+      527,
+      379
+     ],
+     "aa": [
+      -396,
+      -212,
+      -41,
+      -68,
+      -183,
+      685,
+      150
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 99,
+     "bound": 685
+    }
+   ]
+  },
+  {
+   "scenario": "200 operations, then destroy: retained JavaScript objects",
+   "rule": "retained",
+   "medians": {
+    "before": {
+     "growth": {
+      "median": 19636,
+      "min": 19636,
+      "max": 19636
+     },
+     "objects0": {
+      "median": 674564,
+      "min": 674564,
+      "max": 674564
+     },
+     "objects200": {
+      "median": 694200,
+      "min": 694200,
+      "max": 694200
+     },
+     "heap0": {
+      "median": 1361324,
+      "min": 1361324,
+      "max": 1361324
+     },
+     "heap200": {
+      "median": 1672288,
+      "min": 1672240,
+      "max": 1672288
+     }
+    },
+    "production": {
+     "growth": {
+      "median": 19636,
+      "min": 19636,
+      "max": 19636
+     },
+     "objects0": {
+      "median": 674564,
+      "min": 674564,
+      "max": 674564
+     },
+     "objects200": {
+      "median": 694200,
+      "min": 694200,
+      "max": 694200
+     },
+     "heap0": {
+      "median": 1361324,
+      "min": 1361324,
+      "max": 1361324
+     },
+     "heap200": {
+      "median": 1672288,
+      "min": 1672272,
+      "max": 1672288
+     }
+    },
+    "control": {
+     "growth": {
+      "median": 19636,
+      "min": 19636,
+      "max": 19636
+     },
+     "objects0": {
+      "median": 674564,
+      "min": 674564,
+      "max": 674564
+     },
+     "objects200": {
+      "median": 694200,
+      "min": 694200,
+      "max": 694200
+     },
+     "heap0": {
+      "median": 1361324,
+      "min": 1361324,
+      "max": 1361324
+     },
+     "heap200": {
+      "median": 1672288,
+      "min": 1672272,
+      "max": 1672288
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "retained objects",
+     "result": "no difference shown: higher in 0 of 3, median 0 B, A/A bound 0 B",
+     "differences": [
+      0,
+      0,
+      0
+     ],
+     "aa": [
+      0,
+      0,
+      0
+     ],
+     "higher": 0,
+     "lower": 0,
+     "median": 0,
+     "bound": 0
+    }
+   ]
+  }
+ ],
+ "raw": {
+  "300 moves, one frame each, 20 items": {
+   "before": [
+    {
+     "layouts": 83,
+     "layoutUs": 34.656666666666666,
+     "styleUs": 198.83,
+     "scriptUs": 171.58999999999997,
+     "taskUs": 2362.0033333333336
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.31,
+     "styleUs": 189.67333333333335,
+     "scriptUs": 158.45333333333332,
+     "taskUs": 1956.1433333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 39.81333333333333,
+     "styleUs": 200.14,
+     "scriptUs": 164.08666666666667,
+     "taskUs": 2065.713333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 36.50333333333333,
+     "styleUs": 191.81333333333333,
+     "scriptUs": 171.63666666666666,
+     "taskUs": 2222.94
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 39.406666666666666,
+     "styleUs": 205.12333333333333,
+     "scriptUs": 173.71,
+     "taskUs": 2085.1966666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 28.52,
+     "styleUs": 154.28999999999996,
+     "scriptUs": 127.80666666666664,
+     "taskUs": 1591.2133333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.916666666666664,
+     "styleUs": 211.85,
+     "scriptUs": 188.21333333333334,
+     "taskUs": 2483.93
+    }
+   ],
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 32.18999999999999,
+     "styleUs": 185.66666666666666,
+     "scriptUs": 156.63,
+     "taskUs": 1917.53
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.343333333333334,
+     "styleUs": 190.77666666666667,
+     "scriptUs": 170.77666666666667,
+     "taskUs": 2128.05
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.373333333333335,
+     "styleUs": 194.85333333333332,
+     "scriptUs": 166.37,
+     "taskUs": 2018.2533333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.68,
+     "styleUs": 191.22,
+     "scriptUs": 164.96333333333334,
+     "taskUs": 2014.4133333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.873333333333335,
+     "styleUs": 188.51,
+     "scriptUs": 171.34666666666666,
+     "taskUs": 2210.5
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 32.96333333333333,
+     "styleUs": 173.14333333333332,
+     "scriptUs": 146.02666666666667,
+     "taskUs": 1787.8733333333332
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.68,
+     "styleUs": 195.60666666666665,
+     "scriptUs": 157.43999999999997,
+     "taskUs": 1933.8699999999997
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 31.596666666666668,
+     "styleUs": 175.93,
+     "scriptUs": 147.34333333333336,
+     "taskUs": 1804.6633333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.81999999999999,
+     "styleUs": 190.54999999999998,
+     "scriptUs": 156.72666666666666,
+     "taskUs": 1941.24
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.416666666666664,
+     "styleUs": 202.32666666666665,
+     "scriptUs": 168.82,
+     "taskUs": 2210.3666666666672
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 37.4,
+     "styleUs": 204.57,
+     "scriptUs": 172.73666666666668,
+     "taskUs": 2088.36
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.593333333333334,
+     "styleUs": 187.75,
+     "scriptUs": 157.25666666666666,
+     "taskUs": 1917.6666666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.083333333333336,
+     "styleUs": 184.69666666666666,
+     "scriptUs": 180.73,
+     "taskUs": 2156.04
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 38.89666666666667,
+     "styleUs": 194.96666666666667,
+     "scriptUs": 168.56333333333333,
+     "taskUs": 2017.8766666666668
+    }
+   ]
+  },
+  "300 moves, one frame each, 2000 items": {
+   "before": [
+    {
+     "layouts": 83,
+     "layoutUs": 300.6066666666667,
+     "styleUs": 288.70666666666665,
+     "scriptUs": 178.81,
+     "taskUs": 3047.286666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 291.26666666666665,
+     "styleUs": 288.49999999999994,
+     "scriptUs": 168.81,
+     "taskUs": 2636.3933333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 300.43,
+     "styleUs": 268.3666666666667,
+     "scriptUs": 175.45,
+     "taskUs": 2721.596666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 289.1166666666667,
+     "styleUs": 264.63999999999993,
+     "scriptUs": 168.39999999999998,
+     "taskUs": 2694.7833333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 251.88666666666666,
+     "styleUs": 241.60333333333332,
+     "scriptUs": 148.83333333333334,
+     "taskUs": 2387.6533333333327
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 247.58,
+     "styleUs": 240.86666666666667,
+     "scriptUs": 150.31333333333333,
+     "taskUs": 2330.4933333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 286.68666666666667,
+     "styleUs": 293.31,
+     "scriptUs": 173.55333333333334,
+     "taskUs": 2759.56
+    }
+   ],
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 290.3333333333333,
+     "styleUs": 294.89666666666665,
+     "scriptUs": 171.66333333333333,
+     "taskUs": 2697.306666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 299.6166666666667,
+     "styleUs": 261.7966666666667,
+     "scriptUs": 169.55666666666667,
+     "taskUs": 2743.83
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 287.25333333333333,
+     "styleUs": 270.79333333333335,
+     "scriptUs": 161.35666666666668,
+     "taskUs": 2614.9
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 330.1,
+     "styleUs": 294.0266666666667,
+     "scriptUs": 181.50000000000003,
+     "taskUs": 2837.096666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 284.9266666666667,
+     "styleUs": 277.5833333333333,
+     "scriptUs": 184.56,
+     "taskUs": 2813.3166666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 277.4633333333333,
+     "styleUs": 267.59666666666664,
+     "scriptUs": 161.90666666666667,
+     "taskUs": 2534.1633333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 238.20666666666668,
+     "styleUs": 246.64,
+     "scriptUs": 156.2133333333333,
+     "taskUs": 2303.536666666667
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 302.0933333333333,
+     "styleUs": 298.21666666666664,
+     "scriptUs": 172.83999999999997,
+     "taskUs": 2761.5166666666664
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 299.14,
+     "styleUs": 283.62333333333333,
+     "scriptUs": 177.16333333333333,
+     "taskUs": 2721.306666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 275.16333333333336,
+     "styleUs": 273.05999999999995,
+     "scriptUs": 179.38333333333333,
+     "taskUs": 2807.8366666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 299.19,
+     "styleUs": 292.4166666666667,
+     "scriptUs": 175.63666666666666,
+     "taskUs": 2777.5066666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 264.06333333333333,
+     "styleUs": 265.5833333333333,
+     "scriptUs": 174.33333333333334,
+     "taskUs": 2545.1966666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 336.21666666666664,
+     "styleUs": 297.56333333333333,
+     "scriptUs": 183.48666666666668,
+     "taskUs": 3238.0499999999997
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 272.13666666666666,
+     "styleUs": 268.5766666666666,
+     "scriptUs": 165.42666666666668,
+     "taskUs": 2550.4866666666667
+    }
+   ]
+  },
+  "press and release below the threshold, 20 items, [...root.children]": {
+   "before": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2699999999999999,
+     "scriptUs": 76,
+     "taskUs": 228.06
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.45000000000000007,
+     "scriptUs": 79.80000000000001,
+     "taskUs": 222.26
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24,
+     "scriptUs": 81.35,
+     "taskUs": 246.06999999999996
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3600000000000001,
+     "scriptUs": 112.24,
+     "taskUs": 319.19000000000005
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3,
+     "scriptUs": 124.16,
+     "taskUs": 372.92
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.19,
+     "scriptUs": 44.11,
+     "taskUs": 138.86
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999997,
+     "scriptUs": 60.84,
+     "taskUs": 187.54
+    }
+   ],
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.33,
+     "scriptUs": 60.72,
+     "taskUs": 175.33
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.29,
+     "scriptUs": 83.73,
+     "taskUs": 250.69
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3500000000000001,
+     "scriptUs": 96.37999999999998,
+     "taskUs": 289.16
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3,
+     "scriptUs": 84.93,
+     "taskUs": 249.29
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2700000000000001,
+     "scriptUs": 91.3,
+     "taskUs": 270.46999999999997
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2699999999999999,
+     "scriptUs": 67.39,
+     "taskUs": 199.78
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999992,
+     "scriptUs": 93.94999999999999,
+     "taskUs": 279.59
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3500000000000001,
+     "scriptUs": 113.37,
+     "taskUs": 336.57
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.22000000000000008,
+     "scriptUs": 93.07,
+     "taskUs": 282.79
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.25999999999999995,
+     "scriptUs": 62.18,
+     "taskUs": 190
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.53,
+     "scriptUs": 72.94,
+     "taskUs": 222.04
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.28999999999999987,
+     "scriptUs": 95.36000000000001,
+     "taskUs": 282.56000000000006
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24,
+     "scriptUs": 80.17,
+     "taskUs": 241.17
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2699999999999999,
+     "scriptUs": 63.529999999999994,
+     "taskUs": 182.49
+    }
+   ]
+  },
+  "press and release below the threshold, 20 items, cached array": {
+   "before": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24,
+     "scriptUs": 67.19,
+     "taskUs": 220.28000000000003
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2700000000000001,
+     "scriptUs": 61.29,
+     "taskUs": 196.29
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.37000000000000005,
+     "scriptUs": 86.01,
+     "taskUs": 301.58000000000004
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999992,
+     "scriptUs": 72.04,
+     "taskUs": 235.24
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.34000000000000014,
+     "scriptUs": 143.16,
+     "taskUs": 478.93000000000006
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.5599999999999998,
+     "scriptUs": 177.24,
+     "taskUs": 728.55
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.35999999999999993,
+     "scriptUs": 51.32,
+     "taskUs": 168.42999999999995
+    }
+   ],
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24000000000000013,
+     "scriptUs": 61.97,
+     "taskUs": 197.15999999999997
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3000000000000001,
+     "scriptUs": 103.46000000000002,
+     "taskUs": 360.65
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2,
+     "scriptUs": 44.47,
+     "taskUs": 152.43
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.20999999999999996,
+     "scriptUs": 39.73,
+     "taskUs": 128.67
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3600000000000001,
+     "scriptUs": 130.80999999999997,
+     "taskUs": 433.00000000000006
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4299999999999999,
+     "scriptUs": 173.41000000000003,
+     "taskUs": 633.7200000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.23000000000000004,
+     "scriptUs": 47.85999999999999,
+     "taskUs": 155.73
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3500000000000001,
+     "scriptUs": 112.42,
+     "taskUs": 365.70000000000005
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3600000000000001,
+     "scriptUs": 80.49,
+     "taskUs": 296.03
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.32999999999999985,
+     "scriptUs": 66.16,
+     "taskUs": 217.75000000000003
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2500000000000001,
+     "scriptUs": 79.66,
+     "taskUs": 263.96000000000004
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999986,
+     "scriptUs": 130.77,
+     "taskUs": 443.23
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999997,
+     "scriptUs": 134.08,
+     "taskUs": 555.16
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999992,
+     "scriptUs": 103.76,
+     "taskUs": 338.51
+    }
+   ]
+  },
+  "press and release below the threshold, 2000 items, [...root.children]": {
+   "before": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2400000000000015,
+     "scriptUs": 392.55,
+     "taskUs": 593.13
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999847,
+     "scriptUs": 466.55,
+     "taskUs": 667.1200000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999884,
+     "scriptUs": 466.6,
+     "taskUs": 669.67
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4000000000000011,
+     "scriptUs": 400,
+     "taskUs": 729.7500000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3300000000000004,
+     "scriptUs": 566.31,
+     "taskUs": 908.65
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.40999999999999803,
+     "scriptUs": 777.08,
+     "taskUs": 1467.62
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2199999999999945,
+     "scriptUs": 721.48,
+     "taskUs": 1100.73
+    }
+   ],
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.17999999999999786,
+     "scriptUs": 372.19,
+     "taskUs": 537.82
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.30000000000000077,
+     "scriptUs": 360.31,
+     "taskUs": 535.92
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.20999999999999752,
+     "scriptUs": 406.69,
+     "taskUs": 608.4999999999999
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.35000000000000303,
+     "scriptUs": 349.12000000000006,
+     "taskUs": 647.22
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3099999999999978,
+     "scriptUs": 707.87,
+     "taskUs": 1116.0800000000002
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3100000000000065,
+     "scriptUs": 576.85,
+     "taskUs": 876.0199999999999
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2699999999999968,
+     "scriptUs": 659.75,
+     "taskUs": 995.1299999999999
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.28000000000000247,
+     "scriptUs": 435.9000000000001,
+     "taskUs": 698.57
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.23000000000000018,
+     "scriptUs": 528.3799999999999,
+     "taskUs": 810.8499999999999
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.20000000000000054,
+     "scriptUs": 498.79,
+     "taskUs": 730.66
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.5400000000000023,
+     "scriptUs": 369.3,
+     "taskUs": 689.08
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999847,
+     "scriptUs": 635.0899999999999,
+     "taskUs": 935.9300000000002
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4099999999999937,
+     "scriptUs": 932.21,
+     "taskUs": 1673.65
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999847,
+     "scriptUs": 561.69,
+     "taskUs": 923.23
+    }
+   ]
+  },
+  "press and release below the threshold, 2000 items, cached array": {
+   "before": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.28000000000000247,
+     "scriptUs": 129.08,
+     "taskUs": 480.66
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3199999999999991,
+     "scriptUs": 97.65,
+     "taskUs": 493.61
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3300000000000004,
+     "scriptUs": 172.14999999999998,
+     "taskUs": 686.5
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.22000000000000317,
+     "scriptUs": 82.61,
+     "taskUs": 333.72
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3699999999999971,
+     "scriptUs": 157.54,
+     "taskUs": 708.73
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3300000000000004,
+     "scriptUs": 88.99,
+     "taskUs": 353.62999999999994
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21000000000000185,
+     "scriptUs": 95.31,
+     "taskUs": 440.3400000000001
+    }
+   ],
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4000000000000011,
+     "scriptUs": 142.84,
+     "taskUs": 602.85
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999884,
+     "scriptUs": 56.8,
+     "taskUs": 224.51
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.30000000000000077,
+     "scriptUs": 105.89,
+     "taskUs": 444.2899999999999
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.22000000000000317,
+     "scriptUs": 101.86,
+     "taskUs": 399.43999999999994
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.29999999999999644,
+     "scriptUs": 68.77,
+     "taskUs": 296.17
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.25999999999999984,
+     "scriptUs": 103.86,
+     "taskUs": 421.38000000000005
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.34000000000001046,
+     "scriptUs": 115.6,
+     "taskUs": 450.47
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.35000000000000303,
+     "scriptUs": 152.13,
+     "taskUs": 580.1600000000002
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.28000000000000247,
+     "scriptUs": 91.27999999999999,
+     "taskUs": 403.26
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.27999999999999814,
+     "scriptUs": 103.59,
+     "taskUs": 533.3700000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.37000000000000577,
+     "scriptUs": 222.44,
+     "taskUs": 888.3500000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.20000000000000054,
+     "scriptUs": 115.06,
+     "taskUs": 446.85
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.28000000000000247,
+     "scriptUs": 87.74,
+     "taskUs": 347.3
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2900000000000038,
+     "scriptUs": 85.89,
+     "taskUs": 377.37
+    }
+   ]
+  },
+  "50 activate-and-drop cycles, 20 items, no landing": {
+   "before": [
+    {
+     "layouts": 250,
+     "layoutUs": 480.2,
+     "styleUs": 1021.82,
+     "scriptUs": 1966.22,
+     "taskUs": 11642.800000000003
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 471.48,
+     "styleUs": 997.8,
+     "scriptUs": 1724.7,
+     "taskUs": 9648.7
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 466.3,
+     "styleUs": 966.5399999999998,
+     "scriptUs": 1748.54,
+     "taskUs": 9743.96
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 583.68,
+     "styleUs": 1104.18,
+     "scriptUs": 2193.22,
+     "taskUs": 13489.8
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 403.9200000000001,
+     "styleUs": 880.86,
+     "scriptUs": 1646.32,
+     "taskUs": 8696.64
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 488.8,
+     "styleUs": 1027.32,
+     "scriptUs": 1929.04,
+     "taskUs": 10396.019999999999
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 516.06,
+     "styleUs": 1075.1,
+     "scriptUs": 2092.9,
+     "taskUs": 12885.28
+    }
+   ],
+   "production": [
+    {
+     "layouts": 250,
+     "layoutUs": 500.4799999999999,
+     "styleUs": 1045.7799999999997,
+     "scriptUs": 2000.04,
+     "taskUs": 10649.140000000003
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 547.56,
+     "styleUs": 1105.66,
+     "scriptUs": 2224.72,
+     "taskUs": 13404.16
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 438.5199999999999,
+     "styleUs": 934.9800000000001,
+     "scriptUs": 1686.78,
+     "taskUs": 9330.16
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 470.1,
+     "styleUs": 1022.9600000000002,
+     "scriptUs": 1916.86,
+     "taskUs": 10463.18
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 561.22,
+     "styleUs": 1167.06,
+     "scriptUs": 2572.62,
+     "taskUs": 14375.799999999997
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 419.6,
+     "styleUs": 902.68,
+     "scriptUs": 1642.42,
+     "taskUs": 8795.94
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 484.28,
+     "styleUs": 1000.84,
+     "scriptUs": 1838.22,
+     "taskUs": 10160.1
+    }
+   ],
+   "control": [
+    {
+     "layouts": 250,
+     "layoutUs": 475.98,
+     "styleUs": 1003.42,
+     "scriptUs": 1783.76,
+     "taskUs": 10134.04
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 523.74,
+     "styleUs": 1121.9,
+     "scriptUs": 2154.68,
+     "taskUs": 11445.2
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 596.94,
+     "styleUs": 1142.42,
+     "scriptUs": 2159.08,
+     "taskUs": 13156
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 429.4000000000001,
+     "styleUs": 937.04,
+     "scriptUs": 1676.84,
+     "taskUs": 9008.86
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 394.86,
+     "styleUs": 907.12,
+     "scriptUs": 1687.86,
+     "taskUs": 9136.24
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 500.55999999999995,
+     "styleUs": 1112.4999999999998,
+     "scriptUs": 2251.6,
+     "taskUs": 12810.84
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 479.5,
+     "styleUs": 992.3000000000002,
+     "scriptUs": 1903.82,
+     "taskUs": 10364.500000000002
+    }
+   ]
+  },
+  "50 activate-and-drop cycles, 20 items, with landing": {
+   "before": [
+    {
+     "layouts": 350,
+     "layoutUs": 578.8,
+     "styleUs": 1371.26,
+     "scriptUs": 2220.48,
+     "taskUs": 12713.66
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 599.42,
+     "styleUs": 1454.5200000000002,
+     "scriptUs": 2010.94,
+     "taskUs": 11249.62
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 581.2,
+     "styleUs": 1355.78,
+     "scriptUs": 2014.32,
+     "taskUs": 11162.14
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 656,
+     "styleUs": 1518.54,
+     "scriptUs": 2274.08,
+     "taskUs": 14430.46
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 599.84,
+     "styleUs": 1375.6600000000003,
+     "scriptUs": 1969.32,
+     "taskUs": 11338.199999999997
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 648.7,
+     "styleUs": 1468.5199999999998,
+     "scriptUs": 2353.34,
+     "taskUs": 12954.02
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 605.18,
+     "styleUs": 1470.4599999999998,
+     "scriptUs": 2040.86,
+     "taskUs": 12719.8
+    }
+   ],
+   "production": [
+    {
+     "layouts": 350,
+     "layoutUs": 582.18,
+     "styleUs": 1393.6400000000003,
+     "scriptUs": 2026.62,
+     "taskUs": 11409.64
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 696.3,
+     "styleUs": 1568.06,
+     "scriptUs": 2362.94,
+     "taskUs": 15550.82
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 589.9,
+     "styleUs": 1347.24,
+     "scriptUs": 1940.54,
+     "taskUs": 11270.38
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 556.1,
+     "styleUs": 1284.36,
+     "scriptUs": 1982.84,
+     "taskUs": 10867.52
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 600.18,
+     "styleUs": 1438.64,
+     "scriptUs": 2112.42,
+     "taskUs": 13066.4
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 640.66,
+     "styleUs": 1353.5599999999997,
+     "scriptUs": 1981.12,
+     "taskUs": 11628.38
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 641.64,
+     "styleUs": 1396.26,
+     "scriptUs": 2119.26,
+     "taskUs": 11610.54
+    }
+   ],
+   "control": [
+    {
+     "layouts": 350,
+     "layoutUs": 583.66,
+     "styleUs": 1368.1,
+     "scriptUs": 2026.24,
+     "taskUs": 11259.68
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 589.98,
+     "styleUs": 1371.7200000000003,
+     "scriptUs": 2055.28,
+     "taskUs": 11303.92
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 676.64,
+     "styleUs": 1587.18,
+     "scriptUs": 2483.78,
+     "taskUs": 15195.38
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 600.7600000000001,
+     "styleUs": 1401.92,
+     "scriptUs": 2090.96,
+     "taskUs": 11557.48
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 654.98,
+     "styleUs": 1465.12,
+     "scriptUs": 2122.54,
+     "taskUs": 12318.72
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 603.1200000000001,
+     "styleUs": 1382.16,
+     "scriptUs": 2145.22,
+     "taskUs": 12555.06
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 614.9399999999999,
+     "styleUs": 1428.06,
+     "scriptUs": 2010.52,
+     "taskUs": 12018.26
+    }
+   ]
+  },
+  "50 activate-and-drop cycles, 2000 items, no landing": {
+   "before": [
+    {
+     "layouts": 250,
+     "layoutUs": 4841.959999999999,
+     "styleUs": 1879.2,
+     "scriptUs": 7169.36,
+     "taskUs": 31462.700000000004
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3832.9599999999996,
+     "styleUs": 1572,
+     "scriptUs": 6043.12,
+     "taskUs": 25746.46
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3947.88,
+     "styleUs": 1587.58,
+     "scriptUs": 6401.34,
+     "taskUs": 26164.22
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 5356.92,
+     "styleUs": 1960.34,
+     "scriptUs": 8423.1,
+     "taskUs": 35012.66
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3512.6399999999994,
+     "styleUs": 1452.82,
+     "scriptUs": 5457.46,
+     "taskUs": 23979.12
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3722.22,
+     "styleUs": 1543.94,
+     "scriptUs": 5950.48,
+     "taskUs": 25137.14
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 5310.06,
+     "styleUs": 1865.66,
+     "scriptUs": 8708.04,
+     "taskUs": 36425.12
+    }
+   ],
+   "production": [
+    {
+     "layouts": 250,
+     "layoutUs": 3680.8,
+     "styleUs": 1546.0000000000002,
+     "scriptUs": 6224.74,
+     "taskUs": 25503.679999999997
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 5195.240000000002,
+     "styleUs": 1904.98,
+     "scriptUs": 8358.6,
+     "taskUs": 35665.259999999995
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 4046.26,
+     "styleUs": 1620.92,
+     "scriptUs": 6434.66,
+     "taskUs": 27374.06
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3725.76,
+     "styleUs": 1591.34,
+     "scriptUs": 6528.28,
+     "taskUs": 26828.860000000004
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 4205.76,
+     "styleUs": 1682.42,
+     "scriptUs": 6783.28,
+     "taskUs": 28859.26
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3741.28,
+     "styleUs": 1535.12,
+     "scriptUs": 6026.22,
+     "taskUs": 25165.52
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3762.44,
+     "styleUs": 1510.4,
+     "scriptUs": 6076.7,
+     "taskUs": 25190.96
+    }
+   ],
+   "control": [
+    {
+     "layouts": 250,
+     "layoutUs": 4026.78,
+     "styleUs": 1568.3999999999996,
+     "scriptUs": 6310.06,
+     "taskUs": 26608.72
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3952.78,
+     "styleUs": 1572.76,
+     "scriptUs": 6497.62,
+     "taskUs": 26734.6
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 5171.8,
+     "styleUs": 1975.3800000000003,
+     "scriptUs": 8354.56,
+     "taskUs": 35571.66
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3508.22,
+     "styleUs": 1436.5,
+     "scriptUs": 5416.86,
+     "taskUs": 23656.16
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3736.859999999999,
+     "styleUs": 1612.9000000000003,
+     "scriptUs": 5822.3,
+     "taskUs": 25671.280000000006
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 4078.18,
+     "styleUs": 1596.98,
+     "scriptUs": 6317.9,
+     "taskUs": 28111.12
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3553.82,
+     "styleUs": 1495.02,
+     "scriptUs": 6030.46,
+     "taskUs": 24957.94
+    }
+   ]
+  },
+  "50 activate-and-drop cycles, 2000 items, with landing": {
+   "before": [
+    {
+     "layouts": 350,
+     "layoutUs": 5628.759999999998,
+     "styleUs": 2394.78,
+     "scriptUs": 7423.5,
+     "taskUs": 34657.46
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4667.2,
+     "styleUs": 2037.36,
+     "scriptUs": 5790.06,
+     "taskUs": 28025.759999999995
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4976.62,
+     "styleUs": 2278.02,
+     "scriptUs": 6216.68,
+     "taskUs": 29219.86
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5329.799999999999,
+     "styleUs": 2265.86,
+     "scriptUs": 6763.84,
+     "taskUs": 31900.6
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4567.82,
+     "styleUs": 2064.58,
+     "scriptUs": 5622,
+     "taskUs": 27627.5
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4456.9800000000005,
+     "styleUs": 2136.7,
+     "scriptUs": 6389.34,
+     "taskUs": 27622.76
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5970.2,
+     "styleUs": 2429.64,
+     "scriptUs": 8120.86,
+     "taskUs": 36024.5
+    }
+   ],
+   "production": [
+    {
+     "layouts": 350,
+     "layoutUs": 4150.56,
+     "styleUs": 2000.66,
+     "scriptUs": 5712.88,
+     "taskUs": 25827.16
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5232.52,
+     "styleUs": 2138.88,
+     "scriptUs": 7040.74,
+     "taskUs": 31393.74
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4814.56,
+     "styleUs": 2094.16,
+     "scriptUs": 6021.28,
+     "taskUs": 27900.32
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4485.88,
+     "styleUs": 2023,
+     "scriptUs": 5573.56,
+     "taskUs": 26547.82
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4977.32,
+     "styleUs": 2258.9399999999996,
+     "scriptUs": 6723.96,
+     "taskUs": 30961.36
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4907.68,
+     "styleUs": 2107.18,
+     "scriptUs": 6879.38,
+     "taskUs": 29187.580000000005
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4890,
+     "styleUs": 2198.18,
+     "scriptUs": 6144.42,
+     "taskUs": 28964.58
+    }
+   ],
+   "control": [
+    {
+     "layouts": 350,
+     "layoutUs": 4462.7,
+     "styleUs": 2014.36,
+     "scriptUs": 6126.94,
+     "taskUs": 27263.14
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4635.2,
+     "styleUs": 2083.42,
+     "scriptUs": 5703.44,
+     "taskUs": 27280.539999999994
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5230.180000000001,
+     "styleUs": 2259.62,
+     "scriptUs": 7103.48,
+     "taskUs": 30858.939999999995
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4560.12,
+     "styleUs": 2231.36,
+     "scriptUs": 5434.36,
+     "taskUs": 27562.32
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4390.08,
+     "styleUs": 2118.54,
+     "scriptUs": 6030.62,
+     "taskUs": 27002.72
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5542.06,
+     "styleUs": 2356.3599999999997,
+     "scriptUs": 7522.78,
+     "taskUs": 34178.46
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4664.32,
+     "styleUs": 2146.32,
+     "scriptUs": 6094.8,
+     "taskUs": 28172.08
+    }
+   ]
+  },
+  "50 keyboard reorders, 20 items, with focus restoration": {
+   "before": [
+    {
+     "layouts": 50,
+     "layoutUs": 45.44,
+     "styleUs": 142.08,
+     "scriptUs": 449.16,
+     "taskUs": 771.8
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 49.099999999999994,
+     "styleUs": 151.82000000000002,
+     "scriptUs": 457.84,
+     "taskUs": 804.48
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 27.739999999999995,
+     "styleUs": 72.58000000000001,
+     "scriptUs": 281.12,
+     "taskUs": 491.58
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 45.83999999999999,
+     "styleUs": 133.38,
+     "scriptUs": 421.4,
+     "taskUs": 731.92
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 27.52,
+     "styleUs": 75.12,
+     "scriptUs": 308.7,
+     "taskUs": 506.46
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 60.04,
+     "styleUs": 184.14,
+     "scriptUs": 597.08,
+     "taskUs": 1062.3
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 33.92,
+     "styleUs": 93.42000000000002,
+     "scriptUs": 367,
+     "taskUs": 598.8399999999999
+    }
+   ],
+   "production": [
+    {
+     "layouts": 50,
+     "layoutUs": 26.34,
+     "styleUs": 71.9,
+     "scriptUs": 285.28,
+     "taskUs": 479.62000000000006
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 32.1,
+     "styleUs": 91.04,
+     "scriptUs": 332.88,
+     "taskUs": 571.7399999999999
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 43.56000000000001,
+     "styleUs": 132.88,
+     "scriptUs": 446.36,
+     "taskUs": 757.1
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 31.64,
+     "styleUs": 93.72,
+     "scriptUs": 363.08,
+     "taskUs": 600
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 32.7,
+     "styleUs": 94.58,
+     "scriptUs": 355.62,
+     "taskUs": 605.7199999999999
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 72.64,
+     "styleUs": 328.4,
+     "scriptUs": 841.22,
+     "taskUs": 1589.2599999999998
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 57.07999999999999,
+     "styleUs": 179.14,
+     "scriptUs": 560.94,
+     "taskUs": 977.56
+    }
+   ],
+   "control": [
+    {
+     "layouts": 50,
+     "layoutUs": 51.30000000000001,
+     "styleUs": 156.76000000000002,
+     "scriptUs": 503.72,
+     "taskUs": 875.54
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 46.21999999999999,
+     "styleUs": 137.9,
+     "scriptUs": 468.98,
+     "taskUs": 783.46
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 48.66000000000001,
+     "styleUs": 152.48,
+     "scriptUs": 475.84,
+     "taskUs": 797.64
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 37.080000000000005,
+     "styleUs": 111.01999999999998,
+     "scriptUs": 384.42,
+     "taskUs": 667.96
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 46.4,
+     "styleUs": 140.5,
+     "scriptUs": 455.72,
+     "taskUs": 788.24
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 51.91999999999999,
+     "styleUs": 138.06,
+     "scriptUs": 516.38,
+     "taskUs": 904.4200000000002
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 51.28,
+     "styleUs": 154.7,
+     "scriptUs": 474.48,
+     "taskUs": 827.76
+    }
+   ]
+  },
+  "200 operations, then destroy: retained JavaScript objects": {
+   "before": [
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672240
+    }
+   ],
+   "production": [
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672272
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    }
+   ],
+   "control": [
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672272
+    }
+   ]
+  }
+ }
+}

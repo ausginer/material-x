@@ -1,0 +1,225 @@
+# before: nproc 12, node v26.13.0, uptime:  20:28:05 up 1 day, 16:51,  0 users,  load average: 2.81, 2.50, 2.17
+$ node bench/compare.ts --out .plan/measurements/2026-11-10-performance-b2.json
+round 1/7: 300 moves, one frame each, 20 items
+round 1/7: 300 moves, one frame each, 2000 items
+round 1/7: bytes per move by function, 20 items
+round 1/7: press and release below the threshold, 20 items, [...root.children]
+round 1/7: press and release below the threshold, 20 items, cached array
+round 1/7: press and release below the threshold, 2000 items, [...root.children]
+round 1/7: press and release below the threshold, 2000 items, cached array
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 1/7: 50 activate-and-drop cycles, 20 items, with landing
+round 1/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 1/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 1/7: 50 keyboard reorders, 20 items, with focus restoration
+round 1/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 1/7: 200 operations, then destroy: retained JavaScript objects
+round 1/7: free drag, 300 moves, one frame each
+round 1/7: draggable no-lift, move: script
+round 1/7: draggable no-lift, move: bytes per move by function
+round 2/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 2000 items
+round 2/7: bytes per move by function, 20 items
+round 2/7: press and release below the threshold, 20 items, [...root.children]
+round 2/7: press and release below the threshold, 20 items, cached array
+round 2/7: press and release below the threshold, 2000 items, [...root.children]
+round 2/7: press and release below the threshold, 2000 items, cached array
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, with landing
+round 2/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 2/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 2/7: 50 keyboard reorders, 20 items, with focus restoration
+round 2/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 2/7: 200 operations, then destroy: retained JavaScript objects
+round 2/7: free drag, 300 moves, one frame each
+round 2/7: draggable no-lift, move: script
+round 2/7: draggable no-lift, move: bytes per move by function
+round 3/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 2000 items
+round 3/7: bytes per move by function, 20 items
+round 3/7: press and release below the threshold, 20 items, [...root.children]
+round 3/7: press and release below the threshold, 20 items, cached array
+round 3/7: press and release below the threshold, 2000 items, [...root.children]
+round 3/7: press and release below the threshold, 2000 items, cached array
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, with landing
+round 3/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 3/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 3/7: 50 keyboard reorders, 20 items, with focus restoration
+round 3/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 3/7: 200 operations, then destroy: retained JavaScript objects
+round 3/7: free drag, 300 moves, one frame each
+round 3/7: draggable no-lift, move: script
+round 3/7: draggable no-lift, move: bytes per move by function
+round 4/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 2000 items
+round 4/7: bytes per move by function, 20 items
+round 4/7: press and release below the threshold, 20 items, [...root.children]
+round 4/7: press and release below the threshold, 20 items, cached array
+round 4/7: press and release below the threshold, 2000 items, [...root.children]
+round 4/7: press and release below the threshold, 2000 items, cached array
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, with landing
+round 4/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 4/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 4/7: 50 keyboard reorders, 20 items, with focus restoration
+round 4/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 4/7: free drag, 300 moves, one frame each
+round 4/7: draggable no-lift, move: script
+round 4/7: draggable no-lift, move: bytes per move by function
+round 5/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 2000 items
+round 5/7: bytes per move by function, 20 items
+round 5/7: press and release below the threshold, 20 items, [...root.children]
+round 5/7: press and release below the threshold, 20 items, cached array
+round 5/7: press and release below the threshold, 2000 items, [...root.children]
+round 5/7: press and release below the threshold, 2000 items, cached array
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, with landing
+round 5/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 5/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 5/7: 50 keyboard reorders, 20 items, with focus restoration
+round 5/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 5/7: free drag, 300 moves, one frame each
+round 5/7: draggable no-lift, move: script
+round 5/7: draggable no-lift, move: bytes per move by function
+round 6/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 2000 items
+round 6/7: bytes per move by function, 20 items
+round 6/7: press and release below the threshold, 20 items, [...root.children]
+round 6/7: press and release below the threshold, 20 items, cached array
+round 6/7: press and release below the threshold, 2000 items, [...root.children]
+round 6/7: press and release below the threshold, 2000 items, cached array
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, with landing
+round 6/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 6/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 6/7: 50 keyboard reorders, 20 items, with focus restoration
+round 6/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 6/7: free drag, 300 moves, one frame each
+round 6/7: draggable no-lift, move: script
+round 6/7: draggable no-lift, move: bytes per move by function
+round 7/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 2000 items
+round 7/7: bytes per move by function, 20 items
+round 7/7: press and release below the threshold, 20 items, [...root.children]
+round 7/7: press and release below the threshold, 20 items, cached array
+round 7/7: press and release below the threshold, 2000 items, [...root.children]
+round 7/7: press and release below the threshold, 2000 items, cached array
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, with landing
+round 7/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 7/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 7/7: 50 keyboard reorders, 20 items, with focus restoration
+round 7/7: 50 keyboard reorders, 2000 items, with focus restoration
+round 7/7: free drag, 300 moves, one frame each
+round 7/7: draggable no-lift, move: script
+round 7/7: draggable no-lift, move: bytes per move by function
+
+300 moves, one frame each, 20 items
+  drag2 layouts: at or below: 83 against 83
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -21 µs, A/A bound 22 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -25 µs, A/A bound 314 µs
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 6 of 7, median 11 µs, A/A bound 22 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 169 µs, A/A bound 314 µs
+
+300 moves, one frame each, 2000 items
+  drag2 layouts: at or below: 83 against 83
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -24 µs, A/A bound 31 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -46 µs, A/A bound 505 µs
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -1 µs, A/A bound 31 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 8 µs, A/A bound 505 µs
+
+bytes per move by function, 20 items
+
+press and release below the threshold, 20 items, [...root.children]
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -25 µs, A/A bound 63 µs
+  drag2 taskUs: no difference shown: higher in 2 of 7, median -26 µs, A/A bound 171 µs
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 6 µs, A/A bound 63 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 4 µs, A/A bound 171 µs
+
+press and release below the threshold, 20 items, cached array
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -14 µs, A/A bound 54 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -20 µs, A/A bound 211 µs
+  prototype scriptUs: no difference shown: higher in 6 of 7, median 7 µs, A/A bound 54 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 32 µs, A/A bound 211 µs
+
+press and release below the threshold, 2000 items, [...root.children]
+  drag2 scriptUs: FLAG slower: higher in 7 of 7, median 472 µs, A/A bound 430 µs
+  drag2 taskUs: no difference shown: higher in 7 of 7, median 511 µs, A/A bound 563 µs
+  prototype scriptUs: no difference shown: higher in 2 of 7, median -106 µs, A/A bound 430 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -197 µs, A/A bound 563 µs
+
+press and release below the threshold, 2000 items, cached array
+  drag2 scriptUs: no difference shown: higher in 0 of 7, median -26 µs, A/A bound 48 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 49 µs, A/A bound 157 µs
+  prototype scriptUs: no difference shown: higher in 5 of 7, median 13 µs, A/A bound 48 µs
+  prototype taskUs: no difference shown: higher in 5 of 7, median 15 µs, A/A bound 157 µs
+
+50 activate-and-drop cycles, 20 items, no landing
+  drag2 layouts: at or below: 250 against 300
+  drag2 scriptUs: no difference shown: higher in 1 of 7, median -130 µs, A/A bound 528 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 309 µs, A/A bound 4067 µs
+  prototype layouts: at or below: 250 against 250
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -40 µs, A/A bound 528 µs
+  prototype taskUs: no difference shown: higher in 3 of 7, median -239 µs, A/A bound 4067 µs
+
+50 activate-and-drop cycles, 20 items, with landing
+  drag2 layouts: at or below: 350 against 350
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -51 µs, A/A bound 423 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 524 µs, A/A bound 2451 µs
+  prototype layouts: at or below: 350 against 350
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 1 µs, A/A bound 423 µs
+  prototype taskUs: no difference shown: higher in 1 of 7, median -173 µs, A/A bound 2451 µs
+
+50 activate-and-drop cycles, 2000 items, no landing
+  drag2 layouts: at or below: 250 against 300
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -289 µs, A/A bound 1820 µs
+  drag2 taskUs: no difference shown: higher in 6 of 7, median 2871 µs, A/A bound 8249 µs
+  prototype layouts: at or below: 250 against 250
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -179 µs, A/A bound 1820 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 942 µs, A/A bound 8249 µs
+
+50 activate-and-drop cycles, 2000 items, with landing
+  drag2 layouts: at or below: 350 against 350
+  drag2 scriptUs: no difference shown: higher in 2 of 7, median -433 µs, A/A bound 2601 µs
+  drag2 taskUs: no difference shown: higher in 4 of 7, median 1935 µs, A/A bound 14715 µs
+  prototype layouts: at or below: 350 against 350
+  prototype scriptUs: no difference shown: higher in 4 of 7, median 510 µs, A/A bound 2601 µs
+  prototype taskUs: no difference shown: higher in 3 of 7, median -658 µs, A/A bound 14715 µs
+
+50 keyboard reorders, 20 items, with focus restoration
+  drag2 layouts: at or below: 50 against 100
+  drag2 scriptUs: no difference shown: higher in 4 of 7, median 17 µs, A/A bound 132 µs
+  drag2 taskUs: no difference shown: higher in 5 of 7, median 52 µs, A/A bound 262 µs
+  prototype layouts: at or below: 50 against 50
+  prototype scriptUs: no difference shown: higher in 5 of 7, median 65 µs, A/A bound 132 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 139 µs, A/A bound 262 µs
+
+50 keyboard reorders, 2000 items, with focus restoration
+  drag2 layouts: at or below: 50 against 100
+  drag2 scriptUs: no difference shown: higher in 3 of 7, median -11 µs, A/A bound 311 µs
+  drag2 taskUs: faster: higher in 0 of 7, median -1003 µs, A/A bound 993 µs
+  prototype layouts: at or below: 50 against 50
+  prototype scriptUs: no difference shown: higher in 3 of 7, median -32 µs, A/A bound 311 µs
+  prototype taskUs: no difference shown: higher in 2 of 7, median -118 µs, A/A bound 993 µs
+
+200 operations, then destroy: retained JavaScript objects
+  drag2 retained objects: FLAG retains more: higher in 3 of 3, median 4076 B, A/A bound 0 B
+  prototype retained objects: FLAG retains more: higher in 3 of 3, median 3396 B, A/A bound 0 B
+
+free drag, 300 moves, one frame each
+  drag2 layouts: at or below: 0 against 0
+  drag2 scriptUs: faster: higher in 0 of 7, median -21 µs, A/A bound 7 µs
+  drag2 taskUs: no difference shown: higher in 3 of 7, median -61 µs, A/A bound 182 µs
+  prototype layouts: at or below: 0 against 0
+  prototype scriptUs: no difference shown: higher in 2 of 7, median -2 µs, A/A bound 7 µs
+  prototype taskUs: no difference shown: higher in 4 of 7, median 15 µs, A/A bound 182 µs
+
+draggable no-lift, move: script
+
+draggable no-lift, move: bytes per move by function
+exit 0
+# after: nproc 12, node v26.13.0, uptime:  21:14:34 up 1 day, 17:37,  0 users,  load average: 2.69, 2.86, 2.94
