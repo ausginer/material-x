@@ -1,0 +1,12 @@
+# nproc 12, node v26.13.0, uptime:  15:14:22 up 1 day, 11:37,  0 users,  load average: 3.56, 1.98, 1.37
+$ CHROME_EXECUTABLE=/nonexistent/chrome node bench/compare.ts --prove --dry
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+applies: 1 KB allocated per move
+applies: one entry on the step list per frame, expected to stay quiet
+applies: an array of four numbers per sample, in Gesture.enter
+7 applied, no browser launched
+exit 0
+# uptime after:  15:14:23 up 1 day, 11:37,  0 users,  load average: 3.56, 1.98, 1.37

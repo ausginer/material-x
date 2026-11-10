@@ -10,8 +10,12 @@
  * runs the comparison. `--before <revision>` replaces drag2 and the prototype with
  * production's `src` at that revision.
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
- * copy of production, and exits non-zero unless the comparison flags each one, or
- * if the control flags against itself. With `--only a|b`, only the injections whose
+ * copy of production, and exits non-zero unless the comparison flags each one
+ * expected to flag and flags none expected to stay quiet, or if the control flags
+ * against itself. The one quiet injection, the step-list entry, is the bytes rule's
+ * specificity witness: kernel code that runs on every frame and allocates no object
+ * stays under the rule. Its quiet result counts only when an injection expected to
+ * flag ran on its row in the same run. With `--only a|b`, only the injections whose
  * name contains one of the texts run, and the A/A pass runs in full. Every selected
  * injection is applied before a browser starts, and the first one whose text does
  * not occur exactly once, or whose patch leaves the bundle unchanged, ends the run.
@@ -894,9 +898,12 @@ type Injection = Readonly<{
   declaration?: string;
 }>;
 
-/** Each entry: an injection, and the row that must flag it. */
+/**
+ * Each entry: an injection, its row, and the verdict that row must give: one that
+ * matches `expect`, or with `'quiet'`, no verdict that flags.
+ */
 const INJECTIONS: ReadonlyArray<
-  Injection & Readonly<{ scenario: string; expect: RegExp }>
+  Injection & Readonly<{ scenario: string; expect: RegExp | 'quiet' }>
 > = [
   {
     name: 'about 1 ms of script per cycle, at the drop',
@@ -947,12 +954,14 @@ const INJECTIONS: ReadonlyArray<
     expect: /FLAG/u,
   },
   {
+    // The quiet witness: the list reuses one array, so an entry allocates nothing,
+    // and kernel calls that allocate nothing must not flag the bytes rule.
     name: 'one entry on the step list per frame',
     file: 'kernel/gesture.ts',
     find: 'this.enter(\n        step,\n        this.#session ? this.#session.stepTarget() : null,\n        receiver,\n      );',
     replace: 'this.#steps.add(step, receiver);\n      this.enter();',
     scenario: 'bytes per move by function, 20 items',
-    expect: /FLAG/u,
+    expect: 'quiet',
   },
   {
     // Every sample and every frame enters a pass, and the module is the kernel's
@@ -1026,7 +1035,9 @@ async function applyAll<Entry extends Injection>(
 
   for (const entry of entries) {
     applied.push({ entry, arm: await applyInjection(entry) });
-    console.log(`applies: ${entry.name}`);
+    console.log(
+      `applies: ${entry.name}${'expect' in entry && entry.expect === 'quiet' ? ', expected to stay quiet' : ''}`,
+    );
   }
 
   return applied;
@@ -1034,7 +1045,9 @@ async function applyAll<Entry extends Injection>(
 
 /**
  * Each injection runs as `production` against unpatched production, with a second
- * copy of the injected bundle as its control, and must flag. Then the control runs
+ * copy of the injected bundle as its control, and must give the verdict it
+ * expects. A quiet injection's result is counted only when an injection expected
+ * to flag on its row ran in the same run. Then the control runs
  * against itself on every validation row: three copies of one bundle, none of which
  * may flag.
  */
@@ -1065,20 +1078,41 @@ async function prove(
     const verdicts = judge(scenario.rule, arms, 'production', 'control', [
       'base',
     ]);
+    const { expect } = injection;
+    const quiet = expect === 'quiet';
     const flagged = verdicts.some((verdict) =>
-      injection.expect.test(verdict.result),
+      quiet ? verdict.result.startsWith('FLAG') : expect.test(verdict.result),
     );
+    const met = quiet ? !flagged : flagged;
+    const counted =
+      !quiet ||
+      injections.some(
+        ({ entry }) =>
+          entry.scenario === injection.scenario && entry.expect !== 'quiet',
+      );
+    let line: string;
 
-    proven &&= flagged;
+    if (quiet) {
+      line = met
+        ? `quiet as expected${counted ? '' : ', not counted: no injection expected to flag ran on its row'}`
+        : 'FLAGGED, expected quiet';
+    } else {
+      line = met ? 'flagged' : 'NOT FLAGGED, expected to flag';
+    }
+
+    proven &&= met;
     results.push({
       injection: injection.name,
       scenario: scenario.id,
+      expect: quiet ? 'quiet' : 'flag',
       flagged,
+      met,
+      counted,
       verdicts,
       raw: arms,
     });
     console.log(
-      `${flagged ? 'flagged' : 'NOT FLAGGED'}: ${injection.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}`,
+      `${line}: ${injection.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}`,
     );
   }
 
