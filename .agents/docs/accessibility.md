@@ -58,7 +58,7 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 ## Drag (`@ydinjs/drag` sortable)
 
-Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `order.browser.test.ts`, `input.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit. Updated 2026-11-07 for `drag:DRD-15` and `drag:DRD-17`.
+Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `order.browser.test.ts`, `input.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit. Updated 2026-11-07 for `drag:DRD-15` and `drag:DRD-17`, and 2026-11-10 for `drag:DRD-33`.
 
 ### Fulfilled requirements
 
@@ -70,12 +70,13 @@ Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/fo
 - **`Escape` cancels an in-flight drag** on both input paths. Once the operation has started, the key's default is prevented, so a modal dialog or an `auto` popover holding the list stays open. The key still propagates.
 - **A `handle()` narrows both input modes identically.**
 - **The placeholder is `aria-hidden`** and mirrors the dragged row's slot.
-- **Every landing has zero duration with `prefers-reduced-motion: reduce`,** including one a custom behavior returned with no timing.
+- **Every landing that `landing()` starts has zero duration with `prefers-reduced-motion: reduce`.**
 
 ### Missing requirements
 
 - **The library provides no roles and no live-region announcement.** It is headless and never owns the consumer's markup. A consumer must supply `tabindex`, the list and listitem semantics and an announcement of the new order. **A row that cannot take focus cannot be reordered from the keyboard.** `[Docs]`
 - **`layoutAnimation`'s row animations ignore `prefers-reduced-motion`.** A consumer who needs that omits `displacement` under the preference. `[Docs]`
+- **A custom `Landing` handles `prefers-reduced-motion` itself.** The library applies the preference only to the landings that `landing()` starts. `[Docs]`
 - **A multi-press drag is not supported,** for the reasons in `drag2:Q-13` below.
 - **Physical touch and pen are unverified.** Touch runs through Chromium's emulated input only.
 

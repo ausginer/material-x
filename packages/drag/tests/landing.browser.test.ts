@@ -242,7 +242,7 @@ describe('drag:DRI-13 landing', () => {
     expect(centerOf(box).x).toBeCloseTo(40, 0);
   });
 
-  it("should give every landing zero duration with reduced motion, including a custom behavior's `landing()`", async () => {
+  it('should give a landing that `landing()` starts zero duration with reduced motion', async () => {
     await commands.emulateReducedMotion(true);
 
     const list = makeList(3);
