@@ -12,7 +12,11 @@
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
  * copy of production, and exits non-zero unless the comparison flags each one, or
  * if the control flags against itself. With `--only a|b`, only the injections whose
- * name contains one of the texts run, and the A/A pass runs in full.
+ * name contains one of the texts run, and the A/A pass runs in full. Every selected
+ * injection is applied before a browser starts, and the first one whose text does
+ * not occur exactly once, or whose patch leaves the bundle unchanged, ends the run.
+ * `--prove --dry` stops after that check: it launches no browser, and exits 0 when
+ * every selected injection applies.
  * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
  * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
  * and `--attribute` gives the retained row's growth per constructor per arm.
@@ -800,96 +804,144 @@ const VALIDATION_ROWS: readonly string[] = [
   `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
 ];
 
-/** Each entry: a text patch on a scratch copy of production, and the row that must flag it. */
+/**
+ * A text patch on a scratch copy of production's `src`. `file` is the module's path
+ * under `src`, and `find` must occur in it exactly once.
+ */
+type Injection = Readonly<{
+  name: string;
+  file: string;
+  find: string;
+  replace: string;
+}>;
+
+/** Each entry: an injection, and the row that must flag it. */
 const INJECTIONS: ReadonlyArray<
-  Readonly<{
-    name: string;
-    file: string;
-    find: string;
-    replace: string;
-    scenario: string;
-    expect: RegExp;
-  }>
+  Injection & Readonly<{ scenario: string; expect: RegExp }>
 > = [
   {
     name: 'about 1 ms of script per cycle, at the drop',
-    file: 'sortable.ts',
-    find: 'const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+    file: 'sortable/operation.ts',
+    find: 'const request = buildReorderRequest(',
     replace:
-      'const until = performance.now() + 1;\n    while (performance.now() < until) {}\n    const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+      'const until = performance.now() + 1;\n    while (performance.now() < until) {}\n    const request = buildReorderRequest(',
     scenario: '50 activate-and-drop cycles, 20 items, no landing',
     expect: /FLAG slower/u,
   },
   {
     name: 'one object of about 1 KB retained per operation past destruction',
-    file: 'sortable.ts',
-    find: 'start(drag: Drag<State>): void {\n    this.#config.onStart?.(drag.item);',
+    file: 'sortable/operation.ts',
+    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
     replace:
-      "start(drag: Drag<State>): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#config.onStart?.(drag.item);",
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#behavior.config.onStart?.(this.#query.item);",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
     expect: /FLAG retains more/u,
   },
   {
+    // The list's height changes with every move, so the read lays it out again.
     name: 'one forced layout per move',
-    file: 'sortable.ts',
-    find: 'drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+    file: 'sortable/operation.ts',
+    find: 'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     replace:
-      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     scenario: '300 moves, one frame each, 20 items',
     expect: /FLAG more/u,
   },
   {
     name: 'one O(n) walk per move',
-    file: 'sortable.ts',
-    find: 'drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+    file: 'sortable/operation.ts',
+    find: 'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     replace:
-      'for (let i = 0; i < 3; i += 1) { void [...drag.state.snapshot.items].map((row) => row.id).join(); }\n    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'for (let i = 0; i < 3; i += 1) { void [...this.#query.snapshot.items].map((row) => row.id).join(); }\n    this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     scenario: '300 moves, one frame each, 2000 items',
     expect: /FLAG slower/u,
   },
   {
+    // `#up` writes the same two lines, so the comment that follows them here is
+    // part of the text.
     name: '1 KB allocated per move',
-    file: 'draggable.ts',
-    find: 'drag.x = event.clientX;\n    drag.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+    file: 'kernel/session.ts',
+    find: 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
     replace:
-      '(globalThis as Record<string, unknown>)["__kept"] = new Array(256).fill(session);\n    drag.x = event.clientX;\n    drag.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+      "(globalThis as Record<string, unknown>)['__kept'] = new Array(256).fill(this);\n    this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open",
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
   {
     name: 'one entry on the step list per frame',
-    file: 'draggable.ts',
-    find: 'this.#enter(this.#runStep, step);',
-    replace:
-      'this.#steps.push(step);\n      this.#enter(NOOP as never, null as never);',
+    file: 'kernel/gesture.ts',
+    find: 'this.enter(\n        step,\n        this.#session ? this.#session.stepTarget() : null,\n        receiver,\n      );',
+    replace: 'this.#steps.add(step, receiver);\n      this.enter();',
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
 ];
 
-/** Production's lab bundle from a copy of `src` with one patch applied. */
-async function bundlePatched(
-  file: string,
-  find: string,
-  replace: string,
-): Promise<string> {
+/** The selected entries: those whose name contains one of `only`'s `|`-separated texts. */
+const select = <Entry extends Readonly<{ name: string }>>(
+  entries: readonly Entry[],
+  only: string | undefined,
+): Entry[] =>
+  entries.filter(
+    (each) => !only || only.split('|').some((part) => each.name.includes(part)),
+  );
+
+/**
+ * Production's lab bundle from a copy of `src` with `injection` applied. Throws
+ * unless `find` occurs exactly once and the patch changes the bundle. The
+ * comparison is with the copy's own bundle before the patch, because a bundle of
+ * another directory differs by its module paths.
+ */
+async function applyInjection(injection: Injection): Promise<Arm> {
+  const { name, file, find, replace } = injection;
   const directory = await mkdtemp(join(tmpdir(), 'drag-inject-'));
 
   try {
-    await cp(join(ROOT, 'src'), join(directory, 'src'), { recursive: true });
+    const source = join(directory, 'src');
 
-    const path = join(directory, 'src', file);
-    const source = await readFile(path, 'utf8');
+    await cp(join(ROOT, 'src'), source, { recursive: true });
 
-    if (!source.includes(find)) {
+    const path = join(source, file);
+    const text = await readFile(path, 'utf8');
+
+    if (text.split(find).length !== 2) {
       throw new Error(`injection does not apply in ${file}: ${find}`);
     }
 
-    await writeFile(path, source.replace(find, replace));
-    return await bundle(join(ROOT, 'bench/lab.ts'), join(directory, 'src'));
+    const lab = join(ROOT, 'bench/lab.ts');
+    const unpatched = await bundle(lab, source);
+
+    await writeFile(
+      path,
+      text.replace(find, () => replace),
+    );
+
+    const code = await bundle(lab, source);
+
+    if (code === unpatched) {
+      throw new Error(
+        `injection does not apply: ${name} leaves the bundle unchanged`,
+      );
+    }
+
+    return { code, restoresFocus: true };
   } finally {
     await rm(directory, { force: true, recursive: true });
   }
+}
+
+/** Every entry applied, in order, before any browser starts. The first failure throws. */
+async function applyAll<Entry extends Injection>(
+  entries: readonly Entry[],
+): Promise<Array<Readonly<{ entry: Entry; arm: Arm }>>> {
+  const applied: Array<Readonly<{ entry: Entry; arm: Arm }>> = [];
+
+  for (const entry of entries) {
+    applied.push({ entry, arm: await applyInjection(entry) });
+    console.log(`applies: ${entry.name}`);
+  }
+
+  return applied;
 }
 
 /**
@@ -900,26 +952,18 @@ async function bundlePatched(
  */
 async function prove(
   browser: Browser,
+  injections: ReadonlyArray<
+    Readonly<{ entry: (typeof INJECTIONS)[number]; arm: Arm }>
+  >,
   production: Arm,
   noLift: Arm,
   rounds: number,
   out?: string,
-  only?: string,
 ): Promise<boolean> {
   const results: unknown[] = [];
   let proven = true;
 
-  for (const injection of INJECTIONS.filter(
-    (each) => !only || only.split('|').some((part) => each.name.includes(part)),
-  )) {
-    const injected: Arm = {
-      code: await bundlePatched(
-        injection.file,
-        injection.find,
-        injection.replace,
-      ),
-      restoresFocus: true,
-    };
+  for (const { entry: injection, arm: injected } of injections) {
     const scenario = SCENARIOS.find((each) => each.id === injection.scenario)!;
     const scenarioRounds = scenario.rule === 'bytes' ? 3 : rounds;
     const raw = await runScenarios(
@@ -1095,6 +1139,7 @@ const { values } = parseArgs({
     rejudge: { type: 'string' },
     profile: { type: 'boolean', default: false },
     attribute: { type: 'boolean', default: false },
+    dry: { type: 'boolean', default: false },
   },
 });
 
@@ -1214,27 +1259,12 @@ async function diagnose(
   }
 }
 
-if (values.rejudge) {
-  // A recorded run: its own rules and arms, judged by the current `judge`.
-  const recorded = JSON.parse(await readFile(values.rejudge, 'utf8')) as {
-    summary: ReadonlyArray<{ scenario: string; rule: Scenario['rule'] }>;
-    raw: Record<string, ArmReadings>;
-  };
-  // The retained rule reads per-round growth, which a recorded absolute heap does
-  // not carry, so those rows keep their recorded verdicts.
-  const rules = Object.fromEntries(
-    recorded.summary
-      .filter((row) => row.rule !== 'retained')
-      .map((row) => [row.scenario, row.rule]),
-  );
-  const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);
-
-  if (values.out) {
-    await writeFile(values.out, `${JSON.stringify(summary, null, 1)}\n`);
-  }
-
-  print(summary);
-} else {
+/** Every mode that launches a browser. */
+async function run(
+  injections: ReadonlyArray<
+    Readonly<{ entry: (typeof INJECTIONS)[number]; arm: Arm }>
+  >,
+): Promise<void> {
   const scratch = await mkdtemp(join(tmpdir(), 'drag-compare-'));
 
   try {
@@ -1256,11 +1286,11 @@ if (values.rejudge) {
       if (values.prove) {
         process.exitCode = (await prove(
           browser,
+          injections,
           production,
           noLift,
           Number(values.rounds),
           values.out,
-          values.only,
         ))
           ? 0
           : 1;
@@ -1297,5 +1327,37 @@ if (values.rejudge) {
     }
   } finally {
     await rm(scratch, { force: true, recursive: true });
+  }
+}
+
+if (values.rejudge) {
+  // A recorded run: its own rules and arms, judged by the current `judge`.
+  const recorded = JSON.parse(await readFile(values.rejudge, 'utf8')) as {
+    summary: ReadonlyArray<{ scenario: string; rule: Scenario['rule'] }>;
+    raw: Record<string, ArmReadings>;
+  };
+  // The retained rule reads per-round growth, which a recorded absolute heap does
+  // not carry, so those rows keep their recorded verdicts.
+  const rules = Object.fromEntries(
+    recorded.summary
+      .filter((row) => row.rule !== 'retained')
+      .map((row) => [row.scenario, row.rule]),
+  );
+  const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);
+
+  if (values.out) {
+    await writeFile(values.out, `${JSON.stringify(summary, null, 1)}\n`);
+  }
+
+  print(summary);
+} else {
+  const injections = values.prove
+    ? await applyAll(select(INJECTIONS, values.only))
+    : [];
+
+  if (values.dry) {
+    console.log(`${injections.length} applied, no browser launched`);
+  } else {
+    await run(injections);
   }
 }
