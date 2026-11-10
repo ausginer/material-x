@@ -298,14 +298,7 @@ describe('drag:DRI-7 a failed acquisition', () => {
           outcomes.push(outcome!);
         });
         lifter.acquire(drag);
-        return {
-          start() {
-            log.push('start');
-          },
-          end() {
-            log.push('end');
-          },
-        };
+        return {};
       },
     }).use(lifter.cancelLanding);
     await dragAndDrop(row, 30);
@@ -327,7 +320,6 @@ describe('drag:DRI-7 a failed acquisition', () => {
     expect(outcomes).toEqual([
       { type: 'canceled', reason: faults[0], origin: 'fault' },
     ]);
-    expect(log).toEqual([]);
     expect(stateOf(row)).toEqual(before);
   });
 
@@ -354,6 +346,5 @@ describe('drag:DRI-7 a failed acquisition', () => {
     expect(outcomes).toEqual([
       { type: 'canceled', reason: faults[0], origin: 'fault' },
     ]);
-    expect(log).toEqual([]);
   });
 });

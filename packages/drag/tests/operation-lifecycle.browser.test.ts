@@ -27,14 +27,10 @@ function logging(): BehaviorOperation {
   };
 }
 
+// oxlint-disable-next-line typescript/no-extraneous-class -- an operation class whose constructor throws
 class Failing implements BehaviorOperation {
   constructor() {
     throw new Error('constructor');
-  }
-
-  // oxlint-disable-next-line class-methods-use-this -- a hook the kernel would call as a method
-  start(): void {
-    log.push('start');
   }
 }
 
@@ -49,15 +45,10 @@ describe('drag:DRD-30 operation lifecycle', () => {
         drag.use((outcome) => {
           outcomes.push(outcome);
         });
-
-        const operation = logging();
-
-        void operation;
         return null;
       },
     });
     await dragAndDrop('#r0', 30);
-    expect(log).toEqual([]);
     expect(outcomes).toEqual([{ type: 'skipped' }]);
     expect(faultMessages()).toEqual([]);
   });
@@ -76,7 +67,6 @@ describe('drag:DRD-30 operation lifecycle', () => {
       },
     });
     await dragAndDrop('#r0', 30);
-    expect(log).toEqual([]);
     expect(outcomes.map((outcome) => outcome?.type)).toEqual(['canceled']);
     expect(faultMessages()).toEqual(['constructor']);
   });
@@ -103,7 +93,6 @@ describe('drag:DRD-30 operation lifecycle', () => {
       });
 
       await dragAndDrop('#r0', 30);
-      expect(log).toEqual([]);
       expect(outcomes).toEqual([
         { type: 'canceled', reason: 'early', origin: 'request' },
       ]);

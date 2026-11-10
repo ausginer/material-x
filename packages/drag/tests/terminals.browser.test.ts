@@ -1,6 +1,6 @@
 /** `drag:DRI-3`, `drag:DRI-4` and `drag:DRI-6`: terminals, cancel and reentrant input. */
 import { describe, expect, it } from 'vitest';
-import type { BehaviorOperation, Outcome } from '../src/draggable.ts';
+import type { Outcome } from '../src/draggable.ts';
 import {
   basicSortable,
   centerOf,
@@ -31,62 +31,36 @@ const noteOutcome = (outcome: Outcome): void => {
 
 describe('drag:DRI-3 terminals', () => {
   it.each(['cancel', 'destroy', 'fault'] as const)(
-    'should deliver no terminal without a start: %s before start',
+    'should report a throw from activate once and leave the list clean: %s before the throw',
     async (kind) => {
       const list = makeList(1);
       const panel = managed(list, {
         admit: (event) => ({ item: targetOf(event) }),
         activate() {
-          // Constructed before the throw, so it never reaches the kernel.
-          const operation: BehaviorOperation = {
-            start: () => {
-              log.push('start');
-            },
-            end: () => {
-              log.push('end');
-            },
-          };
-
           if (kind === 'cancel') {
             panel.requestCancel('early');
           } else if (kind === 'destroy') {
             void panel.requestDestroy();
           }
 
-          void operation;
           throw new Error(kind);
         },
       });
 
       await dragAndDrop('#r0', 30);
-      expect(log).toEqual([]);
       expect(faultMessages()).toEqual([kind]);
       expect(isClean(list)).toBe(true);
     },
   );
 
-  it('should deliver no start or end when activate declines, and no report', async () => {
+  it('should report nothing when activate declines', async () => {
     const list = makeList(2);
 
     managed(list, {
       admit: (event) => ({ item: targetOf(event) }),
-      activate() {
-        // Constructed and then declined, so it never reaches the kernel.
-        const operation: BehaviorOperation = {
-          start: () => {
-            log.push('start');
-          },
-          end: () => {
-            log.push('end');
-          },
-        };
-
-        void operation;
-        return null;
-      },
+      activate: () => null,
     });
     await dragAndDrop('#r0', 30);
-    expect(log).toEqual([]);
     expect(faultMessages()).toEqual([]);
   });
 
