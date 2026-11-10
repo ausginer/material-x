@@ -7,19 +7,23 @@ import { draggable } from './draggable.ts';
 import { FreeDragBehavior, type FreeDragConfig } from './free-drag/behavior.ts';
 import {
   FreeDragResolution,
+  type DragAxis,
   type DragGeometry,
   type FreeDragAcceptedResult,
   type FreeDragCanceledResult,
   type FreeDragRejectedResult,
   type FreeDragRequest,
   type FreeDragResult,
+  type FreeDragSubject,
   type OnDrop,
   type Point,
+  type ResolveHome,
 } from './free-drag/domain.ts';
 import { Lifter } from './lift.ts';
 
 export { FreeDragResolution };
 export type {
+  DragAxis,
   DragGeometry,
   FreeDragAcceptedResult,
   FreeDragCanceledResult,
@@ -27,8 +31,10 @@ export type {
   FreeDragRejectedResult,
   FreeDragRequest,
   FreeDragResult,
+  FreeDragSubject,
   OnDrop,
   Point,
+  ResolveHome,
 };
 
 export interface FreeDragController {

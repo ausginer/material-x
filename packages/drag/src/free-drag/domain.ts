@@ -5,10 +5,12 @@
  */
 import type { CancelOrigin } from '../draggable.ts';
 
+/** The axes the visual follows the pointer along. */
 export type DragAxis = 'both' | 'x' | 'y';
 
 export type Point = Readonly<{ x: number; y: number }>;
 
+/** The dragged element and the visual that is lifted for it. */
 export type FreeDragSubject = Readonly<{
   item: HTMLElement;
   visual: HTMLElement;

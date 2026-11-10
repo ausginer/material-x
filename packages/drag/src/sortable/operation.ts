@@ -1,6 +1,10 @@
 import type { SetNonNullable, Writable } from 'type-fest';
-import type { BehaviorOperation, Drag, Outcome } from '../draggable.ts';
-import type { VerdictAwaiter } from '../kernel/behavior.ts';
+import type {
+  BehaviorOperation,
+  Drag,
+  Outcome,
+  VerdictAwaiter,
+} from '../draggable.ts';
 import type { Lift } from '../lift.ts';
 import type { FrameTask } from '../shared/invalidation.ts';
 import type { AxisContext, AxisQuery } from './axis.ts';

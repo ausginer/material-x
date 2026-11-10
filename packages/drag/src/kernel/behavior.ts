@@ -2,6 +2,11 @@ import type { Admission } from './admission.ts';
 import type { Drag } from './drag.ts';
 import type { Outcome } from './outcome.ts';
 
+/**
+ * Asks for a drop's verdict, which `drop()` returns. It is called once, and may
+ * return the verdict or a thenable for it. `signal` aborts when a cancel or a
+ * destruction decides the outcome before the verdict arrives.
+ */
 export type VerdictAwaiter<Verdict> = (
   signal: AbortSignal,
 ) => Verdict | PromiseLike<Verdict>;

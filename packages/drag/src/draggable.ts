@@ -2,7 +2,11 @@ import type { Behavior, BehaviorOperation } from './kernel/behavior.ts';
 import { Gesture, type DraggableController } from './kernel/gesture.ts';
 
 export type { Admission } from './kernel/admission.ts';
-export type { Behavior, BehaviorOperation } from './kernel/behavior.ts';
+export type {
+  Behavior,
+  BehaviorOperation,
+  VerdictAwaiter,
+} from './kernel/behavior.ts';
 export type { Drag, DragDisposer } from './kernel/drag.ts';
 export type { DraggableController } from './kernel/gesture.ts';
 export type {
