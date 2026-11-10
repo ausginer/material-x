@@ -1,15 +1,29 @@
 {
   "name": "@ydinjs/drag",
   "version": "0.1.0",
+  "private": true,
   "license": "Apache-2.0",
   "files": [
     "draggable.js",
+    "draggable.js.map",
     "draggable.d.ts",
+    "lift.js",
+    "lift.js.map",
+    "lift.d.ts",
+    "lift",
+    "fault.js",
+    "fault.js.map",
+    "fault.d.ts",
     "sortable.js",
+    "sortable.js.map",
     "sortable.d.ts",
-    "draggable",
     "sortable",
-    "kernel"
+    "free-drag.js",
+    "free-drag.js.map",
+    "free-drag.d.ts",
+    "free-drag",
+    "kernel",
+    "shared"
   ],
   "type": "module",
   "exports": {
@@ -17,14 +31,55 @@
       "types": "./draggable.d.ts",
       "default": "./draggable.js"
     },
+    "./lift.js": {
+      "types": "./lift.d.ts",
+      "default": "./lift.js"
+    },
+    "./lift/landing.js": {
+      "types": "./lift/landing.d.ts",
+      "default": "./lift/landing.js"
+    },
+    "./fault.js": {
+      "types": "./fault.d.ts",
+      "default": "./fault.js"
+    },
     "./sortable.js": {
       "types": "./sortable.d.ts",
       "default": "./sortable.js"
     },
+    "./sortable/y.js": {
+      "types": "./sortable/y.d.ts",
+      "default": "./sortable/y.js"
+    },
+    "./sortable/xy.js": {
+      "types": "./sortable/xy.d.ts",
+      "default": "./sortable/xy.js"
+    },
+    "./sortable/landing.js": {
+      "types": "./sortable/landing.d.ts",
+      "default": "./sortable/landing.js"
+    },
+    "./sortable/layout-animation.js": {
+      "types": "./sortable/layout-animation.d.ts",
+      "default": "./sortable/layout-animation.js"
+    },
+    "./free-drag.js": {
+      "types": "./free-drag.d.ts",
+      "default": "./free-drag.js"
+    },
+    "./free-drag/bounds.js": {
+      "types": "./free-drag/bounds.d.ts",
+      "default": "./free-drag/bounds.js"
+    },
+    "./free-drag/drop-targets.js": {
+      "types": "./free-drag/drop-targets.d.ts",
+      "default": "./free-drag/drop-targets.js"
+    },
+    "./free-drag/landing.js": {
+      "types": "./free-drag/landing.d.ts",
+      "default": "./free-drag/landing.js"
+    },
     "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "scripts": {
     "build": "just build",
@@ -39,8 +94,14 @@
     "test": "just test",
     "size": "just size"
   },
+  "dependencies": {
+    "@ydinjs/box-quad": "0.1.0"
+  },
   "devDependencies": {
-    "size-limit": "12.1.0",
-    "size-limit-preset-rolldown": "0.1.0"
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "type-fest": "5.10.0"
   }
 }

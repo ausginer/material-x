@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+"""Throwaway edits: each must fail a named test. Run from packages/drag. Restores every file."""
+import json, subprocess, sys, tempfile, os
+D='src/draggable.ts'; L='src/lift.ts'; S='src/sortable.ts'; B='../box-quad/src/index.ts'
+CH='browser'; SH='shipped'; DC='node'
+M=[
+('DRI-1','Apply a cancel inline when requested',[(D,"""      session.decision ??= { type: 'canceled', reason, origin };
+      this.#enter(NOOP, null);""","""      session.decision ??= { type: 'canceled', reason, origin };
+      if (this.#running && session.phase !== CONCLUDED) { this.#conclude(session, session.decision); }
+      this.#enter(NOOP, null);""")],CH,'tests/requests','chromium'),
+('DRI-2','Apply the decision before deferred steps',[(D,"""        if (this.#steps.length > 0) {""","""        if (session?.decision && session.phase !== CONCLUDED) {
+          this.#conclude(session, session.decision);
+        } else if (this.#steps.length > 0) {""")],CH,'tests/requests','chromium'),
+('DRI-3','Run end when activate threw',[(D,"""    if (session.started) {
+      session.next = () => {""","""    if (session.started || outcome.type === 'canceled') {
+      session.next = () => {""")],CH,'tests/terminals','chromium'),
+('DRI-4','Let a second cancel replace the first',[(D,"""      session.decision ??= { type: 'canceled', reason, origin };""","""      session.decision = { type: 'canceled', reason, origin };""")],CH,'tests/terminals','chromium'),
+('DRI-5','Abort the verdict signal on acceptance',[(D,"""      done = true;
+      session.verdictAborter = null;
+""","""      done = true;
+"""),(D,"""    if (outcome.type === 'canceled') {
+      session.verdictAborter?.abort();
+    }""","""    session.verdictAborter?.abort();""")],CH,'tests/verdict','chromium'),
+('DRI-5','Let a late completion reach a later drag',[(D,"""      if (this.#session !== session || session.decision) {
+        return;
+      }
+""","""      if (!this.#session) {
+        return;
+      }
+"""),(D,"""        session.decision = { type: 'verdict', value: value as Verdict };""","""        this.#session.decision ??= { type: 'verdict', value: value as Verdict };""")],CH,'tests/verdict','chromium'),
+('DRI-6','Remove the #running refusal',[(D,"""    if (this.#running || this.#destroyed) {""","""    if (this.#destroyed) {""")],CH,'tests/terminals','chromium'),
+('DRI-7','Report the raw value',[(D,"""    reportError(fault);""","""    reportError(error);""")],CH,'tests/faults','chromium'),
+('DRI-7','Fill the decision after the report',[(D,"""    if (this.#session) {
+      this.#session.decision ??= {
+        type: 'canceled',
+        reason: fault,
+        origin: 'fault',
+      };
+    }
+
+    reportError(fault);""","""    reportError(fault);
+
+    if (this.#session) {
+      this.#session.decision ??= {
+        type: 'canceled',
+        reason: fault,
+        origin: 'fault',
+      };
+    }""")],CH,'tests/faults','chromium'),
+('DRI-8','Pass the Drag to a step behind a decision',[(D,"""session?.phase === ACTIVE && !session.decision""","""session?.phase === ACTIVE""")],CH,'tests/requests','chromium'),
+('DRI-8','Remove identity coalescing',[(D,"""    } else if (!this.#steps.includes(step)) {""","""    } else {""")],CH,'tests/requests','chromium'),
+('DRI-9','Start the landing before releasing the lift',[(D,"""    this.#release(session, outcome);
+
+    if (landing && lift) {""","""    if (landing && lift) {
+      this.#cancelLanding = lift.land(landing);
+      landing = null;
+    }
+
+    this.#release(session, outcome);
+
+    if (landing && lift) {""")],CH,'tests/release','chromium'),
+('DRI-9','Stop at the first disposer throw',[(D,"""    while (disposers.length > 0) {
+      this.#dispose(disposers.pop()!, outcome);
+    }""","""    while (disposers.length > 0) {
+      disposers.pop()!(outcome);
+    }""")],CH,'tests/release','chromium'),
+('DRI-10','Run end on destruction',[(D,"""      this.#release(session, null);
+    }
+""","""      this.#release(session, null);
+      this.#behavior.end?.(session.drag, SKIPPED);
+    }
+""")],CH,'tests/destruction','chromium'),
+('DRI-10','Remove the guard with the controller listeners',[(D,"""function armClickGuard(target: Window, pointerId: number): void {
+  const guard = new AbortController();
+  const options = { capture: true, signal: guard.signal };""","""function armClickGuard(target: Window, pointerId: number, gone: AbortSignal): void {
+  const guard = new AbortController();
+  const options = { capture: true, signal: AbortSignal.any([guard.signal, gone]) };"""),(D,"""armClickGuard(this.#window, drag.pointerId);""","""armClickGuard(this.#window, drag.pointerId, this.#listeners.signal);""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the click expiry',[(D,"""        expire();
+        event.preventDefault();
+        event.stopPropagation();""","""        event.preventDefault();
+        event.stopPropagation();""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the pointerup expiry',[(D,"""        setTimeout(expire);""","""        void expire;""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the pointercancel expiry',[(D,"""    'pointercancel',
+    (event) => {
+      if (event.pointerId === pointerId) {
+        expire();
+      }
+    },""","""    'pointercancel',
+    () => {},""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the next-press expiry',[(D,"""      if (event.isPrimary && event.button === 0) {
+        expire();
+      }""","""      void event;""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Swallow a below-threshold click',[(D,"""        this.#open(admission, event.pointerId, event.clientX, event.clientY);""","""        armClickGuard(this.#window, event.pointerId);
+        this.#open(admission, event.pointerId, event.clientX, event.clientY);""")],CH,'tests/click-guard','chromium'),
+('DRI-12','Restore over a newer focus',[(D,"""    if (!activeElement || activeElement === body) {""","""    if (activeElement || body) {""")],CH,'tests/focus','chromium'),
+('DRI-12','Use preventScroll for a command',[(D,"""focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });""","""focused.focus({ preventScroll: true });""")],CH,'tests/focus','chromium'),
+('DRI-12','Remove the lift focus repair',[(L,"""  const current = deepActiveElement(ownerDocument);
+
+  if (current !== focused) {""","""  const current = deepActiveElement(ownerDocument);
+
+  if (current !== focused && current === null) {""")],CH,'tests/focus','chromium'),
+('DRI-13','Make elevation additive',[(L,"""const elevation = visual.animate([keyframe, keyframe], { duration });""","""const elevation = visual.animate([keyframe, keyframe], { duration, composite: 'add' });""")],'browser/webkit','tests/landing','webkit'),
+('DRI-13','Remove reduced motion from the lift',[(L,"""  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 0
+    : (landing.duration ?? DEFAULT_LANDING_DURATION);""","""  const duration = landing.duration ?? DEFAULT_LANDING_DURATION;""")],CH,'tests/landing','chromium'),
+('DRI-14','Remove the activation pull',[(S,"""    const snapshot = this.#pull();
+
+    if (!snapshot.items.includes(item)) {
+      return false;
+    }
+""","""    const { snapshot } = state;
+""")],CH,'tests/sortable','chromium'),
+('DRI-15','Skip the placeholder check at activation',[(S,"""    if (!placeholder.isConnected || item.nextElementSibling !== placeholder) {
+      throw new Error('sortable/insertion-placeholder-lost');
+    }
+""","")],CH,'tests/sortable','chromium'),
+('DRI-16','Use a ratio in place of localDelta',[('../box-quad/index.js',"""	const x = (d * dx - c * dy) * inverseDeterminant;
+	const y = (a * dy - b * dx) * inverseDeterminant;""","""	const x = (dx / a) + 0 * inverseDeterminant;
+	const y = (dy / d) + 0 * inverseDeterminant;""")],CH,'tests/coordinates','chromium'),
+('DRI-17','Read layout in a sample',[(S,"""  move(drag: LiftedDrag<State>): void {
+    drag.translate""","""  move(drag: LiftedDrag<State>): void {
+    void drag.item.offsetWidth;
+    drag.translate""")],SH,'tests/hot-path','chromium'),
+('DRI-17','Put an idle step on the list',[(D,"""      this.#enter(this.#runStep, step);""","""      this.#steps.push(step);
+      this.#enter(NOOP as never, null as never);""")],SH,'tests/hot-path','chromium'),
+('DRI-17','Allocate in #move',[(D,"""    drag.x = event.clientX;
+    drag.y = event.clientY;
+
+    if (session.phase === ACTIVE) {""","""    (globalThis as Record<string, unknown>)['__kept'] = { x: event.clientX, y: event.clientY, a: [drag.x, drag.y] };
+    drag.x = event.clientX;
+    drag.y = event.clientY;
+
+    if (session.phase === ACTIVE) {""")],SH,'tests/hot-path','chromium'),
+('DRI-18','Import lift from draggable',[(D,"""import type { lift } from './lift.ts';""","""import { lift } from './lift.ts';
+
+export { lift };""")],DC,'tests/size','node'),
+# The remediation's mutations, 2026-11-07.
+('DRI-8','Let drag.requestStep act after its operation',[(D,"""      requestStep: (step) => {
+        if (this.#session === session) {
+          this.requestStep(step);
+        }
+      },""","""      requestStep: this.requestStep,""")],CH,'tests/scoped-requests','chromium'),
+('DRI-9','Restore focus before the landing starts',[(D,"""    this.#release(session, outcome);
+
+    if (landing && lift) {""","""    this.#release(session, outcome);
+    restoreFocus(session.focused, drag.pointerId);
+
+    if (landing && lift) {""")],CH,'tests/order','chromium'),
+('DRI-9','Restore focus before end',[(D,"""        try {
+          this.#behavior.end?.(drag, outcome);
+        } finally {
+          restoreFocus(session.focused, drag.pointerId);
+        }""","""        restoreFocus(session.focused, drag.pointerId);
+        this.#behavior.end?.(drag, outcome);""")],CH,'tests/order','chromium'),
+('DRI-9','Keep a write made during the lift',[(L,"""    release() {
+      try {
+        releaseTopLayer();
+      } finally {
+        restoreStyles();
+      }
+    },""","""    release() {
+      const kept = ['margin-left', 'translate'].map((prop) => [prop, visual.style.getPropertyValue(prop)] as const);
+      try {
+        releaseTopLayer();
+      } finally {
+        restoreStyles();
+        for (const [prop, value] of kept) {
+          if (value && value !== 'none' && value !== '0px') {
+            visual.style.setProperty(prop, value);
+          }
+        }
+      }
+    },""")],CH,'tests/commit','chromium'),
+('DRI-17','Remove frame coalescing',[('src/shared/invalidation.ts',"""      if (handle === 0) {
+        handle = window.requestAnimationFrame(fire);
+      }""","""      handle = window.requestAnimationFrame(fire);""")],CH,'tests/activation','chromium'),
+('DRI-19','Listen in the bubble phase',[(D,"""      const options = { capture: true, signal: motion.signal };""","""      const options = { signal: motion.signal };""")],CH,'tests/input','chromium'),
+('DRI-19','Skip the buttons check',[(D,"""    if (session.phase === PENDING && (event.buttons & 1) === 0) {""","""    if (session.phase === PENDING && event.buttons < 0) {""")],CH,'tests/input','chromium'),
+('DRI-19','Refuse a press while one is pending',[(D,"""      if (session?.phase === PENDING && event.isPrimary && event.button === 0) {
+        this.#enter(this.#endPending, session);
+      }""","""      void session;""")],CH,'tests/input','chromium'),
+('DRI-19','Offer an admitted event to an outer controller',[(D,"""      !this.#session &&
+      !admitted.has(event)""","""      !this.#session"""),(D,"""    if (this.#session || admitted.has(event)) {""","""    if (this.#session) {""")],CH,'tests/input','chromium'),
+('DRI-4','Do not prevent the default of Escape',[(D,"""      if (session.started && !session.decision) {
+        event.preventDefault();
+      }""","""      void event;""")],CH,'tests/input','chromium'),
+('DRI-13','Cancel the landing before measuring',[(D,"""    const cancelLanding = this.#cancelLanding;
+
+    this.#cancelLanding = null;
+""","""    const cancelLanding = this.#cancelLanding;
+
+    this.#cancelLanding = null;
+    cancelLanding?.();
+""")],CH,'tests/activation','chromium'),
+('DRI-14','Skip the command activation pull',[(S,"""    const snapshot = this.#pull();
+
+    if (!snapshot.items.includes(item)) {
+      return false;
+    }
+""","""    const snapshot = state.direction === null ? this.#pull() : state.snapshot;
+
+    if (!snapshot.items.includes(item)) {
+      return false;
+    }
+""")],CH,'tests/activation','chromium'),
+('DRI-20','Ignore home at the drop',[('src/free-drag.ts',"""      this.#home(drag),""","""      { x: drag.rect.left, y: drag.rect.top },""")],CH,'tests/commit','chromium'),
+]
+out=[]
+only=set(sys.argv[1:])
+for dri,name,patches,project,tests,engine in M:
+    if only and dri not in only: continue
+    originals={}
+    ok=True
+    for f,a,b in patches:
+        s=open(f).read(); originals.setdefault(f,s)
+        if a not in s:
+            print('NOT APPLICABLE',dri,name,f); ok=False; break
+        open(f,'w').write(s.replace(a,b,1))
+    failed=[]
+    if ok:
+        fd,path=tempfile.mkstemp(suffix='.json'); os.close(fd)
+        cfg='vitest.engines.config.ts' if '/' in project else 'vitest.config.ts'
+        subprocess.run(['npx','vitest','run','-c',cfg,'--project',project,tests,'--reporter=json','--outputFile',path],capture_output=True,text=True,timeout=400)
+        try:
+            data=json.load(open(path))
+            for t in data['testResults']:
+                for r in t['assertionResults']:
+                    if r['status']=='failed':
+                        failed.append(r['fullName'])
+        except Exception as e:
+            failed=['RUNNER ERROR '+str(e)]
+    for f,s in originals.items(): open(f,'w').write(s)
+    print(f"{dri}\t{name}\t{engine}\t{len(failed)}\t{failed[0] if failed else 'SURVIVED'}",flush=True)
+    out.append((dri,name,engine,len(failed),failed[:3]))

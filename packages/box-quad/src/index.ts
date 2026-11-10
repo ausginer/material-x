@@ -73,6 +73,15 @@ export const space = (): Space => new Float64Array(SPACE_LENGTH);
 /** Allocates storage for one {@link Quad}. */
 export const quad = (): Quad => new Float64Array(QUAD_LENGTH);
 
+/** A caller-owned `[x, y]` delta, written by {@link localDelta}. */
+export type Delta = Float64Array;
+
+/** Required length of a {@link Delta}. */
+const DELTA_LENGTH = 2;
+
+/** Allocates storage for one {@link Delta}. */
+export const delta = (): Delta => new Float64Array(DELTA_LENGTH);
+
 // Hoisted so the minifier can mangle each call site down to one identifier.
 // `finite` is deliberately not named `isFinite`: the global of that name
 // coerces its argument, and these must not.
@@ -460,5 +469,46 @@ export function projection(source: Box, out: Quad, relativeTo?: Box): boolean {
   out[5] = y3;
   out[6] = x4;
   out[7] = y4;
+  return true;
+}
+
+/**
+ * Converts a viewport delta into `basis` and writes it to `out`. Pure: no DOM
+ * reads, no allocation.
+ *
+ * The basis selects what the result means:
+ *
+ * - An element's {@link Space}, from {@link ancestry}: the value to write to
+ *   that element's `translate`, `left` or `top`. A `Space` excludes the
+ *   element's own `zoom`, so an element with its own `zoom` divides the result
+ *   by that `zoom`.
+ * - An element's {@link Box}, from {@link coordinates}: the change in that
+ *   element's own untransformed box, such as `width` or `height`.
+ *
+ * Returns `false` and leaves `out` untouched when the basis is singular or the
+ * result is not finite.
+ */
+export function localDelta(
+  basis: Space | Box,
+  dx: number,
+  dy: number,
+  out: Delta,
+): boolean {
+  const a = basis[0]!;
+  const b = basis[1]!;
+  const c = basis[2]!;
+  const d = basis[3]!;
+  const inverseDeterminant = 1 / (a * d - b * c);
+  const x = (d * dx - c * dy) * inverseDeterminant;
+  const y = (a * dy - b * dx) * inverseDeterminant;
+
+  // One sum covers both results. A singular determinant gives an infinite
+  // reciprocal, so each product is infinite or `NaN` and the sum is not finite.
+  if (!finite(x + y)) {
+    return false;
+  }
+
+  out[0] = x;
+  out[1] = y;
   return true;
 }

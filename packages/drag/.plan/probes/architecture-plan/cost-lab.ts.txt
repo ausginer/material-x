@@ -1,0 +1,37 @@
+/** Runs in the page: one list of n rows on either prototype, either axis. */
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution } from '../src/sortable.ts';
+import { hit } from './hit-axis.ts';
+import { sortable as independent } from './independent.ts';
+import { sortable as singlePass } from './sortable.ts';
+
+function make(arm: string, n: number): void {
+  const list = document.createElement('div');
+  list.style.cssText = 'position:relative;width:200px;';
+  for (let i = 0; i < n; i += 1) {
+    const item = document.createElement('div');
+    item.id = `i${i}`;
+    item.textContent = String(i);
+    item.style.cssText = 'height:40px;box-sizing:border-box;background:#ccd;border:1px solid #889;position:relative;';
+    list.append(item);
+  }
+  document.body.append(list);
+  const log: string[] = [];
+  (globalThis as any).log = log;
+  if (arm === 'independent') {
+    independent(list, { onEnd: (o) => log.push(o) });
+    return;
+  }
+  const c = singlePass(list, {
+    items: () => [...list.children].filter((e) => e.id) as HTMLElement[],
+    axis: arm === 'hit' ? hit() : y(),
+    onReorder(request: any) {
+      list.insertBefore(request.item, request.after);
+      c.invalidate();
+      return ReorderResolution.accept();
+    },
+    onEnd: (r: { type: string }) => log.push(r.type),
+    onError: (e: unknown) => log.push(`error:${String((e as Error).message)}`),
+  });
+}
+(globalThis as any).make = make;

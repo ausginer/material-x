@@ -1,0 +1,18 @@
+vitest run -c vitest.engines.config.ts tests/activation.browser.test.ts -t a grab during a landing
+
+ RUN  v5.0.5 /tmp/claude-1000/-workspaces-material-x/79349031-f945-4aad-92d1-939d26aba4e6/scratchpad/base/packages/drag
+
+9:40:29 AM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/79349031-f945-4aad-92d1-939d26aba4e6/scratchpad/base/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/79349031-f945-4aad-92d1-939d26aba4e6/scratchpad/base/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=511c0f73
+error: recipe `test-engines` failed on line 33 with exit code 143

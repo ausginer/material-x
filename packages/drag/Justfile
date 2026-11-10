@@ -7,8 +7,9 @@ _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 default:
     @just --list
 
-# Build core
-build:
+# Build. Cleans first, so an output whose entrypoint was deleted cannot survive
+# into the next build.
+build: clean-build
     tsdown --config tsdown.config.ts
 
 # Delete build artefacts
@@ -23,9 +24,13 @@ docs-api-prepare:
 docs-api-build:
     typedoc --options typedoc.json --out ../../.docs/api/drag
 
-# Run tests
+# Run tests in Chromium
 test *ARGS:
     vitest run -c vitest.config.ts {{ ARGS }}
+
+# Run the browser suite in Chromium, Firefox and WebKit
+test-engines *ARGS:
+    vitest run -c vitest.engines.config.ts {{ ARGS }}
 
 # Type-check
 typecheck:
@@ -49,6 +54,10 @@ lint-fix *FILES:
     oxlint --fix {{ if FILES == "" { "." } else { FILES } }}
     {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
 
-# Measure bundle size budgets (builds first — Size Limit weighs built output)
-size *ARGS: build
-    size-limit {{ ARGS }}
+# Measure bundle sizes and module graphs (builds first)
+size *FLAGS: build
+    node bench/size/measure.ts {{ FLAGS }}
+
+# Compare per-operation cost with drag2 and the prototype, in one browser process
+compare *FLAGS:
+    node bench/compare.ts {{ FLAGS }}

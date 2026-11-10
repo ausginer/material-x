@@ -1,0 +1,35 @@
+import { build } from '/workspaces/material-x/node_modules/esbuild/lib/main.js';
+import { brotliCompressSync, constants, gzipSync } from 'node:zlib';
+const root = new URL('.', import.meta.url).pathname.replace(/prototype\/$/, '');
+const sum = (b) => brotliCompressSync(b,{params:{[constants.BROTLI_PARAM_QUALITY]:11}}).length;
+const rows = {
+ 'independent, everything (with experiment arms)': `export * from '${root}prototype/independent.ts';`,
+ 'independent, sortable': `import {sortable} from '${root}prototype/independent.ts'; globalThis.a=sortable;`,
+ 'independent, movable': `import {movable} from '${root}prototype/independent.ts'; globalThis.a=movable;`,
+ 'single-pass, sortable + y': `import {sortable} from '${root}prototype/sortable.ts'; import {y} from '${root}src/sortable/y.ts'; globalThis.a=[sortable,y];`,
+ 'single-pass, complete': `import {sortable} from '${root}prototype/sortable.ts'; import {y} from '${root}src/sortable/y.ts'; import {landing} from '${root}src/sortable/landing.ts'; import {layoutAnimation} from '${root}src/sortable/layout-animation.ts'; globalThis.a=[sortable,y,landing,layoutAnimation];`,
+ 'single-pass, free drag': `import {freeDrag} from '${root}prototype/free-drag.ts'; globalThis.a=[freeDrag];`,
+};
+for (const [name, contents] of Object.entries(rows)) {
+  const r = await build({stdin:{contents,resolveDir:root,loader:'ts'},bundle:true,minify:true,format:'esm',write:false,target:'es2022',define:{'import.meta.env.DEV':'false','__DEV__':'false'},logLevel:'error',metafile:true});
+  const code=r.outputFiles[0].contents;
+  console.log(`\n## ${name}: ${code.length} min, ${gzipSync(code,{level:9}).length} gz, ${sum(code)} br`);
+  if(name.startsWith('single-pass')){
+    const out=Object.values(r.metafile.outputs)[0];
+    const mods=Object.entries(out.inputs).map(([k,v])=>[k.replace(/.*(packages\/|prototype\/|src\/)/,'$1'),v.bytesInOutput]).sort((a,b)=>b[1]-a[1]);
+    for(const [k,v] of mods){ if(v>0) console.log(String(v).padStart(7),k);}    
+  }
+}
+{
+  const rows2 = {
+   'single-pass, sortable + hit-axis': `import {sortable} from '${root}prototype/sortable.ts'; import {hit} from '${root}prototype/hit-axis.ts'; globalThis.a=[sortable,hit];`,
+   'single-pass, complete + hit-axis': `import {sortable} from '${root}prototype/sortable.ts'; import {hit} from '${root}prototype/hit-axis.ts'; import {landing} from '${root}src/sortable/landing.ts'; import {layoutAnimation} from '${root}src/sortable/layout-animation.ts'; globalThis.a=[sortable,hit,landing,layoutAnimation];`,
+  };
+  for (const [name, contents] of Object.entries(rows2)) {
+    const r = await build({stdin:{contents,resolveDir:root,loader:'ts'},bundle:true,minify:true,format:'esm',write:false,target:'es2022',define:{'import.meta.env.DEV':'false','__DEV__':'false'},logLevel:'error',metafile:true});
+    const code=r.outputFiles[0].contents;
+    console.log(`\n## ${name}: ${code.length} min, ${gzipSync(code,{level:9}).length} gz, ${sum(code)} br`);
+    const inputs=Object.values(r.metafile.outputs)[0].inputs;
+    console.log('   rect-index and linear-shift in graph:', Object.keys(inputs).filter(k=>/rect-index|linear-shift|\/y\.ts/.test(k)).map(k=>`${k.replace(/.*sortable\//,'')}=${inputs[k].bytesInOutput}`).join(' ')||'none');
+  }
+}

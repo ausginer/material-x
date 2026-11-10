@@ -1,0 +1,112 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index fd9e73f81..11310751a 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -28,6 +28,7 @@ export const CENTER_Y = 5;
+ export type ReadonlyFloat64Array = Readonly<{
+   [index: number]: number;
+   length: number;
++  slice(start?: number, end?: number): Float64Array;
+ }>;
+ 
+ /**
+@@ -61,19 +62,19 @@ export class RectIndex implements RectIndexView {
+    * Re-allocated only when the collection outgrows it. It never shrinks: it is
+    * bounded by the largest collection the controller saw, and released with it.
+    */
+-  values: Float64Array = new Float64Array(0);
++  #values: Float64Array = new Float64Array(0);
+ 
+   /**
+    * The placeholder's rect, packed like a slot. Measured once per rebuild here, so a
+    * resolution with nothing stale reads no layout at all.
+    */
+-  readonly placeholderRect: Float64Array = new Float64Array(STRIDE);
++  readonly #placeholderRect: Float64Array = new Float64Array(STRIDE);
+ 
+   /** Destination-ordered elements, parallel to the packed slots. */
+-  readonly items: HTMLElement[] = [];
++  readonly #items: HTMLElement[] = [];
+ 
+   /** How many destination slots the last scan produced. */
+-  count = 0;
++  #count = 0;
+ 
+   /** Slots the packed buffer can hold: a power of two once fitted. */
+   #capacity = 0;
+@@ -83,6 +84,22 @@ export class RectIndex implements RectIndexView {
+ 
+   #measured = -1;
+ 
++  get values(): ReadonlyFloat64Array {
++    return this.#values;
++  }
++
++  get placeholderRect(): ReadonlyFloat64Array {
++    return this.#placeholderRect;
++  }
++
++  get items(): readonly HTMLElement[] {
++    return this.#items;
++  }
++
++  get count(): number {
++    return this.#count;
++  }
++
+   /**
+    * Measures only when something marked the cache dirty or the collection version
+    * changed. `getBox` is the configured geometry source, or `null` when every
+@@ -103,10 +120,12 @@ export class RectIndex implements RectIndexView {
+ 
+     if (list.length > this.#capacity) {
+       this.#capacity = capacityFor(list.length);
+-      this.values = new Float64Array(this.#capacity * STRIDE);
++      this.#values = new Float64Array(this.#capacity * STRIDE);
+     }
+ 
+-    const { values, items, placeholderRect } = this;
++    const values = this.#values;
++    const items = this.#items;
++    const placeholderRect = this.#placeholderRect;
+     let n = 0;
+ 
+     for (const item of list) {
+@@ -141,7 +160,7 @@ export class RectIndex implements RectIndexView {
+     placeholderRect[CENTER_X] = (rect.left + rect.right) * 0.5;
+     placeholderRect[CENTER_Y] = (rect.top + rect.bottom) * 0.5;
+ 
+-    this.count = n;
++    this.#count = n;
+     // Truncated, so that a shrinking collection does not retain elements.
+     items.length = n;
+     this.#measured = snapshot.version;
+@@ -153,7 +172,7 @@ export class RectIndex implements RectIndexView {
+    * the shifted edges, so the arithmetic is the one a full scan performs.
+    */
+   advance(lo: number, hi: number, delta: number): void {
+-    const { values } = this;
++    const values = this.#values;
+ 
+     for (let i = lo; i < hi; i += 1) {
+       const offset = i * STRIDE;
+@@ -172,7 +191,7 @@ export class RectIndex implements RectIndexView {
+    */
+   remeasurePlaceholder(placeholder: HTMLElement): void {
+     const { top, bottom } = placeholder.getBoundingClientRect();
+-    const { placeholderRect } = this;
++    const placeholderRect = this.#placeholderRect;
+ 
+     placeholderRect[TOP] = top;
+     placeholderRect[BOTTOM] = bottom;
+@@ -189,8 +208,8 @@ export class RectIndex implements RectIndexView {
+    * the numeric buffer for reuse.
+    */
+   retire(): void {
+-    this.items.length = 0;
+-    this.count = 0;
++    this.#items.length = 0;
++    this.#count = 0;
+     this.#dirty = true;
+     this.#measured = -1;
+   }

@@ -60,7 +60,8 @@ type Scope = Readonly<{
  *
  * `repo` is the repository's own record, whose series are `RD-`/`RF-`/`RQ-`/
  * `RI-`: the bare families belong to `drag2` alone, so a scope marker is what
- * keeps a bare identifier unique across the tree. `drag2` stays first, because
+ * keeps a bare identifier unique across the tree. `drag` is `@ydinjs/drag`'s
+ * record: `DRD-`/`DRO-` in its index and `DRI-` in its contract. `drag2` stays first, because
  * the unqualified-address hint offers the first row as the example.
  */
 const SCOPES: ReadonlyMap<string, Scope> = new Map([
@@ -68,6 +69,13 @@ const SCOPES: ReadonlyMap<string, Scope> = new Map([
   [
     'repo',
     { root: resolve(PACKAGE, '../..'), currentState: ['.plan/00-index.md'] },
+  ],
+  [
+    'drag',
+    {
+      root: resolve(PACKAGE, '../drag'),
+      currentState: ['.plan/00-index.md', '.plan/contract.md'],
+    },
   ],
 ]);
 

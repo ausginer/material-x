@@ -1,0 +1,1 @@
+{ "compilerOptions": { "strict": true, "target": "esnext", "module": "esnext", "moduleResolution": "bundler", "lib": ["dom", "esnext"], "noEmit": true, "exactOptionalPropertyTypes": true }, "files": ["types.ts"] }

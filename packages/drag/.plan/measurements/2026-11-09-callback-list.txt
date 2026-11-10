@@ -1,0 +1,286 @@
+# Callback list port: raw output, 2026-11-09
+# Implementation commit 53c87f988. Base 25a67d4a9. node v26.13.0.
+
+## node bench/size/measure.ts at 25a67d4a9 (scratch worktree, removed)
+draggable alone                  6321 min   2066 br  6 modules
+  VIOLATION: control moved by 42 B
+draggable + lift                11132 min   3838 br  8 modules
+example: resize handle           8978 min   3181 br  8 modules
+example: drop zone              12771 min   4462 br  12 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9114 min   3179 br  8 modules
+freeDrag                        14770 min   4897 br  14 modules
+freeDrag + bounds + landing     15935 min   5331 br  18 modules
+  VIOLATION: over its 5210 B ceiling by 121 B
+sortable + y                    19474 min   6345 br  19 modules
+sortable + xy                   19293 min   6303 br  18 modules
+complete                        21147 min   6968 br  23 modules
+
+## vitest size.node.test.ts at 25a67d4a9
+     × should satisfy the declared graph and ceiling of draggable alone
+     × should satisfy the declared graph and ceiling of example: drop zone
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 8 passed (11)
+
+## node bench/size/measure.ts at 53c87f988, run 1
+draggable alone                  6769 min   2206 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 67 B
+  VIOLATION: control moved by 182 B
+draggable + lift                11580 min   3981 br  9 modules
+example: resize handle           9426 min   3323 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 10 B
+example: drop zone              13219 min   4614 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 183 B
+example: canvas group            9562 min   3317 br  9 modules
+  VIOLATION: over its 3314 B ceiling by 3 B
+freeDrag                        15218 min   5040 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 73 B
+freeDrag + bounds + landing     16383 min   5472 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 262 B
+sortable + y                    19898 min   6474 br  20 modules
+sortable + xy                   19717 min   6447 br  19 modules
+complete                        21575 min   7114 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 49 B
+
+## node bench/size/measure.ts at 53c87f988, run 2
+draggable alone                  6769 min   2206 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 67 B
+  VIOLATION: control moved by 182 B
+draggable + lift                11580 min   3981 br  9 modules
+example: resize handle           9426 min   3323 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 10 B
+example: drop zone              13219 min   4614 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 183 B
+example: canvas group            9562 min   3317 br  9 modules
+  VIOLATION: over its 3314 B ceiling by 3 B
+freeDrag                        15218 min   5040 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 73 B
+freeDrag + bounds + landing     16383 min   5472 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 262 B
+sortable + y                    19898 min   6474 br  20 modules
+sortable + xy                   19717 min   6447 br  19 modules
+complete                        21575 min   7114 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 49 B
+
+## npx just test-engines at 53c87f988, webkit-env.sh sourced (verbose reporter), counts per project
+      7 ↓ |browser/firefox (firefox)|
+      7 ↓ |browser/webkit (webkit)|
+      2 ↓ |shipped/firefox (firefox)|
+      2 ↓ |shipped/webkit (webkit)|
+    346 ✓ |browser (chromium)|
+    339 ✓ |browser/firefox (firefox)|
+    339 ✓ |browser/webkit (webkit)|
+      7 ✓ |shipped (chromium)|
+      5 ✓ |shipped/firefox (firefox)|
+      5 ✓ |shipped/webkit (webkit)|
+ Test Files  72 passed (72)
+      Tests  1041 passed | 18 skipped (1059)
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:176 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:247 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:176 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:247 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:176 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:247 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+
+## node --expose-gc .plan/probes/callback-list/allocation.ts, three runs
+run 1
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   181.6 B
+queue(), empty     128.1 B
+stack(), empty     128.0 B
+queue(), used      224.1 B
+stack(), used      295.8 B
+run 2
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   183.6 B
+queue(), empty     128.1 B
+stack(), empty     128.0 B
+queue(), used      224.1 B
+stack(), used      291.9 B
+run 3
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   171.5 B
+queue(), empty     128.1 B
+stack(), empty     128.0 B
+queue(), used      224.1 B
+stack(), used      295.6 B
+
+## Mutation M1
+      Tests  3 failed | 17 passed (20)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:56 > drag:DRD-35 CallbackList > should keep duplicate checking apart from insertion
+AssertionError: expected true to be false // Object.is equality
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order
+AssertionError: expected [ 'start finished', 'a' ] to deeply equal [ 'start finished', 'a', 'b' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:213 > drag:DRI-8 steps with a receiver > should keep a step requested with no receiver apart from the same step with one
+AssertionError: expected [ undefined ] to deeply equal [ undefined, {} ]
+
+## Mutation M2
+      Tests  5 failed | 42 passed (47)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order
+AssertionError: expected [ Array(5) ] to deeply equal [ 'start finished', 'a', 'b' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:213 > drag:DRI-8 steps with a receiver > should keep a step requested with no receiver apart from the same step with one
+AssertionError: expected [ undefined, {}, undefined ] to deeply equal [ undefined, {} ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:238 > drag:DRI-8 steps with a receiver > should run a pair again when its running step requests it, and coalesce a waiting one
+AssertionError: expected [ Array(4) ] to deeply equal [ 'loop:2', 'loop:1', 'other' ]
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs
+AssertionError: expected [ 'step', 'step' ] to deeply equal [ 'step' ]
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+AssertionError: expected 2 to be 1 // Object.is equality
+
+## Mutation M3
+      Tests  2 failed | 18 passed (20)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:381 > drag:DRI-9 operation cleanup with a receiver > should run operation cleanup last in first out, on each receiver, once per call
+AssertionError: expected [ 'b:skipped', 'free', 'a:skipped' ] to deeply equal [ 'a:skipped', 'b:skipped', …(2) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:469 > drag:DRI-10 controller cleanup with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+AssertionError: expected [ 'adder before', 'b:null', …(2) ] to deeply equal [ 'a:null', 'adder before', …(3) ]
+
+## Mutation M4
+      Tests  7 failed | 40 passed (47)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:56 > drag:DRD-35 CallbackList > should keep duplicate checking apart from insertion
+AssertionError: expected [ [ undefined, 1 ], [ {}, 2 ], …(1) ] to deeply equal [ [ {}, 1 ], [ {}, 2 ], …(1) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order
+AssertionError: expected [ 'start finished', 'b', 'a' ] to deeply equal [ 'start finished', 'a', 'b' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:213 > drag:DRI-8 steps with a receiver > should keep a step requested with no receiver apart from the same step with one
+AssertionError: expected [ {}, undefined ] to deeply equal [ undefined, {} ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:238 > drag:DRI-8 steps with a receiver > should run a pair again when its running step requests it, and coalesce a waiting one
+AssertionError: expected [ Array(4) ] to deeply equal [ 'loop:2', 'loop:1', 'other' ]
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:247 > drag:DRI-2 one reader and fixed precedence > should see a request made by a deferred step on its next turn
+AssertionError: expected [ 'second', 'first', 'nested' ] to deeply equal [ 'first', 'second', 'nested' ]
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:364 > drag:DRI-8 deferred writes > should run steps between steps in request order
+AssertionError: expected [ 'start finished', 'b', 'a' ] to deeply equal [ 'start finished', 'a', 'b' ]
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass
+AssertionError: expected 100 to be close to 200, received difference is 100, but expected 0.5
+
+## Mutation M5
+      Tests  6 failed | 29 passed (35)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:143 > drag:DRD-35 CallbackList > should remove an entry before calling it, so a throw leaves the rest
+AssertionError: expected [Function] to throw an error
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:381 > drag:DRI-9 operation cleanup with a receiver > should run operation cleanup last in first out, on each receiver, once per call
+AssertionError: expected [ 'a:skipped', 'free', …(2) ] to deeply equal [ 'a:skipped', 'b:skipped', …(2) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:432 > drag:DRI-9 operation cleanup with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it
+AssertionError: expected [ 'first registered', …(3) ] to deeply equal [ Array(4) ]
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:29 > drag:DRI-9 release order > should release in the fixed order
+AssertionError: expected [ 'settle:signal=false', …(4) ] to deeply equal [ 'settle:signal=false', …(4) ]
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+AssertionError: expected [ 'first added', 'last added' ] to deeply equal [ 'last added', 'first added' ]
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:321 > drag:DRI-9 release order > should remove the sortable placeholder before the lift is released
+AssertionError: expected [ 'start', …(2) ] to deeply equal [ 'start', …(2) ]
+
+## Mutation M6
+      Tests  11 failed | 9 passed (20)
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:56 > drag:DRD-35 CallbackList > should keep duplicate checking apart from insertion
+AssertionError: expected [ [ undefined, 1 ], …(2) ] to deeply equal [ [ {}, 1 ], [ {}, 2 ], …(1) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:82 > drag:DRD-35 CallbackList > should run a queue first in first out, each entry on its receiver
+AssertionError: expected [ [ undefined, 1 ], …(2) ] to deeply equal [ [ {}, 1 ], [ undefined, 2 ], …(1) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:102 > drag:DRD-35 CallbackList > should run a stack last in first out, each entry on its receiver
+AssertionError: expected [ [ undefined, 1 ], …(2) ] to deeply equal [ [ {}, 1 ], [ undefined, 2 ], …(1) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order
+AssertionError: expected [ 'start finished' ] to deeply equal [ 'start finished', 'a', 'b' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:213 > drag:DRI-8 steps with a receiver > should keep a step requested with no receiver apart from the same step with one
+AssertionError: expected [ undefined, undefined ] to deeply equal [ undefined, {} ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:238 > drag:DRI-8 steps with a receiver > should run a pair again when its running step requests it, and coalesce a waiting one
+AssertionError: expected [] to deeply equal [ 'loop:2', 'loop:1', 'other' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:285 > drag:DRI-8 steps with a receiver > should keep precedence: destruction before steps, steps before the decision
+AssertionError: expected [ 'settle' ] to deeply equal [ 'a', 'settle' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:381 > drag:DRI-9 operation cleanup with a receiver > should run operation cleanup last in first out, on each receiver, once per call
+AssertionError: expected [ 'free' ] to deeply equal [ 'a:skipped', 'b:skipped', …(2) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:406 > drag:DRI-9 operation cleanup with a receiver > should continue the walk past a throwing receiver disposer
+AssertionError: expected [ …(2) ] to deeply equal [ 'from a disposer' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:469 > drag:DRI-10 controller cleanup with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+AssertionError: expected [ 'adder before', 'b:null', …(1) ] to deeply equal [ 'a:null', 'adder before', …(3) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:517 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+AssertionError: expected [ undefined ] to deeply equal [ { …(4) } ]
+
+## Mutation M7
+      Tests  4 failed | 16 passed (20)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:201 > drag:DRI-8 steps with a receiver > should call a step requested while idle on its receiver at once
+AssertionError: expected [] to deeply equal [ null ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:321 > drag:DRI-8 steps with a receiver > should scope a receiver step to its operation
+AssertionError: expected [] to deeply equal [ 'r2' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:345 > drag:DRI-8 steps with a receiver > should report a throw from a receiver step as a fault
+AssertionError: expected [ Array(1) ] to deeply equal [ 'from a receiver step' ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:517 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+AssertionError: expected false to be true // Object.is equality
+
+## Mutation M8
+      Tests  2 failed | 18 passed (20)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:432 > drag:DRI-9 operation cleanup with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it
+AssertionError: expected [ 'adder before', 'adder after', …(1) ] to deeply equal [ Array(4) ]
+ FAIL  |browser (chromium)| tests/callback-list.browser.test.ts:469 > drag:DRI-10 controller cleanup with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once
+AssertionError: expected [ 'a:null', 'adder before', …(2) ] to deeply equal [ 'a:null', 'adder before', …(3) ]
+
+## Mutation M9
+      Tests  1 failed | 14 passed (15)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+AssertionError: expected [ 'last added' ] to deeply equal [ 'last added', 'first added' ]
+
+## Mutation M10
+      Tests  2 failed | 13 passed (15)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:216 > drag:DRI-9 release order > should run a late use at once with the outcome
+AssertionError: expected [] to deeply equal [ { type: 'skipped' } ]
+ FAIL  |browser (chromium)| tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+AssertionError: expected [] to deeply equal [ 'late' ]
+
+## Mutation M11
+src/sortable/behavior.ts(208,14): error TS2345: Argument of type '(this: InsertionGeometry) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+
+## Mutation M12
+src/sortable.ts(60,16): error TS2345: Argument of type '(this: DisplacementSink) => void' is not assignable to parameter of type '(this: undefined) => void'.
+
+## Mutation M13
+      Tests  6 failed | 379 passed (385)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ …(2) ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+AssertionError: expected [ 'over its 3313 B ceiling by 4 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 174 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 62 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 260 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+AssertionError: expected [ 'over its 7065 B ceiling by 42 B' ] to deeply equal []
+
+## npx just test (Chromium, node and declaration projects) at 53c87f988
+      Tests  7 failed | 378 passed (385)
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ Test Files  1 failed | 27 passed (28)
+Type Errors  no errors
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯

@@ -14,7 +14,7 @@ A record under `packages/*/.plan/` states each decision, finding, invariant, mea
 packages/drag2/.scripts/entry.sh drag2:D-171
 ```
 
-**The address is qualified** — `<scope>:<local-id>` — and a bare identifier is refused rather than resolved. A convenience form is what every caller ends up written against, and it cannot answer once a second scope exists, so it would break exactly when it was most used. `drag2` is the only scope this build resolves; a future `box-quad:BQ-9` is a row in the script's scope map and not a change to the syntax. Unknown scope, unknown local identifier and a local identifier the record defines twice are three **distinct** failures, because the repairs differ: an address for a package this build cannot see, a citation of something the record never states, and a defect in the record.
+**The address is qualified** — `<scope>:<local-id>` — and a bare identifier is refused rather than resolved. A convenience form is what every caller ends up written against, and it cannot answer once a second scope exists, so it would break exactly when it was most used. The scope map in `packages/drag2/.scripts/entry.ts` lists the scopes this build resolves; a new scope such as `box-quad:BQ-9` is a row there and not a change to the syntax. Unknown scope, unknown local identifier and a local identifier the record defines twice are three **distinct** failures, because the repairs differ: an address for a package this build cannot see, a citation of something the record never states, and a defect in the record.
 
 The headings themselves stay local, so with no toolchain to hand one entry of one known file extracts standalone:
 
@@ -56,8 +56,9 @@ Part II is senior to Part I wherever the two meet.
 
 ## TypeScript
 
-- Prefer `type` over `interface`, unless it is an interface a class implements or the declaration extends a global interface.
-- Wrap types in `Readonly<>` and mark members `readonly` unless mutability is required.
+- Use `interface` for contracts that other code is expected to implement, through classes or interchangeable objects, and when extending a global interface. Use `type` for the shapes of concrete values the library creates and gives to callers, including objects with function members, as well as data records, unions, function types and type transformations. The presence of methods or the possibility of writing `implements` does not make a value shape an implementation contract. Choose by intended use, not by lint behavior.
+- Wrap data records and object-value shapes in `Readonly<>` and mark interface data properties `readonly` unless mutability is required. Declare receiver-dependent interface members as methods; keep detached-safe callback properties as function types. Do not wrap implementation interfaces in `Readonly<>`.
+- Prefer a `type-fest` utility over a handwritten type that does the same, such as `Writable<T>` over a `-readonly` mapped type. `type-fest` is a shared project dependency. Write the type by hand only when the utility can't express it where it is used, and say why.
 
 ## Nullish checks
 
@@ -74,6 +75,12 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 
 - Declare top-level functions with `function`. Declare internal functions — those created inside another function — as arrow functions. Object methods stay shorthand.
 - Always brace block statements. No one-liners.
+
+## Class encapsulation
+
+- Keep mutable class state in `#private` fields. Public instance and static fields must be `readonly`.
+- Expose class-owned state through read-only views, and changes through methods. A `readonly` field or a getter is not a read-only view if callers can still write to the returned array, buffer, collection or record.
+- A read-only interface used by some callers does not make writable fields on the implementing class acceptable. The class's own public surface must preserve its ownership boundary.
 
 ## Naming and self-documentation
 
@@ -164,7 +171,7 @@ In particular:
 
 **This section decides whether a check exists; §1.3 decides whether its message ships.** A check can survive here on (b) and still be gated under §1.3, because the party who can trigger it is outside the library. _Whose state breaks_ selects the check; _who can reach the condition_ selects the payload.
 
-If consumer misuse causes an operation to fail, prefer the normal `onError` path over a synchronous `throw`. Ideally, public runtime code contains very few explicit `throw` statements.
+If consumer misuse causes an operation to fail, prefer the package's normal failure path over a synchronous `throw`: `reportError` with a `DragFault` in `@ydinjs/drag`, `onError` in drag2. Ideally, public runtime code contains very few explicit `throw` statements.
 
 ### 1.2 Prefer types over runtime guards
 
@@ -396,3 +403,9 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-09-09 | §18 | **Added:** the boundary test carries a second limb — one identification of the boundary, stated where the obligation is administered. The abandonment limb is necessary and was shown insufficient. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-410 |
 | 2026-09-09 | §18 | **Added:** a withdrawal is stated against what the instrument **asserts** rather than a docblock's motivating case, and guarded in both directions — understated withdrawal is the same failure as overstated residue. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-411 |
 | 2026-11-06 | Part I, Naming and self-documentation; Comments and JSDoc | **Added:** the reusable naming and English guide from the owner-directed [terminology pass](packages/drag2/.plan/terminology-ste-brief.md), with comment reduction and preservation of factual meaning. Applies to new work; existing records are not rewritten |
+| 2026-11-06 | §1.1 | **Changed:** the failure path is named per package, because `@ydinjs/drag` has no `onError`. It used to say _the normal `onError` path_. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-3 |
+| 2026-11-07 | Reading one entry | **Corrected:** the resolvable scopes are named by the script's scope map. The text said _`drag2` is the only scope this build resolves_, which was already false for `repo`. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-23 |
+| 2026-11-08 | Part I, TypeScript | **Added:** the preference for `type-fest`'s utilities over equivalent handwritten types, stated by the owner. It corrects a reading of `DRD-27` that took the removal of `type-fest` from `@ydinjs/drag` as a rule. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-29 |
+| 2026-11-08 | Part I, TypeScript | **Changed:** at the owner's direction, implementation contracts use interfaces, including contracts currently implemented by object literals. This replaces the preference for `type` except where a class already implements it. The blanket `Readonly<>` guidance now distinguishes data records from implementation interfaces; interface data properties remain `readonly` unless mutation is required |
+| 2026-11-08 | Part I, Class encapsulation | **Added:** at the owner's direction, mutable class state is private and public fields are read-only. Read-only interfaces and reference bindings do not permit exposing writable class-owned state |
+| 2026-11-09 | Part I, TypeScript | **Clarified:** interfaces describe intended implementation contracts. Library-created object values remain types even when they contain functions. Method presence and lint behavior do not determine the declaration kind |

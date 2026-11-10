@@ -4,7 +4,9 @@
     "packages/material-x/.data",
     ".plan/free-drag.json",
     ".plan/sortable-basic.json",
-    ".plan/sortable-with-animations.json"
+    ".plan/sortable-with-animations.json",
+    "packages/drag/.plan/measurements/2026-11-06-compare.json",
+    "packages/drag/.plan/measurements/2026-11-06-instrument-proof.json"
   ],
   "singleQuote": true,
   "printWidth": 80,

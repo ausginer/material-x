@@ -1,38 +1,74 @@
 /**
- * Sortable (reorder) entry point.
- *
- * The controller is an imperative, action-driven state machine over one runtime
- * container with two transactional state frames. Release closes motion ingress
- * before final geometry is read, so the proposal handed to `onReorder` is
- * resolved from the actual release point and nothing later can move it.
- * See `src/sortable/runtime/`.
+ * The sortable, written on the public `draggable` with no private path. The
+ * consumer owns the DOM order: a drop proposes a reorder and the consumer commits or
+ * rejects it.
  */
-import type { SortableOptions } from './sortable/options.ts';
+import { draggable } from './draggable.ts';
+import { Lifter } from './lift.ts';
+import { SortableBehavior, type SortableConfig } from './sortable/behavior.ts';
 import {
-  createSortableController,
-  type SortableController,
-} from './sortable/runtime/controller.ts';
-
-/* PUBLIC */
-
-export {
-  type PlaceholderContext,
   ReorderResolution,
-  SortableResult,
-  type SortableCancelResult,
-  type SortableFinishResult,
-  type SortableOptions,
-} from './sortable/options.ts';
-export type {
-  AnimationTiming,
-  DragSubject,
-  ReorderRequest,
-} from './kernel/types.ts';
-export type { SortableController } from './sortable/runtime/controller.ts';
+  type OnReorder,
+  type ReorderRequest,
+  type SortableAcceptedResult,
+  type SortableCanceledResult,
+  type SortableNoopResult,
+  type SortableRejectedResult,
+  type SortableResult,
+} from './sortable/domain.ts';
+import type {
+  PlaceholderContext,
+  PlaceholderFactory,
+} from './sortable/placement.ts';
 
+export { ReorderResolution };
+export type {
+  OnReorder,
+  PlaceholderContext,
+  PlaceholderFactory,
+  ReorderRequest,
+  SortableAcceptedResult,
+  SortableCanceledResult,
+  SortableNoopResult,
+  SortableRejectedResult,
+  SortableConfig,
+  SortableResult,
+};
+
+export interface SortableController {
+  /**
+   * During a drag, re-reads the collection and the geometry. Between drags and
+   * during a press nothing needs to be called.
+   */
+  readonly invalidate: () => void;
+  readonly requestCancel: (reason?: unknown) => void;
+  readonly requestDestroy: () => Promise<void>;
+}
+
+/** Makes `root` a sortable collection. */
 export function sortable(
-  container: HTMLElement,
-  options: SortableOptions,
+  root: HTMLElement,
+  config: SortableConfig,
 ): SortableController {
-  return createSortableController(container, options);
+  const displacement = config.displacement?.();
+  const lifter = new Lifter(root.ownerDocument.defaultView!);
+  const behavior = new SortableBehavior(root, config, displacement, lifter);
+  const kernel = draggable(root, behavior);
+
+  if (displacement) {
+    kernel.use(displacement.retire, displacement);
+  }
+
+  // Registered last, so a running landing is cancelled first at destruction.
+  kernel.use(lifter.cancelLanding);
+
+  return {
+    invalidate: () => {
+      kernel.requestStep(behavior.invalidate);
+    },
+    requestCancel: (reason) => {
+      kernel.requestCancel(reason);
+    },
+    requestDestroy: () => kernel.requestDestroy(),
+  };
 }

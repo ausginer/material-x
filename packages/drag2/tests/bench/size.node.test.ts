@@ -117,8 +117,8 @@ describe('the declared module graphs', () => {
 
   it('should measure a graph built from nothing but this build', async () => {
     // **The instrument's own integrity** (F-157). Every declaration above
-    // scores a graph against what its composition said it would pull, and two
-    // of the fifteen rows — the baselines — declare no topology at all. A
+    // scores a graph against what its composition said it would pull, and one
+    // of the fourteen rows — baseline A — declares no topology at all. A
     // module nobody knew had survived is not something a declaration can name.
     //
     // The failure is a build output outliving its entrypoint. The bundler
@@ -195,7 +195,7 @@ describe('the declared module graphs', () => {
  * were gated behind an environment variable and only `just size` read them.
  *
  * **The gate's cost was assumed and is measured**: `beforeAll` already
- * measures every composition for the graph assertions above, so these fifteen
+ * measures every composition for the graph assertions above, so these fourteen
  * are arithmetic over results already in hand — 0.08 s across the file. What
  * the gate bought was silence on every row a change to the sortable can
  * actually reach, since the always-on controls below cover only the rows

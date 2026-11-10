@@ -1,0 +1,1224 @@
+diff --git a/packages/drag/src/draggable.ts b/packages/drag/src/draggable.ts
+index e56e3e0a9..ce23ae7bd 100644
+--- a/packages/drag/src/draggable.ts
++++ b/packages/drag/src/draggable.ts
+@@ -243,31 +243,6 @@ const SKIPPED: SkippedOutcome = { type: 'skipped' };
+ 
+ const NOOP = (): void => {};
+ 
+-/** One operation. Its absence means idle, so a late request reaches nothing. */
+-type Session<State, Verdict> = {
+-  drag: WritableLiftedDrag<State>;
+-  readonly admission: LiftedAdmission<State>;
+-  /** Pointer samples, closed at the drop or the decision. */
+-  readonly motion: AbortController;
+-  /** Escape and `drag.signal`, closed when the presentation is released. */
+-  readonly operation: AbortController;
+-  readonly disposers: DragDisposer[];
+-  phase: typeof PENDING | typeof ACTIVE | typeof DROPPING | typeof CONCLUDED;
+-  /** The first cancel, fault or verdict. Whichever arrives first decides. */
+-  decision: Outcome<Verdict> | null;
+-  /** The sequence's next step, run unless a request outranks it. */
+-  next: (() => void) | null;
+-  /** Aborts the verdict in flight. Never aborted after a completion. */
+-  verdictAborter: AbortController | null;
+-  lift: LiftHold | null;
+-  /** `start` was reached. No start, no settle and no end. */
+-  started: boolean;
+-  /** The element to give focus back to, recorded at the drop or the decision. */
+-  focused: HTMLElement | null;
+-  /** What a disposer added after release receives: `null` after destruction. */
+-  releasedWith: Outcome | null;
+-};
+-
+ /**
+  * Events a controller of this library copy has admitted. Bubbling reaches the
+  * innermost root first, so the innermost admitting root wins and an outer root
+@@ -407,266 +382,78 @@ function countRefused(argument: unknown): void {
+   }
+ }
+ 
+-class Gesture<State, Verdict> {
+-  readonly #root: HTMLElement;
++/** Runs one disposer. Whatever it throws, the caller's walk continues. */
++function runDisposer(
++  dispose: DragDisposer,
++  outcome: Outcome | null,
++  raise: (error: unknown) => void,
++): void {
++  try {
++    dispose(outcome);
++  } catch (error) {
++    raise(error);
++  }
++}
++
++/**
++ * One operation, from admission to its release, and every transition it makes.
++ * Its absence from the controller's slot means idle, so a late request reaches
++ * nothing.
++ *
++ * The session reads and writes only its own fields. It reaches the controller
++ * through the controller's interface, and the controller reaches it through
++ * `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
++ * the window, through `handleEvent`.
++ */
++class Session<State, Verdict> {
++  readonly #gesture: Gesture<State, Verdict>;
+   readonly #behavior: AnyBehavior<State, Verdict>;
++  readonly #root: HTMLElement;
+   readonly #window: Window & typeof globalThis;
+   readonly #threshold: number;
+-  readonly #listeners = new AbortController();
+-  readonly #disposers: Array<() => void> = [];
+-
+-  #session: Session<State, Verdict> | null = null;
+-  #running = false;
+-
+-  /** Deferred steps, in request order. Empty on the hot path. */
+-  readonly #steps: Array<(drag: LiftedDrag<State> | null) => void> = [];
+-
+-  /** Set by the first destruction request, which also closes the controller. */
+-  #destroyed: Promise<void> | null = null;
+-  /** The destruction request slot: non-null until teardown has been applied. */
+-  #resolveDestroyed: (() => void) | null = null;
+-
+-  #cancelLanding: (() => void) | null = null;
+-
+-  constructor(root: HTMLElement, behavior: AnyBehavior<State, Verdict>) {
+-    this.#root = root;
+-    this.#behavior = behavior;
+-    this.#window = root.ownerDocument.defaultView!;
+-    this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
+-
+-    root.addEventListener('pointerdown', this.#onPress, {
+-      signal: this.#listeners.signal,
+-    });
+ 
+-    if (behavior.command) {
+-      root.addEventListener('keydown', this.#onCommand, {
+-        signal: this.#listeners.signal,
+-      });
+-    }
+-  }
+-
+-  /**
+-   * The one entry into library work. `step` is a stable function, so a pointer
+-   * sample allocates nothing here.
+-   */
+-  #enter<A>(step: (argument: A) => void, argument: A): void {
+-    if (this.#running || this.#destroyed) {
+-      if (__DEV__ && this.#running) {
+-        countRefused(argument);
+-      }
+-
+-      return;
+-    }
+-
+-    this.#running = true;
+-
+-    try {
+-      try {
+-        step(argument);
+-      } catch (error) {
+-        this.#raise(error);
+-      }
+-
+-      this.#applyRequests();
+-    } finally {
+-      this.#running = false;
+-    }
+-  }
+-
+-  /**
+-   * Between steps, the one reader of the slots. Precedence is statement order:
+-   * destruction, deferred steps, the decision, the sequence's next step. A
+-   * request made by anything run here is seen on the next turn.
+-   */
+-  #applyRequests(): void {
+-    for (;;) {
+-      try {
+-        if (this.#resolveDestroyed) {
+-          this.#teardown();
+-          return;
+-        }
+-
+-        if (this.#steps.length > 0) {
+-          this.#runStep(this.#steps.shift()!);
+-        } else if (
+-          this.#session?.decision &&
+-          this.#session.phase !== CONCLUDED
+-        ) {
+-          this.#conclude(this.#session, this.#session.decision);
+-        } else if (this.#session?.next) {
+-          // Taken before it runs, because it may set the next one.
+-          const { next } = this.#session;
+-
+-          this.#session.next = null;
+-          next();
+-        } else {
+-          return;
+-        }
+-      } catch (error) {
+-        this.#raise(error);
+-      }
+-    }
+-  }
+-
+-  /**
+-   * Reports when caught, and decides if nothing has. The slot is filled before
+-   * the report, because `reportError` dispatches synchronously and a listener's
+-   * cancel must find the outcome already decided.
+-   */
+-  readonly #raise = (error: unknown): void => {
+-    const fault = new DragFault(error);
+-
+-    if (this.#session) {
+-      this.#session.decision ??= {
+-        type: 'canceled',
+-        reason: fault,
+-        origin: 'fault',
+-      };
+-    }
+-
+-    reportError(fault);
+-  };
+-
+-  readonly requestStep = (
+-    step: (drag: LiftedDrag<State> | null) => void,
+-  ): void => {
+-    if (this.#destroyed) {
+-      return;
+-    }
+-
+-    if (!this.#running) {
+-      this.#enter(this.#runStep, step);
+-    } else if (!this.#steps.includes(step)) {
+-      this.#steps.push(step);
+-    }
+-  };
+-
+-  readonly #runStep = (
+-    step: (drag: LiftedDrag<State> | null) => void,
+-  ): void => {
+-    step(
+-      this.#session?.phase === ACTIVE && !this.#session.decision
+-        ? this.#session.drag
+-        : null,
+-    );
+-  };
+-
+-  readonly requestCancel = (reason?: unknown): void => {
+-    this.#cancel(reason, 'request');
+-  };
+-
+-  #cancel(reason: unknown, origin: CancelOrigin): void {
+-    if (this.#session) {
+-      this.#session.decision ??= { type: 'canceled', reason, origin };
+-      this.#enter(NOOP, null);
+-    }
+-  }
+-
+-  readonly requestDestroy = (): Promise<void> => {
+-    if (!this.#destroyed) {
+-      this.#destroyed = new Promise((resolve) => {
+-        this.#resolveDestroyed = resolve;
+-      });
+-
+-      if (!this.#running) {
+-        this.#teardown();
+-      }
+-    }
+-
+-    return this.#destroyed;
+-  };
+-
+-  readonly use = (dispose: () => void): void => {
+-    if (this.#destroyed && !this.#resolveDestroyed) {
+-      this.#dispose(dispose, null);
+-    } else {
+-      this.#disposers.push(dispose);
+-    }
+-  };
+-
+-  /** Runs one disposer. Whatever it throws, the caller's walk continues. */
+-  #dispose(dispose: DragDisposer, outcome: Outcome | null): void {
+-    try {
+-      dispose(outcome);
+-    } catch (error) {
+-      this.#raise(error);
+-    }
+-  }
+-
+-  readonly #onPress = (event: PointerEvent): void => {
+-    this.#enter(this.#press, event);
+-  };
+-
+-  readonly #press = (event: PointerEvent): void => {
+-    if (
+-      event.button === 0 &&
+-      event.isPrimary &&
+-      !this.#session &&
+-      !admitted.has(event)
+-    ) {
+-      const admission = this.#behavior.admit(event);
+-
+-      if (
+-        admission &&
+-        !ownsInteraction(event, admission.handle ?? admission.item)
+-      ) {
+-        admitted.add(event);
+-        this.#open(admission, event.pointerId, event.clientX, event.clientY);
+-      }
+-    }
+-  };
+-
+-  readonly #onCommand = (event: KeyboardEvent): void => {
+-    this.#enter(this.#command, event);
+-  };
+-
+-  /** A press and an activation, whose last act names the release. */
+-  readonly #command = (event: KeyboardEvent): void => {
+-    if (this.#session || admitted.has(event)) {
+-      return;
+-    }
+-
+-    const admission = this.#behavior.command!(event);
+-
+-    if (
+-      admission &&
+-      !ownsInteraction(event, admission.handle ?? admission.item)
+-    ) {
+-      admitted.add(event);
+-      event.preventDefault();
+-
+-      const session = this.#open(admission, COMMAND_POINTER_ID, 0, 0);
+-
+-      session.next = () => {
+-        this.#activate(session);
+-      };
+-    }
+-  };
+-
+-  #open(
++  readonly #drag: WritableLiftedDrag<State>;
++  readonly #admission: LiftedAdmission<State>;
++  /** Pointer samples, closed at the drop or the decision. */
++  readonly #motion = new AbortController();
++  /** Escape and `drag.signal`, closed when the presentation is released. */
++  readonly #operation = new AbortController();
++  readonly #disposers: DragDisposer[] = [];
++  #phase: typeof PENDING | typeof ACTIVE | typeof DROPPING | typeof CONCLUDED =
++    PENDING;
++  /** The first cancel, fault or verdict. Whichever arrives first decides. */
++  #decision: Outcome<Verdict> | null = null;
++  /** The sequence's next step, run unless a request outranks it. */
++  #next: (() => void) | null = null;
++  /** Aborts the verdict in flight. Never aborted after a completion. */
++  #verdictAborter: AbortController | null = null;
++  #lift: LiftHold | null = null;
++  /** `start` was reached. No start, no settle and no end. */
++  #started = false;
++  /** The element to give focus back to, recorded at the drop or the decision. */
++  #focused: HTMLElement | null = null;
++  /** What a disposer added after release receives: `null` after destruction. */
++  #releasedWith: Outcome | null = null;
++
++  /** Opens the operation: builds its `Drag` and installs its listeners. */
++  constructor(
++    gesture: Gesture<State, Verdict>,
++    behavior: AnyBehavior<State, Verdict>,
++    root: HTMLElement,
++    window: Window & typeof globalThis,
++    threshold: number,
+     admission: LiftedAdmission<State>,
+     pointerId: number,
+     x: number,
+     y: number,
+-  ): Session<State, Verdict> {
+-    const motion = new AbortController();
+-    const operation = new AbortController();
+-    const session: Session<State, Verdict> = {
+-      // Filled below, because its methods close over this record.
+-      drag: null as never,
+-      admission,
+-      motion,
+-      operation,
+-      disposers: [],
+-      phase: PENDING,
+-      decision: null,
+-      next: null,
+-      verdictAborter: null,
+-      lift: null,
+-      started: false,
+-      focused: null,
+-      releasedWith: null,
+-    };
++  ) {
++    this.#gesture = gesture;
++    this.#behavior = behavior;
++    this.#root = root;
++    this.#window = window;
++    this.#threshold = threshold;
++    this.#admission = admission;
++
+     const drag: Drag<State> = {
+       item: admission.item,
+       state: admission.state as State,
+@@ -675,24 +462,24 @@ class Gesture<State, Verdict> {
+       y,
+       originX: x,
+       originY: y,
+-      signal: operation.signal,
++      signal: this.#operation.signal,
+       use: (dispose) => {
+-        if (operation.signal.aborted) {
+-          this.#dispose(dispose, session.releasedWith);
++        if (this.#operation.signal.aborted) {
++          runDisposer(dispose, this.#releasedWith, gesture.raise);
+         } else {
+-          session.disposers.push(dispose);
++          this.#disposers.push(dispose);
+         }
+       },
+       // Steps drain before the pass that requested them ends, and an operation
+       // opens only as the first step of a pass, so a step requested while this
+       // operation is current never runs under a later one.
+       requestStep: (step) => {
+-        if (this.#session === session) {
+-          this.requestStep(step);
++        if (gesture.isCurrent(this)) {
++          gesture.requestStep(step);
+         }
+       },
+       requestCancel: (reason) => {
+-        if (this.#session === session) {
++        if (gesture.isCurrent(this)) {
+           this.#cancel(reason, 'request');
+         }
+       },
+@@ -700,12 +487,12 @@ class Gesture<State, Verdict> {
+ 
+     // A lift fills the rest before `activate`, and only a behavior composed with
+     // `lift` can name them.
+-    session.drag = drag as unknown as WritableLiftedDrag<State>;
++    this.#drag = drag as unknown as WritableLiftedDrag<State>;
+ 
+     // On the window in the capture phase, so that no `stopPropagation` in the page
+     // hides the operation's input.
+     if (pointerId !== COMMAND_POINTER_ID) {
+-      const options = { capture: true, signal: motion.signal };
++      const options = { capture: true, signal: this.#motion.signal };
+ 
+       for (const type of [
+         'pointerdown',
+@@ -714,189 +501,250 @@ class Gesture<State, Verdict> {
+         'pointercancel',
+         'lostpointercapture',
+       ]) {
+-        this.#window.addEventListener(
+-          type,
+-          this.#onPointer as EventListener,
+-          options,
+-        );
++        window.addEventListener(type, this, options);
+       }
++    } else {
++      // A command is a press and an activation, whose last act names the release.
++      this.#next = () => {
++        this.#activate();
++      };
+     }
+ 
+-    this.#window.addEventListener('keydown', this.#onEscape, {
++    window.addEventListener('keydown', this, {
+       capture: true,
+-      signal: operation.signal,
++      signal: this.#operation.signal,
+     });
++  }
++
++  /**
++   * One turn of the reader for this operation: concludes a decision not yet
++   * applied, or else takes and runs the next step. Returns whether it did either.
++   */
++  advance(): boolean {
++    if (this.#decision && this.#phase !== CONCLUDED) {
++      this.#conclude(this.#decision);
++      return true;
++    }
++
++    // Taken before it runs, because it may set the next one.
++    const next = this.#next;
++
++    if (next) {
++      this.#next = null;
++      next();
++      return true;
++    }
++
++    return false;
++  }
+ 
+-    this.#session = session;
+-    return session;
++  /** Records a cancel as the decision, unless one is recorded. Enters no pass. */
++  decide(reason: unknown, origin: CancelOrigin): void {
++    this.#decision ??= { type: 'canceled', reason, origin };
+   }
+ 
+   /**
+-   * An `Escape` that decides a started operation is consumed, so the platform's
+-   * close request doesn't also close the dialog or popover holding the list. It
+-   * still propagates.
++   * What a deferred step receives: the `Drag` from the end of activation until
++   * the drop or the decision, and `null` otherwise.
+    */
+-  readonly #onEscape = (event: KeyboardEvent): void => {
+-    if (event.key === 'Escape' && this.#session) {
+-      if (this.#session.started && !this.#session.decision) {
+-        event.preventDefault();
++  stepTarget(): LiftedDrag<State> | null {
++    return this.#phase === ACTIVE && !this.#decision ? this.#drag : null;
++  }
++
++  /**
++   * Destruction's part, after the controller cleared its slot. A session past its
++   * decision has already released, with nothing left to run, and only its
++   * terminal is removed.
++   */
++  terminate(): void {
++    try {
++      this.#closeMotion();
++      this.#verdictAborter?.abort();
++    } catch (error) {
++      this.#gesture.raise(error);
++    }
++
++    this.#release(null);
++  }
++
++  /**
++   * The window's pointer events while motion is open, and `keydown` while the
++   * presentation is held. Motion closes before the controller clears its slot,
++   * so a pointer event here always belongs to the current operation.
++   */
++  handleEvent(event: Event): void {
++    if (event.type === 'keydown') {
++      // An `Escape` that decides a started operation is consumed, so the
++      // platform's close request doesn't also close the dialog or popover
++      // holding the list. It still propagates.
++      if (
++        (event as KeyboardEvent).key === 'Escape' &&
++        this.#gesture.isCurrent(this)
++      ) {
++        if (this.#started && !this.#decision) {
++          event.preventDefault();
++        }
++
++        this.#cancel(undefined, 'escape');
+       }
+ 
+-      this.#cancel(undefined, 'escape');
++      return;
+     }
+-  };
+ 
+-  readonly #onPointer = (event: PointerEvent): void => {
++    const pointer = event as PointerEvent;
++
+     // A primary press while one is pending means its release was missed. Whatever
+     // the pointer, the pending press ends, and the root may admit the new one.
+-    if (event.type === 'pointerdown') {
++    if (pointer.type === 'pointerdown') {
+       if (
+-        this.#session?.phase === PENDING &&
+-        event.isPrimary &&
+-        event.button === 0
++        this.#phase === PENDING &&
++        pointer.isPrimary &&
++        pointer.button === 0
+       ) {
+-        this.#enter(this.#endPending, this.#session);
++        this.#gesture.enter(this.#endPending, null);
+       }
+ 
+       return;
+     }
+ 
+-    if (event.pointerId !== this.#session?.drag.pointerId) {
++    if (pointer.pointerId !== this.#drag.pointerId) {
+       return;
+     }
+ 
+-    if (event.type === 'pointermove') {
+-      this.#enter(this.#move, event);
+-    } else if (event.type === 'pointerup') {
+-      this.#enter(this.#up, event);
++    if (pointer.type === 'pointermove') {
++      this.#gesture.enter(this.#move, pointer);
++    } else if (pointer.type === 'pointerup') {
++      this.#gesture.enter(this.#up, pointer);
+     } else if (
+-      event.type === 'pointercancel' ||
++      pointer.type === 'pointercancel' ||
+       // Taking a touch's implicit capture from the pressed element also fires
+       // this event, and it bubbles here. The root then holds the capture.
+-      !this.#root.hasPointerCapture(event.pointerId)
++      !this.#root.hasPointerCapture(pointer.pointerId)
+     ) {
+       this.#cancel(undefined, 'interrupted');
+     }
+-  };
++  }
++
++  #cancel(reason: unknown, origin: CancelOrigin): void {
++    this.decide(reason, origin);
++    this.#gesture.enter(NOOP, null);
++  }
+ 
+   readonly #move = (event: PointerEvent): void => {
+     // A press never activates without the button that admitted it. A release the
+     // window never saw, such as one outside it, leaves samples with no button.
+     // oxlint-disable-next-line no-bitwise -- `buttons` is a bitfield
+-    if (this.#session!.phase === PENDING && (event.buttons & 1) === 0) {
+-      this.#endPending(this.#session!);
++    if (this.#phase === PENDING && (event.buttons & 1) === 0) {
++      this.#endPending();
+       return;
+     }
+ 
+-    this.#session!.drag.x = event.clientX;
+-    this.#session!.drag.y = event.clientY;
++    this.#drag.x = event.clientX;
++    this.#drag.y = event.clientY;
+ 
+-    if (this.#session!.phase === ACTIVE) {
+-      this.#behavior.move?.(this.#session!.drag);
++    if (this.#phase === ACTIVE) {
++      this.#behavior.move?.(this.#drag);
+       return;
+     }
+ 
+-    const dx = this.#session!.drag.x - this.#session!.drag.originX;
+-    const dy = this.#session!.drag.y - this.#session!.drag.originY;
++    const dx = this.#drag.x - this.#drag.originX;
++    const dy = this.#drag.y - this.#drag.originY;
+ 
+     if (
+-      this.#session!.phase === PENDING &&
++      this.#phase === PENDING &&
+       dx * dx + dy * dy >= this.#threshold * this.#threshold
+     ) {
+       event.preventDefault();
+       this.#window.getSelection()?.removeAllRanges();
+-      armClickGuard(this.#window, this.#session!.drag.pointerId);
+-      this.#activate(this.#session!);
++      armClickGuard(this.#window, this.#drag.pointerId);
++      this.#activate();
+     }
+   };
+ 
+   /** A press that never activated ends quietly: no hook, no report. */
+-  readonly #endPending = (session: Session<State, Verdict>): void => {
+-    session.motion.abort();
+-    session.operation.abort();
+-    this.#session = null;
++  readonly #endPending = (): void => {
++    this.#motion.abort();
++    this.#operation.abort();
++    this.#gesture.detach();
+   };
+ 
+   readonly #up = (event: PointerEvent): void => {
+-    if (this.#session!.phase === PENDING) {
+-      this.#endPending(this.#session!);
++    if (this.#phase === PENDING) {
++      this.#endPending();
+       return;
+     }
+ 
+-    this.#session!.drag.x = event.clientX;
+-    this.#session!.drag.y = event.clientY;
+-    this.#drop(this.#session!);
++    this.#drag.x = event.clientX;
++    this.#drag.y = event.clientY;
++    this.#drop();
+   };
+ 
+-  #activate(session: Session<State, Verdict>): void {
++  #activate(): void {
+     // The consumer removed the item during the press, so there is nothing to
+     // drag. This is not a fault, and a lift could not measure it.
+-    if (!session.drag.item.isConnected) {
+-      session.decision ??= SKIPPED;
++    if (!this.#drag.item.isConnected) {
++      this.#decision ??= SKIPPED;
+       return;
+     }
+ 
+-    const cancelLanding = this.#cancelLanding;
+-
+-    this.#cancelLanding = null;
++    const cancelLanding = this.#gesture.takeLanding();
+ 
+     // The lift measures the visual with a running flight's offset, so a grab
+     // during a landing keeps the visual under the pointer. The flight is then
+     // cancelled, before the first lifted frame.
+     try {
+       if (this.#behavior.lift) {
+-        session.lift = this.#behavior.lift(
+-          session.drag,
+-          session.admission,
++        this.#lift = this.#behavior.lift(
++          this.#drag,
++          this.#admission,
+           this.#window,
+-          this.#raise,
++          this.#gesture.raise,
+         );
+       }
+     } finally {
+       cancelLanding?.();
+     }
+ 
+-    if (session.drag.pointerId !== COMMAND_POINTER_ID) {
+-      this.#root.setPointerCapture(session.drag.pointerId);
++    if (this.#drag.pointerId !== COMMAND_POINTER_ID) {
++      this.#root.setPointerCapture(this.#drag.pointerId);
+     }
+ 
+-    if (this.#behavior.activate?.(session.drag) === false) {
+-      session.decision ??= SKIPPED;
++    if (this.#behavior.activate?.(this.#drag) === false) {
++      this.#decision ??= SKIPPED;
+       return;
+     }
+ 
+-    session.started = true;
+-    this.#behavior.start?.(session.drag);
+-    session.phase = ACTIVE;
++    this.#started = true;
++    this.#behavior.start?.(this.#drag);
++    this.#phase = ACTIVE;
+ 
+     // A pointerless operation has no `pointerup`, so the sequence produces its
+     // own release, after anything the hooks above requested.
+-    if (session.drag.pointerId === COMMAND_POINTER_ID) {
+-      session.next = () => {
+-        this.#drop(session);
++    if (this.#drag.pointerId === COMMAND_POINTER_ID) {
++      this.#next = () => {
++        this.#drop();
+       };
+     }
+   }
+ 
+-  #drop(session: Session<State, Verdict>): void {
+-    session.phase = DROPPING;
+-    this.#closeMotion(session);
+-    session.focused = focusedWithin(session.drag.item);
++  #drop(): void {
++    this.#phase = DROPPING;
++    this.#closeMotion();
++    this.#focused = focusedWithin(this.#drag.item);
+ 
+-    const invoke = this.#behavior.drop?.(session.drag);
++    const invoke = this.#behavior.drop?.(this.#drag);
+ 
+-    session.next = invoke
++    this.#next = invoke
+       ? () => {
+-          this.#requestVerdict(session, invoke);
++          this.#requestVerdict(invoke);
+         }
+       : () => {
+-          session.decision = SKIPPED;
++          this.#decision = SKIPPED;
+         };
+   }
+ 
+   /** `then` is read once, and the first completion wins. */
+   #requestVerdict(
+-    session: Session<State, Verdict>,
+     invoke: (signal: AbortSignal) => Verdict | PromiseLike<Verdict>,
+   ): void {
+     const aborter = new AbortController();
+@@ -908,24 +756,23 @@ class Gesture<State, Verdict> {
+       }
+ 
+       done = true;
+-      session.verdictAborter = null;
++      this.#verdictAborter = null;
+ 
+       // Behind a decision or past its session, a completion reaches nothing.
+-      if (this.#session !== session || session.decision) {
++      if (!this.#gesture.isCurrent(this) || this.#decision) {
+         return;
+       }
+ 
+       if (!faulted) {
+-        session.decision = { type: 'verdict', value: value as Verdict };
+-        this.#enter(NOOP, null);
+-      } else if (this.#running) {
+-        this.#raise(value);
++        // Inside a pass the gate refuses, and that pass's reader applies it.
++        this.#decision = { type: 'verdict', value: value as Verdict };
++        this.#gesture.enter(NOOP, null);
+       } else {
+-        this.#enter(this.#raise, value);
++        this.#gesture.raiseInPass(value);
+       }
+     };
+ 
+-    session.verdictAborter = aborter;
++    this.#verdictAborter = aborter;
+ 
+     let value: Verdict | PromiseLike<Verdict>;
+ 
+@@ -958,13 +805,13 @@ class Gesture<State, Verdict> {
+     complete(false, value);
+   }
+ 
+-  #closeMotion(session: Session<State, Verdict>): void {
+-    session.motion.abort();
++  #closeMotion(): void {
++    this.#motion.abort();
+ 
+     // A release after the pointer is gone would throw, and a capture the
+     // platform already ended has nothing to release.
+-    if (this.#root.hasPointerCapture(session.drag.pointerId)) {
+-      this.#root.releasePointerCapture(session.drag.pointerId);
++    if (this.#root.hasPointerCapture(this.#drag.pointerId)) {
++      this.#root.releasePointerCapture(this.#drag.pointerId);
+     }
+   }
+ 
+@@ -972,27 +819,27 @@ class Gesture<State, Verdict> {
+    * Total over foreign code: every disposer runs and each throw is reported. Runs
+    * once: a destruction after the decision finds the operation released.
+    */
+-  #release(session: Session<State, Verdict>, outcome: Outcome | null): void {
+-    if (session.operation.signal.aborted) {
++  #release(outcome: Outcome | null): void {
++    if (this.#operation.signal.aborted) {
+       return;
+     }
+ 
+-    session.releasedWith = outcome;
+-    session.operation.abort();
++    this.#releasedWith = outcome;
++    this.#operation.abort();
+ 
+-    while (session.disposers.length > 0) {
+-      this.#dispose(session.disposers.pop()!, outcome);
++    while (this.#disposers.length > 0) {
++      runDisposer(this.#disposers.pop()!, outcome, this.#gesture.raise);
+     }
+ 
+     // Taken before it is cleared, so a lift is released once.
+-    const { lift } = session;
++    const lift = this.#lift;
+ 
+-    session.lift = null;
++    this.#lift = null;
+ 
+     try {
+       lift?.release();
+     } catch (error) {
+-      this.#raise(error);
++      this.#gesture.raise(error);
+     }
+   }
+ 
+@@ -1000,64 +847,319 @@ class Gesture<State, Verdict> {
+    * Applies the decision in its fixed order. The terminal is the next step, so a
+    * destruction requested by anything here is applied before it.
+    */
+-  #conclude(session: Session<State, Verdict>, outcome: Outcome<Verdict>): void {
++  #conclude(outcome: Outcome<Verdict>): void {
+     // Taken before `#release` clears it.
+-    const { lift } = session;
+-    const dropped = session.phase === DROPPING;
++    const lift = this.#lift;
++    const dropped = this.#phase === DROPPING;
+ 
+-    session.phase = CONCLUDED;
++    this.#phase = CONCLUDED;
+ 
+     if (!dropped) {
+-      session.focused = focusedWithin(session.drag.item);
++      this.#focused = focusedWithin(this.#drag.item);
+     }
+ 
+     try {
+-      this.#closeMotion(session);
++      this.#closeMotion();
+     } catch (error) {
+-      this.#raise(error);
++      this.#gesture.raise(error);
+     }
+ 
+     if (outcome.type === 'canceled') {
+-      session.verdictAborter?.abort();
++      this.#verdictAborter?.abort();
+     }
+ 
+     let landing: Landing | null | undefined = null;
+ 
+-    if (session.started) {
++    if (this.#started) {
+       try {
+-        landing = this.#behavior.settle?.(session.drag, outcome);
++        landing = this.#behavior.settle?.(this.#drag, outcome);
+       } catch (error) {
+-        this.#raise(error);
++        this.#gesture.raise(error);
+       }
+     }
+ 
+-    this.#release(session, outcome);
++    this.#release(outcome);
+ 
+     if (landing && lift) {
+       try {
+-        this.#cancelLanding = lift.land(landing);
++        this.#gesture.keepLanding(lift.land(landing));
+       } catch (error) {
+         // A landing that cannot run is skipped. The outcome stands.
+-        this.#raise(error);
++        this.#gesture.raise(error);
+       }
+     }
+ 
+     // `end` may reorder, and a reorder sends focus to `body`, so focus returns
+     // after it, in the same step, whether it returns or throws.
+-    if (session.started) {
+-      session.next = () => {
+-        this.#session = null;
++    if (this.#started) {
++      this.#next = () => {
++        this.#gesture.detach();
+ 
+         try {
+-          this.#behavior.end?.(session.drag, outcome);
++          this.#behavior.end?.(this.#drag, outcome);
+         } finally {
+-          restoreFocus(session.focused, session.drag.pointerId);
++          restoreFocus(this.#focused, this.#drag.pointerId);
+         }
+       };
+     } else {
+-      this.#session = null;
+-      restoreFocus(session.focused, session.drag.pointerId);
++      this.#gesture.detach();
++      restoreFocus(this.#focused, this.#drag.pointerId);
++    }
++  }
++}
++
++/**
++ * What exists across operations or with no operation: the root's listeners,
++ * admission, the gate, the deferred steps, destruction, the reader, the slot that
++ * holds the current session, and the landing. Its members without `#` are the
++ * session's way in and the public methods; `draggable` hands out only the latter.
++ */
++class Gesture<State, Verdict> {
++  readonly #root: HTMLElement;
++  readonly #behavior: AnyBehavior<State, Verdict>;
++  readonly #window: Window & typeof globalThis;
++  readonly #threshold: number;
++  readonly #listeners = new AbortController();
++  readonly #disposers: Array<() => void> = [];
++
++  #session: Session<State, Verdict> | null = null;
++  #running = false;
++
++  /** Deferred steps, in request order. Empty on the hot path. */
++  readonly #steps: Array<(drag: LiftedDrag<State> | null) => void> = [];
++
++  /** Set by the first destruction request, which also closes the controller. */
++  #destroyed: Promise<void> | null = null;
++  /** The destruction request slot: non-null until teardown has been applied. */
++  #resolveDestroyed: (() => void) | null = null;
++
++  #cancelLanding: (() => void) | null = null;
++
++  constructor(root: HTMLElement, behavior: AnyBehavior<State, Verdict>) {
++    this.#root = root;
++    this.#behavior = behavior;
++    this.#window = root.ownerDocument.defaultView!;
++    this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
++
++    root.addEventListener('pointerdown', this.#onPress, {
++      signal: this.#listeners.signal,
++    });
++
++    if (behavior.command) {
++      root.addEventListener('keydown', this.#onCommand, {
++        signal: this.#listeners.signal,
++      });
++    }
++  }
++
++  /**
++   * The one entry into library work. `step` is a stable function, so a pointer
++   * sample allocates nothing here.
++   */
++  enter<A>(step: (argument: A) => void, argument: A): void {
++    if (this.#running || this.#destroyed) {
++      if (__DEV__ && this.#running) {
++        countRefused(argument);
++      }
++
++      return;
++    }
++
++    this.#running = true;
++
++    try {
++      try {
++        step(argument);
++      } catch (error) {
++        this.raise(error);
++      }
++
++      this.#applyRequests();
++    } finally {
++      this.#running = false;
++    }
++  }
++
++  /**
++   * Between steps, the one reader of the slots. Precedence is statement order:
++   * destruction, deferred steps, then the session's decision and its next step.
++   * A request made by anything run here is seen on the next turn.
++   */
++  #applyRequests(): void {
++    for (;;) {
++      try {
++        if (this.#resolveDestroyed) {
++          this.#teardown();
++          return;
++        }
++
++        if (this.#steps.length > 0) {
++          this.#runStep(this.#steps.shift()!);
++        } else if (!this.#session?.advance()) {
++          return;
++        }
++      } catch (error) {
++        this.raise(error);
++      }
++    }
++  }
++
++  /**
++   * Reports when caught, and decides if nothing has. The slot is filled before
++   * the report, because `reportError` dispatches synchronously and a listener's
++   * cancel must find the outcome already decided.
++   */
++  readonly raise = (error: unknown): void => {
++    const fault = new DragFault(error);
++
++    this.#session?.decide(fault, 'fault');
++    reportError(fault);
++  };
++
++  /**
++   * A verdict's fault: raised in the running pass, whose reader then applies it,
++   * or else in a new pass.
++   */
++  raiseInPass(error: unknown): void {
++    if (this.#running) {
++      this.raise(error);
++    } else {
++      this.enter(this.raise, error);
++    }
++  }
++
++  isCurrent(session: Session<State, Verdict>): boolean {
++    return this.#session === session;
++  }
++
++  /** Clears the slot. The session calls it when its operation ends. */
++  detach(): void {
++    this.#session = null;
++  }
++
++  /** Takes the running landing, so the activation that called it cancels it. */
++  takeLanding(): (() => void) | null {
++    const cancelLanding = this.#cancelLanding;
++
++    this.#cancelLanding = null;
++    return cancelLanding;
++  }
++
++  /** Keeps a started landing, for the next activation or destruction to cancel. */
++  keepLanding(cancelLanding: (() => void) | null): void {
++    this.#cancelLanding = cancelLanding;
++  }
++
++  readonly requestStep = (
++    step: (drag: LiftedDrag<State> | null) => void,
++  ): void => {
++    if (this.#destroyed) {
++      return;
++    }
++
++    if (!this.#running) {
++      this.enter(this.#runStep, step);
++    } else if (!this.#steps.includes(step)) {
++      this.#steps.push(step);
++    }
++  };
++
++  readonly #runStep = (
++    step: (drag: LiftedDrag<State> | null) => void,
++  ): void => {
++    step(this.#session ? this.#session.stepTarget() : null);
++  };
++
++  readonly requestCancel = (reason?: unknown): void => {
++    if (this.#session) {
++      this.#session.decide(reason, 'request');
++      this.enter(NOOP, null);
++    }
++  };
++
++  readonly requestDestroy = (): Promise<void> => {
++    if (!this.#destroyed) {
++      this.#destroyed = new Promise((resolve) => {
++        this.#resolveDestroyed = resolve;
++      });
++
++      if (!this.#running) {
++        this.#teardown();
++      }
++    }
++
++    return this.#destroyed;
++  };
++
++  readonly use = (dispose: () => void): void => {
++    if (this.#destroyed && !this.#resolveDestroyed) {
++      runDisposer(dispose, null, this.raise);
++    } else {
++      this.#disposers.push(dispose);
++    }
++  };
++
++  readonly #onPress = (event: PointerEvent): void => {
++    this.enter(this.#press, event);
++  };
++
++  readonly #press = (event: PointerEvent): void => {
++    if (
++      event.button === 0 &&
++      event.isPrimary &&
++      !this.#session &&
++      !admitted.has(event)
++    ) {
++      const admission = this.#behavior.admit(event);
++
++      if (
++        admission &&
++        !ownsInteraction(event, admission.handle ?? admission.item)
++      ) {
++        admitted.add(event);
++        this.#open(admission, event.pointerId, event.clientX, event.clientY);
++      }
+     }
++  };
++
++  readonly #onCommand = (event: KeyboardEvent): void => {
++    this.enter(this.#command, event);
++  };
++
++  readonly #command = (event: KeyboardEvent): void => {
++    if (this.#session || admitted.has(event)) {
++      return;
++    }
++
++    const admission = this.#behavior.command!(event);
++
++    if (
++      admission &&
++      !ownsInteraction(event, admission.handle ?? admission.item)
++    ) {
++      admitted.add(event);
++      event.preventDefault();
++      this.#open(admission, COMMAND_POINTER_ID, 0, 0);
++    }
++  };
++
++  #open(
++    admission: LiftedAdmission<State>,
++    pointerId: number,
++    x: number,
++    y: number,
++  ): void {
++    this.#session = new Session(
++      this,
++      this.#behavior,
++      this.#root,
++      this.#window,
++      this.#threshold,
++      admission,
++      pointerId,
++      x,
++      y,
++    );
+   }
+ 
+   /** Destruction applied: closed first, then everything released, once. */
+@@ -1069,30 +1171,18 @@ class Gesture<State, Verdict> {
+     this.#resolveDestroyed = null;
+     this.#session = null;
+     this.#steps.length = 0;
+-
+-    if (session) {
+-      try {
+-        this.#closeMotion(session);
+-        session.verdictAborter?.abort();
+-      } catch (error) {
+-        this.#raise(error);
+-      }
+-
+-      // A session past its decision has already released, with nothing left to
+-      // run, and only its terminal is removed.
+-      this.#release(session, null);
+-    }
++    session?.terminate();
+ 
+     try {
+       this.#cancelLanding?.();
+     } catch (error) {
+-      this.#raise(error);
++      this.raise(error);
+     }
+ 
+     this.#cancelLanding = null;
+ 
+     while (this.#disposers.length > 0) {
+-      this.#dispose(this.#disposers.pop()!, null);
++      runDisposer(this.#disposers.pop()!, null, this.raise);
+     }
+ 
+     this.#listeners.abort();
+@@ -1128,5 +1218,14 @@ export function draggable<State, Verdict>(
+   root: HTMLElement,
+   behavior: AnyBehavior<State, Verdict>,
+ ): DraggableController<never> {
+-  return new Gesture(root, behavior) as unknown as DraggableController<never>;
++  const gesture = new Gesture(root, behavior);
++  // Not the instance, so the session's way into it stays inside this module.
++  const controller: DraggableController<LiftedDrag<State>> = {
++    requestStep: gesture.requestStep,
++    requestCancel: gesture.requestCancel,
++    requestDestroy: gesture.requestDestroy,
++    use: gesture.use,
++  };
++
++  return controller as DraggableController<never>;
+ }

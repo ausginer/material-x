@@ -1,0 +1,12 @@
+draggable alone                      6600 min  2138 br  carries: -
+draggable + lift                    12056 min  4152 br  carries: landing animation
+draggable + lift + landing            n/a
+freeDrag                            15269 min  5075 br  carries: landing animation
+freeDrag + landing                  15449 min  5172 br  carries: landing animation, landing timing
+freeDrag + bounds + landing         15954 min  5330 br  carries: landing animation, landing timing, bounds
+freeDrag + dropTargets                n/a
+freeDrag + dropTargets + landing      n/a
+example: drop zone                  12855 min  4439 br  carries: landing animation
+sortable + y                        20533 min  6652 br  carries: landing animation
+complete                            21552 min  7037 br  carries: landing animation, landing timing, layout animation
+exit 0

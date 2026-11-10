@@ -1,0 +1,364 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index 5278c26d2..38f19bd86 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -34,7 +34,11 @@ export interface DraggableController<Operation> {
+ 
+ const DEFAULT_THRESHOLD = 8;
+ 
+-const NOOP = (): void => {};
++/** What the gate runs as the first step of a pass: the work for one input event. */
++export interface InputHandler {
++  /** Called only by the gate, inside the pass it opened for `event`. */
++  handleInput(event: Event): void;
++}
+ 
+ /**
+  * Events a controller of this library copy has admitted. Bubbling reaches the
+@@ -63,22 +67,17 @@ function ownsInteraction(event: Event, subject: EventTarget): boolean {
+ }
+ 
+ /** Development only: how many events a running pass refused, for the suite. */
+-function countRefused(argument: unknown): void {
+-  const trusted = (argument as Event | null | undefined)?.isTrusted;
+-
+-  if (trusted !== undefined) {
+-    const refused = ((globalThis as Record<string, unknown>)[
+-      '__dragRefused'
+-    ] ??= { trusted: 0, untrusted: 0 }) as {
+-      trusted: number;
+-      untrusted: number;
+-    };
+-
+-    if (trusted) {
+-      refused.trusted += 1;
+-    } else {
+-      refused.untrusted += 1;
+-    }
++function countRefused(event: Event): void {
++  const refused = ((globalThis as Record<string, unknown>)['__dragRefused'] ??=
++    { trusted: 0, untrusted: 0 }) as {
++    trusted: number;
++    untrusted: number;
++  };
++
++  if (event.isTrusted) {
++    refused.trusted += 1;
++  } else {
++    refused.untrusted += 1;
+   }
+ }
+ 
+@@ -92,7 +91,7 @@ export class Gesture<
+   State,
+   Verdict,
+   Operation extends BehaviorOperation<Verdict>,
+-> {
++> implements InputHandler {
+   readonly #root: HTMLElement;
+   readonly #behavior: Behavior<State, Verdict, Operation>;
+   readonly #window: Window & typeof globalThis;
+@@ -120,25 +119,26 @@ export class Gesture<
+     this.#window = root.ownerDocument.defaultView!;
+     this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
+ 
+-    root.addEventListener('pointerdown', this.#onPress, {
++    root.addEventListener('pointerdown', this, {
+       signal: this.#listeners.signal,
+     });
+ 
+     if (behavior.command) {
+-      root.addEventListener('keydown', this.#onCommand, {
++      root.addEventListener('keydown', this, {
+         signal: this.#listeners.signal,
+       });
+     }
+   }
+ 
+   /**
+-   * The one entry into library work. `step` is a stable function, so a pointer
+-   * sample allocates nothing here.
++   * The gate for input: runs `handler`'s work for `event` as the first step of a
++   * new pass, then the reader. A running pass or a closed controller refuses the
++   * input. Nothing is allocated here, so a pointer sample allocates nothing.
+    */
+-  enter<A>(step: (argument: A) => void, argument: A): void {
++  enter(handler: InputHandler, event: Event): void {
+     if (this.#running || this.#destroyed) {
+       if (__DEV__ && this.#running) {
+-        countRefused(argument);
++        countRefused(event);
+       }
+ 
+       return;
+@@ -148,7 +148,7 @@ export class Gesture<
+ 
+     try {
+       try {
+-        step(argument);
++        handler.handleInput(event);
+       } catch (error) {
+         this.raise(error);
+       }
+@@ -159,6 +159,25 @@ export class Gesture<
+     }
+   }
+ 
++  /**
++   * The gate for requests: a request has filled its slot, and this applies it
++   * now unless a pass is running, whose reader applies it (DRI-1). Nothing is
++   * refused.
++   */
++  apply(): void {
++    if (this.#running || this.#destroyed) {
++      return;
++    }
++
++    this.#running = true;
++
++    try {
++      this.#applyRequests();
++    } finally {
++      this.#running = false;
++    }
++  }
++
+   /**
+    * Between steps, the one reader of the slots. Precedence is statement order:
+    * destruction, deferred steps, then the session's decision and its next step.
+@@ -173,7 +192,9 @@ export class Gesture<
+         }
+ 
+         if (this.#steps.length > 0) {
+-          this.#runStep(this.#steps.shift()!);
++          const step = this.#steps.shift()!;
++
++          step(this.#session ? this.#session.stepTarget() : null);
+         } else if (!this.#session?.advance()) {
+           return;
+         }
+@@ -202,8 +223,16 @@ export class Gesture<
+   raiseInPass(error: unknown): void {
+     if (this.#running) {
+       this.raise(error);
+-    } else {
+-      this.enter(this.raise, error);
++      return;
++    }
++
++    this.#running = true;
++
++    try {
++      this.raise(error);
++      this.#applyRequests();
++    } finally {
++      this.#running = false;
+     }
+   }
+ 
+@@ -219,21 +248,17 @@ export class Gesture<
+       return;
+     }
+ 
+-    if (!this.#running) {
+-      this.enter(this.#runStep, step);
+-    } else if (!this.#steps.includes(step)) {
++    if (!this.#steps.includes(step)) {
+       this.#steps.push(step);
+     }
+-  };
+ 
+-  readonly #runStep = (step: (operation: Operation | null) => void): void => {
+-    step(this.#session ? this.#session.stepTarget() : null);
++    this.apply();
+   };
+ 
+   readonly requestCancel = (reason?: unknown): void => {
+     if (this.#session) {
+       this.#session.decide(reason, 'request');
+-      this.enter(NOOP, null);
++      this.apply();
+     }
+   };
+ 
+@@ -259,11 +284,20 @@ export class Gesture<
+     }
+   };
+ 
+-  readonly #onPress = (event: PointerEvent): void => {
+-    this.enter(this.#press, event);
+-  };
++  /** The root's `pointerdown` and `keydown`. */
++  handleEvent(event: Event): void {
++    this.enter(this, event);
++  }
++
++  handleInput(event: Event): void {
++    if (event.type === 'keydown') {
++      this.#command(event as KeyboardEvent);
++    } else {
++      this.#press(event as PointerEvent);
++    }
++  }
+ 
+-  readonly #press = (event: PointerEvent): void => {
++  #press(event: PointerEvent): void {
+     if (
+       event.button === 0 &&
+       event.isPrimary &&
+@@ -280,13 +314,9 @@ export class Gesture<
+         this.#open(admission, event.clientX, event.clientY, event.pointerId);
+       }
+     }
+-  };
+-
+-  readonly #onCommand = (event: KeyboardEvent): void => {
+-    this.enter(this.#command, event);
+-  };
++  }
+ 
+-  readonly #command = (event: KeyboardEvent): void => {
++  #command(event: KeyboardEvent): void {
+     if (this.#session || admitted.has(event)) {
+       return;
+     }
+@@ -301,7 +331,7 @@ export class Gesture<
+       event.preventDefault();
+       this.#open(admission, 0, 0);
+     }
+-  };
++  }
+ 
+   #open(
+     admission: Admission<State>,
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 44f512eca..8a7f18cfe 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -2,7 +2,7 @@ import { deepActiveElement } from '../shared/focus.ts';
+ import type { Admission } from './admission.ts';
+ import type { Behavior, BehaviorOperation } from './behavior.ts';
+ import { runDragDisposer, type DragDisposer, type KernelDrag } from './drag.ts';
+-import type { Gesture } from './gesture.ts';
++import type { Gesture, InputHandler } from './gesture.ts';
+ import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
+ 
+ const COMMAND_POINTER_ID = -1;
+@@ -112,8 +112,6 @@ function armClickGuard(target: Window, pointerId: number): void {
+   );
+ }
+ 
+-const NOOP = (): void => {};
+-
+ /**
+  * One operation, from admission to its release, and every transition it makes.
+  * Its absence from the controller's slot means idle. It ends where it leaves the
+@@ -122,13 +120,14 @@ const NOOP = (): void => {};
+  * The session reads and writes only its own fields. It reaches the controller
+  * through the controller's interface, and the controller reaches it through
+  * `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
+- * the window, through `handleEvent`.
++ * the window, through `handleEvent`, and the gate runs its input work through
++ * `handleInput`.
+  */
+ export class Session<
+   State,
+   Verdict,
+   Operation extends BehaviorOperation<Verdict>,
+-> {
++> implements InputHandler {
+   readonly #gesture: Gesture<State, Verdict, Operation>;
+   readonly #behavior: Behavior<State, Verdict, Operation>;
+   readonly #root: HTMLElement;
+@@ -325,7 +324,7 @@ export class Session<
+         pointer.isPrimary &&
+         pointer.button === 0
+       ) {
+-        this.#gesture.enter(this.#endPending, null);
++        this.#gesture.enter(this, pointer);
+       }
+ 
+       return;
+@@ -335,10 +334,8 @@ export class Session<
+       return;
+     }
+ 
+-    if (pointer.type === 'pointermove') {
+-      this.#gesture.enter(this.#move, pointer);
+-    } else if (pointer.type === 'pointerup') {
+-      this.#gesture.enter(this.#up, pointer);
++    if (pointer.type === 'pointermove' || pointer.type === 'pointerup') {
++      this.#gesture.enter(this, pointer);
+     } else if (
+       pointer.type === 'pointercancel' ||
+       // Taking a touch's implicit capture from the pressed element also fires
+@@ -351,10 +348,24 @@ export class Session<
+ 
+   #cancel(reason: unknown, origin: CancelOrigin): void {
+     this.decide(reason, origin);
+-    this.#gesture.enter(NOOP, null);
++    this.#gesture.apply();
++  }
++
++  /**
++   * The gate's step for the input `handleEvent` passed it: a sample, a release,
++   * or a primary press that ends the pending one.
++   */
++  handleInput(event: Event): void {
++    if (event.type === 'pointermove') {
++      this.#move(event as PointerEvent);
++    } else if (event.type === 'pointerup') {
++      this.#up(event as PointerEvent);
++    } else {
++      this.#endPending();
++    }
+   }
+ 
+-  readonly #move = (event: PointerEvent): void => {
++  #move(event: PointerEvent): void {
+     // A press never activates without the button that admitted it. A release the
+     // window never saw, such as one outside it, leaves samples with no button.
+     // oxlint-disable-next-line no-bitwise -- `buttons` is a bitfield
+@@ -387,17 +398,17 @@ export class Session<
+       armClickGuard(this.#window, this.#drag.pointerId);
+       this.#activate();
+     }
+-  };
++  }
+ 
+   /** A press that never activated ends quietly: no hook, no report. */
+-  readonly #endPending = (): void => {
++  #endPending(): void {
+     this.#motion.abort();
+     this.#presentation.abort();
+     this.#phase = ENDED;
+     this.#gesture.detach();
+-  };
++  }
+ 
+-  readonly #up = (event: PointerEvent): void => {
++  #up(event: PointerEvent): void {
+     // Motion is open only while pending or active, and the operation is held
+     // exactly while active there.
+     const operation = this.#operation;
+@@ -410,7 +421,7 @@ export class Session<
+     this.#drag.x = event.clientX;
+     this.#drag.y = event.clientY;
+     this.#drop(operation);
+-  };
++  }
+ 
+   #activate(): void {
+     // The consumer removed the item during the press, so there is nothing to
+@@ -481,9 +492,9 @@ export class Session<
+       }
+ 
+       if (!faulted) {
+-        // Inside a pass the gate refuses, and that pass's reader applies it.
++        // Inside a pass, that pass's reader applies it.
+         this.#decision = { type: 'verdict', value: value as Verdict };
+-        this.#gesture.enter(NOOP, null);
++        this.#gesture.apply();
+       } else {
+         this.#gesture.raiseInPass(value);
+       }

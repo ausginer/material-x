@@ -1,0 +1,493 @@
+# Lift representation unit: raw output
+# Base 5401500f8 (owner's Lifter class) on ccaf2591c. Chromium for single-test runs; three engines with ~/.cache/ms-playwright/webkit-env.sh sourced.
+
+## Fingerprint of the owner's edits, as committed at 5401500f8
+git diff ccaf2591c 5401500f8 -- src | sha256sum
+f489261c816fe49aa14513e237b412baa84a63f0fe495359b0e37c48c421f980  -
+git diff --shortstat ccaf2591c 5401500f8 -- src
+ 3 files changed, 144 insertions(+), 141 deletions(-)
+
+## The owner's edits (git diff ccaf2591c 5401500f8 -- src)
+diff --git a/packages/drag/src/free-drag.ts b/packages/drag/src/free-drag.ts
+index bb70341f9..28b8d25ae 100644
+--- a/packages/drag/src/free-drag.ts
++++ b/packages/drag/src/free-drag.ts
+@@ -26,7 +26,7 @@ import {
+   type ResolveHome,
+ } from './free-drag/domain.ts';
+ import { buildGeometry, buildRequest } from './free-drag/geometry.ts';
+-import { createLifter, type Lift, type Lifter } from './lift.ts';
++import { Lifter, type Lift } from './lift.ts';
+ import { listenForInvalidation } from './shared/invalidation.ts';
+ import type { LandingTiming } from './shared/landing.ts';
+
+@@ -281,7 +281,7 @@ export function freeDrag(
+   root: HTMLElement,
+   config: FreeDragConfig,
+ ): FreeDragController {
+-  const lifter = createLifter(root.ownerDocument.defaultView!);
++  const lifter = new Lifter(root.ownerDocument.defaultView!);
+   const behavior = new FreeDragBehavior(root, config, lifter);
+   const kernel = draggable<State, FreeDragResolution>(root, behavior);
+
+diff --git a/packages/drag/src/lift.ts b/packages/drag/src/lift.ts
+index c47b0d25f..d09f43798 100644
+--- a/packages/drag/src/lift.ts
++++ b/packages/drag/src/lift.ts
+@@ -17,6 +17,7 @@ import {
+   space,
+   type Space,
+ } from '@ydinjs/box-quad';
++import type { Writable } from 'type-fest';
+ import type { Drag } from './draggable.ts';
+ import { deepActiveElement } from './shared/focus.ts';
+ import {
+@@ -59,31 +60,6 @@ export type Lift = Readonly<{
+   land(landing: Landing): void;
+ }>;
+
+-/**
+- * The lift for one controller. Create it with the controller and pass
+- * `cancelLanding` to the controller's `use`. It keeps the running landing, which
+- * outlives its operation.
+- */
+-export type Lifter = Readonly<{
+-  /**
+-   * Lifts the visual of `drag`: call it as the first statement of `activate`,
+-   * before any other `drag.use`. It registers the release with `drag.use` before
+-   * it writes anything, so the release runs after every disposer added later and
+-   * also restores a failed acquisition. It cancels this lifter's running landing
+-   * after it measures.
+-   *
+-   * `visual` defaults to `drag.item`, and `box` to `visual`. It throws when the
+-   * visual has no single 2D box (fragmented, `display: none` or 3D), which is a
+-   * fault.
+-   */
+-  acquire(drag: Drag<unknown>, visual?: HTMLElement, box?: HTMLElement): Lift;
+-  /** Cancels the running landing, if any. It works when detached. */
+-  cancelLanding(): void;
+-}>;
+-
+-/** The `Lift` as `translate` writes it. */
+-type OwnedLift = { -readonly [Key in keyof Lift]: Lift[Key] };
+-
+ const BOX_A = 0;
+ const BOX_B = 1;
+ const BOX_C = 2;
+@@ -293,127 +269,153 @@ function startLandingAnimation(
+   };
+ }
+
+-/** Creates the lift for one controller, in the window its root belongs to. */
+-export function createLifter(window: Window): Lifter {
+-  let cancelRunning: (() => void) | null = null;
++/**
++ * The lift for one controller. Create it with the controller and pass
++ * `cancelLanding` to the controller's `use`. It keeps the running landing, which
++ * outlives its operation.
++ */
++export class Lifter {
++  readonly #window: Window;
++  #runningAnimationCanceller: (() => void) | null = null;
+
+-  const cancelLanding = (): void => {
+-    // Taken before it runs, so a landing is cancelled once.
+-    const cancel = cancelRunning;
++  constructor(window: Window) {
++    this.#window = window;
++  }
+
+-    cancelRunning = null;
+-    cancel?.();
+-  };
++  /**
++   * Lifts the visual of `drag`: call it as the first statement of `activate`,
++   * before any other `drag.use`. It registers the release with `drag.use` before
++   * it writes anything, so the release runs after every disposer added later and
++   * also restores a failed acquisition. It cancels this lifter's running landing
++   * after it measures.
++   *
++   * `visual` defaults to `drag.item`, and `box` to `visual`. It throws when the
++   * visual has no single 2D box (fragmented, `display: none` or 3D), which is a
++   * fault.
++   */
++  acquire(
++    drag: Drag<unknown>,
++    visual: HTMLElement = drag.item,
++    box: HTMLElement = visual,
++  ): Lift {
++    // A grab during a landing measures the visual with the flight's offset, so
++    // the visual stays under the pointer. The flight is cancelled afterwards,
++    // before the first lifted frame, also when the acquisition throws.
++    try {
++      // Geometry is read before anything mutates, because a traversal taken
++      // after the visual is repositioned reads a different ancestry.
++      const rect = visual.getBoundingClientRect();
++      const visualSpace = space();
++      const itemSpace = drag.item === visual ? visualSpace : space();
++      const measured = createBox();
++
++      if (
++        !ancestry(visual, visualSpace) ||
++        (itemSpace !== visualSpace && !ancestry(drag.item, itemSpace)) ||
++        !coordinates(visual, measured, visualSpace)
++      ) {
++        throw new Error('lift/visual-no-box-space');
++      }
+
+-  return {
+-    acquire(drag, visual = drag.item, box = visual) {
+-      // A grab during a landing measures the visual with the flight's offset, so
+-      // the visual stays under the pointer. The flight is cancelled afterwards,
+-      // before the first lifted frame, also when the acquisition throws.
+-      try {
+-        // Geometry is read before anything mutates, because a traversal taken
+-        // after the visual is repositioned reads a different ancestry.
+-        const rect = visual.getBoundingClientRect();
+-        const boxWidth = box.offsetWidth;
+-        const boxHeight = box.offsetHeight;
+-        const visualSpace = space();
+-        const itemSpace = drag.item === visual ? visualSpace : space();
+-        const measured = createBox();
+-
+-        if (
+-          !ancestry(visual, visualSpace) ||
+-          (itemSpace !== visualSpace && !ancestry(drag.item, itemSpace)) ||
+-          !coordinates(visual, measured, visualSpace)
+-        ) {
+-          throw new Error('lift/visual-no-box-space');
++      const style = this.#window.getComputedStyle(visual);
++      // Every UA value is read before the first write: interleaving them would
++      // force a style recalculation per property.
++      const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
++      const restoreStyles = captureInlineStyles(visual);
++      const restoreTopLayer = captureTopLayer(visual);
++      const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
++      let promoted = false;
++      let landing: Landing | null = null;
++
++      const lift: Writable<Lift> = {
++        visual,
++        box,
++        rect,
++        boxWidth: box.offsetWidth,
++        boxHeight: box.offsetHeight,
++        visualSpace,
++        itemSpace,
++        translatedX: 0,
++        translatedY: 0,
++        translate: (x, y) => {
++          visual.style.transform = `translate(${x}px, ${y}px) ${base}`;
++          lift.translatedX = x;
++          lift.translatedY = y;
++        },
++        land: (named) => {
++          landing = named;
++        },
++      };
++
++      // Registered before the first write, so whatever the acquisition writes
++      // before a throw is restored at the operation's release. Two disposers, so
++      // that the landing starts right after the release even when the release
++      // throws, and each throw is reported once.
++      drag.use(() => {
++        if (landing) {
++          this.#runningAnimationCanceller = startLandingAnimation(
++            lift,
++            this.#window,
++            landing,
++          );
+         }
++      });
+
+-        const style = window.getComputedStyle(visual);
+-        // Every UA value is read before the first write: interleaving them would
+-        // force a style recalculation per property.
+-        const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
+-        const restoreStyles = captureInlineStyles(visual);
+-        const restoreTopLayer = captureTopLayer(visual);
+-        const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
+-        let promoted = false;
+-        let landing: Landing | null = null;
+-        const lift: OwnedLift = {
+-          visual,
+-          box,
+-          rect,
+-          boxWidth,
+-          boxHeight,
+-          visualSpace,
+-          itemSpace,
+-          translatedX: 0,
+-          translatedY: 0,
+-          translate: (x, y) => {
+-            visual.style.transform = `translate(${x}px, ${y}px) ${base}`;
+-            lift.translatedX = x;
+-            lift.translatedY = y;
+-          },
+-          land: (named) => {
+-            landing = named;
+-          },
+-        };
+-
+-        // Registered before the first write, so whatever the acquisition writes
+-        // before a throw is restored at the operation's release. Two disposers, so
+-        // that the landing starts right after the release even when the release
+-        // throws, and each throw is reported once.
+-        drag.use(() => {
+-          if (landing) {
+-            cancelRunning = startLandingAnimation(lift, window, landing);
+-          }
+-        });
+-        drag.use(() => {
+-          try {
+-            if (promoted) {
+-              restoreTopLayer();
+-            }
+-          } finally {
+-            restoreStyles();
++      drag.use(() => {
++        try {
++          if (promoted) {
++            restoreTopLayer();
+           }
+-        });
+-
+-        visual.style.boxSizing = 'border-box';
+-        visual.style.margin = '0';
+-
+-        for (let i = 0; i < UA_PROPS.length; i += 1) {
+-          visual.style.setProperty(UA_PROPS[i]!, values[i]!);
++        } finally {
++          restoreStyles();
+         }
++      });
+
+-        visual.style.transition = 'none';
+-        visual.style.position = 'fixed';
+-        visual.style.inset = 'auto';
+-        visual.style.width = `${measured[BOX_WIDTH]!}px`;
+-        visual.style.height = `${measured[BOX_HEIGHT]!}px`;
+-        // Net zoom 1: the top layer does not escape an ancestor's zoom, and the
+-        // matrix is the only source of scale.
+-        visual.style.zoom = `${1 / visualSpace[SPACE_ANCESTOR_ZOOM]!}`;
+-        visual.style.top = '0';
+-        visual.style.left = '0';
+-        visual.style.transformOrigin = '0 0';
+-        visual.style.translate = 'none';
+-        visual.style.rotate = 'none';
+-        visual.style.scale = 'none';
+-        // The matrix carries the whole position and the element's own transforms,
+-        // so it is written now: until the first sample the visual would otherwise
+-        // paint at the origin.
+-        visual.style.transform = base;
+-        // Setting the attribute already closes a popover the page had opened.
+-        promoted = true;
+-        visual.popover = 'manual';
+-
+-        if (!visual.matches(':popover-open')) {
+-          showKeepingFocus(visual);
+-        }
++      visual.style.boxSizing = 'border-box';
++      visual.style.margin = '0';
+
+-        return lift;
+-      } finally {
+-        cancelLanding();
++      for (let i = 0; i < UA_PROPS.length; i += 1) {
++        visual.style.setProperty(UA_PROPS[i]!, values[i]!);
+       }
+-    },
+-    cancelLanding,
++
++      visual.style.transition = 'none';
++      visual.style.position = 'fixed';
++      visual.style.inset = 'auto';
++      visual.style.width = `${measured[BOX_WIDTH]!}px`;
++      visual.style.height = `${measured[BOX_HEIGHT]!}px`;
++      // Net zoom 1: the top layer does not escape an ancestor's zoom, and the
++      // matrix is the only source of scale.
++      visual.style.zoom = `${1 / visualSpace[SPACE_ANCESTOR_ZOOM]!}`;
++      visual.style.top = '0';
++      visual.style.left = '0';
++      visual.style.transformOrigin = '0 0';
++      visual.style.translate = 'none';
++      visual.style.rotate = 'none';
++      visual.style.scale = 'none';
++      // The matrix carries the whole position and the element's own transforms,
++      // so it is written now: until the first sample the visual would otherwise
++      // paint at the origin.
++      visual.style.transform = base;
++      // Setting the attribute already closes a popover the page had opened.
++      promoted = true;
++      visual.popover = 'manual';
++
++      if (!visual.matches(':popover-open')) {
++        showKeepingFocus(visual);
++      }
++
++      return lift;
++    } finally {
++      this.cancelLanding();
++    }
++  }
++
++  /** Cancels the running landing, if any. It works when detached. */
++  cancelLanding = (): void => {
++    // Taken before it runs, so a landing is cancelled once.
++    const cancel = this.#runningAnimationCanceller;
++
++    this.#runningAnimationCanceller = null;
++    cancel?.();
+   };
+ }
+diff --git a/packages/drag/src/sortable.ts b/packages/drag/src/sortable.ts
+index cee949702..18abb24f4 100644
+--- a/packages/drag/src/sortable.ts
++++ b/packages/drag/src/sortable.ts
+@@ -9,7 +9,7 @@ import {
+   type Drag,
+   type Outcome,
+ } from './draggable.ts';
+-import { createLifter, type Landing, type Lift, type Lifter } from './lift.ts';
++import { Lifter, type Landing, type Lift } from './lift.ts';
+ import {
+   createFrameTask,
+   type FrameTask,
+@@ -337,6 +337,7 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
+     drag.use(() => {
+       placeholder.remove();
+     });
++
+     drag.item.after(placeholder);
+
+     if (
+@@ -546,7 +547,7 @@ export function sortable(
+   config: SortableConfig,
+ ): SortableController {
+   const displacement = config.displacement?.();
+-  const lifter = createLifter(root.ownerDocument.defaultView!);
++  const lifter = new Lifter(root.ownerDocument.defaultView!);
+   const behavior = new SortableBehavior(root, config, displacement, lifter);
+   const kernel = draggable<State, ReorderResolution>(root, behavior);
+
+
+## Item 1 (9cd7e37c5)
+### lockfile diff
+diff --git a/package-lock.json b/package-lock.json
+index 0c3c0e946..f41745cf9 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -16373,7 +16373,8 @@
+         "@types/react": "19.2.17",
+         "@types/react-dom": "19.2.3",
+         "react": "19.3.1",
+-        "react-dom": "19.3.1"
++        "react-dom": "19.3.1",
++        "type-fest": "5.10.0"
+       }
+     },
+     "packages/drag/node_modules/@types/react": {
+### just test
+     × should satisfy the declared graph and ceiling of draggable alone 4ms
+     × should satisfy the declared graph and ceiling of freeDrag 0ms
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ 'control moved by 83 B' ] to deeply equal []
+AssertionError: expected [ 'over its 4967 B ceiling by 52 B' ] to deeply equal []
+AssertionError: expected [ 'over its 5210 B ceiling by 58 B' ] to deeply equal []
+ Test Files  1 failed | 23 passed (24)
+      Tests  3 failed | 325 passed (328)
+exit 1
+### just test-engines (first attempt without webkit-env.sh: browserType.launch failed, missing host libraries; rerun below)
+ Test Files  63 passed (63)
+      Tests  905 passed | 16 skipped (921)
+exit 0
+### just size
+draggable alone                  6464 min   2107 br  6 modules
+  VIOLATION: control moved by 83 B
+draggable + lift                11889 min   4089 br  9 modules
+example: resize handle           9131 min   3210 br  8 modules
+example: drop zone              12771 min   4403 br  10 modules
+example: canvas group            9285 min   3235 br  8 modules
+freeDrag                        15013 min   5019 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 52 B
+freeDrag + bounds + landing     15699 min   5268 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 58 B
+sortable + y                    20152 min   6614 br  18 modules
+sortable + xy                   19768 min   6557 br  17 modules
+complete                        21184 min   6992 br  20 modules
+
+## Item 2 (8c5ace665): DRF-2 test, Chromium, -t DRF-2
+### Calibration, bound check disabled (lift.ts:translate bytes per move, then the bytes)
+run 1: TRANSLATE 142.32 {"kernel/session.ts:handleEvent":1688,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":436,"kernel/session.ts:advance":124,"kernel/session.ts:#move":720,"lift.ts:translate":42696}
+run 2: TRANSLATE 141.21333333333334 {"kernel/session.ts:handleEvent":1888,"kernel/gesture.ts:enter":252,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":140,"kernel/session.ts:#move":700,"lift.ts:translate":42364}
+run 3: TRANSLATE 144.85333333333332 {"kernel/session.ts:handleEvent":1708,"kernel/gesture.ts:enter":252,"kernel/gesture.ts:#applyRequests":436,"kernel/session.ts:advance":124,"kernel/session.ts:#move":792,"lift.ts:translate":43456}
+run 4: TRANSLATE 140.02666666666667 {"kernel/session.ts:handleEvent":1592,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":124,"kernel/session.ts:#move":736,"lift.ts:translate":42008}
+run 5: TRANSLATE 140.45333333333335 {"kernel/session.ts:handleEvent":1736,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":124,"kernel/session.ts:#move":624,"lift.ts:translate":42136}
+B = ceil(144.85333) + 8 = 153; spread 144.853 - 140.027 = 4.83 B
+### Unmutated with B
+run 1: TRANSLATE 142.13333333333333 {"kernel/session.ts:handleEvent":1760,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":428,"kernel/session.ts:advance":124,"kernel/session.ts:#move":704,"lift.ts:translate":42640} | Tests  1 passed | 6 skipped (7)
+run 2: TRANSLATE 138.70666666666668 {"kernel/session.ts:handleEvent":1832,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":460,"kernel/session.ts:advance":124,"kernel/session.ts:#move":696,"lift.ts:translate":41612} | Tests  1 passed | 6 skipped (7)
+run 3: TRANSLATE 136.56 {"kernel/session.ts:handleEvent":1716,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":436,"kernel/session.ts:advance":92,"kernel/session.ts:#move":808,"lift.ts:translate":40968} | Tests  1 passed | 6 skipped (7)
+run 4: TRANSLATE 139.45333333333335 {"kernel/session.ts:handleEvent":1700,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":140,"kernel/session.ts:#move":736,"lift.ts:translate":41836} | Tests  1 passed | 6 skipped (7)
+run 5: TRANSLATE 141.81333333333333 {"kernel/session.ts:handleEvent":1636,"kernel/gesture.ts:enter":252,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":124,"kernel/session.ts:#move":612,"lift.ts:translate":42544} | Tests  1 passed | 6 skipped (7)
+### L1: mutationSink = { x, y } in translate, module-level export
+run 1: TRANSLATE 191.68 {"kernel/session.ts:handleEvent":1816,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":444,"kernel/session.ts:advance":140,"kernel/session.ts:#move":696,"lift.ts:translate":57504} | expected 191.68 to be less than 153 | Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 6 skipped (7)
+run 2: TRANSLATE 196.01333333333332 {"kernel/session.ts:handleEvent":1760,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":428,"kernel/session.ts:advance":140,"kernel/session.ts:#move":760,"lift.ts:translate":58804} | expected 196.01333333333332 to be less than 153 | Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 6 skipped (7)
+run 3: TRANSLATE 196.98666666666668 {"kernel/session.ts:handleEvent":1628,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":348,"kernel/session.ts:advance":92,"kernel/session.ts:#move":736,"lift.ts:translate":59096} | expected 196.98666666666668 to be less than 153 | Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 6 skipped (7)
+run 4: TRANSLATE 192.62666666666667 {"kernel/session.ts:handleEvent":1712,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":444,"kernel/session.ts:advance":140,"kernel/session.ts:#move":736,"lift.ts:translate":57788} | expected 192.62666666666667 to be less than 153 | Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 6 skipped (7)
+run 5: TRANSLATE 195.34666666666666 {"kernel/session.ts:handleEvent":1800,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":460,"kernel/session.ts:advance":140,"kernel/session.ts:#move":760,"lift.ts:translate":58604} | expected 195.34666666666666 to be less than 153 | Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Tests  1 failed | 6 skipped (7)
+### L1, existing test (just split the -t phrase into words, so all seven tests in the file ran; the one failure is the DRF-2 test's bound)
+     × drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5212ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: {"kernel/session.ts:#move":312,"lift.ts:translate":56260}: expected 187.53333333333333 to be less than 153
+      Tests  1 failed | 6 passed (7)
+
+## Item 3 (b33890461)
+### just test
+     × should satisfy the declared graph and ceiling of draggable alone 3ms
+     × should satisfy the declared graph and ceiling of freeDrag 0ms
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing 0ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ 'control moved by 83 B' ] to deeply equal []
+AssertionError: expected [ 'over its 4967 B ceiling by 56 B' ] to deeply equal []
+AssertionError: expected [ 'over its 5210 B ceiling by 62 B' ] to deeply equal []
+ Test Files  1 failed | 23 passed (24)
+      Tests  3 failed | 326 passed (329)
+exit 1
+### just test-engines
+ Test Files  63 passed (63)
+      Tests  906 passed | 18 skipped (924)
+exit 0
+### DRF-2 test, 5 runs
+run 1: TRANSLATE 139.22666666666666 {"kernel/session.ts:handleEvent":1784,"kernel/gesture.ts:enter":252,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":140,"kernel/session.ts:#move":720,"lift.ts:translate":41768} | Tests  1 passed | 6 skipped (7)
+run 2: TRANSLATE 135.86666666666667 {"kernel/session.ts:handleEvent":1872,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":484,"kernel/session.ts:advance":140,"kernel/session.ts:#move":784,"lift.ts:translate":40760} | Tests  1 passed | 6 skipped (7)
+run 3: TRANSLATE 140.84 {"kernel/session.ts:handleEvent":1660,"kernel/gesture.ts:enter":204,"kernel/gesture.ts:#applyRequests":436,"kernel/session.ts:advance":140,"kernel/session.ts:#move":672,"lift.ts:translate":42252} | Tests  1 passed | 6 skipped (7)
+run 4: TRANSLATE 139.01333333333332 {"kernel/session.ts:handleEvent":1704,"kernel/gesture.ts:enter":252,"kernel/gesture.ts:#applyRequests":436,"kernel/session.ts:advance":124,"kernel/session.ts:#move":644,"lift.ts:translate":41704} | Tests  1 passed | 6 skipped (7)
+run 5: TRANSLATE 140.66666666666666 {"kernel/session.ts:handleEvent":1628,"kernel/gesture.ts:enter":220,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":124,"kernel/session.ts:#move":736,"lift.ts:translate":42200} | Tests  1 passed | 6 skipped (7)
+### just size
+draggable alone                  6464 min   2107 br  6 modules
+  VIOLATION: control moved by 83 B
+draggable + lift                11904 min   4118 br  9 modules
+example: resize handle           9131 min   3210 br  8 modules
+example: drop zone              12774 min   4415 br  10 modules
+example: canvas group            9285 min   3235 br  8 modules
+freeDrag                        14968 min   5023 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 56 B
+freeDrag + bounds + landing     15654 min   5272 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 62 B
+sortable + y                    20092 min   6611 br  18 modules
+sortable + xy                   19708 min   6542 br  17 modules
+complete                        21124 min   6984 br  20 modules
+### just build
+ℹ /kernel/admission.d.ts              0.43 kB │ gzip: 0.30 kB
+ℹ 72 files, total: 250.38 kB
+✔ Build complete in 295ms
+### just docs-api-prepare: Found 0 errors and 5 warnings
+### grep -rln type-fest over emitted .d.ts: no match (exit 1)
+### grep -rniE 'lift|landing' src/kernel src/draggable.ts: no match (exit 1)

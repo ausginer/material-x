@@ -1,0 +1,451 @@
+# items() borrowing (DRD-31): raw output
+# Base 7b9d3c874; preparatory a390dfa29; witnesses 0e7e1c7ef; DRD-31 4ef33b96e.
+# Engines: Chromium (image); Firefox and WebKit from the Playwright cache, WebKit with ~/.cache/ms-playwright/webkit-env.sh.
+
+## just test at bb4b43b48 (before the owner's refactoring): failures and counts
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
++   "control moved by 99 B",
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
++   "over its 4967 B ceiling by 130 B",
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
++   "over its 5210 B ceiling by 143 B",
+ Test Files  1 failed | 24 passed (25)
+      Tests  3 failed | 339 passed (342)
+
+## just test at 7b9d3c874 (base)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 99 B' ] to deeply equal []
++   "control moved by 99 B",
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 102 B' ] to deeply equal []
++   "over its 4967 B ceiling by 102 B",
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 110 B' ] to deeply equal []
++   "over its 5210 B ceiling by 110 B",
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+AssertionError: expected 0 to be greater than 0
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+AssertionError: expected [ undefined, …(1) ] to deeply equal [ undefined, undefined ]
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:662 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+AssertionError: expected 0 to be greater than 0
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:693 > sortable options > should keep a row animation past the terminal, until destruction
+AssertionError: expected 0 to be greater than 0
+ Test Files  3 failed | 22 passed (25)
+      Tests  7 failed | 335 passed (342)
+
+## unbound-sink probe at 7b9d3c874
+import { layoutAnimation } from '/workspaces/material-x/packages/drag/src/sortable/layout-animation.ts';
+const sink = layoutAnimation()();
+const { report, settle } = sink;
+try { report({} as never, 1, 1, {} as never); } catch (e) { console.log('report:', (e as Error).constructor.name, (e as Error).message); }
+try { settle(new Float64Array(6), [{} as never], 1); console.log('settle: no throw'); } catch (e) { console.log('settle:', (e as Error).constructor.name, (e as Error).message); }
+--- output
+report: TypeError Cannot read properties of undefined (reading '#options')
+settle: TypeError Cannot read properties of undefined (reading '#running')
+
+## just test at a390dfa29 (preparatory commit)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:662 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:693 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 22 passed (25)
+      Tests  7 failed | 335 passed (342)
+
+## W1-W5, three engines, at 0e7e1c7ef (src of a390dfa29)
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 197ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 133ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 184ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 54ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 48ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 153ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 118ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 172ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 60ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 47ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 98ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 55ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 82ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 27ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 33ms
+ Test Files  3 passed (3)
+      Tests  15 passed | 126 skipped (141)
+
+## tests/sortable.browser.test.ts, three engines, src of 0e7e1c7ef
+ × |browser (chromium)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 249ms
+ × |browser (chromium)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction 246ms
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 242ms
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction 272ms
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 129ms
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction 143ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed (3)
+      Tests  6 failed | 135 passed (141)
+
+## tests/sortable.browser.test.ts, three engines, at 4ef33b96e
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 181ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 134ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 185ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 50ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 50ms
+ × |browser (chromium)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 266ms
+ × |browser (chromium)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction 258ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 159ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 126ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 167ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 41ms
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 33ms
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 254ms
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction 262ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 96ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 50ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 88ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 35ms
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 34ms
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 118ms
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction 145ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed (3)
+      Tests  6 failed | 135 passed (141)
+
+## just test at 4ef33b96e
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
++   "control moved by 99 B",
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
++   "over its 4967 B ceiling by 102 B",
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
++   "over its 5210 B ceiling by 110 B",
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 22 passed (25)
+      Tests  7 failed | 339 passed (346)
+Type Errors  no errors
+
+## npx just typecheck at 4ef33b96e
+tsc -p tsconfig.json --noEmit
+exit 0
+
+## Mutation M1 (Chromium), applied to 4ef33b96e and reverted
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 3f8154904..b95f67a94 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -251,7 +251,10 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+         this.#query.item.before(this.#context.placeholder);
+       }
+     } else {
+-      movePlaceholder(this.#context.placeholder, this.#home);
++      movePlaceholder(
++        this.#context.placeholder,
++        homeInsertion(this.#query.snapshot, this.#query.item),
++      );
+     }
+ 
+     if (
+--- run
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+AssertionError: expected 80 to be less than 1
+ ❯ tests/sortable.browser.test.ts:144:66
+    142|     }
+    143|
+    144|     expect(Math.abs(item.getBoundingClientRect().top - dropped)).toBeL…
+       |                                                                  ^
+    145|       1,
+    146|     );
+
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 46 skipped (47)
+Type Errors  no errors
+   Start at  19:55:57
+   Duration  1.02s (tests 51%, worker 40%, import 8%)
+
+## Mutation M2 (Chromium), applied to 4ef33b96e and reverted
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 3f8154904..b95f67a94 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -251,7 +251,10 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+         this.#query.item.before(this.#context.placeholder);
+       }
+     } else {
+-      movePlaceholder(this.#context.placeholder, this.#home);
++      movePlaceholder(
++        this.#context.placeholder,
++        homeInsertion(this.#query.snapshot, this.#query.item),
++      );
+     }
+ 
+     if (
+--- run
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: sortable/anchor-outside-container",
++     "cause": Error {
++       "message": "sortable/anchor-outside-container",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:168:20
+    166|     item.after(added);
+    167|     controller.invalidate();
+    168|     expect(faults).toEqual([]);
+       |                    ^
+    169|     expect(results).toEqual([
+    170|       { type: 'canceled', reason: undefined, origin: 'request', reques…
+
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 46 skipped (47)
+Type Errors  no errors
+   Start at  19:55:59
+   Duration  930ms (tests 49%, worker 42%, import 9%)
+
+## Mutation M3 (Chromium), applied to 4ef33b96e and reverted
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 3f8154904..eb786293b 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -149,7 +149,6 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+   /** The collection was pulled again: rebases the gap, or cancels. */
+   rebase(next: CollectionSnapshot): void {
+     this.#query.snapshot = next;
+-    this.#home = homeInsertion(next, this.#drag.item);
+ 
+     if (next.items.includes(this.#drag.item)) {
+       const insertion = reconcileCollection(
+--- run
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:174 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: sortable/anchor-outside-container",
++     "cause": Error {
++       "message": "sortable/anchor-outside-container",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:196:20
+    194|
+    195|     await commands.keyPress('Escape');
+    196|     expect(faults).toEqual([]);
+       |                    ^
+    197|     expect(log).toEqual(['start', 'end:canceled']);
+    198|
+
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 46 skipped (47)
+Type Errors  no errors
+   Start at  19:56:01
+   Duration  1.03s (worker 47%, tests 45%, import 8%)
+
+## Mutation M4 (Chromium), applied to 4ef33b96e and reverted
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 3f8154904..8d4ddf18a 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -52,6 +52,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+    * home reads it, so no cancel, verdict or release reads the consumer's array.
+    */
+   #home: Insertion;
++  readonly #activationHome: Insertion;
+   /** `null` until the drop: a cancel before it has none. */
+   #request: ReorderRequest | null = null;
+   /** Recorded at `settle` and reported at `end`. */
+@@ -75,6 +76,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+     this.#frame = frame;
+     this.#context = context;
+     this.#home = home;
++    this.#activationHome = home;
+     this.#query = {
+       item: drag.item,
+       snapshot,
+@@ -109,11 +111,14 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+         this.#query.insertion;
+     }
+ 
+-    const request = buildReorderRequest(
+-      this.#query.snapshot,
+-      this.#drag.item,
+-      this.#query.insertion,
+-    );
++    const request = {
++      ...buildReorderRequest(
++        this.#query.snapshot,
++        this.#drag.item,
++        this.#query.insertion,
++      ),
++      from: this.#activationHome.index,
++    };
+ 
+     this.#request = request;
+     movePlaceholder(this.#context.placeholder, this.#query.insertion);
+--- run
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:209 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+AssertionError: expected [ { item: <div …(4)></div>, …(4) } ] to deeply equal [ { item: <div …(4)></div>, …(4) } ]
+
+- Expected
++ Received
+
+@@ -1,8 +1,8 @@
+  [
+    {
+-     "from": 2,
++     "from": 1,
+      "item": <div
+        class="row"
+        id="r1"
+        style="height: 40px; touch-action: none; user-select: none;"
+        tabindex="0"
+
+ ❯ tests/sortable.browser.test.ts:241:22
+    239|     await commands.keyPress('ArrowDown');
+    240|     await frames();
+    241|     expect(requests).toEqual([
+       |                      ^
+    242|       {
+    243|         item,
+
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 46 skipped (47)
+Type Errors  no errors
+   Start at  19:56:03
+   Duration  806ms (worker 50%, tests 34%, import 17%)
+
+## Mutation M5 (Chromium), applied to 4ef33b96e and reverted
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 3f8154904..23e619a7f 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -110,7 +110,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+     }
+ 
+     const request = buildReorderRequest(
+-      this.#query.snapshot,
++      { items: this.#behavior.config.items(), version: 0 },
+       this.#drag.item,
+       this.#query.insertion,
+     );
+--- run
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:254 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+AssertionError: expected [] to deeply equal [ { item: <div …(4)></div>, …(4) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "from": 1,
+-     "item": <div
+-       class="row"
+-       id="r1"
+-       style="height: 40px; touch-action: none; user-select: none;"
+-       tabindex="0"
+-     >
+-       Row 1
+-     </div>,
+-     "next": <div
+-       class="row"
+-       id="r3"
+-       style="height: 40px; touch-action: none; user-select: none;"
+-       tabindex="0"
+-     >
+-       Row 3
+-     </div>,
+-     "previous": <div
+-       class="row"
+-       id="r2"
+-       style="height: 40px; touch-action: none; user-select: none;"
+-       tabindex="0"
+-     >
+-       Row 2
+-     </div>,
+-     "to": 2,
+-   },
+- ]
++ []
+
+ ❯ tests/sortable.browser.test.ts:295:22
+    293|     await commands.keyPress('ArrowDown');
+    294|     await frames();
+    295|     expect(requests).toEqual([
+       |                      ^
+    296|       {
+    297|         item,
+
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 46 skipped (47)
+Type Errors  no errors
+   Start at  19:56:06
+   Duration  747ms (worker 40%, import 32%, tests 29%)
+
+## just size at 0e7e1c7ef (before)
+node bench/size/measure.ts 
+draggable alone                  6435 min   2123 br  6 modules
+  VIOLATION: control moved by 99 B
+draggable + lift                11891 min   4129 br  9 modules
+example: resize handle           9092 min   3229 br  8 modules
+example: drop zone              12690 min   4420 br  10 modules
+example: canvas group            9228 min   3230 br  8 modules
+freeDrag                        15116 min   5069 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 102 B
+freeDrag + bounds + landing     15801 min   5320 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 110 B
+sortable + y                    20395 min   6670 br  20 modules
+sortable + xy                   20011 min   6585 br  19 modules
+complete                        21537 min   7048 br  22 modules
+error: recipe `size` failed on line 59 with exit code 1
+
+## just size at 4ef33b96e (after)
+node bench/size/measure.ts 
+draggable alone                  6435 min   2123 br  6 modules
+  VIOLATION: control moved by 99 B
+draggable + lift                11891 min   4129 br  9 modules
+example: resize handle           9092 min   3229 br  8 modules
+example: drop zone              12690 min   4420 br  10 modules
+example: canvas group            9228 min   3230 br  8 modules
+freeDrag                        15116 min   5069 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 102 B
+freeDrag + bounds + landing     15801 min   5320 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 110 B
+sortable + y                    20412 min   6657 br  20 modules
+sortable + xy                   20028 min   6601 br  19 modules
+complete                        21554 min   7055 br  22 modules
+error: recipe `size` failed on line 59 with exit code 1

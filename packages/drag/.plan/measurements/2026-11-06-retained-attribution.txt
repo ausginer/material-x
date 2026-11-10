@@ -1,0 +1,64 @@
+Heap snapshots after 100 and 400 operations and destruction, compare.ts retained scenario, one round per count. Self size in bytes by snapshot node type. Retained totals: production 332520 at 100, 342480 at 200, 363908 at 400, 485748 at 600; prototype 322744, 333272, 421000, 532444; drag2 441776, 465348, 507624, 722280. The same input with no library, on a blank page: 210680 at 200, 224596 at 600.
+
+production, 100 to 400 operations
+by type
+  native 31944
+  code 27012
+  array 1656
+   15552     19 code:system / InstructionStream
+   13568      0 native:blink::HeapHashTableBacking<blink::HashTable<cppgc
+    7072     52 native:LargestContentfulPaint
+    5720     43 code:system / TrustedByteArray
+    5408     52 native:InteractionContentfulPaint
+    3572     19 code:system / ProtectedFixedArray
+    2320     41 native:system / WeakArrayList
+    1656      0 array:(object elements)
+   -1440     -1 object:system / Context / scope @69719
+    1424      0 object:system / Context / scope @70157
+    1368     19 code:system / Code
+    1272      0 native:blink::HeapVectorBacking<cppgc::internal::BasicMem
+    1024      0 native:blink::HeapHashTableBacking<blink::HashTable<unsig
+     880      0 native:blink::HeapVectorBacking<std::pair<cppgc::internal
+     564     19 code:system / TrustedWeakFixedArray
+    -460     -1 object:system / Context / scope @34641
+     460      1 object:system / Context / scope @34647
+    -256     -8 object:system / Context / scope @76301
+     256      8 object:system / Context / scope @76787
+     248     19 native:system / ProtectedFixedArray
+    -176     -2 object:system / Context / scope @57923
+     176      2 object:system / Context / scope @46929
+
+prototype to production, both at 100 operations
+by type
+  native 1522
+  string 404
+  object shape -648
+  code 10640
+  array -60
+  number 24
+  symbol -48
+  object 40
+  closure -144
+  concatenated string 60
+   -7990      2 native:system / ExternalStringData
+    7936      0 native:blink::HeapHashTableBacking<blink::HashTable<cppgc
+    6656      4 code:system / InstructionStream
+   -1440     -1 object:system / Context / scope @69741
+    1440      1 object:system / Context / scope @69719
+     828      6 code:system / TrustedByteArray
+     780      3 code:system / BytecodeArray
+     768      0 native:blink::HeapHashTableBacking<blink::HashTable<unsig
+     752      5 code:system / FeedbackVector
+    -560    -14 object shape:system / Map
+     460      1 object:system / Context / scope @34641
+    -428     -1 object:system / Context / scope @40737
+     424      0 native:blink::HeapVectorBacking<std::pair<cppgc::internal
+     404     14 string:(str)
+     384      2 native:blink::HeapVectorBacking<cppgc::internal::BasicMem
+     316     17 code:system / LoadHandler
+     288      4 code:system / Code
+    -256     -8 object:system / Context / scope @76337
+     256      8 object:system / Context / scope @76301
+     192      4 code:system / SharedFunctionInfo
+    -184      2 object shape:system / DescriptorArray
+    -176     -2 object:system / Context / scope @57849

@@ -177,12 +177,12 @@ export interface CustomElementStatics {
   /**
    * Enables form association for the custom element.
    */
-  formAssociated?: boolean;
+  readonly formAssociated?: boolean;
 
   /**
    * Attributes that should trigger `attributeChangedCallback`.
    */
-  observedAttributes?: readonly string[];
+  readonly observedAttributes?: readonly string[];
 }
 
 /**

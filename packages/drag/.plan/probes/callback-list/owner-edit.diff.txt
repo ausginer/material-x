@@ -1,0 +1,164 @@
+diff --git a/packages/drag/src/kernel/callback-list.ts b/packages/drag/src/kernel/callback-list.ts
+index 9a8e42686..35cb12721 100644
+--- a/packages/drag/src/kernel/callback-list.ts
++++ b/packages/drag/src/kernel/callback-list.ts
+@@ -4,6 +4,12 @@
+  * contract does not describe it.
+  */
+ 
++type UnboundCallback = (this: object | undefined, argument: unknown) => void;
++type Direction = (
++  entries: Array<Function | object | undefined>,
++  argument: unknown,
++) => void;
++
+ /**
+  * Callbacks in insertion order, each with the receiver it is called on, kept in
+  * two adjacent slots of one array, so an entry allocates no pair. A callback
+@@ -16,12 +22,31 @@
+  * and a callback that adds itself again is added as a new entry.
+  */
+ export class CallbackList<Argument> {
++  static queue<Argument>(): CallbackList<Argument> {
++    return new CallbackList((entries, argument) => {
++      const callback = entries.shift() as UnboundCallback;
++      callback.call(entries.shift(), argument);
++    });
++  }
++
++  static stack<Argument>(): CallbackList<Argument> {
++    return new CallbackList((entries, argument) => {
++      const receiver = entries.pop();
++      (entries.pop() as UnboundCallback).call(receiver, argument);
++    });
++  }
++
+   /** `callback, receiver, callback, receiver, …`. `undefined` is no receiver. */
+-  readonly #entries: unknown[] = [];
++  readonly #entries: Array<Function | object | undefined> = [];
++  readonly #direction: Direction;
++
++  private constructor(direction: Direction) {
++    this.#direction = direction;
++  }
+ 
+   /** Whether an entry is waiting. */
+-  get waiting(): boolean {
+-    return this.#entries.length > 0;
++  get empty(): boolean {
++    return this.#entries.length === 0;
+   }
+ 
+   /** Whether the same callback is waiting with the same receiver. */
+@@ -36,31 +61,15 @@ export class CallbackList<Argument> {
+   }
+ 
+   /** Adds an entry at the end, whether or not the same pair is waiting. */
+-  add<Receiver>(
++  add<Receiver extends object>(
+     callback: (this: Receiver, argument: Argument) => void,
+-    receiver: Receiver,
++    receiver?: Receiver,
+   ): void {
+     this.#entries.push(callback, receiver);
+   }
+ 
+-  /** Removes the first entry and calls it. Only while an entry is waiting. */
+-  runFirst(argument: Argument): void {
+-    const callback = this.#entries.shift() as (
+-      this: unknown,
+-      argument: Argument,
+-    ) => void;
+-
+-    callback.call(this.#entries.shift(), argument);
+-  }
+-
+-  /** Removes the last entry and calls it. Only while an entry is waiting. */
+-  runLast(argument: Argument): void {
+-    const receiver = this.#entries.pop();
+-
+-    (this.#entries.pop() as (this: unknown, argument: Argument) => void).call(
+-      receiver,
+-      argument,
+-    );
++  run(argument: Argument): void {
++    this.#direction(this.#entries, argument);
+   }
+ 
+   /** Drops every entry and the references it holds. */
+diff --git a/packages/drag/src/kernel/drag.ts b/packages/drag/src/kernel/drag.ts
+index ff617c3de..c5099397a 100644
+--- a/packages/drag/src/kernel/drag.ts
++++ b/packages/drag/src/kernel/drag.ts
+@@ -72,10 +72,10 @@ export type KernelDrag<Operation> = Writable<Drag<Operation>>;
+  * is reported through `raise`, called on the controller.
+  */
+ export function runDragDisposer<Argument>(
+-  dispose: (this: unknown, argument: Argument) => void,
++  dispose: (this: object | undefined, argument: Argument) => void,
+   argument: Argument,
+   controller: Pick<Gesture<never, never, never>, 'raise'>,
+-  receiver: unknown,
++  receiver?: object,
+ ): void {
+   try {
+     dispose.call(receiver, argument);
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index 116327cd9..2e21a4bc4 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -13,7 +13,7 @@
+ import { DragFault } from '../fault.ts';
+ import type { Admission } from './admission.ts';
+ import type { Behavior, BehaviorOperation } from './behavior.ts';
+-import { CallbackList } from './callback-list.ts';
++import { CallbackList, QUEUE, STACK } from './callback-list.ts';
+ import { runDisposers, runDragDisposer } from './drag.ts';
+ import { Session } from './session.ts';
+ 
+@@ -117,10 +117,10 @@ export class Gesture<
+   readonly #threshold: number;
+   readonly #listeners = new AbortController();
+   /** Controller-lifetime cleanup, run last in first out at teardown. */
+-  readonly #disposers = new CallbackList<null>();
++  readonly #disposers = CallbackList.stack<null>();
+ 
+   /** Deferred steps, in request order. Empty on the hot path. */
+-  readonly #steps = new CallbackList<Operation | null>();
++  readonly #steps = CallbackList.queue<Operation | null>();
+ 
+   #session: Session<State, Verdict, Operation> | null = null;
+   #running = false;
+@@ -250,8 +250,8 @@ export class Gesture<
+     receiver: Receiver,
+   ): void;
+   requestStep(
+-    step: (this: unknown, operation: Operation | null) => void,
+-    receiver?: unknown,
++    step: (this: object | undefined, operation: Operation | null) => void,
++    receiver?: object,
+   ): void {
+     if (this.#destroyed) {
+       return;
+@@ -294,7 +294,7 @@ export class Gesture<
+ 
+   use(dispose: (this: undefined) => void): void;
+   use<Receiver>(dispose: (this: Receiver) => void, receiver: Receiver): void;
+-  use(dispose: (this: unknown) => void, receiver?: unknown): void {
++  use(dispose: (this: object | undefined) => void, receiver?: object): void {
+     if (this.#destroyed && !this.#resolveDestroyed) {
+       runDragDisposer(dispose, null, this, receiver);
+     } else {
+@@ -316,10 +316,8 @@ export class Gesture<
+           return;
+         }
+ 
+-        if (this.#steps.waiting) {
+-          this.#steps.runFirst(
+-            this.#session ? this.#session.stepTarget() : null,
+-          );
++        if (!this.#steps.empty) {
++          this.#steps.run(this.#session ? this.#session.stepTarget() : null);
+         } else if (!this.#session?.advance()) {
+           return;
+         }

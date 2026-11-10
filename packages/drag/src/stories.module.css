@@ -11,9 +11,43 @@
   margin: 0;
   font-size: 13px;
   color: #49454f;
+  max-width: min(480px, 90vw);
 }
 
-/* A bounded drag area. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(320px, 90vw);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 96px);
+  gap: 8px;
+}
+
+.row {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #e8def8;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96px;
+  border-radius: 12px;
+  background: #e8def8;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
 .area {
   position: relative;
   width: min(480px, 90vw);
@@ -24,7 +58,6 @@
   overflow: hidden;
 }
 
-/* The free-drag handle. */
 .box {
   position: absolute;
   top: 24px;
@@ -35,95 +68,28 @@
   width: 96px;
   height: 96px;
   border-radius: 12px;
+  background: #d0bcff;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.resizable {
+  position: relative;
+  width: 240px;
+  height: 140px;
+  border-radius: 12px;
+  background: #e8def8;
+}
+
+.grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px 0 12px;
   background: #6750a4;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: grab;
-  user-select: none;
   touch-action: none;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
-}
-
-.box:active {
-  cursor: grabbing;
-}
-
-/* A visual that carries its own transform, to show composition. */
-.tilted {
-  transform: rotate(-8deg) scale(1.05);
-}
-
-/* A transformed stage, to show the coordinate compositor. */
-.warped {
-  transform: rotate(6deg) scale(1.15);
-  transform-origin: top left;
-}
-
-.zoomed {
-  zoom: 1.25;
-}
-
-/* Sortable collections. */
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: min(360px, 90vw);
-  padding: 8px;
-  border-radius: 12px;
-  background: #f7f2fa;
-}
-
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  width: min(440px, 90vw);
-  padding: 8px;
-  border-radius: 12px;
-  background: #f7f2fa;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-}
-
-.tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 72px;
-  height: 72px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.handle {
-  color: #79747e;
-  cursor: grab;
-}
-
-/* The engine's internal placeholder, and consumer-styled variants. */
-.list [data-drag-placeholder],
-.grid [data-drag-placeholder] {
-  border: 2px dashed #6750a4;
-  border-radius: 8px;
-  background: rgb(103 80 164 / 8%);
-  box-sizing: border-box;
+  cursor: nwse-resize;
 }

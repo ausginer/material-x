@@ -1,0 +1,60 @@
+PROBE P1-ancestor chromium {"clicksAfterPress":["stop"],"afterHover":{"log":["start"],"lifted":["r0"],"transform":"translate(0px, 60px) matrix(1, 0, 0, 1, 0, 0)"},"afterNextClick":{"log":["start"],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-ancestor firefox {"clicksAfterPress":["stop"],"afterHover":{"log":["start"],"lifted":["r0"],"transform":"translate(0px, 60px) matrix(1, 0, 0, 1, 0, 0)"},"afterNextClick":{"log":["start"],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-ancestor webkit {"clicksAfterPress":["stop"],"afterHover":{"log":["start"],"lifted":["r0"],"transform":"translate(0px, 60px) matrix(1, 0, 0, 1, 0, 0)"},"afterNextClick":{"log":["start"],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-child chromium {"clicksAfterPress":["stop"],"afterHover":{"log":["start"],"lifted":["r0"],"transform":"translate(0px, 60px) matrix(1, 0, 0, 1, 0, 0)"},"afterNextClick":{"log":["start"],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-child firefox {"clicksAfterPress":["stop"],"afterHover":{"log":["start"],"lifted":["r0"],"transform":"translate(0px, 60px) matrix(1, 0, 0, 1, 0, 0)"},"afterNextClick":{"log":["start"],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-child webkit {"clicksAfterPress":["stop"],"afterHover":{"log":["start"],"lifted":["r0"],"transform":"translate(0px, 60px) matrix(1, 0, 0, 1, 0, 0)"},"afterNextClick":{"log":["start"],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-none chromium {"clicksAfterPress":["stop"],"afterHover":{"log":[],"lifted":[],"transform":""},"afterNextClick":{"log":[],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-none firefox {"clicksAfterPress":["stop"],"afterHover":{"log":[],"lifted":[],"transform":""},"afterNextClick":{"log":[],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1-none webkit {"clicksAfterPress":["stop"],"afterHover":{"log":[],"lifted":[],"transform":""},"afterNextClick":{"log":[],"order":"r0,r1,r2"},"faults":[]}
+PROBE P1b chromium {"rootHadCapture":false,"seen":["pointerdown:stop:b1","pointerup:stop:b0","pointerdown:stop:b1","pointerup:stop:b0"],"log":["start"],"lifted":["r0"],"order":"r0,r1,r2"}
+PROBE P1b firefox {"rootHadCapture":false,"seen":["pointerdown:stop:b1","pointerup:stop:b0","pointerdown:stop:b1","pointerup:stop:b0"],"log":["start"],"lifted":["r0"],"order":"r0,r1,r2"}
+PROBE P1b webkit {"rootHadCapture":false,"seen":["pointerdown:stop:b1","pointerup:stop:b0","pointerdown:stop:b1","pointerup:stop:b0"],"log":["start"],"lifted":["r0"],"order":"r0,r1,r2"}
+PROBE P2-remedy-false chromium {"during":{"log":["inner0:start:card01","outer:start:col0"],"lifted":["col0","card01"]},"after":{"log":["inner0:start:card01","outer:start:col0","inner0:end:noop","outer:end:noop"],"lifted":[]},"faults":[]}
+PROBE P2-remedy-false firefox {"during":{"log":["inner0:start:card01","outer:start:col0"],"lifted":["col0","card01"]},"after":{"log":["inner0:start:card01","outer:start:col0","inner0:end:noop","outer:end:noop"],"lifted":[]},"faults":[]}
+PROBE P2-remedy-false webkit {"during":{"log":["inner0:start:card01","outer:start:col0"],"lifted":["col0","card01"]},"after":{"log":["inner0:start:card01","outer:start:col0","inner0:end:noop","outer:end:noop"],"lifted":[]},"faults":[]}
+PROBE P2-remedy-true chromium {"during":{"log":["inner0:start:card01"],"lifted":["card01"]},"after":{"log":["inner0:start:card01","inner0:end:accepted"],"lifted":[]},"faults":[]}
+PROBE P2-remedy-true firefox {"during":{"log":["inner0:start:card01"],"lifted":["card01"]},"after":{"log":["inner0:start:card01","inner0:end:accepted"],"lifted":[]},"faults":[]}
+PROBE P2-remedy-true webkit {"during":{"log":["inner0:start:card01"],"lifted":["card01"]},"after":{"log":["inner0:start:card01","inner0:end:accepted"],"lifted":[]},"faults":[]}
+PROBE P3-dialog chromium {"containerStillOpen":false,"log":["start","end:canceled"],"faults":[]}
+PROBE P3-dialog firefox {"containerStillOpen":false,"log":["start","end:canceled"],"faults":[]}
+PROBE P3-dialog webkit {"containerStillOpen":false,"log":["start","end:canceled"],"faults":[]}
+PROBE P3-popover chromium {"containerStillOpen":false,"log":["start","end:canceled"],"faults":[]}
+PROBE P3-popover firefox {"containerStillOpen":false,"log":["start","end:canceled"],"faults":[]}
+PROBE P3-popover webkit {"containerStillOpen":false,"log":["start","end:canceled"],"faults":[]}
+PROBE P3c chromium {"containerStillOpen":true,"log":["start","end:canceled"]}
+PROBE P3c firefox {"containerStillOpen":true,"log":["start","end:canceled"]}
+PROBE P3c webkit {"containerStillOpen":true,"log":["start","end:canceled"]}
+PROBE P4-drop chromium {"activeAfterFirst":"r0","activeAfterSecond":"r0","order":"r1,r2,r0"}
+PROBE P4-drop firefox {"activeAfterFirst":"r0","activeAfterSecond":"r0","order":"r1,r2,r0"}
+PROBE P4-drop webkit {"activeAfterFirst":"r0","activeAfterSecond":"r0","order":"r1,r2,r0"}
+PROBE P4-end chromium {"activeAfterFirst":"","activeAfterSecond":"","order":"r1,r0,r2"}
+PROBE P4-end firefox {"activeAfterFirst":"","activeAfterSecond":"","order":"r1,r0,r2"}
+PROBE P4-end webkit {"activeAfterFirst":"","activeAfterSecond":"","order":"r1,r0,r2"}
+PROBE P5 chromium {"midFlightTop":71.21992492675781,"pointerTravel":40,"topAfterGrab":120,"offsetFromPointer":8.780075073242188,"log":["start","end:accepted","start"]}
+PROBE P5 firefox {"midFlightTop":71.08332824707031,"pointerTravel":40,"topAfterGrab":120,"offsetFromPointer":8.916671752929688,"log":["start","end:accepted","start"]}
+PROBE P5 webkit {"midFlightTop":71.37800598144531,"pointerTravel":40,"topAfterGrab":120,"offsetFromPointer":8.621994018554688,"log":["start","end:accepted","start"]}
+PROBE P5b chromium {"midFlightTop":77.93623352050781,"topAfterGrab":40,"offsetFromPointer":-77.93623352050781,"log":["start","end:rejected","start"]}
+PROBE P5b firefox {"midFlightTop":79.66667175292969,"topAfterGrab":40,"offsetFromPointer":-79.66667175292969,"log":["start","end:rejected","start"]}
+PROBE P5b webkit {"midFlightTop":80.83492279052734,"topAfterGrab":40,"offsetFromPointer":-80.83492279052734,"log":["start","end:rejected","start"]}
+PROBE P6-remedy-false chromium {"during":{"log":["start","end:canceled"],"lifted":[]},"after":["start","end:canceled"],"native":["dragstart","pointercancel"],"order":"r0,r1,r2"}
+PROBE P6-remedy-false firefox {"during":{"log":[],"lifted":[]},"after":[],"native":["dragstart","pointercancel"],"order":"r0,r1,r2"}
+PROBE P6-remedy-false webkit {"during":{"log":["start"],"lifted":["r0"]},"after":["start","end:accepted"],"native":[],"order":"r1,r0,r2"}
+PROBE P6-remedy-true chromium {"during":{"log":["start"],"lifted":["r0"]},"after":["start","end:accepted"],"native":[],"order":"r1,r0,r2"}
+PROBE P6-remedy-true firefox {"during":{"log":["start"],"lifted":["r0"]},"after":["start","end:accepted"],"native":[],"order":"r1,r0,r2"}
+PROBE P6-remedy-true webkit {"during":{"log":["start"],"lifted":["r0"]},"after":["start","end:accepted"],"native":[],"order":"r1,r0,r2"}
+PROBE P7 chromium {"visualTopBeforeRelease":60,"request":{"positionY":60,"localDeltaY":40},"committedTop":-80}
+PROBE P7 firefox {"visualTopBeforeRelease":60,"request":{"positionY":60,"localDeltaY":40},"committedTop":-80}
+PROBE P7 webkit {"visualTopBeforeRelease":60,"request":{"positionY":60,"localDeltaY":40},"committedTop":-80}
+PROBE P7b-left-top chromium {"atRelease":[80,60],"after":[20,20],"inline":"position: absolute; left: 20px; top: 20px; width: 50px; height: 50px; background: rgb(204, 0, 0); touch-action: none; user-select: none;","log":["end:accepted"]}
+PROBE P7b-left-top firefox {"atRelease":[80,60],"after":[20,20],"inline":"position: absolute; left: 20px; top: 20px; width: 50px; height: 50px; background: rgb(204, 0, 0); touch-action: none; user-select: none;","log":["end:accepted"]}
+PROBE P7b-left-top webkit {"atRelease":[80,60],"after":[20,20],"inline":"position: absolute; left: 20px; top: 20px; width: 50px; height: 50px; background: rgb(204, 0, 0); touch-action: none; user-select: none;","log":["end:accepted"]}
+PROBE P7b-translate chromium {"atRelease":[80,60],"after":[20,20],"inline":"position: absolute; left: 20px; top: 20px; width: 50px; height: 50px; background: rgb(204, 0, 0); touch-action: none; user-select: none;","log":["end:accepted"]}
+PROBE P7b-translate firefox {"atRelease":[80,60],"after":[20,20],"inline":"position: absolute; left: 20px; top: 20px; width: 50px; height: 50px; background: rgb(204, 0, 0); touch-action: none; user-select: none;","log":["end:accepted"]}
+PROBE P7b-translate webkit {"atRelease":[80,60],"after":[20,20],"inline":"position: absolute; left: 20px; top: 20px; width: 50px; height: 50px; background: rgb(204, 0, 0); touch-action: none; user-select: none;","log":["end:accepted"]}
+PROBE P7c chromium {"atRelease":[80,60],"after":[80,60]}
+PROBE P7c firefox {"atRelease":[80,60],"after":[80,60]}
+PROBE P7c webkit {"atRelease":[80,60],"after":[80,60]}
+PROBE P7d chromium {"visualTopBeforeRelease":60,"committedTop":-40}
+PROBE P7d firefox {"visualTopBeforeRelease":60,"committedTop":-40}
+PROBE P7d webkit {"visualTopBeforeRelease":60,"committedTop":-40}

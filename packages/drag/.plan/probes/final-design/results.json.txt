@@ -1,0 +1,560 @@
+{
+ "chromium": {
+  "version": "156.0.8078.4",
+  "elevation: none, relative siblings": {
+   "top": 120,
+   "seen": "r3",
+   "mid": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: one animation, relative siblings": {
+   "top": 120,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, relative siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, z-index:5 siblings": {
+   "top": 120,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, static siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: own z-index:5, one additive animation": {
+   "offset": 80,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "relative",
+    "zIndex": "5"
+   }
+  },
+  "elevation: own z-index:5, second animation": {
+   "offset": 80,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "relative",
+    "zIndex": "5"
+   }
+  },
+  "elevation: own position:absolute, second animation": {
+   "offset": 80,
+   "seen": "r0",
+   "mid": {
+    "position": "absolute",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "absolute",
+    "zIndex": "auto"
+   }
+  },
+  "elevation limit: flight outside overflow:hidden": {
+   "hit": "BODY"
+  },
+  "top layer after insertBefore": {
+   "before": true,
+   "after": false
+  },
+  "focus: keyboard reorder, prototype": {
+   "active": "BODY",
+   "order": [
+    "r1",
+    "r0",
+    "r2"
+   ]
+  },
+  "focus: after a press on a tabindex row": "r0",
+  "focus: while lifted": "r0",
+  "focus: pointer reorder, prototype": {
+   "active": "BODY",
+   "order": [
+    "r1",
+    "r2",
+    "r0"
+   ]
+  },
+  "focus: autofocus descendant on lift": "inner",
+  "focus: restore, nested open shadow root": {
+   "captured": "deep",
+   "lost": true,
+   "restored": true
+  },
+  "guard: destroy with the button held, prototype": [
+   "r0"
+  ],
+  "no lift: identity": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: rotate(25deg) scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: skew and scale": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: ancestor zoom 2": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: zoom 1.5 and rotate(-15deg)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: own rotate(40deg) in scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: own zoom 2": {
+   "errorX": 83,
+   "errorY": 47
+  },
+  "resize: scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: rotate(25deg) scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: own rotate(30deg), origin top left": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: own zoom 2 in rotate(10deg)": {
+   "errorX": -0.01,
+   "errorY": -0.02
+  }
+ },
+ "firefox": {
+  "version": "157.0",
+  "elevation: none, relative siblings": {
+   "top": 120,
+   "seen": "r3",
+   "mid": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: one animation, relative siblings": {
+   "top": 120,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, relative siblings": {
+   "top": 120,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, z-index:5 siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, static siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: own z-index:5, one additive animation": {
+   "offset": 80,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "relative",
+    "zIndex": "5"
+   }
+  },
+  "elevation: own z-index:5, second animation": {
+   "offset": 80,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "relative",
+    "zIndex": "5"
+   }
+  },
+  "elevation: own position:absolute, second animation": {
+   "offset": 80,
+   "seen": "r0",
+   "mid": {
+    "position": "absolute",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "absolute",
+    "zIndex": "auto"
+   }
+  },
+  "elevation limit: flight outside overflow:hidden": {
+   "hit": "BODY"
+  },
+  "top layer after insertBefore": {
+   "before": true,
+   "after": false
+  },
+  "focus: keyboard reorder, prototype": {
+   "active": "BODY",
+   "order": [
+    "r1",
+    "r0",
+    "r2"
+   ]
+  },
+  "focus: after a press on a tabindex row": "r0",
+  "focus: while lifted": "r0",
+  "focus: pointer reorder, prototype": {
+   "active": "BODY",
+   "order": [
+    "r1",
+    "r2",
+    "r0"
+   ]
+  },
+  "focus: autofocus descendant on lift": "inner",
+  "focus: restore, nested open shadow root": {
+   "captured": "deep",
+   "lost": true,
+   "restored": true
+  },
+  "guard: destroy with the button held, prototype": [
+   "r0"
+  ],
+  "no lift: identity": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: rotate(25deg) scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: skew and scale": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: ancestor zoom 2": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: zoom 1.5 and rotate(-15deg)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: own rotate(40deg) in scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: own zoom 2": {
+   "errorX": 83,
+   "errorY": 47
+  },
+  "resize: scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: rotate(25deg) scale(.5)": {
+   "errorX": -0.01,
+   "errorY": 0
+  },
+  "resize: own rotate(30deg), origin top left": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: own zoom 2 in rotate(10deg)": {
+   "errorX": 0,
+   "errorY": -0.02
+  }
+ },
+ "webkit": {
+  "version": "27.2",
+  "elevation: none, relative siblings": {
+   "top": 119,
+   "seen": "r3",
+   "mid": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: one animation, relative siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, relative siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, z-index:5 siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: second animation, static siblings": {
+   "top": 119,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "static",
+    "zIndex": "auto"
+   },
+   "inline": "height: 40px; background: rgb(232, 125, 125);"
+  },
+  "elevation: own z-index:5, one additive animation": {
+   "offset": 79,
+   "seen": "r2",
+   "mid": {
+    "position": "relative",
+    "zIndex": "-2147483648"
+   },
+   "after": {
+    "position": "relative",
+    "zIndex": "5"
+   }
+  },
+  "elevation: own z-index:5, second animation": {
+   "offset": 79,
+   "seen": "r0",
+   "mid": {
+    "position": "relative",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "relative",
+    "zIndex": "5"
+   }
+  },
+  "elevation: own position:absolute, second animation": {
+   "offset": 79,
+   "seen": "r0",
+   "mid": {
+    "position": "absolute",
+    "zIndex": "2147483647"
+   },
+   "after": {
+    "position": "absolute",
+    "zIndex": "auto"
+   }
+  },
+  "elevation limit: flight outside overflow:hidden": {
+   "hit": "BODY"
+  },
+  "top layer after insertBefore": {
+   "before": true,
+   "after": false
+  },
+  "focus: keyboard reorder, prototype": {
+   "active": "BODY",
+   "order": [
+    "r1",
+    "r0",
+    "r2"
+   ]
+  },
+  "focus: after a press on a tabindex row": "r0",
+  "focus: while lifted": "r0",
+  "focus: pointer reorder, prototype": {
+   "active": "BODY",
+   "order": [
+    "r1",
+    "r2",
+    "r0"
+   ]
+  },
+  "focus: autofocus descendant on lift": "inner",
+  "focus: restore, nested open shadow root": {
+   "captured": "deep",
+   "lost": true,
+   "restored": true
+  },
+  "guard: destroy with the button held, prototype": [
+   "list"
+  ],
+  "no lift: identity": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: rotate(25deg) scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: skew and scale": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: ancestor zoom 2": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: zoom 1.5 and rotate(-15deg)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: own rotate(40deg) in scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "no lift: own zoom 2": {
+   "errorX": 83,
+   "errorY": 47
+  },
+  "resize: scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: rotate(25deg) scale(.5)": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: own rotate(30deg), origin top left": {
+   "errorX": 0,
+   "errorY": 0
+  },
+  "resize: own zoom 2 in rotate(10deg)": {
+   "errorX": -0.01,
+   "errorY": -0.02
+  }
+ }
+}

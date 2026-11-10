@@ -1,0 +1,311 @@
+import { build } from 'esbuild';
+import { chromium, firefox, webkit } from 'playwright';
+import { writeFileSync } from 'node:fs';
+
+const here = new URL('./', import.meta.url).pathname;
+const code = (await build({ entryPoints: [`${here}lab.ts`], bundle: true, format: 'iife', write: false, target: 'es2022', define: { __DEV__: 'false' }, logLevel: 'silent' })).outputFiles[0].text;
+
+const results: Record<string, any> = {};
+for (const [name, type] of Object.entries({ chromium, firefox, webkit })) {
+  const browser = await type.launch();
+  const version = browser.version();
+  const out: Record<string, unknown> = { version };
+  const fresh = async () => {
+    const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    await page.setContent('<!doctype html><body style="margin:0"></body>');
+    await page.addScriptTag({ content: code });
+    return page;
+  };
+
+  /* 1. Elevation: what paints at the centre of a landing item. */
+  for (const [label, sibling, keyframes] of [
+    ['none, relative siblings', 'position:relative', 'none'],
+    ['one animation, relative siblings', 'position:relative', 'one'],
+    ['second animation, relative siblings', 'position:relative', 'two'],
+    ['second animation, z-index:5 siblings', 'position:relative;z-index:5', 'two'],
+    ['second animation, static siblings', '', 'two'],
+  ] as const) {
+    const page = await fresh();
+    out[`elevation: ${label}`] = await page.evaluate(async ([sibling, keyframes]) => {
+      const { lab } = window as any;
+      const list = lab.makeList(4, sibling || null);
+      const row = list.children[0] as HTMLElement;
+      row.style.position = '';
+      row.style.zIndex = '';
+      const options = { duration: 4000, easing: 'linear' } as const;
+      const flight = [{ translate: '0 120px' }, { translate: '0 0' }];
+      const lift = { position: 'relative', zIndex: '2147483647' };
+      const animations: Animation[] = [];
+      if (keyframes === 'none') {
+        animations.push(row.animate(flight, { ...options, composite: 'add' }));
+      } else if (keyframes === 'one') {
+        animations.push(row.animate(flight.map((f) => ({ ...f, ...lift })), { ...options, composite: 'add' }));
+      } else {
+        animations.push(row.animate(flight, { ...options, composite: 'add' }));
+        animations.push(row.animate([lift, lift], options));
+      }
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+      const { left, top, width, height } = row.getBoundingClientRect();
+      const seen = document.elementFromPoint(left + width / 2, top + height / 2)?.id;
+      const during = getComputedStyle(row);
+      const mid = { position: during.position, zIndex: during.zIndex };
+      for (const a of animations) a.finish();
+      const after = getComputedStyle(row);
+      return { top: Math.round(top), seen, mid, after: { position: after.position, zIndex: after.zIndex }, inline: row.getAttribute('style') };
+    }, [sibling, keyframes] as const);
+    await page.close();
+  }
+
+  /* 1a. Authored stacking and positioning on the item itself, one animation with composite add. */
+  for (const [label, own, position, second] of [
+    ['own z-index:5, one additive animation', 'position:relative;z-index:5', 'relative', false],
+    ['own z-index:5, second animation', 'position:relative;z-index:5', 'relative', true],
+    ['own position:absolute, second animation', 'position:absolute;top:40px;left:0;width:300px', 'absolute', true],
+  ] as const) {
+    const page = await fresh();
+    out[`elevation: ${label}`] = await page.evaluate(async ([own, position, second]) => {
+      const { lab } = window as any;
+      const list = lab.makeList(4, 'position:relative');
+      list.style.position = 'relative';
+      const row = list.children[0] as HTMLElement;
+      row.style.cssText += own;
+      const before = row.getBoundingClientRect().top;
+      const lift = { position, zIndex: '2147483647' };
+      const a = second
+        ? row.animate([{ translate: '0 80px' }, { translate: '0 0' }], { duration: 4000, easing: 'linear', composite: 'add' })
+        : row.animate([{ translate: '0 80px', ...lift }, { translate: '0 0', ...lift }], { duration: 4000, easing: 'linear', composite: 'add' });
+      const b = second ? row.animate([lift, lift], { duration: 4000 }) : null;
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+      const r = row.getBoundingClientRect();
+      const seen = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)?.id;
+      const during = getComputedStyle(row);
+      const mid = { position: during.position, zIndex: during.zIndex };
+      a.finish();
+      b?.finish();
+      const after = getComputedStyle(row);
+      return { offset: Math.round(r.top - before), seen, mid, after: { position: after.position, zIndex: after.zIndex } };
+    }, [own, position, second] as const);
+    await page.close();
+  }
+
+  /* 1b. The limit: a clipping ancestor still clips the flight. */
+  {
+    const page = await fresh();
+    out['elevation limit: flight outside overflow:hidden'] = await page.evaluate(async () => {
+      const { lab } = window as any;
+      const list = lab.makeList(4, null);
+      list.style.cssText = 'height:80px;overflow:hidden;width:200px';
+      const row = list.children[0] as HTMLElement;
+      const lift = { position: 'relative', zIndex: '2147483647' };
+      row.animate([{ translate: '400px 0' }, { translate: '0 0' }], { duration: 4000, easing: 'step-start', composite: 'add' });
+      row.animate([lift, lift], { duration: 4000 });
+      await new Promise(requestAnimationFrame);
+      await new Promise(requestAnimationFrame);
+      return { hit: document.elementFromPoint(500, 20)?.tagName };
+    });
+    await page.close();
+  }
+
+  /* 2. A consumer's insertBefore on a lifted item leaves the top layer. */
+  {
+    const page = await fresh();
+    out['top layer after insertBefore'] = await page.evaluate(() => {
+      const { lab } = window as any;
+      const list = lab.makeList(3, null);
+      const row = list.children[0] as HTMLElement;
+      row.popover = 'manual';
+      row.showPopover();
+      const before = row.matches(':popover-open');
+      list.append(row);
+      return { before, after: row.matches(':popover-open') };
+    });
+    await page.close();
+  }
+
+  /* 3. Focus. */
+  {
+    const page = await fresh();
+    await page.evaluate(() => {
+      const { lab } = window as any;
+      const list = lab.makeList(3, null);
+      lab.sortable(list, { items: () => [...list.children].filter((c: Element) => !c.hasAttribute('data-drag-placeholder')), axis: lab.y(), onReorder: ({ item, next }: any) => { list.insertBefore(item, next); return lab.ReorderResolution.accept(); } });
+      (list.children[0] as HTMLElement).focus();
+    });
+    await page.keyboard.press('ArrowDown');
+    out['focus: keyboard reorder, prototype'] = await page.evaluate(() => {
+      const a = document.activeElement as HTMLElement;
+      return { active: a.id || a.tagName, order: [...document.querySelector('#list')!.children].map((c) => c.id) };
+    });
+    await page.close();
+  }
+  {
+    const page = await fresh();
+    await page.evaluate(() => {
+      const { lab } = window as any;
+      const list = lab.makeList(3, null);
+      lab.sortable(list, { items: () => [...list.children].filter((c: Element) => !c.hasAttribute('data-drag-placeholder')), axis: lab.y(), onReorder: ({ item, next }: any) => { list.insertBefore(item, next); return lab.ReorderResolution.accept(); } });
+    });
+    await page.mouse.move(100, 20);
+    await page.mouse.down();
+    out['focus: after a press on a tabindex row'] = await page.evaluate(() => { const a = document.activeElement as HTMLElement; return a.id || a.tagName; });
+    await page.mouse.move(100, 110, { steps: 8 });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    out['focus: while lifted'] = await page.evaluate(() => { const a = document.activeElement as HTMLElement; return a.id || a.tagName; });
+    await page.mouse.up();
+    out['focus: pointer reorder, prototype'] = await page.evaluate(() => { const a = document.activeElement as HTMLElement; return { active: a.id || a.tagName, order: [...document.querySelector('#list')!.children].map((c) => c.id) }; });
+    await page.close();
+  }
+  {
+    const page = await fresh();
+    out['focus: autofocus descendant on lift'] = await page.evaluate(() => {
+      const { lab } = window as any;
+      const list = lab.makeList(2, null);
+      const row = list.children[0] as HTMLElement;
+      const input = document.createElement('input');
+      input.id = 'inner';
+      input.autofocus = true;
+      row.append(input);
+      (list.children[1] as HTMLElement).focus();
+      row.popover = 'manual';
+      row.showPopover();
+      const a = document.activeElement as HTMLElement;
+      return a.id || a.tagName;
+    });
+    await page.close();
+  }
+  {
+    const page = await fresh();
+    out['focus: restore, nested open shadow root'] = await page.evaluate(() => {
+      const { lab } = window as any;
+      const list = lab.makeList(2, null);
+      const row = list.children[0] as HTMLElement;
+      const root = row.attachShadow({ mode: 'open' });
+      root.innerHTML = '<button id="deep">x</button>';
+      const deep = root.querySelector('button') as HTMLElement;
+      deep.focus();
+      const owner = row.getRootNode() as Document;
+      let found: Element | null = owner.activeElement;
+      while (found?.shadowRoot?.activeElement) found = found.shadowRoot.activeElement;
+      const captured = found as HTMLElement;
+      list.append(row);
+      const lost = document.activeElement === document.body;
+      captured.focus({ preventScroll: true });
+      return { captured: captured.id, lost, restored: root.activeElement === deep };
+    });
+    await page.close();
+  }
+
+  /* 4. The click guard, with the button held when destruction arrives. */
+  {
+    const page = await fresh();
+    await page.evaluate(() => {
+      const { lab } = window as any;
+      const list = lab.makeList(3, null);
+      (window as any).clicks = [];
+      addEventListener('click', (e) => (window as any).clicks.push((e.target as Element).id), false);
+      (window as any).c = lab.sortable(list, { items: () => [...list.children].filter((c: Element) => !c.hasAttribute('data-drag-placeholder')), axis: lab.y(), onReorder: () => lab.ReorderResolution.accept() });
+    });
+    await page.mouse.move(100, 20);
+    await page.mouse.down();
+    await page.mouse.move(100, 40, { steps: 5 });
+    await page.evaluate(() => (window as any).c.requestDestroy());
+    await page.mouse.move(100, 20, { steps: 3 });
+    await page.mouse.up();
+    await page.evaluate(() => new Promise((r) => setTimeout(r, 30)));
+    out['guard: destroy with the button held, prototype'] = await page.evaluate(() => (window as any).clicks);
+    await page.close();
+  }
+
+  /* 5. box-quad with no lift: the element follows the pointer and the size is exact. */
+  for (const [label, canvas, own] of [
+    ['identity', '', ''],
+    ['scale(.5)', 'transform:scale(.5);transform-origin:0 0', ''],
+    ['rotate(25deg) scale(.5)', 'transform:rotate(25deg) scale(.5);transform-origin:0 0', ''],
+    ['skew and scale', 'transform:skewX(20deg) scale(1.5,.75);transform-origin:0 0', ''],
+    ['ancestor zoom 2', 'zoom:2', ''],
+    ['zoom 1.5 and rotate(-15deg)', 'zoom:1.5;transform:rotate(-15deg);transform-origin:0 0', ''],
+    ['own rotate(40deg) in scale(.5)', 'transform:scale(.5);transform-origin:0 0', 'rotate:40deg'],
+    ['own zoom 2', '', 'zoom:2'],
+  ] as const) {
+    const page = await fresh();
+    await page.evaluate(([canvas, own]) => {
+      const { lab } = window as any;
+      const stage = document.createElement('div');
+      stage.style.cssText = `position:absolute;left:300px;top:200px;width:300px;height:300px;${canvas}`;
+      stage.innerHTML = `<div id="node" style="position:absolute;left:20px;top:20px;width:60px;height:60px;background:teal;${own}"></div>`;
+      document.body.append(stage);
+      const node = stage.firstElementChild as HTMLElement;
+      const above = lab.space();
+      const delta = new Float64Array(2);
+      (window as any).panel = lab.draggable(stage, {
+        lift: false,
+        threshold: 1,
+        admit: (event: PointerEvent) => (event.target === node ? { item: node } : null),
+        activate() {
+          if (!lab.ancestry(node, above)) throw new Error('not 2D');
+        },
+        move(drag: any) {
+          lab.localDelta(above, drag.x - drag.originX, drag.y - drag.originY, delta);
+          node.style.translate = `${delta[0]}px ${delta[1]}px`;
+        },
+      });
+    }, [canvas, own] as const);
+    const start = await page.evaluate(() => {
+      const r = document.querySelector('#node')!.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(start.x + 83, start.y + 47, { steps: 6 });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    const end = await page.evaluate(() => {
+      const r = document.querySelector('#node')!.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+    await page.mouse.up();
+    out[`no lift: ${label}`] = { errorX: +(end.x - start.x - 83).toFixed(2), errorY: +(end.y - start.y - 47).toFixed(2) };
+    await page.close();
+  }
+
+  /* 6. A resize in the element's own space: the far corner follows the pointer. */
+  for (const [label, canvas, own] of [
+    ['scale(.5)', 'transform:scale(.5);transform-origin:0 0', ''],
+    ['rotate(25deg) scale(.5)', 'transform:rotate(25deg) scale(.5);transform-origin:0 0', ''],
+    ['own rotate(30deg), origin top left', '', 'rotate:30deg;transform-origin:0 0'],
+    ['own zoom 2 in rotate(10deg)', 'transform:rotate(10deg);transform-origin:0 0', 'zoom:2'],
+  ] as const) {
+    const page = await fresh();
+    const r = await page.evaluate(async ([canvas, own]) => {
+      const { lab } = window as any;
+      const stage = document.createElement('div');
+      stage.style.cssText = `position:absolute;left:300px;top:200px;width:300px;height:300px;${canvas}`;
+      stage.innerHTML = `<div id="node" style="position:absolute;left:20px;top:20px;width:60px;height:60px;background:teal;${own}"></div>`;
+      document.body.append(stage);
+      const node = stage.firstElementChild as HTMLElement;
+      const basis = lab.box();
+      const quad = (el: HTMLElement) => { const b = lab.box(); lab.coordinates(el, b); return b; };
+      if (!lab.coordinates(node, basis)) return 'refused';
+      const corner = (b: Float64Array) => ({ x: b[0]! * b[6]! + b[2]! * b[7]! + b[4]!, y: b[1]! * b[6]! + b[3]! * b[7]! + b[5]! });
+      const before = corner(basis);
+      const delta = new Float64Array(2);
+      lab.localDelta(basis, 83, 47, delta);
+      node.style.width = `${60 + delta[0]!}px`;
+      node.style.height = `${60 + delta[1]!}px`;
+      const after = corner(quad(node));
+      return { errorX: +(after.x - before.x - 83).toFixed(2), errorY: +(after.y - before.y - 47).toFixed(2) };
+    }, [canvas, own] as const);
+    out[`resize: ${label}`] = r;
+    await page.close();
+  }
+
+  await browser.close();
+  results[name] = out;
+}
+writeFileSync(`${here}results.json`, JSON.stringify(results, null, 1));
+const keys = Object.keys(results.chromium);
+for (const key of keys) {
+  console.log(key);
+  for (const engine of Object.keys(results)) console.log('  ', engine.padEnd(9), JSON.stringify(results[engine][key]));
+}

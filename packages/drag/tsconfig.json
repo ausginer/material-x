@@ -2,13 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "./src/**/*",
-    "./docs/**/*",
+    "./bench/**/*",
     "./tests/**/*",
+    "./.plan/probes/callback-list/allocation.ts",
     "../../types.d.ts",
     "./files.json",
     "./tsdown.config.ts",
     "./eslint.config.ts",
     "./vite.config.ts",
-    "./vitest.config.ts"
+    "./vitest.config.ts",
+    "./vitest.engines.config.ts"
   ]
 }

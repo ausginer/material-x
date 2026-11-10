@@ -166,6 +166,7 @@ type WorkspaceTestConfigOptions = Readonly<{
   boxQuadRoot: URL;
   materialXRoot: URL;
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
+  dragCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   drag2Commands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
   dragRoot: URL;
@@ -561,6 +562,84 @@ export const DRAG2_NODE_BUILD: NodeProjectBuild = {
   setupFiles: ['tests/support/require-build.node.ts'],
 };
 
+/**
+ * `@ydinjs/drag`'s files for the `shipped` project: the hot-path census counts the
+ * geometry reads and allocations a consumer's build performs, and the development
+ * equivalence check is itself such a read.
+ */
+export const DRAG_SHIPPED_BROWSER_TESTS: readonly string[] = [
+  'tests/hot-path.browser.test.ts',
+];
+
+/**
+ * `@ydinjs/drag`'s browser suite in Chromium, Firefox and WebKit, as one project per
+ * engine because browser projects are serialized one per group. The repository's
+ * own Chrome runs the Chromium projects and Playwright's browsers run the others,
+ * since that executable cannot start them. The instance list is replaced rather
+ * than merged, because a merge would append to the Chromium-only list.
+ */
+export function createDragAllEnginesTestConfig(
+  root: URL,
+  commands: Record<string, BrowserCommand<any[]>>,
+  shipped: readonly string[],
+): UserConfig {
+  const forEngine = (
+    project: UserConfig,
+    name: string,
+    engine: 'firefox' | 'webkit',
+  ): UserConfig => {
+    const { test } = project;
+
+    return {
+      ...project,
+      test: {
+        ...test,
+        name: `${name}/${engine}`,
+        // A page in the background gets no input in these engines.
+        fileParallelism: false,
+        maxWorkers: 1,
+        browser: {
+          ...test?.browser,
+          provider: playwright({
+            contextOptions: { deviceScaleFactor: 1 },
+          }),
+          instances: [
+            { browser: engine, viewport: { width: 1280, height: 720 } },
+          ],
+        },
+      },
+    };
+  };
+  const browserProject = createDragBrowserTestProject(
+    root,
+    'browser',
+    ['tests/**/*.browser.test.ts'],
+    shipped,
+    commands,
+  );
+  const shippedProject = mergeConfig(
+    createDragBrowserTestProject(root, 'shipped', shipped, [], commands),
+    { define: { __DEV__: 'false' } } satisfies UserConfig,
+  );
+
+  return {
+    test: {
+      projects: assignGroupOrder(
+        (
+          [
+            ['browser', browserProject],
+            ['shipped', shippedProject],
+          ] as const
+        ).flatMap(([name, project]) => [
+          project,
+          forEngine(project, name, 'firefox'),
+          forEngine(project, name, 'webkit'),
+        ]),
+      ),
+    },
+  };
+}
+
 export function createDragTestConfig(
   root: URL,
   commands?: Record<string, BrowserCommand<any[]>>,
@@ -611,10 +690,13 @@ export function createWorkspaceTestConfig(
     options.coreRoot,
     'core',
   );
-  const [dragBrowser, dragDeclaration, dragNode] = createDragTestProjects(
-    options.dragRoot,
-    'drag',
-  ) as [UserConfig, UserConfig, UserConfig];
+  const [dragBrowser, dragShipped, dragDeclaration, dragNode] =
+    createDragTestProjects(
+      options.dragRoot,
+      'drag',
+      options.dragCommands,
+      DRAG_SHIPPED_BROWSER_TESTS,
+    ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
     createDragTestProjects(
       options.drag2Root,
@@ -640,6 +722,7 @@ export function createWorkspaceTestConfig(
         coreDeclaration,
         boxQuadBrowser,
         dragBrowser,
+        dragShipped,
         dragNode,
         dragDeclaration,
         drag2Browser,

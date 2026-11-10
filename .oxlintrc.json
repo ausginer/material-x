@@ -677,6 +677,7 @@
       "jsPlugins": ["eslint-plugin-chai-friendly"]
     },
     {
+      // Custom rules
       "files": ["**/*.{ts,tsx,mts,cts}"],
       "rules": {
         "max-params": "allow",

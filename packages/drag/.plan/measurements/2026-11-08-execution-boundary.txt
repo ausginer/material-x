@@ -1,0 +1,124 @@
+# Execution boundary (DRD-32): raw summaries.
+# Base 8943f14e5 (scratch worktree, node_modules linked to the main checkout). After: a8327a7c8.
+# Engines: Chromium (image); Firefox and WebKit from the Playwright cache, WebKit with ~/.cache/ms-playwright/webkit-env.sh.
+
+## size, base (node bench/size/measure.ts)
+draggable alone                  6471 min   2130 br  6 modules
+  VIOLATION: control moved by 106 B
+draggable + lift                11927 min   4138 br  9 modules
+example: resize handle           9128 min   3240 br  8 modules
+example: drop zone              12726 min   4423 br  10 modules
+example: canvas group            9264 min   3241 br  8 modules
+freeDrag                        15140 min   5062 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 95 B
+freeDrag + bounds + landing     15825 min   5313 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 103 B
+sortable + y                    20408 min   6634 br  20 modules
+sortable + xy                   20028 min   6587 br  19 modules
+complete                        21561 min   7041 br  22 modules
+
+## size, after
+draggable alone                  6600 min   2138 br  6 modules
+  VIOLATION: control moved by 114 B
+draggable + lift                12056 min   4152 br  9 modules
+example: resize handle           9257 min   3249 br  8 modules
+example: drop zone              12855 min   4439 br  10 modules
+  VIOLATION: over its 4431 B ceiling by 8 B
+example: canvas group            9393 min   3248 br  8 modules
+freeDrag                        15269 min   5075 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 108 B
+freeDrag + bounds + landing     15954 min   5330 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 120 B
+sortable + y                    20533 min   6652 br  20 modules
+sortable + xy                   20153 min   6594 br  19 modules
+complete                        21686 min   7061 br  22 modules
+
+## size ablation, not landed: the owner's dispatch kept as 'else if (event.type === "keydown")' in handleInput
+draggable alone 2138 | draggable + lift 4154 | resize 3250 | drop zone 4445 | canvas 3253 | freeDrag 5079 | freeDrag+bounds+landing 5335 | sortable+y 6654 | sortable+xy 6601 | complete 7073 (br)
+## size ablation, not landed: v3's dispatch, keydown first with else
+draggable alone 2137 | draggable + lift 4152 | resize 3250 | drop zone 4439 | canvas 3250 | freeDrag 5077 | freeDrag+bounds+landing 5330 | sortable+y 6652 | sortable+xy 6594 | complete 7062 (br)
+
+## just test / test-engines: chromium-base
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 106 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 95 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 103 B' ] to deeply equal []
+ Test Files  1 failed | 24 passed (25)
+      Tests  3 failed | 344 passed (347)
+
+## just test / test-engines: chromium-after
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 114 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 8 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 108 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 120 B' ] to deeply equal []
+ Test Files  1 failed | 24 passed (25)
+      Tests  4 failed | 343 passed (347)
+
+## just test / test-engines: engines-base
+ Test Files  66 passed (66)
+      Tests  945 passed | 18 skipped (963)
+
+## just test / test-engines: engines-after
+ Test Files  66 passed (66)
+      Tests  945 passed | 18 skipped (963)
+
+## per-sample kernel bytes per move (hot-path test, whole file, temporary probe assertion, 5 runs each)
+== /tmp/claude-1000/-workspaces-material-x/9ede8e23-6e2a-4ff9-9d95-668b5c53201f/scratchpad/base/packages/drag
+KERNEL_PER_MOVE: expected 0.28
+KERNEL_PER_MOVE: expected 0.7466666666666667
+KERNEL_PER_MOVE: expected +0
+KERNEL_PER_MOVE: expected 0.56
+KERNEL_PER_MOVE: expected +0
+== /workspaces/material-x/packages/drag
+KERNEL_PER_MOVE: expected +0
+KERNEL_PER_MOVE: expected +0
+KERNEL_PER_MOVE: expected +0
+KERNEL_PER_MOVE: expected 0.28
+KERNEL_PER_MOVE: expected 0.28
+## isolated with -t filter (not representative; the bound was exceeded at the base too)
+base: 1 pass, 17.81, 16.95 | after: 1 pass, 17.01, 1 pass
+
+## mutation M1
+|shipped (chromium)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs :: AssertionError: {"sortable/operation.ts:updateInsertion":7020,"sortable/y.ts:resolve":36360,"sortable/rect-index.ts:refresh":1668,"kernel/gesture.ts:requestStep":21736,"kernel/session.ts:handleEvent":332,"sortable/operation.ts:move":14880,"lift.ts:translate":32636}: expected 73.56 to be less than 16
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  6 failed | 341 passed (347)
+
+## mutation M2
+|browser (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate :: AssertionError: expected 2 to be 1 // Object.is equality
+|browser (chromium)| tests/terminals.browser.test.ts:349 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one :: AssertionError: expected { trusted: +0, untrusted: 2 } to deeply equal { trusted: +0, untrusted: 1 }
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  6 failed | 341 passed (347)
+
+## mutation M3
+|browser (chromium)| tests/destruction.browser.test.ts:143 > drag:DRI-10 destruction > should admit no press after destruction :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations :: Error: Hook timed out in 30000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from admit :: AssertionError: expected null to be Promise{…} // Object.is equality
+|browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from listener :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:199 > drag:DRI-10 destruction > should return one promise by identity on every call :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:211 > drag:DRI-10 destruction > should settle the promise after teardown :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:225 > drag:DRI-10 destruction > should give disposers null and deliver no settle or end :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:256 > drag:DRI-10 destruction > should do nothing for a later request :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:303 > drag:DRI-10 destruction > should not restore focus on destruction :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations :: AssertionError: expected 0 to be greater than 0
+|browser (chromium)| tests/destruction.browser.test.ts:345 > drag:DRI-10 destruction > should retain no drag view or state after a custom behavior is destroyed :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/destruction.browser.test.ts:444 > drag:DRI-10 destruction > should not apply an Escape dispatched by the verdict abort during destruction :: AssertionError: expected [ true ] to deeply equal [ false ]
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  13 failed | 10 passed (23)
+
+## mutation M4
+|shipped (chromium)| tests/hot-path.browser.test.ts:200 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs :: Error: Test timed out in 5000ms.
+|shipped (chromium)| tests/hot-path.browser.test.ts:247 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement :: Error: Test timed out in 5000ms.
+|browser (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate :: AssertionError: expected +0 to be 1 // Object.is equality
+|browser (chromium)| tests/terminals.browser.test.ts:349 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one :: AssertionError: expected 2 to be 1 // Object.is equality
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  7 failed | 340 passed (347)

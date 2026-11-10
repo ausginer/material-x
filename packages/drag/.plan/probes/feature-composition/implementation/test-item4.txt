@@ -1,0 +1,15 @@
+     × should satisfy the declared graph and ceiling of draggable alone 3ms
+     × should satisfy the declared graph and ceiling of example: drop zone 1ms
+     × should satisfy the declared graph and ceiling of freeDrag 1ms
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing 0ms
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ 'control moved by 114 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 98 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 19 B' ] to deeply equal []
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 184 B' ] to deeply equal []
+ Test Files  1 failed | 25 passed (26)
+      Tests  4 failed | 353 passed (357)
+exit 1

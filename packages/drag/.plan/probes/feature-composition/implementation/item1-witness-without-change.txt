@@ -1,0 +1,68 @@
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+ ❯ |browser (chromium)| tests/free-drag.browser.test.ts (9 tests | 1 failed | 8 skipped) 395ms
+   ❯ freeDrag (9)
+     × should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 392ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+ ❯ |browser/firefox (firefox)| tests/free-drag.browser.test.ts (9 tests | 1 failed | 8 skipped) 500ms
+   ❯ freeDrag (9)
+     × should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 498ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+ ❯ |browser/webkit (webkit)| tests/free-drag.browser.test.ts (9 tests | 1 failed | 8 skipped) 232ms
+   ❯ freeDrag (9)
+     × should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 229ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:120 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+AssertionError: expected { arenaBefore: 200, …(2) } to deeply equal { arenaBefore: 200, …(2) }
+- Expected
++ Received
+  {
+    "arenaAfter": 50,
+    "arenaBefore": 200,
+-   "boxTop": 50,
++   "boxTop": 200,
+  }
+ ❯ tests/free-drag.browser.test.ts:154:49
+    152|
+    153|     await release();
+    154|     expect({ arenaBefore, arenaAfter, boxTop }).toEqual({
+    155|       arenaBefore: 200,
+    156|       arenaAfter: 50,
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+ FAIL  |browser/firefox (firefox)| tests/free-drag.browser.test.ts:120 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+AssertionError: expected { arenaBefore: 200, …(2) } to deeply equal { arenaBefore: 200, …(2) }
+- Expected
++ Received
+  {
+    "arenaAfter": 50,
+    "arenaBefore": 200,
+-   "boxTop": 50,
++   "boxTop": 200,
+  }
+ ❯ tests/free-drag.browser.test.ts:154:49
+    152|
+    153|     await release();
+    154|     expect({ arenaBefore, arenaAfter, boxTop }).toEqual({
+    155|       arenaBefore: 200,
+    156|       arenaAfter: 50,
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+ FAIL  |browser/webkit (webkit)| tests/free-drag.browser.test.ts:120 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+AssertionError: expected { arenaBefore: 200, …(2) } to deeply equal { arenaBefore: 200, …(2) }
+- Expected
++ Received
+  {
+    "arenaAfter": 50,
+    "arenaBefore": 200,
+-   "boxTop": 50,
++   "boxTop": 200,
+  }
+ ❯ tests/free-drag.browser.test.ts:154:49
+    152|
+    153|     await release();
+    154|     expect({ arenaBefore, arenaAfter, boxTop }).toEqual({
+    155|       arenaBefore: 200,
+    156|       arenaAfter: 50,
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+ Test Files  3 failed (3)
+      Tests  3 failed | 24 skipped (27)
+   Start at  09:44:39
+   Duration  4.96s (tests 60%, worker 33%, import 7%)

@@ -45,7 +45,7 @@ debug FILE:
 # One process rather than a package fan-out: Nx never ordered tests — its
 # `targetDefaults` carry no `test` key — so it contributed scheduling and
 # nothing else, while a fan-out pays a Chromium and a CSS evaluation isolate per
-# package. The root configuration contributes the same 15 projects the seven
+# package. The root configuration contributes the same 17 projects the seven
 # per-package configurations do, so coverage is unchanged. Per-package runs stay
 # available: `cd packages/<name> && just test`.
 test *ARGS:

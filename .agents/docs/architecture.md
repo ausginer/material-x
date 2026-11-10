@@ -87,41 +87,20 @@ The component package contains buttons, button groups, checkboxes, FABs, icons, 
 
 When a `@ydinjs/core` change affects Material X, rebuild core before typechecking Material X because the latter resolves built core declarations. Run package recipes from the affected package directory; `packages/core`, `packages/tproc`, and `packages/material-x` each provide `build`, `fmt`, `lint-fix`, and `typecheck` recipes.
 
-## Drag: the authored-presentation barrier
+## Drag: the consumer commits before it answers
 
-`@ydinjs/drag` distinguishes the **temporary presentation** it owns during a gesture (the lifted visual, the placeholder) from the consumer's **authored presentation** — the persistent DOM the consumer renders. An accepted resolution means the authored presentation for that outcome is ready, so the temporary one may be released.
-
-Consumers make that guarantee explicit by attaching a promise to the resolution:
+`@ydinjs/drag` distinguishes the **temporary presentation** it owns during an operation (the lifted visual, the placeholder) from the persistent DOM the consumer renders. There is no barrier and no readiness declaration: the verdict is the acknowledgement. A consumer commits its order inside `onReorder` or `onDrop`, and returns or resolves its verdict afterwards:
 
 ```ts
-onReorder(request) {
-  const presentationReady = commitTracker.expect();
-  setItems((items) => applyReorder(items, request));
-  return ReorderResolution.accept(presentationReady);
+async onReorder(request) {
+  await commit(request); // A framework's commit, on its own schedule.
+  return ReorderResolution.accept();
 }
 ```
 
-`accept(presentationReady?)` and `reject(reason?, presentationReady?)` exist on both `ReorderResolution` and `FreeDropResolution`. Release is gated on **both** halves of a barrier — `canReleasePresentation` in `kernel/protocol.ts`:
+The placeholder and the lift hold until the verdict settles. A landing starts after presentation is released and outlives the operation, and no terminal waits for it. `packages/drag/.plan/contract.md` DRI-9 owns the order, and `drag:DRD-1` the single-pass control behind it.
 
-```
-landing finished or skipped   AND   authored presentation ready
-```
-
-The two run **concurrently**. A consumer that commits quickly overlaps the landing animation; whichever finishes first waits for the other.
-
-**Why this is not just `await` inside the callback.** `onReorder`/`onDrop` already return `MaybePromise`, so a consumer could await its own commit before returning `accepted`. That is not equivalent and must not be "simplified" into one: landing is only prepared _after_ the resolution settles, so awaiting inside the callback serializes the consumer's render ahead of the animation and makes every drop feel laggy. The separate field is what buys concurrency.
-
-**Why the barrier is required, not merely an optimization.** Committing at intent time and relying on the landing animation to cover the render is a race, and there are cases where the race is already lost:
-
-- Under `prefers-reduced-motion`, recovery is `RECOVERY_IMMEDIATE` → `LANDING_SKIPPED`, and settlement completes synchronously — a zero-width window.
-- An accepted _free_ drop always takes `RECOVERY_IMMEDIATE`, so it never had a landing to hide behind.
-- A busy main thread or a concurrent render can lose the race even when a landing does run.
-
-Without the barrier the consumer's DOM is revealed before it exists and the collection visibly snaps back to its pre-drag order for a frame.
-
-**Ownership.** The kernel never observes slots, mutations, collections, or framework state; readiness is an explicit consumer acknowledgement. `kernel/presentation-ready.ts` owns only the waiting: `ResolutionCurrency` tagging (so a promise from an abandoned gesture cannot resolve into the next one) and a bounded `PRESENTATION_READY_TIMEOUT` (500 ms). A rejected or timed-out acknowledgement is a `presentation-ready` failure reported through `onError`; recovery switches to home, because the destination authored presentation cannot be assumed to exist. Cleanup always runs — a late render is a glitch, a stranded gesture is a broken component.
-
-Adapters supply the promise however suits them: React resolves it from `useLayoutEffect` (see `sortable.stories.tsx`), a slot-based web component after the relevant `slotchange`, an imperative consumer immediately after mutating the DOM. `onFinish` stays genuinely terminal — after landing _and_ presentation cleanup.
+`@ydinjs/drag2`, kept as reference evidence, has the same serial commit.
 
 ## Extension points
 

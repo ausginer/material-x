@@ -1,0 +1,63 @@
+import csv,sys
+G={'A':'Input policy and click suppression','B':'Press admission, threshold and pointer identity','C':'Reentrant input is refused',
+'D':'Cancel semantics and precedence','E':'Destroy: request, application, totality','F':'Verdict round-trip and thenables',
+'H':'Exactly one terminal, gated by start','I':'Fault reporting','J':'Release and presentation order',
+'L':'Landing tail, origin and target','M':'Collection and rebase','P':'Placeholder and movement','X':'Mechanism, SPI or out of domain'}
+def R(s):
+    o=[]
+    for p in s.split(','):
+        if '-' in p:
+            a,b=p.split('-');o+=range(int(a),int(b)+1)
+        else:o.append(int(p))
+    return o
+k={};s={}
+def put(t,spec,g,d):
+    for i in R(spec):
+        assert i not in t,(i,spec);t[i]=(g,d)
+K=lambda spec,g,d:put(k,spec,g,d)
+So=lambda spec,g,d:put(s,spec,g,d)
+K('1-4,16-19,21-24','X','drop')
+K('6-9,11,12,14,39,193','A','keep');K('10,13','A','revise')
+K('5,25-27,33-36,51,58','B','keep');K('29,30,192','C','keep')
+K('15,28,31,40,50,56,86','I','revise')
+K('20,32,160-163,166,168,194,196-204,205,206,208,212,216','E','keep');K('45,120,164,167,169,170','E','revise')
+K('37,38,41,43,46-48,52,57,73,74,85,88,109,110,115,117,123,129,132,140-153,165,171,172,174-182,242','X','drop')
+K('42,116,119,186','H','keep')
+K('44,127,128,130,131,133-135,137,217,218,211','D','revise');K('136,138,139,154-159,207,209,213','D','keep')
+K('49,53-55,87,89,90,111,113','J','keep');K('112','J','revise')
+K('60,61,64-72,75,78,187-191,59','F','keep');K('62,63,76,77,79-84','F','revise')
+K('91-101,104,105,107,108,118,126','L','keep');K('102,103,106,114','L','revise')
+K('121,122,124,125,173,183-185,195,210,214,215,219-241','I','revise')
+So('3-6','A','keep');So('1,2,7','B','keep');So('14-16','C','keep')
+So('8,41,42,46','J','keep')
+So('9-12,23,44,74-78,80-82,87,128','M','keep');So('13,45,73,79,86,88','M','revise')
+So('17,19,24,25,33,84,91-94','E','keep');So('83','E','revise')
+So('18,60,96,97,124,126','I','revise')
+So('20,21,26-31,34-40,100-102,104-108,117-120','P','keep')
+So('22,32,89,90,95,99,103,109-114,116,121-123,125,127','X','drop')
+So('47,48,51,61,62,85,98','H','keep');So('49,50','H','revise')
+So('43,54,55,57,115','F','keep');So('52,53,56','F','revise')
+So('58,59','D','revise')
+So('63-72','L','keep')
+assert sorted(k)==list(range(1,243)),set(range(1,243))-set(k)
+assert sorted(s)==list(range(1,129)),set(range(1,129))-set(s)
+PROBED_K=set(R('66,67,99,102,103,187-191'))
+PROBED_S=set(R('11,12,17-19,24-30,75-78,80,100-102,117'))
+rows=[]
+for name,t,pr,f in (('kernel',k,PROBED_K,'kernel.titles.tsv'),('sortable',s,PROBED_S,'sortable.titles.tsv')):
+    for ln,r in enumerate(csv.reader(open(f'{S}/{f}' if False else sys.argv[1]+'/'+f,encoding='utf8'),delimiter='\t',quoting=csv.QUOTE_NONE),1):
+        g,d=t[ln]
+        rows.append((name,ln,r[0],r[1],r[2],g,G[g],d,'gap-probe' if ln in pr else ''))
+assert len(rows)==370
+with open(sys.argv[2],'w',encoding='utf8',newline='') as o:
+    w=csv.writer(o,delimiter='\t',quoting=csv.QUOTE_NONE,quotechar=None,lineterminator='\n',escapechar='\\')
+    w.writerow(['file','row','line','describe','title','group','guarantee','disposition','evidence'])
+    w.writerows(rows)
+from collections import Counter
+c=Counter((x[5],x[7]) for x in rows)
+tot=Counter()
+print('group kernel sortable keep revise drop total')
+for g in G:
+    kn=sum(1 for x in rows if x[5]==g and x[0]=='kernel');sn=sum(1 for x in rows if x[5]==g and x[0]=='sortable')
+    print(g,G[g],kn,sn,c[(g,'keep')],c[(g,'revise')],c[(g,'drop')],kn+sn)
+print({d:sum(v for (g,dd),v in c.items() if dd==d) for d in('keep','revise','drop')},len(rows), sum(1 for x in rows if x[8]))

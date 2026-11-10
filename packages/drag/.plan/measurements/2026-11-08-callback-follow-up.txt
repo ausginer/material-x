@@ -1,0 +1,135 @@
+# Callback follow-up (callback-representation-assessment.md §4): raw output
+# Base 72f669ce1; witness 7f1aa0f94; repair aa33ba79a.
+# Engines: Chromium (image); Firefox and WebKit from the Playwright cache, WebKit with ~/.cache/ms-playwright/webkit-env.sh.
+
+## Baseline 72f669ce1: just test (Chromium and node), tail
+
+ Test Files  3 failed | 22 passed (25)
+      Tests  7 failed | 339 passed (346)
+Type Errors  no errors
+   Start at  20:17:58
+   Duration  44.24s (worker 84%, tests 15%)
+
+error: recipe `test` failed on line 29 with exit code 1
+
+## Baseline 72f669ce1: just test-engines without the WebKit environment (WebKit did not launch), failures
+      1  FAIL  |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+      1  FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+      1  FAIL  |browser (chromium)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+      1  FAIL  |browser (chromium)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction
+      1  FAIL  |browser/firefox (firefox)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+      1  FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+      1  FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction
+
+## Baseline 72f669ce1: WebKit project with its environment
+      1       Tests  3 failed | 303 passed | 7 skipped (313)
+      1  FAIL  |browser/webkit (webkit)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+      1  FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:837 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+      1  FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:868 > sortable options > should keep a row animation past the terminal, until destruction
+      1  Test Files  2 failed | 19 passed (21)
+      3 AssertionError: expected 0 to be greater than 0
+      3 [Error: DragFault: drag: undefined is not an object (evaluating 'this.#running')]
+      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+## Witness at 7f1aa0f94 (source of 72f669ce1), Chromium
+   × should call the layoutAnimation sink with its receiver, with rows in flight
+AssertionError: expected [ …(1) ] to deeply equal []
+  DragFault { "message": "drag: Cannot read properties of undefined (reading '#running')" }
+
+## Mutation M1 on aa33ba79a: RectIndex.refresh calls a detached settle
+- * Turns the buffer an axis has just measured into settled geometry, by subtracting
+- * what the displacement sink currently holds for each element in the first `count`
+- * slots. It computes the answer from animation timing and reads no layout. So no
+- * animation is cancelled for a rebuild, and a row never jumps back.
+- */
+-  values: Float64Array,
+-  items: readonly HTMLElement[],
+-  count: number,
+-   * candidate is its own box. `settle` is the sink's walk, or `null` with no
+-   * displacement composed.
++   * candidate is its own box. `displacement` is the composed sink, or `null`.
+-    settle: DisplacementSettle | null,
++    displacement: DisplacementSink | null,
++    const settle = displacement?.settle;
+-  settle: DisplacementSettle | null,
++  displacement: DisplacementSink | null,
+-  index.refresh(snapshot, dragged, getBox, placeholder, settle);
++  index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+     × should animate displaced rows with layoutAnimation, in xy() too 256ms
+     × should call the layoutAnimation sink with its receiver, with rows in flight 248ms
+AssertionError: expected 0 to be greater than 0
+AssertionError: expected [ …(1) ] to deeply equal []
+
+## Mutation M2 on aa33ba79a: LinearShift.moved calls a detached report
+-  type DisplacementSettle,
+-    settle: DisplacementSettle | null,
++    displacement: DisplacementSink | null,
+-      verifyEquivalence(index, snapshot, dragged, getBox, placeholder, settle);
++      verifyEquivalence(
++        index,
++        snapshot,
++        dragged,
++        getBox,
++        placeholder,
++        displacement,
++      );
+-    index.refresh(snapshot, dragged, getBox, placeholder, settle);
++    index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+-  moved(
+-    gap: number,
+-    snapshot: CollectionSnapshot,
+-    context: AxisContext,
+-    report: DisplacementReport | null,
+-  ): void {
++  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void {
++    const { displacement } = context;
+-      if (context.settle) {
++      if (displacement) {
+-        context.settle(scratch, [probe], 1);
++        displacement.settle(scratch, [probe], 1);
+-    if (report) {
++    if (displacement) {
++        const report = displacement.report;
+     × should call the layoutAnimation sink with its receiver, with rows in flight 264ms
+AssertionError: expected [ …(1) ] to deeply equal []
+[31m+     "message": "drag: Cannot read properties of undefined (reading '#options')",[39m
+[31m+       "message": "Cannot read properties of undefined (reading '#options')",[39m
+
+## aa33ba79a: just test (Chromium and node)
+ Tests  3 failed | 344 passed (347): the three size rows below
+
+## aa33ba79a: just test-engines with the WebKit environment
+      1       Tests  945 passed | 18 skipped (963)
+      1  Test Files  66 passed (66)
+
+## just size at 72f669ce1
+draggable alone                  6435 min   2123 br  6 modules
+  VIOLATION: control moved by 99 B
+draggable + lift                11891 min   4129 br  9 modules
+example: resize handle           9092 min   3229 br  8 modules
+example: drop zone              12690 min   4420 br  10 modules
+example: canvas group            9228 min   3230 br  8 modules
+freeDrag                        15116 min   5069 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 102 B
+freeDrag + bounds + landing     15801 min   5320 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 110 B
+sortable + y                    20412 min   6657 br  20 modules
+sortable + xy                   20028 min   6601 br  19 modules
+complete                        21554 min   7055 br  22 modules
+error: recipe `size` failed on line 59 with exit code 1
+
+## just size at aa33ba79a
+draggable alone                  6435 min   2123 br  6 modules
+  VIOLATION: control moved by 99 B
+draggable + lift                11891 min   4129 br  9 modules
+example: resize handle           9092 min   3229 br  8 modules
+example: drop zone              12690 min   4420 br  10 modules
+example: canvas group            9228 min   3230 br  8 modules
+freeDrag                        15104 min   5059 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 92 B
+freeDrag + bounds + landing     15789 min   5310 br  17 modules
+  VIOLATION: over its 5210 B ceiling by 100 B
+sortable + y                    20372 min   6641 br  20 modules
+sortable + xy                   19992 min   6584 br  19 modules
+complete                        21525 min   7041 br  22 modules
+error: recipe `size` failed on line 59 with exit code 1

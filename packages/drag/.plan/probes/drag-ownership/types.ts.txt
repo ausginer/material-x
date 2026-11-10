@@ -1,0 +1,66 @@
+// drag:DRD-27 type check, revised 2026-11-07: the kernel names no lift. A scratch model, not production code. See README.md.
+type Outcome<V = unknown> = { type: 'skipped' } | { type: 'verdict'; value: V } | { type: 'canceled'; reason: unknown };
+type DragDisposer = (outcome: Outcome | null) => void;
+export type Drag<State = undefined> = Readonly<{
+  item: HTMLElement; state: State; pointerId: number; x: number; y: number;
+  originX: number; originY: number; signal: AbortSignal;
+  use(dispose: DragDisposer): void;
+  requestStep(step: (drag: Drag<State> | null) => void): void;
+  requestCancel(reason?: unknown): void;
+}>;
+export type Admission<State> = Readonly<{ item: HTMLElement; handle?: HTMLElement; state?: State }>;
+export type Behavior<State = undefined, Verdict = unknown> = Readonly<{
+  threshold?: number;
+  admit(event: PointerEvent): Admission<State> | null;
+  activate?(drag: Drag<State>): false | undefined;
+  move?(drag: Drag<State>): void;
+  settle?(drag: Drag<State>, outcome: Outcome<Verdict>): void;
+}>;
+// Kernel-internal: the object the kernel writes.
+type KernelDrag<State> = { -readonly [K in keyof Drag<State>]: Drag<State>[K] };
+type Controller<Op> = Readonly<{ requestStep(step: (drag: Op | null) => void): void }>;
+
+class Session<State, Verdict> {
+  readonly #drag: KernelDrag<State>;
+  constructor(readonly behavior: Behavior<State, Verdict>, admission: Admission<State>) {
+    this.#drag = {
+      item: admission.item, state: admission.state as State, pointerId: 1, x: 0, y: 0,
+      originX: 0, originY: 0, signal: new AbortController().signal,
+      use: () => {}, requestStep: (step) => { step(this.#drag); }, requestCancel: () => {},
+    };
+  }
+  sample(x: number): void { this.#drag.x = x; this.behavior.move?.(this.#drag); }
+}
+export function draggable<State = undefined, Verdict = unknown>(
+  root: HTMLElement, behavior: Behavior<State, Verdict>): Controller<Drag<State>> {
+  void root; void new Session(behavior, { item: root });
+  return { requestStep: () => {} };
+}
+
+// lift.js
+export type Landing = Readonly<{ x: number; y: number; duration?: number; easing?: string }>;
+export type Lift = Readonly<{ visual: HTMLElement; translatedX: number; translate(x: number, y: number): void; land(landing: Landing): void }>;
+export type Lifter = Readonly<{ acquire(drag: Drag<unknown>, visual?: HTMLElement, box?: HTMLElement): Lift; cancelLanding(): void }>;
+declare function createLifter(window: Window): Lifter;
+
+// A behavior that composes the lift in its own state.
+type State = { visual: HTMLElement; lift: Lift | null };
+class Free implements Behavior<State> {
+  readonly #lifter: Lifter;
+  constructor(lifter: Lifter) { this.#lifter = lifter; }
+  admit(event: PointerEvent) { const item = event.target as HTMLElement; return { item, state: { visual: item, lift: null } }; }
+  activate(drag: Drag<State>): undefined { drag.state.lift = this.#lifter.acquire(drag, drag.state.visual); return undefined; }
+  move(drag: Drag<State>): void { const lift = drag.state.lift; if (lift) lift.translate(drag.x - drag.originX, 0); }
+  settle(drag: Drag<State>): void { drag.state.lift?.land({ x: 0, y: 0 }); }
+}
+const lifter = createLifter(window);
+const kernel = draggable(document.body, new Free(lifter));
+kernel.requestStep((drag) => { drag?.state.lift?.translate(1, 1); });
+// No cast, no overload; a plain behavior has no lift member to name.
+draggable(document.body, { admit: () => null, move(drag) {
+  // @ts-expect-error a Drag has no lift
+  void drag.lift;
+} });
+// @ts-expect-error an admission has no visual
+const bad: Admission<undefined> = { item: document.body, visual: document.body };
+void bad;

@@ -1,0 +1,95 @@
+/** reportError with a typed wrapper: dispatch timing, cause identity, realm, console. Argv: engines. Firefox came from `playwright install firefox` under PLAYWRIGHT_BROWSERS_PATH. */
+import { chromium, firefox, webkit } from '/workspaces/material-x/node_modules/playwright/index.mjs';
+const engines: any = { chromium, firefox, webkit };
+const out: any = {};
+for (const name of process.argv.slice(2)) {
+  const opts = name === 'chromium' ? { executablePath: '/usr/local/bin/chrome', headless: true } : { headless: true };
+  let browser;
+  try { browser = await engines[name].launch(opts); } catch (e: any) { out[name] = { launch: String(e.message).split('\n')[0] }; continue; }
+  const page = await browser.newPage();
+  const consoleLines: string[] = [];
+  page.on('console', (m: any) => consoleLines.push(`console.${m.type()}: ${m.text()}`));
+  page.on('pageerror', (e: any) => consoleLines.push(`pageerror: ${e.name}: ${e.message} | stackHasCause=${String(e.stack).includes('Caused by')} | cause=${String(e.cause)}`));
+  let cdp: any = null;
+  const exceptions: string[] = [];
+  if (name === 'chromium') {
+    cdp = await page.context().newCDPSession(page);
+    await cdp.send('Runtime.enable');
+    cdp.on('Runtime.exceptionThrown', (e: any) => exceptions.push(e.exceptionDetails.exception?.description ?? e.exceptionDetails.text));
+  }
+  await page.setContent('<!doctype html><body><iframe id="f" srcdoc="<body></body>"></iframe></body>');
+  await page.waitForTimeout(100);
+  const result = await page.evaluate(() => {
+    class DragFault extends Error { constructor(cause: unknown) { super('drag: fault', { cause }); } }
+    Object.defineProperty(DragFault.prototype, 'name', { value: 'DragFault' });
+    const r: any = {};
+    const seen: any[] = [];
+    const listen = (e: ErrorEvent) => { seen.push(e); };
+    addEventListener('error', listen);
+    // 1. Synchronous dispatch, inside the caller.
+    const order: string[] = [];
+    const l2 = () => order.push('listener');
+    addEventListener('error', l2);
+    order.push('before'); reportError(new DragFault(new Error('x'))); order.push('after');
+    removeEventListener('error', l2);
+    r.order = order.join(',');
+    // 2. A throwing listener does not reach the caller.
+    const l3 = () => { throw new Error('listener threw'); };
+    addEventListener('error', l3);
+    try { reportError(new DragFault(1)); r.listenerThrowReachesCaller = false; } catch { r.listenerThrowReachesCaller = true; }
+    removeEventListener('error', l3);
+    // 3. Cause identity across hostile values.
+    const sym = Symbol('s');
+    const hostile = { get message() { throw new Error('hostile'); }, toString() { throw new Error('hostile'); } };
+    const frozen = Object.freeze(new Error('frozen'));
+    const cases: Array<[string, unknown]> = [['Error', new TypeError('t')], ['null', null], ['undefined', undefined], ['string', 's'], ['symbol', sym], ['hostile', hostile], ['frozen', frozen]];
+    r.causes = {};
+    for (const [k, v] of cases) {
+      seen.length = 0;
+      let threw = false;
+      try { reportError(new DragFault(v)); } catch { threw = true; }
+      const e = seen[0];
+      r.causes[k] = { threw, delivered: seen.length, typed: e?.error instanceof DragFault, identity: e?.error?.cause === v, hasOwn: Object.hasOwn(e?.error ?? {}, 'cause') };
+    }
+    // 4. What a logger reading only the event sees.
+    seen.length = 0;
+    reportError(new DragFault(new TypeError('original message')));
+    const e = seen[0];
+    r.event = { message: e.message, filename: !!e.filename, lineno: e.lineno, name: e.error.name, originalInMessage: e.message.includes('original message'), stackHasOriginal: String(e.error.stack).includes('original message') };
+    // 5. Marker alternative on a primitive.
+    const marks = new WeakSet<object>();
+    let primitiveMarkThrew = false; try { marks.add(null as never); } catch { primitiveMarkThrew = true; }
+    r.markerRejectsPrimitive = primitiveMarkThrew;
+    // 6. Realm.
+    const frame = document.getElementById('f') as HTMLIFrameElement;
+    const inner = frame.contentWindow! as any;
+    const hits = { parent: 0, inner: 0, innerInstance: null as any };
+    const pl = (ev: ErrorEvent) => { hits.parent++; }; addEventListener('error', pl);
+    inner.addEventListener('error', (ev: ErrorEvent) => { hits.inner++; hits.innerInstance = ev.error instanceof DragFault; });
+    globalThis.reportError(new DragFault(1));
+    r.libraryRealm = { ...hits };
+    hits.parent = 0; hits.inner = 0;
+    inner.reportError(new DragFault(1));
+    r.rootRealm = { ...hits };
+    // 7. A removed iframe.
+    const held = inner.reportError.bind(inner);
+    const heldDoc = frame.contentDocument!;
+    frame.remove();
+    r.detached = { defaultView: heldDoc.defaultView === null };
+    hits.parent = 0; hits.inner = 0;
+    try { held(new DragFault(1)); r.detached.heldThrew = false; } catch (err) { r.detached.heldThrew = String(err); }
+    r.detached.innerHeard = hits.inner; r.detached.parentHeard = hits.parent;
+    hits.parent = 0;
+    globalThis.reportError(new DragFault(1)); r.detached.libraryRealmHeard = hits.parent;
+    removeEventListener('error', pl);
+    removeEventListener('error', listen);
+    // 8. console rendering of one last report.
+    const original = new TypeError('original message');
+    reportError(new DragFault(original));
+    return r;
+  });
+  await page.waitForTimeout(100);
+  out[name] = { result, console: consoleLines.slice(-2), cdpLast: exceptions.at(-1) ?? null };
+  await browser.close();
+}
+console.log(JSON.stringify(out, null, 1));

@@ -43,6 +43,11 @@ const config: readonly Config[] = defineConfig(
       // `unbound-method` is not in this block. It is enforced at the end of
       // this file instead, after Oxlint's derived disables — see there.
       '@typescript-eslint/no-use-before-define': 'off',
+      // CONTRIBUTING declares a receiver-dependent interface member as a
+      // method and a detached-safe one as a function-type property. A single
+      // enforced style cannot state that distinction, and `unbound-method`
+      // reads it.
+      '@typescript-eslint/method-signature-style': 'off',
       '@typescript-eslint/no-shadow': 'off',
       'import-x/no-unresolved': [
         'error',

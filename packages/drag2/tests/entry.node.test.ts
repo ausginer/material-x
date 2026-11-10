@@ -104,6 +104,18 @@ describe('reading one entry back', () => {
     );
   });
 
+  it('should resolve an entry of the drag record, from its index and its contract', async () => {
+    const decision = await read('drag:DRD-1');
+    const invariant = await read('drag:DRI-7');
+
+    expect(decision.code).toBe(0);
+    expect(decision.out.split('\n')[0]).toBe(
+      '#### DRD-1 — Single-pass control',
+    );
+    expect(invariant.code).toBe(0);
+    expect(invariant.out.split('\n')[0]).toBe('#### DRI-7 — Faults');
+  });
+
   it('should refuse an unknown scope', async () => {
     const { code, err } = await read('boxquad:D-1');
 

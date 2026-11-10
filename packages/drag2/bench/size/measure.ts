@@ -99,10 +99,9 @@ export type Composition = Readonly<{
    * `absentPrefixes`, `present`, `only`. The budget catches growth; the graph
    * declarations catch a module.
    *
-   * **Thirteen of the fifteen rows declare some combination of the four, and
-   * the two baselines declare no topology at all**, so on those two the byte
-   * budget is the only instrument. Baseline A is where that has consequence:
-   * it reaches thirty modules through relative paths into the built package,
+   * **Thirteen of the fourteen rows declare some combination of the four, and
+   * baseline A declares no topology at all**, so on that row the byte budget
+   * is the only instrument. That has a consequence: it reaches thirty modules through relative paths into the built package,
    * so a module can enter it unobserved. It is tolerated rather than repaired
    * because it is a checked-in fixture whose whole job is to price
    * composition against `complete`, which does declare. **The repair is not a
@@ -110,11 +109,10 @@ export type Composition = Readonly<{
    * loosening an exact instrument to prop up a redundant one is the wrong
    * direction.
    *
-   * Two rows are administered differently and say so on their own comments:
-   * the vocabulary root, whose ceiling is bracketed by a reproducible
-   * injection because it is the sole detector for its class, and baseline B,
-   * an external control this package does not build. Every re-base is dated
-   * and reasoned in
+   * One row is administered differently and says so on its own comment: the
+   * vocabulary root, whose ceiling is bracketed by a reproducible injection
+   * because it is the sole detector for its class. Every re-base is dated and
+   * reasoned in
    * [`budget-rebases.md`](../../.plan/measurements/budget-rebases.md).
    */
   budget: number;
@@ -122,7 +120,7 @@ export type Composition = Readonly<{
    * **The exact Brotli figure this row must reproduce**, when it is a row no
    * change to the behaviors above it may reach.
    *
-   * **A ceiling cannot see a transfer, and that is what this is for.** Fifteen
+   * **A ceiling cannot see a transfer, and that is what this is for.** Fourteen
    * budgets can all be green while bytes move *between* rows — a feature
    * getting cheaper for the compositions that use it and dearer for the ones
    * that do not is under budget on both sides, so nothing reports it. §18 names
@@ -173,7 +171,7 @@ export type Composition = Readonly<{
    * which is the same vacuity `absentPrefixes` exists to prevent.
    *
    * **Reserved for roots whose whole point is what they do not reach.** A
-   * feature composition should not use it: pinning fifteen module names would
+   * feature composition should not use it: pinning fourteen module names would
    * turn every legitimate refactor into a harness failure, and the claim there
    * is about specific machinery rather than about the size of the graph.
    */
@@ -530,14 +528,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
     budget: 10_658,
-  },
-  {
-    // Answers *what does migrating cost*, and nothing else. Never substituted
-    // for baseline A: it is not feature-equivalent to anything here.
-    name: 'baseline B - shipped @ydinjs/drag sortable.js',
-    entry: 'bench/size/shipped.js',
-    budget: 7040,
-    control: 6916,
   },
 ];
 

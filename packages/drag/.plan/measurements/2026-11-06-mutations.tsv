@@ -1,0 +1,32 @@
+DRI-1	Apply a cancel inline when requested	chromium	4	drag:DRI-1 a request does not change the running step should let a sortable placeholder reaction cancel during activation
+DRI-2	Apply the decision before deferred steps	chromium	1	drag:DRI-2 one reader and fixed precedence should run deferred steps before the decision, with no drag behind it
+DRI-3	Run end when activate threw	chromium	3	drag:DRI-3 terminals should deliver no terminal without a start: cancel before start
+DRI-4	Let a second cancel replace the first	chromium	1	drag:DRI-4 cancel should keep the first reason and origin
+DRI-5	Abort the verdict signal on acceptance	chromium	2	drag:DRI-5 verdict should not abort the signal on acceptance
+DRI-5	Let a late completion reach a later drag	chromium	2	drag:DRI-5 verdict should keep a late resolve after a cancel from reaching the next drag
+DRI-6	Remove the #running refusal	chromium	1	drag:DRI-6 reentrant input should refuse a nested press, and take the next real one
+DRI-7	Report the raw value	chromium	7	drag:DRI-7 faults should cancel once with a fault when move throws, and let the terminal run
+DRI-7	Fill the decision after the report	chromium	1	drag:DRI-7 faults should leave origin fault when a global listener requests cancel
+DRI-8	Pass the Drag to a step behind a decision	chromium	3	drag:DRI-2 one reader and fixed precedence should run deferred steps before the decision, with no drag behind it
+DRI-8	Remove identity coalescing	chromium	2	drag:DRI-8 deferred writes should coalesce one function requested twice before it runs
+DRI-9	Start the landing before releasing the lift	chromium	1	drag:DRI-9 release order should release in the fixed order
+DRI-9	Stop at the first disposer throw	chromium	1	drag:DRI-9 release order should run disposers last in first out, past a throw
+DRI-10	Run end on destruction	chromium	13	drag:DRI-10 destruction should tear down totally when requested from admit
+DRI-10	Remove the guard with the controller listeners	chromium	1	drag:DRI-11 the click guard should swallow the trailing click after destruction with the button held
+DRI-11	Remove the click expiry	chromium	1	drag:DRI-11 the click guard should swallow one click only
+DRI-11	Remove the pointerup expiry	chromium	1	drag:DRI-11 the click guard should expire in the task after that pointer pointerup
+DRI-11	Remove the pointercancel expiry	chromium	1	drag:DRI-11 the click guard should expire at that pointer pointercancel
+DRI-11	Remove the next-press expiry	chromium	1	drag:DRI-11 the click guard should expire at the next primary pointerdown
+DRI-11	Swallow a below-threshold click	chromium	2	drag:DRI-11 the click guard should keep the click of a press below the threshold
+DRI-12	Restore over a newer focus	chromium	1	drag:DRI-12 focus should leave focus where the user moved it during a verdict
+DRI-12	Use preventScroll for a command	chromium	1	drag:DRI-12 focus should scroll a keyboard restore of an off-screen row into view
+DRI-12	Remove the lift focus repair	chromium	2	drag:DRI-12 focus should keep focus when the lift promotes an autofocus descendant
+DRI-13	Make elevation additive	webkit	2	drag:DRI-13 landing should stay above z-index siblings for the whole flight
+DRI-13	Remove reduced motion from the lift	chromium	2	drag:DRI-13 landing should give every landing zero duration with reduced motion, including a custom behavior with no timing
+DRI-14	Remove the activation pull	chromium	2	drag:DRI-14 collection should decline quietly when the item left the collection during the press
+DRI-15	Skip the placeholder check at activation	chromium	6	drag:DRI-15 placeholder integrity should end activation clean with a fault when a placeholder removes itself
+DRI-16	Use a ratio in place of localDelta	chromium	3	drag:DRI-16 no-lift move and resize should follow the pointer under rotate
+DRI-17	Read layout in a sample	chromium	1	drag:DRI-17 hot path should read no layout in a sample, and none in a frame with nothing stale
+DRI-17	Put an idle step on the list	chromium	1	drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+DRI-17	Allocate in #move	chromium	1	drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+DRI-18	Import lift from draggable	node	4	drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of draggable alone

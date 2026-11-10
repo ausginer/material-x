@@ -1,0 +1,110 @@
+[
+ {
+  "n": 20,
+  "arm": "y",
+  "layouts": 41,
+  "styles": 341,
+  "layoutUs": 12,
+  "styleUs": 136,
+  "scriptUs": 138,
+  "scriptUsRange": [
+   135,
+   139
+  ],
+  "taskUs": 1714,
+  "taskUsRange": [
+   1680,
+   1766
+  ]
+ },
+ {
+  "n": 20,
+  "arm": "hit",
+  "layouts": 41,
+  "styles": 341,
+  "layoutUs": 13,
+  "styleUs": 140,
+  "scriptUs": 198,
+  "scriptUsRange": [
+   194,
+   207
+  ],
+  "taskUs": 1783,
+  "taskUsRange": [
+   1760,
+   1813
+  ]
+ },
+ {
+  "n": 20,
+  "arm": "independent",
+  "layouts": 1,
+  "styles": 300,
+  "layoutUs": 0,
+  "styleUs": 75,
+  "scriptUs": 89,
+  "scriptUsRange": [
+   84,
+   92
+  ],
+  "taskUs": 1527,
+  "taskUsRange": [
+   1378,
+   1584
+  ]
+ },
+ {
+  "n": 2000,
+  "arm": "y",
+  "layouts": 41,
+  "styles": 341,
+  "layoutUs": 138,
+  "styleUs": 141,
+  "scriptUs": 154,
+  "scriptUsRange": [
+   148,
+   160
+  ],
+  "taskUs": 2980,
+  "taskUsRange": [
+   2859,
+   3228
+  ]
+ },
+ {
+  "n": 2000,
+  "arm": "hit",
+  "layouts": 41,
+  "styles": 341,
+  "layoutUs": 121,
+  "styleUs": 151,
+  "scriptUs": 1138,
+  "scriptUsRange": [
+   1118,
+   1160
+  ],
+  "taskUs": 3976,
+  "taskUsRange": [
+   3864,
+   3997
+  ]
+ },
+ {
+  "n": 2000,
+  "arm": "independent",
+  "layouts": 1,
+  "styles": 300,
+  "layoutUs": 2,
+  "styleUs": 304,
+  "scriptUs": 103,
+  "scriptUsRange": [
+   96,
+   109
+  ],
+  "taskUs": 3035,
+  "taskUsRange": [
+   2724,
+   3062
+  ]
+ }
+]
