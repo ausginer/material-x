@@ -30,6 +30,11 @@
  * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
  * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
  * and `--attribute` gives the retained row's growth per constructor per arm.
+ * `node bench/compare.ts --trace <revision> --out <directory> [--only text] [--dry]`
+ * records Chrome traces of short forms of the move and press rows, with the set-up
+ * outside each trace, on production's `src` at `revision`. It applies no injection
+ * and judges nothing. `--dry` builds the arm and lists the scenarios, with no
+ * browser.
  *
  * A row whose id starts with `in the page:` mirrors the CDP row named by the rest
  * of its id, and drives its timed window from inside the page: one evaluation
@@ -48,15 +53,17 @@
  */
 import { execFile as execFileCallback } from 'node:child_process';
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cpus, loadavg, tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
+import { gzip as gzipCallback } from 'node:zlib';
 import { type Browser, type CDPSession, chromium, type Page } from 'playwright';
 import { rolldown } from 'rolldown';
 import { retainedObjects } from './heap-snapshot.ts';
 
 const execFile = promisify(execFileCallback);
+const gzip = promisify(gzipCallback);
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const BOX_QUAD = join(ROOT, '../box-quad/src/index.ts');
 const PROTOTYPE_REVISION = '599684791';
@@ -227,12 +234,22 @@ const mount = (page: Page, options: LabOptions): Promise<void> =>
     lab.sortable(opts);
   }, options);
 
-async function grabAndCross(page: Page): Promise<void> {
+/** The press of `grabAndCross`: a move to the third row, and the button down. */
+async function grab(page: Page): Promise<void> {
   await page.mouse.move(X, Y0);
   await page.mouse.down();
+}
+
+/** The crossing of `grabAndCross`: past the threshold, then 50 ms. */
+async function cross(page: Page): Promise<void> {
   await page.mouse.move(X, Y0 + 12, { steps: 2 });
   await page.mouse.move(X, Y0 + 20);
   await page.waitForTimeout(50);
+}
+
+async function grabAndCross(page: Page): Promise<void> {
+  await grab(page);
+  await cross(page);
 }
 
 const movePhase = (i: number): number =>
@@ -360,6 +377,27 @@ type HeapNode = Readonly<{
 }>;
 
 /**
+ * The V8 script id of the page's lab bundle. A sampled frame of an inline script
+ * has no url, so the script is found from one of the bundle's functions, before
+ * sampling starts.
+ */
+async function labScriptId(cdp: CDPSession): Promise<string | undefined> {
+  const { result } = await cdp.send('Runtime.evaluate', {
+    expression:
+      "Object.values(lab).find((value) => typeof value === 'function')",
+  });
+  const { internalProperties } = await cdp.send('Runtime.getProperties', {
+    objectId: result.objectId!,
+    ownProperties: true,
+  });
+
+  return (
+    internalProperties?.find(({ name }) => name === '[[FunctionLocation]]')
+      ?.value?.value as { scriptId: string } | undefined
+  )?.scriptId;
+}
+
+/**
  * Bytes per move by function, with no harness `evaluate` during the run. A frame
  * in the lab bundle is keyed `<module>:<function>`, such as
  * `kernel/session.ts:#move`.
@@ -369,21 +407,7 @@ async function samplingProfile(
   moves: (i: number) => Promise<void>,
 ): Promise<Reading> {
   const { cdp, arm } = context;
-
-  // A sampled frame of an inline script has no url, so the lab bundle's script is
-  // found from one of its functions, before sampling starts.
-  const { result } = await cdp.send('Runtime.evaluate', {
-    expression:
-      "Object.values(lab).find((value) => typeof value === 'function')",
-  });
-  const { internalProperties } = await cdp.send('Runtime.getProperties', {
-    objectId: result.objectId!,
-    ownProperties: true,
-  });
-  const labScript = (
-    internalProperties?.find(({ name }) => name === '[[FunctionLocation]]')
-      ?.value?.value as { scriptId: string } | undefined
-  )?.scriptId;
+  const labScript = await labScriptId(cdp);
 
   await cdp.send('HeapProfiler.enable');
   await cdp.send('HeapProfiler.startSampling', {
@@ -1528,6 +1552,7 @@ const { values } = parseArgs({
     attribute: { type: 'boolean', default: false },
     dry: { type: 'boolean', default: false },
     floors: { type: 'boolean', default: false },
+    trace: { type: 'string' },
   },
 });
 
@@ -1713,6 +1738,331 @@ async function floors(
   }
 }
 
+/** The moves a trace's move scenario makes: `movePhase(0)` to `movePhase(60)`. */
+const TRACE_MOVES = 61;
+const TRACE_PRESSES = 10;
+const TRACE_WARM = 3;
+
+/**
+ * The trace categories: those of DevTools' Performance panel that `--trace` needs,
+ * with the CPU profiler at its high-resolution interval, and the script rundown so
+ * that DevTools can show the inline bundle's source.
+ */
+const TRACE_CATEGORIES = [
+  '-*',
+  'devtools.timeline',
+  'disabled-by-default-devtools.timeline',
+  'disabled-by-default-devtools.timeline.frame',
+  'disabled-by-default-devtools.timeline.stack',
+  'disabled-by-default-devtools.target-rundown',
+  'disabled-by-default-devtools.v8-source-rundown',
+  'disabled-by-default-devtools.v8-source-rundown-sources',
+  'disabled-by-default-v8.cpu_profiler',
+  'disabled-by-default-v8.cpu_profiler.hires',
+  'v8.execute',
+  'v8',
+  'cppgc',
+  'blink.user_timing',
+  'blink.console',
+  'latencyInfo',
+  'toplevel',
+];
+
+/**
+ * A short form of the row named by `row`, with its mount options, positions and
+ * waits. `setUp` runs before tracing, and `interact` is the traced interaction,
+ * with a user-timing mark before each phase.
+ */
+type TraceScenario = Readonly<{
+  id: string;
+  file: string;
+  row: string;
+  kind: 'moves' | 'presses';
+  setUp(page: Page): Promise<void>;
+  interact(page: Page, mark: (name: string) => Promise<void>): Promise<void>;
+}>;
+
+/**
+ * Resolves at least two animation frames after every running animation, landing
+ * and row animation alike, has ended. The first two frames let an animation that
+ * the last input starts be created first.
+ */
+const idle = (page: Page): Promise<void> =>
+  page.evaluate(async () => {
+    const frame = (): Promise<number> => new Promise(requestAnimationFrame);
+
+    await frame();
+    await frame();
+
+    while (
+      document
+        .getAnimations()
+        .some(
+          (animation) => animation.pending || animation.playState === 'running',
+        )
+    ) {
+      await frame();
+    }
+
+    await frame();
+    await frame();
+  });
+
+const TRACE_SCENARIOS: readonly TraceScenario[] = [
+  ...[20, 2000].map((count): TraceScenario => ({
+    id: `reordering moves, ${count} items`,
+    file: `moves-${count}`,
+    row: `300 moves, one frame each, ${count} items`,
+    kind: 'moves',
+    async setUp(page) {
+      await mount(page, { count, cached: true, landed: true, refocus: false });
+    },
+    async interact(page, mark) {
+      await mark('press');
+      await grab(page);
+      await mark('crossing');
+      await cross(page);
+      await mark('moves');
+
+      for (let i = 0; i < TRACE_MOVES; i += 1) {
+        await page.mouse.move(X, movePhase(i));
+        await page.evaluate(() => new Promise(requestAnimationFrame));
+      }
+
+      await mark('release');
+      await page.mouse.up();
+      await idle(page);
+      await mark('end');
+    },
+  })),
+  ...(
+    [
+      [2000, false],
+      [2000, true],
+      [20, true],
+    ] as const
+  ).map(([count, cached]): TraceScenario => ({
+    id: `press and release, ${count} items, ${cached ? 'cached array' : '[...root.children]'}`,
+    file: `presses-${count}-${cached ? 'cached' : 'children'}`,
+    row: `press and release below the threshold, ${count} items, ${cached ? 'cached array' : '[...root.children]'}`,
+    kind: 'presses',
+    async setUp(page) {
+      await mount(page, { count, cached, landed: false, refocus: false });
+      await page.mouse.move(X, Y0);
+      await page.waitForTimeout(30);
+    },
+    async interact(page, mark) {
+      for (let i = 0; i < TRACE_PRESSES; i += 1) {
+        await mark(`press ${i}`);
+        await page.mouse.down();
+        await mark(`release ${i}`);
+        await page.mouse.up();
+      }
+
+      await mark('idle');
+      await idle(page);
+      await mark('end');
+    },
+  })),
+];
+
+/**
+ * The fields of a trace's machine record that Node reads: the Node version, the CPU
+ * count, model and core sets, and the one-, five- and fifteen-minute load.
+ */
+async function machineRecord(): Promise<Record<string, unknown>> {
+  const read = (path: string): Promise<string | null> =>
+    readFile(path, 'utf8').then(
+      (text) => text.trim(),
+      () => null,
+    );
+
+  return {
+    node: process.version,
+    cpus: cpus().length,
+    model: cpus()[0]?.model ?? null,
+    coreSets: {
+      cpu_core: await read('/sys/devices/cpu_core/cpus'),
+      cpu_atom: await read('/sys/devices/cpu_atom/cpus'),
+    },
+    load: loadavg(),
+    at: new Date().toISOString(),
+  };
+}
+
+/** The ids of the list's rows, in order. */
+const order = (page: Page): Promise<string> =>
+  page.evaluate(() =>
+    [...document.querySelector('#i0')!.parentElement!.children]
+      .map((row) => row.id)
+      .join(),
+  );
+
+/**
+ * `--trace <revision>`: three warm traces and one cold trace of each selected
+ * scenario, each in its own page from `openPage`, with production's `src` at
+ * `revision`. Each is a gzip-compressed trace beside the arm's bundle and a
+ * `record.json` that holds each trace's machine record and checks. A check that
+ * fails is printed, and the run exits non-zero.
+ */
+async function trace(
+  browser: Browser,
+  arm: Arm,
+  scenarios: readonly TraceScenario[],
+  directory: string,
+  record: Readonly<Record<string, unknown>>,
+): Promise<boolean> {
+  const traces: unknown[] = [];
+  let passed = true;
+
+  for (const scenario of scenarios) {
+    for (let take = 0; take <= TRACE_WARM; take += 1) {
+      const warm = take > 0;
+      const name = `${scenario.file}-${warm ? `warm${take}` : 'cold'}`;
+      const context = await openPage(browser, arm);
+      const { page, cdp } = context;
+      const errors: string[] = [];
+      let recording = false;
+
+      page.on('pageerror', (error) => {
+        if (recording) {
+          errors.push(error.message);
+        }
+      });
+
+      try {
+        const mark = async (label: string): Promise<void> => {
+          await page.evaluate((text) => {
+            performance.mark(text);
+          }, label);
+        };
+
+        await scenario.setUp(page);
+
+        if (warm) {
+          await scenario.interact(page, mark);
+        }
+
+        await idle(page);
+
+        const logBefore = await page.evaluate(() => lab.log.length);
+        const orderBefore = await order(page);
+        const labScript = await labScriptId(cdp);
+        const before = await machineRecord();
+
+        recording = true;
+        await browser.startTracing(page, { categories: TRACE_CATEGORIES });
+        await scenario.interact(page, mark);
+
+        const buffer = await browser.stopTracing();
+
+        recording = false;
+
+        const after = await machineRecord();
+        const logAdded =
+          (await page.evaluate(() => lab.log.length)) - logBefore;
+        const orderChanged = (await order(page)) !== orderBefore;
+        const failures = [
+          ...errors.map((message) => `page error: ${message}`),
+          ...(scenario.kind === 'moves' && logAdded !== 1
+            ? [`lab.log gained ${logAdded} entries, not 1`]
+            : []),
+          ...(scenario.kind === 'presses' && orderChanged
+            ? ['the presses changed the items’ order']
+            : []),
+        ];
+        const compressed = await gzip(buffer);
+
+        await writeFile(join(directory, `${name}.json.gz`), compressed);
+        passed &&= failures.length === 0;
+        traces.push({
+          file: `${name}.json.gz`,
+          scenario: scenario.id,
+          row: scenario.row,
+          warm,
+          labScript,
+          logAdded,
+          orderChanged,
+          failures,
+          before,
+          after,
+        });
+        console.log(
+          `${failures.length === 0 ? 'traced' : 'RETURN'}: ${name}, ${compressed.length} B${failures.length === 0 ? '' : `: ${failures.join('; ')}`}`,
+        );
+      } finally {
+        await page.close();
+      }
+    }
+  }
+
+  await writeFile(
+    join(directory, 'record.json'),
+    `${JSON.stringify({ ...record, chrome: browser.version(), categories: TRACE_CATEGORIES, traces }, null, 1)}\n`,
+  );
+  return passed;
+}
+
+/**
+ * The trace mode's own run: the arm is production's `src` at `revision` with this
+ * branch's lab, as `--before` builds its before arm. `--dry` builds the arm and
+ * lists the selected scenarios, with no browser.
+ */
+async function runTrace(revision: string): Promise<void> {
+  const scenarios = TRACE_SCENARIOS.filter(
+    (each) => !values.only || each.id.includes(values.only),
+  );
+  const scratch = await mkdtemp(join(tmpdir(), 'drag-trace-'));
+
+  try {
+    const arm: Arm = {
+      ...(await bundle(
+        join(ROOT, 'bench/lab.ts'),
+        await archivedSource(scratch, revision, 'packages/drag/src'),
+      )),
+      restoresFocus: true,
+    };
+
+    for (const scenario of scenarios) {
+      console.log(`scenario: ${scenario.id}, mirrors "${scenario.row}"`);
+    }
+
+    if (values.dry) {
+      console.log(
+        `${scenarios.length} scenarios, bundle of ${arm.code.split('\n').length} lines, no browser launched`,
+      );
+      return;
+    }
+
+    const directory = values.out!;
+    const { stdout } = await execFile('git', ['rev-parse', 'HEAD', revision], {
+      cwd: ROOT,
+    });
+    const [head, traced] = stdout.trim().split('\n');
+
+    await writeFile(join(directory, 'bundle.js.txt'), arm.code);
+
+    const browser = await chromium.launch({
+      executablePath:
+        process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome',
+    });
+
+    try {
+      process.exitCode = (await trace(browser, arm, scenarios, directory, {
+        head,
+        traced,
+        modules: arm.modules,
+      }))
+        ? 0
+        : 1;
+    } finally {
+      await browser.close();
+    }
+  } finally {
+    await rm(scratch, { force: true, recursive: true });
+  }
+}
+
 /** Every mode that launches a browser. */
 async function run(
   injections: ReadonlyArray<
@@ -1834,6 +2184,8 @@ if (values.rejudge) {
   }
 
   print(summary);
+} else if (values.trace) {
+  await runTrace(values.trace);
 } else {
   const injections = values.prove
     ? await applyAll(select(INJECTIONS, values.only))
