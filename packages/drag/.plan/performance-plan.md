@@ -51,21 +51,30 @@ One implementer unit: [`performance-resolution-handoff.md`](performance-resoluti
 4. `--prove`, and a `--before a9c323f6a` A/A run that gives the new rows their baseline. B1, B2, the CDP floors and the size table aren't repeated.
 5. **Added on 2026-11-11 by `DRD-44`.** The unit returned at `39c8b432c`: `--prove` failed on both in-page gates, and no floor entry flagged ([assessment](performance-resolution-assessment.md)). One experiment, [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md), attributes that to the machine or the method. It runs four processes, unpinned and pinned to the E-cores, and records each reading's run-queue wait, core class and speed. Its outcome table decides the next change. Step 4's B3' and the in-page floors wait for it.
 6. **Added on 2026-11-11 by `DRD-45`.** The experiment ran at `24cdadc48`, and its outcome is not resolved on both gate rows ([assessment](performance-sensitivity-assessment.md)). Its speed gauge measures its own first run, so `DRD-45` withdraws the gauge test and the rerun. One check, [`performance-page-check-handoff.md`](performance-page-check-handoff.md), reads each in-page gate row in four windows per page across ten pages, with the clock recorded in each window. It tells the page, the window and the clock apart. At the quietest load on record the bounds are still too wide for P3, so a method change follows in any outcome. Before any campaign on `566ebfc65`'s source, the 10 entries its alias cleanup made stale are repaired (`DRD-45` property 9).
+7. **Added on 2026-11-11 by `DRD-46`.** The check returned before any browser process, and the owner stopped it. It is kept for possible later use, and step 6's B3' and in-page floors aren't scheduled. Property 9's repair is still owed before any `--prove` or `--floors` on `566ebfc65`'s source.
 
-The architect then reads each new row's floor against `DRD-43` property 7.
+### P1c. Scenario traces
+
+**Added on 2026-11-11 by `DRD-46`.** One implementer unit: [`performance-trace-handoff.md`](performance-trace-handoff.md).
+
+1. A trace mode of `compare.ts` records short Chrome traces of named scenarios, with set-up outside the traced interaction, from `src` at a named revision.
+2. The first scenarios, at `566ebfc65`: reordering moves at 20 and 2,000 items, and the press and release below the threshold at 2,000 items, with `[...root.children]` and with the cached array.
+3. A report that attributes each phase's main-thread time and names candidates, each with its site, cost, mechanism, expected saving and confirming row. No production change.
+
+The architect then selects one candidate, or none, and records the selection.
 
 ### P3. Optimization units
 
-**Entry condition** (`DRD-43` property 8): a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script. Until a row meets it, no optimization unit starts.
+**Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
-Each unit is one bounded change, chosen from the baseline's attribution (`compare.ts --profile --only <row>`) and not from reading alone. Each unit:
+Each unit is one bounded change at the selected candidate's site. Each unit:
 
-- states the row it expects to move and the floor of that row;
-- measures with `compare.ts --before <baseline commit>`, all rows that the change can reach, and reports each verdict with its sign count, median and A/A bound;
+- states the candidate, its expected saving, and the existing rows that mirror its scenario;
+- measures with `compare.ts --before <baseline commit> --only <rows>` in one process: those rows, and any existing row on another path that the change reaches. It reports each verdict with its sign count, median and A/A bound. The candidate is confirmed by a "faster" verdict on its target row, or by a lower layout count; "no difference shown" goes to the architect, and "slower" on any row returns the unit;
 - runs the three-engine suite, the per-sample tests and the size table;
 - reports a size change with its timing rows, and a timing change with its size rows.
 
-A unit whose target row shows no difference doesn't land as an optimization. The owner decides whether it lands for another reason.
+When the target row shows no difference, the architect decides what follows (`DRD-46` property 8): the change doesn't land as an optimization, or one injection of the expected size at the candidate's site shows whether the row could see it, or a longer row is decided as an instrument change. The owner decides whether a change lands for another reason.
 
 ### P4. Size pass
 

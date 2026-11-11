@@ -1,5 +1,7 @@
 # Performance page check handoff
 
+**Stopped on 2026-11-11 by `DRD-46`,** on the owner's direction, after the return below and before any browser process. The handoff is kept as written for possible later use. If the owner resumes it, the architect first decides the return's blocker and states the base the check runs on. Until then, no unit runs it. The next unit is [`performance-trace-handoff.md`](performance-trace-handoff.md).
+
 **For:** one `implementer` unit on `drag/performance-resolution`, in the worktree `.claude/worktrees/drag-performance-resolution`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `a9c323f6a`'s, and its `bench/` is `a7b3851c1`'s.
 
 **Governing records:** `DRD-45`, and `DRD-44` as it amends, in [`00-index.md`](00-index.md). Also [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md) §4 and §5. The previous unit is [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md). Its [report](performance-sensitivity-report.md) and its probe, [`2026-11-11-sensitivity-probe.ts.txt`](measurements/2026-11-11-sensitivity-probe.ts.txt), are this unit's starting point.
