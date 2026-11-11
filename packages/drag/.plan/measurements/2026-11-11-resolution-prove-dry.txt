@@ -1,0 +1,14 @@
+# command: node bench/compare.ts --prove --dry
+# revision: a7b3851c13fd24730f1e52f011f0f0a28a2d45be
+# before: nproc 12, node v26.13.0, uptime:  01:49:10 up 1 day, 22:12,  0 users,  load average: 4.30, 3.72, 2.81
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+applies: 1 KB allocated per move
+applies: one entry on the step list per frame, expected to stay quiet
+applies: an array of four numbers per sample, in Gesture.enter
+applies: 30 µs of script per move, in the page
+applies: 300 µs of script per cycle, in the page
+9 applied, no browser launched
+# after: nproc 12, node v26.13.0, uptime:  01:49:10 up 1 day, 22:12,  0 users,  load average: 4.30, 3.72, 2.81, exit 0

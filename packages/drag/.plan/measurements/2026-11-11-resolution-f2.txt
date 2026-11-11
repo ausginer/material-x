@@ -1,0 +1,67 @@
+# command: node bench/compare.ts --floors --only in the page --out .plan/measurements/2026-11-11-resolution-f2.json
+# revision: a7b3851c13fd24730f1e52f011f0f0a28a2d45be
+# before: nproc 12, node v26.13.0, uptime:  02:17:15 up 1 day, 22:40,  0 users,  load average: 8.96, 8.29, 6.82
+applies: 30 µs of script per move, in the page
+applies: 10 µs of script per move, in the page
+applies: 5 µs of script per move, in the page
+applies: 2 µs of script per move, in the page
+applies: 300 µs of script per cycle, in the page
+applies: 100 µs of script per cycle, in the page
+applies: 30 µs of script per cycle, in the page
+round 1/7: in the page: 300 moves, one frame each, 20 items
+round 2/7: in the page: 300 moves, one frame each, 20 items
+round 3/7: in the page: 300 moves, one frame each, 20 items
+round 4/7: in the page: 300 moves, one frame each, 20 items
+round 5/7: in the page: 300 moves, one frame each, 20 items
+round 6/7: in the page: 300 moves, one frame each, 20 items
+round 7/7: in the page: 300 moves, one frame each, 20 items
+floor: 30 µs of script per move, in the page ["at or below: 83 against 83","no difference shown: higher in 4 of 7, median 33 µs, A/A bound 167 µs","no difference shown: higher in 3 of 7, median -12 µs, A/A bound 841 µs"]
+round 1/7: in the page: 300 moves, one frame each, 20 items
+round 2/7: in the page: 300 moves, one frame each, 20 items
+round 3/7: in the page: 300 moves, one frame each, 20 items
+round 4/7: in the page: 300 moves, one frame each, 20 items
+round 5/7: in the page: 300 moves, one frame each, 20 items
+round 6/7: in the page: 300 moves, one frame each, 20 items
+round 7/7: in the page: 300 moves, one frame each, 20 items
+floor: 10 µs of script per move, in the page ["at or below: 83 against 83","no difference shown: higher in 5 of 7, median 29 µs, A/A bound 78 µs","no difference shown: higher in 5 of 7, median 72 µs, A/A bound 454 µs"]
+round 1/7: in the page: 300 moves, one frame each, 20 items
+round 2/7: in the page: 300 moves, one frame each, 20 items
+round 3/7: in the page: 300 moves, one frame each, 20 items
+round 4/7: in the page: 300 moves, one frame each, 20 items
+round 5/7: in the page: 300 moves, one frame each, 20 items
+round 6/7: in the page: 300 moves, one frame each, 20 items
+round 7/7: in the page: 300 moves, one frame each, 20 items
+floor: 5 µs of script per move, in the page ["at or below: 83 against 83","no difference shown: higher in 5 of 7, median 12 µs, A/A bound 78 µs","no difference shown: higher in 4 of 7, median 39 µs, A/A bound 279 µs"]
+round 1/7: in the page: 300 moves, one frame each, 20 items
+round 2/7: in the page: 300 moves, one frame each, 20 items
+round 3/7: in the page: 300 moves, one frame each, 20 items
+round 4/7: in the page: 300 moves, one frame each, 20 items
+round 5/7: in the page: 300 moves, one frame each, 20 items
+round 6/7: in the page: 300 moves, one frame each, 20 items
+round 7/7: in the page: 300 moves, one frame each, 20 items
+floor: 2 µs of script per move, in the page ["at or below: 83 against 83","no difference shown: higher in 4 of 7, median 1 µs, A/A bound 26 µs","no difference shown: higher in 3 of 7, median -12 µs, A/A bound 230 µs"]
+round 1/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+floor: 300 µs of script per cycle, in the page ["at or below: 250 against 250","no difference shown: higher in 6 of 7, median 655 µs, A/A bound 1322 µs","no difference shown: higher in 5 of 7, median 708 µs, A/A bound 4028 µs"]
+round 1/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+floor: 100 µs of script per cycle, in the page ["at or below: 250 against 250","no difference shown: higher in 4 of 7, median 546 µs, A/A bound 1571 µs","no difference shown: higher in 5 of 7, median 1124 µs, A/A bound 4540 µs"]
+round 1/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+floor: 30 µs of script per cycle, in the page ["at or below: 250 against 250","no difference shown: higher in 3 of 7, median -65 µs, A/A bound 1065 µs","no difference shown: higher in 3 of 7, median -189 µs, A/A bound 3475 µs"]
+# after: nproc 12, node v26.13.0, uptime:  02:30:08 up 1 day, 22:53,  0 users,  load average: 7.82, 8.08, 7.42, exit 0

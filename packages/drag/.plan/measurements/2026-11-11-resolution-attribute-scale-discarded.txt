@@ -1,0 +1,21 @@
+# command: node .campaigns/probe/attribute-scale.ts .plan/measurements/2026-11-11-resolution-attribute-scale.json
+# revision: a7b3851c13fd24730f1e52f011f0f0a28a2d45be
+# before: nproc 12, node v26.13.0, uptime:  03:28:17 up 1 day, 23:51,  0 users,  load average: 7.31, 9.57, 7.58
+node:internal/util/parse_args/parse_args:383
+        throw new ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL(token.value);
+              ^
+
+TypeError [ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL]: Unexpected argument '.plan/measurements/2026-11-11-resolution-attribute-scale.json'. This command does not take positional arguments
+    at node:internal/util/parse_args/parse_args:383:15
+    at Array.forEach (<anonymous>)
+    at parseArgs (node:internal/util/parse_args/parse_args:374:3)
+    at file:///workspaces/material-x/packages/drag/.campaigns/probe/attribute-scale.ts:1518:20
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5) {
+  code: 'ERR_PARSE_ARGS_UNEXPECTED_POSITIONAL'
+}
+
+Node.js v26.13.0
+# after: nproc 12, node v26.13.0, uptime:  03:28:17 up 1 day, 23:51,  0 users,  load average: 7.31, 9.57, 7.58, exit 1
