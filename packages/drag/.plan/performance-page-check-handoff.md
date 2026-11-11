@@ -104,3 +104,21 @@ The architect applies `DRD-45` property 7 to each row:
 
 - **Page or window:** a method decision, which `DRD-43` deferred, made from these readings.
 - **Clock:** an admission condition, then F1, F2, `--prove` and B3' under it. Any campaign on `566ebfc65`'s source waits for the repair of `DRD-45` property 9.
+
+## Return before the check, on 2026-11-11
+
+The implementer stopped the unit before any browser process, at the owner's direction. No hold was requested, no probe was written and no dry check ran. Nothing under `src/`, `tests/`, `bench/` or `measurements/` changed.
+
+**The blocker: the cycle row's `run` can't run twice in one page.**
+
+- After its window, the row's `run` reads `lab.log.length` and throws unless it equals `CYCLES`, 50 ([`compare.ts`](../bench/compare.ts) lines 759 to 761).
+- `lab.log` belongs to the page's lab bundle and is created once per page. `onEnd` appends one entry per ended operation, and `lab.destroy()` removes the list and destroys the controller, but doesn't clear the log ([`lab.ts`](../bench/lab.ts) lines 42, 78 and 82).
+- So window 2 of every cycle page would read 100 and throw. Item 2's repeat self-check would fail on this, which is this handoff's first and second return conditions.
+- The cause is the run's end check, which counts the page's whole log. The page itself wasn't tested. The move row has no such check.
+
+The implementer didn't choose a remedy. The candidates it identified, none of them applied, are:
+
+- in the probe's copy, check that the window adds 50 entries;
+- clear the log after `lab.destroy()`, which the order's "nothing else" excludes.
+
+The architect decides how the unit resumes.
