@@ -31,6 +31,19 @@
  * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
  * and `--attribute` gives the retained row's growth per constructor per arm.
  *
+ * A row whose id starts with `in the page:` mirrors the CDP row named by the rest
+ * of its id, and drives its timed window from inside the page: one evaluation
+ * dispatches every event as a `PointerEvent` of Chrome's mouse and awaits the
+ * frames the CDP row awaits. Each CDP row's event costs an input command and, on
+ * a move, an evaluation, and their script is most of the row's own, so an
+ * in-page row's script is closer to the library's. A move row's press and
+ * crossing are CDP input before the window; every event of a cycle is in the
+ * window, because the press, activation and drop are what it measures. The
+ * driver-alone row dispatches the 20-item move row's events to a list with no
+ * behavior, which measures the driver's own share. These rows are validation
+ * rows, and run only with arms built from this package's source: `--before`,
+ * `--prove` and `--floors`, never with drag2 and the prototype.
+ *
  * The rules are stated before running, in `judge`'s comment.
  */
 import { execFile as execFileCallback } from 'node:child_process';
@@ -63,6 +76,7 @@ declare const lab: Readonly<{
   sortable(options: LabOptions): void;
   freeDrag(): void;
   noLift(): void;
+  list(count: number): void;
   destroy(): Promise<void>;
 }>;
 
@@ -229,6 +243,8 @@ interface Scenario {
   /** The rule stated before running, in the handoff's terms. */
   readonly rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
   readonly arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
+  /** Runs only with arms built from this package's source, never drag2's or the prototype's. */
+  readonly packageArmsOnly?: true;
   run(context: PageContext): Promise<Reading>;
 }
 
@@ -247,6 +263,83 @@ function movesScenario(count: number): Scenario {
         await page.mouse.move(X, movePhase(i));
         await page.evaluate(() => new Promise(requestAnimationFrame));
       }
+
+      const after = await metrics();
+
+      await page.mouse.up();
+      return delta(before, after, MOVES);
+    },
+  };
+}
+
+/**
+ * The fields of Chrome's mouse, which is pointer 1 and which CDP's input drives, so
+ * that an in-page event reaches the library as that pointer's input does.
+ */
+const MOUSE = {
+  pointerId: 1,
+  pointerType: 'mouse',
+  isPrimary: true,
+  bubbles: true,
+  cancelable: true,
+  composed: true,
+} as const;
+
+/**
+ * The in-page mirror of `movesScenario`: the same press, crossing and positions.
+ * Each move is dispatched to the list, where the root's pointer capture sends a
+ * real one, with the button held. With `mounted` false, no behavior is mounted,
+ * and the row measures the driver's own share.
+ */
+function inPageMovesScenario(count: number, mounted: boolean): Scenario {
+  return {
+    id: mounted
+      ? `in the page: 300 moves, one frame each, ${count} items`
+      : `in the page: driver alone, 300 moves, ${count} items, no behavior`,
+    rule: mounted ? 'exact-and-floor' : 'report',
+    arms: 'sortable',
+    packageArmsOnly: true,
+    async run({ page, metrics }) {
+      if (mounted) {
+        await mount(page, {
+          count,
+          cached: true,
+          landed: true,
+          refocus: false,
+        });
+      } else {
+        await page.evaluate((rows) => {
+          lab.list(rows);
+        }, count);
+      }
+
+      await grabAndCross(page);
+
+      const before = await metrics();
+
+      await page.evaluate(
+        async ({ mouse, x, ys }) => {
+          const root = document.querySelector('#i0')!.parentElement!;
+
+          for (const y of ys) {
+            root.dispatchEvent(
+              new PointerEvent('pointermove', {
+                ...mouse,
+                button: -1,
+                buttons: 1,
+                clientX: x,
+                clientY: y,
+              }),
+            );
+            await new Promise(requestAnimationFrame);
+          }
+        },
+        {
+          mouse: MOUSE,
+          x: X,
+          ys: Array.from({ length: MOVES }, (_, i) => movePhase(i)),
+        },
+      );
 
       const after = await metrics();
 
@@ -600,6 +693,81 @@ const SCENARIOS: readonly Scenario[] = [
       return reading;
     },
   },
+  inPageMovesScenario(20, true),
+  inPageMovesScenario(2000, true),
+  {
+    id: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+    rule: 'exact-and-floor',
+    arms: 'sortable',
+    packageArmsOnly: true,
+    async run({ page, metrics, arm }) {
+      await mount(page, {
+        count: 20,
+        cached: true,
+        landed: false,
+        refocus: !arm.restoresFocus,
+      });
+      await page.waitForTimeout(30);
+
+      const before = await metrics();
+
+      await page.evaluate(
+        async ({ mouse, x, y0, cycles, wait }) => {
+          const root = document.querySelector('#i0')!.parentElement!;
+          // Where the platform sends a pointer event: to the element capturing
+          // the pointer, or else to the element under it.
+          const send = (
+            type: string,
+            y: number,
+            button: number,
+            buttons: number,
+          ): void => {
+            const target = root.hasPointerCapture(mouse.pointerId)
+              ? root
+              : document.elementFromPoint(x, y)!;
+
+            target.dispatchEvent(
+              new PointerEvent(type, {
+                ...mouse,
+                button,
+                buttons,
+                clientX: x,
+                clientY: y,
+              }),
+            );
+          };
+
+          // The CDP row's input: a move to the press, the press, two steps of
+          // 6 px, a move past the gap, one frame and the release.
+          for (let i = 0; i < cycles; i += 1) {
+            send('pointermove', y0, -1, 0);
+            send('pointerdown', y0, 0, 1);
+            send('pointermove', y0 + 6, -1, 1);
+            send('pointermove', y0 + 12, -1, 1);
+            send('pointermove', y0 + 45, -1, 1);
+            await new Promise(requestAnimationFrame);
+            send('pointerup', y0 + 45, 0, 0);
+            await new Promise((resolve) => {
+              setTimeout(resolve, wait);
+            });
+          }
+        },
+        { mouse: MOUSE, x: X, y0: Y0, cycles: CYCLES, wait: ANIMATION_WAIT },
+      );
+
+      const after = await metrics();
+      const ended = await page.evaluate(() => lab.log.length);
+
+      if (ended !== CYCLES) {
+        throw new Error(
+          `${ended} of ${CYCLES} cycles ended: ${JSON.stringify(await page.evaluate(() => lab.log.slice(0, 6)))}`,
+        );
+      }
+
+      return delta(before, after, CYCLES);
+    },
+  },
+  inPageMovesScenario(20, false),
 ];
 
 /** The middle value, or the mean of the two middle values. */
@@ -889,6 +1057,10 @@ const VALIDATION_ROWS: readonly string[] = [
   'press and release below the threshold, 2000 items, cached array',
   'press and release below the threshold, 2000 items, [...root.children]',
   `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
+  'in the page: 300 moves, one frame each, 20 items',
+  'in the page: 300 moves, one frame each, 2000 items',
+  'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+  'in the page: driver alone, 300 moves, 20 items, no behavior',
 ];
 
 /**
@@ -903,6 +1075,22 @@ type Injection = Readonly<{
   replace: string;
   declaration?: string;
 }>;
+
+/**
+ * Loop iterations per µs of script for the floors' fixed work, from one
+ * calibration in this machine's Chrome (performance-instrument-report.md). Fixed
+ * work, because a page that isn't cross-origin isolated can coarsen
+ * `performance.now()` to 100 µs.
+ */
+const ITERATIONS_PER_US = 60;
+const FLOOR_WORK_DECLARATION = 'let floorWork = 0;\n';
+const DROP_SITE = 'const request = buildReorderRequest(';
+const MOVE_SITE =
+  'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);';
+
+/** `us` µs of script, nominal, before `site`. */
+const work = (us: number, site: string): string =>
+  `for (let i = 0; i < ${us * ITERATIONS_PER_US}; i += 1) { floorWork = Math.imul(floorWork ^ i, 0x5bd1e995); }\n    ${site}`;
 
 /**
  * Each entry: an injection, its row, and the verdict that row must give: one that
@@ -981,23 +1169,25 @@ const INJECTIONS: ReadonlyArray<
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
+  {
+    name: '30 µs of script per move, in the page',
+    file: 'sortable/operation.ts',
+    find: MOVE_SITE,
+    replace: work(30, MOVE_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 300 moves, one frame each, 20 items',
+    expect: /FLAG slower/u,
+  },
+  {
+    name: '300 µs of script per cycle, in the page',
+    file: 'sortable/operation.ts',
+    find: DROP_SITE,
+    replace: work(300, DROP_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+    expect: /FLAG slower/u,
+  },
 ];
-
-/**
- * Loop iterations per µs of script for the floors' fixed work, from one
- * calibration in this machine's Chrome (performance-instrument-report.md). Fixed
- * work, because a page that isn't cross-origin isolated can coarsen
- * `performance.now()` to 100 µs.
- */
-const ITERATIONS_PER_US = 60;
-const FLOOR_WORK_DECLARATION = 'let floorWork = 0;\n';
-const DROP_SITE = 'const request = buildReorderRequest(';
-const MOVE_SITE =
-  'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);';
-
-/** `us` µs of script, nominal, before `site`. */
-const work = (us: number, site: string): string =>
-  `for (let i = 0; i < ${us * ITERATIONS_PER_US}; i += 1) { floorWork = Math.imul(floorWork ^ i, 0x5bd1e995); }\n    ${site}`;
 
 /** The detection floors: each at the site of the gate injection on its row. */
 const FLOORS: ReadonlyArray<Injection & Readonly<{ scenario: string }>> = [
@@ -1034,6 +1224,22 @@ const FLOORS: ReadonlyArray<Injection & Readonly<{ scenario: string }>> = [
       "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior.config.onStart?.(this.#query.item);",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
   },
+  ...[30, 10, 5, 2].map((us) => ({
+    name: `${us} µs of script per move, in the page`,
+    file: 'sortable/operation.ts',
+    find: MOVE_SITE,
+    replace: work(us, MOVE_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 300 moves, one frame each, 20 items',
+  })),
+  ...[300, 100, 30].map((us) => ({
+    name: `${us} µs of script per cycle, in the page`,
+    file: 'sortable/operation.ts',
+    find: DROP_SITE,
+    replace: work(us, DROP_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+  })),
 ];
 
 /** The selected entries: those whose name contains one of `only`'s `|`-separated texts. */
@@ -1344,7 +1550,8 @@ async function compareArms(
   const scenarios = SCENARIOS.filter(
     (each) =>
       (values.rows !== 'validation' || VALIDATION_ROWS.includes(each.id)) &&
-      (!values.only || each.id.includes(values.only)),
+      (!values.only || each.id.includes(values.only)) &&
+      (values.before !== undefined || !each.packageArmsOnly),
   );
   const raw = await runScenarios(
     browser,

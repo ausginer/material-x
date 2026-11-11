@@ -42,6 +42,11 @@ const lab = {
   log: [] as string[],
   destroy: (): Promise<void> => Promise.resolve(),
 
+  /** A list with no behavior mounted, for the in-page driver's own cost. */
+  list(count: number): void {
+    makeRows(count);
+  },
+
   sortable({ count, cached, landed, refocus }: Options): void {
     const list = makeRows(count);
     let items = [...list.children] as HTMLElement[];
