@@ -206,6 +206,16 @@ describe('drag:DRI-17 hot path', () => {
 
       await commands.pointerMove(start.x, start.y + 10, 2);
       await frames();
+
+      // This first pass is not sampled. It lets the kernel's code reach its
+      // optimized form, so the test bounds what warm code allocates. What the
+      // earlier tiers allocate depends on what ran before the test.
+      for (let i = 0; i < 300; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one sample per step
+        await commands.pointerMove(start.x + (i % 40), start.y + 12);
+      }
+
+      await frames();
       await commands.startHeapSampling(64);
 
       for (let i = 0; i < 300; i += 1) {
@@ -231,10 +241,9 @@ describe('drag:DRI-17 hot path', () => {
         key.startsWith('lift.ts:'),
       );
 
-      // The kernel is every module under `src/kernel/` and `src/draggable.ts`. A
-      // sampling profile attributes in steps of its interval, so a few bytes per
-      // move remain from reading an event field. An object per sample would show as
-      // tens of bytes.
+      // The kernel is every module under `src/kernel/` and `src/draggable.ts`.
+      // Warm, the kernel reads 0 to about 1 B per move. An allocation that
+      // escapes, such as an object per sample, shows as tens of bytes.
       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
         'lift.ts:translate',
