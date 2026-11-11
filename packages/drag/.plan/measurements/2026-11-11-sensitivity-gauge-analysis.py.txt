@@ -1,0 +1,63 @@
+# The architect's analysis of the DRD-44 speed gauge, from the four raw JSON files
+# of the sensitivity campaign. Run: python3 -I <this file> <measurements dir>
+# It reads only 2026-11-11-sensitivity-{U1,E1,U2,E2}.json and prints the figures
+# that performance-sensitivity-assessment.md §3 cites.
+import json, math, statistics as st, sys
+
+D = sys.argv[1]
+PROCESSES = ['U1', 'E1', 'U2', 'E2']
+
+
+def corr(x, y):
+    mx, my = st.mean(x), st.mean(y)
+    sx = math.sqrt(sum((a - mx) ** 2 for a in x))
+    sy = math.sqrt(sum((b - my) ** 2 for b in y))
+    return sum((a - mx) * (b - my) for a, b in zip(x, y)) / (sx * sy)
+
+
+def short(scenario):
+    if scenario.startswith('in the page: 300'):
+        return 'move gate row'
+    if scenario.startswith('in the page: 50'):
+        return 'cycle gate row'
+    return 'CDP move row'
+
+
+all_before = []
+all_after_floor = {}
+for p in PROCESSES:
+    d = json.load(open(f'{D}/2026-11-11-sensitivity-{p}.json'))
+    recs = []
+    for sc, arms in d['records'].items():
+        for arm, lst in arms.items():
+            for i, r in enumerate(lst):
+                recs.append(dict(r, sc=sc, arm=arm, script=d['raw'][sc][arm][i]['scriptUs']))
+    b = [r['gaugeBeforeMs'] for r in recs]
+    a = [r['gaugeAfterMs'] for r in recs]
+    floor_a = min(a)
+    print(f'== {p}: {len(recs)} readings')
+    print(f'  before: median {st.median(b):.1f} ms, lowest {min(b):.1f}; after: median {st.median(a):.1f} ms, lowest {floor_a:.1f}')
+    print(f'  lowest before / lowest after: {min(b) / floor_a:.2f}')
+    print(f'  before slower than after: {sum(x > y for x, y in zip(b, a))} of {len(recs)}; median before - after {st.median([x - y for x, y in zip(b, a)]):.1f} ms')
+    print(f'  before within 5 % of the lowest after: {sum(x <= 1.05 * floor_a for x in b)} of {len(recs)}')
+    print(f'  Pearson r(before, after) over the readings: {corr(b, a):+.2f}')
+    for sc in d['records']:
+        rs = [r for r in recs if r['sc'] == sc]
+        norm = []
+        for r in rs:
+            m = st.median([q['script'] for q in rs if q['arm'] == r['arm']])
+            norm.append(r['script'] / m)
+        gb = [r['gaugeBeforeMs'] for r in rs]
+        ga = [r['gaugeAfterMs'] for r in rs]
+        print(f'  {short(sc)}: gauge median before {st.median(gb):.1f}, after {st.median(ga):.1f} ms; '
+              f'r(script / arm median, before) {corr(norm, gb):+.2f}, r(script / arm median, after) {corr(norm, ga):+.2f}')
+    wp = sum(r['settled']['wait'] and r['settled']['placement'] for r in recs)
+    print(f'  settled readings as recorded: {sum(r["settled"]["all"] for r in recs)}; '
+          f'wait and placement met: {wp}; wait met: {sum(r["settled"]["wait"] for r in recs)}')
+    sc = '300 moves, one frame each, 20 items'
+    raw = d['raw'][sc]
+    pr = [x['scriptUs'] for x in raw['production']]
+    co = [x['scriptUs'] for x in raw['control']]
+    base = st.median([x['scriptUs'] for x in raw['base']])
+    bound = max(abs(x - y) for x, y in zip(co, pr))
+    print(f'  CDP move row: bound {bound:.1f} us / base median {base:.1f} us = {bound / base:.3f}')
