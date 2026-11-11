@@ -63,7 +63,11 @@ One implementer unit: [`performance-resolution-handoff.md`](performance-resoluti
 
 The architect then selects one candidate, or none, and records the selection.
 
+**Done on 2026-11-11:** the traces were recorded at `e92e21eed` ([report](performance-trace-report.md), [assessment](performance-trace-assessment.md)), and `DRD-47` selects candidate 2 in a changed form.
+
 ### P3. Optimization units
+
+**First unit:** [`performance-drop-handoff.md`](performance-drop-handoff.md), `DRD-47`. The pointer drop confirms the axis cache against one row instead of measuring every row, and the 2,000-item cycle rows confirm it.
 
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
