@@ -61,5 +61,6 @@ storybook-static
 
 .agents/codex
 .claude/worktrees
+.codex-attachments
 .claude/settings.local.json
 *.patch
