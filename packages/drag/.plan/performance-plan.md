@@ -77,6 +77,7 @@ After the runtime units, under CONTRIBUTING Part II: delete machinery before com
 - **No threshold, rule, scenario or budget moves with a reading.** A change is a decision first, which names its reading.
 - **An instrument change is shown by an injection it catches** (`DRD-23`), and the floors are measured again after it.
 - **Nothing else runs on the machine from the same session** during a timing run. Other sessions can't be controlled, so the load average is the record of them.
+- **A long sequence of runs goes through [`bench/campaign.ts`](../bench/campaign.ts).** It runs the commands in order, stops at the first failure, and records each command's revision, process, times, exit code and log in `.campaigns/<id>/status.json`. `campaign.ts status` reports each run as running, succeeded, failed or interrupted from that file and `/proc`, not from a log. It writes nothing while a step runs. It changes no scenario, rule or threshold. Report: [`campaign-runner-report.md`](campaign-runner-report.md).
 
 ## 4. Open items this plan doesn't decide
 
