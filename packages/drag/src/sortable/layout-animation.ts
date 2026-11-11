@@ -48,6 +48,7 @@ type RowAnimation = Readonly<{
  * is still exactly what the element carries, so it is not clamped.
  */
 function remainingOf(animation: Animation): number {
+  // Called once: each call returns a new timing dictionary.
   const { progress } = animation.effect!.getComputedTiming();
 
   return progress == null ? 0 : 1 - progress;

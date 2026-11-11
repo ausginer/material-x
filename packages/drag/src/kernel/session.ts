@@ -375,10 +375,8 @@ export class Session<
 
     // Motion is open only while pending or active, and the operation is held
     // exactly while active there.
-    const operation = this.#operation;
-
-    if (operation) {
-      operation.move?.();
+    if (this.#operation) {
+      this.#operation.move?.();
       return;
     }
 
@@ -407,16 +405,14 @@ export class Session<
   #up(event: PointerEvent): void {
     // Motion is open only while pending or active, and the operation is held
     // exactly while active there.
-    const operation = this.#operation;
-
-    if (!operation) {
+    if (!this.#operation) {
       this.#endPending();
       return;
     }
 
     this.#drag.x = event.clientX;
     this.#drag.y = event.clientY;
-    this.#drop(operation);
+    this.#drop(this.#operation);
   }
 
   #activate(): void {
@@ -577,6 +573,7 @@ export class Session<
       this.#verdictAborter?.abort();
     }
 
+    // One read for four uses, one of them in the deferred `end` step.
     const operation = this.#operation;
 
     if (operation) {

@@ -141,9 +141,8 @@ export function linearShift(index: RectIndex): LinearShift {
       let delta = lastGap < gap ? -rowDistance : rowDistance;
 
       if (rowDistance < 0) {
-        const { values, items } = index;
         // Any crossed row works, because they all traveled the same constant.
-        const probe = items[lo]!;
+        const probe = index.items[lo]!;
         let observed = (
           context.box ? context.box(probe) : probe
         ).getBoundingClientRect().top;
@@ -158,13 +157,14 @@ export function linearShift(index: RectIndex): LinearShift {
           observed = scratch[TOP]!;
         }
 
-        delta = observed - values[lo * STRIDE + TOP]!;
+        delta = observed - index.values[lo * STRIDE + TOP]!;
         rowDistance = delta < 0 ? -delta : delta;
       }
 
       index.advance(lo, hi, delta);
 
       if (context.displacement) {
+        // Read once, outside a loop that calls into the sink.
         const { items } = index;
 
         for (let i = lo; i < hi; i += 1) {

@@ -78,6 +78,7 @@ export function dropTargets(options: DropTargetsOptions): DropTargets {
         }
       }
 
+      // Read once, outside the hit-test loop.
       const { x, y } = drag;
       let hit: HTMLElement | null = null;
 

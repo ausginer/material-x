@@ -31,19 +31,21 @@ export function y(): AxisInstaller {
 
     return {
       resolve(query, context) {
-        const { snapshot, item, insertion, pointerY } = query;
+        // Read once, outside the candidate loop.
+        const { pointerY } = query;
 
         shift.refresh(
-          snapshot,
-          item,
+          query.snapshot,
+          query.item,
           context.box,
           context.placeholder,
           context.displacement,
-          insertion ? insertion.index : -1,
+          query.insertion ? query.insertion.index : -1,
         );
 
-        const { values, count, placeholderRect, items } = index;
-        const anchor = placeholderRect[CENTER_Y]!;
+        // Read once, outside the candidate loop.
+        const { values, count } = index;
+        const anchor = index.placeholderRect[CENTER_Y]!;
         let best = Math.abs(pointerY - anchor);
         let nearest = -1;
 
@@ -65,7 +67,7 @@ export function y(): AxisInstaller {
         const gap =
           values[nearest * STRIDE + CENTER_Y]! > anchor ? nearest + 1 : nearest;
 
-        return insertionAt(items, gap);
+        return insertionAt(index.items, gap);
       },
 
       invalidate() {

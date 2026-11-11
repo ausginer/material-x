@@ -36,17 +36,19 @@ export function xy(): AxisInstaller {
 
     return {
       resolve(query, context) {
-        const { snapshot, item, insertion, pointerX, pointerY } = query;
+        // Read once, outside the candidate loop.
+        const { pointerX, pointerY } = query;
 
         index.refresh(
-          snapshot,
-          item,
+          query.snapshot,
+          query.item,
           context.box,
           context.placeholder,
           context.displacement,
         );
-        last = insertion ? insertion.index : -1;
+        last = query.insertion ? query.insertion.index : -1;
 
+        // Read once, outside the candidate loop.
         const { values, count, placeholderRect, items } = index;
         const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
         const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
@@ -81,12 +83,13 @@ export function xy(): AxisInstaller {
       invalidate,
 
       moved(query, context) {
+        // Read once: the per-row loop below calls into it.
         const { displacement } = context;
         const gap = query.insertion!.index;
-        const from = last;
+        // Taken before the refresh below rewrites the count.
         const held = index.count;
 
-        if (!displacement || from < 0 || from === gap || held === 0) {
+        if (!displacement || last < 0 || last === gap || held === 0) {
           invalidate();
           return;
         }
@@ -95,6 +98,7 @@ export function xy(): AxisInstaller {
           before = new Float64Array(held * 2);
         }
 
+        // Read once, outside the loop, before the refresh rewrites the buffer.
         const stale = index.values;
 
         for (let i = 0; i < held; i += 1) {
@@ -113,7 +117,8 @@ export function xy(): AxisInstaller {
         last = gap;
 
         // Moving the placeholder reorders nothing in the destination view, so
-        // slot `i` is the same element on both sides of the write.
+        // slot `i` is the same element on both sides of the write. Read once,
+        // outside the loop.
         const { values, items, count } = index;
         const span = count < held ? count : held;
 

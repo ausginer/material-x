@@ -93,9 +93,10 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   move(): void {
-    const drag = this.#drag;
-
-    this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+    this.#lift.translate(
+      this.#drag.x - this.#drag.originX,
+      this.#drag.y - this.#drag.originY,
+    );
     this.#frame.schedule();
   }
 
@@ -137,12 +138,12 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
 
   settle(outcome: Outcome<ReorderResolution>): void {
     const recovery = this.#recordResult(outcome);
-    const composed = this.#behavior.landing;
 
-    if (composed && recovery !== RECOVERY_IMMEDIATE) {
+    if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
+      // Called once: it moves the placeholder and then reads layout.
       const { left, top } = this.#landingTarget(recovery);
 
-      this.#lift.land(left, top, composed);
+      this.#lift.land(left, top, this.#behavior.landing);
     }
   }
 

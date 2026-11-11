@@ -105,19 +105,19 @@ export class RectIndex {
       return;
     }
 
-    const list = snapshot.items;
-
-    if (list.length > this.#capacity) {
-      this.#capacity = capacityFor(list.length);
+    if (snapshot.items.length > this.#capacity) {
+      this.#capacity = capacityFor(snapshot.items.length);
       this.#values = new Float64Array(this.#capacity * STRIDE);
     }
 
+    // Locals, not repeated field reads: the loop writes `values` and `items` once
+    // per slot, `placeholderRect` takes six writes, and a local is also smaller.
     const values = this.#values;
     const items = this.#items;
     const placeholderRect = this.#placeholderRect;
     let n = 0;
 
-    for (const item of list) {
+    for (const item of snapshot.items) {
       if (item === dragged) {
         continue;
       }
@@ -161,6 +161,7 @@ export class RectIndex {
    * the shifted edges, so the arithmetic is the one a full scan performs.
    */
   advance(lo: number, hi: number, delta: number): void {
+    // Read once, outside the per-slot loop.
     const values = this.#values;
 
     for (let i = lo; i < hi; i += 1) {
@@ -180,6 +181,7 @@ export class RectIndex {
    */
   remeasurePlaceholder(placeholder: HTMLElement): void {
     const { top, bottom } = placeholder.getBoundingClientRect();
+    // A local is smaller than three field reads, even with mangled private names.
     const placeholderRect = this.#placeholderRect;
 
     placeholderRect[TOP] = top;
@@ -228,6 +230,7 @@ export function verifyEquivalence(
   placeholder: HTMLElement,
   displacement: DisplacementSink | null,
 ): void {
+  // Taken before the refresh below rewrites the count.
   const held = index.count;
   const predicted = index.values.slice(0, held * STRIDE);
   const predictedPlaceholder = index.placeholderRect.slice();
@@ -238,6 +241,7 @@ export function verifyEquivalence(
 
   const differs = (a: number, b: number): boolean =>
     Math.abs(a - b) > EQUIVALENCE_SLACK;
+  // Read once, outside the comparison loops.
   const { values, placeholderRect, items, count } = index;
   let mismatch = count === held ? '' : `count ${held}, full scan ${count}`;
 
