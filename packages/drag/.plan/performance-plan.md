@@ -18,6 +18,8 @@
 
 **Why the floor matters.** At `b91db2818` production's script time was about 192 µs per move and 2.5 ms per cycle at 20 items, against A/A bounds of 44 µs and 387 µs ([`2026-11-07-compare.json`](measurements/2026-11-07-compare.json)). Task time's bounds were 0.7 ms per move and 2.6 ms per cycle. A 10 % saving in script time is inside both script bounds. Until the floor is measured, a "no difference shown" says nothing about an optimization.
 
+**After P1, at `c279973a3`** ([assessment](performance-instrument-assessment.md) §4). Layout counts are exact. The bytes row flags one two-number object per sample, and the retained row flags one per operation. The kernel per-sample test fails alone and passes after other tests, and `DRD-42` repairs it. **No timing row resolves an optimization.** The 20-item move row flagged 50 µs measured and missed 147 µs and 5 µs, with A/A bounds of 20 to 221 µs per move. The 20-item cycle row missed 411 µs, with bounds of 334 to 3,283 µs per cycle. `DRD-43` adds rows driven from inside the page (P1b).
+
 ## 2. Phases
 
 ### P1. Instruments, then the baseline
@@ -37,7 +39,22 @@ One implementer unit: [`performance-instrument-handoff.md`](performance-instrume
 - **The detection floors.** If a floor is coarser than the effects worth pursuing, the architect decides how to raise the resolution before any optimization. Examples: more rounds, more events per reading, or an in-page row that dispatches events without CDP input. A change to `judge` or to a scenario is a decision (`DRD-40` property 3).
 - **`DRO-4`.** The baseline's timing against drag2 and the prototype goes to the owner, with each slower row and the profile that attributes it.
 
+**Decided on 2026-11-11** ([assessment](performance-instrument-assessment.md)): the per-sample test gets one unsampled pass of its own loop before sampling (`DRD-42`). The timing floors are too coarse, and P1b raises the resolution on the move path and the cycle (`DRD-43`). `DRO-4` holds the baseline's reading for the owner. The retained row's attribution is in P1b.
+
+### P1b. Resolution
+
+One implementer unit: [`performance-resolution-handoff.md`](performance-resolution-handoff.md).
+
+1. `DRD-42`: the per-sample test's warm pass, with M1, M2 and M3 failing under it.
+2. `DRD-43`: rows driven from inside the page for 300 moves at 20 and 2,000 items and for 50 cycles at 20 items, a row that measures the driver alone, two gate injections, and graded entries measured in two runs.
+3. The retained row's attribution, for `DRO-4`.
+4. `--prove`, and a `--before a9c323f6a` A/A run that gives the new rows their baseline. B1, B2, the CDP floors and the size table aren't repeated.
+
+The architect then reads each new row's floor against `DRD-43` property 7.
+
 ### P3. Optimization units
+
+**Entry condition** (`DRD-43` property 8): a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script. Until a row meets it, no optimization unit starts.
 
 Each unit is one bounded change, chosen from the baseline's attribution (`compare.ts --profile --only <row>`) and not from reading alone. Each unit:
 
