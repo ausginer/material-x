@@ -49,6 +49,7 @@ One implementer unit: [`performance-resolution-handoff.md`](performance-resoluti
 2. `DRD-43`: rows driven from inside the page for 300 moves at 20 and 2,000 items and for 50 cycles at 20 items, a row that measures the driver alone, two gate injections, and graded entries measured in two runs.
 3. The retained row's attribution, for `DRO-4`.
 4. `--prove`, and a `--before a9c323f6a` A/A run that gives the new rows their baseline. B1, B2, the CDP floors and the size table aren't repeated.
+5. **Added on 2026-11-11 by `DRD-44`.** The unit returned at `39c8b432c`: `--prove` failed on both in-page gates, and no floor entry flagged ([assessment](performance-resolution-assessment.md)). One experiment, [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md), attributes that to the machine or the method. It runs four processes, unpinned and pinned to the E-cores, and records each reading's run-queue wait, core class and speed. Its outcome table decides the next change. Step 4's B3' and the in-page floors wait for it.
 
 The architect then reads each new row's floor against `DRD-43` property 7.
 
