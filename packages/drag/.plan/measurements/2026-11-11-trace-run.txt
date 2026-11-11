@@ -1,0 +1,29 @@
+# command: node bench/compare.ts --trace 566ebfc65 --out .plan/measurements/traces/2026-11-11
+# revision: 743921de003bc8b99d71a6f39251dd57e3442869
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:17:19 up 2 days,  8:40,  0 users,  load average: 1.80, 1.90, 1.95
+scenario: reordering moves, 20 items, mirrors "300 moves, one frame each, 20 items"
+scenario: reordering moves, 2000 items, mirrors "300 moves, one frame each, 2000 items"
+scenario: press and release, 2000 items, [...root.children], mirrors "press and release below the threshold, 2000 items, [...root.children]"
+scenario: press and release, 2000 items, cached array, mirrors "press and release below the threshold, 2000 items, cached array"
+scenario: press and release, 20 items, cached array, mirrors "press and release below the threshold, 20 items, cached array"
+traced: moves-20-cold, 893189 B
+traced: moves-20-warm1, 848173 B
+traced: moves-20-warm2, 860369 B
+traced: moves-20-warm3, 842174 B
+traced: moves-2000-cold, 890389 B
+traced: moves-2000-warm1, 853236 B
+traced: moves-2000-warm2, 961830 B
+traced: moves-2000-warm3, 848896 B
+traced: presses-2000-children-cold, 224535 B
+traced: presses-2000-children-warm1, 205491 B
+traced: presses-2000-children-warm2, 205684 B
+traced: presses-2000-children-warm3, 208727 B
+traced: presses-2000-cached-cold, 230615 B
+traced: presses-2000-cached-warm1, 205669 B
+traced: presses-2000-cached-warm2, 204455 B
+traced: presses-2000-cached-warm3, 205068 B
+traced: presses-20-cached-cold, 219070 B
+traced: presses-20-cached-warm1, 209406 B
+traced: presses-20-cached-warm2, 210155 B
+traced: presses-20-cached-warm3, 204405 B
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:18:05 up 2 days,  8:41,  0 users,  load average: 2.50, 2.06, 2.00, exit 0

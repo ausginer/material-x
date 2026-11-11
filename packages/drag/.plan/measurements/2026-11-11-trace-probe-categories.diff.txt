@@ -1,0 +1,9 @@
+1756d1755
+<   'disabled-by-default-devtools.timeline.stack',
+
+# the second probe also removes:
+1756d1755
+<   'disabled-by-default-devtools.timeline.stack',
+1760,1761d1758
+<   'disabled-by-default-v8.cpu_profiler',
+<   'disabled-by-default-v8.cpu_profiler.hires',
