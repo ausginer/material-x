@@ -1,0 +1,16 @@
+# command: taskset -c 4-11 node .campaigns/sensitivity-probe/probe.ts --self-check
+# revision: 25b8c7a8f7a60bd132f9e49fa600fff841c8abee
+# before: 2026-11-11T04:51:53.724Z
+#   nproc 12, node v26.13.0, uptime:  04:51:53 up 2 days,  1:14,  0 users,  load average: 1.17, 1.51, 1.89
+#   cpu: 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11
+#   pressure: some avg10=0.00 avg60=0.00 avg300=0.00 total=4092528076
+#   git status --porcelain: [?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt;]
+machine: {"time":"2026-11-11T04:51:54.132Z","nproc":"8","node":"v26.13.0","uptime":"04:51:54 up 2 days,  1:14,  0 users,  load average: 1.17, 1.51, 1.89","cpuModel":"12th Gen Intel(R) Core(TM) i7-1255U","cpuCore":"0-3","cpuAtom":"4-11","affinity":"pid 848359's current affinity list: 4-11","revision":"25b8c7a8f7a60bd132f9e49fa600fff841c8abee","gitStatus":"?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt"}
+self-check: {"loopMs":21.69999998807907,"start":"2026-11-11T04:51:54.396Z","end":"2026-11-11T04:51:54.420Z","windowMs":24.13387799999998,"rendererPid":848511,"renderers":3,"thread":"chrome","onCpuMs":21.997719,"waitMs":0,"samples":1,"shareCpu0to3":0,"pressureUs":22,"load1":1.17}
+on-CPU at least 200 ms: NO; every sample in 4-11: yes
+# after: 2026-11-11T04:51:54.632Z
+#   nproc 12, node v26.13.0, uptime:  04:51:54 up 2 days,  1:14,  0 users,  load average: 1.17, 1.51, 1.89
+#   cpu: 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11
+#   pressure: some avg10=0.00 avg60=0.00 avg300=0.00 total=4092538104
+#   git status --porcelain: [?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt;]
+# exit 1
