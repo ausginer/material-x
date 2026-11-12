@@ -42,6 +42,15 @@ function capacityFor(needed: number): number {
 }
 
 /**
+ * One slack value, sized to the precision at which geometry is reported. Gecko
+ * reports a rect in 1/60 px, so a settled reading is off by up to 1/120 px. A
+ * predicted slot is a reading plus the difference of two readings, and the rebuild
+ * carries its own, so the bound is 1/30 px. The slack is the next power of two above
+ * it, far below the smallest disagreement a broken rule produces, which is a row.
+ */
+const EQUIVALENCE_SLACK = 1 / 16;
+
+/**
  * The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
  * resolution, and `items` only when proposing a gap change. Do not add a read
  * inside the candidate loop.
@@ -189,6 +198,54 @@ export class RectIndex {
     placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
   }
 
+  /**
+   * Whether one slot's element is still where the cache holds it: measured again like
+   * a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A
+   * scroll or a layout shift outside the list moves every slot by one vector, so one
+   * slot shows it. A stale or empty cache reads nothing and answers `true`, because
+   * its next refresh measures every slot anyway.
+   *
+   * The slot is the end of the list farther from `gap`, the gap the placeholder
+   * holds. Committed moves displace the slots next to the gap, so a slot far from it
+   * is the least likely to carry a running animation, and a settled reading that
+   * misses by more than the slack costs a full measurement.
+   */
+  holds(
+    gap: number,
+    snapshot: CollectionSnapshot,
+    getBox: ((item: HTMLElement) => HTMLElement) | null,
+    displacement: DisplacementSink | null,
+  ): boolean {
+    if (
+      this.#dirty ||
+      this.#measured !== snapshot.version ||
+      this.#count === 0
+    ) {
+      return true;
+    }
+
+    const slot = gap * 2 < this.#count ? this.#count - 1 : 0;
+    const item = this.#items[slot]!;
+    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+    // Packed like a slot, because the sink settles slots. Only left and top are
+    // compared.
+    const scratch = new Float64Array(STRIDE);
+
+    scratch[LEFT] = rect.left;
+    scratch[TOP] = rect.top;
+    scratch[RIGHT] = rect.right;
+    scratch[BOTTOM] = rect.bottom;
+    displacement?.settle(scratch, [item], 1);
+
+    const offset = slot * STRIDE;
+
+    return (
+      Math.abs(scratch[LEFT] - this.#values[offset + LEFT]!) <=
+        EQUIVALENCE_SLACK &&
+      Math.abs(scratch[TOP] - this.#values[offset + TOP]!) <= EQUIVALENCE_SLACK
+    );
+  }
+
   /** One flag, because any reason for staleness forces the same full rebuild. */
   invalidate(): void {
     this.#dirty = true;
@@ -205,15 +262,6 @@ export class RectIndex {
     this.#measured = -1;
   }
 }
-
-/**
- * One slack value, sized to the precision at which geometry is reported. Gecko
- * reports a rect in 1/60 px, so a settled reading is off by up to 1/120 px. A
- * predicted slot is a reading plus the difference of two readings, and the rebuild
- * carries its own, so the bound is 1/30 px. The slack is the next power of two above
- * it, far below the smallest disagreement a broken rule produces, which is a row.
- */
-const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
  * Development only: the buffer the previous advance wrote must equal what a full

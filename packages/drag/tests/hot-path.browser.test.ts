@@ -172,6 +172,39 @@ describe('drag:DRI-17 hot path', () => {
     },
   );
 
+  it('drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400', async () => {
+    const readsAtDrop = async (count: number): Promise<number> => {
+      const list = makeList(count);
+      const controller = basicSortable(list);
+      const start = await press('#r0');
+
+      // Past the threshold, then across one row, so the drop follows a committed
+      // move and a frame that resolved against a warm cache.
+      await commands.pointerMove(start.x, start.y + 20, 2);
+      await frames();
+      await moveHeld(start.x, start.y + 50);
+
+      const census = countLayoutReads();
+
+      await commands.pointerUp();
+      // A frame passes in every engine before the release is counted, and with no
+      // landing nothing after the drop reads layout.
+      await frames();
+
+      const reads = census.reads();
+
+      await controller.requestDestroy();
+      list.remove();
+      return reads;
+    };
+
+    const few = await readsAtDrop(20);
+    const many = await readsAtDrop(400);
+
+    expect(log.filter((entry) => entry === 'end:accepted')).toHaveLength(2);
+    expect(many).toBe(few);
+  });
+
   it('should run no consumer callback per sample', async () => {
     const list = makeList(5);
     let calls = 0;

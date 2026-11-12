@@ -74,6 +74,19 @@ export function y(): AxisInstaller {
         shift.invalidate();
       },
 
+      confirm(query, context) {
+        if (
+          !index.holds(
+            query.insertion ? query.insertion.index : -1,
+            query.snapshot,
+            context.box,
+            context.displacement,
+          )
+        ) {
+          shift.invalidate();
+        }
+      },
+
       moved(query, context) {
         shift.moved(query.insertion!.index, query.snapshot, context);
       },

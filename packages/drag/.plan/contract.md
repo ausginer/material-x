@@ -294,6 +294,8 @@ The library's `landing()` is additive and has these properties. A third-party `L
 
 An in-place change that the library can read before `invalidate()` is outside this contract, and so is a change during a drag without `invalidate()`. The library doesn't detect either.
 
+**Geometry.** `sortable` measures the items at the operation's first resolution, and again after a scroll, a resize or `invalidate()`. A pointer drop resolves at the release position. It first measures one item again, and measures every item when that one moved, so the drop sees a scroll whose event hasn't reached the library yet. A change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`. Without it, the change is outside this contract.
+
 During a drag, `invalidate()` re-reads the collection. A surviving gap rebases. A lost adjacency or a removed item cancels. After the drop, a collection change no longer affects the operation. The request carries `item`, `from`, `to`, `previous` and `next`, so `insertBefore(item, next)` is correct.
 
 #### DRI-15 — Placeholder integrity
@@ -367,6 +369,7 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-12 | `DRI-14` | **Added:** the **Geometry** paragraph. A pointer drop measures one item again and measures every item only when that item moved, and a change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`. The contract used to state nothing about the sortable drop's geometry, and the drop measured every item. `DRD-47` |
 | 2026-11-10 | Public surface | **Added:** `draggable.js` exports the type `VerdictAwaiter`, and `free-drag.js` exports `DragAxis`, `FreeDragSubject` and `ResolveHome`. A type that a published signature names is exported, except the `axis` and `displacement` installers. Published signatures used to name these four, and no entry exported them. `DRD-39`, `DRF-10` |
 | 2026-11-10 | `DRI-9` | **Corrected:** the lift's release and the landing's start are two disposers. The release runs first, and the landing still starts when the release threw. This was already `DRD-27`'s rule and the code's. It used to say that the lift is released as the last disposer and that the landing starts "in the same disposer", which implied that a throwing release stops the landing. `DRF-11` |
 | 2026-11-09 | Public surface | **Added:** `Drag` and `Lift` are types of values the library creates, wrapped in `Readonly<>`, and a consumer doesn't implement or augment them. The code declared them as interfaces, which a consumer could augment. **Corrected:** the overloads without a receiver declare `this: undefined` on the callback, as `DRD-35` property 1 and the code have it. The sketch had no `this` there. `DRD-38`, and the callback list report's finding 2 |

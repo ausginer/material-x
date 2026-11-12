@@ -106,7 +106,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     this.#frame.cancel();
 
     if (isPointerOperation) {
-      this.#behavior.axis.invalidate();
+      this.#behavior.axis.confirm(this.#query, this.#context);
       this.#query.pointerX = this.#drag.x;
       this.#query.pointerY = this.#drag.y;
       this.#query.insertion =

@@ -82,6 +82,19 @@ export function xy(): AxisInstaller {
 
       invalidate,
 
+      confirm(query, context) {
+        if (
+          !index.holds(
+            query.insertion ? query.insertion.index : -1,
+            query.snapshot,
+            context.box,
+            context.displacement,
+          )
+        ) {
+          invalidate();
+        }
+      },
+
       moved(query, context) {
         // Read once: the per-row loop below calls into it.
         const { displacement } = context;

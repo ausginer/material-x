@@ -55,6 +55,12 @@ export interface InsertionGeometry {
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /** Staleness only, because scroll calls it many times a second. */
   invalidate(this: InsertionGeometry): void;
+  /**
+   * Before a pointer drop's resolution: measures one cached slot again, and calls
+   * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
+   * row, and the drop has no later frame to correct it.
+   */
+  confirm(query: AxisQuery, context: AxisContext): void;
   /** The committed move landed: keep the cache true and report what moved. */
   moved(query: AxisQuery, context: AxisContext): void;
   retire(this: InsertionGeometry): void;

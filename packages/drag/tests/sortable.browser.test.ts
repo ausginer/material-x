@@ -992,6 +992,46 @@ describe('sortable options', () => {
     expect(log).toEqual(['start', 'end:accepted']);
   });
 
+  it('drag:DRD-47 should drop under the release position after a scroll whose event has not arrived', async () => {
+    const scroller = document.createElement('div');
+
+    scroller.style.cssText = 'height:200px;overflow:auto';
+    document.body.append(scroller);
+
+    const list = makeList(20, scroller);
+
+    basicSortable(list);
+
+    // Capture phase on the window, added before the press: it runs before the
+    // library sees the release, and the browser dispatches `scroll` only in its
+    // next rendering update.
+    addEventListener(
+      'pointerup',
+      () => {
+        scroller.scrollTop += 100;
+      },
+      { capture: true, once: true },
+    );
+    onCleanup(() => {
+      scroller.remove();
+    });
+
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await frames();
+    await moveHeld(start.x, start.y + 50);
+    // The committed move: the placeholder follows r1.
+    expect(
+      list.querySelector('[data-drag-placeholder]')!.previousElementSibling!.id,
+    ).toBe('r1');
+    await release();
+    // The release is 70 px into the scroller, which after the scroll is 170 px into
+    // the list. The nearest center there is r4's, below the placeholder, so the item
+    // lands after r4.
+    expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(4);
+  });
+
   it('should ignore a second pointer during a drag', async () => {
     const list = makeList(4);
 
