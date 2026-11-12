@@ -13,7 +13,7 @@
 import { DragFault } from '../fault.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
-import { CallbackList } from './callback-list.ts';
+import * as Callbacks from './callbacks.ts';
 import { runDisposers, runDragDisposer, type Fallible } from './drag.ts';
 import { Session } from './session.ts';
 
@@ -131,13 +131,13 @@ export class Gesture<
   readonly #threshold: number;
   readonly #listeners = new AbortController();
   /** Controller-lifetime cleanup, each with its receiver, run at teardown. */
-  readonly #disposers = CallbackList.stack<null>();
+  readonly #disposers = Callbacks.stack<null>();
 
   /**
    * Deferred steps with their receivers, in request order. Empty on the hot
    * path.
    */
-  readonly #steps = CallbackList.queue<Operation | null>();
+  readonly #steps = Callbacks.queue<Operation | null>();
 
   #session: Session<State, Verdict, Operation> | null = null;
   #running = false;

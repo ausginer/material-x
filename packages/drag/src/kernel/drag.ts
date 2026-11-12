@@ -1,5 +1,5 @@
 import type { Writable } from 'type-fest';
-import type { CallbackList } from './callback-list.ts';
+import type { List as CallbackList } from './callbacks.ts';
 import type { Outcome } from './outcome.ts';
 
 export interface Fallible {

@@ -7,6 +7,8 @@ type ListedCallback<Argument> = (
 /** `callback, receiver, callback, receiver, …`. `undefined` is no receiver. */
 type Entries<Argument> = Array<ListedCallback<Argument> | object | undefined>;
 
+const { push, unshift } = [];
+
 /**
  * Callbacks, each with the receiver it is called on, kept in two adjacent slots
  * of one array, so an entry allocates no object. A callback added with no
@@ -23,22 +25,12 @@ type Entries<Argument> = Array<ListedCallback<Argument> | object | undefined>;
  * list consistent and a callback that adds itself again is added as a new
  * entry.
  */
-export class CallbackList<Argument> {
-  /** A list run first in first out. */
-  static queue<Argument>(): CallbackList<Argument> {
-    return new CallbackList<Argument>('unshift');
-  }
-
-  /** A list run last in first out. */
-  static stack<Argument>(): CallbackList<Argument> {
-    return new CallbackList<Argument>('push');
-  }
-
+class List<Argument> {
   readonly #entries: Entries<Argument> = [];
-  readonly #insertName: 'push' | 'unshift';
+  readonly #insert: Entries<Argument>['push'];
 
-  private constructor(insertName: 'push' | 'unshift') {
-    this.#insertName = insertName;
+  constructor(insert: Entries<Argument>['push']) {
+    this.#insert = insert;
   }
 
   /** Whether no entry is waiting. */
@@ -68,7 +60,7 @@ export class CallbackList<Argument> {
     callback: (this: Receiver, argument: Argument) => void,
     receiver?: Receiver,
   ): void {
-    this.#entries[this.#insertName](callback, receiver);
+    this.#insert.call(this.#entries, callback, receiver);
   }
 
   /**
@@ -85,3 +77,15 @@ export class CallbackList<Argument> {
     this.#entries.length = 0;
   }
 }
+
+/** A list run first in first out. */
+export function queue<Argument>(): List<Argument> {
+  return new List<Argument>(unshift);
+}
+
+/** A list run last in first out. */
+export function stack<Argument>(): List<Argument> {
+  return new List<Argument>(push);
+}
+
+export type { List };
