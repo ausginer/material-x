@@ -1,0 +1,36 @@
+     × drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 323ms
+     × drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 282ms
+     × drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 331ms
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400
+AssertionError: expected { few: 6, many: 6 } to deeply equal {}
+- Expected
++ Received
+- {}
++ {
++   "few": 6,
++   "many": 6,
++ }
+    233|     expect(many).toBe(few);
+    235|     expect({ few, many }).toEqual({});
+ FAIL  |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400
+AssertionError: expected { few: 6, many: 6 } to deeply equal {}
+- Expected
++ Received
+- {}
++ {
++   "few": 6,
++   "many": 6,
++ }
+    233|     expect(many).toBe(few);
+    235|     expect({ few, many }).toEqual({});
+ FAIL  |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400
+AssertionError: expected { few: 6, many: 6 } to deeply equal {}
+- Expected
++ Received
+- {}
++ {
++   "few": 6,
++   "many": 6,
++ }
+    233|     expect(many).toBe(few);
+    235|     expect({ few, many }).toEqual({});

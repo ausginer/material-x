@@ -1,0 +1,19 @@
+# command: node bench/size/measure.ts
+# revision: 501f60ab772236e1eda19a7a6778fb5029382b1d, with src checked out from 71f20df20
+# machine: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U
+draggable alone                  6733 min   2197 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 58 B
+  VIOLATION: control moved by 173 B
+draggable + lift                11544 min   3974 br  9 modules
+example: resize handle           9390 min   3310 br  9 modules
+example: drop zone              13183 min   4610 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 179 B
+example: canvas group            9526 min   3306 br  9 modules
+freeDrag                        15201 min   5036 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 69 B
+freeDrag + bounds + landing     16366 min   5476 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 266 B
+sortable + y                    20364 min   6578 br  20 modules
+sortable + xy                   20159 min   6566 br  19 modules
+complete                        22041 min   7207 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 142 B

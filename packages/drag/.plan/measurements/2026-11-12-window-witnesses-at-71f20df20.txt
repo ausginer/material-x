@@ -1,0 +1,814 @@
+# 2026-11-12T02:17:15+00:00 label=base head=63cf79df4
+# the run's src/sortable files against /tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/landed:
+--- reference/rect-index.ts
++++ run/rect-index.ts
+@@ -6,10 +6,6 @@
+  * element array, indexed by destination position, which is the collection minus the
+  * dragged item. A slot is therefore the index the resulting `Insertion` needs.
+  *
+- * The element array holds every slot. The packed buffer holds measured geometry for
+- * one contiguous range of slots, the window: every slot after `refresh`, and only
+- * the slots `measure` added after `collect`.
+- *
+  * Each axis rule creates its own instance inside its factory, so the cache has one
+  * owner.
+  */
+@@ -35,20 +31,6 @@
+   slice(start?: number, end?: number): Float64Array;
+ }>;
+ 
+-/** Packs one rect as a slot at `offset`: both edges on each axis, then both centers. */
+-function pack(
+-  target: Float64Array,
+-  offset: number,
+-  rect: DOMRectReadOnly,
+-): void {
+-  target[offset + LEFT] = rect.left;
+-  target[offset + TOP] = rect.top;
+-  target[offset + RIGHT] = rect.right;
+-  target[offset + BOTTOM] = rect.bottom;
+-  target[offset + CENTER_X] = (rect.left + rect.right) * 0.5;
+-  target[offset + CENTER_Y] = (rect.top + rect.bottom) * 0.5;
+-}
+-
+ function capacityFor(needed: number): number {
+   let capacity = 1;
+ 
+@@ -69,9 +51,9 @@
+ const EQUIVALENCE_SLACK = 1 / 16;
+ 
+ /**
+- * The hot path: each axis rule reads `values`, the slot range it scans and
+- * `placeholderRect` once per resolution, and `items` only when proposing a gap
+- * change. Do not add a read inside the candidate loop.
++ * The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
++ * resolution, and `items` only when proposing a gap change. Do not add a read
++ * inside the candidate loop.
+  */
+ export class RectIndex {
+   /**
+@@ -89,11 +71,8 @@
+   /** Destination-ordered elements, parallel to the packed slots. */
+   readonly #items: HTMLElement[] = [];
+ 
+-  /** The window's first slot. */
+-  #first = 0;
+-
+-  /** The slot after the window's last one: the window is empty when it equals `#first`. */
+-  #end = 0;
++  /** How many destination slots the last scan produced. */
++  #count = 0;
+ 
+   /** Slots the packed buffer can hold: a power of two once fitted. */
+   #capacity = 0;
+@@ -116,23 +95,13 @@
+   }
+ 
+   get count(): number {
+-    // The element array is truncated to the slots the last scan produced.
+-    return this.#items.length;
+-  }
+-
+-  get first(): number {
+-    return this.#first;
+-  }
+-
+-  get end(): number {
+-    return this.#end;
++    return this.#count;
+   }
+ 
+   /**
+-   * Measures every slot, only when something marked the cache dirty or the
+-   * collection version changed. `getBox` is the configured geometry source, or
+-   * `null` when every candidate is its own box. `displacement` is the composed sink,
+-   * or `null`.
++   * Measures only when something marked the cache dirty or the collection version
++   * changed. `getBox` is the configured geometry source, or `null` when every
++   * candidate is its own box. `displacement` is the composed sink, or `null`.
+    */
+   refresh(
+     snapshot: CollectionSnapshot,
+@@ -141,25 +110,6 @@
+     placeholder: HTMLElement,
+     displacement: DisplacementSink | null,
+   ): void {
+-    this.collect(snapshot, dragged, placeholder, 0);
+-
+-    // An empty window after `collect` is a rebuild, or a collection with no slot.
+-    if (this.#first === this.#end) {
+-      this.measure(0, this.#items.length, getBox, displacement);
+-    }
+-  }
+-
+-  /**
+-   * `refresh` without the slots: when the cache is stale, collects every slot's
+-   * element and measures the placeholder, and leaves an empty window at `slot`.
+-   * `measure` then adds slots to the window.
+-   */
+-  collect(
+-    snapshot: CollectionSnapshot,
+-    dragged: HTMLElement,
+-    placeholder: HTMLElement,
+-    slot: number,
+-  ): void {
+     if (!this.#dirty && this.#measured === snapshot.version) {
+       return;
+     }
+@@ -169,71 +119,50 @@
+       this.#values = new Float64Array(this.#capacity * STRIDE);
+     }
+ 
+-    // A local, not repeated field reads: the loop writes it once per slot.
++    // Locals, not repeated field reads: the loop writes `values` and `items` once
++    // per slot, `placeholderRect` takes six writes, and a local is also smaller.
++    const values = this.#values;
+     const items = this.#items;
++    const placeholderRect = this.#placeholderRect;
+     let n = 0;
+ 
+     for (const item of snapshot.items) {
+-      if (item !== dragged) {
+-        items[n] = item;
+-        n += 1;
++      if (item === dragged) {
++        continue;
+       }
+-    }
+ 
+-    pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
+-    // Truncated, so that a shrinking collection does not retain elements, and so
+-    // that its length is the slot count.
+-    items.length = n;
+-    this.#first = slot;
+-    this.#end = slot;
+-    this.#measured = snapshot.version;
+-    this.#dirty = false;
+-  }
+-
+-  /**
+-   * Measures the slots from `lo` to before `hi`, settled through the sink, and adds
+-   * them to the window. The range starts or ends at the window's first or end slot,
+-   * so the window stays one contiguous range.
+-   */
+-  measure(
+-    lo: number,
+-    hi: number,
+-    getBox: ((item: HTMLElement) => HTMLElement) | null,
+-    displacement: DisplacementSink | null,
+-  ): void {
+-    // Locals, not repeated field reads inside the loop.
+-    const values = this.#values;
+-    const items = this.#items;
+-
+-    for (let i = lo; i < hi; i += 1) {
+-      const item = items[i]!;
+       // The box, because the placeholder is sized from the box's footprint, so both
+       // sides of the comparison are the same kind of rect.
+-      pack(
+-        values,
+-        i * STRIDE,
+-        (getBox ? getBox(item) : item).getBoundingClientRect(),
+-      );
++      const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
++      const offset = n * STRIDE;
++
++      values[offset + LEFT] = rect.left;
++      values[offset + TOP] = rect.top;
++      values[offset + RIGHT] = rect.right;
++      values[offset + BOTTOM] = rect.bottom;
++      values[offset + CENTER_X] = (rect.left + rect.right) * 0.5;
++      values[offset + CENTER_Y] = (rect.top + rect.bottom) * 0.5;
++      items[n] = item;
++      n += 1;
+     }
+ 
+     // The slots must hold where flow puts a row, not where an animation draws it.
+-    // The sink settles from the start of the buffer and the array it receives, so a
+-    // range after slot 0 is a view and a copy of its elements.
+-    displacement?.settle(
+-      values.subarray(lo * STRIDE),
+-      lo ? items.slice(lo, hi) : items,
+-      hi - lo,
+-    );
++    displacement?.settle(values, items, n);
+ 
+-    // An empty window sits at the slot `collect` gave it, so a range next to it
+-    // extends it the same way.
+-    if (lo < this.#first) {
+-      this.#first = lo;
+-    }
++    const rect = placeholder.getBoundingClientRect();
+ 
+-    if (hi > this.#end) {
+-      this.#end = hi;
+-    }
++    placeholderRect[LEFT] = rect.left;
++    placeholderRect[TOP] = rect.top;
++    placeholderRect[RIGHT] = rect.right;
++    placeholderRect[BOTTOM] = rect.bottom;
++    placeholderRect[CENTER_X] = (rect.left + rect.right) * 0.5;
++    placeholderRect[CENTER_Y] = (rect.top + rect.bottom) * 0.5;
++
++    this.#count = n;
++    // Truncated, so that a shrinking collection does not retain elements.
++    items.length = n;
++    this.#measured = snapshot.version;
++    this.#dirty = false;
+   }
+ 
+   /**
+@@ -273,13 +202,13 @@
+    * Whether one slot's element is still where the cache holds it: measured again like
+    * a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A
+    * scroll or a layout shift outside the list moves every slot by one vector, so one
+-   * slot shows it. A stale cache or an empty window reads nothing and answers
+-   * `true`, because the next resolution measures what it needs anyway.
++   * slot shows it. A stale or empty cache reads nothing and answers `true`, because
++   * its next refresh measures every slot anyway.
+    *
+-   * The slot is the end of the window farther from `gap`, the gap the placeholder
++   * The slot is the end of the list farther from `gap`, the gap the placeholder
+    * holds. Committed moves displace the slots next to the gap, so a slot far from it
+    * is the least likely to carry a running animation, and a settled reading that
+-   * misses by more than the slack costs a new measurement.
++   * misses by more than the slack costs a full measurement.
+    */
+   holds(
+     gap: number,
+@@ -287,29 +216,33 @@
+     getBox: ((item: HTMLElement) => HTMLElement) | null,
+     displacement: DisplacementSink | null,
+   ): boolean {
+-    // Read once: each is used twice below.
+-    const first = this.#first;
+-    const end = this.#end;
+-
+-    if (this.#dirty || this.#measured !== snapshot.version || first === end) {
++    if (
++      this.#dirty ||
++      this.#measured !== snapshot.version ||
++      this.#count === 0
++    ) {
+       return true;
+     }
+ 
+-    const slot = end - gap > gap - first ? end - 1 : first;
++    const slot = gap * 2 < this.#count ? this.#count - 1 : 0;
+     const item = this.#items[slot]!;
++    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+     // Packed like a slot, because the sink settles slots. Only left and top are
+     // compared.
+     const scratch = new Float64Array(STRIDE);
+ 
+-    pack(scratch, 0, (getBox ? getBox(item) : item).getBoundingClientRect());
++    scratch[LEFT] = rect.left;
++    scratch[TOP] = rect.top;
++    scratch[RIGHT] = rect.right;
++    scratch[BOTTOM] = rect.bottom;
+     displacement?.settle(scratch, [item], 1);
+ 
+     const offset = slot * STRIDE;
+ 
+     return (
+-      Math.abs(scratch[LEFT]! - this.#values[offset + LEFT]!) <=
++      Math.abs(scratch[LEFT] - this.#values[offset + LEFT]!) <=
+         EQUIVALENCE_SLACK &&
+-      Math.abs(scratch[TOP]! - this.#values[offset + TOP]!) <= EQUIVALENCE_SLACK
++      Math.abs(scratch[TOP] - this.#values[offset + TOP]!) <= EQUIVALENCE_SLACK
+     );
+   }
+ 
+@@ -324,18 +257,18 @@
+    */
+   retire(): void {
+     this.#items.length = 0;
++    this.#count = 0;
+     this.#dirty = true;
+     this.#measured = -1;
+   }
+ }
+ 
+ /**
+- * Development only: the window the previous advance wrote must equal what a fresh
+- * measurement of the same slots in the tree now produces. Every test that drives a
+- * drag through `y()` checks it. It forces the rebuild, measures every slot of the
+- * window again and compares a copy, so a mismatch leaves the cache correct, and the
+- * measurement has one definition. It is a free function so that it tree-shakes from
+- * the published build.
++ * Development only: the buffer the previous advance wrote must equal what a full
++ * scan of the tree now produces. Every test that drives a drag through `y()` checks
++ * it. It forces the rebuild and compares a copy, so a mismatch leaves the cache
++ * correct, and the scan has one definition. It is a free function so that it
++ * tree-shakes from the published build.
+  */
+ export function verifyEquivalence(
+   index: RectIndex,
+@@ -345,31 +278,27 @@
+   placeholder: HTMLElement,
+   displacement: DisplacementSink | null,
+ ): void {
+-  // Taken before the rebuild below rewrites them.
+-  const { count: held, first, end } = index;
+-  const predicted = index.values.slice(0, end * STRIDE);
++  // Taken before the refresh below rewrites the count.
++  const held = index.count;
++  const predicted = index.values.slice(0, held * STRIDE);
+   const predictedPlaceholder = index.placeholderRect.slice();
+   const predictedItems = [...index.items];
+ 
+   index.invalidate();
+-  index.collect(snapshot, dragged, placeholder, first);
+-
+-  index.measure(first, end, getBox, displacement);
++  index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+ 
+   const differs = (a: number, b: number): boolean =>
+     Math.abs(a - b) > EQUIVALENCE_SLACK;
+   // Read once, outside the comparison loops.
+   const { values, placeholderRect, items, count } = index;
+-  let mismatch = count === held ? '' : `count ${held}, measured ${count}`;
+-
+-  for (let slot = 0; mismatch === '' && slot < held; slot += 1) {
+-    if (predictedItems[slot] !== items[slot]) {
+-      mismatch = `slot ${slot}`;
+-    }
+-  }
++  let mismatch = count === held ? '' : `count ${held}, full scan ${count}`;
+ 
+-  for (let i = first * STRIDE; mismatch === '' && i < end * STRIDE; i += 1) {
+-    if (differs(predicted[i]!, values[i]!)) {
++  for (let i = 0; mismatch === '' && i < held * STRIDE; i += 1) {
++    if (
++      predictedItems[Math.floor(i / STRIDE)] !==
++        items[Math.floor(i / STRIDE)] ||
++      differs(predicted[i]!, values[i]!)
++    ) {
+       mismatch = `slot ${Math.floor(i / STRIDE)}`;
+     }
+   }
+@@ -382,7 +311,7 @@
+ 
+   if (mismatch !== '') {
+     throw new Error(
+-      `drag: the predicted insertion geometry disagreed with a fresh measurement at ${mismatch}; the linear shift rule does not hold for this list`,
++      `drag: the predicted insertion geometry disagreed with a full scan at ${mismatch}; the linear shift rule does not hold for this list`,
+     );
+   }
+ }
+--- reference/linear-shift.ts
++++ run/linear-shift.ts
+@@ -18,23 +18,12 @@
+  * the placeholder's own size give that. A committed move marks it stale, and the
+  * next frame reads it once, from a tree already laid out.
+  *
+- * A resolution measures a window of slots, not every slot. It grows the window
+- * from the slots next to the placeholder's gap toward the pointer, until the window
+- * holds the two slots whose centers bracket the pointer, or reaches the list's end
+- * on that side. Under the term that centers increase along y in the collection's
+- * order, the nearest center in that window is the nearest in the list, and the
+- * slots on the other side of the placeholder are no nearer than its own center. A
+- * committed move crosses only slots between the old gap and the nearest center, so
+- * the shift rule writes only slots in the window.
+- *
+- * `xy()` wraps, so its displacement is neither scalar nor uniform, and its centers
+- * are not ordered along one axis. This is a module and not a branch in `RectIndex`
+- * so that an `xy()` composition does not carry the rule or the window's growth.
++ * `xy()` wraps, so its displacement is neither scalar nor uniform. This is a module
++ * and not a branch in `RectIndex` so that an `xy()` composition does not carry it.
+  */
+ import type { AxisContext, DisplacementSink } from './axis.ts';
+ import type { CollectionSnapshot } from './domain.ts';
+ import {
+-  CENTER_Y,
+   type RectIndex,
+   STRIDE,
+   TOP,
+@@ -44,13 +33,11 @@
+ /** One `RectIndex` under the linear shift rule, along y. */
+ export interface LinearShift {
+   /**
+-   * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
+-   * is stale, and grows the window until it brackets the pointer. `gap` is the gap
+-   * the placeholder occupies at the moment of the scan, which only the caller
+-   * knows, or `-1` for none. The stale placeholder is read first, because the
+-   * development check compares it against the tree. That check runs here, one frame
+-   * after the move, because at the move's own instant the animations it started
+-   * have no resolved timing yet.
++   * `RectIndex.refresh`, plus the gap the placeholder occupies at the moment of the
++   * scan, which only the caller knows. The stale placeholder is read first, because
++   * the development check compares it against the tree. That check runs here, one
++   * frame after the move, because at the move's own instant the animations it
++   * started have no resolved timing yet.
+    */
+   refresh(
+     snapshot: CollectionSnapshot,
+@@ -59,7 +46,6 @@
+     placeholder: HTMLElement,
+     displacement: DisplacementSink | null,
+     gap: number,
+-    pointerY: number,
+   ): void;
+ 
+   /**
+@@ -99,15 +85,7 @@
+   let advanceUnchecked = false;
+ 
+   return {
+-    refresh(
+-      snapshot,
+-      dragged,
+-      getBox,
+-      placeholder,
+-      displacement,
+-      gap,
+-      pointerY,
+-    ) {
++    refresh(snapshot, dragged, getBox, placeholder, displacement, gap) {
+       if (placeholderIsStale) {
+         placeholderIsStale = false;
+         index.remeasurePlaceholder(placeholder);
+@@ -130,31 +108,7 @@
+         );
+       }
+ 
+-      // With no gap, the window starts at the list's start and grows down.
+-      index.collect(snapshot, dragged, placeholder, gap < 0 ? 0 : gap);
+-
+-      // Read once: `measure` writes into this buffer and never replaces it.
+-      const { values, count } = index;
+-
+-      // Toward the pointer only: under the order term, a slot on the other side of
+-      // the placeholder is never nearer than the placeholder's own center.
+-      if (pointerY > index.placeholderRect[CENTER_Y]!) {
+-        while (
+-          index.end < count &&
+-          (index.first === index.end ||
+-            values[(index.end - 1) * STRIDE + CENTER_Y]! < pointerY)
+-        ) {
+-          index.measure(index.end, index.end + 1, getBox, displacement);
+-        }
+-      } else {
+-        while (
+-          index.first > 0 &&
+-          (index.first === index.end ||
+-            values[index.first * STRIDE + CENTER_Y]! > pointerY)
+-        ) {
+-          index.measure(index.first - 1, index.first, getBox, displacement);
+-        }
+-      }
++      index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+ 
+       snapshotVersion = snapshot.version;
+       dirty = false;
+--- reference/y.ts
++++ run/y.ts
+@@ -10,29 +10,20 @@
+  * runtime checks. Relocating the placeholder displaces the crossed slots by one
+  * constant along the axis and changes nothing else: a wrapping list does not
+  * satisfy it, and varying gaps and margins do. A row's flow size does not depend
+- * on where it sits. The rows' centers increase along y in the collection's order,
+- * so the nearest center is one of the two that bracket the pointer. The linear map
+- * the collection inherits is stable for the operation. A flow axis that an ancestor
+- * rotates or skews is outside the rule; scale and zoom are fine.
++ * on where it sits. The linear map the collection inherits is stable for the
++ * operation. A flow axis that an ancestor rotates or skews is outside the rule;
++ * scale and zoom are fine.
+  *
+- * A resolution reads only rows it has not measured since the cache was last marked
+- * stale: those from the placeholder toward the pointer, and one beyond. A
+- * resolution with nothing stale and the pointer inside the measured rows reads no
+- * layout. A committed move reads one row the first time, to establish the constant,
+- * and the placeholder on the next frame.
++ * A resolution with nothing stale reads no layout. A committed move reads one row
++ * the first time, to establish the constant, and the placeholder on the next
++ * frame.
+  */
+ import type { AxisInstaller } from './axis.ts';
+ import { insertionAt } from './domain.ts';
+ import { linearShift } from './linear-shift.ts';
+ import { CENTER_Y, RectIndex, STRIDE } from './rect-index.ts';
+ 
+-/**
+- * The axis rule for a single column. The rows' centers must increase along y in
+- * the collection's order: a reversed column, a row that isn't rendered, or a
+- * transform that carries a row's center past a neighbor's is outside this rule. A
+- * resolution measures only rows it hasn't measured since the last scroll, resize or
+- * `invalidate()`: the rows between the placeholder and the pointer, and one beyond.
+- */
++/** The axis rule for a single column. */
+ export function y(): AxisInstaller {
+   return () => {
+     const index = new RectIndex();
+@@ -50,18 +41,15 @@
+           context.placeholder,
+           context.displacement,
+           query.insertion ? query.insertion.index : -1,
+-          pointerY,
+         );
+ 
+         // Read once, outside the candidate loop.
+-        const { values, first, end } = index;
++        const { values, count } = index;
+         const anchor = index.placeholderRect[CENTER_Y]!;
+         let best = Math.abs(pointerY - anchor);
+         let nearest = -1;
+ 
+-        // The window only: it holds the nearest center, and the first in order
+-        // among equals.
+-        for (let i = first; i < end; i += 1) {
++        for (let i = 0; i < count; i += 1) {
+           const distance = Math.abs(pointerY - values[i * STRIDE + CENTER_Y]!);
+ 
+           if (distance < best) {
+# end of differences
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+2:17:17 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:49 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:65 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:82 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:100 > drag:DRI-14 collection > should decline quietly when the item left the document during the press
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:116 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:150 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:192 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:227 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:272 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:327 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:340 > drag:DRI-14 collection > should cancel when the dragged item was removed
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:357 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:374 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:396 > drag:DRI-14 collection > should reach the end gap with a null next
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:412 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:430 > drag:DRI-14 collection > should decline on altKey
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:447 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:475 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:496 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:510 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:532 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:548 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:556 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:608 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:631 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:648 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:668 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:681 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:697 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:708 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:727 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:743 > sortable options > should honor handle: a press elsewhere does not admit
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:766 > sortable options > should refuse a press through data-drag-ignore
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:776 > sortable options > should honor visual: the named node is lifted and the item stays
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:794 > sortable options > should honor box: a box around the visual keeps the rest of its footprint
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:814 > sortable options > should honor box: a box inside the visual sizes the whole footprint
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:832 > sortable options > should resolve a grid with xy()
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:855 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:886 > sortable options > should keep a row animation past the terminal, until destruction
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:908 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:951 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:1035 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6705ms
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1117 > sortable options > should ignore a second pointer during a drag
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1148 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2:17:25 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:49 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:65 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:82 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:100 > drag:DRI-14 collection > should decline quietly when the item left the document during the press
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:116 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:150 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:192 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:227 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:272 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:327 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:340 > drag:DRI-14 collection > should cancel when the dragged item was removed
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:357 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:374 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:396 > drag:DRI-14 collection > should reach the end gap with a null next
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:412 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:430 > drag:DRI-14 collection > should decline on altKey
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:447 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:475 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:496 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:510 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:532 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:548 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:556 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:608 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:631 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:648 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:668 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:681 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:697 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:708 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:727 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:743 > sortable options > should honor handle: a press elsewhere does not admit
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:766 > sortable options > should refuse a press through data-drag-ignore
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:776 > sortable options > should honor visual: the named node is lifted and the item stays
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:794 > sortable options > should honor box: a box around the visual keeps the rest of its footprint
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:814 > sortable options > should honor box: a box inside the visual sizes the whole footprint
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:832 > sortable options > should resolve a grid with xy()
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:855 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:886 > sortable options > should keep a row animation past the terminal, until destruction
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:908 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:951 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+ ✓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1035 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6673ms
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1117 > sortable options > should ignore a second pointer during a drag
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1148 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2:17:33 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:49 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:65 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:82 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:100 > drag:DRI-14 collection > should decline quietly when the item left the document during the press
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:116 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:150 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:192 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:227 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:272 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:327 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:340 > drag:DRI-14 collection > should cancel when the dragged item was removed
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:357 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:374 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:396 > drag:DRI-14 collection > should reach the end gap with a null next
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:412 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:430 > drag:DRI-14 collection > should decline on altKey
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:447 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:475 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:496 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:510 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:532 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:548 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:556 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:585 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:608 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:631 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:648 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:668 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:681 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:697 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:708 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:727 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:743 > sortable options > should honor handle: a press elsewhere does not admit
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:766 > sortable options > should refuse a press through data-drag-ignore
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:776 > sortable options > should honor visual: the named node is lifted and the item stays
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:794 > sortable options > should honor box: a box around the visual keeps the rest of its footprint
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:814 > sortable options > should honor box: a box inside the visual sizes the whole footprint
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:832 > sortable options > should resolve a grid with xy()
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:855 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:886 > sortable options > should keep a row animation past the terminal, until destruction
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:908 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:951 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+ ✓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1035 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 4316ms
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1117 > sortable options > should ignore a second pointer during a drag
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1148 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+2:17:38 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400
+ × |shipped (chromium)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 295ms
+   → expected 404 to be 24 // Object.is equality
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:236 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:260 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped (chromium)| tests/hot-path.browser.test.ts:316 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+2:17:39 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/vitest_n_vite_module-runner.js
+
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400
+ × |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 243ms
+   → expected 404 to be 24 // Object.is equality
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:236 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:260 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:316 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2:17:40 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/535cad9b3b9bf6be006fe9f8bd7ebd4dbc6a4b77/deps/vitest_n_vite_module-runner.js
+
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400
+ × |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 233ms
+   → expected 404 to be 24 // Object.is equality
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:236 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:260 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+ ↓ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:316 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400
+AssertionError: expected 404 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 404
+
+ ❯ tests/hot-path.browser.test.ts:233:18
+    231|
+    232|     expect(log.filter((entry) => entry === 'end:noop')).toHaveLength(2…
+    233|     expect(many).toBe(few);
+    234|   });
+    235|
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400
+AssertionError: expected 404 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 404
+
+ ❯ tests/hot-path.browser.test.ts:233:18
+    231|
+    232|     expect(log.filter((entry) => entry === 'end:noop')).toHaveLength(2…
+    233|     expect(many).toBe(few);
+    234|   });
+    235|
+ ❯ async*withFixtures/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5725:22
+ ❯ runWithCancel .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5709:22
+ ❯ runWithTimeout .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5673:10
+ ❯ runTest/</</< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6245:64
+ ❯ run .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3857:24
+ ❯ limiterFn .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3867:59
+ ❯ runTest/</< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6245:57
+ ❯ runTest/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6122:37
+ ❯ callAroundHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6012:9
+ ❯ callAroundEachHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6122:8
+ ❯ runTest .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6458:45
+ ❯ run .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3857:24
+ ❯ limiterFn .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3867:59
+ ❯ runSuiteChild/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6458:31
+ ❯ runSuiteChild .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6450:32
+ ❯ runSuite/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6414:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400
+AssertionError: expected 404 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 404
+
+ ❯ tests/hot-path.browser.test.ts:233:18
+    231|
+    232|     expect(log.filter((entry) => entry === 'end:noop')).toHaveLength(2…
+    233|     expect(many).toBe(few);
+    234|   });
+    235|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  3 failed | 3 passed | 171 skipped (177)
+   Start at  02:17:16
+   Duration  25.08s (tests 93%, worker 5%, import 2%)
+
+# exit 1

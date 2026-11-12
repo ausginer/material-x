@@ -1,0 +1,26 @@
+# npx just test tests/hot-path.browser.test.ts at 501f60ab7, 2026-11-12T02:55:51+00:00
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+2:55:53 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale 841ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame 265ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false 165ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true 181ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400 436ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 270ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:236 > drag:DRI-17 hot path > should run no consumer callback per sample 183ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:260 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10215ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:316 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5250ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+Type Errors  no errors
+   Start at  02:55:52
+   Duration  18.80s (tests 99%, worker 1%)
+
+# exit 0
