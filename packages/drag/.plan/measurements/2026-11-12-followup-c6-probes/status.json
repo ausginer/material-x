@@ -1,0 +1,82 @@
+{
+  "id": "c6-probes",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/fu/unit/packages/drag",
+  "runner": {
+    "pid": 246615,
+    "start": "2165392"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-12T14:28:05.218Z",
+  "endedAt": "2026-11-12T14:30:41.857Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t 'C6 probe y:' --silent=false",
+      "log": "/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/fu/unit/packages/drag/.campaigns/c6-probes/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 246638,
+        "start": "2165402"
+      },
+      "startedAt": "2026-11-12T14:28:05.236Z",
+      "endedAt": "2026-11-12T14:28:19.108Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t 'C6 probe xy:' --silent=false",
+      "log": "/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/fu/unit/packages/drag/.campaigns/c6-probes/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 247222,
+        "start": "2166790"
+      },
+      "startedAt": "2026-11-12T14:28:19.121Z",
+      "endedAt": "2026-11-12T14:28:32.815Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t 'C6 move probe' --silent=false",
+      "log": "/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/fu/unit/packages/drag/.campaigns/c6-probes/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 247727,
+        "start": "2168161"
+      },
+      "startedAt": "2026-11-12T14:28:32.828Z",
+      "endedAt": "2026-11-12T14:28:49.845Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t 'C6 warm move probe' --silent=false",
+      "log": "/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/fu/unit/packages/drag/.campaigns/c6-probes/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 248116,
+        "start": "2169864"
+      },
+      "startedAt": "2026-11-12T14:28:49.858Z",
+      "endedAt": "2026-11-12T14:30:41.857Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

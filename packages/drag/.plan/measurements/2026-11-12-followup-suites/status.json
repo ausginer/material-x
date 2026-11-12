@@ -1,0 +1,65 @@
+{
+  "id": "followup-suites",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 249224,
+    "start": "2182129"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-12T14:30:52.565Z",
+  "endedAt": "2026-11-12T14:35:07.611Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --reporter=verbose",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/followup-suites/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 249254,
+        "start": "2182137"
+      },
+      "startedAt": "2026-11-12T14:30:52.583Z",
+      "endedAt": "2026-11-12T14:31:12.197Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/followup-suites/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 250082,
+        "start": "2184099"
+      },
+      "startedAt": "2026-11-12T14:31:12.208Z",
+      "endedAt": "2026-11-12T14:34:07.075Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/followup-suites/3.log",
+      "state": "failed",
+      "revision": {
+        "commit": "0c13786eaaa012648477e03dfa3fdb013b1b2608",
+        "dirty": true
+      },
+      "process": {
+        "pid": 251913,
+        "start": "2201587"
+      },
+      "startedAt": "2026-11-12T14:34:07.087Z",
+      "endedAt": "2026-11-12T14:35:07.611Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# command: node bench/size/measure.ts, at e22db849c in the main checkout, 2026-11-12T14:26:37+00:00
+draggable alone                  6731 min   2196 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 57 B
+  VIOLATION: control moved by 172 B
+draggable + lift                11542 min   3963 br  9 modules
+example: resize handle           9388 min   3321 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 8 B
+example: drop zone              13181 min   4603 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 172 B
+example: canvas group            9524 min   3302 br  9 modules
+freeDrag                        15160 min   5022 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 55 B
+freeDrag + bounds + landing     16325 min   5454 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 244 B
+sortable + y                    20559 min   6652 br  20 modules
+sortable + xy                   20103 min   6541 br  19 modules
+complete                        22238 min   7284 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 219 B
+exit 1
