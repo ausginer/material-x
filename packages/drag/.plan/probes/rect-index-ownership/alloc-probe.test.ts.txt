@@ -1,8 +1,10 @@
 /*
  * C6 ownership probe: per-sample allocation in the sortable axis code. Appended to
  * a scratch worktree's `tests/hot-path.browser.test.ts`, which runs in the
- * `shipped` project with `__DEV__` false, and run alone with `-t 'C6 probe'`. Not
- * a test of the suite: it prints and asserts nothing.
+ * `shipped` project with `__DEV__` false. Each axis is launched alone, with
+ * `-t 'C6 probe y:'` or `-t 'C6 probe xy:'`: after `y()` in the same launch,
+ * `xy()` reads an empty profile. Not a test of the suite: it prints and asserts
+ * nothing.
  */
 import { xy as probeXy } from '../src/sortable/xy.ts';
 

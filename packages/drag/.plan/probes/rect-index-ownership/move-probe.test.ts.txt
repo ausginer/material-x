@@ -1,7 +1,8 @@
 /*
  * C6 ownership probe: allocation per committed move in `y()`'s shift rule.
- * Appended like `alloc-probe.test.ts.txt` and run with `-t 'C6 move probe'`. The
- * pointer crosses one row and back, so every resolution commits a move.
+ * Appended like `alloc-probe.test.ts.txt` and launched alone with
+ * `-t 'C6 move probe'`, which matches no other probe. The pointer crosses one
+ * row and back, so every resolution commits a move.
  */
 describe('C6 move probe', () => {
   it.runIf(isChromium)('C6 move probe y: bytes per committed move under src/sortable/', async () => {
