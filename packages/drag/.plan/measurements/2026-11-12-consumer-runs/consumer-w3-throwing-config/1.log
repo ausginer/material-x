@@ -1,0 +1,1291 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+4:10:49 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: Uncaught DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+[Error: Uncaught DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+[Error: Uncaught DragFault: drag: visual]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts (23 tests) 5500ms
+   ✓ drag:DRI-10 destruction (23)
+     ✓ should cancel a running landing and the row animations 316ms
+     ✓ should retain no item, behavior, view or behavior instance after 3 operations and destruction 2034ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: Uncaught DragFault: drag: Failed to execute 'animate' on 'Element': duration must be non-negative or auto]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: Uncaught DragFault: drag: hide]
+ ✓ |browser (chromium)| tests/landing.browser.test.ts (19 tests) 4270ms
+   ✓ drag:DRI-13 landing (19)
+     ✓ should land additively from where it was dropped 385ms
+     ✓ should keep the landing through a press that never activates, and cancel at the next activation 385ms
+     ✓ should report and skip a landing when the consumer unmounted the item, and stay usable 350ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts (27 tests) 3929ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts (49 tests) 14849ms
+   ✓ sortable options (12)
+     ✓ should re-measure on scroll during a drag, nested scrollers included 535ms
+     ✓ drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6684ms
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: Uncaught DragFault: drag: after the work]
+stderr | tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides
+[Error: Uncaught DragFault: drag: from a step]
+stderr | tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation
+[Error: Uncaught DragFault: drag: idle]
+ ✓ |browser (chromium)| tests/requests.browser.test.ts (26 tests) 3810ms
+   ✓ drag:DRI-1 a request does not change the running step (6)
+     ✓ should let a sortable placeholder reaction cancel during activation 331ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts (7 tests) 3660ms
+   ✓ drag:DRI-9 README examples (3)
+     ✓ should keep the free-drag example where it was dropped, across two drags 337ms
+     ✓ should keep the scrolling-container example where it was dropped, and land it home 2484ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw
+[Error: Uncaught DragFault: drag: cancel]
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw
+[Error: Uncaught DragFault: drag: destroy]
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw
+[Error: Uncaught DragFault: drag: fault]
+stderr | tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws
+[Error: Uncaught DragFault: drag: start]
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts (20 tests) 3396ms
+   ✓ drag:DRI-11 the click guard (20)
+     ✓ should complete a touch drag with no platform cancel, and keep the next click 305ms
+     ✓ should follow the primary touch and ignore a second finger 354ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts (20 tests) 2964ms
+   ✓ drag:DRI-4 cancel (8)
+     ✓ should not let a retained drag cancel a later operation 301ms
+   ✓ drag:DRI-6 reentrant input (1)
+     ✓ should let the press after a refused one activate 333ms
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: Uncaught DragFault: drag: targets]
+stderr | tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save
+[Error: Uncaught DragFault: drag: save failed]
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts (9 tests) 2756ms
+   ✓ drag:DRI-21 freeDrag + dropTargets (8)
+     ✓ should mark the target under the pointer, name it at the drop and clear the mark at release 444ms
+     ✓ should release the operation and keep the controller when targets() throws 488ms
+   ✓ drag:DRD-33 C2 one config across controllers (1)
+     ✓ should give each controller its own runtime 495ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts (12 tests) 2735ms
+   ✓ drag:DRI-18 drop zone (2)
+     ✓ should land an async verdict of true where it says 447ms
+     ✓ should land an async verdict of false where it says 452ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault
+[Error: Uncaught DragFault: drag: accessor]
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault
+[Error: Uncaught DragFault: drag: call]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: thrown]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: rejected]
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts (11 tests) 2697ms
+   ✓ drag:DRI-5 verdict (11)
+     ✓ should keep a late resolve after a cancel from reaching the next drag 438ms
+     ✓ should keep a late reject after a cancel from reaching the next drag 410ms
+     ✓ should deliver a thrown and a rejected verdict as the reported fault 365ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts (14 tests) 2527ms
+stderr | tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+[Error: Uncaught DragFault: drag: middle]
+stderr | tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+[Error: Uncaught DragFault: drag: late]
+ ✓ |browser (chromium)| tests/classes.browser.test.ts (6 tests) 2312ms
+   ✓ drag:DRD-20 detached controller methods (3)
+     ✓ should run sortable controller methods detached 321ms
+   ✓ drag:DRD-20 behavior instances (1)
+     ✓ should retain no freeDrag behavior instance after destruction 1234ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts (15 tests) 2670ms
+   ✓ drag:DRI-9 release order (15)
+     ✓ should pass each outcome to a disposer 515ms
+stderr | tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts (10 tests) 2124ms
+   ✓ freeDrag (10)
+     ✓ should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 363ms
+     ✓ should honor handle and visual 317ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts (9 tests) 2277ms
+   ✓ drag:DRI-13 a grab during a landing (2)
+     ✓ should keep the visual under the pointer during a accepted landing 652ms
+     ✓ should keep the visual under the pointer during a rejected landing 650ms
+   ✓ drag:DRI-17 coalescing (1)
+     ✓ should schedule one frame for several samples in one task 348ms
+stderr | tests/callback-list.browser.test.ts:345 > drag:DRI-8 steps with a receiver > should report a throw from a receiver step as a fault
+[Error: Uncaught DragFault: drag: from a receiver step]
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/callback-list.browser.test.ts:403 > drag:DRI-9 operation cleanup with a receiver > should continue the walk past a throwing receiver disposer
+[Error: Uncaught DragFault: drag: from a disposer]
+ ✓ |browser (chromium)| tests/callback-list.browser.test.ts (20 tests) 1734ms
+   ✓ drag:DRI-8 steps with a receiver (7)
+     ✓ should scope a receiver step to its operation 304ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts (9 tests) 1839ms
+   ✓ a React consumer (7)
+     ✓ should finish, report and stay usable when the commit unmounts the dragged item 349ms
+   ✓ a keyed reconciler that rewrites the whole list (2)
+     ✓ should survive a commit that removes the placeholder with everything else 361ms
+stderr | tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run
+[Error: Uncaught DragFault: drag: move]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: Uncaught DragFault: drag: first]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: Uncaught DragFault: drag: second]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: disposer 2]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: disposer 1]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: controller use]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: plain]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: null]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: undefined]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: text]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: Symbol(symbol)]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: frozen]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel
+[Error: Uncaught DragFault: drag: boom]
+stderr | tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction
+[Error: Uncaught DragFault: drag: boom]
+stderr | tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported
+[Error: Uncaught DragFault: drag: settle]
+stderr | tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller
+[Error: Uncaught DragFault: drag: lift/visual-no-box-space]
+stderr | tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+[Error: Uncaught DragFault: drag: show]
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts (4 tests) 1611ms
+   ✓ sortable options (4)
+     ✓ should call the layoutAnimation sink with its receiver, with rows in flight 309ms
+     ✓ drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array 652ms
+     ✓ drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array 365ms
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: Uncaught DragFault: drag: show]
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: Uncaught DragFault: drag: restore]
+ ✓ |browser (chromium)| tests/faults.browser.test.ts (11 tests) 1589ms
+   ✓ drag:DRI-7 faults (9)
+     ✓ should report one fault when the lift acquires a visual with no box, and keep the controller 319ms
+stderr | tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+[Error: Uncaught DragFault: drag: constructor]
+stderr | tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+[Error: Uncaught DragFault: drag: after the cancel]
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts (7 tests) 1070ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts (13 tests) 1379ms
+ ✓ |browser (chromium)| tests/refusals.browser.test.ts (3 tests) 817ms
+   ✓ drag:DRI-6 reentrant input (2)
+     ✓ should refuse a nested press, and take the next real one 307ms
+     ✓ should refuse no trusted event during ordinary drags 331ms
+ ✓ |browser (chromium)| tests/scoped-requests.browser.test.ts (4 tests) 777ms
+   ✓ drag:DRI-8 scoped requests (4)
+     ✓ should not run a step requested through a retained drag while a later operation is active 312ms
+stderr | tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+[Error: Uncaught DragFault: drag: drag: the predicted insertion geometry disagreed with a fresh measurement at the placeholder; the linear shift rule does not hold for this list]
+stderr | tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws
+[Error: Uncaught DragFault: drag: end throws]
+ ✓ |browser (chromium)| tests/order.browser.test.ts (5 tests) 393ms
+ ✓ |browser (chromium)| tests/equivalence-check.browser.test.ts (1 test) 613ms
+   ✓ drag:DRD-52 development equivalence check (1)
+     ✓ should report a placeholder that a committed move displaces along x 613ms
+4:11:28 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=030f686b
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts (9 tests) 17772ms
+   ✓ drag:DRI-17 hot path (9)
+     ✓ should read no layout in a sample, and none in a frame with nothing stale 839ms
+     ✓ drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400 434ms
+     ✓ should allocate per sample only the CSS string a lifted write needs 10213ms
+     ✓ drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5215ms
+4:11:46 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js?v=da1eabec
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/rect-index.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/layout-animation.ts:27:7
+  16 |  */
+  17 |  import { delta, localDelta } from "@ydinjs/box-quad";
+  18 |  import { BOTTOM, CENTER_X, CENTER_Y, LEFT, RIGHT, STRIDE, TOP } from "./rect-index.ts";
+     |                                                                        ^
+  19 |  const DEFAULT_DURATION = 160;
+  20 |  const DEFAULT_EASING = "ease-out";
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/rect-index.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/layout-animation.ts:27:7
+  16 |  */
+  17 |  import { delta, localDelta } from "@ydinjs/box-quad";
+  18 |  import { BOTTOM, CENTER_X, CENTER_Y, LEFT, RIGHT, STRIDE, TOP } from "./rect-index.ts";
+     |                                                                        ^
+  19 |  const DEFAULT_DURATION = 160;
+  20 |  const DEFAULT_EASING = "ease-out";
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/xy.ts:14:53
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { CENTER_X, CENTER_Y, LEFT, RectIndex, STRIDE, TOP } from "./rect-index.ts";
+  3  |  /**
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/sortable.browser.test.ts (0 test)
+4:11:46 PM [vite] (client) Pre-transform error: src/free-drag/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag.ts:11:7
+  5  |  */
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { FreeDragBehavior, invalidate } from "./free-drag/behavior.ts";
+     |                                                ^
+  8  |  import { FreeDragResolution } from "./free-drag/domain.ts";
+  9  |  import { Lifter } from "./lift.ts";
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/landing.browser.test.ts (0 test)
+4:11:46 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:46 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:46 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+ ❯ |consumer (chromium)| tests/destruction.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/free-drag/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag.ts:11:7
+  5  |  */
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { FreeDragBehavior, invalidate } from "./free-drag/behavior.ts";
+     |                                                ^
+  8  |  import { FreeDragResolution } from "./free-drag/domain.ts";
+  9  |  import { Lifter } from "./lift.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+ ❯ |consumer (chromium)| tests/coordinates.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/free-drag/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag.ts:11:7
+  5  |  */
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { FreeDragBehavior, invalidate } from "./free-drag/behavior.ts";
+     |                                                ^
+  8  |  import { FreeDragResolution } from "./free-drag/domain.ts";
+  9  |  import { Lifter } from "./lift.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/requests.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/commit.browser.test.ts (0 test)
+ ❯ |consumer (chromium)| tests/click-guard.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/invalidation.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag/drop-targets.ts:7:32
+  1  |  import { createFrameTask } from "../shared/invalidation.ts";
+     |                                   ^
+  2  |  const OVER = "data-drop-over";
+  3  |  /**
+4:11:47 PM [vite] (client) Pre-transform error: src/free-drag/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag.ts:11:7
+  5  |  */
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { FreeDragBehavior, invalidate } from "./free-drag/behavior.ts";
+     |                                                ^
+  8  |  import { FreeDragResolution } from "./free-drag/domain.ts";
+  9  |  import { Lifter } from "./lift.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+ ❯ |consumer (chromium)| tests/terminals.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/drop-targets.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+ ❯ |consumer (chromium)| tests/authoring.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/verdict.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+ ❯ |consumer (chromium)| tests/input.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/free-drag/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag.ts:11:7
+  5  |  */
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { FreeDragBehavior, invalidate } from "./free-drag/behavior.ts";
+     |                                                ^
+  8  |  import { FreeDragResolution } from "./free-drag/domain.ts";
+  9  |  import { Lifter } from "./lift.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+ ❯ |consumer (chromium)| tests/release.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/classes.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/free-drag/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag.ts:11:7
+  5  |  */
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { FreeDragBehavior, invalidate } from "./free-drag/behavior.ts";
+     |                                                ^
+  8  |  import { FreeDragResolution } from "./free-drag/domain.ts";
+  9  |  import { Lifter } from "./lift.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/free-drag/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+ ❯ |consumer (chromium)| tests/activation.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/domain.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/y.ts:25:28
+  1  |  import { insertionAt } from "./domain.ts";
+     |                               ^
+  2  |  import { linearShift } from "./linear-shift.ts";
+  3  |  import { CENTER_Y, RectIndex, STRIDE } from "./rect-index.ts";
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/free-drag.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/frameworks.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+4:11:47 PM [vite] (client) Pre-transform error: src/sortable/behavior.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable.ts:8:54
+  6  |  import { draggable } from "./draggable.ts";
+  7  |  import { Lifter } from "./lift.ts";
+  8  |  import { SortableBehavior } from "./sortable/behavior.ts";
+     |                                    ^
+  9  |  import { ReorderResolution } from "./sortable/domain.ts";
+  10 |  export { ReorderResolution };
+4:11:47 PM [vite] (client) Pre-transform error: src/kernel/gesture.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/draggable.ts:2:50
+  1  |  import { Gesture } from "./kernel/gesture.ts";
+     |                           ^
+  2  |  /**
+  3  |  * Makes `root` draggable with one behavior. The behavior renders by itself, and
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/focus.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/lift.ts:19:34
+  10 |  */
+  11 |  import { ancestry, box as createBox, coordinates, space } from "@ydinjs/box-quad";
+  12 |  import { deepActiveElement } from "./shared/focus.ts";
+     |                                     ^
+  13 |  const BOX_A = 0;
+  14 |  const BOX_B = 1;
+ ❯ |consumer (chromium)| tests/faults.browser.test.ts (0 test)
+ ❯ |consumer (chromium)| tests/focus.browser.test.ts (0 test)
+ ❯ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts (0 test)
+4:11:47 PM [vite] (client) Pre-transform error: src/shared/landing.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/src/sortable/landing.ts:1:24
+  1  |  export { landing } from "../shared/landing.ts";
+     |                           ^
+  2  |  
+ ❯ |consumer (chromium)| tests/scoped-requests.browser.test.ts (0 test)
+ ❯ |consumer (chromium)| tests/order.browser.test.ts (0 test)
+ ✓ |node| tests/exports.node.test.ts (3 tests) 6ms
+ ❯ |node| tests/size.node.test.ts (11 tests | 6 failed) 182ms
+   ❯ drag:DRI-18 module graphs and size (11)
+     × should satisfy the declared graph and ceiling of draggable alone 4ms
+     ✓ should satisfy the declared graph and ceiling of draggable + lift 0ms
+     × should satisfy the declared graph and ceiling of example: resize handle 1ms
+     × should satisfy the declared graph and ceiling of example: drop zone 0ms
+     ✓ should satisfy the declared graph and ceiling of example: canvas group 0ms
+     × should satisfy the declared graph and ceiling of freeDrag 0ms
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing 0ms
+     ✓ should satisfy the declared graph and ceiling of sortable + y 0ms
+     ✓ should satisfy the declared graph and ceiling of sortable + xy 0ms
+     × should satisfy the declared graph and ceiling of complete 0ms
+     ✓ should bring no lift, box-quad, sortable, cache or landing code with draggable alone 0ms
+ ✓ |node| tests/campaign.node.test.ts (23 tests) 658ms
+ ✓ |declaration|  TS  tests/authoring.declaration.test.ts (12 tests)
+ ✓ |declaration|  TS  tests/callback-list.declaration.test.ts (6 tests)
+ ✓ |declaration|  TS  tests/published-types.declaration.test.ts (2 tests)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 22 ⎯⎯⎯⎯⎯⎯
+
+ FAIL  |consumer (chromium)| tests/activation.browser.test.ts [ tests/activation.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/authoring.browser.test.ts [ tests/authoring.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/classes.browser.test.ts [ tests/classes.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/click-guard.browser.test.ts [ tests/click-guard.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/commit.browser.test.ts [ tests/commit.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts [ tests/coordinates.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/destruction.browser.test.ts [ tests/destruction.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/drop-targets.browser.test.ts [ tests/drop-targets.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/faults.browser.test.ts [ tests/faults.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/focus.browser.test.ts [ tests/focus.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/frameworks.browser.test.ts [ tests/frameworks.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/free-drag.browser.test.ts [ tests/free-drag.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/input.browser.test.ts [ tests/input.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/landing.browser.test.ts [ tests/landing.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/operation-lifecycle.browser.test.ts [ tests/operation-lifecycle.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/order.browser.test.ts [ tests/order.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/release.browser.test.ts [ tests/release.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/requests.browser.test.ts [ tests/requests.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/scoped-requests.browser.test.ts [ tests/scoped-requests.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/sortable.browser.test.ts [ tests/sortable.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/terminals.browser.test.ts [ tests/terminals.browser.test.ts ]
+ FAIL  |consumer (chromium)| tests/verdict.browser.test.ts [ tests/verdict.browser.test.ts ]
+Error: Failed to import test file /workspaces/material-x/packages/drag/tests/support/require-build.ts
+ ❯ runSetupFiles .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5813:35
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5841:6
+ ❯ collectTests .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5823:3
+ ❯ startTests .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:6511:17
+
+Caused by: Error: npx tsdown --config /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/w3-failing.config.ts exited with 1
+ℹ tsdown v0.23.2 powered by rolldown v1.2.15
+
+ ERROR  Error: Failed to load the config file due to a known Node.js bug. Try setting the --config-loader CLI flag to `tsx` or `unrun`, or upgrading Node.js to v24.11.1 or later.
+
+W3: this configuration does not load
+    at file:///workspaces/material-x/node_modules/tsdown/dist/options-DYtkVpdH.mjs:587:112
+    at async nativeImport (file:///workspaces/material-x/node_modules/tsdown/dist/options-DYtkVpdH.mjs:584:14)
+    at async iterateAsync (file:///workspaces/material-x/node_modules/quansync/dist/src-C2Pm6gXo.js:58:28)
+    at async iterateAsync (file:///workspaces/material-x/node_modules/quansync/dist/src-C2Pm6gXo.js:58:28)
+    at async iterateAsync (file:///workspaces/material-x/node_modules/quansync/dist/src-C2Pm6gXo.js:58:28)
+    at async loadConfigFile (file:///workspaces/material-x/node_modules/tsdown/dist/options-DYtkVpdH.mjs:509:19)
+    at async resolveConfig (file:///workspaces/material-x/node_modules/tsdown/dist/build-B3hcYrTt.mjs:98:51)
+    at async build$1 (file:///workspaces/material-x/node_modules/tsdown/dist/build-B3hcYrTt.mjs:707:28)
+    at async CAC.<anonymous> (file:///workspaces/material-x/node_modules/tsdown/dist/run.mjs:21:2)
+    at async runCLI (file:///workspaces/material-x/node_modules/tsdown/dist/run.mjs:81:3)
+
+
+ ❯ ../../node_modules/tsdown/dist/options-DYtkVpdH.mjs:587:112
+ ❯ nativeImport ../../node_modules/tsdown/dist/options-DYtkVpdH.mjs:584:14
+ ❯ iterateAsync ../../node_modules/quansync/dist/src-C2Pm6gXo.js:58:28
+ ❯ iterateAsync ../../node_modules/quansync/dist/src-C2Pm6gXo.js:58:28
+ ❯ iterateAsync ../../node_modules/quansync/dist/src-C2Pm6gXo.js:58:28
+ ❯ loadConfigFile ../../node_modules/tsdown/dist/options-DYtkVpdH.mjs:509:19
+ ❯ resolveConfig ../../node_modules/tsdown/dist/build-B3hcYrTt.mjs:98:51
+ ❯ build$1 ../../node_modules/tsdown/dist/build-B3hcYrTt.mjs:707:28
+ ❯ CAC.<anonymous> ../../node_modules/tsdown/dist/run.mjs:21:2
+ ❯ runCLI ../../node_modules/tsdown/dist/run.mjs:81:3
+ ❯ tests/support/require-build.ts:10:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 2139 B ceiling by 57 B",
++   "control moved by 172 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+AssertionError: expected [ 'over its 3313 B ceiling by 8 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 3313 B ceiling by 8 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 172 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4431 B ceiling by 172 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 55 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4967 B ceiling by 55 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 244 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 5210 B ceiling by 244 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+AssertionError: expected [ 'over its 7065 B ceiling by 219 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 7065 B ceiling by 219 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+
+ Test Files  23 failed | 32 passed (55)
+      Tests  6 failed | 414 passed (420)
+Type Errors  no errors
+   Start at  16:10:48
+   Duration  59.79s (worker 88%, tests 12%)
+
+JSON report written to /workspaces/material-x/packages/drag/.plan/measurements/2026-11-12-consumer-w3.json

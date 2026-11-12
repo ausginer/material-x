@@ -1,0 +1,100 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+4:07:41 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+4:07:47 PM [vite] Internal server error: Failed to resolve import "../src/does-not-exist.ts" from "tests/landing.browser.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/tests/landing.browser.test.ts:3:7
+  1  |  /** `drag:DRI-13`: landing and elevation. */
+  2  |  import { afterEach, describe, expect, it } from "vitest";
+  3  |  import "../src/does-not-exist.ts";
+     |          ^
+  4  |  import { freeDrag, FreeDragResolution } from "../src/free-drag.ts";
+  5  |  import { Lifter } from "../src/lift.ts";
+      at TransformPluginContext._formatLog (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8803:39)
+      at TransformPluginContext.error (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8800:14)
+      at resolveId (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26594:18)
+      at async file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26693:23
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26666:4)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8582:14)
+      at async loadAndTransform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:20155:26)
+      at async viteTransformMiddleware (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:20375:20)
+ ❯ |browser (chromium)| tests/landing.browser.test.ts (0 test)
+ ❯ |browser (chromium)| tests/requests.browser.test.ts (26 tests | 1 failed) 3647ms
+   ❯ drag:DRI-1 a request does not change the running step (6)
+     × should let a sortable placeholder reaction cancel during activation 141ms
+ ❯ |browser (chromium)| tests/sortable.browser.test.ts (49 tests | 1 failed) 14830ms
+   ❯ drag:DRI-15 placeholder integrity (13)
+     × should hide the placeholder from assistive technology and mirror the slot 151ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts [ tests/landing.browser.test.ts ]
+Error: Failed to import test file /workspaces/material-x/packages/drag/tests/landing.browser.test.ts
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5847:5
+ ❯ collectTests .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5823:3
+ ❯ startTests .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6511:17
+
+Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:63315/workspaces/material-x/packages/drag/tests/landing.browser.test.ts?import&browserv=1794499667253
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:32 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction cancel during activation
+AssertionError: expected [] to deeply equal [ 'start', 'end:canceled' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "start",[39m
+[32m-   "end:canceled",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ tests/requests.browser.test.ts:45:17
+     43|     });
+     44|     await grab('#r0');
+     45|     expect(log).toEqual(['start', 'end:canceled']);
+       |                 ^
+     46|     await release();
+     47|     expect(isClean(list)).toBe(true);
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:707 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+TypeError: Cannot read properties of null (reading 'getAttribute')
+ ❯ tests/sortable.browser.test.ts:721:24
+    719|     const placeholder = list.querySelector('[data-drag-placeholder]')!;
+    720|
+    721|     expect(placeholder.getAttribute('aria-hidden')).toBe('true');
+       |                        ^
+    722|     expect(placeholder.getAttribute('slot')).toBe('rows');
+    723|     await commands.keyPress('Escape');
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 23 passed (26)
+      Tests  2 failed | 333 passed (335)
+   Start at  16:07:41
+   Duration  36.65s (worker 89%, tests 11%)
+

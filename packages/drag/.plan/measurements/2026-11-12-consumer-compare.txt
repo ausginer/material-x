@@ -1,0 +1,33 @@
+base {
+  browser: '23 files, 354 tests, 0 failed',
+  declaration: '3 files, 20 tests, 0 failed',
+  node: '3 files, 37 tests, 6 failed: drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of draggable alone | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of example: resize handle | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of example: drop zone | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of freeDrag | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of freeDrag + bounds + landing | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of complete',
+  shipped: '1 files, 9 tests, 0 failed'
+}
+final {
+  browser: '26 files, 354 tests, 0 failed',
+  consumer: '22 files, 326 tests, 0 failed',
+  declaration: '3 files, 20 tests, 0 failed',
+  node: '3 files, 37 tests, 6 failed: drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of draggable alone | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of example: resize handle | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of example: drop zone | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of freeDrag | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of freeDrag + bounds + landing | drag:DRI-18 module graphs and size should satisfy the declared graph and ceiling of complete',
+  shipped: '1 files, 9 tests, 0 failed'
+}
+browser: titles and verdicts identical []
+shipped: titles and verdicts identical []
+node: titles and verdicts identical []
+declaration: titles and verdicts identical []
+moved Map(8) {
+  'sortable options should call the layoutAnimation sink with its receiver, with rows in flight' => 'tests/sortable.browser.test.ts -> tests/displacement-sink.browser.test.ts',
+  "sortable options drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array" => 'tests/sortable.browser.test.ts -> tests/displacement-sink.browser.test.ts',
+  "sortable options drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array" => 'tests/sortable.browser.test.ts -> tests/displacement-sink.browser.test.ts',
+  'sortable options drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives' => 'tests/sortable.browser.test.ts -> tests/displacement-sink.browser.test.ts',
+  'drag:DRI-1 a request does not change the running step should finish the step when a custom element reaction asks to press during activate' => 'tests/requests.browser.test.ts -> tests/refusals.browser.test.ts',
+  'drag:DRI-6 reentrant input should refuse a nested press, and take the next real one' => 'tests/terminals.browser.test.ts -> tests/refusals.browser.test.ts',
+  'drag:DRI-6 reentrant input should refuse no trusted event during ordinary drags' => 'tests/terminals.browser.test.ts -> tests/refusals.browser.test.ts',
+  'drag:DRD-52 development equivalence check should report a placeholder that a committed move displaces along x' => 'tests/sortable.browser.test.ts -> tests/equivalence-check.browser.test.ts'
+}
+browser files not in consumer [
+  'tests/callback-list.browser.test.ts',
+  'tests/displacement-sink.browser.test.ts',
+  'tests/equivalence-check.browser.test.ts',
+  'tests/refusals.browser.test.ts'
+]

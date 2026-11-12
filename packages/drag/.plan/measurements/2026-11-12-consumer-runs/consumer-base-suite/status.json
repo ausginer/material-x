@@ -1,0 +1,31 @@
+{
+  "id": "consumer-base-suite",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 277871,
+    "start": "2697040"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-12T15:56:41.662Z",
+  "endedAt": "2026-11-12T15:57:40.576Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=default --reporter=json --outputFile.json=.plan/measurements/2026-11-12-consumer-base-suite.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/consumer-base-suite/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "9c7b730472bd3d766dd31f9ede42035316e928af",
+        "dirty": false
+      },
+      "process": {
+        "pid": 277888,
+        "start": "2697046"
+      },
+      "startedAt": "2026-11-12T15:56:41.675Z",
+      "endedAt": "2026-11-12T15:57:40.576Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

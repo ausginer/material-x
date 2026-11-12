@@ -1,0 +1,31 @@
+{
+  "id": "consumer-w3-throwing-config",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 303723,
+    "start": "2781668"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-12T16:10:47.935Z",
+  "endedAt": "2026-11-12T16:11:48.707Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=default --reporter=json --outputFile.json=.plan/measurements/2026-11-12-consumer-w3.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/consumer-w3-throwing-config/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "9c7b730472bd3d766dd31f9ede42035316e928af",
+        "dirty": true
+      },
+      "process": {
+        "pid": 303739,
+        "start": "2781673"
+      },
+      "startedAt": "2026-11-12T16:10:47.950Z",
+      "endedAt": "2026-11-12T16:11:48.707Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}
