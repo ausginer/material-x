@@ -1,0 +1,11 @@
+#!/bin/bash
+# usage: mut.sh <label> ; runs W1+W2 in three engines on the current working tree
+cd /workspaces/material-x/packages/drag
+source ~/.cache/ms-playwright/webkit-env.sh
+out=$1
+{
+  echo "# $(date -Is) label=$2 head=$(git rev-parse --short HEAD)"
+  echo "# operation.ts drop lines:"; grep -n "axis\.\(confirm\|invalidate\)" src/sortable/operation.ts
+  timeout 900 npx vitest run -c vitest.engines.config.ts tests/sortable.browser.test.ts tests/hot-path.browser.test.ts -t "DRD-47" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -vE "dynamic import|vite-ignore|^\s*[0-9]+ \|  |Plugin: vite|File: .*vite/vitest|^\s+\^+$|^\s*\|\s+\^"
+  echo "# exit ${PIPESTATUS[0]}"
+} > "$out" 2>&1
