@@ -1,0 +1,90 @@
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index 649f79dad..f08553be8 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -34,6 +34,7 @@
+ import type { AxisContext, DisplacementSink } from './axis.ts';
+ import type { CollectionSnapshot } from './domain.ts';
+ import {
++  BOTTOM,
+   CENTER_Y,
+   type RectIndex,
+   STRIDE,
+@@ -110,7 +111,13 @@ export function linearShift(index: RectIndex): LinearShift {
+     ) {
+       if (placeholderIsStale) {
+         placeholderIsStale = false;
+-        index.remeasurePlaceholder(placeholder);
++        const { top, bottom } = placeholder.getBoundingClientRect();
++        // The cache's own buffer, written in place.
++        const placeholderRect = index.placeholderRect as Float64Array;
++
++        placeholderRect[TOP] = top;
++        placeholderRect[BOTTOM] = bottom;
++        placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
+       }
+ 
+       if (
+@@ -207,7 +214,17 @@ export function linearShift(index: RectIndex): LinearShift {
+         rowDistance = delta < 0 ? -delta : delta;
+       }
+ 
+-      index.advance(lo, hi, delta);
++      const values = index.values as Float64Array;
++
++      for (let i = lo; i < hi; i += 1) {
++        const offset = i * STRIDE;
++        const top = values[offset + TOP]! + delta;
++        const bottom = values[offset + BOTTOM]! + delta;
++
++        values[offset + TOP] = top;
++        values[offset + BOTTOM] = bottom;
++        values[offset + CENTER_Y] = (top + bottom) * 0.5;
++      }
+ 
+       if (context.displacement) {
+         // Read once, outside a loop that calls into the sink.
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b1fcae5f8..a1c67bb02 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -230,39 +230,6 @@ export class RectIndex {
+     }
+   }
+ 
+-  /**
+-   * Advances a span of slots by a constant along y. The center is recomputed from
+-   * the shifted edges, so the arithmetic is the one a full scan performs.
+-   */
+-  advance(lo: number, hi: number, delta: number): void {
+-    // Read once, outside the per-slot loop.
+-    const values = this.#values;
+-
+-    for (let i = lo; i < hi; i += 1) {
+-      const offset = i * STRIDE;
+-      const top = values[offset + TOP]! + delta;
+-      const bottom = values[offset + BOTTOM]! + delta;
+-
+-      values[offset + TOP] = top;
+-      values[offset + BOTTOM] = bottom;
+-      values[offset + CENTER_Y] = (top + bottom) * 0.5;
+-    }
+-  }
+-
+-  /**
+-   * Re-reads the placeholder's fields along y. A relocation in a column leaves both
+-   * x coordinates unchanged.
+-   */
+-  remeasurePlaceholder(placeholder: HTMLElement): void {
+-    const { top, bottom } = placeholder.getBoundingClientRect();
+-    // A local is smaller than three field reads, even with mangled private names.
+-    const placeholderRect = this.#placeholderRect;
+-
+-    placeholderRect[TOP] = top;
+-    placeholderRect[BOTTOM] = bottom;
+-    placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
+-  }
+-
+   /**
+    * Whether one slot's element is still where the cache holds it: measured again like
+    * a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A

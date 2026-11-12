@@ -1,0 +1,113 @@
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index 2e0bf6987..596889512 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -74,7 +74,6 @@ export class FreeDragBehavior implements Behavior<
+    * operation's drop targets.
+    */
+   readonly invalidate = (operation: FreeDragOperation | null): void => {
+-    this.bounds?.invalidate();
+     operation?.handleEvent();
+   };
+ 
+diff --git a/packages/drag/src/sortable/axis.ts b/packages/drag/src/sortable/axis.ts
+index bd58372f1..3672a30b8 100644
+--- a/packages/drag/src/sortable/axis.ts
++++ b/packages/drag/src/sortable/axis.ts
+@@ -37,7 +37,7 @@ export type AxisQuery = Readonly<{
+   pointerY: number;
+   snapshot: CollectionSnapshot;
+   /** The committed gap: where the placeholder is. */
+-  insertion: Insertion | null;
++  insertion: Insertion;
+   /** Excluded from the candidates, whose center would otherwise always win. */
+   item: HTMLElement;
+ }>;
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index 649f79dad..ab6c41a1e 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -130,8 +130,7 @@ export function linearShift(index: RectIndex): LinearShift {
+         );
+       }
+ 
+-      // With no gap, the window starts at the list's start and grows down.
+-      index.collect(snapshot, dragged, placeholder, gap < 0 ? 0 : gap);
++      index.collect(snapshot, dragged, placeholder, gap);
+ 
+       // Read once: `measure` writes into this buffer and never replaces it.
+       const { values, count } = index;
+@@ -158,10 +157,7 @@ export function linearShift(index: RectIndex): LinearShift {
+ 
+       snapshotVersion = snapshot.version;
+       dirty = false;
+-
+-      if (gap >= 0) {
+-        lastGap = gap;
+-      }
++      lastGap = gap;
+     },
+ 
+     moved(gap, snapshot, context) {
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index b3f224d39..7f461592f 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -46,7 +46,7 @@ export function xy(): AxisInstaller {
+           context.placeholder,
+           context.displacement,
+         );
+-        last = query.insertion ? query.insertion.index : -1;
++        last = query.insertion.index;
+ 
+         // Read once, outside the candidate loop.
+         const { values, count, placeholderRect, items } = index;
+@@ -85,7 +85,7 @@ export function xy(): AxisInstaller {
+       confirm(query, context) {
+         if (
+           !index.holds(
+-            query.insertion ? query.insertion.index : -1,
++            query.insertion.index,
+             query.snapshot,
+             context.box,
+             context.displacement,
+@@ -98,7 +98,7 @@ export function xy(): AxisInstaller {
+       moved(query, context) {
+         // Read once: the per-row loop below calls into it.
+         const { displacement } = context;
+-        const gap = query.insertion!.index;
++        const gap = query.insertion.index;
+         // Taken before the refresh below rewrites the count.
+         const held = index.count;
+ 
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 313bd48c5..f4849627f 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -49,7 +49,7 @@ export function y(): AxisInstaller {
+           context.box,
+           context.placeholder,
+           context.displacement,
+-          query.insertion ? query.insertion.index : -1,
++          query.insertion.index,
+           pointerY,
+         );
+ 
+@@ -89,7 +89,7 @@ export function y(): AxisInstaller {
+       confirm(query, context) {
+         if (
+           !index.holds(
+-            query.insertion ? query.insertion.index : -1,
++            query.insertion.index,
+             query.snapshot,
+             context.box,
+             context.displacement,
+@@ -100,7 +100,7 @@ export function y(): AxisInstaller {
+       },
+ 
+       moved(query, context) {
+-        shift.moved(query.insertion!.index, query.snapshot, context);
++        shift.moved(query.insertion.index, query.snapshot, context);
+       },
+ 
+       retire() {

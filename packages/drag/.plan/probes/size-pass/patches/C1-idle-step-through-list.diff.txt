@@ -1,0 +1,33 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index 9538c0ff0..f3cb1aa23 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -279,21 +279,14 @@ export class Gesture<
+       return;
+     }
+ 
+-    if (this.#running) {
+-      // Steps coalesce by step and receiver. A running step is no longer
+-      // waiting, so a request it makes for itself adds it again.
+-      if (!this.#steps.has(step, receiver)) {
+-        this.#steps.add(step, receiver);
+-      }
+-    } else {
+-      // Requested while idle, the step is the first step of its own pass. The
+-      // list stays empty, so an idle request allocates nothing.
+-      this.enter(
+-        step,
+-        this.#session ? this.#session.stepTarget() : null,
+-        receiver,
+-      );
++    // Steps coalesce by step and receiver. A running step is no longer waiting,
++    // so a request it makes for itself adds it again. Requested while idle, the
++    // step runs in the pass this enters.
++    if (!this.#steps.has(step, receiver)) {
++      this.#steps.add(step, receiver);
+     }
++
++    this.enter();
+   }
+ 
+   requestCancel(reason?: unknown): void {

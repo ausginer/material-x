@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index 2e0bf6987..596889512 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -74,7 +74,6 @@ export class FreeDragBehavior implements Behavior<
+    * operation's drop targets.
+    */
+   readonly invalidate = (operation: FreeDragOperation | null): void => {
+-    this.bounds?.invalidate();
+     operation?.handleEvent();
+   };
+ 

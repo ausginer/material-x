@@ -1,0 +1,483 @@
+# P4 size pass: opening readings
+# revision: 0a28f909a967719ddbdae827fdc55a81aeccdd16
+# node v26.13.0, rolldown 1.2.15, nproc 12, cpu 12th Gen Intel(R) Core(TM) i7-1255U
+# probe: packages/drag/.plan/probes/size-pass/size.ts.txt; compression: gzip-9 = zlib gzipSync level 9 (windowBits 15, memLevel 8, default strategy, header included); gzip-6 = same at level 6; br11 = brotliCompressSync defaults (quality 11, lgwin 22, generic mode), identical to bench/size/measure.ts
+# candidate trees: a detached worktree of the revision with packages/drag/.plan/probes/size-pass/patches/<name>.diff.txt applied (git apply from the worktree root)
+
+## base (the revision, unpatched), with per-module minified bytes (each module as its own chunk; ranks, does not add up)
+root /workspaces/material-x/packages/drag
+composition                       min    gz9    gz6   br11    str  modules
+draggable alone                  6733   2433   2436   2197    327  7
+      4221 src/kernel/session.ts
+      2090 src/kernel/gesture.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+draggable + lift                11544   4410   4412   3974   1296  9
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2090 src/kernel/gesture.ts
+      2041 ../box-quad/src/index.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+example: resize handle           9390   3675   3678   3310    486  9
+      4221 src/kernel/session.ts
+      2240 ../box-quad/src/index.ts
+      2090 src/kernel/gesture.ts
+       677 tests/fixtures/resize-handle.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+example: drop zone              13183   5111   5117   4610   1395  13
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2240 ../box-quad/src/index.ts
+      2090 src/kernel/gesture.ts
+      1007 tests/fixtures/drop-zone.ts
+       798 src/shared/landing.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+        51 src/shared/timing.ts
+        42 src/lift/landing.ts
+example: canvas group            9526   3633   3636   3306    432  9
+      4221 src/kernel/session.ts
+      2090 src/kernel/gesture.ts
+      1658 tests/fixtures/canvas-group.ts
+      1367 ../box-quad/src/index.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+freeDrag                        15201   5585   5598   5036   1358  15
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2240 ../box-quad/src/index.ts
+      2090 src/kernel/gesture.ts
+      1704 src/free-drag/operation.ts
+       964 src/free-drag/behavior.ts
+       797 src/free-drag/geometry.ts
+       434 src/free-drag.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       170 src/shared/invalidation.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+        33 src/free-drag/domain.ts
+freeDrag + bounds + landing     16366   6072   6085   5476   1435  19
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2240 ../box-quad/src/index.ts
+      2090 src/kernel/gesture.ts
+      1704 src/free-drag/operation.ts
+       964 src/free-drag/behavior.ts
+       798 src/shared/landing.ts
+       797 src/free-drag/geometry.ts
+       523 src/free-drag/bounds.ts
+       434 src/free-drag.ts
+       393 src/kernel/callback-list.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       170 src/shared/invalidation.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+        51 src/shared/timing.ts
+        42 src/free-drag/landing.ts
+        33 src/free-drag/domain.ts
+sortable + y                    20741   7434   7444   6721   1609  20
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2564 src/sortable/operation.ts
+      2090 src/kernel/gesture.ts
+      2083 src/sortable/behavior.ts
+      2041 ../box-quad/src/index.ts
+      1693 src/sortable/rect-index.ts
+       970 src/sortable/linear-shift.ts
+       741 src/sortable/y.ts
+       666 src/sortable/placement.ts
+       559 src/sortable/collection.ts
+       436 src/sortable.ts
+       393 src/kernel/callback-list.ts
+       339 src/sortable/keyboard.ts
+       338 src/shared/invalidation.ts
+       241 src/sortable/domain.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+sortable + xy                   20297   7333   7342   6602   1609  19
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2564 src/sortable/operation.ts
+      2090 src/kernel/gesture.ts
+      2083 src/sortable/behavior.ts
+      2041 ../box-quad/src/index.ts
+      1693 src/sortable/rect-index.ts
+      1215 src/sortable/xy.ts
+       666 src/sortable/placement.ts
+       559 src/sortable/collection.ts
+       436 src/sortable.ts
+       393 src/kernel/callback-list.ts
+       339 src/sortable/keyboard.ts
+       338 src/shared/invalidation.ts
+       241 src/sortable/domain.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+complete                        22420   8159   8169   7356   1697  24
+      4221 src/kernel/session.ts
+      3001 src/lift.ts
+      2564 src/sortable/operation.ts
+      2240 ../box-quad/src/index.ts
+      2090 src/kernel/gesture.ts
+      2083 src/sortable/behavior.ts
+      1693 src/sortable/rect-index.ts
+       970 src/sortable/linear-shift.ts
+       941 src/sortable/layout-animation.ts
+       798 src/shared/landing.ts
+       741 src/sortable/y.ts
+       666 src/sortable/placement.ts
+       559 src/sortable/collection.ts
+       436 src/sortable.ts
+       393 src/kernel/callback-list.ts
+       339 src/sortable/keyboard.ts
+       338 src/shared/invalidation.ts
+       241 src/sortable/domain.ts
+       195 src/fault.ts
+       171 src/kernel/drag.ts
+       140 src/shared/focus.ts
+       103 src/draggable.ts
+        51 src/shared/timing.ts
+        42 src/sortable/landing.ts
+
+## base, surviving string literals of 8 bytes or more
+draggable alone                  6733   2433   2436   2197    327  7
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "resize-handle/no-basis"
+    string "restored"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "(prefers-reduced-motion: reduce)"
+    string "relative"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+    string "contents"
+    string "preserve-3d"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "canvas-group/no-basis"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "rejected"
+    string "accepted"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+freeDrag + bounds + landing     16366   6072   6085   5476   1435  19
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "rejected"
+    string "accepted"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+    string "(prefers-reduced-motion: reduce)"
+    string "relative"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+    string "ArrowLeft"
+    string "ArrowDown"
+    string "ArrowRight"
+    string "data-drag-placeholder"
+    string "aria-hidden"
+    string "sortable/anchor-outside-container"
+    string "sortable:collection-invalidated"
+    string "sortable:item-removed"
+    string "accepted"
+    string "rejected"
+    string "sortable/landing-placeholder-lost"
+    string "sortable/insertion-placeholder-lost"
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+    string "ArrowLeft"
+    string "ArrowDown"
+    string "ArrowRight"
+    string "data-drag-placeholder"
+    string "aria-hidden"
+    string "sortable/anchor-outside-container"
+    string "sortable:collection-invalidated"
+    string "sortable:item-removed"
+    string "accepted"
+    string "rejected"
+    string "sortable/landing-placeholder-lost"
+    string "sortable/insertion-placeholder-lost"
+complete                        22420   8159   8169   7356   1697  24
+    string "unreadable value"
+    string "DragFault"
+    string "pointerup"
+    string "pointercancel"
+    string "pointerdown"
+    string "pointermove"
+    string "lostpointercapture"
+    string "canceled"
+    string "interrupted"
+    string "function"
+    string "[data-drag-ignore]"
+    string "border-box"
+    string "contents"
+    string "preserve-3d"
+    string "border-width"
+    string "border-style"
+    string "border-color"
+    string "overflow"
+    string "background-color"
+    string "position.top.right.bottom.left.width.height.margin-top.margin-right.margin-bottom.margin-left.zoom.box-sizing.transform.transform-origin.translate.rotate.scale.transition-property.transition-duration.transition-timing-function.transition-delay.transition-behavior.padding-top.padding-right.padding-bottom.padding-left.border-top-width.border-right-width.border-bottom-width.border-left-width.border-top-style.border-right-style.border-bottom-style.border-left-style.border-top-color.border-right-color.border-bottom-color.border-left-color.overflow-x.overflow-y.color.background-color"
+    string ":popover-open"
+    string "[popover]"
+    string "lift/visual-no-box-space"
+    string "translate("
+    string "ArrowLeft"
+    string "ArrowDown"
+    string "ArrowRight"
+    string "data-drag-placeholder"
+    string "aria-hidden"
+    string "sortable/anchor-outside-container"
+    string "sortable:collection-invalidated"
+    string "sortable:item-removed"
+    string "accepted"
+    string "rejected"
+    string "sortable/landing-placeholder-lost"
+    string "sortable/insertion-placeholder-lost"
+    string "(prefers-reduced-motion: reduce)"
+    string "relative"
+    string "ease-out"
+
+## deltas against base, minified/gzip-9/brotli-11 bytes
+row                     C1-idle-step-through-l  C2-callback-list-facto  C3-drf13-insertion-non  C3b-drf13-with-shift-s
+                                    min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br
+draggable alone                      -45/-9/-5             -62/-28/-21                   0/0/0                   0/0/0
+draggable + lift                    -45/-11/-9             -62/-29/-22                   0/0/0                   0/0/0
+ex: resize handle                  -45/-10/-14             -62/-29/-20                   0/0/0                   0/0/0
+ex: drop zone                       -45/-9/-15             -62/-27/-14                   0/0/0                   0/0/0
+ex: canvas group                   -45/-10/-11             -62/-27/-21                   0/0/0                   0/0/0
+freeDrag                           -45/-10/-11             -62/-29/-20                   0/0/0                   0/0/0
+freeDrag+b+l                       -45/-10/-14             -62/-27/-21                   0/0/0                   0/0/0
+sortable + y                       -45/-11/-15             -62/-27/-25              -30/-6/-10             -44/-14/-17
+sortable + xy                      -45/-11/-11             -62/-29/-12               -30/-8/-2               -30/-8/-2
+complete                            -45/-12/-8             -62/-29/-18               -30/-6/-5             -44/-14/-17
+
+row                     C4-drf14-single-invali  C5-lift-inline-capture  C6-y-only-cache-writes
+                                    min/gz9/br              min/gz9/br              min/gz9/br
+draggable alone                          0/0/0                   0/0/0                   0/0/0
+draggable + lift                         0/0/0             -76/-16/-18                   0/0/0
+ex: resize handle                        0/0/0                   0/0/0                   0/0/0
+ex: drop zone                            0/0/0               -76/-8/-9                   0/0/0
+ex: canvas group                         0/0/0                   0/0/0                   0/0/0
+freeDrag                              -26/0/-1             -76/-18/-22                   0/0/0
+freeDrag+b+l                         -26/-1/-2             -76/-18/-16                   0/0/0
+sortable + y                             0/0/0              -80/-17/-9             -71/-28/-13
+sortable + xy                            0/0/0              -78/-18/-7            -226/-92/-76
+complete                                 0/0/0              -80/-14/+2             -71/-28/-18
+
+## joint readings (book these, not sums of the above)
+row                        U1-recommended-unit           K-kernel-pair            J1-clean-set         J2-all-measured
+                                    min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br
+draggable alone                          0/0/0            -107/-39/-26            -107/-39/-26            -107/-39/-26
+draggable + lift                         0/0/0            -107/-39/-33            -107/-39/-33            -183/-57/-42
+ex: resize handle                        0/0/0            -107/-39/-34            -107/-39/-34            -107/-39/-34
+ex: drop zone                            0/0/0            -107/-37/-42            -107/-37/-42            -183/-47/-44
+ex: canvas group                         0/0/0            -107/-38/-34            -107/-38/-34            -107/-38/-34
+freeDrag                              -26/0/-1            -107/-40/-34            -133/-41/-37            -209/-59/-55
+freeDrag+b+l                         -26/-1/-2            -107/-38/-33            -133/-39/-34            -209/-59/-51
+sortable + y                       -44/-14/-17            -107/-38/-33            -137/-44/-42            -288/-89/-73
+sortable + xy                        -30/-8/-2            -107/-40/-30            -137/-49/-26          -441/-157/-120
+complete                           -44/-14/-17            -107/-41/-39            -137/-46/-42            -288/-85/-75
+
+## bench/size/measure.ts --prototype at the revision (the non-composed baseline, 599684791)
+draggable alone                  6733 min   2197 br  7 modules  prototype   9967   3704  -1507 B
+  VIOLATION: over its 2139 B ceiling by 58 B
+  VIOLATION: control moved by 173 B
+draggable + lift                11544 min   3974 br  9 modules
+example: resize handle           9390 min   3310 br  9 modules  prototype  10387   3844  -534 B
+example: drop zone              13183 min   4610 br  13 modules  prototype  10682   3974  +636 B
+  VIOLATION: over its 4431 B ceiling by 179 B
+example: canvas group            9526 min   3306 br  9 modules  prototype  11543   4294  -988 B
+freeDrag                        15201 min   5036 br  15 modules  prototype  12567   4589  +447 B
+  VIOLATION: over its 4967 B ceiling by 69 B
+freeDrag + bounds + landing     16366 min   5476 br  19 modules  prototype  13364   4856  +620 B
+  VIOLATION: over its 5210 B ceiling by 266 B
+sortable + y                    20741 min   6721 br  20 modules  prototype  18233   6401  +320 B
+sortable + xy                   20297 min   6602 br  19 modules  prototype  17576   6271  +331 B
+complete                        22420 min   7356 br  24 modules  prototype  19369   6804  +552 B
+  VIOLATION: over its 7065 B ceiling by 291 B

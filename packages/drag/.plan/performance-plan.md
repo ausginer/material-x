@@ -117,7 +117,22 @@ When the target row shows no difference, the architect decides what follows (`DR
 
 ### P4. Size pass
 
-**Not started.** The owner chooses when it starts. After the runtime units, under CONTRIBUTING Part II: delete machinery before compressing syntax (§16), and measure each change by composition (§15). Any byte saving that adds work on a hot path goes to the owner (§0). `DRO-4`'s re-base is the owner's decision, and it is made against the figures the owner accepts.
+**Opened by the owner on 2026-11-12** on `drag/size` from `0a28f909a`, the squash merge of #15. **Governing decision:** `DRD-51`, with `DRO-4` and `DRO-14`. **Opening assessment:** [`size-pass-assessment.md`](size-pass-assessment.md), with the probe and the candidate patches in [`probes/size-pass/`](probes/size-pass/README.md) and the raw readings in [`2026-11-12-size-pass-readings.txt`](measurements/2026-11-12-size-pass-readings.txt).
+
+It works under CONTRIBUTING Part II: delete machinery before compressing syntax (§16), and measure each change by composition (§15). Any byte saving that adds work on a hot path goes to the owner (§0). `DRO-4`'s re-base is the owner's decision, made after the pass against the figures the owner accepts (§18).
+
+**What the opening found.** The reachability gate (§1.1) removes nothing: every guard is reachable through correct use. No runtime vocabulary ships unfolded, and the shipped diagnostics are already identities. Seven candidates were measured as patches against `0a28f909a`. Each takes 1 to 76 B Brotli off a row, and the largest set takes 26 to 120 B. **No set makes a red row green,** so the pass removes machinery, and the budgets stay a question for `DRO-4`.
+
+**How each unit measures** (`DRD-51`):
+
+- every row as minified, gzip-9 and Brotli-11 bytes, with the settings recorded in the assessment's §1. Brotli-11 gates, and gzip is recorded and not gated. Only joint readings are booked;
+- control rows named before the reading, each at exactly 0 B;
+- a change that only removes work: the per-sample tests, the hot-path censuses and the three-engine suite, with no `compare.ts` run. A change that adds or moves hot-path work also runs `compare.ts --before <its base> --only <rows>` and goes to the owner;
+- no ceiling, control figure or `measure.ts` change, and the deferred campaigns stay stopped.
+
+**Recommended first unit, not started:** `DRF-13` and `DRF-14` together (`DRD-51` §First unit). −17 B Brotli on "sortable + y" and "complete", −1 to −2 B on three other rows, and exactly 0 B on the five rows that import neither `sortable` nor `freeDrag`. It needs no owner decision. The architect's probe of the patch typechecks and passes six browser test files in Chromium. Its handoff is written when the owner starts it.
+
+**For the owner:** `DRO-14`. The architect recommends taking C2 (`CallbackList`'s factories, −12 to −25 B on every row) and C6 (`y()`'s cache writes out of `RectIndex`, −76 B on "sortable + xy"), and not taking C1 (`DRF-20`, per-frame work for 5 to 15 B) or C5 (the lift's capture functions, +2 B on "complete"). A second unit takes whatever the owner approves.
 
 ## 3. Rules every unit follows
 
@@ -145,6 +160,7 @@ When the target row shows no difference, the architect decides what follows (`DR
 - `xy()`'s shared rebuild: its probe can't limit a slowdown, and its rebuild with rows in flight wasn't timed ([assessment](performance-window-correction-assessment.md) §5).
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
+- **Added on 2026-11-12, when P4 opened:** `DRO-14`'s four items, and the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14` item 3 holds `DRF-20`.
 
 ## 5. Post-1.0.0: virtualized lists
 
