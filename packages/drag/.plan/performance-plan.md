@@ -132,7 +132,15 @@ It works under CONTRIBUTING Part II: delete machinery before compressing syntax 
 
 **Recommended first unit, not started:** `DRF-13` and `DRF-14` together (`DRD-51` §First unit). −17 B Brotli on "sortable + y" and "complete", −1 to −2 B on three other rows, and exactly 0 B on the five rows that import neither `sortable` nor `freeDrag`. It needs no owner decision. The architect's probe of the patch typechecks and passes six browser test files in Chromium. Its handoff is written when the owner starts it.
 
-**For the owner:** `DRO-14`. The architect recommends taking C2 (`CallbackList`'s factories, −12 to −25 B on every row) and C6 (`y()`'s cache writes out of `RectIndex`, −76 B on "sortable + xy"), and not taking C1 (`DRF-20`, per-frame work for 5 to 15 B) or C5 (the lift's capture functions, +2 B on "complete"). A second unit takes whatever the owner approves.
+**For the owner:** `DRO-14`. The architect recommends taking C2 (`CallbackList`'s factories, −12 to −25 B on every row) and C6, and not taking C1 (`DRF-20`, per-frame work for 5 to 15 B) or C5 (the lift's capture functions, +2 B on "complete"). A second unit takes whatever the owner approves.
+
+**C6, revised on 2026-11-12:** [`rect-index-ownership-proposal.md`](rect-index-ownership-proposal.md) replaces C6's form.
+
+- `RectIndex` holds no axis policy.
+- `xy()`'s rebuild moves into `xy.ts`.
+- `y()`'s prediction writes the slot buffer only through `lend(lo, hi, write)`, scoped to one call and one range.
+
+It reads −46 B on "sortable + y", −57 B on "sortable + xy" and −43 B on "complete". Per sample it allocates nothing more. Per committed move it adds one call and about 7 B allocated in code that isn't warm, which needs the owner's approval under §14. C6 as patched in the size pass wrote through a cast of the read-only views and was −13, −76 and −18 B.
 
 ## 3. Rules every unit follows
 

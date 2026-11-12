@@ -98,6 +98,8 @@ A handoff is written when the owner starts the unit. `DRD-51` states everything 
 
 `DRO-14` holds C1, C2, C5 and C6, each with the architect's recommendation. In short: **C6 and C2 are worth taking.** C6 is the largest leak the pass found, and C2 is the only kernel saving with no runtime cost. **C1 and C5 are not.** C1 adds per-frame work for 5 to 15 B, which §0 rejects by default. C5 removes a meaningful boundary, and its Brotli figure on "complete" goes the wrong way.
 
+**Later, on 2026-11-12:** C6's form is replaced by [`rect-index-ownership-proposal.md`](rect-index-ownership-proposal.md). Its writes go through a lend scoped to one call and one range instead of a cast of the read-only views, and `xy()`'s rebuild also leaves `RectIndex`. C6's row in §5 and its patch are kept as measured.
+
 ## 8. Limits
 
 - **One toolchain:** Rolldown 1.2.15 with its own minifier. Another bundler or minifier gives other figures, and §4's unmeasured case, ESM without concatenation, still applies.

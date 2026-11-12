@@ -1,0 +1,217 @@
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index 649f79dad..22fdf55f5 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -34,6 +34,7 @@
+ import type { AxisContext, DisplacementSink } from './axis.ts';
+ import type { CollectionSnapshot } from './domain.ts';
+ import {
++  BOTTOM,
+   CENTER_Y,
+   type RectIndex,
+   STRIDE,
+@@ -98,6 +99,28 @@ export function linearShift(index: RectIndex): LinearShift {
+   /** Written only inside `__DEV__` branches, so it folds away with them. */
+   let advanceUnchecked = false;
+ 
++  /** The span `advance` writes, set by `moved` just before it lends the buffer. */
++  let spanStart = 0;
++  let spanEnd = 0;
++  let spanDelta = 0;
++
++  /**
++   * Created once, so a committed move allocates no function. The crossed slots, by
++   * the constant along y. The center is recomputed from the shifted edges, so the
++   * arithmetic is the one a full scan performs.
++   */
++  const advance = (values: Float64Array): void => {
++    for (let i = spanStart; i < spanEnd; i += 1) {
++      const offset = i * STRIDE;
++      const top = values[offset + TOP]! + spanDelta;
++      const bottom = values[offset + BOTTOM]! + spanDelta;
++
++      values[offset + TOP] = top;
++      values[offset + BOTTOM] = bottom;
++      values[offset + CENTER_Y] = (top + bottom) * 0.5;
++    }
++  };
++
+   return {
+     refresh(
+       snapshot,
+@@ -110,7 +133,7 @@ export function linearShift(index: RectIndex): LinearShift {
+     ) {
+       if (placeholderIsStale) {
+         placeholderIsStale = false;
+-        index.remeasurePlaceholder(placeholder);
++        index.measurePlaceholder(placeholder);
+       }
+ 
+       if (
+@@ -207,7 +230,10 @@ export function linearShift(index: RectIndex): LinearShift {
+         rowDistance = delta < 0 ? -delta : delta;
+       }
+ 
+-      index.advance(lo, hi, delta);
++      spanStart = lo;
++      spanEnd = hi;
++      spanDelta = delta;
++      index.lend(advance);
+ 
+       if (context.displacement) {
+         // Read once, outside a loop that calls into the sink.
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b1fcae5f8..af02fd6cf 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -129,30 +129,9 @@ export class RectIndex {
+   }
+ 
+   /**
+-   * Measures every slot, only when something marked the cache dirty or the
+-   * collection version changed. `getBox` is the configured geometry source, or
+-   * `null` when every candidate is its own box. `displacement` is the composed sink,
+-   * or `null`.
+-   */
+-  refresh(
+-    snapshot: CollectionSnapshot,
+-    dragged: HTMLElement,
+-    getBox: ((item: HTMLElement) => HTMLElement) | null,
+-    placeholder: HTMLElement,
+-    displacement: DisplacementSink | null,
+-  ): void {
+-    this.collect(snapshot, dragged, placeholder, 0);
+-
+-    // An empty window after `collect` is a rebuild, or a collection with no slot.
+-    if (this.#first === this.#end) {
+-      this.measure(0, this.#items.length, getBox, displacement);
+-    }
+-  }
+-
+-  /**
+-   * `refresh` without the slots: when the cache is stale, collects every slot's
+-   * element and measures the placeholder, and leaves an empty window at `slot`.
+-   * `measure` then adds slots to the window.
++   * When the cache is stale, collects every slot's element and measures the
++   * placeholder, and leaves an empty window at `slot`. `measure` then adds slots to
++   * the window.
+    */
+   collect(
+     snapshot: CollectionSnapshot,
+@@ -180,7 +159,7 @@ export class RectIndex {
+       }
+     }
+ 
+-    pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
++    this.measurePlaceholder(placeholder);
+     // Truncated, so that a shrinking collection does not retain elements, and so
+     // that its length is the slot count.
+     items.length = n;
+@@ -231,36 +210,21 @@ export class RectIndex {
+   }
+ 
+   /**
+-   * Advances a span of slots by a constant along y. The center is recomputed from
+-   * the shifted edges, so the arithmetic is the one a full scan performs.
++   * Lends the packed slots to `write`, writable, for the call only. `collect` may
++   * replace the buffer, so the reference is not valid after `write` returns, and
++   * `write` calls neither `collect` nor `refresh`. It writes only slots inside the
++   * window.
+    */
+-  advance(lo: number, hi: number, delta: number): void {
+-    // Read once, outside the per-slot loop.
+-    const values = this.#values;
+-
+-    for (let i = lo; i < hi; i += 1) {
+-      const offset = i * STRIDE;
+-      const top = values[offset + TOP]! + delta;
+-      const bottom = values[offset + BOTTOM]! + delta;
+-
+-      values[offset + TOP] = top;
+-      values[offset + BOTTOM] = bottom;
+-      values[offset + CENTER_Y] = (top + bottom) * 0.5;
+-    }
++  lend(write: (values: Float64Array) => void): void {
++    write(this.#values);
+   }
+ 
+   /**
+-   * Re-reads the placeholder's fields along y. A relocation in a column leaves both
+-   * x coordinates unchanged.
++   * Measures the placeholder again, packed like a slot. A rebuild calls it, and so
++   * may an axis rule whose committed move relocated the placeholder.
+    */
+-  remeasurePlaceholder(placeholder: HTMLElement): void {
+-    const { top, bottom } = placeholder.getBoundingClientRect();
+-    // A local is smaller than three field reads, even with mangled private names.
+-    const placeholderRect = this.#placeholderRect;
+-
+-    placeholderRect[TOP] = top;
+-    placeholderRect[BOTTOM] = bottom;
+-    placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
++  measurePlaceholder(placeholder: HTMLElement): void {
++    pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
+   }
+ 
+   /**
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index b3f224d39..26963e9c9 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -10,7 +10,8 @@
+  * one, it invalidates, and the next frame rebuilds against a laid-out tree. A
+  * resolution with nothing stale reads no layout.
+  */
+-import type { AxisInstaller } from './axis.ts';
++import type { AxisInstaller, DisplacementSink } from './axis.ts';
++import type { CollectionSnapshot } from './domain.ts';
+ import { insertionAt } from './domain.ts';
+ import {
+   CENTER_X,
+@@ -21,6 +22,26 @@ import {
+   TOP,
+ } from './rect-index.ts';
+ 
++/**
++ * Measures every slot, only when something marked the cache stale or the collection
++ * version changed. An empty window after `collect` is a rebuild, or a collection
++ * with no slot.
++ */
++function refresh(
++  index: RectIndex,
++  snapshot: CollectionSnapshot,
++  dragged: HTMLElement,
++  getBox: ((item: HTMLElement) => HTMLElement) | null,
++  placeholder: HTMLElement,
++  displacement: DisplacementSink | null,
++): void {
++  index.collect(snapshot, dragged, placeholder, 0);
++
++  if (index.first === index.end) {
++    index.measure(0, index.count, getBox, displacement);
++  }
++}
++
+ /** The axis rule for a wrapping field of items. */
+ export function xy(): AxisInstaller {
+   return () => {
+@@ -39,7 +60,8 @@ export function xy(): AxisInstaller {
+         // Read once, outside the candidate loop.
+         const { pointerX, pointerY } = query;
+ 
+-        index.refresh(
++        refresh(
++          index,
+           query.snapshot,
+           query.item,
+           context.box,
+@@ -120,7 +142,8 @@ export function xy(): AxisInstaller {
+         }
+ 
+         index.invalidate();
+-        index.refresh(
++        refresh(
++          index,
+           query.snapshot,
+           query.item,
+           context.box,
