@@ -1,0 +1,57 @@
+diff --git a/packages/drag/src/free-drag.ts b/packages/drag/src/free-drag.ts
+index 1e8bb741e..fab6208fe 100644
+--- a/packages/drag/src/free-drag.ts
++++ b/packages/drag/src/free-drag.ts
+@@ -19,6 +19,7 @@ import {
+   type Point,
+   type ResolveHome,
+ } from './free-drag/domain.ts';
++import type { FreeDragOperation } from './free-drag/operation.ts';
+ import { Lifter } from './lift.ts';
+ 
+ export { FreeDragResolution };
+@@ -49,6 +50,15 @@ export interface FreeDragController {
+   readonly requestDestroy: () => Promise<void>;
+ }
+ 
++/**
++ * Step: calls the operation's `handleEvent`, so its bounds and drop targets are
++ * re-read at their next read. With no operation, nothing is stale, because each
++ * activation marks the bounds stale before its first read.
++ */
++const invalidate = (operation: FreeDragOperation | null): void => {
++  operation?.handleEvent();
++};
++
+ /** Makes `root` draggable anywhere. */
+ export function freeDrag(
+   root: HTMLElement,
+@@ -61,7 +71,7 @@ export function freeDrag(
+   kernel.use(lifter.cancelLanding);
+ 
+   return {
+-    invalidate: () => kernel.requestStep(behavior.invalidate),
++    invalidate: () => kernel.requestStep(invalidate),
+     moveTo: (point) =>
+       // One step per call: it carries the point, and DRI-8 keeps calls in order.
+       kernel.requestStep((operation) => {
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index ebb4066dd..bc19a6da9 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -69,15 +69,6 @@ export class FreeDragBehavior implements Behavior<
+     this.landing = config.landing ?? null;
+   }
+ 
+-  /**
+-   * Step: calls the operation's `handleEvent`, so its bounds and drop targets
+-   * are re-read at their next read. With no operation, nothing is stale,
+-   * because each activation marks the bounds stale before its first read.
+-   */
+-  readonly invalidate = (operation: FreeDragOperation | null): void => {
+-    operation?.handleEvent();
+-  };
+-
+   /** The admission's `state` is the visual: `config.visual`, or the root. */
+   admit(event: PointerEvent): Admission<HTMLElement> | null {
+     if (event.altKey) {

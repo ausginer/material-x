@@ -1,0 +1,19 @@
+# The repair of the state-free invalidate step (DRF-14's follow-up), measured by the architect on 2026-11-12.
+# Base: ed4bd589f (packages/drag/src identical to 237d65d2f), in a detached scratch worktree whose node_modules were links to the main checkout's.
+# Probe: probes/size-pass/size.ts.txt, with DRD-51 property 1's settings (rolldown 1.2.15, minify true, __DEV__ false; gzip level 9; Brotli quality 11, lgwin 22, generic mode). Deltas by probes/size-pass/delta.ts.txt.
+# Patches in probes/size-pass/patches/: R1 (chosen) = exported module function in src/free-drag/behavior.ts; R1a = module function in src/free-drag.ts; R1b = module arrow in src/free-drag.ts; R1d = static member of FreeDragBehavior.
+# Each variant: npx tsc -p tsconfig.json --noEmit clean; oxlint and eslint on the two files clean, except R1d (typescript(no-invalid-void-type) on its 'this: void' parameter). R1a and R1b were measured after oxlint/eslint --fix of the import order.
+# Columns: minified/gzip-9/Brotli-11 bytes against the base.
+
+row                                         r1                     r1a                     r1b                     r1d
+                                    min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br
+draggable alone                          0/0/0                   0/0/0                   0/0/0                   0/0/0
+draggable + lift                         0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: resize handle                        0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: drop zone                            0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: canvas group                         0/0/0                   0/0/0                   0/0/0                   0/0/0
+freeDrag                             -13/-7/-1               -17/-5/-3               -18/-4/-3                +1/+2/+4
+freeDrag+b+l                         -13/-5/-5               -17/-4/+1               -18/-3/+3                +1/+2/+3
+sortable + y                             0/0/0                   0/0/0                   0/0/0                   0/0/0
+sortable + xy                            0/0/0                   0/0/0                   0/0/0                   0/0/0
+complete                                 0/0/0                   0/0/0                   0/0/0                   0/0/0

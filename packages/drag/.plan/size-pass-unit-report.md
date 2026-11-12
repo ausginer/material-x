@@ -127,6 +127,8 @@ Two processes from `packages/drag` at `237d65d2f`, one after the other, each wra
 
 **The hold** ([record](measurements/2026-11-12-size-unit-hold.txt)). The owner confirmed it at 12:34:45 UTC, before the first browser process. The moves process ran from 12:34:55 to 12:49:17 and exited 0. The cycles process ran from 12:49:17 to 13:02:51 and exited 0. The owner confirmed the release at 13:11:15. Nothing else from this session ran in that interval.
 
+**Corrected by the architect on 2026-11-12:** the last sentence doesn't hold for the first 14 seconds. Four background tasks from this session, three `pgrep -f alloc.sh` wait loops and a `tail -f` of the allocation output, ran until 12:34:59, four seconds into the moves process. The raw record is unchanged. See [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md) §2.2.
+
 **The machine record:** Node v26.13.0, 12 CPUs, 12th Gen Intel Core i7-1255U, `cpu_core` 0–3, `cpu_atom` 4–11. The load averages:
 
 | Process | Head             | Foot             |

@@ -8,7 +8,7 @@ The experimental code for [`size-pass-assessment.md`](../../size-pass-assessment
 | --- | --- |
 | [`size.ts.txt`](size.ts.txt) | The probe. It imports `COMPOSITIONS` from `bench/size/measure.ts`, bundles each row with the same Rolldown options from a given tree, and prints minified, gzip-9, gzip-6 and Brotli-11 bytes and the bytes of surviving string literals. `--modules` adds each module's minified bytes as its own chunk, and `--strings` lists the literals. Its header records the compression settings |
 | [`delta.ts.txt`](delta.ts.txt) | Prints the difference of candidate readings from a base reading, as minified, gzip-9 and Brotli bytes per row |
-| [`patches/`](patches/) | One unified diff per candidate, against `0a28f909a`. From the repository root, `git apply packages/drag/.plan/probes/size-pass/patches/<name>.diff.txt` applies it |
+| [`patches/`](patches/) | One unified diff per candidate, against `0a28f909a` unless its row says otherwise. From the repository root, `git apply packages/drag/.plan/probes/size-pass/patches/<name>.diff.txt` applies it |
 
 **The patches** (the assessment's §5 describes each one):
 
@@ -25,6 +25,10 @@ The experimental code for [`size-pass-assessment.md`](../../size-pass-assessment
 | `K-kernel-pair` | C1 and C2 together |
 | `J1-clean-set` | C1, C2, C3 and C4 together |
 | `J2-all-measured` | J1, C5 and C6 together |
+| `R1-invalidate-step-as-behavior-module-function` | **Against `ed4bd589f`, added on 2026-11-12.** `freeDrag`'s `invalidate` step as a function exported from `free-drag/behavior.ts`. The decided form (`DRD-51`, as amended) |
+| `R1a-invalidate-step-in-free-drag-module` | Against `ed4bd589f`. The step as a function in `free-drag.ts` |
+| `R1b-invalidate-step-as-free-drag-arrow` | Against `ed4bd589f`. The step as an arrow in `free-drag.ts` |
+| `R1d-invalidate-step-as-static-member` | Against `ed4bd589f`. The step as a static member of `FreeDragBehavior` |
 
 **How the readings were made:** `node <scratch>/size.ts --root <worktree>/packages/drag --json <file>` for each tree, from the repository root, with `size.ts.txt` copied to a scratch `.ts` file. The raw tables are in [`2026-11-12-size-pass-readings.txt`](../../measurements/2026-11-12-size-pass-readings.txt), and the JSON per tree is in [`2026-11-12-size-pass-json/`](../../measurements/2026-11-12-size-pass-json/). The probe's Brotli column equals `measure.ts`'s output for every row at the base.
 

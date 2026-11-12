@@ -128,7 +128,7 @@ It works under CONTRIBUTING Part II: delete machinery before compressing syntax 
 - every row as minified, gzip-9 and Brotli-11 bytes, with the settings recorded in the assessment's §1. Brotli-11 gates, and gzip is recorded and not gated. Only joint readings are booked;
 - control rows named before the reading, each at exactly 0 B;
 - a change that only removes work: the per-sample tests, the hot-path censuses and the three-engine suite, with no `compare.ts` run. A change that adds or moves hot-path work also runs `compare.ts --before <its base> --only <rows>` and goes to the owner;
-- no ceiling, control figure or `measure.ts` change, and the deferred campaigns stay stopped.
+- no ceiling, control figure or `measure.ts` change, and the deferred campaigns stay stopped. `bench/campaign.ts` isn't one of them (§3).
 
 **First unit, handed off on 2026-11-12:** [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md), from `1d304128b`. It carries:
 
@@ -145,6 +145,15 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 
 **The owner's commit `1d304128b`** puts "example: resize handle" 8 B over its 3,313 B ceiling. Budgets are unchanged, and `DRO-4` holds the re-base.
 
+**The first unit landed on 2026-11-12** at `237d65d2f`, and its [report](size-pass-unit-report.md) is accepted in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md):
+
+- size equals the joint reading on every row: −62 B Brotli on "sortable + y", −56 B on "sortable + xy", −65 B on "complete" and −1 B on "freeDrag", with the controls at 0/0/0;
+- allocation stands: +0.84 B per committed move warm, inside a run-to-run spread of about 3 B, and +4.13 B cold, consistently;
+- timing holds: "no difference shown" on ten rows, which doesn't exclude a slowdown below their A/A bounds;
+- six size rows stay over their ceilings, and `DRF-13` and `DRF-14` are closed.
+
+**Second unit, handed off on 2026-11-12:** [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md), from `ed4bd589f`. It makes `freeDrag`'s `invalidate` step a module function (`DRD-51`, as amended), and corrects the C6 probe's launch documentation. Expected: −1 B Brotli on "freeDrag" and −5 B on "freeDrag + bounds + landing", and 0/0/0 on the eight other rows. It only removes work, so it runs no `compare.ts` row.
+
 ## 3. Rules every unit follows
 
 `DRD-40`'s properties, in short:
@@ -154,6 +163,8 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 - **An instrument change is shown by an injection it catches** (`DRD-23`), and the floors are measured again after it.
 - **Nothing else runs on the machine from the same session** during a timing run. Other sessions can't be controlled, so the load average is the record of them.
 - **A long sequence of runs goes through [`bench/campaign.ts`](../bench/campaign.ts).** It runs the commands in order, stops at the first failure, and records each command's revision, process, times, exit code and log in `.campaigns/<id>/status.json`. `campaign.ts status` reports each run as running, succeeded, failed or interrupted from that file and `/proc`, not from a log. It writes nothing while a step runs. It changes no scenario, rule or threshold. Report: [`campaign-runner-report.md`](campaign-runner-report.md).
+- **The runner isn't a campaign.** Added on 2026-11-12 (`DRD-51` property 3, as amended). "The deferred campaigns" are named measurement work: the page check, B3', the in-page floors, `--prove` and `--floors`. They stay stopped until a decision restarts one. The runner only orders the runs a unit's handoff asks for, such as allocation probes, the `compare.ts` runs it names and suites, and a unit uses it for any sequence of them. It does no work while a step runs, so it may run during a hold.
+- **A unit waits for a process through the process itself:** the runner, a foreground command, or the harness's notice that a background command exited. It never waits by searching the process table for a pattern, as in `until ! pgrep -f <name>`. The waiting shell's own command line contains the pattern, so the search always finds it, and the wait never ends. This happened on 2026-11-10, before B2 and B3, and again on 2026-11-12, when three such loops ran into a hold ([assessment](size-pass-unit-assessment.md) §5).
 
 ## 4. Open items this plan doesn't decide
 
@@ -164,7 +175,7 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 - `DRO-3`, real touch and pen devices, before release.
 - `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
 - `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
-- The optional findings `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so.
+- The optional findings `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so. `DRF-13` and `DRF-14` were closed on 2026-11-12 by P4's first unit.
 - Trace candidates 4 and 5: `DRO-1`'s pull at a press and the landing's computed position. Each is a decision first ([assessment](performance-window-correction-assessment.md) §4.1).
 - The retained plateau of about 4 KB in `DRO-4`, whose retainer isn't known.
 - The owner's DevTools check of the saved traces ([assessment](performance-trace-assessment.md)).
