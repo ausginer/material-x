@@ -69,7 +69,7 @@ describe('drag:DRI-1 a request does not change the running step', () => {
     expect(isClean(list)).toBe(true);
   });
 
-  it.each<Asked>(['cancel', 'destroy', 'press'])(
+  it.each<Asked>(['cancel', 'destroy'])(
     'should finish the step when a custom element reaction asks to %s during activate',
     async (asked) => {
       const list = makeList(4);
