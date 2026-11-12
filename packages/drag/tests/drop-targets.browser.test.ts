@@ -185,6 +185,66 @@ describe('drag:DRI-21 freeDrag + dropTargets', () => {
     await commands.keyPress('Escape');
   });
 
+  it('drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived', async () => {
+    const box = makeBox('a', 20);
+    const scroller = document.createElement('div');
+    const content = document.createElement('div');
+
+    scroller.style.cssText =
+      'position:fixed;left:160px;top:0;width:200px;height:400px;overflow:auto';
+    content.style.cssText = 'position:relative;height:1200px';
+
+    for (const [id, top] of [
+      ['z1', 100],
+      ['z2', 260],
+    ] as const) {
+      const zone = document.createElement('div');
+
+      zone.id = id;
+      zone.className = 'zone';
+      zone.style.cssText = `position:absolute;left:20px;top:${top}px;width:120px;height:120px;outline:1px solid`;
+      content.append(zone);
+    }
+
+    scroller.append(content);
+    document.body.append(scroller);
+
+    const targets: unknown[] = [];
+    const controller = freeDrag(box, {
+      targets: dropTargets({ targets: zones }),
+      onDrop(request) {
+        targets.push(request.target);
+        return FreeDragResolution.reject();
+      },
+    });
+
+    onCleanup(() => controller.requestDestroy());
+    // Capture phase on the window, added before the press: it runs before the
+    // library sees the release, and the browser dispatches `scroll` only in its
+    // next rendering update.
+    addEventListener(
+      'pointerup',
+      () => {
+        scroller.scrollTop += 160;
+      },
+      { capture: true, once: true },
+    );
+    onCleanup(() => {
+      scroller.remove();
+    });
+
+    const z1 = document.querySelector('#z1')!;
+    const over = centerOf(z1);
+
+    await grab(box, 0, 30);
+    await moveHeld(over.x, over.y);
+    expect(z1.hasAttribute('data-drop-over')).toBe(true);
+    await release();
+    // The release is 160 px into the scroller, which after the scroll is 320 px
+    // into the content: inside z2, which spans 260 to 380.
+    expect(targets).toEqual([document.querySelector('#z2')]);
+  });
+
   it('should release the operation and keep the controller when targets() throws', async () => {
     const box = makeBox('a', 20);
     const zone = makeZone('z1', 20);

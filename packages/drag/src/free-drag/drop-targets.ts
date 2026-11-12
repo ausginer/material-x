@@ -28,7 +28,10 @@ export interface DropTargetTracker {
   move(): void;
   /** Called in the drop step. It resolves at the release position now. */
   drop(): void;
-  /** Called on scroll, resize and the controller's `invalidate()`. It only marks the rects stale. */
+  /**
+   * Called on scroll, resize and the controller's `invalidate()`, and at the drop
+   * before `drop()`. It only marks the rects stale.
+   */
   invalidate(): void;
 }
 
@@ -49,7 +52,8 @@ const OVER = 'data-drop-over';
 /**
  * Tracks the target under the pointer. The mark follows the pointer at most once
  * per frame, and the targets are measured only when stale: at the first
- * resolution of each operation and after a scroll, a resize or `invalidate()`.
+ * resolution of each operation, after a scroll, a resize or `invalidate()`, and
+ * at the drop.
  * The operation's release removes the mark. An accepted drop stays where it was
  * dropped, and the consumer commits it in `onEnd`.
  */

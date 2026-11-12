@@ -9,7 +9,10 @@ export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
 export interface MotionConstraint {
   /** Clamps the delta in place: one call per sample, allocating nothing. */
   apply(motion: { x: number; y: number }, originRect: DOMRectReadOnly): void;
-  /** Staleness only, because scroll calls it many times a second. */
+  /**
+   * Staleness only, because scroll calls it many times a second. Also called on
+   * resize, at activation, by the controller's `invalidate()` and at the drop.
+   */
   invalidate(): void;
 }
 

@@ -117,6 +117,61 @@ describe('freeDrag', () => {
     await commands.keyPress('Escape');
   });
 
+  it('drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived', async () => {
+    const container = document.createElement('div');
+    const content = document.createElement('div');
+    const arena = document.createElement('div');
+
+    container.style.cssText =
+      'position:fixed;left:0;top:0;width:400px;height:400px;overflow:auto';
+    content.style.cssText = 'position:relative;height:1200px';
+    arena.style.cssText =
+      'position:absolute;left:0;top:50px;width:300px;height:200px';
+    content.append(arena);
+    container.append(content);
+    document.body.append(container);
+
+    const box = makeBox(arena);
+    const requests: FreeDragRequest[] = [];
+
+    mount(box, {
+      bounds: bounds(arena),
+      onDrop(request) {
+        requests.push(request);
+        return FreeDragResolution.reject();
+      },
+    });
+    // Capture phase on the window, added before the press: it runs before the
+    // library sees the release, and the browser dispatches `scroll` only in its
+    // next rendering update.
+    addEventListener(
+      'pointerup',
+      () => {
+        container.scrollTop += 40;
+      },
+      { capture: true, once: true },
+    );
+    onCleanup(() => {
+      container.remove();
+    });
+
+    const originTop = box.getBoundingClientRect().top;
+
+    // Past the arena's bottom edge: the visual is held clamped at 250 and a frame
+    // has passed.
+    await grab(box, 0, 200);
+    expect(box.getBoundingClientRect().bottom).toBeCloseTo(250, 0);
+    await release();
+
+    // The scroll moved the arena's bottom edge up by 40 px.
+    const arenaBottom = arena.getBoundingClientRect().bottom;
+
+    expect({ arenaBottom, localDeltaY: requests[0]!.localDeltaY }).toEqual({
+      arenaBottom: 210,
+      localDeltaY: arenaBottom - 50 - originTop,
+    });
+  });
+
   it('should clamp against bounds measured again after a scroll between operations (drag:DRF-5)', async () => {
     // The container scrolls, not the document: in Firefox the test frame's
     // document does not scroll.

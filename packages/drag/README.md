@@ -129,7 +129,7 @@ freeDrag(card, {
 }
 ```
 
-The mark follows the pointer at most once per frame, and the targets are measured again after a scroll, a resize or `controller.invalidate()`. The drag's release removes the mark, however the drag ends. **An accepted drop stays where it was dropped:** nothing lands into the target, and `onEnd` commits the new parent or position, as for any accepted drop. A rejected drop or a cancel lands home when a `landing` is composed. Drop targets are pointer-only, because `freeDrag` has no keyboard command.
+The mark follows the pointer at most once per frame, and the targets are measured again after a scroll, a resize or `controller.invalidate()`. They are also measured again at the drop, so the request names the target under the release position even after a scroll whose event hasn't reached the library yet. The drag's release removes the mark, however the drag ends. **An accepted drop stays where it was dropped:** nothing lands into the target, and `onEnd` commits the new parent or position, as for any accepted drop. A rejected drop or a cancel lands home when a `landing` is composed. Drop targets are pointer-only, because `freeDrag` has no keyboard command.
 
 ## Writing a behavior
 
