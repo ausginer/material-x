@@ -1,0 +1,11 @@
+# The hold of DRD-44 property 6 around the xy() rebuild probe's processes
+hold confirmed: 2026-11-12T07:42:21+00:00
+probe start: 2026-11-12T07:42:21+00:00
+probe end: 2026-11-12T07:42:22+00:00, exit 0
+probe start: 2026-11-12T07:42:31+00:00
+probe end: 2026-11-12T07:42:47+00:00, exit 0
+probe start (attempt 2): 2026-11-12T07:43:08+00:00
+probe end (attempt 2): 2026-11-12T07:43:36+00:00, exit 0
+released: 2026-11-12T07:46:17+00:00 (owner confirmed the release)
+# note: the first "probe end ... exit 0" line records the exit of the shell's echo, not the probe's; attempt 0's own foot in 2026-11-12-window-correction-probe-attempt-0.txt shows exit 1, before any browser launched
+# nothing else from the implementing session ran between the hold and the release

@@ -1,0 +1,136 @@
+# 2026-11-12T00:13:54+00:00 label=M2: unconditional invalidate restored head=093f31c7f
+# operation.ts drop lines:
+109:      this.#behavior.axis.invalidate();
+175:    this.#behavior.axis.invalidate();
+203:        this.#behavior.axis.invalidate();
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+12:13:57 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:14:00 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:14:02 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+12:14:03 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (8 tests | 1 failed | 7 skipped) 457ms
+   ❯ drag:DRI-17 hot path (8)
+     × drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400 456ms
+12:14:04 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/vitest_n_vite_module-runner.js
+
+ ❯ |shipped/firefox (firefox)| tests/hot-path.browser.test.ts (8 tests | 1 failed | 7 skipped) 443ms
+   ❯ drag:DRI-17 hot path (8)
+     × drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400 440ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:14:05 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/535cad9b3b9bf6be006fe9f8bd7ebd4dbc6a4b77/deps/vitest_n_vite_module-runner.js
+
+ ❯ |shipped/webkit (webkit)| tests/hot-path.browser.test.ts (8 tests | 1 failed | 7 skipped) 261ms
+   ❯ drag:DRI-17 hot path (8)
+     × drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400 257ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400
+AssertionError: expected 400 to be 20 // Object.is equality
+
+- Expected
++ Received
+
+- 20
++ 400
+
+ ❯ tests/hot-path.browser.test.ts:205:18
+    203|
+    204|     expect(log.filter((entry) => entry === 'end:accepted')).toHaveLeng…
+    205|     expect(many).toBe(few);
+    206|   });
+    207|
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400
+AssertionError: expected 400 to be 20 // Object.is equality
+
+- Expected
++ Received
+
+- 20
++ 400
+
+ ❯ tests/hot-path.browser.test.ts:205:18
+    203|
+    204|     expect(log.filter((entry) => entry === 'end:accepted')).toHaveLeng…
+    205|     expect(many).toBe(few);
+    206|   });
+    207|
+ ❯ async*withFixtures/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5725:22
+ ❯ runWithCancel .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5709:22
+ ❯ runWithTimeout .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:5673:10
+ ❯ runTest/</</< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6245:64
+ ❯ run .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3857:24
+ ❯ limiterFn .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3867:59
+ ❯ runTest/</< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6245:57
+ ❯ runTest/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6122:37
+ ❯ callAroundHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6012:9
+ ❯ callAroundEachHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6122:8
+ ❯ runTest .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6458:45
+ ❯ run .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3857:24
+ ❯ limiterFn .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:3867:59
+ ❯ runSuiteChild/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6458:31
+ ❯ runSuiteChild .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6450:32
+ ❯ runSuite/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6414:41
+ ❯ async*callAroundHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6012:9
+ ❯ callAroundAllHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6114:8
+ ❯ runSuite .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6397:10
+ ❯ async*runSuiteChild/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6466:19
+ ❯ runSuiteChild .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6459:38
+ ❯ runSuite/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6414:41
+ ❯ async*callAroundHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6012:9
+ ❯ callAroundAllHooks .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6114:8
+ ❯ runSuite .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6397:10
+ ❯ async*runFiles/< .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6481:20
+ ❯ runFiles .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6478:16
+ ❯ startTests .vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=030f686b:6514:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400
+AssertionError: expected 400 to be 20 // Object.is equality
+
+- Expected
++ Received
+
+- 20
++ 400
+
+ ❯ tests/hot-path.browser.test.ts:205:18
+    203|
+    204|     expect(log.filter((entry) => entry === 'end:accepted')).toHaveLeng…
+    205|     expect(many).toBe(few);
+    206|   });
+    207|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  3 failed | 3 passed | 165 skipped (171)
+   Start at  00:13:55
+   Duration  11.02s (tests 47%, worker 43%, import 11%)
+
+# exit 1

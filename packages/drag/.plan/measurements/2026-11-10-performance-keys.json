@@ -1,0 +1,877 @@
+{
+ "chrome": "157.0.8103.38",
+ "rounds": 1,
+ "moves": 300,
+ "arms": [
+  "drag2",
+  "prototype",
+  "production",
+  "control"
+ ],
+ "before": null,
+ "summary": [
+  {
+   "scenario": "bytes per move by function, 20 items",
+   "rule": "bytes",
+   "medians": {
+    "drag2": {
+     "(root)": {
+      "median": 2696,
+      "min": 2696,
+      "max": 2696
+     },
+     "(anonymous)": {
+      "median": 577,
+      "min": 577,
+      "max": 577
+     },
+     "evaluate": {
+      "median": 533,
+      "min": 533,
+      "max": 533
+     },
+     "parseEvaluationResultValue": {
+      "median": 190,
+      "min": 190,
+      "max": 190
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 141,
+      "min": 141,
+      "max": 141
+     },
+     "setupDragListeners": {
+      "median": 224,
+      "min": 224,
+      "max": 224
+     },
+     "window.__cleanupDrag": {
+      "median": 228,
+      "min": 228,
+      "max": 228
+     },
+     "../drag2/src/sortable/placement.ts:(anonymous)": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/kernel/kernel.ts:dispatch": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/kernel/execution.ts:dispatch": {
+      "median": 26,
+      "min": 26,
+      "max": 26
+     },
+     "../drag2/src/kernel/queue.ts:add": {
+      "median": 146,
+      "min": 146,
+      "max": 146
+     },
+     "../drag2/src/kernel/execution.ts:#drain": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../drag2/src/kernel/kernel.ts:handle": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/kernel/kernel.ts:#handleBehaviorAction": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/free-drag/behavior.ts:runTransition": {
+      "median": 78,
+      "min": 78,
+      "max": 78
+     },
+     "../drag2/src/free-drag/behavior.ts:#callAndHandleFailure": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/free-drag/behavior.ts:(anonymous)": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/kernel/kernel.ts:prepare": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/sortable/placement.ts:prepareAction": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../drag2/src/sortable/y.ts:resolve": {
+      "median": 151,
+      "min": 151,
+      "max": 151
+     },
+     "../drag2/src/sortable/domain.ts:insertionAt$1": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "../drag2/src/sortable/linear-shift.ts:refresh": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../drag2/src/sortable/landing.ts:remeasureHole": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "../drag2/src/sortable/landing.ts:edge": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "../drag2/src/kernel/kernel.ts:effect": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../drag2/src/sortable/placement.ts:effect": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/sortable/placement.ts:effectAction": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "../drag2/src/sortable/y.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../drag2/src/sortable/linear-shift.ts:moved": {
+      "median": 8,
+      "min": 8,
+      "max": 8
+     },
+     "../drag2/src/sortable/linear-shift.ts:#shiftSpan": {
+      "median": 12,
+      "min": 12,
+      "max": 12
+     },
+     "../drag2/src/sortable/landing.ts:advance": {
+      "median": 16,
+      "min": 16,
+      "max": 16
+     },
+     "../drag2/src/sortable/layout-animation.ts:report": {
+      "median": 416,
+      "min": 416,
+      "max": 416
+     },
+     "../drag2/src/sortable/placement.ts:placeholderAt$1": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/sortable/placement.ts:movePlaceholder$1": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/free-drag/behavior.ts:#refuseReentry": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/free-drag/behavior.ts:consumeStaged": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/kernel/execution.ts:#leave": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/kernel/kernel.ts:#onPointer": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "../drag2/src/kernel/kernel.ts:#handleMove": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../drag2/src/sortable/placement.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "../box-quad/src/index.ts:write": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../box-quad/src/index.ts:compose": {
+      "median": 114,
+      "min": 114,
+      "max": 114
+     },
+     "../drag2/src/kernel/invalidation.ts:schedule": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "../drag2/src/sortable/layout-animation.ts:(anonymous)": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "mouseListener": {
+      "median": 130,
+      "min": 130,
+      "max": 130
+     },
+     "jsonValue": {
+      "median": 30,
+      "min": 30,
+      "max": 30
+     },
+     "serializeAsCallArgument": {
+      "median": 157,
+      "min": 157,
+      "max": 157
+     },
+     "innerSerialize": {
+      "median": 17,
+      "min": 17,
+      "max": 17
+     }
+    },
+    "prototype": {
+     "(root)": {
+      "median": 2724,
+      "min": 2724,
+      "max": 2724
+     },
+     "(anonymous)": {
+      "median": 570,
+      "min": 570,
+      "max": 570
+     },
+     "evaluate": {
+      "median": 514,
+      "min": 514,
+      "max": 514
+     },
+     "parseEvaluationResultValue": {
+      "median": 186,
+      "min": 186,
+      "max": 186
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 144,
+      "min": 144,
+      "max": 144
+     },
+     "setupDragListeners": {
+      "median": 229,
+      "min": 229,
+      "max": 229
+     },
+     "window.__cleanupDrag": {
+      "median": 232,
+      "min": 232,
+      "max": 232
+     },
+     "draggable.ts:#onPointer": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "draggable.ts:#enter": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "draggable.ts:#move": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "draggable/presentation.ts:write": {
+      "median": 105,
+      "min": 105,
+      "max": 105
+     },
+     "draggable.ts:#applyRequests": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "draggable.ts:#runStep": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable.ts:spatial": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:resolve": {
+      "median": 158,
+      "min": 158,
+      "max": 158
+     },
+     "sortable/domain.ts:insertionAt": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "sortable/linear-shift.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:remeasureHole": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "shared/landing.ts:edge": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/linear-shift.ts:moved": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "sortable/linear-shift.ts:#shiftSpan": {
+      "median": 14,
+      "min": 14,
+      "max": 14
+     },
+     "shared/landing.ts:advance": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "sortable/layout-animation.ts:report": {
+      "median": 425,
+      "min": 425,
+      "max": 425
+     },
+     "sortable/layout-animation.ts:(anonymous)": {
+      "median": 15,
+      "min": 15,
+      "max": 15
+     },
+     "mouseListener": {
+      "median": 125,
+      "min": 125,
+      "max": 125
+     },
+     "jsonValue": {
+      "median": 26,
+      "min": 26,
+      "max": 26
+     },
+     "serializeAsCallArgument": {
+      "median": 149,
+      "min": 149,
+      "max": 149
+     },
+     "innerSerialize": {
+      "median": 15,
+      "min": 15,
+      "max": 15
+     }
+    },
+    "production": {
+     "(root)": {
+      "median": 2838,
+      "min": 2838,
+      "max": 2838
+     },
+     "(anonymous)": {
+      "median": 582,
+      "min": 582,
+      "max": 582
+     },
+     "evaluate": {
+      "median": 518,
+      "min": 518,
+      "max": 518
+     },
+     "parseEvaluationResultValue": {
+      "median": 179,
+      "min": 179,
+      "max": 179
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 138,
+      "min": 138,
+      "max": 138
+     },
+     "setupDragListeners": {
+      "median": 223,
+      "min": 223,
+      "max": 223
+     },
+     "window.__cleanupDrag": {
+      "median": 246,
+      "min": 246,
+      "max": 246
+     },
+     "kernel/session.ts:handleEvent": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "kernel/gesture.ts:enter": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "kernel/session.ts:#move": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "shared/invalidation.ts:schedule": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "lift.ts:translate": {
+      "median": 106,
+      "min": 106,
+      "max": 106
+     },
+     "kernel/gesture.ts:#applyRequests": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "kernel/session.ts:advance": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/operation.ts:updateInsertion": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "sortable/y.ts:resolve": {
+      "median": 138,
+      "min": 138,
+      "max": 138
+     },
+     "shared/landing.ts:remeasurePlaceholder": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "sortable/domain.ts:insertionAt": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "sortable/linear-shift.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/linear-shift.ts:moved": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "shared/landing.ts:advance": {
+      "median": 14,
+      "min": 14,
+      "max": 14
+     },
+     "sortable/layout-animation.ts:report": {
+      "median": 412,
+      "min": 412,
+      "max": 412
+     },
+     "../box-quad/src/index.ts:localDelta": {
+      "median": 34,
+      "min": 34,
+      "max": 34
+     },
+     "sortable/placement.ts:movePlaceholder": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/layout-animation.ts:(anonymous)": {
+      "median": 15,
+      "min": 15,
+      "max": 15
+     },
+     "mouseListener": {
+      "median": 129,
+      "min": 129,
+      "max": 129
+     },
+     "jsonValue": {
+      "median": 28,
+      "min": 28,
+      "max": 28
+     },
+     "serializeAsCallArgument": {
+      "median": 157,
+      "min": 157,
+      "max": 157
+     },
+     "innerSerialize": {
+      "median": 18,
+      "min": 18,
+      "max": 18
+     }
+    },
+    "control": {
+     "(root)": {
+      "median": 2868,
+      "min": 2868,
+      "max": 2868
+     },
+     "(anonymous)": {
+      "median": 602,
+      "min": 602,
+      "max": 602
+     },
+     "evaluate": {
+      "median": 534,
+      "min": 534,
+      "max": 534
+     },
+     "parseEvaluationResultValue": {
+      "median": 178,
+      "min": 178,
+      "max": 178
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 140,
+      "min": 140,
+      "max": 140
+     },
+     "setupDragListeners": {
+      "median": 216,
+      "min": 216,
+      "max": 216
+     },
+     "window.__cleanupDrag": {
+      "median": 239,
+      "min": 239,
+      "max": 239
+     },
+     "kernel/session.ts:handleEvent": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "kernel/gesture.ts:enter": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "kernel/session.ts:#move": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "lift.ts:translate": {
+      "median": 109,
+      "min": 109,
+      "max": 109
+     },
+     "kernel/gesture.ts:#applyRequests": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/operation.ts:updateInsertion": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "sortable/y.ts:resolve": {
+      "median": 139,
+      "min": 139,
+      "max": 139
+     },
+     "shared/landing.ts:get values": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:remeasurePlaceholder": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "sortable/domain.ts:insertionAt": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "sortable/linear-shift.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/linear-shift.ts:moved": {
+      "median": 8,
+      "min": 8,
+      "max": 8
+     },
+     "shared/landing.ts:advance": {
+      "median": 11,
+      "min": 11,
+      "max": 11
+     },
+     "sortable/layout-animation.ts:report": {
+      "median": 410,
+      "min": 410,
+      "max": 410
+     },
+     "../box-quad/src/index.ts:localDelta": {
+      "median": 35,
+      "min": 35,
+      "max": 35
+     },
+     "sortable/placement.ts:movePlaceholder": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/layout-animation.ts:(anonymous)": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "mouseListener": {
+      "median": 130,
+      "min": 130,
+      "max": 130
+     },
+     "jsonValue": {
+      "median": 26,
+      "min": 26,
+      "max": 26
+     },
+     "serializeAsCallArgument": {
+      "median": 155,
+      "min": 155,
+      "max": 155
+     },
+     "innerSerialize": {
+      "median": 17,
+      "min": 17,
+      "max": 17
+     }
+    }
+   },
+   "verdicts": []
+  }
+ ],
+ "raw": {
+  "bytes per move by function, 20 items": {
+   "drag2": [
+    {
+     "(root)": 2696,
+     "(anonymous)": 577,
+     "evaluate": 533,
+     "parseEvaluationResultValue": 190,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "setupDragListeners": 224,
+     "window.__cleanupDrag": 228,
+     "../drag2/src/sortable/placement.ts:(anonymous)": 1,
+     "../drag2/src/kernel/kernel.ts:dispatch": 1,
+     "../drag2/src/kernel/execution.ts:dispatch": 26,
+     "../drag2/src/kernel/queue.ts:add": 146,
+     "../drag2/src/kernel/execution.ts:#drain": 2,
+     "../drag2/src/kernel/kernel.ts:handle": 1,
+     "../drag2/src/kernel/kernel.ts:#handleBehaviorAction": 1,
+     "../drag2/src/free-drag/behavior.ts:runTransition": 78,
+     "../drag2/src/free-drag/behavior.ts:#callAndHandleFailure": 1,
+     "../drag2/src/free-drag/behavior.ts:(anonymous)": 1,
+     "../drag2/src/kernel/kernel.ts:prepare": 1,
+     "../drag2/src/sortable/placement.ts:prepareAction": 2,
+     "../drag2/src/sortable/y.ts:resolve": 151,
+     "../drag2/src/sortable/domain.ts:insertionAt$1": 4,
+     "../drag2/src/sortable/linear-shift.ts:refresh": 2,
+     "../drag2/src/sortable/landing.ts:remeasureHole": 3,
+     "../drag2/src/sortable/landing.ts:edge": 3,
+     "../drag2/src/kernel/kernel.ts:effect": 2,
+     "../drag2/src/sortable/placement.ts:effect": 1,
+     "../drag2/src/sortable/placement.ts:effectAction": 3,
+     "../drag2/src/sortable/y.ts:moved": 2,
+     "../drag2/src/sortable/linear-shift.ts:moved": 8,
+     "../drag2/src/sortable/linear-shift.ts:#shiftSpan": 12,
+     "../drag2/src/sortable/landing.ts:advance": 16,
+     "../drag2/src/sortable/layout-animation.ts:report": 416,
+     "../drag2/src/sortable/placement.ts:placeholderAt$1": 1,
+     "../drag2/src/sortable/placement.ts:movePlaceholder$1": 1,
+     "../drag2/src/free-drag/behavior.ts:#refuseReentry": 1,
+     "../drag2/src/free-drag/behavior.ts:consumeStaged": 1,
+     "../drag2/src/kernel/execution.ts:#leave": 1,
+     "../drag2/src/kernel/kernel.ts:#onPointer": 7,
+     "../drag2/src/kernel/kernel.ts:#handleMove": 2,
+     "../drag2/src/sortable/placement.ts:moved": 2,
+     "../box-quad/src/index.ts:write": 1,
+     "../box-quad/src/index.ts:compose": 114,
+     "../drag2/src/kernel/invalidation.ts:schedule": 1,
+     "../drag2/src/sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 130,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 157,
+     "innerSerialize": 17
+    }
+   ],
+   "prototype": [
+    {
+     "(root)": 2724,
+     "(anonymous)": 570,
+     "evaluate": 514,
+     "parseEvaluationResultValue": 186,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 229,
+     "window.__cleanupDrag": 232,
+     "draggable.ts:#onPointer": 7,
+     "draggable.ts:#enter": 1,
+     "draggable.ts:#move": 1,
+     "draggable/presentation.ts:write": 105,
+     "draggable.ts:#applyRequests": 1,
+     "draggable.ts:#runStep": 1,
+     "sortable.ts:spatial": 1,
+     "sortable/y.ts:resolve": 158,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:remeasureHole": 4,
+     "shared/landing.ts:edge": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 7,
+     "sortable/linear-shift.ts:#shiftSpan": 14,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 425,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 125,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 149,
+     "innerSerialize": 15
+    }
+   ],
+   "production": [
+    {
+     "(root)": 2838,
+     "(anonymous)": 582,
+     "evaluate": 518,
+     "parseEvaluationResultValue": 179,
+     "_promiseAwareJsonValueNoThrow": 138,
+     "setupDragListeners": 223,
+     "window.__cleanupDrag": 246,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 106,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/session.ts:advance": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 138,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 7,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 412,
+     "../box-quad/src/index.ts:localDelta": 34,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 129,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 157,
+     "innerSerialize": 18
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2868,
+     "(anonymous)": 602,
+     "evaluate": 534,
+     "parseEvaluationResultValue": 178,
+     "_promiseAwareJsonValueNoThrow": 140,
+     "setupDragListeners": 216,
+     "window.__cleanupDrag": 239,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "lift.ts:translate": 109,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 139,
+     "shared/landing.ts:get values": 1,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 11,
+     "sortable/layout-animation.ts:report": 410,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 130,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 17
+    }
+   ]
+  }
+ }
+}

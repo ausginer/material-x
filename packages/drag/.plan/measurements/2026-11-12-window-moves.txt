@@ -1,0 +1,64 @@
+# command: node bench/compare.ts --before 71f20df20 --only moves, one frame each --out .plan/measurements/2026-11-12-window-moves.json
+# revision: 501f60ab772236e1eda19a7a6778fb5029382b1d
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  02:38:05 up 2 days, 23:01,  0 users,  load average: 1.55, 2.26, 7.75
+round 1/7: 300 moves, one frame each, 20 items
+round 1/7: 300 moves, one frame each, 2000 items
+round 1/7: free drag, 300 moves, one frame each
+round 1/7: in the page: 300 moves, one frame each, 20 items
+round 1/7: in the page: 300 moves, one frame each, 2000 items
+round 2/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 2000 items
+round 2/7: free drag, 300 moves, one frame each
+round 2/7: in the page: 300 moves, one frame each, 20 items
+round 2/7: in the page: 300 moves, one frame each, 2000 items
+round 3/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 2000 items
+round 3/7: free drag, 300 moves, one frame each
+round 3/7: in the page: 300 moves, one frame each, 20 items
+round 3/7: in the page: 300 moves, one frame each, 2000 items
+round 4/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 2000 items
+round 4/7: free drag, 300 moves, one frame each
+round 4/7: in the page: 300 moves, one frame each, 20 items
+round 4/7: in the page: 300 moves, one frame each, 2000 items
+round 5/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 2000 items
+round 5/7: free drag, 300 moves, one frame each
+round 5/7: in the page: 300 moves, one frame each, 20 items
+round 5/7: in the page: 300 moves, one frame each, 2000 items
+round 6/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 2000 items
+round 6/7: free drag, 300 moves, one frame each
+round 6/7: in the page: 300 moves, one frame each, 20 items
+round 6/7: in the page: 300 moves, one frame each, 2000 items
+round 7/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 2000 items
+round 7/7: free drag, 300 moves, one frame each
+round 7/7: in the page: 300 moves, one frame each, 20 items
+round 7/7: in the page: 300 moves, one frame each, 2000 items
+
+300 moves, one frame each, 20 items
+  before layouts: at or below: 83 against 83
+  before scriptUs: no difference shown: higher in 5 of 7, median 9 µs, A/A bound 49 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -2 µs, A/A bound 561 µs
+
+300 moves, one frame each, 2000 items
+  before layouts: at or below: 83 against 83
+  before scriptUs: no difference shown: higher in 3 of 7, median -3 µs, A/A bound 24 µs
+  before taskUs: no difference shown: higher in 4 of 7, median 125 µs, A/A bound 347 µs
+
+free drag, 300 moves, one frame each
+  before layouts: at or below: 0 against 0
+  before scriptUs: no difference shown: higher in 6 of 7, median 8 µs, A/A bound 21 µs
+  before taskUs: no difference shown: higher in 6 of 7, median 174 µs, A/A bound 333 µs
+
+in the page: 300 moves, one frame each, 20 items
+  before layouts: at or below: 83 against 83
+  before scriptUs: no difference shown: higher in 5 of 7, median 1 µs, A/A bound 44 µs
+  before taskUs: no difference shown: higher in 2 of 7, median -20 µs, A/A bound 266 µs
+
+in the page: 300 moves, one frame each, 2000 items
+  before layouts: at or below: 83 against 83
+  before scriptUs: no difference shown: higher in 3 of 7, median -5 µs, A/A bound 28 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -46 µs, A/A bound 363 µs
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  02:52:29 up 2 days, 23:15,  0 users,  load average: 3.73, 2.33, 4.22, exit 0

@@ -1,0 +1,143 @@
+# before: nproc 12, node v26.13.0, uptime:  15:57:24 up 1 day, 12:20,  0 users,  load average: 2.77, 5.02, 4.67
+$ node bench/compare.ts --prove --out .plan/measurements/2026-11-10-performance-prove.json
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+applies: 1 KB allocated per move
+applies: one entry on the step list per frame, expected to stay quiet
+applies: an array of four numbers per sample, in Gesture.enter
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+flagged: about 1 ms of script per cycle, at the drop ["at or below: 250 against 250","FLAG slower: higher in 7 of 7, median 1158 µs, A/A bound 508 µs","no difference shown: higher in 6 of 7, median 1721 µs, A/A bound 3739 µs"]
+round 1/7: 200 operations, then destroy: retained JavaScript objects
+round 2/7: 200 operations, then destroy: retained JavaScript objects
+round 3/7: 200 operations, then destroy: retained JavaScript objects
+flagged: one object of about 1 KB retained per operation past destruction ["FLAG retains more: higher in 3 of 3, median 207392 B, A/A bound 0 B"]
+round 1/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 20 items
+flagged: one forced layout per move ["FLAG more: 366 against 83","no difference shown: higher in 7 of 7, median 31 µs, A/A bound 37 µs","no difference shown: higher in 5 of 7, median 114 µs, A/A bound 958 µs"]
+round 1/7: 300 moves, one frame each, 2000 items
+round 2/7: 300 moves, one frame each, 2000 items
+round 3/7: 300 moves, one frame each, 2000 items
+round 4/7: 300 moves, one frame each, 2000 items
+round 5/7: 300 moves, one frame each, 2000 items
+round 6/7: 300 moves, one frame each, 2000 items
+round 7/7: 300 moves, one frame each, 2000 items
+flagged: one O(n) walk per move ["at or below: 83 against 83","FLAG slower: higher in 7 of 7, median 1016 µs, A/A bound 827 µs","no difference shown: higher in 5 of 7, median 1173 µs, A/A bound 8866 µs"]
+round 1/3: bytes per move by function, 20 items
+round 2/3: bytes per move by function, 20 items
+round 3/3: bytes per move by function, 20 items
+flagged: 1 KB allocated per move ["FLAG 1051 B per move","FLAG 1051 B per move","FLAG 1051 B per move"]
+round 1/3: bytes per move by function, 20 items
+round 2/3: bytes per move by function, 20 items
+round 3/3: bytes per move by function, 20 items
+quiet as expected: one entry on the step list per frame []
+round 1/3: bytes per move by function, 20 items
+round 2/3: bytes per move by function, 20 items
+round 3/3: bytes per move by function, 20 items
+flagged: an array of four numbers per sample, in Gesture.enter ["FLAG 106 B per move","FLAG 97 B per move","FLAG 96 B per move"]
+round 1/7: 300 moves, one frame each, 20 items
+round 1/7: 300 moves, one frame each, 2000 items
+round 1/7: press and release below the threshold, 20 items, [...root.children]
+round 1/7: press and release below the threshold, 20 items, cached array
+round 1/7: press and release below the threshold, 2000 items, [...root.children]
+round 1/7: press and release below the threshold, 2000 items, cached array
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 1/7: 50 activate-and-drop cycles, 20 items, with landing
+round 1/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 1/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 1/7: 50 keyboard reorders, 20 items, with focus restoration
+round 1/7: 200 operations, then destroy: retained JavaScript objects
+round 2/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 2000 items
+round 2/7: press and release below the threshold, 20 items, [...root.children]
+round 2/7: press and release below the threshold, 20 items, cached array
+round 2/7: press and release below the threshold, 2000 items, [...root.children]
+round 2/7: press and release below the threshold, 2000 items, cached array
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, with landing
+round 2/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 2/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 2/7: 50 keyboard reorders, 20 items, with focus restoration
+round 2/7: 200 operations, then destroy: retained JavaScript objects
+round 3/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 2000 items
+round 3/7: press and release below the threshold, 20 items, [...root.children]
+round 3/7: press and release below the threshold, 20 items, cached array
+round 3/7: press and release below the threshold, 2000 items, [...root.children]
+round 3/7: press and release below the threshold, 2000 items, cached array
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, with landing
+round 3/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 3/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 3/7: 50 keyboard reorders, 20 items, with focus restoration
+round 3/7: 200 operations, then destroy: retained JavaScript objects
+round 4/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 2000 items
+round 4/7: press and release below the threshold, 20 items, [...root.children]
+round 4/7: press and release below the threshold, 20 items, cached array
+round 4/7: press and release below the threshold, 2000 items, [...root.children]
+round 4/7: press and release below the threshold, 2000 items, cached array
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, with landing
+round 4/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 4/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 4/7: 50 keyboard reorders, 20 items, with focus restoration
+round 5/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 2000 items
+round 5/7: press and release below the threshold, 20 items, [...root.children]
+round 5/7: press and release below the threshold, 20 items, cached array
+round 5/7: press and release below the threshold, 2000 items, [...root.children]
+round 5/7: press and release below the threshold, 2000 items, cached array
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, with landing
+round 5/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 5/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 5/7: 50 keyboard reorders, 20 items, with focus restoration
+round 6/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 2000 items
+round 6/7: press and release below the threshold, 20 items, [...root.children]
+round 6/7: press and release below the threshold, 20 items, cached array
+round 6/7: press and release below the threshold, 2000 items, [...root.children]
+round 6/7: press and release below the threshold, 2000 items, cached array
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, with landing
+round 6/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 6/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 6/7: 50 keyboard reorders, 20 items, with focus restoration
+round 7/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 2000 items
+round 7/7: press and release below the threshold, 20 items, [...root.children]
+round 7/7: press and release below the threshold, 20 items, cached array
+round 7/7: press and release below the threshold, 2000 items, [...root.children]
+round 7/7: press and release below the threshold, 2000 items, cached array
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, with landing
+round 7/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 7/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 7/7: 50 keyboard reorders, 20 items, with focus restoration
+quiet: 300 moves, one frame each, 20 items ["at or below: 83 against 83","no difference shown: higher in 2 of 7, median -2 µs, A/A bound 36 µs","no difference shown: higher in 3 of 7, median -9 µs, A/A bound 2144 µs"]
+quiet: 300 moves, one frame each, 2000 items ["at or below: 83 against 83","no difference shown: higher in 6 of 7, median 3 µs, A/A bound 70 µs","no difference shown: higher in 5 of 7, median 59 µs, A/A bound 4975 µs"]
+quiet: press and release below the threshold, 20 items, [...root.children] ["no difference shown: higher in 4 of 7, median 2 µs, A/A bound 50 µs","no difference shown: higher in 4 of 7, median 8 µs, A/A bound 992 µs"]
+quiet: press and release below the threshold, 20 items, cached array ["no difference shown: higher in 6 of 7, median 27 µs, A/A bound 82 µs","no difference shown: higher in 5 of 7, median 86 µs, A/A bound 212 µs"]
+quiet: press and release below the threshold, 2000 items, [...root.children] ["no difference shown: higher in 3 of 7, median -110 µs, A/A bound 624 µs","no difference shown: higher in 3 of 7, median -101 µs, A/A bound 1656 µs"]
+quiet: press and release below the threshold, 2000 items, cached array ["no difference shown: higher in 2 of 7, median -18 µs, A/A bound 42 µs","no difference shown: higher in 4 of 7, median 6 µs, A/A bound 402 µs"]
+quiet: 50 activate-and-drop cycles, 20 items, no landing ["at or below: 250 against 250","no difference shown: higher in 5 of 7, median 274 µs, A/A bound 3283 µs","no difference shown: higher in 5 of 7, median 577 µs, A/A bound 31745 µs"]
+quiet: 50 activate-and-drop cycles, 20 items, with landing ["at or below: 350 against 350","no difference shown: higher in 3 of 7, median -62 µs, A/A bound 532 µs","no difference shown: higher in 3 of 7, median -328 µs, A/A bound 2029 µs"]
+quiet: 50 activate-and-drop cycles, 2000 items, no landing ["at or below: 250 against 250","no difference shown: higher in 3 of 7, median -2 µs, A/A bound 963 µs","no difference shown: higher in 5 of 7, median 221 µs, A/A bound 3885 µs"]
+quiet: 50 activate-and-drop cycles, 2000 items, with landing ["at or below: 350 against 350","no difference shown: higher in 3 of 7, median -40 µs, A/A bound 1023 µs","no difference shown: higher in 4 of 7, median 163 µs, A/A bound 4234 µs"]
+quiet: 50 keyboard reorders, 20 items, with focus restoration ["at or below: 50 against 50","no difference shown: higher in 5 of 7, median 60 µs, A/A bound 101 µs","no difference shown: higher in 6 of 7, median 103 µs, A/A bound 174 µs"]
+quiet: 200 operations, then destroy: retained JavaScript objects ["no difference shown: higher in 0 of 3, median 0 B, A/A bound 0 B"]
+exit 0
+# after: nproc 12, node v26.13.0, uptime:  16:42:31 up 1 day, 13:05,  0 users,  load average: 2.23, 2.72, 5.10

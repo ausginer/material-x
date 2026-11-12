@@ -1,0 +1,30 @@
+# command: npx just test tests/hot-path.browser.test.ts
+# revision: bf9d1caed6e3d727982945ca2eb721836a119d1d
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  00:35:57 up 2 days, 20:58,  0 users,  load average: 3.02, 2.98, 3.01
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+12:35:59 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=030f686b
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+Type Errors  no errors
+   Start at  00:35:58
+   Duration  19.18s (tests 98%, worker 2%)
+
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  00:36:17 up 2 days, 20:59,  0 users,  load average: 2.95, 2.97, 3.01, exit 0

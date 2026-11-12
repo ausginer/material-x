@@ -1,0 +1,137 @@
+# 2026-11-12T00:13:40+00:00 label=M1: confirmation call deleted head=093f31c7f
+# operation.ts drop lines:
+174:    this.#behavior.axis.invalidate();
+202:        this.#behavior.axis.invalidate();
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+12:13:42 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser (chromium)| tests/sortable.browser.test.ts (49 tests | 1 failed | 48 skipped) 328ms
+   ❯ sortable options (12)
+     × drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 323ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:13:47 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser/firefox (firefox)| tests/sortable.browser.test.ts (49 tests | 1 failed | 48 skipped) 260ms
+   ❯ sortable options (12)
+     × drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 255ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:13:49 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+stderr | tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+[Error: DragFault: drag: drag: the predicted insertion geometry disagreed with a full scan at slot 0; the linear shift rule does not hold for this list]
+ ❯ |browser/webkit (webkit)| tests/sortable.browser.test.ts (49 tests | 1 failed | 48 skipped) 154ms
+   ❯ sortable options (12)
+     × drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 148ms
+12:13:50 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+
+12:13:51 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/vitest_n_vite_module-runner.js
+
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:13:53 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/535cad9b3b9bf6be006fe9f8bd7ebd4dbc6a4b77/deps/vitest_n_vite_module-runner.js
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+AssertionError: expected 1 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 1
+
+ ❯ tests/sortable.browser.test.ts:1032:66
+    1030|     // the list. The nearest center there is r4's, below the placehold…
+    1031|     // lands after r4.
+    1032|     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(…
+    1033|   });
+    1034|
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+AssertionError: expected 1 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 1
+
+ ❯ tests/sortable.browser.test.ts:1032:66
+    1030|     // the list. The nearest center there is r4's, below the placehold…
+    1031|     // lands after r4.
+    1032|     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(…
+    1033|   });
+    1034|
+ ❯ async*withFixtures/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5725:22
+ ❯ runWithCancel .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5709:22
+ ❯ runWithTimeout .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5673:10
+ ❯ runTest/</</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:64
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runTest/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:57
+ ❯ runTest/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:37
+ ❯ callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundEachHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:8
+ ❯ runTest .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:45
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:31
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6450:32
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6466:19
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6459:38
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runFiles/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6481:20
+ ❯ runFiles .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6478:16
+ ❯ startTests .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6514:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:995 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+AssertionError: expected +0 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 0
+
+ ❯ tests/sortable.browser.test.ts:1032:66
+    1030|     // the list. The nearest center there is r4's, below the placehold…
+    1031|     // lands after r4.
+    1032|     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(…
+    1033|   });
+    1034|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  3 failed | 3 passed | 165 skipped (171)
+   Start at  00:13:41
+   Duration  11.90s (tests 47%, worker 39%, import 14%)
+
+# exit 1

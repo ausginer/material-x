@@ -1,0 +1,15 @@
+#!/bin/bash
+# usage: window-witness-runner.sh <out> <label> <reference dir>
+# Runs W5 and W6 (-t "DRD-49") in Chromium, Firefox and WebKit on the current working tree.
+# The head shows how src/sortable/{rect-index,linear-shift,y}.ts differ from the files in <reference dir>.
+cd /workspaces/material-x/packages/drag
+source ~/.cache/ms-playwright/webkit-env.sh
+out=$1
+{
+  echo "# $(date -Is) label=$2 head=$(git rev-parse --short HEAD)"
+  echo "# the run's src/sortable files against $3:"
+  for f in rect-index linear-shift y; do diff -u "$3/$f.ts" "src/sortable/$f.ts" --label "reference/$f.ts" --label "run/$f.ts"; done
+  echo "# end of differences"
+  timeout 900 npx vitest run -c vitest.engines.config.ts tests/sortable.browser.test.ts tests/hot-path.browser.test.ts -t "DRD-49" --reporter=verbose 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -vE "dynamic import|vite-ignore|^\s*[0-9]+ \|  |Plugin: vite|File: .*vite/vitest|^\s+\^+$|^\s*\|\s+\^"
+  echo "# exit ${PIPESTATUS[0]}"
+} > "$out" 2>&1

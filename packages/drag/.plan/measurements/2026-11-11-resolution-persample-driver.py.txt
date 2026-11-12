@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""Item 1 driver. Run from packages/drag:
+persample.py <label> <mutation: none|M1|M2|M3|M4> <launch: A|B|C> <runs> <out>
+Applies the temporary log and the mutation, runs, restores src and tests with
+git checkout, and checks they are clean. Appends each run to <out>."""
+import json, re, subprocess, sys, time
+
+label, mutation, launch, runs, out = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5]
+# The handoff's required result: pass, fail, or record (none). A violation exits 3 after the runs.
+required = sys.argv[6] if len(sys.argv) > 6 else 'record'
+violated = []
+
+TEST = 'tests/hot-path.browser.test.ts'
+SESSION = 'src/kernel/session.ts'
+GESTURE = 'src/kernel/gesture.ts'
+M_SITE = 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open'
+LOG_SITE = '      expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);'
+LOG = "      console.log(`PERSAMPLE ${JSON.stringify({ kernelPerMove, bytes })}`);\n"
+DECL = '\nlet mutationWitness: unknown = null;\nlet mutationCount = 0;\n'
+
+MUTATIONS = {
+  'none': [],
+  'M1': [(SESSION, M_SITE, 'mutationWitness = [event.clientX, event.clientY, event.clientX, event.clientY];\n    ' + M_SITE, DECL)],
+  'M2': [(GESTURE, 'this.#running = true;', 'mutationCount += 1;\n    mutationWitness = [mutationCount, mutationCount, mutationCount, mutationCount];\n    this.#running = true;', DECL)],
+  'M3': [(SESSION, M_SITE, 'mutationWitness = { x: event.clientX, y: event.clientY };\n    ' + M_SITE, DECL)],
+  'M4': [(SESSION, M_SITE, 'const sample = { x: event.clientX, y: event.clientY };\n    this.#drag.x = sample.x;\n    this.#drag.y = sample.y;\n\n    // Motion is open', '')],
+}
+COMMANDS = {
+  'A': ['npx', 'just', 'test', TEST, '-t', 'allocate per sample only the CSS', '--reporter=verbose'],
+  'B': ['npx', 'just', 'test', TEST, '--reporter=verbose'],
+  'C': ['npx', 'just', 'test', '--reporter=verbose'],
+}
+
+def patch(path, find, replace, decl):
+    text = open(path).read()
+    assert text.count(find) == 1, (path, find)
+    open(path, 'w').write(text.replace(find, replace) + decl)
+
+def machine():
+    return 'nproc %s, node %s, uptime: %s' % (
+        subprocess.run(['nproc'], capture_output=True, text=True).stdout.strip(),
+        subprocess.run(['node', '--version'], capture_output=True, text=True).stdout.strip(),
+        subprocess.run(['uptime'], capture_output=True, text=True).stdout.strip())
+
+def restore():
+    subprocess.run(['git', 'checkout', '--', 'src', 'tests'], check=True)
+    subprocess.run(['git', 'diff', '--quiet', '--', 'src', 'tests'], check=True)
+
+with open(out, 'a') as f:
+    f.write('# item 1, %s, mutation %s, launch %s, %d runs\n# command: %s\n# temporary edits: the PERSAMPLE log before the < 16 assertion%s\n' % (
+        label, mutation, launch, runs, ' '.join(COMMANDS[launch]),
+        '' if mutation == 'none' else '; ' + mutation + ': ' + json.dumps(MUTATIONS[mutation])))
+    for run in range(1, runs + 1):
+        restore()
+        try:
+            patch(TEST, LOG_SITE, LOG + LOG_SITE, '')
+            for m in MUTATIONS[mutation]:
+                patch(*m)
+            before = machine()
+            start = time.time()
+            proc = subprocess.run(COMMANDS[launch], capture_output=True, text=True)
+            seconds = round(time.time() - start)
+            after = machine()
+        finally:
+            restore()
+        output = proc.stdout + proc.stderr
+        figures = [json.loads(m) for m in re.findall(r'PERSAMPLE (\{.*\})', output)]
+        target = re.findall(r'^\s*([✓×↓])\s.*should allocate per sample only the CSS', output, re.M)
+        failed = re.findall(r'^\s*×\s+(.*?)(?:\s+\d+ms)?$', output, re.M)
+        summary = {
+            'run': run,
+            'kernelPerMove': figures[0]['kernelPerMove'] if figures else None,
+            'kernelKeys': {k: round(v / 300, 2) for k, v in figures[0]['bytes'].items() if k.startswith('kernel/') or k.startswith('draggable.ts:')} if figures else None,
+            'result': {'✓': 'pass', '×': 'fail'}.get(target[0], target[0]) if target else None,
+            'failedTests': failed,
+            'exit': proc.returncode,
+            'seconds': seconds,
+        }
+        f.write('\n## run %d\n# before: %s\n# after: %s\n# summary: %s\n\n%s\n' % (run, before, after, json.dumps(summary, ensure_ascii=False), output))
+        f.flush()
+        print(json.dumps(summary, ensure_ascii=False), flush=True)
+        if required in ('pass', 'fail') and summary['result'] != required:
+            violated.append(run)
+    f.write('\n# required: %s, violated in runs: %s\n' % (required, violated))
+
+sys.exit(3 if violated else 0)

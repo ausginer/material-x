@@ -10,26 +10,60 @@
  * runs the comparison. `--before <revision>` replaces drag2 and the prototype with
  * production's `src` at that revision.
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
- * copy of production, and exits non-zero unless the comparison flags each one, or
- * if the control flags against itself. With `--only a|b`, only the injections whose
- * name contains one of the texts run, and the A/A pass runs in full.
+ * copy of production, and exits non-zero unless the comparison flags each one
+ * expected to flag and flags none expected to stay quiet, or if the control flags
+ * against itself. The one quiet injection, the step-list entry, is the bytes rule's
+ * specificity witness: kernel code that runs on every frame and allocates no object
+ * stays under the rule. Its quiet result counts only when an injection expected to
+ * flag ran on its row in the same run. With `--only a|b`, only the injections whose
+ * name contains one of the texts run, and the A/A pass runs in full. Every selected
+ * injection is applied before a browser starts, and the first one whose text does
+ * not occur exactly once, or whose patch leaves the bundle unchanged, ends the run.
+ * `--prove --dry` stops after that check: it launches no browser, and exits 0 when
+ * every selected injection applies.
+ * `node bench/compare.ts --floors [--only a|b] [--out file]` runs the detection
+ * floors: graded injections, each run as a `--prove` injection is, that record
+ * their verdicts and readings and never change the exit code. `--prove` doesn't
+ * run them, and `--floors --dry` applies them with no browser. Their work is a
+ * fixed number of loop iterations, calibrated once at 60 per µs; the size is
+ * nominal, and the reading's median script difference is the measured one.
  * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
  * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
  * and `--attribute` gives the retained row's growth per constructor per arm.
+ * `node bench/compare.ts --trace <revision> --out <directory> [--only text] [--dry]`
+ * records Chrome traces of short forms of the move and press rows, with the set-up
+ * outside each trace, on production's `src` at `revision`. It applies no injection
+ * and judges nothing. `--dry` builds the arm and lists the scenarios, with no
+ * browser.
+ *
+ * A row whose id starts with `in the page:` mirrors the CDP row named by the rest
+ * of its id, and drives its timed window from inside the page: one evaluation
+ * dispatches every event as a `PointerEvent` of Chrome's mouse and awaits the
+ * frames the CDP row awaits. Each CDP row's event costs an input command and, on
+ * a move, an evaluation, and their script is most of the row's own, so an
+ * in-page row's script is closer to the library's. A move row's press and
+ * crossing are CDP input before the window; every event of a cycle is in the
+ * window, because the press, activation and drop are what it measures. The
+ * driver-alone row dispatches the 20-item move row's events to a list with no
+ * behavior, which measures the driver's own share. These rows are validation
+ * rows, and run only with arms built from this package's source: `--before`,
+ * `--prove` and `--floors`, never with drag2 and the prototype.
  *
  * The rules are stated before running, in `judge`'s comment.
  */
 import { execFile as execFileCallback } from 'node:child_process';
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { cpus, loadavg, tmpdir } from 'node:os';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
+import { gzip as gzipCallback } from 'node:zlib';
 import { type Browser, type CDPSession, chromium, type Page } from 'playwright';
 import { rolldown } from 'rolldown';
 import { retainedObjects } from './heap-snapshot.ts';
 
 const execFile = promisify(execFileCallback);
+const gzip = promisify(gzipCallback);
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const BOX_QUAD = join(ROOT, '../box-quad/src/index.ts');
 const PROTOTYPE_REVISION = '599684791';
@@ -49,14 +83,26 @@ declare const lab: Readonly<{
   sortable(options: LabOptions): void;
   freeDrag(): void;
   noLift(): void;
+  list(count: number): void;
   destroy(): Promise<void>;
 }>;
 
 type Metrics = Readonly<Record<string, number>>;
 type Reading = Readonly<Record<string, number>>;
 
-/** Lab source bundled into an IIFE, unminified so that functions keep their names. */
-async function bundle(lab: string, sourceRoot: string): Promise<string> {
+/** The 0-based line at which a module's code starts in a bundle, and its key. */
+type ModuleStart = Readonly<{ line: number; key: string }>;
+type Bundle = Readonly<{ code: string; modules: readonly ModuleStart[] }>;
+
+/**
+ * Lab source bundled into an IIFE, unminified so that functions keep their names.
+ * The bundler writes a line `// <path from the working directory>` where each
+ * module starts. A module's key is its path under `sourceRoot`, such as
+ * `kernel/session.ts`, so that every arm built from this package's source keys a
+ * module alike. Any other module is keyed by its path from the package, such as
+ * `bench/lab.ts`.
+ */
+async function bundle(lab: string, sourceRoot: string): Promise<Bundle> {
   const built = await rolldown({
     input: lab,
     platform: 'browser',
@@ -87,10 +133,46 @@ async function bundle(lab: string, sourceRoot: string): Promise<string> {
       name: 'labExports',
     });
 
-    return output[0].code;
+    const [chunk] = output;
+    const ids = new Set(chunk.moduleIds);
+    const modules: ModuleStart[] = [];
+
+    chunk.code.split('\n').forEach((text, line) => {
+      const marker = /^\t\/\/ (\S+)$/u.exec(text)?.[1];
+      const path = marker && resolve(marker);
+
+      if (path && ids.has(path)) {
+        const key = relative(sourceRoot, path);
+
+        modules.push({
+          line,
+          key: key.startsWith('..') ? relative(ROOT, path) : key,
+        });
+      }
+    });
+
+    return { code: chunk.code, modules };
   } finally {
     await built.close();
   }
+}
+
+/** The key of the module whose code holds `line`, or `null` before the first one. */
+function moduleAt(
+  modules: readonly ModuleStart[],
+  line: number,
+): string | null {
+  let found: string | null = null;
+
+  for (const start of modules) {
+    if (start.line > line) {
+      break;
+    }
+
+    found = start.key;
+  }
+
+  return found;
 }
 
 interface PageContext {
@@ -102,7 +184,7 @@ interface PageContext {
 }
 
 /** One arm: its lab bundle, and whether its library restores focus itself. */
-type Arm = Readonly<{ code: string; restoresFocus: boolean }>;
+type Arm = Bundle & Readonly<{ restoresFocus: boolean }>;
 
 async function openPage(browser: Browser, arm: Arm): Promise<PageContext> {
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
@@ -152,12 +234,22 @@ const mount = (page: Page, options: LabOptions): Promise<void> =>
     lab.sortable(opts);
   }, options);
 
-async function grabAndCross(page: Page): Promise<void> {
+/** The press of `grabAndCross`: a move to the third row, and the button down. */
+async function grab(page: Page): Promise<void> {
   await page.mouse.move(X, Y0);
   await page.mouse.down();
+}
+
+/** The crossing of `grabAndCross`: past the threshold, then 50 ms. */
+async function cross(page: Page): Promise<void> {
   await page.mouse.move(X, Y0 + 12, { steps: 2 });
   await page.mouse.move(X, Y0 + 20);
   await page.waitForTimeout(50);
+}
+
+async function grabAndCross(page: Page): Promise<void> {
+  await grab(page);
+  await cross(page);
 }
 
 const movePhase = (i: number): number =>
@@ -168,6 +260,8 @@ interface Scenario {
   /** The rule stated before running, in the handoff's terms. */
   readonly rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
   readonly arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
+  /** Runs only with arms built from this package's source, never drag2's or the prototype's. */
+  readonly packageArmsOnly?: true;
   run(context: PageContext): Promise<Reading>;
 }
 
@@ -195,18 +289,125 @@ function movesScenario(count: number): Scenario {
   };
 }
 
+/**
+ * The fields of Chrome's mouse, which is pointer 1 and which CDP's input drives, so
+ * that an in-page event reaches the library as that pointer's input does.
+ */
+const MOUSE = {
+  pointerId: 1,
+  pointerType: 'mouse',
+  isPrimary: true,
+  bubbles: true,
+  cancelable: true,
+  composed: true,
+} as const;
+
+/**
+ * The in-page mirror of `movesScenario`: the same press, crossing and positions.
+ * Each move is dispatched to the list, where the root's pointer capture sends a
+ * real one, with the button held. With `mounted` false, no behavior is mounted,
+ * and the row measures the driver's own share.
+ */
+function inPageMovesScenario(count: number, mounted: boolean): Scenario {
+  return {
+    id: mounted
+      ? `in the page: 300 moves, one frame each, ${count} items`
+      : `in the page: driver alone, 300 moves, ${count} items, no behavior`,
+    rule: mounted ? 'exact-and-floor' : 'report',
+    arms: 'sortable',
+    packageArmsOnly: true,
+    async run({ page, metrics }) {
+      if (mounted) {
+        await mount(page, {
+          count,
+          cached: true,
+          landed: true,
+          refocus: false,
+        });
+      } else {
+        await page.evaluate((rows) => {
+          lab.list(rows);
+        }, count);
+      }
+
+      await grabAndCross(page);
+
+      const before = await metrics();
+
+      await page.evaluate(
+        async ({ mouse, x, ys }) => {
+          const root = document.querySelector('#i0')!.parentElement!;
+
+          for (const y of ys) {
+            root.dispatchEvent(
+              new PointerEvent('pointermove', {
+                ...mouse,
+                button: -1,
+                buttons: 1,
+                clientX: x,
+                clientY: y,
+              }),
+            );
+            await new Promise(requestAnimationFrame);
+          }
+        },
+        {
+          mouse: MOUSE,
+          x: X,
+          ys: Array.from({ length: MOVES }, (_, i) => movePhase(i)),
+        },
+      );
+
+      const after = await metrics();
+
+      await page.mouse.up();
+      return delta(before, after, MOVES);
+    },
+  };
+}
+
 type HeapNode = Readonly<{
-  callFrame: Readonly<{ functionName: string; scriptId: string }>;
+  callFrame: Readonly<{
+    functionName: string;
+    scriptId: string;
+    lineNumber: number;
+  }>;
   selfSize: number;
   children: readonly HeapNode[];
 }>;
 
-/** Bytes per move by function, with no harness `evaluate` during the run. */
+/**
+ * The V8 script id of the page's lab bundle. A sampled frame of an inline script
+ * has no url, so the script is found from one of the bundle's functions, before
+ * sampling starts.
+ */
+async function labScriptId(cdp: CDPSession): Promise<string | undefined> {
+  const { result } = await cdp.send('Runtime.evaluate', {
+    expression:
+      "Object.values(lab).find((value) => typeof value === 'function')",
+  });
+  const { internalProperties } = await cdp.send('Runtime.getProperties', {
+    objectId: result.objectId!,
+    ownProperties: true,
+  });
+
+  return (
+    internalProperties?.find(({ name }) => name === '[[FunctionLocation]]')
+      ?.value?.value as { scriptId: string } | undefined
+  )?.scriptId;
+}
+
+/**
+ * Bytes per move by function, with no harness `evaluate` during the run. A frame
+ * in the lab bundle is keyed `<module>:<function>`, such as
+ * `kernel/session.ts:#move`.
+ */
 async function samplingProfile(
   context: PageContext,
   moves: (i: number) => Promise<void>,
 ): Promise<Reading> {
-  const { cdp } = context;
+  const { cdp, arm } = context;
+  const labScript = await labScriptId(cdp);
 
   await cdp.send('HeapProfiler.enable');
   await cdp.send('HeapProfiler.startSampling', {
@@ -224,10 +425,13 @@ async function samplingProfile(
   // A built-in such as `push` has no script, and its bytes belong to its caller.
   // Counted under its own name, the kernel's allocation would escape the rule.
   const walk = (node: HeapNode, caller: string): void => {
+    const { scriptId, lineNumber, functionName } = node.callFrame;
+    const module =
+      scriptId === labScript ? moduleAt(arm.modules, lineNumber) : null;
     const name =
-      node.callFrame.scriptId === '0' && caller
+      scriptId === '0' && caller
         ? caller
-        : node.callFrame.functionName || '(anonymous)';
+        : `${module ? `${module}:` : ''}${functionName || '(anonymous)'}`;
 
     bytes.set(name, (bytes.get(name) ?? 0) + node.selfSize);
     node.children.forEach((child) => {
@@ -513,6 +717,81 @@ const SCENARIOS: readonly Scenario[] = [
       return reading;
     },
   },
+  inPageMovesScenario(20, true),
+  inPageMovesScenario(2000, true),
+  {
+    id: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+    rule: 'exact-and-floor',
+    arms: 'sortable',
+    packageArmsOnly: true,
+    async run({ page, metrics, arm }) {
+      await mount(page, {
+        count: 20,
+        cached: true,
+        landed: false,
+        refocus: !arm.restoresFocus,
+      });
+      await page.waitForTimeout(30);
+
+      const before = await metrics();
+
+      await page.evaluate(
+        async ({ mouse, x, y0, cycles, wait }) => {
+          const root = document.querySelector('#i0')!.parentElement!;
+          // Where the platform sends a pointer event: to the element capturing
+          // the pointer, or else to the element under it.
+          const send = (
+            type: string,
+            y: number,
+            button: number,
+            buttons: number,
+          ): void => {
+            const target = root.hasPointerCapture(mouse.pointerId)
+              ? root
+              : document.elementFromPoint(x, y)!;
+
+            target.dispatchEvent(
+              new PointerEvent(type, {
+                ...mouse,
+                button,
+                buttons,
+                clientX: x,
+                clientY: y,
+              }),
+            );
+          };
+
+          // The CDP row's input: a move to the press, the press, two steps of
+          // 6 px, a move past the gap, one frame and the release.
+          for (let i = 0; i < cycles; i += 1) {
+            send('pointermove', y0, -1, 0);
+            send('pointerdown', y0, 0, 1);
+            send('pointermove', y0 + 6, -1, 1);
+            send('pointermove', y0 + 12, -1, 1);
+            send('pointermove', y0 + 45, -1, 1);
+            await new Promise(requestAnimationFrame);
+            send('pointerup', y0 + 45, 0, 0);
+            await new Promise((resolve) => {
+              setTimeout(resolve, wait);
+            });
+          }
+        },
+        { mouse: MOUSE, x: X, y0: Y0, cycles: CYCLES, wait: ANIMATION_WAIT },
+      );
+
+      const after = await metrics();
+      const ended = await page.evaluate(() => lab.log.length);
+
+      if (ended !== CYCLES) {
+        throw new Error(
+          `${ended} of ${CYCLES} cycles ended: ${JSON.stringify(await page.evaluate(() => lab.log.slice(0, 6)))}`,
+        );
+      }
+
+      return delta(before, after, CYCLES);
+    },
+  },
+  inPageMovesScenario(20, false),
 ];
 
 /** The middle value, or the mean of the two middle values. */
@@ -525,9 +804,12 @@ const median = (values: readonly number[]): number => {
     : (sorted[middle - 1]! + sorted[middle]!) / 2;
 };
 
-/** The kernel's methods are private, so their names start with `#`, except these. */
-const isKernelFunction = (name: string): boolean =>
-  name.startsWith('#') || name === 'requestStep' || name === 'requestCancel';
+/** A bytes key in a kernel module: one under `kernel/`, or `draggable.ts`. */
+const isKernelKey = (key: string): boolean =>
+  key.startsWith('kernel/') || key.startsWith('draggable.ts:');
+
+/** Whether a bytes key names its module, as `samplingProfile` keys a lab frame. */
+const hasModule = (key: string): boolean => /^[^:]+\.[cm]?[jt]sx?:/u.test(key);
 
 type ArmReadings = Readonly<Record<string, readonly Reading[]>>;
 export type Verdict = Readonly<{
@@ -598,7 +880,8 @@ function pairedVerdict(
  *   minus the before arm's, and control's minus production's. Retains more when
  *   positive in every round and the median exceeds the largest absolute A/A
  *   difference, which may be 0 B. Retains less is the mirror.
- * - **Bytes:** only the lift's CSS string may appear from the kernel and the lift.
+ * - **Bytes, production only:** a function in a kernel module, under `kernel/` or
+ *   `draggable.ts`, flags at 16 B per move or more. No other module is judged.
  *
  * Readings are paired by index, which is the round.
  */
@@ -616,7 +899,7 @@ export function judge(
   if (rule === 'bytes') {
     for (const reading of arms[after] ?? []) {
       for (const [name, bytes] of Object.entries(reading)) {
-        if (isKernelFunction(name) && bytes >= 16) {
+        if (isKernelKey(name) && bytes >= 16) {
           verdicts.push({
             against: 'rule',
             measure: name,
@@ -798,128 +1081,279 @@ const VALIDATION_ROWS: readonly string[] = [
   'press and release below the threshold, 2000 items, cached array',
   'press and release below the threshold, 2000 items, [...root.children]',
   `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
+  'in the page: 300 moves, one frame each, 20 items',
+  'in the page: 300 moves, one frame each, 2000 items',
+  'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+  'in the page: driver alone, 300 moves, 20 items, no behavior',
 ];
 
-/** Each entry: a text patch on a scratch copy of production, and the row that must flag it. */
+/**
+ * A text patch on a scratch copy of production's `src`. `file` is the module's path
+ * under `src`, and `find` must occur in it exactly once. `declaration` is appended
+ * to the module, for a module-level variable the patch stores into.
+ */
+type Injection = Readonly<{
+  name: string;
+  file: string;
+  find: string;
+  replace: string;
+  declaration?: string;
+}>;
+
+/**
+ * Loop iterations per µs of script for the floors' fixed work, from one
+ * calibration in this machine's Chrome (performance-instrument-report.md). Fixed
+ * work, because a page that isn't cross-origin isolated can coarsen
+ * `performance.now()` to 100 µs.
+ */
+const ITERATIONS_PER_US = 60;
+const FLOOR_WORK_DECLARATION = 'let floorWork = 0;\n';
+const DROP_SITE = 'const request = buildReorderRequest(';
+const MOVE_SITE =
+  'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);';
+
+/** `us` µs of script, nominal, before `site`. */
+const work = (us: number, site: string): string =>
+  `for (let i = 0; i < ${us * ITERATIONS_PER_US}; i += 1) { floorWork = Math.imul(floorWork ^ i, 0x5bd1e995); }\n    ${site}`;
+
+/**
+ * Each entry: an injection, its row, and the verdict that row must give: one that
+ * matches `expect`, or with `'quiet'`, no verdict that flags.
+ */
 const INJECTIONS: ReadonlyArray<
-  Readonly<{
-    name: string;
-    file: string;
-    find: string;
-    replace: string;
-    scenario: string;
-    expect: RegExp;
-  }>
+  Injection & Readonly<{ scenario: string; expect: RegExp | 'quiet' }>
 > = [
   {
     name: 'about 1 ms of script per cycle, at the drop',
-    file: 'sortable.ts',
-    find: 'const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+    file: 'sortable/operation.ts',
+    find: 'const request = buildReorderRequest(',
     replace:
-      'const until = performance.now() + 1;\n    while (performance.now() < until) {}\n    const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+      'const until = performance.now() + 1;\n    while (performance.now() < until) {}\n    const request = buildReorderRequest(',
     scenario: '50 activate-and-drop cycles, 20 items, no landing',
     expect: /FLAG slower/u,
   },
   {
     name: 'one object of about 1 KB retained per operation past destruction',
-    file: 'sortable.ts',
-    find: 'start(drag: Drag<State>): void {\n    this.#config.onStart?.(drag.item);',
+    file: 'sortable/operation.ts',
+    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
     replace:
-      "start(drag: Drag<State>): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#config.onStart?.(drag.item);",
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#behavior.config.onStart?.(this.#query.item);",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
     expect: /FLAG retains more/u,
   },
   {
+    // The list's height changes with every move, so the read lays it out again.
     name: 'one forced layout per move',
-    file: 'sortable.ts',
-    find: 'drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+    file: 'sortable/operation.ts',
+    find: 'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     replace:
-      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     scenario: '300 moves, one frame each, 20 items',
     expect: /FLAG more/u,
   },
   {
     name: 'one O(n) walk per move',
-    file: 'sortable.ts',
-    find: 'drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+    file: 'sortable/operation.ts',
+    find: 'this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     replace:
-      'for (let i = 0; i < 3; i += 1) { void [...drag.state.snapshot.items].map((row) => row.id).join(); }\n    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'for (let i = 0; i < 3; i += 1) { void [...this.#query.snapshot.items].map((row) => row.id).join(); }\n    this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);',
     scenario: '300 moves, one frame each, 2000 items',
     expect: /FLAG slower/u,
   },
   {
+    // `#up` writes the same two lines, so the comment that follows them here is
+    // part of the text.
     name: '1 KB allocated per move',
-    file: 'draggable.ts',
-    find: 'drag.x = event.clientX;\n    drag.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+    file: 'kernel/session.ts',
+    find: 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
     replace:
-      '(globalThis as Record<string, unknown>)["__kept"] = new Array(256).fill(session);\n    drag.x = event.clientX;\n    drag.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+      "(globalThis as Record<string, unknown>)['__kept'] = new Array(256).fill(this);\n    this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open",
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
   {
+    // The quiet witness: the list reuses one array, so an entry allocates nothing,
+    // and kernel calls that allocate nothing must not flag the bytes rule.
     name: 'one entry on the step list per frame',
-    file: 'draggable.ts',
-    find: 'this.#enter(this.#runStep, step);',
+    file: 'kernel/gesture.ts',
+    find: 'this.enter(\n        step,\n        this.#session ? this.#session.stepTarget() : null,\n        receiver,\n      );',
+    replace: 'this.#steps.add(step, receiver);\n      this.enter();',
+    scenario: 'bytes per move by function, 20 items',
+    expect: 'quiet',
+  },
+  {
+    // Every sample and every frame enters a pass, and the module is the kernel's
+    // whatever the function's name.
+    name: 'an array of four numbers per sample, in Gesture.enter',
+    file: 'kernel/gesture.ts',
+    find: 'this.#running = true;',
     replace:
-      'this.#steps.push(step);\n      this.#enter(NOOP as never, null as never);',
+      'enterCount += 1;\n    enterWitness = [enterCount, enterCount, enterCount, enterCount];\n    this.#running = true;',
+    declaration: 'let enterCount = 0;\nlet enterWitness: number[] = [];\n',
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
+  {
+    name: '30 µs of script per move, in the page',
+    file: 'sortable/operation.ts',
+    find: MOVE_SITE,
+    replace: work(30, MOVE_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 300 moves, one frame each, 20 items',
+    expect: /FLAG slower/u,
+  },
+  {
+    name: '300 µs of script per cycle, in the page',
+    file: 'sortable/operation.ts',
+    find: DROP_SITE,
+    replace: work(300, DROP_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+    expect: /FLAG slower/u,
+  },
 ];
 
-/** Production's lab bundle from a copy of `src` with one patch applied. */
-async function bundlePatched(
-  file: string,
-  find: string,
-  replace: string,
-): Promise<string> {
+/** The detection floors: each at the site of the gate injection on its row. */
+const FLOORS: ReadonlyArray<Injection & Readonly<{ scenario: string }>> = [
+  ...[300, 100].map((us) => ({
+    name: `${us} µs of script per cycle, at the drop`,
+    file: 'sortable/operation.ts',
+    find: DROP_SITE,
+    replace: work(us, DROP_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: '50 activate-and-drop cycles, 20 items, no landing',
+  })),
+  ...[100, 30, 10].map((us) => ({
+    name: `${us} µs of script per move`,
+    file: 'sortable/operation.ts',
+    find: MOVE_SITE,
+    replace: work(us, MOVE_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: '300 moves, one frame each, 20 items',
+  })),
+  {
+    name: "one object with two number properties per sample, in Session's #move",
+    file: 'kernel/session.ts',
+    find: 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
+    replace:
+      'floorObject = { x: event.clientX, y: event.clientY };\n    this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
+    declaration: 'let floorObject: object | null = null;\n',
+    scenario: 'bytes per move by function, 20 items',
+  },
+  {
+    name: 'one object with two number properties retained per operation',
+    file: 'sortable/operation.ts',
+    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
+    replace:
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior.config.onStart?.(this.#query.item);",
+    scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
+  },
+  ...[30, 10, 5, 2].map((us) => ({
+    name: `${us} µs of script per move, in the page`,
+    file: 'sortable/operation.ts',
+    find: MOVE_SITE,
+    replace: work(us, MOVE_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 300 moves, one frame each, 20 items',
+  })),
+  ...[300, 100, 30].map((us) => ({
+    name: `${us} µs of script per cycle, in the page`,
+    file: 'sortable/operation.ts',
+    find: DROP_SITE,
+    replace: work(us, DROP_SITE),
+    declaration: FLOOR_WORK_DECLARATION,
+    scenario: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
+  })),
+];
+
+/** The selected entries: those whose name contains one of `only`'s `|`-separated texts. */
+const select = <Entry extends Readonly<{ name: string }>>(
+  entries: readonly Entry[],
+  only: string | undefined,
+): Entry[] =>
+  entries.filter(
+    (each) => !only || only.split('|').some((part) => each.name.includes(part)),
+  );
+
+/**
+ * Production's lab bundle from a copy of `src` with `injection` applied. Throws
+ * unless `find` occurs exactly once and the patch changes the bundle. The
+ * comparison is with the copy's own bundle before the patch, because a bundle of
+ * another directory differs by its module paths.
+ */
+async function applyInjection(injection: Injection): Promise<Arm> {
+  const { name, file, find, replace, declaration = '' } = injection;
   const directory = await mkdtemp(join(tmpdir(), 'drag-inject-'));
 
   try {
-    await cp(join(ROOT, 'src'), join(directory, 'src'), { recursive: true });
+    const source = join(directory, 'src');
 
-    const path = join(directory, 'src', file);
-    const source = await readFile(path, 'utf8');
+    await cp(join(ROOT, 'src'), source, { recursive: true });
 
-    if (!source.includes(find)) {
+    const path = join(source, file);
+    const text = await readFile(path, 'utf8');
+
+    if (text.split(find).length !== 2) {
       throw new Error(`injection does not apply in ${file}: ${find}`);
     }
 
-    await writeFile(path, source.replace(find, replace));
-    return await bundle(join(ROOT, 'bench/lab.ts'), join(directory, 'src'));
+    const lab = join(ROOT, 'bench/lab.ts');
+    const unpatched = (await bundle(lab, source)).code;
+
+    await writeFile(path, text.replace(find, () => replace) + declaration);
+
+    const patched = await bundle(lab, source);
+
+    if (patched.code === unpatched) {
+      throw new Error(
+        `injection does not apply: ${name} leaves the bundle unchanged`,
+      );
+    }
+
+    return { ...patched, restoresFocus: true };
   } finally {
     await rm(directory, { force: true, recursive: true });
   }
 }
 
+/** Every entry applied, in order, before any browser starts. The first failure throws. */
+async function applyAll<Entry extends Injection>(
+  entries: readonly Entry[],
+): Promise<Array<Readonly<{ entry: Entry; arm: Arm }>>> {
+  const applied: Array<Readonly<{ entry: Entry; arm: Arm }>> = [];
+
+  for (const entry of entries) {
+    applied.push({ entry, arm: await applyInjection(entry) });
+    console.log(
+      `applies: ${entry.name}${'expect' in entry && entry.expect === 'quiet' ? ', expected to stay quiet' : ''}`,
+    );
+  }
+
+  return applied;
+}
+
 /**
  * Each injection runs as `production` against unpatched production, with a second
- * copy of the injected bundle as its control, and must flag. Then the control runs
+ * copy of the injected bundle as its control, and must give the verdict it
+ * expects. A quiet injection's result is counted only when an injection expected
+ * to flag on its row ran in the same run. Then the control runs
  * against itself on every validation row: three copies of one bundle, none of which
  * may flag.
  */
 async function prove(
   browser: Browser,
+  injections: ReadonlyArray<
+    Readonly<{ entry: (typeof INJECTIONS)[number]; arm: Arm }>
+  >,
   production: Arm,
   noLift: Arm,
   rounds: number,
   out?: string,
-  only?: string,
 ): Promise<boolean> {
   const results: unknown[] = [];
   let proven = true;
 
-  for (const injection of INJECTIONS.filter(
-    (each) => !only || only.split('|').some((part) => each.name.includes(part)),
-  )) {
-    const injected: Arm = {
-      code: await bundlePatched(
-        injection.file,
-        injection.find,
-        injection.replace,
-      ),
-      restoresFocus: true,
-    };
+  for (const { entry: injection, arm: injected } of injections) {
     const scenario = SCENARIOS.find((each) => each.id === injection.scenario)!;
     const scenarioRounds = scenario.rule === 'bytes' ? 3 : rounds;
     const raw = await runScenarios(
@@ -933,20 +1367,41 @@ async function prove(
     const verdicts = judge(scenario.rule, arms, 'production', 'control', [
       'base',
     ]);
+    const { expect } = injection;
+    const quiet = expect === 'quiet';
     const flagged = verdicts.some((verdict) =>
-      injection.expect.test(verdict.result),
+      quiet ? verdict.result.startsWith('FLAG') : expect.test(verdict.result),
     );
+    const met = quiet ? !flagged : flagged;
+    const counted =
+      !quiet ||
+      injections.some(
+        ({ entry }) =>
+          entry.scenario === injection.scenario && entry.expect !== 'quiet',
+      );
+    let line: string;
 
-    proven &&= flagged;
+    if (quiet) {
+      line = met
+        ? `quiet as expected${counted ? '' : ', not counted: no injection expected to flag ran on its row'}`
+        : 'FLAGGED, expected quiet';
+    } else {
+      line = met ? 'flagged' : 'NOT FLAGGED, expected to flag';
+    }
+
+    proven &&= met;
     results.push({
       injection: injection.name,
       scenario: scenario.id,
+      expect: quiet ? 'quiet' : 'flag',
       flagged,
+      met,
+      counted,
       verdicts,
       raw: arms,
     });
     console.log(
-      `${flagged ? 'flagged' : 'NOT FLAGGED'}: ${injection.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}`,
+      `${line}: ${injection.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}`,
     );
   }
 
@@ -1095,6 +1550,9 @@ const { values } = parseArgs({
     rejudge: { type: 'string' },
     profile: { type: 'boolean', default: false },
     attribute: { type: 'boolean', default: false },
+    dry: { type: 'boolean', default: false },
+    floors: { type: 'boolean', default: false },
+    trace: { type: 'string' },
   },
 });
 
@@ -1117,7 +1575,8 @@ async function compareArms(
   const scenarios = SCENARIOS.filter(
     (each) =>
       (values.rows !== 'validation' || VALIDATION_ROWS.includes(each.id)) &&
-      (!values.only || each.id.includes(values.only)),
+      (!values.only || each.id.includes(values.only)) &&
+      (values.before !== undefined || !each.packageArmsOnly),
   );
   const raw = await runScenarios(
     browser,
@@ -1169,18 +1628,18 @@ async function beforeArms(
 ): Promise<Readonly<{ drag2: Arm; prototype: Arm }>> {
   return {
     drag2: {
-      code: await bundle(join(ROOT, 'bench/lab-drag2.ts'), join(ROOT, 'src')),
+      ...(await bundle(join(ROOT, 'bench/lab-drag2.ts'), join(ROOT, 'src'))),
       restoresFocus: false,
     },
     prototype: {
-      code: await bundle(
+      ...(await bundle(
         lab,
         await archivedSource(
           scratch,
           PROTOTYPE_REVISION,
           'packages/drag/prototype/src',
         ),
-      ),
+      )),
       restoresFocus: false,
     },
   };
@@ -1214,37 +1673,415 @@ async function diagnose(
   }
 }
 
-if (values.rejudge) {
-  // A recorded run: its own rules and arms, judged by the current `judge`.
-  const recorded = JSON.parse(await readFile(values.rejudge, 'utf8')) as {
-    summary: ReadonlyArray<{ scenario: string; rule: Scenario['rule'] }>;
-    raw: Record<string, ArmReadings>;
-  };
-  // The retained rule reads per-round growth, which a recorded absolute heap does
-  // not carry, so those rows keep their recorded verdicts.
-  const rules = Object.fromEntries(
-    recorded.summary
-      .filter((row) => row.rule !== 'retained')
-      .map((row) => [row.scenario, row.rule]),
-  );
-  const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);
+/**
+ * Each floor runs as a `--prove` injection does, and its verdicts and readings are
+ * recorded whatever they are. For the bytes row, the difference per round is the
+ * injected arm's kernel bytes per move minus base's.
+ */
+async function floors(
+  browser: Browser,
+  entries: ReadonlyArray<
+    Readonly<{ entry: (typeof FLOORS)[number]; arm: Arm }>
+  >,
+  production: Arm,
+  noLift: Arm,
+  rounds: number,
+  out?: string,
+): Promise<void> {
+  const results: unknown[] = [];
 
-  if (values.out) {
-    await writeFile(values.out, `${JSON.stringify(summary, null, 1)}\n`);
+  for (const { entry, arm: injected } of entries) {
+    const scenario = SCENARIOS.find((each) => each.id === entry.scenario)!;
+    const raw = await runScenarios(
+      browser,
+      [scenario],
+      { production: injected, base: production, control: injected },
+      noLift,
+      scenario.rule === 'bytes' ? 3 : rounds,
+    );
+    const arms = raw[scenario.id]!;
+    const verdicts = judge(scenario.rule, arms, 'production', 'control', [
+      'base',
+    ]);
+    const kernel = (reading: Reading): number =>
+      Object.entries(reading)
+        .filter(([key]) => isKernelKey(key))
+        .reduce((sum, [, bytes]) => sum + bytes, 0);
+    const kernelDifferences =
+      scenario.rule === 'bytes'
+        ? (arms['production'] ?? []).map(
+            (reading, round) => kernel(reading) - kernel(arms['base']![round]!),
+          )
+        : undefined;
+
+    results.push({
+      floor: entry.name,
+      scenario: scenario.id,
+      flagged: verdicts.some((verdict) => verdict.result.startsWith('FLAG')),
+      verdicts,
+      ...(kernelDifferences && {
+        kernelBytes: {
+          differences: kernelDifferences,
+          higher: kernelDifferences.filter((value) => value > 0).length,
+          median: median(kernelDifferences),
+        },
+      }),
+      raw: arms,
+    });
+    console.log(
+      `floor: ${entry.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}${kernelDifferences ? ` kernel bytes per move, injected minus base: ${JSON.stringify(kernelDifferences)}` : ''}`,
+    );
   }
 
-  print(summary);
-} else {
+  if (out) {
+    await writeFile(out, `${JSON.stringify(results, null, 1)}\n`);
+  }
+}
+
+/** The moves a trace's move scenario makes: `movePhase(0)` to `movePhase(60)`. */
+const TRACE_MOVES = 61;
+const TRACE_PRESSES = 10;
+const TRACE_WARM = 3;
+
+/**
+ * The trace categories: those of DevTools' Performance panel that `--trace` needs,
+ * with the CPU profiler at its high-resolution interval, and the script rundown so
+ * that DevTools can show the inline bundle's source.
+ */
+const TRACE_CATEGORIES = [
+  '-*',
+  'devtools.timeline',
+  'disabled-by-default-devtools.timeline',
+  'disabled-by-default-devtools.timeline.frame',
+  'disabled-by-default-devtools.timeline.stack',
+  'disabled-by-default-devtools.target-rundown',
+  'disabled-by-default-devtools.v8-source-rundown',
+  'disabled-by-default-devtools.v8-source-rundown-sources',
+  'disabled-by-default-v8.cpu_profiler',
+  'disabled-by-default-v8.cpu_profiler.hires',
+  'v8.execute',
+  'v8',
+  'cppgc',
+  'blink.user_timing',
+  'blink.console',
+  'latencyInfo',
+  'toplevel',
+];
+
+/**
+ * A short form of the row named by `row`, with its mount options, positions and
+ * waits. `setUp` runs before tracing, and `interact` is the traced interaction,
+ * with a user-timing mark before each phase.
+ */
+type TraceScenario = Readonly<{
+  id: string;
+  file: string;
+  row: string;
+  kind: 'moves' | 'presses';
+  setUp(page: Page): Promise<void>;
+  interact(page: Page, mark: (name: string) => Promise<void>): Promise<void>;
+}>;
+
+/**
+ * Resolves at least two animation frames after every running animation, landing
+ * and row animation alike, has ended. The first two frames let an animation that
+ * the last input starts be created first.
+ */
+const idle = (page: Page): Promise<void> =>
+  page.evaluate(async () => {
+    const frame = (): Promise<number> => new Promise(requestAnimationFrame);
+
+    await frame();
+    await frame();
+
+    while (
+      document
+        .getAnimations()
+        .some(
+          (animation) => animation.pending || animation.playState === 'running',
+        )
+    ) {
+      await frame();
+    }
+
+    await frame();
+    await frame();
+  });
+
+const TRACE_SCENARIOS: readonly TraceScenario[] = [
+  ...[20, 2000].map((count): TraceScenario => ({
+    id: `reordering moves, ${count} items`,
+    file: `moves-${count}`,
+    row: `300 moves, one frame each, ${count} items`,
+    kind: 'moves',
+    async setUp(page) {
+      await mount(page, { count, cached: true, landed: true, refocus: false });
+    },
+    async interact(page, mark) {
+      await mark('press');
+      await grab(page);
+      await mark('crossing');
+      await cross(page);
+      await mark('moves');
+
+      for (let i = 0; i < TRACE_MOVES; i += 1) {
+        await page.mouse.move(X, movePhase(i));
+        await page.evaluate(() => new Promise(requestAnimationFrame));
+      }
+
+      await mark('release');
+      await page.mouse.up();
+      await idle(page);
+      await mark('end');
+    },
+  })),
+  ...(
+    [
+      [2000, false],
+      [2000, true],
+      [20, true],
+    ] as const
+  ).map(([count, cached]): TraceScenario => ({
+    id: `press and release, ${count} items, ${cached ? 'cached array' : '[...root.children]'}`,
+    file: `presses-${count}-${cached ? 'cached' : 'children'}`,
+    row: `press and release below the threshold, ${count} items, ${cached ? 'cached array' : '[...root.children]'}`,
+    kind: 'presses',
+    async setUp(page) {
+      await mount(page, { count, cached, landed: false, refocus: false });
+      await page.mouse.move(X, Y0);
+      await page.waitForTimeout(30);
+    },
+    async interact(page, mark) {
+      for (let i = 0; i < TRACE_PRESSES; i += 1) {
+        await mark(`press ${i}`);
+        await page.mouse.down();
+        await mark(`release ${i}`);
+        await page.mouse.up();
+      }
+
+      await mark('idle');
+      await idle(page);
+      await mark('end');
+    },
+  })),
+];
+
+/**
+ * The fields of a trace's machine record that Node reads: the Node version, the CPU
+ * count, model and core sets, and the one-, five- and fifteen-minute load.
+ */
+async function machineRecord(): Promise<Record<string, unknown>> {
+  const read = (path: string): Promise<string | null> =>
+    readFile(path, 'utf8').then(
+      (text) => text.trim(),
+      () => null,
+    );
+
+  return {
+    node: process.version,
+    cpus: cpus().length,
+    model: cpus()[0]?.model ?? null,
+    coreSets: {
+      cpu_core: await read('/sys/devices/cpu_core/cpus'),
+      cpu_atom: await read('/sys/devices/cpu_atom/cpus'),
+    },
+    load: loadavg(),
+    at: new Date().toISOString(),
+  };
+}
+
+/** The ids of the list's rows, in order. */
+const order = (page: Page): Promise<string> =>
+  page.evaluate(() =>
+    [...document.querySelector('#i0')!.parentElement!.children]
+      .map((row) => row.id)
+      .join(),
+  );
+
+/**
+ * `--trace <revision>`: three warm traces and one cold trace of each selected
+ * scenario, each in its own page from `openPage`, with production's `src` at
+ * `revision`. Each is a gzip-compressed trace beside the arm's bundle and a
+ * `record.json` that holds each trace's machine record and checks. A check that
+ * fails is printed, and the run exits non-zero.
+ */
+async function trace(
+  browser: Browser,
+  arm: Arm,
+  scenarios: readonly TraceScenario[],
+  directory: string,
+  record: Readonly<Record<string, unknown>>,
+): Promise<boolean> {
+  const traces: unknown[] = [];
+  let passed = true;
+
+  for (const scenario of scenarios) {
+    for (let take = 0; take <= TRACE_WARM; take += 1) {
+      const warm = take > 0;
+      const name = `${scenario.file}-${warm ? `warm${take}` : 'cold'}`;
+      const context = await openPage(browser, arm);
+      const { page, cdp } = context;
+      const errors: string[] = [];
+      let recording = false;
+
+      page.on('pageerror', (error) => {
+        if (recording) {
+          errors.push(error.message);
+        }
+      });
+
+      try {
+        const mark = async (label: string): Promise<void> => {
+          await page.evaluate((text) => {
+            performance.mark(text);
+          }, label);
+        };
+
+        await scenario.setUp(page);
+
+        if (warm) {
+          await scenario.interact(page, mark);
+        }
+
+        await idle(page);
+
+        const logBefore = await page.evaluate(() => lab.log.length);
+        const orderBefore = await order(page);
+        const labScript = await labScriptId(cdp);
+        const before = await machineRecord();
+
+        recording = true;
+        await browser.startTracing(page, { categories: TRACE_CATEGORIES });
+        await scenario.interact(page, mark);
+
+        const buffer = await browser.stopTracing();
+
+        recording = false;
+
+        const after = await machineRecord();
+        const logAdded =
+          (await page.evaluate(() => lab.log.length)) - logBefore;
+        const orderChanged = (await order(page)) !== orderBefore;
+        const failures = [
+          ...errors.map((message) => `page error: ${message}`),
+          ...(scenario.kind === 'moves' && logAdded !== 1
+            ? [`lab.log gained ${logAdded} entries, not 1`]
+            : []),
+          ...(scenario.kind === 'presses' && orderChanged
+            ? ['the presses changed the items’ order']
+            : []),
+        ];
+        const compressed = await gzip(buffer);
+
+        await writeFile(join(directory, `${name}.json.gz`), compressed);
+        passed &&= failures.length === 0;
+        traces.push({
+          file: `${name}.json.gz`,
+          scenario: scenario.id,
+          row: scenario.row,
+          warm,
+          labScript,
+          logAdded,
+          orderChanged,
+          failures,
+          before,
+          after,
+        });
+        console.log(
+          `${failures.length === 0 ? 'traced' : 'RETURN'}: ${name}, ${compressed.length} B${failures.length === 0 ? '' : `: ${failures.join('; ')}`}`,
+        );
+      } finally {
+        await page.close();
+      }
+    }
+  }
+
+  await writeFile(
+    join(directory, 'record.json'),
+    `${JSON.stringify({ ...record, chrome: browser.version(), categories: TRACE_CATEGORIES, traces }, null, 1)}\n`,
+  );
+  return passed;
+}
+
+/**
+ * The trace mode's own run: the arm is production's `src` at `revision` with this
+ * branch's lab, as `--before` builds its before arm. `--dry` builds the arm and
+ * lists the selected scenarios, with no browser.
+ */
+async function runTrace(revision: string): Promise<void> {
+  const scenarios = TRACE_SCENARIOS.filter(
+    (each) => !values.only || each.id.includes(values.only),
+  );
+  const scratch = await mkdtemp(join(tmpdir(), 'drag-trace-'));
+
+  try {
+    const arm: Arm = {
+      ...(await bundle(
+        join(ROOT, 'bench/lab.ts'),
+        await archivedSource(scratch, revision, 'packages/drag/src'),
+      )),
+      restoresFocus: true,
+    };
+
+    for (const scenario of scenarios) {
+      console.log(`scenario: ${scenario.id}, mirrors "${scenario.row}"`);
+    }
+
+    if (values.dry) {
+      console.log(
+        `${scenarios.length} scenarios, bundle of ${arm.code.split('\n').length} lines, no browser launched`,
+      );
+      return;
+    }
+
+    const directory = values.out!;
+    const { stdout } = await execFile('git', ['rev-parse', 'HEAD', revision], {
+      cwd: ROOT,
+    });
+    const [head, traced] = stdout.trim().split('\n');
+
+    await writeFile(join(directory, 'bundle.js.txt'), arm.code);
+
+    const browser = await chromium.launch({
+      executablePath:
+        process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome',
+    });
+
+    try {
+      process.exitCode = (await trace(browser, arm, scenarios, directory, {
+        head,
+        traced,
+        modules: arm.modules,
+      }))
+        ? 0
+        : 1;
+    } finally {
+      await browser.close();
+    }
+  } finally {
+    await rm(scratch, { force: true, recursive: true });
+  }
+}
+
+/** Every mode that launches a browser. */
+async function run(
+  injections: ReadonlyArray<
+    Readonly<{ entry: (typeof INJECTIONS)[number]; arm: Arm }>
+  >,
+  floorEntries: ReadonlyArray<
+    Readonly<{ entry: (typeof FLOORS)[number]; arm: Arm }>
+  >,
+): Promise<void> {
   const scratch = await mkdtemp(join(tmpdir(), 'drag-compare-'));
 
   try {
     const lab = join(ROOT, 'bench/lab.ts');
     const production: Arm = {
-      code: await bundle(lab, join(ROOT, 'src')),
+      ...(await bundle(lab, join(ROOT, 'src'))),
       restoresFocus: true,
     };
     const noLift: Arm = {
-      code: await bundle(join(ROOT, 'bench/lab-no-lift.ts'), join(ROOT, 'src')),
+      ...(await bundle(join(ROOT, 'bench/lab-no-lift.ts'), join(ROOT, 'src'))),
       restoresFocus: true,
     };
     const browser = await chromium.launch({
@@ -1256,14 +2093,23 @@ if (values.rejudge) {
       if (values.prove) {
         process.exitCode = (await prove(
           browser,
+          injections,
           production,
           noLift,
           Number(values.rounds),
           values.out,
-          values.only,
         ))
           ? 0
           : 1;
+      } else if (values.floors) {
+        await floors(
+          browser,
+          floorEntries,
+          production,
+          noLift,
+          Number(values.rounds),
+          values.out,
+        );
       } else if (values.profile || values.attribute) {
         await diagnose(browser, {
           ...(await beforeArms(scratch, lab)),
@@ -1271,10 +2117,10 @@ if (values.rejudge) {
         });
       } else if (values.before) {
         const before: Arm = {
-          code: await bundle(
+          ...(await bundle(
             lab,
             await archivedSource(scratch, values.before, 'packages/drag/src'),
-          ),
+          )),
           restoresFocus: true,
         };
 
@@ -1297,5 +2143,62 @@ if (values.rejudge) {
     }
   } finally {
     await rm(scratch, { force: true, recursive: true });
+  }
+}
+
+if (values.rejudge) {
+  // A recorded run: its own rules and arms, judged by the current `judge`.
+  const recorded = JSON.parse(await readFile(values.rejudge, 'utf8')) as {
+    summary: ReadonlyArray<{ scenario: string; rule: Scenario['rule'] }>;
+    raw: Record<string, ArmReadings>;
+  };
+  // The retained rule reads per-round growth, which a recorded absolute heap does
+  // not carry. The bytes rule selects by module, which a recording keyed by
+  // function name alone does not carry. Such rows keep their recorded verdicts.
+  const rules = Object.fromEntries(
+    recorded.summary
+      .filter((row) => {
+        const kept =
+          row.rule === 'bytes'
+            ? Object.values(recorded.raw[row.scenario] ?? {}).some((readings) =>
+                readings.some((reading) =>
+                  Object.keys(reading).some(hasModule),
+                ),
+              )
+            : row.rule !== 'retained';
+
+        if (!kept) {
+          console.log(
+            `not judged, the recording cannot carry its rule: ${row.scenario}`,
+          );
+        }
+
+        return kept;
+      })
+      .map((row) => [row.scenario, row.rule]),
+  );
+  const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);
+
+  if (values.out) {
+    await writeFile(values.out, `${JSON.stringify(summary, null, 1)}\n`);
+  }
+
+  print(summary);
+} else if (values.trace) {
+  await runTrace(values.trace);
+} else {
+  const injections = values.prove
+    ? await applyAll(select(INJECTIONS, values.only))
+    : [];
+  const floorEntries = values.floors
+    ? await applyAll(select(FLOORS, values.only))
+    : [];
+
+  if (values.dry) {
+    console.log(
+      `${injections.length + floorEntries.length} applied, no browser launched`,
+    );
+  } else {
+    await run(injections, floorEntries);
   }
 }

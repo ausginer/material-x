@@ -1,0 +1,16 @@
+# command: node .campaigns/sensitivity-probe/probe.ts --self-check
+# revision: 25b8c7a8f7a60bd132f9e49fa600fff841c8abee
+# before: 2026-11-11T04:51:52.972Z
+#   nproc 12, node v26.13.0, uptime:  04:51:52 up 2 days,  1:14,  0 users,  load average: 1.17, 1.51, 1.89
+#   cpu: 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11
+#   pressure: some avg10=0.00 avg60=0.00 avg300=0.00 total=4092521831
+#   git status --porcelain: [?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt;]
+machine: {"time":"2026-11-11T04:51:53.275Z","nproc":"12","node":"v26.13.0","uptime":"04:51:53 up 2 days,  1:14,  0 users,  load average: 1.17, 1.51, 1.89","cpuModel":"12th Gen Intel(R) Core(TM) i7-1255U","cpuCore":"0-3","cpuAtom":"4-11","affinity":"pid 848119's current affinity list: 0-11","revision":"25b8c7a8f7a60bd132f9e49fa600fff841c8abee","gitStatus":"?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt"}
+self-check: {"loopMs":17.599999994039536,"start":"2026-11-11T04:51:53.523Z","end":"2026-11-11T04:51:53.543Z","windowMs":19.836273000000006,"rendererPid":848294,"renderers":3,"thread":"chrome","onCpuMs":17.838627,"waitMs":0.004798,"samples":0,"shareCpu0to3":0,"pressureUs":65,"load1":1.17}
+on-CPU at least 200 ms: NO; every sample in 4-11: no
+# after: 2026-11-11T04:51:53.693Z
+#   nproc 12, node v26.13.0, uptime:  04:51:53 up 2 days,  1:14,  0 users,  load average: 1.17, 1.51, 1.89
+#   cpu: 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11
+#   pressure: some avg10=0.00 avg60=0.00 avg300=0.00 total=4092528044
+#   git status --porcelain: [?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt;]
+# exit 1

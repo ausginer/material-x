@@ -1,0 +1,10 @@
+{
+  "lsp": {
+    "typescript-ls": {
+      "binary": {
+        "path": "/workspaces/material-x/node_modules/.bin/tsrs",
+        "arguments": ["--lsp", "--stdio"]
+      }
+    }
+  }
+}

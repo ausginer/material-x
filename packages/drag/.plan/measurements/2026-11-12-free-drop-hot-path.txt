@@ -1,0 +1,26 @@
+# 2026-11-12T01:11:15+00:00 census tests (Chromium), working tree before commit, head=d11d71d27
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:11:17 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=030f686b
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+Type Errors  no errors
+   Start at  01:11:16
+   Duration  18.53s (tests 99%, worker 1%)
+
+# exit 0

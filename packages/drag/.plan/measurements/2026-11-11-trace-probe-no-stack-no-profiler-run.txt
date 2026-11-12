@@ -1,0 +1,9 @@
+# command: node bench/.compare-probe-B.ts --trace 566ebfc65 --only moves, 20 items --out /tmp/claude-1000/-workspaces-material-x/b9100341-b4c2-42a4-8690-3a68f9c27ea7/scratchpad/probe-B
+# revision: 743921de003bc8b99d71a6f39251dd57e3442869
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:19:28 up 2 days,  8:42,  0 users,  load average: 3.10, 2.28, 2.08
+scenario: reordering moves, 20 items, mirrors "300 moves, one frame each, 20 items"
+traced: moves-20-cold, 698420 B
+traced: moves-20-warm1, 666378 B
+traced: moves-20-warm2, 673084 B
+traced: moves-20-warm3, 663318 B
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:19:47 up 2 days,  8:42,  0 users,  load average: 2.95, 2.30, 2.09, exit 0

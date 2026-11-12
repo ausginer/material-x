@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# rec.sh <out> <command...>: the machine record at the head and foot of <out>, and the command's output between.
+out=$1; shift
+m() {
+  echo "# $1: $(date -u +%FT%T.%3NZ)"
+  echo "#   nproc $(nproc), node $(node --version), uptime: $(uptime)"
+  echo "#   cpu: $(lscpu | sed -n 's/^Model name:[[:space:]]*//p'), cpu_core $(cat /sys/devices/cpu_core/cpus), cpu_atom $(cat /sys/devices/cpu_atom/cpus)"
+  echo "#   pressure: $(head -1 /proc/pressure/cpu)"
+  echo "#   git status --porcelain: [$(git status --porcelain | tr '\n' ';')]"
+}
+{ echo "# command: $*"; echo "# revision: $(git rev-parse HEAD)"; m before; } > "$out"
+"$@" >> "$out" 2>&1; code=$?
+{ m after; echo "# exit $code"; } >> "$out"
+exit $code

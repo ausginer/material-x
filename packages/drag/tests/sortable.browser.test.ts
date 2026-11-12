@@ -7,6 +7,7 @@ import type { DisplacementSink } from '../src/sortable/axis.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import type { PlaceholderContext } from '../src/sortable/placement.ts';
+import { STRIDE, TOP } from '../src/sortable/rect-index.ts';
 import { xy } from '../src/sortable/xy.ts';
 import {
   ReorderResolution,
@@ -33,6 +34,92 @@ import {
   rowsOf,
   order,
 } from './support/harness.ts';
+
+/** One `settle` call, with the rows read since the call before it. */
+type SettleCall = Readonly<{
+  values: Float64Array;
+  items: readonly HTMLElement[];
+  first: number;
+  end: number;
+  /** `items`'s length, and its range's elements, when the call returns. */
+  length: number;
+  range: readonly HTMLElement[];
+  /** The destination rows whose rect was read since the previous call. */
+  read: readonly Element[];
+  /** A copy of the range's slots, taken when the call returns. */
+  settled: Float64Array;
+}>;
+
+/**
+ * Wraps `sink.settle` and the rect read, and records each call. A measurement
+ * passes the cache's buffer, which holds a slot per destination row. The drop's
+ * confirmation and the linear shift's probe pass a scratch of one slot, so its
+ * buffer is `STRIDE` values long.
+ */
+function recordSettles(
+  sink: DisplacementSink,
+  dragged: HTMLElement,
+): SettleCall[] {
+  const calls: SettleCall[] = [];
+  let read: Element[] = [];
+  const readRect = Element.prototype.getBoundingClientRect;
+  const settle = sink.settle.bind(sink);
+
+  Element.prototype.getBoundingClientRect = function recorded(this: Element) {
+    if (
+      this !== dragged &&
+      this.classList.contains('row') &&
+      !this.hasAttribute('data-drag-placeholder')
+    ) {
+      read.push(this);
+    }
+
+    return readRect.call(this);
+  };
+  onCleanup(() => {
+    Element.prototype.getBoundingClientRect = readRect;
+  });
+  sink.settle = (values, items, first, end) => {
+    settle(values, items, first, end);
+    calls.push({
+      values,
+      items,
+      first,
+      end,
+      length: items.length,
+      range: items.slice(first, end),
+      read,
+      settled: values.slice(first * STRIDE, end * STRIDE),
+    });
+    read = [];
+  };
+
+  return calls;
+}
+
+/** The calls a measurement made: its buffer is larger than one slot. */
+function measurementsOf(calls: readonly SettleCall[]): SettleCall[] {
+  return calls.filter((call) => call.values.buffer.byteLength > STRIDE * 8);
+}
+
+/**
+ * The cache's own buffer and element array, the same two objects in every call,
+ * each call with the range whose rows it read.
+ */
+function expectCacheRanges(
+  measurements: readonly SettleCall[],
+  destination: number,
+): void {
+  expect(new Set(measurements.map((call) => call.values)).size).toBe(1);
+  expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+
+  for (const { values, length, range, read } of measurements) {
+    expect(values.byteOffset).toBe(0);
+    expect(values.length * 8).toBe(values.buffer.byteLength);
+    expect(length).toBe(destination);
+    expect(read).toEqual(range);
+  }
+}
 
 /** A row like `makeList`'s, not yet in the document. */
 function makeRow(id: string): HTMLElement {
@@ -990,6 +1077,305 @@ describe('sortable options', () => {
     await moveHeld(second.x, second.y + 21);
     await release();
     expect(log).toEqual(['start', 'end:accepted']);
+  });
+
+  it('drag:DRD-47 should drop under the release position after a scroll whose event has not arrived', async () => {
+    const scroller = document.createElement('div');
+
+    scroller.style.cssText = 'height:200px;overflow:auto';
+    document.body.append(scroller);
+
+    const list = makeList(20, scroller);
+
+    basicSortable(list);
+
+    // Capture phase on the window, added before the press: it runs before the
+    // library sees the release, and the browser dispatches `scroll` only in its
+    // next rendering update.
+    addEventListener(
+      'pointerup',
+      () => {
+        scroller.scrollTop += 100;
+      },
+      { capture: true, once: true },
+    );
+    onCleanup(() => {
+      scroller.remove();
+    });
+
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await frames();
+    await moveHeld(start.x, start.y + 50);
+    // The committed move: the placeholder follows r1.
+    expect(
+      list.querySelector('[data-drag-placeholder]')!.previousElementSibling!.id,
+    ).toBe('r1');
+    await release();
+    // The release is 70 px into the scroller, which after the scroll is 170 px into
+    // the list. The nearest center there is r4's, below the placeholder, so the item
+    // lands after r4.
+    expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(4);
+  });
+
+  it('drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up', async () => {
+    const list = makeList(26);
+
+    // Two heights, so that no center is a multiple of one row height. The page
+    // does not scroll: 26 rows take 702 px.
+    for (const [i, row] of rowsOf(list).entries()) {
+      row.style.height = i % 2 === 0 ? '20px' : '34px';
+    }
+
+    basicSortable(list);
+
+    const dragged = document.querySelector<HTMLElement>('#r0')!;
+    const placeholderGap = (): number => {
+      const placeholder = list.querySelector('[data-drag-placeholder]')!;
+
+      return [...list.children]
+        .filter((element) => element !== dragged)
+        .indexOf(placeholder);
+    };
+    // `y()`'s rule over every row, measured now: the nearest center to the
+    // pointer, the first in order among equals, and the placeholder's own center
+    // as the incumbent.
+    const gapFor = (pointerY: number): number => {
+      const destination = rowsOf(list).filter((row) => row !== dragged);
+      const anchor = centerOf('[data-drag-placeholder]').y;
+      let best = Math.abs(pointerY - anchor);
+      let nearest = -1;
+
+      for (const [i, row] of destination.entries()) {
+        const distance = Math.abs(pointerY - centerOf(row).y);
+
+        if (distance < best) {
+          best = distance;
+          nearest = i;
+        }
+      }
+
+      if (nearest === -1) {
+        return placeholderGap();
+      }
+
+      return centerOf(destination[nearest]!).y > anchor ? nearest + 1 : nearest;
+    };
+
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await frames();
+
+    // Steps of 9 px: shorter than half the distance between two adjacent centers,
+    // so that some step lands in every interval where the nearest row changes.
+    const path: number[] = [];
+
+    for (let dy = 29; dy <= 600; dy += 9) {
+      path.push(dy);
+    }
+
+    for (let dy = 600; dy >= 0; dy -= 9) {
+      path.push(dy);
+    }
+
+    let deepest = 0;
+
+    for (const dy of path) {
+      // Measured before the move, while nothing changes the tree: the frame after
+      // the move resolves against this geometry.
+      const expected = gapFor(start.y + dy);
+
+      // oxlint-disable-next-line no-await-in-loop -- one sample per step
+      await commands.pointerMove(start.x, start.y + dy);
+      // oxlint-disable-next-line no-await-in-loop -- one frame per step
+      await frames();
+      expect(placeholderGap(), `at ${dy} px`).toBe(expected);
+      deepest = Math.max(deepest, expected);
+    }
+
+    expect(deepest).toBeGreaterThanOrEqual(20);
+    expect(placeholderGap()).toBe(0);
+    await release();
+    expect(log).toEqual(['start', 'end:noop']);
+  }, 60_000);
+
+  it("drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array", async () => {
+    const list = makeList(12);
+    const install = layoutAnimation({ duration: 3000 });
+    let sink: DisplacementSink | null = null;
+
+    basicSortable(list, {
+      displacement: () => {
+        sink = install();
+        return sink;
+      },
+    });
+
+    const calls = recordSettles(sink!, document.querySelector('#r0')!);
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await frames();
+
+    // One row at a time, so that the window grows by one slot per resolution.
+    for (let dy = 60; dy <= 260; dy += 40) {
+      // oxlint-disable-next-line no-await-in-loop -- one resolution per step
+      await moveHeld(start.x, start.y + dy);
+    }
+
+    await release();
+
+    const measurements = measurementsOf(calls);
+
+    expectCacheRanges(measurements, 11);
+    expect(
+      measurements.filter((call) => call.first > 0).length,
+    ).toBeGreaterThanOrEqual(3);
+    expect(faults).toEqual([]);
+    expect(log).toEqual(['start', 'end:accepted']);
+    // The confirmation and the probe: one slot, its own row.
+    for (const { items, first, end, range, read } of calls) {
+      if (!measurements.some((call) => call.items === items)) {
+        expect([first, end]).toEqual([0, 1]);
+        expect(read).toEqual(range);
+      }
+    }
+  });
+
+  it("drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array", async () => {
+    const list = makeList(
+      12,
+      document.body,
+      'display:flex;flex-wrap:wrap;width:300px',
+    );
+
+    for (const row of rowsOf(list)) {
+      row.style.cssText = 'width:100px;height:60px;touch-action:none';
+    }
+
+    const install = layoutAnimation({ duration: 3000 });
+    let sink: DisplacementSink | null = null;
+
+    basicSortable(list, {
+      axis: xy(),
+      displacement: () => {
+        sink = install();
+        return sink;
+      },
+    });
+
+    const calls = recordSettles(sink!, document.querySelector('#r0')!);
+    const start = centerOf('#r0');
+
+    // Two committed moves: each rebuilds the field with the sink composed.
+    await grab('#r0', 60, 0);
+    await moveHeld(start.x + 100, start.y);
+    await moveHeld(start.x + 200, start.y);
+    await release();
+
+    const measurements = measurementsOf(calls);
+
+    expectCacheRanges(measurements, 11);
+    expect(
+      measurements.filter((call) => call.first === 0 && call.end === 11).length,
+    ).toBeGreaterThanOrEqual(2);
+    expect(faults).toEqual([]);
+    expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(2);
+  });
+
+  it('drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives', async () => {
+    const list = makeList(10);
+    // Linear and long, so that a row in flight is drawn most of a row below its
+    // flow position for the whole test.
+    const install = layoutAnimation({ duration: 60_000, easing: 'linear' });
+    let sink: DisplacementSink | null = null;
+    const controller = basicSortable(list, {
+      displacement: () => {
+        sink = install();
+        return sink;
+      },
+    });
+    const dragged = document.querySelector<HTMLElement>('#r0')!;
+    const calls = recordSettles(sink!, dragged);
+    // Layout values that ignore transforms: where flow puts a row.
+    const flowTop = (row: HTMLElement): number =>
+      list.getBoundingClientRect().top + row.offsetTop - list.offsetTop;
+    const flowCenter = (row: HTMLElement): number =>
+      flowTop(row) + row.offsetHeight / 2;
+    const placeholderGap = (): number => {
+      const placeholder = list.querySelector('[data-drag-placeholder]')!;
+
+      return [...list.children]
+        .filter((element) => element !== dragged)
+        .indexOf(placeholder);
+    };
+    // `y()`'s rule over the flow positions of every row, with the placeholder's
+    // center as the incumbent.
+    const gapFor = (pointerY: number): number => {
+      const placeholder = list.querySelector<HTMLElement>(
+        '[data-drag-placeholder]',
+      )!;
+      const destination = rowsOf(list).filter((row) => row !== dragged);
+      const anchor = flowCenter(placeholder);
+      let best = Math.abs(pointerY - anchor);
+      let nearest = -1;
+
+      for (const [i, row] of destination.entries()) {
+        const distance = Math.abs(pointerY - flowCenter(row));
+
+        if (distance < best) {
+          best = distance;
+          nearest = i;
+        }
+      }
+
+      if (nearest === -1) {
+        return placeholderGap();
+      }
+
+      return flowCenter(destination[nearest]!) > anchor ? nearest + 1 : nearest;
+    };
+    const start = await press(dragged);
+    const r3 = document.querySelector<HTMLElement>('#r3')!;
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await frames();
+    // Over r3, in one sample: one resolution, with nothing in flight, measures
+    // slots 0 to 3, and one committed move displaces r1, r2 and r3 by a row up.
+    await commands.pointerMove(start.x, start.y + 125);
+    await frames();
+    expect(placeholderGap()).toBe(3);
+    await frames(2);
+    expect(r3.getAnimations()).toHaveLength(1);
+
+    // Every slot is unmeasured again, and the next resolution grows the window
+    // up from the placeholder, over r3 while it is drawn about a row low.
+    controller.invalidate();
+    calls.length = 0;
+
+    // Taken before the resolution, which may move the placeholder and so r3.
+    const pointerY = start.y + 105;
+    const expected = gapFor(pointerY);
+    const settledTop = flowTop(r3);
+
+    await moveHeld(start.x, pointerY);
+
+    const overR3 = measurementsOf(calls).find((call) =>
+      call.range.includes(r3),
+    )!;
+
+    expect(overR3.first).toBeGreaterThan(0);
+    expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).toBeCloseTo(
+      settledTop,
+      0,
+    );
+    expect(placeholderGap()).toBe(expected);
+    expect(expected).toBe(3);
+    expect(r3.getAnimations()).toHaveLength(1);
+    await commands.keyPress('Escape');
+    expect(faults).toEqual([]);
   });
 
   it('should ignore a second pointer during a drag', async () => {

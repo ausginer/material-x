@@ -1,0 +1,40 @@
+# command: node .campaigns/probe/attribute-scale.ts
+# revision: a7b3851c13fd24730f1e52f011f0f0a28a2d45be
+# before: nproc 12, node v26.13.0, uptime:  03:28:26 up 1 day, 23:51,  0 users,  load average: 7.83, 9.60, 7.61
+{"repeat":1,"arm":"production","operations":0,"objects":674596,"emptyArray":35168,"string":408744}
+{"repeat":1,"arm":"drag2","operations":0,"objects":696444,"emptyArray":35196,"string":418192}
+{"repeat":1,"arm":"prototype","operations":0,"objects":671388,"emptyArray":35068,"string":407928}
+{"repeat":1,"arm":"production","operations":25,"objects":689876,"emptyArray":35708,"string":418956}
+{"repeat":1,"arm":"drag2","operations":25,"objects":711268,"emptyArray":35256,"string":428548}
+{"repeat":1,"arm":"prototype","operations":25,"objects":686892,"emptyArray":35128,"string":418080}
+{"repeat":1,"arm":"production","operations":50,"objects":690544,"emptyArray":36220,"string":418956}
+{"repeat":1,"arm":"drag2","operations":50,"objects":711424,"emptyArray":35256,"string":428548}
+{"repeat":1,"arm":"prototype","operations":50,"objects":687048,"emptyArray":35128,"string":418080}
+{"repeat":1,"arm":"production","operations":100,"objects":691836,"emptyArray":37244,"string":418956}
+{"repeat":1,"arm":"drag2","operations":100,"objects":711656,"emptyArray":35256,"string":428548}
+{"repeat":1,"arm":"prototype","operations":100,"objects":687280,"emptyArray":35128,"string":418080}
+{"repeat":1,"arm":"production","operations":200,"objects":694232,"emptyArray":39292,"string":418956}
+{"repeat":1,"arm":"drag2","operations":200,"objects":712004,"emptyArray":35256,"string":428548}
+{"repeat":1,"arm":"prototype","operations":200,"objects":687628,"emptyArray":35128,"string":418080}
+{"repeat":1,"arm":"production","operations":400,"objects":695540,"emptyArray":39292,"string":418956}
+{"repeat":1,"arm":"drag2","operations":400,"objects":713312,"emptyArray":35256,"string":428548}
+{"repeat":1,"arm":"prototype","operations":400,"objects":688936,"emptyArray":35128,"string":418080}
+{"repeat":2,"arm":"production","operations":0,"objects":674596,"emptyArray":35168,"string":408744}
+{"repeat":2,"arm":"drag2","operations":0,"objects":696444,"emptyArray":35196,"string":418192}
+{"repeat":2,"arm":"prototype","operations":0,"objects":671388,"emptyArray":35068,"string":407928}
+{"repeat":2,"arm":"production","operations":25,"objects":689876,"emptyArray":35708,"string":418956}
+{"repeat":2,"arm":"drag2","operations":25,"objects":711268,"emptyArray":35256,"string":428548}
+{"repeat":2,"arm":"prototype","operations":25,"objects":686892,"emptyArray":35128,"string":418080}
+{"repeat":2,"arm":"production","operations":50,"objects":690544,"emptyArray":36220,"string":418956}
+{"repeat":2,"arm":"drag2","operations":50,"objects":711424,"emptyArray":35256,"string":428548}
+{"repeat":2,"arm":"prototype","operations":50,"objects":687048,"emptyArray":35128,"string":418080}
+{"repeat":2,"arm":"production","operations":100,"objects":691836,"emptyArray":37244,"string":418956}
+{"repeat":2,"arm":"drag2","operations":100,"objects":711656,"emptyArray":35256,"string":428548}
+{"repeat":2,"arm":"prototype","operations":100,"objects":687280,"emptyArray":35128,"string":418080}
+{"repeat":2,"arm":"production","operations":200,"objects":694232,"emptyArray":39292,"string":418956}
+{"repeat":2,"arm":"drag2","operations":200,"objects":712004,"emptyArray":35256,"string":428548}
+{"repeat":2,"arm":"prototype","operations":200,"objects":687628,"emptyArray":35128,"string":418080}
+{"repeat":2,"arm":"production","operations":400,"objects":695540,"emptyArray":39292,"string":418956}
+{"repeat":2,"arm":"drag2","operations":400,"objects":713312,"emptyArray":35256,"string":428548}
+{"repeat":2,"arm":"prototype","operations":400,"objects":688936,"emptyArray":35128,"string":418080}
+# after: nproc 12, node v26.13.0, uptime:  03:41:38 up 2 days, 4 min,  0 users,  load average: 7.09, 8.00, 7.74, exit 0

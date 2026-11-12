@@ -1,0 +1,683 @@
+(function() {
+	// ../box-quad/src/index.ts
+	/** Required length of a {@link Delta}. */
+	const DELTA_LENGTH = 2;
+	/** Allocates storage for one {@link Delta}. */
+	const delta = () => new Float64Array(DELTA_LENGTH);
+	const { parseFloat: parse, isFinite: finite } = Number;
+	const { abs, min } = Math;
+	/**
+	* Converts a viewport delta into `basis` and writes it to `out`. Pure: no DOM
+	* reads, no allocation.
+	*
+	* The basis selects what the result means:
+	*
+	* - An element's {@link Space}, from {@link ancestry}: the value to write to
+	*   that element's `translate`, `left` or `top`. A `Space` excludes the
+	*   element's own `zoom`, so an element with its own `zoom` divides the result
+	*   by that `zoom`.
+	* - An element's {@link Box}, from {@link coordinates}: the change in that
+	*   element's own untransformed box, such as `width` or `height`.
+	*
+	* Returns `false` and leaves `out` untouched when the basis is singular or the
+	* result is not finite.
+	*/
+	function localDelta(basis, dx, dy, out) {
+		const a = basis[0];
+		const b = basis[1];
+		const c = basis[2];
+		const d = basis[3];
+		const inverseDeterminant = 1 / (a * d - b * c);
+		const x = (d * dx - c * dy) * inverseDeterminant;
+		const y = (a * dy - b * dx) * inverseDeterminant;
+		if (!finite(x + y)) return false;
+		out[0] = x;
+		out[1] = y;
+		return true;
+	}
+	function capacityFor$1(needed) {
+		let capacity = 1;
+		while (capacity < needed) capacity *= 2;
+		return capacity;
+	}
+	/**
+	* One slack value, sized to the precision at which geometry is reported. Gecko
+	* reports a rect in 1/60 px, so a settled reading is off by up to 1/120 px. A
+	* predicted slot is a reading plus the difference of two readings, and the rebuild
+	* carries its own, so the bound is 1/30 px. The slack is the next power of two above
+	* it, far below the smallest disagreement a broken rule produces, which is a row.
+	*/
+	const EQUIVALENCE_SLACK$1 = 1 / 16;
+	/**
+	* The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
+	* resolution, and `items` only when proposing a gap change. Do not add a read
+	* inside the candidate loop.
+	*/
+	var RectIndex$1 = class {
+		/**
+		* Re-allocated only when the collection outgrows it. It never shrinks: it is
+		* bounded by the largest collection the controller saw, and released with it.
+		*/
+		#values = /* @__PURE__ */ new Float64Array(0);
+		/**
+		* The placeholder's rect, packed like a slot. Measured once per rebuild here, so a
+		* resolution with nothing stale reads no layout at all.
+		*/
+		#placeholderRect = /* @__PURE__ */ new Float64Array(6);
+		/** Destination-ordered elements, parallel to the packed slots. */
+		#items = [];
+		/** How many destination slots the last scan produced. */
+		#count = 0;
+		/** Slots the packed buffer can hold: a power of two once fitted. */
+		#capacity = 0;
+		/** Starts stale, at a version no collection holds, so the first read measures. */
+		#dirty = true;
+		#measured = -1;
+		get values() {
+			return this.#values;
+		}
+		get placeholderRect() {
+			return this.#placeholderRect;
+		}
+		get items() {
+			return this.#items;
+		}
+		get count() {
+			return this.#count;
+		}
+		/**
+		* Measures only when something marked the cache dirty or the collection version
+		* changed. `getBox` is the configured geometry source, or `null` when every
+		* candidate is its own box. `displacement` is the composed sink, or `null`.
+		*/
+		refresh(snapshot, dragged, getBox, placeholder, displacement) {
+			if (!this.#dirty && this.#measured === snapshot.version) return;
+			if (snapshot.items.length > this.#capacity) {
+				this.#capacity = capacityFor$1(snapshot.items.length);
+				this.#values = new Float64Array(this.#capacity * 6);
+			}
+			const values = this.#values;
+			const items = this.#items;
+			const placeholderRect = this.#placeholderRect;
+			let n = 0;
+			for (const item of snapshot.items) {
+				if (item === dragged) continue;
+				const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+				const offset = n * 6;
+				values[offset + 0] = rect.left;
+				values[offset + 1] = rect.top;
+				values[offset + 2] = rect.right;
+				values[offset + 3] = rect.bottom;
+				values[offset + 4] = (rect.left + rect.right) * .5;
+				values[offset + 5] = (rect.top + rect.bottom) * .5;
+				items[n] = item;
+				n += 1;
+			}
+			displacement?.settle(values, items, n);
+			const rect = placeholder.getBoundingClientRect();
+			placeholderRect[0] = rect.left;
+			placeholderRect[1] = rect.top;
+			placeholderRect[2] = rect.right;
+			placeholderRect[3] = rect.bottom;
+			placeholderRect[4] = (rect.left + rect.right) * .5;
+			placeholderRect[5] = (rect.top + rect.bottom) * .5;
+			this.#count = n;
+			items.length = n;
+			this.#measured = snapshot.version;
+			this.#dirty = false;
+		}
+		/**
+		* Advances a span of slots by a constant along y. The center is recomputed from
+		* the shifted edges, so the arithmetic is the one a full scan performs.
+		*/
+		advance(lo, hi, delta) {
+			const values = this.#values;
+			for (let i = lo; i < hi; i += 1) {
+				const offset = i * 6;
+				const top = values[offset + 1] + delta;
+				const bottom = values[offset + 3] + delta;
+				values[offset + 1] = top;
+				values[offset + 3] = bottom;
+				values[offset + 5] = (top + bottom) * .5;
+			}
+		}
+		/**
+		* Re-reads the placeholder's fields along y. A relocation in a column leaves both
+		* x coordinates unchanged.
+		*/
+		remeasurePlaceholder(placeholder) {
+			const { top, bottom } = placeholder.getBoundingClientRect();
+			const placeholderRect = this.#placeholderRect;
+			placeholderRect[1] = top;
+			placeholderRect[3] = bottom;
+			placeholderRect[5] = (top + bottom) * .5;
+		}
+		/**
+		* Whether one slot's element is still where the cache holds it: measured again like
+		* a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A
+		* scroll or a layout shift outside the list moves every slot by one vector, so one
+		* slot shows it. A stale or empty cache reads nothing and answers `true`, because
+		* its next refresh measures every slot anyway.
+		*
+		* The slot is the end of the list farther from `gap`, the gap the placeholder
+		* holds. Committed moves displace the slots next to the gap, so a slot far from it
+		* is the least likely to carry a running animation, and a settled reading that
+		* misses by more than the slack costs a full measurement.
+		*/
+		holds(gap, snapshot, getBox, displacement) {
+			if (this.#dirty || this.#measured !== snapshot.version || this.#count === 0) return true;
+			const slot = gap * 2 < this.#count ? this.#count - 1 : 0;
+			const item = this.#items[slot];
+			const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+			const scratch = /* @__PURE__ */ new Float64Array(6);
+			scratch[0] = rect.left;
+			scratch[1] = rect.top;
+			scratch[2] = rect.right;
+			scratch[3] = rect.bottom;
+			displacement?.settle(scratch, [item], 1);
+			const offset = slot * 6;
+			return Math.abs(scratch[0] - this.#values[offset + 0]) <= EQUIVALENCE_SLACK$1 && Math.abs(scratch[1] - this.#values[offset + 1]) <= EQUIVALENCE_SLACK$1;
+		}
+		/** One flag, because any reason for staleness forces the same full rebuild. */
+		invalidate() {
+			this.#dirty = true;
+		}
+		/**
+		* Empties the element array, which would retain DOM between operations, and keeps
+		* the numeric buffer for reuse.
+		*/
+		retire() {
+			this.#items.length = 0;
+			this.#count = 0;
+			this.#dirty = true;
+			this.#measured = -1;
+		}
+	};
+	// ../../../../tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/corr/probe/before/layout-animation.ts
+	/**
+	* Displacement: the items a committed placeholder move pushed aside slide to their
+	* new positions instead of jumping.
+	*
+	* This feature measures nothing: the vectors come from the axis. It owns duration,
+	* easing and the animations it starts. A rebuild never cancels an animation, because
+	* that would leave a window in which a row has jumped. `settle` subtracts what each
+	* animation currently carries, from its timing, with no layout read.
+	*
+	* Animations fold and do not stack. A second move arriving mid-flight cancels the
+	* running animation and starts one from `residual + delta`, which lands the element
+	* exactly where the running one had reached. So there is one animation per element,
+	* and the sink can compute its current offset.
+	*
+	* No lifecycle waits for it: an animation in flight never delays release or teardown.
+	*/
+	const DEFAULT_DURATION$1 = 160;
+	const DEFAULT_EASING$1 = "ease-out";
+	/**
+	* How much of an animation is still applied, as a fraction of its starting vector.
+	* `progress` already has the easing applied, and the keyframes interpolate linearly
+	* from the vector to zero. An overshooting easing takes this outside `[0, 1]`, which
+	* is still exactly what the element carries, so it is not clamped.
+	*/
+	function remainingOf$1(animation) {
+		const { progress } = animation.effect.getComputedTiming();
+		return progress == null ? 0 : 1 - progress;
+	}
+	/** `finished` rejects when an animation is cancelled, and nothing waits for it. */
+	function ignoreRejection$1() {}
+	/**
+	* Written `displacement: layoutAnimation()`. Row animations outlive the operation
+	* that started them, and the controller cancels what is running on destruction.
+	*/
+	const layoutAnimation$1 = ({ duration = DEFAULT_DURATION$1, easing = DEFAULT_EASING$1 } = {}) => () => {
+		const running = /* @__PURE__ */ new Map();
+		const local = delta();
+		return {
+			report(element, dx, dy, space) {
+				let sx = dx;
+				let sy = dy;
+				const previous = running.get(element);
+				if (previous) {
+					const remaining = remainingOf$1(previous.animation);
+					sx += previous.dx * remaining;
+					sy += previous.dy * remaining;
+					previous.animation.cancel();
+					running.delete(element);
+				}
+				if (!localDelta(space, sx, sy, local)) {
+					local[0] = sx;
+					local[1] = sy;
+				}
+				const animation = element.animate([{ translate: `${local[0]}px ${local[1]}px` }, { translate: "0 0" }], {
+					duration,
+					easing,
+					composite: "add"
+				});
+				const record = {
+					animation,
+					dx: sx,
+					dy: sy
+				};
+				animation.finished.then(() => {
+					if (running.get(element) === record) running.delete(element);
+				}, ignoreRejection$1);
+				running.set(element, record);
+			},
+			settle(values, items, count) {
+				if (running.size === 0) return;
+				for (let i = 0; i < count; i += 1) {
+					const held = running.get(items[i]);
+					if (held) {
+						const remaining = remainingOf$1(held.animation);
+						const dx = held.dx * remaining;
+						const dy = held.dy * remaining;
+						const offset = i * 6;
+						const left = values[offset + 0] - dx;
+						const right = values[offset + 2] - dx;
+						const top = values[offset + 1] - dy;
+						const bottom = values[offset + 3] - dy;
+						values[offset + 0] = left;
+						values[offset + 2] = right;
+						values[offset + 4] = (left + right) * .5;
+						values[offset + 1] = top;
+						values[offset + 3] = bottom;
+						values[offset + 5] = (top + bottom) * .5;
+					}
+				}
+			},
+			retire() {
+				for (const { animation } of running.values()) animation.cancel();
+				running.clear();
+			}
+		};
+	};
+	/** Packs one rect as a slot at `offset`: both edges on each axis, then both centers. */
+	function pack(target, offset, rect) {
+		target[offset + 0] = rect.left;
+		target[offset + 1] = rect.top;
+		target[offset + 2] = rect.right;
+		target[offset + 3] = rect.bottom;
+		target[offset + 4] = (rect.left + rect.right) * .5;
+		target[offset + 5] = (rect.top + rect.bottom) * .5;
+	}
+	function capacityFor(needed) {
+		let capacity = 1;
+		while (capacity < needed) capacity *= 2;
+		return capacity;
+	}
+	/**
+	* One slack value, sized to the precision at which geometry is reported. Gecko
+	* reports a rect in 1/60 px, so a settled reading is off by up to 1/120 px. A
+	* predicted slot is a reading plus the difference of two readings, and the rebuild
+	* carries its own, so the bound is 1/30 px. The slack is the next power of two above
+	* it, far below the smallest disagreement a broken rule produces, which is a row.
+	*/
+	const EQUIVALENCE_SLACK = 1 / 16;
+	/**
+	* The hot path: each axis rule reads `values`, the slot range it scans and
+	* `placeholderRect` once per resolution, and `items` only when proposing a gap
+	* change. Do not add a read inside the candidate loop.
+	*/
+	var RectIndex = class {
+		/**
+		* Re-allocated only when the collection outgrows it. It never shrinks: it is
+		* bounded by the largest collection the controller saw, and released with it.
+		*/
+		#values = /* @__PURE__ */ new Float64Array(0);
+		/**
+		* The placeholder's rect, packed like a slot. Measured once per rebuild here, so a
+		* resolution with nothing stale reads no layout at all.
+		*/
+		#placeholderRect = /* @__PURE__ */ new Float64Array(6);
+		/** Destination-ordered elements, parallel to the packed slots. */
+		#items = [];
+		/** The window's first slot. */
+		#first = 0;
+		/** The slot after the window's last one: the window is empty when it equals `#first`. */
+		#end = 0;
+		/** Slots the packed buffer can hold: a power of two once fitted. */
+		#capacity = 0;
+		/** Starts stale, at a version no collection holds, so the first read measures. */
+		#dirty = true;
+		#measured = -1;
+		get values() {
+			return this.#values;
+		}
+		get placeholderRect() {
+			return this.#placeholderRect;
+		}
+		get items() {
+			return this.#items;
+		}
+		get count() {
+			return this.#items.length;
+		}
+		get first() {
+			return this.#first;
+		}
+		get end() {
+			return this.#end;
+		}
+		/**
+		* Measures every slot, only when something marked the cache dirty or the
+		* collection version changed. `getBox` is the configured geometry source, or
+		* `null` when every candidate is its own box. `displacement` is the composed sink,
+		* or `null`.
+		*/
+		refresh(snapshot, dragged, getBox, placeholder, displacement) {
+			this.collect(snapshot, dragged, placeholder, 0);
+			if (this.#first === this.#end) this.measure(0, this.#items.length, getBox, displacement);
+		}
+		/**
+		* `refresh` without the slots: when the cache is stale, collects every slot's
+		* element and measures the placeholder, and leaves an empty window at `slot`.
+		* `measure` then adds slots to the window.
+		*/
+		collect(snapshot, dragged, placeholder, slot) {
+			if (!this.#dirty && this.#measured === snapshot.version) return;
+			if (snapshot.items.length > this.#capacity) {
+				this.#capacity = capacityFor(snapshot.items.length);
+				this.#values = new Float64Array(this.#capacity * 6);
+			}
+			const items = this.#items;
+			let n = 0;
+			for (const item of snapshot.items) if (item !== dragged) {
+				items[n] = item;
+				n += 1;
+			}
+			pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
+			items.length = n;
+			this.#first = slot;
+			this.#end = slot;
+			this.#measured = snapshot.version;
+			this.#dirty = false;
+		}
+		/**
+		* Measures the slots from `lo` to before `hi`, settled through the sink, and adds
+		* them to the window. The range starts or ends at the window's first or end slot,
+		* so the window stays one contiguous range.
+		*/
+		measure(lo, hi, getBox, displacement) {
+			const values = this.#values;
+			const items = this.#items;
+			for (let i = lo; i < hi; i += 1) {
+				const item = items[i];
+				pack(values, i * 6, (getBox ? getBox(item) : item).getBoundingClientRect());
+			}
+			displacement?.settle(values, items, lo, hi);
+			if (lo < this.#first) this.#first = lo;
+			if (hi > this.#end) this.#end = hi;
+		}
+		/**
+		* Advances a span of slots by a constant along y. The center is recomputed from
+		* the shifted edges, so the arithmetic is the one a full scan performs.
+		*/
+		advance(lo, hi, delta) {
+			const values = this.#values;
+			for (let i = lo; i < hi; i += 1) {
+				const offset = i * 6;
+				const top = values[offset + 1] + delta;
+				const bottom = values[offset + 3] + delta;
+				values[offset + 1] = top;
+				values[offset + 3] = bottom;
+				values[offset + 5] = (top + bottom) * .5;
+			}
+		}
+		/**
+		* Re-reads the placeholder's fields along y. A relocation in a column leaves both
+		* x coordinates unchanged.
+		*/
+		remeasurePlaceholder(placeholder) {
+			const { top, bottom } = placeholder.getBoundingClientRect();
+			const placeholderRect = this.#placeholderRect;
+			placeholderRect[1] = top;
+			placeholderRect[3] = bottom;
+			placeholderRect[5] = (top + bottom) * .5;
+		}
+		/**
+		* Whether one slot's element is still where the cache holds it: measured again like
+		* a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A
+		* scroll or a layout shift outside the list moves every slot by one vector, so one
+		* slot shows it. A stale cache or an empty window reads nothing and answers
+		* `true`, because the next resolution measures what it needs anyway.
+		*
+		* The slot is the end of the window farther from `gap`, the gap the placeholder
+		* holds. Committed moves displace the slots next to the gap, so a slot far from it
+		* is the least likely to carry a running animation, and a settled reading that
+		* misses by more than the slack costs a new measurement.
+		*/
+		holds(gap, snapshot, getBox, displacement) {
+			const first = this.#first;
+			const end = this.#end;
+			if (this.#dirty || this.#measured !== snapshot.version || first === end) return true;
+			const slot = end - gap > gap - first ? end - 1 : first;
+			const item = this.#items[slot];
+			const scratch = /* @__PURE__ */ new Float64Array(6);
+			pack(scratch, 0, (getBox ? getBox(item) : item).getBoundingClientRect());
+			displacement?.settle(scratch, [item], 0, 1);
+			const offset = slot * 6;
+			return Math.abs(scratch[0] - this.#values[offset + 0]) <= EQUIVALENCE_SLACK && Math.abs(scratch[1] - this.#values[offset + 1]) <= EQUIVALENCE_SLACK;
+		}
+		/** One flag, because any reason for staleness forces the same full rebuild. */
+		invalidate() {
+			this.#dirty = true;
+		}
+		/**
+		* Empties the element array, which would retain DOM between operations, and keeps
+		* the numeric buffer for reuse.
+		*/
+		retire() {
+			this.#items.length = 0;
+			this.#dirty = true;
+			this.#measured = -1;
+		}
+	};
+	// ../../../../tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/corr/probe/production/layout-animation.ts
+	/**
+	* Displacement: the items a committed placeholder move pushed aside slide to their
+	* new positions instead of jumping.
+	*
+	* This feature measures nothing: the vectors come from the axis. It owns duration,
+	* easing and the animations it starts. A rebuild never cancels an animation, because
+	* that would leave a window in which a row has jumped. `settle` subtracts what each
+	* animation currently carries, from its timing, with no layout read.
+	*
+	* Animations fold and do not stack. A second move arriving mid-flight cancels the
+	* running animation and starts one from `residual + delta`, which lands the element
+	* exactly where the running one had reached. So there is one animation per element,
+	* and the sink can compute its current offset.
+	*
+	* No lifecycle waits for it: an animation in flight never delays release or teardown.
+	*/
+	const DEFAULT_DURATION = 160;
+	const DEFAULT_EASING = "ease-out";
+	/**
+	* How much of an animation is still applied, as a fraction of its starting vector.
+	* `progress` already has the easing applied, and the keyframes interpolate linearly
+	* from the vector to zero. An overshooting easing takes this outside `[0, 1]`, which
+	* is still exactly what the element carries, so it is not clamped.
+	*/
+	function remainingOf(animation) {
+		const { progress } = animation.effect.getComputedTiming();
+		return progress == null ? 0 : 1 - progress;
+	}
+	/** `finished` rejects when an animation is cancelled, and nothing waits for it. */
+	function ignoreRejection() {}
+	/**
+	* Written `displacement: layoutAnimation()`. Row animations outlive the operation
+	* that started them, and the controller cancels what is running on destruction.
+	*/
+	const layoutAnimation = ({ duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = {}) => () => {
+		const running = /* @__PURE__ */ new Map();
+		const local = delta();
+		return {
+			report(element, dx, dy, space) {
+				let sx = dx;
+				let sy = dy;
+				const previous = running.get(element);
+				if (previous) {
+					const remaining = remainingOf(previous.animation);
+					sx += previous.dx * remaining;
+					sy += previous.dy * remaining;
+					previous.animation.cancel();
+					running.delete(element);
+				}
+				if (!localDelta(space, sx, sy, local)) {
+					local[0] = sx;
+					local[1] = sy;
+				}
+				const animation = element.animate([{ translate: `${local[0]}px ${local[1]}px` }, { translate: "0 0" }], {
+					duration,
+					easing,
+					composite: "add"
+				});
+				const record = {
+					animation,
+					dx: sx,
+					dy: sy
+				};
+				animation.finished.then(() => {
+					if (running.get(element) === record) running.delete(element);
+				}, ignoreRejection);
+				running.set(element, record);
+			},
+			settle(values, items, first, end) {
+				if (running.size === 0) return;
+				for (let i = first; i < end; i += 1) {
+					const held = running.get(items[i]);
+					if (held) {
+						const remaining = remainingOf(held.animation);
+						const dx = held.dx * remaining;
+						const dy = held.dy * remaining;
+						const offset = i * 6;
+						const left = values[offset + 0] - dx;
+						const right = values[offset + 2] - dx;
+						const top = values[offset + 1] - dy;
+						const bottom = values[offset + 3] - dy;
+						values[offset + 0] = left;
+						values[offset + 2] = right;
+						values[offset + 4] = (left + right) * .5;
+						values[offset + 1] = top;
+						values[offset + 3] = bottom;
+						values[offset + 5] = (top + bottom) * .5;
+					}
+				}
+			},
+			retire() {
+				for (const { animation } of running.values()) animation.cancel();
+				running.clear();
+			}
+		};
+	};
+	// ../../../../tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/corr/probe/page.ts
+	/**
+	* The page of the xy() rebuild probe (DRD-50 property 2). Bundled into one IIFE
+	* with both classes: `before` is 71f20df20's rect-index.ts and layout-animation.ts,
+	* and `production` is the unit's. `control` is a second production instance.
+	*/
+	const ITEMS = 2e3;
+	let field;
+	let dragged;
+	let placeholder;
+	let snapshot;
+	/** Fixed-size cells in a wrapping flex container, and a placeholder among them. */
+	function setup() {
+		field = document.createElement("div");
+		field.style.cssText = "display:flex;flex-wrap:wrap;width:1000px";
+		const items = [];
+		dragged = document.createElement("div");
+		dragged.style.cssText = "position:fixed;left:0;top:0;width:40px;height:20px";
+		document.body.append(dragged);
+		items.push(dragged);
+		for (let i = 0; i < ITEMS; i += 1) {
+			const cell = document.createElement("div");
+			cell.style.cssText = "width:40px;height:20px;flex:none";
+			cell.textContent = String(i);
+			field.append(cell);
+			items.push(cell);
+			if (i === 1e3) {
+				placeholder = document.createElement("div");
+				placeholder.style.cssText = "width:40px;height:20px;flex:none";
+				field.append(placeholder);
+			}
+		}
+		document.body.append(field);
+		snapshot = {
+			items,
+			version: 1
+		};
+		field.offsetHeight;
+		const tops = new Set(items.slice(1).map((cell) => cell.offsetTop));
+		return {
+			count: items.length - 1,
+			rows: tops.size
+		};
+	}
+	function makeArm(kind, withSink) {
+		return {
+			index: kind === "before" ? new RectIndex$1() : new RectIndex(),
+			sink: withSink ? (kind === "before" ? layoutAnimation$1() : layoutAnimation())() : null
+		};
+	}
+	function rebuild({ index, sink }) {
+		index.invalidate();
+		index.refresh(snapshot, dragged, null, placeholder, sink);
+	}
+	/** Mean µs per rebuild over `size` rebuilds, and the batch's duration in ms. */
+	function batch(arm, size) {
+		const start = performance.now();
+		for (let i = 0; i < size; i += 1) rebuild(arm);
+		const ms = performance.now() - start;
+		return {
+			us: ms * 1e3 / size,
+			ms
+		};
+	}
+	const arms = /* @__PURE__ */ new Map();
+	/** Creates the three arms of one case, each with its own index and sink. */
+	function prepare(withSink) {
+		arms.clear();
+		for (const kind of [
+			"before",
+			"production",
+			"control"
+		]) arms.set(kind, makeArm(kind, withSink));
+		const packed = [...arms.values()].map(({ index }) => {
+			rebuild({
+				index,
+				sink: null
+			});
+			return Array.from(index.values.slice(0, index.count * 6));
+		});
+		const same = packed.every((values) => values.length === packed[0].length && values.every((value, i) => value === packed[0][i]));
+		return {
+			count: arms.get("production").index.count,
+			same
+		};
+	}
+	/**
+	* Doubles the batch size until a production batch lasts at least `ms`, after one
+	* discarded batch, so the size is set on warm code.
+	*/
+	function calibrate(ms) {
+		let size = 1;
+		batch(arms.get("production"), 64);
+		while (batch(arms.get("production"), size).ms < ms) size *= 2;
+		return size;
+	}
+	/** One round: each arm in `order` discards a warm-up batch, then times one batch. */
+	function round(order, size) {
+		const readings = {};
+		for (const kind of order) {
+			const arm = arms.get(kind);
+			batch(arm, size);
+			readings[kind] = batch(arm, size);
+		}
+		return readings;
+	}
+	Object.assign(globalThis, { probe: {
+		setup,
+		prepare,
+		calibrate,
+		round
+	} });
+})();

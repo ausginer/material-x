@@ -1,0 +1,59 @@
+# before: nproc 12, node v26.13.0, uptime:  16:42:45 up 1 day, 13:05,  0 users,  load average: 2.04, 2.66, 5.05
+$ node bench/compare.ts --floors --out .plan/measurements/2026-11-10-performance-floors.json
+applies: 300 µs of script per cycle, at the drop
+applies: 100 µs of script per cycle, at the drop
+applies: 100 µs of script per move
+applies: 30 µs of script per move
+applies: 10 µs of script per move
+applies: one object with two number properties per sample, in Session's #move
+applies: one object with two number properties retained per operation
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+floor: 300 µs of script per cycle, at the drop ["at or below: 250 against 250","no difference shown: higher in 7 of 7, median 411 µs, A/A bound 626 µs","no difference shown: higher in 7 of 7, median 1247 µs, A/A bound 2041 µs"]
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+floor: 100 µs of script per cycle, at the drop ["at or below: 250 against 250","no difference shown: higher in 5 of 7, median 207 µs, A/A bound 2929 µs","no difference shown: higher in 6 of 7, median 3056 µs, A/A bound 15481 µs"]
+round 1/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 20 items
+floor: 100 µs of script per move ["at or below: 83 against 83","no difference shown: higher in 7 of 7, median 147 µs, A/A bound 221 µs","no difference shown: higher in 5 of 7, median 49 µs, A/A bound 3752 µs"]
+round 1/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 20 items
+floor: 30 µs of script per move ["at or below: 83 against 83","FLAG slower: higher in 7 of 7, median 50 µs, A/A bound 33 µs","no difference shown: higher in 5 of 7, median 110 µs, A/A bound 262 µs"]
+round 1/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 20 items
+floor: 10 µs of script per move ["at or below: 83 against 83","no difference shown: higher in 5 of 7, median 5 µs, A/A bound 39 µs","no difference shown: higher in 2 of 7, median -194 µs, A/A bound 344 µs"]
+round 1/3: bytes per move by function, 20 items
+round 2/3: bytes per move by function, 20 items
+round 3/3: bytes per move by function, 20 items
+floor: one object with two number properties per sample, in Session's #move ["FLAG 30 B per move","FLAG 31 B per move","FLAG 32 B per move"] kernel bytes per move, injected minus base: [30,35,32]
+round 1/7: 200 operations, then destroy: retained JavaScript objects
+round 2/7: 200 operations, then destroy: retained JavaScript objects
+round 3/7: 200 operations, then destroy: retained JavaScript objects
+floor: one object with two number properties retained per operation ["FLAG retains more: higher in 3 of 3, median 5012 B, A/A bound 0 B"]
+exit 0
+# after: nproc 12, node v26.13.0, uptime:  17:06:11 up 1 day, 13:29,  0 users,  load average: 3.79, 3.45, 4.88

@@ -1,0 +1,793 @@
+{
+ "chrome": "157.0.8103.38",
+ "rounds": 1,
+ "moves": 300,
+ "arms": [
+  "drag2",
+  "prototype",
+  "production",
+  "control"
+ ],
+ "before": null,
+ "summary": [
+  {
+   "scenario": "bytes per move by function, 20 items",
+   "rule": "bytes",
+   "medians": {
+    "drag2": {
+     "(root)": {
+      "median": 2875,
+      "min": 2875,
+      "max": 2875
+     },
+     "(anonymous)": {
+      "median": 617,
+      "min": 617,
+      "max": 617
+     },
+     "evaluate": {
+      "median": 526,
+      "min": 526,
+      "max": 526
+     },
+     "parseEvaluationResultValue": {
+      "median": 191,
+      "min": 191,
+      "max": 191
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 137,
+      "min": 137,
+      "max": 137
+     },
+     "setupDragListeners": {
+      "median": 216,
+      "min": 216,
+      "max": 216
+     },
+     "window.__cleanupDrag": {
+      "median": 225,
+      "min": 225,
+      "max": 225
+     },
+     "dispatch": {
+      "median": 28,
+      "min": 28,
+      "max": 28
+     },
+     "add": {
+      "median": 143,
+      "min": 143,
+      "max": 143
+     },
+     "#drain": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "handle": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "#handleBehaviorAction": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "runTransition": {
+      "median": 76,
+      "min": 76,
+      "max": 76
+     },
+     "#callAndHandleFailure": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "prepare": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "prepareAction": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "resolve": {
+      "median": 157,
+      "min": 157,
+      "max": 157
+     },
+     "insertionAt$1": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "refresh": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "remeasureHole": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "edge": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "effect": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "effectAction": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "moved": {
+      "median": 14,
+      "min": 14,
+      "max": 14
+     },
+     "#shiftSpan": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "advance": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "report": {
+      "median": 408,
+      "min": 408,
+      "max": 408
+     },
+     "movePlaceholder$1": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "#refuseReentry": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "#onPointer": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "#handleMove": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "#callMoved": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "compose": {
+      "median": 114,
+      "min": 114,
+      "max": 114
+     },
+     "schedule": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "mouseListener": {
+      "median": 133,
+      "min": 133,
+      "max": 133
+     },
+     "jsonValue": {
+      "median": 29,
+      "min": 29,
+      "max": 29
+     },
+     "serializeAsCallArgument": {
+      "median": 151,
+      "min": 151,
+      "max": 151
+     },
+     "innerSerialize": {
+      "median": 18,
+      "min": 18,
+      "max": 18
+     }
+    },
+    "prototype": {
+     "(root)": {
+      "median": 2904,
+      "min": 2904,
+      "max": 2904
+     },
+     "(anonymous)": {
+      "median": 596,
+      "min": 596,
+      "max": 596
+     },
+     "evaluate": {
+      "median": 531,
+      "min": 531,
+      "max": 531
+     },
+     "parseEvaluationResultValue": {
+      "median": 190,
+      "min": 190,
+      "max": 190
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 144,
+      "min": 144,
+      "max": 144
+     },
+     "setupDragListeners": {
+      "median": 220,
+      "min": 220,
+      "max": 220
+     },
+     "window.__cleanupDrag": {
+      "median": 232,
+      "min": 232,
+      "max": 232
+     },
+     "#onPointer": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "#enter": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "#move": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "write": {
+      "median": 107,
+      "min": 107,
+      "max": 107
+     },
+     "schedule": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "#applyRequests": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "spatial": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "resolve": {
+      "median": 159,
+      "min": 159,
+      "max": 159
+     },
+     "insertionAt": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "refresh": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "remeasureHole": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "edge": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "moved": {
+      "median": 11,
+      "min": 11,
+      "max": 11
+     },
+     "#shiftSpan": {
+      "median": 12,
+      "min": 12,
+      "max": 12
+     },
+     "advance": {
+      "median": 11,
+      "min": 11,
+      "max": 11
+     },
+     "report": {
+      "median": 414,
+      "min": 414,
+      "max": 414
+     },
+     "placeholderAt": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "mouseListener": {
+      "median": 131,
+      "min": 131,
+      "max": 131
+     },
+     "jsonValue": {
+      "median": 27,
+      "min": 27,
+      "max": 27
+     },
+     "serializeAsCallArgument": {
+      "median": 160,
+      "min": 160,
+      "max": 160
+     },
+     "innerSerialize": {
+      "median": 19,
+      "min": 19,
+      "max": 19
+     }
+    },
+    "production": {
+     "(root)": {
+      "median": 2809,
+      "min": 2809,
+      "max": 2809
+     },
+     "(anonymous)": {
+      "median": 584,
+      "min": 584,
+      "max": 584
+     },
+     "evaluate": {
+      "median": 515,
+      "min": 515,
+      "max": 515
+     },
+     "parseEvaluationResultValue": {
+      "median": 180,
+      "min": 180,
+      "max": 180
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 139,
+      "min": 139,
+      "max": 139
+     },
+     "setupDragListeners": {
+      "median": 229,
+      "min": 229,
+      "max": 229
+     },
+     "window.__cleanupDrag": {
+      "median": 238,
+      "min": 238,
+      "max": 238
+     },
+     "handleEvent": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "enter": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "#move": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "translate": {
+      "median": 110,
+      "min": 110,
+      "max": 110
+     },
+     "#applyRequests": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "requestStep": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "stepTarget": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "advance": {
+      "median": 12,
+      "min": 12,
+      "max": 12
+     },
+     "updateInsertion": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "resolve": {
+      "median": 148,
+      "min": 148,
+      "max": 148
+     },
+     "get placeholderRect": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "remeasurePlaceholder": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "insertionAt": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "refresh": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "moved": {
+      "median": 10,
+      "min": 10,
+      "max": 10
+     },
+     "report": {
+      "median": 405,
+      "min": 405,
+      "max": 405
+     },
+     "localDelta": {
+      "median": 29,
+      "min": 29,
+      "max": 29
+     },
+     "mouseListener": {
+      "median": 129,
+      "min": 129,
+      "max": 129
+     },
+     "jsonValue": {
+      "median": 28,
+      "min": 28,
+      "max": 28
+     },
+     "serializeAsCallArgument": {
+      "median": 155,
+      "min": 155,
+      "max": 155
+     },
+     "innerSerialize": {
+      "median": 15,
+      "min": 15,
+      "max": 15
+     }
+    },
+    "control": {
+     "(root)": {
+      "median": 2901,
+      "min": 2901,
+      "max": 2901
+     },
+     "(anonymous)": {
+      "median": 584,
+      "min": 584,
+      "max": 584
+     },
+     "evaluate": {
+      "median": 519,
+      "min": 519,
+      "max": 519
+     },
+     "parseEvaluationResultValue": {
+      "median": 185,
+      "min": 185,
+      "max": 185
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 135,
+      "min": 135,
+      "max": 135
+     },
+     "setupDragListeners": {
+      "median": 230,
+      "min": 230,
+      "max": 230
+     },
+     "window.__cleanupDrag": {
+      "median": 232,
+      "min": 232,
+      "max": 232
+     },
+     "handleEvent": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "enter": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "#move": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "move": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "translate": {
+      "median": 107,
+      "min": 107,
+      "max": 107
+     },
+     "#applyRequests": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "requestStep": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "stepTarget": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "advance": {
+      "median": 9,
+      "min": 9,
+      "max": 9
+     },
+     "updateInsertion": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "resolve": {
+      "median": 139,
+      "min": 139,
+      "max": 139
+     },
+     "remeasurePlaceholder": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "insertionAt": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "moved": {
+      "median": 11,
+      "min": 11,
+      "max": 11
+     },
+     "report": {
+      "median": 410,
+      "min": 410,
+      "max": 410
+     },
+     "localDelta": {
+      "median": 30,
+      "min": 30,
+      "max": 30
+     },
+     "movePlaceholder": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "listener": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "mouseListener": {
+      "median": 123,
+      "min": 123,
+      "max": 123
+     },
+     "jsonValue": {
+      "median": 31,
+      "min": 31,
+      "max": 31
+     },
+     "serializeAsCallArgument": {
+      "median": 155,
+      "min": 155,
+      "max": 155
+     },
+     "innerSerialize": {
+      "median": 18,
+      "min": 18,
+      "max": 18
+     }
+    }
+   },
+   "verdicts": []
+  }
+ ],
+ "raw": {
+  "bytes per move by function, 20 items": {
+   "drag2": [
+    {
+     "(root)": 2875,
+     "(anonymous)": 617,
+     "evaluate": 526,
+     "parseEvaluationResultValue": 191,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "setupDragListeners": 216,
+     "window.__cleanupDrag": 225,
+     "dispatch": 28,
+     "add": 143,
+     "#drain": 1,
+     "handle": 1,
+     "#handleBehaviorAction": 1,
+     "runTransition": 76,
+     "#callAndHandleFailure": 1,
+     "prepare": 1,
+     "prepareAction": 1,
+     "resolve": 157,
+     "insertionAt$1": 4,
+     "refresh": 2,
+     "remeasureHole": 5,
+     "edge": 1,
+     "effect": 3,
+     "effectAction": 3,
+     "moved": 14,
+     "#shiftSpan": 13,
+     "advance": 13,
+     "report": 408,
+     "movePlaceholder$1": 1,
+     "#refuseReentry": 1,
+     "#onPointer": 6,
+     "#handleMove": 3,
+     "#callMoved": 1,
+     "compose": 114,
+     "schedule": 1,
+     "mouseListener": 133,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 151,
+     "innerSerialize": 18
+    }
+   ],
+   "prototype": [
+    {
+     "(root)": 2904,
+     "(anonymous)": 596,
+     "evaluate": 531,
+     "parseEvaluationResultValue": 190,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 220,
+     "window.__cleanupDrag": 232,
+     "#onPointer": 7,
+     "#enter": 1,
+     "#move": 1,
+     "write": 107,
+     "schedule": 1,
+     "#applyRequests": 1,
+     "spatial": 2,
+     "resolve": 159,
+     "insertionAt": 4,
+     "refresh": 2,
+     "remeasureHole": 4,
+     "edge": 2,
+     "moved": 11,
+     "#shiftSpan": 12,
+     "advance": 11,
+     "report": 414,
+     "placeholderAt": 1,
+     "mouseListener": 131,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 160,
+     "innerSerialize": 19
+    }
+   ],
+   "production": [
+    {
+     "(root)": 2809,
+     "(anonymous)": 584,
+     "evaluate": 515,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 139,
+     "setupDragListeners": 229,
+     "window.__cleanupDrag": 238,
+     "handleEvent": 6,
+     "enter": 2,
+     "#move": 2,
+     "translate": 110,
+     "#applyRequests": 2,
+     "requestStep": 1,
+     "stepTarget": 1,
+     "advance": 12,
+     "updateInsertion": 4,
+     "resolve": 148,
+     "get placeholderRect": 1,
+     "remeasurePlaceholder": 7,
+     "insertionAt": 6,
+     "refresh": 3,
+     "moved": 10,
+     "report": 405,
+     "localDelta": 29,
+     "mouseListener": 129,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 15
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2901,
+     "(anonymous)": 584,
+     "evaluate": 519,
+     "parseEvaluationResultValue": 185,
+     "_promiseAwareJsonValueNoThrow": 135,
+     "setupDragListeners": 230,
+     "window.__cleanupDrag": 232,
+     "handleEvent": 7,
+     "enter": 1,
+     "#move": 3,
+     "move": 1,
+     "translate": 107,
+     "#applyRequests": 3,
+     "requestStep": 1,
+     "stepTarget": 1,
+     "advance": 9,
+     "updateInsertion": 4,
+     "resolve": 139,
+     "remeasurePlaceholder": 7,
+     "insertionAt": 5,
+     "refresh": 1,
+     "moved": 11,
+     "report": 410,
+     "localDelta": 30,
+     "movePlaceholder": 1,
+     "listener": 1,
+     "mouseListener": 123,
+     "jsonValue": 31,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 18
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,2335 @@
+var labExports = (function(exports) {
+	Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/fault.ts
+	/**
+	* Reading a message is foreign code: a hostile object may throw from a getter or
+	* from its string conversion, and the report must still go out.
+	*/
+	function readMessage(cause) {
+		try {
+			return String(cause?.message ?? cause);
+		} catch {
+			return "unreadable value";
+		}
+	}
+	/**
+	* The one class this library reports, through the library realm's `reportError`.
+	* A global `error` listener can recognize it by type, and `cause` is the thrown
+	* value by identity, whatever that value is.
+	*/
+	var DragFault = class extends Error {
+		name = "DragFault";
+		constructor(cause) {
+			super(`drag: ${readMessage(cause)}`, { cause });
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/kernel/callback-list.ts
+	/**
+	* Callbacks, each with the receiver it is called on, kept in two adjacent slots
+	* of one array, so an entry allocates no object. A callback added with no
+	* receiver is called with none.
+	*
+	* A list holds only the name of the array method it adds with. `queue()` makes
+	* a list that adds at the start of the array, and `stack()` one that adds at
+	* the end. `run` takes the entry at the end for both, so a queue runs its
+	* oldest entry and a stack its newest, and `run` does not branch on the kind.
+	*
+	* The list decides nothing about when or whether its callbacks run, or what
+	* happens when one throws. An owner whose entries coalesce checks `has` before
+	* `add`. An entry is removed before its callback runs, so a throw leaves the
+	* list consistent and a callback that adds itself again is added as a new
+	* entry.
+	*/
+	var CallbackList = class CallbackList {
+		/** A list run first in first out. */
+		static queue() {
+			return new CallbackList("unshift");
+		}
+		/** A list run last in first out. */
+		static stack() {
+			return new CallbackList("push");
+		}
+		#entries = [];
+		#insertName;
+		constructor(insertName) {
+			this.#insertName = insertName;
+		}
+		/** Whether no entry is waiting. */
+		get empty() {
+			return this.#entries.length === 0;
+		}
+		/** Whether the same callback is waiting with the same receiver. */
+		has(callback, receiver) {
+			for (let i = 0; i < this.#entries.length; i += 2) if (this.#entries[i] === callback && this.#entries[i + 1] === receiver) return true;
+			return false;
+		}
+		/**
+		* Adds an entry, at the start of a queue's array and at the end of a stack's,
+		* whether or not the same pair is waiting.
+		*/
+		add(callback, receiver) {
+			this.#entries[this.#insertName](callback, receiver);
+		}
+		/**
+		* Removes the entry at the end of the array and calls its callback with
+		* `argument`, on its receiver. Call it only when an entry is waiting.
+		*/
+		run(argument) {
+			const receiver = this.#entries.pop();
+			this.#entries.pop().call(receiver, argument);
+		}
+		/** Drops every entry and the references it holds. */
+		clear() {
+			this.#entries.length = 0;
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/kernel/drag.ts
+	/**
+	* Runs one disposer added after release, on its receiver or with none. A throw
+	* is reported through `raise`, called on the controller.
+	*/
+	function runDragDisposer(dispose, argument, controller, receiver) {
+		try {
+			dispose.call(receiver, argument);
+		} catch (error) {
+			controller.raise(error);
+		}
+	}
+	/**
+	* Runs every disposer in `disposers`, a list `CallbackList.stack()` made, so
+	* last in first out. A throw is reported through `raise`, called on the
+	* controller, and the walk continues.
+	*/
+	function runDisposers(disposers, argument, controller) {
+		while (!disposers.empty) try {
+			disposers.run(argument);
+		} catch (error) {
+			controller.raise(error);
+		}
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/shared/focus.ts
+	/** The focused element, through open shadow roots. */
+	function deepActiveElement(document) {
+		let active = document.activeElement;
+		while (active?.shadowRoot?.activeElement) active = active.shadowRoot.activeElement;
+		return active;
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/kernel/session.ts
+	const COMMAND_POINTER_ID = -1;
+	const PENDING = 1;
+	const ACTIVE = 2;
+	const DROPPING = 3;
+	const CONCLUDED = 4;
+	/**
+	* No longer the controller's operation, so its requests, its `Escape` and its
+	* verdict reach nothing.
+	*/
+	const ENDED = 5;
+	const SKIPPED = { type: "skipped" };
+	/** The focused element when it is `item` or inside it, through shadow roots. */
+	function focusedWithin(item) {
+		const active = deepActiveElement(item.ownerDocument);
+		let node = active;
+		while (node) {
+			if (node === item) return active;
+			node = node.parentNode ?? node.host ?? null;
+		}
+		return null;
+	}
+	/**
+	* Gives focus back to the element focused inside the item at the drop, unless the
+	* user or the consumer has focused anything since. A command restores with normal
+	* scrolling, so that a row moved by keyboard stays visible.
+	*/
+	function restoreFocus(focused, pointerId) {
+		if (focused?.isConnected) {
+			if (!focused.ownerDocument.activeElement || focused.ownerDocument.activeElement === focused.ownerDocument.body) focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });
+		}
+	}
+	/**
+	* An activated drag swallows its own trailing click, and only that.
+	*
+	* The guard outlives its session and its controller, because a cancel or a
+	* destruction can arrive with the button held. So it is a free function with
+	* only the pointer identity to hold. It expires at the first of: the click, the
+	* task after that pointer's release (the platform dispatches the click in the
+	* release's task), that pointer's `pointercancel`, or the next primary press,
+	* which covers a release that never reached the window.
+	*/
+	function armClickGuard(target, pointerId) {
+		const guard = new AbortController();
+		const options = {
+			capture: true,
+			signal: guard.signal
+		};
+		const expire = () => {
+			guard.abort();
+		};
+		target.addEventListener("pointerup", (event) => {
+			if (event.pointerId === pointerId) setTimeout(expire);
+		}, options);
+		target.addEventListener("pointercancel", (event) => {
+			if (event.pointerId === pointerId) expire();
+		}, options);
+		target.addEventListener("pointerdown", (event) => {
+			if (event.isPrimary && event.button === 0) expire();
+		}, options);
+		target.addEventListener("click", (event) => {
+			if ((event.pointerId ?? pointerId) === pointerId) {
+				expire();
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		}, options);
+	}
+	/**
+	* One operation, from admission to its release, and every transition it makes.
+	* Its absence from the controller's slot means idle. It ends where it leaves the
+	* slot, so a late request through its `Drag` reaches nothing.
+	*
+	* The session reads and writes only its own fields. It reaches the controller
+	* through the controller's interface, and the controller reaches it through
+	* `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
+	* the window, through `handleEvent`, which enters the controller's pass with the
+	* private method for the event and this session as its receiver.
+	*/
+	var Session = class {
+		#gesture;
+		#behavior;
+		#root;
+		#window;
+		#threshold;
+		#drag;
+		/** The admission's `state`, for `activate`. */
+		#state;
+		/** Pointer samples, closed at the drop or the decision. */
+		#motion = new AbortController();
+		/** Escape and `drag.signal`, closed when the presentation is released. */
+		#presentation = new AbortController();
+		/** Operation cleanup, each with its receiver, run at release. */
+		#disposers = CallbackList.stack();
+		#phase = PENDING;
+		/** The first cancel, fault or verdict. Whichever arrives first decides. */
+		#decision = null;
+		/** The sequence's next step, run unless a request outranks it. */
+		#next = null;
+		/** Aborts the verdict in flight. Never aborted after a completion. */
+		#verdictAborter = null;
+		/**
+		* The operation `activate` returned, held from just before `start`: holding it
+		* means `start` was reached. No start, no settle and no end.
+		*/
+		#operation = null;
+		/** The element to give focus back to, recorded at the drop or the decision. */
+		#focused = null;
+		/** What a disposer added after release receives: `null` after destruction. */
+		#releasedWith = null;
+		/** Opens the operation: builds its `Drag` and installs its listeners. */
+		constructor(gesture, behavior, root, window, threshold, admission, x, y, pointerId = COMMAND_POINTER_ID) {
+			this.#gesture = gesture;
+			this.#behavior = behavior;
+			this.#root = root;
+			this.#window = window;
+			this.#threshold = threshold;
+			this.#state = admission.state;
+			this.#drag = {
+				item: admission.item,
+				pointerId,
+				x,
+				y,
+				originX: x,
+				originY: y,
+				signal: this.#presentation.signal,
+				use: (dispose, receiver) => {
+					if (this.#presentation.signal.aborted) runDragDisposer(dispose, this.#releasedWith, gesture, receiver);
+					else this.#disposers.add(dispose, receiver);
+				},
+				requestStep: (step, receiver) => {
+					if (this.#phase !== ENDED) gesture.requestStep(step, receiver);
+				},
+				requestCancel: (reason) => {
+					if (this.#phase !== ENDED) this.#cancel(reason, "request");
+				}
+			};
+			if (pointerId !== COMMAND_POINTER_ID) {
+				const options = {
+					capture: true,
+					signal: this.#motion.signal
+				};
+				for (const type of [
+					"pointerdown",
+					"pointermove",
+					"pointerup",
+					"pointercancel",
+					"lostpointercapture"
+				]) window.addEventListener(type, this, options);
+			} else this.#next = () => {
+				this.#activate();
+			};
+			window.addEventListener("keydown", this, {
+				capture: true,
+				signal: this.#presentation.signal
+			});
+		}
+		/**
+		* One turn of the reader for this operation: concludes a decision not yet
+		* applied, or else takes and runs the next step. Returns whether it did either.
+		*/
+		advance() {
+			if (this.#decision && this.#phase < CONCLUDED) {
+				this.#conclude(this.#decision);
+				return true;
+			}
+			const next = this.#next;
+			if (next) {
+				this.#next = null;
+				next();
+				return true;
+			}
+			return false;
+		}
+		/** Records a cancel as the decision, unless one is recorded. Enters no pass. */
+		decide(reason, origin) {
+			this.#decision ??= {
+				type: "canceled",
+				reason,
+				origin
+			};
+		}
+		/**
+		* What a deferred step receives: the operation from the end of activation until
+		* the drop or the decision, and `null` otherwise.
+		*/
+		stepTarget() {
+			return this.#phase === ACTIVE && !this.#decision ? this.#operation : null;
+		}
+		/**
+		* Destruction's part, after the controller cleared its slot. A session past its
+		* decision has already released, with nothing left to run, and only its
+		* terminal is removed. It ends first, because aborting the verdict runs foreign
+		* code.
+		*/
+		terminate() {
+			this.#phase = ENDED;
+			try {
+				this.#closeMotion();
+				this.#verdictAborter?.abort();
+			} catch (error) {
+				this.#gesture.raise(error);
+			}
+			this.#release(null);
+		}
+		/**
+		* The window's pointer events while motion is open, and `keydown` while the
+		* presentation is held. Motion closes before the controller clears its slot,
+		* so a pointer event here always belongs to the current operation.
+		*/
+		handleEvent(event) {
+			if (event.type === "keydown") {
+				if (event.key === "Escape" && this.#phase !== ENDED) {
+					if (this.#operation && !this.#decision) event.preventDefault();
+					this.#cancel(void 0, "escape");
+				}
+				return;
+			}
+			const pointer = event;
+			if (pointer.type === "pointerdown") {
+				if (this.#phase === PENDING && pointer.isPrimary && pointer.button === 0) this.#gesture.enter(this.#endPending, pointer, this);
+				return;
+			}
+			if (pointer.pointerId !== this.#drag.pointerId) return;
+			if (pointer.type === "pointermove") this.#gesture.enter(this.#move, pointer, this);
+			else if (pointer.type === "pointerup") this.#gesture.enter(this.#up, pointer, this);
+			else if (pointer.type === "pointercancel" || !this.#root.hasPointerCapture(pointer.pointerId)) this.#cancel(void 0, "interrupted");
+		}
+		#cancel(reason, origin) {
+			this.decide(reason, origin);
+			this.#gesture.enter();
+		}
+		#move(event) {
+			if (this.#phase === PENDING && (event.buttons & 1) === 0) {
+				this.#endPending();
+				return;
+			}
+			this.#drag.x = event.clientX;
+			this.#drag.y = event.clientY;
+			if (this.#operation) {
+				this.#operation.move?.();
+				return;
+			}
+			const dx = this.#drag.x - this.#drag.originX;
+			const dy = this.#drag.y - this.#drag.originY;
+			if (this.#phase === PENDING && dx * dx + dy * dy >= this.#threshold * this.#threshold) {
+				event.preventDefault();
+				this.#window.getSelection()?.removeAllRanges();
+				armClickGuard(this.#window, this.#drag.pointerId);
+				this.#activate();
+			}
+		}
+		/** A press that never activated ends quietly: no hook, no report. */
+		#endPending() {
+			this.#motion.abort();
+			this.#presentation.abort();
+			this.#phase = ENDED;
+			this.#gesture.detach();
+		}
+		#up(event) {
+			if (!this.#operation) {
+				this.#endPending();
+				return;
+			}
+			this.#drag.x = event.clientX;
+			this.#drag.y = event.clientY;
+			this.#drop(this.#operation);
+		}
+		#activate() {
+			if (!this.#drag.item.isConnected) {
+				this.#decision ??= SKIPPED;
+				return;
+			}
+			if (this.#drag.pointerId !== COMMAND_POINTER_ID) this.#root.setPointerCapture(this.#drag.pointerId);
+			const operation = this.#behavior.activate(this.#drag, this.#state);
+			if (!operation) {
+				this.#decision ??= SKIPPED;
+				return;
+			}
+			this.#operation = operation;
+			operation.start?.();
+			this.#phase = ACTIVE;
+			if (this.#drag.pointerId === COMMAND_POINTER_ID) this.#next = () => {
+				this.#drop(operation);
+			};
+		}
+		#drop(operation) {
+			this.#phase = DROPPING;
+			this.#closeMotion();
+			this.#focused = focusedWithin(this.#drag.item);
+			const invoke = operation.drop?.();
+			this.#next = invoke ? () => {
+				this.#requestVerdict(invoke);
+			} : () => {
+				this.#decision = SKIPPED;
+			};
+		}
+		/** `then` is read once, and the first completion wins. */
+		#requestVerdict(invoke) {
+			const aborter = new AbortController();
+			let done = false;
+			const complete = (faulted, value) => {
+				if (done) return;
+				done = true;
+				this.#verdictAborter = null;
+				if (this.#phase === ENDED || this.#decision) return;
+				if (!faulted) {
+					this.#decision = {
+						type: "verdict",
+						value
+					};
+					this.#gesture.enter();
+				} else this.#gesture.raiseInPass(value);
+			};
+			this.#verdictAborter = aborter;
+			let value;
+			try {
+				value = invoke(aborter.signal);
+				const then = value?.then;
+				if (typeof then === "function") {
+					then.call(value, (settled) => {
+						complete(false, settled);
+					}, (error) => {
+						complete(true, error);
+					});
+					return;
+				}
+			} catch (error) {
+				complete(true, error);
+				return;
+			}
+			complete(false, value);
+		}
+		#closeMotion() {
+			this.#motion.abort();
+			if (this.#root.hasPointerCapture(this.#drag.pointerId)) this.#root.releasePointerCapture(this.#drag.pointerId);
+		}
+		/**
+		* Total over foreign code: every disposer runs and each throw is reported. Runs
+		* once: a destruction after the decision finds the operation released.
+		*/
+		#release(outcome) {
+			if (this.#presentation.signal.aborted) return;
+			this.#releasedWith = outcome;
+			this.#presentation.abort();
+			runDisposers(this.#disposers, outcome, this.#gesture);
+		}
+		/**
+		* Applies the decision in its fixed order. The terminal is the next step, so a
+		* destruction requested by anything here is applied before it.
+		*/
+		#conclude(outcome) {
+			const dropped = this.#phase === DROPPING;
+			this.#phase = CONCLUDED;
+			if (!dropped) this.#focused = focusedWithin(this.#drag.item);
+			try {
+				this.#closeMotion();
+			} catch (error) {
+				this.#gesture.raise(error);
+			}
+			if (outcome.type === "canceled") this.#verdictAborter?.abort();
+			const operation = this.#operation;
+			if (operation) try {
+				operation.settle?.(outcome);
+			} catch (error) {
+				this.#gesture.raise(error);
+			}
+			this.#release(outcome);
+			if (operation) this.#next = () => {
+				this.#phase = ENDED;
+				this.#gesture.detach();
+				try {
+					operation.end?.(outcome);
+				} finally {
+					restoreFocus(this.#focused, this.#drag.pointerId);
+				}
+			};
+			else {
+				this.#phase = ENDED;
+				this.#gesture.detach();
+				restoreFocus(this.#focused, this.#drag.pointerId);
+			}
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/kernel/gesture.ts
+	/**
+	* The public authoring API and the single-pass kernel behind it.
+	*
+	* The library runs only inside a pass: one synchronous run from a native event,
+	* a frame, a settled verdict or a request made while idle. Passes do not nest. A
+	* pass is a sequence of steps. Foreign code reached during a step can only fill
+	* a request slot, and `#applyRequests` is the one reader of the slots, between
+	* steps.
+	*
+	* A behavior receives `Drag`, which has no path to the session, and a step
+	* receives the behavior's operation.
+	*/
+	const DEFAULT_THRESHOLD = 8;
+	/**
+	* Events a controller of this library copy has admitted. Bubbling reaches the
+	* innermost root first, so the innermost admitting root wins and an outer root
+	* sees only what its inner roots declined.
+	*/
+	const admitted = /* @__PURE__ */ new WeakSet();
+	/**
+	* Whether a hop before the subject is marked `data-drag-ignore`. The consumer
+	* owns that attribute, and the library infers nothing about element types.
+	*/
+	function ownsInteraction(event, subject) {
+		for (const hop of event.composedPath()) {
+			if (hop === subject) return false;
+			if (hop.matches?.("[data-drag-ignore]")) return true;
+		}
+		return false;
+	}
+	/**
+	* What exists across operations or with no operation: the root's listeners,
+	* admission, the pass, the deferred steps, destruction, the reader and the slot
+	* that holds the current session. Its members without `#` are the public
+	* methods and the session's way in. `draggable` returns the instance typed as
+	* `DraggableController`, which names only the public methods.
+	*/
+	var Gesture = class {
+		#root;
+		#behavior;
+		#window;
+		#threshold;
+		#listeners = new AbortController();
+		/** Controller-lifetime cleanup, each with its receiver, run at teardown. */
+		#disposers = CallbackList.stack();
+		/**
+		* Deferred steps with their receivers, in request order. Empty on the hot
+		* path.
+		*/
+		#steps = CallbackList.queue();
+		#session = null;
+		#running = false;
+		/** Set by the first destruction request, which also closes the controller. */
+		#destroyed = null;
+		/** The destruction request slot: non-null until teardown has been applied. */
+		#resolveDestroyed = null;
+		constructor(root, behavior) {
+			this.#root = root;
+			this.#behavior = behavior;
+			this.#window = root.ownerDocument.defaultView;
+			this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
+			root.addEventListener("pointerdown", this, { signal: this.#listeners.signal });
+			if (behavior.command) root.addEventListener("keydown", this, { signal: this.#listeners.signal });
+		}
+		enter(step, argument, receiver) {
+			if (this.#running || this.#destroyed && !this.#resolveDestroyed) return;
+			this.#running = true;
+			try {
+				if (step) try {
+					step.call(receiver, argument);
+				} catch (error) {
+					this.raise(error);
+				}
+				this.#applyRequests();
+			} finally {
+				this.#running = false;
+			}
+		}
+		handleEvent(event) {
+			if (event.type === "pointerdown") this.enter(this.#press, event, this);
+			else this.enter(this.#command, event, this);
+		}
+		/**
+		* Reports when caught, and decides if nothing has. The slot is filled before
+		* the report, because `reportError` dispatches synchronously and a listener's
+		* cancel must find the outcome already decided.
+		*/
+		raise(error) {
+			const fault = new DragFault(error);
+			this.#session?.decide(fault, "fault");
+			reportError(fault);
+		}
+		/**
+		* A verdict's fault: raised in the running pass, whose reader then applies it,
+		* or else in a new pass.
+		*/
+		raiseInPass(error) {
+			if (this.#running) this.raise(error);
+			else this.enter(this.raise, error, this);
+		}
+		/** Clears the slot. The session calls it when its operation ends. */
+		detach() {
+			this.#session = null;
+		}
+		requestStep(step, receiver) {
+			if (this.#destroyed) return;
+			if (this.#running) {
+				if (!this.#steps.has(step, receiver)) this.#steps.add(step, receiver);
+			} else this.enter(step, this.#session ? this.#session.stepTarget() : null, receiver);
+		}
+		requestCancel(reason) {
+			if (this.#session) {
+				this.#session.decide(reason, "request");
+				this.enter();
+			}
+		}
+		requestDestroy() {
+			if (!this.#destroyed) {
+				this.#destroyed = new Promise((resolve) => {
+					this.#resolveDestroyed = resolve;
+				});
+				this.enter();
+			}
+			return this.#destroyed;
+		}
+		use(dispose, receiver) {
+			if (this.#destroyed && !this.#resolveDestroyed) runDragDisposer(dispose, null, this, receiver);
+			else this.#disposers.add(dispose, receiver);
+		}
+		/**
+		* Between steps, the one reader of the slots. Precedence is statement order:
+		* destruction, deferred steps, then the session's decision and its next step.
+		* A request made by anything run here is seen on the next turn.
+		*/
+		#applyRequests() {
+			for (;;) try {
+				if (this.#resolveDestroyed) {
+					this.#teardown();
+					return;
+				}
+				if (!this.#steps.empty) this.#steps.run(this.#session ? this.#session.stepTarget() : null);
+				else if (!this.#session?.advance()) return;
+			} catch (error) {
+				this.raise(error);
+			}
+		}
+		#press(event) {
+			if (event.button === 0 && event.isPrimary && !this.#session && !admitted.has(event)) {
+				const admission = this.#behavior.admit(event);
+				if (admission && !ownsInteraction(event, admission.handle ?? admission.item)) {
+					admitted.add(event);
+					this.#open(admission, event.clientX, event.clientY, event.pointerId);
+				}
+			}
+		}
+		#command(event) {
+			if (this.#session || admitted.has(event)) return;
+			const admission = this.#behavior.command(event);
+			if (admission && !ownsInteraction(event, admission.handle ?? admission.item)) {
+				admitted.add(event);
+				event.preventDefault();
+				this.#open(admission, 0, 0);
+			}
+		}
+		#open(admission, x, y, pointerId) {
+			this.#session = new Session(this, this.#behavior, this.#root, this.#window, this.#threshold, admission, x, y, pointerId);
+		}
+		/** Destruction applied: closed first, then everything released, once. */
+		#teardown() {
+			const session = this.#session;
+			const resolveDestroyed = this.#resolveDestroyed;
+			this.#resolveDestroyed = null;
+			this.#session = null;
+			this.#steps.clear();
+			session?.terminate();
+			runDisposers(this.#disposers, null, this);
+			this.#listeners.abort();
+			resolveDestroyed();
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/draggable.ts
+	/**
+	* Makes `root` draggable with one behavior. The behavior renders by itself, and
+	* may read its coordinate basis with `@ydinjs/box-quad` in `activate`. Presentation
+	* that `@ydinjs/drag` provides in other entries is composed in `activate` and kept
+	* in the operation it returns.
+	*
+	* `root` must be connected and must stay in its document while a drag holds
+	* pointer capture on it. A press is never prevented, so give the handle
+	* `touch-action: none` for touch input, `user-select: none` for text, and
+	* `draggable="false"` on a natively draggable element such as a link or an image.
+	*
+	* The kernel calls `admit`, `command` and `activate` as methods of `behavior`, and
+	* the later hooks as methods of the operation `activate` returned, each read when
+	* it is called, so either may be a class instance. An event one controller admitted is
+	* offered to no other, so nested roots need no marking. An `Escape` that cancels
+	* a started operation has its default prevented.
+	*/
+	function draggable(root, behavior) {
+		return new Gesture(root, behavior);
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/shared/invalidation.ts
+	/** Calls `listener` on scroll, nested scrollers included, and on resize. */
+	function listenForInvalidation(window, signal, listener) {
+		window.addEventListener("scroll", listener, {
+			signal,
+			capture: true,
+			passive: true
+		});
+		window.addEventListener("resize", listener, {
+			signal,
+			passive: true
+		});
+	}
+	/** One coalesced animation-frame callback. */
+	function createFrameTask(window, run) {
+		let handle = 0;
+		const fire = () => {
+			handle = 0;
+			run();
+		};
+		return {
+			schedule() {
+				if (handle === 0) handle = window.requestAnimationFrame(fire);
+			},
+			cancel() {
+				if (handle !== 0) {
+					window.cancelAnimationFrame(handle);
+					handle = 0;
+				}
+			}
+		};
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/free-drag/domain.ts
+	/** Identity is the discriminant, so an accepted drop allocates nothing. */
+	const ACCEPTED$1 = [];
+	const FreeDragResolution = {
+		accept: () => ACCEPTED$1,
+		reject: (reason) => [reason]
+	};
+	// ../box-quad/src/index.ts
+	/** Required length of a {@link Box}. */
+	const BOX_LENGTH = 8;
+	const BOX_A$1 = 0;
+	const BOX_B$1 = 1;
+	const BOX_C$1 = 2;
+	const BOX_D$1 = 3;
+	const BOX_E$1 = 4;
+	const BOX_F$1 = 5;
+	const BOX_WIDTH$1 = 6;
+	const BOX_HEIGHT$1 = 7;
+	/** Required length of a {@link Space}. */
+	const SPACE_LENGTH = 5;
+	const SPACE_A = 0;
+	const SPACE_B = 1;
+	const SPACE_C = 2;
+	const SPACE_D = 3;
+	const SPACE_ANCESTOR_ZOOM$1 = 4;
+	/** Allocates storage for one {@link Box}. */
+	const box = () => new Float64Array(BOX_LENGTH);
+	/** Allocates storage for one {@link Space}. */
+	const space = () => new Float64Array(SPACE_LENGTH);
+	/** Required length of a {@link Delta}. */
+	const DELTA_LENGTH = 2;
+	/** Allocates storage for one {@link Delta}. */
+	const delta = () => new Float64Array(DELTA_LENGTH);
+	const { parseFloat: parse, isFinite: finite } = Number;
+	const { abs, min } = Math;
+	/**
+	* The border-box extent along one axis, used only when the matrix is too
+	* degenerate to invert the client rect back into local space.
+	*
+	* A non-finite `value` needs no early return: every branch below propagates it,
+	* and the caller rejects the whole measurement on the finiteness check.
+	*/
+	function getBorderSize(style, dimension, start, end) {
+		const value = parse(style[dimension]);
+		return style.boxSizing === "border-box" ? value : value + parse(style[`padding${start}`]) + parse(style[`padding${end}`]) + parse(style[`border${start}Width`]) + parse(style[`border${end}Width`]);
+	}
+	function get2DRotation(value) {
+		const values = value.split(" ");
+		const angle = parse(values.at(-1));
+		return values.length === 1 ? angle : angle % 360 === 0 ? 0 : void 0;
+	}
+	/**
+	* The flat parent. `host` is read off the root rather than tested with
+	* `instanceof view.ShadowRoot`: only a shadow root carries one, so a document
+	* or a detached fragment yields `undefined`.
+	*/
+	function flatParentOf(element) {
+		return element.assignedSlot ?? element.parentElement ?? element.getRootNode().host ?? null;
+	}
+	/**
+	* One flat-tree node's own linear contribution, its CSS `zoom` included.
+	*
+	* `false` is *not representable in 2D*; `undefined` is *contributes nothing*.
+	* The zoom factor is passed in rather than read here because the two callers
+	* account for it differently — an ancestor's accumulates into the space, the
+	* measured element's does not — and it seeds the node because zoom applies
+	* outside everything the element itself authors.
+	*
+	* A `display: contents` node generates no box and therefore takes no transform,
+	* but its zoom still applies, which is why the seed is returned rather than
+	* discarded.
+	*/
+	function composeNode(style, Matrix, zoom) {
+		let node = zoom === 1 ? void 0 : new Matrix().scaleSelf(zoom);
+		if (style.display === "contents") return node;
+		if (style.perspective !== "none" || style.transformStyle === "preserve-3d") return false;
+		if (style.rotate !== "none") {
+			const angle = get2DRotation(style.rotate);
+			if (angle == null) return false;
+			(node ??= new Matrix()).rotateSelf(angle);
+		}
+		if (style.scale !== "none") {
+			const values = style.scale.split(" ");
+			const scaleX = parse(values[0]);
+			const scaleY = parse(values[1] ?? values[0]);
+			if (values.length > 2 && parse(values[2]) !== 1) return false;
+			(node ??= new Matrix()).scaleSelf(scaleX, scaleY);
+		}
+		if (style.transform !== "none") {
+			const transform = new Matrix(style.transform);
+			if (!transform.is2D) return false;
+			if (node) node.multiplySelf(transform);
+			else node = transform;
+		}
+		if (style.translate !== "none") {
+			const values = style.translate.split(" ");
+			if (values.length > 2 && parse(values[2]) !== 0) return false;
+		}
+		return node;
+	}
+	/**
+	* A CSS `zoom` that scales, or `1`. `zoom > 0` doubles as the NaN guard — an
+	* unparsable value is not a zoom.
+	*/
+	function zoomOf(style) {
+		const zoom = parse(style.zoom);
+		return zoom > 0 ? zoom : 1;
+	}
+	/**
+	* Reads the space `element` inherits into `out`: the linear part of every
+	* flat-tree node strictly above it, composed, together with the cumulative CSS
+	* `zoom` of those same nodes.
+	*
+	* **It never touches the element's own box.** It reads computed style walking
+	* upward and takes no layout, so it answers for an element that has no
+	* principal box of its own — one that is `display: contents`, fragmented across
+	* lines, or disconnected — where {@link coordinates} must refuse.
+	*
+	* Returns `false` and leaves `out` **untouched** when some ancestor is not
+	* representable in 2D: a 3D transform, `perspective`, or `preserve-3d`. That is
+	* a recognized limit, not an error.
+	*/
+	function ancestry(element, out) {
+		const view = element.ownerDocument.defaultView;
+		const Matrix = view.DOMMatrix;
+		const matrix = new Matrix();
+		let current = flatParentOf(element);
+		let ancestorZoom = 1;
+		while (current) {
+			const style = view.getComputedStyle(current);
+			const zoom = zoomOf(style);
+			const node = composeNode(style, Matrix, zoom);
+			if (node === false) return false;
+			ancestorZoom *= zoom;
+			if (node) matrix.preMultiplySelf(node);
+			current = flatParentOf(current);
+		}
+		out[SPACE_A] = matrix.a;
+		out[SPACE_B] = matrix.b;
+		out[SPACE_C] = matrix.c;
+		out[SPACE_D] = matrix.d;
+		out[SPACE_ANCESTOR_ZOOM$1] = ancestorZoom;
+		return true;
+	}
+	/**
+	* Measures one element into `out`. This is the only operation that touches
+	* layout.
+	*
+	* It reads the element's client rect and its own computed style, composes its
+	* own transform and CSS `zoom` onto the space it inherits, and derives the
+	* untransformed border-box size the resulting matrix acts on.
+	*
+	* Pass `above` — the element's own {@link ancestry} — when you already hold it,
+	* and the walk is not repeated. Omitting it reads the ancestry internally, so
+	* the two forms differ only in who owns the intermediate value.
+	*
+	* **Precondition:** `above` must be *this* element's inherited space. Nothing
+	* can check that: a `Space` is a caller-owned numeric array holding no element,
+	* so a space read from somewhere else produces a confidently wrong matrix, in
+	* the same way {@link projection}'s same-viewport requirement does.
+	*
+	* Returns `false` and leaves `out` **untouched** for geometry this library does
+	* not model: a disconnected element, a fragmented one (`getClientRects()`
+	* length other than 1), 3D transforms, `perspective`, `preserve-3d`, or a
+	* non-finite result. A `false` return is a recognized limit, not an error;
+	* unexpected platform exceptions are allowed to escape.
+	*
+	* There is deliberately no `relativeTo` here. Relative coordinates are not a
+	* measurement concern — they are a basis conversion between two boxes that have
+	* already been measured, which is {@link projection}.
+	*/
+	function coordinates(element, out, above) {
+		const view = element.ownerDocument.defaultView;
+		const rects = element.getClientRects();
+		if (rects.length !== 1) return false;
+		let inherited = above;
+		if (!inherited) {
+			inherited = space();
+			if (!ancestry(element, inherited)) return false;
+		}
+		const style = view.getComputedStyle(element);
+		const node = composeNode(style, view.DOMMatrix, zoomOf(style));
+		if (node === false) return false;
+		const ia = inherited[SPACE_A];
+		const ib = inherited[SPACE_B];
+		const ic = inherited[SPACE_C];
+		const id = inherited[SPACE_D];
+		const na = node ? node.a : 1;
+		const nb = node ? node.b : 0;
+		const nc = node ? node.c : 0;
+		const nd = node ? node.d : 1;
+		const a = ia * na + ic * nb;
+		const b = ib * na + id * nb;
+		const c = ia * nc + ic * nd;
+		const d = ib * nc + id * nd;
+		const rect = rects[0];
+		const absoluteA = abs(a);
+		const absoluteB = abs(b);
+		const absoluteC = abs(c);
+		const absoluteD = abs(d);
+		const diagonal = absoluteA * absoluteD;
+		const antiDiagonal = absoluteB * absoluteC;
+		const determinant = diagonal - antiDiagonal;
+		const determinantScale = diagonal + antiDiagonal;
+		let width;
+		let height;
+		if (abs(determinant) > determinantScale * .05) {
+			width = (rect.width * absoluteD - rect.height * absoluteC) / determinant;
+			height = (rect.height * absoluteA - rect.width * absoluteB) / determinant;
+		} else {
+			width = getBorderSize(style, "width", "Left", "Right");
+			height = getBorderSize(style, "height", "Top", "Bottom");
+		}
+		if (!finite(a + b + c + d + width + height)) return false;
+		out[BOX_A$1] = a;
+		out[BOX_B$1] = b;
+		out[BOX_C$1] = c;
+		out[BOX_D$1] = d;
+		out[BOX_E$1] = rect.left - min(0, a * width) - min(0, c * height);
+		out[BOX_F$1] = rect.top - min(0, b * width) - min(0, d * height);
+		out[BOX_WIDTH$1] = width;
+		out[BOX_HEIGHT$1] = height;
+		return true;
+	}
+	/**
+	* Converts a viewport delta into `basis` and writes it to `out`. Pure: no DOM
+	* reads, no allocation.
+	*
+	* The basis selects what the result means:
+	*
+	* - An element's {@link Space}, from {@link ancestry}: the value to write to
+	*   that element's `translate`, `left` or `top`. A `Space` excludes the
+	*   element's own `zoom`, so an element with its own `zoom` divides the result
+	*   by that `zoom`.
+	* - An element's {@link Box}, from {@link coordinates}: the change in that
+	*   element's own untransformed box, such as `width` or `height`.
+	*
+	* Returns `false` and leaves `out` untouched when the basis is singular or the
+	* result is not finite.
+	*/
+	function localDelta(basis, dx, dy, out) {
+		const a = basis[0];
+		const b = basis[1];
+		const c = basis[2];
+		const d = basis[3];
+		const inverseDeterminant = 1 / (a * d - b * c);
+		const x = (d * dx - c * dy) * inverseDeterminant;
+		const y = (a * dy - b * dx) * inverseDeterminant;
+		if (!finite(x + y)) return false;
+		out[0] = x;
+		out[1] = y;
+		return true;
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/free-drag/geometry.ts
+	/**
+	* Free drag's pure geometry, derived from numbers the operation already holds:
+	* nothing here reads the DOM.
+	*/
+	/** From the owning window, so an iframe's consumer gets that document's rect. */
+	function currentRect(originRect, dx, dy, window) {
+		return new window.DOMRectReadOnly(originRect.x + dx, originRect.y + dy, originRect.width, originRect.height);
+	}
+	/** A singular ancestor renders nothing, so the viewport delta stands in for it. */
+	function toLocal(space, dx, dy) {
+		const local = delta();
+		if (!localDelta(space, dx, dy, local)) {
+			local[0] = dx;
+			local[1] = dy;
+		}
+		return local;
+	}
+	/** `motion` is the rendered delta, axis-projected and clamped. */
+	function buildGeometry(drag, lift, motion, window) {
+		const local = toLocal(lift.visualSpace, motion.x, motion.y);
+		return {
+			pointerX: drag.x,
+			pointerY: drag.y,
+			originPointerX: drag.originX,
+			originPointerY: drag.originY,
+			viewportDeltaX: motion.x,
+			viewportDeltaY: motion.y,
+			localDeltaX: local[0],
+			localDeltaY: local[1],
+			originRect: lift.rect,
+			currentRect: currentRect(lift.rect, motion.x, motion.y, window)
+		};
+	}
+	/**
+	* The release snapshot `onDrop` is asked about. Its deltas are the offset from
+	* `home`, the visual's top-left at home in the viewport, to its top-left at the
+	* drop, so a scroll that moved the home during the drag is in them.
+	*/
+	function buildRequest(item, drag, lift, motion, home, target, window) {
+		const visualRect = currentRect(lift.rect, motion.x, motion.y, window);
+		const dx = visualRect.left - home.x;
+		const dy = visualRect.top - home.y;
+		const local = toLocal(lift.visualSpace, dx, dy);
+		return {
+			item,
+			visual: lift.visual,
+			pointerX: drag.x,
+			pointerY: drag.y,
+			positionX: visualRect.left,
+			positionY: visualRect.top,
+			viewportDeltaX: dx,
+			viewportDeltaY: dy,
+			localDeltaX: local[0],
+			localDeltaY: local[1],
+			visualRect,
+			target
+		};
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/free-drag/operation.ts
+	/**
+	* One activated free drag, from `start` to `end`. The kernel calls each hook as a
+	* method of this instance.
+	*/
+	var FreeDragOperation = class {
+		#behavior;
+		#drag;
+		#lift;
+		/** `config.targets`' state for this operation, released with it. */
+		#targets;
+		/** The visual's viewport delta, axis-projected and clamped. */
+		#motion = {
+			x: 0,
+			y: 0
+		};
+		#offsetX = 0;
+		#offsetY = 0;
+		/** `null` until the drop: a cancel before it has none. */
+		#request = null;
+		/** Recorded at `settle` and reported at `end`. */
+		#result = null;
+		constructor(behavior, drag, lift, targets) {
+			this.#behavior = behavior;
+			this.#drag = drag;
+			this.#lift = lift;
+			this.#targets = targets;
+		}
+		/**
+		* The scroll and resize listener: the bounds and the drop targets are re-read
+		* at their next read.
+		*/
+		handleEvent() {
+			this.#behavior.bounds?.invalidate();
+			this.#targets?.invalidate();
+		}
+		/** Computes the motion and moves the visual by it. */
+		translate() {
+			this.#computeMotion();
+			this.#lift.translate(this.#motion.x, this.#motion.y);
+		}
+		/** Places the visual at a viewport point and keeps following the pointer. */
+		moveTo(point) {
+			this.#offsetX = point.x - this.#lift.rect.left - (this.#drag.x - this.#drag.originX);
+			this.#offsetY = point.y - this.#lift.rect.top - (this.#drag.y - this.#drag.originY);
+			this.translate();
+		}
+		start() {
+			this.#behavior.config.onStart?.(this.#geometry());
+		}
+		move() {
+			this.translate();
+			this.#targets?.move();
+			if (this.#behavior.config.onMove) this.#behavior.config.onMove(this.#geometry());
+		}
+		drop() {
+			this.#computeMotion();
+			this.#targets?.drop();
+			const request = buildRequest(this.#behavior.root, this.#drag, this.#lift, this.#motion, this.#home(), this.#targets?.current ?? null, this.#behavior.window);
+			this.#request = request;
+			this.#lift.translate(this.#motion.x, this.#motion.y);
+			return (signal) => this.#behavior.config.onDrop(request, { signal });
+		}
+		settle(outcome) {
+			let home = true;
+			if (outcome.type === "canceled") {
+				this.#result = {
+					type: "canceled",
+					request: this.#request,
+					reason: outcome.reason,
+					origin: outcome.origin
+				};
+				home = outcome.origin !== "fault";
+			} else if (outcome.type === "verdict" && outcome.value !== ACCEPTED$1) this.#result = {
+				type: "rejected",
+				request: this.#request,
+				reason: outcome.value[0]
+			};
+			else {
+				this.#result = {
+					type: "accepted",
+					request: this.#request
+				};
+				home = false;
+			}
+			if (!this.#behavior.landing || !home) return;
+			const { x, y } = this.#home();
+			this.#lift.land(x, y, this.#behavior.landing);
+		}
+		end() {
+			this.#behavior.config.onEnd?.(this.#result);
+		}
+		/** Writes the delta the pointer and the operation's offset give into `#motion`. */
+		#computeMotion() {
+			this.#motion.x = this.#drag.x - this.#drag.originX + this.#offsetX;
+			this.#motion.y = this.#drag.y - this.#drag.originY + this.#offsetY;
+			if (this.#behavior.axis === "x") this.#motion.y = 0;
+			else if (this.#behavior.axis === "y") this.#motion.x = 0;
+			this.#behavior.bounds?.apply(this.#motion, this.#lift.rect);
+		}
+		#geometry() {
+			return buildGeometry(this.#drag, this.#lift, this.#motion, this.#behavior.window);
+		}
+		/** `config.home()` now, or the visual's rect at the grab without it. */
+		#home() {
+			return this.#behavior.config.home ? this.#behavior.config.home({
+				item: this.#behavior.root,
+				visual: this.#lift.visual
+			}) : {
+				x: this.#lift.rect.left,
+				y: this.#lift.rect.top
+			};
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/free-drag/behavior.ts
+	/**
+	* The behavior `draggable` runs for one root: admission and activation. It holds
+	* only controller-lifetime values, which the operation reads through it.
+	*/
+	var FreeDragBehavior = class {
+		threshold;
+		root;
+		config;
+		window;
+		axis;
+		bounds;
+		landing;
+		#lifter;
+		constructor(root, config, lifter) {
+			this.threshold = config.threshold;
+			this.root = root;
+			this.config = config;
+			this.window = root.ownerDocument.defaultView;
+			this.#lifter = lifter;
+			this.axis = config.axis ?? "both";
+			this.bounds = config.bounds?.(this.window) ?? null;
+			this.landing = config.landing ?? null;
+		}
+		/**
+		* Step: the bounds are re-read at their next read, and so are the current
+		* operation's drop targets.
+		*/
+		invalidate = (operation) => {
+			this.bounds?.invalidate();
+			operation?.handleEvent();
+		};
+		/** The admission's `state` is the visual: `config.visual`, or the root. */
+		admit(event) {
+			if (event.altKey) return null;
+			let handle;
+			if (this.config.handle) {
+				const named = this.config.handle(this.root);
+				if (!named || !event.composedPath().includes(named)) return null;
+				handle = named;
+			}
+			return {
+				item: this.root,
+				...handle ? { handle } : {},
+				state: this.config.visual ? this.config.visual(this.root) : this.root
+			};
+		}
+		activate(drag, visual) {
+			const lift = this.#lifter.acquire(drag, visual);
+			this.bounds?.invalidate();
+			const operation = new FreeDragOperation(this, drag, lift, this.config.targets?.(drag, this.window) ?? null);
+			if (this.bounds || this.config.targets) listenForInvalidation(this.window, drag.signal, operation);
+			operation.translate();
+			return operation;
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/lift.ts
+	/**
+	* The lift: a manual popover promotes the visual into the top layer, which
+	* escapes any clipping, transformed or stacking ancestor. The element stays in
+	* the DOM and only its rendering moves, so it keeps its styles and inherited
+	* custom properties.
+	*
+	* A behavior composes it in its own code: one `Lifter` per controller, whose
+	* `cancelLanding` goes to the controller's `use`, and `acquire` as the first
+	* statement of `activate`, with the `Lift` kept in the operation it returns.
+	*/
+	const BOX_A = 0;
+	const BOX_B = 1;
+	const BOX_C = 2;
+	const BOX_D = 3;
+	const BOX_E = 4;
+	const BOX_F = 5;
+	const BOX_WIDTH = 6;
+	const BOX_HEIGHT = 7;
+	const SPACE_ANCESTOR_ZOOM = 4;
+	/**
+	* UA popover properties that would change the visual's box or appearance,
+	* written again from the authored computed value so promotion is transparent.
+	*/
+	const UA_PROPS = [
+		"padding",
+		"border-width",
+		"border-style",
+		"border-color",
+		"overflow",
+		"color",
+		"background-color"
+	];
+	/**
+	* Every inline property the lift overwrites, as longhands. A shorthand does not
+	* serialize unless all its longhands agree, so capturing by shorthand records
+	* nothing for `margin-left: 8px` and restoring by it drops the declaration.
+	*/
+	const LIFTED_PROPS = [
+		"position",
+		"top",
+		"right",
+		"bottom",
+		"left",
+		"width",
+		"height",
+		"margin-top",
+		"margin-right",
+		"margin-bottom",
+		"margin-left",
+		"zoom",
+		"box-sizing",
+		"transform",
+		"transform-origin",
+		"translate",
+		"rotate",
+		"scale",
+		"transition-property",
+		"transition-duration",
+		"transition-timing-function",
+		"transition-delay",
+		"transition-behavior",
+		"padding-top",
+		"padding-right",
+		"padding-bottom",
+		"padding-left",
+		"border-top-width",
+		"border-right-width",
+		"border-bottom-width",
+		"border-left-width",
+		"border-top-style",
+		"border-right-style",
+		"border-bottom-style",
+		"border-left-style",
+		"border-top-color",
+		"border-right-color",
+		"border-bottom-color",
+		"border-left-color",
+		"overflow-x",
+		"overflow-y",
+		"color",
+		"background-color"
+	];
+	/** Restores exactly the declarations the lift owns, once per property. */
+	function captureInlineStyles(visual) {
+		const hadStyleAttribute = visual.hasAttribute("style");
+		const saved = /* @__PURE__ */ new Map();
+		for (const prop of LIFTED_PROPS) {
+			const value = visual.style.getPropertyValue(prop);
+			if (value) saved.set(prop, [value, visual.style.getPropertyPriority(prop)]);
+		}
+		return () => {
+			for (const prop of LIFTED_PROPS) {
+				const value = saved.get(prop);
+				if (value) visual.style.setProperty(prop, value[0], value[1]);
+				else visual.style.removeProperty(prop);
+			}
+			if (!hadStyleAttribute && visual.style.length === 0) {
+				visual.getAttribute("style");
+				visual.removeAttribute("style");
+			}
+		};
+	}
+	/**
+	* Promotion runs the popover focusing steps, which focus an `autofocus`
+	* descendant. The library does not choose where focus goes, so this puts it back.
+	*/
+	function showKeepingFocus(visual) {
+		const focused = deepActiveElement(visual.ownerDocument);
+		visual.showPopover();
+		const current = deepActiveElement(visual.ownerDocument);
+		if (current !== focused) {
+			if (focused && focused !== visual.ownerDocument.body) focused.focus({ preventScroll: true });
+			else current.blur();
+		}
+	}
+	/**
+	* Records the visual's popover attribute and open state before the lift writes
+	* them, and returns how to put both back.
+	*/
+	function captureTopLayer(visual) {
+		const priorAttribute = visual.getAttribute("popover");
+		const priorOpen = visual.matches(":popover-open");
+		return () => {
+			if (visual.matches(":popover-open")) visual.hidePopover();
+			if (priorAttribute === null) visual.removeAttribute("popover");
+			else visual.setAttribute("popover", priorAttribute);
+			if (priorOpen && visual.matches("[popover]")) showKeepingFocus(visual);
+		};
+	}
+	/**
+	* The lift for one controller. Create it with the controller and pass
+	* `cancelLanding` to the controller's `use`. It keeps the running landing, which
+	* outlives its operation.
+	*/
+	var Lifter = class {
+		#window;
+		#runningAnimationCanceller = null;
+		constructor(window) {
+			this.#window = window;
+		}
+		/**
+		* Lifts the visual of `drag`: call it as the first statement of `activate`,
+		* before any other `drag.use`. It registers the release with `drag.use` before
+		* it writes anything, so the release runs after every disposer added later and
+		* also restores a failed acquisition. It cancels this lifter's running landing
+		* after it measures.
+		*
+		* `visual` defaults to `drag.item`, and `box` to `visual`. It throws when the
+		* visual has no single 2D box (fragmented, `display: none` or 3D), which is a
+		* fault.
+		*/
+		acquire(drag, visual = drag.item, box$1 = visual) {
+			try {
+				const rect = visual.getBoundingClientRect();
+				const visualSpace = space();
+				const itemSpace = drag.item === visual ? visualSpace : space();
+				const measured = box();
+				if (!ancestry(visual, visualSpace) || itemSpace !== visualSpace && !ancestry(drag.item, itemSpace) || !coordinates(visual, measured, visualSpace)) throw new Error("lift/visual-no-box-space");
+				const style = this.#window.getComputedStyle(visual);
+				const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
+				const restoreStyles = captureInlineStyles(visual);
+				const restoreTopLayer = captureTopLayer(visual);
+				const base = `matrix(${measured[BOX_A]}, ${measured[BOX_B]}, ${measured[BOX_C]}, ${measured[BOX_D]}, ${measured[BOX_E]}, ${measured[BOX_F]})`;
+				const displacement = {
+					x: 0,
+					y: 0
+				};
+				let promoted = false;
+				let named = null;
+				const lift = {
+					visual,
+					box: box$1,
+					rect,
+					boxWidth: box$1.offsetWidth,
+					boxHeight: box$1.offsetHeight,
+					visualSpace,
+					itemSpace,
+					translate: (x, y) => {
+						visual.style.transform = `translate(${x}px, ${y}px) ${base}`;
+						displacement.x = x;
+						displacement.y = y;
+					},
+					land: (x, y, landing) => {
+						const timing = landing.timing(displacement.x, displacement.y, x - rect.x, y - rect.y);
+						named = {
+							x,
+							y,
+							duration: timing.duration,
+							easing: timing.easing,
+							landing
+						};
+					}
+				};
+				drag.use(() => {
+					if (named) this.#runningAnimationCanceller = named.landing.start(visual, visualSpace, displacement.x - (named.x - rect.x), displacement.y - (named.y - rect.y), named.duration, named.easing, this.#window);
+				});
+				drag.use(() => {
+					try {
+						if (promoted) restoreTopLayer();
+					} finally {
+						restoreStyles();
+					}
+				});
+				visual.style.boxSizing = "border-box";
+				visual.style.margin = "0";
+				for (let i = 0; i < UA_PROPS.length; i += 1) visual.style.setProperty(UA_PROPS[i], values[i]);
+				visual.style.transition = "none";
+				visual.style.position = "fixed";
+				visual.style.inset = "auto";
+				visual.style.width = `${measured[BOX_WIDTH]}px`;
+				visual.style.height = `${measured[BOX_HEIGHT]}px`;
+				visual.style.zoom = `${1 / visualSpace[SPACE_ANCESTOR_ZOOM]}`;
+				visual.style.top = "0";
+				visual.style.left = "0";
+				visual.style.transformOrigin = "0 0";
+				visual.style.translate = "none";
+				visual.style.rotate = "none";
+				visual.style.scale = "none";
+				visual.style.transform = base;
+				promoted = true;
+				visual.popover = "manual";
+				if (!visual.matches(":popover-open")) showKeepingFocus(visual);
+				return lift;
+			} finally {
+				this.cancelLanding();
+			}
+		}
+		/** Cancels the running landing, if any. It works when detached. */
+		cancelLanding = () => {
+			const cancel = this.#runningAnimationCanceller;
+			this.#runningAnimationCanceller = null;
+			cancel?.();
+		};
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/free-drag.ts
+	/**
+	* Free drag, written on the public `draggable` with no private path. A drop asks the
+	* consumer: `accept` keeps the element wherever the consumer put it, and `reject`
+	* sends it home.
+	*/
+	/** Makes `root` draggable anywhere. */
+	function freeDrag(root, config) {
+		const lifter = new Lifter(root.ownerDocument.defaultView);
+		const behavior = new FreeDragBehavior(root, config, lifter);
+		const kernel = draggable(root, behavior);
+		kernel.use(lifter.cancelLanding);
+		return {
+			invalidate: () => kernel.requestStep(behavior.invalidate),
+			moveTo: (point) => kernel.requestStep((operation) => {
+				operation?.moveTo(point);
+			}),
+			requestCancel: (reason) => {
+				kernel.requestCancel(reason);
+			},
+			requestDestroy: () => kernel.requestDestroy()
+		};
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/shared/timing.ts
+	const DEFAULT_LANDING_EASING = "ease";
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/shared/landing.ts
+	const TOP_Z_INDEX = 2147483647;
+	/**
+	* The flight is additive, so it composes with whatever else animates the visual.
+	* Elevation is a separate replacing animation: added to an item's own `z-index`,
+	* the sum wraps in WebKit and the item goes under its siblings.
+	*/
+	function startLandingAnimation(visual, visualSpace, dx, dy, duration, easing, window) {
+		const local = delta();
+		if (!localDelta(visualSpace, dx, dy, local) || local[0] === 0 && local[1] === 0) return null;
+		const effectiveDuration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : duration;
+		const flight = visual.animate([{ translate: `${local[0]}px ${local[1]}px` }, { translate: "0 0" }], {
+			duration: effectiveDuration,
+			easing,
+			composite: "add"
+		});
+		if (effectiveDuration === 0) return () => {
+			flight.cancel();
+		};
+		const keyframe = window.getComputedStyle(visual).position === "static" ? {
+			zIndex: TOP_Z_INDEX,
+			position: "relative"
+		} : { zIndex: TOP_Z_INDEX };
+		const elevation = visual.animate([keyframe, keyframe], { duration: effectiveDuration });
+		return () => {
+			flight.cancel();
+			elevation.cancel();
+		};
+	}
+	/**
+	* Composes a landing: an additive flight from where the visual was released,
+	* with the visual above its siblings for the flight. Without it, a behavior
+	* measures no landing target and the lift starts no animation. With
+	* `prefers-reduced-motion: reduce`, every landing it starts has zero duration,
+	* and the `duration` function is still called. It returns a new value per call
+	* and holds no state.
+	*/
+	function landing(options = {}) {
+		const { duration = 200, easing = DEFAULT_LANDING_EASING } = options;
+		return {
+			timing: (fromX, fromY, toX, toY) => ({
+				duration: typeof duration === "function" ? duration({
+					fromX,
+					fromY,
+					toX,
+					toY,
+					distance: Math.hypot(toX - fromX, toY - fromY)
+				}) : duration,
+				easing
+			}),
+			start: startLandingAnimation
+		};
+	}
+	function capacityFor(needed) {
+		let capacity = 1;
+		while (capacity < needed) capacity *= 2;
+		return capacity;
+	}
+	/**
+	* The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
+	* resolution, and `items` only when proposing a gap change. Do not add a read
+	* inside the candidate loop.
+	*/
+	var RectIndex = class {
+		/**
+		* Re-allocated only when the collection outgrows it. It never shrinks: it is
+		* bounded by the largest collection the controller saw, and released with it.
+		*/
+		#values = /* @__PURE__ */ new Float64Array(0);
+		/**
+		* The placeholder's rect, packed like a slot. Measured once per rebuild here, so a
+		* resolution with nothing stale reads no layout at all.
+		*/
+		#placeholderRect = /* @__PURE__ */ new Float64Array(6);
+		/** Destination-ordered elements, parallel to the packed slots. */
+		#items = [];
+		/** How many destination slots the last scan produced. */
+		#count = 0;
+		/** Slots the packed buffer can hold: a power of two once fitted. */
+		#capacity = 0;
+		/** Starts stale, at a version no collection holds, so the first read measures. */
+		#dirty = true;
+		#measured = -1;
+		get values() {
+			return this.#values;
+		}
+		get placeholderRect() {
+			return this.#placeholderRect;
+		}
+		get items() {
+			return this.#items;
+		}
+		get count() {
+			return this.#count;
+		}
+		/**
+		* Measures only when something marked the cache dirty or the collection version
+		* changed. `getBox` is the configured geometry source, or `null` when every
+		* candidate is its own box. `displacement` is the composed sink, or `null`.
+		*/
+		refresh(snapshot, dragged, getBox, placeholder, displacement) {
+			if (!this.#dirty && this.#measured === snapshot.version) return;
+			if (snapshot.items.length > this.#capacity) {
+				this.#capacity = capacityFor(snapshot.items.length);
+				this.#values = new Float64Array(this.#capacity * 6);
+			}
+			const values = this.#values;
+			const items = this.#items;
+			const placeholderRect = this.#placeholderRect;
+			let n = 0;
+			for (const item of snapshot.items) {
+				if (item === dragged) continue;
+				const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+				const offset = n * 6;
+				values[offset + 0] = rect.left;
+				values[offset + 1] = rect.top;
+				values[offset + 2] = rect.right;
+				values[offset + 3] = rect.bottom;
+				values[offset + 4] = (rect.left + rect.right) * .5;
+				values[offset + 5] = (rect.top + rect.bottom) * .5;
+				items[n] = item;
+				n += 1;
+			}
+			displacement?.settle(values, items, n);
+			const rect = placeholder.getBoundingClientRect();
+			placeholderRect[0] = rect.left;
+			placeholderRect[1] = rect.top;
+			placeholderRect[2] = rect.right;
+			placeholderRect[3] = rect.bottom;
+			placeholderRect[4] = (rect.left + rect.right) * .5;
+			placeholderRect[5] = (rect.top + rect.bottom) * .5;
+			this.#count = n;
+			items.length = n;
+			this.#measured = snapshot.version;
+			this.#dirty = false;
+		}
+		/**
+		* Advances a span of slots by a constant along y. The center is recomputed from
+		* the shifted edges, so the arithmetic is the one a full scan performs.
+		*/
+		advance(lo, hi, delta) {
+			const values = this.#values;
+			for (let i = lo; i < hi; i += 1) {
+				const offset = i * 6;
+				const top = values[offset + 1] + delta;
+				const bottom = values[offset + 3] + delta;
+				values[offset + 1] = top;
+				values[offset + 3] = bottom;
+				values[offset + 5] = (top + bottom) * .5;
+			}
+		}
+		/**
+		* Re-reads the placeholder's fields along y. A relocation in a column leaves both
+		* x coordinates unchanged.
+		*/
+		remeasurePlaceholder(placeholder) {
+			const { top, bottom } = placeholder.getBoundingClientRect();
+			const placeholderRect = this.#placeholderRect;
+			placeholderRect[1] = top;
+			placeholderRect[3] = bottom;
+			placeholderRect[5] = (top + bottom) * .5;
+		}
+		/** One flag, because any reason for staleness forces the same full rebuild. */
+		invalidate() {
+			this.#dirty = true;
+		}
+		/**
+		* Empties the element array, which would retain DOM between operations, and keeps
+		* the numeric buffer for reuse.
+		*/
+		retire() {
+			this.#items.length = 0;
+			this.#count = 0;
+			this.#dirty = true;
+			this.#measured = -1;
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/layout-animation.ts
+	/**
+	* Displacement: the items a committed placeholder move pushed aside slide to their
+	* new positions instead of jumping.
+	*
+	* This feature measures nothing: the vectors come from the axis. It owns duration,
+	* easing and the animations it starts. A rebuild never cancels an animation, because
+	* that would leave a window in which a row has jumped. `settle` subtracts what each
+	* animation currently carries, from its timing, with no layout read.
+	*
+	* Animations fold and do not stack. A second move arriving mid-flight cancels the
+	* running animation and starts one from `residual + delta`, which lands the element
+	* exactly where the running one had reached. So there is one animation per element,
+	* and the sink can compute its current offset.
+	*
+	* No lifecycle waits for it: an animation in flight never delays release or teardown.
+	*/
+	const DEFAULT_DURATION = 160;
+	const DEFAULT_EASING = "ease-out";
+	/**
+	* How much of an animation is still applied, as a fraction of its starting vector.
+	* `progress` already has the easing applied, and the keyframes interpolate linearly
+	* from the vector to zero. An overshooting easing takes this outside `[0, 1]`, which
+	* is still exactly what the element carries, so it is not clamped.
+	*/
+	function remainingOf(animation) {
+		const { progress } = animation.effect.getComputedTiming();
+		return progress == null ? 0 : 1 - progress;
+	}
+	/** `finished` rejects when an animation is cancelled, and nothing waits for it. */
+	function ignoreRejection() {}
+	/**
+	* Written `displacement: layoutAnimation()`. Row animations outlive the operation
+	* that started them, and the controller cancels what is running on destruction.
+	*/
+	const layoutAnimation = ({ duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = {}) => () => {
+		const running = /* @__PURE__ */ new Map();
+		const local = delta();
+		return {
+			report(element, dx, dy, space) {
+				let sx = dx;
+				let sy = dy;
+				const previous = running.get(element);
+				if (previous) {
+					const remaining = remainingOf(previous.animation);
+					sx += previous.dx * remaining;
+					sy += previous.dy * remaining;
+					previous.animation.cancel();
+					running.delete(element);
+				}
+				if (!localDelta(space, sx, sy, local)) {
+					local[0] = sx;
+					local[1] = sy;
+				}
+				const animation = element.animate([{ translate: `${local[0]}px ${local[1]}px` }, { translate: "0 0" }], {
+					duration,
+					easing,
+					composite: "add"
+				});
+				const record = {
+					animation,
+					dx: sx,
+					dy: sy
+				};
+				animation.finished.then(() => {
+					if (running.get(element) === record) running.delete(element);
+				}, ignoreRejection);
+				running.set(element, record);
+			},
+			settle(values, items, count) {
+				if (running.size === 0) return;
+				for (let i = 0; i < count; i += 1) {
+					const held = running.get(items[i]);
+					if (held) {
+						const remaining = remainingOf(held.animation);
+						const dx = held.dx * remaining;
+						const dy = held.dy * remaining;
+						const offset = i * 6;
+						const left = values[offset + 0] - dx;
+						const right = values[offset + 2] - dx;
+						const top = values[offset + 1] - dy;
+						const bottom = values[offset + 3] - dy;
+						values[offset + 0] = left;
+						values[offset + 2] = right;
+						values[offset + 4] = (left + right) * .5;
+						values[offset + 1] = top;
+						values[offset + 3] = bottom;
+						values[offset + 5] = (top + bottom) * .5;
+					}
+				}
+			},
+			retire() {
+				for (const { animation } of running.values()) animation.cancel();
+				running.clear();
+			}
+		};
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/domain.ts
+	function insertionAt(destination, index) {
+		return {
+			index,
+			before: destination[index - 1] ?? null,
+			after: destination[index] ?? null
+		};
+	}
+	/** Identity is the discriminant, so an accepted reorder allocates nothing. */
+	const ACCEPTED = [];
+	const ReorderResolution = {
+		accept: () => ACCEPTED,
+		reject: (reason) => [reason]
+	};
+	const CANCEL_COLLECTION_INVALIDATED = "sortable:collection-invalidated";
+	const CANCEL_ITEM_REMOVED = "sortable:item-removed";
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/linear-shift.ts
+	function linearShift(index) {
+		/** A prediction is valid only against a buffer that describes the DOM. */
+		let dirty = true;
+		/** The destination gap the buffer reflects, or `-1` when nothing is known. */
+		let lastGap = -1;
+		/** The collection version the buffer holds, or `-1` for nothing. */
+		let snapshotVersion = -1;
+		/**
+		* The distance one crossed row travels along the axis, or `-1` while unmeasured.
+		* Every invalidation discards it, because a zoom, a resize or a replaced
+		* collection all change it, and the cache has one staleness flag with no reason
+		* attached. The cost is one row read on the next committed move.
+		*/
+		let rowDistance = -1;
+		/** A committed move left the cached placeholder rect out of date. */
+		let placeholderIsStale = false;
+		return {
+			refresh(snapshot, dragged, getBox, placeholder, displacement, gap) {
+				if (placeholderIsStale) {
+					placeholderIsStale = false;
+					index.remeasurePlaceholder(placeholder);
+				}
+				index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+				snapshotVersion = snapshot.version;
+				dirty = false;
+				if (gap >= 0) lastGap = gap;
+			},
+			moved(gap, snapshot, context) {
+				if (dirty || snapshotVersion !== snapshot.version || index.count === 0 || lastGap < 0 || lastGap === gap) {
+					dirty = true;
+					lastGap = -1;
+					placeholderIsStale = false;
+					index.invalidate();
+					return;
+				}
+				const lo = lastGap < gap ? lastGap : gap;
+				const hi = lastGap < gap ? gap : lastGap;
+				let delta = lastGap < gap ? -rowDistance : rowDistance;
+				if (rowDistance < 0) {
+					const probe = index.items[lo];
+					let observed = (context.box ? context.box(probe) : probe).getBoundingClientRect().top;
+					if (context.displacement) {
+						const scratch = /* @__PURE__ */ new Float64Array(6);
+						scratch[1] = observed;
+						context.displacement.settle(scratch, [probe], 1);
+						observed = scratch[1];
+					}
+					delta = observed - index.values[lo * 6 + 1];
+					rowDistance = delta < 0 ? -delta : delta;
+				}
+				index.advance(lo, hi, delta);
+				if (context.displacement) {
+					const { items } = index;
+					for (let i = lo; i < hi; i += 1) context.displacement.report(items[i], 0, -delta, context.space);
+				}
+				lastGap = gap;
+				placeholderIsStale = true;
+			},
+			invalidate() {
+				dirty = true;
+				rowDistance = -1;
+				placeholderIsStale = false;
+				index.invalidate();
+			},
+			retire() {
+				dirty = true;
+				lastGap = -1;
+				snapshotVersion = -1;
+				rowDistance = -1;
+				placeholderIsStale = false;
+				index.retire();
+			}
+		};
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/y.ts
+	/** The axis rule for a single column. */
+	function y() {
+		return () => {
+			const index = new RectIndex();
+			const shift = linearShift(index);
+			return {
+				resolve(query, context) {
+					const { pointerY } = query;
+					shift.refresh(query.snapshot, query.item, context.box, context.placeholder, context.displacement, query.insertion ? query.insertion.index : -1);
+					const { values, count } = index;
+					const anchor = index.placeholderRect[5];
+					let best = Math.abs(pointerY - anchor);
+					let nearest = -1;
+					for (let i = 0; i < count; i += 1) {
+						const distance = Math.abs(pointerY - values[i * 6 + 5]);
+						if (distance < best) {
+							best = distance;
+							nearest = i;
+						}
+					}
+					if (nearest === -1) return null;
+					const gap = values[nearest * 6 + 5] > anchor ? nearest + 1 : nearest;
+					return insertionAt(index.items, gap);
+				},
+				invalidate() {
+					shift.invalidate();
+				},
+				moved(query, context) {
+					shift.moved(query.insertion.index, query.snapshot, context);
+				},
+				retire() {
+					shift.retire();
+				}
+			};
+		};
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/collection.ts
+	/**
+	* Collection reconciliation and request construction. Both are pure: they read
+	* identity, never the DOM or the pointer. Intent is never recomputed from the
+	* latest pointer position: the exact gap the consumer was shown either survives
+	* a replacement or the drag ends.
+	*/
+	/**
+	* The gap that survives a replacement, rebased into it, or `null` when it did
+	* not survive and the operation must end. `dragged` must remain in `next`: its
+	* removal is a different cancel reason, which callers classify first. A
+	* single-item collection's gap has no neighbors and does not survive.
+	*/
+	function reconcileCollection(next, dragged, incumbent) {
+		const destination = next.items.filter((item) => item !== dragged);
+		if (!incumbent.before) return incumbent.after && destination[0] === incumbent.after ? insertionAt(destination, 0) : null;
+		if (!incumbent.after) return destination.at(-1) === incumbent.before ? insertionAt(destination, destination.length) : null;
+		const beforeIndex = destination.indexOf(incumbent.before);
+		return beforeIndex >= 0 && destination[beforeIndex + 1] === incumbent.after ? insertionAt(destination, beforeIndex + 1) : null;
+	}
+	/**
+	* The gap the dragged item itself occupies, from the snapshot and without
+	* creating a destination view: removing the item leaves earlier elements in place
+	* and shifts later ones down by one.
+	*/
+	function homeInsertion(snapshot, item) {
+		const from = snapshot.items.indexOf(item);
+		return {
+			index: from,
+			before: snapshot.items[from - 1] ?? null,
+			after: snapshot.items[from + 1] ?? null
+		};
+	}
+	/** The reorder a gap proposes. `insertion` comes from the same snapshot. */
+	function buildReorderRequest(snapshot, item, insertion) {
+		return {
+			item,
+			from: snapshot.items.indexOf(item),
+			to: insertion.index,
+			previous: insertion.before,
+			next: insertion.after
+		};
+	}
+	const ARROW_UP = "ArrowUp";
+	const ARROW_LEFT = "ArrowLeft";
+	const ARROW_DOWN = "ArrowDown";
+	const ARROW_RIGHT = "ArrowRight";
+	/** The command a key names, or `null` for every other key. */
+	function directionOf(key) {
+		if (key === ARROW_UP || key === ARROW_LEFT) return 110;
+		if (key === ARROW_DOWN || key === ARROW_RIGHT) return 111;
+		return null;
+	}
+	/**
+	* The destination gap for moving `item` one slot, or `null` at the edge, which
+	* makes the command inert so that the arrow key keeps its native meaning. Moving
+	* up takes the predecessor's slot. Moving down passes the successor, which has
+	* already shifted into `from`, so the gap is `from + 1`. `item` is in `snapshot`.
+	*/
+	function keyboardInsertion(snapshot, item, direction) {
+		const from = snapshot.items.indexOf(item);
+		const up = direction === 110;
+		if (up ? from === 0 : from === snapshot.items.length - 1) return null;
+		return insertionAt(snapshot.items.filter((candidate) => candidate !== item), up ? from - 1 : from + 1);
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/placement.ts
+	/**
+	* Creates the operation's placeholder, detached. The mechanics here cannot be
+	* configured away: one insertion position, hidden from assistive technology, in
+	* the item's slot, sized from the footprint the visual removed. Beyond this the
+	* library writes no styling.
+	*/
+	function createPlaceholder(document, context, width, height, factory) {
+		const placeholder = factory ? factory(context) : document.createElement("div");
+		const slot = context.item.getAttribute("slot");
+		placeholder.setAttribute("data-drag-placeholder", "");
+		placeholder.setAttribute("aria-hidden", "true");
+		if (slot === null) placeholder.removeAttribute("slot");
+		else placeholder.setAttribute("slot", slot);
+		placeholder.style.boxSizing = "border-box";
+		placeholder.style.width = `${width}px`;
+		placeholder.style.height = `${height}px`;
+		return placeholder;
+	}
+	/** Whether the placeholder already occupies `insertion`. */
+	function placeholderAt(placeholder, insertion) {
+		if (insertion.after) return insertion.after.previousElementSibling === placeholder;
+		return !insertion.before || insertion.before.nextElementSibling === placeholder;
+	}
+	/**
+	* Moves the placeholder into `insertion`, or does nothing when it is there: a
+	* re-insertion would reset transitions and force a reflow. An anchor the consumer
+	* moved out of the container throws, so that the footprint does not silently go
+	* with it.
+	*/
+	function movePlaceholder(placeholder, insertion) {
+		if (placeholderAt(placeholder, insertion)) return;
+		if ((insertion.after ?? insertion.before).parentNode !== placeholder.parentNode) throw new Error("sortable/anchor-outside-container");
+		if (insertion.after) insertion.after.before(placeholder);
+		else insertion.before.after(placeholder);
+	}
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/operation.ts
+	const RECOVERY_DESTINATION = 1;
+	const RECOVERY_HOME = 2;
+	const RECOVERY_IMMEDIATE = 3;
+	/**
+	* One activated sortable operation, from `start` to `end`. The kernel calls each
+	* hook as a method of this instance.
+	*/
+	var SortableOperation = class {
+		#behavior;
+		#drag;
+		#lift;
+		/** A command's direction, or `null` for a pointer operation. */
+		#direction;
+		#frame;
+		#context;
+		/** The operation state the axis rule reads. */
+		#query;
+		/**
+		* The item's gap in the pull that is the operation's collection. A landing at
+		* home reads it, so no cancel, verdict or release reads the consumer's array.
+		*/
+		#home;
+		/** `null` until the drop: a cancel before it has none. */
+		#request = null;
+		/** Recorded at `settle` and reported at `end`. */
+		#result = null;
+		constructor(behavior, drag, lift, direction, snapshot, home, insertion, frame, context) {
+			this.#behavior = behavior;
+			this.#drag = drag;
+			this.#lift = lift;
+			this.#direction = direction;
+			this.#frame = frame;
+			this.#context = context;
+			this.#home = home;
+			this.#query = {
+				item: drag.item,
+				snapshot,
+				insertion,
+				pointerX: 0,
+				pointerY: 0
+			};
+		}
+		start() {
+			this.#behavior.config.onStart?.(this.#query.item);
+		}
+		move() {
+			this.#lift.translate(this.#drag.x - this.#drag.originX, this.#drag.y - this.#drag.originY);
+			this.#frame.schedule();
+		}
+		drop() {
+			const isPointerOperation = this.#direction === null;
+			this.#frame.cancel();
+			if (isPointerOperation) {
+				this.#behavior.axis.invalidate();
+				this.#query.pointerX = this.#drag.x;
+				this.#query.pointerY = this.#drag.y;
+				this.#query.insertion = this.#behavior.axis.resolve(this.#query, this.#context) ?? this.#query.insertion;
+			}
+			const request = buildReorderRequest(this.#query.snapshot, this.#drag.item, this.#query.insertion);
+			this.#request = request;
+			movePlaceholder(this.#context.placeholder, this.#query.insertion);
+			if (isPointerOperation) this.#lift.translate(this.#drag.x - this.#drag.originX, this.#drag.y - this.#drag.originY);
+			return request.to === request.from ? null : (signal) => this.#behavior.config.onReorder(request, { signal });
+		}
+		settle(outcome) {
+			const recovery = this.#recordResult(outcome);
+			if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
+				const { left, top } = this.#landingTarget(recovery);
+				this.#lift.land(left, top, this.#behavior.landing);
+			}
+		}
+		end() {
+			this.#behavior.config.onEnd?.(this.#result);
+		}
+		/** The collection was pulled again: rebases the gap, or cancels. */
+		rebase(next) {
+			this.#query.snapshot = next;
+			this.#home = homeInsertion(next, this.#drag.item);
+			if (next.items.includes(this.#drag.item)) {
+				const insertion = reconcileCollection(next, this.#drag.item, this.#query.insertion);
+				if (insertion) this.#query.insertion = insertion;
+				else this.#drag.requestCancel(CANCEL_COLLECTION_INVALIDATED);
+			} else this.#drag.requestCancel(CANCEL_ITEM_REMOVED);
+			this.#behavior.axis.invalidate();
+		}
+		/** The gap under the pointer, and the placeholder moved to it. */
+		updateInsertion() {
+			this.#query.pointerX = this.#drag.x;
+			this.#query.pointerY = this.#drag.y;
+			const resolved = this.#behavior.axis.resolve(this.#query, this.#context);
+			if (resolved === null) return;
+			this.#query.insertion = resolved;
+			if (placeholderAt(this.#context.placeholder, resolved)) return;
+			let stale = true;
+			try {
+				movePlaceholder(this.#context.placeholder, resolved);
+				this.#behavior.axis.moved(this.#query, this.#context);
+				stale = false;
+			} finally {
+				if (stale) this.#behavior.axis.invalidate();
+			}
+		}
+		/** Records the terminal result, and says where the visual goes. */
+		#recordResult(outcome) {
+			if (outcome.type === "canceled") {
+				this.#result = {
+					type: "canceled",
+					reason: outcome.reason,
+					origin: outcome.origin,
+					request: this.#request
+				};
+				return outcome.origin === "fault" ? RECOVERY_IMMEDIATE : RECOVERY_HOME;
+			}
+			if (outcome.type === "skipped") {
+				this.#result = {
+					type: "noop",
+					request: this.#request
+				};
+				return RECOVERY_IMMEDIATE;
+			}
+			if (outcome.value === ACCEPTED) {
+				this.#result = {
+					type: "accepted",
+					request: this.#request
+				};
+				return RECOVERY_DESTINATION;
+			}
+			this.#result = {
+				type: "rejected",
+				reason: outcome.value[0],
+				request: this.#request
+			};
+			return RECOVERY_HOME;
+		}
+		/**
+		* Only with a landing composed: the one forced layout a drop adds. Returns the
+		* placeholder's rect, whose top-left is where the visual lands.
+		*/
+		#landingTarget(recovery) {
+			if (recovery === RECOVERY_DESTINATION) {
+				if (this.#query.item.isConnected && this.#query.item.parentElement === this.#context.placeholder.parentElement && this.#context.placeholder.nextElementSibling !== this.#query.item) this.#query.item.before(this.#context.placeholder);
+			} else movePlaceholder(this.#context.placeholder, this.#home);
+			if (!this.#context.placeholder.isConnected || this.#context.placeholder.parentElement !== this.#query.item.parentElement) throw new Error("sortable/landing-placeholder-lost");
+			return this.#context.placeholder.getBoundingClientRect();
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable/behavior.ts
+	/** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
+	function updateInsertion(operation) {
+		operation?.updateInsertion();
+	}
+	/**
+	* The behavior `draggable` runs for one root: admission and activation. Each
+	* step it requests is the same function on every request, or the axis's method
+	* passed with the axis, so the kernel coalesces a step requested again before it
+	* runs. A function it creates to hand elsewhere is created once per instance, or
+	* once per operation when it closes over the operation. It holds only
+	* controller-lifetime values, and the operation reads the ones it needs through
+	* it.
+	*/
+	var SortableBehavior = class {
+		config;
+		#window;
+		#lifter;
+		axis;
+		displacement;
+		landing;
+		#measuredBox;
+		/** The version the next pulled snapshot carries. */
+		#version = 0;
+		constructor(root, config, displacement, lifter) {
+			if (config.threshold !== void 0) this.threshold = config.threshold;
+			this.config = config;
+			this.#window = root.ownerDocument.defaultView;
+			this.#lifter = lifter;
+			this.axis = config.axis();
+			this.displacement = displacement;
+			this.landing = config.landing ?? null;
+			this.#measuredBox = config.box ?? config.visual ?? null;
+		}
+		/** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
+		invalidate = (operation) => {
+			if (operation) operation.rebase(this.#pull());
+		};
+		admit(event) {
+			return event.altKey ? null : this.#admission(event, null);
+		}
+		command(event) {
+			const direction = event.isComposing ? null : directionOf(event.key);
+			return direction === null ? null : this.#admission(event, direction);
+		}
+		activate(drag, state) {
+			const lift = this.#lifter.acquire(drag, state.visual, state.box);
+			const snapshot = this.#pull();
+			if (!snapshot.items.includes(drag.item)) return null;
+			const home = homeInsertion(snapshot, drag.item);
+			const insertion = state.direction === null ? home : keyboardInsertion(snapshot, drag.item, state.direction);
+			if (!insertion) return null;
+			const placeholder = createPlaceholder(this.#window.document, {
+				item: drag.item,
+				visual: lift.visual,
+				box: lift.box,
+				rect: lift.rect
+			}, lift.boxWidth, lift.visual.contains(lift.box) ? lift.boxHeight : lift.boxHeight - lift.box.offsetHeight, this.config.placeholder ?? null);
+			drag.use(() => {
+				placeholder.remove();
+			});
+			drag.item.after(placeholder);
+			if (!placeholder.isConnected || drag.item.nextElementSibling !== placeholder) throw new Error("sortable/insertion-placeholder-lost");
+			const frame = createFrameTask(this.#window, () => {
+				drag.requestStep(updateInsertion);
+			});
+			drag.use(() => {
+				frame.cancel();
+			});
+			drag.use(this.axis.retire, this.axis);
+			listenForInvalidation(this.#window, drag.signal, () => {
+				drag.requestStep(this.axis.invalidate, this.axis);
+			});
+			const operation = new SortableOperation(this, drag, lift, state.direction, snapshot, home, insertion, frame, {
+				placeholder,
+				box: this.#measuredBox,
+				displacement: this.displacement ?? null,
+				space: lift.itemSpace
+			});
+			this.axis.invalidate();
+			return operation;
+		}
+		#pull() {
+			this.#version += 1;
+			return {
+				items: this.config.items(),
+				version: this.#version
+			};
+		}
+		/**
+		* The pressed item from a fresh collection, and the admission for it. A command
+		* names its direction and is refused at the collection's edge, so that the key
+		* keeps its native meaning there.
+		*/
+		#admission(event, direction) {
+			const snapshot = this.#pull();
+			const path = event.composedPath();
+			const item = path.find((node) => snapshot.items.includes(node));
+			if (!item) return null;
+			let handle;
+			if (this.config.handle) {
+				const named = this.config.handle(item);
+				if (!named || !path.includes(named)) return null;
+				handle = named;
+			}
+			if (direction !== null && !keyboardInsertion(snapshot, item, direction)) return null;
+			const visual = this.config.visual?.(item) ?? item;
+			return {
+				item,
+				...handle ? { handle } : {},
+				state: {
+					visual,
+					box: this.config.box?.(item) ?? visual,
+					direction
+				}
+			};
+		}
+	};
+	// ../../../../../../../tmp/drag-trace-xzs8A9/566ebfc65/packages/drag/src/sortable.ts
+	/**
+	* The sortable, written on the public `draggable` with no private path. The
+	* consumer owns the DOM order: a drop proposes a reorder and the consumer commits or
+	* rejects it.
+	*/
+	/** Makes `root` a sortable collection. */
+	function sortable(root, config) {
+		const displacement = config.displacement?.();
+		const lifter = new Lifter(root.ownerDocument.defaultView);
+		const behavior = new SortableBehavior(root, config, displacement, lifter);
+		const kernel = draggable(root, behavior);
+		if (displacement) kernel.use(displacement.retire, displacement);
+		kernel.use(lifter.cancelLanding);
+		return {
+			invalidate: () => {
+				kernel.requestStep(behavior.invalidate);
+			},
+			requestCancel: (reason) => {
+				kernel.requestCancel(reason);
+			},
+			requestDestroy: () => kernel.requestDestroy()
+		};
+	}
+	// bench/lab.ts
+	/**
+	* Runs in the page for `compare.ts`: one composition per scenario, written the way a
+	* consumer writes it. The production and prototype arms bundle this file, each with
+	* its own `src`.
+	*/
+	function makeRows(count) {
+		const list = document.createElement("div");
+		list.style.cssText = "position:relative;width:200px;";
+		for (let i = 0; i < count; i += 1) {
+			const item = document.createElement("div");
+			item.id = `i${i}`;
+			item.tabIndex = 0;
+			item.textContent = String(i);
+			item.style.cssText = "height:40px;box-sizing:border-box;background:#ccd;border:1px solid #889;position:relative;touch-action:none;user-select:none;";
+			list.append(item);
+		}
+		document.body.append(list);
+		return list;
+	}
+	const lab = {
+		log: [],
+		destroy: () => Promise.resolve(),
+		/** A list with no behavior mounted, for the in-page driver's own cost. */
+		list(count) {
+			makeRows(count);
+		},
+		sortable({ count, cached, landed, refocus }) {
+			const list = makeRows(count);
+			let items = [...list.children];
+			let moved = null;
+			const controller = sortable(list, {
+				items: cached ? () => items : () => [...list.children].filter((element) => element.id),
+				axis: y(),
+				...landed ? { landing: landing({ duration: 50 }) } : {},
+				displacement: layoutAnimation({ duration: 50 }),
+				onReorder({ item, next, from, to }) {
+					list.insertBefore(item, next);
+					if (cached) items = items.toSpliced(from, 1).toSpliced(to, 0, item);
+					moved = item;
+					return ReorderResolution.accept();
+				},
+				onEnd(result) {
+					if (refocus) moved?.focus();
+					lab.log.push(result.type);
+				}
+			});
+			lab.destroy = () => {
+				const destroyed = controller.requestDestroy();
+				list.remove();
+				return destroyed;
+			};
+		},
+		freeDrag() {
+			const box = makeRows(1).firstElementChild;
+			freeDrag(box, {
+				onDrop: () => FreeDragResolution.accept(),
+				onEnd(result) {
+					lab.log.push(result.type);
+				}
+			});
+		}
+	};
+	Object.assign(globalThis, { lab });
+	exports.makeRows = makeRows;
+	return exports;
+})({});

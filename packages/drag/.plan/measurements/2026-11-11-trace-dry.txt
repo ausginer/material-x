@@ -1,0 +1,10 @@
+# command: env CHROME_EXECUTABLE=/nonexistent/chrome node bench/compare.ts --trace 566ebfc65 --dry
+# revision: 067f59bb7705fd8eee737732c5d204346d7e0b09, with uncommitted changes
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:17:05 up 2 days,  8:40,  0 users,  load average: 2.04, 1.95, 1.96
+scenario: reordering moves, 20 items, mirrors "300 moves, one frame each, 20 items"
+scenario: reordering moves, 2000 items, mirrors "300 moves, one frame each, 2000 items"
+scenario: press and release, 2000 items, [...root.children], mirrors "press and release below the threshold, 2000 items, [...root.children]"
+scenario: press and release, 2000 items, cached array, mirrors "press and release below the threshold, 2000 items, cached array"
+scenario: press and release, 20 items, cached array, mirrors "press and release below the threshold, 20 items, cached array"
+5 scenarios, bundle of 2336 lines, no browser launched
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:17:05 up 2 days,  8:40,  0 users,  load average: 1.96, 1.94, 1.96, exit 0

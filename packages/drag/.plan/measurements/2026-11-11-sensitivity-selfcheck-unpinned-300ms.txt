@@ -1,0 +1,16 @@
+# command: node .campaigns/sensitivity-probe/probe.ts --self-check
+# revision: 25b8c7a8f7a60bd132f9e49fa600fff841c8abee
+# before: 2026-11-11T04:52:20.356Z
+#   nproc 12, node v26.13.0, uptime:  04:52:20 up 2 days,  1:15,  0 users,  load average: 0.97, 1.43, 1.85
+#   cpu: 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11
+#   pressure: some avg10=0.00 avg60=0.00 avg300=0.00 total=4092653737
+#   git status --porcelain: [?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-discarded.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-discarded.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt;]
+machine: {"time":"2026-11-11T04:52:20.625Z","nproc":"12","node":"v26.13.0","uptime":"04:52:20 up 2 days,  1:15,  0 users,  load average: 0.97, 1.43, 1.85","cpuModel":"12th Gen Intel(R) Core(TM) i7-1255U","cpuCore":"0-3","cpuAtom":"4-11","affinity":"pid 848809's current affinity list: 0-11","revision":"25b8c7a8f7a60bd132f9e49fa600fff841c8abee","gitStatus":"?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-discarded.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-discarded.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt"}
+self-check: {"loopMs":180.09999999403954,"start":"2026-11-11T04:52:20.862Z","end":"2026-11-11T04:52:21.044Z","windowMs":182.54163900000003,"rendererPid":848982,"renderers":3,"thread":"chrome","onCpuMs":179.350506,"waitMs":0.159554,"samples":9,"shareCpu0to3":0.8888888888888888,"pressureUs":789,"load1":0.97}
+on-CPU at least 200 ms: NO; every sample in 4-11: no
+# after: 2026-11-11T04:52:21.376Z
+#   nproc 12, node v26.13.0, uptime:  04:52:21 up 2 days,  1:15,  0 users,  load average: 0.97, 1.43, 1.85
+#   cpu: 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11
+#   pressure: some avg10=0.00 avg60=0.00 avg300=0.00 total=4092661910
+#   git status --porcelain: [?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-discarded.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-discarded.txt;?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt;]
+# exit 1

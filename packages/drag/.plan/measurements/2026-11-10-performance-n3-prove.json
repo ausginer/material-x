@@ -1,0 +1,2737 @@
+[
+ {
+  "injection": "1 KB allocated per move",
+  "scenario": "bytes per move by function, 20 items",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "rule",
+    "measure": "kernel/session.ts:#move",
+    "result": "FLAG 1050 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "kernel/session.ts:#move",
+    "result": "FLAG 1051 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "kernel/session.ts:#move",
+    "result": "FLAG 1050 B per move"
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "(root)": 2844,
+     "(anonymous)": 569,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 187,
+     "_promiseAwareJsonValueNoThrow": 143,
+     "setupDragListeners": 221,
+     "window.__cleanupDrag": 238,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 1050,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 114,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "sortable/operation.ts:updateInsertion": 5,
+     "sortable/y.ts:resolve": 140,
+     "shared/landing.ts:get placeholderRect": 1,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 11,
+     "sortable/layout-animation.ts:report": 418,
+     "../box-quad/src/index.ts:localDelta": 31,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 14,
+     "listener": 1,
+     "mouseListener": 127,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 148,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2874,
+     "(anonymous)": 576,
+     "evaluate": 522,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 143,
+     "setupDragListeners": 225,
+     "window.__cleanupDrag": 231,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 1051,
+     "lift.ts:translate": 110,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 139,
+     "shared/landing.ts:get count": 1,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 6,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 412,
+     "../box-quad/src/index.ts:localDelta": 30,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 17,
+     "mouseListener": 125,
+     "jsonValue": 32,
+     "serializeAsCallArgument": 154,
+     "innerSerialize": 19
+    },
+    {
+     "(root)": 2884,
+     "(anonymous)": 562,
+     "evaluate": 519,
+     "parseEvaluationResultValue": 177,
+     "_promiseAwareJsonValueNoThrow": 138,
+     "setupDragListeners": 218,
+     "window.__cleanupDrag": 240,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 1050,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 119,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 146,
+     "shared/landing.ts:get items": 1,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 410,
+     "../box-quad/src/index.ts:localDelta": 34,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 14,
+     "mouseListener": 116,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 152,
+     "innerSerialize": 17
+    }
+   ],
+   "base": [
+    {
+     "(root)": 2837,
+     "(anonymous)": 576,
+     "evaluate": 520,
+     "parseEvaluationResultValue": 187,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "safeJson": 1,
+     "setupDragListeners": 207,
+     "window.__cleanupDrag": 232,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 116,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 146,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 409,
+     "../box-quad/src/index.ts:localDelta": 38,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 14,
+     "listener": 1,
+     "mouseListener": 130,
+     "jsonValue": 32,
+     "serializeAsCallArgument": 157,
+     "innerSerialize": 20
+    },
+    {
+     "(root)": 2764,
+     "(anonymous)": 573,
+     "evaluate": 536,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 151,
+     "setupDragListeners": 217,
+     "window.__cleanupDrag": 232,
+     "kernel/session.ts:handleEvent": 8,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 104,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 148,
+     "shared/landing.ts:get count": 1,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 2,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 408,
+     "../box-quad/src/index.ts:localDelta": 36,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 134,
+     "jsonValue": 31,
+     "serializeAsCallArgument": 144,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2786,
+     "(anonymous)": 583,
+     "evaluate": 526,
+     "parseEvaluationResultValue": 193,
+     "_promiseAwareJsonValueNoThrow": 149,
+     "setupDragListeners": 209,
+     "window.__cleanupDrag": 236,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 3,
+     "kernel/session.ts:#move": 3,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 108,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/behavior.ts:updateInsertion": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 147,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 7,
+     "shared/landing.ts:advance": 15,
+     "sortable/layout-animation.ts:report": 415,
+     "../box-quad/src/index.ts:localDelta": 31,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 130,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 16
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2851,
+     "(anonymous)": 578,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 185,
+     "_promiseAwareJsonValueNoThrow": 139,
+     "safeJson": 1,
+     "setupDragListeners": 226,
+     "window.__cleanupDrag": 241,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 3,
+     "kernel/session.ts:#move": 1051,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 108,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 2,
+     "sortable/y.ts:resolve": 144,
+     "shared/landing.ts:get values": 1,
+     "shared/landing.ts:get placeholderRect": 1,
+     "shared/landing.ts:get count": 1,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 6,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 2,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 7,
+     "shared/landing.ts:advance": 11,
+     "sortable/layout-animation.ts:report": 417,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 129,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 152,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2729,
+     "(anonymous)": 596,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 192,
+     "_promiseAwareJsonValueNoThrow": 150,
+     "setupDragListeners": 220,
+     "window.__cleanupDrag": 233,
+     "kernel/session.ts:handleEvent": 8,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 1050,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 111,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 2,
+     "sortable/y.ts:resolve": 139,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 2,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 7,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 421,
+     "../box-quad/src/index.ts:localDelta": 36,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 133,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 160,
+     "innerSerialize": 17
+    },
+    {
+     "(root)": 2851,
+     "(anonymous)": 580,
+     "evaluate": 518,
+     "parseEvaluationResultValue": 187,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 227,
+     "window.__cleanupDrag": 233,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 1052,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 110,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/callback-list.ts:get empty": 1,
+     "kernel/session.ts:advance": 1,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 144,
+     "shared/landing.ts:remeasurePlaceholder": 4,
+     "sortable/domain.ts:insertionAt": 6,
+     "sortable/linear-shift.ts:refresh": 2,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 414,
+     "../box-quad/src/index.ts:localDelta": 39,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 131,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 160,
+     "innerSerialize": 18
+    }
+   ]
+  }
+ },
+ {
+  "injection": "one entry on the step list per frame",
+  "scenario": "bytes per move by function, 20 items",
+  "flagged": false,
+  "verdicts": [],
+  "raw": {
+   "production": [
+    {
+     "(root)": 2868,
+     "(anonymous)": 597,
+     "evaluate": 522,
+     "parseEvaluationResultValue": 187,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 229,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 113,
+     "kernel/gesture.ts:#applyRequests": 5,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/callback-list.ts:add": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 148,
+     "shared/landing.ts:get values": 1,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 2,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 10,
+     "sortable/layout-animation.ts:report": 407,
+     "../box-quad/src/index.ts:localDelta": 27,
+     "sortable/layout-animation.ts:(anonymous)": 14,
+     "mouseListener": 136,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 156,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2868,
+     "(anonymous)": 578,
+     "evaluate": 529,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 225,
+     "window.__cleanupDrag": 245,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "lift.ts:translate": 106,
+     "kernel/gesture.ts:#applyRequests": 6,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 146,
+     "shared/landing.ts:get items": 1,
+     "shared/landing.ts:refresh": 2,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 413,
+     "../box-quad/src/index.ts:localDelta": 31,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 127,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 159,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2881,
+     "(anonymous)": 582,
+     "evaluate": 514,
+     "parseEvaluationResultValue": 181,
+     "_promiseAwareJsonValueNoThrow": 145,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 237,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 3,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 96,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/callback-list.ts:add": 1,
+     "kernel/callback-list.ts:run": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 145,
+     "shared/landing.ts:get values": 1,
+     "shared/landing.ts:refresh": 1,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 416,
+     "../box-quad/src/index.ts:localDelta": 33,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/layout-animation.ts:(anonymous)": 11,
+     "mouseListener": 125,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 149,
+     "innerSerialize": 18
+    }
+   ],
+   "base": [
+    {
+     "(root)": 2867,
+     "(anonymous)": 562,
+     "evaluate": 538,
+     "parseEvaluationResultValue": 188,
+     "_promiseAwareJsonValueNoThrow": 145,
+     "safeJson": 1,
+     "setupDragListeners": 214,
+     "window.__cleanupDrag": 229,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 112,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "sortable/behavior.ts:updateInsertion": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 150,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 418,
+     "../box-quad/src/index.ts:localDelta": 33,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 124,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 157,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2761,
+     "(anonymous)": 583,
+     "evaluate": 519,
+     "parseEvaluationResultValue": 185,
+     "_promiseAwareJsonValueNoThrow": 143,
+     "setupDragListeners": 211,
+     "window.__cleanupDrag": 247,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 109,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 150,
+     "shared/landing.ts:get count": 1,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 6,
+     "shared/landing.ts:advance": 11,
+     "sortable/layout-animation.ts:report": 409,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 136,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 158,
+     "innerSerialize": 19
+    },
+    {
+     "(root)": 2746,
+     "(anonymous)": 576,
+     "evaluate": 513,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "setupDragListeners": 206,
+     "window.__cleanupDrag": 235,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 3,
+     "kernel/session.ts:#move": 3,
+     "lift.ts:translate": 104,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 138,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 9,
+     "sortable/layout-animation.ts:report": 413,
+     "../box-quad/src/index.ts:localDelta": 38,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 14,
+     "mouseListener": 131,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 149,
+     "innerSerialize": 18
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2900,
+     "(anonymous)": 596,
+     "evaluate": 537,
+     "parseEvaluationResultValue": 181,
+     "_promiseAwareJsonValueNoThrow": 142,
+     "setupDragListeners": 209,
+     "window.__cleanupDrag": 232,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 3,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 115,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/callback-list.ts:run": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 145,
+     "shared/landing.ts:refresh": 2,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 409,
+     "../box-quad/src/index.ts:localDelta": 37,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/layout-animation.ts:(anonymous)": 11,
+     "mouseListener": 129,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 150,
+     "innerSerialize": 19
+    },
+    {
+     "(root)": 2740,
+     "(anonymous)": 571,
+     "evaluate": 525,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 135,
+     "setupDragListeners": 221,
+     "window.__cleanupDrag": 229,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 111,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/behavior.ts:updateInsertion": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 143,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 415,
+     "../box-quad/src/index.ts:localDelta": 30,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 130,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 147,
+     "innerSerialize": 17
+    },
+    {
+     "(root)": 2777,
+     "(anonymous)": 582,
+     "evaluate": 516,
+     "parseEvaluationResultValue": 188,
+     "_promiseAwareJsonValueNoThrow": 142,
+     "setupDragListeners": 215,
+     "window.__cleanupDrag": 224,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 108,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/callback-list.ts:run": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 144,
+     "shared/landing.ts:get items": 1,
+     "shared/landing.ts:refresh": 1,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 410,
+     "../box-quad/src/index.ts:localDelta": 29,
+     "sortable/layout-animation.ts:(anonymous)": 11,
+     "mouseListener": 132,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 148,
+     "innerSerialize": 16
+    }
+   ]
+  }
+ },
+ {
+  "injection": "an array of four numbers per sample, in Gesture.enter",
+  "scenario": "bytes per move by function, 20 items",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "rule",
+    "measure": "kernel/gesture.ts:enter",
+    "result": "FLAG 99 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "kernel/gesture.ts:enter",
+    "result": "FLAG 108 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "kernel/gesture.ts:enter",
+    "result": "FLAG 96 B per move"
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "(root)": 2760,
+     "(anonymous)": 588,
+     "evaluate": 539,
+     "parseEvaluationResultValue": 189,
+     "_promiseAwareJsonValueNoThrow": 142,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 240,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 99,
+     "kernel/session.ts:#move": 3,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 108,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 147,
+     "shared/landing.ts:get placeholderRect": 1,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 9,
+     "sortable/layout-animation.ts:report": 406,
+     "../box-quad/src/index.ts:localDelta": 30,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 125,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 150,
+     "innerSerialize": 15
+    },
+    {
+     "(root)": 2878,
+     "(anonymous)": 586,
+     "evaluate": 520,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 136,
+     "setupDragListeners": 211,
+     "window.__cleanupDrag": 235,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 108,
+     "kernel/session.ts:#move": 2,
+     "lift.ts:translate": 104,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "sortable/behavior.ts:updateInsertion": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 150,
+     "shared/landing.ts:remeasurePlaceholder": 8,
+     "sortable/domain.ts:insertionAt": 6,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 411,
+     "../box-quad/src/index.ts:localDelta": 33,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 16,
+     "mouseListener": 126,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 17
+    },
+    {
+     "(root)": 2880,
+     "(anonymous)": 577,
+     "evaluate": 532,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "setupDragListeners": 215,
+     "window.__cleanupDrag": 222,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 96,
+     "kernel/session.ts:#move": 3,
+     "lift.ts:translate": 113,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 2,
+     "sortable/y.ts:resolve": 147,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 4,
+     "shared/landing.ts:refresh": 2,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 412,
+     "../box-quad/src/index.ts:localDelta": 34,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 136,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 19
+    }
+   ],
+   "base": [
+    {
+     "(root)": 2756,
+     "(anonymous)": 593,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 181,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "setupDragListeners": 220,
+     "window.__cleanupDrag": 241,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 111,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/callback-list.ts:get empty": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 153,
+     "shared/landing.ts:get values": 1,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 5,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 411,
+     "../box-quad/src/index.ts:localDelta": 32,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 125,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2902,
+     "(anonymous)": 572,
+     "evaluate": 529,
+     "parseEvaluationResultValue": 192,
+     "_promiseAwareJsonValueNoThrow": 146,
+     "setupDragListeners": 227,
+     "window.__cleanupDrag": 228,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "lift.ts:translate": 111,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 146,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 409,
+     "../box-quad/src/index.ts:localDelta": 32,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 139,
+     "jsonValue": 32,
+     "serializeAsCallArgument": 147,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2855,
+     "(anonymous)": 576,
+     "evaluate": 528,
+     "parseEvaluationResultValue": 188,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "setupDragListeners": 221,
+     "window.__cleanupDrag": 237,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "lift.ts:translate": 109,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 144,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 2,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 407,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 131,
+     "jsonValue": 31,
+     "serializeAsCallArgument": 157,
+     "innerSerialize": 17
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2847,
+     "(anonymous)": 569,
+     "evaluate": 520,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 140,
+     "setupDragListeners": 205,
+     "window.__cleanupDrag": 224,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 88,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 103,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/callback-list.ts:get empty": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 143,
+     "shared/landing.ts:remeasurePlaceholder": 7,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 10,
+     "sortable/layout-animation.ts:report": 409,
+     "../box-quad/src/index.ts:localDelta": 32,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 126,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 152,
+     "innerSerialize": 17
+    },
+    {
+     "(root)": 2877,
+     "(anonymous)": 577,
+     "evaluate": 538,
+     "parseEvaluationResultValue": 189,
+     "_promiseAwareJsonValueNoThrow": 130,
+     "setupDragListeners": 223,
+     "window.__cleanupDrag": 238,
+     "kernel/session.ts:handleEvent": 8,
+     "kernel/gesture.ts:enter": 98,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 123,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 145,
+     "shared/landing.ts:get items": 1,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 2,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 13,
+     "sortable/layout-animation.ts:report": 401,
+     "../box-quad/src/index.ts:localDelta": 33,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 132,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2878,
+     "(anonymous)": 580,
+     "evaluate": 517,
+     "parseEvaluationResultValue": 185,
+     "_promiseAwareJsonValueNoThrow": 133,
+     "setupDragListeners": 217,
+     "window.__cleanupDrag": 232,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 99,
+     "kernel/session.ts:#move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 113,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 150,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 415,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "listener": 1,
+     "mouseListener": 130,
+     "jsonValue": 24,
+     "serializeAsCallArgument": 146,
+     "innerSerialize": 17
+    }
+   ]
+  }
+ },
+ {
+  "injection": "N3, temporary: an array of four numbers per sample, in SortableOperation.move",
+  "scenario": "bytes per move by function, 20 items",
+  "flagged": false,
+  "verdicts": [],
+  "raw": {
+   "production": [
+    {
+     "(root)": 2884,
+     "(anonymous)": 591,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 186,
+     "_promiseAwareJsonValueNoThrow": 138,
+     "setupDragListeners": 204,
+     "window.__cleanupDrag": 230,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 53,
+     "lift.ts:translate": 105,
+     "kernel/gesture.ts:#applyRequests": 1,
+     "kernel/session.ts:advance": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 145,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 417,
+     "../box-quad/src/index.ts:localDelta": 34,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 15,
+     "mouseListener": 132,
+     "jsonValue": 25,
+     "serializeAsCallArgument": 158,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2850,
+     "(anonymous)": 592,
+     "evaluate": 519,
+     "parseEvaluationResultValue": 190,
+     "_promiseAwareJsonValueNoThrow": 143,
+     "setupDragListeners": 207,
+     "window.__cleanupDrag": 238,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/session.ts:#move": 3,
+     "sortable/operation.ts:move": 49,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 113,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 156,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 6,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 403,
+     "../box-quad/src/index.ts:localDelta": 36,
+     "sortable/layout-animation.ts:(anonymous)": 10,
+     "mouseListener": 124,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 161,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2899,
+     "(anonymous)": 575,
+     "evaluate": 502,
+     "parseEvaluationResultValue": 191,
+     "_promiseAwareJsonValueNoThrow": 142,
+     "setupDragListeners": 219,
+     "window.__cleanupDrag": 243,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 3,
+     "sortable/operation.ts:move": 50,
+     "lift.ts:translate": 105,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 146,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 2,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 412,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 126,
+     "jsonValue": 24,
+     "serializeAsCallArgument": 156,
+     "innerSerialize": 16
+    }
+   ],
+   "base": [
+    {
+     "(root)": 2870,
+     "(anonymous)": 590,
+     "evaluate": 528,
+     "parseEvaluationResultValue": 185,
+     "_promiseAwareJsonValueNoThrow": 143,
+     "setupDragListeners": 216,
+     "window.__cleanupDrag": 231,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 108,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/callback-list.ts:get empty": 1,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 5,
+     "sortable/y.ts:resolve": 148,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 3,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 403,
+     "../box-quad/src/index.ts:localDelta": 34,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "listener": 1,
+     "mouseListener": 129,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 150,
+     "innerSerialize": 14
+    },
+    {
+     "(root)": 2748,
+     "(anonymous)": 595,
+     "evaluate": 517,
+     "parseEvaluationResultValue": 183,
+     "_promiseAwareJsonValueNoThrow": 146,
+     "setupDragListeners": 218,
+     "window.__cleanupDrag": 228,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 3,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 105,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/session.ts:advance": 1,
+     "kernel/session.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 146,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 6,
+     "sortable/linear-shift.ts:refresh": 2,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 10,
+     "sortable/layout-animation.ts:report": 417,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 126,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 150,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2770,
+     "(anonymous)": 596,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 238,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 120,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/callback-list.ts:get empty": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 154,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 10,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 414,
+     "../box-quad/src/index.ts:localDelta": 37,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 130,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 151,
+     "innerSerialize": 17
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2868,
+     "(anonymous)": 587,
+     "evaluate": 528,
+     "parseEvaluationResultValue": 194,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "safeJson": 1,
+     "setupDragListeners": 213,
+     "window.__cleanupDrag": 240,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 49,
+     "lift.ts:translate": 110,
+     "kernel/gesture.ts:#applyRequests": 3,
+     "kernel/callback-list.ts:get empty": 1,
+     "kernel/session.ts:advance": 1,
+     "kernel/session.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 5,
+     "sortable/y.ts:resolve": 151,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 6,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 9,
+     "shared/landing.ts:advance": 14,
+     "sortable/layout-animation.ts:report": 407,
+     "../box-quad/src/index.ts:localDelta": 30,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 8,
+     "mouseListener": 135,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 154,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2883,
+     "(anonymous)": 575,
+     "evaluate": 515,
+     "parseEvaluationResultValue": 186,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 220,
+     "window.__cleanupDrag": 226,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 3,
+     "sortable/operation.ts:move": 53,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 108,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/session.ts:requestStep": 1,
+     "sortable/behavior.ts:updateInsertion": 1,
+     "sortable/operation.ts:updateInsertion": 5,
+     "sortable/y.ts:resolve": 153,
+     "shared/landing.ts:remeasurePlaceholder": 5,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 11,
+     "sortable/layout-animation.ts:report": 413,
+     "../box-quad/src/index.ts:localDelta": 33,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 16,
+     "mouseListener": 130,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 151,
+     "innerSerialize": 15
+    },
+    {
+     "(root)": 2845,
+     "(anonymous)": 562,
+     "evaluate": 510,
+     "parseEvaluationResultValue": 177,
+     "_promiseAwareJsonValueNoThrow": 141,
+     "safeJson": 1,
+     "setupDragListeners": 204,
+     "window.__cleanupDrag": 235,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 53,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 99,
+     "kernel/gesture.ts:#applyRequests": 2,
+     "kernel/gesture.ts:requestStep": 1,
+     "kernel/session.ts:stepTarget": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 150,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 9,
+     "sortable/layout-animation.ts:report": 409,
+     "../box-quad/src/index.ts:localDelta": 34,
+     "sortable/placement.ts:placeholderAt": 1,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 125,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 152,
+     "innerSerialize": 16
+    }
+   ]
+  }
+ },
+ {
+  "aa": "300 moves, one frame each, 20 items",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 83 against 83"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 2 of 3, median 13 µs, A/A bound 14 µs",
+    "differences": [
+     -9,
+     25,
+     13
+    ],
+    "aa": [
+     -5,
+     14,
+     -10
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 13,
+    "bound": 14
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 2 of 3, median 72 µs, A/A bound 105 µs",
+    "differences": [
+     -19,
+     155,
+     72
+    ],
+    "aa": [
+     -15,
+     52,
+     -105
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 72,
+    "bound": 105
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 36.18,
+     "styleUs": 195.31333333333333,
+     "scriptUs": 168.28,
+     "taskUs": 2035.4466666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 39.879999999999995,
+     "styleUs": 198.32333333333332,
+     "scriptUs": 174.88666666666666,
+     "taskUs": 2007.9500000000005
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 36.35666666666667,
+     "styleUs": 220.13,
+     "scriptUs": 174.16,
+     "taskUs": 2070.136666666667
+    }
+   ],
+   "base": [
+    {
+     "layouts": 83,
+     "layoutUs": 39.02,
+     "styleUs": 201.37666666666667,
+     "scriptUs": 177.14333333333332,
+     "taskUs": 2054.9333333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 30.590000000000007,
+     "styleUs": 189.37,
+     "scriptUs": 149.89333333333335,
+     "taskUs": 1852.95
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.903333333333336,
+     "styleUs": 197.3166666666667,
+     "scriptUs": 160.97666666666666,
+     "taskUs": 1998.5666666666664
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 35.82666666666667,
+     "styleUs": 202.64333333333335,
+     "scriptUs": 173.25333333333333,
+     "taskUs": 2050.91
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.31666666666667,
+     "styleUs": 190.22666666666666,
+     "scriptUs": 160.87666666666667,
+     "taskUs": 1955.5266666666662
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 43.02666666666667,
+     "styleUs": 221.62,
+     "scriptUs": 184.13666666666666,
+     "taskUs": 2175.4100000000003
+    }
+   ]
+  }
+ },
+ {
+  "aa": "300 moves, one frame each, 2000 items",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 83 against 83"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -1 µs, A/A bound 7 µs",
+    "differences": [
+     -12,
+     3,
+     -1
+    ],
+    "aa": [
+     -7,
+     -1,
+     -1
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -1,
+    "bound": 7
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 1 of 3, median -64 µs, A/A bound 165 µs",
+    "differences": [
+     -86,
+     68,
+     -64
+    ],
+    "aa": [
+     -165,
+     19,
+     1
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -64,
+    "bound": 165
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 265.41333333333336,
+     "styleUs": 267.95666666666665,
+     "scriptUs": 170.2,
+     "taskUs": 2634.55
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 308.3833333333333,
+     "styleUs": 299.48333333333335,
+     "scriptUs": 179.90333333333334,
+     "taskUs": 2850.4733333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 304.16333333333336,
+     "styleUs": 297.89666666666665,
+     "scriptUs": 186.04333333333332,
+     "taskUs": 2810.9933333333333
+    }
+   ],
+   "base": [
+    {
+     "layouts": 83,
+     "layoutUs": 292.3433333333333,
+     "styleUs": 282.57,
+     "scriptUs": 182.49666666666667,
+     "taskUs": 2720.9999999999995
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 305.75,
+     "styleUs": 295.67999999999995,
+     "scriptUs": 176.53666666666666,
+     "taskUs": 2782.763333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 341.25000000000006,
+     "styleUs": 312.43333333333334,
+     "scriptUs": 186.92333333333335,
+     "taskUs": 2874.7433333333333
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 319.1566666666667,
+     "styleUs": 287.9766666666667,
+     "scriptUs": 177.54333333333332,
+     "taskUs": 2799.91
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 320.71333333333337,
+     "styleUs": 297.7866666666667,
+     "scriptUs": 181.23,
+     "taskUs": 2831.6866666666665
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 320.01666666666665,
+     "styleUs": 293.20000000000005,
+     "scriptUs": 187.39,
+     "taskUs": 2809.8733333333334
+    }
+   ]
+  }
+ },
+ {
+  "aa": "press and release below the threshold, 20 items, [...root.children]",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -32 µs, A/A bound 70 µs",
+    "differences": [
+     64,
+     -32,
+     -52
+    ],
+    "aa": [
+     70,
+     -23,
+     18
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -32,
+    "bound": 70
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 1 of 3, median -87 µs, A/A bound 193 µs",
+    "differences": [
+     172,
+     -87,
+     -150
+    ],
+    "aa": [
+     193,
+     -48,
+     47
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -87,
+    "bound": 193
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4599999999999999,
+     "scriptUs": 108.85,
+     "taskUs": 311.03
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999992,
+     "scriptUs": 82.98,
+     "taskUs": 248.26
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.33,
+     "scriptUs": 75.4,
+     "taskUs": 216.51
+    }
+   ],
+   "base": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.19,
+     "scriptUs": 45.06000000000001,
+     "taskUs": 139.21
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4100000000000001,
+     "scriptUs": 115.19,
+     "taskUs": 335.59
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.45000000000000007,
+     "scriptUs": 127.37,
+     "taskUs": 366.54
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2,
+     "scriptUs": 39.059999999999995,
+     "taskUs": 117.82999999999998
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.49,
+     "scriptUs": 105.76,
+     "taskUs": 296.26000000000005
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.19,
+     "scriptUs": 57.5,
+     "taskUs": 169.19999999999996
+    }
+   ]
+  }
+ },
+ {
+  "aa": "press and release below the threshold, 20 items, cached array",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 2 of 3, median 9 µs, A/A bound 14 µs",
+    "differences": [
+     9,
+     -22,
+     24
+    ],
+    "aa": [
+     12,
+     -14,
+     14
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 9,
+    "bound": 14
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 2 of 3, median 32 µs, A/A bound 87 µs",
+    "differences": [
+     87,
+     -71,
+     32
+    ],
+    "aa": [
+     87,
+     -36,
+     33
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 32,
+    "bound": 87
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.17000000000000007,
+     "scriptUs": 70.19,
+     "taskUs": 278.49999999999994
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.26000000000000006,
+     "scriptUs": 44.21,
+     "taskUs": 143.24
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.65,
+     "scriptUs": 77.12,
+     "taskUs": 228.31
+    }
+   ],
+   "base": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.26000000000000006,
+     "scriptUs": 61.29,
+     "taskUs": 191.63
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999997,
+     "scriptUs": 66.46,
+     "taskUs": 214.73
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.38,
+     "scriptUs": 52.88,
+     "taskUs": 196.10000000000002
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2,
+     "scriptUs": 58.02,
+     "taskUs": 191.8
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.44,
+     "scriptUs": 58.69,
+     "taskUs": 179.18
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4599999999999999,
+     "scriptUs": 63.32,
+     "taskUs": 195.34000000000003
+    }
+   ]
+  }
+ },
+ {
+  "aa": "press and release below the threshold, 2000 items, [...root.children]",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -63 µs, A/A bound 127 µs",
+    "differences": [
+     -63,
+     -182,
+     3
+    ],
+    "aa": [
+     -127,
+     93,
+     95
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -63,
+    "bound": 127
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 1 of 3, median -88 µs, A/A bound 183 µs",
+    "differences": [
+     -88,
+     -263,
+     48
+    ],
+    "aa": [
+     -183,
+     126,
+     143
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -88,
+    "bound": 183
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.23000000000000018,
+     "scriptUs": 343.67,
+     "taskUs": 503.4100000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.24999999999999847,
+     "scriptUs": 423.85,
+     "taskUs": 623.95
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.4000000000000011,
+     "scriptUs": 465.8499999999999,
+     "taskUs": 729.7
+    }
+   ],
+   "base": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.22000000000000317,
+     "scriptUs": 406.47,
+     "taskUs": 591.12
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.28000000000000247,
+     "scriptUs": 606.22,
+     "taskUs": 886.95
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.40999999999999803,
+     "scriptUs": 462.68,
+     "taskUs": 681.25
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999884,
+     "scriptUs": 470.89,
+     "taskUs": 686.03
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.21999999999999884,
+     "scriptUs": 330.3900000000001,
+     "taskUs": 498.29
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.23999999999999716,
+     "scriptUs": 371.2299999999999,
+     "taskUs": 587.0200000000001
+    }
+   ]
+  }
+ },
+ {
+  "aa": "press and release below the threshold, 2000 items, cached array",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -26 µs, A/A bound 46 µs",
+    "differences": [
+     -31,
+     4,
+     -26
+    ],
+    "aa": [
+     46,
+     -7,
+     -22
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -26,
+    "bound": 46
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 1 of 3, median -88 µs, A/A bound 161 µs",
+    "differences": [
+     -110,
+     10,
+     -88
+    ],
+    "aa": [
+     161,
+     -16,
+     -62
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -88,
+    "bound": 161
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.27000000000000113,
+     "scriptUs": 101.68,
+     "taskUs": 389.25999999999993
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.23000000000000018,
+     "scriptUs": 50.78,
+     "taskUs": 214.14999999999998
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.17999999999999786,
+     "scriptUs": 32.99,
+     "taskUs": 148.54999999999993
+    }
+   ],
+   "base": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.3000000000000051,
+     "scriptUs": 132.56,
+     "taskUs": 499.5300000000001
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.17999999999999786,
+     "scriptUs": 46.87,
+     "taskUs": 204.34
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.2400000000000015,
+     "scriptUs": 58.54,
+     "taskUs": 236.32000000000008
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.20999999999999752,
+     "scriptUs": 55.28,
+     "taskUs": 228.15000000000003
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.19000000000000353,
+     "scriptUs": 57.39999999999999,
+     "taskUs": 230.48
+    },
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 0.23999999999999716,
+     "scriptUs": 55.41,
+     "taskUs": 210.96999999999997
+    }
+   ]
+  }
+ },
+ {
+  "aa": "50 activate-and-drop cycles, 20 items, no landing",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 250 against 250"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 3 of 3, median 52 µs, A/A bound 147 µs",
+    "differences": [
+     52,
+     152,
+     39
+    ],
+    "aa": [
+     -17,
+     13,
+     147
+    ],
+    "higher": 3,
+    "lower": 0,
+    "median": 52,
+    "bound": 147
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 3 of 3, median 626 µs, A/A bound 678 µs",
+    "differences": [
+     550,
+     829,
+     626
+    ],
+    "aa": [
+     429,
+     -37,
+     678
+    ],
+    "higher": 3,
+    "lower": 0,
+    "median": 626,
+    "bound": 678
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 250,
+     "layoutUs": 499.3400000000001,
+     "styleUs": 1099.7799999999997,
+     "scriptUs": 1976.1,
+     "taskUs": 11026.2
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 542.78,
+     "styleUs": 1131.2,
+     "scriptUs": 2102.1,
+     "taskUs": 11363.96
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 558.2,
+     "styleUs": 1218.8,
+     "scriptUs": 2149.56,
+     "taskUs": 11785.22
+    }
+   ],
+   "base": [
+    {
+     "layouts": 250,
+     "layoutUs": 511.48,
+     "styleUs": 1033.82,
+     "scriptUs": 1923.96,
+     "taskUs": 10476.38
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 519.4799999999999,
+     "styleUs": 1068.36,
+     "scriptUs": 1949.76,
+     "taskUs": 10535.459999999997
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 523.8,
+     "styleUs": 1088.22,
+     "scriptUs": 2110.1,
+     "taskUs": 11159.379999999997
+    }
+   ],
+   "control": [
+    {
+     "layouts": 250,
+     "layoutUs": 489.96,
+     "styleUs": 1053.72,
+     "scriptUs": 1993.56,
+     "taskUs": 10597.14
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 537.1199999999999,
+     "styleUs": 1109.16,
+     "scriptUs": 2089.3,
+     "taskUs": 11401
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 524.86,
+     "styleUs": 1092.74,
+     "scriptUs": 2002.44,
+     "taskUs": 11107.28
+    }
+   ]
+  }
+ },
+ {
+  "aa": "50 activate-and-drop cycles, 20 items, with landing",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 350 against 350"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -5 µs, A/A bound 164 µs",
+    "differences": [
+     196,
+     -5,
+     -344
+    ],
+    "aa": [
+     11,
+     7,
+     -164
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -5,
+    "bound": 164
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 1 of 3, median -1170 µs, A/A bound 1488 µs",
+    "differences": [
+     502,
+     -1170,
+     -2057
+    ],
+    "aa": [
+     -362,
+     -229,
+     -1488
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -1170,
+    "bound": 1488
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 350,
+     "layoutUs": 610.98,
+     "styleUs": 1489.72,
+     "scriptUs": 2217.18,
+     "taskUs": 12191.640000000003
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 639.3599999999999,
+     "styleUs": 1431.6,
+     "scriptUs": 2310.32,
+     "taskUs": 12484.34
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 601.7199999999999,
+     "styleUs": 1305.64,
+     "scriptUs": 2015.58,
+     "taskUs": 11192.48
+    }
+   ],
+   "base": [
+    {
+     "layouts": 350,
+     "layoutUs": 597.06,
+     "styleUs": 1372.5600000000004,
+     "scriptUs": 2020.8,
+     "taskUs": 11690.099999999999
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 726.3800000000001,
+     "styleUs": 1640.18,
+     "scriptUs": 2315.28,
+     "taskUs": 13654.119999999997
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 683.9200000000002,
+     "styleUs": 1530.88,
+     "scriptUs": 2359.2,
+     "taskUs": 13249.58
+    }
+   ],
+   "control": [
+    {
+     "layouts": 350,
+     "layoutUs": 658.06,
+     "styleUs": 1489.48,
+     "scriptUs": 2206.32,
+     "taskUs": 12554.12
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 674.8,
+     "styleUs": 1506.98,
+     "scriptUs": 2303.12,
+     "taskUs": 12713.320000000002
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 675.38,
+     "styleUs": 1489.7000000000003,
+     "scriptUs": 2179.18,
+     "taskUs": 12680.879999999997
+    }
+   ]
+  }
+ },
+ {
+  "aa": "50 activate-and-drop cycles, 2000 items, no landing",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 250 against 250"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -125 µs, A/A bound 642 µs",
+    "differences": [
+     -125,
+     266,
+     -334
+    ],
+    "aa": [
+     -294,
+     642,
+     179
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -125,
+    "bound": 642
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 2 of 3, median 442 µs, A/A bound 2977 µs",
+    "differences": [
+     1160,
+     442,
+     -817
+    ],
+    "aa": [
+     -501,
+     2977,
+     393
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 442,
+    "bound": 2977
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 250,
+     "layoutUs": 3947.28,
+     "styleUs": 1566.78,
+     "scriptUs": 6136.94,
+     "taskUs": 26594.819999999996
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 4238.34,
+     "styleUs": 1691.48,
+     "scriptUs": 6329.04,
+     "taskUs": 27874
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3872.42,
+     "styleUs": 1684.68,
+     "scriptUs": 5985.26,
+     "taskUs": 26726.360000000004
+    }
+   ],
+   "base": [
+    {
+     "layouts": 250,
+     "layoutUs": 3716.52,
+     "styleUs": 1565.26,
+     "scriptUs": 6261.62,
+     "taskUs": 25435.1
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 4063.2,
+     "styleUs": 1610.98,
+     "scriptUs": 6063.04,
+     "taskUs": 27432.42
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 4270.8,
+     "styleUs": 1649.76,
+     "scriptUs": 6319.24,
+     "taskUs": 27543.159999999996
+    }
+   ],
+   "control": [
+    {
+     "layouts": 250,
+     "layoutUs": 3927.7399999999993,
+     "styleUs": 1653.64,
+     "scriptUs": 6431.38,
+     "taskUs": 27096.139999999996
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3794.78,
+     "styleUs": 1557.8,
+     "scriptUs": 5686.74,
+     "taskUs": 24896.54
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 3897.64,
+     "styleUs": 1581.74,
+     "scriptUs": 5806.02,
+     "taskUs": 26333.52
+    }
+   ]
+  }
+ },
+ {
+  "aa": "50 activate-and-drop cycles, 2000 items, with landing",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 350 against 350"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 1 of 3, median -145 µs, A/A bound 535 µs",
+    "differences": [
+     170,
+     -168,
+     -145
+    ],
+    "aa": [
+     -184,
+     -535,
+     169
+    ],
+    "higher": 1,
+    "lower": 2,
+    "median": -145,
+    "bound": 535
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 2 of 3, median 567 µs, A/A bound 887 µs",
+    "differences": [
+     2041,
+     -1165,
+     567
+    ],
+    "aa": [
+     394,
+     -887,
+     -319
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 567,
+    "bound": 887
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 350,
+     "layoutUs": 4960.5,
+     "styleUs": 2204.9,
+     "scriptUs": 5979.2,
+     "taskUs": 28963.5
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5012.86,
+     "styleUs": 2180.28,
+     "scriptUs": 5988.02,
+     "taskUs": 29098.6
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5015.880000000001,
+     "styleUs": 2198.86,
+     "scriptUs": 6009.66,
+     "taskUs": 29112.64
+    }
+   ],
+   "base": [
+    {
+     "layouts": 350,
+     "layoutUs": 4471.18,
+     "styleUs": 2026.1400000000003,
+     "scriptUs": 5808.74,
+     "taskUs": 26922.699999999997
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 5224.6,
+     "styleUs": 2184.88,
+     "scriptUs": 6155.8,
+     "taskUs": 30263.7
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4693.64,
+     "styleUs": 2136.2,
+     "scriptUs": 6154.68,
+     "taskUs": 28545.74
+    }
+   ],
+   "control": [
+    {
+     "layouts": 350,
+     "layoutUs": 4758.34,
+     "styleUs": 2169.7599999999998,
+     "scriptUs": 6163.26,
+     "taskUs": 28569.88
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4898.160000000001,
+     "styleUs": 2346.24,
+     "scriptUs": 6522.88,
+     "taskUs": 29985.939999999995
+    },
+    {
+     "layouts": 350,
+     "layoutUs": 4970.08,
+     "styleUs": 2182.04,
+     "scriptUs": 5840.66,
+     "taskUs": 29431.48
+    }
+   ]
+  }
+ },
+ {
+  "aa": "50 keyboard reorders, 20 items, with focus restoration",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "layouts",
+    "result": "at or below: 50 against 50"
+   },
+   {
+    "against": "base",
+    "measure": "scriptUs",
+    "result": "no difference shown: higher in 2 of 3, median 72 µs, A/A bound 126 µs",
+    "differences": [
+     111,
+     72,
+     -74
+    ],
+    "aa": [
+     -70,
+     126,
+     -71
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 72,
+    "bound": 126
+   },
+   {
+    "against": "base",
+    "measure": "taskUs",
+    "result": "no difference shown: higher in 2 of 3, median 140 µs, A/A bound 240 µs",
+    "differences": [
+     183,
+     140,
+     -87
+    ],
+    "aa": [
+     -151,
+     240,
+     -78
+    ],
+    "higher": 2,
+    "lower": 1,
+    "median": 140,
+    "bound": 240
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "layouts": 50,
+     "layoutUs": 42.4,
+     "styleUs": 129.92,
+     "scriptUs": 425.38,
+     "taskUs": 714.68
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 48.36,
+     "styleUs": 143.56,
+     "scriptUs": 436.14,
+     "taskUs": 760.74
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 43.28,
+     "styleUs": 127.88,
+     "scriptUs": 393.74,
+     "taskUs": 694.92
+    }
+   ],
+   "base": [
+    {
+     "layouts": 50,
+     "layoutUs": 32.14,
+     "styleUs": 84.6,
+     "scriptUs": 314.46,
+     "taskUs": 531.6399999999999
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 36.720000000000006,
+     "styleUs": 107.56,
+     "scriptUs": 364.24,
+     "taskUs": 620.32
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 45.7,
+     "styleUs": 140.62,
+     "scriptUs": 468.12,
+     "taskUs": 782.24
+    }
+   ],
+   "control": [
+    {
+     "layouts": 50,
+     "layoutUs": 52.64,
+     "styleUs": 155.98,
+     "scriptUs": 495.4,
+     "taskUs": 866.04
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 30.539999999999996,
+     "styleUs": 81,
+     "scriptUs": 310.38,
+     "taskUs": 521.2
+    },
+    {
+     "layouts": 50,
+     "layoutUs": 46.3,
+     "styleUs": 138.82,
+     "scriptUs": 464.34,
+     "taskUs": 772.96
+    }
+   ]
+  }
+ },
+ {
+  "aa": "200 operations, then destroy: retained JavaScript objects",
+  "flagged": false,
+  "verdicts": [
+   {
+    "against": "base",
+    "measure": "retained objects",
+    "result": "no difference shown: higher in 0 of 3, median 0 B, A/A bound 0 B",
+    "differences": [
+     0,
+     0,
+     0
+    ],
+    "aa": [
+     0,
+     0,
+     0
+    ],
+    "higher": 0,
+    "lower": 0,
+    "median": 0,
+    "bound": 0
+   }
+  ],
+  "raw": {
+   "production": [
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    }
+   ],
+   "base": [
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    }
+   ],
+   "control": [
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    },
+    {
+     "growth": 19636,
+     "objects0": 674564,
+     "objects200": 694200,
+     "heap0": 1361324,
+     "heap200": 1672288
+    }
+   ]
+  }
+ }
+]

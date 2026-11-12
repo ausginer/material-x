@@ -50,8 +50,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
   }
 
   /**
-   * The scroll and resize listener: the bounds and the drop targets are re-read
-   * at their next read.
+   * The scroll and resize listener, also called by the drop: the bounds and the
+   * drop targets are re-read at their next read.
    */
   handleEvent(): void {
     this.#behavior.bounds?.invalidate();
@@ -87,6 +87,10 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
   }
 
   drop(): VerdictAwaiter<FreeDragResolution> | null {
+    // A scroll after the last rendering update dispatches its `scroll` event only
+    // at the next update, which the drop does not wait for. So the drop clamps and
+    // resolves against the bounds and targets as they are now.
+    this.handleEvent();
     this.#computeMotion();
     // `pointerup` moved the pointer, and a drop may follow no frame at all.
     this.#targets?.drop();

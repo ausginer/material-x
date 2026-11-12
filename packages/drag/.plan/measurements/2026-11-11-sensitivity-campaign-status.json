@@ -1,0 +1,82 @@
+{
+  "id": "sensitivity",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-performance-resolution/packages/drag",
+  "runner": {
+    "pid": 850529,
+    "start": "17746097"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-11T04:54:45.245Z",
+  "endedAt": "2026-11-11T05:23:37.846Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/ce06f73f-be9f-4cf9-8d7d-b6309ab0d531/scratchpad/rec.sh .plan/measurements/2026-11-11-sensitivity-U1.txt node .campaigns/sensitivity-probe/probe.ts --out .plan/measurements/2026-11-11-sensitivity-U1.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-performance-resolution/packages/drag/.campaigns/sensitivity/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "25b8c7a8f7a60bd132f9e49fa600fff841c8abee",
+        "dirty": true
+      },
+      "process": {
+        "pid": 850552,
+        "start": "17746104"
+      },
+      "startedAt": "2026-11-11T04:54:45.257Z",
+      "endedAt": "2026-11-11T05:01:57.762Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/ce06f73f-be9f-4cf9-8d7d-b6309ab0d531/scratchpad/rec.sh .plan/measurements/2026-11-11-sensitivity-E1.txt taskset -c 4-11 node .campaigns/sensitivity-probe/probe.ts --out .plan/measurements/2026-11-11-sensitivity-E1.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-performance-resolution/packages/drag/.campaigns/sensitivity/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "25b8c7a8f7a60bd132f9e49fa600fff841c8abee",
+        "dirty": true
+      },
+      "process": {
+        "pid": 854527,
+        "start": "17789356"
+      },
+      "startedAt": "2026-11-11T05:01:57.776Z",
+      "endedAt": "2026-11-11T05:09:11.601Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/ce06f73f-be9f-4cf9-8d7d-b6309ab0d531/scratchpad/rec.sh .plan/measurements/2026-11-11-sensitivity-U2.txt node .campaigns/sensitivity-probe/probe.ts --out .plan/measurements/2026-11-11-sensitivity-U2.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-performance-resolution/packages/drag/.campaigns/sensitivity/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "25b8c7a8f7a60bd132f9e49fa600fff841c8abee",
+        "dirty": true
+      },
+      "process": {
+        "pid": 858222,
+        "start": "17832739"
+      },
+      "startedAt": "2026-11-11T05:09:11.610Z",
+      "endedAt": "2026-11-11T05:16:24.196Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/ce06f73f-be9f-4cf9-8d7d-b6309ab0d531/scratchpad/rec.sh .plan/measurements/2026-11-11-sensitivity-E2.txt taskset -c 4-11 node .campaigns/sensitivity-probe/probe.ts --out .plan/measurements/2026-11-11-sensitivity-E2.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-performance-resolution/packages/drag/.campaigns/sensitivity/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "25b8c7a8f7a60bd132f9e49fa600fff841c8abee",
+        "dirty": true
+      },
+      "process": {
+        "pid": 862070,
+        "start": "17875999"
+      },
+      "startedAt": "2026-11-11T05:16:24.207Z",
+      "endedAt": "2026-11-11T05:23:37.846Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

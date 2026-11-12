@@ -1,0 +1,11 @@
+#!/bin/bash
+# usage: run.sh <output> <label> ; runs W3+W4 (tests named "drag:DRD-48") in three engines on the current working tree
+cd /workspaces/material-x/packages/drag
+source ~/.cache/ms-playwright/webkit-env.sh
+out=$1
+{
+  echo "# $(date -Is) label=$2 head=$(git rev-parse --short HEAD)"
+  echo "# operation.ts drop lines:"; sed -n '/^  drop(): /,/^    this.#targets?.drop();/p' src/free-drag/operation.ts
+  timeout 900 npx vitest run -c vitest.engines.config.ts tests/drop-targets.browser.test.ts tests/free-drag.browser.test.ts -t "DRD-48" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -vE "dynamic import|vite-ignore|^\s*[0-9]+ \|  |Plugin: vite|File: .*vite/vitest|^\s+\^+$|^\s*\|\s+\^"
+  echo "# exit ${PIPESTATUS[0]}"
+} > "$out" 2>&1

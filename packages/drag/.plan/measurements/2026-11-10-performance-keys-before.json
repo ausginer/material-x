@@ -1,0 +1,624 @@
+{
+ "chrome": "157.0.8103.38",
+ "rounds": 1,
+ "moves": 300,
+ "arms": [
+  "before",
+  "production",
+  "control"
+ ],
+ "before": "a9c323f6a",
+ "summary": [
+  {
+   "scenario": "bytes per move by function, 20 items",
+   "rule": "bytes",
+   "medians": {
+    "before": {
+     "(root)": {
+      "median": 2758,
+      "min": 2758,
+      "max": 2758
+     },
+     "(anonymous)": {
+      "median": 569,
+      "min": 569,
+      "max": 569
+     },
+     "evaluate": {
+      "median": 519,
+      "min": 519,
+      "max": 519
+     },
+     "parseEvaluationResultValue": {
+      "median": 188,
+      "min": 188,
+      "max": 188
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 145,
+      "min": 145,
+      "max": 145
+     },
+     "setupDragListeners": {
+      "median": 222,
+      "min": 222,
+      "max": 222
+     },
+     "window.__cleanupDrag": {
+      "median": 245,
+      "min": 245,
+      "max": 245
+     },
+     "kernel/session.ts:handleEvent": {
+      "median": 8,
+      "min": 8,
+      "max": 8
+     },
+     "kernel/gesture.ts:enter": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "kernel/session.ts:#move": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/operation.ts:move": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/invalidation.ts:schedule": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "lift.ts:translate": {
+      "median": 105,
+      "min": 105,
+      "max": 105
+     },
+     "kernel/gesture.ts:#applyRequests": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "kernel/session.ts:advance": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "kernel/gesture.ts:requestStep": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/operation.ts:updateInsertion": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "sortable/y.ts:resolve": {
+      "median": 149,
+      "min": 149,
+      "max": 149
+     },
+     "shared/landing.ts:remeasurePlaceholder": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "sortable/domain.ts:insertionAt": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "sortable/linear-shift.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/linear-shift.ts:moved": {
+      "median": 8,
+      "min": 8,
+      "max": 8
+     },
+     "shared/landing.ts:advance": {
+      "median": 10,
+      "min": 10,
+      "max": 10
+     },
+     "sortable/layout-animation.ts:report": {
+      "median": 413,
+      "min": 413,
+      "max": 413
+     },
+     "../box-quad/src/index.ts:localDelta": {
+      "median": 35,
+      "min": 35,
+      "max": 35
+     },
+     "sortable/placement.ts:movePlaceholder": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/layout-animation.ts:(anonymous)": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "mouseListener": {
+      "median": 127,
+      "min": 127,
+      "max": 127
+     },
+     "jsonValue": {
+      "median": 25,
+      "min": 25,
+      "max": 25
+     },
+     "serializeAsCallArgument": {
+      "median": 162,
+      "min": 162,
+      "max": 162
+     },
+     "innerSerialize": {
+      "median": 17,
+      "min": 17,
+      "max": 17
+     }
+    },
+    "production": {
+     "(root)": {
+      "median": 2868,
+      "min": 2868,
+      "max": 2868
+     },
+     "(anonymous)": {
+      "median": 587,
+      "min": 587,
+      "max": 587
+     },
+     "evaluate": {
+      "median": 524,
+      "min": 524,
+      "max": 524
+     },
+     "parseEvaluationResultValue": {
+      "median": 184,
+      "min": 184,
+      "max": 184
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 134,
+      "min": 134,
+      "max": 134
+     },
+     "setupDragListeners": {
+      "median": 222,
+      "min": 222,
+      "max": 222
+     },
+     "window.__cleanupDrag": {
+      "median": 230,
+      "min": 230,
+      "max": 230
+     },
+     "kernel/session.ts:handleEvent": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "kernel/gesture.ts:enter": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "kernel/session.ts:#move": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "shared/invalidation.ts:schedule": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "lift.ts:translate": {
+      "median": 110,
+      "min": 110,
+      "max": 110
+     },
+     "kernel/gesture.ts:#applyRequests": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "kernel/callback-list.ts:get empty": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "kernel/session.ts:advance": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "kernel/gesture.ts:requestStep": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/operation.ts:updateInsertion": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "sortable/y.ts:resolve": {
+      "median": 139,
+      "min": 139,
+      "max": 139
+     },
+     "shared/landing.ts:get count": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:remeasurePlaceholder": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "sortable/domain.ts:insertionAt": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "sortable/linear-shift.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "shared/landing.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:moved": {
+      "median": 3,
+      "min": 3,
+      "max": 3
+     },
+     "sortable/linear-shift.ts:moved": {
+      "median": 10,
+      "min": 10,
+      "max": 10
+     },
+     "shared/landing.ts:advance": {
+      "median": 11,
+      "min": 11,
+      "max": 11
+     },
+     "sortable/layout-animation.ts:report": {
+      "median": 407,
+      "min": 407,
+      "max": 407
+     },
+     "../box-quad/src/index.ts:localDelta": {
+      "median": 33,
+      "min": 33,
+      "max": 33
+     },
+     "sortable/layout-animation.ts:(anonymous)": {
+      "median": 12,
+      "min": 12,
+      "max": 12
+     },
+     "mouseListener": {
+      "median": 136,
+      "min": 136,
+      "max": 136
+     },
+     "jsonValue": {
+      "median": 27,
+      "min": 27,
+      "max": 27
+     },
+     "serializeAsCallArgument": {
+      "median": 155,
+      "min": 155,
+      "max": 155
+     },
+     "innerSerialize": {
+      "median": 18,
+      "min": 18,
+      "max": 18
+     }
+    },
+    "control": {
+     "(root)": {
+      "median": 2855,
+      "min": 2855,
+      "max": 2855
+     },
+     "(anonymous)": {
+      "median": 589,
+      "min": 589,
+      "max": 589
+     },
+     "evaluate": {
+      "median": 533,
+      "min": 533,
+      "max": 533
+     },
+     "parseEvaluationResultValue": {
+      "median": 176,
+      "min": 176,
+      "max": 176
+     },
+     "_promiseAwareJsonValueNoThrow": {
+      "median": 137,
+      "min": 137,
+      "max": 137
+     },
+     "safeJson": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "setupDragListeners": {
+      "median": 216,
+      "min": 216,
+      "max": 216
+     },
+     "window.__cleanupDrag": {
+      "median": 226,
+      "min": 226,
+      "max": 226
+     },
+     "kernel/session.ts:handleEvent": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "kernel/gesture.ts:enter": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "kernel/session.ts:#move": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/operation.ts:move": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "lift.ts:translate": {
+      "median": 113,
+      "min": 113,
+      "max": 113
+     },
+     "kernel/gesture.ts:#applyRequests": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "kernel/gesture.ts:requestStep": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/operation.ts:updateInsertion": {
+      "median": 4,
+      "min": 4,
+      "max": 4
+     },
+     "sortable/y.ts:resolve": {
+      "median": 151,
+      "min": 151,
+      "max": 151
+     },
+     "shared/landing.ts:remeasurePlaceholder": {
+      "median": 6,
+      "min": 6,
+      "max": 6
+     },
+     "sortable/domain.ts:insertionAt": {
+      "median": 5,
+      "min": 5,
+      "max": 5
+     },
+     "sortable/linear-shift.ts:refresh": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/y.ts:moved": {
+      "median": 2,
+      "min": 2,
+      "max": 2
+     },
+     "sortable/linear-shift.ts:moved": {
+      "median": 7,
+      "min": 7,
+      "max": 7
+     },
+     "shared/landing.ts:advance": {
+      "median": 12,
+      "min": 12,
+      "max": 12
+     },
+     "sortable/layout-animation.ts:report": {
+      "median": 417,
+      "min": 417,
+      "max": 417
+     },
+     "../box-quad/src/index.ts:localDelta": {
+      "median": 35,
+      "min": 35,
+      "max": 35
+     },
+     "sortable/placement.ts:movePlaceholder": {
+      "median": 1,
+      "min": 1,
+      "max": 1
+     },
+     "sortable/layout-animation.ts:(anonymous)": {
+      "median": 13,
+      "min": 13,
+      "max": 13
+     },
+     "mouseListener": {
+      "median": 128,
+      "min": 128,
+      "max": 128
+     },
+     "jsonValue": {
+      "median": 28,
+      "min": 28,
+      "max": 28
+     },
+     "serializeAsCallArgument": {
+      "median": 150,
+      "min": 150,
+      "max": 150
+     },
+     "innerSerialize": {
+      "median": 19,
+      "min": 19,
+      "max": 19
+     }
+    }
+   },
+   "verdicts": []
+  }
+ ],
+ "raw": {
+  "bytes per move by function, 20 items": {
+   "before": [
+    {
+     "(root)": 2758,
+     "(anonymous)": 569,
+     "evaluate": 519,
+     "parseEvaluationResultValue": 188,
+     "_promiseAwareJsonValueNoThrow": 145,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 245,
+     "kernel/session.ts:handleEvent": 8,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 105,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 3,
+     "sortable/y.ts:resolve": 149,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 4,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 8,
+     "shared/landing.ts:advance": 10,
+     "sortable/layout-animation.ts:report": 413,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 127,
+     "jsonValue": 25,
+     "serializeAsCallArgument": 162,
+     "innerSerialize": 17
+    }
+   ],
+   "production": [
+    {
+     "(root)": 2868,
+     "(anonymous)": 587,
+     "evaluate": 524,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 134,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 230,
+     "kernel/session.ts:handleEvent": 7,
+     "kernel/gesture.ts:enter": 1,
+     "kernel/session.ts:#move": 2,
+     "shared/invalidation.ts:schedule": 1,
+     "lift.ts:translate": 110,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/callback-list.ts:get empty": 1,
+     "kernel/session.ts:advance": 1,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 139,
+     "shared/landing.ts:get count": 1,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "shared/landing.ts:refresh": 1,
+     "sortable/y.ts:moved": 3,
+     "sortable/linear-shift.ts:moved": 10,
+     "shared/landing.ts:advance": 11,
+     "sortable/layout-animation.ts:report": 407,
+     "../box-quad/src/index.ts:localDelta": 33,
+     "sortable/layout-animation.ts:(anonymous)": 12,
+     "mouseListener": 136,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 18
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2855,
+     "(anonymous)": 589,
+     "evaluate": 533,
+     "parseEvaluationResultValue": 176,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "safeJson": 1,
+     "setupDragListeners": 216,
+     "window.__cleanupDrag": 226,
+     "kernel/session.ts:handleEvent": 6,
+     "kernel/gesture.ts:enter": 2,
+     "kernel/session.ts:#move": 2,
+     "sortable/operation.ts:move": 1,
+     "lift.ts:translate": 113,
+     "kernel/gesture.ts:#applyRequests": 4,
+     "kernel/gesture.ts:requestStep": 1,
+     "sortable/operation.ts:updateInsertion": 4,
+     "sortable/y.ts:resolve": 151,
+     "shared/landing.ts:remeasurePlaceholder": 6,
+     "sortable/domain.ts:insertionAt": 5,
+     "sortable/linear-shift.ts:refresh": 1,
+     "sortable/y.ts:moved": 2,
+     "sortable/linear-shift.ts:moved": 7,
+     "shared/landing.ts:advance": 12,
+     "sortable/layout-animation.ts:report": 417,
+     "../box-quad/src/index.ts:localDelta": 35,
+     "sortable/placement.ts:movePlaceholder": 1,
+     "sortable/layout-animation.ts:(anonymous)": 13,
+     "mouseListener": 128,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 150,
+     "innerSerialize": 19
+    }
+   ]
+  }
+ }
+}

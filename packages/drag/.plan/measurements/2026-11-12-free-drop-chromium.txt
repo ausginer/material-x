@@ -1,0 +1,133 @@
+# 2026-11-12T01:11:35+00:00 Chromium suite, working tree before commit, head=d11d71d27
+vitest run -c vitest.config.ts 
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:11:37 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+1:12:12 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+
+ ❯ |node| tests/size.node.test.ts (11 tests | 5 failed) 388ms
+   ❯ drag:DRI-18 module graphs and size (11)
+     × should satisfy the declared graph and ceiling of draggable alone 14ms
+     × should satisfy the declared graph and ceiling of example: drop zone 2ms
+     × should satisfy the declared graph and ceiling of freeDrag 1ms
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing 1ms
+     × should satisfy the declared graph and ceiling of complete 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 2139 B ceiling by 58 B",
++   "control moved by 173 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 179 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4431 B ceiling by 179 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 69 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4967 B ceiling by 69 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 266 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 5210 B ceiling by 266 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+AssertionError: expected [ 'over its 7065 B ceiling by 142 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 7065 B ceiling by 142 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed | 29 passed (30)
+      Tests  5 failed | 409 passed (414)
+Type Errors  no errors
+   Start at  01:11:36
+   Duration  56.51s (worker 85%, tests 15%)
+
+error: recipe `test` failed on line 29 with exit code 1
+# exit 1

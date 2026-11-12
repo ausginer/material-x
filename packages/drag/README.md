@@ -23,7 +23,7 @@ await controller.requestDestroy();
 
 Give each row `touch-action: none` for touch input and `user-select: none` for text. A natively draggable item or handle, such as a link or an image, also needs `draggable="false"`, or the browser's own drag takes the pointer. Add features by importing them: `landing` from `sortable/landing.js`, `layoutAnimation` from `sortable/layout-animation.js`, and `xy` from `sortable/xy.js` for a wrapping field.
 
-`items()` is pulled at each press and command, and again at activation, so a list that changed between drags or during a press needs no call. During a drag, call `controller.invalidate()`. A surviving gap rebases, and a lost neighbor or a removed item cancels the drag. Because the collection is pulled, create **one controller per root** and keep it while the list changes: destroying it during a drag removes that drag's `onEnd` and landing.
+`items()` is pulled at each press and command, and again at activation, so a list that changed between drags or during a press needs no call. During a drag, call `controller.invalidate()` when the list changes. A surviving gap rebases, and a lost neighbor or a removed item cancels the drag. The library measures the rows again after a scroll or a resize, and a pointer drop checks one row for a scroll whose event hasn't arrived yet. With `y()`, the library measures only the rows between the placeholder and the pointer, so the rows' centers must follow the list's order along y: a reversed column, or a transform that moves a row's center past a neighbor's, isn't supported. Also call `invalidate()` when rows change size or position during a drag for any other reason. Because the collection is pulled, create **one controller per root** and keep it while the list changes: destroying it during a drag removes that drag's `onEnd` and landing.
 
 The library keeps the array `items()` returned at activation, or at the last `invalidate()`, until the drop, and doesn't copy it. Between drags, during a press, and from the drop on, including in `onReorder`, change your array however you like. During a drag, change it in one of two ways:
 
@@ -129,7 +129,7 @@ freeDrag(card, {
 }
 ```
 
-The mark follows the pointer at most once per frame, and the targets are measured again after a scroll, a resize or `controller.invalidate()`. The drag's release removes the mark, however the drag ends. **An accepted drop stays where it was dropped:** nothing lands into the target, and `onEnd` commits the new parent or position, as for any accepted drop. A rejected drop or a cancel lands home when a `landing` is composed. Drop targets are pointer-only, because `freeDrag` has no keyboard command.
+The mark follows the pointer at most once per frame, and the targets are measured again after a scroll, a resize or `controller.invalidate()`. They are also measured again at the drop, so the request names the target under the release position even after a scroll whose event hasn't reached the library yet. The drag's release removes the mark, however the drag ends. **An accepted drop stays where it was dropped:** nothing lands into the target, and `onEnd` commits the new parent or position, as for any accepted drop. A rejected drop or a cancel lands home when a `landing` is composed. Drop targets are pointer-only, because `freeDrag` has no keyboard command.
 
 ## Writing a behavior
 

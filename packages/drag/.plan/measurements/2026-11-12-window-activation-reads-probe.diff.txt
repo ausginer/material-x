@@ -1,0 +1,13 @@
+diff --git a/tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/hot-path.landed.ts b/tests/hot-path.browser.test.ts
+index 15d8b353b..2afe6f584 100644
+--- a/tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/hot-path.landed.ts
++++ b/tests/hot-path.browser.test.ts
+@@ -231,6 +231,8 @@ describe('drag:DRI-17 hot path', () => {
+ 
+     expect(log.filter((entry) => entry === 'end:noop')).toHaveLength(2);
+     expect(many).toBe(few);
++    // PROBE: prints both counts, and is reverted after the run.
++    expect({ few, many }).toEqual({});
+   });
+ 
+   it('should run no consumer callback per sample', async () => {

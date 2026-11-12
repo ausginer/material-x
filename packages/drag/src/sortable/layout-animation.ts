@@ -48,6 +48,7 @@ type RowAnimation = Readonly<{
  * is still exactly what the element carries, so it is not clamped.
  */
 function remainingOf(animation: Animation): number {
+  // Called once: each call returns a new timing dictionary.
   const { progress } = animation.effect!.getComputedTiming();
 
   return progress == null ? 0 : 1 - progress;
@@ -117,14 +118,15 @@ export const layoutAnimation =
       settle(
         values: Float64Array,
         items: readonly HTMLElement[],
-        count: number,
+        first: number,
+        end: number,
       ): void {
         // The common rebuild has nothing in flight.
         if (running.size === 0) {
           return;
         }
 
-        for (let i = 0; i < count; i += 1) {
+        for (let i = first; i < end; i += 1) {
           const held = running.get(items[i]!);
 
           if (held) {

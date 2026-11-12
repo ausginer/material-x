@@ -1,0 +1,47 @@
+# 2026-11-12T01:07:32+00:00 label=read census probe, operation.ts from bf9d1caed head=d11d71d27
+# operation.ts drop lines:
+  drop(): VerdictAwaiter<FreeDragResolution> | null {
+    this.#computeMotion();
+    // `pointerup` moved the pointer, and a drop may follow no frame at all.
+    this.#targets?.drop();
+## vitest.config.ts (Chromium)
+stdout | tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+PROBE reads-at-drop=0 target=true start=30
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (9 tests | 1 failed | 8 skipped) 383ms
+     × PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds 379ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+AssertionError: expected { readsAtDrop: +0 } to deeply equal { readsAtDrop: -1 }
+-   "readsAtDrop": -1,
++   "readsAtDrop": 0,
+    263|     expect({ readsAtDrop: reads }).toEqual({ readsAtDrop: -1 });
+      Tests  1 failed | 8 skipped (9)
+# exit 1
+## vitest.engines.config.ts (Chromium, Firefox, WebKit)
+stdout | tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+PROBE reads-at-drop=0 target=true start=30
+     × PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds 367ms
+stdout | tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+PROBE reads-at-drop=0 target=true start=30
+     × PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds 346ms
+stdout | tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+PROBE reads-at-drop=0 target=true start=30
+     × PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds 157ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+AssertionError: expected { readsAtDrop: +0 } to deeply equal { readsAtDrop: -1 }
+-   "readsAtDrop": -1,
++   "readsAtDrop": 0,
+    263|     expect({ readsAtDrop: reads }).toEqual({ readsAtDrop: -1 });
+ FAIL  |shipped/firefox (firefox)| tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+AssertionError: expected { readsAtDrop: +0 } to deeply equal { readsAtDrop: -1 }
+-   "readsAtDrop": -1,
++   "readsAtDrop": 0,
+    263|     expect({ readsAtDrop: reads }).toEqual({ readsAtDrop: -1 });
+ FAIL  |shipped/webkit (webkit)| tests/hot-path.browser.test.ts:212 > drag:DRI-17 hot path > PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds
+AssertionError: expected { readsAtDrop: +0 } to deeply equal { readsAtDrop: -1 }
+-   "readsAtDrop": -1,
++   "readsAtDrop": 0,
+    263|     expect({ readsAtDrop: reads }).toEqual({ readsAtDrop: -1 });
+      Tests  3 failed | 24 skipped (27)
+# exit 1

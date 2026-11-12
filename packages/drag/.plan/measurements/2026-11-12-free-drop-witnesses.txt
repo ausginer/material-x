@@ -1,0 +1,31 @@
+# 2026-11-12T01:05:43+00:00 label=W3 and W4, with the drop's handleEvent call head=d11d71d27
+# operation.ts drop lines:
+  drop(): VerdictAwaiter<FreeDragResolution> | null {
+    // A scroll after the last rendering update dispatches its `scroll` event only
+    // at the next update, which the drop does not wait for. So the drop clamps and
+    // resolves against the bounds and targets as they are now.
+    this.handleEvent();
+    this.#computeMotion();
+    // `pointerup` moved the pointer, and a drop may follow no frame at all.
+    this.#targets?.drop();
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:05:46 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+1:05:50 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+1:05:52 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+
+ Test Files  6 passed (6)
+      Tests  6 passed | 51 skipped (57)
+   Start at  01:05:45
+   Duration  8.15s (worker 73%, tests 19%, import 8%)
+
+# exit 0

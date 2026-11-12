@@ -1,0 +1,462 @@
+# 2026-11-12T07:08:16+00:00 label=M7 head=4160d76e4
+# the run's src/sortable against HEAD:
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b1fcae5f8..7e3d2b9bb 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -217,7 +217,12 @@ export class RectIndex {
+     }
+ 
+     // The slots must hold where flow puts a row, not where an animation draws it.
+-    displacement?.settle(values, items, lo, hi);
++    displacement?.settle(
++      values.subarray(lo * STRIDE),
++      lo ? items.slice(lo, hi) : items,
++      0,
++      hi - lo,
++    );
+ 
+     // An empty window sits at the slot `collect` gave it, so a range next to it
+     // extends it the same way.
+# end of differences
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+7:08:19 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:136 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:152 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:169 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:187 > drag:DRI-14 collection > should decline quietly when the item left the document during the press
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:203 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:237 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:279 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:314 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:359 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:414 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:427 > drag:DRI-14 collection > should cancel when the dragged item was removed
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:444 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:461 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:483 > drag:DRI-14 collection > should reach the end gap with a null next
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:499 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:517 > drag:DRI-14 collection > should decline on altKey
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:534 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:562 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:583 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:597 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:619 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:635 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:643 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:695 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:718 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:735 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:755 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:768 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:784 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:795 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:814 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:830 > sortable options > should honor handle: a press elsewhere does not admit
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:853 > sortable options > should refuse a press through data-drag-ignore
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:863 > sortable options > should honor visual: the named node is lifted and the item stays
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:881 > sortable options > should honor box: a box around the visual keeps the rest of its footprint
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:901 > sortable options > should honor box: a box inside the visual sizes the whole footprint
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:919 > sortable options > should resolve a grid with xy()
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:942 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:973 > sortable options > should keep a row animation past the terminal, until destruction
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:995 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1038 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1082 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1122 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up
+ × |browser (chromium)| tests/sortable.browser.test.ts:1204 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array 691ms
+   → expected 13 to be 1 // Object.is equality
+ × |browser (chromium)| tests/sortable.browser.test.ts:1247 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array 365ms
+   → expected 3 to be 1 // Object.is equality
+ × |browser (chromium)| tests/sortable.browser.test.ts:1288 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 267ms
+   → expected 0 to be greater than 0
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1381 > sortable options > should ignore a second pointer during a drag
+ ↓ |browser (chromium)| tests/sortable.browser.test.ts:1412 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+7:08:23 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:136 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:152 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:169 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:187 > drag:DRI-14 collection > should decline quietly when the item left the document during the press
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:203 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:237 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:279 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:314 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:359 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:414 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:427 > drag:DRI-14 collection > should cancel when the dragged item was removed
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:444 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:461 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:483 > drag:DRI-14 collection > should reach the end gap with a null next
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:499 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:517 > drag:DRI-14 collection > should decline on altKey
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:534 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:562 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:583 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:597 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:619 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:635 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:643 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:695 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:718 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:735 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:755 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:768 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:784 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:795 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:814 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:830 > sortable options > should honor handle: a press elsewhere does not admit
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:853 > sortable options > should refuse a press through data-drag-ignore
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:863 > sortable options > should honor visual: the named node is lifted and the item stays
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:881 > sortable options > should honor box: a box around the visual keeps the rest of its footprint
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:901 > sortable options > should honor box: a box inside the visual sizes the whole footprint
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:919 > sortable options > should resolve a grid with xy()
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:942 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:973 > sortable options > should keep a row animation past the terminal, until destruction
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:995 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1038 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1082 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1122 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:1204 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array 641ms
+   → expected 13 to be 1 // Object.is equality
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:1247 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array 327ms
+   → expected 3 to be 1 // Object.is equality
+ × |browser/firefox (firefox)| tests/sortable.browser.test.ts:1288 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 267ms
+   → expected 0 to be greater than 0
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1381 > sortable options > should ignore a second pointer during a drag
+ ↓ |browser/firefox (firefox)| tests/sortable.browser.test.ts:1412 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+7:08:26 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:136 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:152 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:169 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:187 > drag:DRI-14 collection > should decline quietly when the item left the document during the press
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:203 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:237 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:279 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:314 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:359 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:414 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:427 > drag:DRI-14 collection > should cancel when the dragged item was removed
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:444 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:461 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:483 > drag:DRI-14 collection > should reach the end gap with a null next
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:499 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:517 > drag:DRI-14 collection > should decline on altKey
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:534 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:562 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:583 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:597 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:619 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:635 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:643 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:672 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:695 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:718 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:735 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:755 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:768 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:784 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:795 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:814 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:830 > sortable options > should honor handle: a press elsewhere does not admit
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:853 > sortable options > should refuse a press through data-drag-ignore
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:863 > sortable options > should honor visual: the named node is lifted and the item stays
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:881 > sortable options > should honor box: a box around the visual keeps the rest of its footprint
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:901 > sortable options > should honor box: a box inside the visual sizes the whole footprint
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:919 > sortable options > should resolve a grid with xy()
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:942 > sortable options > should animate displaced rows with layoutAnimation, in xy() too
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:973 > sortable options > should keep a row animation past the terminal, until destruction
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:995 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1038 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1082 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1122 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:1204 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array 317ms
+   → expected 13 to be 1 // Object.is equality
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:1247 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array 155ms
+   → expected 3 to be 1 // Object.is equality
+ × |browser/webkit (webkit)| tests/sortable.browser.test.ts:1288 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 142ms
+   → expected 0 to be greater than 0
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1381 > sortable options > should ignore a second pointer during a drag
+ ↓ |browser/webkit (webkit)| tests/sortable.browser.test.ts:1412 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1204 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array
+AssertionError: expected 13 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 13
+
+ ❯ expectCacheRanges tests/sortable.browser.test.ts:113:65
+    111|   destination: number,
+    112| ): void {
+    113|   expect(new Set(measurements.map((call) => call.values)).size).toBe(1…
+    114|   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+    115|
+ ❯ tests/sortable.browser.test.ts:1232:5
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1247 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array
+AssertionError: expected 3 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ expectCacheRanges tests/sortable.browser.test.ts:113:65
+    111|   destination: number,
+    112| ): void {
+    113|   expect(new Set(measurements.map((call) => call.values)).size).toBe(1…
+    114|   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+    115|
+ ❯ tests/sortable.browser.test.ts:1280:5
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1288 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/sortable.browser.test.ts:1369:26
+    1367|     )!;
+    1368|
+    1369|     expect(overR3.first).toBeGreaterThan(0);
+    1370|     expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).to…
+    1371|       settledTop,
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:1204 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array
+AssertionError: expected 13 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 13
+
+ ❯ expectCacheRanges tests/sortable.browser.test.ts:113:65
+    111|   destination: number,
+    112| ): void {
+    113|   expect(new Set(measurements.map((call) => call.values)).size).toBe(1…
+    114|   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+    115|
+ ❯ tests/sortable.browser.test.ts:1232:5
+ ❯ async*withFixtures/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5725:22
+ ❯ runWithCancel .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5709:22
+ ❯ runWithTimeout .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5673:10
+ ❯ runTest/</</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:64
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runTest/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:57
+ ❯ runTest/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:37
+ ❯ callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundEachHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:8
+ ❯ runTest .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:45
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:31
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6450:32
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6466:19
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6459:38
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runFiles/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6481:20
+ ❯ runFiles .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6478:16
+ ❯ startTests .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6514:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:1247 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array
+AssertionError: expected 3 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ expectCacheRanges tests/sortable.browser.test.ts:113:65
+    111|   destination: number,
+    112| ): void {
+    113|   expect(new Set(measurements.map((call) => call.values)).size).toBe(1…
+    114|   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+    115|
+ ❯ tests/sortable.browser.test.ts:1280:5
+ ❯ async*withFixtures/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5725:22
+ ❯ runWithCancel .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5709:22
+ ❯ runWithTimeout .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5673:10
+ ❯ runTest/</</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:64
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runTest/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:57
+ ❯ runTest/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:37
+ ❯ callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundEachHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:8
+ ❯ runTest .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:45
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:31
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6450:32
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6466:19
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6459:38
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runFiles/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6481:20
+ ❯ runFiles .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6478:16
+ ❯ startTests .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6514:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:1288 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/sortable.browser.test.ts:1369:26
+    1367|     )!;
+    1368|
+    1369|     expect(overR3.first).toBeGreaterThan(0);
+    1370|     expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).to…
+    1371|       settledTop,
+ ❯ async*withFixtures/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5725:22
+ ❯ runWithCancel .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5709:22
+ ❯ runWithTimeout .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5673:10
+ ❯ runTest/</</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:64
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runTest/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:57
+ ❯ runTest/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:37
+ ❯ callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundEachHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:8
+ ❯ runTest .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:45
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:31
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6450:32
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6466:19
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6459:38
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runFiles/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6481:20
+ ❯ runFiles .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6478:16
+ ❯ startTests .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6514:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:1204 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array
+AssertionError: expected 13 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 13
+
+ ❯ expectCacheRanges tests/sortable.browser.test.ts:113:65
+    111|   destination: number,
+    112| ): void {
+    113|   expect(new Set(measurements.map((call) => call.values)).size).toBe(1…
+    114|   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+    115|
+ ❯ tests/sortable.browser.test.ts:1232:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:1247 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array
+AssertionError: expected 3 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 3
+
+ ❯ expectCacheRanges tests/sortable.browser.test.ts:113:65
+    111|   destination: number,
+    112| ): void {
+    113|   expect(new Set(measurements.map((call) => call.values)).size).toBe(1…
+    114|   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
+    115|
+ ❯ tests/sortable.browser.test.ts:1280:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:1288 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/sortable.browser.test.ts:1369:26
+    1367|     )!;
+    1368|
+    1369|     expect(overR3.first).toBeGreaterThan(0);
+    1370|     expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).to…
+    1371|       settledTop,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  9 failed | 150 skipped (159)
+   Start at  07:08:18
+   Duration  9.16s (tests 73%, worker 21%, import 7%)
+
+# exit 1

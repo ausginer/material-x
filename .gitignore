@@ -16,6 +16,10 @@
 # `just size --files` writes each measured bundle here for reading. Output of a
 # measurement, never an input to one.
 /packages/*/.measured
+
+# `bench/campaign.ts` writes each run's status and logs here. Raw output that a
+# report copies into its record; never an input.
+/packages/*/.campaigns
 /packages/**/*.js
 /packages/**/*.js.map
 /packages/**/*.d.ts.map
@@ -57,5 +61,6 @@ storybook-static
 
 .agents/codex
 .claude/worktrees
+.codex-attachments
 .claude/settings.local.json
 *.patch

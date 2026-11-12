@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# rec.sh <out> <command...>: the machine record at the head and foot of <out>, and the command's output between.
+out=$1; shift
+m() { echo "nproc $(nproc), node $(node --version), uptime: $(uptime)"; }
+{ echo "# command: $*"; echo "# revision: $(git rev-parse HEAD)"; echo "# before: $(m)"; } > "$out"
+"$@" >> "$out" 2>&1; code=$?
+echo "# after: $(m), exit $code" >> "$out"
+exit $code

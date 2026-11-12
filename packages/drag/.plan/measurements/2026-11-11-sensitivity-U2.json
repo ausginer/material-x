@@ -1,0 +1,2405 @@
+{
+ "chrome": "157.0.8103.38",
+ "rounds": 7,
+ "moves": 300,
+ "arms": [
+  "production",
+  "base",
+  "control"
+ ],
+ "before": null,
+ "injected": {
+  "in the page: 300 moves, one frame each, 20 items": "30 µs of script per move, in the page",
+  "in the page: 50 activate-and-drop cycles, 20 items, no landing": "300 µs of script per cycle, in the page"
+ },
+ "summary": [
+  {
+   "scenario": "in the page: 300 moves, one frame each, 20 items",
+   "rule": "exact-and-floor",
+   "medians": {
+    "production": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 32,
+      "min": 26,
+      "max": 37
+     },
+     "styleUs": {
+      "median": 172,
+      "min": 144,
+      "max": 190
+     },
+     "scriptUs": {
+      "median": 152,
+      "min": 119,
+      "max": 162
+     },
+     "taskUs": {
+      "median": 836,
+      "min": 685,
+      "max": 911
+     }
+    },
+    "base": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 33,
+      "min": 28,
+      "max": 34
+     },
+     "styleUs": {
+      "median": 180,
+      "min": 140,
+      "max": 188
+     },
+     "scriptUs": {
+      "median": 113,
+      "min": 86,
+      "max": 123
+     },
+     "taskUs": {
+      "median": 826,
+      "min": 607,
+      "max": 858
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 34,
+      "min": 27,
+      "max": 37
+     },
+     "styleUs": {
+      "median": 175,
+      "min": 153,
+      "max": 192
+     },
+     "scriptUs": {
+      "median": 149,
+      "min": 124,
+      "max": 166
+     },
+     "taskUs": {
+      "median": 841,
+      "min": 713,
+      "max": 917
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "base",
+     "measure": "layouts",
+     "result": "at or below: 83 against 83"
+    },
+    {
+     "against": "base",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 7 of 7, median 35 µs, A/A bound 36 µs",
+     "differences": [
+      30,
+      45,
+      49,
+      17,
+      35,
+      65,
+      10
+     ],
+     "aa": [
+      3,
+      -16,
+      -1,
+      -13,
+      -11,
+      36,
+      -16
+     ],
+     "higher": 7,
+     "lower": 0,
+     "median": 35,
+     "bound": 36
+    },
+    {
+     "against": "base",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 4 of 7, median 31 µs, A/A bound 179 µs",
+     "differences": [
+      -14,
+      137,
+      85,
+      -99,
+      31,
+      181,
+      -74
+     ],
+     "aa": [
+      -9,
+      -95,
+      33,
+      -81,
+      -44,
+      179,
+      -81
+     ],
+     "higher": 4,
+     "lower": 3,
+     "median": 31,
+     "bound": 179
+    }
+   ]
+  },
+  {
+   "scenario": "in the page: 50 activate-and-drop cycles, 20 items, no landing",
+   "rule": "exact-and-floor",
+   "medians": {
+    "production": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 434,
+      "min": 410,
+      "max": 484
+     },
+     "styleUs": {
+      "median": 679,
+      "min": 633,
+      "max": 734
+     },
+     "scriptUs": {
+      "median": 1709,
+      "min": 1500,
+      "max": 1820
+     },
+     "taskUs": {
+      "median": 5008,
+      "min": 4494,
+      "max": 5400
+     }
+    },
+    "base": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 432,
+      "min": 386,
+      "max": 489
+     },
+     "styleUs": {
+      "median": 652,
+      "min": 609,
+      "max": 750
+     },
+     "scriptUs": {
+      "median": 1295,
+      "min": 1178,
+      "max": 1490
+     },
+     "taskUs": {
+      "median": 4381,
+      "min": 4049,
+      "max": 5077
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 250,
+      "min": 250,
+      "max": 250
+     },
+     "layoutUs": {
+      "median": 451,
+      "min": 369,
+      "max": 492
+     },
+     "styleUs": {
+      "median": 681,
+      "min": 606,
+      "max": 772
+     },
+     "scriptUs": {
+      "median": 1684,
+      "min": 1412,
+      "max": 1859
+     },
+     "taskUs": {
+      "median": 4935,
+      "min": 4267,
+      "max": 5411
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "base",
+     "measure": "layouts",
+     "result": "at or below: 250 against 250"
+    },
+    {
+     "against": "base",
+     "measure": "scriptUs",
+     "result": "FLAG slower: higher in 7 of 7, median 315 µs, A/A bound 271 µs",
+     "differences": [
+      514,
+      507,
+      205,
+      642,
+      315,
+      99,
+      162
+     ],
+     "aa": [
+      132,
+      28,
+      88,
+      97,
+      104,
+      -270,
+      -134
+     ],
+     "higher": 7,
+     "lower": 0,
+     "median": 315,
+     "bound": 271
+    },
+    {
+     "against": "base",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 5 of 7, median 113 µs, A/A bound 680 µs",
+     "differences": [
+      959,
+      888,
+      113,
+      1343,
+      59,
+      -347,
+      -183
+     ],
+     "aa": [
+      271,
+      168,
+      227,
+      318,
+      211,
+      -680,
+      -310
+     ],
+     "higher": 5,
+     "lower": 2,
+     "median": 113,
+     "bound": 680
+    }
+   ]
+  },
+  {
+   "scenario": "300 moves, one frame each, 20 items",
+   "rule": "exact-and-floor",
+   "medians": {
+    "production": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 34,
+      "min": 32,
+      "max": 35
+     },
+     "styleUs": {
+      "median": 180,
+      "min": 175,
+      "max": 194
+     },
+     "scriptUs": {
+      "median": 152,
+      "min": 145,
+      "max": 158
+     },
+     "taskUs": {
+      "median": 1796,
+      "min": 1752,
+      "max": 1961
+     }
+    },
+    "base": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 32,
+      "min": 30,
+      "max": 36
+     },
+     "styleUs": {
+      "median": 193,
+      "min": 175,
+      "max": 201
+     },
+     "scriptUs": {
+      "median": 155,
+      "min": 147,
+      "max": 169
+     },
+     "taskUs": {
+      "median": 1838,
+      "min": 1733,
+      "max": 2006
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 83,
+      "min": 83,
+      "max": 83
+     },
+     "layoutUs": {
+      "median": 34,
+      "min": 31,
+      "max": 38
+     },
+     "styleUs": {
+      "median": 191,
+      "min": 170,
+      "max": 215
+     },
+     "scriptUs": {
+      "median": 154,
+      "min": 142,
+      "max": 168
+     },
+     "taskUs": {
+      "median": 1894,
+      "min": 1749,
+      "max": 2006
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "base",
+     "measure": "layouts",
+     "result": "at or below: 83 against 83"
+    },
+    {
+     "against": "base",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 3 of 7, median -5 µs, A/A bound 17 µs",
+     "differences": [
+      2,
+      12,
+      -13,
+      -13,
+      -5,
+      -6,
+      1
+     ],
+     "aa": [
+      3,
+      -4,
+      -7,
+      2,
+      -9,
+      5,
+      -17
+     ],
+     "higher": 3,
+     "lower": 4,
+     "median": -5,
+     "bound": 17
+    },
+    {
+     "against": "base",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 1 of 7, median -45 µs, A/A bound 210 µs",
+     "differences": [
+      -118,
+      126,
+      -160,
+      -45,
+      -16,
+      -86,
+      -23
+     ],
+     "aa": [
+      53,
+      -88,
+      -31,
+      67,
+      -210,
+      0,
+      -122
+     ],
+     "higher": 1,
+     "lower": 6,
+     "median": -45,
+     "bound": 210
+    }
+   ]
+  }
+ ],
+ "raw": {
+  "in the page: 300 moves, one frame each, 20 items": {
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 32.413333333333334,
+     "styleUs": 171.98,
+     "scriptUs": 152.34,
+     "taskUs": 836.2466666666668
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 28.423333333333332,
+     "styleUs": 156.61666666666667,
+     "scriptUs": 131.7,
+     "taskUs": 744.3066666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 37.036666666666676,
+     "styleUs": 189.55666666666667,
+     "scriptUs": 161.96,
+     "taskUs": 910.6133333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 28.53,
+     "styleUs": 157.89,
+     "scriptUs": 136.28333333333333,
+     "taskUs": 759.7166666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.18000000000001,
+     "styleUs": 180.66,
+     "scriptUs": 155.25,
+     "taskUs": 872.9433333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 36.056666666666665,
+     "styleUs": 183.57,
+     "scriptUs": 160.61333333333334,
+     "taskUs": 892.1133333333336
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 25.54,
+     "styleUs": 143.90333333333334,
+     "scriptUs": 118.89666666666669,
+     "taskUs": 685.39
+    }
+   ],
+   "base": [
+    {
+     "layouts": 83,
+     "layoutUs": 33.49333333333333,
+     "styleUs": 188.42333333333332,
+     "scriptUs": 122.82666666666667,
+     "taskUs": 850.3066666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 32.166666666666664,
+     "styleUs": 139.99,
+     "scriptUs": 86.49333333333334,
+     "taskUs": 607.4666666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.86666666666667,
+     "styleUs": 180.29666666666665,
+     "scriptUs": 113.24666666666668,
+     "taskUs": 825.77
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.443333333333335,
+     "styleUs": 187.69666666666666,
+     "scriptUs": 119.72666666666667,
+     "taskUs": 858.34
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.786666666666676,
+     "styleUs": 185.32666666666665,
+     "scriptUs": 120.33,
+     "taskUs": 841.9466666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 28.323333333333338,
+     "styleUs": 159.08666666666667,
+     "scriptUs": 95.93666666666667,
+     "taskUs": 711.2533333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 31.296666666666667,
+     "styleUs": 179.77333333333334,
+     "scriptUs": 109.07,
+     "taskUs": 759.5766666666667
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 33.629999999999995,
+     "styleUs": 175.04666666666668,
+     "scriptUs": 149.43666666666667,
+     "taskUs": 844.8133333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.90666666666666,
+     "styleUs": 173.91,
+     "scriptUs": 147.92333333333335,
+     "taskUs": 839.42
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.81666666666667,
+     "styleUs": 180.91,
+     "scriptUs": 163.1233333333333,
+     "taskUs": 877.4033333333335
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 31.983333333333334,
+     "styleUs": 179.17333333333335,
+     "scriptUs": 148.89,
+     "taskUs": 840.9866666666668
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 36.69666666666667,
+     "styleUs": 192.08333333333331,
+     "scriptUs": 166.15666666666667,
+     "taskUs": 917.38
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 26.73666666666666,
+     "styleUs": 152.70333333333335,
+     "scriptUs": 124.34,
+     "taskUs": 713.4533333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 27.576666666666668,
+     "styleUs": 163.11,
+     "scriptUs": 134.71333333333334,
+     "taskUs": 766.6833333333334
+    }
+   ]
+  },
+  "in the page: 50 activate-and-drop cycles, 20 items, no landing": {
+   "production": [
+    {
+     "layouts": 250,
+     "layoutUs": 434.28,
+     "styleUs": 679.4599999999998,
+     "scriptUs": 1720.68,
+     "taskUs": 5008.26
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 443.36,
+     "styleUs": 706.98,
+     "scriptUs": 1712.22,
+     "taskUs": 5103.5599999999995
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 412.24,
+     "styleUs": 633.36,
+     "scriptUs": 1500.08,
+     "taskUs": 4493.92
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 483.88,
+     "styleUs": 733.5,
+     "scriptUs": 1819.9,
+     "taskUs": 5400.04
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 446.68,
+     "styleUs": 698.52,
+     "scriptUs": 1708.52,
+     "taskUs": 5010.88
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 428.74,
+     "styleUs": 672.76,
+     "scriptUs": 1588.84,
+     "taskUs": 4730.68
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 410.0799999999999,
+     "styleUs": 667.3799999999999,
+     "scriptUs": 1581.82,
+     "taskUs": 4765.32
+    }
+   ],
+   "base": [
+    {
+     "layouts": 250,
+     "layoutUs": 386.12,
+     "styleUs": 647.34,
+     "scriptUs": 1207.1,
+     "taskUs": 4049.18
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 402.02,
+     "styleUs": 632.42,
+     "scriptUs": 1205.42,
+     "taskUs": 4215.78
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 431.84,
+     "styleUs": 652.4000000000001,
+     "scriptUs": 1294.7800000000002,
+     "taskUs": 4380.76
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 395.68,
+     "styleUs": 609.28,
+     "scriptUs": 1177.96,
+     "taskUs": 4057.54
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 489.32,
+     "styleUs": 747.1,
+     "scriptUs": 1393.04,
+     "taskUs": 4952.32
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 488.24,
+     "styleUs": 742.82,
+     "scriptUs": 1490.32,
+     "taskUs": 5077.28
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 485.6,
+     "styleUs": 750.02,
+     "scriptUs": 1419.88,
+     "taskUs": 4948
+    }
+   ],
+   "control": [
+    {
+     "layouts": 250,
+     "layoutUs": 409,
+     "styleUs": 654.98,
+     "scriptUs": 1589.04,
+     "taskUs": 4737.18
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 441.94,
+     "styleUs": 680.74,
+     "scriptUs": 1684.02,
+     "taskUs": 4935.34
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 368.82,
+     "styleUs": 605.92,
+     "scriptUs": 1412.42,
+     "taskUs": 4266.56
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 451.2,
+     "styleUs": 715.6,
+     "scriptUs": 1722.54,
+     "taskUs": 5082.0599999999995
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 491.50000000000006,
+     "styleUs": 658.52,
+     "scriptUs": 1604.56,
+     "taskUs": 4799.84
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 474.1,
+     "styleUs": 771.9000000000001,
+     "scriptUs": 1859.34,
+     "taskUs": 5410.959999999999
+    },
+    {
+     "layouts": 250,
+     "layoutUs": 454.2200000000001,
+     "styleUs": 711.7,
+     "scriptUs": 1715.38,
+     "taskUs": 5074.880000000001
+    }
+   ]
+  },
+  "300 moves, one frame each, 20 items": {
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 31.62,
+     "styleUs": 179.77333333333334,
+     "scriptUs": 156.75666666666666,
+     "taskUs": 1802.16
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.223333333333336,
+     "styleUs": 185.7233333333333,
+     "scriptUs": 158.24666666666667,
+     "taskUs": 1859.6766666666663
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.083333333333336,
+     "styleUs": 177.82999999999998,
+     "scriptUs": 145.45666666666668,
+     "taskUs": 1787.0733333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.17666666666667,
+     "styleUs": 193.84666666666666,
+     "scriptUs": 156.26666666666668,
+     "taskUs": 1960.9533333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.88,
+     "styleUs": 184.62000000000003,
+     "scriptUs": 152.1966666666667,
+     "taskUs": 1795.7766666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.033333333333324,
+     "styleUs": 175.40666666666667,
+     "scriptUs": 146.63666666666666,
+     "taskUs": 1751.8233333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 32.413333333333334,
+     "styleUs": 178.91333333333333,
+     "scriptUs": 150.36333333333332,
+     "taskUs": 1791.9033333333334
+    }
+   ],
+   "base": [
+    {
+     "layouts": 83,
+     "layoutUs": 33.75333333333333,
+     "styleUs": 200.51,
+     "scriptUs": 154.8766666666667,
+     "taskUs": 1919.8399999999997
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 32.419999999999995,
+     "styleUs": 174.54333333333332,
+     "scriptUs": 146.58,
+     "taskUs": 1733.3566666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 31.39666666666667,
+     "styleUs": 194.88333333333333,
+     "scriptUs": 158.95666666666668,
+     "taskUs": 1946.7033333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 35.74666666666667,
+     "styleUs": 200.90666666666667,
+     "scriptUs": 169.2533333333333,
+     "taskUs": 2006.3466666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 31.43,
+     "styleUs": 180.47333333333333,
+     "scriptUs": 157.48666666666668,
+     "taskUs": 1812.1800000000003
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 29.99333333333333,
+     "styleUs": 182.32,
+     "scriptUs": 152.4266666666667,
+     "taskUs": 1838.0166666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.513333333333335,
+     "styleUs": 192.74,
+     "scriptUs": 149.3833333333333,
+     "taskUs": 1814.5233333333333
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 31.086666666666666,
+     "styleUs": 170.25333333333333,
+     "scriptUs": 153.58,
+     "taskUs": 1748.71
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.186666666666675,
+     "styleUs": 194.35333333333332,
+     "scriptUs": 162.2,
+     "taskUs": 1947.65
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 32.77,
+     "styleUs": 180.66666666666666,
+     "scriptUs": 152.1,
+     "taskUs": 1818.11
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 34.00333333333333,
+     "styleUs": 190.6,
+     "scriptUs": 154.31666666666666,
+     "taskUs": 1893.9933333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 33.70333333333333,
+     "styleUs": 214.64333333333332,
+     "scriptUs": 161.58333333333337,
+     "taskUs": 2006.096666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 31.176666666666666,
+     "styleUs": 172.08333333333334,
+     "scriptUs": 142.06333333333336,
+     "taskUs": 1751.5833333333333
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 37.580000000000005,
+     "styleUs": 191.77333333333334,
+     "scriptUs": 167.5966666666667,
+     "taskUs": 1913.8633333333332
+    }
+   ]
+  }
+ },
+ "records": {
+  "in the page: 300 moves, one frame each, 20 items": {
+   "production": [
+    {
+     "start": "2026-11-11T05:09:12.362Z",
+     "end": "2026-11-11T05:09:17.358Z",
+     "windowMs": 4995.545663,
+     "rendererPid": 858419,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 278.501539,
+     "waitMs": 1.289774,
+     "samples": 246,
+     "shareCpu0to3": 0.532520325203252,
+     "pressureUs": 23736,
+     "load1": 2.28,
+     "gaugeBeforeMs": 30,
+     "gaugeAfterMs": 14.100000023841858,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:38.579Z",
+     "end": "2026-11-11T05:09:43.554Z",
+     "windowMs": 4975.020526,
+     "rendererPid": 858688,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 248.97118,
+     "waitMs": 3.119989,
+     "samples": 246,
+     "shareCpu0to3": 0.44715447154471544,
+     "pressureUs": 22761,
+     "load1": 2.08,
+     "gaugeBeforeMs": 14.099999994039536,
+     "gaugeAfterMs": 10.700000017881393,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:49.009Z",
+     "end": "2026-11-11T05:09:53.989Z",
+     "windowMs": 4979.344992999999,
+     "rendererPid": 858800,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 303.129258,
+     "waitMs": 1.467106,
+     "samples": 246,
+     "shareCpu0to3": 0.3861788617886179,
+     "pressureUs": 22403,
+     "load1": 2.73,
+     "gaugeBeforeMs": 15,
+     "gaugeAfterMs": 18,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:59.504Z",
+     "end": "2026-11-11T05:10:04.487Z",
+     "windowMs": 4982.596778000006,
+     "rendererPid": 858907,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 253.343944,
+     "waitMs": 1.684756,
+     "samples": 246,
+     "shareCpu0to3": 0.508130081300813,
+     "pressureUs": 23023,
+     "load1": 2.92,
+     "gaugeBeforeMs": 19.599999994039536,
+     "gaugeAfterMs": 10.700000017881393,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:25.640Z",
+     "end": "2026-11-11T05:10:30.619Z",
+     "windowMs": 4978.547767999989,
+     "rendererPid": 859173,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 292.527247,
+     "waitMs": 0.850444,
+     "samples": 246,
+     "shareCpu0to3": 0.3617886178861789,
+     "pressureUs": 28463,
+     "load1": 2.95,
+     "gaugeBeforeMs": 15,
+     "gaugeAfterMs": 13.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:36.074Z",
+     "end": "2026-11-11T05:10:41.052Z",
+     "windowMs": 4978.523210999992,
+     "rendererPid": 859285,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 296.152049,
+     "waitMs": 4.683098,
+     "samples": 245,
+     "shareCpu0to3": 0.32653061224489793,
+     "pressureUs": 29592,
+     "load1": 2.65,
+     "gaugeBeforeMs": 15.899999976158142,
+     "gaugeAfterMs": 12.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:46.533Z",
+     "end": "2026-11-11T05:10:51.518Z",
+     "windowMs": 4984.988990999991,
+     "rendererPid": 859401,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 225.63049,
+     "waitMs": 0.881024,
+     "samples": 247,
+     "shareCpu0to3": 0.27125506072874495,
+     "pressureUs": 31653,
+     "load1": 2.55,
+     "gaugeBeforeMs": 22.5,
+     "gaugeAfterMs": 16.80000001192093,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ],
+   "base": [
+    {
+     "start": "2026-11-11T05:09:17.603Z",
+     "end": "2026-11-11T05:09:22.588Z",
+     "windowMs": 4985.599225,
+     "rendererPid": 858477,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 286.257376,
+     "waitMs": 3.276486,
+     "samples": 246,
+     "shareCpu0to3": 0.4634146341463415,
+     "pressureUs": 25481,
+     "load1": 2.18,
+     "gaugeBeforeMs": 21,
+     "gaugeAfterMs": 13.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:28.066Z",
+     "end": "2026-11-11T05:09:33.038Z",
+     "windowMs": 4971.747084999999,
+     "rendererPid": 858575,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 194.426193,
+     "waitMs": 2.440357,
+     "samples": 246,
+     "shareCpu0to3": 0.2967479674796748,
+     "pressureUs": 24461,
+     "load1": 2.01,
+     "gaugeBeforeMs": 16.80000001192093,
+     "gaugeAfterMs": 17.600000023841858,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:54.258Z",
+     "end": "2026-11-11T05:09:59.239Z",
+     "windowMs": 4980.823731000004,
+     "rendererPid": 858852,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 278.415806,
+     "waitMs": 3.002001,
+     "samples": 245,
+     "shareCpu0to3": 0.37142857142857144,
+     "pressureUs": 27869,
+     "load1": 2.91,
+     "gaugeBeforeMs": 27.19999998807907,
+     "gaugeAfterMs": 13.800000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:04.726Z",
+     "end": "2026-11-11T05:10:09.705Z",
+     "windowMs": 4978.303728999999,
+     "rendererPid": 858961,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 292.216162,
+     "waitMs": 1.100157,
+     "samples": 246,
+     "shareCpu0to3": 0.47560975609756095,
+     "pressureUs": 22689,
+     "load1": 3,
+     "gaugeBeforeMs": 16.69999998807907,
+     "gaugeAfterMs": 14.700000017881393,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": true,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:15.191Z",
+     "end": "2026-11-11T05:10:20.169Z",
+     "windowMs": 4978.450973000006,
+     "rendererPid": 859076,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 281.743703,
+     "waitMs": 3.972163,
+     "samples": 246,
+     "shareCpu0to3": 0.2682926829268293,
+     "pressureUs": 18510,
+     "load1": 2.7,
+     "gaugeBeforeMs": 23.099999994039536,
+     "gaugeAfterMs": 13.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:41.308Z",
+     "end": "2026-11-11T05:10:46.285Z",
+     "windowMs": 4977.181660999995,
+     "rendererPid": 859344,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 237.574891,
+     "waitMs": 1.028547,
+     "samples": 246,
+     "shareCpu0to3": 0.2845528455284553,
+     "pressureUs": 23353,
+     "load1": 2.6,
+     "gaugeBeforeMs": 17.5,
+     "gaugeAfterMs": 13.299999982118607,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:51.813Z",
+     "end": "2026-11-11T05:10:56.784Z",
+     "windowMs": 4971.591241000002,
+     "rendererPid": 859454,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 244.382225,
+     "waitMs": 0.564615,
+     "samples": 246,
+     "shareCpu0to3": 0.2601626016260163,
+     "pressureUs": 36411,
+     "load1": 2.59,
+     "gaugeBeforeMs": 20.5,
+     "gaugeAfterMs": 13,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ],
+   "control": [
+    {
+     "start": "2026-11-11T05:09:22.824Z",
+     "end": "2026-11-11T05:09:27.806Z",
+     "windowMs": 4981.790259000001,
+     "rendererPid": 858527,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 281.747024,
+     "waitMs": 1.076319,
+     "samples": 246,
+     "shareCpu0to3": 0.3902439024390244,
+     "pressureUs": 29301,
+     "load1": 2.01,
+     "gaugeBeforeMs": 13.200000017881393,
+     "gaugeAfterMs": 14.799999982118607,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:33.354Z",
+     "end": "2026-11-11T05:09:38.338Z",
+     "windowMs": 4983.566429000002,
+     "rendererPid": 858632,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 278.623785,
+     "waitMs": 2.505763,
+     "samples": 247,
+     "shareCpu0to3": 0.2388663967611336,
+     "pressureUs": 23268,
+     "load1": 2,
+     "gaugeBeforeMs": 24.400000005960464,
+     "gaugeAfterMs": 10,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:09:43.792Z",
+     "end": "2026-11-11T05:09:48.771Z",
+     "windowMs": 4978.695617000001,
+     "rendererPid": 858749,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 291.856529,
+     "waitMs": 1.155729,
+     "samples": 246,
+     "shareCpu0to3": 0.3780487804878049,
+     "pressureUs": 28381,
+     "load1": 2.88,
+     "gaugeBeforeMs": 15.699999988079071,
+     "gaugeAfterMs": 10.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:09.940Z",
+     "end": "2026-11-11T05:10:14.921Z",
+     "windowMs": 4980.272675,
+     "rendererPid": 859019,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 277.990154,
+     "waitMs": 4.47047,
+     "samples": 246,
+     "shareCpu0to3": 0.3699186991869919,
+     "pressureUs": 18425,
+     "load1": 2.76,
+     "gaugeBeforeMs": 14,
+     "gaugeAfterMs": 15.5,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:20.421Z",
+     "end": "2026-11-11T05:10:25.402Z",
+     "windowMs": 4981.458335999996,
+     "rendererPid": 859123,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 305.523447,
+     "waitMs": 2.32593,
+     "samples": 247,
+     "shareCpu0to3": 0.3481781376518219,
+     "pressureUs": 24604,
+     "load1": 2.59,
+     "gaugeBeforeMs": 22.899999976158142,
+     "gaugeAfterMs": 11,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:30.854Z",
+     "end": "2026-11-11T05:10:35.837Z",
+     "windowMs": 4982.665963000007,
+     "rendererPid": 859236,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 237.046018,
+     "waitMs": 0.901155,
+     "samples": 246,
+     "shareCpu0to3": 0.3130081300813008,
+     "pressureUs": 22255,
+     "load1": 2.71,
+     "gaugeBeforeMs": 13.199999988079071,
+     "gaugeAfterMs": 15,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:10:57.043Z",
+     "end": "2026-11-11T05:11:02.018Z",
+     "windowMs": 4975.058594000002,
+     "rendererPid": 859506,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 253.515235,
+     "waitMs": 1.822113,
+     "samples": 246,
+     "shareCpu0to3": 0.21544715447154472,
+     "pressureUs": 23608,
+     "load1": 2.46,
+     "gaugeBeforeMs": 19.200000017881393,
+     "gaugeAfterMs": 20,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ]
+  },
+  "in the page: 50 activate-and-drop cycles, 20 items, no landing": {
+   "production": [
+    {
+     "start": "2026-11-11T05:11:02.196Z",
+     "end": "2026-11-11T05:11:07.108Z",
+     "windowMs": 4912.547838999992,
+     "rendererPid": 859560,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 268.661238,
+     "waitMs": 2.097135,
+     "samples": 243,
+     "shareCpu0to3": 0.42386831275720166,
+     "pressureUs": 32730,
+     "load1": 2.26,
+     "gaugeBeforeMs": 17.69999998807907,
+     "gaugeAfterMs": 12.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:27.699Z",
+     "end": "2026-11-11T05:11:32.564Z",
+     "windowMs": 4864.704154000006,
+     "rendererPid": 859830,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 274.830077,
+     "waitMs": 3.240254,
+     "samples": 241,
+     "shareCpu0to3": 0.4854771784232365,
+     "pressureUs": 30114,
+     "load1": 1.7,
+     "gaugeBeforeMs": 18.599999994039536,
+     "gaugeAfterMs": 11.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:37.750Z",
+     "end": "2026-11-11T05:11:42.674Z",
+     "windowMs": 4923.634017000004,
+     "rendererPid": 859953,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 241.550777,
+     "waitMs": 1.228146,
+     "samples": 244,
+     "shareCpu0to3": 0.1885245901639344,
+     "pressureUs": 30918,
+     "load1": 1.51,
+     "gaugeBeforeMs": 14.300000011920929,
+     "gaugeAfterMs": 18,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:48.148Z",
+     "end": "2026-11-11T05:11:53.091Z",
+     "windowMs": 4943.595334000012,
+     "rendererPid": 860067,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 292.773769,
+     "waitMs": 1.247347,
+     "samples": 244,
+     "shareCpu0to3": 0.42213114754098363,
+     "pressureUs": 22073,
+     "load1": 1.66,
+     "gaugeBeforeMs": 23.200000017881393,
+     "gaugeAfterMs": 16.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:13.530Z",
+     "end": "2026-11-11T05:12:18.456Z",
+     "windowMs": 4925.6326540000155,
+     "rendererPid": 860337,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 273.226269,
+     "waitMs": 0.570557,
+     "samples": 243,
+     "shareCpu0to3": 0.5473251028806584,
+     "pressureUs": 26383,
+     "load1": 2.08,
+     "gaugeBeforeMs": 17.5,
+     "gaugeAfterMs": 10.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:23.698Z",
+     "end": "2026-11-11T05:12:28.626Z",
+     "windowMs": 4928.411136999988,
+     "rendererPid": 860450,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 257.568984,
+     "waitMs": 1.565446,
+     "samples": 243,
+     "shareCpu0to3": 0.35802469135802467,
+     "pressureUs": 30802,
+     "load1": 2.24,
+     "gaugeBeforeMs": 13.400000005960464,
+     "gaugeAfterMs": 13.400000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:33.917Z",
+     "end": "2026-11-11T05:12:38.840Z",
+     "windowMs": 4922.607049999991,
+     "rendererPid": 860563,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 259.237465,
+     "waitMs": 0.534248,
+     "samples": 244,
+     "shareCpu0to3": 0.44672131147540983,
+     "pressureUs": 22079,
+     "load1": 2.5,
+     "gaugeBeforeMs": 12.400000005960464,
+     "gaugeAfterMs": 11.800000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ],
+   "base": [
+    {
+     "start": "2026-11-11T05:11:07.289Z",
+     "end": "2026-11-11T05:11:12.209Z",
+     "windowMs": 4920.4453959999955,
+     "rendererPid": 859621,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 218.2951,
+     "waitMs": 1.327262,
+     "samples": 244,
+     "shareCpu0to3": 0.2786885245901639,
+     "pressureUs": 21465,
+     "load1": 2.08,
+     "gaugeBeforeMs": 19,
+     "gaugeAfterMs": 16.19999998807907,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:17.472Z",
+     "end": "2026-11-11T05:11:22.392Z",
+     "windowMs": 4920.762101,
+     "rendererPid": 859734,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 228.991677,
+     "waitMs": 1.557104,
+     "samples": 244,
+     "shareCpu0to3": 0.26639344262295084,
+     "pressureUs": 41531,
+     "load1": 1.84,
+     "gaugeBeforeMs": 14,
+     "gaugeAfterMs": 16.5,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:42.898Z",
+     "end": "2026-11-11T05:11:47.873Z",
+     "windowMs": 4975.09315500001,
+     "rendererPid": 860005,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 236.028303,
+     "waitMs": 0.865678,
+     "samples": 247,
+     "shareCpu0to3": 0.19433198380566802,
+     "pressureUs": 22206,
+     "load1": 1.63,
+     "gaugeBeforeMs": 22.099999994039536,
+     "gaugeAfterMs": 22.299999982118607,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:53.273Z",
+     "end": "2026-11-11T05:11:58.190Z",
+     "windowMs": 4917.153320999991,
+     "rendererPid": 860117,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 222.013956,
+     "waitMs": 0.761127,
+     "samples": 243,
+     "shareCpu0to3": 0.35390946502057613,
+     "pressureUs": 24624,
+     "load1": 1.61,
+     "gaugeBeforeMs": 35.099999994039536,
+     "gaugeAfterMs": 11.700000017881393,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:03.393Z",
+     "end": "2026-11-11T05:12:08.307Z",
+     "windowMs": 4913.196544000006,
+     "rendererPid": 860226,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 270.747736,
+     "waitMs": 0.855242,
+     "samples": 243,
+     "shareCpu0to3": 0.40329218106995884,
+     "pressureUs": 21367,
+     "load1": 1.67,
+     "gaugeBeforeMs": 16,
+     "gaugeAfterMs": 16.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": true,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:28.792Z",
+     "end": "2026-11-11T05:12:33.738Z",
+     "windowMs": 4946.079226000002,
+     "rendererPid": 860502,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 278.951972,
+     "waitMs": 1.043076,
+     "samples": 244,
+     "shareCpu0to3": 0.4385245901639344,
+     "pressureUs": 19284,
+     "load1": 2.46,
+     "gaugeBeforeMs": 19.900000005960464,
+     "gaugeAfterMs": 14.800000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:38.989Z",
+     "end": "2026-11-11T05:12:43.873Z",
+     "windowMs": 4883.857339000009,
+     "rendererPid": 860644,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 271.709479,
+     "waitMs": 1.934357,
+     "samples": 242,
+     "shareCpu0to3": 0.3305785123966942,
+     "pressureUs": 23014,
+     "load1": 2.46,
+     "gaugeBeforeMs": 13.699999988079071,
+     "gaugeAfterMs": 14.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ],
+   "control": [
+    {
+     "start": "2026-11-11T05:11:12.393Z",
+     "end": "2026-11-11T05:11:17.308Z",
+     "windowMs": 4914.701126,
+     "rendererPid": 859671,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 257.700229,
+     "waitMs": 1.12583,
+     "samples": 243,
+     "shareCpu0to3": 0.37037037037037035,
+     "pressureUs": 21828,
+     "load1": 2,
+     "gaugeBeforeMs": 19.299999982118607,
+     "gaugeAfterMs": 14.199999988079071,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:22.561Z",
+     "end": "2026-11-11T05:11:27.508Z",
+     "windowMs": 4946.550800000012,
+     "rendererPid": 859780,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 266.133594,
+     "waitMs": 1.003531,
+     "samples": 245,
+     "shareCpu0to3": 0.31020408163265306,
+     "pressureUs": 25566,
+     "load1": 1.85,
+     "gaugeBeforeMs": 15.800000011920929,
+     "gaugeAfterMs": 18.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:32.734Z",
+     "end": "2026-11-11T05:11:37.592Z",
+     "windowMs": 4857.873201000009,
+     "rendererPid": 859893,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 231.722204,
+     "waitMs": 1.360899,
+     "samples": 240,
+     "shareCpu0to3": 0.325,
+     "pressureUs": 21465,
+     "load1": 1.64,
+     "gaugeBeforeMs": 13.599999994039536,
+     "gaugeAfterMs": 11.699999988079071,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:11:58.355Z",
+     "end": "2026-11-11T05:12:03.240Z",
+     "windowMs": 4884.805856000021,
+     "rendererPid": 860168,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 277.665267,
+     "waitMs": 0.670652,
+     "samples": 241,
+     "shareCpu0to3": 0.6680497925311203,
+     "pressureUs": 19421,
+     "load1": 1.64,
+     "gaugeBeforeMs": 17.299999982118607,
+     "gaugeAfterMs": 11.099999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:08.466Z",
+     "end": "2026-11-11T05:12:13.358Z",
+     "windowMs": 4891.330233999994,
+     "rendererPid": 860285,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 261.894974,
+     "waitMs": 0.966494,
+     "samples": 241,
+     "shareCpu0to3": 0.4024896265560166,
+     "pressureUs": 25021,
+     "load1": 2.18,
+     "gaugeBeforeMs": 13.900000005960464,
+     "gaugeAfterMs": 18.80000001192093,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:18.619Z",
+     "end": "2026-11-11T05:12:23.546Z",
+     "windowMs": 4926.813746,
+     "rendererPid": 860399,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 293.324329,
+     "waitMs": 0.428634,
+     "samples": 243,
+     "shareCpu0to3": 0.43621399176954734,
+     "pressureUs": 18194,
+     "load1": 2,
+     "gaugeBeforeMs": 15.800000011920929,
+     "gaugeAfterMs": 10.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:12:44.037Z",
+     "end": "2026-11-11T05:12:48.956Z",
+     "windowMs": 4918.143486000015,
+     "rendererPid": 860702,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 274.5053,
+     "waitMs": 2.623423,
+     "samples": 242,
+     "shareCpu0to3": 0.36363636363636365,
+     "pressureUs": 36023,
+     "load1": 2.58,
+     "gaugeBeforeMs": 21.400000005960464,
+     "gaugeAfterMs": 11,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ]
+  },
+  "300 moves, one frame each, 20 items": {
+   "production": [
+    {
+     "start": "2026-11-11T05:12:49.186Z",
+     "end": "2026-11-11T05:12:59.163Z",
+     "windowMs": 9976.675426000002,
+     "rendererPid": 860758,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 602.866258,
+     "waitMs": 3.674241,
+     "samples": 494,
+     "shareCpu0to3": 0.36639676113360325,
+     "pressureUs": 52567,
+     "load1": 2.78,
+     "gaugeBeforeMs": 17,
+     "gaugeAfterMs": 12.099999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:13:40.456Z",
+     "end": "2026-11-11T05:13:50.427Z",
+     "windowMs": 9971.348188999982,
+     "rendererPid": 861063,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 619.221103,
+     "waitMs": 4.207799,
+     "samples": 494,
+     "shareCpu0to3": 0.2813765182186235,
+     "pressureUs": 58293,
+     "load1": 2.95,
+     "gaugeBeforeMs": 19,
+     "gaugeAfterMs": 15.5,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:14:00.900Z",
+     "end": "2026-11-11T05:14:10.877Z",
+     "windowMs": 9976.61044899997,
+     "rendererPid": 861182,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 596.005943,
+     "waitMs": 4.830783,
+     "samples": 495,
+     "shareCpu0to3": 0.2383838383838384,
+     "pressureUs": 53257,
+     "load1": 2.95,
+     "gaugeBeforeMs": 17.19999998807907,
+     "gaugeAfterMs": 12.399999976158142,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:14:21.322Z",
+     "end": "2026-11-11T05:14:31.309Z",
+     "windowMs": 9987.238788000017,
+     "rendererPid": 861309,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 659.817668,
+     "waitMs": 3.412002,
+     "samples": 493,
+     "shareCpu0to3": 0.43610547667342797,
+     "pressureUs": 43637,
+     "load1": 2.45,
+     "gaugeBeforeMs": 19.19999998807907,
+     "gaugeAfterMs": 15.299999982118607,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:15:12.508Z",
+     "end": "2026-11-11T05:15:22.490Z",
+     "windowMs": 9982.00611800002,
+     "rendererPid": 861621,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 596.026976,
+     "waitMs": 2.856926,
+     "samples": 495,
+     "shareCpu0to3": 0.23434343434343435,
+     "pressureUs": 49263,
+     "load1": 1.83,
+     "gaugeBeforeMs": 40.29999998211861,
+     "gaugeAfterMs": 11.800000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:15:32.988Z",
+     "end": "2026-11-11T05:15:42.974Z",
+     "windowMs": 9985.692197999975,
+     "rendererPid": 861745,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 580.969708,
+     "waitMs": 2.408605,
+     "samples": 495,
+     "shareCpu0to3": 0.23030303030303031,
+     "pressureUs": 59570,
+     "load1": 1.6,
+     "gaugeBeforeMs": 20.200000017881393,
+     "gaugeAfterMs": 21.80000001192093,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:15:53.482Z",
+     "end": "2026-11-11T05:16:03.455Z",
+     "windowMs": 9972.922112,
+     "rendererPid": 861870,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 593.076067,
+     "waitMs": 5.08359,
+     "samples": 495,
+     "shareCpu0to3": 0.24242424242424243,
+     "pressureUs": 52533,
+     "load1": 1.43,
+     "gaugeBeforeMs": 21.900000005960464,
+     "gaugeAfterMs": 27.799999982118607,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ],
+   "base": [
+    {
+     "start": "2026-11-11T05:12:59.384Z",
+     "end": "2026-11-11T05:13:09.362Z",
+     "windowMs": 9978.507310999994,
+     "rendererPid": 860818,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 634.551305,
+     "waitMs": 6.619739,
+     "samples": 494,
+     "shareCpu0to3": 0.25101214574898784,
+     "pressureUs": 53884,
+     "load1": 3.49,
+     "gaugeBeforeMs": 15.800000011920929,
+     "gaugeAfterMs": 12.300000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:13:19.916Z",
+     "end": "2026-11-11T05:13:29.895Z",
+     "windowMs": 9979.080648000003,
+     "rendererPid": 860939,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 567.668746,
+     "waitMs": 5.674799,
+     "samples": 495,
+     "shareCpu0to3": 0.28484848484848485,
+     "pressureUs": 58934,
+     "load1": 3.63,
+     "gaugeBeforeMs": 28.900000005960464,
+     "gaugeAfterMs": 20,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:14:11.114Z",
+     "end": "2026-11-11T05:14:21.093Z",
+     "windowMs": 9978.718758000003,
+     "rendererPid": 861245,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 653.602502,
+     "waitMs": 2.875148,
+     "samples": 494,
+     "shareCpu0to3": 0.3805668016194332,
+     "pressureUs": 41904,
+     "load1": 2.71,
+     "gaugeBeforeMs": 14.600000023841858,
+     "gaugeAfterMs": 12.300000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:14:31.574Z",
+     "end": "2026-11-11T05:14:41.560Z",
+     "windowMs": 9986.290574000042,
+     "rendererPid": 861369,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 674.868607,
+     "waitMs": 2.834527,
+     "samples": 494,
+     "shareCpu0to3": 0.3684210526315789,
+     "pressureUs": 46376,
+     "load1": 2.15,
+     "gaugeBeforeMs": 20.600000023841858,
+     "gaugeAfterMs": 25.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:14:52.032Z",
+     "end": "2026-11-11T05:15:02.008Z",
+     "windowMs": 9976.012255000009,
+     "rendererPid": 861499,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 604.953297,
+     "waitMs": 2.306904,
+     "samples": 493,
+     "shareCpu0to3": 0.29817444219066935,
+     "pressureUs": 46059,
+     "load1": 2,
+     "gaugeBeforeMs": 17.299999982118607,
+     "gaugeAfterMs": 12.5,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:15:43.237Z",
+     "end": "2026-11-11T05:15:53.222Z",
+     "windowMs": 9985.655105000013,
+     "rendererPid": 861805,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 617.178343,
+     "waitMs": 5.118057,
+     "samples": 494,
+     "shareCpu0to3": 0.4392712550607287,
+     "pressureUs": 52674,
+     "load1": 1.51,
+     "gaugeBeforeMs": 20.299999982118607,
+     "gaugeAfterMs": 14.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:16:03.742Z",
+     "end": "2026-11-11T05:16:13.722Z",
+     "windowMs": 9979.567160999984,
+     "rendererPid": 861928,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 602.699542,
+     "waitMs": 2.093112,
+     "samples": 494,
+     "shareCpu0to3": 0.25708502024291496,
+     "pressureUs": 50402,
+     "load1": 1.76,
+     "gaugeBeforeMs": 15.5,
+     "gaugeAfterMs": 20.200000017881393,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ],
+   "control": [
+    {
+     "start": "2026-11-11T05:13:09.599Z",
+     "end": "2026-11-11T05:13:19.579Z",
+     "windowMs": 9979.632668000006,
+     "rendererPid": 860872,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 578.315367,
+     "waitMs": 3.977599,
+     "samples": 495,
+     "shareCpu0to3": 0.21212121212121213,
+     "pressureUs": 59090,
+     "load1": 4,
+     "gaugeBeforeMs": 14.5,
+     "gaugeAfterMs": 20,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:13:30.209Z",
+     "end": "2026-11-11T05:13:40.196Z",
+     "windowMs": 9987.406303000025,
+     "rendererPid": 861002,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 650.636157,
+     "waitMs": 4.399829,
+     "samples": 495,
+     "shareCpu0to3": 0.32727272727272727,
+     "pressureUs": 48754,
+     "load1": 3.31,
+     "gaugeBeforeMs": 22.80000001192093,
+     "gaugeAfterMs": 19.599999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:13:50.682Z",
+     "end": "2026-11-11T05:14:00.660Z",
+     "windowMs": 9978.369242999994,
+     "rendererPid": 861124,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 604.95231,
+     "waitMs": 1.759318,
+     "samples": 494,
+     "shareCpu0to3": 0.17813765182186234,
+     "pressureUs": 45770,
+     "load1": 3.12,
+     "gaugeBeforeMs": 15.599999994039536,
+     "gaugeAfterMs": 14.400000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": true,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:14:41.813Z",
+     "end": "2026-11-11T05:14:51.792Z",
+     "windowMs": 9978.70245599997,
+     "rendererPid": 861434,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 637.484545,
+     "waitMs": 2.315233,
+     "samples": 493,
+     "shareCpu0to3": 0.4198782961460446,
+     "pressureUs": 47205,
+     "load1": 1.9,
+     "gaugeBeforeMs": 15.5,
+     "gaugeAfterMs": 15.300000011920929,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": true,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:15:02.244Z",
+     "end": "2026-11-11T05:15:12.224Z",
+     "windowMs": 9980.313173000002,
+     "rendererPid": 861559,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 672.729021,
+     "waitMs": 2.406936,
+     "samples": 494,
+     "shareCpu0to3": 0.3805668016194332,
+     "pressureUs": 44504,
+     "load1": 2.07,
+     "gaugeBeforeMs": 12.800000011920929,
+     "gaugeAfterMs": 13.099999994039536,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:15:22.728Z",
+     "end": "2026-11-11T05:15:32.707Z",
+     "windowMs": 9979.601503999962,
+     "rendererPid": 861682,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 577.150284,
+     "waitMs": 3.970386,
+     "samples": 495,
+     "shareCpu0to3": 0.20404040404040405,
+     "pressureUs": 82832,
+     "load1": 1.71,
+     "gaugeBeforeMs": 15.5,
+     "gaugeAfterMs": 18.5,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    },
+    {
+     "start": "2026-11-11T05:16:14.021Z",
+     "end": "2026-11-11T05:16:24.005Z",
+     "windowMs": 9984.107630999992,
+     "rendererPid": 861995,
+     "renderers": 3,
+     "thread": "chrome",
+     "onCpuMs": 634.948438,
+     "waitMs": 4.862705,
+     "samples": 495,
+     "shareCpu0to3": 0.2101010101010101,
+     "pressureUs": 54539,
+     "load1": 1.71,
+     "gaugeBeforeMs": 22.900000005960464,
+     "gaugeAfterMs": 20.900000005960464,
+     "settled": {
+      "wait": true,
+      "placement": false,
+      "gauge": false,
+      "all": false
+     }
+    }
+   ]
+  }
+ },
+ "gaugeMedianMs": 15.75,
+ "settledRounds": {
+  "in the page: 300 moves, one frame each, 20 items": {
+   "rounds": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "settled": 0
+  },
+  "in the page: 50 activate-and-drop cycles, 20 items, no landing": {
+   "rounds": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "settled": 0
+  },
+  "300 moves, one frame each, 20 items": {
+   "rounds": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "settled": 0
+  }
+ },
+ "machine": {
+  "head": {
+   "time": "2026-11-11T05:09:11.906Z",
+   "nproc": "12",
+   "node": "v26.13.0",
+   "uptime": "05:09:11 up 2 days,  1:32,  0 users,  load average: 2.28, 1.93, 1.94",
+   "cpuModel": "12th Gen Intel(R) Core(TM) i7-1255U",
+   "cpuCore": "0-3",
+   "cpuAtom": "4-11",
+   "affinity": "pid 858241's current affinity list: 0-11",
+   "revision": "25b8c7a8f7a60bd132f9e49fa600fff841c8abee",
+   "gitStatus": "?? packages/drag/.plan/measurements/2026-11-11-sensitivity-E1.json\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-E1.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-U1.json\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-U1.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-U2.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-300ms.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-discarded.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-300ms.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-discarded.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt"
+  },
+  "foot": {
+   "time": "2026-11-11T05:16:24.118Z",
+   "nproc": "12",
+   "node": "v26.13.0",
+   "uptime": "05:16:24 up 2 days,  1:39,  0 users,  load average: 1.60, 2.05, 2.03",
+   "cpuModel": "12th Gen Intel(R) Core(TM) i7-1255U",
+   "cpuCore": "0-3",
+   "cpuAtom": "4-11",
+   "affinity": "pid 858241's current affinity list: 0-11",
+   "revision": "25b8c7a8f7a60bd132f9e49fa600fff841c8abee",
+   "gitStatus": "?? packages/drag/.plan/measurements/2026-11-11-sensitivity-E1.json\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-E1.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-U1.json\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-U1.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-U2.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-dry.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-300ms.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores-discarded.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-ecores.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-300ms.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned-discarded.txt\n?? packages/drag/.plan/measurements/2026-11-11-sensitivity-selfcheck-unpinned.txt"
+  }
+ }
+}

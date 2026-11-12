@@ -1,0 +1,136 @@
+# item 1 dry checks, 2026-11-10T09:32:44+00:00, HEAD 35ee3f39e + working copy of bench/compare.ts
+nproc 12; node v26.13.0; uptime:  09:32:44 up 1 day,  5:55,  0 users,  load average: 2.91, 2.51, 2.92
+CHROME_EXECUTABLE=/nonexistent/chrome for every run
+
+## dry run, all injections
+$ node bench/compare.ts --prove --dry
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+applies: 1 KB allocated per move
+applies: one entry on the step list per frame
+6 applied, no browser launched
+exit=0
+
+## D1: drop injection's find set back to its stale text
+diff --git a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item1.ts b/bench/compare.ts
+index cc7cdda5b..d8932639f 100644
+--- a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item1.ts
++++ b/bench/compare.ts
+@@ -822,7 +822,7 @@ const INJECTIONS: ReadonlyArray<
+   {
+     name: 'about 1 ms of script per cycle, at the drop',
+     file: 'sortable/operation.ts',
+-    find: 'const request = buildReorderRequest(',
++    find: 'const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+     replace:
+       'const until = performance.now() + 1;\n    while (performance.now() < until) {}\n    const request = buildReorderRequest(',
+     scenario: '50 activate-and-drop cycles, 20 items, no landing',
+$ node bench/compare.ts --prove --dry
+file:///workspaces/material-x/packages/drag/bench/compare.ts:908
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in sortable/operation.ts: const insertion = state.insertion!;
+    const request = buildReorderRequest(
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:908:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:940:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:1284:7
+
+Node.js v26.13.0
+exit=1
+
+### D1 without --dry: the check runs before the launch
+$ node bench/compare.ts --prove
+file:///workspaces/material-x/packages/drag/bench/compare.ts:908
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in sortable/operation.ts: const insertion = state.insertion!;
+    const request = buildReorderRequest(
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:908:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:940:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:1284:7
+
+Node.js v26.13.0
+exit=1
+
+## D2: a find that occurs twice in its file
+diff --git a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item1.ts b/bench/compare.ts
+index cc7cdda5b..20a5b72f2 100644
+--- a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item1.ts
++++ b/bench/compare.ts
+@@ -861,7 +861,7 @@ const INJECTIONS: ReadonlyArray<
+     // part of the text.
+     name: '1 KB allocated per move',
+     file: 'kernel/session.ts',
+-    find: 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open',
++    find: 'this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;',
+     replace:
+       "(globalThis as Record<string, unknown>)['__kept'] = new Array(256).fill(this);\n    this.#drag.x = event.clientX;\n    this.#drag.y = event.clientY;\n\n    // Motion is open",
+     scenario: 'bytes per move by function, 20 items',
+$ node bench/compare.ts --prove --dry
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+file:///workspaces/material-x/packages/drag/bench/compare.ts:908
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in kernel/session.ts: this.#drag.x = event.clientX;
+    this.#drag.y = event.clientY;
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:908:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:940:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:1284:7
+
+Node.js v26.13.0
+exit=1
+
+## D3: one replace set equal to its find
+diff --git a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item1.ts b/bench/compare.ts
+index cc7cdda5b..d84d55d6c 100644
+--- a/tmp/claude-1000/-workspaces-material-x/a879f398-2a5a-4dbc-b760-3b4d25efd917/scratchpad/compare.item1.ts
++++ b/bench/compare.ts
+@@ -871,7 +871,8 @@ const INJECTIONS: ReadonlyArray<
+     name: 'one entry on the step list per frame',
+     file: 'kernel/gesture.ts',
+     find: 'this.enter(\n        step,\n        this.#session ? this.#session.stepTarget() : null,\n        receiver,\n      );',
+-    replace: 'this.#steps.add(step, receiver);\n      this.enter();',
++    replace:
++      'this.enter(\n        step,\n        this.#session ? this.#session.stepTarget() : null,\n        receiver,\n      );',
+     scenario: 'bytes per move by function, 20 items',
+     expect: /FLAG/u,
+   },
+$ node bench/compare.ts --prove --dry
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+applies: 1 KB allocated per move
+file:///workspaces/material-x/packages/drag/bench/compare.ts:923
+      throw new Error(
+            ^
+
+Error: injection does not apply: one entry on the step list per frame leaves the bundle unchanged
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:923:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:941:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:1285:7
+
+Node.js v26.13.0
+exit=1
+
+## restored
+compare.ts restored, identical
+
+## after lint: 'run' moved above its first use, no other change; dry run repeated
+$ node bench/compare.ts --prove --dry
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+applies: one forced layout per move
+applies: one O(n) walk per move
+applies: 1 KB allocated per move
+applies: one entry on the step list per frame
+6 applied, no browser launched
+exit=0

@@ -1,0 +1,339 @@
+# item 4, context A, mutation M2, 5 runs
+# command: npx just test tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+
+## run 1
+# before: nproc 12, node v26.13.0, uptime: 15:46:42 up 1 day, 12:09,  0 users,  load average: 4.32, 4.35, 3.64
+# after: nproc 12, node v26.13.0, uptime: 15:46:57 up 1 day, 12:09,  0 users,  load average: 5.18, 4.56, 3.72
+# summary: {"run": 1, "kernelPerMove": 109.24, "result": "fail", "drf2": null, "exit": 1, "seconds": 15}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":109.24,"bytes":{"sortable/behavior.ts:":176,"kernel/session.ts:requestStep":216,"kernel/gesture.ts:requestStep":364,"kernel/gesture.ts:enter":28604,"sortable/behavior.ts:updateInsertion":528,"sortable/operation.ts:updateInsertion":968,"sortable/y.ts:resolve":42316,"sortable/linear-shift.ts:refresh":1032,"sortable/rect-index.ts:refresh":2952,"sortable/rect-index.ts:get values":72,"sortable/rect-index.ts:get items":72,"kernel/gesture.ts:#applyRequests":516,"kernel/session.ts:advance":92,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1948,"kernel/callback-list.ts:get empty":80,"kernel/session.ts:#move":848,"sortable/operation.ts:move":532,"lift.ts:translate":32944}}
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (7 tests | 1 failed | 5 skipped) 10938ms
+   ❯ drag:DRI-17 hot path (7)
+     × should allocate per sample only the CSS string a lifted write needs 5693ms
+
+ Test Files  1 failed | 1 skipped (2)
+      Tests  1 failed | 1 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:46:44
+   Duration  13.82s (tests 95%, worker 5%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:46:45 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:46:46 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"sortable/behavior.ts:":176,"kernel/session.ts:requestStep":216,"kernel/gesture.ts:requestStep":364,"kernel/gesture.ts:enter":28604,"sortable/behavior.ts:updateInsertion":528,"sortable/operation.ts:updateInsertion":968,"sortable/y.ts:resolve":42316,"sortable/linear-shift.ts:refresh":1032,"sortable/rect-index.ts:refresh":2952,"sortable/rect-index.ts:get values":72,"sortable/rect-index.ts:get items":72,"kernel/gesture.ts:#applyRequests":516,"kernel/session.ts:advance":92,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1948,"kernel/callback-list.ts:get empty":80,"kernel/session.ts:#move":848,"sortable/operation.ts:move":532,"lift.ts:translate":32944}: expected 109.24 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:239:52
+    237|       // move remain from reading an event field. An object per sample…
+    238|       // tens of bytes.
+    239|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    240|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    241|         'lift.ts:translate',
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=eb643b25:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+error: recipe `test` failed on line 29 with exit code 1
+
+## run 2
+# before: nproc 12, node v26.13.0, uptime: 15:46:57 up 1 day, 12:09,  0 users,  load average: 5.18, 4.56, 3.72
+# after: nproc 12, node v26.13.0, uptime: 15:47:11 up 1 day, 12:10,  0 users,  load average: 4.76, 4.50, 3.71
+# summary: {"run": 2, "kernelPerMove": 103.98666666666666, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":103.98666666666666,"bytes":{"shared/invalidation.ts:fire":352,"sortable/behavior.ts:":244,"kernel/session.ts:requestStep":88,"kernel/gesture.ts:requestStep":372,"kernel/gesture.ts:enter":28080,"sortable/behavior.ts:updateInsertion":528,"sortable/operation.ts:updateInsertion":904,"sortable/y.ts:resolve":41964,"sortable/rect-index.ts:get values":72,"sortable/linear-shift.ts:refresh":1112,"sortable/rect-index.ts:refresh":2524,"kernel/callback-list.ts:get empty":88,"kernel/session.ts:advance":92,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1592,"kernel/gesture.ts:#applyRequests":176,"kernel/session.ts:#move":604,"sortable/operation.ts:move":612,"lift.ts:translate":32484,"shared/invalidation.ts:schedule":88}}
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (7 tests | 1 failed | 5 skipped) 10906ms
+   ❯ drag:DRI-17 hot path (7)
+     × should allocate per sample only the CSS string a lifted write needs 5683ms
+
+ Test Files  1 failed | 1 skipped (2)
+      Tests  1 failed | 1 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:46:58
+   Duration  12.92s (tests 96%, worker 2%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:46:59 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:47:00 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"shared/invalidation.ts:fire":352,"sortable/behavior.ts:":244,"kernel/session.ts:requestStep":88,"kernel/gesture.ts:requestStep":372,"kernel/gesture.ts:enter":28080,"sortable/behavior.ts:updateInsertion":528,"sortable/operation.ts:updateInsertion":904,"sortable/y.ts:resolve":41964,"sortable/rect-index.ts:get values":72,"sortable/linear-shift.ts:refresh":1112,"sortable/rect-index.ts:refresh":2524,"kernel/callback-list.ts:get empty":88,"kernel/session.ts:advance":92,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1592,"kernel/gesture.ts:#applyRequests":176,"kernel/session.ts:#move":604,"sortable/operation.ts:move":612,"lift.ts:translate":32484,"shared/invalidation.ts:schedule":88}: expected 103.98666666666666 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:239:52
+    237|       // move remain from reading an event field. An object per sample…
+    238|       // tens of bytes.
+    239|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    240|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    241|         'lift.ts:translate',
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=eb643b25:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+error: recipe `test` failed on line 29 with exit code 1
+
+## run 3
+# before: nproc 12, node v26.13.0, uptime: 15:47:11 up 1 day, 12:10,  0 users,  load average: 4.76, 4.50, 3.71
+# after: nproc 12, node v26.13.0, uptime: 15:47:26 up 1 day, 12:10,  0 users,  load average: 4.88, 4.55, 3.74
+# summary: {"run": 3, "kernelPerMove": 112.52, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":112.52,"bytes":{"shared/invalidation.ts:fire":72,"kernel/session.ts:requestStep":296,"kernel/gesture.ts:requestStep":380,"kernel/gesture.ts:enter":29172,"sortable/behavior.ts:updateInsertion":360,"sortable/operation.ts:updateInsertion":584,"sortable/y.ts:resolve":41480,"sortable/linear-shift.ts:refresh":1028,"sortable/rect-index.ts:refresh":2240,"sortable/rect-index.ts:get placeholderRect":80,"sortable/rect-index.ts:get items":152,"kernel/gesture.ts:#applyRequests":816,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1788,"kernel/session.ts:advance":144,"kernel/session.ts:#move":1056,"sortable/operation.ts:move":596,"lift.ts:translate":32832,"shared/invalidation.ts:schedule":88}}
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (7 tests | 1 failed | 5 skipped) 10781ms
+   ❯ drag:DRI-17 hot path (7)
+     × should allocate per sample only the CSS string a lifted write needs 5549ms
+
+ Test Files  1 failed | 1 skipped (2)
+      Tests  1 failed | 1 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:47:13
+   Duration  12.90s (tests 95%, worker 4%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:47:14 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:47:14 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"shared/invalidation.ts:fire":72,"kernel/session.ts:requestStep":296,"kernel/gesture.ts:requestStep":380,"kernel/gesture.ts:enter":29172,"sortable/behavior.ts:updateInsertion":360,"sortable/operation.ts:updateInsertion":584,"sortable/y.ts:resolve":41480,"sortable/linear-shift.ts:refresh":1028,"sortable/rect-index.ts:refresh":2240,"sortable/rect-index.ts:get placeholderRect":80,"sortable/rect-index.ts:get items":152,"kernel/gesture.ts:#applyRequests":816,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1788,"kernel/session.ts:advance":144,"kernel/session.ts:#move":1056,"sortable/operation.ts:move":596,"lift.ts:translate":32832,"shared/invalidation.ts:schedule":88}: expected 112.52 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:239:52
+    237|       // move remain from reading an event field. An object per sample…
+    238|       // tens of bytes.
+    239|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    240|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    241|         'lift.ts:translate',
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=eb643b25:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+error: recipe `test` failed on line 29 with exit code 1
+
+## run 4
+# before: nproc 12, node v26.13.0, uptime: 15:47:26 up 1 day, 12:10,  0 users,  load average: 4.88, 4.55, 3.74
+# after: nproc 12, node v26.13.0, uptime: 15:47:40 up 1 day, 12:10,  0 users,  load average: 5.49, 4.70, 3.80
+# summary: {"run": 4, "kernelPerMove": 111.05333333333333, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":111.05333333333333,"bytes":{"shared/invalidation.ts:fire":280,"sortable/behavior.ts:":76,"kernel/session.ts:requestStep":344,"kernel/gesture.ts:requestStep":144,"kernel/gesture.ts:enter":28744,"sortable/behavior.ts:updateInsertion":472,"sortable/operation.ts:updateInsertion":896,"sortable/y.ts:resolve":42144,"sortable/linear-shift.ts:refresh":804,"sortable/rect-index.ts:refresh":2944,"sortable/rect-index.ts:get values":152,"sortable/rect-index.ts:get placeholderRect":72,"sortable/rect-index.ts:get count":152,"kernel/gesture.ts:#applyRequests":916,"kernel/callback-list.ts:get empty":88,"kernel/session.ts:advance":172,"kernel/session.ts:stepTarget":80,"kernel/session.ts:handleEvent":1664,"kernel/session.ts:#move":1164,"sortable/operation.ts:move":280,"lift.ts:translate":30292,"shared/invalidation.ts:schedule":88}}
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (7 tests | 1 failed | 5 skipped) 10833ms
+   ❯ drag:DRI-17 hot path (7)
+     × should allocate per sample only the CSS string a lifted write needs 5613ms
+
+ Test Files  1 failed | 1 skipped (2)
+      Tests  1 failed | 1 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:47:27
+   Duration  13.08s (tests 96%, worker 3%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:47:27 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:47:28 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"shared/invalidation.ts:fire":280,"sortable/behavior.ts:":76,"kernel/session.ts:requestStep":344,"kernel/gesture.ts:requestStep":144,"kernel/gesture.ts:enter":28744,"sortable/behavior.ts:updateInsertion":472,"sortable/operation.ts:updateInsertion":896,"sortable/y.ts:resolve":42144,"sortable/linear-shift.ts:refresh":804,"sortable/rect-index.ts:refresh":2944,"sortable/rect-index.ts:get values":152,"sortable/rect-index.ts:get placeholderRect":72,"sortable/rect-index.ts:get count":152,"kernel/gesture.ts:#applyRequests":916,"kernel/callback-list.ts:get empty":88,"kernel/session.ts:advance":172,"kernel/session.ts:stepTarget":80,"kernel/session.ts:handleEvent":1664,"kernel/session.ts:#move":1164,"sortable/operation.ts:move":280,"lift.ts:translate":30292,"shared/invalidation.ts:schedule":88}: expected 111.05333333333333 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:239:52
+    237|       // move remain from reading an event field. An object per sample…
+    238|       // tens of bytes.
+    239|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    240|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    241|         'lift.ts:translate',
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=eb643b25:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+error: recipe `test` failed on line 29 with exit code 1
+
+## run 5
+# before: nproc 12, node v26.13.0, uptime: 15:47:40 up 1 day, 12:10,  0 users,  load average: 5.49, 4.70, 3.80
+# after: nproc 12, node v26.13.0, uptime: 15:47:54 up 1 day, 12:10,  0 users,  load average: 5.58, 4.76, 3.83
+# summary: {"run": 5, "kernelPerMove": 111.21333333333334, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+stdout | tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+PERSAMPLE {"kernelPerMove":111.21333333333334,"bytes":{"shared/invalidation.ts:fire":280,"sortable/behavior.ts:":324,"kernel/session.ts:requestStep":480,"kernel/gesture.ts:requestStep":152,"kernel/gesture.ts:enter":29076,"sortable/behavior.ts:updateInsertion":624,"sortable/operation.ts:updateInsertion":896,"sortable/y.ts:resolve":47572,"sortable/linear-shift.ts:refresh":808,"sortable/rect-index.ts:refresh":2808,"sortable/rect-index.ts:get values":72,"sortable/rect-index.ts:get placeholderRect":72,"sortable/rect-index.ts:get items":72,"kernel/gesture.ts:#applyRequests":748,"kernel/callback-list.ts:get empty":88,"kernel/session.ts:advance":172,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1580,"kernel/session.ts:#move":964,"sortable/operation.ts:move":452,"lift.ts:translate":32512,"shared/invalidation.ts:schedule":88}}
+ ❯ |shipped (chromium)| tests/hot-path.browser.test.ts (7 tests | 1 failed | 5 skipped) 10934ms
+   ❯ drag:DRI-17 hot path (7)
+     × should allocate per sample only the CSS string a lifted write needs 5710ms
+
+ Test Files  1 failed | 1 skipped (2)
+      Tests  1 failed | 1 passed | 12 skipped (14)
+Type Errors  no errors
+   Start at  15:47:41
+   Duration  12.90s (tests 96%, worker 3%, import 1%)
+
+vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t allocate per sample only the CSS
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+3:47:42 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=15a4eb9a
+3:47:42 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=eb643b25
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:199 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"shared/invalidation.ts:fire":280,"sortable/behavior.ts:":324,"kernel/session.ts:requestStep":480,"kernel/gesture.ts:requestStep":152,"kernel/gesture.ts:enter":29076,"sortable/behavior.ts:updateInsertion":624,"sortable/operation.ts:updateInsertion":896,"sortable/y.ts:resolve":47572,"sortable/linear-shift.ts:refresh":808,"sortable/rect-index.ts:refresh":2808,"sortable/rect-index.ts:get values":72,"sortable/rect-index.ts:get placeholderRect":72,"sortable/rect-index.ts:get items":72,"kernel/gesture.ts:#applyRequests":748,"kernel/callback-list.ts:get empty":88,"kernel/session.ts:advance":172,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1580,"kernel/session.ts:#move":964,"sortable/operation.ts:move":452,"lift.ts:translate":32512,"shared/invalidation.ts:schedule":88}: expected 111.21333333333334 to be less than 16
+ ❯ tests/hot-path.browser.test.ts:239:52
+    237|       // move remain from reading an event field. An object per sample…
+    238|       // tens of bytes.
+    239|       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+       |                                                    ^
+    240|       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+    241|         'lift.ts:translate',
+ ❯ .vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=eb643b25:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+error: recipe `test` failed on line 29 with exit code 1
+
+# summary of all runs
+{"run": 1, "kernelPerMove": 109.24, "result": "fail", "drf2": null, "exit": 1, "seconds": 15}
+{"run": 2, "kernelPerMove": 103.98666666666666, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+{"run": 3, "kernelPerMove": 112.52, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+{"run": 4, "kernelPerMove": 111.05333333333333, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}
+{"run": 5, "kernelPerMove": 111.21333333333334, "result": "fail", "drf2": null, "exit": 1, "seconds": 14}

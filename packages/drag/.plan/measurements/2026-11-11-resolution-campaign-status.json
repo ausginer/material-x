@@ -1,0 +1,297 @@
+{
+  "id": "resolution",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 620170,
+    "start": "16632584"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-11T01:49:10.113Z",
+  "endedAt": "2026-11-11T03:28:03.363Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "CHROME_EXECUTABLE=/nonexistent/chrome /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-prove-dry.txt node bench/compare.ts --prove --dry",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 620194,
+        "start": "16632591"
+      },
+      "startedAt": "2026-11-11T01:49:10.129Z",
+      "endedAt": "2026-11-11T01:49:10.709Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "CHROME_EXECUTABLE=/nonexistent/chrome /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-floors-dry.txt node bench/compare.ts --floors --dry",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 620275,
+        "start": "16632651"
+      },
+      "startedAt": "2026-11-11T01:49:10.728Z",
+      "endedAt": "2026-11-11T01:49:12.032Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py U-A none A 10 .plan/measurements/2026-11-11-resolution-persample-UA.txt pass",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 620435,
+        "start": "16632783"
+      },
+      "startedAt": "2026-11-11T01:49:12.048Z",
+      "endedAt": "2026-11-11T01:52:36.764Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py U-B none B 5 .plan/measurements/2026-11-11-resolution-persample-UB.txt pass",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 629333,
+        "start": "16653256"
+      },
+      "startedAt": "2026-11-11T01:52:36.779Z",
+      "endedAt": "2026-11-11T01:54:27.798Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M1-A M1 A 5 .plan/measurements/2026-11-11-resolution-persample-M1-A.txt fail",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 634723,
+        "start": "16664359"
+      },
+      "startedAt": "2026-11-11T01:54:27.808Z",
+      "endedAt": "2026-11-11T01:56:02.212Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M2-A M2 A 5 .plan/measurements/2026-11-11-resolution-persample-M2-A.txt fail",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 638758,
+        "start": "16673801"
+      },
+      "startedAt": "2026-11-11T01:56:02.227Z",
+      "endedAt": "2026-11-11T01:57:42.919Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M3-A M3 A 5 .plan/measurements/2026-11-11-resolution-persample-M3-A.txt fail",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 643275,
+        "start": "16683871"
+      },
+      "startedAt": "2026-11-11T01:57:42.931Z",
+      "endedAt": "2026-11-11T01:59:20.324Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M1-B M1 B 3 .plan/measurements/2026-11-11-resolution-persample-M1-B.txt fail",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 647428,
+        "start": "16693612"
+      },
+      "startedAt": "2026-11-11T01:59:20.338Z",
+      "endedAt": "2026-11-11T02:00:22.041Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M2-B M2 B 3 .plan/measurements/2026-11-11-resolution-persample-M2-B.txt fail",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 650047,
+        "start": "16699783"
+      },
+      "startedAt": "2026-11-11T02:00:22.053Z",
+      "endedAt": "2026-11-11T02:01:21.341Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M3-B M3 B 3 .plan/measurements/2026-11-11-resolution-persample-M3-B.txt fail",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 652328,
+        "start": "16705714"
+      },
+      "startedAt": "2026-11-11T02:01:21.360Z",
+      "endedAt": "2026-11-11T02:02:25.134Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py M4-A M4 A 3 .plan/measurements/2026-11-11-resolution-persample-M4-A.txt record",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 655081,
+        "start": "16712093"
+      },
+      "startedAt": "2026-11-11T02:02:25.147Z",
+      "endedAt": "2026-11-11T02:03:23.596Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "python3 /tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/persample.py C none C 1 .plan/measurements/2026-11-11-resolution-persample-C.txt record",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 657689,
+        "start": "16717939"
+      },
+      "startedAt": "2026-11-11T02:03:23.613Z",
+      "endedAt": "2026-11-11T02:04:19.759Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-f1.txt node bench/compare.ts --floors --only 'in the page' --out .plan/measurements/2026-11-11-resolution-f1.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/13.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 659036,
+        "start": "16723555"
+      },
+      "startedAt": "2026-11-11T02:04:19.773Z",
+      "endedAt": "2026-11-11T02:17:15.481Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-f2.txt node bench/compare.ts --floors --only 'in the page' --out .plan/measurements/2026-11-11-resolution-f2.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/14.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 694486,
+        "start": "16801127"
+      },
+      "startedAt": "2026-11-11T02:17:15.491Z",
+      "endedAt": "2026-11-11T02:30:08.872Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-attribute.txt node bench/compare.ts --attribute --only '200 operations' --out .plan/measurements/2026-11-11-resolution-attribute.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/15.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 728611,
+        "start": "16878467"
+      },
+      "startedAt": "2026-11-11T02:30:08.886Z",
+      "endedAt": "2026-11-11T02:31:50.717Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-prove.txt node bench/compare.ts --prove --out .plan/measurements/2026-11-11-resolution-prove.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/16.log",
+      "state": "failed",
+      "revision": {
+        "commit": "a7b3851c13fd24730f1e52f011f0f0a28a2d45be",
+        "dirty": true
+      },
+      "process": {
+        "pid": 730871,
+        "start": "16888651"
+      },
+      "startedAt": "2026-11-11T02:31:50.729Z",
+      "endedAt": "2026-11-11T03:28:03.363Z",
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/4490768b-65b3-42b4-b2f3-d79ca3ad5065/scratchpad/rec.sh .plan/measurements/2026-11-11-resolution-b3prime.txt node bench/compare.ts --before a9c323f6a --rows validation --out .plan/measurements/2026-11-11-resolution-b3prime.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/resolution/17.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    }
+  ]
+}

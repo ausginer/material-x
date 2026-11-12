@@ -1,0 +1,80 @@
+"""Report tables for the DRD-44 sensitivity experiment, from the probe's JSON files."""
+import json, statistics as st, sys
+M = sys.argv[1]
+P = ['U1', 'E1', 'U2', 'E2']
+ROWS = {
+  'in the page: 300 moves, one frame each, 20 items': 'Move gate (30 µs per move)',
+  'in the page: 50 activate-and-drop cycles, 20 items, no landing': 'Cycle gate (300 µs per cycle)',
+  '300 moves, one frame each, 20 items': 'CDP move row, A/A',
+}
+data = {p: json.load(open(f'{M}/2026-11-11-sensitivity-{p}.json')) for p in P}
+f = lambda x, n=0: f'{x:.{n}f}'
+def fails(r):
+  s = r['settled']; out = [k for k in ('wait', 'placement', 'gauge') if not s[k]]
+  return ', '.join(out) if out else 'settled'
+out = []
+w = out.append
+w('## Per process and row\n')
+for p in P:
+  d = data[p]
+  w(f'### {p}\n')
+  w(f'Gauge median {f(d["gaugeMedianMs"],2)} ms.\n')
+  w('| Row | Production median script | Base median script | Verdict, script | Signs | Median | Bound | Bound ÷ base median | Settled rounds |')
+  w('| --- | --: | --: | --- | --: | --: | --: | --: | --: |')
+  for row, name in ROWS.items():
+    s = next(x for x in d['summary'] if x['scenario'] == row)
+    v = next(x for x in s['verdicts'] if x['measure'] == 'scriptUs')
+    pm = s['medians']['production']['scriptUs']['median']; bm = s['medians']['base']['scriptUs']['median']
+    w(f'| {name} | {pm} | {bm} | {v["result"].split(":")[0]} | {v["higher"]} of 7 higher | {v["median"]} | {v["bound"]} | {f(v["bound"]/bm,2)} | {d["settledRounds"][row]["settled"]} of 7 |')
+  w('')
+  w('Task-time and layout verdicts, from the same `judge` call:\n')
+  for row, name in ROWS.items():
+    s = next(x for x in d['summary'] if x['scenario'] == row)
+    w(f'- {name}: ' + '; '.join(f'{x["measure"]} — {x["result"]}' for x in s['verdicts']))
+  w('')
+  w('Per round, script in µs per event:\n')
+  w('| Row | Round | Production | Base | Control | Difference | A/A | Unsettled readings |')
+  w('| --- | --: | --: | --: | --: | --: | --: | --- |')
+  for row, name in ROWS.items():
+    raw = d['raw'][row]; rec = d['records'][row]
+    for i in range(7):
+      a = {arm: raw[arm][i]['scriptUs'] for arm in ('production', 'base', 'control')}
+      un = '; '.join(f'{arm}: {fails(rec[arm][i])}' for arm in ('production', 'base', 'control') if not rec[arm][i]['settled']['all']) or '—'
+      w(f'| {name} | {i+1} | {f(a["production"])} | {f(a["base"])} | {f(a["control"])} | {f(a["production"]-a["base"])} | {f(a["production"]-a["control"])} | {un} |')
+  w('')
+w('## Per row and condition\n')
+w('Median absolute A/A script difference, µs per event, over the two processes of each condition.\n')
+w('| Row | Condition | Settled rounds | Median over settled | Unsettled rounds | Median over unsettled |')
+w('| --- | --- | --: | --: | --: | --: |')
+for row, name in ROWS.items():
+  for cond, ps in (('Unpinned', ['U1', 'U2']), ('E-cores', ['E1', 'E2'])):
+    sa, ua = [], []
+    for p in ps:
+      d = data[p]; raw = d['raw'][row]
+      for i, ok in enumerate(d['settledRounds'][row]['rounds']):
+        (sa if ok else ua).append(abs(raw['production'][i]['scriptUs'] - raw['control'][i]['scriptUs']))
+    w(f'| {name} | {cond} | {len(sa)} | {f(st.median(sa),1) if sa else "none"} | {len(ua)} | {f(st.median(ua),1) if ua else "none"} |')
+w('')
+w('## Unsettled readings by criterion\n')
+w('| Process | Row | Readings | Wait over 5 % | Placement under 90 % in one class | A gauge outside 10 % |')
+w('| --- | --- | --: | --: | --: | --: |')
+for p in P:
+  for row, name in ROWS.items():
+    rs = [r for a in data[p]['records'][row].values() for r in a]
+    w(f'| {p} | {name} | {len(rs)} | {sum(not r["settled"]["wait"] for r in rs)} | {sum(not r["settled"]["placement"] for r in rs)} | {sum(not r["settled"]["gauge"] for r in rs)} |')
+w('')
+w('## Per reading\n')
+w('Times are UTC on 2026-11-11. CPU 0–3 share is the share of placement samples on the P-core threads. Pressure is the `some` total\'s change over the window.\n')
+for p in P:
+  d = data[p]
+  w(f'### {p} readings\n')
+  w('| Row | Round | Arm | Start | End | Window ms | Renderer pid | Renderers | On-CPU ms | Wait ms | Samples | CPU 0–3 share | Pressure µs | Load 1 min | Gauge before ms | Gauge after ms | Script µs | Task µs | Settled |')
+  w('| --- | --: | --- | --- | --- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --- |')
+  for row, name in ROWS.items():
+    for i in range(7):
+      for arm in ('production', 'base', 'control'):
+        r = d['records'][row][arm][i]; x = d['raw'][row][arm][i]
+        t = lambda s: s[11:23]
+        w(f'| {name} | {i+1} | {arm} | {t(r["start"])} | {t(r["end"])} | {f(r["windowMs"])} | {r["rendererPid"]} | {r["renderers"]} | {f(r["onCpuMs"],1)} | {f(r["waitMs"],2)} | {r["samples"]} | {f(r["shareCpu0to3"],2)} | {r["pressureUs"]} | {r["load1"]} | {f(r["gaugeBeforeMs"],1)} | {f(r["gaugeAfterMs"],1)} | {f(x["scriptUs"])} | {f(x["taskUs"])} | {"yes" if r["settled"]["all"] else "no: " + fails(r)} |')
+  w('')
+print('\n'.join(out))

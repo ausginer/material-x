@@ -1,0 +1,5 @@
+hold confirmed: 2026-11-12T08:06:23+00:00
+probe start: 2026-11-12T08:06:23+00:00
+probe end: 2026-11-12T08:06:42+00:00, exit 0
+released: 2026-11-12T08:07:37+00:00 (the only browser process ended at the probe end above; the architect releases the hold and the closing message tells the owner)
+# nothing else from this session ran between the hold and the release

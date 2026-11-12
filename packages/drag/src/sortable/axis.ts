@@ -13,16 +13,18 @@ export interface DisplacementSink {
    */
   report(element: HTMLElement, dx: number, dy: number, space: Space): void;
   /**
-   * Turns the buffer an axis has just measured into settled geometry, by
-   * subtracting what the sink currently holds for each element in the first
-   * `count` slots. It computes the answer from animation timing and reads no
-   * layout. So no animation is cancelled for a rebuild, and a row never jumps
-   * back.
+   * Turns the slots from `first` to before `end` of a buffer an axis has just
+   * measured into settled geometry, by subtracting what the sink currently holds
+   * for each slot's element. `items` is parallel to the slots, and nothing outside
+   * the range is read or written. It computes the answer from animation timing and
+   * reads no layout. So no animation is cancelled for a rebuild, and a row never
+   * jumps back.
    */
   settle(
     values: Float64Array,
     items: readonly HTMLElement[],
-    count: number,
+    first: number,
+    end: number,
   ): void;
   retire(this: DisplacementSink): void;
 }
@@ -55,6 +57,12 @@ export interface InsertionGeometry {
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /** Staleness only, because scroll calls it many times a second. */
   invalidate(this: InsertionGeometry): void;
+  /**
+   * Before a pointer drop's resolution: measures one cached slot again, and calls
+   * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
+   * row, and the drop has no later frame to correct it.
+   */
+  confirm(query: AxisQuery, context: AxisContext): void;
   /** The committed move landed: keep the cache true and report what moved. */
   moved(query: AxisQuery, context: AxisContext): void;
   retire(this: InsertionGeometry): void;

@@ -1,0 +1,296 @@
+{
+ "head": "067f59bb7705fd8eee737732c5d204346d7e0b09",
+ "traced": "566ebfc653db8fd87708261d7bd50f66a615b988",
+ "modules": [
+  {
+   "line": 2,
+   "key": "fault.ts"
+  },
+  {
+   "line": 25,
+   "key": "kernel/callback-list.ts"
+  },
+  {
+   "line": 85,
+   "key": "kernel/drag.ts"
+  },
+  {
+   "line": 109,
+   "key": "shared/focus.ts"
+  },
+  {
+   "line": 116,
+   "key": "kernel/session.ts"
+  },
+  {
+   "line": 500,
+   "key": "kernel/gesture.ts"
+  },
+  {
+   "line": 681,
+   "key": "draggable.ts"
+  },
+  {
+   "line": 702,
+   "key": "shared/invalidation.ts"
+  },
+  {
+   "line": 734,
+   "key": "free-drag/domain.ts"
+  },
+  {
+   "line": 741,
+   "key": "../box-quad/src/index.ts"
+  },
+  {
+   "line": 987,
+   "key": "free-drag/geometry.ts"
+  },
+  {
+   "line": 1046,
+   "key": "free-drag/operation.ts"
+  },
+  {
+   "line": 1160,
+   "key": "free-drag/behavior.ts"
+  },
+  {
+   "line": 1216,
+   "key": "lift.ts"
+  },
+  {
+   "line": 1451,
+   "key": "free-drag.ts"
+  },
+  {
+   "line": 1474,
+   "key": "shared/timing.ts"
+  },
+  {
+   "line": 1476,
+   "key": "shared/landing.ts"
+  },
+  {
+   "line": 1653,
+   "key": "sortable/layout-animation.ts"
+  },
+  {
+   "line": 1750,
+   "key": "sortable/domain.ts"
+  },
+  {
+   "line": 1766,
+   "key": "sortable/linear-shift.ts"
+  },
+  {
+   "line": 1841,
+   "key": "sortable/y.ts"
+  },
+  {
+   "line": 1878,
+   "key": "sortable/collection.ts"
+  },
+  {
+   "line": 1943,
+   "key": "sortable/placement.ts"
+  },
+  {
+   "line": 1979,
+   "key": "sortable/operation.ts"
+  },
+  {
+   "line": 2126,
+   "key": "sortable/behavior.ts"
+  },
+  {
+   "line": 2244,
+   "key": "sortable.ts"
+  },
+  {
+   "line": 2268,
+   "key": "bench/lab.ts"
+  }
+ ],
+ "chrome": "157.0.8103.38",
+ "categories": [
+  "-*",
+  "devtools.timeline",
+  "disabled-by-default-devtools.timeline",
+  "disabled-by-default-devtools.timeline.frame",
+  "disabled-by-default-devtools.timeline.stack",
+  "disabled-by-default-devtools.target-rundown",
+  "disabled-by-default-devtools.v8-source-rundown",
+  "disabled-by-default-devtools.v8-source-rundown-sources",
+  "disabled-by-default-v8.cpu_profiler",
+  "disabled-by-default-v8.cpu_profiler.hires",
+  "v8.execute",
+  "v8",
+  "cppgc",
+  "blink.user_timing",
+  "blink.console",
+  "latencyInfo",
+  "toplevel"
+ ],
+ "traces": [
+  {
+   "file": "moves-20-cold.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": false,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.12,
+     2.09,
+     1.93
+    ],
+    "at": "2026-11-11T12:04:59.086Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.19,
+     2.11,
+     1.93
+    ],
+    "at": "2026-11-11T12:05:02.045Z"
+   }
+  },
+  {
+   "file": "moves-20-warm1.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.19,
+     2.11,
+     1.93
+    ],
+    "at": "2026-11-11T12:05:04.662Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.1,
+     2.09,
+     1.93
+    ],
+    "at": "2026-11-11T12:05:07.304Z"
+   }
+  },
+  {
+   "file": "moves-20-warm2.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.1,
+     2.09,
+     1.93
+    ],
+    "at": "2026-11-11T12:05:09.887Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.01,
+     2.07,
+     1.92
+    ],
+    "at": "2026-11-11T12:05:12.654Z"
+   }
+  },
+  {
+   "file": "moves-20-warm3.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.01,
+     2.07,
+     1.92
+    ],
+    "at": "2026-11-11T12:05:15.231Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.17,
+     2.1,
+     1.93
+    ],
+    "at": "2026-11-11T12:05:17.871Z"
+   }
+  }
+ ]
+}
