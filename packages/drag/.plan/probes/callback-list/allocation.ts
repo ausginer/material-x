@@ -1,8 +1,8 @@
 /**
- * Retained bytes per list that `CallbackList.queue()` and `CallbackList.stack()`
- * make, against a bare array, which is what the base holds for each of the three
- * lists. Under drag:DRD-36 a list is its object and its array, and holds the
- * name of the array method it adds with. Each figure is the heap growth across
+ * Retained bytes per list that `queue()` and `stack()` in
+ * `src/kernel/callbacks.ts` make, against a bare array, which is what the base
+ * holds for each of the three lists. Under drag:DRD-36 and drag:DRD-53 a list is
+ * its object and its array, and holds the shared array method it adds with. Each figure is the heap growth across
  * `COUNT` retained instances, read after a full collection, divided by `COUNT`.
  *
  * "Empty" is the list as made: the `DRO-12` figure. "Used" is the list after one
@@ -14,7 +14,7 @@
  *
  * Run from `packages/drag`: `node --expose-gc .plan/probes/callback-list/allocation.ts`.
  */
-import { CallbackList } from '../../../src/kernel/callback-list.ts';
+import * as Callbacks from '../../../src/kernel/callbacks.ts';
 
 const COUNT = 200_000;
 const gc = (globalThis as { gc?: () => void }).gc!;
@@ -46,7 +46,7 @@ function noop(): void {
 
 const receiver = {};
 
-function used(list: CallbackList<null>): CallbackList<null> {
+function used(list: Callbacks.List<null>): Callbacks.List<null> {
   list.add(noop, receiver);
   list.run(null);
   return list;
@@ -63,10 +63,10 @@ const rows: Array<[string, () => unknown]> = [
       return array;
     },
   ],
-  ['queue(), empty', () => CallbackList.queue<null>()],
-  ['stack(), empty', () => CallbackList.stack<null>()],
-  ['queue(), used', () => used(CallbackList.queue<null>())],
-  ['stack(), used', () => used(CallbackList.stack<null>())],
+  ['queue(), empty', () => Callbacks.queue<null>()],
+  ['stack(), empty', () => Callbacks.stack<null>()],
+  ['queue(), used', () => used(Callbacks.queue<null>())],
+  ['stack(), used', () => used(Callbacks.stack<null>())],
 ];
 
 process.stdout.write(`node ${process.version}, ${COUNT} instances per row\n`);

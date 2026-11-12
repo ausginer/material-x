@@ -1,10 +1,10 @@
 /**
- * `drag:DRD-35`, `drag:DRI-8`, `drag:DRI-9` and `drag:DRI-10`: `CallbackList`,
- * and `requestStep` and `use` with a receiver.
+ * `drag:DRD-35`, `drag:DRI-8`, `drag:DRI-9` and `drag:DRI-10`: the lists that
+ * `queue()` and `stack()` make, and `requestStep` and `use` with a receiver.
  */
 import { describe, expect, it, vi } from 'vitest';
 import type { BehaviorOperation, Drag, Outcome } from '../src/draggable.ts';
-import { CallbackList } from '../src/kernel/callback-list.ts';
+import * as Callbacks from '../src/kernel/callbacks.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import { y } from '../src/sortable/y.ts';
 import {
@@ -52,9 +52,9 @@ function recordInto(
   };
 }
 
-describe('drag:DRD-35 CallbackList', () => {
+describe('drag:DRD-35 callback lists', () => {
   it('should keep duplicate checking apart from insertion', () => {
-    const list = CallbackList.queue<number>();
+    const list = Callbacks.queue<number>();
     const calls: Array<[unknown, number]> = [];
     const callback = recordInto(calls);
     const a = {};
@@ -80,7 +80,7 @@ describe('drag:DRD-35 CallbackList', () => {
   });
 
   it('should run a queue first in first out, each entry on its receiver', () => {
-    const list = CallbackList.queue<number>();
+    const list = Callbacks.queue<number>();
     const calls: Array<[unknown, number]> = [];
     const callback = recordInto(calls);
     const a = {};
@@ -100,7 +100,7 @@ describe('drag:DRD-35 CallbackList', () => {
   });
 
   it('should run a stack last in first out, each entry on its receiver', () => {
-    const list = CallbackList.stack<number>();
+    const list = Callbacks.stack<number>();
     const calls: Array<[unknown, number]> = [];
     const callback = recordInto(calls);
     const a = {};
@@ -120,8 +120,8 @@ describe('drag:DRD-35 CallbackList', () => {
   });
 
   it.each([
-    ['queue', () => CallbackList.queue<number>()],
-    ['stack', () => CallbackList.stack<number>()],
+    ['queue', () => Callbacks.queue<number>()],
+    ['stack', () => Callbacks.stack<number>()],
   ])(
     'should be empty before the first add and after the last run of a %s',
     (_, create) => {
@@ -141,7 +141,7 @@ describe('drag:DRD-35 CallbackList', () => {
   );
 
   it('should remove an entry before calling it, so a throw leaves the rest', () => {
-    const list = CallbackList.stack<null>();
+    const list = Callbacks.stack<null>();
     const ran: string[] = [];
 
     list.add(() => {
@@ -161,7 +161,7 @@ describe('drag:DRD-35 CallbackList', () => {
   });
 
   it('should drop every entry on clear', () => {
-    const list = CallbackList.queue<number>();
+    const list = Callbacks.queue<number>();
 
     list.add(() => {
       throw new Error('never');

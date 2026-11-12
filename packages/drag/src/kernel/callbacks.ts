@@ -14,9 +14,10 @@ const { push, unshift } = [];
  * of one array, so an entry allocates no object. A callback added with no
  * receiver is called with none.
  *
- * A list holds only the name of the array method it adds with. `queue()` makes
- * a list that adds at the start of the array, and `stack()` one that adds at
- * the end. `run` takes the entry at the end for both, so a queue runs its
+ * A list holds only the array method it adds with, the shared builtin read once
+ * when this module is evaluated. `queue()` makes a list that adds at the start
+ * of the array with `unshift`, and `stack()` one that adds at the end with
+ * `push`. `run` takes the entry at the end for both, so a queue runs its
  * oldest entry and a stack its newest, and `run` does not branch on the kind.
  *
  * The list decides nothing about when or whether its callbacks run, or what
