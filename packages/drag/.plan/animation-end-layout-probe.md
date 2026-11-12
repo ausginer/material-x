@@ -2,11 +2,15 @@
 
 **Run:** by the architect on 2026-11-12, at `bb8e5ebb8` on `drag/performance`, as [`performance-window-correction-assessment.md`](performance-window-correction-assessment.md) §4.3 proposed and the owner asked. **Governing records:** `DRD-44` property 6 and `DRD-40` property 4, in [`00-index.md`](00-index.md). It changed no production code and no instrument.
 
-**Outcome: the runtime pass is ready to close.**
+**Outcome: the runtime pass is ready to close.** The owner closed it on 2026-11-12 ([`performance-plan.md`](performance-plan.md) §2 P3).
 
-- **What triggers the layout.** An element that starts or stops being animated, or styled, with `translate`, `transform` or `opacity` has its layout invalidated. The frame's layout then costs in proportion to the list. That covers `layoutAnimation`'s own form, every other keyframe form tried, a plain style write, and an `opacity` animation.
-- **What avoids it.** Only a row that is already in that state before the animation starts has no layout at the start or the end. In the probe, the row's own style held `will-change: translate` or `translate: 0 0`. That changes how every row renders, for as long as the style stays.
-- **The library's options.** No form that the library controls avoids the layout and keeps both the rendered result and the cleanup. The one library form that would reduce the count holds each row in that state until no row is animating, so that the releases share one layout. That changes what renders between a row's own end and the last end, and it changes what is left behind. It isn't recommended (§3).
+**Scope of every conclusion below:** the scenario of §1, in Chromium 157, and the variants of §2. Other containers, other engines and other forms weren't tested (§5).
+
+- **What triggers the layout.** In every tested variant, a row that started or stopped being animated, or styled, with `translate`, `transform` or `opacity` had its layout invalidated. The frame's layout then cost more at 2,000 rows than at 20. That covers `layoutAnimation`'s own form, every other keyframe form tried, a plain style write, and an `opacity` animation.
+- **What avoided it.** Only a row that was already in that state before the animation started had no layout at the start or the end. In the probe, the row's own style held `will-change: translate` or `translate: 0 0`. That changes how every row renders, for as long as the style stays.
+- **The library's options.** None of the library-controlled forms in §3 avoids the layout and keeps both the rendered result and the cleanup. The one library form that would reduce the count holds each row in that state until no row is animating, so that the releases share one layout. That changes what renders between a row's own end and the last end, and it changes what is left behind. It isn't recommended (§3).
+
+**Wording corrected on 2026-11-12,** on the owner's request. The outcome, §2's trigger paragraph, §3's conclusion and §4 stated the trigger for any element and the cost for any displacement animation, and said that no library form avoids it. They now state what the tested scenario and variants showed. No reading changed.
 
 The deferred campaigns stay stopped.
 
@@ -61,7 +65,7 @@ Every layout dirties 5 objects, or 6 when two rows end together, out of 4,004 at
 - **Ends in the same frame share a layout.** Two rows that end together pay one layout. Two rows that end 60 ms apart pay one each.
 - **A probe artifact.** In "two rows together", the second start layout comes from the probe computing each row's space after the first `animate` call (`zoomOf < ancestry`). The real operation computes the space once. The end readings don't depend on it.
 
-**What triggers it.** An element enters or leaves an animated or styled state of `translate`, `transform` or `opacity`. A row that is already in an equivalent state, through its own `will-change: translate` or `translate: 0 0`, doesn't change state, so neither the start nor the end lays out. Each of these properties, and that `will-change`, makes an element a stacking context and a candidate for its own compositing layer. That is the common factor the readings show. **The probe doesn't tell the two apart,** and I didn't read Chromium's source.
+**What triggers it, in the tested variants.** A row enters or leaves an animated or styled state of `translate`, `transform` or `opacity`. A row that is already in an equivalent state, through its own `will-change: translate` or `translate: 0 0`, doesn't change state, so neither the start nor the end lays out. Each of these properties, and that `will-change`, makes an element a stacking context and a candidate for its own compositing layer. That is the common factor the readings show. **The probe doesn't tell the two apart,** and I didn't read Chromium's source.
 
 **What this corrects.** The assessment's hypothesis (§4.2 there) named the `translate` going back to `none`, and the paint layer and containing block that come with it. The `opacity` control lays out the same way, and `opacity` changes no containing block. So the trigger isn't specific to `translate`.
 
@@ -77,21 +81,21 @@ The requirement is to avoid the layouts and keep both the rendered result and th
 | A lasting `will-change: translate` or `translate: 0 0` on each row | Yes, measured | **Changed for the life of the list:** every row is a stacking context. `will-change` on 2,000 rows may also give each row its own layer, which isn't measured | It is the consumer's own style, and the library can't own it | Not a library option. It is the consumer's trade |
 | Make the layout cheaper | Not tested | — | — | Its cost is the consumer's list layout, so it isn't a library option |
 
-**No library-controlled alternative avoids the layouts with the same rendering and cleanup.** Any displacement animation of a row starts and stops this state. Only the timing of the stop is the library's, and moving that timing changes what renders.
+**None of these library-controlled options avoids the layouts with the same rendering and cleanup in the tested scenario.** Every tested displacement animation of a row started and stopped this state. Only the timing of the stop is the library's, and moving that timing changes what renders.
 
 ## 4. The recommendation
 
 **Close the runtime pass.**
 
 - **The trace candidates are settled.** Candidates 1 and 2 are done (`DRD-49`, `DRD-47`), and 3 was rejected under `DRD-49`. Candidates 4 and 5 are decisions first, and neither is a bounded runtime task (assessment §4.1).
-- **The layout after an animation ends** is the browser's cost of any displacement animation, at a size that the consumer's list sets. It goes on the list of the browser's costs.
+- **The layout after an animation ends** is attributed to the browser in the tested scenario and variants, at a size that the consumer's list sets. It goes on the list of the browser's costs with that scope.
 - **No timing reading is owed** for closing the pass. Nothing changed in production.
 
 **Next:** P4, the size pass ([`performance-plan.md`](performance-plan.md) §2 P4), and `DRO-4`'s size re-base, when the owner chooses.
 
 **Left to the owner, and not runtime tasks:**
 
-- **A README note.** It would tell consumers that, with a long list and `layoutAnimation`, each row animation's end lays out the list, and that a row's own `will-change: translate` avoids that at the cost of a stacking context per row. This is a documentation decision, and it would need its own measurement of the layer cost before the README gives advice.
+- **A README note.** It would tell consumers that, with a long list and `layoutAnimation`, each row animation's end laid out the list in the tested Chromium scenario, and that a row's own `will-change: translate` avoids that at the cost of a stacking context per row. This is a documentation decision, and it would need its own measurement of the layer cost before the README gives advice.
 - **The open records:** `DRO-1`'s pull at a press (candidate 4), the landing's computed position (candidate 5), the retained plateau in `DRO-4`, `DRF-21`, `DRD-45` property 9 before any `--prove` or `--floors`, and the owner's DevTools check of the traces.
 
 ## 5. Limits

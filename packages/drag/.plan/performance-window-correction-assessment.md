@@ -116,7 +116,7 @@ It changes no instrument and no row, and it isn't one of the deferred campaigns.
 - **A form that avoids the layout with the same rendering:** the architect decides it as a candidate, with its confirming measurement, and an optimization unit implements it. A change that alters what a consumer sees, such as a lasting `translate` that creates a stacking context, is a contract decision first.
 - **The cost is the browser's for any displacement animation:** it is listed as the browser's cost. The runtime pass is then ready to close, and P4 (the size pass) follows. Whether the README advises consumers on containing a long list's layout is a separate documentation decision.
 
-**Ran on 2026-11-12:** [`animation-end-layout-probe.md`](animation-end-layout-probe.md). It corrects §4.2's hypothesis, finds no library-controlled alternative, and recommends closing the runtime pass.
+**Ran on 2026-11-12:** [`animation-end-layout-probe.md`](animation-end-layout-probe.md). It corrects §4.2's hypothesis, finds no library-controlled alternative among the forms it considered in the tested Chromium scenario, and recommends closing the runtime pass. The owner closed it on 2026-11-12.
 
 **Not started when this assessment was written.** The owner decides whether it runs. The deferred instrument campaigns stay stopped: the page check, B3', the in-page floors, `--prove` and `--floors`. `DRD-45` property 9's repair is still owed before any `--prove` or `--floors`, and `DRF-21` stays open.
 

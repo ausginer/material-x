@@ -87,7 +87,22 @@ The architect then selects one candidate, or none, and records the selection.
 
 **Recommended next, not started:** one attribution probe of the layout that follows a row animation's end at 2,000 items, 5 to 12 ms per traced drag in the saved traces (assessment §4). It changes no production code or instrument. Trace candidates 3 to 5 aren't bounded runtime tasks now. If the probe finds nothing the library controls, the runtime pass is ready to close and P4 follows. The owner decides whether it runs.
 
-**Done on 2026-11-12:** the architect ran the probe at `bb8e5ebb8` ([record](animation-end-layout-probe.md)). The layout follows any element that starts or stops an animated or styled `translate`, `transform` or `opacity`, and the `opacity` control lays out too. Its cost grows with the list. No form that the library controls avoids it with the same rendering and cleanup. **The architect recommends closing the runtime pass**, with P4 next. The owner decides.
+**Done on 2026-11-12:** the architect ran the probe at `bb8e5ebb8` ([record](animation-end-layout-probe.md)). In Chromium 157, in a block list of fixed-height rows at 20 and 2,000 items, the layout followed every tested variant that started or stopped an animated or styled `translate`, `transform` or `opacity`, and the `opacity` control laid out too. It cost more at 2,000 rows than at 20. None of the library-controlled forms the probe considered avoided it with the same rendering and cleanup. **The architect recommended closing the runtime pass**, with P4 next. **Corrected on 2026-11-12:** this paragraph said that the layout follows any element and that no library form avoids it. The probe tested one scenario in one engine.
+
+**Runtime pass closed by the owner on 2026-11-12.** No optimization unit is open. The owner inspects the code on `drag/performance` before a pull request is prepared and the phase closes.
+
+Confirmed results, each against its recorded baseline:
+
+| Unit | Result | Bytes, accepted by the owner |
+| --- | --- | --- |
+| Instruments (P1, `DRD-41`, `DRD-42`) | `DRF-1` closed, the kernel per-sample test samples after a warm pass, and the baseline of `a9c323f6a` is recorded | — |
+| `DRD-47`, the drop's confirmation | "50 activate-and-drop cycles, 2000 items, no landing": faster by 2,449 µs of script per cycle, A/A bound 409 µs | +125 to +140 B Brotli |
+| `DRD-48`, `freeDrag`'s drop, a correctness unit | `DRF-22` closed | +5 B Brotli |
+| `DRD-49`, `y()`'s window | The same row: faster by 2,508 µs of script per cycle, A/A bound 427 µs | With `DRD-50`, against `71f20df20`: +143 B on "sortable + y", +36 B on "sortable + xy", +149 B on "complete" |
+| `DRD-50`, range settling | A read with a sink allocates nothing. `xy()`'s shared rebuild: "no difference shown", so it stays, and the A/A bounds don't limit a slowdown | (in the row above) |
+| The animation-end layout probe | Attributed to the browser in the tested Chromium scenario and variants only | — |
+
+The trace candidates: 1 and 2 are done, 3 was rejected under `DRD-49`, and 4 and 5 are decisions first. **No budget changed** in the pass. The deferred campaigns stay stopped: the page check, B3', the in-page floors, `--prove` and `--floors`. What remains open is in §4.
 
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
@@ -102,7 +117,7 @@ When the target row shows no difference, the architect decides what follows (`DR
 
 ### P4. Size pass
 
-After the runtime units, under CONTRIBUTING Part II: delete machinery before compressing syntax (§16), and measure each change by composition (§15). Any byte saving that adds work on a hot path goes to the owner (§0). `DRO-4`'s re-base is the owner's decision, and it is made against the figures the owner accepts.
+**Not started.** The owner chooses when it starts. After the runtime units, under CONTRIBUTING Part II: delete machinery before compressing syntax (§16), and measure each change by composition (§15). Any byte saving that adds work on a hot path goes to the owner (§0). `DRO-4`'s re-base is the owner's decision, and it is made against the figures the owner accepts.
 
 ## 3. Rules every unit follows
 
@@ -116,12 +131,20 @@ After the runtime units, under CONTRIBUTING Part II: delete machinery before com
 
 ## 4. Open items this plan doesn't decide
 
-- `DRO-4`'s size re-base and the red rows, five at `bf9d1caed`. The owner's.
+**Carried forward on 2026-11-12, when the runtime pass closed.** None is a runtime task in this pass.
+
+- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, and the same five after the window (`DRO-4`). The owner's.
 - Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. The record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
 - `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
 - `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
 - The optional findings `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so.
+- Trace candidates 4 and 5: `DRO-1`'s pull at a press and the landing's computed position. Each is a decision first ([assessment](performance-window-correction-assessment.md) §4.1).
+- The retained plateau of about 4 KB in `DRO-4`, whose retainer isn't known.
+- The owner's DevTools check of the saved traces ([assessment](performance-trace-assessment.md)).
+- `xy()`'s shared rebuild: its probe can't limit a slowdown, and its rebuild with rows in flight wasn't timed ([assessment](performance-window-correction-assessment.md) §5).
+- The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
+- A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
 
 ## 5. Post-1.0.0: virtualized lists
 
