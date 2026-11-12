@@ -4,6 +4,8 @@
 
 **Outcome.** The library's internal property names that the minifier keeps take about 950 B of a 28,664 B minified bundle of every entry. Shortening them by name takes **30 to 66 B Brotli off the rows without `sortable`, and 103 to 119 B off the three `sortable` rows.** That is more than P4's machinery has taken. **But neither the tests nor the size gate can see the published build**, and the first runtime check found a break that type analysis had missed. Delivering it is a build and instrument change, so it goes to the owner as `DRO-15`.
 
+**The owner's answer, 2026-11-12** (`DRO-15`, `DRD-54`): steps 1 and 2 of §6 start, each as its own unit. Step 3, the mangle, waits for the published build's results.
+
 **This corrects the opening assessment.** [`size-pass-assessment.md`](size-pass-assessment.md) §2 says that the surviving property names are DOM names and published members. That was read from a ranking of names, not a classification, and it is wrong: 30 internal names survive in the bundle.
 
 ## 1. Method
