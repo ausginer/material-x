@@ -1,5 +1,7 @@
 # Performance window handoff
 
+**Done.** The unit landed at `501f60ab7` and `56c1c27c3`. [`performance-window-report.md`](performance-window-report.md) records it, and [`performance-window-assessment.md`](performance-window-assessment.md) reads it: confirmed. `DRD-50` corrects the allocation that each read makes with a sink, and probes `xy()`'s shared rebuild.
+
 **For:** one `implementer` unit on `drag/performance`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `71f20df20`'s.
 
 **Governing records:** `DRD-49` in [`00-index.md`](00-index.md), with `DRD-47`, `DRD-46` property 8, `DRD-40` properties 4, 6 and 7, `DRD-44` property 6 and `DRD-45` property 9. [`performance-plan.md`](performance-plan.md) §2 P3. The reasons are in [`free-drag-drop-assessment.md`](free-drag-drop-assessment.md) §2, and the costs in [`performance-trace-report.md`](performance-trace-report.md) §Item 4, candidate 1.

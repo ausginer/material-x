@@ -79,6 +79,10 @@ The architect then selects one candidate, or none, and records the selection.
 
 **Owner scope approval, 2026-11-12:** `y()` serves rendered, non-virtualized DOM lists under `DRD-49`'s ordering terms. Virtualized lists are deferred until after 1.0.0, as recorded in §5. This approval allows the second optimization unit to start; it accepts no unmeasured speed or size result.
 
+**Done on 2026-11-12:** implemented at `501f60ab7` and confirmed ([report](performance-window-report.md), [assessment](performance-window-assessment.md)). "50 activate-and-drop cycles, 2000 items, no landing" is faster by 2,508 µs of script per cycle, against an A/A bound of 427 µs. Its bytes, +155 B Brotli on "sortable + y" and "complete" and +51 B on "sortable + xy", await the owner's acceptance after the correction below.
+
+**Next, a correction unit:** [`performance-window-correction-handoff.md`](performance-window-correction-handoff.md), `DRD-50`. A measurement settles a slot range of the cache's own buffer, so a read with a sink allocates nothing. A paired probe of `xy()`'s rebuild against `71f20df20`'s decides whether the shared rebuild stays. Runtime comes before the byte ceilings in this unit. No `compare.ts` run follows, and `DRD-49`'s readings stand.
+
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
 Each unit is one bounded change at the selected candidate's site. Each unit:
