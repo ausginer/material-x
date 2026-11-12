@@ -116,5 +116,5 @@ These ran on the working copy after format and lint, before the commit. Its sour
 ## For the architect
 
 - **Record the result under `DRD-48` and `DRF-22`**, with the owner's approval of the added reads stated above.
-- **Pending acceptance:** the owner accepts or refuses the 5 B Brotli on the two `freeDrag` rows and the 11 reads at this drop (`DRD-33` C7, CONTRIBUTING §0).
+- **Pending acceptance:** the owner accepts or refuses the 5 B Brotli on the two `freeDrag` rows (`DRD-33` C7). The 11 reads at this drop are covered by the owner's approval under §Owner approval. **Corrected by the architect on 2026-11-12:** this bullet used to list the reads as pending too ([assessment](free-drag-drop-assessment.md) §1). The owner accepted the bytes on the same day.
 - **Still open:** `DRF-21`, until the next bytes reading that a report or decision uses, and `DRD-45` property 9's repair before any `--prove` or `--floors`.

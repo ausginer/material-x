@@ -1,5 +1,7 @@
 # Free drag drop handoff
 
+**Done.** The unit landed at `71f20df20` and `7cb2207ae`. [`free-drag-drop-report.md`](free-drag-drop-report.md) records it, and [`free-drag-drop-assessment.md`](free-drag-drop-assessment.md) reads it: `DRD-48` conforms, and `DRF-22` is closed.
+
 **For:** one `implementer` unit on `drag/performance`. **Base:** the commit that carries this handoff. Its `packages/drag/src` is `bf9d1caed`'s.
 
 **Governing records:** `DRD-48` in [`00-index.md`](00-index.md), with `DRD-33` C6 and C7, `DRD-40` properties 4 and 6, and `DRF-22`. [`performance-plan.md`](performance-plan.md) §2 P3. The reasons are in [`performance-drop-assessment.md`](performance-drop-assessment.md) §4.

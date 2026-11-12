@@ -73,6 +73,10 @@ The architect then selects one candidate, or none, and records the selection.
 
 **Next, a correctness unit:** [`free-drag-drop-handoff.md`](free-drag-drop-handoff.md), `DRD-48`. `freeDrag`'s drop measures its drop targets and its bounds again, which `DRF-22` found missing. It isn't an optimization unit, and no paired run reaches it. The next optimization candidate is selected after it, from the trace report or from new traces, under `DRD-46` property 8.
 
+**Done on 2026-11-12:** implemented at `71f20df20` ([report](free-drag-drop-report.md), [assessment](free-drag-drop-assessment.md)), and `DRF-22` is closed. The owner accepted +5 B Brotli on the two `freeDrag` rows.
+
+**Second optimization unit:** [`performance-window-handoff.md`](performance-window-handoff.md), `DRD-49`. The trace report's candidate 1: `y()` measures a window of rows that grows from the placeholder toward the pointer, instead of every row at the activation and after every invalidation. The 2,000-item cycle rows confirm it, and the move rows show that nothing is slower.
+
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
 Each unit is one bounded change at the selected candidate's site. Each unit:
