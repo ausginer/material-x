@@ -199,7 +199,7 @@ export function linearShift(index: RectIndex): LinearShift {
           const scratch = new Float64Array(STRIDE);
 
           scratch[TOP] = observed;
-          context.displacement.settle(scratch, [probe], 1);
+          context.displacement.settle(scratch, [probe], 0, 1);
           observed = scratch[TOP]!;
         }
 

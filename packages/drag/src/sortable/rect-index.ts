@@ -217,13 +217,7 @@ export class RectIndex {
     }
 
     // The slots must hold where flow puts a row, not where an animation draws it.
-    // The sink settles from the start of the buffer and the array it receives, so a
-    // range after slot 0 is a view and a copy of its elements.
-    displacement?.settle(
-      values.subarray(lo * STRIDE),
-      lo ? items.slice(lo, hi) : items,
-      hi - lo,
-    );
+    displacement?.settle(values, items, lo, hi);
 
     // An empty window sits at the slot `collect` gave it, so a range next to it
     // extends it the same way.
@@ -302,7 +296,7 @@ export class RectIndex {
     const scratch = new Float64Array(STRIDE);
 
     pack(scratch, 0, (getBox ? getBox(item) : item).getBoundingClientRect());
-    displacement?.settle(scratch, [item], 1);
+    displacement?.settle(scratch, [item], 0, 1);
 
     const offset = slot * STRIDE;
 

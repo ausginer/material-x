@@ -13,16 +13,18 @@ export interface DisplacementSink {
    */
   report(element: HTMLElement, dx: number, dy: number, space: Space): void;
   /**
-   * Turns the buffer an axis has just measured into settled geometry, by
-   * subtracting what the sink currently holds for each element in the first
-   * `count` slots. It computes the answer from animation timing and reads no
-   * layout. So no animation is cancelled for a rebuild, and a row never jumps
-   * back.
+   * Turns the slots from `first` to before `end` of a buffer an axis has just
+   * measured into settled geometry, by subtracting what the sink currently holds
+   * for each slot's element. `items` is parallel to the slots, and nothing outside
+   * the range is read or written. It computes the answer from animation timing and
+   * reads no layout. So no animation is cancelled for a rebuild, and a row never
+   * jumps back.
    */
   settle(
     values: Float64Array,
     items: readonly HTMLElement[],
-    count: number,
+    first: number,
+    end: number,
   ): void;
   retire(this: DisplacementSink): void;
 }
