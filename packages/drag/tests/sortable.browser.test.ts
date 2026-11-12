@@ -1355,8 +1355,10 @@ describe('sortable options', () => {
     controller.invalidate();
     calls.length = 0;
 
+    // Taken before the resolution, which may move the placeholder and so r3.
     const pointerY = start.y + 105;
     const expected = gapFor(pointerY);
+    const settledTop = flowTop(r3);
 
     await moveHeld(start.x, pointerY);
 
@@ -1366,7 +1368,7 @@ describe('sortable options', () => {
 
     expect(overR3.first).toBeGreaterThan(0);
     expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).toBeCloseTo(
-      flowTop(r3),
+      settledTop,
       0,
     );
     expect(placeholderGap()).toBe(expected);
