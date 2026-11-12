@@ -83,6 +83,10 @@ The architect then selects one candidate, or none, and records the selection.
 
 **Next, a correction unit:** [`performance-window-correction-handoff.md`](performance-window-correction-handoff.md), `DRD-50`. A measurement settles a slot range of the cache's own buffer, so a read with a sink allocates nothing. A paired probe of `xy()`'s rebuild against `71f20df20`'s decides whether the shared rebuild stays. Runtime comes before the byte ceilings in this unit. No `compare.ts` run follows, and `DRD-49`'s readings stand.
 
+**Done on 2026-11-12:** implemented at `8d002529a` ([report](performance-window-correction-report.md), [assessment](performance-window-correction-assessment.md)). A read with a sink allocates nothing. The probe read "no difference shown" in both cases, so `xy()`'s shared rebuild stays. Its A/A bounds don't limit a possible slowdown. The owner accepted +143 B Brotli on "sortable + y", +36 B on "sortable + xy" and +149 B on "complete", against `71f20df20`, and no budget changed.
+
+**Recommended next, not started:** one attribution probe of the layout that follows a row animation's end at 2,000 items, 5 to 12 ms per traced drag in the saved traces (assessment §4). It changes no production code or instrument. Trace candidates 3 to 5 aren't bounded runtime tasks now. If the probe finds nothing the library controls, the runtime pass is ready to close and P4 follows. The owner decides whether it runs.
+
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
 Each unit is one bounded change at the selected candidate's site. Each unit:
