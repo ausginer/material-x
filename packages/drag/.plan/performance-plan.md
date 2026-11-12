@@ -154,6 +154,8 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 
 **Second unit, handed off on 2026-11-12:** [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md), from `ed4bd589f`. It makes `freeDrag`'s `invalidate` step a module function (`DRD-51`, as amended), and corrects the C6 probe's launch documentation. Expected: −1 B Brotli on "freeDrag" and −5 B on "freeDrag + bounds + landing", and 0/0/0 on the eight other rows. It only removes work, so it runs no `compare.ts` row.
 
+**Property mangling, explored on 2026-11-12:** [`property-mangling-exploration.md`](property-mangling-exploration.md). The internal property names that survive minification take 30 to 119 B Brotli per row, and a publish-time mangle could take them. Nothing checks the published build today, so it would start with a suite against that build. **`DRO-15` holds it for the owner.** Budgets are unchanged.
+
 ## 3. Rules every unit follows
 
 `DRD-40`'s properties, in short:
@@ -183,6 +185,7 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
 - **Added on 2026-11-12, when P4 opened:** `DRO-14`'s four items, and the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14` item 3 holds `DRF-20`.
+- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names, and its prerequisite, a suite against the published build.
 
 ## 5. Post-1.0.0: virtualized lists
 

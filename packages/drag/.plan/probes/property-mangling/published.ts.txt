@@ -1,0 +1,107 @@
+/**
+ * Lists every property name a consumer can reach through the package's published
+ * types: the exports of each entry in package.json's exports map, followed through
+ * properties, signatures, unions, intersections, type arguments and class sides.
+ * `node published.ts --root <packages/drag> --out <file.json> [--opaque A,B]`
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { join, resolve } from 'node:path';
+
+const args = process.argv.slice(2);
+const option = (name: string): string | undefined => {
+  const i = args.indexOf(name);
+  return i < 0 ? undefined : args[i + 1];
+};
+const root = resolve(option('--root') ?? '/workspaces/material-x/packages/drag');
+const out = option('--out');
+// Types the walk doesn't enter: the unpublished installer types of `DRD-39`.
+const opaque = new Set((option('--opaque') ?? '').split(',').filter(Boolean));
+const require = createRequire(join(root, 'package.json'));
+const ts = require('typescript') as typeof import('typescript');
+
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const entries = Object.keys(pkg.exports)
+  .filter((k) => k.endsWith('.js'))
+  .map((k) => join(root, 'src', k.replace(/^\.\//, '').replace(/\.js$/, '.ts')));
+
+const config = ts.getParsedCommandLineOfConfigFile(join(root, 'tsconfig.json'), {}, {
+  ...ts.sys,
+  onUnRecoverableConfigFileDiagnostic: () => {},
+} as never)!;
+const program = ts.createProgram(entries, { ...config.options, noEmit: true });
+const checker = program.getTypeChecker();
+
+const names = new Map<string, Set<string>>();
+const seen = new Set<ts.Type>();
+const add = (name: string, via: string) => {
+  if (name.startsWith('__@') || name.startsWith('#')) return;
+  if (!names.has(name)) names.set(name, new Set());
+  if (names.get(name)!.size < 3) names.get(name)!.add(via);
+};
+const fromLib = (sym: ts.Symbol | undefined) =>
+  !!sym?.declarations?.length &&
+  sym.declarations.every((d) => {
+    const f = d.getSourceFile().fileName;
+    return /\/lib\.[\w.]+\.d\.ts$/.test(f) || f.includes('/@types/');
+  });
+
+const seenText = new Set<string>();
+function visit(type: ts.Type, via: string, depth = 0): void {
+  if (seen.has(type) || depth > 12) return;
+  seen.add(type);
+  // Generic members instantiate new type objects, so identity alone doesn't end the walk.
+  const text = checker.typeToString(type, undefined, ts.TypeFormatFlags.NoTruncation);
+  if (seenText.has(text)) return;
+  seenText.add(text);
+  // Platform types end the walk: their members are the platform's names.
+  const symbol = type.getSymbol();
+  if (opaque.has(type.aliasSymbol?.getName() ?? '') || opaque.has(symbol?.getName() ?? '')) return;
+  const named = ts.SymbolFlags.Interface | ts.SymbolFlags.Class;
+  // A mapped lib type such as `Readonly<T>` is walked: its properties are T's.
+  if (symbol && symbol.flags & named && fromLib(symbol)) return;
+  if (type.isUnionOrIntersection()) for (const t of type.types) visit(t, via, depth + 1);
+  for (const t of checker.getTypeArguments(type as ts.TypeReference) ?? []) visit(t, via, depth + 1);
+  for (const t of type.aliasTypeArguments ?? []) visit(t, via, depth + 1);
+  for (const prop of checker.getPropertiesOfType(type)) {
+    if (fromLib(prop)) continue;
+    add(prop.getName(), via);
+    const decl = prop.valueDeclaration ?? prop.declarations?.[0];
+    if (decl) visit(checker.getTypeOfSymbolAtLocation(prop, decl), `${via}.${prop.getName()}`, depth + 1);
+  }
+  for (const kind of [ts.SignatureKind.Call, ts.SignatureKind.Construct]) {
+    for (const sig of checker.getSignaturesOfType(type, kind)) {
+      for (const p of sig.getParameters()) {
+        const decl = p.valueDeclaration ?? p.declarations?.[0];
+        if (decl) visit(checker.getTypeOfSymbolAtLocation(p, decl), `${via}(${p.getName()})`, depth + 1);
+      }
+      visit(sig.getReturnType(), `${via}()`, depth + 1);
+      const thisType = sig.thisParameter;
+      if (thisType?.valueDeclaration) visit(checker.getTypeOfSymbolAtLocation(thisType, thisType.valueDeclaration), `${via}(this)`, depth + 1);
+    }
+  }
+  for (const info of checker.getIndexInfosOfType(type)) visit(info.type, `${via}[]`, depth + 1);
+  const base = type.getBaseTypes?.() ?? [];
+  for (const b of base) visit(b, via, depth + 1);
+  const constraint = type.getConstraint?.();
+  if (constraint) visit(constraint, via, depth + 1);
+}
+
+for (const file of entries) {
+  const source = program.getSourceFile(file)!;
+  const moduleSymbol = checker.getSymbolAtLocation(source)!;
+  for (let exp of checker.getExportsOfModule(moduleSymbol)) {
+    const via = `${file.slice(root.length + 5)}:${exp.getName()}`;
+    if (exp.flags & ts.SymbolFlags.Alias) exp = checker.getAliasedSymbol(exp);
+    const decl = exp.valueDeclaration ?? exp.declarations?.[0];
+    if (!decl) continue;
+    if (exp.flags & (ts.SymbolFlags.Value)) visit(checker.getTypeOfSymbolAtLocation(exp, decl), via);
+    if (exp.flags & (ts.SymbolFlags.Type | ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias)) {
+      visit(checker.getDeclaredTypeOfSymbol(exp), via);
+    }
+  }
+}
+
+const result = Object.fromEntries([...names].sort(([a], [b]) => a.localeCompare(b)).map(([n, v]) => [n, [...v].slice(0, 3)]));
+if (out) writeFileSync(out, `${JSON.stringify(result, null, 2)}\n`);
+console.log(`${entries.length} entries, ${names.size} published property names`);

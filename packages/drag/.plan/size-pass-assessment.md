@@ -34,7 +34,7 @@ Bytes. "Over" is Brotli minus the ceiling. The prototype arm is `599684791`, mea
 
 The five red rows and their excess are the ones `DRO-4` records after the window. "draggable alone"'s control moved by 173 B since it was set on 2026-11-07.
 
-**Where the bytes are.** Every row carries the kernel's seven modules, 6,733 B minified, and `kernel/session.ts` is the largest module in every row at 4,221 B. Then, by row: `lift.ts` at 3,001 B in every lifted row; `@ydinjs/box-quad` at 1,367 to 2,240 B; `sortable/operation.ts` at 2,564 B; `kernel/gesture.ts` at 2,090 B; `sortable/behavior.ts` at 2,083 B; `free-drag/operation.ts` at 1,704 B; and `sortable/rect-index.ts` at 1,693 B. Private names are already mangled: 517 occurrences in a bundle of every entry, at 2 B each. The surviving property names are DOM names and published members.
+**Where the bytes are.** Every row carries the kernel's seven modules, 6,733 B minified, and `kernel/session.ts` is the largest module in every row at 4,221 B. Then, by row: `lift.ts` at 3,001 B in every lifted row; `@ydinjs/box-quad` at 1,367 to 2,240 B; `sortable/operation.ts` at 2,564 B; `kernel/gesture.ts` at 2,090 B; `sortable/behavior.ts` at 2,083 B; `free-drag/operation.ts` at 1,704 B; and `sortable/rect-index.ts` at 1,693 B. Private names are already mangled: 517 occurrences in a bundle of every entry, at 2 B each. The surviving property names are DOM names and published members. **Corrected on 2026-11-12:** that last sentence was read from a ranking of names, not a classification, and it is wrong. About 950 B minified of the surviving names are internal ([`property-mangling-exploration.md`](property-mangling-exploration.md) §2).
 
 ## 3. Part II's order of attack, class by class
 

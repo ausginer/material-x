@@ -1,0 +1,13 @@
+/* Scratch, architect's property-mangling probe: every `src` import resolves to the mangled tree. Removed after the run. */
+import { mergeConfig, type UserConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
+import { createDragTestConfig, DRAG_SHIPPED_BROWSER_TESTS } from '../../.scripts/vitest-config.ts';
+import { dragBrowserCommands } from './tests/support/commands.node.ts';
+
+const alias = [{ find: '@ydinjs/box-quad', replacement: '/workspaces/material-x/packages/box-quad/src/index.ts' }, { find: /^(?:\.\.\/)+src\/(.+)\.tsx?$/, replacement: '/tmp/claude-1000/-workspaces-material-x/fd3608c1-14ec-4b02-9629-db4e2842128e/scratchpad/pm/pub1t/mangled/$1.js' }];
+
+export default defineConfig(() => {
+  const config = createDragTestConfig(new URL('./', import.meta.url), dragBrowserCommands, DRAG_SHIPPED_BROWSER_TESTS) as UserConfig & { test: { projects: UserConfig[] } };
+  config.test.projects = config.test.projects.map((project) => mergeConfig(project, { resolve: { alias } }));
+  return config;
+});

@@ -1,0 +1,1913 @@
+[
+  {
+    "name": "invalidate",
+    "count": 25,
+    "bytes": 250,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "ownerDocument",
+    "count": 14,
+    "bytes": 182,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "placeholder",
+    "count": 16,
+    "bytes": 176,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getBoundingClientRect",
+    "count": 8,
+    "bytes": 168,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "displacement",
+    "count": 14,
+    "bytes": 168,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "addEventListener",
+    "count": 10,
+    "bytes": 160,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "config",
+    "count": 26,
+    "bytes": 156,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "item",
+    "count": 38,
+    "bytes": 152,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "pointerId",
+    "count": 16,
+    "bytes": 144,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "translate",
+    "count": 16,
+    "bytes": 144,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "signal",
+    "count": 21,
+    "bytes": 126,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "insertion",
+    "count": 14,
+    "bytes": 126,
+    "shorthand": 0,
+    "class": "installer"
+  },
+  {
+    "name": "style",
+    "count": 25,
+    "bytes": 125,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "length",
+    "count": 19,
+    "bytes": 114,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "items",
+    "count": 22,
+    "bytes": 110,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "landing",
+    "count": 15,
+    "bytes": 105,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "requestCancel",
+    "count": 8,
+    "bytes": 104,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "constructor",
+    "count": 9,
+    "bytes": 99,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "requestStep",
+    "count": 9,
+    "bytes": 99,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "type",
+    "count": 21,
+    "bytes": 84,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "visual",
+    "count": 14,
+    "bytes": 84,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "defaultView",
+    "count": 7,
+    "bytes": 77,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "axis",
+    "count": 19,
+    "bytes": 76,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "duration",
+    "count": 9,
+    "bytes": 72,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "before",
+    "count": 12,
+    "bytes": 72,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "snapshot",
+    "count": 9,
+    "bytes": 72,
+    "shorthand": 0,
+    "class": "installer"
+  },
+  {
+    "name": "requestDestroy",
+    "count": 5,
+    "bytes": 70,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "after",
+    "count": 14,
+    "bytes": 70,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "activeElement",
+    "count": 5,
+    "bytes": 65,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "parentElement",
+    "count": 5,
+    "bytes": 65,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getComputedStyle",
+    "count": 4,
+    "bytes": 64,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "left",
+    "count": 16,
+    "bytes": 64,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "threshold",
+    "count": 7,
+    "bytes": 63,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "enter",
+    "count": 12,
+    "bytes": 60,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "removeAttribute",
+    "count": 4,
+    "bytes": 60,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "setAttribute",
+    "count": 5,
+    "bytes": 60,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "cancel",
+    "count": 10,
+    "bytes": 60,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "retire",
+    "count": 10,
+    "bytes": 60,
+    "shorthand": 0,
+    "class": "installer"
+  },
+  {
+    "name": "placeholderRect",
+    "count": 4,
+    "bytes": 60,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "preventDefault",
+    "count": 4,
+    "bytes": 56,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "pointerY",
+    "count": 7,
+    "bytes": 56,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "isConnected",
+    "count": 5,
+    "bytes": 55,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "handleEvent",
+    "count": 5,
+    "bytes": 55,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "nextElementSibling",
+    "count": 3,
+    "bytes": 54,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "bottom",
+    "count": 9,
+    "bytes": 54,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "measurePlaceholder",
+    "count": 3,
+    "bytes": 54,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "cancelLanding",
+    "count": 4,
+    "bytes": 52,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "top",
+    "count": 17,
+    "bytes": 51,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "box",
+    "count": 17,
+    "bytes": 51,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "raise",
+    "count": 10,
+    "bytes": 50,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "originX",
+    "count": 7,
+    "bytes": 49,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "originY",
+    "count": 7,
+    "bytes": 49,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "request",
+    "count": 7,
+    "bytes": 49,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "handle",
+    "count": 8,
+    "bytes": 48,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "easing",
+    "count": 8,
+    "bytes": 48,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "pointerX",
+    "count": 6,
+    "bytes": 48,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "values",
+    "count": 8,
+    "bytes": 48,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "bounds",
+    "count": 8,
+    "bytes": 48,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "index",
+    "count": 9,
+    "bytes": 45,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "right",
+    "count": 9,
+    "bytes": 45,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "first",
+    "count": 9,
+    "bytes": 45,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "animation",
+    "count": 5,
+    "bytes": 45,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "rect",
+    "count": 11,
+    "bytes": 44,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "reason",
+    "count": 7,
+    "bytes": 42,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "origin",
+    "count": 7,
+    "bytes": 42,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "settle",
+    "count": 7,
+    "bytes": 42,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "matches",
+    "count": 6,
+    "bytes": 42,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "version",
+    "count": 6,
+    "bytes": 42,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "window",
+    "count": 7,
+    "bytes": 42,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "abort",
+    "count": 8,
+    "bytes": 40,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "includes",
+    "count": 5,
+    "bytes": 40,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "y",
+    "count": 38,
+    "bytes": 38,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "x",
+    "count": 37,
+    "bytes": 37,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "end",
+    "count": 12,
+    "bytes": 36,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "composedPath",
+    "count": 3,
+    "bytes": 36,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "transform",
+    "count": 4,
+    "bytes": 36,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getAttribute",
+    "count": 3,
+    "bytes": 36,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "direction",
+    "count": 4,
+    "bytes": 36,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "count",
+    "count": 7,
+    "bytes": 35,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "hasPointerCapture",
+    "count": 2,
+    "bytes": 34,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "use",
+    "count": 11,
+    "bytes": 33,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "visualSpace",
+    "count": 3,
+    "bytes": 33,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "getPropertyValue",
+    "count": 2,
+    "bytes": 32,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "root",
+    "count": 8,
+    "bytes": 32,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "value",
+    "count": 6,
+    "bytes": 30,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "parentNode",
+    "count": 3,
+    "bytes": 30,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "stepTarget",
+    "count": 3,
+    "bytes": 30,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "height",
+    "count": 5,
+    "bytes": 30,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "updateInsertion",
+    "count": 2,
+    "bytes": 30,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "capture",
+    "count": 4,
+    "bytes": 28,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "indexOf",
+    "count": 4,
+    "bytes": 28,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "resolve",
+    "count": 4,
+    "bytes": 28,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "measure",
+    "count": 4,
+    "bytes": 28,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "viewportDeltaX",
+    "count": 2,
+    "bytes": 28,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "viewportDeltaY",
+    "count": 2,
+    "bytes": 28,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "isPrimary",
+    "count": 3,
+    "bytes": 27,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "boxSizing",
+    "count": 3,
+    "bytes": 27,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "boxHeight",
+    "count": 3,
+    "bytes": 27,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "DOCUMENT_POSITION_FOLLOWING",
+    "count": 1,
+    "bytes": 27,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "preventScroll",
+    "count": 2,
+    "bytes": 26,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "start",
+    "count": 5,
+    "bytes": 25,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "width",
+    "count": 5,
+    "bytes": 25,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "moved",
+    "count": 5,
+    "bytes": 25,
+    "shorthand": 0,
+    "class": "installer"
+  },
+  {
+    "name": "decide",
+    "count": 4,
+    "bytes": 24,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "detach",
+    "count": 4,
+    "bytes": 24,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "activate",
+    "count": 3,
+    "bytes": 24,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "offsetHeight",
+    "count": 2,
+    "bytes": 24,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "position",
+    "count": 3,
+    "bytes": 24,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "schedule",
+    "count": 3,
+    "bytes": 24,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "compareDocumentPosition",
+    "count": 1,
+    "bytes": 23,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "raiseInPass",
+    "count": 2,
+    "bytes": 22,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "setProperty",
+    "count": 2,
+    "bytes": 22,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "previousElementSibling",
+    "count": 1,
+    "bytes": 22,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "localDeltaX",
+    "count": 2,
+    "bytes": 22,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "localDeltaY",
+    "count": 2,
+    "bytes": 22,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "clientX",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "clientY",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "releasePointerCapture",
+    "count": 1,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "command",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "acquire",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "animate",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "requestAnimationFrame",
+    "count": 1,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "confirm",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "collect",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "targets",
+    "count": 3,
+    "bytes": 21,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "call",
+    "count": 5,
+    "bytes": 20,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "shadowRoot",
+    "count": 2,
+    "bytes": 20,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "move",
+    "count": 5,
+    "bytes": 20,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "drop",
+    "count": 5,
+    "bytes": 20,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "split",
+    "count": 4,
+    "bytes": 20,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "cancelAnimationFrame",
+    "count": 1,
+    "bytes": 20,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getPropertyPriority",
+    "count": 1,
+    "bytes": 19,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "add",
+    "count": 6,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "button",
+    "count": 3,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "terminate",
+    "count": 2,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "scaleSelf",
+    "count": 2,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "rotate",
+    "count": 3,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "DOMMatrix",
+    "count": 2,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "itemSpace",
+    "count": 2,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "composite",
+    "count": 2,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "report",
+    "count": 3,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "installer"
+  },
+  {
+    "name": "moveTo",
+    "count": 3,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "FreeDragResolution",
+    "count": 1,
+    "bytes": 18,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "setPointerCapture",
+    "count": 1,
+    "bytes": 17,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "ReorderResolution",
+    "count": 1,
+    "bytes": 17,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "getComputedTiming",
+    "count": 1,
+    "bytes": 17,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "boxWidth",
+    "count": 2,
+    "bytes": 16,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "get",
+    "count": 5,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "empty",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "clear",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "stopPropagation",
+    "count": 1,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "state",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "removeAllRanges",
+    "count": 1,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "admit",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "abs",
+    "count": 5,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "scale",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "preMultiplySelf",
+    "count": 1,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "transformOrigin",
+    "count": 1,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "space",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "installer"
+  },
+  {
+    "name": "holds",
+    "count": 3,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "layoutAnimation",
+    "count": 1,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "DOMRectReadOnly",
+    "count": 1,
+    "bytes": 15,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "defineProperty",
+    "count": 1,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "aborted",
+    "count": 2,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "advance",
+    "count": 2,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "transformStyle",
+    "count": 1,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getClientRects",
+    "count": 1,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "removeProperty",
+    "count": 1,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "passive",
+    "count": 2,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "onStart",
+    "count": 2,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "refresh",
+    "count": 2,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "originPointerX",
+    "count": 1,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "originPointerY",
+    "count": 1,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "current",
+    "count": 2,
+    "bytes": 14,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "createElement",
+    "count": 1,
+    "bytes": 13,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "has",
+    "count": 4,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getSelection",
+    "count": 1,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "assignedSlot",
+    "count": 1,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "multiplySelf",
+    "count": 1,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "hasAttribute",
+    "count": 1,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "land",
+    "count": 3,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "timing",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "zIndex",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "accept",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "reject",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "filter",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "rebase",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "altKey",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "delete",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "onMove",
+    "count": 2,
+    "bytes": 12,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "toStringTag",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "getRootNode",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "perspective",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "showPopover",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "hidePopover",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "offsetWidth",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "isComposing",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "currentRect",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "innerHeight",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "dropTargets",
+    "count": 1,
+    "bytes": 11,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "enumerable",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "focus",
+    "count": 2,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "parseFloat",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "rotateSelf",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "transition",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "matchMedia",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "onEnd",
+    "count": 2,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "originRect",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "visualRect",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "apply",
+    "count": 2,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "innerWidth",
+    "count": 1,
+    "bytes": 10,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "DragFault",
+    "count": 1,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "run",
+    "count": 3,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "draggable",
+    "count": 1,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "min",
+    "count": 3,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "onReorder",
+    "count": 1,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "positionX",
+    "count": 1,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "positionY",
+    "count": 1,
+    "bytes": 9,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "host",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "body",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "then",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "isFinite",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "zoom",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "distance",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "from",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "previous",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "document",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "contains",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "sortable",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "lend",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "internal"
+  },
+  {
+    "name": "progress",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "finished",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "home",
+    "count": 2,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "freeDrag",
+    "count": 1,
+    "bytes": 8,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "message",
+    "count": 1,
+    "bytes": 7,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "unshift",
+    "count": 1,
+    "bytes": 7,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "buttons",
+    "count": 1,
+    "bytes": 7,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "display",
+    "count": 1,
+    "bytes": 7,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "popover",
+    "count": 1,
+    "bytes": 7,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "pop",
+    "count": 2,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "key",
+    "count": 2,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "Lifter",
+    "count": 1,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "set",
+    "count": 2,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "margin",
+    "count": 1,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "remove",
+    "count": 1,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "effect",
+    "count": 1,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "dx",
+    "count": 3,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "dy",
+    "count": 3,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "target",
+    "count": 1,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "onDrop",
+    "count": 1,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "max",
+    "count": 2,
+    "bytes": 6,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "cause",
+    "count": 1,
+    "bytes": 5,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "inset",
+    "count": 1,
+    "bytes": 5,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "fromX",
+    "count": 1,
+    "bytes": 5,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "fromY",
+    "count": 1,
+    "bytes": 5,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "hypot",
+    "count": 1,
+    "bytes": 5,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "name",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "push",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "at",
+    "count": 2,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "is2D",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "blur",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "to",
+    "count": 2,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "next",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "find",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "size",
+    "count": 1,
+    "bytes": 4,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "map",
+    "count": 1,
+    "bytes": 3,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "toX",
+    "count": 1,
+    "bytes": 3,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "toY",
+    "count": 1,
+    "bytes": 3,
+    "shorthand": 0,
+    "class": "published"
+  },
+  {
+    "name": "a",
+    "count": 2,
+    "bytes": 2,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "b",
+    "count": 2,
+    "bytes": 2,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "c",
+    "count": 2,
+    "bytes": 2,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "d",
+    "count": 2,
+    "bytes": 2,
+    "shorthand": 0,
+    "class": "platform"
+  },
+  {
+    "name": "xy",
+    "count": 1,
+    "bytes": 2,
+    "shorthand": 0,
+    "class": "published"
+  }
+]

@@ -1,0 +1,86 @@
+/**
+ * Inventories the property names in one minified bundle of every published entry,
+ * counts each name's occurrences in the minified code, and classifies each name:
+ * `platform` (a member name in TypeScript's own lib files), `published` (reachable
+ * from the package's published types, from published.ts), or `internal`.
+ * `node inventory.ts --root <packages/drag> --published <published.json> --out <file.json>`
+ */
+import { readdirSync, readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const args = process.argv.slice(2);
+const option = (name: string): string | undefined => {
+  const i = args.indexOf(name);
+  return i < 0 ? undefined : args[i + 1];
+};
+const REPO = '/workspaces/material-x';
+const root = resolve(option('--root') ?? join(REPO, 'packages/drag'));
+const require = createRequire(join(root, 'package.json'));
+const { rolldown } = await import(pathToFileURL(require.resolve('rolldown')).href);
+const { parseSync } = await import(pathToFileURL(require.resolve('rolldown/utils')).href);
+const published = new Set(Object.keys(JSON.parse(readFileSync(option('--published')!, 'utf8'))));
+// Optional: a second published set, for the names it lacks to be reported as `installer`.
+const narrower = option('--narrower') ? new Set(Object.keys(JSON.parse(readFileSync(option('--narrower')!, 'utf8')))) : null;
+// The harness's namespace objects key each entry's export names; those are published.
+
+// Platform: every member-like name declared in TypeScript's lib files.
+// The `typescript` package here keeps its lib files in its platform package.
+const libDir = join(require.resolve('@typescript/typescript-linux-x64/package.json'), '..', 'lib');
+const platform = new Set<string>();
+for (const f of readdirSync(libDir).filter((f) => /^lib\..*\.d\.ts$/.test(f))) {
+  const text = readFileSync(join(libDir, f), 'utf8');
+  for (const m of text.matchAll(/^declare (?:var|function|class) ([A-Za-z_$][\w$]*)/gm)) platform.add(m[1]);
+  for (const m of text.matchAll(/^\s+(?:readonly\s+)?(?:get\s+|set\s+)?["']?([A-Za-z_$][\w$]*)["']?\??\s*[:(<]/gm)) platform.add(m[1]);
+}
+
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const entries = Object.keys(pkg.exports).filter((k) => k.endsWith('.js')).map((k) => join(root, 'src', k.slice(2).replace(/\.js$/, '.ts')));
+const dir = mkdtempSync(join(tmpdir(), 'drag-pm-'));
+const input = join(dir, 'entry.js');
+writeFileSync(input, entries.map((e, i) => `export * as m${i} from ${JSON.stringify(e)};`).join('\n'));
+const bundle = await rolldown({
+  input,
+  platform: 'neutral',
+  resolve: { alias: { '@ydinjs/box-quad': join(REPO, 'packages/box-quad/src/index.ts') } },
+  transform: { define: { __DEV__: 'false' } },
+});
+const { output } = await bundle.generate({ format: 'es', minify: true });
+await bundle.close();
+rmSync(dir, { recursive: true, force: true });
+const code = output.filter((c) => c.type === 'chunk').map((c) => c.code).join('');
+
+// Count every non-computed, non-private property name occurrence.
+const counts = new Map<string, number>();
+const shorthand = new Map<string, number>();
+const bump = (m: Map<string, number>, n: string) => m.set(n, (m.get(n) ?? 0) + 1);
+const visit = (node: unknown): void => {
+  if (!node || typeof node !== 'object') return;
+  if (Array.isArray(node)) { for (const n of node) visit(n); return; }
+  const n = node as Record<string, any>;
+  if (n.type === 'MemberExpression' && !n.computed && n.property?.type === 'Identifier') bump(counts, n.property.name);
+  if ((n.type === 'Property' || n.type === 'MethodDefinition' || n.type === 'PropertyDefinition' || n.type === 'AccessorProperty') && !n.computed && n.key?.type === 'Identifier') {
+    bump(counts, n.key.name);
+    if (n.shorthand) bump(shorthand, n.key.name);
+  }
+  for (const k of Object.keys(n)) if (k !== 'parent') visit(n[k]);
+};
+visit(parseSync('bundle.js', code, { sourceType: 'module' }).program);
+
+const exportNames = new Set<string>();
+for (const e of entries) for (const m of readFileSync(e, 'utf8').matchAll(/export\s+(?:async\s+)?(?:function|class|const|let)\s+([\w$]+)|export\s*\{([^}]*)\}/g)) {
+  if (m[1]) exportNames.add(m[1]);
+  for (const part of (m[2] ?? '').split(',')) { const n = part.trim().replace(/^type\s+/, '').split(/\s+as\s+/).pop(); if (n) exportNames.add(n); }
+}
+const rows = [...counts].map(([name, count]) => ({
+  name,
+  count,
+  bytes: count * name.length,
+  shorthand: shorthand.get(name) ?? 0,
+  class: platform.has(name) ? 'platform' : exportNames.has(name) ? 'published' : published.has(name) ? (narrower && !narrower.has(name) ? 'installer' : 'published') : 'internal',
+})).sort((a, b) => b.bytes - a.bytes);
+writeFileSync(option('--out')!, `${JSON.stringify(rows, null, 2)}\n`);
+const sum = (c: string) => rows.filter((r) => r.class === c).reduce((s, r) => [s[0] + 1, s[1] + r.bytes], [0, 0]);
+console.log(`bundle ${code.length} B minified; names [count, bytes]: platform ${sum('platform')}, published ${sum('published')}, installer only ${sum('installer')}, internal ${sum('internal')}`);
