@@ -1,0 +1,13 @@
+# commit 1 (DRD-53) against 1d304128b, size.ts.txt probe
+row                                         c1
+                                    min/gz9/br
+draggable alone                          0/0/0
+draggable + lift                         0/0/0
+ex: resize handle                        0/0/0
+ex: drop zone                            0/0/0
+ex: canvas group                         0/0/0
+freeDrag                                 0/0/0
+freeDrag+b+l                             0/0/0
+sortable + y                             0/0/0
+sortable + xy                            0/0/0
+complete                                 0/0/0

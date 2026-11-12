@@ -1,0 +1,18 @@
+# Engines suite with a console marker before verifyEquivalence's throw, in a scratch worktree of 237d65d2f; the diff:
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index 9490d6ad9..7bca6762e 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -365,6 +365,7 @@ export function verifyEquivalence(
+   }
+ 
+   if (mismatch !== '') {
++    console.log(`EQUIVALENCE-THROW ${mismatch} in ${(globalThis as { __vitest_worker__?: { current?: { name?: string } } }).__vitest_worker__?.current?.name ?? '?'}`);
+     throw new Error(
+       `drag: the predicted insertion geometry disagreed with a fresh measurement at ${mismatch}; the linear shift rule does not hold for this list`,
+     );
+EQUIVALENCE-THROW the placeholder in should report a placeholder that a committed move displaces along x
+EQUIVALENCE-THROW the placeholder in should report a placeholder that a committed move displaces along x
+EQUIVALENCE-THROW the placeholder in should report a placeholder that a committed move displaces along x
+ Test Files  72 passed (72)
+      Tests  1071 passed | 18 skipped (1089)

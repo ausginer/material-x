@@ -1,0 +1,1 @@
+src/free-drag/behavior.ts:77:12: error eslint(class-methods-use-this): Expected method `invalidate` to have this. help: Consider converting method `invalidate` to a static method.

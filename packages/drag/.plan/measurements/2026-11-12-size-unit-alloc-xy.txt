@@ -1,0 +1,37 @@
+# The xy per-sample probe ('C6 probe xy') run alone, three runs per tree, base and unit alternating. Same scratch copies as 2026-11-12-size-unit-alloc.txt. Command per run, from the tree's packages/drag: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t 'C6 probe xy' --silent=false
+# tree=base rev=1d304128b probe='C6 probe xy' (alone) run=1 start=2026-11-12T12:32:47+00:00
+C6-PROBE xy perMove=47.78 keys={"sortable/operation.ts:move":19112}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:33:00+00:00
+# tree=unit rev=237d65d2f probe='C6 probe xy' (alone) run=1 start=2026-11-12T12:33:00+00:00
+C6-PROBE xy perMove=50.76 keys={"sortable/operation.ts:move":20304}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:33:14+00:00
+# tree=base rev=1d304128b probe='C6 probe xy' (alone) run=2 start=2026-11-12T12:33:14+00:00
+C6-PROBE xy perMove=50.90 keys={"sortable/operation.ts:move":20360}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:33:27+00:00
+# tree=unit rev=237d65d2f probe='C6 probe xy' (alone) run=2 start=2026-11-12T12:33:27+00:00
+C6-PROBE xy perMove=49.06 keys={"sortable/operation.ts:move":19624}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:33:40+00:00
+# tree=base rev=1d304128b probe='C6 probe xy' (alone) run=3 start=2026-11-12T12:33:40+00:00
+C6-PROBE xy perMove=50.12 keys={"sortable/operation.ts:move":20048}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:33:54+00:00
+# tree=unit rev=237d65d2f probe='C6 probe xy' (alone) run=3 start=2026-11-12T12:33:54+00:00
+C6-PROBE xy perMove=50.64 keys={"sortable/operation.ts:move":20256}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:34:07+00:00

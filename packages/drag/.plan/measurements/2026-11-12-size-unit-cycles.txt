@@ -1,0 +1,64 @@
+# command: node bench/compare.ts --before 1d304128b --only activate-and-drop cycles --out .plan/measurements/2026-11-12-size-unit-cycles.json
+# revision: 237d65d2f6f691563214185800f282cb28a950a0
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  12:49:17 up  4:22,  0 users,  load average: 0.60, 0.86, 1.32
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 1/7: 50 activate-and-drop cycles, 20 items, with landing
+round 1/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 1/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 1/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, with landing
+round 2/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 2/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 2/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, with landing
+round 3/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 3/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 3/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, with landing
+round 4/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 4/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 4/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, with landing
+round 5/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 5/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 5/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, with landing
+round 6/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 6/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 6/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, with landing
+round 7/7: 50 activate-and-drop cycles, 2000 items, no landing
+round 7/7: 50 activate-and-drop cycles, 2000 items, with landing
+round 7/7: in the page: 50 activate-and-drop cycles, 20 items, no landing
+
+50 activate-and-drop cycles, 20 items, no landing
+  before layouts: at or below: 250 against 250
+  before scriptUs: no difference shown: higher in 3 of 7, median -115 µs, A/A bound 283 µs
+  before taskUs: no difference shown: higher in 2 of 7, median -130 µs, A/A bound 895 µs
+
+50 activate-and-drop cycles, 20 items, with landing
+  before layouts: at or below: 350 against 350
+  before scriptUs: no difference shown: higher in 5 of 7, median 69 µs, A/A bound 207 µs
+  before taskUs: no difference shown: higher in 5 of 7, median 458 µs, A/A bound 1095 µs
+
+50 activate-and-drop cycles, 2000 items, no landing
+  before layouts: at or below: 250 against 250
+  before scriptUs: no difference shown: higher in 5 of 7, median 112 µs, A/A bound 280 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -215 µs, A/A bound 2865 µs
+
+50 activate-and-drop cycles, 2000 items, with landing
+  before layouts: at or below: 350 against 350
+  before scriptUs: no difference shown: higher in 5 of 7, median 102 µs, A/A bound 165 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -165 µs, A/A bound 3305 µs
+
+in the page: 50 activate-and-drop cycles, 20 items, no landing
+  before layouts: at or below: 250 against 250
+  before scriptUs: no difference shown: higher in 3 of 7, median -2 µs, A/A bound 325 µs
+  before taskUs: no difference shown: higher in 2 of 7, median -76 µs, A/A bound 762 µs
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  13:02:51 up  4:35,  0 users,  load average: 1.08, 1.13, 1.23, exit 0

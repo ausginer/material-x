@@ -1,0 +1,54 @@
+# The drag:DRD-52 witness at 1d304128b's source: a detached worktree of 1d304128b whose tests/sortable.browser.test.ts is the unit's (the base file plus the witness). Three engines, webkit-env.sh sourced
+1d304128b1fd2478c41f693ea19d7b72b2f6cebe
+ packages/drag/tests/sortable.browser.test.ts | 29 ++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+
+ RUN  v5.0.5 /tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag
+
+12:09:08 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=53d98a47
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:09:10 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js?v=be230412
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+12:09:12 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js?v=b90e5b38
+
+ Test Files  3 passed (3)
+      Tests  3 passed | 159 skipped (162)
+   Start at  12:09:07
+   Duration  5.20s (tests 64%, worker 31%, import 5%)
+
