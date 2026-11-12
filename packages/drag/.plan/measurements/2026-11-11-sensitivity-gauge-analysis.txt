@@ -1,0 +1,44 @@
+== U1: 63 readings
+  before: median 16.6 ms, lowest 12.2; after: median 14.1 ms, lowest 9.9
+  lowest before / lowest after: 1.23
+  before slower than after: 47 of 63; median before - after 2.5 ms
+  before within 5 % of the lowest after: 0 of 63
+  Pearson r(before, after) over the readings: +0.26
+  move gate row: gauge median before 17.8, after 13.7 ms; r(script / arm median, before) +0.28, r(script / arm median, after) -0.42
+  cycle gate row: gauge median before 15.4, after 12.4 ms; r(script / arm median, before) -0.27, r(script / arm median, after) -0.15
+  CDP move row: gauge median before 16.8, after 15.3 ms; r(script / arm median, before) -0.06, r(script / arm median, after) -0.15
+  settled readings as recorded: 0; wait and placement met: 0; wait met: 62
+  CDP move row: bound 28.9 us / base median 155.6 us = 0.186
+== E1: 63 readings
+  before: median 18.9 ms, lowest 16.2; after: median 16.4 ms, lowest 13.4
+  lowest before / lowest after: 1.21
+  before slower than after: 46 of 63; median before - after 2.8 ms
+  before within 5 % of the lowest after: 0 of 63
+  Pearson r(before, after) over the readings: +0.09
+  move gate row: gauge median before 20.8, after 15.7 ms; r(script / arm median, before) -0.10, r(script / arm median, after) -0.27
+  cycle gate row: gauge median before 17.7, after 14.8 ms; r(script / arm median, before) -0.06, r(script / arm median, after) -0.15
+  CDP move row: gauge median before 20.3, after 18.8 ms; r(script / arm median, before) +0.07, r(script / arm median, after) +0.19
+  settled readings as recorded: 11; wait and placement met: 63; wait met: 63
+  CDP move row: bound 32.4 us / base median 160.2 us = 0.202
+== U2: 63 readings
+  before: median 17.3 ms, lowest 12.4; after: median 14.4 ms, lowest 10.0
+  lowest before / lowest after: 1.24
+  before slower than after: 42 of 63; median before - after 3.2 ms
+  before within 5 % of the lowest after: 0 of 63
+  Pearson r(before, after) over the readings: +0.03
+  move gate row: gauge median before 17.5, after 13.8 ms; r(script / arm median, before) +0.13, r(script / arm median, after) -0.31
+  cycle gate row: gauge median before 17.3, after 14.2 ms; r(script / arm median, before) +0.07, r(script / arm median, after) -0.01
+  CDP move row: gauge median before 17.3, after 15.3 ms; r(script / arm median, before) +0.01, r(script / arm median, after) +0.05
+  settled readings as recorded: 0; wait and placement met: 0; wait met: 63
+  CDP move row: bound 17.2 us / base median 154.9 us = 0.111
+== E2: 63 readings
+  before: median 18.4 ms, lowest 16.1; after: median 16.1 ms, lowest 13.4
+  lowest before / lowest after: 1.20
+  before slower than after: 48 of 63; median before - after 2.3 ms
+  before within 5 % of the lowest after: 0 of 63
+  Pearson r(before, after) over the readings: +0.09
+  move gate row: gauge median before 20.2, after 15.6 ms; r(script / arm median, before) -0.13, r(script / arm median, after) +0.05
+  cycle gate row: gauge median before 17.3, after 15.0 ms; r(script / arm median, before) -0.04, r(script / arm median, after) -0.11
+  CDP move row: gauge median before 20.0, after 18.2 ms; r(script / arm median, before) -0.28, r(script / arm median, after) -0.10
+  settled readings as recorded: 11; wait and placement met: 63; wait met: 63
+  CDP move row: bound 29.5 us / base median 167.0 us = 0.177

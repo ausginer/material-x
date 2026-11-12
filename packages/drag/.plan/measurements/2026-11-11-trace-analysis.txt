@@ -1,0 +1,1045 @@
+# Trace analysis
+
+Directory `.plan/measurements/traces/2026-11-11`, traced revision `566ebfc653db8fd87708261d7bd50f66a615b988`, head `743921de003bc8b99d71a6f39251dd57e3442869`, Chrome 157.0.8103.38.
+
+Categories: `-*,devtools.timeline,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.frame,disabled-by-default-devtools.timeline.stack,disabled-by-default-devtools.target-rundown,disabled-by-default-devtools.v8-source-rundown,disabled-by-default-devtools.v8-source-rundown-sources,disabled-by-default-v8.cpu_profiler,disabled-by-default-v8.cpu_profiler.hires,v8.execute,v8,cppgc,blink.user_timing,blink.console,latencyInfo,toplevel`.
+
+The rebuilt bundle with a source map equals `bundle.js.txt`, marker paths aside: true.
+
+Modules with a `// <path>` marker in the bundle: 27. Modules in the source map: 29. Without a marker: sortable/rect-index.ts, sortable/keyboard.ts.
+
+## Checks
+
+| trace | marks | main-thread samples in the interaction | effective sample interval, µs | lab.log added | order changed | failures |
+| --- | --- | --- | --- | --- | --- | --- |
+| moves-20-cold.json.gz | 5: press, crossing, moves, release, end | 15193 | 157 | 1 | true | none |
+| moves-20-warm1.json.gz | 5: press, crossing, moves, release, end | 15473 | 156 | 1 | true | none |
+| moves-20-warm2.json.gz | 5: press, crossing, moves, release, end | 15197 | 156 | 1 | true | none |
+| moves-20-warm3.json.gz | 5: press, crossing, moves, release, end | 15522 | 155 | 1 | true | none |
+| moves-2000-cold.json.gz | 5: press, crossing, moves, release, end | 15412 | 156 | 1 | true | none |
+| moves-2000-warm1.json.gz | 5: press, crossing, moves, release, end | 15373 | 156 | 1 | true | none |
+| moves-2000-warm2.json.gz | 5: press, crossing, moves, release, end | 15056 | 157 | 1 | true | none |
+| moves-2000-warm3.json.gz | 5: press, crossing, moves, release, end | 15253 | 156 | 1 | true | none |
+| presses-2000-children-cold.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 654 | 152 | 0 | false | none |
+| presses-2000-children-warm1.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 714 | 155 | 0 | false | none |
+| presses-2000-children-warm2.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 708 | 155 | 0 | false | none |
+| presses-2000-children-warm3.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 816 | 155 | 0 | false | none |
+| presses-2000-cached-cold.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 832 | 159 | 0 | false | none |
+| presses-2000-cached-warm1.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 748 | 154 | 0 | false | none |
+| presses-2000-cached-warm2.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 736 | 156 | 0 | false | none |
+| presses-2000-cached-warm3.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 615 | 154 | 0 | false | none |
+| presses-20-cached-cold.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 717 | 154 | 0 | false | none |
+| presses-20-cached-warm1.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 716 | 154 | 0 | false | none |
+| presses-20-cached-warm2.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 716 | 158 | 0 | false | none |
+| presses-20-cached-warm3.json.gz | 22: press 0, release 0, press 1, release 1, press 2, … | 716 | 157 | 0 | false | none |
+
+## reordering moves, 20 items
+
+Which moves reordered: a move reorders when a row animation starts in its window, from the task of its `pointermove` to the next one’s (counted).
+
+- moves-20-cold.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+- moves-20-warm1.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+- moves-20-warm2.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+- moves-20-warm3.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+
+The drop: the library's `pointerup` entry point and the span from its start to the first event `onReorder` causes (counted), and the samples in that span under `sortable/rect-index.ts:refresh` (sampled):
+
+| trace | entry, µs | span to `onReorder`, µs | `refresh` in the span, µs | samples |
+| --- | --- | --- | --- | --- |
+| moves-20-cold.json.gz | 2641 | 672 | 0.0 | 0, fewer than 20 |
+| moves-20-warm1.json.gz | 1562 | 208 | 0.0 | 0, fewer than 20 |
+| moves-20-warm2.json.gz | 1428 | 165 | 0.0 | 0, fewer than 20 |
+| moves-20-warm3.json.gz | 1324 | 163 | 0.0 | 0, fewer than 20 |
+
+### reordering moves, 20 items: press
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 1050 [798–1309] \| 3973 |  |
+| = library | sampled | 65.0 [27.0–86.0] \| 1067 | 1/1/1 \| 7, fewer than 20 |
+| = harness | counted+sampled | 221 [171–226] \| 694 | 0/0/0 \| 0, fewer than 20 |
+| = browser | derived | 738 [562–1061] \| 2212 |  |
+| library entries | counted | 97.0 [83.0–111] \| 1152 |  |
+| harness entries | counted | 33.0 [18.0–37.0] \| 146 |  |
+| harness CDP tasks | counted | 221 [171–226] \| 694 |  |
+| input dispatch | counted | 226 [190–290] \| 1825 |  |
+| style | counted | 48.0 [48.0–74.0] \| 35.0 |  |
+| paint | counted | 59.0 [40.0–91.0] \| 118 |  |
+| hit test | counted | 30.0 [23.0–57.0] \| 56.0 |  |
+| program | sampled | 535 [386–990] \| 1974 | 20/25/21 \| 26 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 97.0 [83.0–111] \| 1152 | 1.0 [1.0–1.0] \| 1.0 | kernel/gesture.ts:handleEvent, lines 225–231 |
+| harness | 33.0 [18.0–37.0] \| 146 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:handleEvent, lines 225–231 | 227 (1) |
+| library | 0.0 [0.0–86.0] \| 318 | 1/0/0 \| 2, fewer than 20 | kernel/gesture.ts:#press, lines 356–373 | 363 (1), 367 (1), 358 (1) |
+| library | 0.0 [0.0–65.0] \| 160 | 0/0/1 \| 1, fewer than 20 | sortable/behavior.ts:#pull, lines 234–237 | 235 (2) |
+| library | 0.0 [0.0–0.0] \| 159 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:#open, lines 392–409 | 403 (1) |
+| library | 0.0 [0.0–27.0] \| 162 | 0/1/0 \| 1, fewer than 20 | kernel/session.ts:Session, lines 170–248 | 216 (1), 235 (1) |
+| library | 0.0 [0.0–0.0] \| 112 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:#applyRequests, lines 337–354 | 345 (1) |
+
+### reordering moves, 20 items: crossing
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 5886 [4383–11124] \| 10913 |  |
+| = library | sampled | 839 [414–1850] \| 3465 | 13/17/9 \| 28, fewer than 20 |
+| = harness | counted+sampled | 2020 [1375–3209] \| 3113 | 4/5/3 \| 5, fewer than 20 |
+| = browser | derived | 3027 [2594–6065] \| 4335 |  |
+| library entries | counted | 1407 [979–3005] \| 4543 |  |
+| harness entries | counted | 219 [170–379] \| 332 |  |
+| harness CDP tasks | counted | 1766 [1256–2834] \| 2810 |  |
+| input dispatch | counted | 1657 [1102–3309] \| 3675 |  |
+| style | counted | 364 [270–813] \| 458 |  |
+| layout | counted | 104 [65.0–205] \| 99.0 |  |
+| paint | counted | 785 [654–1693] \| 933 |  |
+| hit test | counted | 79.0 [40.0–116] \| 43.0 |  |
+| harness | sampled | 254 [119–375] \| 303 | 4/5/3 \| 5, fewer than 20 |
+| program | sampled | 1494 [1194–2901] \| 2801 | 32/43/33 \| 42 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 158 | 0/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 1233 [757–2496] \| 2999 | 3.0 [3.0–3.0] \| 3.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| library | 222 [174–509] \| 1544 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| harness | 168 [133–272] \| 219 | 3.0 [3.0–3.0] \| 3.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 31.0 [22.0–64.0] \| 54.0 | 3.0 [3.0–3.0] \| 3.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 20.0 [15.0–43.0] \| 59.0 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 248 [132–352] \| 555 | 2/3/3 \| 5, fewer than 20 | lift.ts:acquire, lines 247–378 | 342 (5), 265 (1), 341 (1) |
+| library | 114 [0.0–180] \| 159 | 1/1/0 \| 1, fewer than 20 | lift.ts:captureInlineStyles, lines 140–170 |  |
+| library | 77.0 [61.0–182] \| 309 | 1/2/2 \| 3, fewer than 20 | sortable/behavior.ts:activate, lines 140–232 | 145 (1), 158 (1), 216 (1) |
+| library | 50.0 [27.0–104] \| 33.0 | 2/2/1 \| 1, fewer than 20 | lift.ts:showKeepingFocus, lines 176–190 |  |
+| library | 46.0 [12.0–96.0] \| 144 | 1/2/2 \| 2, fewer than 20 | lift.ts:translate, lines 290–294 | 291 (7) |
+| library | 34.0 [0.0–170] \| 158 | 1/1/0 \| 1, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 391 (2), 383 (1) |
+| library | 32.0 [29.0–57.0] \| 55.0 | 2/1/1 \| 2, fewer than 20 | shared/invalidation.ts:schedule, lines 29–33 | 31 (1) |
+| library | 0.0 [0.0–0.0] \| 158 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:armClickGuard, lines 65–114 | 66 (1) |
+| library | 0.0 [0.0–0.0] \| 158 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#activate, lines 418–448 | 430 (1) |
+| library | 0.0 [0.0–156] \| 158 | 1/0/0 \| 1, fewer than 20 | box-quad/src/index.ts:ancestry, lines 237–268 | 247 (1), 259 (1) |
+| library | 0.0 [0.0–130] \| 163 | 0/1/0 \| 1, fewer than 20 | lift.ts:(anonymous), lines 274–278 |  |
+| library | 0.0 [0.0–0.0] \| 159 | 0/0/0 \| 1, fewer than 20 | shared/invalidation.ts:createFrameTask, lines 21–41 | 34 (1) |
+| library | 0.0 [0.0–0.0] \| 160 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:(anonymous), lines 200–202 | 201 (1) |
+| library | 0.0 [0.0–0.0] \| 165 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:updateInsertion, lines 74–76 | 75 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 214 [119–439] \| 175 | lift.ts:179 `visual.showPopover();` | lift.ts:showKeepingFocus |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 141 [115–324] \| 260 | sortable/rect-index.ts:127 `const rect = (getBox ? getBox(item) : item).getBoundingClientRect();` | sortable/rect-index.ts:refresh |
+
+### reordering moves, 20 items: moves phase, per move
+
+Events per trace: 61, 61, 61 warm, 61 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 2423 [2377–3443] \| 3101 |  |
+| = library | sampled | 125 [111–200] \| 197 | 189/227/197 \| 228 |
+| = harness | counted+sampled | 905 [902–1221] \| 1165 | 84/90/89 \| 89 |
+| = browser | derived | 1393 [1365–2022] \| 1740 |  |
+| library entries | counted | 233 [222–354] \| 326 |  |
+| harness entries | counted | 96.5 [91.8–135] \| 119 |  |
+| harness CDP tasks | counted | 833 [824–1135] \| 1083 |  |
+| input dispatch | counted | 292 [283–424] \| 367 |  |
+| style | counted | 183 [175–265] \| 213 |  |
+| layout | counted | 33.2 [33.1–49.1] \| 42.8 |  |
+| paint | counted | 339 [327–493] \| 426 |  |
+| gc | counted | 12.1 [10.9–15.9] \| 14.7 |  |
+| harness | sampled | 81.2 [68.9–86.3] \| 81.5 | 84/90/89 \| 89 |
+| program | sampled | 783 [779–1079] \| 970 | 906/1007/900 \| 968 |
+| gc (sampled) | sampled | 2.4 [0.0–3.3] \| 0.4 | 2/2/0 \| 1, fewer than 20 |
+| native | sampled | 36.6 [35.4–47.7] \| 43.3 | 16/22/16 \| 21, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 138 [134–203] \| 180 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| library | 95.3 [88.4–151] \| 146 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| harness | 59.3 [56.2–80.8] \| 70.9 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 14.6 [13.2–19.6] \| 16.9 | 1.0 [1.0–1.0] \| 1.0 | native function, such as a promise resolver: (anonymous) |
+| harness | 14.2 [13.7–19.5] \| 19.4 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 8.7 [8.5–15.0] \| 12.0 | 1.0 [1.0–1.0] \| 1.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 45.6 [38.7–63.1] \| 53.6 | 83/92/91 \| 94 | lift.ts:translate, lines 290–294 | 291 (360) |
+| library | 38.0 [36.2–54.9] \| 44.4 | 72/82/72 \| 74 | shared/invalidation.ts:schedule, lines 29–33 | 31 (10) |
+| library | 16.0 [13.0–18.1] \| 11.1 | 14/14/12 \| 10, fewer than 20 | sortable/placement.ts:movePlaceholder, lines 75–94 | 83 (2) |
+| library | 14.8 [9.0–30.1] \| 35.4 | 8/16/9 \| 17, fewer than 20 | sortable/layout-animation.ts:report, lines 74–117 | 99 (5), 101 (2), 111 (1) |
+| library | 3.5 [1.4–9.2] \| 9.6 | 3/6/1 \| 6, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 341 (6), 310 (4), 346 (4) |
+| library | 2.7 [0.0–3.1] \| 2.9 | 0/1/2 \| 2, fewer than 20 | sortable/linear-shift.ts:refresh, lines 88–119 | 111 (2), 91 (2), 89 (1) |
+| library | 2.4 [0.5–6.4] \| 2.6 | 1/3/1 \| 1, fewer than 20 | sortable/rect-index.ts:remeasurePlaceholder, lines 182–190 | 185 (1) |
+| library | 2.0 [1.6–2.3] \| 8.7 | 2/2/1 \| 4, fewer than 20 | sortable/operation.ts:updateInsertion, lines 179–206 | 183 (7), 191 (1), 199 (1) |
+| library | 2.0 [0.3–4.2] \| 5.0 | 1/2/1 \| 2, fewer than 20 | sortable/linear-shift.ts:moved, lines 121–181 | 156 (2), 171 (1), 164 (1) |
+| library | 0.9 [0.7–1.0] \| 0.7 | 1/1/2 \| 1, fewer than 20 | sortable/operation.ts:move, lines 95–101 | 96 (3), 100 (2) |
+| library | 0.8 [0.3–3.9] \| 2.0 | 1/3/1 \| 2, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 208 (2), 213 (2), 221 (1) |
+| library | 0.8 [0.0–2.1] \| 2.4 | 0/1/2 \| 2, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 379 (4), 373 (1) |
+| library | 0.6 [0.0–1.0] \| 0.0 | 2/0/1 \| 0, fewer than 20 | kernel/gesture.ts:requestStep, lines 274–297 | 291 (2), 279 (1) |
+| library | 0.0 [0.0–0.8] \| 6.1 | 0/0/1 \| 4, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 47 (2), 70 (1), 52 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 0.0 [0.0–0.0] \| 0.0 | 2.0 [2.0–5.4] \| 3.5 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+| Layout | 0.0 [0.0–0.0] \| 0.0 | 1.7 [1.3–3.6] \| 2.4 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+| UpdateLayoutTree | 0.1 [0.1–0.1] \| 0.1 | 33.0 [32.9–52.6] \| 31.8 | sortable/rect-index.ts:183 `const { top, bottom } = placeholder.getBoundingClientRect();` | sortable/rect-index.ts:remeasurePlaceholder |
+
+### reordering moves, 20 items: release and landing
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 6023 [5774–6680] \| 6812 |  |
+| = library | sampled | 640 [503–835] \| 1750 | 15/13/13 \| 20, fewer than 20 |
+| = consumer | sampled | 208 [148–234] \| 339 | 8/8/8 \| 9, fewer than 20 |
+| = harness | counted+sampled | 1020 [909–1081] \| 934 | 8/8/7 \| 7, fewer than 20 |
+| = browser | derived | 4154 [3934–4811] \| 3789 |  |
+| library entries | counted | 1528 [1394–1651] \| 2748 |  |
+| harness entries | counted | 98.0 [86.0–102] \| 105 |  |
+| harness CDP tasks | counted | 565 [517–687] \| 528 |  |
+| input dispatch | counted | 1616 [1437–1707] \| 2763 |  |
+| style | counted | 721 [666–738] \| 632 |  |
+| layout | counted | 223 [215–230] \| 217 |  |
+| paint | counted | 961 [939–1139] \| 833 |  |
+| hit test | counted | 63.0 [53.0–106] \| 46.0 |  |
+| harness | sampled | 394 [392–455] \| 406 | 8/8/7 \| 7, fewer than 20 |
+| program | sampled | 2219 [1939–2338] \| 1701 | 41/40/42 \| 37 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 1428 [1324–1562] \| 2641 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 68.0 [65.0–88.0] \| 91.0 | 7.0 [7.0–7.0] \| 6.0 | native function, such as a promise resolver: (anonymous) |
+| library | 45.0 [37.0–46.0] \| 69.0 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:expire, lines 68–70 |
+| library | 44.0 [24.0–63.0] \| 38.0 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:(anonymous), lines 73–78 |
+| harness | 18.0 [14.0–33.0] \| 14.0 | 2.0 [2.0–2.0] \| 2.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| consumer | 208 [148–234] \| 288 | 8/8/8 \| 8, fewer than 20 | bench/lab.ts:onReorder, lines 62–72 | 63 (1) |
+| library | 131 [95.0–179] \| 228 | 2/3/3 \| 3, fewer than 20 | shared/landing.ts:startLandingAnimation, lines 60–106 | 97 (1), 84 (1), 95 (1) |
+| library | 126 [46.0–183] \| 112 | 3/2/2 \| 2, fewer than 20 | sortable/behavior.ts:(anonymous), lines 187–189 |  |
+| library | 100 [85.0–103] \| 86.0 | 4/4/4 \| 4, fewer than 20 | kernel/session.ts:restoreFocus, lines 44–53 |  |
+| library | 28.0 [17.0–34.0] \| 14.0 | 2/2/1 \| 1, fewer than 20 | kernel/session.ts:(anonymous), lines 73–78 |  |
+| library | 0.0 [0.0–48.0] \| 157 | 0/0/1 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 213 (1), 219 (1) |
+| library | 0.0 [0.0–156] \| 282 | 1/0/0 \| 2, fewer than 20 | kernel/session.ts:#closeMotion, lines 528–536 | 529 (3) |
+| library | 0.0 [0.0–0.0] \| 155 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#drop, lines 450–464 | 455 (1) |
+| library | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 | sortable/operation.ts:drop, lines 103–137 | 120 (1) |
+| library | 0.0 [0.0–0.0] \| 51.0 | 0/0/0 \| 1, fewer than 20 | sortable/operation.ts:(anonymous), lines 134–136 | 136 (1) |
+| library | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 | sortable/operation.ts:settle, lines 139–148 | 146 (1) |
+| library | 0.0 [0.0–0.0] \| 42.0 | 0/0/0 \| 1, fewer than 20 | kernel/callback-list.ts:run, lines 78–81 | 80 (1) |
+| library | 0.0 [0.0–156] \| 155 | 0/1/0 \| 1, fewer than 20 | lift.ts:(anonymous), lines 152–169 | 154 (1) |
+| library | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 | lift.ts:(anonymous), lines 317–329 | 326 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 119 [111–123] \| 111 | bench/lab.ts:63 `list.insertBefore(item, next);` | bench/lab.ts:onReorder |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 53.0 [43.0–58.0] \| 70.0 | sortable/operation.ts:265 `return this.#context.placeholder.getBoundingClientRect();` | sortable/operation.ts:#landingTarget |
+| Layout | 1.0 [1.0–1.0] \| 1.0 | 45.0 [40.0–54.0] \| 45.0 | sortable/operation.ts:265 `return this.#context.placeholder.getBoundingClientRect();` | sortable/operation.ts:#landingTarget |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 104 [80.0–104] \| 102 | shared/landing.ts:95 `window.getComputedStyle(visual).position === 'static'` | shared/landing.ts:startLandingAnimation |
+| UpdateLayoutTree | 2.0 [2.0–2.0] \| 2.0 | 85.0 [62.0–106] \| 88.0 | kernel/session.ts:50 `focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });` | kernel/session.ts:restoreFocus |
+| Layout | 1.0 [1.0–1.0] \| 1.0 | 79.0 [76.0–89.0] \| 77.0 | kernel/session.ts:50 `focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });` | kernel/session.ts:restoreFocus |
+| UpdateLayoutTree | 4.0 [4.0–4.0] \| 3.0 | 330 [297–393] \| 247 | evaluation `async () => { const frame = () => new Promise(requ` | eval |
+
+### reordering moves, 20 items: reordering moves, per move
+
+Events per trace: 9, 9, 9 warm, 9 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 3159 [2931–4551] \| 4380 |  |
+| = library | sampled | 303 [248–509] \| 599 | 45/62/48 \| 66 |
+| = harness | counted+sampled | 890 [887–1266] \| 1214 | 12/13/13 \| 15, fewer than 20 |
+| = browser | derived | 1968 [1794–2777] \| 2568 |  |
+| library entries | counted | 414 [357–654] \| 737 |  |
+| harness entries | counted | 94.0 [91.2–125] \| 128 |  |
+| harness CDP tasks | counted | 847 [820–1194] \| 1118 |  |
+| input dispatch | counted | 286 [265–410] \| 343 |  |
+| style | counted | 300 [267–429] \| 372 |  |
+| layout | counted | 117 [105–168] \| 152 |  |
+| paint | counted | 584 [502–810] \| 753 |  |
+| gc | counted | 0.0 [0.0–0.0] \| 99.3 |  |
+| harness | sampled | 67.6 [43.2–71.8] \| 95.3 | 12/13/13 \| 15, fewer than 20 |
+| program | sampled | 818 [664–1208] \| 925 | 138/163/145 \| 149 |
+| gc (sampled) | sampled | 0.0 [0.0–11.9] \| 0.0 | 1/0/0 \| 0, fewer than 20 |
+| native | sampled | 15.8 [10.6–27.0] \| 26.9 | 2/4/1 \| 3, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 274 [237–461] \| 568 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| library | 140 [119–192] \| 169 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 64.7 [54.7–72.9] \| 72.1 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 15.7 [13.3–25.0] \| 23.4 | 1.0 [1.0–1.0] \| 1.0 | native function, such as a promise resolver: (anonymous) |
+| harness | 13.6 [10.6–15.3] \| 20.9 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 7.3 [5.4–12.0] \| 11.3 | 1.0 [1.0–1.0] \| 1.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 109 [88.2–123] \| 75.1 | 14/14/12 \| 10, fewer than 20 | sortable/placement.ts:movePlaceholder, lines 75–94 | 83 (2) |
+| library | 100 [61.2–204] \| 240 | 8/16/9 \| 17, fewer than 20 | sortable/layout-animation.ts:report, lines 74–117 | 99 (5), 101 (2), 111 (1) |
+| library | 46.8 [38.4–61.3] \| 53.2 | 12/13/15 \| 12, fewer than 20 | lift.ts:translate, lines 290–294 | 291 (52) |
+| library | 39.9 [27.2–62.0] \| 36.9 | 9/13/11 \| 12, fewer than 20 | shared/invalidation.ts:schedule, lines 29–33 | 31 (3) |
+| library | 13.3 [2.2–28.6] \| 34.2 | 1/2/1 \| 2, fewer than 20 | sortable/linear-shift.ts:moved, lines 121–181 | 156 (2), 171 (1), 164 (1) |
+| library | 9.9 [0.0–20.1] \| 0.0 | 1/2/0 \| 0, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 346 (2), 329 (1) |
+| library | 0.0 [0.0–15.0] \| 13.7 | 0/1/0 \| 2, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 221 (1), 208 (1), 213 (1) |
+| library | 0.0 [0.0–0.0] \| 17.7 | 0/0/0 \| 1, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 70 (1) |
+| library | 0.0 [0.0–0.0] \| 42.2 | 0/0/0 \| 3, fewer than 20 | sortable/operation.ts:updateInsertion, lines 179–206 | 191 (1), 199 (1), 183 (1) |
+| library | 0.0 [0.0–0.0] \| 49.4 | 0/0/0 \| 3, fewer than 20 | sortable/y.ts:moved, lines 77–79 | 78 (3) |
+| library | 0.0 [0.0–0.0] \| 7.9 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:updateInsertion, lines 74–76 | 75 (1) |
+| library | 0.0 [0.0–0.0] \| 7.1 | 0/0/0 \| 1, fewer than 20 | sortable/placement.ts:placeholderAt, lines 55–67 | 60 (1) |
+| library | 0.0 [0.0–9.8] \| 6.3 | 0/1/0 \| 1, fewer than 20 | sortable/domain.ts:insertionAt, lines 24–33 | 28 (2) |
+| library | 0.0 [0.0–0.0] \| 14.7 | 0/0/0 \| 1, fewer than 20 | sortable/linear-shift.ts:refresh, lines 88–119 | 111 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 0.1 [0.1–0.1] \| 0.1 | 13.7 [13.4–36.8] \| 23.6 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+| Layout | 0.1 [0.1–0.1] \| 0.1 | 11.8 [8.6–24.1] \| 16.1 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+
+### reordering moves, 20 items: moves that don't reorder, per move
+
+Events per trace: 52, 52, 52 warm, 52 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 2289 [2273–3235] \| 2868 |  |
+| = library | sampled | 94.5 [86.9–147] \| 127 | 144/165/149 \| 162 |
+| = harness | counted+sampled | 903 [895–1198] \| 1145 | 72/77/76 \| 74 |
+| = browser | derived | 1292 [1290–1890] \| 1595 |  |
+| library entries | counted | 202 [199–302] \| 255 |  |
+| harness entries | counted | 97.5 [91.4–137] \| 118 |  |
+| harness CDP tasks | counted | 822 [819–1109] \| 1066 |  |
+| input dispatch | counted | 293 [286–427] \| 371 |  |
+| style | counted | 163 [159–237] \| 186 |  |
+| layout | counted | 20.8 [18.6–28.5] \| 23.9 |  |
+| paint | counted | 297 [296–438] \| 370 |  |
+| gc | counted | 14.2 [12.8–18.6] \| 0.0 |  |
+| harness | sampled | 83.5 [73.3–88.8] \| 79.1 | 72/77/76 \| 74 |
+| program | sampled | 804 [769–1056] \| 978 | 768/844/754 \| 819 |
+| gc (sampled) | sampled | 0.7 [0.0–3.8] \| 0.4 | 1/2/0 \| 1, fewer than 20 |
+| native | sampled | 40.2 [39.7–51.2] \| 46.2 | 14/18/15 \| 18, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 138 [136–205] \| 182 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| library | 64.3 [62.7–97.4] \| 73.3 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| harness | 60.1 [54.7–82.1] \| 70.7 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 14.4 [13.2–18.6] \| 15.8 | 1.0 [1.0–1.0] \| 1.0 | native function, such as a promise resolver: (anonymous) |
+| harness | 14.4 [14.3–20.3] \| 19.1 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 9.3 [8.7–15.6] \| 12.1 | 1.0 [1.0–1.0] \| 1.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 42.9 [38.8–65.9] \| 53.7 | 71/79/76 \| 82 | lift.ts:translate, lines 290–294 | 291 (308) |
+| library | 37.8 [37.7–53.7] \| 45.7 | 63/69/61 \| 62 | shared/invalidation.ts:schedule, lines 29–33 | 31 (7) |
+| library | 3.2 [0.0–3.6] \| 0.8 | 0/1/2 \| 1, fewer than 20 | sortable/linear-shift.ts:refresh, lines 88–119 | 91 (2), 111 (1), 89 (1) |
+| library | 2.8 [0.5–7.5] \| 3.1 | 1/3/1 \| 1, fewer than 20 | sortable/rect-index.ts:remeasurePlaceholder, lines 182–190 | 185 (1) |
+| library | 2.4 [1.6–7.4] \| 11.3 | 2/4/1 \| 6, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 341 (6), 310 (4), 346 (2) |
+| library | 2.4 [1.9–2.7] \| 2.9 | 2/2/1 \| 1, fewer than 20 | sortable/operation.ts:updateInsertion, lines 179–206 | 183 (6) |
+| library | 1.1 [0.8–1.2] \| 0.8 | 1/1/2 \| 1, fewer than 20 | sortable/operation.ts:move, lines 95–101 | 96 (3), 100 (2) |
+| library | 1.0 [0.3–2.0] \| 0.0 | 1/2/1 \| 0, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 219 (1), 198 (1), 208 (1) |
+| library | 0.9 [0.0–2.5] \| 2.8 | 0/1/2 \| 2, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 379 (4), 373 (1) |
+| library | 0.7 [0.0–1.2] \| 0.0 | 2/0/1 \| 0, fewer than 20 | kernel/gesture.ts:requestStep, lines 274–297 | 291 (2), 279 (1) |
+| library | 0.0 [0.0–0.9] \| 4.2 | 0/0/1 \| 3, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 47 (2), 52 (1), 33 (1) |
+| library | 0.0 [0.0–0.0] \| 0.5 | 0/0/0 \| 1, fewer than 20 | kernel/callback-list.ts:get empty, lines 45–47 | 46 (1) |
+| library | 0.0 [0.0–0.0] \| 0.5 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:updateInsertion, lines 74–76 | 75 (1) |
+| library | 0.0 [0.0–0.0] \| 0.7 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:(anonymous), lines 200–202 | 201 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 0.2 [0.2–0.2] \| 0.2 | 38.8 [38.6–61.7] \| 37.3 | sortable/rect-index.ts:183 `const { top, bottom } = placeholder.getBoundingClientRect();` | sortable/rect-index.ts:remeasurePlaceholder |
+
+## reordering moves, 2000 items
+
+Which moves reordered: a move reorders when a row animation starts in its window, from the task of its `pointermove` to the next one’s (counted).
+
+- moves-2000-cold.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+- moves-2000-warm1.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+- moves-2000-warm2.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+- moves-2000-warm3.json.gz: 61 `pointermove` dispatches; reorders at i = 0, 7, 14, 21, 27, 34, 41, 47, 54; 17 row animations started
+
+The drop: the library's `pointerup` entry point and the span from its start to the first event `onReorder` causes (counted), and the samples in that span under `sortable/rect-index.ts:refresh` (sampled):
+
+| trace | entry, µs | span to `onReorder`, µs | `refresh` in the span, µs | samples |
+| --- | --- | --- | --- | --- |
+| moves-2000-cold.json.gz | 8015 | 4240 | 3120 | 20 |
+| moves-2000-warm1.json.gz | 5233 | 2742 | 2467 | 16, fewer than 20 |
+| moves-2000-warm2.json.gz | 4082 | 2212 | 2097 | 14, fewer than 20 |
+| moves-2000-warm3.json.gz | 7921 | 4158 | 3805 | 24 |
+
+### reordering moves, 2000 items: press
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 1872 [1298–3169] \| 3152 |  |
+| = library | sampled | 25.0 [0.0–63.0] \| 389 | 1/1/0 \| 3, fewer than 20 |
+| = harness | counted+sampled | 216 [163–371] \| 502 | 0/0/0 \| 0, fewer than 20 |
+| = browser | derived | 1656 [1110–2735] \| 2261 |  |
+| library entries | counted | 89.0 [77.0–169] \| 499 |  |
+| harness entries | counted | 22.0 [13.0–61.0] \| 107 |  |
+| harness CDP tasks | counted | 216 [163–371] \| 502 |  |
+| input dispatch | counted | 233 [171–460] \| 927 |  |
+| style | counted | 41.0 [40.0–92.0] \| 25.0 |  |
+| paint | counted | 62.0 [41.0–127] \| 73.0 |  |
+| hit test | counted | 808 [586–1263] \| 892 |  |
+| program | sampled | 996 [786–1499] \| 1008 | 22/25/24 \| 19 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 89.0 [77.0–169] \| 499 | 1.0 [1.0–1.0] \| 1.0 | kernel/gesture.ts:handleEvent, lines 225–231 |
+| harness | 22.0 [13.0–61.0] \| 107 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 25.0 [0.0–63.0] \| 78.0 | 1/1/0 \| 1, fewer than 20 | kernel/session.ts:Session, lines 170–248 | 235 (1), 216 (1), 228 (1) |
+| library | 0.0 [0.0–0.0] \| 154 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 213 (1) |
+| library | 0.0 [0.0–0.0] \| 157 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:#press, lines 356–373 | 367 (1) |
+
+### reordering moves, 2000 items: crossing
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 13958 [10849–18658] \| 20833 |  |
+| = library | sampled | 4466 [3657–6790] \| 6631 | 29/35/50 \| 47 |
+| = harness | counted+sampled | 2435 [2169–2560] \| 2978 | 4/5/5 \| 4, fewer than 20 |
+| = browser | derived | 6932 [5023–9433] \| 11224 |  |
+| library entries | counted | 5152 [4237–7832] \| 7556 |  |
+| harness entries | counted | 251 [171–441] \| 326 |  |
+| harness CDP tasks | counted | 1977 [1966–2286] \| 2766 |  |
+| input dispatch | counted | 1803 [1469–2306] \| 3933 |  |
+| style | counted | 464 [414–720] \| 511 |  |
+| layout | counted | 907 [738–1538] \| 879 |  |
+| paint | counted | 1554 [1318–2442] \| 1595 |  |
+| gc | counted | 0.0 [0.0–0.0] \| 3885 |  |
+| hit test | counted | 1672 [1007–1757] \| 1536 |  |
+| harness | sampled | 274 [203–458] \| 212 | 4/5/5 \| 4, fewer than 20 |
+| program | sampled | 2406 [1643–2946] \| 2633 | 35/41/44 \| 41 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 165 | 0/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 3834 [3110–6032] \| 4227 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| library | 1318 [1127–1800] \| 3329 | 3.0 [3.0–3.0] \| 3.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 182 [136–186] \| 215 | 3.0 [3.0–3.0] \| 3.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 41.0 [20.0–233] \| 88.0 | 3.0 [3.0–3.0] \| 3.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 24.0 [15.0–26.0] \| 23.0 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 2650 [1932–5192] \| 3066 | 12/17/33 \| 17, fewer than 20 | sortable/rect-index.ts:refresh, lines 97–157 | 134 (5), 132 (5), 135 (3) |
+| library | 784 [319–867] \| 159 | 6/5/2 \| 1, fewer than 20 | sortable/linear-shift.ts:refresh, lines 88–119 | 111 (14) |
+| library | 158 [0.0–165] \| 0.0 | 1/1/0 \| 0, fewer than 20 | lift.ts:(anonymous), lines 274–278 |  |
+| library | 156 [133–157] \| 313 | 2/2/2 \| 3, fewer than 20 | lift.ts:acquire, lines 247–378 | 342 (7), 275 (1), 289 (1) |
+| library | 156 [0.0–158] \| 0.0 | 0/1/1 \| 0, fewer than 20 | kernel/session.ts:armClickGuard, lines 65–114 | 81 (1), 72 (1) |
+| library | 155 [0.0–158] \| 324 | 1/0/1 \| 2, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 52 (2), 43 (1), 53 (1) |
+| library | 123 [0.0–159] \| 0.0 | 0/1/1 \| 0, fewer than 20 | lift.ts:cancelLanding, lines 381–387 | 386 (2) |
+| library | 103 [62.0–155] \| 560 | 1/2/2 \| 4, fewer than 20 | sortable/behavior.ts:activate, lines 140–232 | 145 (2), 208 (1), 191 (1) |
+| library | 71.0 [28.0–78.0] \| 343 | 1/2/2 \| 4, fewer than 20 | lift.ts:showKeepingFocus, lines 176–190 | 177 (1), 179 (1) |
+| library | 33.0 [27.0–44.0] \| 37.0 | 1/2/1 \| 1, fewer than 20 | lift.ts:translate, lines 290–294 | 291 (5) |
+| library | 31.0 [29.0–63.0] \| 57.0 | 1/1/2 \| 2, fewer than 20 | shared/invalidation.ts:schedule, lines 29–33 | 31 (1) |
+| library | 0.0 [0.0–0.0] \| 45.0 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 213 (1) |
+| library | 0.0 [0.0–223] \| 428 | 2/0/0 \| 3, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 391 (2), 392 (1), 379 (1) |
+| library | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#activate, lines 418–448 | 430 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 230 [204–370] \| 277 | lift.ts:179 `visual.showPopover();` | lift.ts:showKeepingFocus |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 180 [168–270] \| 143 | sortable/rect-index.ts:127 `const rect = (getBox ? getBox(item) : item).getBoundingClientRect();` | sortable/rect-index.ts:refresh |
+
+### reordering moves, 2000 items: moves phase, per move
+
+Events per trace: 61, 61, 61 warm, 61 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 3623 [3267–4465] \| 3315 |  |
+| = library | sampled | 166 [142–224] \| 156 | 213/239/211 \| 209 |
+| = harness | counted+sampled | 1028 [972–1216] \| 976 | 95/95/82 \| 77 |
+| = browser | derived | 2429 [2153–3025] \| 2183 |  |
+| library entries | counted | 386 [303–440] \| 325 |  |
+| harness entries | counted | 112 [98.6–147] \| 105 |  |
+| harness CDP tasks | counted | 945 [902–1123] \| 912 |  |
+| input dispatch | counted | 352 [308–448] \| 311 |  |
+| style | counted | 316 [273–393] \| 258 |  |
+| layout | counted | 343 [266–406] \| 283 |  |
+| paint | counted | 766 [681–975] \| 681 |  |
+| harness | sampled | 83.1 [69.7–92.6] \| 63.6 | 95/95/82 \| 77 |
+| program | sampled | 906 [857–1146] \| 886 | 950/1032/940 \| 961 |
+| gc (sampled) | sampled | 0.9 [0.2–4.0] \| 2.7 | 1/4/1 \| 2, fewer than 20 |
+| native | sampled | 38.7 [26.5–40.4] \| 43.8 | 12/19/17 \| 20, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 218 [153–223] \| 175 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| library | 168 [150–217] \| 150 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 67.0 [59.0–84.7] \| 57.4 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 18.7 [15.5–27.8] \| 20.8 | 1.0 [1.0–1.0] \| 1.0 | native function, such as a promise resolver: (anonymous) |
+| harness | 15.9 [15.7–20.1] \| 16.9 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 10.7 [8.3–14.3] \| 9.8 | 1.0 [1.0–1.0] \| 1.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 47.9 [41.2–60.3] \| 37.6 | 82/78/76 \| 73 | shared/invalidation.ts:schedule, lines 29–33 | 31 (12) |
+| library | 45.6 [39.9–71.9] \| 43.3 | 84/100/85 \| 82 | lift.ts:translate, lines 290–294 | 291 (351) |
+| library | 23.5 [14.0–25.0] \| 19.7 | 13/13/10 \| 12, fewer than 20 | sortable/layout-animation.ts:report, lines 74–117 | 99 (4), 111 (2), 104 (1) |
+| library | 15.6 [15.1–19.8] \| 13.6 | 13/15/13 \| 12, fewer than 20 | sortable/placement.ts:movePlaceholder, lines 75–94 |  |
+| library | 12.6 [10.5–21.3] \| 12.5 | 10/17/13 \| 8, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 52 (27), 55 (9), 53 (6) |
+| library | 5.0 [0.8–5.8] \| 0.0 | 2/3/1 \| 0, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 208 (3), 213 (2), 198 (1) |
+| library | 4.5 [1.9–9.7] \| 5.9 | 1/6/3 \| 5, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 310 (7), 341 (4), 346 (3) |
+| library | 2.5 [1.6–8.3] \| 6.3 | 3/1/1 \| 3, fewer than 20 | sortable/linear-shift.ts:moved, lines 121–181 | 171 (2), 168 (2), 153 (1) |
+| library | 2.4 [0.0–7.8] \| 0.6 | 0/2/4 \| 1, fewer than 20 | sortable/rect-index.ts:remeasurePlaceholder, lines 182–190 | 183 (1) |
+| library | 2.2 [1.4–2.9] \| 0.0 | 2/1/2 \| 0, fewer than 20 | sortable/operation.ts:move, lines 95–101 | 96 (3), 100 (2) |
+| library | 1.9 [0.0–5.1] \| 0.0 | 2/1/0 \| 0, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 379 (2), 373 (1) |
+| library | 0.3 [0.0–0.5] \| 5.9 | 1/0/1 \| 6, fewer than 20 | sortable/operation.ts:updateInsertion, lines 179–206 | 183 (7), 191 (1) |
+| library | 0.0 [0.0–0.0] \| 2.6 | 0/0/0 \| 1, fewer than 20 | sortable/rect-index.ts:refresh, lines 97–157 | 104 (1) |
+| library | 0.0 [0.0–0.0] \| 2.6 | 0/0/0 \| 1, fewer than 20 | sortable/y.ts:moved, lines 77–79 | 78 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 0.0 [0.0–0.0] \| 0.0 | 4.5 [4.1–8.9] \| 3.7 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+| Layout | 0.0 [0.0–0.0] \| 0.0 | 15.6 [11.0–32.1] \| 12.3 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+| UpdateLayoutTree | 0.1 [0.1–0.1] \| 0.1 | 82.2 [64.5–96.0] \| 57.3 | sortable/rect-index.ts:183 `const { top, bottom } = placeholder.getBoundingClientRect();` | sortable/rect-index.ts:remeasurePlaceholder |
+
+### reordering moves, 2000 items: release and landing
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 13268 [11656–20293] \| 17065 |  |
+| = library | sampled | 3319 [2537–4942] \| 5852 | 30/25/39 \| 46 |
+| = consumer | sampled | 290 [225–422] \| 333 | 9/9/10 \| 9, fewer than 20 |
+| = harness | counted+sampled | 1110 [1062–1323] \| 1110 | 7/9/7 \| 7, fewer than 20 |
+| = browser | derived | 8597 [7784–13606] \| 9770 |  |
+| library entries | counted | 5309 [4143–8039] \| 8186 |  |
+| harness entries | counted | 111 [90.0–156] \| 121 |  |
+| harness CDP tasks | counted | 564 [431–836] \| 718 |  |
+| input dispatch | counted | 5388 [4199–8196] \| 8202 |  |
+| style | counted | 1262 [1217–1606] \| 1284 |  |
+| layout | counted | 1488 [1407–2885] \| 1628 |  |
+| paint | counted | 2498 [2293–3919] \| 2339 |  |
+| hit test | counted | 568 [516–939] \| 719 |  |
+| harness | sampled | 498 [487–679] \| 392 | 7/9/7 \| 7, fewer than 20 |
+| program | sampled | 2570 [1982–2991] \| 3658 | 45/41/43 \| 48 |
+| gc (sampled) | sampled | 0.0 [0.0–37.0] \| 158 | 1/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 5233 [4082–7921] \| 8015 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 95.0 [78.0–129] \| 99.0 | 7.0 [6.0–7.0] \| 6.0 | native function, such as a promise resolver: (anonymous) |
+| library | 38.0 [24.0–59.0] \| 65.0 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:(anonymous), lines 73–78 |
+| library | 38.0 [37.0–59.0] \| 106 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:expire, lines 68–70 |
+| harness | 16.0 [12.0–27.0] \| 22.0 | 2.0 [2.0–2.0] \| 2.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 2467 [2097–3805] \| 3120 | 16/14/24 \| 20, fewer than 20 | sortable/rect-index.ts:refresh, lines 97–157 | 120 (5), 127 (3), 133 (2) |
+| consumer | 290 [225–422] \| 333 | 9/9/10 \| 9, fewer than 20 | bench/lab.ts:onReorder, lines 62–72 | 63 (2), 66 (1) |
+| library | 155 [48.0–162] \| 228 | 3/2/2 \| 3, fewer than 20 | shared/landing.ts:startLandingAnimation, lines 60–106 |  |
+| library | 139 [88.0–205] \| 124 | 5/4/5 \| 4, fewer than 20 | kernel/session.ts:restoreFocus, lines 44–53 |  |
+| library | 120 [118–200] \| 158 | 2/2/3 \| 3, fewer than 20 | sortable/behavior.ts:(anonymous), lines 187–189 | 188 (1) |
+| library | 67.0 [0.0–155] \| 157 | 1/0/1 \| 1, fewer than 20 | kernel/session.ts:#closeMotion, lines 528–536 | 529 (1) |
+| library | 24.0 [16.0–41.0] \| 16.0 | 1/1/1 \| 1, fewer than 20 | kernel/session.ts:(anonymous), lines 73–78 |  |
+| library | 0.0 [0.0–0.0] \| 155 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#up, lines 405–416 | 415 (1) |
+| library | 0.0 [0.0–0.0] \| 163 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#drop, lines 450–464 | 455 (1) |
+| library | 0.0 [0.0–0.0] \| 157 | 0/0/0 \| 1, fewer than 20 | sortable/operation.ts:drop, lines 103–137 | 120 (1) |
+| library | 0.0 [0.0–0.0] \| 156 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#next.invoke.#decision, lines 457–460 | 459 (1) |
+| library | 0.0 [0.0–0.0] \| 101 | 0/0/0 \| 1, fewer than 20 | sortable/operation.ts:(anonymous), lines 134–136 | 136 (1) |
+| library | 0.0 [0.0–108] \| 162 | 0/0/1 \| 1, fewer than 20 | kernel/session.ts:#requestVerdict, lines 467–526 | 525 (1) |
+| library | 0.0 [0.0–0.0] \| 283 | 0/0/0 \| 2, fewer than 20 | kernel/session.ts:advance, lines 254–270 | 256 (1), 265 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 126 [108–163] \| 133 | bench/lab.ts:63 `list.insertBefore(item, next);` | bench/lab.ts:onReorder |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 72.0 [58.0–106] \| 74.0 | sortable/operation.ts:265 `return this.#context.placeholder.getBoundingClientRect();` | sortable/operation.ts:#landingTarget |
+| Layout | 1.0 [1.0–1.0] \| 1.0 | 108 [88.0–161] \| 117 | sortable/operation.ts:265 `return this.#context.placeholder.getBoundingClientRect();` | sortable/operation.ts:#landingTarget |
+| UpdateLayoutTree | 1.0 [1.0–1.0] \| 1.0 | 163 [114–259] \| 182 | shared/landing.ts:95 `window.getComputedStyle(visual).position === 'static'` | shared/landing.ts:startLandingAnimation |
+| UpdateLayoutTree | 2.0 [2.0–2.0] \| 2.0 | 113 [84.0–203] \| 139 | kernel/session.ts:50 `focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });` | kernel/session.ts:restoreFocus |
+| Layout | 1.0 [1.0–1.0] \| 1.0 | 828 [627–1265] \| 797 | kernel/session.ts:50 `focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });` | kernel/session.ts:restoreFocus |
+| UpdateLayoutTree | 4.0 [3.0–4.0] \| 3.0 | 848 [722–877] \| 739 | evaluation `async () => { const frame = () => new Promise(requ` | eval |
+
+### reordering moves, 2000 items: reordering moves, per move
+
+Events per trace: 9, 9, 9 warm, 9 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 6583 [5308–6940] \| 5426 |  |
+| = library | sampled | 455 [314–470] \| 427 | 58/57/51 \| 55 |
+| = harness | counted+sampled | 996 [922–1030] \| 983 | 14/13/12 \| 13, fewer than 20 |
+| = browser | derived | 5098 [4072–5474] \| 4016 |  |
+| library entries | counted | 722 [508–838] \| 651 |  |
+| harness entries | counted | 109 [91.4–121] \| 96.4 |  |
+| harness CDP tasks | counted | 907 [869–953] \| 894 |  |
+| input dispatch | counted | 363 [274–382] \| 276 |  |
+| style | counted | 641 [528–707] \| 536 |  |
+| layout | counted | 1198 [897–1226] \| 858 |  |
+| paint | counted | 1955 [1532–2169] \| 1525 |  |
+| harness | sampled | 77.6 [53.0–88.6] \| 88.8 | 14/13/12 \| 13, fewer than 20 |
+| program | sampled | 1116 [972–1179] \| 939 | 167/166/158 \| 158 |
+| gc (sampled) | sampled | 0.0 [0.0–5.3] \| 0.0 | 0/1/0 \| 0, fewer than 20 |
+| native | sampled | 13.0 [7.6–28.6] \| 12.3 | 1/3/2 \| 3, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 534 [375–667] \| 519 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| library | 171 [133–188] \| 132 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 65.4 [53.1–73.9] \| 53.4 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 15.7 [15.6–17.6] \| 22.1 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 15.1 [14.1–21.8] \| 12.9 | 1.0 [1.0–1.0] \| 1.0 | native function, such as a promise resolver: (anonymous) |
+| harness | 9.8 [7.6–12.3] \| 8.0 | 1.0 [1.0–1.0] \| 1.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 159 [94.6–169] \| 133 | 13/13/10 \| 12, fewer than 20 | sortable/layout-animation.ts:report, lines 74–117 | 99 (4), 111 (2), 104 (1) |
+| library | 105 [102–134] \| 92.4 | 13/15/13 \| 12, fewer than 20 | sortable/placement.ts:movePlaceholder, lines 75–94 |  |
+| library | 50.3 [35.1–53.4] \| 33.7 | 14/11/10 \| 11, fewer than 20 | shared/invalidation.ts:schedule, lines 29–33 | 31 (1) |
+| library | 36.2 [32.0–65.3] \| 34.7 | 11/13/12 \| 10, fewer than 20 | lift.ts:translate, lines 290–294 | 291 (46) |
+| library | 23.0 [16.0–25.3] \| 17.6 | 1/3/4 \| 1, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 70 (3), 52 (2), 53 (1) |
+| library | 17.2 [11.1–56.3] \| 42.8 | 3/1/1 \| 3, fewer than 20 | sortable/linear-shift.ts:moved, lines 121–181 | 171 (2), 168 (2), 153 (1) |
+| library | 6.4 [0.0–13.1] \| 0.0 | 1/0/1 \| 0, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 310 (2) |
+| library | 0.0 [0.0–0.0] \| 17.4 | 0/0/0 \| 1, fewer than 20 | sortable/rect-index.ts:refresh, lines 97–157 | 104 (1) |
+| library | 0.0 [0.0–2.3] \| 20.0 | 1/0/0 \| 2, fewer than 20 | sortable/operation.ts:updateInsertion, lines 179–206 | 183 (2), 191 (1) |
+| library | 0.0 [0.0–0.0] \| 17.3 | 0/0/0 \| 1, fewer than 20 | sortable/y.ts:moved, lines 77–79 | 78 (1) |
+| library | 0.0 [0.0–0.0] \| 7.3 | 0/0/0 \| 1, fewer than 20 | sortable/placement.ts:placeholderAt, lines 55–67 | 59 (1) |
+| library | 0.0 [0.0–0.0] \| 10.7 | 0/0/0 \| 1, fewer than 20 | shared/invalidation.ts:fire, lines 23–26 | 25 (1) |
+| library | 0.0 [0.0–16.1] \| 0.0 | 1/0/0 \| 0, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 373 (1) |
+| library | 0.0 [0.0–14.2] \| 0.0 | 0/1/0 \| 0, fewer than 20 | sortable/layout-animation.ts:settle, lines 118–149 | 124 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 0.1 [0.1–0.1] \| 0.1 | 30.3 [28.0–60.6] \| 24.8 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+| Layout | 0.1 [0.1–0.1] \| 0.1 | 106 [74.6–218] \| 83.4 | sortable/linear-shift.ts:148 `).getBoundingClientRect().top;` | sortable/linear-shift.ts:moved |
+
+### reordering moves, 2000 items: moves that don't reorder, per move
+
+Events per trace: 52, 52, 52 warm, 52 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 3092 [2908–4026] \| 2942 |  |
+| = library | sampled | 116 [113–182] \| 109 | 155/182/160 \| 154 |
+| = harness | counted+sampled | 1011 [974–1246] \| 968 | 81/82/70 \| 64 |
+| = browser | derived | 1965 [1821–2599] \| 1865 |  |
+| library entries | counted | 308 [267–391] \| 269 |  |
+| harness entries | counted | 113 [99.9–151] \| 106 |  |
+| harness CDP tasks | counted | 927 [902–1152] \| 909 |  |
+| input dispatch | counted | 350 [314–460] \| 317 |  |
+| style | counted | 259 [229–338] \| 209 |  |
+| layout | counted | 195 [156–264] \| 184 |  |
+| paint | counted | 560 [534–769] \| 535 |  |
+| harness | sampled | 84.1 [72.5–93.3] \| 59.2 | 81/82/70 \| 64 |
+| program | sampled | 870 [837–1137] \| 877 | 783/865/782 \| 803 |
+| gc (sampled) | sampled | 1.1 [0.3–3.7] \| 3.2 | 1/3/1 \| 2, fewer than 20 |
+| native | sampled | 42.4 [29.8–43.1] \| 49.2 | 11/16/15 \| 17, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 167 [153–222] \| 153 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| library | 140 [114–169] \| 116 | 1.0 [1.0–1.0] \| 1.0 | shared/invalidation.ts:fire, lines 23–26 |
+| harness | 67.3 [60.0–86.6] \| 58.1 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: mouseListener |
+| harness | 19.5 [15.5–28.8] \| 22.2 | 1.0 [1.0–1.0] \| 1.0 | native function, such as a promise resolver: (anonymous) |
+| harness | 15.9 [15.4–20.9] \| 16.0 | 1.0 [1.0–1.0] \| 1.0 | Playwright's drag listeners, installed by each mouse move: (anonymous) |
+| harness | 10.4 [8.5–15.1] \| 10.1 | 1.0 [1.0–1.0] \| 1.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 47.3 [41.3–73.1] \| 44.8 | 73/87/73 \| 72 | lift.ts:translate, lines 290–294 | 291 (305) |
+| library | 46.9 [42.3–62.0] \| 38.3 | 68/67/66 \| 62 | shared/invalidation.ts:schedule, lines 29–33 | 31 (11) |
+| library | 10.8 [9.5–20.6] \| 11.7 | 9/14/9 \| 7, fewer than 20 | sortable/y.ts:resolve, lines 33–71 | 52 (25), 55 (8), 53 (5) |
+| library | 5.9 [1.0–6.8] \| 0.0 | 2/3/1 \| 0, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 208 (3), 213 (2), 198 (1) |
+| library | 4.2 [0.0–11.3] \| 6.9 | 0/6/2 \| 5, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 310 (5), 341 (4), 346 (3) |
+| library | 2.8 [0.0–9.1] \| 0.8 | 0/2/4 \| 1, fewer than 20 | sortable/rect-index.ts:remeasurePlaceholder, lines 182–190 | 183 (1) |
+| library | 2.6 [1.6–3.4] \| 0.0 | 2/1/2 \| 0, fewer than 20 | sortable/operation.ts:move, lines 95–101 | 96 (3), 100 (2) |
+| library | 2.2 [0.0–3.2] \| 0.0 | 1/1/0 \| 0, fewer than 20 | kernel/session.ts:#move, lines 364–395 | 379 (2) |
+| library | 0.0 [0.0–0.0] \| 0.8 | 0/0/0 \| 1, fewer than 20 | sortable/linear-shift.ts:refresh, lines 88–119 | 91 (1) |
+| library | 0.0 [0.0–0.6] \| 3.5 | 0/0/1 \| 4, fewer than 20 | sortable/operation.ts:updateInsertion, lines 179–206 | 183 (5) |
+| library | 0.0 [0.0–0.0] \| 0.9 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:requestStep, lines 274–297 | 291 (1) |
+| library | 0.0 [0.0–0.2] \| 1.6 | 0/0/1 \| 1, fewer than 20 | sortable/layout-animation.ts:(anonymous), lines 111–115 | 112 (2) |
+| library | 0.0 [0.0–1.3] \| 0.0 | 0/1/0 \| 0, fewer than 20 | sortable/behavior.ts:updateInsertion, lines 74–76 | 75 (1) |
+| library | 0.0 [0.0–0.6] \| 0.0 | 0/0/1 \| 0, fewer than 20 | kernel/gesture.ts:#applyRequests, lines 337–354 | 347 (1) |
+
+Forced style and layout, counted: each event that carries the stack of the script that forced it:
+
+| event | count per event | µs per event | forced at | in |
+| --- | --- | --- | --- | --- |
+| UpdateLayoutTree | 0.2 [0.2–0.2] \| 0.2 | 96.4 [75.6–113] \| 67.2 | sortable/rect-index.ts:183 `const { top, bottom } = placeholder.getBoundingClientRect();` | sortable/rect-index.ts:remeasurePlaceholder |
+
+## press and release, 2000 items, [...root.children]
+
+### press and release, 2000 items, [...root.children]: press, per press
+
+Events per trace: 10, 10, 10 warm, 10 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 1406 [927–1738] \| 1472 |  |
+| = library | sampled | 40.2 [2.5–54.6] \| 98.1 | 1/5/6 \| 9, fewer than 20 |
+| = consumer | sampled | 626 [425–747] \| 522 | 29/40/46 \| 35 |
+| = harness | counted+sampled | 300 [187–368] \| 262 | 0/0/0 \| 0, fewer than 20 |
+| = browser | derived | 441 [312–568] \| 590 |  |
+| library entries | counted | 740 [502–875] \| 773 |  |
+| harness entries | counted | 20.4 [12.4–32.2] \| 16.9 |  |
+| harness CDP tasks | counted | 300 [187–368] \| 262 |  |
+| input dispatch | counted | 835 [559–1002] \| 852 |  |
+| style | counted | 0.0 [0.0–0.0] \| 2.5 |  |
+| paint | counted | 18.3 [13.2–24.1] \| 18.9 |  |
+| gc | counted | 38.0 [37.2–50.3] \| 154 |  |
+| hit test | counted | 4.3 [2.9–5.1] \| 90.1 |  |
+| program | sampled | 376 [289–493] \| 314 | 63/69/77 \| 69 |
+| gc (sampled) | sampled | 0.0 [0.0–42.7] \| 0.0 | 3/0/0 \| 0, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 740 [502–875] \| 773 | 1.0 [1.0–1.0] \| 1.0 | kernel/gesture.ts:handleEvent, lines 225–231 |
+| harness | 20.4 [12.4–32.2] \| 16.9 | 2.0 [2.0–2.0] \| 2.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| consumer | 427 [303–542] \| 375 | 20/27/33 \| 25 | bench/lab.ts:sortable.items, lines 56–60 | 58 (105) |
+| consumer | 199 [123–204] \| 146 | 9/13/13 \| 10, fewer than 20 | bench/lab.ts:(anonymous), lines 58–60 | 58 (45) |
+| library | 9.4 [0.0–13.3] \| 5.3 | 0/1/1 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 219 (1), 213 (1), 208 (1) |
+| library | 5.4 [0.0–6.6] \| 15.6 | 0/1/1 \| 1, fewer than 20 | kernel/gesture.ts:#open, lines 392–409 | 398 (2), 403 (1) |
+| library | 4.2 [2.5–8.2] \| 4.2 | 1/2/1 \| 1, fewer than 20 | kernel/session.ts:Session, lines 170–248 | 235 (1) |
+| library | 0.0 [0.0–0.0] \| 15.4 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:#press, lines 356–373 | 363 (1) |
+| library | 0.0 [0.0–11.4] \| 30.2 | 0/0/1 \| 2, fewer than 20 | sortable/behavior.ts:#admission, lines 244–285 | 249 (2), 248 (1) |
+| library | 0.0 [0.0–11.2] \| 7.6 | 0/0/1 \| 1, fewer than 20 | sortable/behavior.ts:(anonymous), lines 250–256 | 251 (2) |
+| library | 0.0 [0.0–16.0] \| 13.4 | 0/1/0 \| 1, fewer than 20 | sortable/behavior.ts:#pull, lines 234–237 | 236 (1), 235 (1) |
+| library | 0.0 [0.0–9.1] \| 6.4 | 0/0/1 \| 1, fewer than 20 | kernel/session.ts:(anonymous), lines 132–248 | 142 (1) |
+
+### press and release, 2000 items, [...root.children]: release, per release
+
+Events per trace: 10, 10, 10 warm, 10 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 750 [513–950] \| 657 |  |
+| = library | sampled | 11.7 [7.9–17.5] \| 19.7 | 3/2/2 \| 4, fewer than 20 |
+| = harness | counted+sampled | 280 [185–350] \| 240 | 0/0/0 \| 0, fewer than 20 |
+| = browser | derived | 462 [316–583] \| 398 |  |
+| library entries | counted | 65.0 [53.0–74.3] \| 72.8 |  |
+| harness entries | counted | 27.8 [19.9–39.8] \| 26.0 |  |
+| harness CDP tasks | counted | 280 [185–350] \| 240 |  |
+| input dispatch | counted | 180 [125–221] \| 159 |  |
+| paint | counted | 10.1 [7.7–13.9] \| 8.5 |  |
+| hit test | counted | 1.6 [1.0–2.1] \| 29.9 |  |
+| program | sampled | 480 [366–633] \| 378 | 100/108/118 \| 97 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 0.9 | 0/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 65.0 [53.0–74.3] \| 72.8 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 27.8 [19.9–39.8] \| 26.0 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 5.7 [0.0–11.7] \| 14.0 | 3/1/0 \| 3, fewer than 20 | kernel/session.ts:#endPending, lines 398–403 | 399 (5) |
+| library | 2.2 [0.0–7.9] \| 0.0 | 0/1/1 \| 0, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 348 (1), 310 (1) |
+| library | 0.0 [0.0–9.6] \| 5.7 | 0/0/1 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 211 (1), 213 (1) |
+
+### press and release, 2000 items, [...root.children]: idle wait after the last release, whole phase
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 1621 [797–1985] \| 1358 |  |
+| = harness | counted+sampled | 732 [564–1035] \| 591 | 3/3/5 \| 3, fewer than 20 |
+| = browser | derived | 889 [233–950] \| 767 |  |
+| harness entries | counted | 46.0 [24.0–52.0] \| 33.0 |  |
+| harness CDP tasks | counted | 548 [248–648] \| 420 |  |
+| paint | counted | 197 [111–235] \| 147 |  |
+| harness | sampled | 316 [184–387] \| 171 | 3/3/5 \| 3, fewer than 20 |
+| program | sampled | 433 [176–481] \| 349 | 12/11/6 \| 8, fewer than 20 |
+| native | sampled | 0.0 [0.0–164] \| 0.0 | 0/1/0 \| 0, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| harness | 46.0 [24.0–52.0] \| 33.0 | 4.0 [4.0–4.0] \| 4.0 | native function, such as a promise resolver: (anonymous) |
+
+## press and release, 2000 items, cached array
+
+### press and release, 2000 items, cached array: press, per press
+
+Events per trace: 10, 10, 10 warm, 10 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 688 [577–863] \| 1991 |  |
+| = library | sampled | 17.7 [14.6–40.0] \| 187 | 4/3/7 \| 14, fewer than 20 |
+| = harness | counted+sampled | 292 [242–374] \| 587 | 0/0/0 \| 1, fewer than 20 |
+| = browser | derived | 382 [296–472] \| 1217 |  |
+| library entries | counted | 88.6 [79.3–104] \| 321 |  |
+| harness entries | counted | 19.0 [16.4–25.2] \| 48.0 |  |
+| harness CDP tasks | counted | 292 [242–374] \| 571 |  |
+| input dispatch | counted | 177 [153–219] \| 498 |  |
+| style | counted | 0.0 [0.0–0.0] \| 4.8 |  |
+| paint | counted | 20.2 [12.6–22.2] \| 42.6 |  |
+| gc | counted | 0.0 [0.0–0.0] \| 222 |  |
+| hit test | counted | 4.6 [3.2–6.5] \| 285 |  |
+| harness | sampled | 0.0 [0.0–0.0] \| 16.3 | 0/0/0 \| 1, fewer than 20 |
+| program | sampled | 366 [326–451] \| 653 | 74/69/64 \| 90 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 16.1 | 0/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 88.6 [79.3–104] \| 321 | 1.0 [1.0–1.0] \| 1.0 | kernel/gesture.ts:handleEvent, lines 225–231 |
+| harness | 19.0 [16.4–25.2] \| 48.0 | 2.0 [2.0–2.0] \| 2.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 15.6 [6.5–17.7] \| 34.0 | 4/2/4 \| 4, fewer than 20 | kernel/session.ts:Session, lines 170–248 | 226 (2), 194 (2), 228 (1) |
+| library | 0.0 [0.0–8.8] \| 32.0 | 0/0/1 \| 2, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 208 (1), 219 (1), 213 (1) |
+| library | 0.0 [0.0–0.0] \| 23.0 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:admit, lines 130–132 | 131 (1) |
+| library | 0.0 [0.0–0.0] \| 16.7 | 0/0/0 \| 1, fewer than 20 | sortable/behavior.ts:#admission, lines 244–285 | 249 (1) |
+| library | 0.0 [0.0–0.0] \| 16.2 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:#press, lines 356–373 | 370 (1) |
+| library | 0.0 [0.0–0.0] \| 27.4 | 0/0/0 \| 2, fewer than 20 | kernel/gesture.ts:#open, lines 392–409 | 403 (1), 400 (1) |
+| library | 0.0 [0.0–6.1] \| 37.6 | 0/0/1 \| 3, fewer than 20 | kernel/session.ts:(anonymous), lines 132–248 | 142 (2), 163 (1) |
+| library | 0.0 [0.0–8.1] \| 0.0 | 0/1/0 \| 0, fewer than 20 | kernel/gesture.ts:ownsInteraction, lines 73–86 | 74 (1) |
+| library | 0.0 [0.0–9.5] \| 0.0 | 0/0/1 \| 0, fewer than 20 | kernel/gesture.ts:handleEvent, lines 225–231 | 226 (1) |
+
+### press and release, 2000 items, cached array: release, per release
+
+Events per trace: 10, 10, 10 warm, 10 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 782 [649–929] \| 1996 |  |
+| = library | sampled | 14.9 [13.5–19.2] \| 76.6 | 3/3/4 \| 9, fewer than 20 |
+| = harness | counted+sampled | 292 [231–356] \| 510 | 0/0/0 \| 0, fewer than 20 |
+| = browser | derived | 475 [404–554] \| 1409 |  |
+| library entries | counted | 71.1 [61.8–81.3] \| 166 |  |
+| harness entries | counted | 28.2 [18.3–31.8] \| 45.2 |  |
+| harness CDP tasks | counted | 292 [231–356] \| 510 |  |
+| input dispatch | counted | 185 [153–215] \| 339 |  |
+| paint | counted | 10.8 [9.8–13.3] \| 23.0 |  |
+| gc | counted | 0.0 [0.0–0.0] \| 522 |  |
+| hit test | counted | 1.7 [1.6–2.8] \| 105 |  |
+| program | sampled | 468 [406–584] \| 747 | 114/106/100 \| 119 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 32.9 | 0/0/0 \| 2, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 71.1 [61.8–81.3] \| 166 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 28.2 [18.3–31.8] \| 45.2 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 14.9 [9.6–19.2] \| 43.6 | 3/3/2 \| 6, fewer than 20 | kernel/session.ts:#endPending, lines 398–403 | 399 (5), 402 (2), 401 (1) |
+| library | 0.0 [0.0–0.0] \| 16.3 | 0/0/0 \| 1, fewer than 20 | kernel/session.ts:#up, lines 405–416 | 409 (1) |
+| library | 0.0 [0.0–0.0] \| 12.8 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 198 (1) |
+| library | 0.0 [0.0–1.2] \| 3.9 | 0/0/1 \| 1, fewer than 20 | kernel/gesture.ts:#applyRequests, lines 337–354 | 345 (1), 340 (1) |
+| library | 0.0 [0.0–2.7] \| 0.0 | 0/0/1 \| 0, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 347 (1) |
+
+### press and release, 2000 items, cached array: idle wait after the last release, whole phase
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 1634 [1123–2174] \| 2643 |  |
+| = harness | counted+sampled | 668 [524–775] \| 1552 | 3/3/4 \| 6, fewer than 20 |
+| = browser | derived | 966 [599–1399] \| 1091 |  |
+| harness entries | counted | 48.0 [45.0–68.0] \| 71.0 |  |
+| harness CDP tasks | counted | 513 [277–661] \| 1083 |  |
+| paint | counted | 232 [158–310] \| 288 |  |
+| harness | sampled | 155 [114–247] \| 469 | 3/3/4 \| 6, fewer than 20 |
+| program | sampled | 604 [145–992] \| 590 | 12/12/7 \| 8, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| harness | 48.0 [45.0–68.0] \| 71.0 | 4.0 [4.0–4.0] \| 4.0 | native function, such as a promise resolver: (anonymous) |
+
+## press and release, 20 items, cached array
+
+### press and release, 20 items, cached array: press, per press
+
+Events per trace: 10, 10, 10 warm, 10 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 777 [668–980] \| 773 |  |
+| = library | sampled | 21.6 [19.3–38.0] \| 82.9 | 3/5/4 \| 8, fewer than 20 |
+| = harness | counted+sampled | 310 [296–408] \| 318 | 0/0/0 \| 0, fewer than 20 |
+| = browser | derived | 445 [354–535] \| 372 |  |
+| library entries | counted | 90.1 [83.9–114] \| 158 |  |
+| harness entries | counted | 29.5 [20.1–32.0] \| 23.5 |  |
+| harness CDP tasks | counted | 310 [296–408] \| 318 |  |
+| input dispatch | counted | 200 [165–249] \| 242 |  |
+| style | counted | 0.0 [0.0–0.0] \| 2.9 |  |
+| paint | counted | 24.5 [17.7–31.2] \| 19.3 |  |
+| hit test | counted | 6.4 [4.3–6.5] \| 6.0 |  |
+| program | sampled | 438 [355–561] \| 325 | 69/80/73 \| 71 |
+| gc (sampled) | sampled | 0.0 [0.0–0.0] \| 13.3 | 0/0/0 \| 1, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 90.1 [83.9–114] \| 158 | 1.0 [1.0–1.0] \| 1.0 | kernel/gesture.ts:handleEvent, lines 225–231 |
+| harness | 29.5 [20.1–32.0] \| 23.5 | 2.0 [2.0–2.0] \| 2.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 11.7 [4.5–16.0] \| 15.7 | 1/2/3 \| 2, fewer than 20 | kernel/session.ts:Session, lines 170–248 | 170 (1), 244 (1), 235 (1) |
+| library | 0.0 [0.0–0.0] \| 16.0 | 0/0/0 \| 1, fewer than 20 | kernel/gesture.ts:enter, lines 193–223 | 213 (1) |
+| library | 0.0 [0.0–7.0] \| 28.9 | 1/0/0 \| 3, fewer than 20 | sortable/behavior.ts:#admission, lines 244–285 | 250 (2), 280 (1), 282 (1) |
+| library | 0.0 [0.0–7.5] \| 7.5 | 0/1/0 \| 1, fewer than 20 | kernel/session.ts:(anonymous), lines 132–248 | 144 (1) |
+| library | 0.0 [0.0–4.3] \| 14.8 | 0/1/0 \| 1, fewer than 20 | kernel/gesture.ts:#press, lines 356–373 | 358 (1), 370 (1) |
+| library | 0.0 [0.0–7.8] \| 0.0 | 1/0/0 \| 0, fewer than 20 | sortable/behavior.ts:(anonymous), lines 250–256 | 251 (1) |
+| library | 0.0 [0.0–14.5] \| 0.0 | 0/1/0 \| 0, fewer than 20 | sortable/behavior.ts:#pull, lines 234–237 | 236 (1) |
+| library | 0.0 [0.0–5.6] \| 0.0 | 0/0/1 \| 0, fewer than 20 | kernel/gesture.ts:#open, lines 392–409 | 398 (1) |
+
+### press and release, 20 items, cached array: release, per release
+
+Events per trace: 10, 10, 10 warm, 10 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 832 [724–1032] \| 739 |  |
+| = library | sampled | 33.4 [10.1–46.1] \| 15.1 | 6/8/3 \| 1, fewer than 20 |
+| = harness | counted+sampled | 314 [271–413] \| 283 | 0/0/0 \| 1, fewer than 20 |
+| = browser | derived | 508 [420–573] \| 441 |  |
+| library entries | counted | 76.8 [73.1–90.9] \| 93.5 |  |
+| harness entries | counted | 28.5 [20.1–30.8] \| 22.4 |  |
+| harness CDP tasks | counted | 314 [271–413] \| 280 |  |
+| input dispatch | counted | 193 [172–230] \| 184 |  |
+| paint | counted | 13.6 [12.2–18.5] \| 11.2 |  |
+| hit test | counted | 2.0 [1.4–2.2] \| 5.2 |  |
+| harness | sampled | 0.0 [0.0–0.0] \| 2.4 | 0/0/0 \| 1, fewer than 20 |
+| program | sampled | 505 [419–543] \| 448 | 101/107/107 \| 107 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| library | 76.8 [73.1–90.9] \| 93.5 | 1.0 [1.0–1.0] \| 1.0 | kernel/session.ts:handleEvent, lines 309–357 |
+| harness | 28.5 [20.1–30.8] \| 22.4 | 3.0 [3.0–3.0] \| 3.0 | Playwright's injected script: listener |
+
+Library and consumer functions by self time, sampled; a native callee's time is its caller's:
+
+| owner | µs per event | samples, warm 1/2/3 \| cold | function | hottest lines, samples in all four traces |
+| --- | --- | --- | --- | --- |
+| library | 22.3 [10.1–32.4] \| 15.1 | 4/6/3 \| 1, fewer than 20 | kernel/session.ts:#endPending, lines 398–403 | 400 (3), 399 (2) |
+| library | 0.0 [0.0–11.1] \| 0.0 | 2/0/0 \| 0, fewer than 20 | kernel/session.ts:handleEvent, lines 309–357 | 310 (1), 347 (1) |
+| library | 0.0 [0.0–13.7] \| 0.0 | 0/2/0 \| 0, fewer than 20 | kernel/session.ts:#up, lines 405–416 | 408 (1), 409 (1) |
+
+### press and release, 20 items, cached array: idle wait after the last release, whole phase
+
+Events per trace: 1, 1, 1 warm, 1 cold. Per event: warm median [range] | cold.
+
+| class | kind | µs per event | samples, warm 1/2/3 \| cold |
+| --- | --- | --- | --- |
+| busy | counted | 1945 [1651–2433] \| 1246 |  |
+| = harness | counted+sampled | 862 [847–1204] \| 680 | 5/5/3 \| 4, fewer than 20 |
+| = browser | derived | 1083 [804–1229] \| 566 |  |
+| harness entries | counted | 49.0 [49.0–65.0] \| 34.0 |  |
+| harness CDP tasks | counted | 676 [503–824] \| 371 |  |
+| paint | counted | 219 [202–320] \| 141 |  |
+| harness | sampled | 344 [186–380] \| 309 | 5/5/3 \| 4, fewer than 20 |
+| program | sampled | 639 [488–713] \| 203 | 8/10/11 \| 7, fewer than 20 |
+
+Script entry points, counted `FunctionCall`, which include nested calls and forced style and layout:
+
+| owner | µs per event | calls per event | function |
+| --- | --- | --- | --- |
+| harness | 49.0 [49.0–65.0] \| 34.0 | 4.0 [4.0–4.0] \| 4.0 | native function, such as a promise resolver: (anonymous) |

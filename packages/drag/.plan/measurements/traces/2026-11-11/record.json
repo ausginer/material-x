@@ -1,0 +1,936 @@
+{
+ "head": "743921de003bc8b99d71a6f39251dd57e3442869",
+ "traced": "566ebfc653db8fd87708261d7bd50f66a615b988",
+ "modules": [
+  {
+   "line": 2,
+   "key": "fault.ts"
+  },
+  {
+   "line": 25,
+   "key": "kernel/callback-list.ts"
+  },
+  {
+   "line": 85,
+   "key": "kernel/drag.ts"
+  },
+  {
+   "line": 109,
+   "key": "shared/focus.ts"
+  },
+  {
+   "line": 116,
+   "key": "kernel/session.ts"
+  },
+  {
+   "line": 500,
+   "key": "kernel/gesture.ts"
+  },
+  {
+   "line": 681,
+   "key": "draggable.ts"
+  },
+  {
+   "line": 702,
+   "key": "shared/invalidation.ts"
+  },
+  {
+   "line": 734,
+   "key": "free-drag/domain.ts"
+  },
+  {
+   "line": 741,
+   "key": "../box-quad/src/index.ts"
+  },
+  {
+   "line": 987,
+   "key": "free-drag/geometry.ts"
+  },
+  {
+   "line": 1046,
+   "key": "free-drag/operation.ts"
+  },
+  {
+   "line": 1160,
+   "key": "free-drag/behavior.ts"
+  },
+  {
+   "line": 1216,
+   "key": "lift.ts"
+  },
+  {
+   "line": 1451,
+   "key": "free-drag.ts"
+  },
+  {
+   "line": 1474,
+   "key": "shared/timing.ts"
+  },
+  {
+   "line": 1476,
+   "key": "shared/landing.ts"
+  },
+  {
+   "line": 1653,
+   "key": "sortable/layout-animation.ts"
+  },
+  {
+   "line": 1750,
+   "key": "sortable/domain.ts"
+  },
+  {
+   "line": 1766,
+   "key": "sortable/linear-shift.ts"
+  },
+  {
+   "line": 1841,
+   "key": "sortable/y.ts"
+  },
+  {
+   "line": 1878,
+   "key": "sortable/collection.ts"
+  },
+  {
+   "line": 1943,
+   "key": "sortable/placement.ts"
+  },
+  {
+   "line": 1979,
+   "key": "sortable/operation.ts"
+  },
+  {
+   "line": 2126,
+   "key": "sortable/behavior.ts"
+  },
+  {
+   "line": 2244,
+   "key": "sortable.ts"
+  },
+  {
+   "line": 2268,
+   "key": "bench/lab.ts"
+  }
+ ],
+ "chrome": "157.0.8103.38",
+ "categories": [
+  "-*",
+  "devtools.timeline",
+  "disabled-by-default-devtools.timeline",
+  "disabled-by-default-devtools.timeline.frame",
+  "disabled-by-default-devtools.timeline.stack",
+  "disabled-by-default-devtools.target-rundown",
+  "disabled-by-default-devtools.v8-source-rundown",
+  "disabled-by-default-devtools.v8-source-rundown-sources",
+  "disabled-by-default-v8.cpu_profiler",
+  "disabled-by-default-v8.cpu_profiler.hires",
+  "v8.execute",
+  "v8",
+  "cppgc",
+  "blink.user_timing",
+  "blink.console",
+  "latencyInfo",
+  "toplevel"
+ ],
+ "traces": [
+  {
+   "file": "moves-20-cold.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": false,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.8,
+     1.9,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:20.121Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.98,
+     1.94,
+     1.96
+    ],
+    "at": "2026-11-11T12:17:22.857Z"
+   }
+  },
+  {
+   "file": "moves-20-warm1.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.14,
+     1.97,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:25.432Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.14,
+     1.97,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:28.106Z"
+   }
+  },
+  {
+   "file": "moves-20-warm2.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.05,
+     1.96,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:30.656Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.05,
+     1.96,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:33.272Z"
+   }
+  },
+  {
+   "file": "moves-20-warm3.json.gz",
+   "scenario": "reordering moves, 20 items",
+   "row": "300 moves, one frame each, 20 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.13,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:35.782Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.13,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:38.406Z"
+   }
+  },
+  {
+   "file": "moves-2000-cold.json.gz",
+   "scenario": "reordering moves, 2000 items",
+   "row": "300 moves, one frame each, 2000 items",
+   "warm": false,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.13,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:38.650Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.12,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:41.458Z"
+   }
+  },
+  {
+   "file": "moves-2000-warm1.json.gz",
+   "scenario": "reordering moves, 2000 items",
+   "row": "300 moves, one frame each, 2000 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.12,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:44.115Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.11,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:46.889Z"
+   }
+  },
+  {
+   "file": "moves-2000-warm2.json.gz",
+   "scenario": "reordering moves, 2000 items",
+   "row": "300 moves, one frame each, 2000 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.11,
+     1.98,
+     1.97
+    ],
+    "at": "2026-11-11T12:17:49.451Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.94,
+     1.94,
+     1.96
+    ],
+    "at": "2026-11-11T12:17:52.181Z"
+   }
+  },
+  {
+   "file": "moves-2000-warm3.json.gz",
+   "scenario": "reordering moves, 2000 items",
+   "row": "300 moves, one frame each, 2000 items",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 1,
+   "orderChanged": true,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.94,
+     1.94,
+     1.96
+    ],
+    "at": "2026-11-11T12:17:54.736Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:57.582Z"
+   }
+  },
+  {
+   "file": "presses-2000-children-cold.json.gz",
+   "scenario": "press and release, 2000 items, [...root.children]",
+   "row": "press and release below the threshold, 2000 items, [...root.children]",
+   "warm": false,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:58.000Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:58.203Z"
+   }
+  },
+  {
+   "file": "presses-2000-children-warm1.json.gz",
+   "scenario": "press and release, 2000 items, [...root.children]",
+   "row": "press and release below the threshold, 2000 items, [...root.children]",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:58.599Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:58.803Z"
+   }
+  },
+  {
+   "file": "presses-2000-children-warm2.json.gz",
+   "scenario": "press and release, 2000 items, [...root.children]",
+   "row": "press and release below the threshold, 2000 items, [...root.children]",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:59.233Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:59.462Z"
+   }
+  },
+  {
+   "file": "presses-2000-children-warm3.json.gz",
+   "scenario": "press and release, 2000 items, [...root.children]",
+   "row": "press and release below the threshold, 2000 items, [...root.children]",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:17:59.901Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     1.78,
+     1.91,
+     1.95
+    ],
+    "at": "2026-11-11T12:18:00.158Z"
+   }
+  },
+  {
+   "file": "presses-2000-cached-cold.json.gz",
+   "scenario": "press and release, 2000 items, cached array",
+   "row": "press and release below the threshold, 2000 items, cached array",
+   "warm": false,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:00.570Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:00.891Z"
+   }
+  },
+  {
+   "file": "presses-2000-cached-warm1.json.gz",
+   "scenario": "press and release, 2000 items, cached array",
+   "row": "press and release below the threshold, 2000 items, cached array",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:01.418Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:01.665Z"
+   }
+  },
+  {
+   "file": "presses-2000-cached-warm2.json.gz",
+   "scenario": "press and release, 2000 items, cached array",
+   "row": "press and release below the threshold, 2000 items, cached array",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:02.117Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:02.316Z"
+   }
+  },
+  {
+   "file": "presses-2000-cached-warm3.json.gz",
+   "scenario": "press and release, 2000 items, cached array",
+   "row": "press and release below the threshold, 2000 items, cached array",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:02.717Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:02.899Z"
+   }
+  },
+  {
+   "file": "presses-20-cached-cold.json.gz",
+   "scenario": "press and release, 20 items, cached array",
+   "row": "press and release below the threshold, 20 items, cached array",
+   "warm": false,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:03.165Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:03.349Z"
+   }
+  },
+  {
+   "file": "presses-20-cached-warm1.json.gz",
+   "scenario": "press and release, 20 items, cached array",
+   "row": "press and release below the threshold, 20 items, cached array",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:03.697Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:03.921Z"
+   }
+  },
+  {
+   "file": "presses-20-cached-warm2.json.gz",
+   "scenario": "press and release, 20 items, cached array",
+   "row": "press and release below the threshold, 20 items, cached array",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:04.316Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:04.642Z"
+   }
+  },
+  {
+   "file": "presses-20-cached-warm3.json.gz",
+   "scenario": "press and release, 20 items, cached array",
+   "row": "press and release below the threshold, 20 items, cached array",
+   "warm": true,
+   "labScript": "14",
+   "logAdded": 0,
+   "orderChanged": false,
+   "failures": [],
+   "before": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:05.117Z"
+   },
+   "after": {
+    "node": "v26.13.0",
+    "cpus": 12,
+    "model": "12th Gen Intel(R) Core(TM) i7-1255U",
+    "coreSets": {
+     "cpu_core": "0-3",
+     "cpu_atom": "4-11"
+    },
+    "load": [
+     2.28,
+     2.01,
+     1.98
+    ],
+    "at": "2026-11-11T12:18:05.331Z"
+   }
+  }
+ ]
+}

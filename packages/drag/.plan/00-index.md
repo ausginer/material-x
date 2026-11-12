@@ -12,7 +12,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`. `DRF-3` was repaired at `d7828a280`. `DRD-30` was implemented at `da139407e` and `3a67df0ea` and reported at `d99ebd304`. The architect read both at `d99ebd304`, in [`activation-result-assessment.md`](activation-result-assessment.md). `DRD-30` conforms, and is amended so that `freeDrag`'s motion belongs to its operation. `DRF-3` is closed, and `DRF-4` is open. That record's §6 is the remediation before the combined review. The owner then directed that `sortable` stop copying the `items()` array, decided as `DRD-31` from [`items-copy-assessment.md`](items-copy-assessment.md). [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner approved the gate's revision in [`execution-boundary-assessment.md`](execution-boundary-assessment.md), decided as `DRD-32` with its cost in `DRO-9`. It was implemented from `8943f14e5` at `a8327a7c8`, inside `DRO-9`'s figures, and [`execution-boundary-report.md`](execution-boundary-report.md) reports it. The owner inspects it before any review. On 2026-11-09 the owner accepted closed, named capability slots for v1 from [`feature-composition-assessment.md`](feature-composition-assessment.md), decided as `DRD-33`, which amends `DRD-2`. The slot's charge is `DRO-10`, an accepted drop's landing into its target is `DRO-11`, and the `bounds` defect found there is `DRF-5`. [`feature-composition-handoff.md`](feature-composition-handoff.md) implements them. On the same day the owner withdrew the detached-call guarantee for `DraggableController` and let `draggable` return its `Gesture`, with one shared pass implementation. That is decided as `DRD-34` from the owner's uncommitted edit on `39af0ef44`, and [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md) completes the edit. It was implemented at `fd7ae3e43` and reported at `03d1449e2`. The architect read both at `03d1449e2`, in [`gesture-receiver-assessment.md`](gesture-receiver-assessment.md): `DRD-34` conforms, and no cost is accepted. The owner inspects it before any review. Later that day the owner chose receiver-aware `requestStep` and `use` through one internal `CallbackList`, from the model at `9f885b9a9` on `drag/step-queue-model` and the owner's uncommitted edit on it. That is decided as `DRD-35`, which amends `DRD-34`, with its costs in `DRO-12`. [`callback-list-handoff.md`](callback-list-handoff.md) ports it to production. No combined review starts before the owner has read its report. It was implemented at `53c87f988` and reported at `f06a99c4f`, and the architect read the report at `2bec0c431` (§Disposition of the callback list report). The owner then chose the uncommitted `CallbackList` edit on `2bec0c431`, which inserts with `push` or `unshift` and runs with `pop`, decided as `DRD-36`. The owner also turned `@typescript-eslint/unbound-method` off for this package, decided as `DRD-37`, and clarified CONTRIBUTING so that `Drag` and `Lift` are types, decided as `DRD-38`. `DRO-12` is amended for `DRD-36`, and `DRO-13` asks about the other declarations. [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md) implements the three decisions. No combined review starts before the owner has read its report. They were implemented at `50ed18a17` and reported at `36dbd55db`. On 2026-11-10 the owner accepted `DRO-12` and deferred `DRO-13`, and the architect read the report in [`callback-list-completion-assessment.md`](callback-list-completion-assessment.md): the three decisions conform. That record's §6 gives the revision, the scope and the open obligations for the combined review, which the owner directs next. The [combined review](reviews/combined-ownership/combined-ownership-summary.md) read `b01a0283d` and registered `DRF-6` to `DRF-18`. The owner had accepted `DRO-7` and `DRO-8` before it. The architect read it at `92fbb93e1`, after the owner's type-only `Fallible` commit, in [`combined-review-assessment.md`](combined-review-assessment.md) (§Disposition of the combined review). `DRF-4`, `DRF-5` and `DRF-11` are closed, `DRD-39` decides `DRF-10`, and [`combined-review-remediation-handoff.md`](combined-review-remediation-handoff.md) is the last unit before merge. That record's §7 lists the owner's remaining decisions. The remediation was implemented from `d1a262306` to `83f472624` and reported at `f2ac81bc5`, and a feature proof read it at `26919a938`. The architect read both at `26919a938`, in [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) (§Disposition of the combined review remediation). `DRF-6`, `DRF-8`, `DRF-9`, `DRF-10`, `DRF-12` and `DRF-16` are closed, and `DRD-39` is implemented. The proof's two title findings are `DRF-19`, owed before merge, and [`test-title-follow-up-handoff.md`](test-title-follow-up-handoff.md) repairs it. That record's §5 replaces the earlier §7 as the list of merge conditions and owner decisions.
 
-**Status, 2026-11-10, after the merge:** the architect read the [test title follow-up report](test-title-follow-up-report.md) at `377264b3d` and the diff of `60680eb75`, and closed `DRF-19` (§Disposition of the test title follow-up). `drag/feature-composition` was squash-merged to `main` as `a9c323f6a` (#14). The six size rows stay red with unchanged budgets, as the pull request states. The record holds no answer to decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2. On the same day the owner opened the runtime-performance phase on `drag/performance` from `a9c323f6a`: runtime speed first, bundle size second. `DRD-40` decides how it measures, [`performance-plan.md`](performance-plan.md) is its plan, and [`performance-instrument-handoff.md`](performance-instrument-handoff.md) is its first unit. That unit repairs `DRF-1` and `DRF-7`. It returned at `b8f1d1b35` after items 1 and 2: the step-list injection adds no bytes at the current source. `DRD-41` decides the return, and the [handoff](performance-instrument-handoff.md) says how the unit resumes (§Disposition of the performance instrument return). The unit completed at `c279973a3`, and the architect read it on 2026-11-11 in [`performance-instrument-assessment.md`](performance-instrument-assessment.md) (§Disposition of the performance instrument report). `DRF-1` is closed, and the baseline of `a9c323f6a` is recorded. `DRD-42` repairs the kernel per-sample test with a warm pass. `DRD-43` finds that no timing row can resolve an optimization yet and adds in-page rows. [`performance-resolution-handoff.md`](performance-resolution-handoff.md) implements both, and no optimization unit starts before it reports. The baseline's reading for the owner is in `DRO-4`.
+**Status, 2026-11-10, after the merge:** the architect read the [test title follow-up report](test-title-follow-up-report.md) at `377264b3d` and the diff of `60680eb75`, and closed `DRF-19` (§Disposition of the test title follow-up). `drag/feature-composition` was squash-merged to `main` as `a9c323f6a` (#14). The six size rows stay red with unchanged budgets, as the pull request states. The record holds no answer to decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2. On the same day the owner opened the runtime-performance phase on `drag/performance` from `a9c323f6a`: runtime speed first, bundle size second. `DRD-40` decides how it measures, [`performance-plan.md`](performance-plan.md) is its plan, and [`performance-instrument-handoff.md`](performance-instrument-handoff.md) is its first unit. That unit repairs `DRF-1` and `DRF-7`. It returned at `b8f1d1b35` after items 1 and 2: the step-list injection adds no bytes at the current source. `DRD-41` decides the return, and the [handoff](performance-instrument-handoff.md) says how the unit resumes (§Disposition of the performance instrument return). The unit completed at `c279973a3`, and the architect read it on 2026-11-11 in [`performance-instrument-assessment.md`](performance-instrument-assessment.md) (§Disposition of the performance instrument report). `DRF-1` is closed, and the baseline of `a9c323f6a` is recorded. `DRD-42` repairs the kernel per-sample test with a warm pass. `DRD-43` finds that no timing row can resolve an optimization yet and adds in-page rows. [`performance-resolution-handoff.md`](performance-resolution-handoff.md) implements both, and no optimization unit starts before it reports. The baseline's reading for the owner is in `DRO-4`. The unit reported at `39c8b432c` on `drag/performance-resolution`, and the architect read it on 2026-11-11 in [`performance-resolution-assessment.md`](performance-resolution-assessment.md) (§Disposition of the performance resolution report). `DRD-42` conforms. The in-page rows run, and their gate injections don't flag, at a load above the machine's four P-core threads. `DRD-44` attributes that to the machine or the method with one experiment, which [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md) runs. The retained excess is attributed to V8's internal arrays and bounded within 400 operations, and its reading for the owner is in `DRO-4`. The experiment ran at `24cdadc48`, and the architect read it on 2026-11-11 in [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md) (§Disposition of the performance sensitivity report). Its outcome is not resolved on both gate rows: the speed gauge measures its own first run rather than the machine, and unpinned readings always span both core classes. At the quietest load on record the gates' bounds are still too wide for an optimization unit, so the method changes in any outcome. `DRD-45` withdraws the gauge test, and one same-page check, which [`performance-page-check-handoff.md`](performance-page-check-handoff.md) runs, decides whether the spread comes from the page, the window or the clock. The alias cleanup at `566ebfc65` on `drag/performance` makes 10 of the 23 entries stale, and they are repaired before any campaign on that source. The page check returned at `f344a0ea8` before any browser process: the cycle row's end check counts the page's whole log. The owner then stopped the check. `DRD-46` keeps it for possible later use and redirects the phase to short scenario traces, which [`performance-trace-handoff.md`](performance-trace-handoff.md) records (§Disposition of the page check return). An optimization unit starts on one candidate the architect selects from those traces, and a focused paired measurement confirms it. The traces were recorded at `e92e21eed`, and the architect read them on 2026-11-11 in [`performance-trace-assessment.md`](performance-trace-assessment.md) (§Disposition of the performance trace report). `DRD-47` selects the drop's re-measure in a changed form: the unconditional call protects a scroll whose event hasn't arrived yet, so the drop confirms the cache against one row instead. [`performance-drop-handoff.md`](performance-drop-handoff.md) implements it, once the owner brings `566ebfc65`'s source and this record onto one branch. The bundle's missing module markers are `DRF-21`, and they change no recorded verdict.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -1136,6 +1136,11 @@ Decided on 2026-11-10 by the architect, on the owner's request to open the runti
 
 **What this amends:** `DRO-4`'s timing deferral ends, because the owner asked for timing. `DRD-23`'s instrument rule is unchanged and applies to every instrument change in the phase.
 
+**Amended on 2026-11-11 by `DRD-46`:**
+
+- Property 2's last sentence applies to a row that has a measured floor. A candidate under `DRD-46` is confirmed by a verdict of "faster" beyond the A/A bound, with no floor.
+- Property 5 no longer comes before an optimization unit. A floor is measured when a reading needs one: for an instrument change, or when the architect has to read a "no difference shown" on a selected candidate.
+
 #### DRD-41 — The step-list injection shows that the bytes rule doesn't flag kernel work that allocates nothing
 
 **`compare.ts`'s injection "one entry on the step list per frame" keeps its name, patch and scenario, and is expected not to flag. It is the bytes rule's specificity witness: kernel code that runs on every frame and allocates no object stays under the rule. The rule's sensitivity is shown by "1 KB allocated per move" and by `DRF-1`'s array of four numbers in `Gesture.enter`, which every sample and every frame reach.**
@@ -1229,6 +1234,239 @@ Decided on 2026-11-11 by the architect, on [`performance-instrument-report.md`](
 - **Repeating B1 and B2.** The CDP rows are unchanged, so B1 and B2 remain their baseline.
 
 **What this amends:** [`performance-plan.md`](performance-plan.md) §2: it decides P2's second bullet, adds P1b and sets P3's entry condition. `DRD-40` property 5 applies to the new rows, and `DRD-23`'s last bullet to the instrument change.
+
+**Amended on 2026-11-11 by `DRD-46`:** property 8 is superseded. An optimization unit starts on a candidate the architect selects from a trace report, and no row has to meet property 7 first. Properties 1 to 6 still define the in-page rows, and property 7 still says when a row's floor is fine for an effect of a given size.
+
+#### DRD-44 — One experiment separates the machine from the method before the in-page rows' resolution changes
+
+**The in-page gates' failure is attributed by one experiment before anything else changes. The experiment runs the two in-page gate injections and the CDP 20-item move row's A/A, unchanged, in four processes: unpinned, pinned to the E-cores, unpinned, pinned. Each reading records its main thread's run-queue wait, the core class it ran on, and a speed gauge. The outcome table below, fixed before the run, decides what changes next. Until then, F1, F2, `--prove` and B3' aren't repeated, and `judge`, the rounds, events per reading, every row, every injection and the launch are unchanged.**
+
+Decided on 2026-11-11 by the architect, on [`performance-resolution-report.md`](performance-resolution-report.md) at `39c8b432c` ([assessment](performance-resolution-assessment.md) §4).
+
+**Why:**
+
+- **The recorded noise moved with the machine.** The CDP move row at 20 items had script A/A bounds of 20 to 36 µs per move in every run at a one-minute load of 3.8 or less. In this campaign's `--prove`, at 5.6 to 8.3, it was 143 µs. The in-page rows in the same pass were no noisier than their mirrors, at 0.63 to 0.93 of their median against 0.51 to 0.81. In round 6 every arm of 13 of the 15 timing rows read above 1.1 times its row's base median, and in rounds 1 to 5 no row did.
+- **The machine has 4 fast threads.** It is an i7-1255U: CPUs 0 to 3 are P-core threads at 4.7 GHz, and CPUs 4 to 11 are E-cores at 3.5 GHz. Every earlier timing run had a load below 4, and this campaign had 4.0 to 9.5. So a reading can run partly on a slower core, or wait for one, by an amount that changes with the load. This is inferred, not observed.
+- **The record can't separate that from the method.** The gates' bounds come from differences between pages a few seconds apart, not from the disturbed round. A reading has no time stamp and no record of where it ran. A new page per arm and `judge`'s largest-difference bound could give the same spread on a quiet machine.
+- **Each outcome leads to a different change.** A machine limit is removed by a launch condition, and the instrument stays. A method limit needs the remedies `DRD-43` deferred. Choosing either without the attribution would change the instrument on a guess.
+
+**Required properties:**
+
+1. **A probe, not an instrument change.** It is a scratch copy of `bench/compare.ts` at this decision's base, with its main block replaced and a recorder added, as the scale probe was. It uses the unchanged scenarios, `judge`, `openPage`, and the injections "30 µs of script per move, in the page" and "300 µs of script per cycle, in the page". Its source is saved under `measurements/` as text. No tracked file under `bench/`, `src/` or `tests/` changes.
+2. **Rows and arms.** Per process, as `--prove` runs them, at 7 rounds each: the 30 µs gate on "in the page: 300 moves, one frame each, 20 items", the 300 µs gate on "in the page: 50 activate-and-drop cycles, 20 items, no landing", each with arms injected, base and injected control, and then the A/A of "300 moves, one frame each, 20 items" with three production arms. Verdicts come from the unchanged `judge` against `base`.
+3. **The recorder.** For each reading it records the wall-clock start and end of the window, and the main thread of the renderer process that hosts the page. For that thread it records on-CPU time and run-queue wait over the window, from `schedstat`, and the CPU it last ran on, sampled every 20 ms. When several renderers exist, the page's renderer is the one whose main thread has the most on-CPU time in the window. The recorder also takes the system's CPU pressure, the `some` total of `/proc/pressure/cpu`, over the window, and the one-minute load at its start. It reads `/proc` from Node only, and adds no CDP command and no page evaluation inside the window.
+4. **The speed gauge.** Fixed work of the floor entries' loop body, 20 ms nominal at `ITERATIONS_PER_US`, run by its own page evaluation just before and just after the window, outside it. Its duration is measured in the page.
+5. **Conditions, in this order, as four steps of one campaign:** U1, E1, U2, E2. U starts the probe as every run so far, and E starts the whole probe, and so Chrome, under `taskset -c 4-11`. The core sets are checked first from `/sys/devices/cpu_core/cpus` and `/sys/devices/cpu_atom/cpus`. No synthetic load is added.
+6. **No heavy check from the owner's sessions overlaps a process.** That covers builds, size runs, typechecks and test suites. The unit asks those sessions to hold before the first browser process and releases them after the last one, and records both times. Other load is recorded, not controlled.
+7. **Settled, fixed before running.** A reading is settled when three things hold: its main thread's run-queue wait is at most 5 % of its on-CPU time plus wait, at least 90 % of its placement samples are in one core class, and both gauges are within 10 % of the process's median gauge. A round of a row is settled when every arm's reading in it is settled. These thresholds are below the gates' size: 30 µs is 25 % of the move row's 119 µs, and 300 µs is 19 % of the cycle row's 1,582 µs.
+8. **The outcome, read per gate row, by the architect.**
+
+   | Outcome | Condition | What follows |
+   | --- | --- | --- |
+   | **Machine** | The gate flags in every process where its row has at least 6 settled rounds, and at least one such process exists. In every process where it fails, its row has at least 2 unsettled rounds | A decision on the launch and admission condition for timing runs: the core set, and a settled-round or quiet-window rule. Then F1, F2, `--prove` and B3' under that condition. The reason readings were unsettled decides the condition. If it was placement, the condition is pinning. If it was run-queue wait in both conditions, it is admission |
+   | **Method** | The gate fails in a process where its row has at least 6 settled rounds | The decision `DRD-43` deferred, on events per reading or `judge`'s bound, from that process's readings |
+   | **Not resolved** | No process has 6 settled rounds on the row | Nothing changes. The experiment runs once more in a window the owner provides |
+
+   The CDP row's bound ÷ median in each process is reported beside the table. A settled process whose CDP row reads above B1 to B3's 0.12 to 0.21 is quieter by the recorder than by its readings, and that is reported as a limit of the recorder.
+
+9. **What it doesn't decide.** It measures no floor, and `DRD-43` property 7 is unchanged. The probe's readings aren't a baseline.
+
+**Rejected:**
+
+- **Repeat F1, F2 and `--prove` at a lower load.** The load isn't under control, and a pass or a fail would not show the mechanism or the launch condition that keeps it out.
+- **Change `judge`'s bound or events per reading now.** That would change the method before the readings show that the method is the limit. `DRD-43` deferred both for this reason.
+- **Pin every timing run to a core set now.** Placement is inferred from the load and the topology, and nothing has shown it.
+- **Add a synthetic load.** It slows the other sessions on a shared machine, and the ambient load already varies. The recorder measures it in each reading.
+- **A warm pass inside the page now.** It is a method change. If the method outcome follows, it is a candidate there.
+- **Pin to the P-core threads.** With a load above 4 they are the most contended CPUs, and two pairs of them share a core.
+
+**What this amends:** `DRD-43`: B3' and the in-page floors wait for this outcome. [`performance-plan.md`](performance-plan.md) §2 P1b gets a fifth step. `DRD-40` property 4: from this decision on, every browser run's machine record also names the CPU model and its core sets. `DRD-23`'s last bullet doesn't apply, because no instrument changes.
+
+**Amended on 2026-11-11 by `DRD-45`:**
+
+- Property 4's gauge and property 7's third test no longer decide whether a reading is settled. The settled flags in the experiment's files stay as recorded.
+- Property 8's "not resolved" row no longer leads to a rerun. `DRD-45`'s check replaces it.
+
+#### DRD-45 — The gauge is withdrawn, and one same-page check splits the page, the window and the clock
+
+**`DRD-44`'s outcome is final as not resolved, on both in-page gate rows. Its gauge test is withdrawn, because the gauge measures its own first run and the page's state, not the machine. Its rerun is withdrawn, because an unchanged rerun can't settle a round. One unpinned process measures each in-page gate row in four windows per page across ten pages, and records the clock of the CPU the page's thread runs on. The outcome table below, fixed before the run, reads each row as page, clock or window. F1, F2, `--prove` and B3' still aren't repeated.**
+
+Decided on 2026-11-11 by the architect, on [`performance-sensitivity-report.md`](performance-sensitivity-report.md) at `24cdadc48` ([assessment](performance-sensitivity-assessment.md) §3 and §4).
+
+**Why:**
+
+- **The gauge's first run is slower in every reading, and the machine doesn't explain it.** In each process, the lowest gauge before a window is 20 to 24 % above the lowest after it. Not one of 252 gauges before a window came within 5 % of its process's lowest after. The gauge before is the first run of its function in a fresh renderer, so it carries either its own warm-up or the fresh page's state.
+- **It doesn't read the machine at a reading's scale.** Pearson r between a reading's two gauges is +0.03 to +0.26. The gauge's median changes with the row that ran before it, and its correlation with the reading's script is −0.42 to +0.28, with no consistent sign. The one machine property it shows is the core class, and placement records that already.
+- **An unchanged rerun can't settle.** Every one of 126 unpinned readings ran under 90 % on one class, at loads of 1.0 to 4.0. The gauge test failed in 16 to 20 of 21 readings per row and process, pinned or not.
+- **The pinned readings can't be read now as the method outcome.** With the gauge test dropped, each gate fails in one fully settled pinned process. But the test was there to rule out the clock, which varies on this machine, and a test changed after the verdicts are known would move a rule with a reading (`DRD-40`).
+- **The method changes in any outcome.** At loads of 1.0 to 4.0, the gates' bounds were 0.29 to 0.38 and 0.14 to 0.39 of the base median. `DRD-43` property 8 needs a floor of at most 10 % of the library's share. What is still open is which part of the method makes the spread, and whether the clock needs an admission condition besides.
+- **Same-page windows separate the page from the machine.** Windows two runs apart are about the same time apart whether they share a page or not, so the machine adds to both alike, and only the page differs.
+
+**Required properties:**
+
+1. **The gauge test is withdrawn.** `DRD-44` property 4's gauge and property 7's third test no longer decide whether a reading is settled, in any process recorded or to come. The gauge stays in this check as a record only (property 8).
+2. **`DRD-44`'s outcome is final**, as not resolved, for "30 µs of script per move, in the page" and "300 µs of script per cycle, in the page". Its rerun is replaced by this check.
+3. **A probe, not an instrument change.** A scratch copy of the sensitivity probe at `24cdadc48`, with its recorder and gauge as they ran there and its main block replaced. It uses the unchanged scenarios and `openPage`'s page set-up. It has no injection and no `judge`. Its source is saved under `measurements/` as text. No tracked file under `bench/`, `src/` or `tests/` changes.
+4. **Pages and windows.** One process, unpinned, as every run before `DRD-44`.
+   - The rows are "in the page: 300 moves, one frame each, 20 items" and then "in the page: 50 activate-and-drop cycles, 20 items, no landing", both on the production arm.
+   - Each row runs on 10 pages in sequence. Each page is set up as `openPage` sets up an arm.
+   - In each page, the row's unchanged `run` runs 4 times, with only `lab.destroy()` between runs. Each run's window is one reading, s(p, k), the script per event of window k in page p.
+   - Each window's layout count equals the row's: 83 per window for moves and 250 for cycles. Any other count returns the unit.
+5. **The record.**
+   - **Each window:** `DRD-44` property 3's record.
+   - **The clock:** at each 20 ms placement sample, the recorder reads `cpuinfo_avg_freq` of the CPU the main thread last ran on, from Node. The window's clock is the mean of those reads. A failed read is recorded as missing. A window with fewer than half its reads present returns the unit.
+   - **The gauge:** two runs back to back after the page's set-up and before the first `run`, g1 and g2. Each window keeps the sensitivity probe's gauges, b_k before it and a_k after it. Each gauge has its own clock reads, and every gauge runs outside a window.
+6. **Machine state.** The hold of `DRD-44` property 6, and the machine record of its amendment to `DRD-40` property 4. The record at the head and the foot also gives each CPU's `scaling_governor` and `energy_performance_preference`.
+7. **The outcome, per row, fixed before the run.**
+   - **W** is the median over the 10 pages of |s(p, 4) − s(p, 2)|.
+   - **B** is the median over the 9 adjacent pairs of |s(p + 1, 2) − s(p, 4)|.
+   - **ρ** is Spearman's coefficient between s and the window's clock, over the row's 40 windows.
+
+   W and B both compare warm windows two runs apart. Window 1 of each page carries its own warm-up, so neither uses it.
+
+   | Outcome | Condition | What follows |
+   | --- | --- | --- |
+   | **Page** | B ≥ 2 W | The method: the new page per reading. The decision `DRD-43` deferred, extended to the page. Candidates include warm windows in one page, the remedy `DRD-44` rejected "now" |
+   | **Clock** | B < 2 W and ρ ≤ −0.5 | The machine: an admission condition on the clock record, then F1, F2, `--prove` and B3' under it, and the method decision after them |
+   | **Window** | B < 2 W and ρ > −0.5 | The method, inside the window: the decision `DRD-43` deferred, on events per reading or `judge`'s bound |
+
+   ρ ≤ −0.5 means script falls as the clock rises. A busier window can also raise its own clock, which gives a positive ρ, and that doesn't count as the clock outcome.
+
+   Reported beside the table, per row:
+   - W and B ÷ the row's median;
+   - each page's s(p, 1) ÷ the median of its windows 2 to 4;
+   - the median spacing in seconds of the pairs in W and in B;
+   - each window's share of samples on CPUs 0 to 3.
+
+8. **The gauge decides nothing here.** If g1 exceeds g2 in at least 18 of the 20 pages, `DRD-44`'s difference between before and after was the gauge's own warm-up. Otherwise it was the fresh page's state. The report gives that count, the medians of g1 − g2, b1 − g2 and a1 − b1, and Spearman's ρ between each gauge and its clock. No reading's status depends on them.
+9. **The injection repair for `566ebfc65`.** At `566ebfc65` on `drag/performance`, `MOVE_SITE` no longer occurs, and 10 of the 23 applied entries are stale. Before any campaign on that source or a descendant, a unit repairs them:
+   - each stale find text occurs exactly once, in `move()`, before its `#lift.translate` call;
+   - `--prove --dry` applies 9 entries and `--floors --dry` applies 14, with no browser;
+   - no other entry, rule, scenario, count or wait changes.
+
+   This check doesn't wait for the repair: it runs on this branch's `src`, which is `a9c323f6a`'s, and has no injection.
+
+10. **What it doesn't decide.** It measures no floor, and its readings aren't a baseline. `DRD-43` properties 7 and 8 are unchanged. After each outcome, the architect chooses the remedy from the check's readings.
+
+**Rejected:**
+
+- **Rerun `DRD-44` unchanged.** Unpinned readings fail placement every time, and the gauge test fails on the gauge.
+- **Read E1 and E2 as the method outcome with the gauge test dropped.** The test would be chosen after the verdicts, and nothing would then rule out the clock.
+- **Warm the gauge and rerun `DRD-44`.** A 20 ms arithmetic loop outside the window still can't see the clock during the window's short bursts of work, or contention for cache and memory. The clock is read inside the window instead.
+- **A gauge-only check.** It would confirm the assessment's §4.1, and leave the machine-or-method question open.
+- **Pin the check to the E-cores.** `taskset` put all of Chrome on 8 cores and widened the spread on every row. The instrument runs unpinned.
+- **Add more events per reading now.** That is a remedy, and the window outcome leads to it.
+
+**What this amends:**
+
+- **`DRD-44`:** properties 4, 7 and 8, as its amendment note states.
+- **The plan:** [`performance-plan.md`](performance-plan.md) §2 P1b gets a sixth step.
+- **`DRD-43`:** B3' and the in-page floors wait for this outcome.
+- **`DRD-23`'s last bullet** doesn't apply, because no instrument changes. The repair in property 9 restores where entries apply, and its dry checks show that.
+
+**Stopped on 2026-11-11 by `DRD-46`,** on the owner's direction, before any browser process: properties 3 to 8, the check. They are kept as written, with the handoff and its return, and resume only on the owner's direction. Properties 1, 2 and 9 stay in force.
+
+#### DRD-46 — Short scenario traces choose the optimization candidates, and a focused paired measurement confirms the one selected
+
+**`DRD-45`'s check is stopped before it ran, and kept for possible later use. The phase now records short, inspectable Chrome traces of named scenarios, with each scenario's set-up outside the traced interaction, and names optimization candidates from them. The first scenarios are `sortable` moves that reorder, at 20 and 2,000 items, and the press and release below the threshold at 2,000 items. The trace unit changes no production source. An optimization unit starts on one candidate that the architect selects from the trace report, and a focused paired measurement of the scenario it targets confirms it. No row has to meet `DRD-43` property 7 first.**
+
+Decided on 2026-11-11 by the architect, on the owner's direction to stop the page check and redirect the performance work to short scenario traces. [`performance-trace-handoff.md`](performance-trace-handoff.md) applies it.
+
+**Why:**
+
+- **The owner's direction.** The owner stopped `DRD-45`'s check, asked for short scenario traces starting with reordering moves and the 2,000-item press, and asked that a selected candidate be confirmed later by a focused paired measurement, not after the timing rows are shown to be sensitive in general.
+- **General sensitivity hasn't converged, and one optimization doesn't need it.** P1, P1b and `DRD-44` gave no row the floor that `DRD-43` property 7 asks for. At the quietest load on record the in-page gates' bounds were 0.14 to 0.39 of the base median ([assessment](performance-sensitivity-assessment.md)). A candidate chosen from a trace comes with a scenario and an expected saving, so its measurement only has to see that one effect.
+- **The existing attribution can't choose a candidate.** `compare.ts --profile` profiles a whole run, set-up included, and reports self time by function name only. It can't show which event, task or frame the time falls in, which layout a script forces, or how the consumer's and the harness's code compare with the library's. A trace shows all of these, and the owner can open it.
+- **Both first scenarios are known costs.** The move rows' positions cross a row boundary about every 7 moves, so reorders are the move path's heaviest events. The press at 2,000 items with `[...root.children]` is the one timing row slower than drag2 in both B1 and B2, by 385 and 472 µs per press. That is `DRO-1`'s pull at a press. The cached-array row at 2,000 items separates the consumer's copy from the library's own work.
+
+**Required properties:**
+
+1. **The check is stopped and kept.** `DRD-45` properties 3 to 8 aren't run. [`performance-page-check-handoff.md`](performance-page-check-handoff.md) and its return stay as written. If the owner resumes the check, the architect first decides the return's blocker, the cycle row's end check, and states the base the check then runs on. `DRD-45` properties 1, 2 and 9 stay in force: property 9's repair comes before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant. A trace and a `--before` comparison apply no injection, so they don't wait for it.
+2. **A trace attributes, and measures no difference.** Nothing in a trace report is a verdict, and no threshold, rule, scenario, row, injection or budget changes on one. Trace files that a report cites are kept as `DRD-40` property 4 keeps raw readings, with the machine record of `DRD-44`'s amendment. No hold is required.
+3. **The traced code is the measured code.** The trace builds the production arm as `compare.ts` builds it: this branch's `bench/lab.ts`, `__DEV__` false, unminified, from `packages/drag/src` at a named revision. The first unit traces `566ebfc65`, the source after the alias cleanup, which the move path's modules changed. No existing row, injection, floor entry, lab file or mode of `compare.ts` changes.
+4. **Set-up is outside the trace.** Tracing starts after the page is set up, the composition is mounted, any untraced warm pass has run and the page is idle. User-timing marks divide the traced interaction into its phases, and each input event can be found in the trace.
+5. **The first scenarios.** Each is a short form of an existing `compare.ts` row, with that row's mount options, positions and waits, driven by CDP input as that row is:
+   - **Reordering moves, 20 and 2,000 items:** the press and crossing, the move row's positions for i = 0 to 60 with one frame each, the release and the landing.
+   - **Press and release below the threshold, 2,000 items:** with `[...root.children]` and with the cached array, and the cached array at 20 items as the reference.
+
+   Each scenario has warm traces after one untraced pass of its interaction in the same page, and one cold trace of the page's first interaction.
+
+6. **Inspectable.** Each trace opens in Chrome DevTools' Performance panel. For the page's main thread it holds the tasks, input dispatch, animation frames, JavaScript samples with stacks that name the bundle's functions and lines, style and layout with the script that forced them, paint, garbage collection and the user-timing marks. The bundle a trace ran is kept with it, so a sample's line resolves to its module.
+7. **A candidate is a site with a cost and a mechanism.** The report names, for each candidate: the function and lines at the traced revision, the scenario and phase, how often it runs, its cost per event in the warm and cold traces, the avoidable work and why behavior doesn't change, the expected saving (marked estimated), the existing row that would confirm it, and every decision, invariant or owner decision it touches. A candidate that moves ownership, a contract invariant, or `DRO-1`'s pull is a decision first (`DRD-40` property 7). A cost the library can't change, the consumer's or the browser's, is reported but isn't a candidate.
+8. **Confirmation is focused and paired.** The architect selects one candidate and records the selection. Its unit makes one bounded change, then runs `compare.ts --before <baseline revision> --only <rows>` in one browser process, with the unchanged `judge`, rounds and A/A control. The rows are the existing rows that the scenario mirrors, CDP and in the page where both exist, and any existing row on another path that the change reaches. The run is under `DRD-44` property 6's hold, with its machine record.
+   - **Confirmed:** the target row's verdict is "faster" in script beyond the A/A bound, or, for a layout candidate, the layout count falls.
+   - **Not confirmed:** "no difference shown" is no result. The architect decides what follows: the change doesn't land as an optimization, or one focused injection of the expected size at the candidate's site shows whether the row could see it, or a longer row is added, which is an instrument change and a decision first.
+   - **Returned:** a "slower" verdict on any row.
+   - The unit also runs the three-engine suite, the per-sample and census tests and the size table, as P3 states.
+9. **What it doesn't change.** `judge`, its rounds, every row, injection and floor entry, and `DRD-40` properties 1, 3, 4, 6 and 7. The in-page rows stay as `DRD-43` properties 1 to 6 define them.
+
+**Rejected:**
+
+- **Resume the page check with a remedy for its return.** The owner stopped it. Its readings would decide a method change for every row, which this decision no longer needs before an optimization.
+- **`compare.ts --profile` as the attribution.** See above. It stays for its own use.
+- **Trace a whole 300-move or 100-press row.** Most of the trace would repeat one event, and the set-up would sit beside the interaction. A short form of the same row keeps the row's positions, so the row can confirm what the trace found.
+- **In-page dispatch for the traces.** The in-page rows skip the browser's input path. A trace should show the input path a consumer gets.
+- **Prototype candidates in this unit.** The owner asked for no production optimization yet. A saving is estimated from the trace and measured in the candidate's own unit.
+
+**What this amends:**
+
+- **`DRD-45`:** properties 3 to 8 are stopped, as its note states.
+- **`DRD-43`:** property 8 is superseded, as its note states.
+- **`DRD-40`:** properties 2 and 5, as its note states.
+- **The plan:** [`performance-plan.md`](performance-plan.md) §2 gets P1c, and P3's entry condition changes.
+- **`DRD-23`'s last bullet** doesn't apply to the trace mode, because it produces no reading and changes no instrument. The handoff's dry checks show that the existing modes are unchanged.
+
+#### DRD-47 — The pointer drop confirms the axis cache against one row instead of measuring every row
+
+**The first optimization unit is candidate 2 of the trace report, in a changed form. The pointer drop's unconditional `axis.invalidate()` protects one supported case: a scroll that moved the rows after the browser's last rendering update, whose `scroll` event hasn't reached the library when the release arrives. So the call isn't deleted. The drop reads one cached row again and measures every row only when that row moved or the cache is already stale. The contract states the sortable drop's geometry rule, and puts a change in the rows' relative geometry with no signal outside it. A focused paired measurement of the 2,000-item cycle rows confirms the change.**
+
+Decided on 2026-11-11 by the architect, on [`performance-trace-report.md`](performance-trace-report.md) at `e92e21eed` ([assessment](performance-trace-assessment.md) §2 and §3), under `DRD-46` property 8. The owner asked for one bounded candidate, with candidate 2's unconditional call treated as a hypothesis to verify.
+
+**Why:**
+
+- **The unconditional call protects exactly one supported path.** A pending frame, a pending step, a dispatched `scroll` or `resize`, and the controller's `invalidate()` each leave the cache either true or marked stale, so the drop would measure without the call ([assessment](performance-trace-assessment.md) §2). A browser dispatches `scroll` in its next rendering update. A scroll made after that update, by a timer, a handler or another frame callback such as a consumer's autoscroll, or by scroll anchoring in that update's layout, reaches the cache one update later. A frame that misses it is corrected at the next frame. The drop has no next frame. `DRI-16` requires scrolling containers, and the library has no autoscroll, so this case is supported.
+- **One row detects it.** A scroll of any ancestor, scroll anchoring and a layout shift above the list move every row by one vector. One cached row, measured again and settled as the cache holds it, shows that.
+- **The other case the call covered isn't a guarantee.** A row that changes size during a drag with no signal is never seen by a frame, because a resolution with nothing stale reads no layout. The user already sees a misplaced placeholder. `invalidate()` already rebases and invalidates the cache.
+- **The saving survives the confirmation.** At 2,000 items the drop's `refresh` is 2,467 [2,097–3,805] \| 3,120 µs sampled, on 16/14/24 \| 20 samples, inside a counted span of 2,742 [2,212–4,158] \| 4,240 µs. The first rect read at the drop forces the pending style and layout in either form, so what leaves is 1,998 reads and the packing loop.
+- **The row can see it.** In B3 the no-landing 2,000-item cycle row read 6,401 µs of script per cycle with an A/A bound of 1,920 µs, and the landed row 6,389 µs with 1,337 µs. The estimated saving, 2.1 to 2.5 ms per cycle, is above both, by a narrow margin.
+- **The sibling rule.** `DRD-33` choice 7 resolves a drop target at the drop "after any invalidation", with no unconditional measure. The drop-target tracker has the same unsignalled-scroll window, which `DRF-22` records. This decision doesn't change it.
+
+**Required properties:**
+
+1. **Site.** In `SortableOperation.drop`'s pointer branch (`sortable/operation.ts:108–115` at `566ebfc65`), the confirmation replaces `this.#behavior.axis.invalidate()`. The command drop, the frame path, `moved`, `rebase`, activation and the landing don't change.
+2. **The confirmation** is one member of the private `InsertionGeometry` interface (`sortable/axis.ts`), which `y()` and `xy()` implement from one shared definition. When the cache is stale it reads nothing. Otherwise it measures one cached slot's element again, through `box` when one is configured, settles that rect through the displacement sink when one is composed, and compares its left and top with the slot's cached values within `EQUIVALENCE_SLACK`. A difference calls the axis's own `invalidate()`, so `linearShift` also discards its row distance. The interface stays private (`DRD-33` choice 8).
+3. **Reads.** With a warm cache, a pointer drop reads one slot rect beyond what its resolution reads, whatever the item count. With a stale cache it reads what it reads at `566ebfc65`. No frame, sample or command reads more.
+4. **Behavior.** The drop's gap equals the gap a full measurement at the release gives, whenever the cache was stale or the rows moved by one common vector since they were last measured, signalled or not.
+5. **Contract and README.** In the same commit as the code, the unit adds this paragraph to `DRI-14` after **Consistency**, with a change record row that names this decision:
+
+   > **Geometry.** `sortable` measures the items at the operation's first resolution, and again after a scroll, a resize or `invalidate()`. A pointer drop resolves at the release position. It first measures one item again, and measures every item when that one moved, so the drop sees a scroll whose event hasn't reached the library yet. A change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`. Without it, the change is outside this contract.
+
+   The README's sortable paragraph says that `invalidate()` is also for rows that change size or position during a drag for a reason other than a scroll or a resize.
+
+6. **Witnesses, each shown by a mutation it catches.**
+   - **W1, the unsignalled scroll:** a sortable in a scrolling container, a drag with real input that commits at least one move and waits a frame, and a capture-phase `pointerup` listener on the window, added before the press, that scrolls the container by more than half a row. The reorder is the one under the release position after that scroll. **M1**, the call deleted with no confirmation, fails W1.
+   - **W2, the drop's reads:** in `tests/hot-path.browser.test.ts`'s census, the `getBoundingClientRect` calls during a pointer drop with a warm cache, with no landing, are the same at two item counts at least ten times apart. **M2**, the unconditional call restored, fails W2.
+   - The existing scroll test in `tests/sortable.browser.test.ts` still passes.
+7. **Confirmation,** as `DRD-46` property 8: `compare.ts --before 566ebfc65 --only "activate-and-drop cycles"` in one browser process, under `DRD-44` property 6's hold, with its machine record. That runs the four CDP cycle rows and "in the page: 50 activate-and-drop cycles, 20 items, no landing". No move, press or keyboard row reaches the change.
+   - **Confirmed:** "50 activate-and-drop cycles, 2000 items, no landing" is "faster" in `scriptUs`. The landed 2,000-item row is reported beside it.
+   - **Not confirmed:** "no difference shown" on the target row goes to the architect, under `DRD-46` property 8.
+   - **Returned:** "slower" on any measure of any row, or a layout count above base.
+   - The unit runs the three-engine suite, the per-sample and census tests, and the size table. The size change is reported with these rows (`DRD-40` property 6).
+8. **What it doesn't change.** `judge`, its rounds, every row, injection and floor entry. Candidates 1, 3, 4 and 5 aren't selected. `DRD-45` property 9's repair is still owed before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant, and a `--before` run applies no injection.
+
+**Rejected:**
+
+- **Delete the call, the report's form.** It loses the unsignalled scroll, which W1 witnesses.
+- **Keep it.** About 2.1 to 2.5 ms per drop at 2,000 items, for a case one row detects.
+- **Record scroll offsets at measurement and compare them at the drop.** It needs the set of scrolling ancestors, which the library doesn't track, and misses a layout shift above the list.
+- **Measure the placeholder instead of a row.** After a committed move the cached placeholder is stale and has no prediction. That is the usual state at a release, because the last frame moved it.
+- **Add an in-page cycle row at 2,000 items.** An instrument change, a decision first, and not needed unless the CDP row shows no difference.
+
+**What this amends:**
+
+- **The contract:** `DRI-14` gets property 5's paragraph when the unit lands. Until then the contract states nothing about the sortable drop's geometry, and the code re-measures every row.
+- **The plan:** [`performance-plan.md`](performance-plan.md) §2 P3 names this unit, [`performance-drop-handoff.md`](performance-drop-handoff.md).
+- **`DRD-23`'s last bullet** doesn't apply, because no instrument changes.
 
 ## Disposition of the 2026-11-07 reviews
 
@@ -1390,9 +1628,67 @@ The report's §Resumed at `c279973a3` and its commits `676bdd3ba`, `016ba7d5a` a
 
 **Next:** [`performance-resolution-handoff.md`](performance-resolution-handoff.md), one implementer unit. No optimization unit starts before it reports (`DRD-43` property 8).
 
+## Disposition of the performance resolution report
+
+The [report](performance-resolution-report.md) at `39c8b432c` and its commits `a600abc51` and `a7b3851c1`, read by the architect on 2026-11-11 in [`performance-resolution-assessment.md`](performance-resolution-assessment.md). The checks the architect repeated are that record's §1, and its §2 corrects the report's environment record and two handoff rows.
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, `DRD-42` | Implemented at `a600abc51`. Conforms: M1 to M3 fail in 24 of 24 runs under the warm pass, and U-A and U-B pass. M4 shows at about 28 B per move, so the test catches that allocation at Chrome 157 |
+| Item 2, `DRD-43` | Implemented at `a7b3851c1`. Properties 1, 2, 4 and 5 hold, and property 3's path holds. Neither gate injection flags. No entry flags in F1 or F2, which isn't a stable floor under property 6 |
+| The return: `--prove` exits 1 | `DRD-44`: one experiment attributes it to the machine or the method. F1, F2, `--prove` and B3' aren't repeated before its outcome |
+| Item 3, `DRO-4` | Attributed to the snapshot class `array `. It grows about 20.5 B per operation to 200 and not from 200 to 400. The retaining object isn't known. The reading is in `DRO-4` |
+| `--attribute` has no control arm | Accepted. The handoff asked for an arm that the diagnostic doesn't build, and the figure needs none |
+
+**Next:** [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md), one implementer unit.
+
+## Disposition of the performance sensitivity report
+
+The [report](performance-sensitivity-report.md) at `24cdadc48`, read by the architect on 2026-11-11 in [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md). That record's §1 lists the checks the architect repeated, and its §2 corrects the report's count of settled readings, one ratio and the handoff's self-check threshold.
+
+| Item | Disposition |
+| --- | --- |
+| Items 1 and 2, the probe and the dry checks | Accepted. The self-check's longer loop, which the owner directed, is accepted, and the threshold was the handoff's error |
+| Item 3, the four processes | Accepted as run, under the hold, each exiting 0 |
+| `DRD-44` property 8 | Not resolved on both gate rows: no process has a settled round. Final by `DRD-45` |
+| The gauge | Its first run is slower in every reading, which the machine doesn't explain. Withdrawn as a test by `DRD-45` |
+| The rerun that property 8 prescribes | Withdrawn: it can't settle. `DRD-45`'s same-page check replaces it |
+| The stale entries at `566ebfc65` | Verified: 10 of 23. Repaired before any campaign on that source (`DRD-45` property 9) |
+
+**Next:** [`performance-page-check-handoff.md`](performance-page-check-handoff.md), one implementer unit.
+
+## Disposition of the page check return
+
+The [handoff](performance-page-check-handoff.md)'s return at `f344a0ea8`, read by the architect on 2026-11-11. No browser process ran, and nothing under `src/`, `tests/`, `bench/` or `measurements/` changed.
+
+| Item | Disposition |
+| --- | --- |
+| The blocker: the cycle row's `run` reads the page's whole `lab.log` | Verified at [`compare.ts`](../bench/compare.ts) and [`lab.ts`](../bench/lab.ts). Not decided: the owner stopped the check. If it resumes, the architect decides it first (`DRD-46` property 1) |
+| The check, `DRD-45` properties 3 to 8 | Stopped on the owner's direction and kept as written (`DRD-46`) |
+| `DRD-45` property 9, the stale entries at `566ebfc65` | Still owed before any `--prove` or `--floors` on that source |
+
+**Next:** [`performance-trace-handoff.md`](performance-trace-handoff.md), one implementer unit.
+
+## Disposition of the performance trace report
+
+The [report](performance-trace-report.md) at `e92e21eed`, read by the architect on 2026-11-11 in [`performance-trace-assessment.md`](performance-trace-assessment.md). That record's §1 lists the claims the architect checked again.
+
+| Item | Disposition |
+| --- | --- |
+| Items 1 and 2, the trace mode and the 20 traces | Accepted. No return condition was met, and no production source changed |
+| Item 3, attribution | Accepted, with its limits: sparse samples on every single-event library figure, and tracing overhead probed at 20 items only ([assessment](performance-trace-assessment.md) §4) |
+| Candidate 2, the drop's re-measure | **Selected in a changed form, `DRD-47`.** The unconditional call protects an unsignalled scroll, so the drop confirms the cache against one row instead |
+| Candidates 1, 3, 4 and 5 | Not selected. 1, 4 and 5 are decisions first, and 3 is below its row's A/A bound |
+| The bundle's missing module markers | Verified. `DRF-21`. It changes no recorded verdict. The report's statement that `--profile` shares the gap is incorrect: `--profile` keys by function name |
+| Playwright's drag listeners in the CDP move rows | Received, not verified. Both arms of every CDP row carry them, so no paired verdict depends on them |
+| The drop-target tracker's drop | Found while reading candidate 2. `DRF-22` |
+| The DevTools check of one trace per scenario | Open, the owner's |
+
+**Next:** [`performance-drop-handoff.md`](performance-drop-handoff.md), one implementer unit, after the owner brings `566ebfc65`'s source and this record onto one branch.
+
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-20`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-22`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -1636,6 +1932,27 @@ Tier C, open. Found by the architect on 2026-11-10, reading the instrument unit'
 - **Required property:** none yet. Whether the branch earns its place is a question for the size pass ([`performance-plan.md`](performance-plan.md) §2 P4), with a reading of the frame path's timing. Removing it would change `DRD-32` and `DRD-35`, so it is a decision first.
 - **When:** not before the size pass.
 
+#### DRF-21 — `compare.ts` places a bundle line in a module by comment markers, and two modules have none
+
+Tier B, open. Reported by the trace unit at `e92e21eed`, and verified by the architect on 2026-11-11 ([assessment](performance-trace-assessment.md) §5).
+
+- **Current behavior:** `bundle` records a module's start at each `// <path>` line rolldown writes, and `moduleAt` keys a line by the last start before it. In the arm built from `566ebfc65`, rolldown writes no marker for `sortable/rect-index.ts` or `sortable/keyboard.ts`. `RectIndex`, at line 1540 of [`bundle.js.txt`](measurements/traces/2026-11-11/bundle.js.txt), is keyed under `shared/landing.ts`, and `directionOf` and `keyboardInsertion` under `sortable/collection.ts`.
+- **Who uses it:** only `samplingProfile`, which keys the bytes rows. `--profile` keys by function name and line. The trace mode copies the markers into `record.json`, and the trace analysis placed positions through a source map instead, which it checked.
+- **What it affects:** no verdict. Every kernel key in the recorded bytes readings names a function of that kernel module, and the kernel modules without a marker have no runtime code, so `DRF-1`'s closure, `DRD-41`'s witness and every bytes verdict hold. Nine recorded readings key `RectIndex`'s methods as `shared/landing.ts:`. No report or decision drew a conclusion from those labels, and the readings stay as written.
+- **Why it is a problem:** the kernel selection holds only while no unmarked module's code falls after a kernel module's marker. Nothing checks that, and a bundler change or a new module can break it with no error.
+- **Required property:** every line of the lab bundle is placed in the module that holds its source, from the bundle's own mapping, such as a source map or the bundler's module data, and not from comment lines. A line the mapping can't place ends the run with an error. Under `DRD-23`'s last bullet, an allocation injected into `sortable/rect-index.ts` keys under that module, and every bytes injection still flags.
+- **When:** before the next bytes reading that a report or decision uses. `DRD-47`'s unit runs no bytes row, so it doesn't wait for this.
+
+#### DRF-22 — The drop-target tracker resolves the drop against targets a pending scroll moved
+
+Tier C, open. Found by the architect on 2026-11-11 while reading candidate 2 of the trace report ([assessment](performance-trace-assessment.md) §2).
+
+- **Current behavior:** `dropTargets`' `drop()` cancels its frame and resolves against the cached rects, which are measured again only when stale (`free-drag/drop-targets.ts:121–124` at `566ebfc65`). Its `invalidate()` runs on `scroll` and `resize`.
+- **Why it is a question:** a scroll after the browser's last rendering update reaches the tracker one update later, so a release in that window names the target under the release position before the scroll. `DRD-33` choice 7 calls the drop "always correct". `DRD-47` closes the same window for `sortable`.
+- **Not a defect today.** `DRI-21` says the drop resolves "against geometry measured after any invalidation", and the tracker does that.
+- **Required property:** none yet. A target list is usually short, so measuring every target at the drop may cost less than a confirmation. That is a decision, with its bytes.
+- **When:** not before `DRD-47`'s unit reports.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
@@ -1678,6 +1995,8 @@ A row that is still slower comes with its attributed cause. You decide under CON
 - **The per-cycle cost this entry asked for isn't resolved.** No cycle verdict flags in both runs. But no cycle row can show less than about 411 µs per cycle, about 20 % of its script (`DRD-43`), so `DRD-22`'s "probably 10 to 13 % slower" is neither confirmed nor refuted. The in-page cycle row of `DRD-43` compares only this package's arms. If you want this question answered, that row can take the before arms in a later unit, after its floor is known.
 
 **No recommendation yet.** `DRO-1`'s default and recommendation stand for the press. The retained figure waits for its attribution, and the cycle cost for a row that can resolve it.
+
+**Retained attribution, 2026-11-11** ([report](performance-resolution-report.md) §Item 3, [assessment](performance-resolution-assessment.md) §5). Production's excess is in V8's internal arrays, the snapshot class `array `: +4,064 B against both before arms. At 0 operations all three arms are equal. Production grows about 20.5 B per operation up to 200 operations, and not at all from 200 to 400, so the row's figure is a plateau of about 4 KB and not a retention that grows with every operation. **Not known:** the object that retains the arrays, and so whether they are the library's own structure or the engine's data for the library's code. Only the former is something a source change could remove. If you want that answered before you decide, one probe can read the retainer path of the new arrays from two snapshots in the same page. **No recommendation:** the source isn't known.
 
 #### DRO-5 — Keep `599684791` reachable after the squash merge
 
@@ -1925,7 +2244,11 @@ No timing was taken.
 | DRD-37 | active, decided on 2026-11-09 on the owner's direction. Supersedes `DRD-34` property 9 and `DRD-35` property 8. Implemented at `50ed18a17`, reported at `36dbd55db`. Read by the architect ([assessment](callback-list-completion-assessment.md)): conforms. Property 3 was clarified on 2026-11-10: it is checked by reading lint's output |
 | DRD-38 | active, decided on 2026-11-09 on the owner's direction, under CONTRIBUTING's TypeScript section as clarified at `2bec0c431`. Amends the contract's public surface. `DRO-13` holds the other declarations, and the owner deferred it on 2026-11-10. Implemented at `50ed18a17`, reported at `36dbd55db`. Read by the architect ([assessment](callback-list-completion-assessment.md)): conforms |
 | DRD-39 | active, decided on 2026-11-10 by the architect on `DRF-10`, from [`combined-review-assessment.md`](combined-review-assessment.md) §3. Amends the contract's public surface. [`combined-review-remediation-handoff.md`](combined-review-remediation-handoff.md) item 1 implemented it at `d1a262306`, reported at `f2ac81bc5` ([report](combined-review-remediation-report.md)). Proven by the [feature proof](reviews/combined-ownership/remediation-reviewer.md) at `26919a938`, and read by the architect ([assessment](combined-review-remediation-assessment.md)): conforms. `DRF-10` is closed |
-| DRD-40 | active, decided on 2026-11-10 by the architect on the owner's request to open the runtime-performance phase. Ends `DRO-4`'s timing deferral. Applied by [`performance-plan.md`](performance-plan.md). Its first unit is [`performance-instrument-handoff.md`](performance-instrument-handoff.md). That unit returned at `b8f1d1b35`, and `DRD-41` decides the return. It completed P1 at `c279973a3`, and the baseline of `a9c323f6a` is recorded. `DRD-42` and `DRD-43` decide P2. Its properties 2 and 5 now apply to the in-page rows, and P3 waits for `DRD-43` property 7 |
+| DRD-40 | active, decided on 2026-11-10 by the architect on the owner's request to open the runtime-performance phase. Ends `DRO-4`'s timing deferral. Applied by [`performance-plan.md`](performance-plan.md). Its first unit is [`performance-instrument-handoff.md`](performance-instrument-handoff.md). That unit returned at `b8f1d1b35`, and `DRD-41` decides the return. It completed P1 at `c279973a3`, and the baseline of `a9c323f6a` is recorded. `DRD-42` and `DRD-43` decide P2. Its properties 2 and 5 apply to the in-page rows. `DRD-46` amends both: a selected candidate is confirmed by a "faster" verdict with no floor, and P3 no longer waits for `DRD-43` property 7. `DRD-44` adds the CPU model and core sets to property 4's machine record |
 | DRD-41 | active, decided on 2026-11-10 by the architect on the instrument unit's return at `b8f1d1b35`. Amends [`performance-instrument-handoff.md`](performance-instrument-handoff.md) and [`performance-plan.md`](performance-plan.md) §2 P1. Implemented at `676bdd3ba` (that handoff's item 2a). Q1 fails as required, and the witness is quiet and counted in the `--prove` recorded at `c279973a3`. Read by the architect on 2026-11-11 ([assessment](performance-instrument-assessment.md)): conforms |
-| DRD-42 | active, decided on 2026-11-11 by the architect on the per-sample readings at `c279973a3`. Decides [`performance-plan.md`](performance-plan.md) §2 P2's first bullet. Not implemented: [`performance-resolution-handoff.md`](performance-resolution-handoff.md) item 1 implements it |
-| DRD-43 | active, decided on 2026-11-11 by the architect on the floors and the baseline at `c279973a3`. Decides P2's second bullet, adds P1b, and sets P3's entry condition in [`performance-plan.md`](performance-plan.md). Not implemented: [`performance-resolution-handoff.md`](performance-resolution-handoff.md) item 2 implements it |
+| DRD-42 | active, decided on 2026-11-11 by the architect on the per-sample readings at `c279973a3`. Decides [`performance-plan.md`](performance-plan.md) §2 P2's first bullet. Implemented at `a600abc51` from [`performance-resolution-handoff.md`](performance-resolution-handoff.md) item 1, and reported at `39c8b432c`. Read by the architect ([assessment](performance-resolution-assessment.md) §3): conforms. Its second withdrawal doesn't apply to M4's form at Chrome 157, which the warm test catches |
+| DRD-43 | active, decided on 2026-11-11 by the architect on the floors and the baseline at `c279973a3`. Decides P2's second bullet, adds P1b, and sets P3's entry condition in [`performance-plan.md`](performance-plan.md). Implemented at `a7b3851c1` from [`performance-resolution-handoff.md`](performance-resolution-handoff.md) item 2, and reported at `39c8b432c`. Read by the architect ([assessment](performance-resolution-assessment.md) §4): properties 1, 2, 4 and 5 hold, and property 3's path holds. Its gate injections don't flag, and no entry flags in F1 or F2, which isn't a stable floor under property 6. `DRD-44` decides the return, and its outcome is not resolved. B3' and the floors waited for `DRD-45`'s outcome, and aren't scheduled since `DRD-46` stopped its check. `DRD-46` supersedes property 8 |
+| DRD-44 | active, decided on 2026-11-11 by the architect on the resolution report at `39c8b432c` ([assessment](performance-resolution-assessment.md) §4). Amends `DRD-43`'s sequence, `DRD-40` property 4's machine record, and [`performance-plan.md`](performance-plan.md) §2 P1b. Run at `24cdadc48` from [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md). Read by the architect ([assessment](performance-sensitivity-assessment.md) §3): not resolved on both gate rows, final. `DRD-45` withdraws its gauge test and its rerun |
+| DRD-45 | active, decided on 2026-11-11 by the architect on the sensitivity report at `24cdadc48` ([assessment](performance-sensitivity-assessment.md) §4). Amends `DRD-44` properties 4, 7 and 8, and [`performance-plan.md`](performance-plan.md) §2 P1b. Property 9 holds the injection repair for `566ebfc65`. Its check, [`performance-page-check-handoff.md`](performance-page-check-handoff.md), returned at `f344a0ea8` before any browser process. `DRD-46` stopped properties 3 to 8 on the owner's direction and keeps them for possible later use. Properties 1, 2 and 9 are in force |
+| DRD-46 | active, decided on 2026-11-11 by the architect on the owner's direction. Stops `DRD-45` properties 3 to 8, supersedes `DRD-43` property 8, and amends `DRD-40` properties 2 and 5 and [`performance-plan.md`](performance-plan.md) §2. [`performance-trace-handoff.md`](performance-trace-handoff.md) recorded the first traces at `743921de0` and `e92e21eed` ([report](performance-trace-report.md)). Read by the architect ([assessment](performance-trace-assessment.md)): accepted. `DRD-47` selects the first candidate under property 8 |
+| DRD-47 | active, decided on 2026-11-11 by the architect on the trace report at `e92e21eed` ([assessment](performance-trace-assessment.md) §2 and §3), under `DRD-46` property 8. Amends the contract's `DRI-14` when its unit lands, and [`performance-plan.md`](performance-plan.md) §2 P3. Not implemented: [`performance-drop-handoff.md`](performance-drop-handoff.md) waits for the owner to bring `566ebfc65`'s source and this record onto one branch |

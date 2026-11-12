@@ -1,0 +1,638 @@
+/**
+ * Attribution of the `compare.ts --trace` traces, with no browser.
+ *
+ * `node analyse.ts <trace directory> <revision>`, from inside the repository. It
+ * reads `record.json`, `bundle.js.txt` and every trace that `record.json` lists,
+ * and prints the checks and the attribution tables.
+ *
+ * **Module and line attribution.** The bundle's `// <path>` markers don't mark
+ * every module: a module the bundler hoists into another's region, such as
+ * `sortable/rect-index.ts`, has none. So this script builds the same bundle again
+ * from `revision`, with `compare.ts`'s `bundle` options plus a source map, checks
+ * that its code equals `bundle.js.txt` except for the marker lines' temporary
+ * paths, and maps every bundle position through the map. Lines are 1-based lines
+ * of the source at `revision`.
+ *
+ * **Three kinds of figure, kept apart in every table.**
+ * - **counted:** durations and counts of trace events on the page's main thread:
+ *   tasks, CDP command tasks, script entry points (`FunctionCall`), input dispatch,
+ *   style, layout, paint, GC, hit tests, animations started.
+ * - **sampled:** JavaScript time from the CPU profiler's samples, each weighted by
+ *   the gap to the next sample in time order, capped at 4 median gaps. A sample
+ *   inside a counted style, layout, paint, GC or hit-test event, or inside a CDP
+ *   command task, is that event's time and is not counted again as script.
+ * - **derived:** `= browser` is busy time less the library's, the consumer's and
+ *   the harness's, so it carries the sampling error of the first two.
+ */
+import { execFile as execFileCallback } from 'node:child_process';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { join, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { promisify } from 'node:util';
+import { gunzipSync } from 'node:zlib';
+
+const execFile = promisify(execFileCallback);
+const [directory, revision] = process.argv.slice(2) as [string, string];
+const repo = (await execFile('git', ['rev-parse', '--show-toplevel'])).stdout.trim();
+const requireHere = createRequire(join(repo, 'packages/drag/package.json'));
+const load = async (name: string) => import(pathToFileURL(requireHere.resolve(name)).href);
+const { rolldown } = await load('rolldown');
+const mapping = await load('@jridgewell/trace-mapping');
+const { TraceMap, originalPositionFor } = mapping.TraceMap ? mapping : mapping.default;
+const record = JSON.parse(await readFile(join(directory, 'record.json'), 'utf8'));
+const savedBundle = await readFile(join(directory, 'bundle.js.txt'), 'utf8');
+const FEW = 20;
+
+// ---------- the bundle again, with a source map ----------
+const scratch = await mkdtemp(join(tmpdir(), 'drag-trace-analysis-'));
+const ROOT = join(repo, 'packages/drag');
+await execFile('git', ['archive', revision, '--output', join(scratch, 'src.tar'), 'packages/drag/src'], { cwd: repo });
+await execFile('tar', ['-xf', join(scratch, 'src.tar'), '-C', scratch]);
+const sourceRoot = join(scratch, 'packages/drag/src');
+const built = await rolldown({
+  input: join(ROOT, 'bench/lab.ts'),
+  cwd: ROOT,
+  platform: 'browser',
+  resolve: { alias: { '@ydinjs/box-quad': join(repo, 'packages/box-quad/src/index.ts') } },
+  transform: { define: { __DEV__: 'false' } },
+  plugins: [
+    {
+      name: 'arm-source',
+      resolveId(id: string) {
+        return id.startsWith('../src/') ? join(sourceRoot, id.slice('../src/'.length)) : null;
+      },
+    },
+  ],
+});
+const { output } = await built.generate({ format: 'iife', name: 'labExports', sourcemap: true });
+await built.close();
+const normal = (code: string) =>
+  code
+    .replace(/\n\/\/# sourceMappingURL=.*\n?$/u, '\n')
+    .split('\n')
+    .map((line) => (/^\t\/\/ \S+$/u.test(line) ? '\t// <marker>' : line))
+    .join('\n')
+    .trimEnd();
+const bundleMatches = normal(output[0].code) === normal(savedBundle);
+const traceMap = new TraceMap(output[0].map);
+const markerModules = record.modules.map((m: any) => m.key);
+// The map's sources are relative to a directory one level under the package.
+const MAP_BASE = join(ROOT, 'chunk');
+
+/** A source path as the report names it. */
+const sourcePath = (absolute: string): string =>
+  absolute.startsWith(sourceRoot) ? `packages/drag/src/${relative(sourceRoot, absolute)}` : relative(repo, absolute);
+const short = (path: string): string => path.replace(/^packages\/drag\/src\//u, '').replace(/^packages\/drag\//u, '').replace(/^packages\//u, '');
+const ownerOfPath = (path: string | null): string =>
+  !path
+    ? 'unmapped'
+    : path.startsWith('packages/drag/bench/')
+      ? 'consumer'
+      : path.startsWith('packages/drag/src/') || path.startsWith('packages/box-quad/')
+        ? 'library'
+        : 'unmapped';
+
+/** The source position of a 0-based bundle line and column. */
+const position = (line: number, column: number): { path: string; line: number } | null => {
+  const found = originalPositionFor(traceMap, { line: line + 1, column: Math.max(column, 0) });
+  if (!found.source) return null;
+  return { path: sourcePath(resolve(MAP_BASE, found.source)), line: found.line };
+};
+
+const sources = new Map<string, string[]>();
+const sourceLines = async (path: string): Promise<string[]> => {
+  if (!sources.has(path)) {
+    const ref = path.startsWith('packages/drag/src/') ? revision : 'HEAD';
+    try {
+      sources.set(path, (await execFile('git', ['show', `${ref}:${path}`], { cwd: repo, maxBuffer: 1 << 26 })).stdout.split('\n'));
+    } catch {
+      sources.set(path, []);
+    }
+  }
+  return sources.get(path)!;
+};
+/** The last line of the block that opens at or after `line`, by brace count. */
+const blockEnd = (lines: string[], line: number): number => {
+  let depth = 0;
+  let opened = false;
+  for (let i = line - 1; i < lines.length; i += 1) {
+    const text = lines[i]!.replace(/\/\/.*$/u, '').replace(/(['"`])(?:\\.|(?!\1).)*\1/gu, '');
+    for (const ch of text) {
+      if (ch === '{') {
+        depth += 1;
+        opened = true;
+      } else if (ch === '}') {
+        depth -= 1;
+      }
+    }
+    if (opened && depth <= 0) return i + 1;
+  }
+  return line;
+};
+const named = new Map<string, string>();
+/** `module:function, lines a–b` for a function frame's 0-based bundle position. */
+const functionAt = async (name: string, line: number, column: number): Promise<string> => {
+  const key = `${name}@${line}:${column}`;
+  if (!named.has(key)) {
+    const at = position(line, column);
+    named.set(
+      key,
+      at
+        ? `${short(at.path)}:${name || '(anonymous)'}, lines ${at.line}–${blockEnd(await sourceLines(at.path), at.line)}`
+        : `${name || '(anonymous)'}, bundle line ${line + 1}, unmapped`,
+    );
+  }
+  return named.get(key)!;
+};
+/** `module:line` and the line's text, for a 0-based bundle position. */
+const siteAt = async (line: number, column: number): Promise<string> => {
+  const at = position(line, column);
+  if (!at) return `bundle line ${line + 1}, unmapped`;
+  const text = (await sourceLines(at.path))[at.line - 1]?.trim() ?? '';
+  return `${short(at.path)}:${at.line} \`${(text.length > 70 ? `${text.slice(0, 67)}...` : text).replaceAll('|', '\\|')}\``;
+};
+
+// ---------- intervals ----------
+type Interval = [number, number];
+const union = (list: Interval[]): Interval[] => {
+  const sorted = list.filter(([a, b]) => b > a).toSorted((x, y) => x[0] - y[0]);
+  const out: Interval[] = [];
+  for (const [a, b] of sorted) {
+    const last = out.at(-1);
+    if (last && a <= last[1]) last[1] = Math.max(last[1], b);
+    else out.push([a, b]);
+  }
+  return out;
+};
+const clip = (list: Interval[], [w0, w1]: Interval): Interval[] =>
+  list.map(([a, b]): Interval => [Math.max(a, w0), Math.min(b, w1)]).filter(([a, b]) => b > a);
+const length = (list: Interval[]): number => list.reduce((sum, [a, b]) => sum + b - a, 0);
+const subtract = (a: Interval[], b: Interval[]): Interval[] => {
+  const out: Interval[] = [];
+  for (const [s, e] of a) {
+    let cursor = s;
+    for (const [bs, be] of b) {
+      if (be <= cursor || bs >= e) continue;
+      if (bs > cursor) out.push([cursor, bs]);
+      cursor = Math.max(cursor, be);
+    }
+    if (cursor < e) out.push([cursor, e]);
+  }
+  return out;
+};
+const inside = (list: Interval[], t: number): boolean => {
+  let lo = 0;
+  let hi = list.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const [a, b] = list[mid]!;
+    if (t < a) hi = mid - 1;
+    else if (t >= b) lo = mid + 1;
+    else return true;
+  }
+  return false;
+};
+const med = (values: number[]): number => {
+  const s = values.filter((v) => !Number.isNaN(v)).toSorted((a, b) => a - b);
+  if (!s.length) return NaN;
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
+};
+
+// ---------- one trace ----------
+type CallFrame = { functionName: string; scriptId: number | string; lineNumber?: number; columnNumber?: number; url?: string };
+type Sample = { ts: number; weight: number; stack: CallFrame[]; line?: number; column?: number };
+type Counter = { us: number; n: number };
+
+const GC = /^(MinorGC|MajorGC|V8\.GC_|BlinkGC\.|CppGC\.)/u;
+const PAINT = new Set(['PrePaint', 'Paint', 'Layerize', 'Commit', 'UpdateLayer', 'PaintImage', 'RasterTask']);
+
+const analyse = async (trace: any) => {
+  const raw = JSON.parse(gunzipSync(await readFile(join(directory, trace.file))).toString());
+  const events: any[] = raw.traceEvents;
+  const marks = events.filter((e) => e.cat?.includes('blink.user_timing') && e.ph === 'I').toSorted((a, b) => a.ts - b.ts);
+  const pid = marks[0]?.pid;
+  const tid = marks[0]?.tid;
+  const onMain = (e: any) => e.pid === pid && e.tid === tid;
+  const main = events.filter(onMain);
+  const lab = Number(trace.labScript);
+
+  // What each script is, from the source rundown.
+  const scriptNames = new Map<number, string>([[0, 'native function, such as a promise resolver']]);
+  for (const e of events) {
+    const d = e.args?.data;
+    if (e.name !== 'ScriptCatchup' || typeof d?.sourceText !== 'string') continue;
+    const text: string = d.sourceText;
+    scriptNames.set(
+      Number(d.scriptId),
+      Number(d.scriptId) === lab
+        ? 'lab bundle'
+        : text.includes('setupDragListeners')
+          ? "Playwright's drag listeners, installed by each mouse move"
+          : text.includes('__commonJS') && text.length > 100000
+            ? "Playwright's injected script"
+            : `evaluation \`${text.trim().replace(/\s+/gu, ' ').slice(0, 50)}\``,
+    );
+  }
+  const scriptName = (id: unknown) => scriptNames.get(Number(id)) ?? `script ${id}`;
+
+  // Tasks: the X events at depth 0 on the main thread.
+  const xs = main.filter((e) => e.ph === 'X' && e.dur !== undefined).toSorted((a, b) => a.ts - b.ts || b.dur - a.dur);
+  const top: Interval[] = [];
+  const tasks: { e: any; names: Set<string> }[] = [];
+  let reach = -Infinity;
+  for (const e of xs) {
+    if (e.ts >= reach) {
+      top.push([e.ts, e.ts + e.dur]);
+      tasks.push({ e, names: new Set([e.name]) });
+    } else {
+      tasks.at(-1)!.names.add(e.name);
+    }
+    reach = Math.max(reach, e.ts + e.dur);
+  }
+  const busy = union(top);
+  const taskIntervals = (test: (names: Set<string>) => boolean): Interval[] =>
+    union(tasks.filter((t) => test(t.names)).map(({ e }): Interval => [e.ts, e.ts + e.dur]));
+  // A CDP command arrives as a mojo message; input arrives from the compositor.
+  const cdp = taskIntervals((n) => n.has('Receive mojo message') && !n.has('EventDispatch') && !n.has('FireAnimationFrame'));
+  // The source rundown: at the start of the trace, and for each new script.
+  const tracing = taskIntervals((n) => n.size === 1 && n.has('ScriptCatchup'));
+  const of = (test: (e: any) => boolean): Interval[] => union(xs.filter(test).map((e): Interval => [e.ts, e.ts + e.dur]));
+  const gc = of((e) => GC.test(e.name));
+  const layout = subtract(of((e) => e.name === 'Layout'), gc);
+  const style = subtract(of((e) => e.name === 'UpdateLayoutTree'), union([...gc, ...layout]));
+  const paint = subtract(of((e) => PAINT.has(e.name)), union([...gc, ...layout, ...style]));
+  const hit = subtract(of((e) => e.name === 'HitTest'), union([...gc, ...layout, ...style, ...paint]));
+  const rendering = union([...gc, ...layout, ...style, ...paint, ...hit]);
+  const dispatch = of((e) => e.name === 'EventDispatch');
+  const entries = xs.filter((e) => e.name === 'FunctionCall');
+
+  // Samples of the main thread's profile, in time order.
+  const profile = events.find((e) => e.name === 'Profile' && onMain(e));
+  const nodes = new Map<number, { frame: CallFrame; parent?: number }>();
+  const raws: { ts: number; id: number; line?: number; column?: number }[] = [];
+  let ts = profile?.args.data.startTime ?? 0;
+  for (const chunk of events.filter((e) => e.name === 'ProfileChunk' && e.id === profile?.id && e.pid === pid)) {
+    const data = chunk.args.data;
+    for (const node of data.cpuProfile?.nodes ?? []) nodes.set(node.id, { frame: node.callFrame, parent: node.parent });
+    const deltas: number[] = data.timeDeltas ?? [];
+    (data.cpuProfile?.samples ?? []).forEach((id: number, i: number) => {
+      ts += deltas[i] ?? 0;
+      raws.push({ ts, id, line: data.lines?.[i], column: data.columns?.[i] });
+    });
+  }
+  raws.sort((a, b) => a.ts - b.ts);
+  const first = marks[0]?.ts;
+  const end = marks.at(-1)?.ts;
+  const inInteraction = raws.filter((s) => s.ts >= first && s.ts <= end);
+  const gaps = inInteraction.slice(1).map((s, i) => s.ts - inInteraction[i]!.ts);
+  const interval = med(gaps);
+  const stackOf = (id: number): CallFrame[] => {
+    const stack: CallFrame[] = [];
+    for (let n = nodes.get(id); n; n = n.parent === undefined ? undefined : nodes.get(n.parent)) stack.push(n.frame);
+    return stack;
+  };
+  const samples: Sample[] = raws.map((s, i) => ({
+    ts: s.ts,
+    weight: raws[i + 1] ? Math.min(raws[i + 1]!.ts - s.ts, 4 * interval) : 0,
+    stack: stackOf(s.id),
+    line: s.line,
+    column: s.column,
+  }));
+
+  /** A sample's class and, for script, the frame that owns it. */
+  const classify = (sample: Sample): { cls: string; frame?: CallFrame } => {
+    const leaf = sample.stack[0]?.functionName;
+    if (leaf === '(idle)') return { cls: 'idle' };
+    if (leaf === '(garbage collector)') return { cls: 'gc (sampled)' };
+    if (leaf === '(program)' || leaf === '(root)') return { cls: 'program' };
+    const frame = sample.stack.find((f) => Number(f.scriptId) !== 0);
+    if (!frame) return { cls: 'native' };
+    if (Number(frame.scriptId) !== lab) return { cls: 'harness', frame };
+    return { cls: ownerOfPath(position(frame.lineNumber ?? 0, frame.columnNumber ?? 0)?.path ?? null), frame };
+  };
+
+  /** The figures of one window, as totals. */
+  const window = (w: Interval) => {
+    const cls: Record<string, number> = {};
+    const sampleCount: Record<string, number> = {};
+    const functions = new Map<string, Counter & { frame: CallFrame; lines: Map<string, number> }>();
+    const entryFunctions = new Map<string, Counter & { data: any }>();
+    const forced = new Map<string, Counter & { kind: string; frame: any; owner: string }>();
+    const add = (name: string, us: number) => {
+      cls[name] = (cls[name] ?? 0) + us;
+    };
+    add('busy', length(clip(busy, w)));
+    const cdpHere = length(clip(cdp, w));
+    add('harness CDP tasks', cdpHere);
+    add('tracing overhead', length(clip(tracing, w)));
+    add('input dispatch', length(clip(dispatch, w)));
+    add('style', length(clip(style, w)));
+    add('layout', length(clip(layout, w)));
+    add('paint', length(clip(paint, w)));
+    add('gc', length(clip(gc, w)));
+    add('hit test', length(clip(hit, w)));
+    for (const e of entries) {
+      if (e.ts < w[0] || e.ts >= w[1]) continue;
+      const d = e.args.data;
+      const owner = Number(d.scriptId) === lab ? ownerOfPath(position(d.lineNumber - 1, d.columnNumber - 1)?.path ?? null) : 'harness';
+      add(`${owner} entries`, e.dur);
+      const key = owner === 'harness' ? `harness|${scriptName(d.scriptId)}|${d.functionName}` : `${owner}|${d.functionName}@${d.lineNumber}:${d.columnNumber}`;
+      const entry = entryFunctions.get(key) ?? { us: 0, n: 0, data: d };
+      entry.us += e.dur;
+      entry.n += 1;
+      entryFunctions.set(key, entry);
+    }
+    for (const s of samples) {
+      if (s.ts < w[0] || s.ts >= w[1] || !inside(busy, s.ts) || inside(rendering, s.ts) || inside(cdp, s.ts)) continue;
+      const { cls: c, frame } = classify(s);
+      if (c === 'idle') continue;
+      add(c, s.weight);
+      sampleCount[c] = (sampleCount[c] ?? 0) + 1;
+      if (c === 'library' || c === 'consumer') {
+        const key = `${frame!.functionName}@${frame!.lineNumber}:${frame!.columnNumber}`;
+        const entry = functions.get(key) ?? { us: 0, n: 0, frame: frame!, lines: new Map() };
+        entry.us += s.weight;
+        entry.n += 1;
+        // The leaf position, when the leaf is this function.
+        if (s.stack[0] === frame && s.line !== undefined) {
+          const at = `${s.line}:${s.column}`;
+          entry.lines.set(at, (entry.lines.get(at) ?? 0) + 1);
+        }
+        functions.set(key, entry);
+      }
+    }
+    for (const e of xs) {
+      if ((e.name !== 'Layout' && e.name !== 'UpdateLayoutTree') || e.ts < w[0] || e.ts >= w[1]) continue;
+      const stack = e.args?.beginData?.stackTrace;
+      if (!stack?.length) continue;
+      const lab0 = Number(stack[0].scriptId) === lab;
+      const key = `${e.name}|${lab0 ? `${stack[0].functionName}@${stack[0].lineNumber}:${stack[0].columnNumber}` : scriptName(stack[0].scriptId)}`;
+      const entry = forced.get(key) ?? { us: 0, n: 0, kind: e.name, frame: stack[0], owner: lab0 ? 'lab' : scriptName(stack[0].scriptId) };
+      entry.n += 1;
+      entry.us += e.dur;
+      forced.set(key, entry);
+    }
+    add('= library', cls['library'] ?? 0);
+    add('= consumer', cls['consumer'] ?? 0);
+    add('= harness', cdpHere + (cls['harness'] ?? 0));
+    add('= browser', cls['busy']! - (cls['library'] ?? 0) - (cls['consumer'] ?? 0) - cdpHere - (cls['harness'] ?? 0));
+    const animations = main.filter((e) => e.name === 'Animation' && e.ph === 'b' && e.ts >= w[0] && e.ts < w[1]).length;
+    return { cls, sampleCount, functions, entryFunctions, forced, animations };
+  };
+
+  const phases = marks.slice(0, -1).map((m, i) => ({ name: m.name as string, w: [m.ts, marks[i + 1]!.ts] as Interval }));
+  const pointer = (type: string, w: Interval) =>
+    main.filter((e) => e.name === 'EventDispatch' && e.args?.data?.type === type && e.ts >= w[0] && e.ts < w[1]).toSorted((a, b) => a.ts - b.ts);
+  const taskStart = (t: number): number => busy.find(([a, b]) => t >= a && t < b)?.[0] ?? t;
+
+  /**
+   * The drop, in a move trace: the library's `pointerup` entry point (counted), the
+   * span from its start to the first event the consumer's `onReorder` causes
+   * (counted), and the samples in that span under `RectIndex.refresh` (sampled).
+   */
+  const dropSpan = () => {
+    const release = phases.find((p) => p.name === 'release');
+    const up = release && pointer('pointerup', release.w)[0];
+    if (!up) return null;
+    const entry = entries.find((e) => e.ts >= up.ts && e.ts < up.ts + up.dur && Number(e.args.data.scriptId) === lab);
+    if (!entry) return null;
+    const consumerEvent = main
+      .filter((e) => e.ts >= entry.ts && e.ts < entry.ts + entry.dur)
+      .toSorted((a, b) => a.ts - b.ts)
+      .find((e) => {
+        const top = (e.args?.data?.stackTrace ?? e.args?.beginData?.stackTrace)?.[0];
+        return top && Number(top.scriptId) === lab && ownerOfPath(position(top.lineNumber - 1, top.columnNumber - 1)?.path ?? null) === 'consumer';
+      });
+    const until = consumerEvent?.ts ?? entry.ts + entry.dur;
+    let refreshUs = 0;
+    let refreshSamples = 0;
+    for (const sample of samples) {
+      if (sample.ts < entry.ts || sample.ts >= until) continue;
+      if (sample.stack.some((f) => f.functionName === 'refresh' && Number(f.scriptId) === lab && position(f.lineNumber ?? 0, f.columnNumber ?? 0)?.path.endsWith('rect-index.ts'))) {
+        refreshUs += sample.weight;
+        refreshSamples += 1;
+      }
+    }
+    return { entryUs: entry.dur, spanUs: until - entry.ts, refreshUs, refreshSamples };
+  };
+
+  return { trace, marks, phases, window, pointer, taskStart, dropSpan, interval, mainSamples: inInteraction.length };
+};
+
+// ---------- aggregation and printing ----------
+type Figures = ReturnType<Awaited<ReturnType<typeof analyse>>['window']>;
+const mergeMap = <V extends Counter>(into: Map<string, V>, from: Map<string, V>, extra?: (a: V, b: V) => void) => {
+  for (const [k, v] of from) {
+    const e = into.get(k);
+    if (!e) {
+      into.set(k, { ...v, ...('lines' in v ? { lines: new Map(v.lines as Map<string, number>) } : {}) });
+    } else {
+      e.us += v.us;
+      e.n += v.n;
+      extra?.(e, v);
+    }
+  }
+};
+const merge = (list: Figures[]): Figures => {
+  const out: Figures = { cls: {}, sampleCount: {}, functions: new Map(), entryFunctions: new Map(), forced: new Map(), animations: 0 };
+  for (const f of list) {
+    for (const [k, v] of Object.entries(f.cls)) out.cls[k] = (out.cls[k] ?? 0) + v;
+    for (const [k, v] of Object.entries(f.sampleCount)) out.sampleCount[k] = (out.sampleCount[k] ?? 0) + v;
+    mergeMap(out.functions, f.functions, (a, b) => {
+      for (const [line, n] of b.lines) a.lines.set(line, (a.lines.get(line) ?? 0) + n);
+    });
+    mergeMap(out.entryFunctions, f.entryFunctions);
+    mergeMap(out.forced, f.forced);
+    out.animations += f.animations;
+  }
+  return out;
+};
+
+const fmt = (v: number | undefined): string => (v === undefined || Number.isNaN(v) ? '—' : Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1));
+/** `median [min–max] | cold` from three warm values and a cold one. */
+const cell = (warm: number[], cold: number | undefined): string => `${fmt(med(warm))} [${fmt(Math.min(...warm))}–${fmt(Math.max(...warm))}] \\| ${fmt(cold)}`;
+
+const CLASSES: [string, string, string?][] = [
+  ['busy', 'counted'],
+  ['= library', 'sampled', 'library'],
+  ['= consumer', 'sampled', 'consumer'],
+  ['= harness', 'counted+sampled', 'harness'],
+  ['= browser', 'derived'],
+  ['library entries', 'counted'],
+  ['consumer entries', 'counted'],
+  ['harness entries', 'counted'],
+  ['harness CDP tasks', 'counted'],
+  ['tracing overhead', 'counted'],
+  ['input dispatch', 'counted'],
+  ['style', 'counted'],
+  ['layout', 'counted'],
+  ['paint', 'counted'],
+  ['gc', 'counted'],
+  ['hit test', 'counted'],
+  ['harness', 'sampled', 'harness'],
+  ['program', 'sampled', 'program'],
+  ['gc (sampled)', 'sampled', 'gc (sampled)'],
+  ['native', 'sampled', 'native'],
+  ['unmapped', 'sampled', 'unmapped'],
+];
+
+type Group = { name: string; perTrace: { warm: boolean; figures: Figures; events: number }[] };
+
+const printGroup = async (group: Group) => {
+  const warm = group.perTrace.filter((t) => t.warm);
+  const cold = group.perTrace.find((t) => !t.warm);
+  const per = (t: { figures: Figures; events: number } | undefined, value: (f: Figures) => number) => (t ? value(t.figures) / t.events : undefined);
+  const row = (value: (f: Figures) => number) => cell(warm.map((t) => per(t, value)!), per(cold, value));
+  console.log(`\n### ${group.name}\n\nEvents per trace: ${warm.map((t) => t.events).join(', ')} warm, ${cold?.events ?? '—'} cold. Per event: warm median [range] | cold.\n`);
+  console.log('| class | kind | µs per event | samples, warm 1/2/3 \\| cold |');
+  console.log('| --- | --- | --- | --- |');
+  for (const [k, kind, sampledAs] of CLASSES) {
+    if (group.perTrace.every((t) => !(t.figures.cls[k] ?? 0))) continue;
+    const counts = warm.map((t) => (sampledAs ? (t.figures.sampleCount[sampledAs] ?? 0) : 0));
+    const few = sampledAs && med(counts) < FEW ? ', fewer than 20' : '';
+    console.log(`| ${k} | ${kind} | ${row((f) => f.cls[k] ?? 0)} | ${sampledAs ? `${counts.join('/')} \\| ${cold?.figures.sampleCount[sampledAs] ?? 0}${few}` : ''} |`);
+  }
+
+  const keysOf = <V,>(pick: (f: Figures) => Map<string, V>) => {
+    const keys = new Set<string>();
+    for (const t of group.perTrace) for (const k of pick(t.figures).keys()) keys.add(k);
+    return [...keys];
+  };
+  const anyOf = <V,>(pick: (f: Figures) => Map<string, V>, k: string) => pick(group.perTrace.find((t) => pick(t.figures).has(k))!.figures).get(k)!;
+
+  const entryKeys = keysOf((f) => f.entryFunctions);
+  if (entryKeys.length) {
+    console.log('\nScript entry points, counted `FunctionCall`, which include nested calls and forced style and layout:\n');
+    console.log('| owner | µs per event | calls per event | function |');
+    console.log('| --- | --- | --- | --- |');
+    const rows = await Promise.all(
+      entryKeys.map(async (k) => {
+        const [owner, script] = k.split('|');
+        const { data } = anyOf((f) => f.entryFunctions, k);
+        const where = owner === 'harness' ? `${script}: ${data.functionName || '(anonymous)'}` : await functionAt(data.functionName, data.lineNumber - 1, data.columnNumber - 1);
+        return {
+          order: med(warm.map((t) => (t.figures.entryFunctions.get(k)?.us ?? 0) / t.events)),
+          line: `| ${owner} | ${row((f) => f.entryFunctions.get(k)?.us ?? 0)} | ${row((f) => f.entryFunctions.get(k)?.n ?? 0)} | ${where} |`,
+        };
+      }),
+    );
+    for (const r of rows.toSorted((a, b) => b.order - a.order)) console.log(r.line);
+  }
+
+  const fnKeys = keysOf((f) => f.functions);
+  if (fnKeys.length) {
+    console.log("\nLibrary and consumer functions by self time, sampled; a native callee's time is its caller's:\n");
+    console.log('| owner | µs per event | samples, warm 1/2/3 \\| cold | function | hottest lines, samples in all four traces |');
+    console.log('| --- | --- | --- | --- | --- |');
+    const rows = await Promise.all(
+      fnKeys.map(async (k) => {
+        const { frame } = anyOf((f) => f.functions, k);
+        const owner = ownerOfPath(position(frame.lineNumber ?? 0, frame.columnNumber ?? 0)?.path ?? null);
+        const counts = warm.map((t) => t.figures.functions.get(k)?.n ?? 0);
+        const sites = new Map<string, number>();
+        for (const t of group.perTrace) {
+          for (const [l, n] of t.figures.functions.get(k)?.lines ?? []) {
+            const [line, column] = l.split(':').map(Number) as [number, number];
+            const at = position(line - 1, column - 1);
+            const name = at ? `${at.line}` : `bundle ${line}`;
+            sites.set(name, (sites.get(name) ?? 0) + n);
+          }
+        }
+        const hottest = [...sites].toSorted((a, b) => b[1] - a[1]).slice(0, 3).map(([l, n]) => `${l} (${n})`).join(', ');
+        return {
+          order: med(warm.map((t) => (t.figures.functions.get(k)?.us ?? 0) / t.events)),
+          line: `| ${owner} | ${row((f) => f.functions.get(k)?.us ?? 0)} | ${counts.join('/')} \\| ${cold?.figures.functions.get(k)?.n ?? 0}${med(counts) < FEW ? ', fewer than 20' : ''} | ${await functionAt(frame.functionName, frame.lineNumber ?? 0, frame.columnNumber ?? 0)} | ${hottest} |`,
+        };
+      }),
+    );
+    for (const r of rows.toSorted((a, b) => b.order - a.order).slice(0, 14)) console.log(r.line);
+  }
+
+  const forcedKeys = keysOf((f) => f.forced);
+  if (forcedKeys.length) {
+    console.log('\nForced style and layout, counted: each event that carries the stack of the script that forced it:\n');
+    console.log('| event | count per event | µs per event | forced at | in |');
+    console.log('| --- | --- | --- | --- | --- |');
+    for (const k of forcedKeys) {
+      const { kind, frame, owner } = anyOf((f) => f.forced, k);
+      // A trace stack frame's line and column are 1-based.
+      const at = owner === 'lab' ? await siteAt(frame.lineNumber - 1, frame.columnNumber - 1) : owner;
+      const fn = owner === 'lab' ? (await functionAt(frame.functionName, frame.lineNumber - 1, frame.columnNumber - 1)).split(',')[0] : frame.functionName || '(anonymous)';
+      console.log(`| ${kind} | ${row((f) => f.forced.get(k)?.n ?? 0)} | ${row((f) => f.forced.get(k)?.us ?? 0)} | ${at} | ${fn} |`);
+    }
+  }
+};
+
+// ---------- main ----------
+const traces = await Promise.all(record.traces.map(analyse));
+console.log(`# Trace analysis\n\nDirectory \`${directory}\`, traced revision \`${record.traced}\`, head \`${record.head}\`, Chrome ${record.chrome}.\n`);
+console.log(`Categories: \`${record.categories.join(',')}\`.\n`);
+console.log(`The rebuilt bundle with a source map equals \`bundle.js.txt\`, marker paths aside: ${bundleMatches}.\n`);
+console.log(`Modules with a \`// <path>\` marker in the bundle: ${markerModules.length}. Modules in the source map: ${traceMap.sources.length}. Without a marker: ${traceMap.sources.map((s: string) => short(sourcePath(resolve(MAP_BASE, s)))).filter((s: string) => !markerModules.some((m: string) => s.endsWith(m.replace(/^\.\.\//u, '')))).join(', ') || 'none'}.\n`);
+console.log('## Checks\n');
+console.log('| trace | marks | main-thread samples in the interaction | effective sample interval, µs | lab.log added | order changed | failures |');
+console.log('| --- | --- | --- | --- | --- | --- | --- |');
+for (const t of traces) {
+  console.log(`| ${t.trace.file} | ${t.marks.length}: ${t.marks.map((m: any) => m.name).slice(0, 5).join(', ')}${t.marks.length > 5 ? ', …' : ''} | ${t.mainSamples} | ${fmt(t.interval)} | ${t.trace.logAdded} | ${t.trace.orderChanged} | ${t.trace.failures.join('; ') || 'none'} |`);
+}
+
+const byScenario = new Map<string, any[]>();
+for (const t of traces) byScenario.set(t.trace.scenario, [...(byScenario.get(t.trace.scenario) ?? []), t]);
+
+for (const [scenario, list] of byScenario) {
+  console.log(`\n## ${scenario}`);
+  const groups: Group[] = [];
+  if (scenario.startsWith('reordering moves')) {
+    for (const phase of ['press', 'crossing', 'moves', 'release']) {
+      groups.push({
+        name: `${scenario}: ${phase === 'moves' ? 'moves phase, per move' : phase === 'release' ? 'release and landing' : phase}`,
+        perTrace: list.map((t) => {
+          const p = t.phases.find((x: any) => x.name === phase)!;
+          return { warm: t.trace.warm, figures: t.window(p.w), events: phase === 'moves' ? t.pointer('pointermove', p.w).length : 1 };
+        }),
+      });
+    }
+    const reordering: Group = { name: `${scenario}: reordering moves, per move`, perTrace: [] };
+    const still: Group = { name: `${scenario}: moves that don't reorder, per move`, perTrace: [] };
+    console.log('\nWhich moves reordered: a move reorders when a row animation starts in its window, from the task of its `pointermove` to the next one’s (counted).\n');
+    for (const t of list) {
+      const p = t.phases.find((x: any) => x.name === 'moves')!;
+      const moves = t.pointer('pointermove', p.w);
+      const starts = moves.map((e: any) => t.taskStart(e.ts));
+      const figures: Figures[] = starts.map((s: number, i: number) => t.window([s, starts[i + 1] ?? p.w[1]]));
+      const reorders = figures.map((f) => f.animations > 0);
+      console.log(`- ${t.trace.file}: ${moves.length} \`pointermove\` dispatches; reorders at i = ${reorders.flatMap((r, i) => (r ? [i] : [])).join(', ') || 'none'}; ${figures.reduce((s, f) => s + f.animations, 0)} row animations started`);
+      const chosen = figures.filter((_, i) => reorders[i]);
+      const others = figures.filter((_, i) => !reorders[i]);
+      reordering.perTrace.push({ warm: t.trace.warm, figures: merge(chosen), events: chosen.length || NaN });
+      still.perTrace.push({ warm: t.trace.warm, figures: merge(others), events: others.length || NaN });
+    }
+    groups.push(reordering, still);
+    console.log('\nThe drop: the library\'s `pointerup` entry point and the span from its start to the first event `onReorder` causes (counted), and the samples in that span under `sortable/rect-index.ts:refresh` (sampled):\n');
+    console.log('| trace | entry, µs | span to `onReorder`, µs | `refresh` in the span, µs | samples |');
+    console.log('| --- | --- | --- | --- | --- |');
+    for (const t of list) {
+      const d = t.dropSpan();
+      console.log(d ? `| ${t.trace.file} | ${d.entryUs} | ${d.spanUs} | ${fmt(d.refreshUs)} | ${d.refreshSamples}${d.refreshSamples < FEW ? ', fewer than 20' : ''} |` : `| ${t.trace.file} | — | — | — | — |`);
+    }
+  } else {
+    for (const phase of ['press', 'release']) {
+      groups.push({
+        name: `${scenario}: ${phase === 'press' ? 'press, per press' : 'release, per release'}`,
+        perTrace: list.map((t) => {
+          const chosen = t.phases.filter((x: any) => x.name.startsWith(`${phase} `));
+          return { warm: t.trace.warm, figures: merge(chosen.map((x: any) => t.window(x.w))), events: chosen.length };
+        }),
+      });
+    }
+    groups.push({
+      name: `${scenario}: idle wait after the last release, whole phase`,
+      perTrace: list.map((t) => ({ warm: t.trace.warm, figures: t.window(t.phases.find((x: any) => x.name === 'idle')!.w), events: 1 })),
+    });
+  }
+  for (const g of groups) await printGroup(g);
+}
+await rm(scratch, { force: true, recursive: true });
