@@ -77,6 +77,8 @@ The architect then selects one candidate, or none, and records the selection.
 
 **Second optimization unit:** [`performance-window-handoff.md`](performance-window-handoff.md), `DRD-49`. The trace report's candidate 1: `y()` measures a window of rows that grows from the placeholder toward the pointer, instead of every row at the activation and after every invalidation. The 2,000-item cycle rows confirm it, and the move rows show that nothing is slower.
 
+**Owner scope approval, 2026-11-12:** `y()` serves rendered, non-virtualized DOM lists under `DRD-49`'s ordering terms. Virtualized lists are deferred until after 1.0.0, as recorded in §5. This approval allows the second optimization unit to start; it accepts no unmeasured speed or size result.
+
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
 Each unit is one bounded change at the selected candidate's site. Each unit:
@@ -110,3 +112,9 @@ After the runtime units, under CONTRIBUTING Part II: delete machinery before com
 - `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
 - `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
 - The optional findings `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so.
+
+## 5. Post-1.0.0: virtualized lists
+
+**Owner direction, 2026-11-12:** plan a separate extension for drag and drop in virtualized lists. `yvirt` is a working name, not a decided API or architecture. The current `y()` does not support virtualized lists.
+
+The future design covers moving a file into a folder while scrolling a virtualized file list, and reordering across the rendered window's boundary. It must consider stable item identity when DOM rows are removed or reused, and an operation that outlives its source row. Whether this needs a separate behavior, capability or adapter remains for that design. This work is not a prerequisite for 1.0.0 or for `DRD-49`.
