@@ -49,7 +49,7 @@ export function y(): AxisInstaller {
           context.box,
           context.placeholder,
           context.displacement,
-          query.insertion ? query.insertion.index : -1,
+          query.insertion.index,
           pointerY,
         );
 
@@ -89,7 +89,7 @@ export function y(): AxisInstaller {
       confirm(query, context) {
         if (
           !index.holds(
-            query.insertion ? query.insertion.index : -1,
+            query.insertion.index,
             query.snapshot,
             context.box,
             context.displacement,
@@ -100,7 +100,7 @@ export function y(): AxisInstaller {
       },
 
       moved(query, context) {
-        shift.moved(query.insertion!.index, query.snapshot, context);
+        shift.moved(query.insertion.index, query.snapshot, context);
       },
 
       retire() {

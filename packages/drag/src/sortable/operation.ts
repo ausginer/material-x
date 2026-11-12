@@ -1,4 +1,4 @@
-import type { SetNonNullable, Writable } from 'type-fest';
+import type { Writable } from 'type-fest';
 import type {
   BehaviorOperation,
   Drag,
@@ -50,7 +50,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   readonly #frame: FrameTask;
   readonly #context: AxisContext;
   /** The operation state the axis rule reads. */
-  readonly #query: Writable<SetNonNullable<AxisQuery>>;
+  readonly #query: Writable<AxisQuery>;
   /**
    * The item's gap in the pull that is the operation's collection. A landing at
    * home reads it, so no cancel, verdict or release reads the consumer's array.

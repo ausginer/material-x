@@ -47,7 +47,7 @@ export interface LinearShift {
    * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
    * is stale, and grows the window until it brackets the pointer. `gap` is the gap
    * the placeholder occupies at the moment of the scan, which only the caller
-   * knows, or `-1` for none. The stale placeholder is read first, because the
+   * knows. The stale placeholder is read first, because the
    * development check compares it against the tree. That check runs here, one frame
    * after the move, because at the move's own instant the animations it started
    * have no resolved timing yet.
@@ -130,8 +130,7 @@ export function linearShift(index: RectIndex): LinearShift {
         );
       }
 
-      // With no gap, the window starts at the list's start and grows down.
-      index.collect(snapshot, dragged, placeholder, gap < 0 ? 0 : gap);
+      index.collect(snapshot, dragged, placeholder, gap);
 
       // Read once: `measure` writes into this buffer and never replaces it.
       const { values, count } = index;
@@ -158,10 +157,7 @@ export function linearShift(index: RectIndex): LinearShift {
 
       snapshotVersion = snapshot.version;
       dirty = false;
-
-      if (gap >= 0) {
-        lastGap = gap;
-      }
+      lastGap = gap;
     },
 
     moved(gap, snapshot, context) {

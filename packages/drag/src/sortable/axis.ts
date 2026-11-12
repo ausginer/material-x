@@ -37,7 +37,7 @@ export type AxisQuery = Readonly<{
   pointerY: number;
   snapshot: CollectionSnapshot;
   /** The committed gap: where the placeholder is. */
-  insertion: Insertion | null;
+  insertion: Insertion;
   /** Excluded from the candidates, whose center would otherwise always win. */
   item: HTMLElement;
 }>;

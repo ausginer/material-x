@@ -46,7 +46,7 @@ export function xy(): AxisInstaller {
           context.placeholder,
           context.displacement,
         );
-        last = query.insertion ? query.insertion.index : -1;
+        last = query.insertion.index;
 
         // Read once, outside the candidate loop.
         const { values, count, placeholderRect, items } = index;
@@ -85,7 +85,7 @@ export function xy(): AxisInstaller {
       confirm(query, context) {
         if (
           !index.holds(
-            query.insertion ? query.insertion.index : -1,
+            query.insertion.index,
             query.snapshot,
             context.box,
             context.displacement,
@@ -98,7 +98,7 @@ export function xy(): AxisInstaller {
       moved(query, context) {
         // Read once: the per-row loop below calls into it.
         const { displacement } = context;
-        const gap = query.insertion!.index;
+        const gap = query.insertion.index;
         // Taken before the refresh below rewrites the count.
         const held = index.count;
 
