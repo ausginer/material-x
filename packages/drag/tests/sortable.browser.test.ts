@@ -1229,12 +1229,12 @@ describe('sortable options', () => {
 
     const measurements = measurementsOf(calls);
 
-    expect(faults).toEqual([]);
-    expect(log).toEqual(['start', 'end:accepted']);
+    expectCacheRanges(measurements, 11);
     expect(
       measurements.filter((call) => call.first > 0).length,
     ).toBeGreaterThanOrEqual(3);
-    expectCacheRanges(measurements, 11);
+    expect(faults).toEqual([]);
+    expect(log).toEqual(['start', 'end:accepted']);
     // The confirmation and the probe: one slot, its own row.
     for (const { items, first, end, range, read } of calls) {
       if (!measurements.some((call) => call.items === items)) {
@@ -1277,12 +1277,12 @@ describe('sortable options', () => {
 
     const measurements = measurementsOf(calls);
 
-    expect(faults).toEqual([]);
-    expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(2);
+    expectCacheRanges(measurements, 11);
     expect(
       measurements.filter((call) => call.first === 0 && call.end === 11).length,
     ).toBeGreaterThanOrEqual(2);
-    expectCacheRanges(measurements, 11);
+    expect(faults).toEqual([]);
+    expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(2);
   });
 
   it('drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives', async () => {
@@ -1342,8 +1342,10 @@ describe('sortable options', () => {
 
     await commands.pointerMove(start.x, start.y + 20, 2);
     await frames();
-    // Over r3: one committed move displaces r1, r2 and r3 by one row up.
-    await moveHeld(start.x, start.y + 125);
+    // Over r3, in one sample: one resolution, with nothing in flight, measures
+    // slots 0 to 3, and one committed move displaces r1, r2 and r3 by a row up.
+    await commands.pointerMove(start.x, start.y + 125);
+    await frames();
     expect(placeholderGap()).toBe(3);
     await frames(2);
     expect(r3.getAnimations()).toHaveLength(1);
