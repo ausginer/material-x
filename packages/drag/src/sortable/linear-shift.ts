@@ -18,12 +18,23 @@
  * the placeholder's own size give that. A committed move marks it stale, and the
  * next frame reads it once, from a tree already laid out.
  *
- * `xy()` wraps, so its displacement is neither scalar nor uniform. This is a module
- * and not a branch in `RectIndex` so that an `xy()` composition does not carry it.
+ * A resolution measures a window of slots, not every slot. It grows the window
+ * from the slots next to the placeholder's gap toward the pointer, until the window
+ * holds the two slots whose centers bracket the pointer, or reaches the list's end
+ * on that side. Under the term that centers increase along y in the collection's
+ * order, the nearest center in that window is the nearest in the list, and the
+ * slots on the other side of the placeholder are no nearer than its own center. A
+ * committed move crosses only slots between the old gap and the nearest center, so
+ * the shift rule writes only slots in the window.
+ *
+ * `xy()` wraps, so its displacement is neither scalar nor uniform, and its centers
+ * are not ordered along one axis. This is a module and not a branch in `RectIndex`
+ * so that an `xy()` composition does not carry the rule or the window's growth.
  */
 import type { AxisContext, DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import {
+  CENTER_Y,
   type RectIndex,
   STRIDE,
   TOP,
@@ -33,11 +44,13 @@ import {
 /** One `RectIndex` under the linear shift rule, along y. */
 export interface LinearShift {
   /**
-   * `RectIndex.refresh`, plus the gap the placeholder occupies at the moment of the
-   * scan, which only the caller knows. The stale placeholder is read first, because
-   * the development check compares it against the tree. That check runs here, one
-   * frame after the move, because at the move's own instant the animations it
-   * started have no resolved timing yet.
+   * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
+   * is stale, and grows the window until it brackets the pointer. `gap` is the gap
+   * the placeholder occupies at the moment of the scan, which only the caller
+   * knows, or `-1` for none. The stale placeholder is read first, because the
+   * development check compares it against the tree. That check runs here, one frame
+   * after the move, because at the move's own instant the animations it started
+   * have no resolved timing yet.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -46,6 +59,7 @@ export interface LinearShift {
     placeholder: HTMLElement,
     displacement: DisplacementSink | null,
     gap: number,
+    pointerY: number,
   ): void;
 
   /**
@@ -85,7 +99,15 @@ export function linearShift(index: RectIndex): LinearShift {
   let advanceUnchecked = false;
 
   return {
-    refresh(snapshot, dragged, getBox, placeholder, displacement, gap) {
+    refresh(
+      snapshot,
+      dragged,
+      getBox,
+      placeholder,
+      displacement,
+      gap,
+      pointerY,
+    ) {
       if (placeholderIsStale) {
         placeholderIsStale = false;
         index.remeasurePlaceholder(placeholder);
@@ -108,7 +130,31 @@ export function linearShift(index: RectIndex): LinearShift {
         );
       }
 
-      index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+      // With no gap, the window starts at the list's start and grows down.
+      index.collect(snapshot, dragged, placeholder, gap < 0 ? 0 : gap);
+
+      // Read once: `measure` writes into this buffer and never replaces it.
+      const { values, count } = index;
+
+      // Toward the pointer only: under the order term, a slot on the other side of
+      // the placeholder is never nearer than the placeholder's own center.
+      if (pointerY > index.placeholderRect[CENTER_Y]!) {
+        while (
+          index.end < count &&
+          (index.first === index.end ||
+            values[(index.end - 1) * STRIDE + CENTER_Y]! < pointerY)
+        ) {
+          index.measure(index.end, index.end + 1, getBox, displacement);
+        }
+      } else {
+        while (
+          index.first > 0 &&
+          (index.first === index.end ||
+            values[index.first * STRIDE + CENTER_Y]! > pointerY)
+        ) {
+          index.measure(index.first - 1, index.first, getBox, displacement);
+        }
+      }
 
       snapshotVersion = snapshot.version;
       dirty = false;

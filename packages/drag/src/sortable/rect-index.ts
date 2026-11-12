@@ -6,6 +6,10 @@
  * element array, indexed by destination position, which is the collection minus the
  * dragged item. A slot is therefore the index the resulting `Insertion` needs.
  *
+ * The element array holds every slot. The packed buffer holds measured geometry for
+ * one contiguous range of slots, the window: every slot after `refresh`, and only
+ * the slots `measure` added after `collect`.
+ *
  * Each axis rule creates its own instance inside its factory, so the cache has one
  * owner.
  */
@@ -31,6 +35,20 @@ export type ReadonlyFloat64Array = Readonly<{
   slice(start?: number, end?: number): Float64Array;
 }>;
 
+/** Packs one rect as a slot at `offset`: both edges on each axis, then both centers. */
+function pack(
+  target: Float64Array,
+  offset: number,
+  rect: DOMRectReadOnly,
+): void {
+  target[offset + LEFT] = rect.left;
+  target[offset + TOP] = rect.top;
+  target[offset + RIGHT] = rect.right;
+  target[offset + BOTTOM] = rect.bottom;
+  target[offset + CENTER_X] = (rect.left + rect.right) * 0.5;
+  target[offset + CENTER_Y] = (rect.top + rect.bottom) * 0.5;
+}
+
 function capacityFor(needed: number): number {
   let capacity = 1;
 
@@ -51,9 +69,9 @@ function capacityFor(needed: number): number {
 const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
- * The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
- * resolution, and `items` only when proposing a gap change. Do not add a read
- * inside the candidate loop.
+ * The hot path: each axis rule reads `values`, the slot range it scans and
+ * `placeholderRect` once per resolution, and `items` only when proposing a gap
+ * change. Do not add a read inside the candidate loop.
  */
 export class RectIndex {
   /**
@@ -71,8 +89,11 @@ export class RectIndex {
   /** Destination-ordered elements, parallel to the packed slots. */
   readonly #items: HTMLElement[] = [];
 
-  /** How many destination slots the last scan produced. */
-  #count = 0;
+  /** The window's first slot. */
+  #first = 0;
+
+  /** The slot after the window's last one: the window is empty when it equals `#first`. */
+  #end = 0;
 
   /** Slots the packed buffer can hold: a power of two once fitted. */
   #capacity = 0;
@@ -95,13 +116,23 @@ export class RectIndex {
   }
 
   get count(): number {
-    return this.#count;
+    // The element array is truncated to the slots the last scan produced.
+    return this.#items.length;
+  }
+
+  get first(): number {
+    return this.#first;
+  }
+
+  get end(): number {
+    return this.#end;
   }
 
   /**
-   * Measures only when something marked the cache dirty or the collection version
-   * changed. `getBox` is the configured geometry source, or `null` when every
-   * candidate is its own box. `displacement` is the composed sink, or `null`.
+   * Measures every slot, only when something marked the cache dirty or the
+   * collection version changed. `getBox` is the configured geometry source, or
+   * `null` when every candidate is its own box. `displacement` is the composed sink,
+   * or `null`.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -109,6 +140,25 @@ export class RectIndex {
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     placeholder: HTMLElement,
     displacement: DisplacementSink | null,
+  ): void {
+    this.collect(snapshot, dragged, placeholder, 0);
+
+    // An empty window after `collect` is a rebuild, or a collection with no slot.
+    if (this.#first === this.#end) {
+      this.measure(0, this.#items.length, getBox, displacement);
+    }
+  }
+
+  /**
+   * `refresh` without the slots: when the cache is stale, collects every slot's
+   * element and measures the placeholder, and leaves an empty window at `slot`.
+   * `measure` then adds slots to the window.
+   */
+  collect(
+    snapshot: CollectionSnapshot,
+    dragged: HTMLElement,
+    placeholder: HTMLElement,
+    slot: number,
   ): void {
     if (!this.#dirty && this.#measured === snapshot.version) {
       return;
@@ -119,50 +169,71 @@ export class RectIndex {
       this.#values = new Float64Array(this.#capacity * STRIDE);
     }
 
-    // Locals, not repeated field reads: the loop writes `values` and `items` once
-    // per slot, `placeholderRect` takes six writes, and a local is also smaller.
-    const values = this.#values;
+    // A local, not repeated field reads: the loop writes it once per slot.
     const items = this.#items;
-    const placeholderRect = this.#placeholderRect;
     let n = 0;
 
     for (const item of snapshot.items) {
-      if (item === dragged) {
-        continue;
+      if (item !== dragged) {
+        items[n] = item;
+        n += 1;
       }
+    }
 
+    pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
+    // Truncated, so that a shrinking collection does not retain elements, and so
+    // that its length is the slot count.
+    items.length = n;
+    this.#first = slot;
+    this.#end = slot;
+    this.#measured = snapshot.version;
+    this.#dirty = false;
+  }
+
+  /**
+   * Measures the slots from `lo` to before `hi`, settled through the sink, and adds
+   * them to the window. The range starts or ends at the window's first or end slot,
+   * so the window stays one contiguous range.
+   */
+  measure(
+    lo: number,
+    hi: number,
+    getBox: ((item: HTMLElement) => HTMLElement) | null,
+    displacement: DisplacementSink | null,
+  ): void {
+    // Locals, not repeated field reads inside the loop.
+    const values = this.#values;
+    const items = this.#items;
+
+    for (let i = lo; i < hi; i += 1) {
+      const item = items[i]!;
       // The box, because the placeholder is sized from the box's footprint, so both
       // sides of the comparison are the same kind of rect.
-      const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
-      const offset = n * STRIDE;
-
-      values[offset + LEFT] = rect.left;
-      values[offset + TOP] = rect.top;
-      values[offset + RIGHT] = rect.right;
-      values[offset + BOTTOM] = rect.bottom;
-      values[offset + CENTER_X] = (rect.left + rect.right) * 0.5;
-      values[offset + CENTER_Y] = (rect.top + rect.bottom) * 0.5;
-      items[n] = item;
-      n += 1;
+      pack(
+        values,
+        i * STRIDE,
+        (getBox ? getBox(item) : item).getBoundingClientRect(),
+      );
     }
 
     // The slots must hold where flow puts a row, not where an animation draws it.
-    displacement?.settle(values, items, n);
+    // The sink settles from the start of the buffer and the array it receives, so a
+    // range after slot 0 is a view and a copy of its elements.
+    displacement?.settle(
+      values.subarray(lo * STRIDE),
+      lo ? items.slice(lo, hi) : items,
+      hi - lo,
+    );
 
-    const rect = placeholder.getBoundingClientRect();
+    // An empty window sits at the slot `collect` gave it, so a range next to it
+    // extends it the same way.
+    if (lo < this.#first) {
+      this.#first = lo;
+    }
 
-    placeholderRect[LEFT] = rect.left;
-    placeholderRect[TOP] = rect.top;
-    placeholderRect[RIGHT] = rect.right;
-    placeholderRect[BOTTOM] = rect.bottom;
-    placeholderRect[CENTER_X] = (rect.left + rect.right) * 0.5;
-    placeholderRect[CENTER_Y] = (rect.top + rect.bottom) * 0.5;
-
-    this.#count = n;
-    // Truncated, so that a shrinking collection does not retain elements.
-    items.length = n;
-    this.#measured = snapshot.version;
-    this.#dirty = false;
+    if (hi > this.#end) {
+      this.#end = hi;
+    }
   }
 
   /**
@@ -202,13 +273,13 @@ export class RectIndex {
    * Whether one slot's element is still where the cache holds it: measured again like
    * a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A
    * scroll or a layout shift outside the list moves every slot by one vector, so one
-   * slot shows it. A stale or empty cache reads nothing and answers `true`, because
-   * its next refresh measures every slot anyway.
+   * slot shows it. A stale cache or an empty window reads nothing and answers
+   * `true`, because the next resolution measures what it needs anyway.
    *
-   * The slot is the end of the list farther from `gap`, the gap the placeholder
+   * The slot is the end of the window farther from `gap`, the gap the placeholder
    * holds. Committed moves displace the slots next to the gap, so a slot far from it
    * is the least likely to carry a running animation, and a settled reading that
-   * misses by more than the slack costs a full measurement.
+   * misses by more than the slack costs a new measurement.
    */
   holds(
     gap: number,
@@ -216,33 +287,29 @@ export class RectIndex {
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     displacement: DisplacementSink | null,
   ): boolean {
-    if (
-      this.#dirty ||
-      this.#measured !== snapshot.version ||
-      this.#count === 0
-    ) {
+    // Read once: each is used twice below.
+    const first = this.#first;
+    const end = this.#end;
+
+    if (this.#dirty || this.#measured !== snapshot.version || first === end) {
       return true;
     }
 
-    const slot = gap * 2 < this.#count ? this.#count - 1 : 0;
+    const slot = end - gap > gap - first ? end - 1 : first;
     const item = this.#items[slot]!;
-    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
     // Packed like a slot, because the sink settles slots. Only left and top are
     // compared.
     const scratch = new Float64Array(STRIDE);
 
-    scratch[LEFT] = rect.left;
-    scratch[TOP] = rect.top;
-    scratch[RIGHT] = rect.right;
-    scratch[BOTTOM] = rect.bottom;
+    pack(scratch, 0, (getBox ? getBox(item) : item).getBoundingClientRect());
     displacement?.settle(scratch, [item], 1);
 
     const offset = slot * STRIDE;
 
     return (
-      Math.abs(scratch[LEFT] - this.#values[offset + LEFT]!) <=
+      Math.abs(scratch[LEFT]! - this.#values[offset + LEFT]!) <=
         EQUIVALENCE_SLACK &&
-      Math.abs(scratch[TOP] - this.#values[offset + TOP]!) <= EQUIVALENCE_SLACK
+      Math.abs(scratch[TOP]! - this.#values[offset + TOP]!) <= EQUIVALENCE_SLACK
     );
   }
 
@@ -257,18 +324,18 @@ export class RectIndex {
    */
   retire(): void {
     this.#items.length = 0;
-    this.#count = 0;
     this.#dirty = true;
     this.#measured = -1;
   }
 }
 
 /**
- * Development only: the buffer the previous advance wrote must equal what a full
- * scan of the tree now produces. Every test that drives a drag through `y()` checks
- * it. It forces the rebuild and compares a copy, so a mismatch leaves the cache
- * correct, and the scan has one definition. It is a free function so that it
- * tree-shakes from the published build.
+ * Development only: the window the previous advance wrote must equal what a fresh
+ * measurement of the same slots in the tree now produces. Every test that drives a
+ * drag through `y()` checks it. It forces the rebuild, measures every slot of the
+ * window again and compares a copy, so a mismatch leaves the cache correct, and the
+ * measurement has one definition. It is a free function so that it tree-shakes from
+ * the published build.
  */
 export function verifyEquivalence(
   index: RectIndex,
@@ -278,27 +345,31 @@ export function verifyEquivalence(
   placeholder: HTMLElement,
   displacement: DisplacementSink | null,
 ): void {
-  // Taken before the refresh below rewrites the count.
-  const held = index.count;
-  const predicted = index.values.slice(0, held * STRIDE);
+  // Taken before the rebuild below rewrites them.
+  const { count: held, first, end } = index;
+  const predicted = index.values.slice(0, end * STRIDE);
   const predictedPlaceholder = index.placeholderRect.slice();
   const predictedItems = [...index.items];
 
   index.invalidate();
-  index.refresh(snapshot, dragged, getBox, placeholder, displacement);
+  index.collect(snapshot, dragged, placeholder, first);
+
+  index.measure(first, end, getBox, displacement);
 
   const differs = (a: number, b: number): boolean =>
     Math.abs(a - b) > EQUIVALENCE_SLACK;
   // Read once, outside the comparison loops.
   const { values, placeholderRect, items, count } = index;
-  let mismatch = count === held ? '' : `count ${held}, full scan ${count}`;
+  let mismatch = count === held ? '' : `count ${held}, measured ${count}`;
 
-  for (let i = 0; mismatch === '' && i < held * STRIDE; i += 1) {
-    if (
-      predictedItems[Math.floor(i / STRIDE)] !==
-        items[Math.floor(i / STRIDE)] ||
-      differs(predicted[i]!, values[i]!)
-    ) {
+  for (let slot = 0; mismatch === '' && slot < held; slot += 1) {
+    if (predictedItems[slot] !== items[slot]) {
+      mismatch = `slot ${slot}`;
+    }
+  }
+
+  for (let i = first * STRIDE; mismatch === '' && i < end * STRIDE; i += 1) {
+    if (differs(predicted[i]!, values[i]!)) {
       mismatch = `slot ${Math.floor(i / STRIDE)}`;
     }
   }
@@ -311,7 +382,7 @@ export function verifyEquivalence(
 
   if (mismatch !== '') {
     throw new Error(
-      `drag: the predicted insertion geometry disagreed with a full scan at ${mismatch}; the linear shift rule does not hold for this list`,
+      `drag: the predicted insertion geometry disagreed with a fresh measurement at ${mismatch}; the linear shift rule does not hold for this list`,
     );
   }
 }

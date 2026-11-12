@@ -1032,6 +1032,88 @@ describe('sortable options', () => {
     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(4);
   });
 
+  it('drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up', async () => {
+    const list = makeList(26);
+
+    // Two heights, so that no center is a multiple of one row height. The page
+    // does not scroll: 26 rows take 702 px.
+    for (const [i, row] of rowsOf(list).entries()) {
+      row.style.height = i % 2 === 0 ? '20px' : '34px';
+    }
+
+    basicSortable(list);
+
+    const dragged = document.querySelector<HTMLElement>('#r0')!;
+    const placeholderGap = (): number => {
+      const placeholder = list.querySelector('[data-drag-placeholder]')!;
+
+      return [...list.children]
+        .filter((element) => element !== dragged)
+        .indexOf(placeholder);
+    };
+    // `y()`'s rule over every row, measured now: the nearest center to the
+    // pointer, the first in order among equals, and the placeholder's own center
+    // as the incumbent.
+    const gapFor = (pointerY: number): number => {
+      const destination = rowsOf(list).filter((row) => row !== dragged);
+      const anchor = centerOf('[data-drag-placeholder]').y;
+      let best = Math.abs(pointerY - anchor);
+      let nearest = -1;
+
+      for (const [i, row] of destination.entries()) {
+        const distance = Math.abs(pointerY - centerOf(row).y);
+
+        if (distance < best) {
+          best = distance;
+          nearest = i;
+        }
+      }
+
+      if (nearest === -1) {
+        return placeholderGap();
+      }
+
+      return centerOf(destination[nearest]!).y > anchor ? nearest + 1 : nearest;
+    };
+
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 20, 2);
+    await frames();
+
+    // Steps of 9 px: shorter than half the distance between two adjacent centers,
+    // so that some step lands in every interval where the nearest row changes.
+    const path: number[] = [];
+
+    for (let dy = 29; dy <= 600; dy += 9) {
+      path.push(dy);
+    }
+
+    for (let dy = 600; dy >= 0; dy -= 9) {
+      path.push(dy);
+    }
+
+    let deepest = 0;
+
+    for (const dy of path) {
+      // Measured before the move, while nothing changes the tree: the frame after
+      // the move resolves against this geometry.
+      const expected = gapFor(start.y + dy);
+
+      // oxlint-disable-next-line no-await-in-loop -- one sample per step
+      await commands.pointerMove(start.x, start.y + dy);
+      // oxlint-disable-next-line no-await-in-loop -- one frame per step
+      await frames();
+      expect(placeholderGap(), `at ${dy} px`).toBe(expected);
+      deepest = Math.max(deepest, expected);
+    }
+
+    expect(deepest).toBeGreaterThanOrEqual(20);
+    expect(placeholderGap()).toBe(0);
+    await release();
+    expect(log).toEqual(['start', 'end:noop']);
+  }, 60_000);
+
   it('should ignore a second pointer during a drag', async () => {
     const list = makeList(4);
 

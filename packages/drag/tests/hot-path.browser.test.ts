@@ -205,6 +205,34 @@ describe('drag:DRI-17 hot path', () => {
     expect(many).toBe(few);
   });
 
+  it('drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400', async () => {
+    const readsAtActivation = async (count: number): Promise<number> => {
+      const list = makeList(count);
+      const controller = basicSortable(list);
+      const start = await press('#r0');
+      const census = countLayoutReads();
+
+      // Past the threshold, and within one row of the placeholder.
+      await commands.pointerMove(start.x, start.y + 20, 2);
+      await frames();
+
+      const reads = census.reads();
+
+      // Released, so that the next list's press is a new press in every engine.
+      await commands.pointerUp();
+      await frames();
+      await controller.requestDestroy();
+      list.remove();
+      return reads;
+    };
+
+    const few = await readsAtActivation(20);
+    const many = await readsAtActivation(400);
+
+    expect(log.filter((entry) => entry === 'end:noop')).toHaveLength(2);
+    expect(many).toBe(few);
+  });
+
   it('should run no consumer callback per sample', async () => {
     const list = makeList(5);
     let calls = 0;
