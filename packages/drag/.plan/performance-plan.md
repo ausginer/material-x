@@ -87,6 +87,8 @@ The architect then selects one candidate, or none, and records the selection.
 
 **Recommended next, not started:** one attribution probe of the layout that follows a row animation's end at 2,000 items, 5 to 12 ms per traced drag in the saved traces (assessment §4). It changes no production code or instrument. Trace candidates 3 to 5 aren't bounded runtime tasks now. If the probe finds nothing the library controls, the runtime pass is ready to close and P4 follows. The owner decides whether it runs.
 
+**Done on 2026-11-12:** the architect ran the probe at `bb8e5ebb8` ([record](animation-end-layout-probe.md)). The layout follows any element that starts or stops an animated or styled `translate`, `transform` or `opacity`, and the `opacity` control lays out too. Its cost grows with the list. No form that the library controls avoids it with the same rendering and cleanup. **The architect recommends closing the runtime pass**, with P4 next. The owner decides.
+
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
 Each unit is one bounded change at the selected candidate's site. Each unit:

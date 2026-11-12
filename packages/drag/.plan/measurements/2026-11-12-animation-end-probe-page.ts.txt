@@ -1,0 +1,103 @@
+/**
+ * The animation-end layout probe's page. Each variant displaces one or more rows of
+ * a lab-style list (`bench/lab.ts`'s `makeRows`) by one row, as `linearShift`
+ * reports a displacement, and resolves a few frames after every animation ends.
+ */
+import { ancestry, space } from '@ydinjs/box-quad';
+import { layoutAnimation } from '/workspaces/material-x/packages/drag/src/sortable/layout-animation.ts';
+
+const ROW = 'height:40px;box-sizing:border-box;background:#ccd;border:1px solid #889;position:relative;touch-action:none;user-select:none;';
+const DURATION = 160;
+const EASING = 'ease-out';
+
+let list: HTMLElement;
+
+function makeRows(count: number, rowStyle: string): void {
+  list = document.createElement('div');
+  list.style.cssText = 'position:relative;width:200px;';
+  for (let i = 0; i < count; i += 1) {
+    const item = document.createElement('div');
+    item.id = `i${i}`;
+    item.tabIndex = 0;
+    item.textContent = String(i);
+    item.style.cssText = rowStyle;
+    list.append(item);
+  }
+  document.body.append(list);
+  void list.offsetHeight;
+}
+
+const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+const frames = async (n: number): Promise<void> => { for (let i = 0; i < n; i += 1) await frame(); };
+const row = (i: number): HTMLElement => document.getElementById(`i${i}`)!;
+const sp = (element: HTMLElement): Float64Array => { const s = space(); ancestry(element, s); return s; };
+
+/** What a variant leaves behind, read after it ends. */
+function state(rows: HTMLElement[]) {
+  return rows.map((element) => ({
+    id: element.id,
+    animations: element.getAnimations().length,
+    inline: element.style.cssText,
+    translate: getComputedStyle(element).translate,
+    willChange: getComputedStyle(element).willChange,
+    top: element.getBoundingClientRect().top - list.getBoundingClientRect().top,
+    flowTop: element.offsetTop,
+  }));
+}
+
+type Variant = { rows?: number; rowStyle?: string; before?: (rows: HTMLElement[]) => void; run: (rows: HTMLElement[]) => Promise<unknown> | void; after?: (rows: HTMLElement[]) => Promise<void> | void; displaced?: number[] };
+
+const sink = () => layoutAnimation()();
+const finished = (rows: HTMLElement[]) => Promise.all(rows.flatMap((element) => element.getAnimations().map((a) => a.finished)));
+
+export const VARIANTS: Record<string, Variant> = {
+  /** `layoutAnimation`'s own report, the production form. */
+  production: { run(rows) { const s = sink(); for (const r of rows) s.report(r, 0, -40, sp(r)); return finished(rows); } },
+  'production, 20 rows': { rows: 20, run(rows) { const s = sink(); for (const r of rows) s.report(r, 0, -40, sp(r)); return finished(rows); } },
+  'production, two rows together': { displaced: [10, 11], run(rows) { const s = sink(); for (const r of rows) s.report(r, 0, -40, sp(r)); return finished(rows); } },
+  'production, two rows 60 ms apart': { displaced: [10, 11], async run(rows) { const s = sink(); s.report(rows[0]!, 0, -40, sp(rows[0]!)); await new Promise((r) => setTimeout(r, 60)); s.report(rows[1]!, 0, -40, sp(rows[1]!)); return finished(rows); } },
+  /** The same keyframes, replacing instead of adding. */
+  'translate, composite replace': { run(rows) { for (const r of rows) r.animate([{ translate: '0px -40px' }, { translate: '0 0' }], { duration: DURATION, easing: EASING }); return finished(rows); } },
+  /** The last keyframe is `none` instead of `0 0`. */
+  'translate, last keyframe none': { run(rows) { for (const r of rows) r.animate([{ translate: '0px -40px' }, { translate: 'none' }], { duration: DURATION, easing: EASING }); return finished(rows); } },
+  /** `transform` instead of the individual property. */
+  'transform, composite replace': { run(rows) { for (const r of rows) r.animate([{ transform: 'translate(0px, -40px)' }, { transform: 'none' }], { duration: DURATION, easing: EASING }); return finished(rows); } },
+  /** Control: a property with no transform. */
+  'opacity control': { run(rows) { for (const r of rows) r.animate([{ opacity: 0.5 }, { opacity: 1 }], { duration: DURATION, easing: EASING }); return finished(rows); } },
+  /** Diagnostic: the consumer authors a translate, so nothing toggles at the end. */
+  'production, row authors translate 0 0': { before(rows) { for (const r of rows) r.style.translate = '0px 0px'; }, run(rows) { const s = sink(); for (const r of rows) s.report(r, 0, -40, sp(r)); return finished(rows); } },
+  /** Diagnostic: the consumer authors will-change. */
+  'production, row authors will-change translate': { before(rows) { for (const r of rows) r.style.willChange = 'translate'; }, run(rows) { const s = sink(); for (const r of rows) s.report(r, 0, -40, sp(r)); return finished(rows); } },
+  /** Diagnostic: rows that are not positioned. */
+  'production, rows not positioned': { rowStyle: ROW.replace('position:relative;', ''), run(rows) { const s = sink(); for (const r of rows) s.report(r, 0, -40, sp(r)); return finished(rows); } },
+  /** Diagnostic: the same change of translate as style writes, with no animation. */
+  'style writes, translate then removed': { async run(rows) { for (const r of rows) r.style.translate = '0px -40px'; await frames(3); performance.mark('probe:remove'); for (const r of rows) r.style.translate = ''; } },
+  /** Diagnostic: the same as a transform style write. */
+  'style writes, transform then removed': { async run(rows) { for (const r of rows) r.style.transform = 'translate(0px, -40px)'; await frames(3); performance.mark('probe:remove'); for (const r of rows) r.style.transform = ''; } },
+  /** Diagnostic: an animation held by fill until cancelled, then cancelled. */
+  'translate, fill forwards then cancel': { async run(rows) { const all = rows.map((r) => r.animate([{ translate: '0px -40px' }, { translate: '0 0' }], { duration: DURATION, easing: EASING, fill: 'forwards' })); await Promise.all(all.map((a) => a.finished)); await frames(3); performance.mark('probe:remove'); for (const a of all) a.cancel(); } },
+};
+
+const probe = {
+  names: Object.keys(VARIANTS),
+  setup(name: string): void {
+    const variant = VARIANTS[name]!;
+    makeRows(variant.rows ?? 2000, variant.rowStyle ?? ROW);
+    const rows = (variant.displaced ?? [10]).map(row);
+    variant.before?.(rows);
+    void list.offsetHeight;
+  },
+  async run(name: string) {
+    const variant = VARIANTS[name]!;
+    const rows = (variant.displaced ?? [10]).map(row);
+    await frames(2);
+    performance.mark('probe:start');
+    await variant.run(rows);
+    performance.mark('probe:finished');
+    await frames(4);
+    performance.mark('probe:done');
+    return { rows: list.children.length, state: state(rows) };
+  },
+};
+
+(globalThis as any).probe = probe;

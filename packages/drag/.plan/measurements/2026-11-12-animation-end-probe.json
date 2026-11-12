@@ -1,0 +1,3821 @@
+[
+  {
+    "name": "production",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1923,
+    "layouts": [
+      {
+        "atMs": 2.46,
+        "afterReferenceMs": -164.59,
+        "durUs": 1123,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.82,
+        "afterReferenceMs": 0.77,
+        "durUs": 1923,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 2.13,
+        "afterReferenceMs": -164.93,
+        "durUs": 260,
+        "elements": 1
+      },
+      {
+        "atMs": 16.64,
+        "afterReferenceMs": -150.41,
+        "durUs": 315,
+        "elements": 1
+      },
+      {
+        "atMs": 33.57,
+        "afterReferenceMs": -133.49,
+        "durUs": 348,
+        "elements": 1
+      },
+      {
+        "atMs": 49.95,
+        "afterReferenceMs": -117.1,
+        "durUs": 339,
+        "elements": 1
+      },
+      {
+        "atMs": 66.58,
+        "afterReferenceMs": -100.47,
+        "durUs": 250,
+        "elements": 1
+      },
+      {
+        "atMs": 83.68,
+        "afterReferenceMs": -83.37,
+        "durUs": 452,
+        "elements": 1
+      },
+      {
+        "atMs": 100.52,
+        "afterReferenceMs": -66.53,
+        "durUs": 667,
+        "elements": 1
+      },
+      {
+        "atMs": 116.72,
+        "afterReferenceMs": -50.33,
+        "durUs": 365,
+        "elements": 1
+      },
+      {
+        "atMs": 133.47,
+        "afterReferenceMs": -33.58,
+        "durUs": 296,
+        "elements": 1
+      },
+      {
+        "atMs": 150.35,
+        "afterReferenceMs": -16.7,
+        "durUs": 701,
+        "elements": 1
+      },
+      {
+        "atMs": 167.69,
+        "afterReferenceMs": 0.63,
+        "durUs": 119,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1780,
+    "layouts": [
+      {
+        "atMs": 2.14,
+        "afterReferenceMs": -164.74,
+        "durUs": 1024,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.45,
+        "afterReferenceMs": 0.58,
+        "durUs": 1780,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.83,
+        "afterReferenceMs": -165.04,
+        "durUs": 233,
+        "elements": 1
+      },
+      {
+        "atMs": 16.6,
+        "afterReferenceMs": -150.28,
+        "durUs": 272,
+        "elements": 1
+      },
+      {
+        "atMs": 33.73,
+        "afterReferenceMs": -133.15,
+        "durUs": 455,
+        "elements": 1
+      },
+      {
+        "atMs": 50.02,
+        "afterReferenceMs": -116.86,
+        "durUs": 241,
+        "elements": 1
+      },
+      {
+        "atMs": 66.97,
+        "afterReferenceMs": -99.91,
+        "durUs": 367,
+        "elements": 1
+      },
+      {
+        "atMs": 83.81,
+        "afterReferenceMs": -83.06,
+        "durUs": 650,
+        "elements": 1
+      },
+      {
+        "atMs": 100.29,
+        "afterReferenceMs": -66.58,
+        "durUs": 350,
+        "elements": 1
+      },
+      {
+        "atMs": 116.66,
+        "afterReferenceMs": -50.22,
+        "durUs": 254,
+        "elements": 1
+      },
+      {
+        "atMs": 133.51,
+        "afterReferenceMs": -33.37,
+        "durUs": 297,
+        "elements": 1
+      },
+      {
+        "atMs": 150.5,
+        "afterReferenceMs": -16.38,
+        "durUs": 510,
+        "elements": 1
+      },
+      {
+        "atMs": 167.32,
+        "afterReferenceMs": 0.45,
+        "durUs": 123,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 585,
+    "layouts": [
+      {
+        "atMs": 1.23,
+        "afterReferenceMs": -165.11,
+        "durUs": 669,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.59,
+        "afterReferenceMs": 0.25,
+        "durUs": 585,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.07,
+        "afterReferenceMs": -165.27,
+        "durUs": 130,
+        "elements": 1
+      },
+      {
+        "atMs": 16.57,
+        "afterReferenceMs": -149.77,
+        "durUs": 305,
+        "elements": 1
+      },
+      {
+        "atMs": 33.41,
+        "afterReferenceMs": -132.93,
+        "durUs": 595,
+        "elements": 1
+      },
+      {
+        "atMs": 49.62,
+        "afterReferenceMs": -116.72,
+        "durUs": 237,
+        "elements": 1
+      },
+      {
+        "atMs": 66.38,
+        "afterReferenceMs": -99.96,
+        "durUs": 466,
+        "elements": 1
+      },
+      {
+        "atMs": 83.12,
+        "afterReferenceMs": -83.22,
+        "durUs": 484,
+        "elements": 1
+      },
+      {
+        "atMs": 99.57,
+        "afterReferenceMs": -66.77,
+        "durUs": 260,
+        "elements": 1
+      },
+      {
+        "atMs": 116.23,
+        "afterReferenceMs": -50.11,
+        "durUs": 226,
+        "elements": 1
+      },
+      {
+        "atMs": 132.89,
+        "afterReferenceMs": -33.45,
+        "durUs": 200,
+        "elements": 1
+      },
+      {
+        "atMs": 149.78,
+        "afterReferenceMs": -16.56,
+        "durUs": 396,
+        "elements": 1
+      },
+      {
+        "atMs": 166.53,
+        "afterReferenceMs": 0.2,
+        "durUs": 46,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, 20 rows",
+    "rep": 1,
+    "rows": 20,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 121,
+    "layouts": [
+      {
+        "atMs": 2.26,
+        "afterReferenceMs": -164.41,
+        "durUs": 91,
+        "dirty": 5,
+        "total": 44,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.05,
+        "afterReferenceMs": 0.39,
+        "durUs": 121,
+        "dirty": 5,
+        "total": 44,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.93,
+        "afterReferenceMs": -164.73,
+        "durUs": 255,
+        "elements": 1
+      },
+      {
+        "atMs": 16.58,
+        "afterReferenceMs": -150.08,
+        "durUs": 80,
+        "elements": 1
+      },
+      {
+        "atMs": 33.25,
+        "afterReferenceMs": -133.41,
+        "durUs": 57,
+        "elements": 1
+      },
+      {
+        "atMs": 49.97,
+        "afterReferenceMs": -116.69,
+        "durUs": 61,
+        "elements": 1
+      },
+      {
+        "atMs": 66.52,
+        "afterReferenceMs": -100.14,
+        "durUs": 63,
+        "elements": 1
+      },
+      {
+        "atMs": 83.19,
+        "afterReferenceMs": -83.47,
+        "durUs": 70,
+        "elements": 1
+      },
+      {
+        "atMs": 100.15,
+        "afterReferenceMs": -66.52,
+        "durUs": 103,
+        "elements": 1
+      },
+      {
+        "atMs": 116.8,
+        "afterReferenceMs": -49.87,
+        "durUs": 89,
+        "elements": 1
+      },
+      {
+        "atMs": 133.38,
+        "afterReferenceMs": -33.28,
+        "durUs": 83,
+        "elements": 1
+      },
+      {
+        "atMs": 150,
+        "afterReferenceMs": -16.67,
+        "durUs": 68,
+        "elements": 1
+      },
+      {
+        "atMs": 166.97,
+        "afterReferenceMs": 0.3,
+        "durUs": 79,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, 20 rows",
+    "rep": 2,
+    "rows": 20,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 128,
+    "layouts": [
+      {
+        "atMs": 2.79,
+        "afterReferenceMs": -163.91,
+        "durUs": 113,
+        "dirty": 5,
+        "total": 44,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.08,
+        "afterReferenceMs": 0.39,
+        "durUs": 128,
+        "dirty": 5,
+        "total": 44,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 2.38,
+        "afterReferenceMs": -164.32,
+        "durUs": 308,
+        "elements": 1
+      },
+      {
+        "atMs": 16.65,
+        "afterReferenceMs": -150.04,
+        "durUs": 115,
+        "elements": 1
+      },
+      {
+        "atMs": 33.34,
+        "afterReferenceMs": -133.35,
+        "durUs": 92,
+        "elements": 1
+      },
+      {
+        "atMs": 49.96,
+        "afterReferenceMs": -116.74,
+        "durUs": 97,
+        "elements": 1
+      },
+      {
+        "atMs": 66.6,
+        "afterReferenceMs": -100.09,
+        "durUs": 120,
+        "elements": 1
+      },
+      {
+        "atMs": 83.39,
+        "afterReferenceMs": -83.31,
+        "durUs": 83,
+        "elements": 1
+      },
+      {
+        "atMs": 100.13,
+        "afterReferenceMs": -66.57,
+        "durUs": 82,
+        "elements": 1
+      },
+      {
+        "atMs": 116.58,
+        "afterReferenceMs": -50.12,
+        "durUs": 85,
+        "elements": 1
+      },
+      {
+        "atMs": 133.44,
+        "afterReferenceMs": -33.25,
+        "durUs": 92,
+        "elements": 1
+      },
+      {
+        "atMs": 150.08,
+        "afterReferenceMs": -16.61,
+        "durUs": 81,
+        "elements": 1
+      },
+      {
+        "atMs": 167,
+        "afterReferenceMs": 0.31,
+        "durUs": 75,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, 20 rows",
+    "rep": 3,
+    "rows": 20,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 216,
+    "layouts": [
+      {
+        "atMs": 2.52,
+        "afterReferenceMs": -163.9,
+        "durUs": 105,
+        "dirty": 5,
+        "total": 44,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.89,
+        "afterReferenceMs": 0.47,
+        "durUs": 216,
+        "dirty": 5,
+        "total": 44,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 2.17,
+        "afterReferenceMs": -164.26,
+        "durUs": 280,
+        "elements": 1
+      },
+      {
+        "atMs": 16.7,
+        "afterReferenceMs": -149.72,
+        "durUs": 103,
+        "elements": 1
+      },
+      {
+        "atMs": 33.22,
+        "afterReferenceMs": -133.21,
+        "durUs": 90,
+        "elements": 1
+      },
+      {
+        "atMs": 49.98,
+        "afterReferenceMs": -116.45,
+        "durUs": 96,
+        "elements": 1
+      },
+      {
+        "atMs": 66.89,
+        "afterReferenceMs": -99.54,
+        "durUs": 227,
+        "elements": 1
+      },
+      {
+        "atMs": 83.19,
+        "afterReferenceMs": -83.23,
+        "durUs": 100,
+        "elements": 1
+      },
+      {
+        "atMs": 99.88,
+        "afterReferenceMs": -66.54,
+        "durUs": 115,
+        "elements": 1
+      },
+      {
+        "atMs": 116.59,
+        "afterReferenceMs": -49.83,
+        "durUs": 82,
+        "elements": 1
+      },
+      {
+        "atMs": 133.28,
+        "afterReferenceMs": -33.14,
+        "durUs": 93,
+        "elements": 1
+      },
+      {
+        "atMs": 150.06,
+        "afterReferenceMs": -16.36,
+        "durUs": 93,
+        "elements": 1
+      },
+      {
+        "atMs": 166.8,
+        "afterReferenceMs": 0.37,
+        "durUs": 89,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, two rows together",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      },
+      {
+        "id": "i11",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 440,
+        "flowTop": 440
+      }
+    ],
+    "animationEnds": 2,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1359,
+    "layouts": [
+      {
+        "atMs": 2.38,
+        "afterReferenceMs": -164.14,
+        "durUs": 936,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "zoomOf < ancestry < sp"
+      },
+      {
+        "atMs": 3.78,
+        "afterReferenceMs": -162.75,
+        "durUs": 745,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.1,
+        "afterReferenceMs": 0.57,
+        "durUs": 1359,
+        "dirty": 6,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 2.11,
+        "afterReferenceMs": -164.41,
+        "durUs": 251,
+        "elements": 1
+      },
+      {
+        "atMs": 3.61,
+        "afterReferenceMs": -162.91,
+        "durUs": 113,
+        "elements": 1
+      },
+      {
+        "atMs": 16.53,
+        "afterReferenceMs": -149.99,
+        "durUs": 315,
+        "elements": 2
+      },
+      {
+        "atMs": 33.2,
+        "afterReferenceMs": -133.32,
+        "durUs": 350,
+        "elements": 2
+      },
+      {
+        "atMs": 49.96,
+        "afterReferenceMs": -116.57,
+        "durUs": 352,
+        "elements": 2
+      },
+      {
+        "atMs": 66.56,
+        "afterReferenceMs": -99.97,
+        "durUs": 560,
+        "elements": 2
+      },
+      {
+        "atMs": 83.67,
+        "afterReferenceMs": -82.86,
+        "durUs": 517,
+        "elements": 2
+      },
+      {
+        "atMs": 99.89,
+        "afterReferenceMs": -66.63,
+        "durUs": 437,
+        "elements": 2
+      },
+      {
+        "atMs": 116.66,
+        "afterReferenceMs": -49.86,
+        "durUs": 496,
+        "elements": 2
+      },
+      {
+        "atMs": 133.2,
+        "afterReferenceMs": -33.33,
+        "durUs": 487,
+        "elements": 2
+      },
+      {
+        "atMs": 149.85,
+        "afterReferenceMs": -16.67,
+        "durUs": 449,
+        "elements": 2
+      },
+      {
+        "atMs": 166.93,
+        "afterReferenceMs": 0.41,
+        "durUs": 159,
+        "elements": 2
+      }
+    ]
+  },
+  {
+    "name": "production, two rows together",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      },
+      {
+        "id": "i11",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 440,
+        "flowTop": 440
+      }
+    ],
+    "animationEnds": 2,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1222,
+    "layouts": [
+      {
+        "atMs": 3.34,
+        "afterReferenceMs": -163.14,
+        "durUs": 1633,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "zoomOf < ancestry < sp"
+      },
+      {
+        "atMs": 5.96,
+        "afterReferenceMs": -160.52,
+        "durUs": 1434,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.96,
+        "afterReferenceMs": 0.48,
+        "durUs": 1222,
+        "dirty": 6,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 2.8,
+        "afterReferenceMs": -163.69,
+        "durUs": 503,
+        "elements": 1
+      },
+      {
+        "atMs": 5.61,
+        "afterReferenceMs": -160.88,
+        "durUs": 237,
+        "elements": 1
+      },
+      {
+        "atMs": 18.12,
+        "afterReferenceMs": -148.37,
+        "durUs": 458,
+        "elements": 2
+      },
+      {
+        "atMs": 34.66,
+        "afterReferenceMs": -131.83,
+        "durUs": 410,
+        "elements": 2
+      },
+      {
+        "atMs": 51.52,
+        "afterReferenceMs": -114.96,
+        "durUs": 391,
+        "elements": 2
+      },
+      {
+        "atMs": 68.1,
+        "afterReferenceMs": -98.39,
+        "durUs": 367,
+        "elements": 2
+      },
+      {
+        "atMs": 85,
+        "afterReferenceMs": -81.49,
+        "durUs": 419,
+        "elements": 2
+      },
+      {
+        "atMs": 102,
+        "afterReferenceMs": -64.49,
+        "durUs": 408,
+        "elements": 2
+      },
+      {
+        "atMs": 117.69,
+        "afterReferenceMs": -48.8,
+        "durUs": 388,
+        "elements": 2
+      },
+      {
+        "atMs": 133.49,
+        "afterReferenceMs": -33,
+        "durUs": 336,
+        "elements": 2
+      },
+      {
+        "atMs": 150.26,
+        "afterReferenceMs": -16.22,
+        "durUs": 321,
+        "elements": 2
+      },
+      {
+        "atMs": 166.83,
+        "afterReferenceMs": 0.34,
+        "durUs": 129,
+        "elements": 2
+      }
+    ]
+  },
+  {
+    "name": "production, two rows together",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      },
+      {
+        "id": "i11",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 440,
+        "flowTop": 440
+      }
+    ],
+    "animationEnds": 2,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 754,
+    "layouts": [
+      {
+        "atMs": 1.75,
+        "afterReferenceMs": -164.61,
+        "durUs": 941,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "zoomOf < ancestry < sp"
+      },
+      {
+        "atMs": 2.99,
+        "afterReferenceMs": -163.37,
+        "durUs": 630,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.65,
+        "afterReferenceMs": 0.29,
+        "durUs": 754,
+        "dirty": 6,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.5,
+        "afterReferenceMs": -164.86,
+        "durUs": 226,
+        "elements": 1
+      },
+      {
+        "atMs": 2.88,
+        "afterReferenceMs": -163.48,
+        "durUs": 73,
+        "elements": 1
+      },
+      {
+        "atMs": 16.55,
+        "afterReferenceMs": -149.81,
+        "durUs": 323,
+        "elements": 2
+      },
+      {
+        "atMs": 33.05,
+        "afterReferenceMs": -133.31,
+        "durUs": 316,
+        "elements": 2
+      },
+      {
+        "atMs": 49.86,
+        "afterReferenceMs": -116.5,
+        "durUs": 293,
+        "elements": 2
+      },
+      {
+        "atMs": 66.38,
+        "afterReferenceMs": -99.98,
+        "durUs": 333,
+        "elements": 2
+      },
+      {
+        "atMs": 83.06,
+        "afterReferenceMs": -83.31,
+        "durUs": 350,
+        "elements": 2
+      },
+      {
+        "atMs": 99.73,
+        "afterReferenceMs": -66.63,
+        "durUs": 288,
+        "elements": 2
+      },
+      {
+        "atMs": 116.41,
+        "afterReferenceMs": -49.95,
+        "durUs": 329,
+        "elements": 2
+      },
+      {
+        "atMs": 133.04,
+        "afterReferenceMs": -33.32,
+        "durUs": 305,
+        "elements": 2
+      },
+      {
+        "atMs": 149.73,
+        "afterReferenceMs": -16.64,
+        "durUs": 198,
+        "elements": 2
+      },
+      {
+        "atMs": 166.56,
+        "afterReferenceMs": 0.2,
+        "durUs": 84,
+        "elements": 2
+      }
+    ]
+  },
+  {
+    "name": "production, two rows 60 ms apart",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      },
+      {
+        "id": "i11",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 440,
+        "flowTop": 440
+      }
+    ],
+    "animationEnds": 2,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 983,
+    "layouts": [
+      {
+        "atMs": 1.91,
+        "afterReferenceMs": -231.37,
+        "durUs": 960,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 66.71,
+        "afterReferenceMs": -166.58,
+        "durUs": 987,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.81,
+        "afterReferenceMs": -66.47,
+        "durUs": 1053,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 233.55,
+        "afterReferenceMs": 0.27,
+        "durUs": 983,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.74,
+        "afterReferenceMs": -231.54,
+        "durUs": 162,
+        "elements": 1
+      },
+      {
+        "atMs": 16.47,
+        "afterReferenceMs": -216.81,
+        "durUs": 288,
+        "elements": 1
+      },
+      {
+        "atMs": 33.32,
+        "afterReferenceMs": -199.96,
+        "durUs": 257,
+        "elements": 1
+      },
+      {
+        "atMs": 50.11,
+        "afterReferenceMs": -183.18,
+        "durUs": 245,
+        "elements": 1
+      },
+      {
+        "atMs": 62.3,
+        "afterReferenceMs": -170.98,
+        "durUs": 189,
+        "elements": 1
+      },
+      {
+        "atMs": 66.63,
+        "afterReferenceMs": -166.65,
+        "durUs": 69,
+        "elements": 1
+      },
+      {
+        "atMs": 83.34,
+        "afterReferenceMs": -149.94,
+        "durUs": 284,
+        "elements": 2
+      },
+      {
+        "atMs": 99.95,
+        "afterReferenceMs": -133.33,
+        "durUs": 293,
+        "elements": 2
+      },
+      {
+        "atMs": 116.68,
+        "afterReferenceMs": -116.6,
+        "durUs": 304,
+        "elements": 2
+      },
+      {
+        "atMs": 133.2,
+        "afterReferenceMs": -100.08,
+        "durUs": 325,
+        "elements": 2
+      },
+      {
+        "atMs": 149.98,
+        "afterReferenceMs": -83.3,
+        "durUs": 306,
+        "elements": 2
+      },
+      {
+        "atMs": 166.67,
+        "afterReferenceMs": -66.61,
+        "durUs": 136,
+        "elements": 2
+      },
+      {
+        "atMs": 183.29,
+        "afterReferenceMs": -49.99,
+        "durUs": 249,
+        "elements": 1
+      },
+      {
+        "atMs": 199.93,
+        "afterReferenceMs": -33.35,
+        "durUs": 268,
+        "elements": 1
+      },
+      {
+        "atMs": 216.71,
+        "afterReferenceMs": -16.57,
+        "durUs": 247,
+        "elements": 1
+      },
+      {
+        "atMs": 233.49,
+        "afterReferenceMs": 0.21,
+        "durUs": 54,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, two rows 60 ms apart",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      },
+      {
+        "id": "i11",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 440,
+        "flowTop": 440
+      }
+    ],
+    "animationEnds": 2,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 2574,
+    "layouts": [
+      {
+        "atMs": 1.37,
+        "afterReferenceMs": -232.38,
+        "durUs": 652,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 66.92,
+        "afterReferenceMs": -166.83,
+        "durUs": 1772,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.79,
+        "afterReferenceMs": -66.96,
+        "durUs": 950,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 234.56,
+        "afterReferenceMs": 0.8,
+        "durUs": 2574,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.24,
+        "afterReferenceMs": -232.51,
+        "durUs": 125,
+        "elements": 1
+      },
+      {
+        "atMs": 16.49,
+        "afterReferenceMs": -217.26,
+        "durUs": 667,
+        "elements": 1
+      },
+      {
+        "atMs": 33.14,
+        "afterReferenceMs": -200.62,
+        "durUs": 180,
+        "elements": 1
+      },
+      {
+        "atMs": 49.88,
+        "afterReferenceMs": -183.88,
+        "durUs": 259,
+        "elements": 1
+      },
+      {
+        "atMs": 62.19,
+        "afterReferenceMs": -171.56,
+        "durUs": 258,
+        "elements": 1
+      },
+      {
+        "atMs": 66.83,
+        "afterReferenceMs": -166.92,
+        "durUs": 77,
+        "elements": 1
+      },
+      {
+        "atMs": 83.55,
+        "afterReferenceMs": -150.2,
+        "durUs": 700,
+        "elements": 2
+      },
+      {
+        "atMs": 99.79,
+        "afterReferenceMs": -133.96,
+        "durUs": 279,
+        "elements": 2
+      },
+      {
+        "atMs": 116.36,
+        "afterReferenceMs": -117.4,
+        "durUs": 327,
+        "elements": 2
+      },
+      {
+        "atMs": 133.1,
+        "afterReferenceMs": -100.66,
+        "durUs": 373,
+        "elements": 2
+      },
+      {
+        "atMs": 149.74,
+        "afterReferenceMs": -84.02,
+        "durUs": 491,
+        "elements": 2
+      },
+      {
+        "atMs": 166.65,
+        "afterReferenceMs": -67.11,
+        "durUs": 137,
+        "elements": 2
+      },
+      {
+        "atMs": 183.04,
+        "afterReferenceMs": -50.72,
+        "durUs": 270,
+        "elements": 1
+      },
+      {
+        "atMs": 199.95,
+        "afterReferenceMs": -33.81,
+        "durUs": 331,
+        "elements": 1
+      },
+      {
+        "atMs": 216.53,
+        "afterReferenceMs": -17.22,
+        "durUs": 348,
+        "elements": 1
+      },
+      {
+        "atMs": 234.4,
+        "afterReferenceMs": 0.65,
+        "durUs": 141,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, two rows 60 ms apart",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      },
+      {
+        "id": "i11",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 440,
+        "flowTop": 440
+      }
+    ],
+    "animationEnds": 2,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 2642,
+    "layouts": [
+      {
+        "atMs": 1.19,
+        "afterReferenceMs": -232.38,
+        "durUs": 533,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 66.54,
+        "afterReferenceMs": -167.02,
+        "durUs": 645,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.76,
+        "afterReferenceMs": -66.8,
+        "durUs": 793,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 234.31,
+        "afterReferenceMs": 0.75,
+        "durUs": 2642,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.08,
+        "afterReferenceMs": -232.48,
+        "durUs": 97,
+        "elements": 1
+      },
+      {
+        "atMs": 16.45,
+        "afterReferenceMs": -217.11,
+        "durUs": 274,
+        "elements": 1
+      },
+      {
+        "atMs": 33.32,
+        "afterReferenceMs": -200.25,
+        "durUs": 249,
+        "elements": 1
+      },
+      {
+        "atMs": 49.9,
+        "afterReferenceMs": -183.66,
+        "durUs": 238,
+        "elements": 1
+      },
+      {
+        "atMs": 61.56,
+        "afterReferenceMs": -172.01,
+        "durUs": 111,
+        "elements": 1
+      },
+      {
+        "atMs": 66.49,
+        "afterReferenceMs": -167.07,
+        "durUs": 43,
+        "elements": 1
+      },
+      {
+        "atMs": 83.31,
+        "afterReferenceMs": -150.25,
+        "durUs": 314,
+        "elements": 2
+      },
+      {
+        "atMs": 99.85,
+        "afterReferenceMs": -133.71,
+        "durUs": 310,
+        "elements": 2
+      },
+      {
+        "atMs": 116.61,
+        "afterReferenceMs": -116.95,
+        "durUs": 820,
+        "elements": 2
+      },
+      {
+        "atMs": 133.52,
+        "afterReferenceMs": -100.04,
+        "durUs": 468,
+        "elements": 2
+      },
+      {
+        "atMs": 150.05,
+        "afterReferenceMs": -83.52,
+        "durUs": 503,
+        "elements": 2
+      },
+      {
+        "atMs": 166.57,
+        "afterReferenceMs": -66.99,
+        "durUs": 182,
+        "elements": 2
+      },
+      {
+        "atMs": 183.25,
+        "afterReferenceMs": -50.31,
+        "durUs": 288,
+        "elements": 1
+      },
+      {
+        "atMs": 199.71,
+        "afterReferenceMs": -33.85,
+        "durUs": 293,
+        "elements": 1
+      },
+      {
+        "atMs": 216.57,
+        "afterReferenceMs": -16.99,
+        "durUs": 353,
+        "elements": 1
+      },
+      {
+        "atMs": 234.16,
+        "afterReferenceMs": 0.59,
+        "durUs": 142,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, composite replace",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 812,
+    "layouts": [
+      {
+        "atMs": 1,
+        "afterReferenceMs": -165.73,
+        "durUs": 851,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.99,
+        "afterReferenceMs": 0.26,
+        "durUs": 812,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.74,
+        "afterReferenceMs": -165.99,
+        "durUs": 186,
+        "elements": 1
+      },
+      {
+        "atMs": 16.63,
+        "afterReferenceMs": -150.11,
+        "durUs": 232,
+        "elements": 1
+      },
+      {
+        "atMs": 133.25,
+        "afterReferenceMs": -33.48,
+        "durUs": 223,
+        "elements": 1
+      },
+      {
+        "atMs": 150.19,
+        "afterReferenceMs": -16.54,
+        "durUs": 215,
+        "elements": 1
+      },
+      {
+        "atMs": 166.93,
+        "afterReferenceMs": 0.19,
+        "durUs": 57,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, composite replace",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1051,
+    "layouts": [
+      {
+        "atMs": 1.03,
+        "afterReferenceMs": -165.76,
+        "durUs": 692,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.08,
+        "afterReferenceMs": 0.28,
+        "durUs": 1051,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.77,
+        "afterReferenceMs": -166.03,
+        "durUs": 195,
+        "elements": 1
+      },
+      {
+        "atMs": 16.66,
+        "afterReferenceMs": -150.14,
+        "durUs": 191,
+        "elements": 1
+      },
+      {
+        "atMs": 133.42,
+        "afterReferenceMs": -33.38,
+        "durUs": 241,
+        "elements": 1
+      },
+      {
+        "atMs": 150.13,
+        "afterReferenceMs": -16.67,
+        "durUs": 171,
+        "elements": 1
+      },
+      {
+        "atMs": 167.01,
+        "afterReferenceMs": 0.21,
+        "durUs": 64,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, composite replace",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1077,
+    "layouts": [
+      {
+        "atMs": 1.23,
+        "afterReferenceMs": -165.36,
+        "durUs": 1074,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.9,
+        "afterReferenceMs": 0.32,
+        "durUs": 1077,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.91,
+        "afterReferenceMs": -165.67,
+        "durUs": 222,
+        "elements": 1
+      },
+      {
+        "atMs": 16.71,
+        "afterReferenceMs": -149.87,
+        "durUs": 278,
+        "elements": 1
+      },
+      {
+        "atMs": 133.16,
+        "afterReferenceMs": -33.42,
+        "durUs": 275,
+        "elements": 1
+      },
+      {
+        "atMs": 149.87,
+        "afterReferenceMs": -16.72,
+        "durUs": 252,
+        "elements": 1
+      },
+      {
+        "atMs": 166.83,
+        "afterReferenceMs": 0.24,
+        "durUs": 69,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, last keyframe none",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1282,
+    "layouts": [
+      {
+        "atMs": 1.18,
+        "afterReferenceMs": -165.45,
+        "durUs": 1114,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.92,
+        "afterReferenceMs": 0.3,
+        "durUs": 1282,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.84,
+        "afterReferenceMs": -165.78,
+        "durUs": 241,
+        "elements": 1
+      },
+      {
+        "atMs": 16.71,
+        "afterReferenceMs": -149.91,
+        "durUs": 265,
+        "elements": 1
+      },
+      {
+        "atMs": 133.17,
+        "afterReferenceMs": -33.46,
+        "durUs": 219,
+        "elements": 1
+      },
+      {
+        "atMs": 149.87,
+        "afterReferenceMs": -16.76,
+        "durUs": 214,
+        "elements": 1
+      },
+      {
+        "atMs": 166.85,
+        "afterReferenceMs": 0.23,
+        "durUs": 64,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, last keyframe none",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 2407,
+    "layouts": [
+      {
+        "atMs": 1.15,
+        "afterReferenceMs": -165.43,
+        "durUs": 1004,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.13,
+        "afterReferenceMs": 0.56,
+        "durUs": 2407,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.85,
+        "afterReferenceMs": -165.72,
+        "durUs": 205,
+        "elements": 1
+      },
+      {
+        "atMs": 16.61,
+        "afterReferenceMs": -149.96,
+        "durUs": 403,
+        "elements": 1
+      },
+      {
+        "atMs": 133.44,
+        "afterReferenceMs": -33.14,
+        "durUs": 392,
+        "elements": 1
+      },
+      {
+        "atMs": 150.38,
+        "afterReferenceMs": -16.2,
+        "durUs": 794,
+        "elements": 1
+      },
+      {
+        "atMs": 167.01,
+        "afterReferenceMs": 0.43,
+        "durUs": 113,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, last keyframe none",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 968,
+    "layouts": [
+      {
+        "atMs": 0.75,
+        "afterReferenceMs": -165.78,
+        "durUs": 703,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.82,
+        "afterReferenceMs": 0.29,
+        "durUs": 968,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.54,
+        "afterReferenceMs": -165.99,
+        "durUs": 156,
+        "elements": 1
+      },
+      {
+        "atMs": 16.75,
+        "afterReferenceMs": -149.78,
+        "durUs": 195,
+        "elements": 1
+      },
+      {
+        "atMs": 133.2,
+        "afterReferenceMs": -33.33,
+        "durUs": 237,
+        "elements": 1
+      },
+      {
+        "atMs": 149.92,
+        "afterReferenceMs": -16.61,
+        "durUs": 219,
+        "elements": 1
+      },
+      {
+        "atMs": 166.75,
+        "afterReferenceMs": 0.23,
+        "durUs": 56,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "transform, composite replace",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 2293,
+    "layouts": [
+      {
+        "atMs": 1.3,
+        "afterReferenceMs": -165.99,
+        "durUs": 1294,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 168.14,
+        "afterReferenceMs": 0.85,
+        "durUs": 2293,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.92,
+        "afterReferenceMs": -166.37,
+        "durUs": 270,
+        "elements": 1
+      },
+      {
+        "atMs": 16.79,
+        "afterReferenceMs": -150.5,
+        "durUs": 343,
+        "elements": 1
+      },
+      {
+        "atMs": 133.36,
+        "afterReferenceMs": -33.93,
+        "durUs": 285,
+        "elements": 1
+      },
+      {
+        "atMs": 150.2,
+        "afterReferenceMs": -17.09,
+        "durUs": 350,
+        "elements": 1
+      },
+      {
+        "atMs": 167.97,
+        "afterReferenceMs": 0.68,
+        "durUs": 162,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "transform, composite replace",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1917,
+    "layouts": [
+      {
+        "atMs": 0.61,
+        "afterReferenceMs": -166.71,
+        "durUs": 526,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.86,
+        "afterReferenceMs": 0.54,
+        "durUs": 1917,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.44,
+        "afterReferenceMs": -166.88,
+        "durUs": 122,
+        "elements": 1
+      },
+      {
+        "atMs": 16.72,
+        "afterReferenceMs": -150.6,
+        "durUs": 222,
+        "elements": 1
+      },
+      {
+        "atMs": 133.93,
+        "afterReferenceMs": -33.39,
+        "durUs": 642,
+        "elements": 1
+      },
+      {
+        "atMs": 150.17,
+        "afterReferenceMs": -17.15,
+        "durUs": 426,
+        "elements": 1
+      },
+      {
+        "atMs": 167.74,
+        "afterReferenceMs": 0.43,
+        "durUs": 106,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "transform, composite replace",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 834,
+    "layouts": [
+      {
+        "atMs": 1.08,
+        "afterReferenceMs": -165.59,
+        "durUs": 862,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.93,
+        "afterReferenceMs": 0.26,
+        "durUs": 834,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.81,
+        "afterReferenceMs": -165.86,
+        "durUs": 190,
+        "elements": 1
+      },
+      {
+        "atMs": 16.7,
+        "afterReferenceMs": -149.97,
+        "durUs": 226,
+        "elements": 1
+      },
+      {
+        "atMs": 133.39,
+        "afterReferenceMs": -33.28,
+        "durUs": 236,
+        "elements": 1
+      },
+      {
+        "atMs": 150.07,
+        "afterReferenceMs": -16.6,
+        "durUs": 216,
+        "elements": 1
+      },
+      {
+        "atMs": 166.87,
+        "afterReferenceMs": 0.2,
+        "durUs": 55,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "opacity control",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1414,
+    "layouts": [
+      {
+        "atMs": 1.11,
+        "afterReferenceMs": -165.6,
+        "durUs": 941,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.22,
+        "afterReferenceMs": 0.51,
+        "durUs": 1414,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.82,
+        "afterReferenceMs": -165.89,
+        "durUs": 205,
+        "elements": 1
+      },
+      {
+        "atMs": 16.58,
+        "afterReferenceMs": -150.13,
+        "durUs": 68,
+        "elements": 1
+      },
+      {
+        "atMs": 133.28,
+        "afterReferenceMs": -33.43,
+        "durUs": 76,
+        "elements": 1
+      },
+      {
+        "atMs": 150.06,
+        "afterReferenceMs": -16.65,
+        "durUs": 53,
+        "elements": 1
+      },
+      {
+        "atMs": 167.07,
+        "afterReferenceMs": 0.36,
+        "durUs": 133,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "opacity control",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 639,
+    "layouts": [
+      {
+        "atMs": 1.22,
+        "afterReferenceMs": -165.38,
+        "durUs": 1025,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.79,
+        "afterReferenceMs": 0.19,
+        "durUs": 639,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.87,
+        "afterReferenceMs": -165.73,
+        "durUs": 241,
+        "elements": 1
+      },
+      {
+        "atMs": 16.5,
+        "afterReferenceMs": -150.1,
+        "durUs": 70,
+        "elements": 1
+      },
+      {
+        "atMs": 133.27,
+        "afterReferenceMs": -33.33,
+        "durUs": 100,
+        "elements": 1
+      },
+      {
+        "atMs": 149.85,
+        "afterReferenceMs": -16.76,
+        "durUs": 60,
+        "elements": 1
+      },
+      {
+        "atMs": 166.75,
+        "afterReferenceMs": 0.14,
+        "durUs": 39,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "opacity control",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 925,
+    "layouts": [
+      {
+        "atMs": 1.08,
+        "afterReferenceMs": -165.53,
+        "durUs": 1035,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 166.9,
+        "afterReferenceMs": 0.28,
+        "durUs": 925,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.79,
+        "afterReferenceMs": -165.83,
+        "durUs": 205,
+        "elements": 1
+      },
+      {
+        "atMs": 16.48,
+        "afterReferenceMs": -150.14,
+        "durUs": 75,
+        "elements": 1
+      },
+      {
+        "atMs": 133.11,
+        "afterReferenceMs": -33.51,
+        "durUs": 91,
+        "elements": 1
+      },
+      {
+        "atMs": 149.75,
+        "afterReferenceMs": -16.86,
+        "durUs": 68,
+        "elements": 1
+      },
+      {
+        "atMs": 166.83,
+        "afterReferenceMs": 0.21,
+        "durUs": 67,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, row authors translate 0 0",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none; translate: 0px;",
+        "translate": "0px",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 0,
+    "layoutUsAfterReference": 0,
+    "layouts": [],
+    "styles": [
+      {
+        "atMs": 1.19,
+        "afterReferenceMs": -165.76,
+        "durUs": 274,
+        "elements": 1
+      },
+      {
+        "atMs": 16.77,
+        "afterReferenceMs": -150.17,
+        "durUs": 266,
+        "elements": 1
+      },
+      {
+        "atMs": 33.64,
+        "afterReferenceMs": -133.31,
+        "durUs": 185,
+        "elements": 1
+      },
+      {
+        "atMs": 50.25,
+        "afterReferenceMs": -116.7,
+        "durUs": 165,
+        "elements": 1
+      },
+      {
+        "atMs": 66.84,
+        "afterReferenceMs": -100.11,
+        "durUs": 246,
+        "elements": 1
+      },
+      {
+        "atMs": 83.69,
+        "afterReferenceMs": -83.26,
+        "durUs": 253,
+        "elements": 1
+      },
+      {
+        "atMs": 100.31,
+        "afterReferenceMs": -66.64,
+        "durUs": 206,
+        "elements": 1
+      },
+      {
+        "atMs": 116.99,
+        "afterReferenceMs": -49.96,
+        "durUs": 235,
+        "elements": 1
+      },
+      {
+        "atMs": 133.7,
+        "afterReferenceMs": -33.25,
+        "durUs": 255,
+        "elements": 1
+      },
+      {
+        "atMs": 150.23,
+        "afterReferenceMs": -16.71,
+        "durUs": 195,
+        "elements": 1
+      },
+      {
+        "atMs": 167.15,
+        "afterReferenceMs": 0.2,
+        "durUs": 170,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, row authors translate 0 0",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none; translate: 0px;",
+        "translate": "0px",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 0,
+    "layoutUsAfterReference": 0,
+    "layouts": [],
+    "styles": [
+      {
+        "atMs": 1.91,
+        "afterReferenceMs": -164.89,
+        "durUs": 381,
+        "elements": 1
+      },
+      {
+        "atMs": 16.6,
+        "afterReferenceMs": -150.2,
+        "durUs": 288,
+        "elements": 1
+      },
+      {
+        "atMs": 33.27,
+        "afterReferenceMs": -133.54,
+        "durUs": 294,
+        "elements": 1
+      },
+      {
+        "atMs": 49.94,
+        "afterReferenceMs": -116.87,
+        "durUs": 267,
+        "elements": 1
+      },
+      {
+        "atMs": 66.57,
+        "afterReferenceMs": -100.23,
+        "durUs": 230,
+        "elements": 1
+      },
+      {
+        "atMs": 83.33,
+        "afterReferenceMs": -83.48,
+        "durUs": 256,
+        "elements": 1
+      },
+      {
+        "atMs": 100.09,
+        "afterReferenceMs": -66.71,
+        "durUs": 323,
+        "elements": 1
+      },
+      {
+        "atMs": 116.94,
+        "afterReferenceMs": -49.86,
+        "durUs": 679,
+        "elements": 1
+      },
+      {
+        "atMs": 133.79,
+        "afterReferenceMs": -33.01,
+        "durUs": 877,
+        "elements": 1
+      },
+      {
+        "atMs": 150.39,
+        "afterReferenceMs": -16.41,
+        "durUs": 680,
+        "elements": 1
+      },
+      {
+        "atMs": 167.47,
+        "afterReferenceMs": 0.67,
+        "durUs": 690,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, row authors translate 0 0",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none; translate: 0px;",
+        "translate": "0px",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 0,
+    "layoutUsAfterReference": 0,
+    "layouts": [],
+    "styles": [
+      {
+        "atMs": 1.36,
+        "afterReferenceMs": -165.28,
+        "durUs": 300,
+        "elements": 1
+      },
+      {
+        "atMs": 16.67,
+        "afterReferenceMs": -149.97,
+        "durUs": 280,
+        "elements": 1
+      },
+      {
+        "atMs": 35.96,
+        "afterReferenceMs": -130.68,
+        "durUs": 536,
+        "elements": 1
+      },
+      {
+        "atMs": 50.67,
+        "afterReferenceMs": -115.97,
+        "durUs": 301,
+        "elements": 1
+      },
+      {
+        "atMs": 66.58,
+        "afterReferenceMs": -100.06,
+        "durUs": 301,
+        "elements": 1
+      },
+      {
+        "atMs": 83.4,
+        "afterReferenceMs": -83.25,
+        "durUs": 362,
+        "elements": 1
+      },
+      {
+        "atMs": 99.99,
+        "afterReferenceMs": -66.65,
+        "durUs": 244,
+        "elements": 1
+      },
+      {
+        "atMs": 116.61,
+        "afterReferenceMs": -50.03,
+        "durUs": 273,
+        "elements": 1
+      },
+      {
+        "atMs": 133.27,
+        "afterReferenceMs": -33.38,
+        "durUs": 338,
+        "elements": 1
+      },
+      {
+        "atMs": 150.04,
+        "afterReferenceMs": -16.6,
+        "durUs": 435,
+        "elements": 1
+      },
+      {
+        "atMs": 166.85,
+        "afterReferenceMs": 0.21,
+        "durUs": 270,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, row authors will-change translate",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none; will-change: translate;",
+        "translate": "none",
+        "willChange": "translate",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 0,
+    "layoutUsAfterReference": 0,
+    "layouts": [],
+    "styles": [
+      {
+        "atMs": 1.77,
+        "afterReferenceMs": -164.72,
+        "durUs": 356,
+        "elements": 1
+      },
+      {
+        "atMs": 16.62,
+        "afterReferenceMs": -149.88,
+        "durUs": 257,
+        "elements": 1
+      },
+      {
+        "atMs": 33.16,
+        "afterReferenceMs": -133.34,
+        "durUs": 251,
+        "elements": 1
+      },
+      {
+        "atMs": 49.88,
+        "afterReferenceMs": -116.62,
+        "durUs": 298,
+        "elements": 1
+      },
+      {
+        "atMs": 66.5,
+        "afterReferenceMs": -100,
+        "durUs": 241,
+        "elements": 1
+      },
+      {
+        "atMs": 83.12,
+        "afterReferenceMs": -83.38,
+        "durUs": 253,
+        "elements": 1
+      },
+      {
+        "atMs": 99.78,
+        "afterReferenceMs": -66.72,
+        "durUs": 251,
+        "elements": 1
+      },
+      {
+        "atMs": 116.66,
+        "afterReferenceMs": -49.83,
+        "durUs": 186,
+        "elements": 1
+      },
+      {
+        "atMs": 133.16,
+        "afterReferenceMs": -33.33,
+        "durUs": 282,
+        "elements": 1
+      },
+      {
+        "atMs": 149.86,
+        "afterReferenceMs": -16.63,
+        "durUs": 541,
+        "elements": 1
+      },
+      {
+        "atMs": 166.96,
+        "afterReferenceMs": 0.47,
+        "durUs": 318,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, row authors will-change translate",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none; will-change: translate;",
+        "translate": "none",
+        "willChange": "translate",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 0,
+    "layoutUsAfterReference": 0,
+    "layouts": [],
+    "styles": [
+      {
+        "atMs": 1.69,
+        "afterReferenceMs": -165.3,
+        "durUs": 397,
+        "elements": 1
+      },
+      {
+        "atMs": 16.57,
+        "afterReferenceMs": -150.42,
+        "durUs": 483,
+        "elements": 1
+      },
+      {
+        "atMs": 33.52,
+        "afterReferenceMs": -133.47,
+        "durUs": 859,
+        "elements": 1
+      },
+      {
+        "atMs": 49.95,
+        "afterReferenceMs": -117.04,
+        "durUs": 246,
+        "elements": 1
+      },
+      {
+        "atMs": 66.77,
+        "afterReferenceMs": -100.22,
+        "durUs": 325,
+        "elements": 1
+      },
+      {
+        "atMs": 83.6,
+        "afterReferenceMs": -83.39,
+        "durUs": 727,
+        "elements": 1
+      },
+      {
+        "atMs": 99.87,
+        "afterReferenceMs": -67.12,
+        "durUs": 233,
+        "elements": 1
+      },
+      {
+        "atMs": 116.81,
+        "afterReferenceMs": -50.18,
+        "durUs": 588,
+        "elements": 1
+      },
+      {
+        "atMs": 133.63,
+        "afterReferenceMs": -33.36,
+        "durUs": 713,
+        "elements": 1
+      },
+      {
+        "atMs": 150.2,
+        "afterReferenceMs": -16.79,
+        "durUs": 505,
+        "elements": 1
+      },
+      {
+        "atMs": 167.65,
+        "afterReferenceMs": 0.66,
+        "durUs": 658,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, row authors will-change translate",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none; will-change: translate;",
+        "translate": "none",
+        "willChange": "translate",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 0,
+    "layoutUsAfterReference": 0,
+    "layouts": [],
+    "styles": [
+      {
+        "atMs": 1.79,
+        "afterReferenceMs": -164.96,
+        "durUs": 362,
+        "elements": 1
+      },
+      {
+        "atMs": 16.59,
+        "afterReferenceMs": -150.16,
+        "durUs": 238,
+        "elements": 1
+      },
+      {
+        "atMs": 33.32,
+        "afterReferenceMs": -133.42,
+        "durUs": 264,
+        "elements": 1
+      },
+      {
+        "atMs": 49.98,
+        "afterReferenceMs": -116.77,
+        "durUs": 225,
+        "elements": 1
+      },
+      {
+        "atMs": 67.12,
+        "afterReferenceMs": -99.63,
+        "durUs": 635,
+        "elements": 1
+      },
+      {
+        "atMs": 83.35,
+        "afterReferenceMs": -83.4,
+        "durUs": 248,
+        "elements": 1
+      },
+      {
+        "atMs": 100,
+        "afterReferenceMs": -66.74,
+        "durUs": 770,
+        "elements": 1
+      },
+      {
+        "atMs": 116.95,
+        "afterReferenceMs": -49.79,
+        "durUs": 435,
+        "elements": 1
+      },
+      {
+        "atMs": 133.24,
+        "afterReferenceMs": -33.51,
+        "durUs": 227,
+        "elements": 1
+      },
+      {
+        "atMs": 149.92,
+        "afterReferenceMs": -16.82,
+        "durUs": 191,
+        "elements": 1
+      },
+      {
+        "atMs": 167.01,
+        "afterReferenceMs": 0.26,
+        "durUs": 285,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, rows not positioned",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 792,
+    "layouts": [
+      {
+        "atMs": 1.84,
+        "afterReferenceMs": -164.94,
+        "durUs": 790,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.09,
+        "afterReferenceMs": 0.31,
+        "durUs": 792,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.53,
+        "afterReferenceMs": -165.24,
+        "durUs": 249,
+        "elements": 1
+      },
+      {
+        "atMs": 16.7,
+        "afterReferenceMs": -150.07,
+        "durUs": 213,
+        "elements": 1
+      },
+      {
+        "atMs": 33.43,
+        "afterReferenceMs": -133.34,
+        "durUs": 218,
+        "elements": 1
+      },
+      {
+        "atMs": 49.9,
+        "afterReferenceMs": -116.87,
+        "durUs": 193,
+        "elements": 1
+      },
+      {
+        "atMs": 66.72,
+        "afterReferenceMs": -100.05,
+        "durUs": 242,
+        "elements": 1
+      },
+      {
+        "atMs": 83.32,
+        "afterReferenceMs": -83.46,
+        "durUs": 229,
+        "elements": 1
+      },
+      {
+        "atMs": 99.87,
+        "afterReferenceMs": -66.91,
+        "durUs": 246,
+        "elements": 1
+      },
+      {
+        "atMs": 116.72,
+        "afterReferenceMs": -50.05,
+        "durUs": 194,
+        "elements": 1
+      },
+      {
+        "atMs": 133.44,
+        "afterReferenceMs": -33.34,
+        "durUs": 206,
+        "elements": 1
+      },
+      {
+        "atMs": 149.97,
+        "afterReferenceMs": -16.8,
+        "durUs": 183,
+        "elements": 1
+      },
+      {
+        "atMs": 167.03,
+        "afterReferenceMs": 0.25,
+        "durUs": 54,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, rows not positioned",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 645,
+    "layouts": [
+      {
+        "atMs": 1.98,
+        "afterReferenceMs": -164.79,
+        "durUs": 915,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.01,
+        "afterReferenceMs": 0.25,
+        "durUs": 645,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.6,
+        "afterReferenceMs": -165.16,
+        "durUs": 294,
+        "elements": 1
+      },
+      {
+        "atMs": 16.63,
+        "afterReferenceMs": -150.13,
+        "durUs": 257,
+        "elements": 1
+      },
+      {
+        "atMs": 33.26,
+        "afterReferenceMs": -133.51,
+        "durUs": 191,
+        "elements": 1
+      },
+      {
+        "atMs": 50.01,
+        "afterReferenceMs": -116.76,
+        "durUs": 194,
+        "elements": 1
+      },
+      {
+        "atMs": 66.72,
+        "afterReferenceMs": -100.04,
+        "durUs": 196,
+        "elements": 1
+      },
+      {
+        "atMs": 83.42,
+        "afterReferenceMs": -83.35,
+        "durUs": 188,
+        "elements": 1
+      },
+      {
+        "atMs": 100.1,
+        "afterReferenceMs": -66.66,
+        "durUs": 212,
+        "elements": 1
+      },
+      {
+        "atMs": 116.76,
+        "afterReferenceMs": -50.01,
+        "durUs": 203,
+        "elements": 1
+      },
+      {
+        "atMs": 133.5,
+        "afterReferenceMs": -33.27,
+        "durUs": 206,
+        "elements": 1
+      },
+      {
+        "atMs": 150.11,
+        "afterReferenceMs": -16.65,
+        "durUs": 221,
+        "elements": 1
+      },
+      {
+        "atMs": 166.97,
+        "afterReferenceMs": 0.2,
+        "durUs": 44,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "production, rows not positioned",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "last Animation end",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 920,
+    "layouts": [
+      {
+        "atMs": 2.24,
+        "afterReferenceMs": -164.57,
+        "durUs": 1048,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(anonymous) < finished < run"
+      },
+      {
+        "atMs": 167.14,
+        "afterReferenceMs": 0.33,
+        "durUs": 920,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1.9,
+        "afterReferenceMs": -164.91,
+        "durUs": 274,
+        "elements": 1
+      },
+      {
+        "atMs": 16.78,
+        "afterReferenceMs": -150.03,
+        "durUs": 231,
+        "elements": 1
+      },
+      {
+        "atMs": 33.47,
+        "afterReferenceMs": -133.34,
+        "durUs": 303,
+        "elements": 1
+      },
+      {
+        "atMs": 50.01,
+        "afterReferenceMs": -116.8,
+        "durUs": 236,
+        "elements": 1
+      },
+      {
+        "atMs": 66.83,
+        "afterReferenceMs": -99.98,
+        "durUs": 237,
+        "elements": 1
+      },
+      {
+        "atMs": 83.39,
+        "afterReferenceMs": -83.42,
+        "durUs": 278,
+        "elements": 1
+      },
+      {
+        "atMs": 100.22,
+        "afterReferenceMs": -66.59,
+        "durUs": 213,
+        "elements": 1
+      },
+      {
+        "atMs": 116.76,
+        "afterReferenceMs": -50.05,
+        "durUs": 255,
+        "elements": 1
+      },
+      {
+        "atMs": 133.46,
+        "afterReferenceMs": -33.35,
+        "durUs": 255,
+        "elements": 1
+      },
+      {
+        "atMs": 150.22,
+        "afterReferenceMs": -16.59,
+        "durUs": 208,
+        "elements": 1
+      },
+      {
+        "atMs": 167.07,
+        "afterReferenceMs": 0.26,
+        "durUs": 65,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "style writes, translate then removed",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 0,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1160,
+    "layouts": [
+      {
+        "atMs": 0.61,
+        "afterReferenceMs": -49.3,
+        "durUs": 1183,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 50.2,
+        "afterReferenceMs": 0.29,
+        "durUs": 1160,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.47,
+        "afterReferenceMs": -49.44,
+        "durUs": 129,
+        "elements": 1
+      },
+      {
+        "atMs": 50.1,
+        "afterReferenceMs": 0.19,
+        "durUs": 89,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "style writes, translate then removed",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 0,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1211,
+    "layouts": [
+      {
+        "atMs": 0.75,
+        "afterReferenceMs": -49.43,
+        "durUs": 1347,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 50.46,
+        "afterReferenceMs": 0.28,
+        "durUs": 1211,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.59,
+        "afterReferenceMs": -49.59,
+        "durUs": 150,
+        "elements": 1
+      },
+      {
+        "atMs": 50.34,
+        "afterReferenceMs": 0.17,
+        "durUs": 107,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "style writes, translate then removed",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 0,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 651,
+    "layouts": [
+      {
+        "atMs": 0.39,
+        "afterReferenceMs": -49.65,
+        "durUs": 666,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 50.21,
+        "afterReferenceMs": 0.18,
+        "durUs": 651,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.31,
+        "afterReferenceMs": -49.72,
+        "durUs": 72,
+        "elements": 1
+      },
+      {
+        "atMs": 50.14,
+        "afterReferenceMs": 0.1,
+        "durUs": 71,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "style writes, transform then removed",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 0,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 681,
+    "layouts": [
+      {
+        "atMs": 0.38,
+        "afterReferenceMs": -49.52,
+        "durUs": 679,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 50.09,
+        "afterReferenceMs": 0.2,
+        "durUs": 681,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.29,
+        "afterReferenceMs": -49.61,
+        "durUs": 83,
+        "elements": 1
+      },
+      {
+        "atMs": 50.02,
+        "afterReferenceMs": 0.12,
+        "durUs": 68,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "style writes, transform then removed",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 0,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1277,
+    "layouts": [
+      {
+        "atMs": 0.53,
+        "afterReferenceMs": -50.04,
+        "durUs": 691,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 50.9,
+        "afterReferenceMs": 0.32,
+        "durUs": 1277,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.44,
+        "afterReferenceMs": -50.14,
+        "durUs": 90,
+        "elements": 1
+      },
+      {
+        "atMs": 50.78,
+        "afterReferenceMs": 0.2,
+        "durUs": 112,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "style writes, transform then removed",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 0,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 2258,
+    "layouts": [
+      {
+        "atMs": 0.5,
+        "afterReferenceMs": -49.82,
+        "durUs": 1093,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 50.83,
+        "afterReferenceMs": 0.5,
+        "durUs": 2258,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.4,
+        "afterReferenceMs": -49.93,
+        "durUs": 98,
+        "elements": 1
+      },
+      {
+        "atMs": 50.62,
+        "afterReferenceMs": 0.29,
+        "durUs": 202,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, fill forwards then cancel",
+    "rep": 1,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 1482,
+    "layouts": [
+      {
+        "atMs": 0.75,
+        "afterReferenceMs": -199.5,
+        "durUs": 575,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 200.57,
+        "afterReferenceMs": 0.33,
+        "durUs": 1482,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.64,
+        "afterReferenceMs": -199.61,
+        "durUs": 108,
+        "elements": 1
+      },
+      {
+        "atMs": 16.83,
+        "afterReferenceMs": -183.42,
+        "durUs": 238,
+        "elements": 1
+      },
+      {
+        "atMs": 133.19,
+        "afterReferenceMs": -67.05,
+        "durUs": 231,
+        "elements": 1
+      },
+      {
+        "atMs": 149.93,
+        "afterReferenceMs": -50.32,
+        "durUs": 240,
+        "elements": 1
+      },
+      {
+        "atMs": 167.22,
+        "afterReferenceMs": -33.03,
+        "durUs": 391,
+        "elements": 1
+      },
+      {
+        "atMs": 200.47,
+        "afterReferenceMs": 0.22,
+        "durUs": 99,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, fill forwards then cancel",
+    "rep": 2,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 956,
+    "layouts": [
+      {
+        "atMs": 0.69,
+        "afterReferenceMs": -198.56,
+        "durUs": 617,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 199.48,
+        "afterReferenceMs": 0.22,
+        "durUs": 956,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 0.58,
+        "afterReferenceMs": -198.68,
+        "durUs": 114,
+        "elements": 1
+      },
+      {
+        "atMs": 17.03,
+        "afterReferenceMs": -182.23,
+        "durUs": 294,
+        "elements": 1
+      },
+      {
+        "atMs": 133.46,
+        "afterReferenceMs": -65.8,
+        "durUs": 269,
+        "elements": 1
+      },
+      {
+        "atMs": 150.25,
+        "afterReferenceMs": -49.01,
+        "durUs": 253,
+        "elements": 1
+      },
+      {
+        "atMs": 167.19,
+        "afterReferenceMs": -32.06,
+        "durUs": 244,
+        "elements": 1
+      },
+      {
+        "atMs": 199.41,
+        "afterReferenceMs": 0.15,
+        "durUs": 65,
+        "elements": 1
+      }
+    ]
+  },
+  {
+    "name": "translate, fill forwards then cancel",
+    "rep": 3,
+    "rows": 2000,
+    "state": [
+      {
+        "id": "i10",
+        "animations": 0,
+        "inline": "height: 40px; box-sizing: border-box; background: rgb(204, 204, 221); border: 1px solid rgb(136, 136, 153); position: relative; touch-action: none; user-select: none;",
+        "translate": "none",
+        "willChange": "auto",
+        "top": 400,
+        "flowTop": 400
+      }
+    ],
+    "animationEnds": 1,
+    "reference": "probe:remove mark",
+    "layoutsAfterReference": 1,
+    "layoutUsAfterReference": 953,
+    "layouts": [
+      {
+        "atMs": 1.13,
+        "afterReferenceMs": -215.61,
+        "durUs": 723,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      },
+      {
+        "atMs": 216.97,
+        "afterReferenceMs": 0.22,
+        "durUs": 953,
+        "dirty": 5,
+        "total": 4004,
+        "partial": false,
+        "invalidatedBy": "(no script stack)"
+      }
+    ],
+    "styles": [
+      {
+        "atMs": 1,
+        "afterReferenceMs": -215.75,
+        "durUs": 129,
+        "elements": 1
+      },
+      {
+        "atMs": 33.44,
+        "afterReferenceMs": -183.31,
+        "durUs": 278,
+        "elements": 1
+      },
+      {
+        "atMs": 150.04,
+        "afterReferenceMs": -66.7,
+        "durUs": 227,
+        "elements": 1
+      },
+      {
+        "atMs": 166.79,
+        "afterReferenceMs": -49.95,
+        "durUs": 224,
+        "elements": 1
+      },
+      {
+        "atMs": 183.7,
+        "afterReferenceMs": -33.04,
+        "durUs": 230,
+        "elements": 1
+      },
+      {
+        "atMs": 216.89,
+        "afterReferenceMs": 0.14,
+        "durUs": 70,
+        "elements": 1
+      }
+    ]
+  }
+]

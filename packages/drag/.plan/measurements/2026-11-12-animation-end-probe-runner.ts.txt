@@ -1,0 +1,106 @@
+/**
+ * The animation-end layout probe: one Chromium process, a fresh page per variant
+ * and repetition, each traced from two frames before the displacement to four frames
+ * after the last animation ends. It counts the main thread's layouts and their
+ * invalidations; it times nothing against another arm.
+ *
+ * usage: node probe.ts <output directory>
+ */
+import { createRequire } from 'node:module';
+import { writeFile } from 'node:fs/promises';
+import { gzipSync } from 'node:zlib';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const PACKAGE = '/workspaces/material-x/packages/drag/package.json';
+const BOX_QUAD = '/workspaces/material-x/packages/box-quad/src/index.ts';
+const REPETITIONS = 3;
+const CATEGORIES = [
+  'devtools.timeline',
+  'disabled-by-default-devtools.timeline',
+  'disabled-by-default-devtools.timeline.stack',
+  'blink.animations',
+  'blink.user_timing',
+];
+const here = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(PACKAGE);
+const { rolldown } = (await import(pathToFileURL(require.resolve('rolldown')).href)) as typeof import('rolldown');
+const { chromium } = ((await import(pathToFileURL(require.resolve('playwright')).href)) as { default: typeof import('playwright') }).default;
+
+const output = process.argv[2]!;
+const built = await rolldown({
+  input: join(here, 'page.ts'),
+  platform: 'browser',
+  resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+  transform: { define: { __DEV__: 'false' } },
+});
+const { output: chunks } = await built.generate({ format: 'iife' });
+const code = chunks[0].code;
+await built.close();
+await writeFile(join(output, 'bundle.js.txt'), code);
+
+type Event = { name: string; ph: string; ts: number; dur?: number; pid: number; tid: number; cat?: string; args?: any };
+
+function analyze(events: Event[]) {
+  const mark = (name: string) => events.find((e) => e.name === name && e.cat?.includes('blink.user_timing'));
+  const start = mark('probe:start')!;
+  const main = (e: Event) => e.pid === start.pid && e.tid === start.tid;
+  const t0 = start.ts;
+  const remove = mark('probe:remove');
+  const animationEnds = events.filter((e) => e.name === 'Animation' && e.ph === 'e').map((e) => e.ts);
+  const ref = remove?.ts ?? (animationEnds.length ? Math.max(...animationEnds) : undefined);
+  const onMain = events.filter(main).sort((a, b) => a.ts - b.ts);
+  const invalidations = onMain.filter((e) => e.name === 'InvalidateLayout');
+  const layouts = onMain.filter((e) => e.name === 'Layout' && e.ph === 'X' && e.ts >= t0).map((l) => {
+    const inv = invalidations.filter((i) => i.ts <= l.ts).at(-1);
+    const stack = inv?.args?.data?.stackTrace as { functionName: string }[] | undefined;
+    return {
+      atMs: +((l.ts - t0) / 1000).toFixed(2),
+      afterReferenceMs: ref === undefined ? null : +((l.ts - ref) / 1000).toFixed(2),
+      durUs: Math.round(l.dur ?? 0),
+      dirty: l.args?.beginData?.dirtyObjects,
+      total: l.args?.beginData?.totalObjects,
+      partial: l.args?.beginData?.partialLayout,
+      invalidatedBy: inv ? (stack?.length ? stack.map((f) => f.functionName || '(anonymous)').slice(0, 3).join(' < ') : '(no script stack)') : '(none)',
+    };
+  });
+  const styles = onMain.filter((e) => (e.name === 'UpdateLayoutTree' || e.name === 'RecalculateStyles') && e.ts >= t0).map((s) => ({ atMs: +((s.ts - t0) / 1000).toFixed(2), afterReferenceMs: ref === undefined ? null : +((s.ts - ref) / 1000).toFixed(2), durUs: Math.round(s.dur ?? 0), elements: s.args?.elementCount ?? s.args?.endData?.elementCount }));
+  const end = layouts.filter((l) => l.afterReferenceMs !== null && l.afterReferenceMs >= -1);
+  return {
+    animationEnds: animationEnds.length,
+    reference: remove ? 'probe:remove mark' : 'last Animation end',
+    layoutsAfterReference: end.length,
+    layoutUsAfterReference: end.reduce((s, l) => s + l.durUs, 0),
+    layouts,
+    styles,
+  };
+}
+
+const browser = await chromium.launch({ executablePath: process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome' });
+const results: Record<string, unknown>[] = [];
+console.log(`chromium ${browser.version()}`);
+try {
+  const names: string[] = await (async () => { const p = await browser.newPage(); await p.addScriptTag({ content: code }); const n = await p.evaluate(() => (globalThis as any).probe.names); await p.close(); return n; })();
+  for (const name of names) {
+    for (let rep = 1; rep <= REPETITIONS; rep += 1) {
+      const page = await browser.newPage();
+      await page.setContent('<!doctype html><html><body style="margin:0"></body></html>');
+      await page.addScriptTag({ content: code });
+      await page.evaluate((n) => (globalThis as any).probe.setup(n), name);
+      await browser.startTracing(page, { categories: CATEGORIES });
+      const ran = await page.evaluate((n) => (globalThis as any).probe.run(n), name);
+      const buffer = await browser.stopTracing();
+      await page.close();
+      const raw = JSON.parse(buffer.toString());
+      const events: Event[] = Array.isArray(raw) ? raw : raw.traceEvents;
+      const slug = name.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+      await writeFile(join(output, `${slug}-${rep}.json.gz`), gzipSync(buffer));
+      const analysis = analyze(events);
+      results.push({ name, rep, ...ran, ...analysis });
+      console.log(`${name} #${rep}: rows ${ran.rows}, animation ends ${analysis.animationEnds}, layouts at or after the ${analysis.reference}: ${analysis.layoutsAfterReference} (${analysis.layoutUsAfterReference} µs) ${JSON.stringify(analysis.layouts.filter((l) => l.afterReferenceMs !== null && l.afterReferenceMs >= -1).map((l) => [l.afterReferenceMs, l.durUs, l.dirty, l.invalidatedBy]))}; all layouts since start ${analysis.layouts.length}; left: ${JSON.stringify(ran.state.map((s: any) => [s.animations, s.translate, s.willChange, s.inline.includes('translate') || s.inline.includes('will-change') ? 'inline kept' : 'inline clean', s.top === s.flowTop ? 'at flow' : `top ${s.top} flow ${s.flowTop}`]))}`);
+    }
+  }
+} finally {
+  await browser.close();
+}
+await writeFile(join(output, 'probe.json'), JSON.stringify(results, null, 2));
