@@ -1,0 +1,15 @@
+#!/bin/bash
+# usage: witness-runner.sh <out> <label>
+# Runs W7 and W8 (-t "DRD-50") in Chromium, Firefox and WebKit on the current working tree.
+# The head shows how the working tree's src/sortable differs from HEAD.
+cd /workspaces/material-x/packages/drag
+source ~/.cache/ms-playwright/webkit-env.sh
+out=$1
+{
+  echo "# $(date -Is) label=$2 head=$(git rev-parse --short HEAD)"
+  echo "# the run's src/sortable against HEAD:"
+  git diff HEAD -- src/sortable
+  echo "# end of differences"
+  timeout 900 npx vitest run -c vitest.engines.config.ts tests/sortable.browser.test.ts -t "DRD-50" --reporter=verbose 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -vE "dynamic import|vite-ignore|^\s*[0-9]+ \|  |Plugin: vite|File: .*vite/vitest|^\s+\^+$|^\s*\|\s+\^"
+  echo "# exit ${PIPESTATUS[0]}"
+} > "$out" 2>&1

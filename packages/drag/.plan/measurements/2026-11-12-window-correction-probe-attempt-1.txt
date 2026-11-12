@@ -1,0 +1,21 @@
+# command: node /tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/corr/probe/probe.ts /tmp/claude-1000/-workspaces-material-x/2a0d5306-3555-4d41-b89c-0c157547cd9b/scratchpad/corr/out1
+# revision: 4160d76e4dad6e8ce4b17a0f55080bca209d52fd
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  07:42:31 up 3 days,  4:05,  0 users,  load average: 2.30, 2.79, 2.77
+field: {"count":2000,"rows":81}, 157.0.8103.38
+no sink round 1 order before,production,control: before 1842.19 µs (117.9 ms), production 2107.81 µs (134.9 ms), control 1657.81 µs (106.1 ms)
+no sink round 2 order production,control,before: before 1715.62 µs (109.8 ms), production 1679.69 µs (107.5 ms), control 1757.81 µs (112.5 ms)
+no sink round 3 order control,before,production: before 1654.69 µs (105.9 ms), production 1514.06 µs (96.9 ms), control 1489.06 µs (95.3 ms)
+no sink round 4 order before,production,control: before 1581.25 µs (101.2 ms), production 1548.44 µs (99.1 ms), control 1543.75 µs (98.8 ms)
+no sink round 5 order production,control,before: before 1525.00 µs (97.6 ms), production 1735.94 µs (111.1 ms), control 1510.94 µs (96.7 ms)
+no sink round 6 order control,before,production: before 1573.44 µs (100.7 ms), production 1768.75 µs (113.2 ms), control 1367.19 µs (87.5 ms)
+no sink round 7 order before,production,control: before 1910.94 µs (122.3 ms), production 1673.44 µs (107.1 ms), control 1681.25 µs (107.6 ms)
+no sink: no difference shown: higher in 3 of 7, lower in 4, median -32.812 µs, A/A bound 450.000 µs, before median 1654.69 µs, batch 64 rebuilds, shortest timed batch 87.5 ms, arms pack the same values: true
+layoutAnimation, nothing in flight round 1 order before,production,control: before 1708.59 µs (218.7 ms), production 1447.66 µs (185.3 ms), control 1371.09 µs (175.5 ms)
+layoutAnimation, nothing in flight round 2 order production,control,before: before 1770.31 µs (226.6 ms), production 1356.25 µs (173.6 ms), control 1380.47 µs (176.7 ms)
+layoutAnimation, nothing in flight round 3 order control,before,production: before 1713.28 µs (219.3 ms), production 1646.09 µs (210.7 ms), control 2444.53 µs (312.9 ms)
+layoutAnimation, nothing in flight round 4 order before,production,control: before 1649.22 µs (211.1 ms), production 1670.31 µs (213.8 ms), control 1732.03 µs (221.7 ms)
+layoutAnimation, nothing in flight round 5 order production,control,before: before 1613.28 µs (206.5 ms), production 1737.50 µs (222.4 ms), control 1770.31 µs (226.6 ms)
+layoutAnimation, nothing in flight round 6 order control,before,production: before 1807.03 µs (231.3 ms), production 1796.09 µs (229.9 ms), control 1824.22 µs (233.5 ms)
+layoutAnimation, nothing in flight round 7 order before,production,control: before 1595.31 µs (204.2 ms), production 1464.06 µs (187.4 ms), control 1573.44 µs (201.4 ms)
+layoutAnimation, nothing in flight: no difference shown: higher in 2 of 7, lower in 5, median -67.187 µs, A/A bound 798.437 µs, before median 1708.59 µs, batch 128 rebuilds, shortest timed batch 173.6 ms, arms pack the same values: true
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  07:42:47 up 3 days,  4:05,  0 users,  load average: 2.40, 2.78, 2.77, exit 0

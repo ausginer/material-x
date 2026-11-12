@@ -1,0 +1,142 @@
+# command: npx just size
+# revision: 4160d76e4dad6e8ce4b17a0f55080bca209d52fd
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  07:50:03 up 3 days,  4:12,  0 users,  load average: 2.50, 2.69, 2.73
+node ../../.scripts/package-files.ts clean --package .
+Removing draggable.d.ts
+Removing draggable.js
+Removing draggable.js.map
+Removing fault.d.ts
+Removing fault.js
+Removing fault.js.map
+Removing free-drag.d.ts
+Removing free-drag.js
+Removing free-drag.js.map
+Removing free-drag/
+Removing kernel/
+Removing lift.d.ts
+Removing lift.js
+Removing lift.js.map
+Removing lift/
+Removing shared/
+Removing sortable.d.ts
+Removing sortable.js
+Removing sortable.js.map
+Removing sortable/
+tsdown --config tsdown.config.ts
+ℹ tsdown v0.23.2 powered by rolldown v1.2.15
+ℹ config file: /workspaces/material-x/packages/drag/tsdown.config.ts 
+ℹ entry: src/draggable.ts, src/lift.ts, src/lift/landing.ts, src/fault.ts, src/sortable.ts, src/sortable/y.ts, src/sortable/xy.ts, src/sortable/landing.ts, src/sortable/layout-animation.ts, src/free-drag.ts, src/free-drag/bounds.ts, src/free-drag/drop-targets.ts, src/free-drag/landing.ts
+ℹ target: esnext
+ℹ tsconfig: tsconfig.json
+ℹ Build start
+ℹ /lift.js                            7.63 kB │ gzip: 2.80 kB
+ℹ /sortable/layout-animation.js       3.64 kB │ gzip: 1.57 kB
+ℹ /sortable/xy.js                     2.78 kB │ gzip: 1.06 kB
+ℹ /sortable/y.js                      1.82 kB │ gzip: 0.80 kB
+ℹ /free-drag/drop-targets.js          1.74 kB │ gzip: 0.84 kB
+ℹ /free-drag/bounds.js                1.24 kB │ gzip: 0.56 kB
+ℹ /draggable.js                       1.18 kB │ gzip: 0.64 kB
+ℹ /sortable.js                        1.08 kB │ gzip: 0.51 kB
+ℹ /free-drag.js                       1.05 kB │ gzip: 0.51 kB
+ℹ /fault.js                           0.70 kB │ gzip: 0.43 kB
+ℹ /free-drag/landing.js               0.05 kB │ gzip: 0.06 kB
+ℹ /lift/landing.js                    0.05 kB │ gzip: 0.06 kB
+ℹ /sortable/landing.js                0.05 kB │ gzip: 0.06 kB
+ℹ /kernel/session.js.map             24.40 kB │ gzip: 7.33 kB
+ℹ /kernel/gesture.js.map             16.04 kB │ gzip: 5.13 kB
+ℹ /lift.js.map                       15.94 kB │ gzip: 5.31 kB
+ℹ /sortable/rect-index.js.map        15.75 kB │ gzip: 5.34 kB
+ℹ /kernel/session.js                 12.16 kB │ gzip: 3.92 kB
+ℹ /sortable/behavior.js.map          11.53 kB │ gzip: 3.96 kB
+ℹ /sortable/operation.js.map         10.68 kB │ gzip: 3.23 kB
+ℹ /sortable/linear-shift.js.map      10.28 kB │ gzip: 3.66 kB
+ℹ /free-drag/operation.js.map         7.56 kB │ gzip: 2.47 kB
+ℹ /sortable/layout-animation.js.map   7.41 kB │ gzip: 2.85 kB
+ℹ /sortable/rect-index.js             6.79 kB │ gzip: 2.58 kB
+ℹ /sortable/xy.js.map                 6.78 kB │ gzip: 2.38 kB
+ℹ /kernel/gesture.js                  6.35 kB │ gzip: 2.37 kB
+ℹ /sortable/operation.js              5.43 kB │ gzip: 1.80 kB
+ℹ /free-drag/drop-targets.js.map      5.26 kB │ gzip: 2.12 kB
+ℹ /free-drag/behavior.js.map          5.24 kB │ gzip: 2.01 kB
+ℹ /sortable/y.js.map                  5.10 kB │ gzip: 2.00 kB
+ℹ /shared/landing.js.map              5.09 kB │ gzip: 2.08 kB
+ℹ /sortable/behavior.js               4.43 kB │ gzip: 1.66 kB
+ℹ /kernel/drag.js.map                 4.39 kB │ gzip: 1.65 kB
+ℹ /free-drag/domain.js.map            4.21 kB │ gzip: 1.58 kB
+ℹ /sortable/placement.js.map          3.77 kB │ gzip: 1.58 kB
+ℹ /kernel/callback-list.js.map        3.74 kB │ gzip: 1.46 kB
+ℹ /free-drag/geometry.js.map          3.71 kB │ gzip: 1.36 kB
+ℹ /free-drag/operation.js             3.69 kB │ gzip: 1.33 kB
+ℹ /sortable/domain.js.map             3.48 kB │ gzip: 1.42 kB
+ℹ /free-drag/bounds.js.map            3.45 kB │ gzip: 1.44 kB
+ℹ /sortable/collection.js.map         3.37 kB │ gzip: 1.33 kB
+ℹ /sortable/linear-shift.js           3.02 kB │ gzip: 1.17 kB
+ℹ /free-drag.js.map                   2.64 kB │ gzip: 1.11 kB
+ℹ /sortable.js.map                    2.62 kB │ gzip: 1.06 kB
+ℹ /sortable/keyboard.js.map           2.33 kB │ gzip: 1.06 kB
+ℹ /kernel/callback-list.js            2.17 kB │ gzip: 0.93 kB
+ℹ /shared/landing.js                  2.09 kB │ gzip: 1.01 kB
+ℹ /draggable.js.map                   2.08 kB │ gzip: 0.94 kB
+ℹ /free-drag/geometry.js              2.02 kB │ gzip: 0.85 kB
+ℹ /sortable/collection.js             2.00 kB │ gzip: 0.89 kB
+ℹ /sortable/placement.js              1.85 kB │ gzip: 0.80 kB
+ℹ /free-drag/behavior.js              1.83 kB │ gzip: 0.81 kB
+ℹ /shared/invalidation.js.map         1.49 kB │ gzip: 0.69 kB
+ℹ /sortable/keyboard.js               1.15 kB │ gzip: 0.57 kB
+ℹ /fault.js.map                       1.07 kB │ gzip: 0.63 kB
+ℹ /shared/invalidation.js             0.79 kB │ gzip: 0.40 kB
+ℹ /kernel/drag.js                     0.76 kB │ gzip: 0.38 kB
+ℹ /sortable/domain.js                 0.62 kB │ gzip: 0.37 kB
+ℹ /shared/focus.js.map                0.51 kB │ gzip: 0.33 kB
+ℹ /shared/focus.js                    0.32 kB │ gzip: 0.21 kB
+ℹ /shared/timing.js.map               0.29 kB │ gzip: 0.23 kB
+ℹ /free-drag/domain.js                0.29 kB │ gzip: 0.22 kB
+ℹ /shared/timing.js                   0.13 kB │ gzip: 0.13 kB
+ℹ /lift.d.ts                          2.34 kB │ gzip: 1.06 kB
+ℹ /free-drag/drop-targets.d.ts        2.04 kB │ gzip: 0.94 kB
+ℹ /draggable.d.ts                     1.82 kB │ gzip: 0.81 kB
+ℹ /free-drag.d.ts                     1.16 kB │ gzip: 0.53 kB
+ℹ /sortable.d.ts                      1.10 kB │ gzip: 0.47 kB
+ℹ /free-drag/bounds.d.ts              0.87 kB │ gzip: 0.50 kB
+ℹ /sortable/y.d.ts                    0.54 kB │ gzip: 0.35 kB
+ℹ /sortable/layout-animation.d.ts     0.47 kB │ gzip: 0.30 kB
+ℹ /fault.d.ts                         0.37 kB │ gzip: 0.27 kB
+ℹ /free-drag/landing.d.ts             0.18 kB │ gzip: 0.11 kB
+ℹ /lift/landing.d.ts                  0.18 kB │ gzip: 0.11 kB
+ℹ /sortable/landing.d.ts              0.18 kB │ gzip: 0.11 kB
+ℹ /sortable/xy.d.ts                   0.17 kB │ gzip: 0.16 kB
+ℹ /free-drag/domain.d.ts              3.28 kB │ gzip: 1.19 kB
+ℹ /sortable/axis.d.ts                 2.76 kB │ gzip: 1.19 kB
+ℹ /kernel/drag.d.ts                   2.69 kB │ gzip: 1.10 kB
+ℹ /sortable/domain.d.ts               2.23 kB │ gzip: 0.88 kB
+ℹ /kernel/behavior.d.ts               2.15 kB │ gzip: 0.98 kB
+ℹ /sortable/behavior.d.ts             2.04 kB │ gzip: 0.92 kB
+ℹ /shared/landing.d.ts                2.02 kB │ gzip: 0.93 kB
+ℹ /kernel/gesture.d.ts                1.52 kB │ gzip: 0.65 kB
+ℹ /free-drag/behavior.d.ts            1.24 kB │ gzip: 0.61 kB
+ℹ /kernel/outcome.d.ts                0.62 kB │ gzip: 0.32 kB
+ℹ /sortable/placement.d.ts            0.51 kB │ gzip: 0.31 kB
+ℹ /kernel/admission.d.ts              0.40 kB │ gzip: 0.28 kB
+ℹ /sortable/operation.d.ts            0.06 kB │ gzip: 0.06 kB
+ℹ /free-drag/operation.d.ts           0.04 kB │ gzip: 0.05 kB
+ℹ 90 files, total: 304.10 kB
+✔ Build complete in 877ms
+node bench/size/measure.ts 
+draggable alone                  6733 min   2197 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 58 B
+  VIOLATION: control moved by 173 B
+draggable + lift                11544 min   3974 br  9 modules
+example: resize handle           9390 min   3310 br  9 modules
+example: drop zone              13183 min   4610 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 179 B
+example: canvas group            9526 min   3306 br  9 modules
+freeDrag                        15201 min   5036 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 69 B
+freeDrag + bounds + landing     16366 min   5476 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 266 B
+sortable + y                    20741 min   6721 br  20 modules
+sortable + xy                   20297 min   6602 br  19 modules
+complete                        22420 min   7356 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 291 B
+error: recipe `size` failed on line 59 with exit code 1
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, uptime:  07:50:06 up 3 days,  4:13,  0 users,  load average: 2.70, 2.72, 2.74, exit 1

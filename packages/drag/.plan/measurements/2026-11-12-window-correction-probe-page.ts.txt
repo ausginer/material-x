@@ -1,0 +1,138 @@
+/**
+ * The page of the xy() rebuild probe (DRD-50 property 2). Bundled into one IIFE
+ * with both classes: `before` is 71f20df20's rect-index.ts and layout-animation.ts,
+ * and `production` is the unit's. `control` is a second production instance.
+ */
+import { layoutAnimation as beforeLayoutAnimation } from './before/layout-animation.ts';
+import { RectIndex as BeforeIndex } from './before/rect-index.ts';
+import { layoutAnimation as productionLayoutAnimation } from './production/layout-animation.ts';
+import { RectIndex as ProductionIndex } from './production/rect-index.ts';
+
+type Index = BeforeIndex | ProductionIndex;
+type Sink = ReturnType<ReturnType<typeof productionLayoutAnimation>>;
+type Arm = { index: Index; sink: Sink | null };
+
+const ITEMS = 2000;
+let field: HTMLElement;
+let dragged: HTMLElement;
+let placeholder: HTMLElement;
+let snapshot: { items: readonly HTMLElement[]; version: number };
+
+/** Fixed-size cells in a wrapping flex container, and a placeholder among them. */
+function setup(): Readonly<{ count: number; rows: number }> {
+  field = document.createElement('div');
+  field.style.cssText = 'display:flex;flex-wrap:wrap;width:1000px';
+
+  const items: HTMLElement[] = [];
+
+  // The dragged item is in the snapshot and outside the field, as a lifted item.
+  dragged = document.createElement('div');
+  dragged.style.cssText = 'position:fixed;left:0;top:0;width:40px;height:20px';
+  document.body.append(dragged);
+  items.push(dragged);
+
+  for (let i = 0; i < ITEMS; i += 1) {
+    const cell = document.createElement('div');
+
+    cell.style.cssText = 'width:40px;height:20px;flex:none';
+    cell.textContent = String(i);
+    field.append(cell);
+    items.push(cell);
+
+    if (i === 1000) {
+      placeholder = document.createElement('div');
+      placeholder.style.cssText = 'width:40px;height:20px;flex:none';
+      field.append(placeholder);
+    }
+  }
+
+  document.body.append(field);
+  snapshot = { items, version: 1 };
+  // Laid out here, before any timing.
+  void field.offsetHeight;
+
+  const tops = new Set(items.slice(1).map((cell) => cell.offsetTop));
+
+  return { count: items.length - 1, rows: tops.size };
+}
+
+function makeArm(kind: string, withSink: boolean): Arm {
+  const index = kind === 'before' ? new BeforeIndex() : new ProductionIndex();
+  const sink = withSink
+    ? (kind === 'before' ? beforeLayoutAnimation() : productionLayoutAnimation())()
+    : null;
+
+  return { index, sink };
+}
+
+function rebuild({ index, sink }: Arm): void {
+  index.invalidate();
+  index.refresh(snapshot, dragged, null, placeholder, sink as never);
+}
+
+/** Mean µs per rebuild over `size` rebuilds, and the batch's duration in ms. */
+function batch(arm: Arm, size: number): Readonly<{ us: number; ms: number }> {
+  const start = performance.now();
+
+  for (let i = 0; i < size; i += 1) {
+    rebuild(arm);
+  }
+
+  const ms = performance.now() - start;
+
+  return { us: (ms * 1000) / size, ms };
+}
+
+const arms = new Map<string, Arm>();
+
+/** Creates the three arms of one case, each with its own index and sink. */
+function prepare(withSink: boolean): Readonly<{ count: number; same: boolean }> {
+  arms.clear();
+
+  for (const kind of ['before', 'production', 'control']) {
+    arms.set(kind, makeArm(kind, withSink));
+  }
+
+  // The arms agree on what a rebuild packs.
+  const packed = [...arms.values()].map(({ index }) => {
+    rebuild({ index, sink: null });
+    return Array.from(index.values.slice(0, index.count * 6));
+  });
+  const same = packed.every(
+    (values) => values.length === packed[0]!.length && values.every((value, i) => value === packed[0]![i]),
+  );
+
+  return { count: arms.get('production')!.index.count, same };
+}
+
+/**
+ * Doubles the batch size until a production batch lasts at least `ms`, after one
+ * discarded batch, so the size is set on warm code.
+ */
+function calibrate(ms: number): number {
+  let size = 1;
+
+  batch(arms.get('production')!, 64);
+
+  while (batch(arms.get('production')!, size).ms < ms) {
+    size *= 2;
+  }
+
+  return size;
+}
+
+/** One round: each arm in `order` discards a warm-up batch, then times one batch. */
+function round(order: readonly string[], size: number): Record<string, { us: number; ms: number }> {
+  const readings: Record<string, { us: number; ms: number }> = {};
+
+  for (const kind of order) {
+    const arm = arms.get(kind)!;
+
+    batch(arm, size);
+    readings[kind] = batch(arm, size);
+  }
+
+  return readings;
+}
+
+Object.assign(globalThis, { probe: { setup, prepare, calibrate, round } });

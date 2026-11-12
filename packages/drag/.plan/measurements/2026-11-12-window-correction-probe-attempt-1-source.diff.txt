@@ -1,0 +1,60 @@
+# attempt 1's source against the final source (attempt 2), in probe/:
+--- attempt-1/page.ts
++++ attempt-2/page.ts
+@@ -105,10 +105,15 @@
+   return { count: arms.get('production')!.index.count, same };
+ }
+ 
+-/** Doubles the batch size until a production batch lasts at least `ms`. */
++/**
++ * Doubles the batch size until a production batch lasts at least `ms`, after one
++ * discarded batch, so the size is set on warm code.
++ */
+ function calibrate(ms: number): number {
+   let size = 1;
+ 
++  batch(arms.get('production')!, 64);
++
+   while (batch(arms.get('production')!, size).ms < ms) {
+     size *= 2;
+   }
+--- attempt-1/probe.ts
++++ attempt-2/probe.ts
+@@ -29,7 +29,7 @@
+   { name: 'no sink', withSink: false },
+   { name: 'layoutAnimation, nothing in flight', withSink: true },
+ ] as const;
+-/** A batch lasts at least this long; calibration aims at one and a half times it. */
++/** A batch lasts at least this long; calibration aims at three times it. */
+ const MINIMUM_BATCH_MS = 100;
+ 
+ const median = (values: readonly number[]): number => {
+@@ -106,7 +106,7 @@
+     );
+     const size: number = await page.evaluate(
+       (ms) => (globalThis as any).probe.calibrate(ms),
+-      MINIMUM_BATCH_MS * 1.5,
++      MINIMUM_BATCH_MS * 3,
+     );
+     const rounds: Record<string, { us: number; ms: number }>[] = [];
+ 
+@@ -136,6 +136,7 @@
+       batchSize: size,
+       warmUp: `one discarded batch of ${size} rebuilds per arm per round`,
+       shortestTimedBatchMs: shortest,
++      everyTimedBatchAtLeastMinimum: shortest >= MINIMUM_BATCH_MS,
+       rounds,
+       differences,
+       aa,
+@@ -150,6 +151,11 @@
+   }
+ 
+   result['cases'] = cases;
++
++  if (cases.some((each) => !each['everyTimedBatchAtLeastMinimum'])) {
++    console.log(`a timed batch lasted less than ${MINIMUM_BATCH_MS} ms`);
++    process.exitCode = 1;
++  }
+ } finally {
+   await browser.close();
+ }
