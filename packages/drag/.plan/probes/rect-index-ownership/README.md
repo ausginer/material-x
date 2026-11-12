@@ -9,8 +9,9 @@ The experimental code for [`rect-index-ownership-proposal.md`](../../rect-index-
 | [`patches/`](patches/) | One unified diff per variant, against `c0d6b9205`. From the repository root, `git apply packages/drag/.plan/probes/rect-index-ownership/patches/<name>.diff.txt` applies it |
 | [`alloc-probe.test.ts.txt`](alloc-probe.test.ts.txt) | Bytes allocated per pointer sample under `src/sortable/`, for `y()` and for `xy()`. 20 rows, 300 warm moves, then 400 sampled moves inside one slot, so every frame resolves and none commits a move |
 | [`move-probe.test.ts.txt`](move-probe.test.ts.txt) | Bytes allocated per committed move under `src/sortable/linear-shift.ts` and `src/sortable/rect-index.ts`, for `y()`. 20 rows, 100 warm crossings, then 200 sampled crossings, one placeholder relocation each, counted by a `MutationObserver` |
+| [`placeholder-x-witness.test.ts.txt`](placeholder-x-witness.test.ts.txt) | Added for `DRD-52`. A development-project drag in which only the placeholder moves along x, by its position's parity. It prints the faults the drag raised. Appended to a scratch copy of `tests/sortable.browser.test.ts` and run with `-t 'placeholder x witness'` |
 
-**The patches.** Each letter names a variant in the proposal's measured trade-offs.
+**The patches.** Each letter names a variant in the proposal's measured trade-offs. All are against `c0d6b9205` except P5, which is against `1d304128b`, and which the proposal doesn't list.
 
 | Patch | Variant |
 | --- | --- |
@@ -23,6 +24,7 @@ The experimental code for [`rect-index-ownership-proposal.md`](../../rect-index-
 | `G-E-with-every-access-lent` | E, with every access to both buffers through `lend`, and the `values` and `placeholderRect` getters removed |
 | `H-E-with-writer-once-and-span-state` | E, with the writer created once per `y()` instance and the span in three rule variables |
 | `P-proposed-range-lend` | **The proposal.** D, with `advance` moved into `linear-shift.ts` through `lend(lo, hi, write)`, a writer created once per `y()` instance, and the committed move's `delta` as rule state |
+| `P5-decided-with-held-placeholder-x` | **The decided form, `DRD-52`, against `1d304128b`.** P, with the development check given the placeholder's x as the cache held it before the re-read. That state is written only inside `__DEV__` branches, and the patch reads 0/0/0 against P on every row |
 
 **How the readings were made.**
 

@@ -1,0 +1,43 @@
+/*
+ * Development check witness: a placeholder whose x depends on its position.
+ * Appended to a scratch worktree's `tests/sortable.browser.test.ts`, which runs in
+ * the development project with `__DEV__` true, and run with `-t 'placeholder x witness'`.
+ * It prints the faults and errors the drag raised, and asserts nothing.
+ */
+import * as W from './support/harness.ts';
+
+describe('placeholder x witness', () => {
+  it('placeholder x witness: a relocation that moves the placeholder along x', async () => {
+    const style = document.createElement('style');
+
+    // Only the placeholder moves along x, and only by its position's parity.
+    style.textContent = '[data-drag-placeholder]:nth-child(even) { margin-left: 9px; }';
+    document.head.append(style);
+    W.onCleanup(() => style.remove());
+
+    const list = W.makeList(8);
+
+    W.basicSortable(list);
+
+    const rect = (document.querySelector('#r1') as HTMLElement).getBoundingClientRect();
+    const start = await W.grab('#r1', 0, 10);
+
+    for (let step = 1; step <= 4; step += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+      await W.moveHeld(start.x, start.y + step * rect.height);
+      // oxlint-disable-next-line no-await-in-loop -- the check runs a frame later
+      await W.frames();
+    }
+
+    await W.commands.keyPress('Escape');
+
+    const messages = [
+      ...faultMessages(),
+      ...W.foreignErrors.map((error) => String((error as Error)?.message ?? error)),
+    ];
+
+    console.log(`WITNESS ${JSON.stringify(messages)}`);
+    W.faults.length = 0;
+    W.foreignErrors.length = 0;
+  });
+});

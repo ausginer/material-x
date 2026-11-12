@@ -130,17 +130,20 @@ It works under CONTRIBUTING Part II: delete machinery before compressing syntax 
 - a change that only removes work: the per-sample tests, the hot-path censuses and the three-engine suite, with no `compare.ts` run. A change that adds or moves hot-path work also runs `compare.ts --before <its base> --only <rows>` and goes to the owner;
 - no ceiling, control figure or `measure.ts` change, and the deferred campaigns stay stopped.
 
-**Recommended first unit, not started:** `DRF-13` and `DRF-14` together (`DRD-51` §First unit). −17 B Brotli on "sortable + y" and "complete", −1 to −2 B on three other rows, and exactly 0 B on the five rows that import neither `sortable` nor `freeDrag`. It needs no owner decision. The architect's probe of the patch typechecks and passes six browser test files in Chromium. Its handoff is written when the owner starts it.
+**First unit, handed off on 2026-11-12:** [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md), from `1d304128b`. It carries:
 
-**For the owner:** `DRO-14`. The architect recommends taking C2 (`CallbackList`'s factories, −12 to −25 B on every row) and C6, and not taking C1 (`DRF-20`, per-frame work for 5 to 15 B) or C5 (the lift's capture functions, +2 B on "complete"). A second unit takes whatever the owner approves.
+- `DRF-13` and `DRF-14` (`DRD-51` §First unit);
+- `RectIndex`'s ownership (`DRD-52`, proposal P with the owner's two conditions);
+- the completion of the owner's `kernel/callbacks.ts` refactor (`DRD-53`).
 
-**C6, revised on 2026-11-12:** [`rect-index-ownership-proposal.md`](rect-index-ownership-proposal.md) replaces C6's form.
+Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sortable + xy", −65 B on "complete" and −1 B on "freeDrag". The five rows that import neither `sortable` nor `freeDrag` must read exactly 0 B. Because `DRD-52` moves work on the committed-move path, the unit also:
 
-- `RectIndex` holds no axis policy.
-- `xy()`'s rebuild moves into `xy.ts`.
-- `y()`'s prediction writes the slot buffer only through `lend(lo, hi, write)`, scoped to one call and one range.
+- reads allocation per committed move after warm-up, where the 7 B is provisional;
+- runs `compare.ts` on the move and cycle rows.
 
-It reads −46 B on "sortable + y", −57 B on "sortable + xy" and −43 B on "complete". Per sample it allocates nothing more. Per committed move it adds one call and about 7 B allocated in code that isn't warm, which needs the owner's approval under §14. C6 as patched in the size pass wrote through a cast of the read-only views and was −13, −76 and −18 B.
+**`DRO-14`, answered in part on 2026-11-12:** item 1 (C2) is rejected, and the named module factories stay (`DRD-53`). Item 2 (C6) is approved as `DRD-52`. Items 3 (C1, `DRF-20`) and 4 (C5) are unanswered, and nothing is taken for them. The architect recommends not taking either.
+
+**The owner's commit `1d304128b`** puts "example: resize handle" 8 B over its 3,313 B ceiling. Budgets are unchanged, and `DRO-4` holds the re-base.
 
 ## 3. Rules every unit follows
 
