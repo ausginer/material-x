@@ -69,6 +69,10 @@ The architect then selects one candidate, or none, and records the selection.
 
 **First unit:** [`performance-drop-handoff.md`](performance-drop-handoff.md), `DRD-47`. The pointer drop confirms the axis cache against one row instead of measuring every row, and the 2,000-item cycle rows confirm it.
 
+**Done on 2026-11-12:** implemented at `bf9d1caed` and confirmed ([report](performance-drop-report.md), [assessment](performance-drop-assessment.md)). "50 activate-and-drop cycles, 2000 items, no landing" is faster by 2,449 µs of script per cycle, against an A/A bound of 409 µs. The owner accepted +125 to +140 B Brotli on the `sortable` rows, and no budget changed.
+
+**Next, a correctness unit:** [`free-drag-drop-handoff.md`](free-drag-drop-handoff.md), `DRD-48`. `freeDrag`'s drop measures its drop targets and its bounds again, which `DRF-22` found missing. It isn't an optimization unit, and no paired run reaches it. The next optimization candidate is selected after it, from the trace report or from new traces, under `DRD-46` property 8.
+
 **Entry condition** (`DRD-46` property 8): a unit starts on one candidate that the architect selected from a trace report. No row has to meet `DRD-43` property 7 first. **Amended on 2026-11-11 by `DRD-46`:** it said that a unit starts only on a row whose floor is stable and at most 10 % of the library's share of that row's script, and that the candidate comes from `compare.ts --profile --only <row>`.
 
 Each unit is one bounded change at the selected candidate's site. Each unit:
@@ -96,7 +100,9 @@ After the runtime units, under CONTRIBUTING Part II: delete machinery before com
 
 ## 4. Open items this plan doesn't decide
 
-- `DRO-4`'s size re-base and the six red rows. The owner's.
+- `DRO-4`'s size re-base and the red rows, five at `bf9d1caed`. The owner's.
 - Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. The record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
+- `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
+- `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
 - The optional findings `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so.

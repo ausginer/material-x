@@ -1,5 +1,7 @@
 # Performance drop handoff
 
+**Done.** The unit landed at `bf9d1caed` and `8eda874f0` on `drag/performance`, after `093f31c7f` joined the branches. [`performance-drop-report.md`](performance-drop-report.md) records it, and [`performance-drop-assessment.md`](performance-drop-assessment.md) reads it: confirmed.
+
 **For:** one `implementer` unit. **Base:** a commit, on one branch, that holds both `packages/drag/src` at `566ebfc65` and this handoff. `drag/performance` and `drag/performance-resolution` diverged at `39c8b432c`, and the owner decides how they join ([trace handoff](performance-trace-handoff.md) §After this unit). The unit starts after the owner names that branch.
 
 **Governing records:** `DRD-47` in [`00-index.md`](00-index.md), with `DRD-46` property 8, `DRD-40` properties 4, 6 and 7, `DRD-44` property 6 and `DRD-45` property 9. [`performance-plan.md`](performance-plan.md) §2 P3. The reasons are in [`performance-trace-assessment.md`](performance-trace-assessment.md) §2 and §3.
