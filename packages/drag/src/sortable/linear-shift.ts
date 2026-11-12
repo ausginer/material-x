@@ -34,6 +34,7 @@
 import type { AxisContext, DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import {
+  BOTTOM,
   CENTER_Y,
   type RectIndex,
   STRIDE,
@@ -98,6 +99,29 @@ export function linearShift(index: RectIndex): LinearShift {
   /** Written only inside `__DEV__` branches, so it folds away with them. */
   let advanceUnchecked = false;
 
+  /** The placeholder as the cache held it before the re-read. `__DEV__` only. */
+  let heldPlaceholder: Float64Array | null = null;
+
+  /** The last committed move's displacement along y, which `advance` applies. */
+  let delta = 0;
+
+  /**
+   * Advances the lent slots by `delta`. Created once, so a committed move allocates
+   * no function. The center is recomputed from the shifted edges, so the arithmetic
+   * is the one a full scan performs.
+   */
+  const advance = (values: Float64Array, lo: number, hi: number): void => {
+    for (let i = lo; i < hi; i += 1) {
+      const offset = i * STRIDE;
+      const top = values[offset + TOP]! + delta;
+      const bottom = values[offset + BOTTOM]! + delta;
+
+      values[offset + TOP] = top;
+      values[offset + BOTTOM] = bottom;
+      values[offset + CENTER_Y] = (top + bottom) * 0.5;
+    }
+  };
+
   return {
     refresh(
       snapshot,
@@ -110,7 +134,14 @@ export function linearShift(index: RectIndex): LinearShift {
     ) {
       if (placeholderIsStale) {
         placeholderIsStale = false;
-        index.remeasurePlaceholder(placeholder);
+
+        if (__DEV__ && advanceUnchecked) {
+          // The rule predicts that a relocation leaves both x coordinates where
+          // the rebuild measured them, and the check compares that prediction.
+          heldPlaceholder = index.placeholderRect.slice();
+        }
+
+        index.measurePlaceholder(placeholder);
       }
 
       if (
@@ -127,7 +158,9 @@ export function linearShift(index: RectIndex): LinearShift {
           getBox,
           placeholder,
           displacement,
+          heldPlaceholder,
         );
+        heldPlaceholder = null;
       }
 
       index.collect(snapshot, dragged, placeholder, gap);
@@ -180,7 +213,8 @@ export function linearShift(index: RectIndex): LinearShift {
 
       const lo = lastGap < gap ? lastGap : gap;
       const hi = lastGap < gap ? gap : lastGap;
-      let delta = lastGap < gap ? -rowDistance : rowDistance;
+
+      delta = lastGap < gap ? -rowDistance : rowDistance;
 
       if (rowDistance < 0) {
         // Any crossed row works, because they all traveled the same constant.
@@ -203,7 +237,7 @@ export function linearShift(index: RectIndex): LinearShift {
         rowDistance = delta < 0 ? -delta : delta;
       }
 
-      index.advance(lo, hi, delta);
+      index.lend(lo, hi, advance);
 
       if (context.displacement) {
         // Read once, outside a loop that calls into the sink.

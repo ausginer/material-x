@@ -10,8 +10,8 @@
  * one, it invalidates, and the next frame rebuilds against a laid-out tree. A
  * resolution with nothing stale reads no layout.
  */
-import type { AxisInstaller } from './axis.ts';
-import { insertionAt } from './domain.ts';
+import type { AxisInstaller, DisplacementSink } from './axis.ts';
+import { type CollectionSnapshot, insertionAt } from './domain.ts';
 import {
   CENTER_X,
   CENTER_Y,
@@ -20,6 +20,26 @@ import {
   STRIDE,
   TOP,
 } from './rect-index.ts';
+
+/**
+ * Measures every slot, only when something marked the cache stale or the collection
+ * version changed. An empty window after `collect` is a rebuild, or a collection
+ * with no slot.
+ */
+function refresh(
+  index: RectIndex,
+  snapshot: CollectionSnapshot,
+  dragged: HTMLElement,
+  getBox: ((item: HTMLElement) => HTMLElement) | null,
+  placeholder: HTMLElement,
+  displacement: DisplacementSink | null,
+): void {
+  index.collect(snapshot, dragged, placeholder, 0);
+
+  if (index.first === index.end) {
+    index.measure(0, index.count, getBox, displacement);
+  }
+}
 
 /** The axis rule for a wrapping field of items. */
 export function xy(): AxisInstaller {
@@ -39,7 +59,8 @@ export function xy(): AxisInstaller {
         // Read once, outside the candidate loop.
         const { pointerX, pointerY } = query;
 
-        index.refresh(
+        refresh(
+          index,
           query.snapshot,
           query.item,
           context.box,
@@ -120,7 +141,8 @@ export function xy(): AxisInstaller {
         }
 
         index.invalidate();
-        index.refresh(
+        refresh(
+          index,
           query.snapshot,
           query.item,
           context.box,
