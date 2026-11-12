@@ -1,0 +1,74 @@
+--- /tmp/claude-1000/-workspaces-material-x/9259c9af-2195-4699-8332-0b65fb949005/scratchpad/hot-path.orig.ts	2026-11-12 01:06:57.292659351 +0000
++++ /tmp/claude-1000/-workspaces-material-x/9259c9af-2195-4699-8332-0b65fb949005/scratchpad/hot-path.probe.ts.txt	2026-11-12 01:07:44.278927054 +0000
+@@ -3,6 +3,9 @@
+  * `__DEV__` false, so the development equivalence check is not in the census.
+  */
+ import { describe, expect, it } from 'vitest';
++import { bounds } from '../src/free-drag/bounds.ts';
++import { dropTargets } from '../src/free-drag/drop-targets.ts';
++import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
+ import { Lifter } from '../src/lift.ts';
+ import { landing } from '../src/sortable/landing.ts';
+ import { ReorderResolution } from '../src/sortable.ts';
+@@ -205,6 +208,61 @@
+     expect(many).toBe(few);
+   });
+ 
++
++  it('PROBE DRD-48 should count the reads at a freeDrag drop with ten targets and an element bounds', async () => {
++    const arena = document.createElement('div');
++
++    arena.style.cssText = 'position:absolute;left:0;top:0;width:600px;height:600px';
++    document.body.append(arena);
++
++    const box = document.createElement('div');
++
++    box.style.cssText = 'position:absolute;left:10px;top:10px;width:40px;height:40px;touch-action:none;user-select:none';
++    arena.append(box);
++
++    const zones: HTMLElement[] = [];
++
++    for (let i = 0; i < 10; i += 1) {
++      const zone = document.createElement('div');
++
++      zone.style.cssText = `position:absolute;left:${10 + (i % 5) * 50}px;top:${200 + Math.floor(i / 5) * 50}px;width:40px;height:40px`;
++      arena.append(zone);
++      zones.push(zone);
++    }
++
++    let target: unknown;
++    const controller = freeDrag(box, {
++      bounds: bounds(arena),
++      targets: dropTargets({ targets: () => zones }),
++      onDrop(request) {
++        target = request.target;
++        return FreeDragResolution.reject();
++      },
++    });
++
++    onCleanup(() => controller.requestDestroy());
++
++    const start = await grab(box, 0, 30);
++    const over = zones[3]!.getBoundingClientRect();
++
++    // A frame resolves the targets, so the cache is warm at the release.
++    await moveHeld(over.left + 20, over.top + 20);
++    await moveHeld(over.left + 21, over.top + 20);
++    expect(zones[3]!.hasAttribute('data-drop-over')).toBe(true);
++
++    const census = countLayoutReads();
++
++    await commands.pointerUp();
++    await frames();
++
++    const reads = census.reads();
++
++    console.log(`PROBE reads-at-drop=${reads} target=${target === zones[3]} start=${start.x}`);
++    expect(target).toBe(zones[3]);
++    // Fails on purpose, so the count is printed in the assertion message.
++    expect({ readsAtDrop: reads }).toEqual({ readsAtDrop: -1 });
++  });
++
+   it('should run no consumer callback per sample', async () => {
+     const list = makeList(5);
+     let calls = 0;

@@ -1,0 +1,140 @@
+# 2026-11-12T01:06:11+00:00 label=M4: the bounds not marked stale at the drop (tracker only) head=d11d71d27
+# operation.ts drop lines:
+  drop(): VerdictAwaiter<FreeDragResolution> | null {
+    // A scroll after the last rendering update dispatches its `scroll` event only
+    // at the next update, which the drop does not wait for. So the drop clamps and
+    // resolves against the bounds and targets as they are now.
+    this.#targets?.invalidate();
+    this.#computeMotion();
+    // `pointerup` moved the pointer, and a drop may follow no frame at all.
+    this.#targets?.drop();
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:06:13 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser (chromium)| tests/free-drag.browser.test.ts (10 tests | 1 failed | 9 skipped) 194ms
+   ❯ freeDrag (10)
+     × drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 192ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+1:06:16 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser/firefox (firefox)| tests/free-drag.browser.test.ts (10 tests | 1 failed | 9 skipped) 153ms
+   ❯ freeDrag (10)
+     × drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 150ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+1:06:19 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser/webkit (webkit)| tests/free-drag.browser.test.ts (10 tests | 1 failed | 9 skipped) 113ms
+   ❯ freeDrag (10)
+     × drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 111ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+AssertionError: expected { arenaBottom: 210, localDeltaY: 110 } to deeply equal { arenaBottom: 210, localDeltaY: 70 }
+
+- Expected
++ Received
+
+  {
+    "arenaBottom": 210,
+-   "localDeltaY": 70,
++   "localDeltaY": 110,
+  }
+
+ ❯ tests/free-drag.browser.test.ts:169:68
+    167|     const arenaBottom = arena.getBoundingClientRect().bottom;
+    168|
+    169|     expect({ arenaBottom, localDeltaY: requests[0]!.localDeltaY }).toE…
+    170|       arenaBottom: 210,
+    171|       localDeltaY: arenaBottom - 50 - originTop,
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+AssertionError: expected { arenaBottom: 210, localDeltaY: 110 } to deeply equal { arenaBottom: 210, localDeltaY: 70 }
+
+- Expected
++ Received
+
+  {
+    "arenaBottom": 210,
+-   "localDeltaY": 70,
++   "localDeltaY": 110,
+  }
+
+ ❯ tests/free-drag.browser.test.ts:169:68
+    167|     const arenaBottom = arena.getBoundingClientRect().bottom;
+    168|
+    169|     expect({ arenaBottom, localDeltaY: requests[0]!.localDeltaY }).toE…
+    170|       arenaBottom: 210,
+    171|       localDeltaY: arenaBottom - 50 - originTop,
+ ❯ async*withFixtures/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5725:22
+ ❯ runWithCancel .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5709:22
+ ❯ runWithTimeout .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5673:10
+ ❯ runTest/</</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:64
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runTest/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:57
+ ❯ runTest/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:37
+ ❯ callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundEachHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:8
+ ❯ runTest .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:45
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:31
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6450:32
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6466:19
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6459:38
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+ ❯ async*callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundAllHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6114:8
+ ❯ runSuite .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6397:10
+ ❯ async*runFiles/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6481:20
+ ❯ runFiles .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6478:16
+ ❯ startTests .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6514:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+AssertionError: expected { arenaBottom: 210, localDeltaY: 110 } to deeply equal { arenaBottom: 210, localDeltaY: 70 }
+
+- Expected
++ Received
+
+  {
+    "arenaBottom": 210,
+-   "localDeltaY": 70,
++   "localDeltaY": 110,
+  }
+
+ ❯ tests/free-drag.browser.test.ts:169:68
+    167|     const arenaBottom = arena.getBoundingClientRect().bottom;
+    168|
+    169|     expect({ arenaBottom, localDeltaY: requests[0]!.localDeltaY }).toE…
+    170|       arenaBottom: 210,
+    171|       localDeltaY: arenaBottom - 50 - originTop,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  3 failed | 3 passed | 51 skipped (57)
+   Start at  01:06:12
+   Duration  7.31s (worker 72%, tests 20%, import 8%)
+
+# exit 1

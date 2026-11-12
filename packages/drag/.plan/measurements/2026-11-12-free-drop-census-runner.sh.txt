@@ -1,0 +1,15 @@
+#!/bin/bash
+# usage: census.sh <output> <label> ; runs the temporary read-count probe in Chromium (shipped project) and in the three-engine config
+cd /workspaces/material-x/packages/drag
+source ~/.cache/ms-playwright/webkit-env.sh
+out=$1
+{
+  echo "# $(date -Is) label=$2 head=$(git rev-parse --short HEAD)"
+  echo "# operation.ts drop lines:"; sed -n '/^  drop(): /,/^    this.#targets?.drop();/p' src/free-drag/operation.ts
+  echo "## vitest.config.ts (Chromium)"
+  timeout 900 npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t "PROBE" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -E "PROBE|Tests |✓|×|\|browser|\|shipped|FAIL|readsAtDrop|AssertionError"
+  echo "# exit ${PIPESTATUS[0]}"
+  echo "## vitest.engines.config.ts (Chromium, Firefox, WebKit)"
+  timeout 900 npx vitest run -c vitest.engines.config.ts tests/hot-path.browser.test.ts -t "PROBE" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -E "PROBE|Tests |✓|×|\|browser|FAIL|readsAtDrop|AssertionError"
+  echo "# exit ${PIPESTATUS[0]}"
+} > "$out" 2>&1

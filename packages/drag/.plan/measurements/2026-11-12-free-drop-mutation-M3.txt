@@ -1,0 +1,140 @@
+# 2026-11-12T01:06:00+00:00 label=M3: the tracker not marked stale at the drop (bounds only) head=d11d71d27
+# operation.ts drop lines:
+  drop(): VerdictAwaiter<FreeDragResolution> | null {
+    // A scroll after the last rendering update dispatches its `scroll` event only
+    // at the next update, which the drop does not wait for. So the drop clamps and
+    // resolves against the bounds and targets as they are now.
+    this.#behavior.bounds?.invalidate();
+    this.#computeMotion();
+    // `pointerup` moved the pointer, and a drop may follow no frame at all.
+    this.#targets?.drop();
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:06:02 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser (chromium)| tests/drop-targets.browser.test.ts (9 tests | 1 failed | 8 skipped) 340ms
+   ❯ drag:DRI-21 freeDrag + dropTargets (8)
+     × drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 336ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+1:06:06 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser/firefox (firefox)| tests/drop-targets.browser.test.ts (9 tests | 1 failed | 8 skipped) 278ms
+   ❯ drag:DRI-21 freeDrag + dropTargets (8)
+     × drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 274ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+1:06:08 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+
+ ❯ |browser/webkit (webkit)| tests/drop-targets.browser.test.ts (9 tests | 1 failed | 8 skipped) 186ms
+   ❯ drag:DRI-21 freeDrag + dropTargets (8)
+     × drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 178ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived
+AssertionError: expected [ …(1) ] to deeply equal [ …(1) ]
+
+- Expected
++ Received
+
+  [
+    <div
+      class="zone"
+-     id="z2"
+-     style="position: absolute; left: 20px; top: 260px; width: 120px; height: 120px; outline: solid 1px;"
++     id="z1"
++     style="position: absolute; left: 20px; top: 100px; width: 120px; height: 120px; outline: solid 1px;"
+    />,
+  ]
+
+ ❯ tests/drop-targets.browser.test.ts:245:21
+    243|     // The release is 160 px into the scroller, which after the scroll…
+    244|     // into the content: inside z2, which spans 260 to 380.
+    245|     expect(targets).toEqual([document.querySelector('#z2')]);
+    246|   });
+    247|
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived
+AssertionError: expected [ …(1) ] to deeply equal [ …(1) ]
+
+- Expected
++ Received
+
+  [
+    <div
+      class="zone"
+-     id="z2"
+-     style="position: absolute; left: 20px; top: 260px; width: 120px; height: 120px; outline: solid 1px;"
++     id="z1"
++     style="position: absolute; left: 20px; top: 100px; width: 120px; height: 120px; outline: solid 1px;"
+    />,
+  ]
+
+ ❯ tests/drop-targets.browser.test.ts:245:21
+    243|     // The release is 160 px into the scroller, which after the scroll…
+    244|     // into the content: inside z2, which spans 260 to 380.
+    245|     expect(targets).toEqual([document.querySelector('#z2')]);
+    246|   });
+    247|
+ ❯ async*withFixtures/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:4120:35
+ ❯ withAwaitAsyncAssertions/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:26
+ ❯ withCancel/runWithCancel/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5725:22
+ ❯ runWithCancel .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5720:10
+ ❯ withTimeout/runWithTimeout/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5709:22
+ ❯ runWithTimeout .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5673:10
+ ❯ runTest/</</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:64
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runTest/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:57
+ ❯ runTest/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6245:13
+ ❯ async*callAroundEachHooks/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:37
+ ❯ callAroundHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6012:9
+ ❯ callAroundEachHooks .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6122:8
+ ❯ runTest .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6233:10
+ ❯ async*runSuiteChild/</< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:45
+ ❯ run .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3857:24
+ ❯ limiterFn .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:3867:59
+ ❯ runSuiteChild/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6458:31
+ ❯ runSuiteChild .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6450:32
+ ❯ runSuite/< .vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:6414:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived
+AssertionError: expected [ …(1) ] to deeply equal [ …(1) ]
+
+- Expected
++ Received
+
+  [
+    <div
+      class="zone"
+-     id="z2"
+-     style="position: absolute; left: 20px; top: 260px; width: 120px; height: 120px; outline: 1px solid;"
++     id="z1"
++     style="position: absolute; left: 20px; top: 100px; width: 120px; height: 120px; outline: 1px solid;"
+    />,
+  ]
+
+ ❯ tests/drop-targets.browser.test.ts:245:21
+    243|     // The release is 160 px into the scroller, which after the scroll…
+    244|     // into the content: inside z2, which spans 260 to 380.
+    245|     expect(targets).toEqual([document.querySelector('#z2')]);
+    246|   });
+    247|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  3 failed | 3 passed | 51 skipped (57)
+   Start at  01:06:02
+   Duration  8.29s (worker 67%, tests 21%, import 11%)
+
+# exit 1
