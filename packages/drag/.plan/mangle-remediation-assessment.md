@@ -1,5 +1,7 @@
 # Mangle remediation assessment
 
+> **Withdrawn on 2026-11-13 before implementation, by `DRD-59`.** The owner's requirements for the publication withdrew the requirement to keep the JavaScript text and the source map segments, which this record's custom pipeline exists to meet. Don't run it. [`publication-build-proposal.md`](publication-build-proposal.md) §4.2 says what replaces each item, and [`publication-build-handoff.md`](publication-build-handoff.md) is the unit.
+
 **Read:** the [publish mangle review summary](reviews/publish-mangle/publish-mangle-summary.md) and its three pass reports, committed at `6e8174f64`, by the architect on 2026-11-13. The reviewed tree is `436b105c6`. Every pass read that commit, and its `src`, `build/`, `tests` and `tsdown.config.ts` are as at `31f92f5a9`. **Governing records:** `drag:DRD-56` as corrected on 2026-11-13, `DRD-55` property 1, and `DRD-57`, which was decided at `ed759485e` during the round and isn't implemented on `drag/size` at `6e8174f64`. **Handoff:** [`mangle-remediation-handoff.md`](mangle-remediation-handoff.md).
 
 **This record allocates no identifier and doesn't edit the register.** §6 gives the decision text, the in-place corrections and the register lines for the architect to integrate into [`00-index.md`](00-index.md). The decision proposed there is called **the validation decision** until integration gives it a `DRD-` number.

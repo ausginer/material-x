@@ -1,0 +1,54 @@
+// For each identifier token in each emitted module, read its own mapping (exact generated
+// position) and classify the src text at the original position.
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
+import { parseSync, Visitor } from 'rolldown/utils';
+import { TraceMap, eachMapping } from '@jridgewell/trace-mapping';
+const root = resolve(process.argv[2]);
+const names: Record<string, string> = JSON.parse(readFileSync(process.env.NAMES ?? new URL('../build/property-names.json', import.meta.url), 'utf8'));
+const back = new Map(Object.entries(names).map(([k, v]) => [v, k]));
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.js') ? [join(d, f)] : []);
+const lineStarts = (s: string) => { const a = [0]; for (let i = 0; i < s.length; i++) if (s[i] === '\n') a.push(i + 1); return a; };
+const tally: Record<string, number> = {};
+const bump = (k: string) => (tally[k] = (tally[k] ?? 0) + 1);
+let srcContentOk = 0, srcContentTotal = 0;
+for (const file of walk(root)) {
+  const code = readFileSync(file, 'utf8');
+  const url = /\/\/# sourceMappingURL=(\S+)\s*$/.exec(code)?.[1];
+  let has = true; try { statSync(file + '.map'); } catch { has = false; }
+  if (!has) { bump(url ? 'MODULE: dangling sourceMappingURL' : 'module: no map, no URL'); continue; }
+  if (url !== file.split('/').pop() + '.map') bump('MODULE: map present, URL wrong');
+  const raw = JSON.parse(readFileSync(file + '.map', 'utf8'));
+  raw.sources.forEach((s: string, i: number) => { srcContentTotal++; if (raw.sourcesContent?.[i] === readFileSync(resolve(dirname(file), s), 'utf8')) srcContentOk++; });
+  const map = new TraceMap(raw);
+  const exact = new Map<number, { s: string; l: number; c: number; n: string | null }>();
+  const gl = lineStarts(code);
+  eachMapping(map, (m) => { if (m.source) exact.set(gl[m.generatedLine - 1] + m.generatedColumn, { s: m.source, l: m.originalLine, c: m.originalColumn, n: m.name }); });
+  const srcCache = new Map<string, number[] & { text?: string }>();
+  const srcAt = (s: string, l: number, c: number) => { const p = resolve(dirname(file), s.replace(/^.*?src\//, '../src/').startsWith('../src') ? s : s); const t = readFileSync(resolve(dirname(file), s), 'utf8'); const ls = lineStarts(t); return t.slice(ls[l - 1] + c, ls[l - 1] + c + 40); };
+  const ast = parseSync(file, code, { sourceType: 'module' });
+  const visit = (kind: string) => (node: any) => {
+    const name = node.name;
+    const m = exact.get(node.start);
+    if (!m) return bump(`${kind}: no own mapping`);
+    const text = srcAt(m.s, m.l, m.c);
+    const isRenamedProp = kind === 'property' && back.has(name);
+    const want = isRenamedProp ? back.get(name)! : (m.n ?? name);
+    if (m.n && m.n !== name) bump(`${kind}: mangled, map names ${"its"} source name`);
+    const lead = /^#?[\p{ID_Start}$_][\p{ID_Continue}$]*/u.exec(text)?.[0];
+    if (text.startsWith(want) || (back.has(name) && text.startsWith(back.get(name)!))) bump(`${kind}${isRenamedProp ? ' (renamed)' : ''}: maps to its source name`);
+    else if (lead && !m.n) bump(`${kind}: maps to a source identifier (${lead === name ? 'same' : 'other'} text), map has no name`);
+    else bump(`${kind}${isRenamedProp ? ' (renamed)' : ''}: maps to non-identifier text`);
+  };
+  const visitKey = (kind: string) => (node: any) => { const m = exact.get(node.start); if (!m) return bump(`renamed ${kind}: no own mapping`); const t = srcAt(m.s, m.l, m.c); const want = back.get(node.name)!; bump(`renamed ${kind}: ${t.startsWith(want) ? 'maps to its source name' : /^(?:(?:readonly|static|public|private|protected|override|declare|accessor|async|get|set)\s+)+/.test(t) ? 'maps to member start' : 'maps to ' + JSON.stringify(t.slice(0, 12))}${m.n === want ? ', named' : ''}`); };
+  new Visitor({
+    Identifier: visit('identifier'),
+    PrivateIdentifier: visit('private'),
+    PropertyDefinition: (n: any) => { if (!n.computed && n.key.type === 'Identifier' && back.has(n.key.name)) visitKey('field key')(n.key); },
+    MethodDefinition: (n: any) => { if (!n.computed && n.key.type === 'Identifier' && back.has(n.key.name)) visitKey('method key')(n.key); },
+    Property: (n: any) => { if (!n.computed && n.key.type === 'Identifier' && back.has(n.key.name)) visitKey('object key')(n.key); },
+    MemberExpression: (n: any) => { if (!n.computed && n.property.type === 'Identifier') visit('property')(n.property); },
+  }).visit(ast.program);
+}
+console.log(`sourcesContent equal to src: ${srcContentOk}/${srcContentTotal}`);
+console.log(Object.entries(tally).sort().map(([k, v]) => `${String(v).padStart(6)}  ${k}`).join('\n'));

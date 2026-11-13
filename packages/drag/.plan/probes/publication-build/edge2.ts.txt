@@ -1,0 +1,6 @@
+import { minifySync } from 'rolldown/utils';
+const opts = (mp: object) => ({ module: true, compress: false, mangle: false, codegen: { removeWhitespace: true }, mangleProps: mp, sourcemap: false });
+const show = (label: string, code: string, mp: object) => { const r = minifySync('m.js', code, opts(mp)); console.log(`--- ${label}\n${r.code.trim()}\n    cache out: ${JSON.stringify(r.mangleCache)}`); };
+const src = `export class C { _size = 1; ['_comp'] = 2; } export const s = '_plain'; export const t = (o) => '_size' in o || o['_size'] || Reflect.get(o, '_refl'); export const u = { "q": 1, w: 2 }; export const v = (o) => 'z' in o || o['y'] || o.x;`;
+show('quoted:true on plain strings, computed keys, Reflect', src, { include: /^_[A-Za-z]/, quoted: true });
+show('listing every non-prefixed property name (include all, exclude marker, quoted)', src, { include: /^/, exclude: /^_[A-Za-z]/, quoted: true, debug: true });

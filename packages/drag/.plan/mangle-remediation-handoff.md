@@ -1,5 +1,7 @@
 # Mangle remediation handoff
 
+> **Withdrawn on 2026-11-13 before implementation, by `DRD-59`.** The owner's requirements for the publication withdrew the requirement to keep the JavaScript text and the source map segments, which this handoff's custom pipeline exists to meet. Don't run it. [`publication-build-proposal.md`](publication-build-proposal.md) §4.2 says what replaces each item, and [`publication-build-handoff.md`](publication-build-handoff.md) is the unit.
+
 **For:** one `implementer` unit on `drag/size`. **Base:** the commit on `drag/size` that integrates [`mangle-remediation-assessment.md`](mangle-remediation-assessment.md) §6. That commit follows the accepted report of [`mangle-selection-handoff.md`](mangle-selection-handoff.md) (`DRD-57`). **Don't start from an earlier commit.** In this handoff, `DRD-<V>` is the number that integration gave the validation decision, and the base commit's register carries it.
 
 **Governing records:**

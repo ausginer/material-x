@@ -1,0 +1,28 @@
+// P3: per-chunk Oxc mangleProps (rolldown/utils) with the committed map pinned, in renderChunk,
+// then Rolldown's native output.minify. Fails when Oxc had to invent a name.
+import { defineConfig } from 'tsdown';
+import { minifySync } from 'rolldown/utils';
+import { packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import names from './build/property-names.json' with { type: 'json' };
+import files from './files.json' with { type: 'json' };
+const include = /^_[A-Za-z]/;
+const mangle = {
+  name: 'mangle-internal-properties',
+  renderChunk(code: string, chunk: any) {
+    const r = minifySync(chunk.fileName, code, {
+      module: true, compress: false, mangle: false, codegen: { removeWhitespace: false },
+      mangleProps: { include, cache: names }, sourcemap: true,
+    });
+    if (r.errors.length) this.error(r.errors.map((e: any) => e.message).join('\n'));
+    const added = Object.keys(r.mangleCache ?? {}).filter((k) => !Object.hasOwn(names, k));
+    if (added.length) this.error(`${chunk.fileName}: no output name for ${added.join(', ')}`);
+    return { code: r.code, map: r.map };
+  },
+};
+export default defineConfig({
+  entry: packageFilesToTsdownEntries(files), platform: 'neutral', dts: false, format: 'esm',
+  sourcemap: true, target: 'esnext', outDir: process.env.OUT ?? 'out-p3', fixedExtension: false, clean: true,
+  plugins: process.env.NOMANGLE ? constructLibraryTsdownPlugins() : [...constructLibraryTsdownPlugins(), mangle], define: { __DEV__: 'false' }, unbundle: true,
+  minify: process.env.NOMIN ? false : true,
+});

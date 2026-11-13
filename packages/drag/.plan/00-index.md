@@ -2049,6 +2049,8 @@ The owner's direction is in [`performance-plan.md`](performance-plan.md) §2 at 
 
 **Extended on 2026-11-13 by `DRD-57`:** property 2's selection adds 30 declarations that its starting set missed, and a one-character name isn't selected.
 
+**Superseded in part on 2026-11-13 by `DRD-59`,** on the owner's requirements for the publication, which withdraw the requirement to keep the JavaScript text and the source map segments. Properties 4, 5 and 6 and property 7's V2 to V4 are replaced. Properties 1 to 3, 8 and 9 and V1 stay. The rationale's claims about what V1 finds (`DRF-30`) and about a publish (`DRF-31`) are corrected there.
+
 #### DRD-57 — The prefix selection is made per declaration across `src`, and adds 30 declarations
 
 **Every property declaration in `src` that `DRD-56` property 1 admits carries the `_` prefix, also when a platform member or a published member has the same name. The audit at `436b105c6` adds 30 declarations under 24 new names to `DRD-56`'s 37 declarations. The installer types' members, names of one character, and everything that property 1 keeps stay unprefixed. The step, the publication test and the map's generator don't change, and the map is generated again. Budgets are unchanged.** [`mangle-selection-audit.md`](mangle-selection-audit.md) is the audit, and [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it.
@@ -2082,6 +2084,8 @@ Decided on 2026-11-13 by the architect, on the owner's request to audit the sele
 - the installer types' names, or any name that a `.d.ts` declares;
 - the independent review of `DRD-56`'s pipeline. Its pin, its scope and its passes stay as they are;
 - whether the `shipped` census moves to the build, and `DRO-4`'s re-base.
+
+**Implemented on 2026-11-13** at `b50204f66`, and reported at `1719df16c` ([report](mangle-selection-report.md)). The architect hasn't read the report. **Property 4 is superseded by `DRD-59`:** the map is computed in each build, and no file holds it. Properties 1 to 3 and 6 stay.
 
 #### DRD-58 — `RectIndex`'s slot buffer is one `number[]` for the index's life, and the rules that replacement required go
 
@@ -2158,6 +2162,107 @@ Decided on 2026-11-13 on the owner's direction. The owner chose the simplificati
 - **Fixed-size buffers as `number[]`.** That would give `pack` and `settle` one representation, and the owner excluded it.
 - Removing `_lend`. It is the class's write method, and `DRD-52`'s ownership stands.
 - The independent review of `DRD-56`'s pipeline, its pin to `436b105c6`, and `DRO-4`'s re-base.
+
+**Amended on 2026-11-13 by `DRD-59`:** once `DRD-59`'s unit lands, property 8's first bullet reads "the publication test passes", because no file holds the map. Nothing else changes, and the unit stays separate.
+
+#### DRD-59 — The publication is minified by `tsdown`, Oxc renames the internal properties through a map that each build computes, and the declarations come from a build without maps
+
+**`tsdown.config.ts` has two configurations. The JavaScript configuration minifies with `tsdown`'s `minify: true` and writes source maps with `sourcesContent`. The declaration configuration writes `.d.ts` files only, with no maps and no map references. The internal properties that `DRD-56` and `DRD-57` select are renamed by Oxc's own `mangleProps`. One plugin applies it in each module, through a map that a single-chunk build of the same entries computes. The custom renamer, its reader, its generator and the committed map go. The publication test checks the maps and the declarations. Budgets are unchanged.** [`publication-build-proposal.md`](publication-build-proposal.md) is the reasoning and the probes, and [`publication-build-handoff.md`](publication-build-handoff.md) implements it.
+
+Decided on 2026-11-13 by the architect, on the owner's requirements for the publication:
+
+- separate `.js` and `.d.ts` modules;
+- JavaScript fully minified, including the approved internal-property mangling;
+- declarations that keep every documentation comment;
+- a `.js.map` for each module that embeds the complete source through `sourcesContent` and supports debugging the minified code;
+- declaration maps optional, and no reference to a map that doesn't exist;
+- native `tsdown`, Rolldown and Oxc options first, and a custom plugin only for a demonstrated requirement that native tooling can't meet;
+- the annotations that downstream bundlers need, and the required license notices.
+
+**The owner withdrew** the requirement to preserve the previous JavaScript text and identical source map segments.
+
+**Why:**
+
+- **The custom pipeline existed for the withdrawn requirement.** `DRD-56` properties 5 and 6 required the step to change nothing but the names, and every other token to keep its mapping. That is why the step rewrites characters with its own map, why it has its own reader, and why V4 compares positions. With the requirement gone, Oxc renames in its own AST pass and Rolldown composes the maps ([proposal](publication-build-proposal.md) §4.1).
+- **One plugin is necessary, and its reason is demonstrated.** Rolldown 1.2.15 refuses `output.minify.mangleProps` when a build has more than one JavaScript chunk, even with a complete `cache` (proposal §2, L1). drag's publication is unbundled. Bundling per entry would duplicate the kernel and split identity across entries, such as `DragFault` and the module-level `admitted` set.
+- **Oxc's rename, applied in each chunk, matches the custom renamer.** With the committed map as `cache`, the minified `.js` is byte-identical to the custom renamer followed by native minification. Its maps also name every renamed property access (proposal §2, N2).
+- **The map comes from the tools.** A single-chunk Rolldown build of every entry with native `mangleProps` returns a map with the same 53 keys, and it is deterministic. Oxc picks the output names against every property name in that one chunk. That is `DRD-56` property 4's "equal to no name that stays", met without a reader (proposal §2, N3).
+- **Oxc doesn't protect a pinned name** from a kept name in the same chunk, and Oxc can list a chunk's kept names. So the build checks each chunk with Oxc's own listing (proposal §2, N4).
+- **`quoted: true`** renames a string key in property position together with its property, and keeps plain strings, which V1 catches (proposal §2, N4, `DRF-28`).
+- **The rename pass needs `legalComments: 'inline'`.** Native minification keeps legal comments, and Oxc's codegen drops them by default (proposal §2, N5).
+- **The declaration reference needs the second configuration.** With the build's `sourcemap` on, no `dts` option stops the `.d.ts` reference to a map that isn't emitted. A declaration-only configuration with `sourcemap: false` writes none, and its `.d.ts` files are otherwise identical to the current ones (proposal §2, L2, N7). `drag2`'s `D-111` reached the same diagnosis and strips the reference with a hook.
+- **No declaration maps.** They would point at `src/*.ts`, which the package doesn't publish (proposal §2, N8).
+- **The declarations already keep their documentation.** Every JSDoc block on a declaration that a published `.d.ts` declares is in it: 115 of 115, against TypeScript's own emit. The rest are maintainer notes under the [documentation model](../../../.agents/docs/documentation.md) §5 (proposal §2, N9).
+- **Size:** the gate moves by −9 to +9 B Brotli per row, and no verdict changes (proposal §6).
+
+**Required properties:**
+
+1. **Two configurations, one `tsdown` run.**
+   - Both have the same entries, platform, format, target, `define`, `unbundle` and shared plugin list.
+   - **JavaScript:** `minify: true`, `sourcemap: true`, `dts: false`, the rename plugin, and `exports`.
+   - **Declarations:** `dts: { emitDtsOnly: true }` and `sourcemap: false`, with no rename plugin and no `exports`.
+   - `just build` stays the clean, then `tsdown --config tsdown.config.ts`, so `DRD-55` property 1 is unchanged.
+2. **Minification** is `tsdown`'s `minify: true` with Rolldown's comment defaults. No custom code minifies. `keepNames` stays off: function and class `name` values aren't part of the contract.
+3. **The internal properties.** `DRD-56` properties 1 to 3 and `DRD-57` properties 1 to 3 stay: the marker `^_[A-Za-z]`, the selection by declaration, and the names that keep their names.
+   - **(a) The map.** Before any module renders, one in-memory Rolldown build bundles every runtime entry in `files.json` into one chunk, with the JavaScript configuration's `define` and shared plugins, and `@ydinjs/box-quad` external. It applies native `minify.mangleProps` with `include: /^_[A-Za-z]/` and `quoted: true`, and its `mangleCache` is the map. The build fails when that build gives more than one chunk. The map is written nowhere.
+   - **(b) The rename.** In `renderChunk`, for each JavaScript chunk, `rolldown/utils`' `minifySync` runs with compression and identifier mangling off, whitespace kept, `legalComments: 'inline'`, a source map, and `mangleProps` with the same `include`, `quoted: true` and the map as `cache`. The plugin returns the code and the map. Rolldown composes the map and then minifies.
+   - **(c) The build fails,** naming the chunk and the names, when a chunk's kept property names include an output name, or when Oxc assigns a name that the map lacks. The kept names are those that Oxc lists with `include: /^/`, the marker as `exclude`, and `quoted: true`.
+   - **No other custom build code** for the JavaScript: no reader, no map arithmetic, no committed map and no generator.
+4. **Source maps.**
+   - Each published `.js` with mappings has a `.js.map` beside it and a `sourceMappingURL` that names it. A module with no mappings, a single re-export, has neither.
+   - Each map's `sourcesContent` holds the full text of each source, equal to the file under `src`.
+   - Each renamed property in a published module leads to the `src` text of its prefixed name, after class member modifiers. A key that the output writes as shorthand may lead to its value instead.
+   - Other mappings are the tools'. Some minified locals carry no `names` entry, as they don't without the rename (proposal §2, L3).
+5. **Declarations.**
+   - Separate `.d.ts` modules, as now.
+   - No `.d.ts` holds a `sourceMappingURL`, and no `.d.ts.map` is emitted.
+   - Every JSDoc block on a declaration that a published `.d.ts` declares is kept.
+   - No `.d.ts` holds a marker name in any form.
+6. **Annotations and license notices.**
+   - Each published module keeps every `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotation that its unminified build has, and the minifier may add more.
+   - Each legal comment in a source module (`/*!`, `//!`, `@license`, `@preserve`) is kept in its published module. `src` has none today.
+   - `LICENSE` is in the package root, and npm packs it whatever `files` lists. `@ydinjs/box-quad` stays external, so the publication bundles no third-party code.
+7. **The publication test**, on `DRD-55` property 1's one build:
+   - **V1:** unchanged. No published `.js` holds a property name, string literal or template text that matches the marker.
+   - **V2:** no published `.d.ts` holds an identifier, string literal or template text that matches the marker.
+   - **V3:** property 4's map checks. The test takes the map from the build's own function. It splits `src` lines at CR LF, LF, CR, U+2028 and U+2029.
+   - **V4:** property 5's map references.
+   - **Removed:** the name-set test, the old V3 and the old V4. V5 stays a one-time check in the unit.
+8. **What is publishable.**
+   - `just build` alone guarantees properties 1, 2 and 3. Every marker name that Oxc finds in property position is renamed, every module uses the same map, and no output name is a kept name.
+   - A tree is publishable only when a Vitest run's node and consumer projects read it and passed.
+   - **No publication hook.** No path publishes the package, and `@ydinjs/drag` is `private` ([remediation assessment](mangle-remediation-assessment.md) §2).
+   - **Obligation:** the change that makes the package publishable, by removing `"private": true` or by adding a workflow or script that packs or publishes it, makes the packed tree one that those projects read and passed in the same job.
+9. **Budgets.** Every ceiling and the control figure stay. The unit reports every row at its base and its end. A changed verdict goes to `DRO-4`. The consumer project stays Chromium only, and the unit runs its files in Firefox and WebKit once, as `DRD-56` property 8 did.
+
+**What this replaces:**
+
+- **`DRD-56` property 4,** the committed map and its generator, by property 3a.
+- **`DRD-56` property 5,** a step that changes nothing but names, keeps every comment and leaves the `.d.ts` output byte-identical, by properties 2, 3b, 5 and 6.
+- **`DRD-56` property 6,** the renamed positions and every other token's mapping, by property 4.
+- **`DRD-56` property 7:**
+  - V1 stays;
+  - V2 is extended;
+  - V3, V4 and the name-set test are replaced by property 3c and the new V3 and V4;
+  - V5 becomes the unit's one-time check.
+- **`DRD-56`'s rationale bullets** on the committed map and on the step's placement, as far as they argue for them. The step is still part of the `tsdown` build.
+- **`DRD-57` property 4:** the regenerated map, and the rule that the rename and the map change in one commit.
+- **The remediation proposal at `be151f9ed`** ([assessment](mangle-remediation-assessment.md), [handoff](mangle-remediation-handoff.md)), withdrawn before implementation. Its validation decision never received a number. Its §2 finding and its rule on what is publishable are kept, in property 8 (proposal §4.2).
+
+**Corrections, from the review:**
+
+- **`DRF-30`:** `DRD-56`'s rationale said that V1 finds computed keys and enumerations. V1 finds literal strings and templates only. A key computed at runtime is excluded by `DRD-56` property 1 and by property 2's reading of the use sites.
+- **`DRF-31`:** `DRD-56`'s rationale listed a publish among the paths that build the publication. None exists. Property 8 states what is publishable.
+
+**What this amends:** `DRD-58` property 8's first bullet. Once this decision's unit lands, the map doesn't exist, and the bullet reads "the publication test passes". `DRD-58`'s unit stays separate (proposal §8).
+
+**Revisit** when Rolldown accepts `mangleProps` for a build with several chunks. Property 3's plugin and map build then give way to a `minify.mangleProps` option.
+
+**What this doesn't decide:**
+
+- the owner's shared-tooling proposals S1 to S4 (proposal §7): the dangling declaration references in other packages, `classVarCleanupPlugin`, a CONTRIBUTING statement of the marker, and the upstream limitation;
+- `DRD-57`'s report at `1719df16c`, whose rename is this decision's base;
+- the type-directed transform, `DRO-4`'s re-base and the `shipped` census.
 
 ## Disposition of the 2026-11-07 reviews
 
@@ -2593,6 +2698,20 @@ The [report](publish-mangle-report.md) at `78797ebf6`, read by the architect on 
 
 **Next:** the owner decides whether to start a fresh independent review of the publication pipeline and its validation. Assessment §9 gives the recommended scope: a `consolidator` round with `reviewer`, `integrity`, and `cleanup` limited to `build/` and the publication test. The type-directed transform stays deferred.
 
+## Disposition of the publish mangle review
+
+The [summary](reviews/publish-mangle/publish-mangle-summary.md) at `6e8174f64`, of the tree at `436b105c6`, with no tier A finding. The architect's first reading, [`mangle-remediation-assessment.md`](mangle-remediation-assessment.md) at `be151f9ed`, proposed a remediation of the custom pipeline and was never integrated. On the owner's requirements of 2026-11-13, `DRD-59` replaces that pipeline, and the remediation is withdrawn before implementation ([proposal](publication-build-proposal.md) §4).
+
+| Findings | Under `DRD-59` |
+| --- | --- |
+| `DRF-24`, `DRF-25` | Withdrawn with the requirement they test. The new V3 checks renamed positions |
+| `DRF-26`, `DRF-33` to `DRF-37` | Moot: the machinery they concern goes |
+| `DRF-27`, `DRF-28`, `DRF-29` | Decided in `DRD-59` properties 3 and 7. The unit implements them |
+| `DRF-30`, `DRF-31` | Decided in `DRD-59`'s corrections and property 8 |
+| `DRF-32` | The map workflow goes. A CONTRIBUTING statement of the marker is the owner's proposal S3 |
+
+**Next:** [`publication-build-handoff.md`](publication-build-handoff.md). The findings close when the architect accepts its report.
+
 ## Findings
 
 Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-37`**.
@@ -2881,7 +3000,7 @@ Tier B, **closed at `79b4c3132`**, read by the architect on 2026-11-13 at `2d9a2
 
 #### DRF-24 — V4 checks the text at a renamed position's mapping, not the position that `DRD-56` property 6 requires
 
-Tier B, open. Reported by the publish-mangle round at `436b105c6` as `reviewer-1` ([summary](reviews/publish-mangle/publish-mangle-summary.md), [report](reviews/publish-mangle/proof-reviewer.md)).
+Tier B, open, **withdrawn by `DRD-59` with the requirement it tests**: V4 and the step go, and the new V3 checks renamed positions. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round at `436b105c6` as `reviewer-1` ([summary](reviews/publish-mangle/publish-mangle-summary.md), [report](reviews/publish-mangle/proof-reviewer.md)).
 
 - **Current behavior:** `writes` accepts any mapping whose `src` text is `MODIFIERS`, then the key, and it applies that to every occurrence. An access mapped to its declaration's member start (`readonly _root`) passes, and the first form of V4 rejected it. An access mapped to another access of the same name, or a declaration mapped into another member, passes both forms.
 - **Why it is a problem:** property 6 says "No other form passes: not … a position in another member", and assessment §3 says that applying the exception to every occurrence isn't weaker than the first form. Both describe a position bound that the test doesn't check.
@@ -2889,7 +3008,7 @@ Tier B, open. Reported by the publish-mangle round at `436b105c6` as `reviewer-1
 
 #### DRF-25 — `DRD-56` property 6's mappings for kept tokens have no standing check
 
-Tier B, open. Reported by the publish-mangle round at `436b105c6` as `reviewer-2`.
+Tier B, open, **withdrawn by `DRD-59` with the requirement it tests**: no requirement fixes the mapping of a kept token. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round at `436b105c6` as `reviewer-2`.
 
 - **Current behavior:** V4 inspects only occurrences of output names. Property 6 bullets 1 and 3, every map valid and every other token at its `src` position, were checked once, by the report's step check.
 - **Why it is a problem:** a copy of the step that moved 3,737 of 6,902 mappings passed the build and all five tests.
@@ -2897,7 +3016,7 @@ Tier B, open. Reported by the publish-mangle round at `436b105c6` as `reviewer-2
 
 #### DRF-26 — The step's map counts generated lines at LF only
 
-Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round as `reviewer-3`.
+Tier B, open, no instance at `436b105c6`, **moot under `DRD-59`**: the step that counts lines goes. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `reviewer-3`.
 
 - **Current behavior:** `build/rename-properties.ts` starts a line only at `\n`. Rolldown keeps a raw U+2028 in a template literal and counts it as a line break, so every later mapping in that module moves. With no renamed name after the separator, every test passes (7 of 25 mappings moved in the probe).
 - **Why it is a problem:** property 6 requires every token to keep its `src` position. `src` has no LS, PS or CR today.
@@ -2905,7 +3024,7 @@ Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round a
 
 #### DRF-27 — The publication test resolves positions with lines split at LF only
 
-Tier B, open, no instance at `436b105c6`, fails closed. Reported by the publish-mangle round as `reviewer-4`.
+Tier B, open, no instance at `436b105c6`, fails closed. **Decided by `DRD-59` property 7:** V3 splits `src` lines at every line terminator. Reported by the publish-mangle round as `reviewer-4`.
 
 - **Current behavior:** `positionOf` and the `src` lookup split at `\n` (`tests/publication.node.test.ts:68`, `:70`, `:161`). Rolldown's original lines count CR, LS and PS.
 - **Why it is a problem:** a correct source change, such as a CR or a pasted U+2028 in a comment, fails V4 on a correct publication.
@@ -2913,7 +3032,7 @@ Tier B, open, no instance at `436b105c6`, fails closed. Reported by the publish-
 
 #### DRF-28 — A kept property written as a string key can share an output name and pass every check
 
-Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round as `reviewer-5`.
+Tier B, open, no instance at `436b105c6`. **Decided by `DRD-59` property 3:** `quoted: true`, and the build's check of each chunk's kept names, which Oxc lists. Reported by the publish-mangle round as `reviewer-5`.
 
 - **Current behavior:** `readNames` doesn't count quoted or computed string keys as property names, and the generator's `kept` set and V3 both use it. With `{ "_size": "k" }`, a class with `_size` and `'k'` passes the name set and V1 to V4, and its result changes from 12 to 22.
 - **Why it is a problem:** `DRD-56` property 4 requires that an output name equals no property name that stays. Property 1 doesn't forbid unprefixed string keys.
@@ -2921,7 +3040,7 @@ Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round a
 
 #### DRF-29 — V2 doesn't see prefixed member names written as strings in `.d.ts`
 
-Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round as `reviewer-6`.
+Tier B, open, no instance at `436b105c6`. **Decided by `DRD-59` property 7:** V2 rejects identifiers, string literals and template texts. Reported by the publish-mangle round as `reviewer-6`.
 
 - **Current behavior:** V2 visits `Identifier` nodes only. A quoted key, a computed string key or a string-literal type that declares a prefixed member passes all five tests.
 - **Why it is a problem:** the step would rename the uses, and the `.d.ts` would declare a member that doesn't exist at runtime. Property 1 requires every member that a `.d.ts` declares to keep its name.
@@ -2929,7 +3048,7 @@ Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round a
 
 #### DRF-30 — `DRD-56`'s rationale says that V1 finds computed keys and enumerations
 
-Tier B, open. Reported by the publish-mangle round as `reviewer-7`.
+Tier B, open. **Decided by `DRD-59`'s corrections:** the record states what V1 finds. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `reviewer-7`.
 
 - **Current behavior:** the rationale says string keys, computed keys and enumerations are forbidden, "and validation V1 finds them". V1 finds only prefixed property names and literal strings or template texts that start with the prefix. `o['_' + 'config']`, `JSON.parse('{"_config":1}')` and `Object.keys(o)` pass.
 - **Why it is a problem:** a reader relies on V1 for forms that only code reading excludes.
@@ -2937,7 +3056,7 @@ Tier B, open. Reported by the publish-mangle round as `reviewer-7`.
 
 #### DRF-31 — A plain build or a publish enforces almost none of `DRD-56` property 7
 
-Tier B, open. Reported by the publish-mangle round as `reviewer-8`.
+Tier B, open. **Decided by `DRD-59` property 8:** what `just build` guarantees, what is publishable, and the obligation on a release change. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `reviewer-8`.
 
 - **Current behavior:** `just build` fails only on an unmapped prefixed property name or a prefixed shorthand key. V1's string half, V2, V3, V4 and the name set hold only for a tree that a publication-test run read and passed. `package.json` has no `prepack` or `prepublishOnly` script, so a publish neither builds nor validates. A duplicate output name, a stale key and a prefixed `.d.ts` member all build cleanly.
 - **Why it is a problem:** `DRD-56` places the step inside the build because "a separate step after the build could be skipped". The validation has no such placement.
@@ -2945,7 +3064,7 @@ Tier B, open. Reported by the publish-mangle round as `reviewer-8`.
 
 #### DRF-32 — The `_` marker and the map workflow are stated only in the record
 
-Tier C, open. Reported by the publish-mangle round as `integrity-1`.
+Tier C, open. **Under `DRD-59`** the map workflow goes. A statement of the marker in CONTRIBUTING is the owner's proposal S3 ([proposal](publication-build-proposal.md) §7). Reported by the publish-mangle round as `integrity-1`.
 
 - **Current behavior:** only `DRD-56` and `build/` name the marker, the map and `build/generate-property-names.ts`. The build's error for an unmapped name names the map, not the script. Regenerating after one new name moved 5 of the 29 existing assignments.
 - **Why it is a problem:** a contributor learns the convention from the record or by reading `build/`, and the regeneration diff a person reviews (`DRD-56`, `DRD-57` property 4) is larger than the change.
@@ -2953,7 +3072,7 @@ Tier C, open. Reported by the publish-mangle round as `integrity-1`.
 
 #### DRF-33 — `DRD-56` property 6 holds only while `classVarCleanupPlugin` is inert in drag's build
 
-Tier C, open. Reported by the publish-mangle round as `integrity-2`.
+Tier C, open, **moot for drag under `DRD-59`**: no requirement depends on a token's exact mapping. The plugin's inertness is the owner's proposal S2. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `integrity-2`.
 
 - **Current behavior:** with `experimental.nativeMagicString` on, the plugin rewrites `var X = class`, the chunk's own map points renamed tokens at statement starts, and V4 fails at 79 positions in 8 modules. Without the step the same token maps to the statement start with the plugin, and to the name without it.
 - **Why it is a problem:** the precondition is stated nowhere, and assessment §8 prices enabling the option by size only. The failure is loud, but it isn't attributed to the plugin.
@@ -2961,7 +3080,7 @@ Tier C, open. Reported by the publish-mangle round as `integrity-2`.
 
 #### DRF-34 — Comments in emitted modules name members by their source names
 
-Tier C, open. Reported by the publish-mangle round as `integrity-3`.
+Tier C, open, **moot under `DRD-59`**: a minified module keeps only legal comments and annotations. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `integrity-3`.
 
 - **Current behavior:** twelve comment lines in six emitted modules name renamed members, for example `_run` in `kernel/callbacks.js:11-12`, beside the method `t` at line 46. Property 5 keeps every comment.
 - **Why it is a problem:** within one published file, the comment and the code disagree.
@@ -2969,21 +3088,21 @@ Tier C, open. Reported by the publish-mangle round as `integrity-3`.
 
 #### DRF-35 — The reserved-word list and the identifier rule are written in the generator and in the test
 
-Tier C, open. Reported by the publish-mangle round as `cleanup-1`.
+Tier C, open, **moot under `DRD-59`**: the generator and its rules go. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `cleanup-1`.
 
 - **Current behavior:** `RESERVED` is defined in `build/generate-property-names.ts` and in `tests/publication.node.test.ts`, and the identifier rule is `FIRST`/`REST` in one and `IDENTIFIER_NAME` in the other. Nothing says the second is a deliberate independent oracle.
 - **Required property:** one definition, or the second states that it is deliberately independent.
 
 #### DRF-36 — The test recomputes the prefixed names in `src` with the generator's own reader
 
-Tier C, open. Reported by the publish-mangle round as `cleanup-2`.
+Tier C, open, **moot under `DRD-59`**: the reader and the name-set test go. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `cleanup-2`.
 
 - **Current behavior:** the name-set test walks `src` with the same `readNames` and `isPrefixed` as the generator, with its own copies of the directory walk. It catches a stale map, not a reader defect. `DRF-28` is a reader defect that neither sees.
 - **Required property:** one owner of "the prefixed property names in `src`", or the test states what it checks that the generator can't.
 
 #### DRF-37 — The generator's name sequence handles names of any length, and the map has only one-character names
 
-Tier C, open. Reported by the publish-mangle round as `cleanup-3`.
+Tier C, open, **moot under `DRD-59`**: Oxc assigns the output names. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `cleanup-3`.
 
 - **Current behavior:** `candidates()` yields names of any length, and all 29 outputs are one character. Under `DRD-57` property 4 the map has 53 keys, `FIRST` has 53 characters, and `x` and `y` are kept, so the branch is reached on the next regeneration, untested.
 - **Required property:** the sequence's extent is justified by the names it serves or by a stated bound. The note on `DRD-57` is the consolidator's, not the pass's.
@@ -3290,6 +3409,8 @@ No timing was taken.
 
 **The selection was extended on 2026-11-13** by `DRD-57`, on the owner's request: 30 internal declarations whose names a platform member or a published member also uses. The installer members stay out, and budgets are unchanged.
 
+**The mechanism changed on 2026-11-13 by `DRD-59`,** on the owner's requirements for the publication. The JavaScript is fully minified. Oxc's own `mangleProps` renames the same selection through a map that each build computes, and the custom renamer and the committed map go. The owner withdrew the requirement to keep the previous JavaScript text and source map segments. Budgets are unchanged.
+
 **What was found.** About 950 B of a 28,664 B minified bundle of every entry are internal property names, which no minifier shortens, because they aren't `#private`: such as `config`, `enter`, `raise`, `first`, `collect` and `measurePlaceholder`. Rolldown can shorten them by name, with names the type checker finds eligible. A consumer's bundler doesn't, so the package's own build would have to.
 
 **Measured** at `b0287f1ae`, Brotli-11, the build emulated with Rolldown and the rows bundled from it as a consumer would:
@@ -3371,6 +3492,7 @@ No timing was taken.
 | DRD-53 | active, decided on 2026-11-12 on the owner's direction, from the owner's commit `1d304128b`. Amends `DRD-35` property 5 and `DRD-36` properties 1, 3 and 4, and answers `DRO-14` item 1. [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) completes it outside `src`. `example: resize handle` is 8 B over its ceiling from `1d304128b`. **Completed on 2026-11-12** at `15e9d1ef2` and accepted ([assessment](size-pass-unit-assessment.md)) |
 | DRD-54 | active, decided on 2026-11-12 by the architect on the owner's answer to `DRO-15`, which started its steps 1 and 2. Decides step 1, the `consumer` project. [`consumer-tests-handoff.md`](consumer-tests-handoff.md) implements it. Step 2, the gate on the published build, is decided when step 1 reports. **Implemented at `5ea7bb7e6`** and accepted on 2026-11-13 ([assessment](consumer-tests-assessment.md)). **Property 2 amended on 2026-11-13** for `DRF-23`: the resolved file decides, whatever the specifier form. [`published-gate-handoff.md`](published-gate-handoff.md) part A implements the amendment. Step 2 is `DRD-55`. The amendment was implemented at `79b4c3132`. `DRD-56` property 8 keeps the consumer project in Chromium only |
 | DRD-55 | active, decided on 2026-11-13 by the architect on the owner's direction after `DRD-54`'s unit reported. `DRO-15` step 2: the size gate reads the published build. Amends `DRD-51` properties 1 and 3. [`published-gate-handoff.md`](published-gate-handoff.md) part B implements it. Every ceiling and the control figure stay, and a changed verdict goes to `DRO-4`. **Implemented** at `69c260685`, with `DRF-23` repaired at `79b4c3132`, and accepted on 2026-11-13 (§Disposition of the published gate report). No verdict changed |
-| DRD-56 | active, decided on 2026-11-13 by the architect on the owner's answer to `DRO-15` step 3: source prefixes, then publish-time mangling, with no selection by type. Clarifies `DRD-51` property 3 and answers `DRD-54`'s question on three engines. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. Budgets are unchanged. **Implemented** at `f7b7b300b` and `31f92f5a9`, reported at `78797ebf6`, and accepted on 2026-11-13 ([assessment](publish-mangle-assessment.md)). Properties 1 and 6 corrected in place the same day: the members that a published type declares, and the bounded class member exception to V4. The two changed verdicts went to `DRO-4`. No independent review has read it yet. **Property 2's selection extended on 2026-11-13 by `DRD-57`** |
-| DRD-57 | active, decided on 2026-11-13 by the architect on the owner's request to audit `DRD-56`'s selection, from [`mangle-selection-audit.md`](mangle-selection-audit.md) at `436b105c6`. Amends `DRD-56` property 2's starting set and adds the one-character rule to its property 1. [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it. Budgets are unchanged. Not implemented |
-| DRD-58 | active, decided on 2026-11-13 on the owner's direction. Replaces `RectIndex`'s growable `Float64Array` slot buffer with one `number[]`, and removes the lifetime and reentrancy rules that replacement required. Amends `DRD-52` properties 1, 4 and 6, and `DRD-50` W7's helpers. [`slot-array-handoff.md`](slot-array-handoff.md) implements it after `DRD-57`'s unit. Costs are reported, not gated. Not implemented |
+| DRD-56 | active, decided on 2026-11-13 by the architect on the owner's answer to `DRO-15` step 3: source prefixes, then publish-time mangling, with no selection by type. Clarifies `DRD-51` property 3 and answers `DRD-54`'s question on three engines. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. Budgets are unchanged. **Implemented** at `f7b7b300b` and `31f92f5a9`, reported at `78797ebf6`, and accepted on 2026-11-13 ([assessment](publish-mangle-assessment.md)). Properties 1 and 6 corrected in place the same day: the members that a published type declares, and the bounded class member exception to V4. The two changed verdicts went to `DRO-4`. No independent review has read it yet. **Property 2's selection extended on 2026-11-13 by `DRD-57`.** The [publish mangle review](reviews/publish-mangle/publish-mangle-summary.md) read it at `436b105c6`. **Superseded in part on 2026-11-13 by `DRD-59`:** properties 4 to 6 and property 7's V2 to V4 |
+| DRD-57 | active, decided on 2026-11-13 by the architect on the owner's request to audit `DRD-56`'s selection, from [`mangle-selection-audit.md`](mangle-selection-audit.md) at `436b105c6`. Amends `DRD-56` property 2's starting set and adds the one-character rule to its property 1. [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it. Budgets are unchanged. **Implemented** at `b50204f66`, and reported at `1719df16c`. The architect hasn't read the report. Property 4 is superseded by `DRD-59` |
+| DRD-58 | active, decided on 2026-11-13 on the owner's direction. Replaces `RectIndex`'s growable `Float64Array` slot buffer with one `number[]`, and removes the lifetime and reentrancy rules that replacement required. Amends `DRD-52` properties 1, 4 and 6, and `DRD-50` W7's helpers. [`slot-array-handoff.md`](slot-array-handoff.md) implements it after `DRD-57`'s unit. Costs are reported, not gated. Not implemented. Property 8's first bullet amended by `DRD-59` |
+| DRD-59 | active, decided on 2026-11-13 by the architect on the owner's requirements for the publication. Supersedes `DRD-56` properties 4 to 6 and property 7's V2 to V4, and `DRD-57` property 4, amends `DRD-58` property 8, and withdraws the remediation proposal at `be151f9ed`. Decides `DRF-24` to `DRF-37`. [`publication-build-handoff.md`](publication-build-handoff.md) implements it. Budgets are unchanged. Not implemented |

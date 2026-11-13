@@ -1,0 +1,22 @@
+// Every mapping that carries a name leads to src text that starts with that name (after member modifiers).
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
+import { TraceMap, eachMapping } from '@jridgewell/trace-mapping';
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.js.map') ? [join(d, f)] : []);
+const LT = new RegExp("\\r\\n|[\\n\\r\\u2028\\u2029]");
+const lines = (t: string) => t.split(LT);
+const MOD = /^(?:(?:readonly|static|public|private|protected|override|declare|accessor|async|get|set)\s+)*/;
+let ok = 0, bad = 0, unnamed = 0;
+for (const f of walk(resolve(process.argv[2]))) {
+  const raw = JSON.parse(readFileSync(f, 'utf8'));
+  const src = raw.sources.map((s: string, i: number) => lines(raw.sourcesContent[i]));
+  eachMapping(new TraceMap(raw), (m) => {
+    if (!m.source) return;
+    if (!m.name) { unnamed++; return; }
+    const i = raw.sources.findIndex((s: string) => m.source!.endsWith(s.replace(/^(\.\.\/)+/, '')));
+    const text = src[i][m.originalLine - 1].slice(m.originalColumn).replace(MOD, '');
+    const want = m.name.split('.').at(-1)!;
+    if (text.startsWith(want)) ok++; else { bad++; if (bad < 6) console.log(f.split('/').slice(-2).join('/'), m.name, JSON.stringify(text.slice(0, 30))); }
+  });
+}
+console.log({ named_ok: ok, named_bad: bad, unnamed });
