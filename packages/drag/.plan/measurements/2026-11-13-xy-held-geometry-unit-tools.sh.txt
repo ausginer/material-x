@@ -1,0 +1,6 @@
+echo "node $(node --version)"
+for p in rolldown tsdown vitest @vitest/browser-playwright playwright typescript; do
+  v=$(node -e "const {createRequire}=require('module');const r=createRequire(process.cwd()+'/');let f;try{f=r.resolve('$p/package.json')}catch{const path=require('path');let d=path.dirname(r.resolve('$p'));while(!require('fs').existsSync(d+'/package.json'))d=path.dirname(d);f=d+'/package.json'};const j=require(f);console.log(j.version+' '+require('fs').realpathSync(f))")
+  echo "$p $v"
+done
+grep -n "executablePath\|chrome\|channel" ../../.scripts/vitest-config.ts | head -5

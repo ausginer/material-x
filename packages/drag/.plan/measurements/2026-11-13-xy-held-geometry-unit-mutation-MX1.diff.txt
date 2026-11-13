@@ -1,0 +1,20 @@
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 319e5a0b3..ccb1920d0 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -127,7 +127,6 @@ export function xy(): AxisInstaller {
+         }
+ 
+         // Before the refresh rewrites the slots.
+-        index.retain();
+         index.invalidate();
+         refresh(
+           index,
+@@ -137,6 +136,7 @@ export function xy(): AxisInstaller {
+           context.placeholder,
+           displacement,
+         );
++        index.retain();
+         last = gap;
+ 
+         // Moving the placeholder reorders nothing in the destination view, so

@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..2e20de711 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -366,7 +366,7 @@ export class RetainingRectIndex extends RectIndex {
+    * The left of `slot` at `LEFT`, or its top at `TOP`, as the last `retain` copied
+    * it. Valid for the slots below the count at that call.
+    */
+-  retained(slot: number, field: NearEdge): number {
++  retained(slot: number, field: Field): number {
+     // `LEFT` and `TOP` are 0 and 1, the two fields of a retained pair.
+     return this.#retained[slot * 2 + field]!;
+   }

@@ -1,0 +1,77 @@
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/bench/compare.ts
+  1485:11  error  Designated alias 'self' is not assigned to 'this'  consistent-this
+  1885:7   error  Identifier 'cpu_core' is not in camel case         camelcase
+  1886:7   error  Identifier 'cpu_atom' is not in camel case         camelcase
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/authoring.declaration.test.ts
+   28:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   32:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   34:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   36:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   38:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   49:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   59:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   60:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   74:13  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   78:13  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  134:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  136:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  138:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  140:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  142:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  144:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  149:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  151:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  153:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  159:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  161:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  163:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  171:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  173:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  184:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  186:9   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  229:11  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  230:11  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  240:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  241:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  245:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/callbacks.declaration.test.ts
+   72:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   74:23  error  Unexpected function expression                                               prefer-arrow-callback
+   75:7   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  131:3   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  135:3   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  177:5   error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/classes.browser.test.ts
+  204:7  error  The value assigned to 'controller' is not used in subsequent statements  no-useless-assignment
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/destruction.browser.test.ts
+  408:11  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  421:7   error  The value assigned to 'controller' is not used in subsequent statements      no-useless-assignment
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/displacement-sink.browser.test.ts
+  59:3  error  Function name `recorded` should match property name `getBoundingClientRect`  func-name-matching
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/hot-path.browser.test.ts
+  146:7  error  Function name `measure` should match property name `getBoundingClientRect`  func-name-matching
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/landing.browser.test.ts
+  271:5  error  Function name `capture` should match property name `animate`  func-name-matching
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/order.browser.test.ts
+  81:5  error  Function name `recordAnimations` should match property name `focus`  func-name-matching
+
+/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/tests/published-types.declaration.test.ts
+  16:5  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  28:5  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+
+✖ 49 problems (49 errors, 0 warnings)
+  39 errors and 0 warnings potentially fixable with the `--fix` option.
+
+error: recipe `lint` failed on line 50 with exit code 1
+STEP EXIT CODE: 1
