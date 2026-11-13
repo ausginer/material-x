@@ -26,7 +26,7 @@ import {
 
 /** One `settle` call, with the rows read since the call before it. */
 type SettleCall = Readonly<{
-  values: Float64Array;
+  values: number[] | Float64Array;
   items: readonly HTMLElement[];
   first: number;
   end: number;
@@ -36,14 +36,14 @@ type SettleCall = Readonly<{
   /** The destination rows whose rect was read since the previous call. */
   read: readonly Element[];
   /** A copy of the range's slots, taken when the call returns. */
-  settled: Float64Array;
+  settled: number[] | Float64Array;
 }>;
 
 /**
  * Wraps `sink.settle` and the rect read, and records each call. A measurement
- * passes the cache's buffer, which holds a slot per destination row. The drop's
- * confirmation and the linear shift's probe pass a scratch of one slot, so its
- * buffer is `STRIDE` values long.
+ * passes the cache's slot array, a `number[]` with a slot per destination row. The
+ * drop's confirmation and the linear shift's probe pass a one-slot scratch, a
+ * `Float64Array` of `STRIDE` values.
  */
 function recordSettles(
   sink: DisplacementSink,
@@ -86,14 +86,14 @@ function recordSettles(
   return calls;
 }
 
-/** The calls a measurement made: its buffer is larger than one slot. */
+/** The calls a measurement made: it passes the slot array, not a scratch. */
 function measurementsOf(calls: readonly SettleCall[]): SettleCall[] {
-  return calls.filter((call) => call.values.buffer.byteLength > STRIDE * 8);
+  return calls.filter((call) => Array.isArray(call.values));
 }
 
 /**
- * The cache's own buffer and element array, the same two objects in every call,
- * each call with the range whose rows it read.
+ * The cache's own slot array and element array, the same two objects in every
+ * call, each call with the range whose rows it read.
  */
 function expectCacheRanges(
   measurements: readonly SettleCall[],
@@ -103,8 +103,7 @@ function expectCacheRanges(
   expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
 
   for (const { values, length, range, read } of measurements) {
-    expect(values.byteOffset).toBe(0);
-    expect(values.length * 8).toBe(values.buffer.byteLength);
+    expect(Array.isArray(values)).toBe(true);
     expect(length).toBe(destination);
     expect(read).toEqual(range);
   }

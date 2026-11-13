@@ -2,16 +2,17 @@
  * The packed destination-slot geometry cache, shared by every axis rule.
  *
  * The cache is dimension-neutral: it packs both centers and both edges and has no
- * rule about which of them matters. It is one `Float64Array` plus one parallel
- * element array, indexed by destination position, which is the collection minus the
- * dragged item. A slot is therefore the index the resulting `Insertion` needs.
+ * rule about which of them matters. It is one `number[]` of packed slots plus one
+ * parallel element array, indexed by destination position, which is the collection
+ * minus the dragged item. A slot is therefore the index the resulting `Insertion`
+ * needs.
  *
- * The element array holds every slot. The packed buffer holds measured geometry for
+ * The element array holds every slot. The slot array holds measured geometry for
  * one contiguous range of slots, the window: the slots `_measure` added after
  * `_collect`. A rebuild measures every slot, so its window is all of them.
  *
  * Each axis rule creates its own instance inside its factory, so the cache has one
- * owner. The cache makes every measurement and alone allocates the buffer. An axis
+ * owner. The cache makes every measurement and alone grows the slot array. An axis
  * rule reads it through the getters' read-only views and writes it only through
  * `_lend`.
  */
@@ -39,7 +40,7 @@ export type ReadonlyFloat64Array = Readonly<{
 
 /** Packs one rect as a slot at `offset`: both edges on each axis, then both centers. */
 function pack(
-  target: Float64Array,
+  target: number[] | Float64Array,
   offset: number,
   rect: DOMRectReadOnly,
 ): void {
@@ -49,16 +50,6 @@ function pack(
   target[offset + BOTTOM] = rect.bottom;
   target[offset + CENTER_X] = (rect.left + rect.right) * 0.5;
   target[offset + CENTER_Y] = (rect.top + rect.bottom) * 0.5;
-}
-
-function capacityFor(needed: number): number {
-  let capacity = 1;
-
-  while (capacity < needed) {
-    capacity *= 2;
-  }
-
-  return capacity;
 }
 
 /**
@@ -77,10 +68,11 @@ const EQUIVALENCE_SLACK = 1 / 16;
  */
 export class RectIndex {
   /**
-   * Re-allocated only when the collection outgrows it. It never shrinks: it is
-   * bounded by the largest collection the controller saw, and released with it.
+   * The packed slots. It grows only by appending, so it never has a hole, and it
+   * never shrinks: it holds the largest collection the index measured, and is
+   * released with the index.
    */
-  #values: Float64Array = new Float64Array(0);
+  readonly #values: number[] = [];
 
   /**
    * The placeholder's rect, packed like a slot. Measured once per rebuild here, so a
@@ -97,19 +89,15 @@ export class RectIndex {
   /** The slot after the window's last one: the window is empty when it equals `#first`. */
   #end = 0;
 
-  /** Slots the packed buffer can hold: a power of two once fitted. */
-  #capacity = 0;
-
   /** Starts stale, at a version no collection holds, so the first read measures. */
   #dirty = true;
 
   #measured = -1;
 
   /**
-   * Valid until the next `_collect`, the only operation that replaces the buffer.
-   * Read it again after a `_collect`.
+   * The same array for the index's life. Its contents are valid inside the window.
    */
-  get _values(): ReadonlyFloat64Array {
+  get _values(): readonly number[] {
     return this.#values;
   }
 
@@ -149,13 +137,9 @@ export class RectIndex {
       return;
     }
 
-    if (snapshot.items.length > this.#capacity) {
-      this.#capacity = capacityFor(snapshot.items.length);
-      this.#values = new Float64Array(this.#capacity * STRIDE);
-    }
-
-    // A local, not repeated field reads: the loop writes it once per slot.
+    // Locals, not repeated field reads inside the loops.
     const items = this.#items;
+    const values = this.#values;
     let n = 0;
 
     for (const item of snapshot.items) {
@@ -163,6 +147,12 @@ export class RectIndex {
         items[n] = item;
         n += 1;
       }
+    }
+
+    // Appended, because `_measure` may first write a slot in the middle of the
+    // collection, and a write past the length would leave a hole.
+    for (let i = values.length; i < n * STRIDE; i += 1) {
+      values.push(0);
     }
 
     this._measurePlaceholder(placeholder);
@@ -216,20 +206,18 @@ export class RectIndex {
   }
 
   /**
-   * Calls `write` once with the writable buffer, to change the slots from `lo` to
-   * before `hi`. This is the rule `_measure` gives the sink's `settle`, and nothing
-   * checks it at runtime:
+   * Calls `write` once with the writable slot array, to change the slots from `lo`
+   * to before `hi`. This is the rule `_measure` gives the sink's `settle`, and
+   * nothing checks it at runtime:
    *
-   * - the reference is valid during the call only;
    * - the range is inside the window, and `write` reads and writes nothing outside
    *   it;
-   * - `write` calls neither `_collect` nor a rebuild that calls it, because `_collect`
-   *   may replace the buffer. It may call any other member.
+   * - `write` writes the array only during the call.
    */
   _lend(
     lo: number,
     hi: number,
-    write: (values: Float64Array, lo: number, hi: number) => void,
+    write: (values: number[], lo: number, hi: number) => void,
   ): void {
     write(this.#values, lo, hi);
   }
@@ -293,7 +281,7 @@ export class RectIndex {
 
   /**
    * Empties the element array, which would retain DOM between operations, and keeps
-   * the numeric buffer for reuse.
+   * the slot array for reuse.
    */
   _retire(): void {
     this.#items.length = 0;
