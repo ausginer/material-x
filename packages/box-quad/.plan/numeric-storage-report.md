@@ -64,7 +64,7 @@ These are caused by the removed factories, and the owner's update leaves them un
 
 - **Observed.** `npx just typecheck` in drag reports `TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'` and `… 'space'`, at `../drag2/src/kernel/presentation.ts` lines 13 and 15. drag's typecheck includes `bench/lab-drag2.ts`, which imports drag2's source, so drag2's import of the removed factories enters drag's program. drag's own files have no errors.
 - **Not run, so not observed.** drag2's own typecheck, lint and test projects. From the source and the probe's arm, they can be expected to show this: `presentation.ts` and `tests/perf/m5.browser.test.ts` import removed exports, so drag2 doesn't typecheck. Code that reaches those imports doesn't load. In the arm, five drag2 controls moved by −31 to −42 B and failed until they were re-declared. That is the probe's reading, not this unit's.
-- The handoff's factory `grep` also finds drag2's three factory calls in `presentation.ts` and `m5.browser.test.ts`. The handoff expected those three to be migrated. It also finds drag2's own `createBox()` helpers and the `box()` comment that the handoff already listed.
+- The handoff's factory `grep` also finds drag2's four factory calls: `space()` at `presentation.ts` lines 519 and 523, `box()` at line 524, and `space()` at `m5.browser.test.ts` line 538. The handoff expected those four to be migrated. It also finds drag2's own `createBox()` helpers and the `box()` comment that the handoff already listed. **Corrected by the architect on 2026-11-13,** from the review's finding reviewer-2. The sentence used to say "drag2's three factory calls in `presentation.ts` and `m5.browser.test.ts`" and "The handoff expected those three to be migrated".
 
 ## Sizes
 

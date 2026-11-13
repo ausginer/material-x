@@ -4,6 +4,8 @@
 
 **Governing records:** `BQ-11` in [`plan.md`](plan.md), with its record entry of 2026-11-13, and the evidence in [`probes/numeric-storage/`](probes/numeric-storage/README.md). `BQ-9`'s fallback property still applies. CONTRIBUTING §1.1, §4, §8 and §15, and §Comments and JSDoc, govern the code and its documentation.
 
+**Amended on 2026-11-13 by `BQ-12`, which supersedes `BQ-11`.** The owner took drag2 out of this unit. Item 4's two drag2 rows and item 5 no longer apply. Neither do drag2's verification rows, and verification step 2's requirement that drag's and drag2's typechecks be clean. drag's typecheck is read under `BQ-12` property 12. The text below is as the unit received it.
+
 **Goal:** after this unit, box-quad exports four functions and four structural storage types. Its JSDoc documents each layout, `drag` and `drag2` allocate their own storage, and every behavior and reading is unchanged or smaller. It is one pull request's worth of change. Don't open the pull request.
 
 ## Environment
