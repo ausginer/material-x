@@ -496,6 +496,33 @@ describe('coordinates recognized limits', () => {
     expect(Array.from(out)).toEqual(Array.from(sentinels()));
   });
 
+  it('should preserve every output value when the result is not finite', () => {
+    // Chromium clamps each transform component to about 3.4e38, so one
+    // ancestor cannot overflow. Nine nested scales of 1e38 compose to 1e342,
+    // which is beyond the Float64 range.
+    let parent: HTMLElement | undefined;
+
+    for (let depth = 0; depth < 9; depth += 1) {
+      parent = createBox({
+        parent,
+        styles: { width: '200px', height: '200px', transform: 'scale(1e38)' },
+      });
+    }
+
+    const source = createBox({ parent });
+    const space: number[] = [];
+    const out = [11, 22, 33, 44, 55, 66, 77, 88];
+
+    // Every check before the finiteness check passes, so `false` can come only
+    // from that check.
+    expect(source.getClientRects()).toHaveLength(1);
+    expect(ancestry(source, space)).toBe(true);
+    expect(Number.isFinite(space[SPACE_A])).toBe(false);
+
+    expect(coordinates(source, out)).toBe(false);
+    expect(out).toStrictEqual([11, 22, 33, 44, 55, 66, 77, 88]);
+  });
+
   it('should reject a disconnected element', () => {
     const source = createBox();
 
