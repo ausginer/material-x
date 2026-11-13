@@ -1,0 +1,13 @@
+built without drag:rename-properties into /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-tree
+member start: free-drag/behavior.js:19:1 _root maps to ../src/free-drag/behavior.ts:63:2, "readonly _root: HTMLElem"
+member start: free-drag/behavior.js:20:1 _config maps to ../src/free-drag/behavior.ts:64:2, "readonly _config: FreeDr"
+member start: free-drag/behavior.js:21:1 _window maps to ../src/free-drag/behavior.ts:65:2, "readonly _window: Window"
+member start: free-drag/behavior.js:22:1 _axis maps to ../src/free-drag/behavior.ts:66:2, "readonly _axis: DragAxis"
+member start: free-drag/behavior.js:23:1 _bounds maps to ../src/free-drag/behavior.ts:67:2, "readonly _bounds: Motion"
+member start: free-drag/behavior.js:24:1 _landing maps to ../src/free-drag/behavior.ts:68:2, "readonly _landing: Landi"
+member start: sortable/behavior.js:21:1 _config maps to ../src/sortable/behavior.ts:94:2, "readonly _config: Sortab"
+member start: sortable/behavior.js:24:1 _axis maps to ../src/sortable/behavior.ts:97:2, "readonly _axis: Insertio"
+member start: sortable/behavior.js:25:1 _displacement maps to ../src/sortable/behavior.ts:98:2, "readonly _displacement: "
+member start: sortable/behavior.js:26:1 _landing maps to ../src/sortable/behavior.ts:99:2, "readonly _landing: Landi"
+member start: sortable/behavior.js:41:1 _invalidate maps to ../src/sortable/behavior.ts:124:2, "readonly _invalidate = ("
+90 files; 263 renamed names; 6912 mappings compared; 0 failures

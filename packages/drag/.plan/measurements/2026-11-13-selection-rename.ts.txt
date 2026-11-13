@@ -1,0 +1,165 @@
+/**
+ * The type checker's rename, `name` → `_name`, of the 30 declarations that
+ * `mangle-selection-audit.md` §3 selects, taken by file, line and name at
+ * `436b105c6`, so a declaration with the same name elsewhere keeps it. Locations
+ * come from `findRenameLocations` at each declaration's name, with shorthand
+ * prefixes and suffixes, and not in comments or strings. All locations are
+ * computed on the unchanged tree, then applied per file from the end. Prints each
+ * declaration with its locations, and fails if a location is in a `.d.ts` or two
+ * declarations reach one location with different texts.
+ *
+ * `node rename.ts <package root> [--dry]`
+ */
+import { createRequire } from 'node:module';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import type TS from '/workspaces/material-x/node_modules/typescript/lib/typescript.d.ts';
+
+const ts: typeof TS = createRequire('/workspaces/material-x/package.json')('typescript');
+const root = process.argv[2]!;
+const dry = process.argv.includes('--dry');
+
+/** `file:line name ...`, as the audit's §3 gives them. */
+const SELECTED = `
+src/sortable/rect-index.ts:112 values
+src/sortable/rect-index.ts:120 items
+src/sortable/rect-index.ts:133 end
+src/sortable/rect-index.ts:290 invalidate
+src/sortable/rect-index.ts:298 retire
+src/sortable/linear-shift.ts:71 moved
+src/sortable/linear-shift.ts:73 invalidate
+src/sortable/linear-shift.ts:75 retire
+src/kernel/callbacks.ts:43 has
+src/kernel/callbacks.ts:60 add
+src/kernel/callbacks.ts:77 clear
+src/shared/invalidation.ts:17 cancel
+src/free-drag/behavior.ts:66 axis
+src/free-drag/behavior.ts:67 bounds
+src/free-drag/behavior.ts:68 landing
+src/sortable/behavior.ts:97 axis
+src/sortable/behavior.ts:98 displacement
+src/sortable/behavior.ts:99 landing
+src/sortable/behavior.ts:124 invalidate
+src/free-drag/operation.ts:62 translate
+src/free-drag/operation.ts:68 moveTo
+src/lift.ts:59 duration
+src/lift.ts:60 easing
+src/lift.ts:61 landing
+src/sortable/behavior.ts:66 visual
+src/sortable/behavior.ts:68 box
+src/free-drag/bounds.ts:23 left top right bottom
+`
+  .trim()
+  .split('\n')
+  .flatMap((row) => {
+    const [at, ...names] = row.split(' ');
+    const [file, line] = at!.split(':');
+    return names.map((name) => ({ file: join(root, file!), line: Number(line), name }));
+  });
+
+const parsed = ts.parseJsonConfigFileContent(
+  ts.readConfigFile(join(root, 'tsconfig.json'), ts.sys.readFile).config,
+  ts.sys,
+  root,
+);
+const host: TS.LanguageServiceHost = {
+  getCompilationSettings: () => parsed.options,
+  getScriptFileNames: () => parsed.fileNames,
+  getScriptVersion: () => '1',
+  getScriptSnapshot: (f) => {
+    try {
+      return ts.ScriptSnapshot.fromString(readFileSync(f, 'utf8'));
+    } catch {
+      return undefined;
+    }
+  },
+  getCurrentDirectory: () => root,
+  getDefaultLibFileName: ts.getDefaultLibFilePath,
+  fileExists: ts.sys.fileExists,
+  readFile: ts.sys.readFile,
+  readDirectory: ts.sys.readDirectory,
+  directoryExists: ts.sys.directoryExists,
+  getDirectories: ts.sys.getDirectories,
+};
+const service = ts.createLanguageService(host);
+const program = service.getProgram()!;
+
+const isDeclarationName = (node: TS.Identifier): boolean => {
+  const p = node.parent;
+  return (
+    (ts.isPropertyDeclaration(p) ||
+      ts.isPropertySignature(p) ||
+      ts.isMethodDeclaration(p) ||
+      ts.isMethodSignature(p) ||
+      ts.isGetAccessorDeclaration(p) ||
+      ts.isSetAccessorDeclaration(p) ||
+      ts.isPropertyAssignment(p) ||
+      ts.isShorthandPropertyAssignment(p)) &&
+    p.name === node
+  );
+};
+
+type Edit = { file: string; start: number; length: number; text: string; from: string };
+const edits = new Map<string, Edit>();
+let failed = false;
+
+for (const { file, line, name } of SELECTED) {
+  const source = program.getSourceFile(file);
+  if (!source) throw new Error(`${file} is not in the program`);
+  const found: TS.Identifier[] = [];
+  const visit = (node: TS.Node): void => {
+    if (
+      ts.isIdentifier(node) &&
+      node.text === name &&
+      isDeclarationName(node) &&
+      source.getLineAndCharacterOfPosition(node.getStart()).line + 1 === line
+    ) {
+      found.push(node);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  if (found.length !== 1) throw new Error(`${relative(root, file)}:${line} ${name}: ${found.length} declarations`);
+  const node = found[0]!;
+  const label = `${relative(root, file)}:${line} ${name}`;
+  const locations =
+    service.findRenameLocations(file, node.getStart(), false, false, {
+      providePrefixAndSuffixTextForRename: true,
+    }) ?? [];
+  console.log(`== ${label}: ${locations.length} locations`);
+  for (const l of locations) {
+    const text = `${l.prefixText ?? ''}_${name}${l.suffixText ?? ''}`;
+    const s = program.getSourceFile(l.fileName)!;
+    const { line: ln, character } = s.getLineAndCharacterOfPosition(l.textSpan.start);
+    const where = `${relative(root, l.fileName)}:${ln + 1}:${character + 1}`;
+    const original = s.text.slice(l.textSpan.start, l.textSpan.start + l.textSpan.length);
+    console.log(`  ${where}\t${original} → ${text}`);
+    if (l.fileName.endsWith('.d.ts')) {
+      console.log(`  FAIL: a location in a declaration file`);
+      failed = true;
+    }
+    const key = `${l.fileName}:${l.textSpan.start}`;
+    const previous = edits.get(key);
+    if (previous) {
+      if (previous.text !== text) {
+        console.log(`  FAIL: ${previous.from} gives ${previous.text} here`);
+        failed = true;
+      }
+      continue;
+    }
+    edits.set(key, { file: l.fileName, start: l.textSpan.start, length: l.textSpan.length, text, from: label });
+  }
+}
+if (failed) {
+  process.exitCode = 1;
+} else {
+  const byFile = Map.groupBy(edits.values(), (e) => e.file);
+  for (const [file, list] of byFile) {
+    let text = readFileSync(file, 'utf8');
+    for (const e of list.sort((a, b) => b.start - a.start)) {
+      text = text.slice(0, e.start) + e.text + text.slice(e.start + e.length);
+    }
+    if (!dry) writeFileSync(file, text);
+  }
+  console.log(`${SELECTED.length} declarations; ${edits.size} locations in ${byFile.size} files${dry ? ' (dry)' : ''}`);
+}

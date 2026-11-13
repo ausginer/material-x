@@ -1,0 +1,11 @@
+$ node build/generate-property-names.ts --out names-1.json
+53 names, 263 occurrences in the build; /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/names-1.json
+[exit 0]
+$ node build/generate-property-names.ts --out names-2.json
+53 names, 263 occurrences in the build; /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/names-2.json
+[exit 0]
+$ node build/generate-property-names.ts
+53 names, 263 occurrences in the build; /workspaces/material-x/packages/drag/build/property-names.json
+[exit 0]
+run 1 = run 2
+run 1 = committed file
