@@ -1,0 +1,21 @@
+# HEAD 30bf21e6eb0f9814ec01d1870119178c5527651a, patch: nocheck.diff.txt
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-probe/packages/drag
+
+1:44:14 PM [vite] (client) warning: 
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  13:44:14
+   Duration  2.18s (tests 84%, worker 15%, import 1%)
+
+[exit 0]

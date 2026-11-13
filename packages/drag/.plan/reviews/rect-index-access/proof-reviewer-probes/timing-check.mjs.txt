@@ -1,0 +1,17 @@
+import { readFileSync } from 'node:fs';
+const j = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+const med = (a) => { const s = [...a].sort((x, y) => x - y); return s[(s.length - 1) / 2]; };
+for (const c of j.cases) {
+  const r = c.rounds;
+  const d = r.map((x) => x.production.us - x.before.us);
+  const aa = Math.max(...r.map((x) => Math.abs(x.control.us - x.production.us)));
+  const cb = r.map((x) => x.control.us - x.before.us);
+  const b = med(r.map((x) => x.before.us));
+  const hi = d.filter((x) => x > 0).length, lo = d.filter((x) => x < 0).length;
+  const m = med(d);
+  const verdict = hi >= 6 && m > aa ? 'slower' : lo >= 6 && -m > aa ? 'faster' : 'no difference shown';
+  const s = [...d].sort((x, y) => x - y);
+  console.log(c.name, { beforeMedian: b.toFixed(3), hi, lo, median: m.toFixed(3), pct: (100 * m / b).toFixed(1), aa: aa.toFixed(3), aaPct: (100 * aa / b).toFixed(1), verdict,
+    diffRange: [s[0].toFixed(3), s[6].toFixed(3)], diffRangePct: [(100 * s[0] / b).toFixed(1), (100 * s[6] / b).toFixed(1)],
+    controlMinusBefore: cb.map((x) => x.toFixed(3)).join(' '), ctrlLowerThanBefore: cb.filter((x) => x < 0).length });
+}

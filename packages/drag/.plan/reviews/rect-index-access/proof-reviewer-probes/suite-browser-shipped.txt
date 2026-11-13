@@ -1,0 +1,4 @@
+# HEAD 30bf21e6eb0f9814ec01d1870119178c5527651a, unmodified; npx vitest run -c vitest.config.ts --project browser --project shipped
+ Test Files  27 passed (27)
+      Tests  363 passed (363)
+[exit 0]

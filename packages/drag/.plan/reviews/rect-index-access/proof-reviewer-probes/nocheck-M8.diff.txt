@@ -1,0 +1,21 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index f1bdf3b56..1b8e74437 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -320,7 +320,7 @@ export class RectIndex {
+     let dy = 0;
+ 
+     if (displacement?.displaced(element)) {
+-      ({ dx, dy } = displacement);
++      // M8: nothing subtracted
+     }
+ 
+     const left = rect.left - dx;
+@@ -359,6 +359,7 @@ export function verifyEquivalence(
+   heldLeft: number,
+   heldRight: number,
+ ): void {
++  if (Math.random() < 2) return; // PROBE: no development check
+   // Taken before the rebuild below rewrites them.
+   const { count: held, first, end } = index;
+   const predicted: number[] = [];
