@@ -224,10 +224,21 @@ None has been looked into. **Open.** Required property: a root run on a clean tr
 
 Tier C: a message overstates what a flag does, and nothing goes wrong because of it. `reviewer-2`, [`verification-regressions-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §36.5. `.scripts/vitest-one-shot.ts`'s group refusal ends: _A --sequence.\* flag on the command line replaces the configured sequence object wholesale and erases it._ That has been untrue since Vitest 5, at `01d88645f`: CLI options merge deeply, so `--sequence.shuffle`, `.concurrent`, `.seed` and `.hooks` leave each project's order alone, and `--sequence.groupOrder` gives every project the same value. The refusal still fires where it should. **Open, and not a merge gate.** Required property: the refusal states what a command-line flag does at the Vitest version in use. It is one sentence in one file, and it can land on either side of the merge.
 
+#### RF-31 — After the dependency update, `.scripts/tsdown-library.ts` fails to typecheck
+
+Tier C, open. Registered by the architect on 2026-11-13 from drag's [slot array report](../packages/drag/.plan/slot-array-report.md) at `690769539` ([output](../packages/drag/.plan/measurements/2026-11-13-slot-array-typecheck.txt)).
+
+- **Current behavior:** `npx just typecheck` from `packages/drag` exits 1, on one error that it reports at `706b91481` and at `5ec3b4b2d` alike: `.scripts/tsdown-library.ts(53,11)`, TS2322. `constructLibraryTsdownPlugins` returns `Rolldown.Plugin[]`, and the `vite` `Plugin` it holds isn't assignable to it, because the `load` hook's `options` parameter types differ (`LoadExtraOptions` against `{ ssr?: boolean }`).
+- **When it started:** drag's typecheck passed at `b50204f66` ([`mangle-selection-report.md`](../packages/drag/.plan/mangle-selection-report.md)). `.scripts/tsdown-library.ts` hasn't changed since then. `31bac1381` updated `vite` to 8.3.8 and `rolldown` to 1.3.2. **The update is the inferred cause.** No run separates the two packages.
+- **Reach:** the file is imported by the `tsdown.config.ts` of `core`, `tproc`, `drag`, `drag2` and `box-quad`. Only drag's typecheck was observed.
+- **Why it is a problem:** each typecheck that includes the file exits 1 at every base, so a unit can show only that it adds no error, not that the typecheck passes.
+- **Routed** to a repository cleanup unit that follows up `31bac1381`, for an `implementer`, which the owner starts. It isn't drag's work.
+- **Required property:** the shared library plugin list typechecks with the installed `vite` and `rolldown`, with no cast that hides a real hook mismatch, and the build's output is unchanged.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
 
 `architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
 
-**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-30` 2026-11-05, so the next is `RF-31`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
+**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-30` 2026-11-05, and `RF-31` 2026-11-13, so the next is `RF-32`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
