@@ -1,0 +1,4 @@
+export { freeDrag } from "../../src/free-drag.ts";
+export { FreeDragResolution } from "../../src/free-drag/domain.ts";
+export { bounds } from "../../src/free-drag/bounds.ts";
+export { dropTargets } from "../../src/free-drag/drop-targets.ts";

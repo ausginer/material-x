@@ -1,0 +1,4 @@
+// The minified bytes of shared/invalidation.ts alone, with the marker names mangled: the cost of one extra copy.
+import { build } from 'rolldown';
+const o = await build({ input: new URL('../src/shared/invalidation.ts', import.meta.url).pathname, write: false, output: { format: 'esm', minify: { mangleProps: { include: /^_[A-Za-z]/ } } } });
+const c = o.output[0].code; console.log(`${new TextEncoder().encode(c).byteLength} B minified, ${(await import('node:zlib')).brotliCompressSync(c).byteLength} B Brotli alone:\n${c}`);

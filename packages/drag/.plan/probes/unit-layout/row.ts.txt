@@ -1,0 +1,13 @@
+// Prints one size row's bundle, as measure.ts builds it, unminified or minified.
+import { COMPOSITIONS, bundleSize } from '../bench/size/measure.ts';
+import { rolldown } from 'rolldown';
+import { publishedEntries } from '../tests/support/published-entries.ts';
+import { join, resolve } from 'node:path';
+const root = resolve(import.meta.dirname, '..');
+const c = COMPOSITIONS.find((x) => x.name === process.argv[2])!;
+const lines = Object.entries(c.imports).map(([p, e]) => `import { ${e.join(', ')} } from ${JSON.stringify(join(root, `${p}.ts`))};`);
+const input = '\0row';
+const b = await rolldown({ input, platform: 'neutral', resolve: { alias: { '@ydinjs/box-quad': resolve(root, '../box-quad/src/index.ts') } }, transform: { define: { __DEV__: 'false' } },
+  plugins: [{ name: 'row', resolveId: (i) => (i === input ? i : null), load: (i) => (i === input ? `${lines.join('\n')}\nglobalThis.keep = [${Object.values(c.imports).flat().join(', ')}];` : null) }, publishedEntries(root)] });
+const { output } = await b.generate({ format: 'es', minify: process.env.MIN ? true : 'dce-only' });
+console.log(output[0].code);
