@@ -1,0 +1,143 @@
+/**
+ * The mangle rollback's rename, `_name` → `name`, the reverse of
+ * `2026-11-13-mangle-rename.ts.txt` and `2026-11-13-selection-rename.ts.txt`.
+ *
+ * For every property, method or accessor declaration in `src` whose name is in the
+ * map at `<map>` (the 53 prefixed names), the type checker's `findRenameLocations`
+ * at the declaration gives every use, with shorthand and destructuring prefixes and
+ * suffixes. All locations are computed on the unchanged tree, then applied per file
+ * from the end. A location outside `src`, `tests`, `bench` and
+ * `.plan/probes/callback-list/allocation.ts` is printed and not applied. A
+ * `name: name` that results is printed, for the shorthand step that follows.
+ *
+ * Prints every declaration, then every edited location.
+ *
+ * `node rename.ts <package root> <map> [--dry]`
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { join, relative } from 'node:path';
+import type TS from 'typescript';
+
+const root = process.argv[2]!;
+const ts: typeof TS = createRequire(join(root, 'package.json'))('typescript');
+const NAMES = new Set(Object.keys(JSON.parse(readFileSync(process.argv[3]!, 'utf8'))));
+const dry = process.argv.includes('--dry');
+const ALLOWED = [
+  join(root, 'src/'),
+  join(root, 'tests/'),
+  join(root, 'bench/'),
+  join(root, '.plan/probes/callback-list/allocation.ts'),
+];
+
+const parsed = ts.parseJsonConfigFileContent(
+  ts.readConfigFile(join(root, 'tsconfig.json'), ts.sys.readFile).config,
+  ts.sys,
+  root,
+);
+const host: TS.LanguageServiceHost = {
+  getCompilationSettings: () => parsed.options,
+  getScriptFileNames: () => parsed.fileNames,
+  getScriptVersion: () => '1',
+  getScriptSnapshot: (f) =>
+    ts.sys.fileExists(f) ? ts.ScriptSnapshot.fromString(readFileSync(f, 'utf8')) : undefined,
+  getCurrentDirectory: () => root,
+  getDefaultLibFileName: ts.getDefaultLibFilePath,
+  fileExists: ts.sys.fileExists,
+  readFile: ts.sys.readFile,
+  readDirectory: ts.sys.readDirectory,
+  directoryExists: ts.sys.directoryExists,
+  getDirectories: ts.sys.getDirectories,
+};
+const service = ts.createLanguageService(host);
+const program = service.getProgram()!;
+
+const isDeclarationName = (node: TS.Identifier): boolean => {
+  const p = node.parent;
+  return (
+    (ts.isPropertyDeclaration(p) ||
+      ts.isPropertySignature(p) ||
+      ts.isMethodDeclaration(p) ||
+      ts.isMethodSignature(p) ||
+      ts.isGetAccessorDeclaration(p) ||
+      ts.isSetAccessorDeclaration(p) ||
+      ts.isPropertyAssignment(p) ||
+      ts.isShorthandPropertyAssignment(p)) &&
+    p.name === node
+  );
+};
+
+type Edit = { file: string; start: number; length: number; text: string };
+const edits = new Map<string, Edit>();
+const outside: string[] = [];
+let declarations = 0;
+
+for (const file of program.getSourceFiles()) {
+  if (!file.fileName.startsWith(join(root, 'src/'))) {
+    continue;
+  }
+
+  const visit = (node: TS.Node): void => {
+    if (ts.isIdentifier(node) && NAMES.has(node.text) && isDeclarationName(node)) {
+      declarations += 1;
+      const { line, character } = file.getLineAndCharacterOfPosition(node.getStart());
+      console.log(
+        `declaration\t${relative(root, file.fileName)}:${line + 1}:${character + 1}\t${node.text}\t${ts.SyntaxKind[node.parent.kind]}`,
+      );
+      const locations =
+        service.findRenameLocations(file.fileName, node.getStart(), false, false, {
+          providePrefixAndSuffixTextForRename: true,
+        }) ?? [];
+
+      for (const l of locations) {
+        const key = `${l.fileName}:${l.textSpan.start}`;
+
+        if (!ALLOWED.some((a) => l.fileName.startsWith(a))) {
+          outside.push(`${relative(root, l.fileName)}@${l.textSpan.start}`);
+          continue;
+        }
+
+        const text = `${l.prefixText ?? ''}${node.text.slice(1)}${l.suffixText ?? ''}`;
+        const previous = edits.get(key);
+
+        if (previous && previous.text !== text) {
+          throw new Error(`conflicting edits at ${key}: ${previous.text} | ${text}`);
+        }
+
+        edits.set(key, { file: l.fileName, start: l.textSpan.start, length: l.textSpan.length, text });
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(file);
+}
+
+const byFile = Map.groupBy(edits.values(), (e) => e.file);
+
+for (const [file, list] of [...byFile].sort(([a], [b]) => a.localeCompare(b))) {
+  let text = readFileSync(file, 'utf8');
+  const source = program.getSourceFile(file)!;
+
+  for (const e of list.toSorted((a, b) => a.start - b.start)) {
+    const { line, character } = source.getLineAndCharacterOfPosition(e.start);
+    console.log(
+      `location\t${relative(root, file)}:${line + 1}:${character + 1}\t${text.slice(e.start, e.start + e.length)} → ${e.text}`,
+    );
+  }
+
+  for (const e of list.toSorted((a, b) => b.start - a.start)) {
+    text = text.slice(0, e.start) + e.text + text.slice(e.start + e.length);
+  }
+
+  if (!dry) {
+    writeFileSync(file, text);
+  }
+}
+
+for (const o of outside) {
+  console.log(`outside\t${o}`);
+}
+
+console.log(`${declarations} declarations, ${edits.size} locations in ${byFile.size} files, ${outside.length} outside`);

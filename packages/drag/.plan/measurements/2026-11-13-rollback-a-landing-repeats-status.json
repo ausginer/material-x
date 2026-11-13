@@ -1,0 +1,184 @@
+{
+  "id": "rollback-a-repeat",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag",
+  "runner": {
+    "pid": 733401,
+    "start": "9619222"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:10:23.504Z",
+  "endedAt": "2026-11-13T11:11:08.260Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 733418,
+        "start": "9619231"
+      },
+      "startedAt": "2026-11-13T11:10:23.525Z",
+      "endedAt": "2026-11-13T11:10:29.084Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 733772,
+        "start": "9619788"
+      },
+      "startedAt": "2026-11-13T11:10:29.100Z",
+      "endedAt": "2026-11-13T11:10:34.320Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 734098,
+        "start": "9620312"
+      },
+      "startedAt": "2026-11-13T11:10:34.337Z",
+      "endedAt": "2026-11-13T11:10:39.053Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 734408,
+        "start": "9620785"
+      },
+      "startedAt": "2026-11-13T11:10:39.066Z",
+      "endedAt": "2026-11-13T11:10:43.864Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 734719,
+        "start": "9621266"
+      },
+      "startedAt": "2026-11-13T11:10:43.877Z",
+      "endedAt": "2026-11-13T11:10:48.576Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 735030,
+        "start": "9621737"
+      },
+      "startedAt": "2026-11-13T11:10:48.586Z",
+      "endedAt": "2026-11-13T11:10:52.780Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 735349,
+        "start": "9622157"
+      },
+      "startedAt": "2026-11-13T11:10:52.791Z",
+      "endedAt": "2026-11-13T11:10:56.900Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 735670,
+        "start": "9622569"
+      },
+      "startedAt": "2026-11-13T11:10:56.912Z",
+      "endedAt": "2026-11-13T11:11:00.533Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 735983,
+        "start": "9622933"
+      },
+      "startedAt": "2026-11-13T11:11:00.544Z",
+      "endedAt": "2026-11-13T11:11:04.372Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer tests/activation.browser.test.ts -t 'grab during a landing' 2>&1 | sed -E 's/\\x1b\\[[0-9;]*m//g' | grep -E 'Tests  |AssertionError'; true",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-repeat/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 736294,
+        "start": "9623317"
+      },
+      "startedAt": "2026-11-13T11:11:04.386Z",
+      "endedAt": "2026-11-13T11:11:08.260Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

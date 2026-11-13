@@ -1,0 +1,418 @@
+declaration	src/kernel/callbacks.ts:38:7	_empty	GetAccessor
+declaration	src/kernel/callbacks.ts:43:3	_has	MethodDeclaration
+declaration	src/kernel/callbacks.ts:60:3	_add	MethodDeclaration
+declaration	src/kernel/callbacks.ts:71:3	_run	MethodDeclaration
+declaration	src/kernel/callbacks.ts:77:3	_clear	MethodDeclaration
+declaration	src/kernel/drag.ts:6:3	_raise	MethodSignature
+declaration	src/kernel/session.ts:254:3	_advance	MethodDeclaration
+declaration	src/kernel/session.ts:273:3	_decide	MethodDeclaration
+declaration	src/kernel/session.ts:281:3	_stepTarget	MethodDeclaration
+declaration	src/kernel/session.ts:291:3	_terminate	MethodDeclaration
+declaration	src/kernel/gesture.ts:186:3	_enter	MethodDeclaration
+declaration	src/kernel/gesture.ts:187:3	_enter	MethodDeclaration
+declaration	src/kernel/gesture.ts:188:3	_enter	MethodDeclaration
+declaration	src/kernel/gesture.ts:193:3	_enter	MethodDeclaration
+declaration	src/kernel/gesture.ts:238:3	_raise	MethodDeclaration
+declaration	src/kernel/gesture.ts:249:3	_raiseInPass	MethodDeclaration
+declaration	src/kernel/gesture.ts:258:3	_detach	MethodDeclaration
+declaration	src/free-drag/bounds.ts:23:19	_left	PropertyAssignment
+declaration	src/free-drag/bounds.ts:23:29	_top	PropertyAssignment
+declaration	src/free-drag/bounds.ts:23:38	_right	PropertyAssignment
+declaration	src/free-drag/bounds.ts:23:49	_bottom	PropertyAssignment
+declaration	src/lift.ts:59:3	_duration	PropertySignature
+declaration	src/lift.ts:60:3	_easing	PropertySignature
+declaration	src/lift.ts:61:3	_landing	PropertySignature
+declaration	src/lift.ts:306:13	_duration	PropertyAssignment
+declaration	src/lift.ts:307:13	_easing	PropertyAssignment
+declaration	src/lift.ts:308:13	_landing	PropertyAssignment
+declaration	src/shared/invalidation.ts:16:3	_schedule	MethodSignature
+declaration	src/shared/invalidation.ts:17:3	_cancel	MethodSignature
+declaration	src/shared/invalidation.ts:29:5	_schedule	MethodDeclaration
+declaration	src/shared/invalidation.ts:34:5	_cancel	MethodDeclaration
+declaration	src/free-drag/operation.ts:62:3	_translate	MethodDeclaration
+declaration	src/free-drag/operation.ts:68:3	_moveTo	MethodDeclaration
+declaration	src/free-drag/behavior.ts:63:12	_root	PropertyDeclaration
+declaration	src/free-drag/behavior.ts:64:12	_config	PropertyDeclaration
+declaration	src/free-drag/behavior.ts:65:12	_window	PropertyDeclaration
+declaration	src/free-drag/behavior.ts:66:12	_axis	PropertyDeclaration
+declaration	src/free-drag/behavior.ts:67:12	_bounds	PropertyDeclaration
+declaration	src/free-drag/behavior.ts:68:12	_landing	PropertyDeclaration
+declaration	src/sortable/rect-index.ts:100:7	_values	GetAccessor
+declaration	src/sortable/rect-index.ts:104:7	_placeholderRect	GetAccessor
+declaration	src/sortable/rect-index.ts:108:7	_items	GetAccessor
+declaration	src/sortable/rect-index.ts:112:7	_count	GetAccessor
+declaration	src/sortable/rect-index.ts:117:7	_first	GetAccessor
+declaration	src/sortable/rect-index.ts:121:7	_end	GetAccessor
+declaration	src/sortable/rect-index.ts:130:3	_collect	MethodDeclaration
+declaration	src/sortable/rect-index.ts:173:3	_measure	MethodDeclaration
+declaration	src/sortable/rect-index.ts:217:3	_lend	MethodDeclaration
+declaration	src/sortable/rect-index.ts:229:3	_measurePlaceholder	MethodDeclaration
+declaration	src/sortable/rect-index.ts:245:3	_holds	MethodDeclaration
+declaration	src/sortable/rect-index.ts:278:3	_invalidate	MethodDeclaration
+declaration	src/sortable/rect-index.ts:286:3	_retire	MethodDeclaration
+declaration	src/sortable/layout-animation.ts:39:3	_animation	PropertySignature
+declaration	src/sortable/layout-animation.ts:40:3	_dx	PropertySignature
+declaration	src/sortable/layout-animation.ts:41:3	_dy	PropertySignature
+declaration	src/sortable/layout-animation.ts:107:11	_animation	PropertyAssignment
+declaration	src/sortable/layout-animation.ts:108:11	_dx	PropertyAssignment
+declaration	src/sortable/layout-animation.ts:109:11	_dy	PropertyAssignment
+declaration	src/sortable/linear-shift.ts:56:3	_refresh	MethodSignature
+declaration	src/sortable/linear-shift.ts:71:3	_moved	MethodSignature
+declaration	src/sortable/linear-shift.ts:73:3	_invalidate	MethodSignature
+declaration	src/sortable/linear-shift.ts:75:3	_retire	MethodSignature
+declaration	src/sortable/linear-shift.ts:126:5	_refresh	MethodDeclaration
+declaration	src/sortable/linear-shift.ts:196:5	_moved	MethodDeclaration
+declaration	src/sortable/linear-shift.ts:259:5	_invalidate	MethodDeclaration
+declaration	src/sortable/linear-shift.ts:266:5	_retire	MethodDeclaration
+declaration	src/sortable/operation.ts:155:3	_rebase	MethodDeclaration
+declaration	src/sortable/operation.ts:179:3	_updateInsertion	MethodDeclaration
+declaration	src/sortable/behavior.ts:66:3	_visual	PropertySignature
+declaration	src/sortable/behavior.ts:68:3	_box	PropertySignature
+declaration	src/sortable/behavior.ts:70:3	_direction	PropertySignature
+declaration	src/sortable/behavior.ts:94:12	_config	PropertyDeclaration
+declaration	src/sortable/behavior.ts:97:12	_axis	PropertyDeclaration
+declaration	src/sortable/behavior.ts:98:12	_displacement	PropertyDeclaration
+declaration	src/sortable/behavior.ts:99:12	_landing	PropertyDeclaration
+declaration	src/sortable/behavior.ts:124:12	_invalidate	PropertyDeclaration
+declaration	src/sortable/behavior.ts:280:9	_visual	PropertyAssignment
+declaration	src/sortable/behavior.ts:281:9	_box	PropertyAssignment
+declaration	src/sortable/behavior.ts:282:9	_direction	PropertyAssignment
+location	.plan/probes/callback-list/allocation.ts:50:8	_add → add
+location	.plan/probes/callback-list/allocation.ts:51:8	_run → run
+location	src/free-drag.ts:72:20	_moveTo → moveTo
+location	src/free-drag/behavior.ts:63:12	_root → root
+location	src/free-drag/behavior.ts:64:12	_config → config
+location	src/free-drag/behavior.ts:65:12	_window → window
+location	src/free-drag/behavior.ts:66:12	_axis → axis
+location	src/free-drag/behavior.ts:67:12	_bounds → bounds
+location	src/free-drag/behavior.ts:68:12	_landing → landing
+location	src/free-drag/behavior.ts:73:10	_root → root
+location	src/free-drag/behavior.ts:74:10	_config → config
+location	src/free-drag/behavior.ts:75:10	_window → window
+location	src/free-drag/behavior.ts:77:10	_axis → axis
+location	src/free-drag/behavior.ts:78:10	_bounds → bounds
+location	src/free-drag/behavior.ts:78:41	_window → window
+location	src/free-drag/behavior.ts:79:10	_landing → landing
+location	src/free-drag/behavior.ts:90:14	_config → config
+location	src/free-drag/behavior.ts:91:26	_config → config
+location	src/free-drag/behavior.ts:91:46	_root → root
+location	src/free-drag/behavior.ts:101:18	_root → root
+location	src/free-drag/behavior.ts:103:19	_config → config
+location	src/free-drag/behavior.ts:103:41	_config → config
+location	src/free-drag/behavior.ts:103:61	_root → root
+location	src/free-drag/behavior.ts:103:75	_root → root
+location	src/free-drag/behavior.ts:116:10	_bounds → bounds
+location	src/free-drag/behavior.ts:123:12	_config → config
+location	src/free-drag/behavior.ts:123:41	_window → window
+location	src/free-drag/behavior.ts:126:14	_bounds → bounds
+location	src/free-drag/behavior.ts:126:30	_config → config
+location	src/free-drag/behavior.ts:127:34	_window → window
+location	src/free-drag/behavior.ts:130:15	_translate → translate
+location	src/free-drag/bounds.ts:23:19	_left → left
+location	src/free-drag/bounds.ts:23:29	_top → top
+location	src/free-drag/bounds.ts:23:38	_right → right
+location	src/free-drag/bounds.ts:23:49	_bottom → bottom
+location	src/free-drag/bounds.ts:38:13	_left → left
+location	src/free-drag/bounds.ts:39:13	_top → top
+location	src/free-drag/bounds.ts:40:13	_right → right
+location	src/free-drag/bounds.ts:41:13	_bottom → bottom
+location	src/free-drag/bounds.ts:56:11	_left → left
+location	src/free-drag/bounds.ts:57:11	_top → top
+location	src/free-drag/bounds.ts:58:11	_right → right
+location	src/free-drag/bounds.ts:59:11	_bottom → bottom
+location	src/free-drag/bounds.ts:71:37	_left → left
+location	src/free-drag/bounds.ts:72:18	_right → right
+location	src/free-drag/bounds.ts:75:37	_top → top
+location	src/free-drag/bounds.ts:76:18	_bottom → bottom
+location	src/free-drag/drop-targets.ts:113:13	_cancel → cancel
+location	src/free-drag/drop-targets.ts:123:15	_schedule → schedule
+location	src/free-drag/drop-targets.ts:126:15	_cancel → cancel
+location	src/free-drag/operation.ts:57:20	_bounds → bounds
+location	src/free-drag/operation.ts:62:3	_translate → translate
+location	src/free-drag/operation.ts:68:3	_moveTo → moveTo
+location	src/free-drag/operation.ts:73:10	_translate → translate
+location	src/free-drag/operation.ts:77:20	_config → config
+location	src/free-drag/operation.ts:81:10	_translate → translate
+location	src/free-drag/operation.ts:84:24	_config → config
+location	src/free-drag/operation.ts:85:22	_config → config
+location	src/free-drag/operation.ts:99:22	_root → root
+location	src/free-drag/operation.ts:105:22	_window → window
+location	src/free-drag/operation.ts:112:22	_config → config
+location	src/free-drag/operation.ts:137:25	_landing → landing
+location	src/free-drag/operation.ts:143:42	_landing → landing
+location	src/free-drag/operation.ts:147:20	_config → config
+location	src/free-drag/operation.ts:155:24	_axis → axis
+location	src/free-drag/operation.ts:157:31	_axis → axis
+location	src/free-drag/operation.ts:161:20	_bounds → bounds
+location	src/free-drag/operation.ts:169:22	_window → window
+location	src/free-drag/operation.ts:175:27	_config → config
+location	src/free-drag/operation.ts:176:24	_config → config
+location	src/free-drag/operation.ts:177:32	_root → root
+location	src/kernel/callbacks.ts:38:7	_empty → empty
+location	src/kernel/callbacks.ts:43:3	_has → has
+location	src/kernel/callbacks.ts:60:3	_add → add
+location	src/kernel/callbacks.ts:71:3	_run → run
+location	src/kernel/callbacks.ts:77:3	_clear → clear
+location	src/kernel/drag.ts:6:3	_raise → raise
+location	src/kernel/drag.ts:91:16	_raise → raise
+location	src/kernel/drag.ts:105:21	_empty → empty
+location	src/kernel/drag.ts:107:17	_run → run
+location	src/kernel/drag.ts:109:18	_raise → raise
+location	src/kernel/gesture.ts:186:3	_enter → enter
+location	src/kernel/gesture.ts:187:3	_enter → enter
+location	src/kernel/gesture.ts:188:3	_enter → enter
+location	src/kernel/gesture.ts:193:3	_enter → enter
+location	src/kernel/gesture.ts:215:16	_raise → raise
+location	src/kernel/gesture.ts:227:12	_enter → enter
+location	src/kernel/gesture.ts:229:12	_enter → enter
+location	src/kernel/gesture.ts:238:3	_raise → raise
+location	src/kernel/gesture.ts:241:20	_decide → decide
+location	src/kernel/gesture.ts:249:3	_raiseInPass → raiseInPass
+location	src/kernel/gesture.ts:251:12	_raise → raise
+location	src/kernel/gesture.ts:253:12	_enter → enter
+location	src/kernel/gesture.ts:253:24	_raise → raise
+location	src/kernel/gesture.ts:258:3	_detach → detach
+location	src/kernel/gesture.ts:285:24	_has → has
+location	src/kernel/gesture.ts:286:21	_add → add
+location	src/kernel/gesture.ts:291:12	_enter → enter
+location	src/kernel/gesture.ts:293:39	_stepTarget → stepTarget
+location	src/kernel/gesture.ts:301:21	_decide → decide
+location	src/kernel/gesture.ts:302:12	_enter → enter
+location	src/kernel/gesture.ts:311:12	_enter → enter
+location	src/kernel/gesture.ts:328:23	_add → add
+location	src/kernel/gesture.ts:345:26	_empty → empty
+location	src/kernel/gesture.ts:346:23	_run → run
+location	src/kernel/gesture.ts:346:58	_stepTarget → stepTarget
+location	src/kernel/gesture.ts:347:36	_advance → advance
+location	src/kernel/gesture.ts:351:14	_raise → raise
+location	src/kernel/gesture.ts:419:17	_clear → clear
+location	src/kernel/gesture.ts:420:14	_terminate → terminate
+location	src/kernel/session.ts:202:27	_add → add
+location	src/kernel/session.ts:254:3	_advance → advance
+location	src/kernel/session.ts:273:3	_decide → decide
+location	src/kernel/session.ts:281:3	_stepTarget → stepTarget
+location	src/kernel/session.ts:291:3	_terminate → terminate
+location	src/kernel/session.ts:298:21	_raise → raise
+location	src/kernel/session.ts:335:23	_enter → enter
+location	src/kernel/session.ts:346:21	_enter → enter
+location	src/kernel/session.ts:348:21	_enter → enter
+location	src/kernel/session.ts:360:10	_decide → decide
+location	src/kernel/session.ts:361:19	_enter → enter
+location	src/kernel/session.ts:402:19	_detach → detach
+location	src/kernel/session.ts:489:23	_enter → enter
+location	src/kernel/session.ts:491:23	_raiseInPass → raiseInPass
+location	src/kernel/session.ts:569:21	_raise → raise
+location	src/kernel/session.ts:583:23	_raise → raise
+location	src/kernel/session.ts:594:23	_detach → detach
+location	src/kernel/session.ts:604:21	_detach → detach
+location	src/lift.ts:59:3	_duration → duration
+location	src/lift.ts:60:3	_easing → easing
+location	src/lift.ts:61:3	_landing → landing
+location	src/lift.ts:306:13	_duration → duration
+location	src/lift.ts:307:13	_easing → easing
+location	src/lift.ts:308:13	_landing → landing
+location	src/lift.ts:319:51	_landing → landing
+location	src/lift.ts:324:19	_duration → duration
+location	src/lift.ts:325:19	_easing → easing
+location	src/shared/invalidation.ts:16:3	_schedule → schedule
+location	src/shared/invalidation.ts:17:3	_cancel → cancel
+location	src/shared/invalidation.ts:29:5	_schedule → schedule
+location	src/shared/invalidation.ts:34:5	_cancel → cancel
+location	src/sortable.ts:67:35	_invalidate → invalidate
+location	src/sortable/behavior.ts:66:3	_visual → visual
+location	src/sortable/behavior.ts:68:3	_box → box
+location	src/sortable/behavior.ts:70:3	_direction → direction
+location	src/sortable/behavior.ts:75:14	_updateInsertion → updateInsertion
+location	src/sortable/behavior.ts:94:12	_config → config
+location	src/sortable/behavior.ts:97:12	_axis → axis
+location	src/sortable/behavior.ts:98:12	_displacement → displacement
+location	src/sortable/behavior.ts:99:12	_landing → landing
+location	src/sortable/behavior.ts:114:10	_config → config
+location	src/sortable/behavior.ts:117:10	_axis → axis
+location	src/sortable/behavior.ts:118:10	_displacement → displacement
+location	src/sortable/behavior.ts:119:10	_landing → landing
+location	src/sortable/behavior.ts:124:12	_invalidate → invalidate
+location	src/sortable/behavior.ts:126:17	_rebase → rebase
+location	src/sortable/behavior.ts:145:51	_visual → visual
+location	src/sortable/behavior.ts:145:66	_box → box
+location	src/sortable/behavior.ts:160:13	_direction → direction
+location	src/sortable/behavior.ts:162:56	_direction → direction
+location	src/sortable/behavior.ts:184:12	_config → config
+location	src/sortable/behavior.ts:205:13	_cancel → cancel
+location	src/sortable/behavior.ts:207:19	_axis → axis
+location	src/sortable/behavior.ts:207:38	_axis → axis
+location	src/sortable/behavior.ts:209:29	_axis → axis
+location	src/sortable/behavior.ts:209:52	_axis → axis
+location	src/sortable/behavior.ts:216:13	_direction → direction
+location	src/sortable/behavior.ts:224:28	_displacement → displacement
+location	src/sortable/behavior.ts:229:10	_axis → axis
+location	src/sortable/behavior.ts:236:26	_config → config
+location	src/sortable/behavior.ts:260:14	_config → config
+location	src/sortable/behavior.ts:261:26	_config → config
+location	src/sortable/behavior.ts:274:25	_config → config
+location	src/sortable/behavior.ts:280:9	_visual → visual
+location	src/sortable/behavior.ts:281:9	_box → box
+location	src/sortable/behavior.ts:281:20	_config → config
+location	src/sortable/behavior.ts:282:9	_direction → direction
+location	src/sortable/layout-animation.ts:39:3	_animation → animation
+location	src/sortable/layout-animation.ts:40:3	_dx → dx
+location	src/sortable/layout-animation.ts:41:3	_dy → dy
+location	src/sortable/layout-animation.ts:80:50	_animation → animation
+location	src/sortable/layout-animation.ts:82:26	_dx → dx
+location	src/sortable/layout-animation.ts:83:26	_dy → dy
+location	src/sortable/layout-animation.ts:84:20	_animation → animation
+location	src/sortable/layout-animation.ts:107:11	_animation → animation
+location	src/sortable/layout-animation.ts:108:11	_dx → dx
+location	src/sortable/layout-animation.ts:109:11	_dy → dy
+location	src/sortable/layout-animation.ts:137:48	_animation → animation
+location	src/sortable/layout-animation.ts:138:29	_dx → dx
+location	src/sortable/layout-animation.ts:139:29	_dy → dy
+location	src/sortable/layout-animation.ts:156:22	_animation → animation
+location	src/sortable/linear-shift.ts:56:3	_refresh → refresh
+location	src/sortable/linear-shift.ts:71:3	_moved → moved
+location	src/sortable/linear-shift.ts:73:3	_invalidate → invalidate
+location	src/sortable/linear-shift.ts:75:3	_retire → retire
+location	src/sortable/linear-shift.ts:126:5	_refresh → refresh
+location	src/sortable/linear-shift.ts:141:35	_placeholderRect → placeholderRect
+location	src/sortable/linear-shift.ts:144:15	_measurePlaceholder → measurePlaceholder
+location	src/sortable/linear-shift.ts:166:13	_collect → collect
+location	src/sortable/linear-shift.ts:169:15	_values → values
+location	src/sortable/linear-shift.ts:169:32	_count → count
+location	src/sortable/linear-shift.ts:173:28	_placeholderRect → placeholderRect
+location	src/sortable/linear-shift.ts:175:17	_end → end
+location	src/sortable/linear-shift.ts:176:18	_first → first
+location	src/sortable/linear-shift.ts:176:35	_end → end
+location	src/sortable/linear-shift.ts:177:27	_end → end
+location	src/sortable/linear-shift.ts:179:17	_measure → measure
+location	src/sortable/linear-shift.ts:179:32	_end → end
+location	src/sortable/linear-shift.ts:179:44	_end → end
+location	src/sortable/linear-shift.ts:183:17	_first → first
+location	src/sortable/linear-shift.ts:184:18	_first → first
+location	src/sortable/linear-shift.ts:184:35	_end → end
+location	src/sortable/linear-shift.ts:185:26	_first → first
+location	src/sortable/linear-shift.ts:187:17	_measure → measure
+location	src/sortable/linear-shift.ts:187:32	_first → first
+location	src/sortable/linear-shift.ts:187:50	_first → first
+location	src/sortable/linear-shift.ts:196:5	_moved → moved
+location	src/sortable/linear-shift.ts:203:15	_count → count
+location	src/sortable/linear-shift.ts:210:15	_invalidate → invalidate
+location	src/sortable/linear-shift.ts:221:29	_items → items
+location	src/sortable/linear-shift.ts:236:34	_values → values
+location	src/sortable/linear-shift.ts:240:13	_lend → lend
+location	src/sortable/linear-shift.ts:244:17	_items → items
+location	src/sortable/linear-shift.ts:259:5	_invalidate → invalidate
+location	src/sortable/linear-shift.ts:263:13	_invalidate → invalidate
+location	src/sortable/linear-shift.ts:266:5	_retire → retire
+location	src/sortable/linear-shift.ts:272:13	_retire → retire
+location	src/sortable/operation.ts:92:20	_config → config
+location	src/sortable/operation.ts:100:17	_schedule → schedule
+location	src/sortable/operation.ts:106:17	_cancel → cancel
+location	src/sortable/operation.ts:109:22	_axis → axis
+location	src/sortable/operation.ts:113:24	_axis → axis
+location	src/sortable/operation.ts:136:26	_config → config
+location	src/sortable/operation.ts:142:24	_landing → landing
+location	src/sortable/operation.ts:146:49	_landing → landing
+location	src/sortable/operation.ts:151:20	_config → config
+location	src/sortable/operation.ts:155:3	_rebase → rebase
+location	src/sortable/operation.ts:175:20	_axis → axis
+location	src/sortable/operation.ts:179:3	_updateInsertion → updateInsertion
+location	src/sortable/operation.ts:183:37	_axis → axis
+location	src/sortable/operation.ts:199:22	_axis → axis
+location	src/sortable/operation.ts:203:24	_axis → axis
+location	src/sortable/rect-index.ts:100:7	_values → values
+location	src/sortable/rect-index.ts:104:7	_placeholderRect → placeholderRect
+location	src/sortable/rect-index.ts:108:7	_items → items
+location	src/sortable/rect-index.ts:112:7	_count → count
+location	src/sortable/rect-index.ts:117:7	_first → first
+location	src/sortable/rect-index.ts:121:7	_end → end
+location	src/sortable/rect-index.ts:130:3	_collect → collect
+location	src/sortable/rect-index.ts:158:10	_measurePlaceholder → measurePlaceholder
+location	src/sortable/rect-index.ts:173:3	_measure → measure
+location	src/sortable/rect-index.ts:217:3	_lend → lend
+location	src/sortable/rect-index.ts:229:3	_measurePlaceholder → measurePlaceholder
+location	src/sortable/rect-index.ts:245:3	_holds → holds
+location	src/sortable/rect-index.ts:278:3	_invalidate → invalidate
+location	src/sortable/rect-index.ts:286:3	_retire → retire
+location	src/sortable/rect-index.ts:315:11	_count → count
+location	src/sortable/rect-index.ts:315:25	_first → first
+location	src/sortable/rect-index.ts:315:40	_end → end
+location	src/sortable/rect-index.ts:316:27	_values → values
+location	src/sortable/rect-index.ts:317:38	_placeholderRect → placeholderRect
+location	src/sortable/rect-index.ts:324:36	_items → items
+location	src/sortable/rect-index.ts:326:9	_invalidate → invalidate
+location	src/sortable/rect-index.ts:327:9	_collect → collect
+location	src/sortable/rect-index.ts:329:9	_measure → measure
+location	src/sortable/rect-index.ts:335:5	_values → values
+location	src/sortable/rect-index.ts:336:5	_placeholderRect → placeholderRect
+location	src/sortable/rect-index.ts:337:5	_items → items
+location	src/sortable/rect-index.ts:338:5	_count → count
+location	src/sortable/xy.ts:37:9	_collect → collect
+location	src/sortable/xy.ts:39:13	_first → first
+location	src/sortable/xy.ts:39:30	_end → end
+location	src/sortable/xy.ts:40:11	_measure → measure
+location	src/sortable/xy.ts:40:29	_count → count
+location	src/sortable/xy.ts:54:13	_invalidate → invalidate
+location	src/sortable/xy.ts:74:11	_values → values
+location	src/sortable/xy.ts:75:11	_count → count
+location	src/sortable/xy.ts:76:11	_placeholderRect → placeholderRect
+location	src/sortable/xy.ts:77:11	_items → items
+location	src/sortable/xy.ts:113:18	_holds → holds
+location	src/sortable/xy.ts:129:28	_count → count
+location	src/sortable/xy.ts:141:29	_values → values
+location	src/sortable/xy.ts:148:15	_invalidate → invalidate
+location	src/sortable/xy.ts:162:17	_values → values
+location	src/sortable/xy.ts:162:34	_items → items
+location	src/sortable/xy.ts:162:49	_count → count
+location	src/sortable/xy.ts:178:15	_retire → retire
+location	src/sortable/y.ts:46:15	_refresh → refresh
+location	src/sortable/y.ts:57:17	_values → values
+location	src/sortable/y.ts:57:34	_first → first
+location	src/sortable/y.ts:57:49	_end → end
+location	src/sortable/y.ts:58:30	_placeholderRect → placeholderRect
+location	src/sortable/y.ts:82:34	_items → items
+location	src/sortable/y.ts:86:15	_invalidate → invalidate
+location	src/sortable/y.ts:91:18	_holds → holds
+location	src/sortable/y.ts:98:17	_invalidate → invalidate
+location	src/sortable/y.ts:103:15	_moved → moved
+location	src/sortable/y.ts:107:15	_retire → retire
+location	tests/callback-list.browser.test.ts:62:17	_has → has
+location	tests/callback-list.browser.test.ts:63:10	_add → add
+location	tests/callback-list.browser.test.ts:64:17	_has → has
+location	tests/callback-list.browser.test.ts:65:17	_has → has
+location	tests/callback-list.browser.test.ts:66:17	_has → has
+location	tests/callback-list.browser.test.ts:68:10	_add → add
+location	tests/callback-list.browser.test.ts:69:10	_add → add
+location	tests/callback-list.browser.test.ts:71:10	_run → run
+location	tests/callback-list.browser.test.ts:72:10	_run → run
+location	tests/callback-list.browser.test.ts:73:10	_run → run
+location	tests/callback-list.browser.test.ts:74:17	_empty → empty
+location	tests/callback-list.browser.test.ts:89:10	_add → add
+location	tests/callback-list.browser.test.ts:90:10	_add → add
+location	tests/callback-list.browser.test.ts:91:10	_add → add
+location	tests/callback-list.browser.test.ts:92:10	_run → run
+location	tests/callback-list.browser.test.ts:93:10	_run → run
+location	tests/callback-list.browser.test.ts:94:10	_run → run
+location	tests/callback-list.browser.test.ts:109:10	_add → add
+location	tests/callback-list.browser.test.ts:110:10	_add → add
+location	tests/callback-list.browser.test.ts:111:10	_add → add
+location	tests/callback-list.browser.test.ts:112:10	_run → run
+location	tests/callback-list.browser.test.ts:113:10	_run → run
+location	tests/callback-list.browser.test.ts:114:10	_run → run
+location	tests/callback-list.browser.test.ts:130:31	_empty → empty
+location	tests/callback-list.browser.test.ts:132:12	_add → add
+location	tests/callback-list.browser.test.ts:133:27	_empty → empty
+location	tests/callback-list.browser.test.ts:134:12	_add → add
+location	tests/callback-list.browser.test.ts:135:12	_run → run
+location	tests/callback-list.browser.test.ts:136:27	_empty → empty
+location	tests/callback-list.browser.test.ts:137:12	_run → run
+location	tests/callback-list.browser.test.ts:138:27	_empty → empty
+location	tests/callback-list.browser.test.ts:147:10	_add → add
+location	tests/callback-list.browser.test.ts:150:10	_add → add
+location	tests/callback-list.browser.test.ts:155:12	_run → run
+location	tests/callback-list.browser.test.ts:157:17	_empty → empty
+location	tests/callback-list.browser.test.ts:158:10	_run → run
+location	tests/callback-list.browser.test.ts:160:17	_empty → empty
+location	tests/callback-list.browser.test.ts:166:10	_add → add
+location	tests/callback-list.browser.test.ts:169:10	_clear → clear
+location	tests/callback-list.browser.test.ts:170:17	_empty → empty
+79 declarations, 338 locations in 21 files, 0 outside

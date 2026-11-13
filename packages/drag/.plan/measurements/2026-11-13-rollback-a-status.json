@@ -1,0 +1,48 @@
+{
+  "id": "rollback-a",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag",
+  "runner": {
+    "pid": 732060,
+    "start": "9613363"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:09:24.903Z",
+  "endedAt": "2026-11-13T11:10:05.688Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project node --project consumer --reporter=verbose; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 732077,
+        "start": "9613370"
+      },
+      "startedAt": "2026-11-13T11:09:24.917Z",
+      "endedAt": "2026-11-13T11:10:04.476Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx just size; echo \"[size exit $?]\"",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 733082,
+        "start": "9617327"
+      },
+      "startedAt": "2026-11-13T11:10:04.487Z",
+      "endedAt": "2026-11-13T11:10:05.687Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
