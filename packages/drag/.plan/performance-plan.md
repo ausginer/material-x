@@ -149,8 +149,10 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 
 - size equals the joint reading on every row: −62 B Brotli on "sortable + y", −56 B on "sortable + xy", −65 B on "complete" and −1 B on "freeDrag", with the controls at 0/0/0;
 - allocation stands: +0.84 B per committed move warm, inside a run-to-run spread of about 3 B, and +4.13 B cold, consistently;
-- timing holds: "no difference shown" on ten rows, which doesn't exclude a slowdown below their A/A bounds;
+- timing reads "no difference shown" on ten rows. That is inconclusive, so speed is unmeasured in either direction, and the rows' A/A bounds don't limit a possible slowdown;
 - six size rows stay over their ceilings, and `DRF-13` and `DRF-14` are closed.
+
+**Corrected on 2026-11-13** on the owner's direction ([`rect-index-access-assessment.md`](rect-index-access-assessment.md) §7.4). The timing item said "timing holds: "no difference shown" on ten rows, which doesn't exclude a slowdown below their A/A bounds". That implies that a larger slowdown is excluded, and the A/A bound isn't such a limit. The verdict doesn't change.
 
 **Second unit, handed off on 2026-11-12:** [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md), from `ed4bd589f`. It makes `freeDrag`'s `invalidate` step a module function (`DRD-51`, as amended), and corrects the C6 probe's launch documentation. Expected: −1 B Brotli on "freeDrag" and −5 B on "freeDrag + bounds + landing", and 0/0/0 on the eight other rows. It only removes work, so it runs no `compare.ts` row.
 

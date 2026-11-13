@@ -71,7 +71,7 @@ Their new wording follows the report's proposal. "No difference shown" is inconc
 
 **What doesn't change:** the three verdicts, the rule, its 6-of-7 sign count, its threshold, and `DRD-61`'s routing of a "slower" verdict to the owner.
 
-**The same reading elsewhere, not corrected here.** `DRD-52`'s result and `performance-plan.md`'s P4 summary of the size pass unit say that "no difference shown" on ten rows "doesn't exclude a slowdown below/smaller than" their A/A bounds. That implies that a larger slowdown is excluded. Both belong to an accepted earlier unit, and their verdicts aren't in question. The owner decides whether they are reworded the same way.
+**The same reading elsewhere, not corrected here.** `DRD-52`'s result and `performance-plan.md`'s P4 summary of the size pass unit say that "no difference shown" on ten rows "doesn't exclude a slowdown below/smaller than" their A/A bounds. That implies that a larger slowdown is excluded. Both belong to an accepted earlier unit, and their verdicts aren't in question. The owner decides whether they are reworded the same way. **Since then,** the owner directed the rewording, and both are corrected (§7.4).
 
 ## 4. Allocation
 
@@ -99,4 +99,84 @@ The report doesn't establish what allocates in `shift`, `#read` and `at`, whose 
 
 ## 6. Next
 
-`DRD-61` is implemented and accepted, and nothing in this unit is left open. The architect's next task in this record is reading the rollback report, when the owner asks for it.
+`DRD-61` is implemented and accepted, and nothing in this unit is left open. The architect's next task in this record is reading the rollback report, when the owner asks for it. **Since then,** an independent review read the unit, and §7 records what the architect decided on it. The acceptance stands, and one follow-up item is open.
+
+## 7. The independent review
+
+**Read:** the [feature proof](reviews/rect-index-access/proof-reviewer.md) at `bdb2c73c8`, with its [probes](reviews/rect-index-access/proof-reviewer-probes/). It read `2e47e7afe..f788b2b80` and ran its checks at `30bf21e6e`, whose `src` and `tests` equal `010a9ef39`'s. It didn't read this assessment. Read by the architect on 2026-11-13 against `DRD-61` and §1 to §6 above. **Nothing was rerun:** the saved outputs and the review's probes answer each question below, and no concern is left that a run would settle.
+
+**Outcome:** the three findings are accepted, each at tier C. Two are corrections of the architect's wording in `DRD-61`, made in place. One is a stale comment outside the unit's boundaries, which goes to a follow-up. The acceptance in §1 to §6 stands, and no verdict changes.
+
+### 7.1 The source-only list's comment (`reviewer-1`)
+
+At `010a9ef39`, `.scripts/vitest-config.ts:620–622` gives two reasons for keeping `tests/displacement-sink.browser.test.ts` out of the consumer project: the sink's "`report` and `settle`", and "`STRIDE` and `TOP` from `src/sortable/rect-index.ts`". `settle` no longer exists, and the test file imports neither constant. From `src`, it imports only the type `DisplacementSink`, `layoutAnimation` and `xy`, and its module comment already names `report` and `displaced`. **The list entry is still right,** because `report` and `displaced` are declared only by the unpublished installer types. Only the reasons are out of date.
+
+The handoff's §Boundaries kept `.scripts/` out of the unit, so the unit couldn't fix the comment. **The fix is one comment, and it goes to the [handoff](rect-index-access-handoff.md)'s §Follow-up after the independent review.** That is the smallest follow-up: one implementer item with no test change, carried by the record that already holds the unit. No `DRF-` entry is registered, because the follow-up names the finding and closes it.
+
+### 7.2 "Allocate nothing" and the bytes attributed to `at` (`reviewer-2`)
+
+**Two readings of "allocate nothing".** Property 3 said "`at` and `item` allocate nothing". That can mean:
+
+- **the source constructs nothing:** the function creates no array, view, closure or object, and returns a value that already exists;
+- **the heap sampler attributes no bytes** to the function's frame.
+
+**The property meant the first.** `DRD-61`'s rationale says "a read returns a number", and the things the decision removed are the scratch `Float64Array`s and their one-element arrays, which the source constructed. The wording didn't say so, and the report's "Yes" could be read against the second meaning.
+
+**What the evidence shows:**
+
+| Observation | Source |
+| --- | --- |
+| `at` is `return this.#values[(slot + LEADING) * STRIDE + field]!;`, and `item` is `return this.#items[slot]!;`. Neither constructs anything | `rect-index.ts:112–119` at `010a9ef39` |
+| In the per-drop probe with `layoutAnimation()`, the sampler attributes 3,300, 3,288 and 3,600 B to `rect-index.ts:at` over 60 drops, about 55 to 60 B per drop, against totals of 3,293 to 3,336 B per drop | `…-alloc-end.txt` lines 139, 284 and 429 |
+| No probe attributes bytes to `item` | the same file |
+| The per-`y()`-sample and per-`xy()`-sample probes attribute no bytes to `at` in any of the six end launches. Their resolutions call `at` on every sample (`y.ts:57`, `64` and `79`, `xy.ts:74–81`) | `…-alloc-end.txt` lines 23, 52, 168, 197, 313 and 342 |
+
+So **the source constructs nothing in `at` or `item`, and the sampler observes bytes in `at`'s frame in one probe's context and not in two others that also call it.** The bytes aren't a cost that every call of `at` pays. What object is allocated there, and why the sampler attributes it to `at`, isn't established. The report names numbers stored as heap objects as a likely cause and says it didn't verify it. This assessment doesn't adopt that cause either.
+
+**Why the requirement is the source reading.** A byte attribution depends on the engine, its compilation tier and inlining, and on how the sampler assigns frames. The source can't promise it, and a reader can't check it from the source. What a consumer pays is the total per operation, which property 11 reports as allocation and keeps apart from speed. That total fell by 406.53 B per drop, beyond its spread.
+
+**Decided:**
+
+- **`DRD-61` property 3 is corrected in place.** `at` and `item` construct nothing: each returns a value the index already holds, and neither creates an array, a view or an object in its source. The property says that this isn't a byte count, and that a sampled reading attributed to either function is reported under property 11, with its cause stated only once it is established. **The report's "Yes" holds under it.**
+- **`DRD-50`'s amendment by `DRD-61` is corrected the same way.** It said "Nothing is allocated for the sink" and that the drop's confirmation and `linearShift`'s probe "allocate nothing". The per-drop probe attributes bytes to `#read`, `travel` and `displaced`, so the same two readings apply. The amendment now says that nothing is constructed for the sink, and that the two reads construct no scratch of their own.
+- **The rationale's "It removes allocation and adds none"** stays. It cites the probe totals at `f552e0ec9`, and at `010a9ef39` no total rose beyond its spread.
+- **No probe is opened for the cause.** Knowing it would decide nothing that `DRD-61` requires, and the total it sits in fell.
+
+### 7.3 W8's settled-top assertion and M8 (`reviewer-3`)
+
+**What W8 asserts at `010a9ef39`** (`tests/displacement-sink.browser.test.ts:206–292`), after a resolution grows the window over `r3` while `r3` is in flight:
+
+- **line 286**, `overR3.top - overR3.dy` equals `r3`'s flow top. `overR3.top` is the presented top that the test's own `getBoundingClientRect` wrapper recorded, and `overR3.dy` is what `layoutAnimation`'s sink answered. **Neither value is something `RectIndex` writes,** so this line checks property 6's sink against flow;
+- **line 287**, the placeholder's gap equals the gap that the rows' flow positions give. The resolution chooses that gap from the index's settled centers, so **this line observes the index's settled value.**
+
+**Which assertion fails under M8:**
+
+| Run | Line 286 | Line 287 | Source |
+| --- | --- | --- | --- |
+| M8, development check on | passes | fails: −1 for 3. The check faults first, at slot 2, and the drag cancels | `…-unit-mutation-M8.txt` lines 25, 75 and 83–88 |
+| M8, development check returned early | passes | fails: 2 for 3 | review's [`nocheck-M8.txt`](reviews/rect-index-access/proof-reviewer-probes/nocheck-M8.txt) |
+| Development check returned early, no M8 | passes | passes, with all four tests | review's [`nocheck.txt`](reviews/rect-index-access/proof-reviewer-probes/nocheck.txt) |
+
+**W8 detects M8 by itself, through line 287,** and the development check isn't what makes it fail. Line 286 passes in every run.
+
+**The error was the architect's.** `DRD-61` property 10 said "W8, unchanged as a property: its settled top is the presented top minus `dy`", and the handoff's item 4.2 asked for that assertion. Once the index stopped exposing its storage, that line could no longer read the index. The unit implemented item 4.2 to the letter, and its report says only that W8 failed under M8, which is true.
+
+**Decided:**
+
+- **`DRD-61` property 10's W8 bullet is corrected in place.** W8 is unchanged as `DRD-50` states it: the gap a resolution holds when the window grows over a row in flight equals the gap of the rows' flow positions. The gap assertion observes the index's settled value, and M8 must fail it. The settled-top assertion is named as a check of the sink, which passes under M8.
+- **No test changes.** The gap is what a consumer observes when a settled value is wrong. A test that reads the index's private storage would tie W8 to the layout that `DRD-61` hides. In development builds, the development check (property 9) also compares every window slot with a fresh measurement. The settled-top line stays as a check that the sink's `dy` describes the animation.
+- **The handoff's item 4.2 stays as written.** It is the instruction the unit followed.
+
+### 7.4 `DRD-52`'s result and the P4 summary
+
+§3.2 found the same reading of the A/A bound in two records of the size pass unit and left them to the owner. The owner has directed both corrections. Both now say that "no difference shown" is inconclusive, that speed is unmeasured in either direction, and that the rows' A/A bounds are the rule's thresholds, not a limit on a slowdown. Each correction quotes what its record used to say. **The verdict of all ten rows, the bounds of 8 to 325 µs of script and 51 to 3,305 µs of task time, and the recorded overlap of four idle background tasks don't change.** [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md) §2.2 says only that a slowdown smaller than a bound can't read "slower", which is true, so it isn't changed.
+
+### 7.5 The rest of the review
+
+- **Timing evidence.** The review recomputed the three verdicts and agrees with §3. Its sign-test spans per case, from −28.9 % to +10.9 % for A, −45.6 % to +52.7 % for B and −38.7 % to −3.1 % for C, hold only if the rounds are independent and identically distributed. One unpinned process doesn't establish that, as the review says. They stay in the review as its reading, and no record turns them into a bound. Its account of case C agrees with the report: `control` was also lower than `before` in 5 of 7 rounds, so the pattern can come from the two bundled copies of the code. **The verdicts stand as recorded, and the speed of all three cases stays unmeasured.**
+- **Ownership, geometry, sink protocol, tests and suite.** The review's null results agree with §2. Its note on W7, that rows read after a drag's last `displaced` call aren't checked, is recorded as a limit of the review's evidence, not as a finding. It changes no verdict, and no unit is opened for it.
+- **Baseline errors and size.** The same 49 ESLint errors, `DRF-38`'s line moved, `repo:RF-31`, and the base's six failing size rows. Nothing changes.
+
+### 7.6 Next
+
+**One follow-up item:** the comment in the [handoff](rect-index-access-handoff.md)'s §Follow-up after the independent review, for an implementer, when the owner starts it. `DRD-61`'s acceptance stands. `DRF-38`'s scope, `repo:RF-31`, `DRO-4`'s re-base and the rollback report's acceptance stay separate. Budgets are unchanged, and the deferred campaigns stay stopped.

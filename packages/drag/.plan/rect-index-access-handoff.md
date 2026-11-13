@@ -261,3 +261,21 @@ A "slower" timing verdict, a changed size verdict or an allocation reading that 
 ## After this unit
 
 The architect reads the report and decides its acceptance. A "slower" verdict goes to the owner first. `DRO-4`'s re-base, `DRF-38`'s scope and the rollback report's acceptance stay separate.
+
+## Follow-up after the independent review
+
+**One item, for an implementer, when the owner starts it.** It closes `reviewer-1` of the [feature proof](reviews/rect-index-access/proof-reviewer.md) at `bdb2c73c8`, as [`rect-index-access-assessment.md`](rect-index-access-assessment.md) §7.1 decides.
+
+**Base:** `drag/rect-index-ownership` at the commit that adds this section. Work on that branch.
+
+**The finding.** In `.scripts/vitest-config.ts`, the comment above the `tests/displacement-sink.browser.test.ts` entry of `DRAG_SOURCE_ONLY_BROWSER_TESTS` says that the file reads the sink's "`report` and `settle`" and "`STRIDE` and `TOP` from `src/sortable/rect-index.ts`". Since `010a9ef39`, `settle` doesn't exist and the file imports neither constant.
+
+**Required property:** that comment gives the reasons the file is source-only now. Its tests read the displacement sink's `report` and `displaced`, which only the unpublished installer types declare. The comment names no member or import that the file doesn't use.
+
+**Boundaries:** that one comment. The list's entries, every other line of `.scripts/vitest-config.ts`, `packages/drag` and every other file stay as they are, apart from the report section below.
+
+**Checks,** as [`handoff.md`](../../../.agents/docs/handoff.md) gives them for a bounded set of repository-level code files, on `.scripts/vitest-config.ts`: `oxfmt`, `oxlint --fix`, ESLint `--fix`, `oxfmt`, then `oxlint` and ESLint without `--fix`. Report any error that remains, with whether the base has it. `git diff` shows only the comment's lines. No test run is owed, because no code changes.
+
+**Report:** a section "Follow-up after the independent review" at the end of [`rect-index-access-report.md`](rect-index-access-report.md), with the commit, the old and new comment, and the checks. Commit and push.
+
+**Return to the architect** if the file reads anything other than `report` and `displaced` that an entry doesn't publish, or if it no longer needs to be source-only. Either changes the list, not only the comment.
