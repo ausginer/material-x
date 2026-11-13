@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# mutmap.sh <name> <node-expr mutating object m> [build-real args...]: rebuild with a mutated map, run the test
+set -euo pipefail
+S=/tmp/claude-1000/-workspaces-material-x/e3c43916-0e3e-460e-a62c-bcc3f264cc84/scratchpad; H=$S/harness
+D=$S/mut/$1; rm -rf "$D"; mkdir -p "$D/build"
+node -e "const m=require('/workspaces/material-x/packages/drag/build/property-names.json'); $2; require('fs').writeFileSync('$D/build/property-names.json', JSON.stringify(m,null,2))"
+shift 2
+node $H/build-real.ts "$D" --names "$D/build/property-names.json" "$@" 2>&1 | tail -3
+cp /workspaces/material-x/packages/drag/package.json "$D/"; ln -sfn /workspaces/material-x/packages/drag/src "$D/src"; $H/install-test.sh "$D"
+echo "== $(basename $D)"; (cd "$D" && node tests/run.ts) | grep -v '^PASS' | sed 's/^/  /' || true; echo "  (others PASS)"

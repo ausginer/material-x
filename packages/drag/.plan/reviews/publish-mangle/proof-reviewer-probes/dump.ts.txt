@@ -1,0 +1,14 @@
+// dump.ts <js> <src>: each mapping with generated text (lines split by \n and by all terminators) and original text likewise
+import { readFileSync } from 'node:fs';
+import { allMappings, fromMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+const [js, src] = process.argv.slice(2) as [string, string];
+const g = readFileSync(js, 'utf8'), s = readFileSync(src, 'utf8');
+const T = new RegExp(`\r\n?|\n|${String.fromCharCode(0x2028)}|${String.fromCharCode(0x2029)}`, 'u');
+const nl = (t: string) => t.split('\n'), all = (t: string) => t.split(T);
+const show = (t?: string) => JSON.stringify((t ?? '<none>').slice(0, 10));
+for (const m of allMappings(fromMap(JSON.parse(readFileSync(js + '.map', 'utf8'))))) {
+  const gl = m.generated.line - 1, gc = m.generated.column;
+  const want = /Q\d|_[a-i]\b/.test(nl(g)[gl]?.slice(gc, gc + 3) ?? '') || /Q\d|_[a-i]\b/.test(all(g)[gl]?.slice(gc, gc + 3) ?? '');
+  if (!want || !m.original) continue;
+  console.log(`gen ${m.generated.line}:${gc} \\n:${show(nl(g)[gl]?.slice(gc))} all:${show(all(g)[gl]?.slice(gc))}  ->  src ${m.original.line}:${m.original.column} \\n:${show(nl(s)[m.original.line - 1]?.slice(m.original.column))} all:${show(all(s)[m.original.line - 1]?.slice(m.original.column))}`);
+}

@@ -1,0 +1,23 @@
+import { readNames } from '/workspaces/material-x/packages/drag/build/property-names.ts';
+const cases: Record<string, string> = {
+  optionalChain: 'a?._x; a?._y(); a?.b._z;',
+  paramPattern: 'function f({ _x: x, _y = 1, ...r }) {} const g = ({ _w: { _v: v } }) => v;',
+  assignPattern: '({ _x: a } = o); [{ _y: b }] = l;',
+  forOfPattern: 'for (const { _x: x } of l) {}',
+  catchPattern: 'try {} catch ({ _x: x }) {}',
+  getterSetter: 'class C { get _x() { return 1 } set _x(v) {} static _s = 1; static get _t() {} async _u() {} *_g() {} }',
+  objGetter: 'const o = { get _x() { return 1 }, set _x(v) {}, _m() {}, async _n() {} };',
+  computedConst: "o['_x']; o[`_y`]; ({ ['_z']: 1 }); class D { ['_q'] = 1 }",
+  inOp: "'_x' in o; #p in o;",
+  concat: "o['_' + 'x']; o[`_${'y'}`];",
+  privateField: 'class E { #_x = 1; m() { return this.#_x } }',
+  accessor: 'class F { accessor _x = 1 }',
+  labelsAndImport: "import { _a as b } from 'm'; export { b as _c }; l: { break l }",
+  jsonLike: "JSON.parse('{\"_x\":1}')",
+};
+for (const [k, code] of Object.entries(cases)) {
+  try {
+    const { properties, strings } = readNames('x.ts', code);
+    console.log(k.padEnd(16), 'props:', properties.map(p => p.name + (p.shorthand ? '(sh)' : '')).join(','), '| strings:', strings.map(s => JSON.stringify(s.text)).join(','));
+  } catch (e) { console.log(k, 'ERR', (e as Error).message); }
+}

@@ -1,0 +1,27 @@
+// direct.ts: calls the step's renderChunk on crafted code and checks its returned map char by char
+import { allMappings, fromMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+import { renameProperties } from '/workspaces/material-x/packages/drag/build/rename-properties.ts';
+const plugin: any = renameProperties({ _alpha: 'a', _b: 'bee', _c: 'c' });
+const cases: Record<string, string> = {
+  'column 0 and end of line': 'const o = {\n_alpha: 1,\n_b: 2 };\no._c\n.x;\nconst k = o._alpha\n',
+  'end of file, no newline': 'o.x + o._alpha',
+  'astral before and between': "'😀😀' + o._alpha + '𝒳' + o._b /* 😀 */ + o._c;\n",
+  'only renamed': 'o._b',
+};
+for (const [label, code] of Object.entries(cases)) {
+  const r = plugin.renderChunk.call({ error(m: string) { throw new Error(m); } }, code, { fileName: 'x.js' });
+  const out: string = r.code;
+  const ms = allMappings(fromMap({ ...r.map, file: 'x.js' }));
+  const lines = (t: string) => t.split('\n');
+  const [ol, il] = [lines(out), lines(code)];
+  let bad = 0, n = 0;
+  for (const m of ms) {
+    n++;
+    const o = ol[m.generated.line - 1]!.slice(m.generated.column), i = il[m.original!.line - 1]!.slice(m.original!.column);
+    const renamed = /^(_alpha|_b|_c)\b/.exec(i);
+    const ok = renamed ? o.startsWith({ _alpha: 'a', _b: 'bee', _c: 'c' }[renamed[1] as '_b']) : o[0] === i[0];
+    if (!ok) { bad++; if (bad < 4) console.log('  bad', m.generated, m.original, JSON.stringify(o.slice(0, 6)), JSON.stringify(i.slice(0, 6))); }
+  }
+  const segs = out.replaceAll('\n', '').length - (code.match(/_alpha|_b|_c/g)!.length ? 0 : 0);
+  console.log(`${label}: ${n} segments, ${bad} wrong; output ${JSON.stringify(out)}`);
+}

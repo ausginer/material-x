@@ -1,0 +1,18 @@
+// cmpdelta.ts <nostep.js> <step.js> <names.json>: every no-step mapping must appear in the step map with its generated column moved by the renames before it on its line (lines by all JS terminators, and by \n)
+import { readFileSync } from 'node:fs';
+import { allMappings, fromMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+import { readNames } from '/workspaces/material-x/packages/drag/build/property-names.ts';
+const [a, b, n] = process.argv.slice(2) as [string, string, string];
+const names = JSON.parse(readFileSync(n, 'utf8'));
+const codeA = readFileSync(a, 'utf8');
+const T = new RegExp(`\\r\\n?|\\n|${String.fromCharCode(0x2028)}|${String.fromCharCode(0x2029)}`, 'gu');
+for (const [label, re] of [['all terminators', T], ['\\n only', /\n/gu]] as const) {
+  const starts = [0]; for (const m of codeA.matchAll(re)) starts.push(m.index! + m[0].length);
+  const lineOf = (off: number) => { let l = 0; while (l + 1 < starts.length && starts[l + 1]! <= off) l++; return l; };
+  const renamed = readNames(a, codeA).properties.filter(p => Object.hasOwn(names, p.name));
+  const shift = (line: number, col: number) => renamed.filter(p => lineOf(p.start) === line && p.start - starts[line]! < col).reduce((s, p) => s + names[p.name].length - p.name.length, 0);
+  const B = new Set(allMappings(fromMap(JSON.parse(readFileSync(b + '.map', 'utf8')))).map(m => `${m.generated.line}:${m.generated.column}>${m.original?.line}:${m.original?.column}`));
+  const A = allMappings(fromMap(JSON.parse(readFileSync(a + '.map', 'utf8'))));
+  const miss = A.filter(m => !B.has(`${m.generated.line}:${m.generated.column + shift(m.generated.line - 1, m.generated.column)}>${m.original?.line}:${m.original?.column}`));
+  console.log(`${label}: ${miss.length} of ${A.length} no-step mappings not found in the step map`, miss.slice(0, 4).map(m => `${m.generated.line}:${m.generated.column}`).join(' '));
+}

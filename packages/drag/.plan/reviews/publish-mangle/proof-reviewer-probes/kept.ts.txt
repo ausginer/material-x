@@ -1,0 +1,30 @@
+// kept.ts <pkgdir>: for each kept property name in the publication, whether V3's mapping test would see it
+import { readFile, readdir } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { allMappings, fromMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+import { readNames, isPrefixed } from '/workspaces/material-x/packages/drag/build/property-names.ts';
+const root = process.argv[2]!;
+const names: Record<string, string> = JSON.parse(await readFile('/workspaces/material-x/packages/drag/build/property-names.json', 'utf8'));
+const outs = new Set(Object.values(names));
+const MOD = '(?:(?:readonly|declare|static|public|private|protected|override|accessor|abstract)\\s+)*';
+const writes = (t: string, n: string) => new RegExp(`^${MOD}${n.replaceAll('$', '\\$')}(?![\\w$])`, 'u').test(t);
+const stat = new Map<string, { n: number; seen: number; unmapped: number; other: string[] }>();
+const files = (await readdir(root, { recursive: true })).filter(f => f.endsWith('.js') && !/^(src|tests|build)\//.test(f));
+for (const file of files) {
+  const code = await readFile(join(root, file), 'utf8');
+  let map; try { map = JSON.parse(await readFile(join(root, file + '.map'), 'utf8')); } catch { map = { version: 3, sources: [], names: [], mappings: '' }; }
+  const ms = new Map(allMappings(fromMap(map)).map(m => [`${m.generated.line - 1}:${m.generated.column}`, m]));
+  for (const { name, start } of readNames(file, code).properties) {
+    if (isPrefixed(name) || outs.has(name)) continue;
+    const head = code.slice(0, start); const line = head.split('\n').length - 1; const col = start - (head.lastIndexOf('\n') + 1);
+    const m = ms.get(`${line}:${col}`);
+    const s = stat.get(name) ?? { n: 0, seen: 0, unmapped: 0, other: [] }; stat.set(name, s); s.n++;
+    if (!m?.source) { s.unmapped++; continue; }
+    const txt = (await readFile(resolve(dirname(join(root, file)), m.source), 'utf8')).split('\n')[m.original.line - 1]!.slice(m.original.column);
+    if (writes(txt, name)) s.seen++; else s.other.push(`${file}:${line + 1}:${col + 1} -> ${JSON.stringify(txt.slice(0, 28))}`);
+  }
+}
+const all = [...stat];
+console.log(`${all.length} kept property names; occurrences ${all.reduce((a, [, s]) => a + s.n, 0)}; not V3-detectable occurrences: ${all.reduce((a, [, s]) => a + s.n - s.seen, 0)}`);
+for (const [n, s] of all.filter(([, s]) => s.seen < s.n)) console.log(`${n}: ${s.seen}/${s.n} seen, ${s.unmapped} unmapped; ${s.other.slice(0, 3).join(' | ')}`);
+console.log('names with no V3-detectable occurrence:', all.filter(([, s]) => s.seen === 0).map(([n]) => n).join(', ') || '(none)');

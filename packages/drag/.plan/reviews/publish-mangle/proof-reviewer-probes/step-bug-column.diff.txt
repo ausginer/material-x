@@ -1,0 +1,9 @@
+@@ -65,7 +65,7 @@
+           addSegment(map, line, outputColumn, chunk.fileName, line, column);
+           output += replacement;
+           outputColumn += replacement.length;
+-          column += property.end - property.start;
++          column += replacement.length;
+           i = property.end;
+           next += 1;
+         } else if (code[i] === '\n') {

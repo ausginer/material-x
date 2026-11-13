@@ -2509,7 +2509,7 @@ The [report](publish-mangle-report.md) at `78797ebf6`, read by the architect on 
 
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-23`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-37`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -2792,6 +2792,115 @@ Tier B, **closed at `79b4c3132`**, read by the architect on 2026-11-13 at `2d9a2
 - **Not observed in the suite.** None of the 22 consumer files imports `src` by a non-relative path, so no committed verdict is affected.
 - **Required property:** `DRD-54` property 2, as amended on 2026-11-13. The resolved file decides, every specifier form is covered, and no module under `src/` loads in the consumer project. Its witness must load the source module at `87288b9d2`'s resolver and fail at the repair.
 - **When:** [`published-gate-handoff.md`](published-gate-handoff.md) part A, before part B, whose fixtures need the same rule.
+
+#### DRF-24 — V4 checks the text at a renamed position's mapping, not the position that `DRD-56` property 6 requires
+
+Tier B, open. Reported by the publish-mangle round at `436b105c6` as `reviewer-1` ([summary](reviews/publish-mangle/publish-mangle-summary.md), [report](reviews/publish-mangle/proof-reviewer.md)).
+
+- **Current behavior:** `writes` accepts any mapping whose `src` text is `MODIFIERS`, then the key, and it applies that to every occurrence. An access mapped to its declaration's member start (`readonly _root`) passes, and the first form of V4 rejected it. An access mapped to another access of the same name, or a declaration mapped into another member, passes both forms.
+- **Why it is a problem:** property 6 says "No other form passes: not … a position in another member", and assessment §3 says that applying the exception to every occurrence isn't weaker than the first form. Both describe a position bound that the test doesn't check.
+- **Required property:** V4 rejects what property 6 rejects, or the record states the bound that V4 enforces.
+
+#### DRF-25 — `DRD-56` property 6's mappings for kept tokens have no standing check
+
+Tier B, open. Reported by the publish-mangle round at `436b105c6` as `reviewer-2`.
+
+- **Current behavior:** V4 inspects only occurrences of output names. Property 6 bullets 1 and 3, every map valid and every other token at its `src` position, were checked once, by the report's step check.
+- **Why it is a problem:** a copy of the step that moved 3,737 of 6,902 mappings passed the build and all five tests.
+- **Required property:** property 6 bullets 1 and 3 hold for every build the suite accepts, or the record states that they were a one-time acceptance.
+
+#### DRF-26 — The step's map counts generated lines at LF only
+
+Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round as `reviewer-3`.
+
+- **Current behavior:** `build/rename-properties.ts` starts a line only at `\n`. Rolldown keeps a raw U+2028 in a template literal and counts it as a line break, so every later mapping in that module moves. With no renamed name after the separator, every test passes (7 of 25 mappings moved in the probe).
+- **Why it is a problem:** property 6 requires every token to keep its `src` position. `src` has no LS, PS or CR today.
+- **Required property:** the step's map keeps every token's position for any module Rolldown can emit, including one with a raw LS or PS.
+
+#### DRF-27 — The publication test resolves positions with lines split at LF only
+
+Tier B, open, no instance at `436b105c6`, fails closed. Reported by the publish-mangle round as `reviewer-4`.
+
+- **Current behavior:** `positionOf` and the `src` lookup split at `\n` (`tests/publication.node.test.ts:68`, `:70`, `:161`). Rolldown's original lines count CR, LS and PS.
+- **Why it is a problem:** a correct source change, such as a CR or a pasted U+2028 in a comment, fails V4 on a correct publication.
+- **Required property:** V3 and V4 resolve generated and original positions with the line rule that the maps use.
+
+#### DRF-28 — A kept property written as a string key can share an output name and pass every check
+
+Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round as `reviewer-5`.
+
+- **Current behavior:** `readNames` doesn't count quoted or computed string keys as property names, and the generator's `kept` set and V3 both use it. With `{ "_size": "k" }`, a class with `_size` and `'k'` passes the name set and V1 to V4, and its result changes from 12 to 22.
+- **Why it is a problem:** `DRD-56` property 4 requires that an output name equals no property name that stays. Property 1 doesn't forbid unprefixed string keys.
+- **Required property:** no output name equals a property name that stays, however that name is written.
+
+#### DRF-29 — V2 doesn't see prefixed member names written as strings in `.d.ts`
+
+Tier B, open, no instance at `436b105c6`. Reported by the publish-mangle round as `reviewer-6`.
+
+- **Current behavior:** V2 visits `Identifier` nodes only. A quoted key, a computed string key or a string-literal type that declares a prefixed member passes all five tests.
+- **Why it is a problem:** the step would rename the uses, and the `.d.ts` would declare a member that doesn't exist at runtime. Property 1 requires every member that a `.d.ts` declares to keep its name.
+- **Required property:** no emitted `.d.ts` declares a member under a prefixed name, in any syntax.
+
+#### DRF-30 — `DRD-56`'s rationale says that V1 finds computed keys and enumerations
+
+Tier B, open. Reported by the publish-mangle round as `reviewer-7`.
+
+- **Current behavior:** the rationale says string keys, computed keys and enumerations are forbidden, "and validation V1 finds them". V1 finds only prefixed property names and literal strings or template texts that start with the prefix. `o['_' + 'config']`, `JSON.parse('{"_config":1}')` and `Object.keys(o)` pass.
+- **Why it is a problem:** a reader relies on V1 for forms that only code reading excludes.
+- **Required property:** the record states what V1 detects, or V1 detects what the record says.
+
+#### DRF-31 — A plain build or a publish enforces almost none of `DRD-56` property 7
+
+Tier B, open. Reported by the publish-mangle round as `reviewer-8`.
+
+- **Current behavior:** `just build` fails only on an unmapped prefixed property name or a prefixed shorthand key. V1's string half, V2, V3, V4 and the name set hold only for a tree that a publication-test run read and passed. `package.json` has no `prepack` or `prepublishOnly` script, so a publish neither builds nor validates. A duplicate output name, a stale key and a prefixed `.d.ts` member all build cleanly.
+- **Why it is a problem:** `DRD-56` places the step inside the build because "a separate step after the build could be skipped". The validation has no such placement.
+- **Required property:** a tree that a publish can ship satisfies property 7, or the record states that only a tree that a passing test run read is publishable.
+
+#### DRF-32 — The `_` marker and the map workflow are stated only in the record
+
+Tier C, open. Reported by the publish-mangle round as `integrity-1`.
+
+- **Current behavior:** only `DRD-56` and `build/` name the marker, the map and `build/generate-property-names.ts`. The build's error for an unmapped name names the map, not the script. Regenerating after one new name moved 5 of the 29 existing assignments.
+- **Why it is a problem:** a contributor learns the convention from the record or by reading `build/`, and the regeneration diff a person reviews (`DRD-56`, `DRD-57` property 4) is larger than the change.
+- **Required property:** a current-state document or the failure itself tells a contributor that a `_` property is renamed, what is owed, and how the map is brought in line.
+
+#### DRF-33 — `DRD-56` property 6 holds only while `classVarCleanupPlugin` is inert in drag's build
+
+Tier C, open. Reported by the publish-mangle round as `integrity-2`.
+
+- **Current behavior:** with `experimental.nativeMagicString` on, the plugin rewrites `var X = class`, the chunk's own map points renamed tokens at statement starts, and V4 fails at 79 positions in 8 modules. Without the step the same token maps to the statement start with the plugin, and to the name without it.
+- **Why it is a problem:** the precondition is stated nowhere, and assessment §8 prices enabling the option by size only. The failure is loud, but it isn't attributed to the plugin.
+- **Required property:** the condition under which property 6 holds is stated where a change to it is read, or checked where it fails with its cause.
+
+#### DRF-34 — Comments in emitted modules name members by their source names
+
+Tier C, open. Reported by the publish-mangle round as `integrity-3`.
+
+- **Current behavior:** twelve comment lines in six emitted modules name renamed members, for example `_run` in `kernel/callbacks.js:11-12`, beside the method `t` at line 46. Property 5 keeps every comment.
+- **Why it is a problem:** within one published file, the comment and the code disagree.
+- **Required property:** a published comment that names a renamed member doesn't mislead, or the decision records that it may.
+
+#### DRF-35 — The reserved-word list and the identifier rule are written in the generator and in the test
+
+Tier C, open. Reported by the publish-mangle round as `cleanup-1`.
+
+- **Current behavior:** `RESERVED` is defined in `build/generate-property-names.ts` and in `tests/publication.node.test.ts`, and the identifier rule is `FIRST`/`REST` in one and `IDENTIFIER_NAME` in the other. Nothing says the second is a deliberate independent oracle.
+- **Required property:** one definition, or the second states that it is deliberately independent.
+
+#### DRF-36 — The test recomputes the prefixed names in `src` with the generator's own reader
+
+Tier C, open. Reported by the publish-mangle round as `cleanup-2`.
+
+- **Current behavior:** the name-set test walks `src` with the same `readNames` and `isPrefixed` as the generator, with its own copies of the directory walk. It catches a stale map, not a reader defect. `DRF-28` is a reader defect that neither sees.
+- **Required property:** one owner of "the prefixed property names in `src`", or the test states what it checks that the generator can't.
+
+#### DRF-37 — The generator's name sequence handles names of any length, and the map has only one-character names
+
+Tier C, open. Reported by the publish-mangle round as `cleanup-3`.
+
+- **Current behavior:** `candidates()` yields names of any length, and all 29 outputs are one character. Under `DRD-57` property 4 the map has 53 keys, `FIRST` has 53 characters, and `x` and `y` are kept, so the branch is reached on the next regeneration, untested.
+- **Required property:** the sequence's extent is justified by the names it serves or by a stated bound. The note on `DRD-57` is the consolidator's, not the pass's.
 
 ## Owner decisions
 

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# mutsrcmap.sh <name> <js file> <gen> <src>
+set -euo pipefail
+S=/tmp/claude-1000/-workspaces-material-x/e3c43916-0e3e-460e-a62c-bcc3f264cc84/scratchpad
+D=$S/mut/$1; rm -rf "$D"; mkdir -p "$S/mut"; cp -a "$S/real/pkg" "$D"
+echo "== $1: $2 $3 -> src $4  ($(node $S/harness/remap.ts "$D/$2.map" "$3" "$4"))"
+(cd "$D" && node tests/run.ts) | grep -v '^PASS' | sed 's/^/  /' || true; echo "  (others PASS)"

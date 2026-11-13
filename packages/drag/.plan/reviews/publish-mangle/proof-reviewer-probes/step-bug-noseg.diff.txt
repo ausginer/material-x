@@ -1,0 +1,8 @@
+@@ -62,7 +62,6 @@
+         if (property?.start === i) {
+           const replacement = names[property.name]!;
+
+-          addSegment(map, line, outputColumn, chunk.fileName, line, column);
+           output += replacement;
+           outputColumn += replacement.length;
+           column += property.end - property.start;

@@ -1,0 +1,16 @@
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { parseSync, Visitor } from '/workspaces/material-x/node_modules/rolldown/dist/utils-index.mjs';
+const root = process.argv[2]!;
+for (const file of (await readdir(root, { recursive: true })).filter(f => f.endsWith('.js') && !/^(src|tests|build)\//.test(f))) {
+  const code = await readFile(join(root, file), 'utf8');
+  const hits: string[] = [];
+  new Visitor({
+    MemberExpression(n: any) { if (n.computed && n.property.type === 'Literal' && typeof n.property.value === 'string') hits.push(`[${JSON.stringify(n.property.value)}]`); },
+    Property(n: any) { if (n.key.type === 'Literal' || n.computed) hits.push(`key ${code.slice(n.key.start, n.key.end)}`); },
+    PropertyDefinition(n: any) { if (n.key.type === 'Literal' || n.computed) hits.push(`field ${code.slice(n.key.start, n.key.end)}`); },
+    MethodDefinition(n: any) { if (n.key.type === 'Literal' || n.computed) hits.push(`method ${code.slice(n.key.start, n.key.end)}`); },
+    BinaryExpression(n: any) { if (n.operator === 'in' && n.left.type === 'Literal') hits.push(`in ${JSON.stringify(n.left.value)}`); },
+  }).visit(parseSync(file, code, { sourceType: 'module' }).program);
+  if (hits.length) console.log(file, hits.join(', '));
+}
