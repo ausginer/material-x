@@ -61,7 +61,7 @@ The report quotes it:
 
 **The mechanism.** drag's program includes `bench/lab-drag2.ts`, which imports drag2's source, so drag2's imports of the removed factories are type-checked inside drag.
 
-**How it is read.** While drag2 is excluded, that exact output is drag's clean result. Any other error, or any error in a file under `packages/drag/`, is a failure. Without that rule, drag's typecheck can't separate pass from fail, as the review notes. The rule is `BQ-12` property 12, so later drag units can cite it.
+**How it is read.** While drag2 is excluded, that exact output is an expected set of known errors, not a clean pass: the typecheck still fails, and only these two errors are expected. Any other error, or any error in a file under `packages/drag/`, is a failure. Without that rule, drag's typecheck can't separate pass from fail, as the review notes. The rule is `BQ-12` property 12, so later drag units can cite it. _Reworded by the architect on 2026-11-13: this paragraph used to call the output "drag's clean result". The rule is unchanged ([`coordinates-finiteness-assessment.md`](coordinates-finiteness-assessment.md) §3)._
 
 **Not done, on purpose:**
 
@@ -98,3 +98,5 @@ It also confirmed that the runtime code of `src/index.ts` and the drag consumers
 ## 6. Next
 
 The test unit in [`coordinates-finiteness-handoff.md`](coordinates-finiteness-handoff.md), for an `implementer` on this branch. After its report, the architect reads it and closes the pending proof in `BQ-12`'s status. The owner decides when the pull request opens.
+
+**Done on 2026-11-13:** the test landed at `0e90ec136`, and [`coordinates-finiteness-assessment.md`](coordinates-finiteness-assessment.md) closes reviewer-1 and the pending proof.
