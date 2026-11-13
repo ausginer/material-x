@@ -167,6 +167,10 @@ Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sort
 
 Source tests stay for internal behavior and development instruments. The mangle waits for the published build's results. Six rows stay over their ceilings, budgets are unchanged, and the deferred campaigns stay stopped.
 
+**Step 1 landed on 2026-11-13** at `5ea7bb7e6`, and its [report](consumer-tests-report.md) is accepted in [`consumer-tests-assessment.md`](consumer-tests-assessment.md). 326 public browser tests pass against the emitted tree. The guard gap `DRF-23` is open: the consumer resolver lets an absolute path to a non-entry module reach its source.
+
+**Step 2 is decided as `DRD-55`:** the size gate reads the published build through its exports map, box-quad stays on its source, and every ceiling stays. [`published-gate-handoff.md`](published-gate-handoff.md) repairs `DRF-23` in part A and implements `DRD-55` in part B. Its per-row figures, from `src` and from the build, are the results that the mangle waits for. A verdict that changes goes to `DRO-4`. Budgets are unchanged, and the deferred campaigns stay stopped.
+
 ## 3. Rules every unit follows
 
 `DRD-40`'s properties, in short:
@@ -196,7 +200,7 @@ Source tests stay for internal behavior and development instruments. The mangle 
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
 - **Added on 2026-11-12, when P4 opened:** the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14`'s four items were answered on 2026-11-12, and `DRF-20` is closed.
-- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Its steps 1 and 2 have started (`DRD-54`). Its step 3, the mangle, waits for the published build's results.
+- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Step 1 landed (`DRD-54`). Step 2 (`DRD-55`) and the repair of `DRF-23` are handed off together. Step 3, the mangle, waits for step 2's figures.
 
 ## 5. Post-1.0.0: virtualized lists
 
