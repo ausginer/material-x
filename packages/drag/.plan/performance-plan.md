@@ -181,6 +181,8 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 ## 3. Rules every unit follows
 
+**Owner direction, 2026-11-13: local development checks use Chromium only.** For the current drag phase, source and consumer browser tests, witnesses and probes run in Chromium. This replaces earlier requirements for local Firefox and WebKit runs, including those in existing handoffs. Missing Firefox or WebKit executables or host libraries do not block local development, and restoring them is not required. Their checks are deferred to a separate CI that the owner plans; this instruction does not establish that CI or claim cross-engine verification. Preserve the engine configurations and historical results.
+
 `DRD-40`'s properties, in short:
 
 - **Raw readings are kept** under `measurements/`, unedited, with the commit, Chrome and Node versions, the CPU count, and the load average before and after. A discarded run is kept with its reason.
@@ -198,6 +200,7 @@ Source tests stay for internal behavior and development instruments. The mangle 
 - `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's.
 - Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. The record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
+- **Added on 2026-11-13 by the owner:** Firefox and WebKit checks in a separate CI. Local development uses Chromium (§3); the CI is planned and not configured by this unit.
 - `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
 - `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
 - The optional findings `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so. `DRF-13` and `DRF-14` were closed on 2026-11-12 by P4's first unit.
