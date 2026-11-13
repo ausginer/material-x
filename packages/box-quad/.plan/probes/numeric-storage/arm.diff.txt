@@ -1,0 +1,1042 @@
+diff --git a/packages/box-quad/src/index.ts b/packages/box-quad/src/index.ts
+index 289d4318a..4df499266 100644
+--- a/packages/box-quad/src/index.ts
++++ b/packages/box-quad/src/index.ts
+@@ -13,10 +13,7 @@
+  * *inherits* is a fact about its ancestry rather than about its box, so it is a
+  * {@link Space} and not part of this.
+  */
+-export type Box = Float64Array;
+-
+-/** Required length of a {@link Box}. */
+-const BOX_LENGTH = 8;
++export type Box = Record<number, number>;
+ 
+ const BOX_A = 0;
+ const BOX_B = 1;
+@@ -44,10 +41,7 @@ const BOX_HEIGHT = 7;
+  * {@link ancestry} ran, exactly as a {@link Box} describes the layout at the
+  * moment {@link coordinates} ran.
+  */
+-export type Space = Float64Array;
+-
+-/** Required length of a {@link Space}. */
+-const SPACE_LENGTH = 5;
++export type Space = Record<number, number>;
+ 
+ const SPACE_A = 0;
+ const SPACE_B = 1;
+@@ -59,28 +53,10 @@ const SPACE_ANCESTOR_ZOOM = 4;
+  * A projected border-box quad in p1, p2, p3, p4 physical-corner order,
+  * `[x1, y1, x2, y2, x3, y3, x4, y4]`.
+  */
+-export type Quad = Float64Array;
+-
+-/** Required length of a {@link Quad}. */
+-const QUAD_LENGTH = 8;
+-
+-/** Allocates storage for one {@link Box}. */
+-export const box = (): Box => new Float64Array(BOX_LENGTH);
+-
+-/** Allocates storage for one {@link Space}. */
+-export const space = (): Space => new Float64Array(SPACE_LENGTH);
+-
+-/** Allocates storage for one {@link Quad}. */
+-export const quad = (): Quad => new Float64Array(QUAD_LENGTH);
++export type Quad = Record<number, number>;
+ 
+ /** A caller-owned `[x, y]` delta, written by {@link localDelta}. */
+-export type Delta = Float64Array;
+-
+-/** Required length of a {@link Delta}. */
+-const DELTA_LENGTH = 2;
+-
+-/** Allocates storage for one {@link Delta}. */
+-export const delta = (): Delta => new Float64Array(DELTA_LENGTH);
++export type Delta = Record<number, number>;
+ 
+ // Hoisted so the minifier can mangle each call site down to one identifier.
+ // `finite` is deliberately not named `isFinite`: the global of that name
+@@ -297,7 +273,7 @@ export function ancestry(element: HTMLElement, out: Space): boolean {
+ export function coordinates(
+   element: HTMLElement,
+   out: Box,
+-  above?: Space,
++  above?: Readonly<Space>,
+ ): boolean {
+   const view = element.ownerDocument.defaultView!;
+   // A disconnected element has no principal box, so it is already covered by
+@@ -311,11 +287,13 @@ export function coordinates(
+   let inherited = above;
+ 
+   if (!inherited) {
+-    inherited = space();
++    const read: Space = [];
+ 
+-    if (!ancestry(element, inherited)) {
++    if (!ancestry(element, read)) {
+       return false;
+     }
++
++    inherited = read;
+   }
+ 
+   const style = view.getComputedStyle(element);
+@@ -398,7 +376,11 @@ export function coordinates(
+  * caller-owned numeric arrays, so that is a documented requirement rather than
+  * something hidden metadata could enforce.
+  */
+-export function projection(source: Box, out: Quad, relativeTo?: Box): boolean {
++export function projection(
++  source: Readonly<Box>,
++  out: Quad,
++  relativeTo?: Readonly<Box>,
++): boolean {
+   let a = source[BOX_A]!;
+   let b = source[BOX_B]!;
+   let c = source[BOX_C]!;
+@@ -489,7 +471,7 @@ export function projection(source: Box, out: Quad, relativeTo?: Box): boolean {
+  * result is not finite.
+  */
+ export function localDelta(
+-  basis: Space | Box,
++  basis: Readonly<Space> | Readonly<Box>,
+   dx: number,
+   dy: number,
+   out: Delta,
+diff --git a/packages/box-quad/tests/api.declaration.test.ts b/packages/box-quad/tests/api.declaration.test.ts
+index 70f6ec852..ee8e387e2 100644
+--- a/packages/box-quad/tests/api.declaration.test.ts
++++ b/packages/box-quad/tests/api.declaration.test.ts
+@@ -1,12 +1,8 @@
+ import {
+   ancestry,
+-  box,
+   coordinates,
+-  delta,
+   localDelta,
+   projection,
+-  quad,
+-  space,
+   type Box,
+   type Delta,
+   type Quad,
+@@ -14,10 +10,10 @@ import {
+ } from '../src/index.ts';
+ 
+ const element = document.createElement('div');
+-const measured: Box = box();
+-const target: Box = box();
+-const above: Space = space();
+-const corners: Quad = quad();
++const measured: number[] = [];
++const target: number[] = [];
++const above: number[] = [];
++const corners: number[] = [];
+ 
+ ancestry(element, above);
+ coordinates(element, measured);
+@@ -40,7 +36,7 @@ void target;
+ void above;
+ void corners;
+ 
+-const local: Delta = delta();
++const local: number[] = [];
+ 
+ localDelta(above, 1, 2, local);
+ localDelta(measured, 1, 2, local);
+diff --git a/packages/box-quad/tests/coordinates.browser.test.ts b/packages/box-quad/tests/coordinates.browser.test.ts
+index ed9e53d7a..ee3c6665b 100644
+--- a/packages/box-quad/tests/coordinates.browser.test.ts
++++ b/packages/box-quad/tests/coordinates.browser.test.ts
+@@ -1,5 +1,10 @@
+ import { afterEach, describe, expect, it } from 'vitest';
+-import { ancestry, box, coordinates, space, type Box } from '../src/index.ts';
++import {
++  ancestry,
++  coordinates,
++  type Box,
++  type Space,
++} from '../src/index.ts';
+ import {
+   createBox,
+   createFlowBox,
+@@ -10,7 +15,6 @@ import {
+ } from './support/fixtures.ts';
+ 
+ const BOX_LENGTH = 8;
+-const SPACE_LENGTH = 5;
+ 
+ const BOX_A = 0;
+ const BOX_B = 1;
+@@ -30,7 +34,7 @@ afterEach(resetDocument);
+ 
+ const TOLERANCE = 0.000001;
+ 
+-function sentinels(): Box {
++function sentinels(): Float64Array {
+   return new Float64Array(BOX_LENGTH).map((_value, index) => index + 1);
+ }
+ 
+@@ -389,7 +393,7 @@ describe('ancestry without a principal box', () => {
+     });
+     const source = createBox({ parent, styles: { display: 'contents' } });
+ 
+-    expect(coordinates(source, box())).toBe(false);
++    expect(coordinates(source, [])).toBe(false);
+     expectNear(inherited(source)[SPACE_A]!, 2);
+   });
+ 
+@@ -405,12 +409,12 @@ describe('ancestry without a principal box', () => {
+ 
+     source.textContent = 'aaaa bbbb cccc dddd eeee ffff';
+     expect(source.getClientRects().length).toBeGreaterThan(1);
+-    expect(coordinates(source, box())).toBe(false);
++    expect(coordinates(source, [])).toBe(false);
+     expectNear(inherited(source)[SPACE_A]!, 2);
+   });
+ 
+   it('should answer for a disconnected element', () => {
+-    const out = space();
++    const out: number[] = [];
+ 
+     expect(ancestry(document.createElement('div'), out)).toBe(true);
+     expectNear(out[SPACE_A]!, 1);
+@@ -424,10 +428,10 @@ describe('ancestry without a principal box', () => {
+         transform: 'rotateX(30deg)',
+       },
+     });
+-    const out = space();
++    const out: number[] = [];
+ 
+     expect(ancestry(createBox({ parent }), out)).toBe(false);
+-    expect(Array.from(out)).toEqual([0, 0, 0, 0, 0]);
++    expect(out).toEqual([]);
+   });
+ });
+ 
+@@ -440,7 +444,7 @@ describe('coordinates with a supplied ancestry', () => {
+       parent,
+       styles: { left: '10px', top: '20px', transform: 'rotate(30deg)' },
+     });
+-    const supplied = box();
++    const supplied: number[] = [];
+ 
+     expect(coordinates(source, supplied, inherited(source))).toBe(true);
+ 
+@@ -454,7 +458,7 @@ describe('coordinates with a supplied ancestry', () => {
+   it('should measure an element whose own transform is not 2D as a failure', () => {
+     const source = createBox({ styles: { transform: 'rotateX(30deg)' } });
+ 
+-    expect(coordinates(source, box(), inherited(source))).toBe(false);
++    expect(coordinates(source, [], inherited(source))).toBe(false);
+   });
+ });
+ 
+@@ -502,11 +506,11 @@ describe('coordinates recognized limits', () => {
+ 
+     source.remove();
+ 
+-    expect(coordinates(source, box())).toBe(false);
++    expect(coordinates(source, [])).toBe(false);
+   });
+ 
+   it('should reject an element with no principal box', () => {
+-    expect(coordinates(createBox({ styles: { display: 'none' } }), box())).toBe(
++    expect(coordinates(createBox({ styles: { display: 'none' } }), [])).toBe(
+       false,
+     );
+   });
+@@ -527,14 +531,14 @@ describe('coordinates recognized limits', () => {
+     });
+ 
+     expect(source.getClientRects().length).toBeGreaterThan(1);
+-    expect(coordinates(source, box())).toBe(false);
++    expect(coordinates(source, [])).toBe(false);
+   });
+ 
+   it('should reject a 3D transform', () => {
+     expect(
+       coordinates(
+         createBox({ styles: { transform: 'rotateY(30deg)' } }),
+-        box(),
++        [],
+       ),
+     ).toBe(false);
+   });
+@@ -544,7 +548,7 @@ describe('coordinates recognized limits', () => {
+       styles: { width: '200px', height: '200px', perspective: '500px' },
+     });
+ 
+-    expect(coordinates(createBox({ parent }), box())).toBe(false);
++    expect(coordinates(createBox({ parent }), [])).toBe(false);
+   });
+ 
+   it('should reject an ancestor preserve-3d', () => {
+@@ -556,12 +560,12 @@ describe('coordinates recognized limits', () => {
+       },
+     });
+ 
+-    expect(coordinates(createBox({ parent }), box())).toBe(false);
++    expect(coordinates(createBox({ parent }), [])).toBe(false);
+   });
+ 
+   it('should reject a 3D individual translate', () => {
+     expect(
+-      coordinates(createBox({ styles: { translate: '0px 0px 10px' } }), box()),
++      coordinates(createBox({ styles: { translate: '0px 0px 10px' } }), []),
+     ).toBe(false);
+   });
+ 
+@@ -575,18 +579,6 @@ describe('coordinates recognized limits', () => {
+       },
+     });
+ 
+-    expect(() => coordinates(source, box())).toThrow('owner document failed');
+-  });
+-});
+-
+-describe('box', () => {
+-  it('should allocate storage of the required length', () => {
+-    expect(box()).toHaveLength(BOX_LENGTH);
+-  });
+-});
+-
+-describe('space', () => {
+-  it('should allocate storage of the required length', () => {
+-    expect(space()).toHaveLength(SPACE_LENGTH);
++    expect(() => coordinates(source, [])).toThrow('owner document failed');
+   });
+ });
+diff --git a/packages/box-quad/tests/local-delta.browser.test.ts b/packages/box-quad/tests/local-delta.browser.test.ts
+index 65a0038ac..287b9181e 100644
+--- a/packages/box-quad/tests/local-delta.browser.test.ts
++++ b/packages/box-quad/tests/local-delta.browser.test.ts
+@@ -1,11 +1,11 @@
+ import { afterEach, describe, expect, it } from 'vitest';
+ import {
+   ancestry,
+-  box,
+   coordinates,
+-  delta,
+   localDelta,
+-  space,
++  type Box,
++  type Delta,
++  type Space,
+ } from '../src/index.ts';
+ import { resetDocument } from './support/fixtures.ts';
+ 
+@@ -44,8 +44,8 @@ describe('localDelta', () => {
+     (_name, ancestorStyle) => {
+       const element = createNested(ancestorStyle);
+       const before = element.getBoundingClientRect();
+-      const above = space();
+-      const out = delta();
++      const above: number[] = [];
++      const out: number[] = [];
+ 
+       expect(ancestry(element, above)).toBe(true);
+       expect(localDelta(above, VIEWPORT_DX, VIEWPORT_DY, out)).toBe(true);
+@@ -63,8 +63,8 @@ describe('localDelta', () => {
+     'should produce a Box delta that resizes the element along the viewport delta under %s',
+     (_name, ancestorStyle) => {
+       const element = createNested(ancestorStyle, 'rotate: 10deg');
+-      const measured = box();
+-      const out = delta();
++      const measured: number[] = [];
++      const out: number[] = [];
+ 
+       expect(coordinates(element, measured)).toBe(true);
+       expect(localDelta(measured, VIEWPORT_DX, VIEWPORT_DY, out)).toBe(true);
+@@ -84,7 +84,7 @@ describe('localDelta', () => {
+   );
+ 
+   it('should return the delta unchanged for the identity basis', () => {
+-    const out = delta();
++    const out: number[] = [];
+ 
+     expect(localDelta(Float64Array.of(1, 0, 0, 1, 1), 3, 4, out)).toBe(true);
+     expect([...out]).toEqual([3, 4]);
+@@ -93,8 +93,8 @@ describe('localDelta', () => {
+   it('should exclude the element own zoom from a Space and leave that division to the caller', () => {
+     const element = createNested('', 'zoom: 2');
+     const before = element.getBoundingClientRect();
+-    const above = space();
+-    const out = delta();
++    const above: number[] = [];
++    const out: number[] = [];
+ 
+     ancestry(element, above);
+     localDelta(above, VIEWPORT_DX, VIEWPORT_DY, out);
+diff --git a/packages/box-quad/tests/projection.browser.test.ts b/packages/box-quad/tests/projection.browser.test.ts
+index 96fda8eec..90bf164e0 100644
+--- a/packages/box-quad/tests/projection.browser.test.ts
++++ b/packages/box-quad/tests/projection.browser.test.ts
+@@ -1,5 +1,9 @@
+ import { afterEach, describe, expect, it } from 'vitest';
+-import { projection, quad, type Box } from '../src/index.ts';
++import {
++  projection,
++  type Box,
++  type Quad,
++} from '../src/index.ts';
+ import {
+   createBox,
+   expectQuad,
+@@ -8,7 +12,6 @@ import {
+ } from './support/fixtures.ts';
+ 
+ const BOX_LENGTH = 8;
+-const QUAD_LENGTH = 8;
+ 
+ const BOX_A = 0;
+ const BOX_D = 3;
+@@ -19,7 +22,7 @@ const BOX_HEIGHT = 7;
+ 
+ afterEach(resetDocument);
+ 
+-function sentinels(): Box {
++function sentinels(): Float64Array {
+   return new Float64Array([11, 22, 33, 44, 55, 66, 77, 88]);
+ }
+ 
+@@ -27,7 +30,7 @@ function sentinels(): Box {
+  * A measured box built from numbers alone, with no DOM involved. Slots a case
+  * does not set are left at zero.
+  */
+-function syntheticBox(values: readonly number[]): Box {
++function syntheticBox(values: readonly number[]): Float64Array {
+   const out = new Float64Array(BOX_LENGTH);
+ 
+   out.set(values);
+@@ -41,7 +44,7 @@ describe('projection into the viewport', () => {
+         styles: { left: '100px', top: '50px', width: '20px', height: '10px' },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out)).toBe(true);
+     expectQuad(out, [100, 50, 120, 50, 120, 60, 100, 60]);
+@@ -60,7 +63,7 @@ describe('projection into the viewport', () => {
+         },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out)).toBe(true);
+     expectQuad(out, [0, 0, 40, 0, 40, 20, 0, 20]);
+@@ -79,7 +82,7 @@ describe('projection into the viewport', () => {
+         },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out)).toBe(true);
+     // p1 stays the origin corner; p2 is width away along the rotated x axis.
+@@ -87,7 +90,7 @@ describe('projection into the viewport', () => {
+   });
+ 
+   it('should project from synthetic numbers with no DOM at all', () => {
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(syntheticBox([1, 0, 0, 1, 5, 7, 20, 10]), out)).toBe(
+       true,
+@@ -108,7 +111,7 @@ describe('projection relative to another box', () => {
+         styles: { left: '40px', top: '60px', width: '20px', height: '10px' },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out, target)).toBe(true);
+     expectQuad(out, [30, 40, 50, 40, 50, 50, 30, 50]);
+@@ -132,7 +135,7 @@ describe('projection relative to another box', () => {
+         styles: { left: '40px', top: '20px', width: '20px', height: '10px' },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out, target)).toBe(true);
+     expectQuad(out, [20, 10, 30, 10, 30, 15, 20, 15]);
+@@ -156,7 +159,7 @@ describe('projection relative to another box', () => {
+         styles: { left: '0px', top: '40px', width: '20px', height: '10px' },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out, target)).toBe(true);
+     expectQuad(out, [40, 0, 40, -20, 50, -20, 50, 0]);
+@@ -179,7 +182,7 @@ describe('projection relative to another box', () => {
+         styles: { left: '40px', top: '20px', width: '20px', height: '10px' },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out, target)).toBe(true);
+     expectQuad(out, [20, 10, 30, 10, 30, 15, 20, 15]);
+@@ -210,7 +213,7 @@ describe('projection relative to another box', () => {
+         },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out, target)).toBe(true);
+     expectQuad(out, [5, 5, 45, 5, 45, 25, 5, 25]);
+@@ -228,7 +231,7 @@ describe('projection relative to another box', () => {
+         },
+       }),
+     );
+-    const out = quad();
++    const out: number[] = [];
+ 
+     const width = source[BOX_WIDTH]!;
+     const height = source[BOX_HEIGHT]!;
+@@ -247,8 +250,8 @@ describe('projection relative to another box', () => {
+       createBox({ styles: { left: '40px', top: '25px' } }),
+     );
+     const identity = syntheticBox([1, 0, 0, 1, 0, 0, 0, 0]);
+-    const viewport = quad();
+-    const relative = quad();
++    const viewport: number[] = [];
++    const relative: number[] = [];
+ 
+     expect(projection(source, viewport)).toBe(true);
+     expect(projection(source, relative, identity)).toBe(true);
+@@ -270,7 +273,7 @@ describe('projection failure', () => {
+     const source = measure(createBox());
+     const target = measure(createBox({ styles: { transform: 'scale(0)' } }));
+ 
+-    expect(projection(source, quad(), target)).toBe(false);
++    expect(projection(source, [], target)).toBe(false);
+   });
+ 
+   it('should preserve every output sentinel on a non-finite source', () => {
+@@ -286,7 +289,7 @@ describe('projection failure', () => {
+     expect(
+       projection(
+         syntheticBox([1, 0, 0, 1, 0, 0, Number.POSITIVE_INFINITY, 10]),
+-        quad(),
++        [],
+       ),
+     ).toBe(false);
+   });
+@@ -296,7 +299,7 @@ describe('projection purity', () => {
+   it('should not read the DOM after measurement', () => {
+     const source = createBox({ styles: { left: '10px', top: '20px' } });
+     const measured = measure(source);
+-    const out = quad();
++    const out: number[] = [];
+ 
+     // Both the layout and the element itself go away between the two steps.
+     source.style.left = '900px';
+@@ -315,9 +318,9 @@ describe('projection purity', () => {
+         styles: { left: '5px', top: '5px', width: '200px', height: '100px' },
+       }),
+     );
+-    const first = quad();
+-    const second = quad();
+-    const third = quad();
++    const first: number[] = [];
++    const second: number[] = [];
++    const third: number[] = [];
+ 
+     expect(projection(source, first)).toBe(true);
+     expect(projection(source, second, target)).toBe(true);
+@@ -336,26 +339,20 @@ describe('projection purity', () => {
+     const sourceBefore = Array.from(source);
+     const targetBefore = Array.from(target);
+ 
+-    expect(projection(source, quad(), target)).toBe(true);
++    expect(projection(source, [], target)).toBe(true);
+ 
+     expect(Array.from(source)).toEqual(sourceBefore);
+     expect(Array.from(target)).toEqual(targetBefore);
+   });
+ });
+ 
+-describe('quad', () => {
+-  it('should allocate storage of the required length', () => {
+-    expect(quad()).toHaveLength(QUAD_LENGTH);
+-  });
+-});
+-
+ describe('measured box reuse', () => {
+   it('should let one measurement answer both matrix and projection questions', () => {
+     const element = createBox({
+       styles: { left: '40px', top: '25px', transform: 'scale(2)' },
+     });
+     const measured = measure(element);
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(measured, out)).toBe(true);
+     // The same array carries the drag-space scalars the lift needs.
+@@ -414,7 +411,7 @@ describe('projection self-inverse precision', () => {
+     'should self-project $description to its own border box exactly',
+     ({ matrix, e, f }) => {
+       const source = syntheticBox([...matrix, e, f, 20, 10]);
+-      const out = quad();
++      const out: number[] = [];
+ 
+       expect(projection(source, out, source)).toBe(true);
+       expectQuad(out, [0, 0, 20, 0, 20, 10, 0, 10], EXACT);
+@@ -426,7 +423,7 @@ describe('projection self-inverse precision', () => {
+     // land at exactly half their viewport coordinates.
+     const target = syntheticBox([2, 0, 0, 2, 0, 0, 100, 100]);
+     const source = syntheticBox([2, 0, 0, 2, 40, 60, 20, 10]);
+-    const out = quad();
++    const out: number[] = [];
+ 
+     expect(projection(source, out, target)).toBe(true);
+     expectQuad(out, [20, 30, 40, 30, 40, 40, 20, 40], EXACT);
+@@ -434,8 +431,8 @@ describe('projection self-inverse precision', () => {
+ 
+   it('should round-trip a source through its own basis exactly', () => {
+     const source = syntheticBox([...rotation(37, 2.25), 13, -8, 20, 10]);
+-    const viewport = quad();
+-    const local = quad();
++    const viewport: number[] = [];
++    const local: number[] = [];
+ 
+     expect(projection(source, viewport)).toBe(true);
+     expect(projection(source, local, source)).toBe(true);
+diff --git a/packages/box-quad/tests/support/fixtures.ts b/packages/box-quad/tests/support/fixtures.ts
+index 644f11d30..5ae178a56 100644
+--- a/packages/box-quad/tests/support/fixtures.ts
++++ b/packages/box-quad/tests/support/fixtures.ts
+@@ -1,11 +1,8 @@
+ import { expect } from 'vitest';
+ import {
+   ancestry,
+-  box,
+   coordinates,
+   projection,
+-  quad,
+-  space,
+   type Box,
+   type Quad,
+   type Space,
+@@ -88,7 +85,7 @@ export function sentinels(): Float64Array {
+ }
+ 
+ export function expectQuad(
+-  actual: Float64Array,
++  actual: Readonly<Quad>,
+   expected: ArrayLike<number>,
+   tolerance: number = QUAD_TOLERANCE,
+ ): void {
+@@ -115,7 +112,7 @@ export function readQuad(
+   out: Quad,
+   relativeTo?: HTMLElement,
+ ): boolean {
+-  const source = box();
++  const source: number[] = [];
+ 
+   if (!coordinates(element, source)) {
+     return false;
+@@ -125,22 +122,22 @@ export function readQuad(
+     return projection(source, out);
+   }
+ 
+-  const target = box();
++  const target: number[] = [];
+ 
+   return coordinates(relativeTo, target) && projection(source, out, target);
+ }
+ 
+ /** Measures `element`, asserting the measurement succeeded. */
+-export function measure(element: HTMLElement): Box {
+-  const out = box();
++export function measure(element: HTMLElement): number[] {
++  const out: number[] = [];
+ 
+   expect(coordinates(element, out)).toBe(true);
+   return out;
+ }
+ 
+ /** Reads the space `element` inherits, asserting the read succeeded. */
+-export function inherited(element: HTMLElement): Space {
+-  const out = space();
++export function inherited(element: HTMLElement): number[] {
++  const out: number[] = [];
+ 
+   expect(ancestry(element, out)).toBe(true);
+   return out;
+@@ -150,8 +147,8 @@ export function inherited(element: HTMLElement): Space {
+ export function readSuccessfulQuad(
+   element: HTMLElement,
+   relativeTo?: HTMLElement,
+-): Quad {
+-  const out = quad();
++): number[] {
++  const out: number[] = [];
+   const source = measure(element);
+   const target = relativeTo ? measure(relativeTo) : undefined;
+ 
+diff --git a/packages/drag/bench/lab-no-lift.ts b/packages/drag/bench/lab-no-lift.ts
+index 10bdbc4e7..87426ba2f 100644
+--- a/packages/drag/bench/lab-no-lift.ts
++++ b/packages/drag/bench/lab-no-lift.ts
+@@ -1,5 +1,10 @@
+ /** `draggable` with no lift: a behavior that moves an element by `translate`. */
+-import { ancestry, delta, localDelta, space } from '@ydinjs/box-quad';
++import {
++  ancestry,
++  localDelta,
++  type Delta,
++  type Space,
++} from '@ydinjs/box-quad';
+ import { draggable } from '../src/draggable.ts';
+ import { makeRows } from './lab.ts';
+ 
+@@ -8,8 +13,8 @@ const lab = {
+ 
+   noLift(): void {
+     const box = makeRows(1).firstElementChild as HTMLElement;
+-    const basis = space();
+-    const local = delta();
++    const basis: Space = [];
++    const local: Delta = [];
+ 
+     draggable(box, {
+       admit: () => ({ item: box }),
+diff --git a/packages/drag/src/draggable.stories.tsx b/packages/drag/src/draggable.stories.tsx
+index b6762e7f4..088c6aff8 100644
+--- a/packages/drag/src/draggable.stories.tsx
++++ b/packages/drag/src/draggable.stories.tsx
+@@ -1,9 +1,9 @@
+ import type { Meta, StoryObj } from '@storybook/react-vite';
+ import {
+-  box as createBox,
+   coordinates,
+-  delta,
+   localDelta,
++  type Box,
++  type Delta,
+ } from '@ydinjs/box-quad';
+ import { useEffect, useRef, type JSX } from 'react';
+ import { draggable } from './draggable.ts';
+@@ -15,7 +15,7 @@ const meta: Meta = {
+ 
+ export default meta;
+ 
+-type State = Readonly<{ width: number; height: number; basis: Float64Array }>;
++type State = Readonly<{ width: number; height: number; basis: Box }>;
+ 
+ /**
+  * A behavior with no lift: a resize handle. The size is in the target's own box, so
+@@ -29,7 +29,7 @@ function ResizeDemo(): JSX.Element {
+   useEffect(() => {
+     const target = targetRef.current!;
+     const handle = handleRef.current!;
+-    const local = delta();
++    const local: Delta = [];
+     const write = (width: number, height: number): void => {
+       target.style.width = `${width}px`;
+       target.style.height = `${height}px`;
+@@ -41,7 +41,7 @@ function ResizeDemo(): JSX.Element {
+         state: {
+           width: target.offsetWidth,
+           height: target.offsetHeight,
+-          basis: createBox(),
++          basis: [],
+         },
+       }),
+       activate(drag, state) {
+diff --git a/packages/drag/src/free-drag/geometry.ts b/packages/drag/src/free-drag/geometry.ts
+index e2fee52fb..e3ae649fc 100644
+--- a/packages/drag/src/free-drag/geometry.ts
++++ b/packages/drag/src/free-drag/geometry.ts
+@@ -2,7 +2,7 @@
+  * Free drag's pure geometry, derived from numbers the operation already holds:
+  * nothing here reads the DOM.
+  */
+-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
++import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
+ import type { Drag } from '../draggable.ts';
+ import type { Lift } from '../lift.ts';
+ import type { DragGeometry, FreeDragRequest, Point } from './domain.ts';
+@@ -23,8 +23,8 @@ function currentRect(
+ }
+ 
+ /** A singular ancestor renders nothing, so the viewport delta stands in for it. */
+-function toLocal(space: Space, dx: number, dy: number): Float64Array {
+-  const local = delta();
++function toLocal(space: Space, dx: number, dy: number): Delta {
++  const local: Delta = [];
+ 
+   if (!localDelta(space, dx, dy, local)) {
+     local[0] = dx;
+diff --git a/packages/drag/src/lift.ts b/packages/drag/src/lift.ts
+index d10e72246..b3e14cdbe 100644
+--- a/packages/drag/src/lift.ts
++++ b/packages/drag/src/lift.ts
+@@ -10,9 +10,8 @@
+  */
+ import {
+   ancestry,
+-  box as createBox,
+   coordinates,
+-  space,
++  type Box,
+   type Space,
+ } from '@ydinjs/box-quad';
+ import type { Drag } from './draggable.ts';
+@@ -256,9 +255,9 @@ export class Lifter {
+       // Geometry is read before anything mutates, because a traversal taken
+       // after the visual is repositioned reads a different ancestry.
+       const rect = visual.getBoundingClientRect();
+-      const visualSpace = space();
+-      const itemSpace = drag.item === visual ? visualSpace : space();
+-      const measured = createBox();
++      const visualSpace: Space = [];
++      const itemSpace: Space = drag.item === visual ? visualSpace : [];
++      const measured: Box = [];
+ 
+       if (
+         !ancestry(visual, visualSpace) ||
+diff --git a/packages/drag/src/shared/landing.ts b/packages/drag/src/shared/landing.ts
+index 22f972782..5db3f10f5 100644
+--- a/packages/drag/src/shared/landing.ts
++++ b/packages/drag/src/shared/landing.ts
+@@ -1,4 +1,4 @@
+-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
++import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
+ import { DEFAULT_LANDING_DURATION, DEFAULT_LANDING_EASING } from './timing.ts';
+ 
+ export type LandingTimingContext = Readonly<{
+@@ -66,7 +66,7 @@ function startLandingAnimation(
+   easing: string,
+   window: Window,
+ ): (() => void) | null {
+-  const local = delta();
++  const local: Delta = [];
+ 
+   if (
+     !localDelta(visualSpace, dx, dy, local) ||
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 54da6b863..ab119b5cd 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -14,7 +14,7 @@
+  *
+  * No lifecycle waits for it: an animation in flight never delays release or teardown.
+  */
+-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
++import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
+ import type { DisplacementInstaller, DisplacementSink } from './axis.ts';
+ import {
+   BOTTOM,
+@@ -68,7 +68,7 @@ export const layoutAnimation =
+   }: LayoutAnimationOptions = {}): DisplacementInstaller =>
+   () => {
+     const running = new Map<HTMLElement, RowAnimation>();
+-    const local = delta();
++    const local: Delta = [];
+ 
+     return {
+       report(element: HTMLElement, dx: number, dy: number, space: Space): void {
+diff --git a/packages/drag/tests/coordinates.browser.test.ts b/packages/drag/tests/coordinates.browser.test.ts
+index 527a65cbe..906d406ef 100644
+--- a/packages/drag/tests/coordinates.browser.test.ts
++++ b/packages/drag/tests/coordinates.browser.test.ts
+@@ -1,11 +1,11 @@
+ /** `drag:DRI-16`: one coordinate model. */
+ import {
+   ancestry,
+-  box,
+   coordinates,
+-  delta,
+   localDelta,
+-  space,
++  type Box,
++  type Delta,
++  type Space,
+ } from '@ydinjs/box-quad';
+ import { describe, expect, it } from 'vitest';
+ import { Lifter } from '../src/lift.ts';
+@@ -53,8 +53,8 @@ function makeNode(parent: HTMLElement, css = ''): HTMLElement {
+ 
+ /** A behavior with no lift that moves an element by `left`/`top`, from its `Space`. */
+ function mountMove(node: HTMLElement, ownZoom = 1) {
+-  const basis = space();
+-  const local = delta();
++  const basis: Space = [];
++  const local: Delta = [];
+   const left = node.offsetLeft;
+   const top = node.offsetTop;
+ 
+@@ -153,11 +153,11 @@ describe('drag:DRI-16 no-lift move and resize', () => {
+       target.append(handle);
+ 
+       const controller = resizeHandle(handle, target, () => {});
+-      const measured = box();
++      const measured: Box = [];
+ 
+       coordinates(target, measured);
+ 
+-      const local = delta();
++      const local: Delta = [];
+ 
+       localDelta(measured, 15, 10, local);
+ 
+@@ -381,7 +381,7 @@ describe('drag:DRI-16 required environments for a sortable', () => {
+   it.runIf(isChromium)(
+     'should read a Space for an ancestor it can represent',
+     () => {
+-      expect(ancestry(makeList(1), space())).toBe(true);
++      expect(ancestry(makeList(1), [])).toBe(true);
+     },
+   );
+ });
+diff --git a/packages/drag/tests/fixtures/canvas-group.ts b/packages/drag/tests/fixtures/canvas-group.ts
+index 2e412dd3c..be2cf58b6 100644
+--- a/packages/drag/tests/fixtures/canvas-group.ts
++++ b/packages/drag/tests/fixtures/canvas-group.ts
+@@ -8,7 +8,12 @@
+  * - rollback through `use`, which also runs on destruction, where `end` does not;
+  * - a save that can fail.
+  */
+-import { ancestry, delta, localDelta, space } from '@ydinjs/box-quad';
++import {
++  ancestry,
++  localDelta,
++  type Delta,
++  type Space,
++} from '@ydinjs/box-quad';
+ import {
+   draggable,
+   type BehaviorOperation,
+@@ -22,7 +27,7 @@ type State = Readonly<{
+   guidesX: readonly number[];
+   guidesY: readonly number[];
+   /** What a node inherits, so that a viewport delta converts to `translate`. */
+-  basis: Float64Array;
++  basis: Space;
+ }>;
+ 
+ /** One activated move of the group. */
+@@ -65,7 +70,7 @@ export function canvasGroup(
+   guide: (x: number | null, y: number | null) => void,
+ ): CanvasGroup {
+   const selection = new Set<HTMLElement>();
+-  const local = delta();
++  const local: Delta = [];
+   let handle = 0;
+ 
+   const panel = draggable<State, undefined, GroupMove>(canvas, {
+@@ -99,7 +104,7 @@ export function canvasGroup(
+           })),
+           guidesX: others.map((node) => node.offsetLeft),
+           guidesY: others.map((node) => node.offsetTop),
+-          basis: space(),
++          basis: [],
+         },
+       };
+     },
+diff --git a/packages/drag/tests/fixtures/resize-handle.ts b/packages/drag/tests/fixtures/resize-handle.ts
+index 44b7e5caa..51c6318bb 100644
+--- a/packages/drag/tests/fixtures/resize-handle.ts
++++ b/packages/drag/tests/fixtures/resize-handle.ts
+@@ -2,7 +2,12 @@
+  * The smallest useful behavior: no lift and no verdict. The size is in the target's
+  * own box, so the viewport delta converts through that box. Escape restores the size.
+  */
+-import { box, coordinates, delta, localDelta } from '@ydinjs/box-quad';
++import {
++  coordinates,
++  localDelta,
++  type Box,
++  type Delta,
++} from '@ydinjs/box-quad';
+ import {
+   draggable,
+   type BehaviorOperation,
+@@ -10,14 +15,14 @@ import {
+ } from '../../src/draggable.ts';
+ 
+ type Size = Readonly<{ width: number; height: number }>;
+-type State = Size & { readonly basis: Float64Array };
++type State = Size & { readonly basis: Box };
+ 
+ export function resizeHandle(
+   handle: HTMLElement,
+   target: HTMLElement,
+   onEnd: (size: Size | 'restored') => void,
+ ): DraggableController<BehaviorOperation> {
+-  const local = delta();
++  const local: Delta = [];
+   const write = (width: number, height: number): void => {
+     target.style.width = `${width}px`;
+     target.style.height = `${height}px`;
+@@ -31,7 +36,7 @@ export function resizeHandle(
+       state: {
+         width: target.offsetWidth,
+         height: target.offsetHeight,
+-        basis: box(),
++        basis: [],
+       },
+     }),
+ 
+diff --git a/packages/drag2/src/kernel/presentation.ts b/packages/drag2/src/kernel/presentation.ts
+index baa8f7d37..7790b12c6 100644
+--- a/packages/drag2/src/kernel/presentation.ts
++++ b/packages/drag2/src/kernel/presentation.ts
+@@ -10,9 +10,8 @@
+  */
+ import {
+   ancestry,
+-  box,
+   coordinates,
+-  space,
++  type Box,
+   type Space,
+ } from '@ydinjs/box-quad';
+ import type { Disposer } from './lifetimes.ts';
+@@ -516,12 +515,12 @@ export function acquireLift(
+   realm: DOMRealm,
+   warnOnThrow: WarnOnThrow,
+ ): LiftAcquisition {
+-  const above = space();
++  const above: Space = [];
+   // One buffer when the two coincide, which is the common case. This provides
+   // the identity guarantee: the two published spaces are then the same value,
+   // not two values that happen to agree.
+-  const itemAbove = item === visual ? above : space();
+-  const measured = box();
++  const itemAbove: Space = item === visual ? above : [];
++  const measured: Box = [];
+ 
+   if (
+     !ancestry(visual, above) ||
+diff --git a/packages/drag2/tests/perf/m5.browser.test.ts b/packages/drag2/tests/perf/m5.browser.test.ts
+index 3aa9efb12..e0a0c9f32 100644
+--- a/packages/drag2/tests/perf/m5.browser.test.ts
++++ b/packages/drag2/tests/perf/m5.browser.test.ts
+@@ -51,7 +51,7 @@
+  * **only the measured fixture may be live.** Every arm builds, measures and
+  * disposes before the next is built.
+  */
+-import { ancestry, space, type Space } from '@ydinjs/box-quad';
++import { ancestry, type Space } from '@ydinjs/box-quad';
+ import { describe, expect, it } from 'vitest';
+ import { FreeDragResolution, freeDrag } from '../../src/free-drag.ts';
+ import { LIFT_IN_PLACE, acquireLift } from '../../src/kernel/presentation.ts';
+@@ -535,7 +535,7 @@ const skip = (above: Space): number =>
+ 
+ /** A real `Space` for `element`, taken the way `acquireLift` takes it. */
+ function measure(element: HTMLElement): Space {
+-  const above = space();
++  const above: Space = [];
+ 
+   if (!ancestry(element, above)) {
+     throw new Error('m5: the fixture has no readable inherited space');

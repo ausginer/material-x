@@ -43,7 +43,7 @@
 **Required properties:** `BQ-11` properties 1 to 9. In particular:
 
 1. **Removed:** `box`, `space`, `quad`, `delta`, and `BOX_LENGTH`, `SPACE_LENGTH`, `QUAD_LENGTH` and `DELTA_LENGTH`. No new export replaces them. The slot-index constants stay where the code reads by name.
-2. **Types:** `export type Box = Record<number, number>`, and the same for `Space`, `Quad` and `Delta`. The signatures are the arm's, in [`arm.patch`](probes/numeric-storage/arm.patch): writable `out`, and `Readonly<…>` for `above`, `source`, `relativeTo` and `basis`. `basis` stays `Readonly<Space> | Readonly<Box>`, because the union names the two meanings.
+2. **Types:** `export type Box = Record<number, number>`, and the same for `Space`, `Quad` and `Delta`. The signatures are the arm's, in [`arm.diff.txt`](probes/numeric-storage/arm.diff.txt): writable `out`, and `Readonly<…>` for `above`, `source`, `relativeTo` and `basis`. `basis` stays `Readonly<Space> | Readonly<Box>`, because the union names the two meanings.
 3. **The fallback:** when `above` is omitted, `coordinates` reads the ancestry into a fresh `[]` on each call. The arm does this, and `BQ-9` forbids module state.
 4. **Writes:** keep each function's existing order. Every check comes before the first write, and the writes go from index 0 upward.
 5. **No storage policy:** no `Array.isArray`, `instanceof`, `length` read, `Float64Array.from`, copy or wrapper.

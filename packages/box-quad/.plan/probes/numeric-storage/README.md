@@ -6,7 +6,7 @@ Evidence for `BQ-11` in [`plan.md`](../../plan.md). The base is `0a28f909a`. Eve
 | --- | --- |
 | [`types.ts`](types.ts) with [`tsconfig.json`](tsconfig.json) | Which storage types the proposed contracts accept and refuse. It compiles exactly when every recorded fact holds. |
 | [`storage.browser.test.ts.txt`](storage.browser.test.ts.txt) | That the computation is unchanged for each storage kind, slot for slot, and that a `false` leaves each kind as it was. Its header says how to run it. It is stored as `.txt` because its imports resolve only in a scratch copy of the package, as drag's probes are. |
-| [`arm.patch`](arm.patch) | The measurement arm: the candidate `src/index.ts`, the migrated consumers and the migrated suite. It has no JSDoc and isn't the implementation. |
+| [`arm.diff.txt`](arm.diff.txt) | The measurement arm: the candidate `src/index.ts`, the migrated consumers and the migrated suite. It has no JSDoc and isn't the implementation. |
 
 ## Type compatibility
 
