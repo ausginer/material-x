@@ -1,6 +1,6 @@
 # Mangle rollback handoff
 
-**For:** one `implementer` unit on `drag/mangle-remediation`, from the commit that adds this handoff. That branch merged `drag/size` at `690769539` in `a9da5a563`, and its tree outside `packages/drag/.plan/` equals `690769539`'s. If the owner merges this branch into `drag/size` first, the unit runs there from the merge, and nothing below changes. The unit removes code, builds, tests and measures.
+**For:** one `implementer` unit on `drag/mangle-remediation`, from the commit that last changed this handoff, which merges `drag/size` at `f552e0ec9`. `f552e0ec9` changed only records after `690769539`, so the code is `690769539`'s, and outside its `.plan/` directories the tree equals `f552e0ec9`'s. If the owner merges this branch into `drag/size` first, the unit runs there from the merge, and nothing below changes. The unit removes code, builds, tests and measures.
 
 **Tools:** `tsdown` 0.23.7, `rolldown` 1.3.2, `rolldown-plugin-dts` 0.30.2 and `typescript` 6.0.2, as the lockfile installs them. **If the branch is checked out in a linked worktree without installed dependencies,** run `npm ci` there, then build `@ydinjs/vite-traits-plugin` and `@ydinjs/box-quad` in it. **Engines: Chromium only** ([`performance-plan.md`](performance-plan.md) §3). Don't run Firefox or WebKit.
 
@@ -8,7 +8,8 @@
 
 - `DRD-60` in [`00-index.md`](00-index.md), properties 1 to 5;
 - `DRD-54` and `DRD-55`: the consumer project and the gate on the published build, which this unit doesn't change;
-- `DRD-58`: the slot array, which stays, with its members renamed by property 1;
+- `DRD-58` and its §Result, accepted on 2026-11-13: the slot array stays, with its members renamed by property 1, and keeps the types that §Result lists;
+- `DRF-38` (drag's lint) and `repo:RF-31` (the shared library plugins' typecheck): errors that exist at the base. This unit doesn't repair them, and its acceptance doesn't close them;
 - `DRD-51` properties 1 to 3: joint readings, and the stopped campaigns;
 - CONTRIBUTING Part I, and Part II §15.
 
@@ -50,7 +51,8 @@ Before any change, from `packages/drag`:
 1. **The suite**, all projects, through the runner. Record the titles and verdicts. The four rows that are red at `690769539` fail: "draggable alone", "example: drop zone", "freeDrag + bounds + landing" and "complete" ([`slot-array-report.md`](slot-array-report.md) §Size).
 2. **The gate:** `npx just size`. Record every row.
 3. **The dry checks:** each `--prove` and `--floors` entry alone with `--dry`. Record which apply.
-4. **Keep the base tree:** copy the published files to a scratch directory outside the checkout, with their hashes.
+4. **The baseline errors:** `npx just lint` and `npx just typecheck` from `packages/drag`, whole package. Record each error. Expected, and nothing else: `DRF-38`, ESLint `func-name-matching` at `tests/displacement-sink.browser.test.ts:57:3`, and `repo:RF-31`, TS2322 at `.scripts/tsdown-library.ts(53,11)`.
+5. **Keep the base tree:** copy the published files to a scratch directory outside the checkout, with their hashes.
 
 ## Item 2. Commit A: the pipeline goes
 
@@ -60,7 +62,7 @@ Before any change, from `packages/drag`:
    - the published file list equals the base tree's;
    - each published `.d.ts` is byte-identical to the base tree's;
    - each published `.js` holds its `src` property names, prefixed, where the base tree held output names.
-4. Typecheck, lint and format the changed `.ts` files. Run the node and consumer projects once. Every consumer test passes, and the node project fails only on the size rows that the gate reports over their ceilings.
+4. Format and lint the changed `.ts` files as [`handoff.md`](../../../.agents/docs/handoff.md) says, then `npx just lint` and `npx just typecheck` for the whole package. Compare each error with item 1.4's list (§Baseline errors). Run the node and consumer projects once. Every consumer test passes, and the node project fails only on the size rows that the gate reports over their ceilings.
 5. The gate: `npx just size`. Record every row.
 
 ## Item 3. Commit B: the names
@@ -73,11 +75,13 @@ Before any change, from `packages/drag`:
    - `grep -rnE '\b_[A-Za-z]'` over `src` and `bench` finds nothing. Over `tests` it finds only `_name` in `coordinates.browser.test.ts` (3), `landing.browser.test.ts` (1) and `sortable.browser.test.ts` (1).
    - `git diff --stat f7b7b300b^ HEAD -- packages/drag ':!packages/drag/.plan'` lists exactly `package.json`, `src/sortable/axis.ts`, `src/sortable/layout-animation.ts`, `src/sortable/linear-shift.ts`, `src/sortable/rect-index.ts` and `tests/displacement-sink.browser.test.ts`.
    - For those five files, the changed lines of `git diff -U0 f7b7b300b^ HEAD` equal the changed lines of `git diff -U0 5ec3b4b2d^ 5ec3b4b2d`, after each `\b_([A-Za-z])` in the second is read as its letter. Compare only the lines that start with `-` or `+`, without the `---` and `+++` headers.
+   - **`DRD-58` §Result's types hold,** under the restored names: the `values` getter returns `readonly number[]`, `lend`'s `write` takes `number[]`, `pack`'s `target` and `settle`'s `values` are `number[] | Float64Array`, and `#capacity` and `capacityFor` don't exist. The emitted `sortable/axis.d.ts` keeps `settle`'s `number[] | Float64Array` line. Don't use `git revert b50204f66`: it conflicts with `5ec3b4b2d`, and its reverted getter returns `ReadonlyFloat64Array`.
    - `.plan/probes/callback-list/allocation.ts` equals `git show f7b7b300b^:packages/drag/.plan/probes/callback-list/allocation.ts`.
 6. **Build and compare with commit A's build:**
    - the published file list is unchanged;
    - each `.d.ts` equals commit A's after each `\b_([A-Za-z])` in commit A's file is read as its letter;
    - each `.js` equals commit A's under the same reading, except lines where commit B's source writes a shorthand key that commit A's wrote as `_name: name`. The report lists each such line.
+7. **Lint and typecheck** as item 2.4, compared with item 1.4's list.
 
 ## Item 4. One-time checks
 
@@ -87,20 +91,30 @@ Before any change, from `packages/drag`:
 
 ## Item 5. Readings
 
-- **The suite**, all projects, Chromium, through the runner. Every project passes, apart from the size rows that the gate reports. **The consumer project passes 326 of 326,** including `tests/classes.browser.test.ts:190` and `tests/destruction.browser.test.ts:381` (`DRF-38`).
+- **The suite**, all projects, Chromium, through the runner. Every project passes, apart from the size rows that the gate reports. **The consumer project passes 326 of 326,** including `tests/classes.browser.test.ts:190` and `tests/destruction.browser.test.ts:381` (`DRF-39`).
+- **Lint and typecheck,** whole package: the end's errors, in two lists (§Baseline errors).
 - **The gate:** every row, minified, gzip-9 and Brotli-11, at the base, commit A and the end, with the differences and the verdicts. Expected: each row grows by about what the mangling took off, which was 34 to 135 B Brotli when it was measured at `rolldown` 1.2.15. "example: resize handle" and "freeDrag" are expected over their ceilings, and "example: canvas group" may follow. Verdicts go to `DRO-4`, and budgets don't change.
 - **Published size:** the total bytes of the published `.js`, `.js.map` and `.d.ts` files at the base and at the end.
+
+## Baseline errors
+
+The package's lint and typecheck exit 1 at the base, on `DRF-38` and `repo:RF-31` (item 1.4). The report gives them **apart from any new error**, at the base, at commit A and at the end:
+
+- **Existing:** each error that item 1.4 recorded, with its file, line, rule or code, and message, and whether it is unchanged. They aren't repaired here: `tests/displacement-sink.browser.test.ts` and `.scripts/` are outside §Boundaries.
+- **New:** every other error. The required result is none. A new error is a return condition, not an entry in the existing list.
+
+A failing exit code alone isn't a result. The lists are.
 
 ## Verification
 
 | Check | Required result |
 | --- | --- |
-| Item 1 | The base suite, gate, dry checks and tree recorded |
+| Item 1 | The base suite, gate, dry checks, baseline errors and tree recorded |
 | `git diff --stat <base>..HEAD -- packages/drag .scripts` | Only the files that §Boundaries allows, the report and `measurements/` |
 | Items 2 and 3 | Every check as stated |
 | Item 4 | Every check as stated |
 | Item 5 | The suite, the gate and the sizes |
-| Changed `.ts` files | [`handoff.md`](../../../.agents/docs/handoff.md)'s format, lint and typecheck, with `npx just` from `packages/drag` |
+| Changed `.ts` files | [`handoff.md`](../../../.agents/docs/handoff.md)'s format, lint and typecheck, with `npx just` from `packages/drag`. The errors are reported in §Baseline errors' two lists, and the new list is empty |
 | Markdown | `handoff.md`'s Markdown checks |
 
 ## Commits
@@ -117,6 +131,7 @@ Before any change, from `packages/drag`:
 - the declarations renamed, by file, line and name, and the shorthand keys restored;
 - every check of items 2 to 4 with its result, including the `.js` lines that item 3.6 lists;
 - the readings, as item 5 lists them;
+- §Baseline errors' two lists, at the base, commit A and the end;
 - anything that `DRD-60` didn't anticipate.
 
 ## Return to the architect
@@ -128,9 +143,10 @@ Stop and return, without working around it, when:
 - a marker name in `src` isn't in either location file;
 - any check of items 2 to 4 fails;
 - a consumer test fails;
+- lint or typecheck reports an error that item 1.4 didn't record, or one of `DRF-38`'s and `repo:RF-31`'s errors changes;
 - a row's Brotli figure, base to end, falls, or grows by more than 160 B;
 - removing the pipeline needs a change outside §Boundaries.
 
 ## After this unit
 
-The architect reads the report, closes `DRF-24` to `DRF-38` (§Disposition of the mangling deferral), records the verdicts under `DRO-4`, and marks `DRD-60` implemented. `DRD-58`'s report at `690769539` is read separately.
+The architect reads the report, closes `DRF-24` to `DRF-37` and `DRF-39` (§Disposition of the mangling deferral), records the verdicts under `DRO-4`, and marks `DRD-60` implemented. **`DRF-38` and `repo:RF-31` stay open:** they are the baseline errors, routed to their own cleanup units, and this unit's acceptance doesn't close them.

@@ -1,6 +1,6 @@
 # The three-unit layout: a kernel chunk, a sortable chunk and a freeDrag chunk
 
-**Closed on 2026-11-13.** The owner stopped the exploration and deferred property mangling (`DRD-60`), and `DRO-16` is withdrawn. This record and its probes are kept as evidence.
+**Closed on 2026-11-13.** The owner stopped the exploration and deferred property mangling (`DRD-60`), and `DRO-16` is withdrawn. This record and its probes are kept as evidence. Its class-name finding was registered as `DRF-38` and is `DRF-39` since the merge of `drag/size` at `f552e0ec9`, where `DRF-38` is the lint error.
 
 The architect's exploration of the owner's intended layout for the publication, on 2026-11-13. **Nothing is adopted.** `DRD-59` stays the decision in force, and `DRO-16` holds what the owner decides.
 
@@ -25,7 +25,7 @@ The architect's exploration of the owner's intended layout for the publication, 
   - a consumer without a bundler loads a whole unit, for example 10,496 B for `fault.js` against 229 B now;
   - a module's legal comments reach every bundle that uses its chunk;
   - an app that uses both features holds two copies of `shared/invalidation.ts`, 178 B Brotli (§8).
-- **Found on the way, in both builds:** two consumer tests count heap instances by class name, and minification renames the classes. `DRD-59`'s candidate fails them too. That is `DRF-38` (§9).
+- **Found on the way, in both builds:** two consumer tests count heap instances by class name, and minification renames the classes. `DRD-59`'s candidate fails them too. That is `DRF-39` (§9).
 
 ## 1. The layout as built
 
@@ -81,7 +81,7 @@ The architect's exploration of the owner's intended layout for the publication, 
 | Change | the layout only: the module belongs to no unit, and each feature chunk bundles it | `_schedule` and `_cancel` become `schedule` and `cancel` in four files, and `DRD-56`'s selection loses two declarations |
 | Audit | the six accesses bind to each feature's own copy | no crossing |
 | Kernel chunk exports | the public names only | the public names, `createFrameTask` and `listenForInvalidation` |
-| Consumer project | 324 of 326 pass, and the two are `DRF-38` | 324 of 326 pass, and the two are `DRF-38` |
+| Consumer project | 324 of 326 pass, and the two are `DRF-39` | 324 of 326 pass, and the two are `DRF-39` |
 | Rows, Brotli against `DRD-59` | the same as the crossing build, apart from "sortable + y" +23, "sortable + xy" +2 and "complete" −24 | the same, apart from "sortable + y" +6, "sortable + xy" +11 and "complete" −16 |
 | Minified bytes on the rows | equal to the crossing build | +29 B on the three `sortable` rows |
 | Not on any row | an app with both features holds two copies: 326 B minified, 178 B Brotli | none |
@@ -140,7 +140,7 @@ A crossing breaks the publication at runtime, and nothing in the build sees it. 
 
 - **Every public import path exists,** through the facades, and each of the 13 entries exports the same runtime names as `DRD-59`'s module, imported in Node. `package.json`'s exports map is unchanged.
 - **One kernel instance:** both feature chunks import the one kernel chunk, so `DragFault` and the kernel's module state have one identity, as `DRD-59`'s rationale requires.
-- **The consumer project,** 326 public browser tests in Chromium through the exports map, passes 324 with either repair in §2.2. The two failures are `DRF-38`, and `DRD-59`'s build fails the same two.
+- **The consumer project,** 326 public browser tests in Chromium through the exports map, passes 324 with either repair in §2.2. The two failures are `DRF-39`, and `DRD-59`'s build fails the same two.
 - **Custom behaviors:** the three fixtures build through the facades, their rows keep the same modules as now, and §2.1 finds no access from them to an internal name.
 - **Not run:** Firefox and WebKit, the node project, whose publication test reads `DRD-56`'s per-module files, and the declaration project.
 
@@ -177,7 +177,7 @@ A crossing breaks the publication at runtime, and nothing in the build sees it. 
 - **Two copies of `shared/invalidation.ts`** in an app that uses both features, with §2.2's recommendation.
 - **The published modules no longer mirror `src`.** Stack traces and debugging go through the maps, which §4 found complete.
 
-## 9. `DRF-38`, in both builds
+## 9. `DRF-39`, in both builds
 
 The consumer project runs `tests/classes.browser.test.ts:190` and `tests/destruction.browser.test.ts:381` against the build. Both count heap objects by constructor name, `FreeDragBehavior` and `SortableBehavior`. Minification renames each class, as `var r=class` in `DRD-59`'s `free-drag/behavior.js`, and each test reads +0 where it expects +1. [`publication-build-proposal.md`](publication-build-proposal.md) §3 says that no test depends on class names. `DRD-59`'s handoff returns on any failing consumer test, so its unit would stop there. The finding is in the [record](00-index.md#drf-38--two-consumer-tests-count-heap-instances-by-class-name-which-the-minified-build-renames).
 
@@ -189,7 +189,7 @@ The consumer project runs `tests/classes.browser.test.ts:190` and `tests/destruc
 2. **With the layout, where `shared/invalidation.ts` goes** (§2.2). Recommended: in each feature unit.
 3. **`box-quad`'s `sideEffects`**, which decides the +32 B on "draggable alone" under the layout (§3).
 
-**Recommendation: the layout,** with `shared/invalidation.ts` in each feature unit, if the owner accepts per-unit loading for consumers without a bundler. It meets the owner's "native first" requirement for the mangling itself, where `DRD-59` needs a custom pass and two guards for it. Its costs are the boundary check and the gate change, which are bounded and testable, and the loading in §8, which only the owner can weigh. `DRF-38` is resolved first in either case.
+**Recommendation: the layout,** with `shared/invalidation.ts` in each feature unit, if the owner accepts per-unit loading for consumers without a bundler. It meets the owner's "native first" requirement for the mangling itself, where `DRD-59` needs a custom pass and two guards for it. Its costs are the boundary check and the gate change, which are bounded and testable, and the loading in §8, which only the owner can weigh. `DRF-39` is resolved first in either case.
 
 ## 11. Limits
 
