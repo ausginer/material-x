@@ -59,19 +59,19 @@ describe('drag:DRD-35 callback lists', () => {
     const callback = recordInto(calls);
     const a = {};
 
-    expect(list._has(callback, a)).toBe(false);
-    list._add(callback, a);
-    expect(list._has(callback, a)).toBe(true);
-    expect(list._has(callback, undefined)).toBe(false);
-    expect(list._has(callback, {})).toBe(false);
+    expect(list.has(callback, a)).toBe(false);
+    list.add(callback, a);
+    expect(list.has(callback, a)).toBe(true);
+    expect(list.has(callback, undefined)).toBe(false);
+    expect(list.has(callback, {})).toBe(false);
     // `add` never coalesces.
-    list._add(callback, a);
-    list._add(callback, undefined);
+    list.add(callback, a);
+    list.add(callback, undefined);
 
-    list._run(1);
-    list._run(2);
-    list._run(3);
-    expect(list._empty).toBe(true);
+    list.run(1);
+    list.run(2);
+    list.run(3);
+    expect(list.empty).toBe(true);
     expect(calls).toEqual([
       [a, 1],
       [a, 2],
@@ -86,12 +86,12 @@ describe('drag:DRD-35 callback lists', () => {
     const a = {};
     const b = {};
 
-    list._add(callback, a);
-    list._add(callback, undefined);
-    list._add(callback, b);
-    list._run(1);
-    list._run(2);
-    list._run(3);
+    list.add(callback, a);
+    list.add(callback, undefined);
+    list.add(callback, b);
+    list.run(1);
+    list.run(2);
+    list.run(3);
     expect(calls).toEqual([
       [a, 1],
       [undefined, 2],
@@ -106,12 +106,12 @@ describe('drag:DRD-35 callback lists', () => {
     const a = {};
     const b = {};
 
-    list._add(callback, a);
-    list._add(callback, undefined);
-    list._add(callback, b);
-    list._run(1);
-    list._run(2);
-    list._run(3);
+    list.add(callback, a);
+    list.add(callback, undefined);
+    list.add(callback, b);
+    list.run(1);
+    list.run(2);
+    list.run(3);
     expect(calls).toEqual([
       [b, 1],
       [undefined, 2],
@@ -127,15 +127,15 @@ describe('drag:DRD-35 callback lists', () => {
     (_, create) => {
       const list = create();
       const callback = recordInto([]);
-      const emptiness = [list._empty];
+      const emptiness = [list.empty];
 
-      list._add(callback, undefined);
-      emptiness.push(list._empty);
-      list._add(callback, {});
-      list._run(1);
-      emptiness.push(list._empty);
-      list._run(2);
-      emptiness.push(list._empty);
+      list.add(callback, undefined);
+      emptiness.push(list.empty);
+      list.add(callback, {});
+      list.run(1);
+      emptiness.push(list.empty);
+      list.run(2);
+      emptiness.push(list.empty);
       expect(emptiness).toEqual([true, false, false, true]);
     },
   );
@@ -144,30 +144,30 @@ describe('drag:DRD-35 callback lists', () => {
     const list = Callbacks.stack<null>();
     const ran: string[] = [];
 
-    list._add(() => {
+    list.add(() => {
       ran.push('first');
     }, undefined);
-    list._add(() => {
+    list.add(() => {
       throw new Error('last');
     }, undefined);
 
     expect(() => {
-      list._run(null);
+      list.run(null);
     }).toThrow('last');
-    expect(list._empty).toBe(false);
-    list._run(null);
+    expect(list.empty).toBe(false);
+    list.run(null);
     expect(ran).toEqual(['first']);
-    expect(list._empty).toBe(true);
+    expect(list.empty).toBe(true);
   });
 
   it('should drop every entry on clear', () => {
     const list = Callbacks.queue<number>();
 
-    list._add(() => {
+    list.add(() => {
       throw new Error('never');
     }, undefined);
-    list._clear();
-    expect(list._empty).toBe(true);
+    list.clear();
+    expect(list.empty).toBe(true);
   });
 });
 

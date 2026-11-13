@@ -23,7 +23,7 @@ import {
 
 /**
  * Measures every slot, only when something marked the cache stale or the collection
- * version changed. An empty window after `_collect` is a rebuild, or a collection
+ * version changed. An empty window after `collect` is a rebuild, or a collection
  * with no slot.
  */
 function refresh(
@@ -34,10 +34,10 @@ function refresh(
   placeholder: HTMLElement,
   displacement: DisplacementSink | null,
 ): void {
-  index._collect(snapshot, dragged, placeholder, 0);
+  index.collect(snapshot, dragged, placeholder, 0);
 
-  if (index._first === index._end) {
-    index._measure(0, index._count, getBox, displacement);
+  if (index.first === index.end) {
+    index.measure(0, index.count, getBox, displacement);
   }
 }
 
@@ -51,7 +51,7 @@ export function xy(): AxisInstaller {
     let before = new Float64Array(0);
     const invalidate = (): void => {
       last = -1;
-      index._invalidate();
+      index.invalidate();
     };
 
     return {
@@ -70,12 +70,7 @@ export function xy(): AxisInstaller {
         last = query.insertion.index;
 
         // Read once, outside the candidate loop.
-        const {
-          _values: values,
-          _count: count,
-          _placeholderRect: placeholderRect,
-          _items: items,
-        } = index;
+        const { values, count, placeholderRect, items } = index;
         const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
         const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
         let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
@@ -110,7 +105,7 @@ export function xy(): AxisInstaller {
 
       confirm(query, context) {
         if (
-          !index._holds(
+          !index.holds(
             query.insertion.index,
             query.snapshot,
             context.box,
@@ -126,7 +121,7 @@ export function xy(): AxisInstaller {
         const { displacement } = context;
         const gap = query.insertion.index;
         // Taken before the refresh below rewrites the count.
-        const held = index._count;
+        const held = index.count;
 
         if (!displacement || last < 0 || last === gap || held === 0) {
           invalidate();
@@ -138,14 +133,14 @@ export function xy(): AxisInstaller {
         }
 
         // Read once, outside the loop, before the refresh rewrites the buffer.
-        const stale = index._values;
+        const stale = index.values;
 
         for (let i = 0; i < held; i += 1) {
           before[i * 2] = stale[i * STRIDE + LEFT]!;
           before[i * 2 + 1] = stale[i * STRIDE + TOP]!;
         }
 
-        index._invalidate();
+        index.invalidate();
         refresh(
           index,
           query.snapshot,
@@ -159,7 +154,7 @@ export function xy(): AxisInstaller {
         // Moving the placeholder reorders nothing in the destination view, so
         // slot `i` is the same element on both sides of the write. Read once,
         // outside the loop.
-        const { _values: values, _items: items, _count: count } = index;
+        const { values, items, count } = index;
         const span = count < held ? count : held;
 
         for (let i = 0; i < span; i += 1) {
@@ -175,7 +170,7 @@ export function xy(): AxisInstaller {
 
       retire() {
         last = -1;
-        index._retire();
+        index.retire();
       },
     };
   };

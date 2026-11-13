@@ -8,13 +8,13 @@
  * needs.
  *
  * The element array holds every slot. The slot array holds measured geometry for
- * one contiguous range of slots, the window: the slots `_measure` added after
- * `_collect`. A rebuild measures every slot, so its window is all of them.
+ * one contiguous range of slots, the window: the slots `measure` added after
+ * `collect`. A rebuild measures every slot, so its window is all of them.
  *
  * Each axis rule creates its own instance inside its factory, so the cache has one
  * owner. The cache makes every measurement and alone grows the slot array. An axis
  * rule reads it through the getters' read-only views and writes it only through
- * `_lend`.
+ * `lend`.
  */
 import type { DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
@@ -62,8 +62,8 @@ function pack(
 const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
- * The hot path: each axis rule reads `_values`, the slot range it scans and
- * `_placeholderRect` once per resolution, and `_items` only when proposing a gap
+ * The hot path: each axis rule reads `values`, the slot range it scans and
+ * `placeholderRect` once per resolution, and `items` only when proposing a gap
  * change. Do not add a read inside the candidate loop.
  */
 export class RectIndex {
@@ -97,37 +97,37 @@ export class RectIndex {
   /**
    * The same array for the index's life. Its contents are valid inside the window.
    */
-  get _values(): readonly number[] {
+  get values(): readonly number[] {
     return this.#values;
   }
 
-  get _placeholderRect(): ReadonlyFloat64Array {
+  get placeholderRect(): ReadonlyFloat64Array {
     return this.#placeholderRect;
   }
 
-  get _items(): readonly HTMLElement[] {
+  get items(): readonly HTMLElement[] {
     return this.#items;
   }
 
-  get _count(): number {
+  get count(): number {
     // The element array is truncated to the slots the last scan produced.
     return this.#items.length;
   }
 
-  get _first(): number {
+  get first(): number {
     return this.#first;
   }
 
-  get _end(): number {
+  get end(): number {
     return this.#end;
   }
 
   /**
    * When the cache is stale, collects every slot's element and measures the
-   * placeholder, and leaves an empty window at `slot`. `_measure` then adds slots to
+   * placeholder, and leaves an empty window at `slot`. `measure` then adds slots to
    * the window.
    */
-  _collect(
+  collect(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     placeholder: HTMLElement,
@@ -149,13 +149,13 @@ export class RectIndex {
       }
     }
 
-    // Appended, because `_measure` may first write a slot in the middle of the
+    // Appended, because `measure` may first write a slot in the middle of the
     // collection, and a write past the length would leave a hole.
     for (let i = values.length; i < n * STRIDE; i += 1) {
       values.push(0);
     }
 
-    this._measurePlaceholder(placeholder);
+    this.measurePlaceholder(placeholder);
     // Truncated, so that a shrinking collection does not retain elements, and so
     // that its length is the slot count.
     items.length = n;
@@ -170,7 +170,7 @@ export class RectIndex {
    * them to the window. The range starts or ends at the window's first or end slot,
    * so the window stays one contiguous range.
    */
-  _measure(
+  measure(
     lo: number,
     hi: number,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
@@ -194,7 +194,7 @@ export class RectIndex {
     // The slots must hold where flow puts a row, not where an animation draws it.
     displacement?.settle(values, items, lo, hi);
 
-    // An empty window sits at the slot `_collect` gave it, so a range next to it
+    // An empty window sits at the slot `collect` gave it, so a range next to it
     // extends it the same way.
     if (lo < this.#first) {
       this.#first = lo;
@@ -207,14 +207,14 @@ export class RectIndex {
 
   /**
    * Calls `write` once with the writable slot array, to change the slots from `lo`
-   * to before `hi`. This is the rule `_measure` gives the sink's `settle`, and
+   * to before `hi`. This is the rule `measure` gives the sink's `settle`, and
    * nothing checks it at runtime:
    *
    * - the range is inside the window, and `write` reads and writes nothing outside
    *   it;
    * - `write` writes the array only during the call.
    */
-  _lend(
+  lend(
     lo: number,
     hi: number,
     write: (values: number[], lo: number, hi: number) => void,
@@ -226,7 +226,7 @@ export class RectIndex {
    * Measures the placeholder again, packed like a slot. A rebuild calls it, and so
    * may an axis rule whose committed move relocated the placeholder.
    */
-  _measurePlaceholder(placeholder: HTMLElement): void {
+  measurePlaceholder(placeholder: HTMLElement): void {
     pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
   }
 
@@ -242,7 +242,7 @@ export class RectIndex {
    * is the least likely to carry a running animation, and a settled reading that
    * misses by more than the slack costs a new measurement.
    */
-  _holds(
+  holds(
     gap: number,
     snapshot: CollectionSnapshot,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
@@ -275,7 +275,7 @@ export class RectIndex {
   }
 
   /** One flag, because any reason for staleness forces the same full rebuild. */
-  _invalidate(): void {
+  invalidate(): void {
     this.#dirty = true;
   }
 
@@ -283,7 +283,7 @@ export class RectIndex {
    * Empties the element array, which would retain DOM between operations, and keeps
    * the slot array for reuse.
    */
-  _retire(): void {
+  retire(): void {
     this.#items.length = 0;
     this.#dirty = true;
     this.#measured = -1;
@@ -312,31 +312,26 @@ export function verifyEquivalence(
   heldPlaceholder: ReadonlyFloat64Array | null,
 ): void {
   // Taken before the rebuild below rewrites them.
-  const { _count: held, _first: first, _end: end } = index;
-  const predicted = index._values.slice(0, end * STRIDE);
-  const predictedPlaceholder = index._placeholderRect.slice();
+  const { count: held, first, end } = index;
+  const predicted = index.values.slice(0, end * STRIDE);
+  const predictedPlaceholder = index.placeholderRect.slice();
 
   // A relocation leaves the placeholder's x where the rebuild measured it.
   if (heldPlaceholder) {
     predictedPlaceholder[LEFT] = heldPlaceholder[LEFT]!;
     predictedPlaceholder[RIGHT] = heldPlaceholder[RIGHT]!;
   }
-  const predictedItems = [...index._items];
+  const predictedItems = [...index.items];
 
-  index._invalidate();
-  index._collect(snapshot, dragged, placeholder, first);
+  index.invalidate();
+  index.collect(snapshot, dragged, placeholder, first);
 
-  index._measure(first, end, getBox, displacement);
+  index.measure(first, end, getBox, displacement);
 
   const differs = (a: number, b: number): boolean =>
     Math.abs(a - b) > EQUIVALENCE_SLACK;
   // Read once, outside the comparison loops.
-  const {
-    _values: values,
-    _placeholderRect: placeholderRect,
-    _items: items,
-    _count: count,
-  } = index;
+  const { values, placeholderRect, items, count } = index;
   let mismatch = count === held ? '' : `count ${held}, measured ${count}`;
 
   for (let slot = 0; mismatch === '' && slot < held; slot += 1) {

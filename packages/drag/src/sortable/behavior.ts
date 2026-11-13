@@ -63,16 +63,16 @@ export type SortableConfig = Readonly<{
 /** What `activate` needs from the press. */
 type PressState = Readonly<{
   /** `config.visual` from admission, or the item. */
-  _visual: HTMLElement;
+  visual: HTMLElement;
   /** `config.box` from admission, or the visual. */
-  _box: HTMLElement;
+  box: HTMLElement;
   /** A command's direction, or `null` for a pointer operation. */
-  _direction: KeyboardDirection | null;
+  direction: KeyboardDirection | null;
 }>;
 
 /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
 function updateInsertion(operation: SortableOperation | null): void {
-  operation?._updateInsertion();
+  operation?.updateInsertion();
 }
 
 /**
@@ -91,12 +91,12 @@ export class SortableBehavior implements Behavior<
 > {
   declare readonly threshold?: number;
 
-  readonly _config: SortableConfig;
+  readonly config: SortableConfig;
   readonly #window: Window;
   readonly #lifter: Lifter;
-  readonly _axis: InsertionGeometry;
-  readonly _displacement: DisplacementSink | undefined;
-  readonly _landing: Landing | null;
+  readonly axis: InsertionGeometry;
+  readonly displacement: DisplacementSink | undefined;
+  readonly landing: Landing | null;
   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
   /** The version the next pulled snapshot carries. */
   #version = 0;
@@ -111,19 +111,19 @@ export class SortableBehavior implements Behavior<
       this.threshold = config.threshold;
     }
 
-    this._config = config;
+    this.config = config;
     this.#window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
-    this._axis = config.axis();
-    this._displacement = displacement;
-    this._landing = config.landing ?? null;
+    this.axis = config.axis();
+    this.displacement = displacement;
+    this.landing = config.landing ?? null;
     this.#measuredBox = config.box ?? config.visual ?? null;
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly _invalidate = (operation: SortableOperation | null): void => {
+  readonly invalidate = (operation: SortableOperation | null): void => {
     if (operation) {
-      operation._rebase(this.#pull());
+      operation.rebase(this.#pull());
     }
   };
 
@@ -142,7 +142,7 @@ export class SortableBehavior implements Behavior<
     state: PressState,
   ): SortableOperation | null {
     // First, so that its release is the operation's first disposer and runs last.
-    const lift = this.#lifter.acquire(drag, state._visual, state._box);
+    const lift = this.#lifter.acquire(drag, state.visual, state.box);
 
     // The second pull closes the window between admission and activation, in
     // which foreign code runs: a press before its threshold, and a command
@@ -157,9 +157,9 @@ export class SortableBehavior implements Behavior<
     // A pointer operation starts in its home gap, so one object serves as both.
     const home = homeInsertion(snapshot, drag.item);
     const insertion =
-      state._direction === null
+      state.direction === null
         ? home
-        : keyboardInsertion(snapshot, drag.item, state._direction);
+        : keyboardInsertion(snapshot, drag.item, state.direction);
 
     if (!insertion) {
       return null;
@@ -181,7 +181,7 @@ export class SortableBehavior implements Behavior<
       lift.visual.contains(lift.box)
         ? lift.boxHeight
         : lift.boxHeight - lift.box.offsetHeight,
-      this._config.placeholder ?? null,
+      this.config.placeholder ?? null,
     );
 
     drag.use(() => {
@@ -202,18 +202,18 @@ export class SortableBehavior implements Behavior<
     });
 
     drag.use(() => {
-      frame._cancel();
+      frame.cancel();
     });
-    drag.use(this._axis.retire, this._axis);
+    drag.use(this.axis.retire, this.axis);
     listenForInvalidation(this.#window, drag.signal, () => {
-      drag.requestStep(this._axis.invalidate, this._axis);
+      drag.requestStep(this.axis.invalidate, this.axis);
     });
 
     const operation = new SortableOperation(
       this,
       drag,
       lift,
-      state._direction,
+      state.direction,
       snapshot,
       home,
       insertion,
@@ -221,19 +221,19 @@ export class SortableBehavior implements Behavior<
       {
         placeholder,
         box: this.#measuredBox,
-        displacement: this._displacement ?? null,
+        displacement: this.displacement ?? null,
         space: lift.itemSpace,
       },
     );
 
-    this._axis.invalidate();
+    this.axis.invalidate();
 
     return operation;
   }
 
   #pull(): CollectionSnapshot {
     this.#version += 1;
-    return { items: this._config.items(), version: this.#version };
+    return { items: this.config.items(), version: this.#version };
   }
 
   /**
@@ -257,8 +257,8 @@ export class SortableBehavior implements Behavior<
 
     let handle: HTMLElement | undefined;
 
-    if (this._config.handle) {
-      const named = this._config.handle(item);
+    if (this.config.handle) {
+      const named = this.config.handle(item);
 
       if (!named || !path.includes(named)) {
         return null;
@@ -271,15 +271,15 @@ export class SortableBehavior implements Behavior<
       return null;
     }
 
-    const visual = this._config.visual?.(item) ?? item;
+    const visual = this.config.visual?.(item) ?? item;
 
     return {
       item,
       ...(handle ? { handle } : {}),
       state: {
-        _visual: visual,
-        _box: this._config.box?.(item) ?? visual,
-        _direction: direction,
+        visual,
+        box: this.config.box?.(item) ?? visual,
+        direction,
       },
     };
   }

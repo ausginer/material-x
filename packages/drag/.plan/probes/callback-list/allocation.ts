@@ -47,8 +47,8 @@ function noop(): void {
 const receiver = {};
 
 function used(list: Callbacks.List<null>): Callbacks.List<null> {
-  list._add(noop, receiver);
-  list._run(null);
+  list.add(noop, receiver);
+  list.run(null);
   return list;
 }
 

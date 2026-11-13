@@ -177,20 +177,20 @@ export class Gesture<
    *   reader applies it.
    * - **A step requested while idle** passes the receiver it was requested with,
    *   if any.
-   * - **A verdict's fault while idle** passes `_raise` and the controller.
+   * - **A verdict's fault while idle** passes `raise` and the controller.
    *
    * After teardown, everything is refused. Destruction requested while idle is
    * not refused, because its slot is still filled. Nothing is allocated here, so
    * a pointer sample allocates nothing.
    */
-  _enter(): void;
-  _enter<A>(step: (argument: A) => void, argument: A): void;
-  _enter<A, R extends object>(
+  enter(): void;
+  enter<A>(step: (argument: A) => void, argument: A): void;
+  enter<A, R extends object>(
     step: (this: R, argument: A) => void,
     argument: A,
     receiver: R | undefined,
   ): void;
-  _enter(
+  enter(
     step?: (this: object | undefined, argument: unknown) => void,
     argument?: unknown,
     receiver?: object,
@@ -212,7 +212,7 @@ export class Gesture<
         try {
           step.call(receiver, argument);
         } catch (error) {
-          this._raise(error);
+          this.raise(error);
         }
       }
 
@@ -224,9 +224,9 @@ export class Gesture<
 
   handleEvent(event: KeyboardEvent | PointerEvent): void {
     if (event.type === 'pointerdown') {
-      this._enter(this.#press, event as PointerEvent, this);
+      this.enter(this.#press, event as PointerEvent, this);
     } else {
-      this._enter(this.#command, event as KeyboardEvent, this);
+      this.enter(this.#command, event as KeyboardEvent, this);
     }
   }
 
@@ -235,10 +235,10 @@ export class Gesture<
    * the report, because `reportError` dispatches synchronously and a listener's
    * cancel must find the outcome already decided.
    */
-  _raise(error: unknown): void {
+  raise(error: unknown): void {
     const fault = new DragFault(error);
 
-    this.#session?._decide(fault, 'fault');
+    this.#session?.decide(fault, 'fault');
     reportError(fault);
   }
 
@@ -246,16 +246,16 @@ export class Gesture<
    * A verdict's fault: raised in the running pass, whose reader then applies it,
    * or else in a new pass.
    */
-  _raiseInPass(error: unknown): void {
+  raiseInPass(error: unknown): void {
     if (this.#running) {
-      this._raise(error);
+      this.raise(error);
     } else {
-      this._enter(this._raise, error, this);
+      this.enter(this.raise, error, this);
     }
   }
 
   /** Clears the slot. The session calls it when its operation ends. */
-  _detach(): void {
+  detach(): void {
     this.#session = null;
   }
 
@@ -282,15 +282,15 @@ export class Gesture<
     if (this.#running) {
       // Steps coalesce by step and receiver. A running step is no longer
       // waiting, so a request it makes for itself adds it again.
-      if (!this.#steps._has(step, receiver)) {
-        this.#steps._add(step, receiver);
+      if (!this.#steps.has(step, receiver)) {
+        this.#steps.add(step, receiver);
       }
     } else {
       // Requested while idle, the step is the first step of its own pass. The
       // list stays empty, so an idle request allocates nothing.
-      this._enter(
+      this.enter(
         step,
-        this.#session ? this.#session._stepTarget() : null,
+        this.#session ? this.#session.stepTarget() : null,
         receiver,
       );
     }
@@ -298,8 +298,8 @@ export class Gesture<
 
   requestCancel(reason?: unknown): void {
     if (this.#session) {
-      this.#session._decide(reason, 'request');
-      this._enter();
+      this.#session.decide(reason, 'request');
+      this.enter();
     }
   }
 
@@ -308,7 +308,7 @@ export class Gesture<
       this.#destroyed = new Promise((resolve) => {
         this.#resolveDestroyed = resolve;
       });
-      this._enter();
+      this.enter();
     }
 
     return this.#destroyed;
@@ -325,7 +325,7 @@ export class Gesture<
     } else {
       // Every registration is its own entry, so the same pair runs once per
       // call.
-      this.#disposers._add(dispose, receiver);
+      this.#disposers.add(dispose, receiver);
     }
   }
 
@@ -342,13 +342,13 @@ export class Gesture<
           return;
         }
 
-        if (!this.#steps._empty) {
-          this.#steps._run(this.#session ? this.#session._stepTarget() : null);
-        } else if (!this.#session?._advance()) {
+        if (!this.#steps.empty) {
+          this.#steps.run(this.#session ? this.#session.stepTarget() : null);
+        } else if (!this.#session?.advance()) {
           return;
         }
       } catch (error) {
-        this._raise(error);
+        this.raise(error);
       }
     }
   }
@@ -416,8 +416,8 @@ export class Gesture<
 
     this.#resolveDestroyed = null;
     this.#session = null;
-    this.#steps._clear();
-    session?._terminate();
+    this.#steps.clear();
+    session?.terminate();
 
     runDisposers(this.#disposers, null, this);
 

@@ -13,8 +13,8 @@ export function listenForInvalidation(
 }
 
 export interface FrameTask {
-  _schedule(): void;
-  _cancel(): void;
+  schedule(): void;
+  cancel(): void;
 }
 
 /** One coalesced animation-frame callback. */
@@ -26,12 +26,12 @@ export function createFrameTask(window: Window, run: () => void): FrameTask {
   };
 
   return {
-    _schedule() {
+    schedule() {
       if (handle === 0) {
         handle = window.requestAnimationFrame(fire);
       }
     },
-    _cancel() {
+    cancel() {
       if (handle !== 0) {
         window.cancelAnimationFrame(handle);
         handle = 0;

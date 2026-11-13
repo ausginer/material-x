@@ -36,9 +36,9 @@ const DEFAULT_EASING = 'ease-out';
 
 /** One element's animation, and the viewport vector it started with. */
 type RowAnimation = Readonly<{
-  _animation: Animation;
-  _dx: number;
-  _dy: number;
+  animation: Animation;
+  dx: number;
+  dy: number;
 }>;
 
 /**
@@ -77,11 +77,11 @@ export const layoutAnimation =
         const previous = running.get(element);
 
         if (previous) {
-          const remaining = remainingOf(previous._animation);
+          const remaining = remainingOf(previous.animation);
 
-          sx += previous._dx * remaining;
-          sy += previous._dy * remaining;
-          previous._animation.cancel();
+          sx += previous.dx * remaining;
+          sy += previous.dy * remaining;
+          previous.animation.cancel();
           running.delete(element);
         }
 
@@ -103,11 +103,7 @@ export const layoutAnimation =
           ],
           { duration, easing, composite: 'add' },
         );
-        const record: RowAnimation = {
-          _animation: animation,
-          _dx: sx,
-          _dy: sy,
-        };
+        const record: RowAnimation = { animation, dx: sx, dy: sy };
 
         // The identity test keeps a fold's cancellation from evicting the record
         // that replaced it. A cancel rejects `finished`, and each cancel has already
@@ -134,9 +130,9 @@ export const layoutAnimation =
           const held = running.get(items[i]!);
 
           if (held) {
-            const remaining = remainingOf(held._animation);
-            const dx = held._dx * remaining;
-            const dy = held._dy * remaining;
+            const remaining = remainingOf(held.animation);
+            const dx = held.dx * remaining;
+            const dy = held.dy * remaining;
             const offset = i * STRIDE;
             const left = values[offset + LEFT]! - dx;
             const right = values[offset + RIGHT]! - dx;
@@ -153,7 +149,7 @@ export const layoutAnimation =
         }
       },
       retire(): void {
-        for (const { _animation: animation } of running.values()) {
+        for (const { animation } of running.values()) {
           animation.cancel();
         }
 

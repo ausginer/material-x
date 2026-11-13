@@ -3,7 +3,7 @@ import type { List as CallbackList } from './callbacks.ts';
 import type { Outcome } from './outcome.ts';
 
 export interface Fallible {
-  _raise(error: unknown): void;
+  raise(error: unknown): void;
 }
 
 /**
@@ -77,7 +77,7 @@ export type KernelDrag<Operation> = Writable<Drag<Operation>>;
 
 /**
  * Runs one disposer added after release, on its receiver or with none. A throw
- * is reported through `_raise`, called on the controller.
+ * is reported through `raise`, called on the controller.
  */
 export function runDragDisposer<Argument>(
   dispose: (this: object | undefined, argument: Argument) => void,
@@ -88,13 +88,13 @@ export function runDragDisposer<Argument>(
   try {
     dispose.call(receiver, argument);
   } catch (error) {
-    controller._raise(error);
+    controller.raise(error);
   }
 }
 
 /**
  * Runs every disposer in `disposers`, a list `stack()` made, so last in first
- * out. A throw is reported through `_raise`, called on the controller, and the
+ * out. A throw is reported through `raise`, called on the controller, and the
  * walk continues.
  */
 export function runDisposers<Argument>(
@@ -102,11 +102,11 @@ export function runDisposers<Argument>(
   argument: Argument,
   controller: Fallible,
 ): void {
-  while (!disposers._empty) {
+  while (!disposers.empty) {
     try {
-      disposers._run(argument);
+      disposers.run(argument);
     } catch (error) {
-      controller._raise(error);
+      controller.raise(error);
     }
   }
 }

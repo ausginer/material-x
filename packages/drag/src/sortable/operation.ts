@@ -89,7 +89,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   start(): void {
-    this.#behavior._config.onStart?.(this.#query.item);
+    this.#behavior.config.onStart?.(this.#query.item);
   }
 
   move(): void {
@@ -97,20 +97,20 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       this.#drag.x - this.#drag.originX,
       this.#drag.y - this.#drag.originY,
     );
-    this.#frame._schedule();
+    this.#frame.schedule();
   }
 
   drop(): VerdictAwaiter<ReorderResolution> | null {
     const isPointerOperation = this.#direction === null;
 
-    this.#frame._cancel();
+    this.#frame.cancel();
 
     if (isPointerOperation) {
-      this.#behavior._axis.confirm(this.#query, this.#context);
+      this.#behavior.axis.confirm(this.#query, this.#context);
       this.#query.pointerX = this.#drag.x;
       this.#query.pointerY = this.#drag.y;
       this.#query.insertion =
-        this.#behavior._axis.resolve(this.#query, this.#context) ??
+        this.#behavior.axis.resolve(this.#query, this.#context) ??
         this.#query.insertion;
     }
 
@@ -133,26 +133,26 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     return request.to === request.from
       ? null
       : (signal: AbortSignal) =>
-          this.#behavior._config.onReorder(request, { signal });
+          this.#behavior.config.onReorder(request, { signal });
   }
 
   settle(outcome: Outcome<ReorderResolution>): void {
     const recovery = this.#recordResult(outcome);
 
-    if (this.#behavior._landing && recovery !== RECOVERY_IMMEDIATE) {
+    if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
       // Called once: it moves the placeholder and then reads layout.
       const { left, top } = this.#landingTarget(recovery);
 
-      this.#lift.land(left, top, this.#behavior._landing);
+      this.#lift.land(left, top, this.#behavior.landing);
     }
   }
 
   end(): void {
-    this.#behavior._config.onEnd?.(this.#result!);
+    this.#behavior.config.onEnd?.(this.#result!);
   }
 
   /** The collection was pulled again: rebases the gap, or cancels. */
-  _rebase(next: CollectionSnapshot): void {
+  rebase(next: CollectionSnapshot): void {
     this.#query.snapshot = next;
     this.#home = homeInsertion(next, this.#drag.item);
 
@@ -172,15 +172,15 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       this.#drag.requestCancel(CANCEL_ITEM_REMOVED);
     }
 
-    this.#behavior._axis.invalidate();
+    this.#behavior.axis.invalidate();
   }
 
   /** The gap under the pointer, and the placeholder moved to it. */
-  _updateInsertion(): void {
+  updateInsertion(): void {
     this.#query.pointerX = this.#drag.x;
     this.#query.pointerY = this.#drag.y;
 
-    const resolved = this.#behavior._axis.resolve(this.#query, this.#context);
+    const resolved = this.#behavior.axis.resolve(this.#query, this.#context);
 
     if (resolved === null) {
       return;
@@ -196,11 +196,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
 
     try {
       movePlaceholder(this.#context.placeholder, resolved);
-      this.#behavior._axis.moved(this.#query, this.#context);
+      this.#behavior.axis.moved(this.#query, this.#context);
       stale = false;
     } finally {
       if (stale) {
-        this.#behavior._axis.invalidate();
+        this.#behavior.axis.invalidate();
       }
     }
   }
