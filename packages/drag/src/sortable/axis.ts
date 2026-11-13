@@ -3,8 +3,8 @@ import type { Space } from '@ydinjs/box-quad';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 
 /**
- * Receives what committed moves displaced, and settles the geometry an axis
- * measures. Its members are always called on the sink, so they may read `this`.
+ * Receives what committed moves displaced, and answers what each displaced element
+ * carries. Its members are always called on the sink, so they may read `this`.
  */
 export interface DisplacementSink {
   /**
@@ -13,19 +13,15 @@ export interface DisplacementSink {
    */
   report(element: HTMLElement, dx: number, dy: number, space: Space): void;
   /**
-   * Turns the slots from `first` to before `end` of a buffer an axis has just
-   * measured into settled geometry, by subtracting what the sink currently holds
-   * for each slot's element. `items` is parallel to the slots, and nothing outside
-   * the range is read or written. It computes the answer from animation timing and
-   * reads no layout. So no animation is cancelled for a rebuild, and a row never
-   * jumps back.
+   * Whether a running animation currently displaces `element`. When it does, `dx`
+   * and `dy` hold what it carries, in viewport units, until the next call. A
+   * measurement subtracts them to get settled geometry. It computes the answer from
+   * animation timing and reads no layout. So no animation is cancelled for a
+   * rebuild, and a row never jumps back.
    */
-  settle(
-    values: number[] | Float64Array,
-    items: readonly HTMLElement[],
-    first: number,
-    end: number,
-  ): void;
+  displaced(element: HTMLElement): boolean;
+  readonly dx: number;
+  readonly dy: number;
   retire(this: DisplacementSink): void;
 }
 

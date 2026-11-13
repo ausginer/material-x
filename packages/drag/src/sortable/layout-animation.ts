@@ -4,7 +4,7 @@
  *
  * This feature measures nothing: the vectors come from the axis. It owns duration,
  * easing and the animations it starts. A rebuild never cancels an animation, because
- * that would leave a window in which a row has jumped. `settle` subtracts what each
+ * that would leave a window in which a row has jumped. `displaced` answers what an
  * animation currently carries, from its timing, with no layout read.
  *
  * Animations fold and do not stack. A second move arriving mid-flight cancels the
@@ -16,15 +16,6 @@
  */
 import { delta, localDelta, type Space } from '@ydinjs/box-quad';
 import type { DisplacementInstaller, DisplacementSink } from './axis.ts';
-import {
-  BOTTOM,
-  CENTER_X,
-  CENTER_Y,
-  LEFT,
-  RIGHT,
-  STRIDE,
-  TOP,
-} from './rect-index.ts';
 
 export type LayoutAnimationOptions = Readonly<{
   duration?: number;
@@ -69,6 +60,9 @@ export const layoutAnimation =
   () => {
     const running = new Map<HTMLElement, RowAnimation>();
     const local = delta();
+    // What the last `displaced` call answered with, read through the getters.
+    let carriedX = 0;
+    let carriedY = 0;
 
     return {
       report(element: HTMLElement, dx: number, dy: number, space: Space): void {
@@ -95,7 +89,7 @@ export const layoutAnimation =
         // authored transform, and an additive `transform` would land inside the
         // element's own `scale()`. `translate` applies before `transform`, and only
         // this keyframe is in local units: what the sink stores stays in viewport
-        // units, which is what the settle walk assumes.
+        // units, which is what a settled measurement assumes.
         const animation = element.animate(
           [
             { translate: `${local[0]!}px ${local[1]!}px` },
@@ -115,38 +109,24 @@ export const layoutAnimation =
         }, ignoreRejection);
         running.set(element, record);
       },
-      settle(
-        values: number[] | Float64Array,
-        items: readonly HTMLElement[],
-        first: number,
-        end: number,
-      ): void {
-        // The common rebuild has nothing in flight.
-        if (running.size === 0) {
-          return;
+      get dx(): number {
+        return carriedX;
+      },
+      get dy(): number {
+        return carriedY;
+      },
+      displaced(element: HTMLElement): boolean {
+        const held = running.get(element);
+
+        if (!held) {
+          return false;
         }
 
-        for (let i = first; i < end; i += 1) {
-          const held = running.get(items[i]!);
+        const remaining = remainingOf(held.animation);
 
-          if (held) {
-            const remaining = remainingOf(held.animation);
-            const dx = held.dx * remaining;
-            const dy = held.dy * remaining;
-            const offset = i * STRIDE;
-            const left = values[offset + LEFT]! - dx;
-            const right = values[offset + RIGHT]! - dx;
-            const top = values[offset + TOP]! - dy;
-            const bottom = values[offset + BOTTOM]! - dy;
-
-            values[offset + LEFT] = left;
-            values[offset + RIGHT] = right;
-            values[offset + CENTER_X] = (left + right) * 0.5;
-            values[offset + TOP] = top;
-            values[offset + BOTTOM] = bottom;
-            values[offset + CENTER_Y] = (top + bottom) * 0.5;
-          }
-        }
+        carriedX = held.dx * remaining;
+        carriedY = held.dy * remaining;
+        return true;
       },
       retire(): void {
         for (const { animation } of running.values()) {

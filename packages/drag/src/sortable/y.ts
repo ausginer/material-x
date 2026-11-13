@@ -22,9 +22,8 @@
  * and the placeholder on the next frame.
  */
 import type { AxisInstaller } from './axis.ts';
-import { insertionAt } from './domain.ts';
 import { linearShift } from './linear-shift.ts';
-import { CENTER_Y, RectIndex, STRIDE } from './rect-index.ts';
+import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
 
 /**
  * The axis rule for a single column. The rows' centers must increase along y in
@@ -35,7 +34,7 @@ import { CENTER_Y, RectIndex, STRIDE } from './rect-index.ts';
  */
 export function y(): AxisInstaller {
   return () => {
-    const index = new RectIndex();
+    const index = new RectIndex(TOP);
     const shift = linearShift(index);
 
     return {
@@ -54,15 +53,15 @@ export function y(): AxisInstaller {
         );
 
         // Read once, outside the candidate loop.
-        const { values, first, end } = index;
-        const anchor = index.placeholderRect[CENTER_Y]!;
+        const { first, end } = index;
+        const anchor = index.at(PLACEHOLDER, CENTER_Y);
         let best = Math.abs(pointerY - anchor);
         let nearest = -1;
 
         // The window only: it holds the nearest center, and the first in order
         // among equals.
         for (let i = first; i < end; i += 1) {
-          const distance = Math.abs(pointerY - values[i * STRIDE + CENTER_Y]!);
+          const distance = Math.abs(pointerY - index.at(i, CENTER_Y));
 
           if (distance < best) {
             best = distance;
@@ -76,10 +75,9 @@ export function y(): AxisInstaller {
 
         // On one axis, the side of `nearest` the placeholder is traveling from
         // is a comparison of two centers the scan already holds.
-        const gap =
-          values[nearest * STRIDE + CENTER_Y]! > anchor ? nearest + 1 : nearest;
-
-        return insertionAt(index.items, gap);
+        return index.insertion(
+          index.at(nearest, CENTER_Y) > anchor ? nearest + 1 : nearest,
+        );
       },
 
       invalidate() {

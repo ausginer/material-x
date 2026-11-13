@@ -11,13 +11,13 @@
  * resolution with nothing stale reads no layout.
  */
 import type { AxisInstaller, DisplacementSink } from './axis.ts';
-import { type CollectionSnapshot, insertionAt } from './domain.ts';
+import type { CollectionSnapshot } from './domain.ts';
 import {
   CENTER_X,
   CENTER_Y,
   LEFT,
+  PLACEHOLDER,
   RectIndex,
-  STRIDE,
   TOP,
 } from './rect-index.ts';
 
@@ -70,16 +70,15 @@ export function xy(): AxisInstaller {
         last = query.insertion.index;
 
         // Read once, outside the candidate loop.
-        const { values, count, placeholderRect, items } = index;
-        const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
-        const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
+        const { count } = index;
+        const dxAnchor = pointerX - index.at(PLACEHOLDER, CENTER_X);
+        const dyAnchor = pointerY - index.at(PLACEHOLDER, CENTER_Y);
         let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
         let nearest = -1;
 
         for (let i = 0; i < count; i += 1) {
-          const offset = i * STRIDE;
-          const dx = pointerX - values[offset + CENTER_X]!;
-          const dy = pointerY - values[offset + CENTER_Y]!;
+          const dx = pointerX - index.at(i, CENTER_X);
+          const dy = pointerY - index.at(i, CENTER_Y);
           const distance = dx * dx + dy * dy;
 
           if (distance < best) {
@@ -93,12 +92,12 @@ export function xy(): AxisInstaller {
         }
 
         const position = context.placeholder.compareDocumentPosition(
-          items[nearest]!,
+          index.item(nearest),
         );
         // oxlint-disable-next-line no-bitwise -- a documented bitfield
         const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
 
-        return insertionAt(items, follows ? nearest + 1 : nearest);
+        return index.insertion(follows ? nearest + 1 : nearest);
       },
 
       invalidate,
@@ -132,12 +131,10 @@ export function xy(): AxisInstaller {
           before = new Float64Array(held * 2);
         }
 
-        // Read once, outside the loop, before the refresh rewrites the buffer.
-        const stale = index.values;
-
+        // Before the refresh rewrites the slots.
         for (let i = 0; i < held; i += 1) {
-          before[i * 2] = stale[i * STRIDE + LEFT]!;
-          before[i * 2 + 1] = stale[i * STRIDE + TOP]!;
+          before[i * 2] = index.at(i, LEFT);
+          before[i * 2 + 1] = index.at(i, TOP);
         }
 
         index.invalidate();
@@ -154,16 +151,15 @@ export function xy(): AxisInstaller {
         // Moving the placeholder reorders nothing in the destination view, so
         // slot `i` is the same element on both sides of the write. Read once,
         // outside the loop.
-        const { values, items, count } = index;
+        const { count } = index;
         const span = count < held ? count : held;
 
         for (let i = 0; i < span; i += 1) {
-          const offset = i * STRIDE;
-          const dx = before[i * 2]! - values[offset + LEFT]!;
-          const dy = before[i * 2 + 1]! - values[offset + TOP]!;
+          const dx = before[i * 2]! - index.at(i, LEFT);
+          const dy = before[i * 2 + 1]! - index.at(i, TOP);
 
           if (dx !== 0 || dy !== 0) {
-            displacement.report(items[i]!, dx, dy, context.space);
+            displacement.report(index.item(i), dx, dy, context.space);
           }
         }
       },

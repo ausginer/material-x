@@ -1,12 +1,11 @@
 /**
- * The sortable tests that read the displacement sink's `report` and `settle`,
- * which only the unpublished installer types declare, and the rect index's
- * layout. They run in the source projects only.
+ * The sortable tests that read the displacement sink's `report` and `displaced`,
+ * which only the unpublished installer types declare. They run in the source
+ * projects only.
  */
 import { describe, expect, it, vi } from 'vitest';
 import type { DisplacementSink } from '../src/sortable/axis.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
-import { STRIDE, TOP } from '../src/sortable/rect-index.ts';
 import { xy } from '../src/sortable/xy.ts';
 import {
   basicSortable,
@@ -24,88 +23,65 @@ import {
   rowsOf,
 } from './support/harness.ts';
 
-/** One `settle` call, with the rows read since the call before it. */
-type SettleCall = Readonly<{
-  values: number[] | Float64Array;
-  items: readonly HTMLElement[];
-  first: number;
-  end: number;
-  /** `items`'s length, and its range's elements, when the call returns. */
-  length: number;
-  range: readonly HTMLElement[];
+/** One `displaced` call, with the rows read since the call before it. */
+type DisplacedCall = Readonly<{
+  element: HTMLElement;
+  /** What the sink answered, and the y offset it then held. */
+  carried: boolean;
+  dy: number;
   /** The destination rows whose rect was read since the previous call. */
   read: readonly Element[];
-  /** A copy of the range's slots, taken when the call returns. */
-  settled: number[] | Float64Array;
+  /** The presented top of the last row read. */
+  top: number;
 }>;
 
 /**
- * Wraps `sink.settle` and the rect read, and records each call. A measurement
- * passes the cache's slot array, a `number[]` with a slot per destination row. The
- * drop's confirmation and the linear shift's probe pass a one-slot scratch, a
- * `Float64Array` of `STRIDE` values.
+ * Wraps `sink.displaced` and the rect read, and records each call. A measurement,
+ * the drop's confirmation and the linear shift's probe each read one row and then
+ * ask the sink about that row.
  */
-function recordSettles(
+function recordDisplaced(
   sink: DisplacementSink,
   dragged: HTMLElement,
-): SettleCall[] {
-  const calls: SettleCall[] = [];
+): DisplacedCall[] {
+  const calls: DisplacedCall[] = [];
   let read: Element[] = [];
+  let top = Number.NaN;
   const readRect = Element.prototype.getBoundingClientRect;
-  const settle = sink.settle.bind(sink);
+  const displaced = sink.displaced.bind(sink);
 
   Element.prototype.getBoundingClientRect = function recorded(this: Element) {
+    const rect = readRect.call(this);
+
     if (
       this !== dragged &&
       this.classList.contains('row') &&
       !this.hasAttribute('data-drag-placeholder')
     ) {
       read.push(this);
+      ({ top } = rect);
     }
 
-    return readRect.call(this);
+    return rect;
   };
   onCleanup(() => {
     Element.prototype.getBoundingClientRect = readRect;
   });
-  sink.settle = (values, items, first, end) => {
-    settle(values, items, first, end);
-    calls.push({
-      values,
-      items,
-      first,
-      end,
-      length: items.length,
-      range: items.slice(first, end),
-      read,
-      settled: values.slice(first * STRIDE, end * STRIDE),
-    });
+  sink.displaced = (element) => {
+    const carried = displaced(element);
+
+    calls.push({ element, carried, dy: sink.dy, read, top });
     read = [];
+    return carried;
   };
 
   return calls;
 }
 
-/** The calls a measurement made: it passes the slot array, not a scratch. */
-function measurementsOf(calls: readonly SettleCall[]): SettleCall[] {
-  return calls.filter((call) => Array.isArray(call.values));
-}
-
-/**
- * The cache's own slot array and element array, the same two objects in every
- * call, each call with the range whose rows it read.
- */
-function expectCacheRanges(
-  measurements: readonly SettleCall[],
-  destination: number,
-): void {
-  expect(new Set(measurements.map((call) => call.values)).size).toBe(1);
-  expect(new Set(measurements.map((call) => call.items)).size).toBe(1);
-
-  for (const { values, length, range, read } of measurements) {
-    expect(Array.isArray(values)).toBe(true);
-    expect(length).toBe(destination);
-    expect(read).toEqual(range);
+/** Each call asked about exactly the row read before it, and nothing else read. */
+function expectOwnRows(calls: readonly DisplacedCall[]): void {
+  for (const { element, read } of calls) {
+    expect(read).toEqual([element]);
   }
 }
 
@@ -124,7 +100,7 @@ describe('sortable options', () => {
 
     // The spies call the class's methods with the receiver they are given.
     const report = vi.spyOn(sink!, 'report');
-    const settle = vi.spyOn(sink!, 'settle');
+    const displaced = vi.spyOn(sink!, 'displaced');
     const start = await press('#r0');
 
     await commands.pointerMove(start.x, start.y + 20, 2);
@@ -134,8 +110,8 @@ describe('sortable options', () => {
     await frames(3);
 
     const firstReport = report.mock.invocationCallOrder[0]!;
-    const settledInFlight = settle.mock.contexts.filter(
-      (_, call) => settle.mock.invocationCallOrder[call]! > firstReport,
+    const settledInFlight = displaced.mock.contexts.filter(
+      (_, call) => displaced.mock.invocationCallOrder[call]! > firstReport,
     );
     const running = rowsOf(list).reduce(
       (sum, row) => sum + row.getAnimations().length,
@@ -153,7 +129,7 @@ describe('sortable options', () => {
     expect(settledInFlight.every((context) => context === sink)).toBe(true);
   });
 
-  it("drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array", async () => {
+  it('drag:DRD-50 should settle each row y() measures by asking the sink about that row', async () => {
     const list = makeList(12);
     const install = layoutAnimation({ duration: 3000 });
     let sink: DisplacementSink | null = null;
@@ -165,7 +141,7 @@ describe('sortable options', () => {
       },
     });
 
-    const calls = recordSettles(sink!, document.querySelector('#r0')!);
+    const calls = recordDisplaced(sink!, document.querySelector('#r0')!);
     const start = await press('#r0');
 
     await commands.pointerMove(start.x, start.y + 20, 2);
@@ -179,24 +155,16 @@ describe('sortable options', () => {
 
     await release();
 
-    const measurements = measurementsOf(calls);
-
-    expectCacheRanges(measurements, 11);
+    expectOwnRows(calls);
+    // The window grew across at least three slots after slot 0.
     expect(
-      measurements.filter((call) => call.first > 0).length,
-    ).toBeGreaterThanOrEqual(3);
+      new Set(calls.map((call) => call.element)).size,
+    ).toBeGreaterThanOrEqual(4);
     expect(faults).toEqual([]);
     expect(log).toEqual(['start', 'end:accepted']);
-    // The confirmation and the probe: one slot, its own row.
-    for (const { items, first, end, range, read } of calls) {
-      if (!measurements.some((call) => call.items === items)) {
-        expect([first, end]).toEqual([0, 1]);
-        expect(read).toEqual(range);
-      }
-    }
   });
 
-  it("drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array", async () => {
+  it('drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row', async () => {
     const list = makeList(
       12,
       document.body,
@@ -218,7 +186,7 @@ describe('sortable options', () => {
       },
     });
 
-    const calls = recordSettles(sink!, document.querySelector('#r0')!);
+    const calls = recordDisplaced(sink!, document.querySelector('#r0')!);
     const start = centerOf('#r0');
 
     // Two committed moves: each rebuilds the field with the sink composed.
@@ -227,12 +195,10 @@ describe('sortable options', () => {
     await moveHeld(start.x + 200, start.y);
     await release();
 
-    const measurements = measurementsOf(calls);
-
-    expectCacheRanges(measurements, 11);
-    expect(
-      measurements.filter((call) => call.first === 0 && call.end === 11).length,
-    ).toBeGreaterThanOrEqual(2);
+    expectOwnRows(calls);
+    // Two rebuilds of the 11 destination rows, at least.
+    expect(new Set(calls.map((call) => call.element)).size).toBe(11);
+    expect(calls.length).toBeGreaterThanOrEqual(22);
     expect(faults).toEqual([]);
     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(2);
   });
@@ -250,7 +216,7 @@ describe('sortable options', () => {
       },
     });
     const dragged = document.querySelector<HTMLElement>('#r0')!;
-    const calls = recordSettles(sink!, dragged);
+    const calls = recordDisplaced(sink!, dragged);
     // Layout values that ignore transforms: where flow puts a row.
     const flowTop = (row: HTMLElement): number =>
       list.getBoundingClientRect().top + row.offsetTop - list.offsetTop;
@@ -314,15 +280,10 @@ describe('sortable options', () => {
 
     await moveHeld(start.x, pointerY);
 
-    const overR3 = measurementsOf(calls).find((call) =>
-      call.range.includes(r3),
-    )!;
+    const overR3 = calls.find((call) => call.element === r3)!;
 
-    expect(overR3.first).toBeGreaterThan(0);
-    expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).toBeCloseTo(
-      settledTop,
-      0,
-    );
+    expect(overR3.carried).toBe(true);
+    expect(overR3.top - overR3.dy).toBeCloseTo(settledTop, 0);
     expect(placeholderGap()).toBe(expected);
     expect(expected).toBe(3);
     expect(r3.getAnimations()).toHaveLength(1);
