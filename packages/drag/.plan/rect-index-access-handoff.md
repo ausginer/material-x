@@ -187,10 +187,12 @@ Save every printed line, with each function's bytes. Report the means and ranges
 
 **How the report reads it:**
 
-- **"No difference shown"** isn't a finding of equal speed. Report the median difference and the A/A bound, in µs and as a share of the base's mean operation. A slowdown smaller than the bound is unmeasured, and the report says so. `DRD-50`'s bounds were 27 % and 39 % of a rebuild.
+- **"No difference shown"** is inconclusive: the run met neither the "slower" rule nor the "faster" rule. It isn't a finding of equal speed. Report the sign counts, the median difference and the A/A threshold that the rule used, in µs and as a share of the base's operation. None of them limits the size of a slowdown that the check could have missed. A slowdown smaller than the threshold can't read "slower", and a larger one can also fail the rule when fewer than 6 of 7 rounds agree. The speed the check doesn't resolve is unmeasured, and the report says so.
 - **"Faster"** applies to that case only.
 - **"Slower"** in any case doesn't return the unit and reverts nothing. Finish the report and flag it at the top. The architect takes it to the owner before the report is accepted (Part II §0 and §14).
 - **Allocation isn't speed.** The report gives item 6's reductions as bytes allocated. No sentence infers a speed-up from them, and the speed that item 7 doesn't resolve is stated as unmeasured.
+
+**Corrected on 2026-11-13,** after the unit's report ([assessment](rect-index-access-assessment.md) §3.2). The first bullet said: "Report the median difference and the A/A bound, in µs and as a share of the base's mean operation. A slowdown smaller than the bound is unmeasured, and the report says so. `DRD-50`'s bounds were 27 % and 39 % of a rebuild." The report contents below asked for "each case's verdict and bound". Both read the A/A threshold as a limit on the slowdown the check would catch. The rule in property 5 doesn't change.
 
 ## Verification
 
@@ -239,7 +241,7 @@ Write `rect-index-access-report.md` beside this file. Save under `measurements/`
 - where the code differs from the reference patch, and why;
 - the size table, with each `sortable` row's difference and the verdicts;
 - **allocation, under its own heading,** as bytes allocated;
-- **timing, under its own heading,** with each case's verdict and bound, and what stays unmeasured;
+- **timing, under its own heading,** with each case's verdict, sign counts, median difference and A/A threshold, and what stays unmeasured;
 - the lint and typecheck baselines and end, with no new error and no repair;
 - what didn't run, and why.
 
