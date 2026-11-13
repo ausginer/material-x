@@ -110,7 +110,7 @@ export function linearShift(index: RectIndex): LinearShift {
    * no function. The center is recomputed from the shifted edges, so the arithmetic
    * is the one a full scan performs.
    */
-  const advance = (values: Float64Array, lo: number, hi: number): void => {
+  const advance = (values: number[], lo: number, hi: number): void => {
     for (let i = lo; i < hi; i += 1) {
       const offset = i * STRIDE;
       const top = values[offset + TOP]! + delta;
@@ -165,7 +165,7 @@ export function linearShift(index: RectIndex): LinearShift {
 
       index._collect(snapshot, dragged, placeholder, gap);
 
-      // Read once: `_measure` writes into this buffer and never replaces it.
+      // Read once, outside the loops.
       const { _values: values, _count: count } = index;
 
       // Toward the pointer only: under the order term, a slot on the other side of

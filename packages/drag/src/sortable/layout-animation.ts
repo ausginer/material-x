@@ -120,7 +120,7 @@ export const layoutAnimation =
         running.set(element, record);
       },
       settle(
-        values: Float64Array,
+        values: number[] | Float64Array,
         items: readonly HTMLElement[],
         first: number,
         end: number,

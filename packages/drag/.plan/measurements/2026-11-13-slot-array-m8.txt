@@ -1,0 +1,59 @@
+# patch, against 5ec3b4b2d's layout-animation.ts
+--- layout-animation.end.ts	2026-11-13 09:42:22.531753216 +0000
++++ wt-end/packages/drag/src/sortable/layout-animation.ts	2026-11-13 09:42:22.539323409 +0000
+@@ -130,7 +130,7 @@
+           return;
+         }
+ 
+-        for (let i = first; i < end; i += 1) {
++        for (let i = 0; i < end - first; i += 1) {
+           const held = running.get(items[i]!);
+ 
+           if (held) {
+# output
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag
+
+9:42:23 AM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=5a47491f
+ ↓ |browser (chromium)| tests/displacement-sink.browser.test.ts:113 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+ ↓ |browser (chromium)| tests/displacement-sink.browser.test.ts:156 > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array
+ ↓ |browser (chromium)| tests/displacement-sink.browser.test.ts:199 > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array
+stderr | tests/displacement-sink.browser.test.ts:240 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+[Error: Uncaught DragFault: drag: drag: the predicted insertion geometry disagreed with a fresh measurement at slot 1; the linear shift rule does not hold for this list]
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:240 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 355ms
+   → expected 119.94444274902344 to be close to 80, received difference is 39.94444274902344, but expected 0.5
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:240 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected 119.94444274902344 to be close to 80, received difference is 39.94444274902344, but expected 0.5
+ ❯ tests/displacement-sink.browser.test.ts:322:69
+    320|
+    321|     expect(overR3.first).toBeGreaterThan(0);
+    322|     expect(overR3.settled[overR3.range.indexOf(r3) * STRIDE + TOP]).to…
+       |                                                                     ^
+    323|       settledTop,
+    324|       0,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 skipped (4)
+   Start at  09:42:23
+   Duration  1.21s (worker 52%, tests 43%, import 5%)
+

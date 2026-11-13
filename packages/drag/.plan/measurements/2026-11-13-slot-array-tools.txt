@@ -1,0 +1,34 @@
+# base, at 706b91481, from packages/drag
+node v26.13.0
+rolldown 1.3.2 ../../node_modules/rolldown/package.json
+tsdown 0.23.7 ../../node_modules/tsdown/package.json
+vitest 5.1.0 ../../node_modules/vitest/package.json
+@vitest/browser-playwright 5.1.0 ../../node_modules/@vitest/browser-playwright/package.json
+playwright 1.65.0 ../../node_modules/playwright/package.json
+typescript 6.0.2 ../../node_modules/typescript/package.json
+typedoc 0.28.20 ../../node_modules/typedoc/package.json
+size-limit 14.3.0 ../../node_modules/size-limit/package.json
+@size-limit/file 14.3.0 ../../node_modules/@size-limit/file/package.json
+chrome Google Chrome for Testing 157.0.8103.38 
+
+# end, at 5ec3b4b2d, from packages/drag
+node v26.13.0
+rolldown 1.3.2 ../../node_modules/rolldown/package.json
+tsdown 0.23.7 ../../node_modules/tsdown/package.json
+vitest 5.1.0 ../../node_modules/vitest/package.json
+@vitest/browser-playwright 5.1.0 ../../node_modules/@vitest/browser-playwright/package.json
+playwright 1.65.0 ../../node_modules/playwright/package.json
+typescript 6.0.2 ../../node_modules/typescript/package.json
+typedoc 0.28.20 ../../node_modules/typedoc/package.json
+size-limit 14.3.0 ../../node_modules/size-limit/package.json
+@size-limit/file 14.3.0 ../../node_modules/@size-limit/file/package.json
+chrome Google Chrome for Testing 157.0.8103.38 
+
+# the script
+#!/bin/bash
+# Prints the unit's tool list, resolved from the current directory (packages/drag).
+echo "node $(node --version)"
+for p in rolldown tsdown vitest @vitest/browser-playwright playwright typescript typedoc size-limit @size-limit/file; do
+  node -e "const {createRequire}=require('module');const r=createRequire(process.cwd()+'/');let f;try{f=r.resolve('$p/package.json')}catch{const path=require('path');let d=path.dirname(r.resolve('$p'));while(!require('fs').existsSync(d+'/package.json'))d=path.dirname(d);f=d+'/package.json'}const j=require(f);console.log('$p',j.version,require('path').relative(process.cwd(),f))"
+done
+echo "chrome $(/usr/local/bin/chrome --version 2>/dev/null)"

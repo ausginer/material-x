@@ -1,0 +1,12 @@
+diff -ru dts-base/sortable/axis.d.ts dts-end/sortable/axis.d.ts
+--- dts-base/sortable/axis.d.ts	2026-11-13 09:29:43.000000000 +0000
++++ dts-end/sortable/axis.d.ts	2026-11-13 09:41:21.000000000 +0000
+@@ -19,7 +19,7 @@
+    * reads no layout. So no animation is cancelled for a rebuild, and a row never
+    * jumps back.
+    */
+-  settle(values: Float64Array, items: readonly HTMLElement[], first: number, end: number): void;
++  settle(values: number[] | Float64Array, items: readonly HTMLElement[], first: number, end: number): void;
+   retire(this: DisplacementSink): void;
+ }
+ export type DisplacementInstaller = () => DisplacementSink;

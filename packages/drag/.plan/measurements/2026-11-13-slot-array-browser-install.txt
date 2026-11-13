@@ -1,0 +1,76 @@
+Removing unused browser at /home/node/.cache/ms-playwright/firefox-1555
+Removing unused browser at /home/node/.cache/ms-playwright/webkit-2370
+Removing unused browser at /home/node/.cache/ms-playwright/webkit-deps-trixie
+Removing unused browser at /home/node/.cache/ms-playwright/webkit-env.sh
+Downloading Firefox 159.0 (playwright firefox v1572)[2m from https://cdn.playwright.dev/dbazure/download/playwright/builds/firefox/1572/firefox-debian-13.zip[22m
+|                                                                                |   0% of 113.5 MiB
+Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:221:20) {
+  errno: -104,
+  code: 'ECONNRESET',
+  syscall: 'read'
+}
+Downloading Firefox 159.0 (playwright firefox v1572)[2m from https://playwright.download.prss.microsoft.com/dbazure/download/playwright/builds/firefox/1572/firefox-debian-13.zip[22m
+|                                                                                |   0% of 113.5 MiB
+|■■■■■■■■                                                                        |  10% of 113.5 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 113.5 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 113.5 MiB
+Firefox 159.0 (playwright firefox v1572) downloaded to /home/node/.cache/ms-playwright/firefox-1572
+Downloading WebKit 27.2 (playwright webkit v2388)[2m from https://cdn.playwright.dev/dbazure/download/playwright/builds/webkit/2388/webkit-debian-13.zip[22m
+|                                                                                |   0% of 94.7 MiB
+|■■■■■■■■                                                                        |  10% of 94.7 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 94.7 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 94.7 MiB
+WebKit 27.2 (playwright webkit v2388) downloaded to /home/node/.cache/ms-playwright/webkit-2388
+Playwright Host validation warning: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libgstreamer-1.0.so.0                            ║
+║     libgtk-4.so.1                                    ║
+║     libgraphene-1.0.so.0                             ║
+║     libxslt.so.1                                     ║
+║     libevent-2.1.so.7                                ║
+║     libopus.so.0                                     ║
+║     libgstallocators-1.0.so.0                        ║
+║     libgstapp-1.0.so.0                               ║
+║     libgstbase-1.0.so.0                              ║
+║     libgstpbutils-1.0.so.0                           ║
+║     libgstaudio-1.0.so.0                             ║
+║     libgsttag-1.0.so.0                               ║
+║     libgstvideo-1.0.so.0                             ║
+║     libgstgl-1.0.so.0                                ║
+║     libgstcodecparsers-1.0.so.0                      ║
+║     libgstfft-1.0.so.0                               ║
+║     libwebpdemux.so.2                                ║
+║     libjxl.so.0.11                                   ║
+║     libavif.so.16                                    ║
+║     libharfbuzz-icu.so.0                             ║
+║     libwebpmux.so.3                                  ║
+║     libmanette-0.2.so.0                              ║
+║     libenchant-2.so.2                                ║
+║     libsecret-1.so.0                                 ║
+║     libhyphen.so.0                                   ║
+║     libGLESv2.so.2                                   ║
+║     libx264.so                                       ║
+╚══════════════════════════════════════════════════════╝
+    at validateDependenciesLinux (/workspaces/material-x/node_modules/playwright-core/lib/coreBundle.js:33958:9)
+    at async Registry._validateHostRequirements (/workspaces/material-x/node_modules/playwright-core/lib/coreBundle.js:35219:18)
+    at async Registry._validateHostRequirementsForExecutableIfNeeded (/workspaces/material-x/node_modules/playwright-core/lib/coreBundle.js:35353:11)
+    at async Registry.validateHostRequirementsForExecutablesIfNeeded (/workspaces/material-x/node_modules/playwright-core/lib/coreBundle.js:35334:13)
+    at async installBrowsers (/workspaces/material-x/node_modules/playwright-core/lib/coreBundle.js:72905:5)
+    at async _Command.<anonymous> (/workspaces/material-x/node_modules/playwright-core/lib/coreBundle.js:76603:7)

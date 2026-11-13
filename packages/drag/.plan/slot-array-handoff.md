@@ -1,6 +1,10 @@
 # Slot array handoff
 
-**For:** one `implementer` unit on `drag/size`. **Base:** the tip of `drag/size` after `DRD-57`'s unit has landed, which means its rename commit and its report, `mangle-selection-report.md`, are both committed. The architect doesn't have to accept that report first. **If `DRD-57`'s unit hasn't landed, don't start.** Its handoff requires `src` to be `436b105c6`'s, so this unit can't run before it.
+**For:** one `implementer` unit on `drag/size`. **Base:** the tip of `drag/size`, at or after `31bac1381`, the dependency update. `DRD-57`'s unit has landed: its rename is `b50204f66`, and its report, [`mangle-selection-report.md`](mangle-selection-report.md), is `1719df16c`.
+
+**One set of tools.** The base and the end are read with the same installed dependencies, which are those of `31bac1381`'s lockfile. Every check in this unit compares the end with this unit's own base. Readings in `mangle-selection-report.md` and in older records were taken with the tools before the update, so they aren't targets, and nothing in this unit is compared with them. Between item 1 and the end, don't run `npm install` or `npm ci`, and don't change `node_modules`, a lockfile or a browser.
+
+**Owner amendment, 2026-11-13: local browser checks use Chromium only.** Firefox and WebKit checks are deferred to the separate CI that the owner plans; that CI is not established by this handoff. This replaces the browser installation, launch and three-engine requirements below as they stood at `8f18d2f67`. The return at `b66a9bf6d` remains historical evidence. Resume with the current container's Chrome (`/usr/local/bin/chrome`, configured in `.scripts/vitest-config.ts`), without restoring WebKit or installing browsers. The local verification rule is recorded in [the performance plan](performance-plan.md#3-rules-every-unit-follows).
 
 **Governing records:**
 
@@ -34,7 +38,8 @@
 - any fixed-size buffer: `#placeholderRect`, `_holds`'s scratch, `linear-shift.ts`'s probe scratch and `heldPlaceholder`, `ReadonlyFloat64Array`, and everything outside `src/sortable/`, which includes box-quad's out parameters, `free-drag/geometry.ts`, the stories and the fixtures;
 - `xy.ts`'s `before` buffer;
 - `_lend`'s existence or its name. It stays the class's write method;
-- `build/`, `tsdown.config.ts`, `tsconfig.json`, `tests/publication.node.test.ts`, `package.json`, `files.json`, `.scripts/`, `bench/` and every Vitest configuration. That includes every size row, ceiling and control figure;
+- `build/`, `tsdown.config.ts`, `tsconfig.json`, `tests/publication.node.test.ts`, `package.json`, `files.json`, `.scripts/`, `bench/` and every Vitest configuration. That includes every size row, ceiling and control figure. **The build pipeline stays as it is at the base.** The publication redesign is separate work, and nothing from it or from the pinned review enters this unit;
+- the root `package.json`, any lockfile, `node_modules`, browser installations or the host libraries. This unit requires no environment recovery;
 - any committed probe under `.plan/probes/`;
 - `.plan/reviews/`.
 
@@ -42,6 +47,7 @@
 
 - `compare.ts` scenarios, `--prove` or `--floors` without `--dry`. `DRD-58` measures no timing;
 - the page check, B3' or the in-page floors.
+- Firefox or WebKit checks, `npx just test-engines`, browser installation or WebKit dependency recovery.
 
 **Sequencing.** Run any sequence of long processes through `node bench/campaign.ts run`. Wait for it through the runner, a foreground command, or the harness's notice that a background command exited. **Don't wait by searching the process table.**
 
@@ -49,12 +55,14 @@
 
 Before any change, from `packages/drag`:
 
-1. **Record that `DRD-57` landed:** `git log --oneline 436b105c6..HEAD -- packages/drag/src packages/drag/tests packages/drag/bench packages/drag/build` lists only `DRD-57`'s rename commit, and `build/property-names.json` has 53 keys, among them `_values`, `_items` and `_end`.
-2. **Run the Chromium suite through the runner.** The titles and verdicts must equal those that `mangle-selection-report.md` records at its end.
-3. **Take the base size reading** with `npx just size`. Every row must equal that report's end column.
-4. **Keep the base build.** Copy the emitted `.d.ts` files to a scratch directory outside the checkout, for item 4.
-5. **Run `typedoc --options typedoc.json --out <scratch>`** and record its warnings. Expected: exactly `AxisInstaller` and `DisplacementInstaller` (`DRD-39` property 3).
-6. **Take the base allocation readings** (item 5).
+1. **Record the tools:** the versions of Node, `rolldown`, `tsdown`, `vitest`, `@vitest/browser-playwright`, `playwright`, `typescript`, `typedoc`, `size-limit` and `@size-limit/file` as they resolve from `packages/drag`, and Chrome's `--version`. Record the same list again at the end. The two lists must be identical.
+2. **Record that `DRD-57` landed:** `git log --oneline 436b105c6..HEAD -- packages/drag/src packages/drag/tests packages/drag/bench packages/drag/build` lists only `b50204f66`, and `build/property-names.json` has 53 keys, among them `_values`, `_items` and `_end`.
+3. **Run the Chromium suite through the runner,** and record every title and verdict. Every test passes except size rows. Record each size row's verdict as it is: the end is compared with these verdicts.
+4. **Take the base size reading** with `npx just size`, and record every row. Don't compare it with older records.
+5. **Regenerate the map at the base:** `node build/generate-property-names.ts --out <scratch>`, unchanged. The file must be byte-identical to `build/property-names.json`. The architect's run at `31bac1381` with the updated tools gave 53 names and 263 occurrences, and the file was byte-identical.
+6. **Keep the base build.** Copy the emitted `.d.ts` files to a scratch directory outside the checkout, for item 4.
+7. **Run `typedoc --options typedoc.json --out <scratch>`** and record its warnings. Expected: exactly `AxisInstaller` and `DisplacementInstaller` (`DRD-39` property 3).
+8. **Take the base allocation readings** (item 5).
 
 ## Item 2. The slot array
 
@@ -81,10 +89,10 @@ Before any change, from `packages/drag`:
 
 ## Item 4. The publication
 
-1. **The map.** Run `node build/generate-property-names.ts`, unchanged. Its output must be byte-identical to the committed map. If it isn't, stop and return.
+1. **The map.** Run `node build/generate-property-names.ts --out <scratch>`, unchanged. Its output must be byte-identical to the committed map, as at item 1 step 5. If it isn't, stop and return.
 2. **The publication test** (`tests/publication.node.test.ts`) passes, unchanged.
-3. **`.d.ts` files.** Compare every emitted `.d.ts` and `.d.ts.map` with item 1.4's copy. **Exactly one difference is expected:** in `sortable/axis.d.ts`, `settle`'s `values` parameter is `number[] | Float64Array`. Its `.d.ts.map` may differ with it. No `.d.ts` is added or removed. Save the diff.
-4. **`typedoc`** warns exactly as at item 1.5.
+3. **`.d.ts` files.** Compare every emitted `.d.ts` and `.d.ts.map` with item 1 step 6's copy. **Exactly one difference is expected:** in `sortable/axis.d.ts`, `settle`'s `values` parameter is `number[] | Float64Array`. Its `.d.ts.map` may differ with it. No `.d.ts` is added or removed. Save the diff.
+4. **`typedoc`** warns exactly as at item 1 step 7.
 
 ## Item 5. Readings
 
@@ -95,7 +103,7 @@ Before any change, from `packages/drag`:
 - Every row's module list must be unchanged.
 - **A verdict that changes isn't a return condition.** List it, and keep the ceiling. The architect routes it to `DRO-4`.
 
-**Allocation,** with `DRD-52`'s probes, at the base and at the end, in Chromium, in the `shipped` project. Use [the probe README](probes/rect-index-ownership/README.md)'s §Launching the allocation probes: a scratch worktree for each tree, the probe files appended to a scratch copy of `tests/hot-path.browser.test.ts` and never to the committed file, and one probe test per launch, through the runner.
+**Allocation,** with `DRD-52`'s probes, at the base and at the end, in Chromium, in the `shipped` project. Use [the probe README](probes/rect-index-ownership/README.md)'s §Launching the allocation probes: a scratch worktree for each tree, the probe files appended to a scratch copy of `tests/hot-path.browser.test.ts` and never to the committed file, and one probe test per launch, through the runner. Both worktrees run with the checkout's installed packages and item 1 step 1's tools, and nothing is installed into either worktree.
 
 - **Per sample:** `y()` and `xy()`, three runs each.
 - **Per committed move, cold:** `move-probe.test.ts.txt` as written. Three runs.
@@ -109,17 +117,18 @@ Save every printed line, with each function's bytes. Report the means and spread
 
 | Check | Required result |
 | --- | --- |
-| Item 1 | `DRD-57` landed, and the base suite, size, `.d.ts` copy, `typedoc` warnings and allocation readings are recorded |
+| Item 1 | The tools, `DRD-57`'s landing, the base Chromium suite, size, map, `.d.ts` copy, `typedoc` warnings and allocation readings are all recorded |
+| The tools | Item 1 step 1's list is identical at the base and at the end |
 | `git diff --stat <base>..HEAD -- packages/drag .scripts` | Only the files that §Boundaries allows, the report and `measurements/` |
 | `grep -n "capacity\|Float64Array" src/sortable/rect-index.ts` | Only the fixed-size buffers and the `number[] \| Float64Array` parameters |
 | Property 2 | The report's list of write and growth sites |
 | The source projects | `browser`, `shipped` and `declaration` run the same titles with the same verdicts as at the base |
 | The node project | The same titles and verdicts as at the base, apart from size rows. Each size verdict that changes is listed |
 | The consumer project | The same files and tests as at the base. All pass |
-| `drag:DRD-52 development equivalence check` and every `drag:DRD-50` test | Pass in Chromium, Firefox and WebKit |
+| `drag:DRD-52 development equivalence check` and every `drag:DRD-50` test | Pass in Chromium |
 | The copy mutation and M8 | Item 3.3 and item 3.4 |
 | Item 4 | The map is byte-identical, the publication test passes, the `.d.ts` diff is item 4.3's one line, and `typedoc` is unchanged |
-| Three engines (`npx just test-engines`) | The same result as `mangle-selection-report.md` records. In this container, source `~/.cache/ms-playwright/webkit-env.sh` first |
+| Firefox and WebKit | Deferred to the owner's planned CI; not run or required for this local unit |
 | `tests/hot-path.browser.test.ts`, `shipped` project | Every test passes |
 | Changed `.ts` files | [`handoff.md`](../../../.agents/docs/handoff.md)'s format, lint and typecheck, with `npx just` from `packages/drag` |
 | Markdown | `handoff.md`'s Markdown checks |
@@ -131,9 +140,10 @@ Save every printed line, with each function's bytes. Report the means and spread
 
 ## Report
 
-Write `slot-array-report.md` beside this file. Save under `measurements/`, unedited:
+Write `slot-array-report.md` beside this file. Preserve its existing returned section and evidence, and add a resumed section for this implementation. Save under `measurements/`, unedited:
 
-- the runner's status and logs for the base suite, the end suite and the three-engine run;
+- the tool list at the base and at the end;
+- the runner's status and logs for the base and end Chromium suites;
 - the base and end size readings;
 - every allocation probe line, with each discarded launch and its reason;
 - the copy mutation and M8, each with its patch and output;
@@ -151,7 +161,8 @@ The report gives:
 
 Stop and return if:
 
-- `DRD-57`'s unit hasn't landed, or the base suite or size reading differs from its report's end;
+- at the base, a Chromium or non-browser test other than a size row fails, or the regenerated map differs. Return before any source change;
+- the tool list at the end differs from the base's;
 - the slot array can't stay free of holes without a write past its length or an upward `length` assignment;
 - a fixed-size buffer, `xy.ts`'s `before`, or a file outside §Boundaries would have to change;
 - a call site needs a cast, a copy or a conversion between `number[]` and `Float64Array`;
