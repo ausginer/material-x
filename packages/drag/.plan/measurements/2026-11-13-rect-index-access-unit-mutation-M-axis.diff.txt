@@ -1,0 +1,22 @@
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 85dd4b822..3dc8b771e 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -23,7 +23,7 @@
+  */
+ import type { AxisInstaller } from './axis.ts';
+ import { linearShift } from './linear-shift.ts';
+-import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
++import { CENTER_Y, PLACEHOLDER, LEFT, RectIndex, TOP } from './rect-index.ts';
+ 
+ /**
+  * The axis rule for a single column. The rows' centers must increase along y in
+@@ -34,7 +34,7 @@ import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
+  */
+ export function y(): AxisInstaller {
+   return () => {
+-    const index = new RectIndex(TOP);
++    const index = new RectIndex(LEFT);
+     const shift = linearShift(index);
+ 
+     return {

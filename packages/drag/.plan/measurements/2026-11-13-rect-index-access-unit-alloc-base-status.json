@@ -1,0 +1,269 @@
+{
+  "id": "alloc-base",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag",
+  "runner": {
+    "pid": 803917,
+    "start": "10101763"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T12:30:48.900Z",
+  "endedAt": "2026-11-13T12:39:44.441Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 803934,
+        "start": "10101770"
+      },
+      "startedAt": "2026-11-13T12:30:48.918Z",
+      "endedAt": "2026-11-13T12:31:02.733Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 804225,
+        "start": "10103153"
+      },
+      "startedAt": "2026-11-13T12:31:02.745Z",
+      "endedAt": "2026-11-13T12:31:17.043Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 804548,
+        "start": "10104585"
+      },
+      "startedAt": "2026-11-13T12:31:17.067Z",
+      "endedAt": "2026-11-13T12:31:34.916Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 804843,
+        "start": "10106371"
+      },
+      "startedAt": "2026-11-13T12:31:34.926Z",
+      "endedAt": "2026-11-13T12:33:26.709Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 805356,
+        "start": "10117550"
+      },
+      "startedAt": "2026-11-13T12:33:26.720Z",
+      "endedAt": "2026-11-13T12:33:48.408Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 805651,
+        "start": "10119720"
+      },
+      "startedAt": "2026-11-13T12:33:48.420Z",
+      "endedAt": "2026-11-13T12:34:01.865Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 805933,
+        "start": "10121066"
+      },
+      "startedAt": "2026-11-13T12:34:01.878Z",
+      "endedAt": "2026-11-13T12:34:15.214Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 806194,
+        "start": "10122402"
+      },
+      "startedAt": "2026-11-13T12:34:15.235Z",
+      "endedAt": "2026-11-13T12:34:32.124Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 806488,
+        "start": "10124092"
+      },
+      "startedAt": "2026-11-13T12:34:32.134Z",
+      "endedAt": "2026-11-13T12:36:23.851Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 808525,
+        "start": "10135264"
+      },
+      "startedAt": "2026-11-13T12:36:23.861Z",
+      "endedAt": "2026-11-13T12:36:45.747Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 809155,
+        "start": "10137454"
+      },
+      "startedAt": "2026-11-13T12:36:45.760Z",
+      "endedAt": "2026-11-13T12:36:59.620Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 809506,
+        "start": "10138842"
+      },
+      "startedAt": "2026-11-13T12:36:59.632Z",
+      "endedAt": "2026-11-13T12:37:13.634Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/13.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 809767,
+        "start": "10140243"
+      },
+      "startedAt": "2026-11-13T12:37:13.645Z",
+      "endedAt": "2026-11-13T12:37:30.572Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/14.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 810048,
+        "start": "10141937"
+      },
+      "startedAt": "2026-11-13T12:37:30.586Z",
+      "endedAt": "2026-11-13T12:39:22.664Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/alloc-base/15.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 811272,
+        "start": "10153146"
+      },
+      "startedAt": "2026-11-13T12:39:22.677Z",
+      "endedAt": "2026-11-13T12:39:44.441Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

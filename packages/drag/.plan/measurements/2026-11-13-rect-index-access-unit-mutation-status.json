@@ -1,0 +1,82 @@
+{
+  "id": "mutations",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag",
+  "runner": {
+    "pid": 821469,
+    "start": "10181103"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T12:44:02.303Z",
+  "endedAt": "2026-11-13T12:45:03.111Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/mut/run.sh M7a tests/displacement-sink.browser.test.ts",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/mutations/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "010a9ef3940caaa5f849b54ca44652bffb0b28b0",
+        "dirty": false
+      },
+      "process": {
+        "pid": 821486,
+        "start": "10181110"
+      },
+      "startedAt": "2026-11-13T12:44:02.320Z",
+      "endedAt": "2026-11-13T12:44:05.644Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/mut/run.sh M7b",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/mutations/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "010a9ef3940caaa5f849b54ca44652bffb0b28b0",
+        "dirty": false
+      },
+      "process": {
+        "pid": 821751,
+        "start": "10181444"
+      },
+      "startedAt": "2026-11-13T12:44:05.659Z",
+      "endedAt": "2026-11-13T12:44:48.071Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/mut/run.sh M8 tests/displacement-sink.browser.test.ts",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/mutations/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "010a9ef3940caaa5f849b54ca44652bffb0b28b0",
+        "dirty": false
+      },
+      "process": {
+        "pid": 823457,
+        "start": "10185687"
+      },
+      "startedAt": "2026-11-13T12:44:48.087Z",
+      "endedAt": "2026-11-13T12:44:52.570Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/mut/run.sh M-axis tests/sortable.browser.test.ts tests/equivalence-check.browser.test.ts",
+      "log": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/campaigns/mutations/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "010a9ef3940caaa5f849b54ca44652bffb0b28b0",
+        "dirty": false
+      },
+      "process": {
+        "pid": 823848,
+        "start": "10186137"
+      },
+      "startedAt": "2026-11-13T12:44:52.590Z",
+      "endedAt": "2026-11-13T12:45:03.111Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

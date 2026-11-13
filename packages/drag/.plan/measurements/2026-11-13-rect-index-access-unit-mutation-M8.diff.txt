@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index f1bdf3b56..25d19ac0e 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -320,7 +320,7 @@ export class RectIndex {
+     let dy = 0;
+ 
+     if (displacement?.displaced(element)) {
+-      ({ dx, dy } = displacement);
++      // M8: nothing subtracted
+     }
+ 
+     const left = rect.left - dx;

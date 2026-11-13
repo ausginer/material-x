@@ -1,0 +1,99 @@
+ packages/drag/src/sortable/rect-index.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag
+
+12:44:50 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e6e88913
+stderr | tests/displacement-sink.browser.test.ts:89 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+[Error: Uncaught DragFault: drag: drag: the predicted insertion geometry disagreed with a fresh measurement at slot 0; the linear shift rule does not hold for this list]
+stderr | tests/displacement-sink.browser.test.ts:132 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row
+[Error: Uncaught DragFault: drag: drag: the predicted insertion geometry disagreed with a fresh measurement at slot 0; the linear shift rule does not hold for this list]
+stderr | tests/displacement-sink.browser.test.ts:206 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+[Error: Uncaught DragFault: drag: drag: the predicted insertion geometry disagreed with a fresh measurement at slot 2; the linear shift rule does not hold for this list]
+ ❯ |browser (chromium)| tests/displacement-sink.browser.test.ts (4 tests | 3 failed) 1729ms
+   ❯ sortable options (4)
+     × should call the layoutAnimation sink with its receiver, with rows in flight 435ms
+     × drag:DRD-50 should settle each row y() measures by asking the sink about that row 658ms
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 268ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:89 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: drag: the predicted insertion geometry disagreed with a fresh measurement at slot 0; the linear shift rule does not hold for this list",
++     "cause": Error {
++       "message": "drag: the predicted insertion geometry disagreed with a fresh measurement at slot 0; the linear shift rule does not hold for this list",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/displacement-sink.browser.test.ts:122:20
+    120|
+    121|     await release();
+    122|     expect(faults).toEqual([]);
+       |                    ^
+    123|     expect(running).toBeGreaterThan(0);
+    124|     expect(report.mock.contexts.length).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:132 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row
+AssertionError: expected 1 to be greater than or equal to 4
+ ❯ tests/displacement-sink.browser.test.ts:162:7
+    160|     expect(
+    161|       new Set(calls.map((call) => call.element)).size,
+    162|     ).toBeGreaterThanOrEqual(4);
+       |       ^
+    163|     expect(faults).toEqual([]);
+    164|     expect(log).toEqual(['start', 'end:accepted']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:206 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected -1 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ -1
+
+ ❯ tests/displacement-sink.browser.test.ts:287:30
+    285|     expect(overR3.carried).toBe(true);
+    286|     expect(overR3.top - overR3.dy).toBeCloseTo(settledTop, 0);
+    287|     expect(placeholderGap()).toBe(expected);
+       |                              ^
+    288|     expect(expected).toBe(3);
+    289|     expect(r3.getAnimations()).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed (4)
+   Start at  12:44:49
+   Duration  3.10s (tests 67%, worker 31%, import 2%)
+
+[mutation M8 exit 1]

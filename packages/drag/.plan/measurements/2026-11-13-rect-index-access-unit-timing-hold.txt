@@ -1,0 +1,9 @@
+# The hold of DRD-44 property 6 around the RectIndex access timing probe's processes
+hold confirmed: 2026-11-13T13:04:04+00:00
+probe start (attempt 1): 2026-11-13T13:04:04+00:00
+probe end (attempt 1): 2026-11-13T13:05:01+00:00, exit 0
+released: 2026-11-13T13:06:57+00:00 (owner confirmed the release)
+# nothing else from the implementing session ran between the hold and the release
+# command: node /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/timing/runner.ts /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/timing/out1
+# revision: 010a9ef39 (production), before = 8904947f6's src/sortable/ copied
+# one attempt, completed; not repeated
