@@ -4,6 +4,8 @@
 
 **Recommendation: don't adopt it.** Production source is unchanged, and no decision is minted. The owner decides.
 
+**Outcome, 2026-11-13:** the owner stopped this proposal, including arm B's caller-owned `DOMMatrix`, and the base stays. §6's gap is tracked as F-7 in [`plan.md`](plan.md). The fallback-storage follow-up is [`fallback-storage-comparison.md`](fallback-storage-comparison.md).
+
 - **The array can go, and the behavior is kept.** Three formulations pass the whole suite and a parity probe against `27c8f5495`. The probe checks slots, untouched output on `false` and platform read order. The finiteness regression still fails when its write is moved.
 - **Every formulation costs bytes:** +13 to +43 B Brotli on box-quad's module.
 - **The allocation moves the wrong way for drag.** The fallback path, which no shipped drag code calls, allocates 92 to 161 B less per call. The `above` path, which drag's `lift` calls once per lift, allocates 40 to 57 B more per call.

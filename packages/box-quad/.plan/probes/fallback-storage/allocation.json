@@ -1,0 +1,465 @@
+{
+  "browser": "157.0.8103.38",
+  "mode": "allocation",
+  "arms": [
+    {
+      "name": "base",
+      "path": "packages/box-quad/src/index.ts"
+    },
+    {
+      "name": "base2",
+      "path": "packages/box-quad/src/index.ts"
+    },
+    {
+      "name": "F",
+      "path": "packages/box-quad/.plan/probes/fallback-storage/candidate.ts"
+    }
+  ],
+  "allocation": {
+    "fallback, depth 2": {
+      "base": [
+        {
+          "bytesPerCall": 355.3498,
+          "byFunctionPerCall": {
+            "coordinates": 190.2048,
+            "composeNode": 10.7656,
+            "split": 28.4858,
+            "ancestry": 125.232
+          }
+        },
+        {
+          "bytesPerCall": 354.0888,
+          "byFunctionPerCall": {
+            "coordinates": 189.9154,
+            "composeNode": 10.3856,
+            "split": 28.0624,
+            "ancestry": 125.066
+          }
+        },
+        {
+          "bytesPerCall": 355.5506,
+          "byFunctionPerCall": {
+            "coordinates": 190.7016,
+            "composeNode": 10.4,
+            "split": 28.4676,
+            "ancestry": 125.3364
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 355.1228,
+          "byFunctionPerCall": {
+            "coordinates": 190.0408,
+            "composeNode": 10.5152,
+            "split": 28.5292,
+            "ancestry": 125.351
+          }
+        },
+        {
+          "bytesPerCall": 354.766,
+          "byFunctionPerCall": {
+            "coordinates": 189.763,
+            "composeNode": 10.7416,
+            "split": 28.7574,
+            "ancestry": 124.831
+          }
+        },
+        {
+          "bytesPerCall": 353.3598,
+          "byFunctionPerCall": {
+            "coordinates": 189.0592,
+            "composeNode": 10.5844,
+            "split": 27.8978,
+            "ancestry": 125.1584
+          }
+        }
+      ],
+      "F": [
+        {
+          "bytesPerCall": 427.753,
+          "byFunctionPerCall": {
+            "coordinates": 339.5304,
+            "composeNode": 10.4504,
+            "split": 28.1806,
+            "ancestry": 48.94
+          }
+        },
+        {
+          "bytesPerCall": 428.7692,
+          "byFunctionPerCall": {
+            "coordinates": 339.5272,
+            "composeNode": 10.7536,
+            "split": 28.2618,
+            "ancestry": 49.6074
+          }
+        },
+        {
+          "bytesPerCall": 427.6606,
+          "byFunctionPerCall": {
+            "coordinates": 339.0892,
+            "composeNode": 10.4892,
+            "split": 28.4256,
+            "ancestry": 49.0056
+          }
+        }
+      ]
+    },
+    "fallback, depth 14": {
+      "base": [
+        {
+          "bytesPerCall": 3024.3452,
+          "byFunctionPerCall": {
+            "coordinates": 201.5128,
+            "composeNode": 10.277,
+            "split": 705.873,
+            "ancestry": 1809.995,
+            "parseFloat": 296.0676
+          }
+        },
+        {
+          "bytesPerCall": 3027.013,
+          "byFunctionPerCall": {
+            "coordinates": 201.3152,
+            "composeNode": 10.5126,
+            "split": 705.803,
+            "ancestry": 1812.1298,
+            "parseFloat": 296.607
+          }
+        },
+        {
+          "bytesPerCall": 3026.369,
+          "byFunctionPerCall": {
+            "coordinates": 202.6048,
+            "composeNode": 10.3474,
+            "split": 705.4782,
+            "ancestry": 1811.2428,
+            "parseFloat": 296.0796
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 3027.3468,
+          "byFunctionPerCall": {
+            "coordinates": 201.3684,
+            "composeNode": 10.2796,
+            "split": 705.8506,
+            "ancestry": 1812.9414,
+            "parseFloat": 296.2726
+          }
+        },
+        {
+          "bytesPerCall": 3024.7688,
+          "byFunctionPerCall": {
+            "coordinates": 200.9896,
+            "composeNode": 10.188,
+            "split": 706.0522,
+            "ancestry": 1810.2546,
+            "parseFloat": 296.665
+          }
+        },
+        {
+          "bytesPerCall": 3026.8778,
+          "byFunctionPerCall": {
+            "coordinates": 201.0344,
+            "composeNode": 10.3,
+            "split": 706.2538,
+            "ancestry": 1812.2474,
+            "parseFloat": 296.407
+          }
+        }
+      ],
+      "F": [
+        {
+          "bytesPerCall": 3032.7922,
+          "byFunctionPerCall": {
+            "coordinates": 351.0828,
+            "composeNode": 10.4408,
+            "split": 706.9244,
+            "ancestry": 1666.7776,
+            "parseFloat": 296.931
+          }
+        },
+        {
+          "bytesPerCall": 3035.1318,
+          "byFunctionPerCall": {
+            "coordinates": 351.5494,
+            "composeNode": 10.2088,
+            "split": 707.2506,
+            "ancestry": 1668.0572,
+            "parseFloat": 297.438
+          }
+        },
+        {
+          "bytesPerCall": 3034.0778,
+          "byFunctionPerCall": {
+            "coordinates": 352.1524,
+            "composeNode": 10.29,
+            "split": 705.229,
+            "ancestry": 1668.9366,
+            "parseFloat": 296.847
+          }
+        }
+      ]
+    },
+    "fallback, depth 32": {
+      "base": [
+        {
+          "bytesPerCall": 6839.5488,
+          "byFunctionPerCall": {
+            "coordinates": 201.6908,
+            "composeNode": 10.6396,
+            "split": 1720.3886,
+            "ancestry": 4163.6772,
+            "parseFloat": 742.5136
+          }
+        },
+        {
+          "bytesPerCall": 6843.5444,
+          "byFunctionPerCall": {
+            "coordinates": 201.651,
+            "composeNode": 10.2252,
+            "split": 1724.0706,
+            "ancestry": 4164.7266,
+            "parseFloat": 742.242
+          }
+        },
+        {
+          "bytesPerCall": 6836.19,
+          "byFunctionPerCall": {
+            "coordinates": 201.727,
+            "composeNode": 10.4942,
+            "split": 1720.4614,
+            "ancestry": 4161.1662,
+            "parseFloat": 741.726
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 6843.945,
+          "byFunctionPerCall": {
+            "coordinates": 201.8396,
+            "composeNode": 10.426,
+            "split": 1723.8858,
+            "ancestry": 4165.7542,
+            "parseFloat": 741.4258
+          }
+        },
+        {
+          "bytesPerCall": 6842.9038,
+          "byFunctionPerCall": {
+            "coordinates": 200.6502,
+            "composeNode": 10.28,
+            "split": 1724.0538,
+            "ancestry": 4167.238,
+            "parseFloat": 740.0838
+          }
+        },
+        {
+          "bytesPerCall": 6844.964,
+          "byFunctionPerCall": {
+            "coordinates": 201.6308,
+            "composeNode": 10.3268,
+            "split": 1722.8946,
+            "ancestry": 4167.7704,
+            "parseFloat": 741.7024
+          }
+        }
+      ],
+      "F": [
+        {
+          "bytesPerCall": 6853.179,
+          "byFunctionPerCall": {
+            "coordinates": 352.2048,
+            "composeNode": 10.5072,
+            "split": 1725.1332,
+            "ancestry": 4020.9002,
+            "parseFloat": 743.838
+          }
+        },
+        {
+          "bytesPerCall": 6853.9628,
+          "byFunctionPerCall": {
+            "coordinates": 352.0318,
+            "composeNode": 10.1968,
+            "split": 1722.1862,
+            "ancestry": 4025.7998,
+            "parseFloat": 743.1342
+          }
+        },
+        {
+          "bytesPerCall": 6846.8292,
+          "byFunctionPerCall": {
+            "coordinates": 351.6694,
+            "composeNode": 10.3996,
+            "split": 1721.8628,
+            "ancestry": 4019.5022,
+            "parseFloat": 742.7772
+          }
+        }
+      ]
+    },
+    "above, depth 14": {
+      "base": [
+        {
+          "bytesPerCall": 224.376,
+          "byFunctionPerCall": {
+            "coordinates": 184.853,
+            "composeNode": 10.5932,
+            "split": 28.287
+          }
+        },
+        {
+          "bytesPerCall": 225.7944,
+          "byFunctionPerCall": {
+            "coordinates": 186.353,
+            "composeNode": 10.5728,
+            "split": 28.2142
+          }
+        },
+        {
+          "bytesPerCall": 224.7624,
+          "byFunctionPerCall": {
+            "coordinates": 185.5616,
+            "composeNode": 10.4036,
+            "split": 28.1232
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 225.4664,
+          "byFunctionPerCall": {
+            "coordinates": 185.7612,
+            "composeNode": 10.8652,
+            "split": 28.224
+          }
+        },
+        {
+          "bytesPerCall": 225.1414,
+          "byFunctionPerCall": {
+            "coordinates": 185.6426,
+            "composeNode": 10.6536,
+            "split": 28.1694
+          }
+        },
+        {
+          "bytesPerCall": 225.1586,
+          "byFunctionPerCall": {
+            "coordinates": 185.6996,
+            "composeNode": 10.6212,
+            "split": 28.1736
+          }
+        }
+      ],
+      "F": [
+        {
+          "bytesPerCall": 224.7574,
+          "byFunctionPerCall": {
+            "coordinates": 185.188,
+            "composeNode": 10.4614,
+            "split": 28.4648
+          }
+        },
+        {
+          "bytesPerCall": 223.648,
+          "byFunctionPerCall": {
+            "coordinates": 184.6266,
+            "composeNode": 10.4484,
+            "split": 27.9636
+          }
+        },
+        {
+          "bytesPerCall": 224.3766,
+          "byFunctionPerCall": {
+            "coordinates": 185.2984,
+            "composeNode": 10.3772,
+            "split": 28.0812
+          }
+        }
+      ]
+    },
+    "above after fallback, depth 14": {
+      "base": [
+        {
+          "bytesPerCall": 223.0576,
+          "byFunctionPerCall": {
+            "coordinates": 186.679,
+            "composeNode": 7.344,
+            "split": 28.3948
+          }
+        },
+        {
+          "bytesPerCall": 222.2118,
+          "byFunctionPerCall": {
+            "coordinates": 186.0594,
+            "composeNode": 7.3116,
+            "split": 28.2142
+          }
+        },
+        {
+          "bytesPerCall": 222.5094,
+          "byFunctionPerCall": {
+            "coordinates": 186.3008,
+            "composeNode": 7.4168,
+            "split": 28.1596
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 222.4756,
+          "byFunctionPerCall": {
+            "coordinates": 186.352,
+            "composeNode": 7.5288,
+            "split": 27.972
+          }
+        },
+        {
+          "bytesPerCall": 223.451,
+          "byFunctionPerCall": {
+            "coordinates": 187.2656,
+            "composeNode": 7.1932,
+            "split": 28.3556
+          }
+        },
+        {
+          "bytesPerCall": 222.7676,
+          "byFunctionPerCall": {
+            "coordinates": 186.5618,
+            "composeNode": 7.4282,
+            "split": 28.1428
+          }
+        }
+      ],
+      "F": [
+        {
+          "bytesPerCall": 225.0318,
+          "byFunctionPerCall": {
+            "coordinates": 185.5282,
+            "composeNode": 10.4604,
+            "split": 28.4292
+          }
+        },
+        {
+          "bytesPerCall": 225.2188,
+          "byFunctionPerCall": {
+            "coordinates": 185.7006,
+            "composeNode": 10.658,
+            "split": 28.224
+          }
+        },
+        {
+          "bytesPerCall": 225.2,
+          "byFunctionPerCall": {
+            "coordinates": 185.683,
+            "composeNode": 10.5176,
+            "split": 28.3724
+          }
+        }
+      ]
+    }
+  }
+}

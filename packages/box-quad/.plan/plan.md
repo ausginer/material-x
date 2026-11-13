@@ -50,8 +50,32 @@ The package's argument, alternatives, measurements and findings. The current-sta
 | **F-4** | An ancestry fact and the element's own measurability are independent conditions, and an encoding that reads the first by measuring the element couples them silently | **Open, 2026-08-31.** The two-measurement alternative to BQ-7 obtains the space above the item by measuring the item, so it fails for a `display: contents` or fragmented item whose inherited space is perfectly well defined — a configuration that works today and that the change exists to fix. **The rule this establishes**: against any _the caller can already compute this_ argument, name a configuration in which the value is defined and the measurement is not. It is a cheap test and it decided this question after bytes, runtime and numerics had all failed to. Record [`reviews/10-D-two-measurement-alternative-claude.md`](reviews/10-D-two-measurement-alternative-claude.md) §4 |
 | **F-5** | A decision's last surviving ground was a limitation of the decomposition rather than of the problem | **Open, 2026-08-31.** BQ-8 kept the ancestry boundary because the item's space could not be had by measuring the item — true only while ancestry computation was welded to box measurement. Splitting them makes it obtainable for fewer bytes. **The rule this establishes**: when a decision's last remaining ground is a coupling in the current design, test the decoupling before freezing; F-4's own test — name a configuration where the value is defined and the measurement is not — is the signal that the coupling is the thing to attack, not evidence for the capability. Record [`reviews/11-D-first-class-space-claude.md`](reviews/11-D-first-class-space-claude.md) §3 |
 | **F-6** | A generality argument in this package is priced on dispatch, never on storage or arithmetic | **Open, 2026-08-31.** Four proposals in one iteration — multi-boundary (BQ-7), the one-walk boundary (P2), the generic batch query, and the leaner dispatches tried inside each — all found the per-node arithmetic free and the bytes 3× to 5× the singular form, and in three separate cases the tidier-looking dispatch measured _larger_. **The rule this establishes**: the cost of generality here is the per-node test, the loop over started accumulators and the argument shape; a proposal arguing from caller-owned storage or from the mathematics is arguing from the wrong column, and both of those really are free. Record [`reviews/12-D-batch-ancestry-query-claude.md`](reviews/12-D-batch-ancestry-query-claude.md) §2 |
+| **F-7** | The suite doesn't detect a reversed ancestor composition order | **Open, 2026-11-13, not triaged.** If the walk's `preMultiplySelf` is changed to `multiplySelf`, all 240 tests at `27c8f5495` still pass. No scenario has two ancestors whose transforms give a different result in the other order. The coordinates-walk parity probe catches the change, but the probe isn't part of the suite. Found in [`coordinates-walk-proposal.md`](coordinates-walk-proposal.md) §6, and left open by [`fallback-storage-comparison.md`](fallback-storage-comparison.md). **To close it:** a bounded test unit with one such two-ancestor scenario, asserted against expected values and shown to fail under that mutation. It waits for the owner's decision. |
 
 ## Record
+
+### 2026-11-13 — `coordinates`' fallback keeps `[]`, and the exploration closes
+
+The owner asked for one comparison of `coordinates`' fallback storage: the current `[]` against `new Float64Array(5)`, on `1de33ae40`, changing nothing else. The record is [`fallback-storage-comparison.md`](fallback-storage-comparison.md), and the evidence and the runnable candidate are in [`probes/fallback-storage/`](probes/fallback-storage/README.md). **No decision is minted, and no source change is needed.**
+
+**Measured:**
+
+- **Behavior:** the candidate passes the suite and the parity probe, 242 of 242.
+- **Bytes:** +21 B Brotli on box-quad's module, and −7 to +16 B on drag's rows.
+- **Backing storage:** a five-slot `Float64Array`'s elements are on the V8 heap, so the allocation readings include them.
+- **Allocation without `above`:** +72 B per call at depth 2, and +8 to +14 B deeper.
+- **Allocation with `above`:** no difference alone. +2.7 B after the fallback has run in the same page.
+- **Timing, under the owner's hold:** no difference shown in any scenario.
+
+**`[]` stays,** because the candidate is larger and allocates more, and no runtime advantage is shown. `BQ-12` property 8 holds either way.
+
+**Declined explorations, closed:**
+
+- the shared ancestor walk;
+- its caller-owned `DOMMatrix` form;
+- the `Float64Array` fallback.
+
+The first two were stopped by the owner, and [`coordinates-walk-proposal.md`](coordinates-walk-proposal.md) keeps their evidence. **F-7, the composition-order gap in the suite, stays open,** awaiting the owner.
 
 ### 2026-11-13 — `coordinates`' ancestry array, explored and recommended against
 
