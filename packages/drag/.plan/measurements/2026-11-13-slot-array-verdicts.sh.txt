@@ -1,0 +1,3 @@
+#!/bin/bash
+# One line per test from a verbose Vitest log: mark, project, file:line > title. Durations removed, sorted.
+sed -E 's/\x1b\[[0-9;]*m//g' "$1" | grep -E '^\s+(✓|×|↓) \|' | sed -E 's/^\s+//; s/ [0-9]+ms$//; s/ \[skipped\]$//' | sort

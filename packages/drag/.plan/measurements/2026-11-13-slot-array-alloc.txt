@@ -1,0 +1,562 @@
+# base
+Fri Nov 13 09:30:31 UTC 2026
+ 09:30:31 up 1 day,  1:03,  0 users,  load average: 3.98, 3.08, 2.87
+12
+706b9148131970d245486d1c0bc7dc852824c8eb
+ 09:38:22 up 1 day,  1:11,  0 users,  load average: 2.78, 2.99, 2.96
+{
+  "id": "slot-array-base-alloc",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag",
+  "runner": {
+    "pid": 674668,
+    "start": "9020041"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T09:30:31.692Z",
+  "endedAt": "2026-11-13T09:38:22.296Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 674693,
+        "start": "9020049"
+      },
+      "startedAt": "2026-11-13T09:30:31.707Z",
+      "endedAt": "2026-11-13T09:30:45.234Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 675102,
+        "start": "9021403"
+      },
+      "startedAt": "2026-11-13T09:30:45.244Z",
+      "endedAt": "2026-11-13T09:30:58.623Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 675610,
+        "start": "9022742"
+      },
+      "startedAt": "2026-11-13T09:30:58.633Z",
+      "endedAt": "2026-11-13T09:31:12.092Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 676006,
+        "start": "9024089"
+      },
+      "startedAt": "2026-11-13T09:31:12.103Z",
+      "endedAt": "2026-11-13T09:31:25.826Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 676317,
+        "start": "9025462"
+      },
+      "startedAt": "2026-11-13T09:31:25.840Z",
+      "endedAt": "2026-11-13T09:31:40.361Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 676599,
+        "start": "9026915"
+      },
+      "startedAt": "2026-11-13T09:31:40.371Z",
+      "endedAt": "2026-11-13T09:31:54.399Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 676913,
+        "start": "9028319"
+      },
+      "startedAt": "2026-11-13T09:31:54.411Z",
+      "endedAt": "2026-11-13T09:32:11.127Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 677201,
+        "start": "9029992"
+      },
+      "startedAt": "2026-11-13T09:32:11.139Z",
+      "endedAt": "2026-11-13T09:32:27.795Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 677511,
+        "start": "9031659"
+      },
+      "startedAt": "2026-11-13T09:32:27.807Z",
+      "endedAt": "2026-11-13T09:32:44.687Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 677804,
+        "start": "9033349"
+      },
+      "startedAt": "2026-11-13T09:32:44.706Z",
+      "endedAt": "2026-11-13T09:34:38.899Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 678463,
+        "start": "9044769"
+      },
+      "startedAt": "2026-11-13T09:34:38.910Z",
+      "endedAt": "2026-11-13T09:36:30.625Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-base/packages/drag/.campaigns/slot-array-base-alloc/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": true
+      },
+      "process": {
+        "pid": 679125,
+        "start": "9055942"
+      },
+      "startedAt": "2026-11-13T09:36:30.636Z",
+      "endedAt": "2026-11-13T09:38:22.296Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
+
+## launch 1
+C6-PROBE y perMove=85.31 keys={"sortable/y.ts:resolve":9276,"sortable/linear-shift.ts:_refresh":4908,"sortable/operation.ts:move":19940}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 2
+C6-PROBE y perMove=85.81 keys={"sortable/y.ts:resolve":9144,"sortable/linear-shift.ts:_refresh":5004,"sortable/operation.ts:move":20176}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 3
+C6-PROBE y perMove=85.40 keys={"sortable/y.ts:resolve":9408,"sortable/linear-shift.ts:_refresh":5268,"sortable/operation.ts:move":19484}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 4
+C6-PROBE xy perMove=50.31 keys={"sortable/operation.ts:move":20124}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 5
+C6-PROBE xy perMove=49.92 keys={"sortable/operation.ts:move":19968}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 6
+C6-PROBE xy perMove=51.31 keys={"sortable/operation.ts:move":20524}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 7
+C6-MOVE-PROBE moves=200 perMove=128.48 keys={"sortable/linear-shift.ts:_refresh":5004,"sortable/rect-index.ts:_measurePlaceholder":3136,"sortable/rect-index.ts:pack":4644,"sortable/linear-shift.ts:_moved":1248,"sortable/linear-shift.ts:advance":11664}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 8
+C6-MOVE-PROBE moves=200 perMove=129.52 keys={"sortable/linear-shift.ts:_refresh":4872,"sortable/rect-index.ts:_collect":112,"sortable/rect-index.ts:_measurePlaceholder":3056,"sortable/rect-index.ts:pack":4500,"sortable/linear-shift.ts:_moved":1572,"sortable/rect-index.ts:get _count":152,"sortable/linear-shift.ts:advance":11640}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 9
+C6-MOVE-PROBE moves=200 perMove=131.92 keys={"sortable/linear-shift.ts:_refresh":5364,"sortable/rect-index.ts:_measurePlaceholder":3232,"sortable/rect-index.ts:pack":5188,"sortable/linear-shift.ts:_moved":1368,"sortable/linear-shift.ts:advance":11232}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 10
+C6-WARM-MOVE-PROBE moves=200 perMove=15.80 keys={"sortable/linear-shift.ts:_refresh":3088,"sortable/rect-index.ts:pack":72}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 11
+C6-WARM-MOVE-PROBE moves=200 perMove=16.08 keys={"sortable/linear-shift.ts:_refresh":3216}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 12
+C6-WARM-MOVE-PROBE moves=200 perMove=17.36 keys={"sortable/linear-shift.ts:_refresh":3472}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+
+# end
+Fri Nov 13 09:42:44 UTC 2026
+ 09:42:44 up 1 day,  1:15,  0 users,  load average: 7.76, 4.90, 3.72
+12
+5ec3b4b2df9b912b791e422306f0d88b34a551e2
+ 09:50:32 up 1 day,  1:23,  0 users,  load average: 2.72, 3.18, 3.30
+{
+  "id": "slot-array-end-alloc",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag",
+  "runner": {
+    "pid": 688783,
+    "start": "9093294"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T09:42:44.200Z",
+  "endedAt": "2026-11-13T09:50:32.408Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 688800,
+        "start": "9093300"
+      },
+      "startedAt": "2026-11-13T09:42:44.215Z",
+      "endedAt": "2026-11-13T09:42:57.870Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 689089,
+        "start": "9094666"
+      },
+      "startedAt": "2026-11-13T09:42:57.880Z",
+      "endedAt": "2026-11-13T09:43:11.358Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 689370,
+        "start": "9096015"
+      },
+      "startedAt": "2026-11-13T09:43:11.370Z",
+      "endedAt": "2026-11-13T09:43:24.873Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 689646,
+        "start": "9097367"
+      },
+      "startedAt": "2026-11-13T09:43:24.884Z",
+      "endedAt": "2026-11-13T09:43:38.349Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 689910,
+        "start": "9098714"
+      },
+      "startedAt": "2026-11-13T09:43:38.359Z",
+      "endedAt": "2026-11-13T09:43:51.799Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 690199,
+        "start": "9100059"
+      },
+      "startedAt": "2026-11-13T09:43:51.810Z",
+      "endedAt": "2026-11-13T09:44:05.297Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 690466,
+        "start": "9101409"
+      },
+      "startedAt": "2026-11-13T09:44:05.307Z",
+      "endedAt": "2026-11-13T09:44:22.063Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 690740,
+        "start": "9103086"
+      },
+      "startedAt": "2026-11-13T09:44:22.078Z",
+      "endedAt": "2026-11-13T09:44:39.046Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 691016,
+        "start": "9104784"
+      },
+      "startedAt": "2026-11-13T09:44:39.058Z",
+      "endedAt": "2026-11-13T09:44:56.163Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 691296,
+        "start": "9106496"
+      },
+      "startedAt": "2026-11-13T09:44:56.175Z",
+      "endedAt": "2026-11-13T09:46:48.038Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 691804,
+        "start": "9117684"
+      },
+      "startedAt": "2026-11-13T09:46:48.057Z",
+      "endedAt": "2026-11-13T09:48:40.509Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/wt-end/packages/drag/.campaigns/slot-array-end-alloc/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5ec3b4b2df9b912b791e422306f0d88b34a551e2",
+        "dirty": true
+      },
+      "process": {
+        "pid": 692314,
+        "start": "9128930"
+      },
+      "startedAt": "2026-11-13T09:48:40.520Z",
+      "endedAt": "2026-11-13T09:50:32.407Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
+
+## launch 1
+C6-PROBE y perMove=85.21 keys={"sortable/y.ts:resolve":9144,"sortable/linear-shift.ts:_refresh":4824,"sortable/operation.ts:move":20116}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 2
+C6-PROBE y perMove=84.56 keys={"sortable/y.ts:resolve":8808,"sortable/linear-shift.ts:_refresh":5208,"sortable/operation.ts:move":19808}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 3
+C6-PROBE y perMove=86.79 keys={"sortable/y.ts:resolve":8928,"sortable/linear-shift.ts:_refresh":5316,"sortable/operation.ts:move":20472}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 4
+C6-PROBE xy perMove=48.06 keys={"sortable/operation.ts:move":19224}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 5
+C6-PROBE xy perMove=48.05 keys={"sortable/operation.ts:move":19220}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 6
+C6-PROBE xy perMove=51.09 keys={"sortable/operation.ts:move":20436}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 7
+C6-MOVE-PROBE moves=200 perMove=130.24 keys={"sortable/linear-shift.ts:_refresh":5184,"sortable/rect-index.ts:_measurePlaceholder":3312,"sortable/rect-index.ts:pack":5036,"sortable/linear-shift.ts:_moved":1140,"sortable/linear-shift.ts:advance":11376}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 8
+C6-MOVE-PROBE moves=200 perMove=132.74 keys={"sortable/linear-shift.ts:_refresh":4776,"sortable/rect-index.ts:_measurePlaceholder":3136,"sortable/rect-index.ts:pack":5568,"sortable/linear-shift.ts:_moved":1020,"sortable/linear-shift.ts:advance":12048}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 9
+C6-MOVE-PROBE moves=200 perMove=126.82 keys={"sortable/linear-shift.ts:_refresh":5316,"sortable/rect-index.ts:_measurePlaceholder":3184,"sortable/rect-index.ts:pack":4712,"sortable/linear-shift.ts:_moved":1296,"sortable/rect-index.ts:get _count":104,"sortable/linear-shift.ts:advance":10752}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 10
+C6-WARM-MOVE-PROBE moves=200 perMove=16.84 keys={"sortable/linear-shift.ts:_refresh":3296,"sortable/rect-index.ts:pack":72}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 11
+C6-WARM-MOVE-PROBE moves=200 perMove=15.44 keys={"sortable/linear-shift.ts:_refresh":3088}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+## launch 12
+C6-WARM-MOVE-PROBE moves=200 perMove=16.08 keys={"sortable/linear-shift.ts:_refresh":3216}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+
+# per function, means of three launches
+y     sortable/y.ts:resolve                      base 9276/9144/9408     end 9144/8808/8928     diff  -316.0 spreads 264 336 
+y     sortable/linear-shift.ts:_refresh          base 4908/5004/5268     end 4824/5208/5316     diff    56.0 spreads 360 492 grew<=spread
+y     sortable/operation.ts:move                 base 19940/20176/19484  end 20116/19808/20472  diff   265.3 spreads 692 664 grew<=spread
+xy    sortable/operation.ts:move                 base 20124/19968/20524  end 19224/19220/20436  diff  -578.7 spreads 556 1216 
+cold  sortable/linear-shift.ts:_refresh          base 5004/4872/5364     end 5184/4776/5316     diff    12.0 spreads 492 540 grew<=spread
+cold  sortable/rect-index.ts:_measurePlaceholder base 3136/3056/3232     end 3312/3136/3184     diff    69.3 spreads 176 176 grew<=spread
+cold  sortable/rect-index.ts:pack                base 4644/4500/5188     end 5036/5568/4712     diff   328.0 spreads 688 856 grew<=spread
+cold  sortable/linear-shift.ts:_moved            base 1248/1572/1368     end 1140/1020/1296     diff  -244.0 spreads 324 276 
+cold  sortable/linear-shift.ts:advance           base 11664/11640/11232  end 11376/12048/10752  diff  -120.0 spreads 432 1296 
+cold  sortable/rect-index.ts:_collect            base 0/112/0            end 0/0/0              diff   -37.3 spreads 112 0 
+cold  sortable/rect-index.ts:get _count          base 0/152/0            end 0/0/104            diff   -16.0 spreads 152 104 
+warm  sortable/linear-shift.ts:_refresh          base 3088/3216/3472     end 3296/3088/3216     diff   -58.7 spreads 384 208 
+warm  sortable/rect-index.ts:pack                base 72/0/0             end 72/0/0             diff     0.0 spreads 72 72 

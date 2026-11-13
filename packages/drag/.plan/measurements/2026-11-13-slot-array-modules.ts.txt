@@ -1,0 +1,18 @@
+// Prints every size row's figures and module list, from the tree the last build emitted.
+// Usage: node modules.ts <packages/drag root>
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const root = process.argv[2]!;
+const { COMPOSITIONS, measure } = (await import(
+  pathToFileURL(join(root, 'bench/size/measure.ts')).href
+)) as typeof import('/workspaces/material-x/packages/drag/bench/size/measure.ts');
+
+for (const composition of COMPOSITIONS) {
+  // oxlint-disable-next-line no-await-in-loop -- serial
+  const m = await measure(composition);
+  console.log(`${composition.name}\t${m.minified}\t${m.gzip}\t${m.brotli}`);
+  for (const module of [...m.modules].sort()) {
+    console.log(`  ${module}`);
+  }
+}
