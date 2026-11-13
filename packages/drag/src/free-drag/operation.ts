@@ -74,15 +74,15 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
   }
 
   start(): void {
-    this.#behavior.config.onStart?.(this.#geometry());
+    this.#behavior._config.onStart?.(this.#geometry());
   }
 
   move(): void {
     this.translate();
     this.#targets?.move();
 
-    if (this.#behavior.config.onMove) {
-      this.#behavior.config.onMove(this.#geometry());
+    if (this.#behavior._config.onMove) {
+      this.#behavior._config.onMove(this.#geometry());
     }
   }
 
@@ -96,20 +96,20 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
     this.#targets?.drop();
 
     const request = buildRequest(
-      this.#behavior.root,
+      this.#behavior._root,
       this.#drag,
       this.#lift,
       this.#motion,
       this.#home(),
       this.#targets?.current ?? null,
-      this.#behavior.window,
+      this.#behavior._window,
     );
 
     this.#request = request;
     this.#lift.translate(this.#motion.x, this.#motion.y);
 
     return (signal: AbortSignal) =>
-      this.#behavior.config.onDrop(request, { signal });
+      this.#behavior._config.onDrop(request, { signal });
   }
 
   settle(outcome: Outcome<FreeDragResolution>): void {
@@ -144,7 +144,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
   }
 
   end(): void {
-    this.#behavior.config.onEnd?.(this.#result!);
+    this.#behavior._config.onEnd?.(this.#result!);
   }
 
   /** Writes the delta the pointer and the operation's offset give into `#motion`. */
@@ -166,15 +166,15 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
       this.#drag,
       this.#lift,
       this.#motion,
-      this.#behavior.window,
+      this.#behavior._window,
     );
   }
 
   /** `config.home()` now, or the visual's rect at the grab without it. */
   #home(): Point {
-    return this.#behavior.config.home
-      ? this.#behavior.config.home({
-          item: this.#behavior.root,
+    return this.#behavior._config.home
+      ? this.#behavior._config.home({
+          item: this.#behavior._root,
           visual: this.#lift.visual,
         })
       : { x: this.#lift.rect.left, y: this.#lift.rect.top };

@@ -23,7 +23,7 @@ import {
 
 /**
  * Measures every slot, only when something marked the cache stale or the collection
- * version changed. An empty window after `collect` is a rebuild, or a collection
+ * version changed. An empty window after `_collect` is a rebuild, or a collection
  * with no slot.
  */
 function refresh(
@@ -34,10 +34,10 @@ function refresh(
   placeholder: HTMLElement,
   displacement: DisplacementSink | null,
 ): void {
-  index.collect(snapshot, dragged, placeholder, 0);
+  index._collect(snapshot, dragged, placeholder, 0);
 
-  if (index.first === index.end) {
-    index.measure(0, index.count, getBox, displacement);
+  if (index._first === index.end) {
+    index._measure(0, index._count, getBox, displacement);
   }
 }
 
@@ -70,7 +70,12 @@ export function xy(): AxisInstaller {
         last = query.insertion.index;
 
         // Read once, outside the candidate loop.
-        const { values, count, placeholderRect, items } = index;
+        const {
+          values,
+          _count: count,
+          _placeholderRect: placeholderRect,
+          items,
+        } = index;
         const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
         const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
         let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
@@ -105,7 +110,7 @@ export function xy(): AxisInstaller {
 
       confirm(query, context) {
         if (
-          !index.holds(
+          !index._holds(
             query.insertion.index,
             query.snapshot,
             context.box,
@@ -121,7 +126,7 @@ export function xy(): AxisInstaller {
         const { displacement } = context;
         const gap = query.insertion.index;
         // Taken before the refresh below rewrites the count.
-        const held = index.count;
+        const held = index._count;
 
         if (!displacement || last < 0 || last === gap || held === 0) {
           invalidate();
@@ -154,7 +159,7 @@ export function xy(): AxisInstaller {
         // Moving the placeholder reorders nothing in the destination view, so
         // slot `i` is the same element on both sides of the write. Read once,
         // outside the loop.
-        const { values, items, count } = index;
+        const { values, items, _count: count } = index;
         const span = count < held ? count : held;
 
         for (let i = 0; i < span; i += 1) {

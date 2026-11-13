@@ -120,7 +120,7 @@ function armClickGuard(target: Window, pointerId: number): void {
  *
  * The session reads and writes only its own fields. It reaches the controller
  * through the controller's interface, and the controller reaches it through
- * `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
+ * `_advance`, `_decide`, `_stepTarget` and `_terminate`. It is its own listener on
  * the window, through `handleEvent`, which enters the controller's pass with the
  * private method for the event and this session as its receiver.
  */
@@ -251,7 +251,7 @@ export class Session<
    * One turn of the reader for this operation: concludes a decision not yet
    * applied, or else takes and runs the next step. Returns whether it did either.
    */
-  advance(): boolean {
+  _advance(): boolean {
     if (this.#decision && this.#phase < CONCLUDED) {
       this.#conclude(this.#decision);
       return true;
@@ -270,7 +270,7 @@ export class Session<
   }
 
   /** Records a cancel as the decision, unless one is recorded. Enters no pass. */
-  decide(reason: unknown, origin: CancelOrigin): void {
+  _decide(reason: unknown, origin: CancelOrigin): void {
     this.#decision ??= { type: 'canceled', reason, origin };
   }
 
@@ -278,7 +278,7 @@ export class Session<
    * What a deferred step receives: the operation from the end of activation until
    * the drop or the decision, and `null` otherwise.
    */
-  stepTarget(): Operation | null {
+  _stepTarget(): Operation | null {
     return this.#phase === ACTIVE && !this.#decision ? this.#operation : null;
   }
 
@@ -288,14 +288,14 @@ export class Session<
    * terminal is removed. It ends first, because aborting the verdict runs foreign
    * code.
    */
-  terminate(): void {
+  _terminate(): void {
     this.#phase = ENDED;
 
     try {
       this.#closeMotion();
       this.#verdictAborter?.abort();
     } catch (error) {
-      this.#gesture.raise(error);
+      this.#gesture._raise(error);
     }
 
     this.#release(null);
@@ -332,7 +332,7 @@ export class Session<
         pointer.isPrimary &&
         pointer.button === 0
       ) {
-        this.#gesture.enter(this.#endPending, pointer, this);
+        this.#gesture._enter(this.#endPending, pointer, this);
       }
 
       return;
@@ -343,9 +343,9 @@ export class Session<
     }
 
     if (pointer.type === 'pointermove') {
-      this.#gesture.enter(this.#move, pointer, this);
+      this.#gesture._enter(this.#move, pointer, this);
     } else if (pointer.type === 'pointerup') {
-      this.#gesture.enter(this.#up, pointer, this);
+      this.#gesture._enter(this.#up, pointer, this);
     } else if (
       pointer.type === 'pointercancel' ||
       // Taking a touch's implicit capture from the pressed element also fires
@@ -357,8 +357,8 @@ export class Session<
   }
 
   #cancel(reason: unknown, origin: CancelOrigin): void {
-    this.decide(reason, origin);
-    this.#gesture.enter();
+    this._decide(reason, origin);
+    this.#gesture._enter();
   }
 
   #move(event: PointerEvent): void {
@@ -399,7 +399,7 @@ export class Session<
     this.#motion.abort();
     this.#presentation.abort();
     this.#phase = ENDED;
-    this.#gesture.detach();
+    this.#gesture._detach();
   }
 
   #up(event: PointerEvent): void {
@@ -486,9 +486,9 @@ export class Session<
       if (!faulted) {
         // Inside a pass, that pass's reader applies it.
         this.#decision = { type: 'verdict', value: value as Verdict };
-        this.#gesture.enter();
+        this.#gesture._enter();
       } else {
-        this.#gesture.raiseInPass(value);
+        this.#gesture._raiseInPass(value);
       }
     };
 
@@ -566,7 +566,7 @@ export class Session<
     try {
       this.#closeMotion();
     } catch (error) {
-      this.#gesture.raise(error);
+      this.#gesture._raise(error);
     }
 
     if (outcome.type === 'canceled') {
@@ -580,7 +580,7 @@ export class Session<
       try {
         operation.settle?.(outcome);
       } catch (error) {
-        this.#gesture.raise(error);
+        this.#gesture._raise(error);
       }
     }
 
@@ -591,7 +591,7 @@ export class Session<
     if (operation) {
       this.#next = () => {
         this.#phase = ENDED;
-        this.#gesture.detach();
+        this.#gesture._detach();
 
         try {
           operation.end?.(outcome);
@@ -601,7 +601,7 @@ export class Session<
       };
     } else {
       this.#phase = ENDED;
-      this.#gesture.detach();
+      this.#gesture._detach();
       restoreFocus(this.#focused, this.#drag.pointerId);
     }
   }

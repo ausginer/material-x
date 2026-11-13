@@ -89,7 +89,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   start(): void {
-    this.#behavior.config.onStart?.(this.#query.item);
+    this.#behavior._config.onStart?.(this.#query.item);
   }
 
   move(): void {
@@ -97,7 +97,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       this.#drag.x - this.#drag.originX,
       this.#drag.y - this.#drag.originY,
     );
-    this.#frame.schedule();
+    this.#frame._schedule();
   }
 
   drop(): VerdictAwaiter<ReorderResolution> | null {
@@ -133,7 +133,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     return request.to === request.from
       ? null
       : (signal: AbortSignal) =>
-          this.#behavior.config.onReorder(request, { signal });
+          this.#behavior._config.onReorder(request, { signal });
   }
 
   settle(outcome: Outcome<ReorderResolution>): void {
@@ -148,11 +148,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   end(): void {
-    this.#behavior.config.onEnd?.(this.#result!);
+    this.#behavior._config.onEnd?.(this.#result!);
   }
 
   /** The collection was pulled again: rebases the gap, or cancels. */
-  rebase(next: CollectionSnapshot): void {
+  _rebase(next: CollectionSnapshot): void {
     this.#query.snapshot = next;
     this.#home = homeInsertion(next, this.#drag.item);
 
@@ -176,7 +176,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   }
 
   /** The gap under the pointer, and the placeholder moved to it. */
-  updateInsertion(): void {
+  _updateInsertion(): void {
     this.#query.pointerX = this.#drag.x;
     this.#query.pointerY = this.#drag.y;
 

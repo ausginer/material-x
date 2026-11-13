@@ -60,9 +60,9 @@ export class FreeDragBehavior implements Behavior<
   FreeDragOperation
 > {
   readonly threshold?: number;
-  readonly root: HTMLElement;
-  readonly config: FreeDragConfig;
-  readonly window: Window & typeof globalThis;
+  readonly _root: HTMLElement;
+  readonly _config: FreeDragConfig;
+  readonly _window: Window & typeof globalThis;
   readonly axis: DragAxis;
   readonly bounds: MotionConstraint | null;
   readonly landing: Landing | null;
@@ -70,12 +70,12 @@ export class FreeDragBehavior implements Behavior<
 
   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
     this.threshold = config.threshold;
-    this.root = root;
-    this.config = config;
-    this.window = root.ownerDocument.defaultView!;
+    this._root = root;
+    this._config = config;
+    this._window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
     this.axis = config.axis ?? 'both';
-    this.bounds = config.bounds?.(this.window) ?? null;
+    this.bounds = config.bounds?.(this._window) ?? null;
     this.landing = config.landing ?? null;
   }
 
@@ -87,8 +87,8 @@ export class FreeDragBehavior implements Behavior<
 
     let handle: HTMLElement | undefined;
 
-    if (this.config.handle) {
-      const named = this.config.handle(this.root);
+    if (this._config.handle) {
+      const named = this._config.handle(this._root);
 
       if (!named || !event.composedPath().includes(named)) {
         return null;
@@ -98,9 +98,9 @@ export class FreeDragBehavior implements Behavior<
     }
 
     return {
-      item: this.root,
+      item: this._root,
       ...(handle ? { handle } : {}),
-      state: this.config.visual ? this.config.visual(this.root) : this.root,
+      state: this._config.visual ? this._config.visual(this._root) : this._root,
     };
   }
 
@@ -120,11 +120,11 @@ export class FreeDragBehavior implements Behavior<
       this,
       drag,
       lift,
-      this.config.targets?.(drag, this.window) ?? null,
+      this._config.targets?.(drag, this._window) ?? null,
     );
 
-    if (this.bounds || this.config.targets) {
-      listenForInvalidation(this.window, drag.signal, operation);
+    if (this.bounds || this._config.targets) {
+      listenForInvalidation(this._window, drag.signal, operation);
     }
 
     operation.translate();

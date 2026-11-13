@@ -67,12 +67,12 @@ type PressState = Readonly<{
   /** `config.box` from admission, or the visual. */
   box: HTMLElement;
   /** A command's direction, or `null` for a pointer operation. */
-  direction: KeyboardDirection | null;
+  _direction: KeyboardDirection | null;
 }>;
 
 /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
 function updateInsertion(operation: SortableOperation | null): void {
-  operation?.updateInsertion();
+  operation?._updateInsertion();
 }
 
 /**
@@ -91,7 +91,7 @@ export class SortableBehavior implements Behavior<
 > {
   declare readonly threshold?: number;
 
-  readonly config: SortableConfig;
+  readonly _config: SortableConfig;
   readonly #window: Window;
   readonly #lifter: Lifter;
   readonly axis: InsertionGeometry;
@@ -111,7 +111,7 @@ export class SortableBehavior implements Behavior<
       this.threshold = config.threshold;
     }
 
-    this.config = config;
+    this._config = config;
     this.#window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
     this.axis = config.axis();
@@ -123,7 +123,7 @@ export class SortableBehavior implements Behavior<
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
   readonly invalidate = (operation: SortableOperation | null): void => {
     if (operation) {
-      operation.rebase(this.#pull());
+      operation._rebase(this.#pull());
     }
   };
 
@@ -157,9 +157,9 @@ export class SortableBehavior implements Behavior<
     // A pointer operation starts in its home gap, so one object serves as both.
     const home = homeInsertion(snapshot, drag.item);
     const insertion =
-      state.direction === null
+      state._direction === null
         ? home
-        : keyboardInsertion(snapshot, drag.item, state.direction);
+        : keyboardInsertion(snapshot, drag.item, state._direction);
 
     if (!insertion) {
       return null;
@@ -181,7 +181,7 @@ export class SortableBehavior implements Behavior<
       lift.visual.contains(lift.box)
         ? lift.boxHeight
         : lift.boxHeight - lift.box.offsetHeight,
-      this.config.placeholder ?? null,
+      this._config.placeholder ?? null,
     );
 
     drag.use(() => {
@@ -213,7 +213,7 @@ export class SortableBehavior implements Behavior<
       this,
       drag,
       lift,
-      state.direction,
+      state._direction,
       snapshot,
       home,
       insertion,
@@ -233,7 +233,7 @@ export class SortableBehavior implements Behavior<
 
   #pull(): CollectionSnapshot {
     this.#version += 1;
-    return { items: this.config.items(), version: this.#version };
+    return { items: this._config.items(), version: this.#version };
   }
 
   /**
@@ -257,8 +257,8 @@ export class SortableBehavior implements Behavior<
 
     let handle: HTMLElement | undefined;
 
-    if (this.config.handle) {
-      const named = this.config.handle(item);
+    if (this._config.handle) {
+      const named = this._config.handle(item);
 
       if (!named || !path.includes(named)) {
         return null;
@@ -271,15 +271,15 @@ export class SortableBehavior implements Behavior<
       return null;
     }
 
-    const visual = this.config.visual?.(item) ?? item;
+    const visual = this._config.visual?.(item) ?? item;
 
     return {
       item,
       ...(handle ? { handle } : {}),
       state: {
         visual,
-        box: this.config.box?.(item) ?? visual,
-        direction,
+        box: this._config.box?.(item) ?? visual,
+        _direction: direction,
       },
     };
   }

@@ -17,8 +17,8 @@ const { push, unshift } = [];
  * A list holds only the array method it adds with, the shared builtin read once
  * when this module is evaluated. `queue()` makes a list that adds at the start
  * of the array with `unshift`, and `stack()` one that adds at the end with
- * `push`. `run` takes the entry at the end for both, so a queue runs its
- * oldest entry and a stack its newest, and `run` does not branch on the kind.
+ * `push`. `_run` takes the entry at the end for both, so a queue runs its
+ * oldest entry and a stack its newest, and `_run` does not branch on the kind.
  *
  * The list decides nothing about when or whether its callbacks run, or what
  * happens when one throws. An owner whose entries coalesce checks `has` before
@@ -35,7 +35,7 @@ class List<Argument> {
   }
 
   /** Whether no entry is waiting. */
-  get empty(): boolean {
+  get _empty(): boolean {
     return this.#entries.length === 0;
   }
 
@@ -68,7 +68,7 @@ class List<Argument> {
    * Removes the entry at the end of the array and calls its callback with
    * `argument`, on its receiver. Call it only when an entry is waiting.
    */
-  run(argument: Argument): void {
+  _run(argument: Argument): void {
     const receiver = this.#entries.pop();
     (this.#entries.pop() as ListedCallback<Argument>).call(receiver, argument);
   }

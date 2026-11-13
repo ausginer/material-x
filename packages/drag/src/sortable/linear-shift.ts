@@ -53,7 +53,7 @@ export interface LinearShift {
    * after the move, because at the move's own instant the animations it started
    * have no resolved timing yet.
    */
-  refresh(
+  _refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
@@ -123,7 +123,7 @@ export function linearShift(index: RectIndex): LinearShift {
   };
 
   return {
-    refresh(
+    _refresh(
       snapshot,
       dragged,
       getBox,
@@ -138,10 +138,10 @@ export function linearShift(index: RectIndex): LinearShift {
         if (__DEV__ && advanceUnchecked) {
           // The rule predicts that a relocation leaves both x coordinates where
           // the rebuild measured them, and the check compares that prediction.
-          heldPlaceholder = index.placeholderRect.slice();
+          heldPlaceholder = index._placeholderRect.slice();
         }
 
-        index.measurePlaceholder(placeholder);
+        index._measurePlaceholder(placeholder);
       }
 
       if (
@@ -163,28 +163,28 @@ export function linearShift(index: RectIndex): LinearShift {
         heldPlaceholder = null;
       }
 
-      index.collect(snapshot, dragged, placeholder, gap);
+      index._collect(snapshot, dragged, placeholder, gap);
 
-      // Read once: `measure` writes into this buffer and never replaces it.
-      const { values, count } = index;
+      // Read once: `_measure` writes into this buffer and never replaces it.
+      const { values, _count: count } = index;
 
       // Toward the pointer only: under the order term, a slot on the other side of
       // the placeholder is never nearer than the placeholder's own center.
-      if (pointerY > index.placeholderRect[CENTER_Y]!) {
+      if (pointerY > index._placeholderRect[CENTER_Y]!) {
         while (
           index.end < count &&
-          (index.first === index.end ||
+          (index._first === index.end ||
             values[(index.end - 1) * STRIDE + CENTER_Y]! < pointerY)
         ) {
-          index.measure(index.end, index.end + 1, getBox, displacement);
+          index._measure(index.end, index.end + 1, getBox, displacement);
         }
       } else {
         while (
-          index.first > 0 &&
-          (index.first === index.end ||
-            values[index.first * STRIDE + CENTER_Y]! > pointerY)
+          index._first > 0 &&
+          (index._first === index.end ||
+            values[index._first * STRIDE + CENTER_Y]! > pointerY)
         ) {
-          index.measure(index.first - 1, index.first, getBox, displacement);
+          index._measure(index._first - 1, index._first, getBox, displacement);
         }
       }
 
@@ -200,7 +200,7 @@ export function linearShift(index: RectIndex): LinearShift {
       if (
         dirty ||
         snapshotVersion !== snapshot.version ||
-        index.count === 0 ||
+        index._count === 0 ||
         lastGap < 0 ||
         lastGap === gap
       ) {
@@ -237,7 +237,7 @@ export function linearShift(index: RectIndex): LinearShift {
         rowDistance = delta < 0 ? -delta : delta;
       }
 
-      index.lend(lo, hi, advance);
+      index._lend(lo, hi, advance);
 
       if (context.displacement) {
         // Read once, outside a loop that calls into the sink.

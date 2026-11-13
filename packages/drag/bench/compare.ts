@@ -1135,9 +1135,9 @@ const INJECTIONS: ReadonlyArray<
   {
     name: 'one object of about 1 KB retained per operation past destruction',
     file: 'sortable/operation.ts',
-    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
+    find: 'start(): void {\n    this.#behavior._config.onStart?.(this.#query.item);',
     replace:
-      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#behavior.config.onStart?.(this.#query.item);",
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#behavior._config.onStart?.(this.#query.item);",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
     expect: /FLAG retains more/u,
   },
@@ -1176,8 +1176,8 @@ const INJECTIONS: ReadonlyArray<
     // and kernel calls that allocate nothing must not flag the bytes rule.
     name: 'one entry on the step list per frame',
     file: 'kernel/gesture.ts',
-    find: 'this.enter(\n        step,\n        this.#session ? this.#session.stepTarget() : null,\n        receiver,\n      );',
-    replace: 'this.#steps.add(step, receiver);\n      this.enter();',
+    find: 'this._enter(\n        step,\n        this.#session ? this.#session._stepTarget() : null,\n        receiver,\n      );',
+    replace: 'this.#steps.add(step, receiver);\n      this._enter();',
     scenario: 'bytes per move by function, 20 items',
     expect: 'quiet',
   },
@@ -1243,9 +1243,9 @@ const FLOORS: ReadonlyArray<Injection & Readonly<{ scenario: string }>> = [
   {
     name: 'one object with two number properties retained per operation',
     file: 'sortable/operation.ts',
-    find: 'start(): void {\n    this.#behavior.config.onStart?.(this.#query.item);',
+    find: 'start(): void {\n    this.#behavior._config.onStart?.(this.#query.item);',
     replace:
-      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior.config.onStart?.(this.#query.item);",
+      "start(): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push({ x: this.#query.pointerX, y: this.#query.pointerY });\n    this.#behavior._config.onStart?.(this.#query.item);",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
   },
   ...[30, 10, 5, 2].map((us) => ({

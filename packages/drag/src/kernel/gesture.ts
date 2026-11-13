@@ -177,20 +177,20 @@ export class Gesture<
    *   reader applies it.
    * - **A step requested while idle** passes the receiver it was requested with,
    *   if any.
-   * - **A verdict's fault while idle** passes `raise` and the controller.
+   * - **A verdict's fault while idle** passes `_raise` and the controller.
    *
    * After teardown, everything is refused. Destruction requested while idle is
    * not refused, because its slot is still filled. Nothing is allocated here, so
    * a pointer sample allocates nothing.
    */
-  enter(): void;
-  enter<A>(step: (argument: A) => void, argument: A): void;
-  enter<A, R extends object>(
+  _enter(): void;
+  _enter<A>(step: (argument: A) => void, argument: A): void;
+  _enter<A, R extends object>(
     step: (this: R, argument: A) => void,
     argument: A,
     receiver: R | undefined,
   ): void;
-  enter(
+  _enter(
     step?: (this: object | undefined, argument: unknown) => void,
     argument?: unknown,
     receiver?: object,
@@ -212,7 +212,7 @@ export class Gesture<
         try {
           step.call(receiver, argument);
         } catch (error) {
-          this.raise(error);
+          this._raise(error);
         }
       }
 
@@ -224,9 +224,9 @@ export class Gesture<
 
   handleEvent(event: KeyboardEvent | PointerEvent): void {
     if (event.type === 'pointerdown') {
-      this.enter(this.#press, event as PointerEvent, this);
+      this._enter(this.#press, event as PointerEvent, this);
     } else {
-      this.enter(this.#command, event as KeyboardEvent, this);
+      this._enter(this.#command, event as KeyboardEvent, this);
     }
   }
 
@@ -235,10 +235,10 @@ export class Gesture<
    * the report, because `reportError` dispatches synchronously and a listener's
    * cancel must find the outcome already decided.
    */
-  raise(error: unknown): void {
+  _raise(error: unknown): void {
     const fault = new DragFault(error);
 
-    this.#session?.decide(fault, 'fault');
+    this.#session?._decide(fault, 'fault');
     reportError(fault);
   }
 
@@ -246,16 +246,16 @@ export class Gesture<
    * A verdict's fault: raised in the running pass, whose reader then applies it,
    * or else in a new pass.
    */
-  raiseInPass(error: unknown): void {
+  _raiseInPass(error: unknown): void {
     if (this.#running) {
-      this.raise(error);
+      this._raise(error);
     } else {
-      this.enter(this.raise, error, this);
+      this._enter(this._raise, error, this);
     }
   }
 
   /** Clears the slot. The session calls it when its operation ends. */
-  detach(): void {
+  _detach(): void {
     this.#session = null;
   }
 
@@ -288,9 +288,9 @@ export class Gesture<
     } else {
       // Requested while idle, the step is the first step of its own pass. The
       // list stays empty, so an idle request allocates nothing.
-      this.enter(
+      this._enter(
         step,
-        this.#session ? this.#session.stepTarget() : null,
+        this.#session ? this.#session._stepTarget() : null,
         receiver,
       );
     }
@@ -298,8 +298,8 @@ export class Gesture<
 
   requestCancel(reason?: unknown): void {
     if (this.#session) {
-      this.#session.decide(reason, 'request');
-      this.enter();
+      this.#session._decide(reason, 'request');
+      this._enter();
     }
   }
 
@@ -308,7 +308,7 @@ export class Gesture<
       this.#destroyed = new Promise((resolve) => {
         this.#resolveDestroyed = resolve;
       });
-      this.enter();
+      this._enter();
     }
 
     return this.#destroyed;
@@ -342,13 +342,13 @@ export class Gesture<
           return;
         }
 
-        if (!this.#steps.empty) {
-          this.#steps.run(this.#session ? this.#session.stepTarget() : null);
-        } else if (!this.#session?.advance()) {
+        if (!this.#steps._empty) {
+          this.#steps._run(this.#session ? this.#session._stepTarget() : null);
+        } else if (!this.#session?._advance()) {
           return;
         }
       } catch (error) {
-        this.raise(error);
+        this._raise(error);
       }
     }
   }
@@ -417,7 +417,7 @@ export class Gesture<
     this.#resolveDestroyed = null;
     this.#session = null;
     this.#steps.clear();
-    session?.terminate();
+    session?._terminate();
 
     runDisposers(this.#disposers, null, this);
 

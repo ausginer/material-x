@@ -68,10 +68,10 @@ describe('drag:DRD-35 callback lists', () => {
     list.add(callback, a);
     list.add(callback, undefined);
 
-    list.run(1);
-    list.run(2);
-    list.run(3);
-    expect(list.empty).toBe(true);
+    list._run(1);
+    list._run(2);
+    list._run(3);
+    expect(list._empty).toBe(true);
     expect(calls).toEqual([
       [a, 1],
       [a, 2],
@@ -89,9 +89,9 @@ describe('drag:DRD-35 callback lists', () => {
     list.add(callback, a);
     list.add(callback, undefined);
     list.add(callback, b);
-    list.run(1);
-    list.run(2);
-    list.run(3);
+    list._run(1);
+    list._run(2);
+    list._run(3);
     expect(calls).toEqual([
       [a, 1],
       [undefined, 2],
@@ -109,9 +109,9 @@ describe('drag:DRD-35 callback lists', () => {
     list.add(callback, a);
     list.add(callback, undefined);
     list.add(callback, b);
-    list.run(1);
-    list.run(2);
-    list.run(3);
+    list._run(1);
+    list._run(2);
+    list._run(3);
     expect(calls).toEqual([
       [b, 1],
       [undefined, 2],
@@ -127,15 +127,15 @@ describe('drag:DRD-35 callback lists', () => {
     (_, create) => {
       const list = create();
       const callback = recordInto([]);
-      const emptiness = [list.empty];
+      const emptiness = [list._empty];
 
       list.add(callback, undefined);
-      emptiness.push(list.empty);
+      emptiness.push(list._empty);
       list.add(callback, {});
-      list.run(1);
-      emptiness.push(list.empty);
-      list.run(2);
-      emptiness.push(list.empty);
+      list._run(1);
+      emptiness.push(list._empty);
+      list._run(2);
+      emptiness.push(list._empty);
       expect(emptiness).toEqual([true, false, false, true]);
     },
   );
@@ -152,12 +152,12 @@ describe('drag:DRD-35 callback lists', () => {
     }, undefined);
 
     expect(() => {
-      list.run(null);
+      list._run(null);
     }).toThrow('last');
-    expect(list.empty).toBe(false);
-    list.run(null);
+    expect(list._empty).toBe(false);
+    list._run(null);
     expect(ran).toEqual(['first']);
-    expect(list.empty).toBe(true);
+    expect(list._empty).toBe(true);
   });
 
   it('should drop every entry on clear', () => {
@@ -167,7 +167,7 @@ describe('drag:DRD-35 callback lists', () => {
       throw new Error('never');
     }, undefined);
     list.clear();
-    expect(list.empty).toBe(true);
+    expect(list._empty).toBe(true);
   });
 });
 

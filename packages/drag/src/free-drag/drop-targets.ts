@@ -120,7 +120,7 @@ export function dropTargets(options: DropTargetsOptions): DropTargets {
         return current;
       },
       move() {
-        frame.schedule();
+        frame._schedule();
       },
       drop() {
         frame.cancel();

@@ -13,7 +13,7 @@ export function listenForInvalidation(
 }
 
 export interface FrameTask {
-  schedule(): void;
+  _schedule(): void;
   cancel(): void;
 }
 
@@ -26,7 +26,7 @@ export function createFrameTask(window: Window, run: () => void): FrameTask {
   };
 
   return {
-    schedule() {
+    _schedule() {
       if (handle === 0) {
         handle = window.requestAnimationFrame(fire);
       }
