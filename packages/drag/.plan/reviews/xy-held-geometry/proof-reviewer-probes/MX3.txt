@@ -1,0 +1,231 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag
+
+6:06:32 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=fb8bfcc6
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:95 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight 293ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:138 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row 649ms
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:173 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 421ms
+   → expected [ <div class="row" …(2)></div>, …(22) ] to deeply equal [ …(1) ]
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:212 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 278ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:465 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap 17ms
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:471 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating 19ms
+   → expected -100 to be close to +0, received difference is 100, but expected 0.05
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:485 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:173 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+AssertionError: expected [ <div class="row" …(2)></div>, …(22) ] to deeply equal [ …(1) ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -1,8 +1,162 @@[39m
+[2m  [[22m
+[2m    <div[22m
+[2m      class="row"[22m
+[31m+     id="r1"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 1[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r2"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 2[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r3"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 3[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r4"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 4[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r5"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 5[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r6"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 6[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r7"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 7[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r8"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 8[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r9"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 9[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r10"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 10[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r11"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 11[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r1"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 1[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r2"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 2[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r3"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 3[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r4"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 4[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r5"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 5[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r6"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 6[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r7"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 7[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r8"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 8[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r9"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 9[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r10"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 10[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[31m+     id="r11"[39m
+[31m+     style="width: 100px; height: 60px; touch-action: none;"[39m
+[31m+   >[39m
+[31m+     Row 11[39m
+[31m+   </div>,[39m
+[31m+   <div[39m
+[31m+     class="row"[39m
+[2m      id="r11"[22m
+[2m      style="width: 100px; height: 60px; touch-action: none;"[22m
+[2m    >[22m
+[2m      Row 11[22m
+[2m    </div>,[22m
+
+ ❯ expectOwnRows tests/displacement-sink.browser.test.ts:90:18
+     88| function expectOwnRows(calls: readonly DisplacedCall[]): void {
+     89|   for (const { element, read } of calls) {
+     90|     expect(read).toEqual([element]);
+       |                  ^
+     91|   }
+     92| }
+ ❯ tests/displacement-sink.browser.test.ts:204:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:471 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating
+AssertionError: expected -100 to be close to +0, received difference is 100, but expected 0.05
+ ❯ driveCommittedMoves tests/displacement-sink.browser.test.ts:429:27
+    427|
+    428|       if (report) {
+    429|         expect(report.dx).toBeCloseTo(x0 - x1, 1);
+       |                           ^
+    430|         expect(report.dy).toBeCloseTo(y0 - y1, 1);
+    431|       } else {
+ ❯ tests/displacement-sink.browser.test.ts:476:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  18:06:31
+   Duration  2.39s (tests 82%, worker 17%, import 1%)
+
+exit 1

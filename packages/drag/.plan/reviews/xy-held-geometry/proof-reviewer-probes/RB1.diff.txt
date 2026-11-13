@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 319e5a0b3..a0bdf6ceb 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -149,7 +149,7 @@ export function xy(): AxisInstaller {
+           const dx = index.retained(i, LEFT) - index.at(i, LEFT);
+           const dy = index.retained(i, TOP) - index.at(i, TOP);
+ 
+-          if (dx !== 0 || dy !== 0) {
++          if (dx !== dx) {
+             displacement.report(index.item(i), dx, dy, context.space);
+           }
+         }

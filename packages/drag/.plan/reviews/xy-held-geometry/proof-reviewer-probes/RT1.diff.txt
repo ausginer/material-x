@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..e34ad3f7e 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -52,7 +52,7 @@ type Field =
+   | typeof CENTER_Y;
+ 
+ /** The near edge of an axis: `LEFT` for x, `TOP` for y. */
+-type NearEdge = typeof LEFT | typeof TOP;
++type NearEdge = Field;
+ 
+ /**
+  * The slots stored before slot 0: the scratch slot, then the placeholder. Slot `s`

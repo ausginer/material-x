@@ -1,0 +1,58 @@
+## npx just typecheck
+tsc -p tsconfig.json --noEmit
+../../.scripts/tsdown-library.ts(53,11): error TS2322: Type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/vite/dist/node/index").Plugin<any>' is not assignable to type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/rolldown/dist/shared/define-config-QuM53xoi").E<any>'.
+  Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+    Type 'ObjectHook<(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult, { ...; }> | undefined' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+        Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'LoadExtraOptions' has no properties in common with type '{ ssr?: boolean | undefined; }'.
+tests/rect-index.declaration.test.ts(42,5): error TS2578: Unused '@ts-expect-error' directive.
+tests/rect-index.declaration.test.ts(54,5): error TS2578: Unused '@ts-expect-error' directive.
+error: recipe `typecheck` failed on line 37 with exit code 1
+exit 1
+## declaration project
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag
+
+ ❯ |declaration|  TS  tests/rect-index.declaration.test.ts (3 tests | 2 failed)
+   ❯ RectIndex fields (3)
+     × should accept only LEFT or TOP as retained's field
+     × should accept only LEFT or TOP as the constructor's axis
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/rect-index.declaration.test.ts:37 > RectIndex fields > should accept only LEFT or TOP as retained's field
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/rect-index.declaration.test.ts:42:5
+     40|     index.retained(0, LEFT);
+     41|     index.retained(0, TOP);
+     42|     // @ts-expect-error `RIGHT` is not retained.
+       |     ^
+     43|     index.retained(0, RIGHT);
+     44|     // @ts-expect-error A number may be any field or none.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |declaration| tests/rect-index.declaration.test.ts:48 > RectIndex fields > should accept only LEFT or TOP as the constructor's axis
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/rect-index.declaration.test.ts:54:5
+     52|     indexes.push(new RectIndex(LEFT));
+     53|     indexes.push(new RectIndex(TOP));
+     54|     // @ts-expect-error `RIGHT` is not the near edge of an axis.
+       |     ^
+     55|     indexes.push(new RectIndex(RIGHT));
+     56|     // @ts-expect-error A number may be any field or none.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+Type Errors  no errors
+   Start at  18:06:17
+   Duration  403ms (typecheck 100%)
+
+exit 1

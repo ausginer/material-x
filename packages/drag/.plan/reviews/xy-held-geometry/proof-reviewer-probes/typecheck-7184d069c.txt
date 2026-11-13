@@ -1,0 +1,9 @@
+tsc -p tsconfig.json --noEmit
+../../.scripts/tsdown-library.ts(53,11): error TS2322: Type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/vite/dist/node/index").Plugin<any>' is not assignable to type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/rolldown/dist/shared/define-config-QuM53xoi").E<any>'.
+  Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+    Type 'ObjectHook<(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult, { ...; }> | undefined' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+        Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'LoadExtraOptions' has no properties in common with type '{ ssr?: boolean | undefined; }'.
+error: recipe `typecheck` failed on line 37 with exit code 1

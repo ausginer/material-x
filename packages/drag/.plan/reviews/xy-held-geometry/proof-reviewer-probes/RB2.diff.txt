@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 319e5a0b3..0a3fd8415 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -128,7 +128,6 @@ export function xy(): AxisInstaller {
+ 
+         // Before the refresh rewrites the slots.
+         index.retain();
+-        index.invalidate();
+         refresh(
+           index,
+           query.snapshot,
