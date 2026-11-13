@@ -4,6 +4,7 @@
     "./src/**/*",
     "./bench/**/*",
     "./tests/**/*",
+    "./build/**/*",
     "./.plan/probes/callback-list/allocation.ts",
     "../../types.d.ts",
     "./files.json",
