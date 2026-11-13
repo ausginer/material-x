@@ -64,7 +64,7 @@ export function sortable(
 
   return {
     invalidate: () => {
-      kernel.requestStep(behavior.invalidate);
+      kernel.requestStep(behavior._invalidate);
     },
     requestCancel: (reason) => {
       kernel.requestCancel(reason);

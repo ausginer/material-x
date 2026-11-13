@@ -21,8 +21,8 @@ const { push, unshift } = [];
  * oldest entry and a stack its newest, and `_run` does not branch on the kind.
  *
  * The list decides nothing about when or whether its callbacks run, or what
- * happens when one throws. An owner whose entries coalesce checks `has` before
- * `add`. An entry is removed before its callback runs, so a throw leaves the
+ * happens when one throws. An owner whose entries coalesce checks `_has` before
+ * `_add`. An entry is removed before its callback runs, so a throw leaves the
  * list consistent and a callback that adds itself again is added as a new
  * entry.
  */
@@ -40,7 +40,7 @@ class List<Argument> {
   }
 
   /** Whether the same callback is waiting with the same receiver. */
-  has(
+  _has(
     callback: ListedCallback<Argument>,
     receiver: object | undefined,
   ): boolean {
@@ -57,7 +57,7 @@ class List<Argument> {
    * Adds an entry, at the start of a queue's array and at the end of a stack's,
    * whether or not the same pair is waiting.
    */
-  add<Receiver extends object>(
+  _add<Receiver extends object>(
     callback: (this: Receiver, argument: Argument) => void,
     receiver?: Receiver,
   ): void {
@@ -74,7 +74,7 @@ class List<Argument> {
   }
 
   /** Drops every entry and the references it holds. */
-  clear(): void {
+  _clear(): void {
     this.#entries.length = 0;
   }
 }

@@ -1177,7 +1177,7 @@ const INJECTIONS: ReadonlyArray<
     name: 'one entry on the step list per frame',
     file: 'kernel/gesture.ts',
     find: 'this._enter(\n        step,\n        this.#session ? this.#session._stepTarget() : null,\n        receiver,\n      );',
-    replace: 'this.#steps.add(step, receiver);\n      this._enter();',
+    replace: 'this.#steps._add(step, receiver);\n      this._enter();',
     scenario: 'bytes per move by function, 20 items',
     expect: 'quiet',
   },

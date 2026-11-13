@@ -69,7 +69,7 @@ export function freeDrag(
     moveTo: (point) =>
       // One step per call: it carries the point, and DRI-8 keeps calls in order.
       kernel.requestStep((operation) => {
-        operation?.moveTo(point);
+        operation?._moveTo(point);
       }),
     requestCancel: (reason) => {
       kernel.requestCancel(reason);

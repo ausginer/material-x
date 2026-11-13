@@ -54,7 +54,7 @@ export function y(): AxisInstaller {
         );
 
         // Read once, outside the candidate loop.
-        const { values, _first: first, end } = index;
+        const { _values: values, _first: first, _end: end } = index;
         const anchor = index._placeholderRect[CENTER_Y]!;
         let best = Math.abs(pointerY - anchor);
         let nearest = -1;
@@ -79,11 +79,11 @@ export function y(): AxisInstaller {
         const gap =
           values[nearest * STRIDE + CENTER_Y]! > anchor ? nearest + 1 : nearest;
 
-        return insertionAt(index.items, gap);
+        return insertionAt(index._items, gap);
       },
 
       invalidate() {
-        shift.invalidate();
+        shift._invalidate();
       },
 
       confirm(query, context) {
@@ -95,16 +95,16 @@ export function y(): AxisInstaller {
             context.displacement,
           )
         ) {
-          shift.invalidate();
+          shift._invalidate();
         }
       },
 
       moved(query, context) {
-        shift.moved(query.insertion.index, query.snapshot, context);
+        shift._moved(query.insertion.index, query.snapshot, context);
       },
 
       retire() {
-        shift.retire();
+        shift._retire();
       },
     };
   };

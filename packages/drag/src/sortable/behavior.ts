@@ -63,9 +63,9 @@ export type SortableConfig = Readonly<{
 /** What `activate` needs from the press. */
 type PressState = Readonly<{
   /** `config.visual` from admission, or the item. */
-  visual: HTMLElement;
+  _visual: HTMLElement;
   /** `config.box` from admission, or the visual. */
-  box: HTMLElement;
+  _box: HTMLElement;
   /** A command's direction, or `null` for a pointer operation. */
   _direction: KeyboardDirection | null;
 }>;
@@ -94,9 +94,9 @@ export class SortableBehavior implements Behavior<
   readonly _config: SortableConfig;
   readonly #window: Window;
   readonly #lifter: Lifter;
-  readonly axis: InsertionGeometry;
-  readonly displacement: DisplacementSink | undefined;
-  readonly landing: Landing | null;
+  readonly _axis: InsertionGeometry;
+  readonly _displacement: DisplacementSink | undefined;
+  readonly _landing: Landing | null;
   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
   /** The version the next pulled snapshot carries. */
   #version = 0;
@@ -114,14 +114,14 @@ export class SortableBehavior implements Behavior<
     this._config = config;
     this.#window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
-    this.axis = config.axis();
-    this.displacement = displacement;
-    this.landing = config.landing ?? null;
+    this._axis = config.axis();
+    this._displacement = displacement;
+    this._landing = config.landing ?? null;
     this.#measuredBox = config.box ?? config.visual ?? null;
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly invalidate = (operation: SortableOperation | null): void => {
+  readonly _invalidate = (operation: SortableOperation | null): void => {
     if (operation) {
       operation._rebase(this.#pull());
     }
@@ -142,7 +142,7 @@ export class SortableBehavior implements Behavior<
     state: PressState,
   ): SortableOperation | null {
     // First, so that its release is the operation's first disposer and runs last.
-    const lift = this.#lifter.acquire(drag, state.visual, state.box);
+    const lift = this.#lifter.acquire(drag, state._visual, state._box);
 
     // The second pull closes the window between admission and activation, in
     // which foreign code runs: a press before its threshold, and a command
@@ -202,11 +202,11 @@ export class SortableBehavior implements Behavior<
     });
 
     drag.use(() => {
-      frame.cancel();
+      frame._cancel();
     });
-    drag.use(this.axis.retire, this.axis);
+    drag.use(this._axis.retire, this._axis);
     listenForInvalidation(this.#window, drag.signal, () => {
-      drag.requestStep(this.axis.invalidate, this.axis);
+      drag.requestStep(this._axis.invalidate, this._axis);
     });
 
     const operation = new SortableOperation(
@@ -221,12 +221,12 @@ export class SortableBehavior implements Behavior<
       {
         placeholder,
         box: this.#measuredBox,
-        displacement: this.displacement ?? null,
+        displacement: this._displacement ?? null,
         space: lift.itemSpace,
       },
     );
 
-    this.axis.invalidate();
+    this._axis.invalidate();
 
     return operation;
   }
@@ -277,8 +277,8 @@ export class SortableBehavior implements Behavior<
       item,
       ...(handle ? { handle } : {}),
       state: {
-        visual,
-        box: this._config.box?.(item) ?? visual,
+        _visual: visual,
+        _box: this._config.box?.(item) ?? visual,
         _direction: direction,
       },
     };
