@@ -1,5 +1,7 @@
 # Publication build handoff
 
+**Withdrawn on 2026-11-13 with `DRD-59`. Don't run this unit.** The owner deferred property mangling, and [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) removes the pipeline instead (`DRD-60`). Kept as the record of what `DRD-59` asked for.
+
 **For:** one `implementer` unit on `drag/mangle-remediation`, from the commit that adds this handoff's amendment. That branch contains `drag/size` up to `31bac1381`, the dependency update, merged at `63bb1bea1`, with `DRD-57`'s rename at `b50204f66`. If the owner merges this branch into `drag/size` first, the unit runs there from the merge, and nothing below changes. The unit builds, tests and measures.
 
 **Tools:** `tsdown` 0.23.7, `rolldown` 1.3.2 and `rolldown-plugin-dts` 0.30.2, as the lockfile installs them. `DRD-59`'s amendment was read with these versions. **If the branch is checked out in a linked worktree without installed dependencies,** run `npm ci` there, then build `@ydinjs/vite-traits-plugin` and `@ydinjs/box-quad` in it. `tsdown.config.ts` imports the first, and the declarations resolve the second's `.d.ts`.

@@ -1,5 +1,7 @@
 # The three-unit layout: a kernel chunk, a sortable chunk and a freeDrag chunk
 
+**Closed on 2026-11-13.** The owner stopped the exploration and deferred property mangling (`DRD-60`), and `DRO-16` is withdrawn. This record and its probes are kept as evidence.
+
 The architect's exploration of the owner's intended layout for the publication, on 2026-11-13. **Nothing is adopted.** `DRD-59` stays the decision in force, and `DRO-16` holds what the owner decides.
 
 **Base:** `packages/drag` at `cc9818a96` on `drag/mangle-remediation`, with `tsdown` 0.23.7, `rolldown` 1.3.2, `rolldown-plugin-dts` 0.30.2 and `typescript` 6.0.2. The browser tests ran in the repository's Chrome. The probes ran in a scratch tree outside the checkout, which was removed afterwards. The candidate code and the probes are in [`probes/unit-layout/`](probes/unit-layout/README.md), and every figure below is in the [readings](measurements/2026-11-13-unit-layout-readings.txt).

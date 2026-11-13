@@ -1,5 +1,7 @@
 # Publication build proposal
 
+**Withdrawn on 2026-11-13 with `DRD-59`, before implementation.** The owner deferred property mangling (`DRD-60`). This proposal and its probes are kept as evidence.
+
 **Read:** the owner's requirements of 2026-11-13 for `@ydinjs/drag`'s publication, the build at `1719df16c` on `drag/size` (`DRD-57`'s rename landed at `b50204f66`), `DRD-55` to `DRD-58`, `DRO-15`, the [publish mangle review](reviews/publish-mangle/publish-mangle-summary.md) and its findings `DRF-24` to `DRF-37`, and the remediation proposal at `be151f9ed` ([assessment](mangle-remediation-assessment.md), [handoff](mangle-remediation-handoff.md)). Written by the architect on 2026-11-13 on `drag/mangle-remediation`, after merging `drag/size` into it. **Decision:** `DRD-59` in [`00-index.md`](00-index.md). **Handoff:** [`publication-build-handoff.md`](publication-build-handoff.md). **Evidence:** [`probes/publication-build/`](probes/publication-build/README.md) and [`2026-11-13-publication-build-readings.txt`](measurements/2026-11-13-publication-build-readings.txt).
 
 **Amended on 2026-11-13, before implementation,** after merging `drag/size` at `31bac1381`, the dependency update, into this branch. §9 repeats the probes that the update could change, with `tsdown` 0.23.7, `rolldown` 1.3.2 and `rolldown-plugin-dts` 0.30.2, and keeps observed results apart from assumptions. §3, §5, §6 and §7 follow it. §2 is the reading at 1.2.15, as it was taken.
