@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Item 8.3: the scratch config, copied in, run once, deleted.
+cd /workspaces/material-x/packages/drag
+cp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/vitest.consumer-engines.config.ts vitest.consumer-engines.config.ts
+. ~/.cache/ms-playwright/webkit-env.sh
+npx vitest run -c vitest.consumer-engines.config.ts --reporter=verbose
+code=$?
+rm vitest.consumer-engines.config.ts
+echo "[consumer engines exit $code; config deleted: $([ -e vitest.consumer-engines.config.ts ] && echo no || echo yes)]"

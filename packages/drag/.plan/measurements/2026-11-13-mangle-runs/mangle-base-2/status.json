@@ -1,0 +1,65 @@
+{
+  "id": "mangle-base-2",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 461437,
+    "start": "7272365"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T04:39:14.912Z",
+  "endedAt": "2026-11-13T04:39:16.837Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just size; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base-2/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 461454,
+        "start": "7272371"
+      },
+      "startedAt": "2026-11-13T04:39:14.925Z",
+      "endedAt": "2026-11-13T04:39:16.097Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/compare.ts --prove --dry; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base-2/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 461668,
+        "start": "7272489"
+      },
+      "startedAt": "2026-11-13T04:39:16.107Z",
+      "endedAt": "2026-11-13T04:39:16.449Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/compare.ts --floors --dry; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base-2/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 461734,
+        "start": "7272524"
+      },
+      "startedAt": "2026-11-13T04:39:16.459Z",
+      "endedAt": "2026-11-13T04:39:16.837Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

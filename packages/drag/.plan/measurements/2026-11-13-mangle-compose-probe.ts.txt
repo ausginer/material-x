@@ -1,0 +1,70 @@
+/**
+ * How Rolldown 1.2.15 composes a map that `renderChunk` returns. Builds
+ * `src/kernel/gesture.ts` unbundled three ways and compares each final map's
+ * mappings with the plain build's:
+ * - plain: no plugin;
+ * - identity: `renderChunk` returns the code unchanged, with a map that has a
+ *   segment at every given column of every line;
+ * - sparse: the same, with one segment per line at column 0.
+ */
+import { createRequire } from 'node:module';
+const require = createRequire('/workspaces/material-x/package.json');
+const { rolldown } = require('rolldown');
+const gm = require('@jridgewell/gen-mapping');
+
+const root = '/workspaces/material-x/packages/drag';
+type Seg = (line: string) => number[];
+
+async function build(segments: Seg | null) {
+  const bundle = await rolldown({
+    input: [`${root}/src/kernel/gesture.ts`],
+    platform: 'neutral',
+    transform: { define: { __DEV__: 'false' } },
+    plugins: segments
+      ? [
+          {
+            name: 'probe',
+            renderChunk(code: string, chunk: { fileName: string }) {
+              const map = new gm.GenMapping({ file: chunk.fileName });
+              code.split('\n').forEach((line, i) => {
+                for (const c of segments(line)) {
+                  gm.addSegment(map, i, c, chunk.fileName, i, c);
+                }
+              });
+              gm.setSourceContent(map, chunk.fileName, code);
+              return { code, map: gm.toEncodedMap(map) };
+            },
+          },
+        ]
+      : [],
+  });
+  const { output } = await bundle.generate({ format: 'es', preserveModules: true, preserveModulesRoot: `${root}/src`, sourcemap: true });
+  await bundle.close();
+  const chunk = output.find((c: { fileName: string }) => c.fileName.endsWith('gesture.js'));
+  return { code: chunk.code as string, map: chunk.map };
+}
+
+const decode = (map: object) =>
+  gm.allMappings(gm.fromMap(map)).map((m: { generated: { line: number; column: number }; original: { line: number; column: number } }) => `${m.generated.line}:${m.generated.column}>${m.original?.line}:${m.original?.column}`);
+
+const plain = await build(null);
+const every = await build((line) => [...line].map((_, i) => i));
+const boundary = await build((line) => {
+  const cols: number[] = [];
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i]!;
+    const prev = line[i - 1];
+    if (/\s/u.test(ch)) continue;
+    const word = /[\w$]/u.test(ch);
+    if (prev === undefined || /\s/u.test(prev) || !word || !/[\w$]/u.test(prev)) cols.push(i);
+  }
+  return cols;
+});
+const sparse = await build(() => [0]);
+const p = decode(plain.map);
+for (const [name, r] of [['every column', every], ['boundaries', boundary], ['column 0', sparse]] as const) {
+  const d = decode(r.map);
+  const ps = new Set(p);
+  const ds = new Set(d);
+  console.log(`${name}: code equal ${r.code === plain.code}; plain ${p.length} mappings, this ${d.length}; missing ${p.filter((x: string) => !ds.has(x)).length}; extra ${d.filter((x: string) => !ps.has(x)).length}`);
+}

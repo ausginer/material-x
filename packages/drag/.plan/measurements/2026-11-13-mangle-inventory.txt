@@ -1,0 +1,112 @@
+## advance — Session
+  declared: src/kernel/session.ts:254:3
+  references (2): src/kernel/session.ts:254:3 (def), src/kernel/gesture.ts:347:36
+## animation — record
+  declared: src/sortable/layout-animation.ts:106:40
+  references (8): src/sortable/layout-animation.ts:39:3, src/sortable/layout-animation.ts:80:50, src/sortable/layout-animation.ts:84:20, src/sortable/layout-animation.ts:106:40 (def), src/sortable/layout-animation.ts:133:48, src/sortable/layout-animation.ts:152:22, src/sortable/layout-animation.ts:99:15, src/sortable/layout-animation.ts:111:9
+## animation — TypeLiteral
+  declared: src/sortable/layout-animation.ts:39:3
+  references (6): src/sortable/layout-animation.ts:39:3 (def), src/sortable/layout-animation.ts:80:50, src/sortable/layout-animation.ts:84:20, src/sortable/layout-animation.ts:106:40, src/sortable/layout-animation.ts:133:48, src/sortable/layout-animation.ts:152:22
+## collect — RectIndex
+  declared: src/sortable/rect-index.ts:142:3
+  references (4): src/sortable/rect-index.ts:142:3 (def), src/sortable/rect-index.ts:339:9, src/sortable/xy.ts:37:9, src/sortable/linear-shift.ts:166:13
+## config — FreeDragBehavior
+  declared: src/free-drag/behavior.ts:64:12
+  references (15): src/free-drag/operation.ts:77:20, src/free-drag/operation.ts:84:24, src/free-drag/operation.ts:85:22, src/free-drag/operation.ts:112:22, src/free-drag/operation.ts:147:20, src/free-drag/operation.ts:175:27, src/free-drag/operation.ts:176:24, src/free-drag/behavior.ts:64:12 (def), src/free-drag/behavior.ts:74:10, src/free-drag/behavior.ts:90:14, src/free-drag/behavior.ts:91:26, src/free-drag/behavior.ts:103:19, src/free-drag/behavior.ts:103:40, src/free-drag/behavior.ts:123:12, src/free-drag/behavior.ts:126:29
+## config — SortableBehavior
+  declared: src/sortable/behavior.ts:94:12
+  references (11): src/sortable/operation.ts:92:20, src/sortable/operation.ts:136:26, src/sortable/operation.ts:151:20, src/sortable/behavior.ts:94:12 (def), src/sortable/behavior.ts:114:10, src/sortable/behavior.ts:184:12, src/sortable/behavior.ts:236:26, src/sortable/behavior.ts:260:14, src/sortable/behavior.ts:261:26, src/sortable/behavior.ts:274:25, src/sortable/behavior.ts:281:19
+## count — RectIndex
+  declared: src/sortable/rect-index.ts:124:7
+  references (9): src/sortable/rect-index.ts:124:7 (def), src/sortable/rect-index.ts:327:11, src/sortable/rect-index.ts:346:43, src/sortable/xy.ts:40:28, src/sortable/xy.ts:73:25, src/sortable/xy.ts:124:28, src/sortable/xy.ts:157:32, src/sortable/linear-shift.ts:169:23, src/sortable/linear-shift.ts:203:15
+## decide — Session
+  declared: src/kernel/session.ts:273:3
+  references (4): src/kernel/session.ts:273:3 (def), src/kernel/session.ts:360:10, src/kernel/gesture.ts:241:20, src/kernel/gesture.ts:301:21
+## detach — Gesture
+  declared: src/kernel/gesture.ts:258:3
+  references (4): src/kernel/session.ts:402:19, src/kernel/session.ts:594:23, src/kernel/session.ts:604:21, src/kernel/gesture.ts:258:3 (def)
+## direction — object literal: Readonly<{ visual: HTMLElement; box: HTMLElement; direction: KeyboardDirection | null; }> | undefined
+  declared: src/sortable/behavior.ts:282:9
+  references (8): src/sortable/behavior.ts:70:3, src/sortable/behavior.ts:160:13, src/sortable/behavior.ts:162:56, src/sortable/behavior.ts:216:13, src/sortable/behavior.ts:282:9 (def), src/sortable/behavior.ts:246:5, src/sortable/behavior.ts:270:9, src/sortable/behavior.ts:270:66
+## direction — TypeLiteral
+  declared: src/sortable/behavior.ts:70:3
+  references (5): src/sortable/behavior.ts:70:3 (def), src/sortable/behavior.ts:160:13, src/sortable/behavior.ts:162:56, src/sortable/behavior.ts:216:13, src/sortable/behavior.ts:282:9
+## dx — record
+  declared: src/sortable/layout-animation.ts:106:51
+  references (4): src/sortable/layout-animation.ts:40:3, src/sortable/layout-animation.ts:82:26, src/sortable/layout-animation.ts:106:51 (def), src/sortable/layout-animation.ts:134:29
+## dx — TypeLiteral
+  declared: src/sortable/layout-animation.ts:40:3
+  references (4): src/sortable/layout-animation.ts:40:3 (def), src/sortable/layout-animation.ts:82:26, src/sortable/layout-animation.ts:106:51, src/sortable/layout-animation.ts:134:29
+## dy — record
+  declared: src/sortable/layout-animation.ts:106:59
+  references (4): src/sortable/layout-animation.ts:41:3, src/sortable/layout-animation.ts:83:26, src/sortable/layout-animation.ts:106:59 (def), src/sortable/layout-animation.ts:135:29
+## dy — TypeLiteral
+  declared: src/sortable/layout-animation.ts:41:3
+  references (4): src/sortable/layout-animation.ts:41:3 (def), src/sortable/layout-animation.ts:83:26, src/sortable/layout-animation.ts:106:59, src/sortable/layout-animation.ts:135:29
+## empty — List
+  declared: src/kernel/callbacks.ts:38:7
+  references (11): src/kernel/callbacks.ts:38:7 (def), src/kernel/drag.ts:105:21, src/kernel/gesture.ts:345:26, tests/callback-list.browser.test.ts:74:17, tests/callback-list.browser.test.ts:130:31, tests/callback-list.browser.test.ts:133:27, tests/callback-list.browser.test.ts:136:27, tests/callback-list.browser.test.ts:138:27, tests/callback-list.browser.test.ts:157:17, tests/callback-list.browser.test.ts:160:17, tests/callback-list.browser.test.ts:170:17
+## enter — Gesture
+  declared: src/kernel/gesture.ts:186:3, src/kernel/gesture.ts:187:3, src/kernel/gesture.ts:188:3, src/kernel/gesture.ts:193:3
+  references (15): src/kernel/session.ts:335:23, src/kernel/session.ts:346:21, src/kernel/session.ts:348:21, src/kernel/session.ts:361:19, src/kernel/session.ts:489:23, src/kernel/gesture.ts:186:3 (def), src/kernel/gesture.ts:187:3 (def), src/kernel/gesture.ts:188:3 (def), src/kernel/gesture.ts:193:3 (def), src/kernel/gesture.ts:227:12, src/kernel/gesture.ts:229:12, src/kernel/gesture.ts:253:12, src/kernel/gesture.ts:291:12, src/kernel/gesture.ts:302:12, src/kernel/gesture.ts:311:12
+## first — RectIndex
+  declared: src/sortable/rect-index.ts:129:7
+  references (10): src/sortable/rect-index.ts:129:7 (def), src/sortable/rect-index.ts:327:24, src/sortable/xy.ts:39:13, src/sortable/linear-shift.ts:176:18, src/sortable/linear-shift.ts:183:17, src/sortable/linear-shift.ts:184:18, src/sortable/linear-shift.ts:185:26, src/sortable/linear-shift.ts:187:31, src/sortable/linear-shift.ts:187:48, src/sortable/y.ts:57:25
+## holds — RectIndex
+  declared: src/sortable/rect-index.ts:257:3
+  references (3): src/sortable/rect-index.ts:257:3 (def), src/sortable/xy.ts:108:18, src/sortable/y.ts:91:18
+## lend — RectIndex
+  declared: src/sortable/rect-index.ts:229:3
+  references (2): src/sortable/rect-index.ts:229:3 (def), src/sortable/linear-shift.ts:240:13
+## measure — RectIndex
+  declared: src/sortable/rect-index.ts:183:3
+  references (5): src/sortable/rect-index.ts:183:3 (def), src/sortable/rect-index.ts:341:9, src/sortable/xy.ts:40:11, src/sortable/linear-shift.ts:179:17, src/sortable/linear-shift.ts:187:17
+## measurePlaceholder — RectIndex
+  declared: src/sortable/rect-index.ts:241:3
+  references (3): src/sortable/rect-index.ts:168:10, src/sortable/rect-index.ts:241:3 (def), src/sortable/linear-shift.ts:144:15
+## placeholderRect — RectIndex
+  declared: src/sortable/rect-index.ts:116:7
+  references (7): src/sortable/rect-index.ts:116:7 (def), src/sortable/rect-index.ts:329:38, src/sortable/rect-index.ts:346:19, src/sortable/xy.ts:73:32, src/sortable/linear-shift.ts:141:35, src/sortable/linear-shift.ts:173:28, src/sortable/y.ts:58:30
+## raise — Fallible
+  declared: src/kernel/drag.ts:6:3
+  references (11): src/kernel/drag.ts:6:3 (def), src/kernel/drag.ts:91:16, src/kernel/drag.ts:109:18, src/kernel/session.ts:298:21, src/kernel/session.ts:569:21, src/kernel/session.ts:583:23, src/kernel/gesture.ts:215:16, src/kernel/gesture.ts:238:3, src/kernel/gesture.ts:251:12, src/kernel/gesture.ts:253:23, src/kernel/gesture.ts:351:14
+## raise — Gesture
+  declared: src/kernel/gesture.ts:238:3
+  references (11): src/kernel/drag.ts:6:3, src/kernel/drag.ts:91:16, src/kernel/drag.ts:109:18, src/kernel/session.ts:298:21, src/kernel/session.ts:569:21, src/kernel/session.ts:583:23, src/kernel/gesture.ts:215:16, src/kernel/gesture.ts:238:3 (def), src/kernel/gesture.ts:251:12, src/kernel/gesture.ts:253:23, src/kernel/gesture.ts:351:14
+## raiseInPass — Gesture
+  declared: src/kernel/gesture.ts:249:3
+  references (2): src/kernel/session.ts:491:23, src/kernel/gesture.ts:249:3 (def)
+## rebase — SortableOperation
+  declared: src/sortable/operation.ts:155:3
+  references (2): src/sortable/operation.ts:155:3 (def), src/sortable/behavior.ts:126:17
+## refresh — object literal: LinearShift
+  declared: src/sortable/linear-shift.ts:126:5
+  references (3): src/sortable/linear-shift.ts:56:3, src/sortable/linear-shift.ts:126:5 (def), src/sortable/y.ts:46:15
+## refresh — LinearShift
+  declared: src/sortable/linear-shift.ts:56:3
+  references (3): src/sortable/linear-shift.ts:56:3 (def), src/sortable/linear-shift.ts:126:5, src/sortable/y.ts:46:15
+## root — FreeDragBehavior
+  declared: src/free-drag/behavior.ts:63:12
+  references (8): src/free-drag/operation.ts:99:22, src/free-drag/operation.ts:177:32, src/free-drag/behavior.ts:63:12 (def), src/free-drag/behavior.ts:73:10, src/free-drag/behavior.ts:91:45, src/free-drag/behavior.ts:101:18, src/free-drag/behavior.ts:103:59, src/free-drag/behavior.ts:103:72
+## run — List
+  declared: src/kernel/callbacks.ts:71:3
+  references (17): src/kernel/callbacks.ts:71:3 (def), src/kernel/drag.ts:107:17, src/kernel/gesture.ts:346:23, tests/callback-list.browser.test.ts:71:10, tests/callback-list.browser.test.ts:72:10, tests/callback-list.browser.test.ts:73:10, tests/callback-list.browser.test.ts:92:10, tests/callback-list.browser.test.ts:93:10, tests/callback-list.browser.test.ts:94:10, tests/callback-list.browser.test.ts:112:10, tests/callback-list.browser.test.ts:113:10, tests/callback-list.browser.test.ts:114:10, tests/callback-list.browser.test.ts:135:12, tests/callback-list.browser.test.ts:137:12, tests/callback-list.browser.test.ts:155:12, tests/callback-list.browser.test.ts:158:10, .plan/probes/callback-list/allocation.ts:51:8
+## schedule — FrameTask
+  declared: src/shared/invalidation.ts:16:3
+  references (4): src/shared/invalidation.ts:16:3 (def), src/shared/invalidation.ts:29:5, src/free-drag/drop-targets.ts:123:15, src/sortable/operation.ts:100:17
+## schedule — object literal: FrameTask
+  declared: src/shared/invalidation.ts:29:5
+  references (4): src/shared/invalidation.ts:16:3, src/shared/invalidation.ts:29:5 (def), src/free-drag/drop-targets.ts:123:15, src/sortable/operation.ts:100:17
+## stepTarget — Session
+  declared: src/kernel/session.ts:281:3
+  references (3): src/kernel/session.ts:281:3 (def), src/kernel/gesture.ts:293:39, src/kernel/gesture.ts:346:57
+## terminate — Session
+  declared: src/kernel/session.ts:291:3
+  references (2): src/kernel/session.ts:291:3 (def), src/kernel/gesture.ts:420:14
+## updateInsertion — SortableOperation
+  declared: src/sortable/operation.ts:179:3
+  references (2): src/sortable/operation.ts:179:3 (def), src/sortable/behavior.ts:75:14
+## window — FreeDragBehavior
+  declared: src/free-drag/behavior.ts:65:12
+  references (7): src/free-drag/operation.ts:105:22, src/free-drag/operation.ts:169:22, src/free-drag/behavior.ts:65:12 (def), src/free-drag/behavior.ts:75:10, src/free-drag/behavior.ts:78:40, src/free-drag/behavior.ts:123:40, src/free-drag/behavior.ts:127:34
+37 symbols

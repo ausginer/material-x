@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# `src`'s diff, base → a revision, with each `_name` read as `name`: both trees
+# formatted alike, then compared with whitespace and trailing commas removed, so a
+# line the formatter wrapped because a name grew is not a difference. Every other
+# character counts, comments included.
+# `rename-check.sh <base> <revision>`, from packages/drag.
+set -euo pipefail
+work=$(mktemp -d)
+N='advance|animation|collect|config|count|decide|detach|direction|dx|dy|empty|enter|first|holds|lend|measure|measurePlaceholder|placeholderRect|raise|raiseInPass|rebase|refresh|root|run|schedule|stepTarget|terminate|updateInsertion|window'
+mkdir -p "$work/base" "$work/read"
+git archive "$1" src | tar x -C "$work/base"
+git archive "$2" src | tar x -C "$work/read"
+# A renamed shorthand key is written `_name: name`; read it as `name`.
+find "$work/read" -name '*.ts*' -exec perl -0pi -e "s/\b_($N)\b: \1\b/\1/g; s/\b_($N)\b/\1/g" {} +
+/workspaces/material-x/node_modules/.bin/oxfmt "$work/base" "$work/read" > /dev/null
+norm() { tr -d ' \t\n' < "$1" | sed 's/,\([])}]\)/\1/g'; }
+compared=0; differ=0
+for f in $(cd "$work/base" && find src -type f | sort); do
+  compared=$((compared + 1))
+  if ! cmp -s <(norm "$work/base/$f") <(norm "$work/read/$f"); then echo "DIFFERS: $f"; differ=$((differ + 1)); fi
+  cmp -s "$work/base/$f" "$work/read/$f" || echo "layout only: $f"
+done
+echo "$compared files compared; $differ differ"
+rm -r "$work"

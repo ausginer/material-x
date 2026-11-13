@@ -1,0 +1,48 @@
+/**
+ * Scratch, one run only (DRD-56 property 8): the consumer project's files in
+ * Firefox and WebKit, against the renamed build, with the consumer project's own
+ * resolution and build setup. Copied into packages/drag for the run, then deleted.
+ */
+/* eslint-disable import-x/no-relative-packages */
+import { playwright } from '@vitest/browser-playwright';
+import type { UserConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
+import {
+  createDragTestConfig,
+  DRAG_CONSUMER,
+  DRAG_NODE_BUILD,
+  DRAG_SHIPPED_BROWSER_TESTS,
+} from '../../.scripts/vitest-config.ts';
+import { dragBrowserCommands } from './tests/support/commands.node.ts';
+
+const all = createDragTestConfig(
+  new URL('./', import.meta.url),
+  dragBrowserCommands,
+  DRAG_SHIPPED_BROWSER_TESTS,
+  DRAG_NODE_BUILD,
+  DRAG_CONSUMER,
+);
+const consumer = (all.test!.projects as UserConfig[]).find(
+  (project) => project.test?.name === 'consumer',
+)!;
+
+// As `createDragAllEnginesTestConfig` derives an engine's project.
+const forEngine = (engine: 'firefox' | 'webkit', groupOrder: number): UserConfig => ({
+  ...consumer,
+  test: {
+    ...consumer.test,
+    name: `consumer/${engine}`,
+    fileParallelism: false,
+    maxWorkers: 1,
+    sequence: { groupOrder },
+    browser: {
+      ...consumer.test!.browser,
+      provider: playwright({ contextOptions: { deviceScaleFactor: 1 } }),
+      instances: [{ browser: engine, viewport: { width: 1280, height: 720 } }],
+    },
+  },
+});
+
+export default defineConfig({
+  test: { projects: [forEngine('firefox', 1), forEngine('webkit', 2)] },
+});

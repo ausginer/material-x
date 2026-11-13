@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# One witness: applies a scratch edit to copies-backed files, runs the check,
+# restores every file and confirms the restore with cmp.
+# `witness.sh <M> <run command>`; the edits are defined per witness below.
+set -u
+cd /workspaces/material-x/packages/drag
+M=$1; shift
+RUN=$*
+BACKUP=$(mktemp -d)
+declare -a FILES
+case $M in
+  M1) FILES=(src/kernel/callbacks.ts) ;;
+  M2) FILES=(build/rename-properties.ts) ;;
+  M3) FILES=(build/property-names.json) ;;
+  M4) FILES=(src/kernel/gesture.ts) ;;
+  M5) FILES=(build/rename-properties.ts) ;;
+  M6) FILES=(src/kernel/gesture.ts build/property-names.json) ;;
+  M7) FILES=(build/property-names.json) ;;
+esac
+for f in "${FILES[@]}"; do mkdir -p "$BACKUP/$(dirname "$f")"; cp -p "$f" "$BACKUP/$f"; done
+restore() {
+  for f in "${FILES[@]}"; do
+    cp -p "$BACKUP/$f" "$f"
+    if cmp "$BACKUP/$f" "$f"; then echo "[restored $f: cmp equal]"; else echo "[RESTORE FAILED $f]"; fi
+  done
+  rm -r "$BACKUP"
+}
+trap restore EXIT
+case $M in
+  M1) perl -0pi -e "s/(  readonly #insert: Entries<Argument>\['push'\];\n)/\$1  readonly _probe = 0;\n/" src/kernel/callbacks.ts ;;
+  M2) perl -0pi -e "s/if \(chunk\.fileName\.endsWith\('\.d\.ts'\)\) \{/if (chunk.fileName.endsWith('.d.ts') || chunk.fileName === 'kernel\/gesture.js') {/" build/rename-properties.ts ;;
+  M3) perl -0pi -e 's/"_config": "a",/"_config": "x",/' build/property-names.json ;;
+  M4) perl -0pi -e "s/this\.#session\?\._decide\(fault, 'fault'\);/this.#session?.['_decide'](fault, 'fault');/" src/kernel/gesture.ts ;;
+  M5) perl -0pi -e 's/        map: \{ version: 3, sources: \[chunk\.fileName\], names: \[\], mappings \},\n//' build/rename-properties.ts ;;
+  M6) perl -0pi -e 's/(  requestDestroy\(\): Promise<void>;\n)/$1  _probe?(): void;\n/' src/kernel/gesture.ts
+      perl -0pi -e 's/("_advance": "w",\n)/$1  "_probe": "F",\n/' build/property-names.json ;;
+  M7) perl -0pi -e 's/("_advance": "w",\n)/$1  "_stale": "G",\n/' build/property-names.json ;;
+esac
+echo "[scratch edit $M]"
+for f in "${FILES[@]}"; do diff -u "$BACKUP/$f" "$f"; done
+echo "[run] $RUN"
+bash -c "$RUN"
+echo "[run exit $?]"

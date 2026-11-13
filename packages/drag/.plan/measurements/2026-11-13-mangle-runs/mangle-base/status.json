@@ -1,0 +1,64 @@
+{
+  "id": "mangle-base",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 458285,
+    "start": "7261799"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T04:37:29.255Z",
+  "endedAt": "2026-11-13T04:39:05.624Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-13-mangle-base-suite.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": false
+      },
+      "process": {
+        "pid": 458303,
+        "start": "7261805"
+      },
+      "startedAt": "2026-11-13T04:37:29.267Z",
+      "endedAt": "2026-11-13T04:39:05.624Z",
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "command": "npx just size",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base/2.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    },
+    {
+      "command": "node bench/compare.ts --prove --dry; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base/3.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    },
+    {
+      "command": "node bench/compare.ts --floors --dry; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base/4.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+member start: free-drag/behavior.js:19:1 _root maps to ../src/free-drag/behavior.ts:63:2, "readonly _root: HTMLElem"
+member start: free-drag/behavior.js:20:1 _config maps to ../src/free-drag/behavior.ts:64:2, "readonly _config: FreeDr"
+member start: free-drag/behavior.js:21:1 _window maps to ../src/free-drag/behavior.ts:65:2, "readonly _window: Window"
+member start: sortable/behavior.js:21:1 _config maps to ../src/sortable/behavior.ts:94:2, "readonly _config: Sortab"
+90 files; 145 renamed names; 6902 mappings compared; 0 failures

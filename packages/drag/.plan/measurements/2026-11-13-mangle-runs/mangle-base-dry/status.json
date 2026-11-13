@@ -1,0 +1,31 @@
+{
+  "id": "mangle-base-dry",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 462541,
+    "start": "7276038"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T04:39:51.652Z",
+  "endedAt": "2026-11-13T04:39:59.407Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/dry-each.sh",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-base-dry/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 462558,
+        "start": "7276045"
+      },
+      "startedAt": "2026-11-13T04:39:51.667Z",
+      "endedAt": "2026-11-13T04:39:59.407Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

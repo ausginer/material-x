@@ -1,0 +1,188 @@
+import { DragFault } from "../fault.js";
+import { queue, stack } from "./callbacks.js";
+import { runDisposers, runDragDisposer } from "./drag.js";
+import { Session } from "./session.js";
+// src/kernel/gesture.ts
+/**
+* The public authoring API and the single-pass kernel behind it.
+*
+* The library runs only inside a pass: one synchronous run from a native event,
+* a frame, a settled verdict or a request made while idle. Passes do not nest. A
+* pass is a sequence of steps. Foreign code reached during a step can only fill
+* a request slot, and `#applyRequests` is the one reader of the slots, between
+* steps.
+*
+* A behavior receives `Drag`, which has no path to the session, and a step
+* receives the behavior's operation.
+*/
+const DEFAULT_THRESHOLD = 8;
+/**
+* Events a controller of this library copy has admitted. Bubbling reaches the
+* innermost root first, so the innermost admitting root wins and an outer root
+* sees only what its inner roots declined.
+*/
+const admitted = /* @__PURE__ */ new WeakSet();
+/**
+* Whether a hop before the subject is marked `data-drag-ignore`. The consumer
+* owns that attribute, and the library infers nothing about element types.
+*/
+function ownsInteraction(event, subject) {
+	for (const hop of event.composedPath()) {
+		if (hop === subject) return false;
+		if (hop.matches?.("[data-drag-ignore]")) return true;
+	}
+	return false;
+}
+/**
+* What exists across operations or with no operation: the root's listeners,
+* admission, the pass, the deferred steps, destruction, the reader and the slot
+* that holds the current session. Its members without `#` are the public
+* methods and the session's way in. `draggable` returns the instance typed as
+* `DraggableController`, which names only the public methods.
+*/
+var Gesture = class {
+	#root;
+	#behavior;
+	#window;
+	#threshold;
+	#listeners = new AbortController();
+	/** Controller-lifetime cleanup, each with its receiver, run at teardown. */
+	#disposers = stack();
+	/**
+	* Deferred steps with their receivers, in request order. Empty on the hot
+	* path.
+	*/
+	#steps = queue();
+	#session = null;
+	#running = false;
+	/** Set by the first destruction request, which also closes the controller. */
+	#destroyed = null;
+	/** The destruction request slot: non-null until teardown has been applied. */
+	#resolveDestroyed = null;
+	constructor(root, behavior) {
+		this.#root = root;
+		this.#behavior = behavior;
+		this.#window = root.ownerDocument.defaultView;
+		this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
+		root.addEventListener("pointerdown", this, { signal: this.#listeners.signal });
+		if (behavior.command) root.addEventListener("keydown", this, { signal: this.#listeners.signal });
+	}
+	_enter(step, argument, receiver) {
+		if (this.#running || this.#destroyed && !this.#resolveDestroyed) return;
+		this.#running = true;
+		try {
+			if (step) try {
+				step.call(receiver, argument);
+			} catch (error) {
+				this._raise(error);
+			}
+			this.#applyRequests();
+		} finally {
+			this.#running = false;
+		}
+	}
+	handleEvent(event) {
+		if (event.type === "pointerdown") this._enter(this.#press, event, this);
+		else this._enter(this.#command, event, this);
+	}
+	/**
+	* Reports when caught, and decides if nothing has. The slot is filled before
+	* the report, because `reportError` dispatches synchronously and a listener's
+	* cancel must find the outcome already decided.
+	*/
+	_raise(error) {
+		const fault = new DragFault(error);
+		this.#session?._decide(fault, "fault");
+		reportError(fault);
+	}
+	/**
+	* A verdict's fault: raised in the running pass, whose reader then applies it,
+	* or else in a new pass.
+	*/
+	_raiseInPass(error) {
+		if (this.#running) this._raise(error);
+		else this._enter(this._raise, error, this);
+	}
+	/** Clears the slot. The session calls it when its operation ends. */
+	_detach() {
+		this.#session = null;
+	}
+	requestStep(step, receiver) {
+		if (this.#destroyed) return;
+		if (this.#running) {
+			if (!this.#steps.has(step, receiver)) this.#steps.add(step, receiver);
+		} else this._enter(step, this.#session ? this.#session._stepTarget() : null, receiver);
+	}
+	requestCancel(reason) {
+		if (this.#session) {
+			this.#session._decide(reason, "request");
+			this._enter();
+		}
+	}
+	requestDestroy() {
+		if (!this.#destroyed) {
+			this.#destroyed = new Promise((resolve) => {
+				this.#resolveDestroyed = resolve;
+			});
+			this._enter();
+		}
+		return this.#destroyed;
+	}
+	use(dispose, receiver) {
+		if (this.#destroyed && !this.#resolveDestroyed) runDragDisposer(dispose, null, this, receiver);
+		else this.#disposers.add(dispose, receiver);
+	}
+	/**
+	* Between steps, the one reader of the slots. Precedence is statement order:
+	* destruction, deferred steps, then the session's decision and its next step.
+	* A request made by anything run here is seen on the next turn.
+	*/
+	#applyRequests() {
+		for (;;) try {
+			if (this.#resolveDestroyed) {
+				this.#teardown();
+				return;
+			}
+			if (!this.#steps._empty) this.#steps._run(this.#session ? this.#session._stepTarget() : null);
+			else if (!this.#session?._advance()) return;
+		} catch (error) {
+			this._raise(error);
+		}
+	}
+	#press(event) {
+		if (event.button === 0 && event.isPrimary && !this.#session && !admitted.has(event)) {
+			const admission = this.#behavior.admit(event);
+			if (admission && !ownsInteraction(event, admission.handle ?? admission.item)) {
+				admitted.add(event);
+				this.#open(admission, event.clientX, event.clientY, event.pointerId);
+			}
+		}
+	}
+	#command(event) {
+		if (this.#session || admitted.has(event)) return;
+		const admission = this.#behavior.command(event);
+		if (admission && !ownsInteraction(event, admission.handle ?? admission.item)) {
+			admitted.add(event);
+			event.preventDefault();
+			this.#open(admission, 0, 0);
+		}
+	}
+	#open(admission, x, y, pointerId) {
+		this.#session = new Session(this, this.#behavior, this.#root, this.#window, this.#threshold, admission, x, y, pointerId);
+	}
+	/** Destruction applied: closed first, then everything released, once. */
+	#teardown() {
+		const session = this.#session;
+		const resolveDestroyed = this.#resolveDestroyed;
+		this.#resolveDestroyed = null;
+		this.#session = null;
+		this.#steps.clear();
+		session?._terminate();
+		runDisposers(this.#disposers, null, this);
+		this.#listeners.abort();
+		resolveDestroyed();
+	}
+};
+export { Gesture };
+
+//# sourceMappingURL=gesture.js.map

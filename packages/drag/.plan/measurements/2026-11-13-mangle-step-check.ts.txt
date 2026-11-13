@@ -1,0 +1,116 @@
+/**
+ * Compares the build with the step against the build without it (commit A's
+ * tree, kept outside the checkout), file by file over the publication:
+ *
+ * 1. every `.js` equals the step-less `.js` with each prefixed property name
+ *    replaced by its map entry, computed here independently of the step;
+ * 2. the bundler annotations and the `sourceMappingURL` comment are the same;
+ * 3. every other file, `.d.ts` included, is byte-identical;
+ * 4. every map decodes, and has the same mappings as the step-less map, each
+ *    moved only by the length change of the names renamed before it on its line;
+ * 5. each renamed name's mapping points at `src` text that is the prefixed name,
+ *    or at the start of the class member that declares it with only modifiers
+ *    before the name; those are listed as `member start`.
+ *
+ * `node step-check.ts <step-less tree> <tree> <file list> <map json>`
+ */
+import { createRequire } from 'node:module';
+import { readFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+
+const require = createRequire('/workspaces/material-x/packages/drag/package.json');
+const gm = require('@jridgewell/gen-mapping');
+const { readNames, isPrefixed } = await import('/workspaces/material-x/packages/drag/build/property-names.ts');
+
+const [before, after, list, mapFile] = process.argv.slice(2) as [string, string, string, string];
+const files = (await readFile(list, 'utf8')).trim().split('\n');
+const names: Record<string, string> = JSON.parse(await readFile(mapFile, 'utf8'));
+let failures = 0;
+const fail = (message: string) => {
+  failures += 1;
+  console.log(`FAIL ${message}`);
+};
+const ANNOTATIONS = /@__PURE__|#__PURE__|@__NO_SIDE_EFFECTS__|\/\/# sourceMappingURL=.*$/gmu;
+let renamedTotal = 0;
+let mappingTotal = 0;
+
+for (const file of files) {
+  const a = await readFile(join(before, file), 'utf8');
+  const b = await readFile(join(after, file), 'utf8');
+
+  if (!file.endsWith('.js') && !file.endsWith('.js.map')) {
+    if (a !== b) fail(`${file} differs`);
+    continue;
+  }
+  if (file.endsWith('.js.map')) continue;
+
+  const renamed = readNames(file, a).properties.filter((p: { name: string }) => isPrefixed(p.name));
+  let expected = a;
+  for (const p of renamed.toReversed()) {
+    expected = expected.slice(0, p.start) + names[p.name] + expected.slice(p.end);
+  }
+  if (expected !== b) fail(`${file}: not the step-less module with the names replaced`);
+  if (JSON.stringify(a.match(ANNOTATIONS)) !== JSON.stringify(b.match(ANNOTATIONS))) fail(`${file}: annotations differ`);
+  renamedTotal += renamed.length;
+  const hasMap = await readFile(join(before, `${file}.map`)).then(() => true, () => false);
+  if (!hasMap) {
+    if (renamed.length > 0) fail(`${file}: renamed names and no map`);
+    continue;
+  }
+
+  // Line, column and length change of each rename, in the step-less module.
+  const shifts = renamed.map((p: { name: string; start: number; end: number }) => {
+    const head = a.slice(0, p.start).split('\n');
+    return { line: head.length, column: head.at(-1)!.length, delta: names[p.name]!.length - (p.end - p.start), name: p.name };
+  });
+  const decode = async (tree: string) => {
+    const raw = JSON.parse(await readFile(join(tree, `${file}.map`), 'utf8'));
+    return { raw, mappings: gm.allMappings(gm.fromMap(raw)) as Array<{ generated: { line: number; column: number }; original: { line: number; column: number } | null; source: string | null }> };
+  };
+  const ma = await decode(before);
+  const mb = await decode(after);
+  if (ma.mappings.length !== mb.mappings.length) {
+    fail(`${file}.map: ${ma.mappings.length} mappings without the step, ${mb.mappings.length} with it`);
+    continue;
+  }
+  mappingTotal += mb.mappings.length;
+  for (let i = 0; i < ma.mappings.length; i += 1) {
+    const x = ma.mappings[i]!;
+    const y = mb.mappings[i]!;
+    const move = shifts
+      .filter((s) => s.line === x.generated.line && s.column < x.generated.column)
+      .reduce((sum, s) => sum + s.delta, 0);
+    if (
+      y.generated.line !== x.generated.line ||
+      y.generated.column !== x.generated.column + move ||
+      y.source !== x.source ||
+      y.original?.line !== x.original?.line ||
+      y.original?.column !== x.original?.column
+    ) {
+      fail(`${file}.map: mapping ${i} ${JSON.stringify(x)} became ${JSON.stringify(y)}`);
+      break;
+    }
+  }
+  // Each renamed name: a mapping at its new position, onto `_name` in src.
+  for (const s of shifts) {
+    const column = s.column + shifts.filter((t) => t.line === s.line && t.column < s.column).reduce((sum, t) => sum + t.delta, 0);
+    const m = mb.mappings.find((y) => y.generated.line === s.line && y.generated.column === column);
+    if (!m?.original || !m.source) {
+      fail(`${file}:${s.line}:${column} ${s.name} has no mapping`);
+      continue;
+    }
+    const sourceText = (await readFile(resolve(dirname(join(after, file)), mb.raw.sourceRoot ?? '', m.source), 'utf8')).split('\n')[m.original.line - 1]!;
+    const from = sourceText.slice(m.original.column);
+    if (new RegExp(`^${s.name}(?![\\w$])`, 'u').test(from)) continue;
+    // A class field's own mapping starts at its modifiers (accepted, and listed).
+    if (new RegExp(`^(?:(?:readonly|declare|static|public|private|protected|override|accessor|abstract)\\s+)+${s.name}(?![\\w$])`, 'u').test(from)) {
+      console.log(`member start: ${file}:${s.line}:${column} ${s.name} maps to ${m.source}:${m.original.line}:${m.original.column}, ${JSON.stringify(from.slice(0, 24))}`);
+      continue;
+    }
+    {
+      fail(`${file}:${s.line}:${column} ${s.name} maps to ${m.source}:${m.original.line}:${m.original.column}, which reads ${JSON.stringify(sourceText.slice(m.original.column, m.original.column + 20))}`);
+    }
+  }
+}
+console.log(`${files.length} files; ${renamedTotal} renamed names; ${mappingTotal} mappings compared; ${failures} failures`);
+process.exitCode = failures ? 1 : 0;

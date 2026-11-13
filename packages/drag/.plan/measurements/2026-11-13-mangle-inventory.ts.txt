@@ -1,0 +1,122 @@
+/**
+ * Lists every declaration in `src` of a property with one of the 29 names, grouped
+ * by symbol, with the declaring type and every reference the language service finds
+ * (src, tests and bench). Discovery only: the decision is made by reading.
+ *
+ * `node inventory.ts <package root>`
+ */
+import { createRequire } from 'node:module';
+import type TS from '/workspaces/material-x/node_modules/typescript/lib/typescript.d.ts';
+const ts: typeof TS = createRequire('/workspaces/material-x/package.json')('typescript');
+import { readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+
+const root = process.argv[2]!;
+const NAMES = new Set(
+  'advance animation collect config count decide detach direction dx dy empty enter first holds lend measure measurePlaceholder placeholderRect raise raiseInPass rebase refresh root run schedule stepTarget terminate updateInsertion window'.split(
+    ' ',
+  ),
+);
+
+const configPath = join(root, 'tsconfig.json');
+const parsed = ts.parseJsonConfigFileContent(
+  ts.readConfigFile(configPath, ts.sys.readFile).config,
+  ts.sys,
+  root,
+);
+const files = parsed.fileNames;
+const host: TS.LanguageServiceHost = {
+  getCompilationSettings: () => parsed.options,
+  getScriptFileNames: () => files,
+  getScriptVersion: () => '1',
+  getScriptSnapshot: (f) => {
+    try {
+      return ts.ScriptSnapshot.fromString(readFileSync(f, 'utf8'));
+    } catch {
+      return undefined;
+    }
+  },
+  getCurrentDirectory: () => root,
+  getDefaultLibFileName: ts.getDefaultLibFilePath,
+  fileExists: ts.sys.fileExists,
+  readFile: ts.sys.readFile,
+  readDirectory: ts.sys.readDirectory,
+  directoryExists: ts.sys.directoryExists,
+  getDirectories: ts.sys.getDirectories,
+};
+const service = ts.createLanguageService(host);
+const program = service.getProgram()!;
+const checker = program.getTypeChecker();
+
+const where = (file: TS.SourceFile, pos: number) => {
+  const { line, character } = file.getLineAndCharacterOfPosition(pos);
+  return `${relative(root, file.fileName)}:${line + 1}:${character + 1}`;
+};
+
+const isDeclarationName = (node: TS.Identifier): boolean => {
+  const p = node.parent;
+  return (
+    ((ts.isPropertyDeclaration(p) ||
+      ts.isPropertySignature(p) ||
+      ts.isMethodDeclaration(p) ||
+      ts.isMethodSignature(p) ||
+      ts.isGetAccessorDeclaration(p) ||
+      ts.isSetAccessorDeclaration(p) ||
+      ts.isPropertyAssignment(p) ||
+      ts.isShorthandPropertyAssignment(p)) &&
+      p.name === node) ||
+    (ts.isParameter(p) &&
+      p.name === node &&
+      ts.getModifiers(p)?.some((m) => m.kind !== ts.SyntaxKind.Decorator) === true)
+  );
+};
+
+type Row = { name: string; declarations: string[]; owner: string; references: string[] };
+const seen = new Map<TS.Symbol, Row>();
+
+for (const file of program.getSourceFiles()) {
+  if (!file.fileName.startsWith(join(root, 'src/'))) continue;
+  const visit = (node: TS.Node): void => {
+    if (ts.isIdentifier(node) && NAMES.has(node.text) && isDeclarationName(node)) {
+      let symbol = checker.getSymbolAtLocation(node);
+      if (symbol && ts.isShorthandPropertyAssignment(node.parent)) {
+        // The property's own symbol, not the value it is assigned from.
+        symbol = (node.parent as TS.ShorthandPropertyAssignment & { symbol: TS.Symbol }).symbol;
+      }
+      if (symbol) {
+        let row = seen.get(symbol);
+        if (!row) {
+          const parent = (symbol as TS.Symbol & { parent?: TS.Symbol }).parent;
+          const container = node.parent.parent;
+          let owner = parent ? checker.symbolToString(parent) : '';
+          if (!owner || owner.startsWith('__')) {
+            owner = ts.isObjectLiteralExpression(container)
+              ? `object literal: ${checker.typeToString(checker.getContextualType(container) ?? checker.getTypeAtLocation(container))}`
+              : ts.SyntaxKind[container.kind];
+          }
+          row = { name: node.text, declarations: [], owner, references: [] };
+          seen.set(symbol, row);
+          const refs = service.findReferences(file.fileName, node.getStart()) ?? [];
+          for (const group of refs) {
+            for (const ref of group.references) {
+              const f = program.getSourceFile(ref.fileName)!;
+              row.references.push(`${where(f, ref.textSpan.start)}${ref.isDefinition ? ' (def)' : ''}`);
+            }
+          }
+        }
+        row.declarations.push(where(file, node.getStart()));
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+}
+
+const rows = [...seen.values()].sort((a, b) => a.name.localeCompare(b.name) || a.declarations[0]!.localeCompare(b.declarations[0]!));
+for (const row of rows) {
+  console.log(`## ${row.name} — ${row.owner}`);
+  console.log(`  declared: ${row.declarations.join(', ')}`);
+  const refs = [...new Set(row.references)];
+  console.log(`  references (${refs.length}): ${refs.join(', ')}`);
+}
+console.log(`${rows.length} symbols`);
