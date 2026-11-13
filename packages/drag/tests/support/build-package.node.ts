@@ -1,15 +1,19 @@
 /**
- * The consumer project's one build of this package, as a Vitest global setup.
+ * The one build of this package per Vitest run, as the global setup of the
+ * consumer project and the node project.
  *
  * It runs what `just build` runs: the clean, then `tsdown`. The emit writes the
- * package root, and the tree is valid only when the build has ended. Building
- * here, before any consumer file starts, means that no test reads the tree during
- * a build.
+ * package root, and the tree is valid only when the build has ended. Vitest runs
+ * every project's global setup before any file starts, so no test reads the tree
+ * during a build. Each project evaluates this module in its own module runner, so
+ * the first project to run it starts the build and keeps it on the process's
+ * global object, and every other project waits for that build: a second build
+ * would rewrite files that the first project reads.
  *
  * A failed build is provided rather than thrown, because a throw here ends the
- * run for every project. `require-build.ts` raises it in each consumer file. It
- * is a string because printing an `Error` from a global setup loses its message
- * at this Vitest version.
+ * run for every project. `require-build.ts` raises it in each file of the two
+ * projects. It is a string because printing an `Error` from a global setup loses
+ * its message at this Vitest version.
  */
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -23,6 +27,7 @@ declare module 'vitest' {
 }
 
 const ROOT = resolve(import.meta.dirname, '../..');
+const BUILD = Symbol.for('@ydinjs/drag: the build of this run');
 
 const STEPS: ReadonlyArray<readonly [string, ...string[]]> = [
   ['node', '../../.scripts/package-files.ts', 'clean', '--package', '.'],
@@ -58,17 +63,24 @@ function run([command, ...args]: readonly [string, ...string[]]): Promise<
   });
 }
 
-export async function setup(project: TestProject): Promise<void> {
-  let failure: string | null = null;
-
+/** Runs the clean, then the build, and resolves with the first failure. */
+async function build(): Promise<string | null> {
   for (const step of STEPS) {
     // oxlint-disable-next-line no-await-in-loop -- the build follows the clean
-    failure = await run(step);
+    const failure = await run(step);
 
     if (failure !== null) {
-      break;
+      return failure;
     }
   }
 
-  project.provide('buildFailure', failure);
+  return null;
+}
+
+export async function setup(project: TestProject): Promise<void> {
+  const shared = globalThis as typeof globalThis &
+    Partial<Record<typeof BUILD, Promise<string | null>>>;
+
+  shared[BUILD] ??= build();
+  project.provide('buildFailure', await shared[BUILD]);
 }

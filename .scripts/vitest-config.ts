@@ -638,6 +638,16 @@ export const DRAG_CONSUMER: ConsumerProject = {
 };
 
 /**
+ * `@ydinjs/drag`'s node project reads the build that the consumer project reads,
+ * because the size gate bundles the emitted tree. Both projects take the same
+ * global setup, which builds once per run with either project or both.
+ */
+export const DRAG_NODE_BUILD: NodeProjectBuild = {
+  globalSetup: DRAG_CONSUMER.globalSetup,
+  setupFiles: DRAG_CONSUMER.setupFiles,
+};
+
+/**
  * `@ydinjs/drag`'s browser suite in Chromium, Firefox and WebKit, as one project per
  * engine because browser projects are serialized one per group. The repository's
  * own Chrome runs the Chromium projects and Playwright's browsers run the others,
@@ -770,7 +780,7 @@ export function createWorkspaceTestConfig(
       'drag',
       options.dragCommands,
       DRAG_SHIPPED_BROWSER_TESTS,
-      undefined,
+      DRAG_NODE_BUILD,
       DRAG_CONSUMER,
     ) as [UserConfig, UserConfig, UserConfig, UserConfig, UserConfig];
   const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
