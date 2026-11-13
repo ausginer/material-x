@@ -1,15 +1,17 @@
-import { readFile } from 'node:fs/promises';
 import { availableParallelism } from 'node:os';
-import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { playwright } from '@vitest/browser-playwright';
-import type { ConfigEnv, Plugin, UserConfig } from 'vite';
+import type { ConfigEnv, UserConfig } from 'vite';
 import {
   mergeConfig,
   type TestProjectInlineConfiguration,
 } from 'vitest/config';
 import type { BrowserCommand } from 'vitest/node';
+// The rule lives with the package it resolves, and the package does not publish
+// its tests.
+// eslint-disable-next-line import-x/no-relative-packages
+import { publishedEntries } from '../packages/drag/tests/support/published-entries.ts';
 import {
   createViteConfig,
   createMaterialXViteConfig,
@@ -167,11 +169,6 @@ type ConsumerProject = Readonly<{
   sourceOnly: readonly string[];
   globalSetup: readonly string[];
   setupFiles: readonly string[];
-}>;
-
-type PackageManifest = Readonly<{
-  name: string;
-  exports: Readonly<Record<string, unknown>>;
 }>;
 
 type DeclarationTestProjectOptions = Readonly<{
@@ -434,51 +431,6 @@ function createDragBrowserTestProject(
 }
 
 /**
- * Resolves a test's import of a published entry's source file, `src/<entry>.ts`,
- * as a consumer's import of `<package>/<entry>.js` resolves: through the
- * package's exports map, to the emitted file. An import of any other module under
- * `src/` is an error that names the module, because the package does not publish
- * it. A type-only import is erased before it reaches resolution.
- */
-function resolvePublishedEntries(root: URL): Plugin {
-  const source = fileURLToPath(new URL('src/', root));
-  let manifest: Promise<PackageManifest> | null = null;
-
-  return {
-    name: 'resolve-published-entries',
-    enforce: 'pre',
-    async resolveId(id, importer) {
-      if (!importer || !id.startsWith('.')) {
-        return null;
-      }
-
-      const path = resolve(dirname(importer), id);
-
-      if (!path.startsWith(source)) {
-        return null;
-      }
-
-      manifest ??= readFile(new URL('package.json', root), 'utf8').then(
-        (text) => JSON.parse(text) as PackageManifest,
-      );
-
-      const { name, exports } = await manifest;
-      const entry = relative(source, path).replace(/\.ts$/u, '.js');
-
-      if (!(`./${entry}` in exports)) {
-        this.error(
-          `${relative(fileURLToPath(root), path)} is not a published entry of ${name}`,
-        );
-      }
-
-      return await this.resolve(`${name}/${entry}`, importer, {
-        skipSelf: true,
-      });
-    },
-  };
-}
-
-/**
  * `shipped` lists the browser files that measure the code a consumer installs.
  * They run in a `shipped` browser project of their own with `__DEV__` defined
  * `false`, so every development-only instrument is folded away exactly as in a
@@ -531,7 +483,7 @@ function createDragTestProjects(
               commands,
             ),
             {
-              plugins: [resolvePublishedEntries(root)],
+              plugins: [publishedEntries(fileURLToPath(root))],
               test: {
                 globalSetup: [...consumer.globalSetup],
                 setupFiles: [...consumer.setupFiles],
