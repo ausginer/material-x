@@ -1,6 +1,6 @@
 # xy() held geometry handoff
 
-**For:** one `implementer` unit on `drag/rect-index-ownership`, then one independent `reviewer` session (§Independent review). **Base:** `drag/rect-index-ownership` at the commit that adds this handoff. Its `packages/drag/src`, `tests` and `bench` equal `f79f66fe2`'s. If they don't, return before item 1.
+**For:** one `implementer` unit on `drag/rect-index-ownership`, then one fresh independent `reviewer` session on its report, before the architect's final acceptance (§Independent review). **Base:** `drag/rect-index-ownership` at the commit that adds this handoff. Its `packages/drag/src`, `tests` and `bench` equal `f79f66fe2`'s. If they don't, return before item 1.
 
 **The source is already applied.** `f79f66fe2` holds the final VX patch, unchanged, in `src/sortable/rect-index.ts` and `src/sortable/xy.ts`. It was provisional, and `DRD-62` adopts it. This unit doesn't apply a patch. It adds the narrowed types, a compile-time test and the behavioral witness, and checks everything against `f79f66fe2`.
 
@@ -198,11 +198,11 @@ Stop and return to the architect, with what you have recorded, when:
 
 ## After this unit
 
-The architect reads the report and decides its acceptance. The owner then starts the independent review below.
+The owner starts the independent review below on the pushed report. The architect's final acceptance comes after it: the architect reads the report and the review, decides the review's findings, and then decides whether the unit is accepted.
 
 ## Independent review
 
-**For:** one fresh `reviewer` session, a feature proof, which the owner starts after the architect accepts the report. **Pinned to** the commit that adds the report. **Chromium only.**
+**For:** one fresh `reviewer` session, a feature proof, which the owner starts once the report is pushed, before the architect's final acceptance. **Pinned to** the commit that adds the report. **Chromium only.**
 
 **Read, in this order:**
 
@@ -219,7 +219,7 @@ The proposal and this handoff are context, not the specification.
   - no member returns it;
   - `RetainingRectIndex` reaches no private member of `RectIndex`;
   - `xy.ts` holds no geometry array, closure or per-row object that the base didn't;
-  - every read in `moved` precedes the first report.
+  - `moved` makes no DOM measurement after its first report. The rebuild finishes measuring every slot before the loop that reports starts. Inside the loop, `moved` calls only `retained`, `at` and `item`, which read the index's cached values, and the sink's `report`.
 - **Property 4,** by reading the four annotations and the aliases' definitions.
 - **Property 5:**
   - by reading the `src` diff from `f79f66fe2`;
@@ -236,4 +236,4 @@ The proposal and this handoff are context, not the specification.
 
 **Out of scope:** timing, allocation campaigns, Firefox and WebKit, the red size rows, the baseline lint errors and `repo:RF-31`.
 
-**Output:** `reviews/xy-held-geometry/proof-reviewer.md`, in the tiers and form of [`reviews/rect-index-access/proof-reviewer.md`](reviews/rect-index-access/proof-reviewer.md). Commit it and push the branch. The review changes no source, test or record outside its file. The architect decides its findings.
+**Output:** `reviews/xy-held-geometry/proof-reviewer.md`, in the tiers and form of [`reviews/rect-index-access/proof-reviewer.md`](reviews/rect-index-access/proof-reviewer.md). Commit it and push the branch. The review changes no source, test or record outside its file. The architect decides its findings, and then the unit's final acceptance.
