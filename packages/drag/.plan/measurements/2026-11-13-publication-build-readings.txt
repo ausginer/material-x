@@ -1,0 +1,174 @@
+# Publication build probes, tree = packages/drag at 1719df16c, tsdown 0.23.2, rolldown 1.2.15, rolldown-plugin-dts 0.29.0-beta.2
+
+## P1: native output.minify.mangleProps on the unbundled build (p1.config.ts)
+Invalid value for option "output.minify.mangleProps" - property mangling is currently supported only when a build generates one JavaScript chunk. Use a single-chunk build or remove "mangleProps".
+
+## Builds: out-cur (tsdown.config.ts), out-p2 (renamer + minify), out-p3 (committed map through Oxc per chunk + minify), out-p5 (candidate: computed map, two configs)
+out-p2 .js == out-p3 .js (byte-identical)
+out-p5 built twice: byte-identical (90 files)
+out-cur  .js total bytes: 80259
+out-p2   .js total bytes: 28951
+out-p3   .js total bytes: 28951
+out-p5   .js total bytes: 28943
+
+## Phase 1 map (names.ts): two runs
+53 names in 40 ms for two runs; deterministic: true
+same keys as committed map: true missing: [] extra: []
+value lengths: { '1': 52, '2': 1 }
+
+## Map quality (mapcheck.ts), out-p2 with the committed map
+sourcesContent equal to src: 30/30
+  1623  identifier: mangled, map names its source name
+   381  identifier: maps to a source identifier (other text), map has no name
+  2854  identifier: maps to its source name
+     3  identifier: maps to non-identifier text
+   273  identifier: no own mapping
+     3  module: no map, no URL
+   427  private: mangled, map names its source name
+    82  private: maps to a source identifier (other text), map has no name
+   431  private: maps to its source name
+   189  property (renamed): maps to its source name
+   688  property: maps to its source name
+     1  property: no own mapping
+    11  renamed field key: maps to member start
+    30  renamed method key: maps to its source name
+    33  renamed object key: maps to its source name
+
+## Map quality (mapcheck.ts), out-p5 with the computed map
+sourcesContent equal to src: 30/30
+  1846  identifier: mangled, map names its source name
+   380  identifier: maps to a source identifier (other text), map has no name
+  2855  identifier: maps to its source name
+     3  identifier: maps to non-identifier text
+   273  identifier: no own mapping
+     3  module: no map, no URL
+   427  private: mangled, map names its source name
+    82  private: maps to a source identifier (other text), map has no name
+   431  private: maps to its source name
+   189  property (renamed): maps to its source name
+   189  property: mangled, map names its source name
+   688  property: maps to its source name
+     1  property: no own mapping
+    11  renamed field key: maps to member start
+     7  renamed method key: maps to its source name, named
+    23  renamed method key: maps to its source name
+     1  renamed object key: maps to "animation,\n "
+     1  renamed object key: maps to "count,\n     "
+     1  renamed object key: maps to "first, _end:"
+    24  renamed object key: maps to its source name, named
+     6  renamed object key: maps to its source name
+
+## Named mappings (named.ts)
+out-cur:
+{ named_ok: 3, named_bad: 3, unnamed: 6906 }
+out-p5:
+{ named_ok: 2264, named_bad: 6, unnamed: 4203 }
+
+## Annotations per module
+out-cur: 8 in 6 modules
+out-p5: 9 in 6 modules
+
+## Declarations
+out-cur: d.ts 27, d.ts.map 0, d.ts with sourceMappingURL 22
+out-p5: d.ts 27, d.ts.map 0, d.ts with sourceMappingURL 0
+d.ts lines differing other than the URL and the line before it: 14
+
+## Documentation comments against tsc's declaration emit (jsdoc2.ts)
+out-cur: {   kept: 115,   'on a declaration the published file omits': 29,   'module header (before imports)': 8,   'LOST on a published declaration': 1 } 
+out-p5: {   kept: 115,   'on a declaration the published file omits': 29,   'module header (before imports)': 8,   'LOST on a published declaration': 1 } 
+
+## Size gate (bench/size/measure.ts) on tsdown.config.ts's build (current)
+draggable alone                  6490 min   2377 gz   2161 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 22 B
+  VIOLATION: control moved by 137 B
+draggable + lift                11265 min   4349 gz   3926 br  9 modules
+example: resize handle           9147 min   3616 gz   3267 br  9 modules
+example: drop zone              12904 min   5054 gz   4550 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 119 B
+example: canvas group            9283 min   3580 gz   3268 br  9 modules
+freeDrag                        14647 min   5490 gz   4943 br  15 modules
+freeDrag + bounds + landing     15756 min   5977 gz   5380 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 170 B
+sortable + y                    19677 min   7210 gz   6510 br  20 modules
+sortable + xy                   19350 min   7108 gz   6400 br  19 modules
+complete                        21310 min   7935 gz   7151 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 86 B
+
+## Size gate on the candidate (p5.config.ts, OUT=.)
+draggable alone                  6490 min   2376 gz   2161 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 22 B
+  VIOLATION: control moved by 137 B
+draggable + lift                11265 min   4351 gz   3924 br  9 modules
+example: resize handle           9147 min   3618 gz   3270 br  9 modules
+example: drop zone              12904 min   5054 gz   4548 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 117 B
+example: canvas group            9283 min   3584 gz   3275 br  9 modules
+freeDrag                        14647 min   5491 gz   4944 br  15 modules
+freeDrag + bounds + landing     15756 min   5979 gz   5389 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 179 B
+sortable + y                    19675 min   7202 gz   6508 br  20 modules
+sortable + xy                   19346 min   7097 gz   6392 br  19 modules
+complete                        21308 min   7932 gz   7142 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 77 B
+
+## Oxc mangleProps edge cases (edge.ts, edge2.ts)
+--- shorthand key and destructuring
+export function f(_a,o){const{e:_b}=o;return{t:_a,e:_b}}
+    cache out: {"_a":"t","_b":"e"}
+--- quoted key, in, bracket (quoted:false)
+export class C{e=1;["_size2"]=2}export const t=o=>`_size`in o||o[`_size`];
+    cache out: {"_size":"e"}
+--- same, quoted:true
+export class C{e=1}export const t=o=>`e`in o||o.e;
+    cache out: {"_size":"e"}
+--- auto names avoid kept props and strings?
+export const o={a:1,b:2,c:3,e:4};export const s=`d`;export class K{t=1;n=2;r=3}
+    cache out: {"_p":"t","_q":"n","_r":"r"}
+--- cache target equal to a kept prop in this chunk
+export const o={k:1};export class K{k=2;get v(){return this.k+o.k}}
+    cache out: {"_size":"k"}
+--- private and static
+export class K{#x=1;static e=2;t(){return this.#x+K.e}}
+    cache out: {"_m":"t","_s":"e"}
+--- template and Object.keys
+export const f=o=>[o[`_tpl`],Object.keys({e:1})];
+    cache out: {"_k":"e"}
+--- quoted:true on plain strings, computed keys, Reflect
+export class C{e=1;t=2}export const s=`_plain`;export const t=o=>`e`in o||o.e||Reflect.get(o,`_refl`);export const u={"q":1,w:2};export const v=o=>`z`in o||o[`y`]||o.x;
+    cache out: {"_comp":"t","_size":"e"}
+--- listing every non-prefixed property name (include all, exclude marker, quoted)
+export class C{_size=1;["_comp"]=2}export const s=`_plain`;export const t=o=>`_size`in o||o[`_size`]||Reflect._$get$_(o,`_refl`);export const u={_$q$_:1,_$w$_:2};export const v=o=>`_$z$_`in o||o._$y$_||o._$x$_;
+    cache out: {"get":"_$get$_","q":"_$q$_","w":"_$w$_","x":"_$x$_","y":"_$y$_","z":"_$z$_"}
+
+## Legal comments (p6.config.ts): src/fault.ts prefixed with /*! */, /** @license */ and // @preserve, in a scratch copy; first 90 characters of fault.js
+min          /*! Bang notice */ /** * @license Apache-2.0 probe */ // @preserve line probe function e(e
+min-plugin   /*! Bang notice */ /** * @license Apache-2.0 probe */ // @preserve line probe function e(e
+min-plugin, rename pass without legalComments: 'inline' function e(e){try{return String(e?.message??e)}catch{return`unreadable value`}}var t=class
+(src/fault.ts restored)
+
+## dts.sourcemap: true in one config (declaration chunks untouched by the rename pass)
+     22 mapped without sourcesContent
+sortable.d.ts.map sources: ../src/sortable.ts
+kernel/drag.d.ts.map sources: ../../src/kernel/drag.ts
+./free-drag/landing.js: export{landing}from"../shared/landing.js";
+./lift/landing.js: export{landing}from"../shared/landing.js";
+./sortable/landing.js: export{landing}from"../shared/landing.js";
+
+## Map quality (mapcheck.ts), out-p0: native minify: true without any property rename (p3.config.ts with NOMANGLE=1)
+sourcesContent equal to src: 30/30
+  1623  identifier: mangled, map names its source name
+   381  identifier: maps to a source identifier (other text), map has no name
+  2854  identifier: maps to its source name
+     3  identifier: maps to non-identifier text
+   273  identifier: no own mapping
+     3  module: no map, no URL
+   427  private: mangled, map names its source name
+    82  private: maps to a source identifier (other text), map has no name
+   431  private: maps to its source name
+   877  property: maps to its source name
+     1  property: no own mapping
+
+## Shorthand keys in out-p5 whose key is an output name (shorthand.ts)
+out-p5/sortable/layout-animation.js shorthand m
+out-p5/sortable/xy.js shorthand l
+out-p5/sortable/y.js shorthand s

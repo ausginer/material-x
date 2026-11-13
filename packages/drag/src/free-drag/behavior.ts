@@ -60,23 +60,23 @@ export class FreeDragBehavior implements Behavior<
   FreeDragOperation
 > {
   readonly threshold?: number;
-  readonly _root: HTMLElement;
-  readonly _config: FreeDragConfig;
-  readonly _window: Window & typeof globalThis;
-  readonly _axis: DragAxis;
-  readonly _bounds: MotionConstraint | null;
-  readonly _landing: Landing | null;
+  readonly root: HTMLElement;
+  readonly config: FreeDragConfig;
+  readonly window: Window & typeof globalThis;
+  readonly axis: DragAxis;
+  readonly bounds: MotionConstraint | null;
+  readonly landing: Landing | null;
   readonly #lifter: Lifter;
 
   constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
     this.threshold = config.threshold;
-    this._root = root;
-    this._config = config;
-    this._window = root.ownerDocument.defaultView!;
+    this.root = root;
+    this.config = config;
+    this.window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
-    this._axis = config.axis ?? 'both';
-    this._bounds = config.bounds?.(this._window) ?? null;
-    this._landing = config.landing ?? null;
+    this.axis = config.axis ?? 'both';
+    this.bounds = config.bounds?.(this.window) ?? null;
+    this.landing = config.landing ?? null;
   }
 
   /** The admission's `state` is the visual: `config.visual`, or the root. */
@@ -87,8 +87,8 @@ export class FreeDragBehavior implements Behavior<
 
     let handle: HTMLElement | undefined;
 
-    if (this._config.handle) {
-      const named = this._config.handle(this._root);
+    if (this.config.handle) {
+      const named = this.config.handle(this.root);
 
       if (!named || !event.composedPath().includes(named)) {
         return null;
@@ -98,9 +98,9 @@ export class FreeDragBehavior implements Behavior<
     }
 
     return {
-      item: this._root,
+      item: this.root,
       ...(handle ? { handle } : {}),
-      state: this._config.visual ? this._config.visual(this._root) : this._root,
+      state: this.config.visual ? this.config.visual(this.root) : this.root,
     };
   }
 
@@ -113,21 +113,21 @@ export class FreeDragBehavior implements Behavior<
 
     // The box may be from before a scroll between operations, and no operation
     // clamps against a box measured before it activated.
-    this._bounds?.invalidate();
+    this.bounds?.invalidate();
 
     // `targets` registers its release before it pulls the consumer's targets.
     const operation = new FreeDragOperation(
       this,
       drag,
       lift,
-      this._config.targets?.(drag, this._window) ?? null,
+      this.config.targets?.(drag, this.window) ?? null,
     );
 
-    if (this._bounds || this._config.targets) {
-      listenForInvalidation(this._window, drag.signal, operation);
+    if (this.bounds || this.config.targets) {
+      listenForInvalidation(this.window, drag.signal, operation);
     }
 
-    operation._translate();
+    operation.translate();
     return operation;
   }
 }

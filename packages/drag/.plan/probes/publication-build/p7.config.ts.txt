@@ -1,0 +1,6 @@
+// P7: the declaration-only configuration of p5, alone.
+import { defineConfig } from 'tsdown';
+import { packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import files from './files.json' with { type: 'json' };
+export default defineConfig({ entry: packageFilesToTsdownEntries(files), platform: 'neutral', format: 'esm', target: 'esnext', outDir: 'out-p7', fixedExtension: false, clean: true, define: { __DEV__: 'false' }, unbundle: true, dts: { emitDtsOnly: true }, sourcemap: false, plugins: constructLibraryTsdownPlugins() });

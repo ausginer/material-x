@@ -1,5 +1,7 @@
 # Property mangling: exploration
 
+**Deferred on 2026-11-13.** The mangling that this exploration proposed landed as `DRD-56` and `DRD-57`, and the owner then deferred it, because its measured savings don't justify its complexity (`DRD-60`). This record and its probes are kept as evidence.
+
 **Question:** which property names survive minification, what the library's own internal names cost per row, and whether a tool could shorten them without renaming source (CONTRIBUTING §11). **Base:** `b0287f1ae` on `drag/size`, whose `packages/drag/src` is `237d65d2f`'s. **Scope:** analysis and probes only. No production source, build configuration or instrument changes, and the budgets are unchanged. Explored by the architect on 2026-11-12, during P4 ([`performance-plan.md`](performance-plan.md) §2).
 
 **Outcome.** The library's internal property names that the minifier keeps take about 950 B of a 28,664 B minified bundle of every entry. Shortening them by name takes **30 to 66 B Brotli off the rows without `sortable`, and 103 to 119 B off the three `sortable` rows.** That is more than P4's machinery has taken. **But neither the tests nor the size gate can see the published build**, and the first runtime check found a break that type analysis had missed. Delivering it is a build and instrument change, so it goes to the owner as `DRO-15`.

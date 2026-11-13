@@ -179,6 +179,8 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Step 3 landed on 2026-11-13** at `f7b7b300b` and `31f92f5a9`, and its [report](publish-mangle-report.md) is accepted in [`publish-mangle-assessment.md`](publish-mangle-assessment.md). The gate on the renamed build reads −31 to −66 B Brotli on the rows without `sortable`, and −102 to −110 B on the three rows with it. "example: resize handle" and "freeDrag" turn green and go to `DRO-4`. Four rows stay red: "draggable alone", "example: drop zone", "freeDrag + bounds + landing" and "complete". Budgets are unchanged. A fresh independent review of the publication pipeline is recommended in that assessment's §9.
 
+**Property mangling deferred on 2026-11-13** (`DRD-60`). `DRD-57` extended the selection, and `DRD-59` was to replace the pipeline. The owner then stopped the mangling and layout exploration, and deferred property mangling, because its measured savings don't justify its complexity. Those savings were −34 to −135 B Brotli per row. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) removes the prefixes, the build step and the publication test from `690769539`, and keeps `DRD-58`'s slot array, the dependency update, the consumer project and the gate on the published build. The publication stays unbundled, unminified ESM with source maps and documented declarations. "example: resize handle" and "freeDrag" are expected over their ceilings again, and go to `DRO-4`. Budgets are unchanged.
+
 ## 3. Rules every unit follows
 
 **Owner direction, 2026-11-13: local development checks use Chromium only.** For the current drag phase, source and consumer browser tests, witnesses and probes run in Chromium. This replaces earlier requirements for local Firefox and WebKit runs, including those in existing handoffs. Missing Firefox or WebKit executables or host libraries do not block local development, and restoring them is not required. Their checks are deferred to a separate CI that the owner plans; this instruction does not establish that CI or claim cross-engine verification. Preserve the engine configurations and historical results.
@@ -211,7 +213,7 @@ Source tests stay for internal behavior and development instruments. The mangle 
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
 - **Added on 2026-11-12, when P4 opened:** the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14`'s four items were answered on 2026-11-12, and `DRF-20` is closed.
-- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Steps 1 to 3 landed (`DRD-54`, `DRD-55`, `DRD-56`). An independent review of the publication pipeline is recommended and not started. The type-directed transform is deferred (§6).
+- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Steps 1 to 3 landed (`DRD-54`, `DRD-55`, `DRD-56`). **On 2026-11-13 the owner deferred property mangling** (`DRD-60`), and step 3 is rolled back. Whether it returns would be a new decision. The type-directed transform stays deferred (§6).
 
 ## 5. Post-1.0.0: virtualized lists
 
@@ -223,4 +225,4 @@ The future design covers moving a file into a folder while scrolling a virtualiz
 
 **Owner direction, 2026-11-13:** retain the idea of a build transform that takes an explicit set of internal types or classes, prefixes their property declarations and uses in the emitted code, then applies property mangling. Source names would stay readable without prefixes.
 
-The transform must handle the same object being accessed through different structural types, and keep declarations, destructuring and property accesses consistent. Its scope, maintenance cost and measured benefit need evaluation before adoption. No delivery version or date is assigned. This work is not a prerequisite for step 3's source prefixes.
+The transform must handle the same object being accessed through different structural types, and keep declarations, destructuring and property accesses consistent. Its scope, maintenance cost and measured benefit need evaluation before adoption. No delivery version or date is assigned. This work is not a prerequisite for step 3's source prefixes. **On 2026-11-13 the owner deferred property mangling as a whole** (`DRD-60`), so this transform has no step to follow, and stays deferred with it.

@@ -20,7 +20,7 @@ export type BoundsInstaller = (window: Window) => MotionConstraint;
 
 export function bounds(source?: BoundsSource): BoundsInstaller {
   return (window) => {
-    const box = { _left: 0, _top: 0, _right: 0, _bottom: 0 };
+    const box = { left: 0, top: 0, right: 0, bottom: 0 };
     /** The last read: `box`, or `null` for unconstrained. */
     let held: typeof box | null = null;
     let stale = true;
@@ -35,10 +35,10 @@ export function bounds(source?: BoundsSource): BoundsInstaller {
       held = box;
 
       if (source === undefined) {
-        box._left = 0;
-        box._top = 0;
-        box._right = window.innerWidth;
-        box._bottom = window.innerHeight;
+        box.left = 0;
+        box.top = 0;
+        box.right = window.innerWidth;
+        box.bottom = window.innerHeight;
         return held;
       }
 
@@ -53,10 +53,10 @@ export function bounds(source?: BoundsSource): BoundsInstaller {
       }
 
       // Copied, because a function's rect is the consumer's object.
-      box._left = read.left;
-      box._top = read.top;
-      box._right = read.right;
-      box._bottom = read.bottom;
+      box.left = read.left;
+      box.top = read.top;
+      box.right = read.right;
+      box.bottom = read.bottom;
       return held;
     };
 
@@ -68,12 +68,12 @@ export function bounds(source?: BoundsSource): BoundsInstaller {
           // Lower clamp first, so a box smaller than the visual pins to the far
           // edge and does not produce a `NaN`.
           motion.x = Math.min(
-            Math.max(motion.x, rect._left - originRect.left),
-            rect._right - originRect.right,
+            Math.max(motion.x, rect.left - originRect.left),
+            rect.right - originRect.right,
           );
           motion.y = Math.min(
-            Math.max(motion.y, rect._top - originRect.top),
-            rect._bottom - originRect.bottom,
+            Math.max(motion.y, rect.top - originRect.top),
+            rect.bottom - originRect.bottom,
           );
         }
       },

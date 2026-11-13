@@ -1,0 +1,46 @@
+// Each size row bundled as measure.ts bundles it, with the emitted modules' own maps loaded, so the row's
+// map leads to the src modules whose code the consumer's bundle keeps. The row's `absent` and `present`
+// fragments are then checked against those src modules instead of the emitted files, which a unit chunk
+// merges. Also prints the Brotli figure, which must equal measure.ts's.
+import { readFileSync, existsSync } from 'node:fs';
+import { join, resolve, relative, dirname } from 'node:path';
+import { brotliCompressSync } from 'node:zlib';
+import { rolldown, type Plugin } from 'rolldown';
+import { decode } from '@jridgewell/sourcemap-codec';
+import { COMPOSITIONS } from '../bench/size/measure.ts';
+import { publishedEntries } from '../tests/support/published-entries.ts';
+const root = resolve(import.meta.dirname, '..');
+const inputMaps: Plugin = {
+  name: 'input-maps',
+  load(id) {
+    if (!id.startsWith(root) || id.startsWith(join(root, 'src')) || !id.endsWith('.js')) return null;
+    const code = readFileSync(id, 'utf8');
+    const m = `${id}.map`;
+    return { code, map: existsSync(m) ? JSON.parse(readFileSync(m, 'utf8')) : null };
+  },
+};
+let failed = 0;
+for (const c of COMPOSITIONS) {
+  const lines = Object.entries(c.imports).map(([p, e]) => `import { ${e.join(', ')} } from ${JSON.stringify(join(root, `${p}.ts`))};`);
+  const input = '\0row';
+  const b = await rolldown({
+    input, platform: 'neutral', resolve: { alias: { '@ydinjs/box-quad': resolve(root, '../box-quad/src/index.ts') } }, transform: { define: { __DEV__: 'false' } },
+    plugins: [{ name: 'row', resolveId: (i) => (i === input ? i : null), load: (i) => (i === input ? `${lines.join('\n')}\nglobalThis.keep = [${Object.values(c.imports).flat().join(', ')}];\n` : null) }, publishedEntries(root), inputMaps],
+  });
+  const { output } = await b.generate({ format: 'es', minify: true, sourcemap: true });
+  await b.close();
+  const chunk = output[0];
+  const br = brotliCompressSync(new TextEncoder().encode(chunk.code.replace(/\n?\/\/# sourceMappingURL=.*\n?$/, ''))).byteLength; // the map comment is not in measure.ts's figure
+  const map = chunk.map!;
+  const segs = new Array(map.sources.length).fill(0);
+  for (const line of decode(map.mappings)) for (const s of line) if (s.length > 1) segs[s[1]!]++;
+  const mods = map.sources.map((s, i) => [relative(root, resolve(root, 'dist', s ?? '')) /* sources are relative to Rolldown's default output directory */, segs[i]] as const).filter(([s, n]) => n > 0 && !s.includes('\0') && s !== 'row');
+  const names = mods.map(([s]) => s);
+  const v: string[] = [];
+  for (const f of c.absent ?? []) { const l = names.filter((n) => n.includes(f)); if (l.length) v.push(`must not contain ${l.join(', ')}`); }
+  for (const f of c.present ?? []) if (!names.some((n) => n.includes(f))) v.push(`must contain ${f}`);
+  failed += v.length;
+  console.log(`${c.name.padEnd(28)} ${String(br).padStart(5)} br  ${mods.length} src modules: ${mods.map(([s, n]) => `${s.replace(/^src\//, '')}(${n})`).join(' ')}`);
+  for (const x of v) console.log(`  GRAPH: ${x}`);
+}
+console.log(failed ? `${failed} graph violations` : 'no graph violation');

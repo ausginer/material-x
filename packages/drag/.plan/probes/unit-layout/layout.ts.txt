@@ -1,0 +1,67 @@
+// The three-unit layout, read from src by the type checker:
+// - for each public entry, its runtime exports and the unit that declares each;
+// - for each unit, the input module that re-exports what its chunk exports: the public names it declares,
+//   and the names that another unit imports from it.
+import ts from 'typescript';
+import { dirname, relative, resolve } from 'node:path';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import files from '../files.json' with { type: 'json' };
+import { UNITS, unitOf, type Unit } from './units.ts';
+const root = resolve(import.meta.dirname, '..');
+const src = (p: string) => resolve(root, 'src', `${p}.ts`);
+export const chunkFile = (u: Unit) => `chunks/${u}.js`;
+export type Layout = { facades: Map<string, Map<string, Unit>>; inputs: Map<Unit, string>; unitOfFile: (f: string) => Unit | null };
+export function layout(): Layout {
+  const cfg = ts.getParsedCommandLineOfConfigFile(resolve(root, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} })!;
+  const program = ts.createProgram(files.runtime.map(src), cfg.options);
+  const checker = program.getTypeChecker();
+  const facades = new Map<string, Map<string, Unit>>();
+  const exportsOf = new Map<Unit, Map<string, [string, string]>>(UNITS.map((u) => [u, new Map()])); // exported name -> [declaring module, its local name]
+  for (const entry of files.runtime) {
+    const sf = program.getSourceFile(src(entry))!;
+    const names = new Map<string, Unit>();
+    for (const s of checker.getExportsOfModule(checker.getSymbolAtLocation(sf)!)) {
+      if (checker.getTypeOnlyAliasDeclaration(s)) continue;
+      const target = s.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(s) : s;
+      if (!(target.flags & ts.SymbolFlags.Value)) continue;
+      const declared = target.declarations![0]!.getSourceFile().fileName;
+      const unit = unitOf(declared)!;
+      names.set(s.name, unit);
+      exportsOf.get(unit)!.set(s.name, [declared, target.name]);
+    }
+    facades.set(entry, names);
+  }
+  // Value imports from another unit, as the boundary audit lists them.
+  for (const sf of program.getSourceFiles()) {
+    const unit = unitOf(sf.fileName);
+    if (!unit || sf.isDeclarationFile) continue;
+    for (const st of sf.statements) {
+      if (!ts.isImportDeclaration(st) || st.importClause?.isTypeOnly || !st.importClause?.namedBindings || !ts.isNamedImports(st.importClause.namedBindings)) continue;
+      const from = resolve(dirname(sf.fileName), (st.moduleSpecifier as ts.StringLiteral).text);
+      const owner = unitOf(from);
+      if (!owner || owner === unit) continue;
+      for (const el of st.importClause.namedBindings.elements) if (!el.isTypeOnly) { const n = (el.propertyName ?? el.name).text; exportsOf.get(owner)!.set(n, [from, n]); }
+    }
+  }
+  const inputs = new Map<Unit, string>();
+  mkdirSync(resolve(root, 'probe/units'), { recursive: true });
+  for (const [unit, names] of exportsOf) {
+    const byModule = new Map<string, string[]>();
+    for (const [n, [m, local]] of names) byModule.set(m, [...(byModule.get(m) ?? []), local === n ? n : `${local} as ${n}`]);
+    const file = resolve(root, `probe/units/${unit}.ts`);
+    writeFileSync(file, [...byModule].map(([m, ns]) => `export { ${ns.sort().join(', ')} } from ${JSON.stringify(relative(dirname(file), m))};`).join('\n') + '\n');
+    inputs.set(unit, file);
+  }
+  return { facades, inputs, unitOfFile: unitOf };
+}
+export function facadeSource(entry: string, names: Map<string, Unit>): string {
+  const byUnit = new Map<Unit, string[]>();
+  for (const [n, u] of names) byUnit.set(u, [...(byUnit.get(u) ?? []), n]);
+  const up = relative(dirname(`/x/${entry}`), '/x') || '.';
+  return [...byUnit].map(([u, ns]) => `export { ${ns.sort().join(', ')} } from '${up}/${chunkFile(u)}';`).join('\n') + '\n';
+}
+if (import.meta.main) {
+  const l = layout();
+  for (const [e, n] of l.facades) console.log(`${e}.js: ${facadeSource(e, n).trim()}`);
+  for (const [u, f] of l.inputs) console.log(`\n# ${relative(root, f)}\n` + (await import('node:fs')).readFileSync(f, 'utf8'));
+}

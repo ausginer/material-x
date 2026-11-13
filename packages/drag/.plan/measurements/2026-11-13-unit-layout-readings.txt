@@ -1,0 +1,244 @@
+# The owner's three-unit layout, probed: a kernel chunk, a sortable chunk and a freeDrag chunk
+# tree = packages/drag at cc9818a96 (drag/mangle-remediation), extracted with git archive into a scratch tree outside the checkout
+# tools, from the lockfile at 63bb1bea1, installed by `npm ci` in the drag/mangle-remediation worktree:
+#   tsdown 0.23.7, rolldown 1.3.2, rolldown-plugin-dts 0.30.2, typescript 6.0.2, node 26.13.0, Chrome at /usr/local/bin/chrome
+# candidate = units.config.ts (probes/unit-layout/): kernel = draggable, fault, lift, lift/*, kernel/*, shared/*;
+#   sortable = sortable, sortable/*; free-drag = free-drag, free-drag/*. Each unit is one input, one chunk under chunks/,
+#   native minify.mangleProps { include: /^_[A-Za-z]/, quoted: true }, no cache. The feature units import ./kernel.js as external.
+#   Each public entry is a re-export facade at its current path. Declarations: the current unbundled configuration with its JS deleted.
+# compared builds: current = tsdown.config.ts at cc9818a96 (custom renamer, unminified); DRD-59 = p4.config.ts with DTS={"sourcemap":false}
+
+## Static audit (audit.ts, boundary.ts): the type checker binds each marker name in property position to its declarations
+marker occurrences in property position: 296 (280 at runtime), names: 53
+runtime occurrences per unit: { kernel: 64, 'free-drag': 69, sortable: 147 }
+
+## Crossings: an occurrence whose declarations lie in another unit, or in more than one
+  free-drag access       _cancel              owners=kernel  src/free-drag/drop-targets.ts:113
+  free-drag access       _schedule            owners=kernel  src/free-drag/drop-targets.ts:123
+  free-drag access       _cancel              owners=kernel  src/free-drag/drop-targets.ts:126
+  sortable  access       _schedule            owners=kernel  src/sortable/operation.ts:100
+  sortable  access       _cancel              owners=kernel  src/sortable/operation.ts:106
+  sortable  access       _cancel              owners=kernel  src/sortable/behavior.ts:205
+  (6; runtime 6)
+
+## Marker names that occur in more than one unit
+  _axis                free-drag:4 sortable:13
+  _cancel              kernel:1 free-drag:2 sortable:2
+  _config              free-drag:15 sortable:11
+  _landing             kernel:2 free-drag:4 sortable:4
+  _schedule            kernel:1 free-drag:1 sortable:1
+
+## Object types whose marker properties are declared in more than one unit
+
+## Value imports across units
+  consumer <- kernel: Lifter (src/lift.ts), draggable (src/draggable.ts), landing (src/shared/landing.ts)
+  free-drag <- kernel: Lifter (src/lift.ts), createFrameTask (src/shared/invalidation.ts), draggable (src/draggable.ts), listenForInvalidation (src/shared/invalidation.ts)
+  sortable <- kernel: Lifter (src/lift.ts), createFrameTask (src/shared/invalidation.ts), draggable (src/draggable.ts), listenForInvalidation (src/shared/invalidation.ts)
+
+## Member accesses across units, by the declaration they bind to
+  consumer -> kernel: acquire (src/lift.ts), boxHeight (src/lift.ts), cancelLanding (src/lift.ts), item (src/kernel/drag.ts), land (src/lift.ts), originX (src/kernel/drag.ts), originY (src/kernel/drag.ts), rect (src/lift.ts), requestStep (src/kernel/drag.ts), requestStep (src/kernel/gesture.ts), translate (src/lift.ts), type (src/kernel/outcome.ts), use (src/kernel/drag.ts), use (src/kernel/gesture.ts), value (src/kernel/outcome.ts), visual (src/lift.ts), x (src/kernel/drag.ts), y (src/kernel/drag.ts)
+  free-drag -> kernel: _cancel (src/shared/invalidation.ts), _schedule (src/shared/invalidation.ts), acquire (src/lift.ts), cancelLanding (src/lift.ts), land (src/lift.ts), origin (src/kernel/outcome.ts), originX (src/kernel/drag.ts), originY (src/kernel/drag.ts), reason (src/kernel/outcome.ts), rect (src/lift.ts), requestCancel (src/kernel/gesture.ts), requestDestroy (src/kernel/gesture.ts), requestStep (src/kernel/drag.ts), requestStep (src/kernel/gesture.ts), signal (src/kernel/drag.ts), translate (src/lift.ts), type (src/kernel/outcome.ts), use (src/kernel/drag.ts), use (src/kernel/gesture.ts), value (src/kernel/outcome.ts), visual (src/lift.ts), visualSpace (src/lift.ts), x (src/kernel/drag.ts), y (src/kernel/drag.ts)
+  sortable -> kernel: _cancel (src/shared/invalidation.ts), _schedule (src/shared/invalidation.ts), acquire (src/lift.ts), box (src/lift.ts), boxHeight (src/lift.ts), boxWidth (src/lift.ts), cancelLanding (src/lift.ts), item (src/kernel/drag.ts), itemSpace (src/lift.ts), land (src/lift.ts), origin (src/kernel/outcome.ts), originX (src/kernel/drag.ts), originY (src/kernel/drag.ts), reason (src/kernel/outcome.ts), rect (src/lift.ts), requestCancel (src/kernel/drag.ts), requestCancel (src/kernel/gesture.ts), requestDestroy (src/kernel/gesture.ts), requestStep (src/kernel/drag.ts), requestStep (src/kernel/gesture.ts), signal (src/kernel/drag.ts), translate (src/lift.ts), type (src/kernel/outcome.ts), use (src/kernel/drag.ts), use (src/kernel/gesture.ts), value (src/kernel/outcome.ts), visual (src/lift.ts), x (src/kernel/drag.ts), y (src/kernel/drag.ts)
+
+## The same audit with shared/invalidation in each feature unit (INVALIDATION=local): the 6 accesses bind to each feature's own copy
+  consumer <- kernel: Lifter (src/lift.ts), draggable (src/draggable.ts), landing (src/shared/landing.ts)
+  free-drag <- kernel: Lifter (src/lift.ts), draggable (src/draggable.ts)
+  sortable <- kernel: Lifter (src/lift.ts), draggable (src/draggable.ts)
+
+## Mangle caches per unit (unitnames.ts: the same inputs and options through Rolldown's API)
+kernel: 1 chunk, 18 names: {"_add":"n","_advance":"c","_cancel":"g","_clear":"l","_decide":"r","_detach":"i","_duration":"u","_easing":"d","_empty":"a","_enter":"e","_has":"f","_landing":"p","_raise":"t","_raiseInPass":"m","_run":"o","_schedule":"_","_stepTarget":"s","_terminate":"h"}
+sortable: 1 chunk, 29 names: {"_animation":"c","_axis":"e","_box":"S","_cancel":"C","_collect":"m","_config":"t","_count":"a","_direction":"u","_displacement":"h","_dx":"g","_dy":"_","_end":"r","_first":"i","_holds":"v","_invalidate":"n","_items":"s","_landing":"d","_lend":"w","_measure":"f","_measurePlaceholder":"b","_moved":"T","_placeholderRect":"p","_rebase":"E","_refresh":"D","_retire":"l","_schedule":"A","_updateInsertion":"O","_values":"o","_visual":"k"}
+free-drag: 1 chunk, 14 names: {"_axis":"i","_bottom":"a","_bounds":"r","_cancel":"d","_config":"e","_landing":"o","_left":"s","_moveTo":"f","_right":"c","_root":"t","_schedule":"p","_top":"l","_translate":"u","_window":"n"}
+
+names renamed in more than one unit:
+  _axis: sortable=e free-drag=i
+  _cancel: kernel=g sortable=C free-drag=d
+  _config: sortable=t free-drag=e
+  _landing: kernel=p sortable=d free-drag=o
+  _schedule: kernel=_ sortable=A free-drag=p
+kernel chunk, createFrameTask as emitted: return{_(){n===0&&(n=e.requestAnimationFrame(r))},g(){n!==0&&(e.cancelAnimationFrame(n),n=0)}}
+
+## The chunks (out-u)
+   4325 out-u/chunks/free-drag.js
+  10448 out-u/chunks/kernel.js
+  10259 out-u/chunks/sortable.js
+  25032 total
+  sortable imports: import{Lifter as e,createFrameTask as t,draggable as n,listenForInvalidation as r}from"./kernel.js" import{delta as i,localDelta as a}from"@ydinjs/box-quad"
+  free-drag imports: import{Lifter as e,createFrameTask as t,draggable as n,listenForInvalidation as r}from"./kernel.js" import{delta as i,localDelta as a}from"@ydinjs/box-quad"
+  kernel imports: import{ancestry as e,box as t,coordinates as n,delta as r,localDelta as i,space as a}from"@ydinjs/box-quad"
+  facades, e.g. draggable.js: export { draggable } from './chunks/kernel.js';  sortable/landing.js: export { landing } from '../chunks/kernel.js';
+  marker names left in the chunks: 0
+  declarations (dtscmp.ts out-p4 out-u): 27 .d.ts in each, 0 with a reference, 27 byte-identical
+  package.json after the build: unchanged (the exports option is off)
+  runtime exports, each entry imported in Node from out-p4 and from out-u: 13 of 13 entries export the same names
+
+## Consumer project, Chromium (npx vitest run -c vitest.config.ts --project consumer; tsdown.config.ts replaced by the build named)
+  units, as the layout places invalidation (kernel): Tests  114 failed | 212 passed (326)
+  units, invalidation in each feature (INVALIDATION=local): Tests  2 failed | 324 passed (326)
+  units, FrameTask members renamed schedule/cancel in the 4 files (scratch only): Tests  2 failed | 324 passed (326)
+  DRD-59 candidate: Tests  2 failed | 324 passed (326)
+  units (kernel invalidation), faults reported, by message (lines of the run's log): 114 `l.C is not a function`, 99 `this[#i].A is not a function`,
+    14 `this[#i].C is not a function`, 8 `u.d is not a function`, 7 `u.p is not a function`: sortable's _cancel=C and _schedule=A, freeDrag's _cancel=d and _schedule=p
+  the 2 failures in the other three builds: tests/classes.browser.test.ts:190 and tests/destruction.browser.test.ts:381,
+    countHeapObjects('FreeDragBehavior') and countHeapObjects('SortableBehavior'), expected +1, got +0. In DRD-59's free-drag/behavior.js the class is emitted as `var r=class`
+
+## Size rows (bench/size/measure.ts), Brotli-11
+row                          ceiling  current  DRD-59  units(kernel inval)  units(inval per feature)  units(FrameTask unprefixed)   [Brotli; (vs DRD-59); minified]
+draggable alone               2139   2154 6487  2158 6487  2190 (+32) 6544        2190 (+32) 6544        2190 (+32) 6544
+draggable + lift              4169   3915 11262  3921 11262  3938 (+17) 11262       3938 (+17) 11262       3938 (+17) 11262
+example: resize handle        3313   3269 9144  3272 9144  3262 (-10) 9144        3262 (-10) 9144        3262 (-10) 9144
+example: drop zone            4431   4549 12901  4550 12901  4567 (+17) 12901       4567 (+17) 12901       4567 (+17) 12901
+example: canvas group         3314   3265 9280  3283 9280  3258 (-25) 9280        3258 (-25) 9280        3258 (-25) 9280
+freeDrag                      4967   4932 14638  4935 14638  4947 (+12) 14644       4947 (+12) 14644       4947 (+12) 14644
+freeDrag + bounds + landing   5210   5362 15747  5366 15747  5387 (+21) 15753       5387 (+21) 15753       5387 (+21) 15753
+sortable + y                  6733   6521 19674  6515 19672  6518 (+3) 19670        6538 (+23) 19670       6521 (+6) 19699
+sortable + xy                 6617   6403 19347  6393 19343  6399 (+6) 19341        6395 (+2) 19341        6404 (+11) 19370
+complete                      7065   7154 21307  7164 21305  7145 (-19) 21303       7140 (-24) 21303       7148 (-16) 21332
+verdicts against the ceilings: the same four rows are over in every build (draggable alone, drop zone, freeDrag + bounds + landing, complete).
+
+measure.ts on the units build (kernel invalidation), with its own graph checks:
+  draggable alone                  6544 min   2398 gz   2190 br  3 modules
+    VIOLATION: over its 2139 B ceiling by 51 B
+    VIOLATION: control moved by 166 B
+    VIOLATION: must not contain ../box-quad/src/index.ts
+  draggable + lift                11262 min   4366 gz   3938 br  4 modules
+  example: resize handle           9144 min   3604 gz   3262 br  4 modules
+  example: drop zone              12901 min   5065 gz   4567 br  6 modules
+    VIOLATION: over its 4431 B ceiling by 136 B
+    VIOLATION: must contain shared/landing
+  example: canvas group            9280 min   3568 gz   3258 br  4 modules
+  freeDrag                        14644 min   5498 gz   4947 br  4 modules
+    VIOLATION: must contain lift
+  freeDrag + bounds + landing     15753 min   5988 gz   5387 br  6 modules
+    VIOLATION: over its 5210 B ceiling by 177 B
+    VIOLATION: must contain shared/landing
+  sortable + y                    19670 min   7202 gz   6518 br  5 modules
+    VIOLATION: must contain linear-shift
+  sortable + xy                   19341 min   7095 gz   6399 br  5 modules
+  complete                        21303 min   7919 gz   7145 br  7 modules
+    VIOLATION: over its 7065 B ceiling by 80 B
+    VIOLATION: must contain shared/landing
+    VIOLATION: must contain linear-shift
+
+## box-quad in "draggable alone": the kernel chunk imports box-quad for lift and landing, and box-quad's index keeps
+## its top-level destructuring: const{parseFloat:e,isFinite:t}=Number,{abs:n,min:r}=Math (57 B minified)
+with "sideEffects": false added to packages/box-quad/package.json in the scratch tree (restored after):
+  draggable alone                  6487 min   2360 gz   2148 br  2 modules
+    VIOLATION: over its 2139 B ceiling by 9 B
+    VIOLATION: control moved by 124 B
+  draggable + lift                11262 min   4366 gz   3938 br  4 modules
+
+## The rows attributed to src modules through the emitted maps (rows.ts): Brotli equals measure.ts; GRAPH lines apply the row's absent/present fragments to src modules
+### current
+  draggable alone               2154 br  7 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12)
+  draggable + lift              3915 br  9 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) ../box-quad/src/index.ts(595) lift.ts(534)
+  example: resize handle        3269 br  9 src modules: ../box-quad/src/index.ts(652) fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) tests/fixtures/resize-handle.ts(135)
+  example: drop zone            4549 br  12 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) shared/timing.ts(1) ../box-quad/src/index.ts(651) shared/landing.ts(168) lift.ts(537) tests/fixtures/drop-zone.ts(218)
+  example: canvas group         3265 br  9 src modules: ../box-quad/src/index.ts(369) fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) tests/fixtures/canvas-group.ts(413)
+  freeDrag                      4932 br  15 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) shared/invalidation.ts(29) free-drag/domain.ts(4) ../box-quad/src/index.ts(651) free-drag/geometry.ts(176) free-drag/operation.ts(393) free-drag/behavior.ts(178) lift.ts(537) free-drag.ts(61)
+  freeDrag + bounds + landing   5362 br  18 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) shared/invalidation.ts(29) free-drag/domain.ts(4) ../box-quad/src/index.ts(651) free-drag/geometry.ts(176) free-drag/operation.ts(393) free-drag/behavior.ts(178) lift.ts(537) free-drag.ts(61) free-drag/bounds.ts(143) shared/timing.ts(1) shared/landing.ts(167)
+  sortable + y                  6521 br  20 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) ../box-quad/src/index.ts(595) lift.ts(537) shared/invalidation.ts(69) sortable/domain.ts(23) sortable/collection.ts(126) sortable/keyboard.ts(58) sortable/placement.ts(121) sortable/operation.ts(508) sortable/behavior.ts(427) sortable.ts(66) sortable/linear-shift.ts(334) sortable/rect-index.ts(397) sortable/y.ts(158)
+  sortable + xy                 6403 br  19 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) ../box-quad/src/index.ts(595) lift.ts(537) shared/invalidation.ts(69) sortable/domain.ts(23) sortable/collection.ts(126) sortable/keyboard.ts(58) sortable/placement.ts(121) sortable/operation.ts(508) sortable/behavior.ts(427) sortable.ts(66) sortable/rect-index.ts(397) sortable/xy.ts(331)
+  complete                      7154 br  23 src modules: fault.ts(39) kernel/callbacks.ts(117) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(993) kernel/gesture.ts(501) draggable.ts(12) ../box-quad/src/index.ts(652) lift.ts(537) shared/invalidation.ts(69) sortable/domain.ts(23) sortable/collection.ts(126) sortable/keyboard.ts(58) sortable/placement.ts(121) sortable/operation.ts(508) sortable/behavior.ts(427) sortable.ts(66) sortable/linear-shift.ts(334) sortable/rect-index.ts(397) sortable/y.ts(158) shared/timing.ts(1) shared/landing.ts(167) sortable/layout-animation.ts(267)
+  no graph violation
+### units (kernel invalidation)
+  draggable alone               2190 br  8 src modules: ../box-quad/src/index.ts(11) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12)
+    GRAPH: must not contain ../box-quad/src/index.ts
+  draggable + lift              3938 br  9 src modules: ../box-quad/src/index.ts(595) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(545)
+  example: resize handle        3262 br  9 src modules: ../box-quad/src/index.ts(652) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) tests/fixtures/resize-handle.ts(135)
+  example: drop zone            4567 br  12 src modules: ../box-quad/src/index.ts(652) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(548) shared/timing.ts(1) shared/landing.ts(175) tests/fixtures/drop-zone.ts(218)
+  example: canvas group         3258 br  9 src modules: ../box-quad/src/index.ts(369) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) tests/fixtures/canvas-group.ts(413)
+  freeDrag                      4947 br  15 src modules: ../box-quad/src/index.ts(652) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(548) shared/invalidation.ts(34) free-drag/domain.ts(4) free-drag/geometry.ts(179) free-drag/operation.ts(398) free-drag/behavior.ts(179) free-drag.ts(61)
+  freeDrag + bounds + landing   5387 br  18 src modules: ../box-quad/src/index.ts(652) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(548) shared/timing.ts(1) shared/landing.ts(175) shared/invalidation.ts(34) free-drag/domain.ts(4) free-drag/geometry.ts(179) free-drag/operation.ts(398) free-drag/behavior.ts(179) free-drag.ts(61) free-drag/bounds.ts(146)
+  sortable + y                  6518 br  20 src modules: ../box-quad/src/index.ts(595) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(548) shared/invalidation.ts(74) sortable/domain.ts(24) sortable/collection.ts(127) sortable/keyboard.ts(58) sortable/placement.ts(123) sortable/operation.ts(515) sortable/behavior.ts(430) sortable.ts(66) sortable/rect-index.ts(402) sortable/linear-shift.ts(345) sortable/y.ts(159)
+  sortable + xy                 6399 br  19 src modules: ../box-quad/src/index.ts(595) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(548) shared/invalidation.ts(74) sortable/domain.ts(24) sortable/collection.ts(127) sortable/keyboard.ts(58) sortable/placement.ts(123) sortable/operation.ts(515) sortable/behavior.ts(430) sortable.ts(66) sortable/rect-index.ts(402) sortable/xy.ts(334)
+  complete                      7145 br  23 src modules: ../box-quad/src/index.ts(652) fault.ts(40) kernel/callbacks.ts(121) kernel/drag.ts(48) shared/focus.ts(19) kernel/session.ts(1011) kernel/gesture.ts(509) draggable.ts(12) lift.ts(548) shared/timing.ts(1) shared/landing.ts(175) shared/invalidation.ts(74) sortable/domain.ts(24) sortable/collection.ts(127) sortable/keyboard.ts(58) sortable/placement.ts(123) sortable/operation.ts(515) sortable/behavior.ts(430) sortable.ts(66) sortable/rect-index.ts(402) sortable/linear-shift.ts(345) sortable/y.ts(159) sortable/layout-animation.ts(272)
+  1 graph violations
+### per row, units against current: the same src modules in every row, apart from ../box-quad/src/index.ts in "draggable alone"
+
+## Source maps of the chunks (mapcheck.ts per chunk, ONLY= the chunk, NAMES= that unit's cache)
+  == kernel
+  sourcesContent equal to src: 11/11
+     731  identifier: mangled, map names its source name
+    1073  identifier: maps to its source name
+      51  identifier: no own mapping
+     252  private: mangled, map names its source name
+     252  private: maps to its source name
+      43  property (renamed): maps to its source name
+      43  property: mangled, map names its source name
+     247  property: maps to its source name
+       1  property: no own mapping
+      13  renamed method key: maps to its source name, named
+       5  renamed object key: maps to its source name, named
+  == sortable
+  sourcesContent equal to src: 12/12
+    1162  identifier: mangled, map names its source name
+    1560  identifier: maps to its source name
+      43  identifier: no own mapping
+     171  private: mangled, map names its source name
+     171  private: maps to its source name
+      89  property (renamed): maps to its source name
+      89  property: mangled, map names its source name
+     299  property: maps to its source name
+       5  renamed field key: maps to its source name, named
+      15  renamed method key: maps to its source name, named
+      24  renamed object key: maps to its source name, named
+  == free-drag
+  sourcesContent equal to src: 7/7
+     381  identifier: mangled, map names its source name
+     595  identifier: maps to its source name
+      31  identifier: no own mapping
+      90  private: mangled, map names its source name
+      90  private: maps to its source name
+      57  property (renamed): maps to its source name
+      57  property: mangled, map names its source name
+     142  property: maps to its source name
+       6  renamed field key: maps to its source name, named
+       2  renamed method key: maps to its source name, named
+       4  renamed object key: maps to its source name, named
+  kernel.js.map sources: ../../src/fault.ts ../../src/kernel/callbacks.ts ../../src/kernel/drag.ts ../../src/shared/focus.ts ../../src/kernel/session.ts ../../src/kernel/gesture.ts ../../src/draggable.ts ../../src/lift.ts ../../src/shared/timing.ts ../../src/shared/landing.ts ../../src/shared/invalidation.ts
+  sortable.js.map sources: ../../src/sortable/domain.ts ../../src/sortable/collection.ts ../../src/sortable/keyboard.ts ../../src/sortable/placement.ts ../../src/sortable/operation.ts ../../src/sortable/behavior.ts ../../src/sortable.ts ../../src/sortable/rect-index.ts ../../src/sortable/linear-shift.ts ../../src/sortable/y.ts ../../src/sortable/xy.ts ../../src/sortable/layout-animation.ts
+  free-drag.js.map sources: ../../src/free-drag/domain.ts ../../src/free-drag/geometry.ts ../../src/free-drag/operation.ts ../../src/free-drag/behavior.ts ../../src/free-drag.ts ../../src/free-drag/bounds.ts ../../src/free-drag/drop-targets.ts
+  the facades have no map and no sourceMappingURL
+
+## Annotations (annot.ts out-u out-u-plain; out-u-plain = NOMIN=1, no minification and so no rename)
+  minified 9, unminified 5; modules with fewer: []
+  chunks/kernel.js 2->3
+  chunks/sortable.js 3->6
+  (current build out-cur: 8 in 6 modules; DRD-59 out-l2b: 9 in the same 6, recheck readings)
+
+## Annotations and legal comments written in src: scratch src/fault.ts, src/sortable/y.ts and src/free-drag/bounds.ts each prefixed with
+##   /*! Bang notice <m> */  /** @license Apache-2.0 probe <m> */  // @preserve line probe <m>
+##   import { box as probeBox } from '@ydinjs/box-quad';
+##   export const probePure_<m> = /* @__PURE__ */ probeBox();  export const probeHash_<m> = /* #__PURE__ */ probeBox();
+##   /* @__NO_SIDE_EFFECTS__ */ export function probeNse_<m>(o: { size: number }): number { return o.size; }
+## (the declaration configuration rejects the two consts under isolatedDeclarations; the three JS units build)
+  kernel: legal=3 pure=5 nse=1 map=yes
+  sortable: legal=3 pure=8 nse=1 map=yes
+  free-drag: legal=3 pure=2 nse=1 map=yes
+  (counts include the chunk's own annotations: kernel 3 and sortable 6 without the injection)
+  kernel.js as emitted: ...=/* @__PURE__ */ t(),s=/* #__PURE__ */ t();/* @__NO_SIDE_EFFECTS__ */function c(e){return e.size}...
+  consumer bundles (row.ts, minified): "draggable alone" keeps the fault module's 3 legal comments and no probe call or export;
+    "freeDrag" keeps fault's and bounds' 3 legal comments each, and no probe call. Rows grow by the comments only: draggable alone +95 B minified.
+  DRD-59 (p4, DTS=false) with the same injection: fault.js, sortable/y.js, free-drag/bounds.js legal=3 pure=0 nse=0 each;
+    "freeDrag" keeps fault's legal comments only, since bounds.js is not in its graph
+
+## Without a bundler: .js bytes each public entry loads through relative imports, box-quad not counted (reach.ts)
+entry                      DRD-59 (out-p4)          units (out-u)
+  draggable                    7305 B in 7 files	  10496 B in 2 files
+  lift                         3161 B in 2 files	  10493 B in 2 files
+  lift/landing                  948 B in 3 files	  10495 B in 2 files
+  fault                         229 B in 1 files	  10496 B in 2 files
+  sortable                    17674 B in 16 files	  20775 B in 3 files
+  sortable/y                   3327 B in 4 files	  20750 B in 3 files
+  sortable/xy                  2906 B in 3 files	  20751 B in 3 files
+  sortable/landing              948 B in 3 files	  10495 B in 2 files
+  sortable/layout-animation     924 B in 1 files	  20764 B in 3 files
+  free-drag                   14651 B in 14 files	  14843 B in 3 files
+  free-drag/bounds              502 B in 1 files	  14822 B in 3 files
+  free-drag/drop-targets        997 B in 2 files	  14827 B in 3 files
+  free-drag/landing             948 B in 3 files	  10495 B in 2 files
+
+## One extra copy of shared/invalidation.ts, minified with its marker names mangled (inval.ts)
+  326 B minified, 178 B Brotli alone:
+  function e(e,t,n){e.addEventListener(`scroll`,n,{signal:t,capture:!0,passive:!0}),e.addEventListener(`resize`,n,{signal:t,passive:!0})}function t(e,t){let n=0,r=()=>{n=0,t()};return{t(){n===0&&(n=e.requestAnimationFrame(r))},e(){n!==0&&(e.cancelAnimationFrame(n),n=0)}}}export{t as createFrameTask,e as listenForInvalidation};

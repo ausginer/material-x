@@ -133,13 +133,13 @@ describe('drag:DRI-18 the type requirement', () => {
     // @ts-expect-error The controller has no session member.
     void panel.session;
     // @ts-expect-error The controller's type has no pass entry.
-    void panel._enter;
+    void panel.enter;
     // @ts-expect-error The controller's type has no fault entry.
-    void panel._raise;
+    void panel.raise;
     // @ts-expect-error The controller's type has no verdict fault entry.
-    void panel._raiseInPass;
+    void panel.raiseInPass;
     // @ts-expect-error The controller's type has no session slot.
-    void panel._detach;
+    void panel.detach;
     // @ts-expect-error The controller's type has no listener.
     void panel.handleEvent;
     draggable(root, {

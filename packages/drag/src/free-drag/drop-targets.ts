@@ -110,7 +110,7 @@ export function dropTargets(options: DropTargetsOptions): DropTargets {
     // Registered before the consumer's `targets()` runs, so the release covers a
     // throw from it as well as a terminal, a cancel or destruction.
     drag.use(() => {
-      frame._cancel();
+      frame.cancel();
       mark(null);
     });
     elements = options.targets();
@@ -120,10 +120,10 @@ export function dropTargets(options: DropTargetsOptions): DropTargets {
         return current;
       },
       move() {
-        frame._schedule();
+        frame.schedule();
       },
       drop() {
-        frame._cancel();
+        frame.cancel();
         resolve();
       },
       invalidate() {

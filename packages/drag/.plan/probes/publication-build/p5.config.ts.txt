@@ -1,0 +1,12 @@
+// P5: two native configs: JavaScript with maps and no declarations; declarations only, without maps.
+import { defineConfig } from 'tsdown';
+import { packageFilesToCustomExports, packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import { mangleInternalProperties } from './probe/mangle-plugin.ts';
+import { propertyNames } from './probe/names.ts';
+import files from './files.json' with { type: 'json' };
+const base = { entry: packageFilesToTsdownEntries(files), platform: 'neutral', format: 'esm', target: 'esnext', outDir: process.env.OUT ?? 'out-p5', fixedExtension: false, clean: false, define: { __DEV__: 'false' }, unbundle: true } as const;
+export default defineConfig([
+  { ...base, exports: packageFilesToCustomExports(files), dts: false, sourcemap: true, minify: true, plugins: [...constructLibraryTsdownPlugins(), mangleInternalProperties(propertyNames)] },
+  { ...base, dts: { emitDtsOnly: true }, sourcemap: false, plugins: constructLibraryTsdownPlugins() },
+]);

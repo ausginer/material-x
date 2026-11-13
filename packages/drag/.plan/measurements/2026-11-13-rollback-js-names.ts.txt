@@ -1,0 +1,47 @@
+// Probe for the mangle rollback, item 2.3 and item 3.6. Run with
+// `node --experimental-strip-types <copy>.ts <mode> <left tree> <right tree> <file list> [map]`.
+//
+// mode `map`: each `.js` in <right> equals <left>'s after each name of [map] in
+//   <right> is replaced by its output name. <left> is the base tree, <right> commit A's.
+// mode `unmark`: each file in <right> equals <left>'s after each `\b_([A-Za-z])` in
+//   <left> is read as its letter. <left> is commit A's tree, <right> the end's.
+// Prints one line per file that differs, with the first differing lines, then a count.
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const [mode, left, right, list, mapPath] = process.argv.slice(2);
+const files = (await readFile(list!, 'utf8'))
+  .split('\n')
+  .filter((f) => (mode === 'map' ? f.endsWith('.js') : /\.(js|d\.ts)$/u.test(f)));
+const map: Record<string, string> = mapPath
+  ? JSON.parse(await readFile(mapPath, 'utf8'))
+  : {};
+let differing = 0;
+
+for (const file of files) {
+  let a = await readFile(join(left!, file), 'utf8');
+  let b = await readFile(join(right!, file), 'utf8');
+
+  if (mode === 'map') {
+    b = b.replace(/\b_[A-Za-z]\w*\b/gu, (name) => map[name] ?? name);
+  } else {
+    a = a.replace(/\b_([A-Za-z])/gu, '$1');
+  }
+
+  if (a !== b) {
+    differing += 1;
+    const al = a.split('\n');
+    const bl = b.split('\n');
+    const lines: string[] = [];
+
+    for (let i = 0; i < Math.max(al.length, bl.length); i += 1) {
+      if (al[i] !== bl[i]) {
+        lines.push(`  ${i + 1}: - ${al[i]}\n  ${i + 1}: + ${bl[i]}`);
+      }
+    }
+
+    console.log(`DIFFERS ${file} (${al.length} vs ${bl.length} lines)\n${lines.join('\n')}`);
+  }
+}
+
+console.log(`${files.length} files compared, ${differing} differ`);

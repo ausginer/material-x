@@ -1,0 +1,8 @@
+// The rename pass, alone and followed by full minification, on annotations the minifier can't infer.
+import { minifySync } from 'rolldown/utils';
+const src = `import { f, g } from 'x';\n/*! keep */\nexport const a = /* @__PURE__ */ f();\nexport const b = /* #__PURE__ */ g(1);\n/* @__NO_SIDE_EFFECTS__ */ export function h(o) { return o._p; }\nexport const c = new Map();\n`;
+const renameOnly = { module: true, compress: false, mangle: false, codegen: { removeWhitespace: false, legalComments: 'inline' }, mangleProps: { include: /^_[A-Za-z]/, quoted: true, cache: { _p: 'q' } } } as const;
+const r = minifySync('m.js', src, renameOnly);
+console.log('--- rename pass:\n' + r.code);
+console.log('--- rename pass, then minify:\n' + minifySync('m.js', r.code, { module: true }).code);
+console.log('--- minify alone:\n' + minifySync('m.js', src, { module: true }).code);

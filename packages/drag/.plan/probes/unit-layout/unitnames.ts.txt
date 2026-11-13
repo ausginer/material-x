@@ -1,0 +1,22 @@
+// The mangle cache of each unit's chunk: the same input, plugins and options as units.config.ts, through
+// Rolldown's API, which returns the cache. Then every marker name that two units rename, with each output name.
+import { build, type Plugin } from 'rolldown';
+import { dirname, resolve } from 'node:path';
+import { constructLibraryTsdownPlugins } from '../../../.scripts/tsdown-library.ts';
+import { layout } from './layout.ts';
+import { UNITS, unitOf } from './units.ts';
+const plan = layout();
+const caches: Record<string, Record<string, string>> = {};
+for (const u of UNITS) {
+  const ext: Plugin = { name: 'ext', resolveId: (s, i) => (i && s.startsWith('.') && u !== 'kernel' && unitOf(resolve(dirname(i), s)) === 'kernel' ? { id: './kernel.js', external: true } : null) };
+  const out = await build({
+    input: plan.inputs.get(u)!, write: false, platform: 'neutral', transform: { define: { __DEV__: 'false' } }, external: [/^@ydinjs\/box-quad/],
+    plugins: [ext, ...constructLibraryTsdownPlugins()], output: { format: 'esm', minify: { mangleProps: { include: /^_[A-Za-z]/, quoted: true } } },
+  });
+  caches[u] = out.mangleCache as Record<string, string>;
+  if (process.env.WRITE) (await import("node:fs")).writeFileSync(`${import.meta.dirname}/cache-${u}.json`, JSON.stringify(caches[u]));
+  console.log(`${u}: ${out.output.filter((o) => o.type === 'chunk').length} chunk, ${Object.keys(caches[u]).length} names: ${JSON.stringify(caches[u])}`);
+}
+const all = new Set(Object.values(caches).flatMap((c) => Object.keys(c)));
+console.log('\nnames renamed in more than one unit:');
+for (const n of [...all].sort()) { const by = UNITS.filter((u) => n in caches[u]!); if (by.length > 1) console.log(`  ${n}: ${by.map((u) => `${u}=${caches[u]![n]}`).join(' ')}`); }

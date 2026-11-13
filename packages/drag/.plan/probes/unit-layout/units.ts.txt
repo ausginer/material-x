@@ -1,0 +1,16 @@
+// The owner's layout: three units, each built as one chunk. A source module's unit, by its path under `src`.
+// `tests/fixtures` are custom Behaviors written as a consumer writes them.
+export const UNITS = ['kernel', 'sortable', 'free-drag'] as const;
+export type Unit = (typeof UNITS)[number] | 'consumer';
+export function unitOf(path: string): Unit | null {
+  const m = /\/(src|tests\/fixtures)\/(.+)\.tsx?$/.exec(path);
+  if (!m) return null;
+  if (m[1] === 'tests/fixtures') return 'consumer';
+  const p = m[2]!;
+  // INVALIDATION=local: shared/invalidation belongs to no unit, so each feature unit bundles its own copy.
+  if (process.env.INVALIDATION === 'local' && p === 'shared/invalidation') return null;
+  if (p === 'sortable' || p.startsWith('sortable/')) return 'sortable';
+  if (p === 'free-drag' || p.startsWith('free-drag/')) return 'free-drag';
+  if (p.endsWith('.stories') || p === 'globals.d') return null;
+  return 'kernel'; // draggable, fault, lift, lift/*, kernel/*, shared/*
+}

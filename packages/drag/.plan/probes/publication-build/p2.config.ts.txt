@@ -1,0 +1,14 @@
+// P2: native output.minify: true with the existing renamer; logs what renderChunk receives.
+import { defineConfig } from 'tsdown';
+import { packageFilesToCustomExports, packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import names from './build/property-names.json' with { type: 'json' };
+import { renameProperties } from './build/rename-properties.ts';
+import files from './files.json' with { type: 'json' };
+const spy = { name: 'spy', renderChunk(code: string, chunk: any) { if (chunk.fileName === 'kernel/gesture.js') console.error('SPY renderChunk input lines:', code.split('\n').length, JSON.stringify(code.slice(0, 80))); return null; } };
+export default defineConfig({
+  entry: packageFilesToTsdownEntries(files), platform: 'neutral', dts: false, format: 'esm',
+  sourcemap: true, target: 'esnext', outDir: 'out-p2', fixedExtension: false, clean: true,
+  plugins: [...constructLibraryTsdownPlugins(), renameProperties(names), spy], define: { __DEV__: 'false' }, unbundle: true,
+  minify: true,
+});

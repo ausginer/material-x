@@ -17,12 +17,12 @@ const { push, unshift } = [];
  * A list holds only the array method it adds with, the shared builtin read once
  * when this module is evaluated. `queue()` makes a list that adds at the start
  * of the array with `unshift`, and `stack()` one that adds at the end with
- * `push`. `_run` takes the entry at the end for both, so a queue runs its
- * oldest entry and a stack its newest, and `_run` does not branch on the kind.
+ * `push`. `run` takes the entry at the end for both, so a queue runs its
+ * oldest entry and a stack its newest, and `run` does not branch on the kind.
  *
  * The list decides nothing about when or whether its callbacks run, or what
- * happens when one throws. An owner whose entries coalesce checks `_has` before
- * `_add`. An entry is removed before its callback runs, so a throw leaves the
+ * happens when one throws. An owner whose entries coalesce checks `has` before
+ * `add`. An entry is removed before its callback runs, so a throw leaves the
  * list consistent and a callback that adds itself again is added as a new
  * entry.
  */
@@ -35,12 +35,12 @@ class List<Argument> {
   }
 
   /** Whether no entry is waiting. */
-  get _empty(): boolean {
+  get empty(): boolean {
     return this.#entries.length === 0;
   }
 
   /** Whether the same callback is waiting with the same receiver. */
-  _has(
+  has(
     callback: ListedCallback<Argument>,
     receiver: object | undefined,
   ): boolean {
@@ -57,7 +57,7 @@ class List<Argument> {
    * Adds an entry, at the start of a queue's array and at the end of a stack's,
    * whether or not the same pair is waiting.
    */
-  _add<Receiver extends object>(
+  add<Receiver extends object>(
     callback: (this: Receiver, argument: Argument) => void,
     receiver?: Receiver,
   ): void {
@@ -68,13 +68,13 @@ class List<Argument> {
    * Removes the entry at the end of the array and calls its callback with
    * `argument`, on its receiver. Call it only when an entry is waiting.
    */
-  _run(argument: Argument): void {
+  run(argument: Argument): void {
     const receiver = this.#entries.pop();
     (this.#entries.pop() as ListedCallback<Argument>).call(receiver, argument);
   }
 
   /** Drops every entry and the references it holds. */
-  _clear(): void {
+  clear(): void {
     this.#entries.length = 0;
   }
 }

@@ -56,9 +56,9 @@ export type Lift = Readonly<{
 type NamedLanding = Readonly<{
   x: number;
   y: number;
-  _duration: number;
-  _easing: string;
-  _landing: Landing;
+  duration: number;
+  easing: string;
+  landing: Landing;
 }>;
 
 const BOX_A = 0;
@@ -303,9 +303,9 @@ export class Lifter {
           named = {
             x,
             y,
-            _duration: timing.duration,
-            _easing: timing.easing,
-            _landing: landing,
+            duration: timing.duration,
+            easing: timing.easing,
+            landing,
           };
         },
       };
@@ -316,13 +316,13 @@ export class Lifter {
       // throws, and each throw is reported once.
       drag.use(() => {
         if (named) {
-          this.#runningAnimationCanceller = named._landing.start(
+          this.#runningAnimationCanceller = named.landing.start(
             visual,
             visualSpace,
             displacement.x - (named.x - rect.x),
             displacement.y - (named.y - rect.y),
-            named._duration,
-            named._easing,
+            named.duration,
+            named.easing,
             this.#window,
           );
         }

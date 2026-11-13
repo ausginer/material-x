@@ -1,0 +1,10 @@
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { parseSync, Visitor } from 'rolldown/utils';
+const names: Record<string, string> = JSON.parse(readFileSync('probe/computed-names.json', 'utf8'));
+const out = new Set(Object.values(names));
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.js') ? [join(d, f)] : []);
+for (const f of walk(process.argv[2])) {
+  const ast = parseSync(f, readFileSync(f, 'utf8'), { sourceType: 'module' });
+  new Visitor({ Property: (n: any) => { if (n.shorthand && n.key.type === 'Identifier' && out.has(n.key.name)) console.log(f, 'shorthand', n.key.name); } }).visit(ast.program);
+}

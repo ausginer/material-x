@@ -54,35 +54,35 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
    * drop targets are re-read at their next read.
    */
   handleEvent(): void {
-    this.#behavior._bounds?.invalidate();
+    this.#behavior.bounds?.invalidate();
     this.#targets?.invalidate();
   }
 
   /** Computes the motion and moves the visual by it. */
-  _translate(): void {
+  translate(): void {
     this.#computeMotion();
     this.#lift.translate(this.#motion.x, this.#motion.y);
   }
 
   /** Places the visual at a viewport point and keeps following the pointer. */
-  _moveTo(point: Point): void {
+  moveTo(point: Point): void {
     this.#offsetX =
       point.x - this.#lift.rect.left - (this.#drag.x - this.#drag.originX);
     this.#offsetY =
       point.y - this.#lift.rect.top - (this.#drag.y - this.#drag.originY);
-    this._translate();
+    this.translate();
   }
 
   start(): void {
-    this.#behavior._config.onStart?.(this.#geometry());
+    this.#behavior.config.onStart?.(this.#geometry());
   }
 
   move(): void {
-    this._translate();
+    this.translate();
     this.#targets?.move();
 
-    if (this.#behavior._config.onMove) {
-      this.#behavior._config.onMove(this.#geometry());
+    if (this.#behavior.config.onMove) {
+      this.#behavior.config.onMove(this.#geometry());
     }
   }
 
@@ -96,20 +96,20 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
     this.#targets?.drop();
 
     const request = buildRequest(
-      this.#behavior._root,
+      this.#behavior.root,
       this.#drag,
       this.#lift,
       this.#motion,
       this.#home(),
       this.#targets?.current ?? null,
-      this.#behavior._window,
+      this.#behavior.window,
     );
 
     this.#request = request;
     this.#lift.translate(this.#motion.x, this.#motion.y);
 
     return (signal: AbortSignal) =>
-      this.#behavior._config.onDrop(request, { signal });
+      this.#behavior.config.onDrop(request, { signal });
   }
 
   settle(outcome: Outcome<FreeDragResolution>): void {
@@ -134,17 +134,17 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
       home = false;
     }
 
-    if (!this.#behavior._landing || !home) {
+    if (!this.#behavior.landing || !home) {
       return;
     }
 
     const { x, y } = this.#home();
 
-    this.#lift.land(x, y, this.#behavior._landing);
+    this.#lift.land(x, y, this.#behavior.landing);
   }
 
   end(): void {
-    this.#behavior._config.onEnd?.(this.#result!);
+    this.#behavior.config.onEnd?.(this.#result!);
   }
 
   /** Writes the delta the pointer and the operation's offset give into `#motion`. */
@@ -152,13 +152,13 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
     this.#motion.x = this.#drag.x - this.#drag.originX + this.#offsetX;
     this.#motion.y = this.#drag.y - this.#drag.originY + this.#offsetY;
 
-    if (this.#behavior._axis === 'x') {
+    if (this.#behavior.axis === 'x') {
       this.#motion.y = 0;
-    } else if (this.#behavior._axis === 'y') {
+    } else if (this.#behavior.axis === 'y') {
       this.#motion.x = 0;
     }
 
-    this.#behavior._bounds?.apply(this.#motion, this.#lift.rect);
+    this.#behavior.bounds?.apply(this.#motion, this.#lift.rect);
   }
 
   #geometry(): DragGeometry {
@@ -166,15 +166,15 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
       this.#drag,
       this.#lift,
       this.#motion,
-      this.#behavior._window,
+      this.#behavior.window,
     );
   }
 
   /** `config.home()` now, or the visual's rect at the grab without it. */
   #home(): Point {
-    return this.#behavior._config.home
-      ? this.#behavior._config.home({
-          item: this.#behavior._root,
+    return this.#behavior.config.home
+      ? this.#behavior.config.home({
+          item: this.#behavior.root,
           visual: this.#lift.visual,
         })
       : { x: this.#lift.rect.left, y: this.#lift.rect.top };

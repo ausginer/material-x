@@ -1,0 +1,72 @@
+// Probe for the mangle rollback, items 4.2 and 4.3. Run from `packages/drag` with
+// `node <copy>.ts <file list>` after `npx just build`.
+//
+// 4.2: no published `.js` or `.d.ts` holds a `\b_[A-Za-z]` identifier or property
+//   name. Comments are reported apart, since they are neither.
+// 4.3: each published `.js` has its `.js.map` exactly when its mappings are not
+//   empty, and each map's `sourcesContent` equals the file under `src` it names.
+import { readFile } from 'node:fs/promises';
+import { dirname, relative, resolve } from 'node:path';
+
+const files = (await readFile(process.argv[2]!, 'utf8')).split('\n').filter(Boolean);
+const listed = new Set(files);
+let markers = 0;
+let commentMarkers = 0;
+
+for (const file of files.filter((f) => /\.(js|d\.ts)$/u.test(f))) {
+  const lines = (await readFile(file, 'utf8')).split('\n');
+
+  for (const [i, line] of lines.entries()) {
+    for (const match of line.matchAll(/(?<![\w$#])_[A-Za-z]\w*/gu)) {
+      const comment = /^\s*(\*|\/\/|\/\*)/u.test(line) || line.indexOf('//') > -1 && line.indexOf('//') < match.index;
+
+      if (comment) {
+        commentMarkers += 1;
+      } else {
+        markers += 1;
+      }
+
+      console.log(`${comment ? 'comment' : 'MARKER'}\t${file}:${i + 1}\t${match[0]}`);
+    }
+  }
+}
+
+let maps = 0;
+let mismatches = 0;
+
+for (const file of files.filter((f) => f.endsWith('.js'))) {
+  const hasMap = listed.has(`${file}.map`);
+  const text = await readFile(file, 'utf8');
+  const linked = text.includes(`//# sourceMappingURL=${file.split('/').at(-1)}.map`);
+
+  if (!hasMap) {
+    console.log(`no map\t${file}\t${linked ? 'BUT LINKED' : 'not linked'}`);
+    continue;
+  }
+
+  maps += 1;
+  const map = JSON.parse(await readFile(`${file}.map`, 'utf8')) as {
+    sources: string[];
+    sourcesContent: string[];
+    mappings: string;
+  };
+
+  if (map.mappings === '' || !linked) {
+    mismatches += 1;
+    console.log(`MAP\t${file}\tmappings ${map.mappings.length}, linked ${linked}`);
+  }
+
+  for (const [i, source] of map.sources.entries()) {
+    const path = resolve(dirname(file), source);
+    const content = await readFile(path, 'utf8');
+
+    if (!relative('src', path).startsWith('..') && content === map.sourcesContent[i]) {
+      continue;
+    }
+
+    mismatches += 1;
+    console.log(`SOURCE\t${file}.map\t${source}\t${relative('.', path)}`);
+  }
+}
+
+console.log(`${markers} markers outside comments, ${commentMarkers} in comments; ${maps} maps, ${mismatches} mismatches`);
