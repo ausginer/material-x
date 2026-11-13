@@ -1,0 +1,30 @@
+draggable alone                  6731 min   2427 gz   2196 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 57 B
+  VIOLATION: control moved by 172 B
+draggable + lift                11542 min   4401 gz   3963 br  9 modules
+example: resize handle           9388 min   3668 gz   3321 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 8 B
+file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49
+	const wrapper = new Error(summary);
+	                ^
+
+Error: Build failed with 1 error:
+
+[plugin published-entries]
+RolldownError: src/kernel/callbacks.ts is not a published entry of @ydinjs/drag
+    at error (file:///workspaces/material-x/node_modules/rolldown/dist/shared/logs-DyTyzzWG.mjs:164:24)
+    at PluginContextImpl.error (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:285:10)
+    at PluginContextImpl.resolveId (file:///workspaces/material-x/packages/drag/tests/support/published-entries.ts:80:14)
+    at async plugin (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:1619:16)
+    at async plugin.<computed> (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:2284:12)
+    at aggregateBindingErrorsIntoJsError (file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49:18)
+    at unwrapBindingResult (file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:19:128)
+    at #build (file:///workspaces/material-x/node_modules/rolldown/dist/shared/rolldown-CMhwwZPA.mjs:145:34)
+    at async bundleSize (file:///workspaces/material-x/packages/drag/bench/size/measure.ts:209:26)
+    at async measure (file:///workspaces/material-x/packages/drag/bench/size/measure.ts:236:18)
+    at async file:///workspaces/material-x/packages/drag/bench/size/measure.ts:348:25 {
+  errors: [Getter/Setter]
+}
+
+Node.js v26.13.0
+[measure exit 1]

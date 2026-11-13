@@ -1,0 +1,64 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + y
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + xy
+ ↓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+ ↓ |node| tests/size.node.test.ts:28 > drag:DRI-18 module graphs and size > should bring no lift, box-quad, sortable, cache or landing code with draggable alone
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/size.node.test.ts:10 > drag:DRI-18 module graphs and size
+Error: Build failed with 1 error:
+
+[plugin published-entries]
+RolldownError: src/kernel/callbacks.ts is not a published entry of @ydinjs/drag
+    at error (file:///workspaces/material-x/node_modules/rolldown/dist/shared/logs-DyTyzzWG.mjs:164:24)
+    at PluginContextImpl.error (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:285:10)
+    at PluginContextImpl.resolveId (/workspaces/material-x/packages/drag/tests/support/published-entries.ts:80:14)
+    at async plugin (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:1619:16)
+    at async plugin.<computed> (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:2284:12)
+ ❯ error ../../node_modules/rolldown/dist/shared/logs-DyTyzzWG.mjs:164:24
+ ❯ PluginContextImpl.error ../../node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:285:10
+ ❯ PluginContextImpl.resolveId tests/support/published-entries.ts:80:14
+     78|
+     79|       if (!(`./${entry}` in exports)) {
+     80|         this.error(
+       |              ^
+     81|           `${relative(root, file)} is not a published entry of ${name}…
+     82|         );
+ ❯ plugin ../../node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:1619:16
+ ❯ plugin.<computed> ../../node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:2284:12
+ ❯ aggregateBindingErrorsIntoJsError ../../node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49:18
+ ❯ unwrapBindingResult ../../node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:19:128
+ ❯ #build ../../node_modules/rolldown/dist/shared/rolldown-CMhwwZPA.mjs:145:34
+ ❯ bundleSize bench/size/measure.ts:209:26
+ ❯ measure bench/size/measure.ts:236:18
+ ❯ tests/size.node.test.ts:16:40
+ ❯ tests/size.node.test.ts:14:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { stack: 'RolldownError: src/kernel/callbacks.ts is not a published entry of @ydinjs/drag
+    at error (file:///workspaces/material-x/node_modules/rolldown/dist/shared/logs-DyTyzzWG.mjs:164:24)
+    at PluginContextImpl.error (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:285:10)
+    at PluginContextImpl.resolveId (/workspaces/material-x/packages/drag/tests/support/published-entries.ts:80:14)
+    at async plugin (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:1619:16)
+    at async plugin.<computed> (file:///workspaces/material-x/node_modules/rolldown/dist/shared/bindingify-input-options-BMZwyvQ7.mjs:2284:12)', message: 'src/kernel/callbacks.ts is not a published entry of @ydinjs/drag', code: 'PLUGIN_ERROR', plugin: 'published-entries', name: 'RolldownError', hook: 'resolveId', constructor: 'Function<Error>', toString: 'Function<toString>' } ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 skipped (11)
+   Start at  01:21:25
+   Duration  1.31s (tests 34%, import 34%, transform 20%, setup 7%, worker 4%)
+
+[vitest exit 1]

@@ -1,0 +1,6 @@
+file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49
+	const wrapper = new Error(summary);
+Error: Build failed with 1 error:
+[31m[UNRESOLVED_IMPORT] [0mCould not resolve './drag.js' in kernel/gesture.js
+    at aggregateBindingErrorsIntoJsError (file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49:18)
+[measure exit 1]

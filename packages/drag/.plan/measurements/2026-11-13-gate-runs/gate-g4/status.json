@@ -1,0 +1,99 @@
+{
+  "id": "gate-g4",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 405820,
+    "start": "6085235"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:21:23.618Z",
+  "endedAt": "2026-11-13T01:21:26.373Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just build",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g4/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 405836,
+        "start": "6085241"
+      },
+      "startedAt": "2026-11-13T01:21:23.631Z",
+      "endedAt": "2026-11-13T01:21:24.390Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "sed -i \"12a import { queue } from '../../src/kernel/callbacks.ts';\\nglobalThis.gateNonEntry = queue;\" tests/fixtures/drop-zone.ts && sed -n 10,15p tests/fixtures/drop-zone.ts && git status --short tests",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g4/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 405957,
+        "start": "6085318"
+      },
+      "startedAt": "2026-11-13T01:21:24.400Z",
+      "endedAt": "2026-11-13T01:21:24.405Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g4/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 405969,
+        "start": "6085320"
+      },
+      "startedAt": "2026-11-13T01:21:24.415Z",
+      "endedAt": "2026-11-13T01:21:24.553Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project node --reporter=verbose tests/size.node.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g4/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 406017,
+        "start": "6085335"
+      },
+      "startedAt": "2026-11-13T01:21:24.564Z",
+      "endedAt": "2026-11-13T01:21:26.353Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "cp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drop-zone.ts.orig tests/fixtures/drop-zone.ts && cmp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drop-zone.ts.orig tests/fixtures/drop-zone.ts && echo restored && git status --short tests",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g4/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 406409,
+        "start": "6085515"
+      },
+      "startedAt": "2026-11-13T01:21:26.366Z",
+      "endedAt": "2026-11-13T01:21:26.373Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

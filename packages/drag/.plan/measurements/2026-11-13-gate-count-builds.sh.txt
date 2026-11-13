@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Counts the drag builds in an strace -f -e trace=execve log: each clean step and
+# each tsdown step that `build-package.node.ts` spawns, by their exact argv.
+f=$1
+printf 'cleans %s, tsdown builds %s\n' \
+  "$(grep -c 'execve("[^"]*", \["node", "../../.scripts/package-files.ts", "clean", "--package", "."\]' "$f")" \
+  "$(grep -c 'execve("[^"]*", \["npx", "tsdown", "--config", "tsdown.config.ts"\]' "$f")"

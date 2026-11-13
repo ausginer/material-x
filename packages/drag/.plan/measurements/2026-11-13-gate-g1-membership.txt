@@ -1,0 +1,10 @@
+draggable alone                kernel/drag.js -
+draggable + lift               kernel/drag.js -
+example: resize handle         kernel/drag.js -
+example: drop zone             kernel/drag.js shared/landing.js
+example: canvas group          kernel/drag.js -
+freeDrag                       kernel/drag.js -
+freeDrag + bounds + landing    kernel/drag.js shared/landing.js
+sortable + y                   kernel/drag.js -
+sortable + xy                  kernel/drag.js -
+complete                       kernel/drag.js shared/landing.js

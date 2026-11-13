@@ -1,0 +1,99 @@
+{
+  "id": "gate-g5",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 410965,
+    "start": "6097869"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:23:29.954Z",
+  "endedAt": "2026-11-13T01:26:22.282Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "strace -f -z --seccomp-bpf -qq -tt -e trace=execve -o /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/g5-both.strace npx vitest run -c vitest.config.ts --project consumer --project node ; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g5/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 410981,
+        "start": "6097875"
+      },
+      "startedAt": "2026-11-13T01:23:29.967Z",
+      "endedAt": "2026-11-13T01:24:14.567Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "strace -f -z --seccomp-bpf -qq -tt -e trace=execve -o /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/g5-node.strace npx vitest run -c vitest.config.ts --project node ; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g5/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 412306,
+        "start": "6102336"
+      },
+      "startedAt": "2026-11-13T01:24:14.579Z",
+      "endedAt": "2026-11-13T01:24:16.923Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "strace -f -z --seccomp-bpf -qq -tt -e trace=execve -o /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/g5-consumer.strace npx vitest run -c vitest.config.ts --project consumer ; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g5/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 412752,
+        "start": "6102572"
+      },
+      "startedAt": "2026-11-13T01:24:16.940Z",
+      "endedAt": "2026-11-13T01:24:58.111Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "cd ../.. && strace -f -z --seccomp-bpf -qq -tt -e trace=execve -o /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/g5-workspace.strace npx vitest run -c vitest.config.ts --project consumer/drag --project node/drag ; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g5/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 414050,
+        "start": "6106690"
+      },
+      "startedAt": "2026-11-13T01:24:58.121Z",
+      "endedAt": "2026-11-13T01:25:40.317Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "strace -f -z --seccomp-bpf -qq -tt -e trace=execve -o /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/g5-browser.strace npx vitest run -c vitest.config.ts --project browser ; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g5/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 415441,
+        "start": "6110911"
+      },
+      "startedAt": "2026-11-13T01:25:40.327Z",
+      "endedAt": "2026-11-13T01:26:22.282Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

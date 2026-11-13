@@ -1,0 +1,172 @@
+412312 01:24:14.581800 execve("/usr/local/bin/npx", ["npx", "vitest", "run", "-c", "vitest.config.ts", "--project", "node"], 0x7fff07f607c8 /* 47 vars */) = 0
+412312 01:24:14.582784 execve("/usr/local/bin/node", ["node", "/usr/local/bin/npx", "vitest", "run", "-c", "vitest.config.ts", "--project", "node"], 0x7ffc2a059788 /* 47 vars */) = 0
+412324 01:24:14.770255 execve("/usr/bin/sh", ["sh", "-c", "'vitest' run -c vitest.config.ts"...], 0x34f72320 /* 73 vars */) = 0
+412325 01:24:14.771248 execve("/workspaces/material-x/node_modules/.bin/vitest", ["vitest", "run", "-c", "vitest.config.ts", "--project", "node"], 0x55e42b644468 /* 73 vars */) = 0
+412325 01:24:14.772372 execve("/usr/local/bin/node", ["node", "/workspaces/material-x/node_modu"..., "run", "-c", "vitest.config.ts", "--project", "node"], 0x7fff4835bef0 /* 73 vars */) = 0
+412387 01:24:15.071546 execve("/usr/local/bin/node", ["node", "../../.scripts/package-files.ts", "clean", "--package", "."], 0x2c6c9f50 /* 77 vars */) = 0
+412394 01:24:15.114867 execve("/usr/bin/git", ["git", "clean", "-fx", "-e", ".vite", "-e", "node_modules", "--", "_virtual", "draggable.d.ts", "draggable.d.ts.map", "draggable.js", "draggable.js.map", "fault.d.ts", "fault.d.ts.map", "fault.js", "fault.js.map", "free-drag", "free-drag.d.ts", "free-drag.d.ts.map", "free-drag.js", "free-drag.js.map", "kernel", "lift", "lift.d.ts", "lift.d.ts.map", "lift.js", "lift.js.map", "shared", "sortable", "sortable.d.ts", "sortable.d.ts.map", ...], 0x201c3b60 /* 77 vars */) = 0
+412387 01:24:15.119183 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412394, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412325 01:24:15.126974 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412387, si_uid=1000, si_status=0, si_utime=3 /* 0.03 s */, si_stime=1 /* 0.01 s */} ---
+412395 01:24:15.131070 execve("/usr/local/bin/npx", ["npx", "tsdown", "--config", "tsdown.config.ts"], 0x2c777240 /* 77 vars */) = 0
+412395 01:24:15.132980 execve("/usr/local/bin/node", ["node", "/usr/local/bin/npx", "tsdown", "--config", "tsdown.config.ts"], 0x7fff4f14b140 /* 77 vars */) = 0
+412407 01:24:15.323681 execve("/usr/bin/sh", ["sh", "-c", "'tsdown' --config tsdown.config."...], 0x2fefba30 /* 77 vars */) = 0
+412408 01:24:15.324576 execve("/workspaces/material-x/node_modules/.bin/tsdown", ["tsdown", "--config", "tsdown.config.ts"], 0x562398ec1318 /* 77 vars */) = 0
+412408 01:24:15.325959 execve("/usr/local/bin/node", ["node", "/workspaces/material-x/node_modu"..., "--config", "tsdown.config.ts"], 0x7ffc88070a98 /* 77 vars */) = 0
+412407 01:24:15.970113 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412408, si_uid=1000, si_status=0, si_utime=81 /* 0.81 s */, si_stime=29 /* 0.29 s */} ---
+412395 01:24:15.970252 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412407, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412325 01:24:15.977262 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412395, si_uid=1000, si_status=0, si_utime=21 /* 0.21 s */, si_stime=5 /* 0.05 s */} ---
+412509 01:24:15.982517 execve("/usr/local/bin/node", ["/usr/local/bin/node", "--experimental-import-meta-resol"..., "--require", "/workspaces/material-x/node_modu"..., "--conditions", "node", "--conditions", "development", "/workspaces/material-x/node_modu"...], 0x2c6c9cb0 /* 81 vars */) = 0
+412510 01:24:15.985867 execve("/usr/local/bin/node", ["/usr/local/bin/node", "--experimental-import-meta-resol"..., "--require", "/workspaces/material-x/node_modu"..., "--conditions", "node", "--conditions", "development", "/workspaces/material-x/node_modu"...], 0x2c6c9cb0 /* 81 vars */) = 0
+412516 01:24:15.988696 execve("/usr/local/bin/node", ["/usr/local/bin/node", "--experimental-import-meta-resol"..., "--require", "/workspaces/material-x/node_modu"..., "--conditions", "node", "--conditions", "development", "/workspaces/material-x/node_modu"...], 0x2c6c9cb0 /* 81 vars */) = 0
+412516 01:24:16.093319 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412325, si_uid=1000} ---
+412516 01:24:16.093381 --- SIGTERM {si_signo=SIGTERM, si_code=SI_TKILL, si_pid=412516, si_uid=1000} ---
+412533 01:24:16.093465 +++ killed by SIGTERM +++
+412532 01:24:16.093477 +++ killed by SIGTERM +++
+412528 01:24:16.093481 +++ killed by SIGTERM +++
+412526 01:24:16.093484 +++ killed by SIGTERM +++
+412525 01:24:16.093487 +++ killed by SIGTERM +++
+412524 01:24:16.093490 +++ killed by SIGTERM +++
+412523 01:24:16.093493 +++ killed by SIGTERM +++
+412531 01:24:16.093500 +++ killed by SIGTERM +++
+412522 01:24:16.093503 +++ killed by SIGTERM +++
+412530 01:24:16.093887 +++ killed by SIGTERM +++
+412516 01:24:16.093892 +++ killed by SIGTERM +++
+412325 01:24:16.093900 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=412516, si_uid=1000, si_status=SIGTERM, si_utime=8 /* 0.08 s */, si_stime=2 /* 0.02 s */} ---
+412553 01:24:16.108386 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-nltrvh", "--id", "success", "--", "echo first", "echo second >&2"], 0x2f1e3b20 /* 86 vars */) = 0
+412584 01:24:16.196560 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x949c6e0 /* 86 vars */) = 0
+412553 01:24:16.198109 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412584, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412585 01:24:16.199851 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x949c6e0 /* 86 vars */) = 0
+412553 01:24:16.219787 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412585, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+412589 01:24:16.221711 execve("/bin/sh", ["/bin/sh", "-c", "echo first"], 0x949c6e0 /* 86 vars */) = 0
+412553 01:24:16.222534 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412589, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412590 01:24:16.224868 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x949c6e0 /* 86 vars */) = 0
+412553 01:24:16.226292 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412590, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412591 01:24:16.227260 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x949c6e0 /* 86 vars */) = 0
+412553 01:24:16.246602 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412591, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+412608 01:24:16.249031 execve("/bin/sh", ["/bin/sh", "-c", "echo second >&2"], 0x949c6e0 /* 86 vars */) = 0
+412553 01:24:16.249994 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412608, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412510 01:24:16.255950 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412553, si_uid=1000, si_status=0, si_utime=8 /* 0.08 s */, si_stime=2 /* 0.02 s */} ---
+412609 01:24:16.262902 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x2f341200 /* 86 vars */) = 0
+412510 01:24:16.264422 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412609, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412610 01:24:16.266687 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-nltrvh", "--json", "success"], 0x2f343200 /* 86 vars */) = 0
+412510 01:24:16.323703 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412610, si_uid=1000, si_status=0, si_utime=5 /* 0.05 s */, si_stime=1 /* 0.01 s */} ---
+412621 01:24:16.326079 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-nltrvh", "--id", "failure", "--", "echo before", "echo failing; exit 3", "touch /tmp/campaign-nltrvh/failu"...], 0x2f1e3b20 /* 86 vars */) = 0
+412509 01:24:16.355901 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412325, si_uid=1000} ---
+412509 01:24:16.356023 --- SIGTERM {si_signo=SIGTERM, si_code=SI_TKILL, si_pid=412509, si_uid=1000} ---
+412579 01:24:16.356357 +++ killed by SIGTERM +++
+412578 01:24:16.356376 +++ killed by SIGTERM +++
+412577 01:24:16.356384 +++ killed by SIGTERM +++
+412576 01:24:16.356390 +++ killed by SIGTERM +++
+412575 01:24:16.356396 +++ killed by SIGTERM +++
+412574 01:24:16.356402 +++ killed by SIGTERM +++
+412573 01:24:16.356415 +++ killed by SIGTERM +++
+412572 01:24:16.356430 +++ killed by SIGTERM +++
+412571 01:24:16.356436 +++ killed by SIGTERM +++
+412570 01:24:16.356443 +++ killed by SIGTERM +++
+412569 01:24:16.356448 +++ killed by SIGTERM +++
+412568 01:24:16.356454 +++ killed by SIGTERM +++
+412567 01:24:16.356460 +++ killed by SIGTERM +++
+412566 01:24:16.356466 +++ killed by SIGTERM +++
+412565 01:24:16.356471 +++ killed by SIGTERM +++
+412564 01:24:16.356477 +++ killed by SIGTERM +++
+412563 01:24:16.356483 +++ killed by SIGTERM +++
+412562 01:24:16.356489 +++ killed by SIGTERM +++
+412561 01:24:16.356494 +++ killed by SIGTERM +++
+412560 01:24:16.356500 +++ killed by SIGTERM +++
+412552 01:24:16.356505 +++ killed by SIGTERM +++
+412551 01:24:16.356511 +++ killed by SIGTERM +++
+412550 01:24:16.356516 +++ killed by SIGTERM +++
+412549 01:24:16.356522 +++ killed by SIGTERM +++
+412548 01:24:16.356528 +++ killed by SIGTERM +++
+412547 01:24:16.356533 +++ killed by SIGTERM +++
+412546 01:24:16.356539 +++ killed by SIGTERM +++
+412545 01:24:16.356545 +++ killed by SIGTERM +++
+412544 01:24:16.356551 +++ killed by SIGTERM +++
+412543 01:24:16.356557 +++ killed by SIGTERM +++
+412542 01:24:16.356562 +++ killed by SIGTERM +++
+412541 01:24:16.356568 +++ killed by SIGTERM +++
+412540 01:24:16.356573 +++ killed by SIGTERM +++
+412539 01:24:16.356579 +++ killed by SIGTERM +++
+412538 01:24:16.356585 +++ killed by SIGTERM +++
+412527 01:24:16.356591 +++ killed by SIGTERM +++
+412515 01:24:16.356596 +++ killed by SIGTERM +++
+412514 01:24:16.356601 +++ killed by SIGTERM +++
+412513 01:24:16.356610 +++ killed by SIGTERM +++
+412512 01:24:16.356615 +++ killed by SIGTERM +++
+412511 01:24:16.360691 +++ killed by SIGTERM +++
+412509 01:24:16.360711 +++ killed by SIGTERM +++
+412325 01:24:16.360722 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=412509, si_uid=1000, si_status=SIGTERM, si_utime=42 /* 0.42 s */, si_stime=17 /* 0.17 s */} ---
+412632 01:24:16.389127 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0xec58ee0 /* 86 vars */) = 0
+412621 01:24:16.390672 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412632, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412633 01:24:16.392766 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0xec58ee0 /* 86 vars */) = 0
+412621 01:24:16.410140 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412633, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412637 01:24:16.412101 execve("/bin/sh", ["/bin/sh", "-c", "echo before"], 0xec58ee0 /* 86 vars */) = 0
+412621 01:24:16.412944 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412637, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412638 01:24:16.414916 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0xec58ee0 /* 86 vars */) = 0
+412621 01:24:16.416463 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412638, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412639 01:24:16.417028 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0xec58ee0 /* 86 vars */) = 0
+412621 01:24:16.432226 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412639, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+412643 01:24:16.433868 execve("/bin/sh", ["/bin/sh", "-c", "echo failing; exit 3"], 0xec58ee0 /* 86 vars */) = 0
+412621 01:24:16.434857 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412643, si_uid=1000, si_status=3, si_utime=0, si_stime=0} ---
+412510 01:24:16.439374 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412621, si_uid=1000, si_status=3, si_utime=6 /* 0.06 s */, si_stime=2 /* 0.02 s */} ---
+412644 01:24:16.443115 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-nltrvh", "--json", "failure"], 0x2f342360 /* 86 vars */) = 0
+412510 01:24:16.495812 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412644, si_uid=1000, si_status=0, si_utime=5 /* 0.05 s */, si_stime=0} ---
+412655 01:24:16.497628 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-nltrvh", "--id", "interrupt", "--", "echo started; sleep 60", "touch /tmp/campaign-nltrvh/inter"...], 0x2f1e3b20 /* 86 vars */) = 0
+412666 01:24:16.553166 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x1c92b940 /* 86 vars */) = 0
+412655 01:24:16.554846 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412666, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412667 01:24:16.555937 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x1c92b940 /* 86 vars */) = 0
+412655 01:24:16.569822 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412667, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+412671 01:24:16.571509 execve("/bin/sh", ["/bin/sh", "-c", "echo started; sleep 60"], 0x1c92b940 /* 86 vars */) = 0
+412672 01:24:16.572390 execve("/usr/bin/sleep", ["sleep", "60"], 0x562eb986c508 /* 86 vars */) = 0
+412673 01:24:16.580204 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-nltrvh", "--json", "interrupt"], 0x2f39c250 /* 86 vars */) = 0
+412510 01:24:16.634849 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412673, si_uid=1000, si_status=0, si_utime=4 /* 0.04 s */, si_stime=1 /* 0.01 s */} ---
+412655 01:24:16.635255 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412510, si_uid=1000} ---
+412671 01:24:16.635403 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412655, si_uid=1000} ---
+412672 01:24:16.635430 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412655, si_uid=1000} ---
+412671 01:24:16.635533 +++ killed by SIGTERM +++
+412655 01:24:16.635544 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=412671, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+412672 01:24:16.635556 +++ killed by SIGTERM +++
+412510 01:24:16.641122 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412655, si_uid=1000, si_status=143, si_utime=5 /* 0.05 s */, si_stime=1 /* 0.01 s */} ---
+412684 01:24:16.644851 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-nltrvh", "--json", "interrupt"], 0x2f39c250 /* 86 vars */) = 0
+412510 01:24:16.702597 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412684, si_uid=1000, si_status=0, si_utime=5 /* 0.05 s */, si_stime=1 /* 0.01 s */} ---
+412695 01:24:16.704439 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-nltrvh", "--id", "killed", "--", "sleep 60"], 0x2f1e3b20 /* 86 vars */) = 0
+412706 01:24:16.757099 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x23fec750 /* 86 vars */) = 0
+412695 01:24:16.758647 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412706, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412707 01:24:16.761019 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x23fec750 /* 86 vars */) = 0
+412695 01:24:16.778504 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412707, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+412711 01:24:16.780421 execve("/bin/sh", ["/bin/sh", "-c", "sleep 60"], 0x23fec750 /* 86 vars */) = 0
+412712 01:24:16.781261 execve("/usr/bin/sleep", ["sleep", "60"], 0x55ced6db54c8 /* 86 vars */) = 0
+412705 01:24:16.786321 +++ killed by SIGKILL +++
+412704 01:24:16.786339 +++ killed by SIGKILL +++
+412703 01:24:16.786343 +++ killed by SIGKILL +++
+412702 01:24:16.786346 +++ killed by SIGKILL +++
+412701 01:24:16.786349 +++ killed by SIGKILL +++
+412700 01:24:16.786352 +++ killed by SIGKILL +++
+412699 01:24:16.786355 +++ killed by SIGKILL +++
+412697 01:24:16.786358 +++ killed by SIGKILL +++
+412696 01:24:16.786362 +++ killed by SIGKILL +++
+412698 01:24:16.787830 +++ killed by SIGKILL +++
+412695 01:24:16.787837 +++ killed by SIGKILL +++
+412510 01:24:16.787844 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=412695, si_uid=1000, si_status=SIGKILL, si_utime=4 /* 0.04 s */, si_stime=2 /* 0.02 s */} ---
+412713 01:24:16.789327 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-nltrvh", "--json", "killed"], 0x2f39cf80 /* 86 vars */) = 0
+412510 01:24:16.865084 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412713, si_uid=1000, si_status=0, si_utime=7 /* 0.07 s */, si_stime=1 /* 0.01 s */} ---
+412712 01:24:16.865580 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412510, si_uid=1000} ---
+412711 01:24:16.865595 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412510, si_uid=1000} ---
+412711 01:24:16.865704 +++ killed by SIGTERM +++
+412712 01:24:16.865726 +++ killed by SIGTERM +++
+412510 01:24:16.872310 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=412325, si_uid=1000} ---
+412510 01:24:16.872379 --- SIGTERM {si_signo=SIGTERM, si_code=SI_TKILL, si_pid=412510, si_uid=1000} ---
+412534 01:24:16.872465 +++ killed by SIGTERM +++
+412529 01:24:16.872475 +++ killed by SIGTERM +++
+412520 01:24:16.872483 +++ killed by SIGTERM +++
+412535 01:24:16.872489 +++ killed by SIGTERM +++
+412519 01:24:16.872495 +++ killed by SIGTERM +++
+412518 01:24:16.872501 +++ killed by SIGTERM +++
+412517 01:24:16.872507 +++ killed by SIGTERM +++
+412537 01:24:16.872518 +++ killed by SIGTERM +++
+412536 01:24:16.872525 +++ killed by SIGTERM +++
+412521 01:24:16.875051 +++ killed by SIGTERM +++
+412510 01:24:16.875081 +++ killed by SIGTERM +++
+412325 01:24:16.875091 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=412510, si_uid=1000, si_status=SIGTERM, si_utime=13 /* 0.13 s */, si_stime=2 /* 0.02 s */} ---
+412324 01:24:16.896152 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412325, si_uid=1000, si_status=1, si_utime=36 /* 0.36 s */, si_stime=11 /* 0.11 s */} ---
+412312 01:24:16.899805 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=412324, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---

@@ -1,0 +1,25 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:24:19 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js?v=81077ea8
+
+ Test Files  22 passed (22)
+      Tests  326 passed (326)
+   Start at  01:24:17
+   Duration  40.20s (worker 88%, tests 12%)
+
+[vitest exit 0]

@@ -1,0 +1,417 @@
+414056 01:24:58.124538 execve("/usr/local/bin/npx", ["npx", "vitest", "run", "-c", "vitest.config.ts", "--project", "consumer/drag", "--project", "node/drag"], 0x7ffd88f765c8 /* 47 vars */) = 0
+414056 01:24:58.125846 execve("/usr/local/bin/node", ["node", "/usr/local/bin/npx", "vitest", "run", "-c", "vitest.config.ts", "--project", "consumer/drag", "--project", "node/drag"], 0x7ffe6958a498 /* 47 vars */) = 0
+414068 01:24:58.309664 execve("/usr/bin/sh", ["sh", "-c", "'vitest' run -c vitest.config.ts"...], 0x23402800 /* 73 vars */) = 0
+414069 01:24:58.310526 execve("/workspaces/material-x/node_modules/.bin/vitest", ["vitest", "run", "-c", "vitest.config.ts", "--project", "consumer/drag", "--project", "node/drag"], 0x556e4ebc8448 /* 73 vars */) = 0
+414069 01:24:58.311691 execve("/usr/local/bin/node", ["node", "/workspaces/material-x/node_modu"..., "run", "-c", "vitest.config.ts", "--project", "consumer/drag", "--project", "node/drag"], 0x7fffa2c55b80 /* 73 vars */) = 0
+414125 01:24:59.235402 execve("/usr/local/bin/chrome", ["/usr/local/bin/chrome", "--disable-field-trial-config", "--disable-background-networking", "--disable-background-timer-throt"..., "--disable-backgrounding-occluded"..., "--disable-back-forward-cache", "--disable-breakpad", "--disable-client-side-phishing-d"..., "--disable-component-extensions-w"..., "--disable-component-update", "--no-default-browser-check", "--disable-default-apps", "--disable-dev-shm-usage", "--disable-edgeupdater", "--disable-extensions", "--disable-features=AvoidUnnecess"..., "--enable-features=CDPScreenshotN"..., "--allow-pre-commit-input", "--disable-hang-monitor", "--disable-ipc-flooding-protectio"..., "--disable-popup-blocking", "--disable-prompt-on-repost", "--disable-renderer-backgrounding", "--disable-updater-scheduler", "--force-color-profile=srgb", "--metrics-recording-only", "--no-first-run", "--password-store=basic", "--use-mock-keychain", "--no-service-autorun", "--export-tagged-pdf", "--disable-search-engine-choice-s"..., ...], 0x28d72d10 /* 77 vars */) = 0
+414127 01:24:59.256133 execve("/opt/chrome/chrome_crashpad_handler", ["/opt/chrome/chrome_crashpad_hand"..., "--monitor-self", "--monitor-self-annotation=ptype="..., "--user-stream-region=6,65568", "--database=/home/node/.config/go"..., "--annotation=lsb-release=Debian "..., "--annotation=plat=Linux", "--annotation=prod=Chrome_Linux", "--annotation=ver=157.0.8103.38", "--initial-client-fd=9", "--shared-client-connection"], 0xd88000cc000 /* 78 vars */) = 0
+414125 01:24:59.257003 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414126, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+414129 01:24:59.257754 execve("/opt/chrome/chrome_crashpad_handler", ["/opt/chrome/chrome_crashpad_hand"..., "--no-periodic-tasks", "--monitor-self-annotation=ptype="..., "--database=/home/node/.config/go"..., "--annotation=lsb-release=Debian "..., "--annotation=plat=Linux", "--annotation=prod=Chrome_Linux", "--annotation=ver=157.0.8103.38", "--initial-client-fd=4", "--shared-client-connection"], 0x7fff06841558 /* 78 vars */) = 0
+414127 01:24:59.258014 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414128, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+414132 01:24:59.262524 execve("/opt/chrome/chrome", ["/opt/chrome/chrome", "--type=zygote", "--no-zygote-sandbox", "--no-sandbox", "--headless", "--crashpad-handler-pid=414127", "--enable-crash-reporter=,", "--noerrdialogs", "--user-data-dir=/tmp/playwright_"..., "--change-stack-guard-on-fork=ena"...], 0xd88000cc000 /* 79 vars */) = 0
+414134 01:24:59.263078 execve("/opt/chrome/chrome", ["/opt/chrome/chrome", "--type=zygote", "--no-sandbox", "--headless", "--crashpad-handler-pid=414127", "--enable-crash-reporter=,", "--noerrdialogs", "--user-data-dir=/tmp/playwright_"..., "--change-stack-guard-on-fork=ena"...], 0xd88000cc000 /* 79 vars */) = 0
+414133 01:24:59.261595 execve("/usr/local/bin/node", ["node", "../../.scripts/package-files.ts", "clean", "--package", "."], 0x28d72d10 /* 77 vars */) = 0
+414168 01:24:59.295884 execve("/proc/self/exe", ["/proc/self/exe", "--type=utility", "--utility-sub-type=network.mojom"..., "--lang=en-US", "--service-sandbox-type=none", "--no-sandbox", "--disable-dev-shm-usage", "--use-angle=swiftshader-webgl", "--mute-audio", "--crashpad-handler-pid=414127", "--enable-crash-reporter=,", "--noerrdialogs", "--user-data-dir=/tmp/playwright_"..., "--change-stack-guard-on-fork=ena"..., "--shared-files=v8_context_snapsh"..., "--field-trial-handle=3,i,4024932"..., "--enable-features=CDPScreenshotN"..., "--disable-features=AimEnabled,Au"..., "--variations-seed-version", "--pseudonymization-salt-handle=7"..., "--trace-process-track-uuid=31907"...], 0xd88000cc000 /* 79 vars */) = 0
+414208 01:24:59.320203 execve("/usr/bin/git", ["git", "clean", "-fx", "-e", ".vite", "-e", "node_modules", "--", "_virtual", "draggable.d.ts", "draggable.d.ts.map", "draggable.js", "draggable.js.map", "fault.d.ts", "fault.d.ts.map", "fault.js", "fault.js.map", "free-drag", "free-drag.d.ts", "free-drag.d.ts.map", "free-drag.js", "free-drag.js.map", "kernel", "lift", "lift.d.ts", "lift.d.ts.map", "lift.js", "lift.js.map", "shared", "sortable", "sortable.d.ts", "sortable.d.ts.map", ...], 0x2f4ca470 /* 77 vars */) = 0
+414133 01:24:59.325413 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414208, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+414069 01:24:59.333442 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414133, si_uid=1000, si_status=0, si_utime=5 /* 0.05 s */, si_stime=2 /* 0.02 s */} ---
+414223 01:24:59.340256 execve("/usr/local/bin/npx", ["npx", "tsdown", "--config", "tsdown.config.ts"], 0x28d72d10 /* 77 vars */) = 0
+414223 01:24:59.344801 execve("/usr/local/bin/node", ["node", "/usr/local/bin/npx", "tsdown", "--config", "tsdown.config.ts"], 0x7ffdfc009550 /* 77 vars */) = 0
+414235 01:24:59.560834 execve("/usr/bin/sh", ["sh", "-c", "'tsdown' --config tsdown.config."...], 0x27cd9e70 /* 77 vars */) = 0
+414236 01:24:59.561792 execve("/workspaces/material-x/node_modules/.bin/tsdown", ["tsdown", "--config", "tsdown.config.ts"], 0x55c4599a5318 /* 77 vars */) = 0
+414236 01:24:59.563174 execve("/usr/local/bin/node", ["node", "/workspaces/material-x/node_modu"..., "--config", "tsdown.config.ts"], 0x7ffc921bee88 /* 77 vars */) = 0
+414235 01:25:00.290248 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414236, si_uid=1000, si_status=0, si_utime=85 /* 0.85 s */, si_stime=30 /* 0.30 s */} ---
+414223 01:25:00.290411 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414235, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+414069 01:25:00.297036 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414223, si_uid=1000, si_status=0, si_utime=24 /* 0.24 s */, si_stime=3 /* 0.03 s */} ---
+414134 01:25:00.492683 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414386, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+414407 01:25:00.596859 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414425 01:25:00.597030 +++ killed by SIGTERM +++
+414424 01:25:00.597041 +++ killed by SIGTERM +++
+414423 01:25:00.597044 +++ killed by SIGTERM +++
+414422 01:25:00.597048 +++ killed by SIGTERM +++
+414419 01:25:00.597052 +++ killed by SIGTERM +++
+414411 01:25:00.597056 +++ killed by SIGTERM +++
+414447 01:25:00.597103 +++ killed by SIGTERM +++
+414427 01:25:00.597107 +++ killed by SIGTERM +++
+414421 01:25:00.597110 +++ killed by SIGTERM +++
+414446 01:25:00.599915 +++ killed by SIGTERM +++
+414407 01:25:00.599959 +++ killed by SIGTERM +++
+414134 01:25:00.599970 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414407, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+414465 01:25:00.645415 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414486 01:25:00.645558 +++ killed by SIGTERM +++
+414483 01:25:00.645578 +++ killed by SIGTERM +++
+414479 01:25:00.645583 +++ killed by SIGTERM +++
+414484 01:25:00.645617 +++ killed by SIGTERM +++
+414480 01:25:00.645624 +++ killed by SIGTERM +++
+414485 01:25:00.647222 +++ killed by SIGTERM +++
+414482 01:25:00.647253 +++ killed by SIGTERM +++
+414465 01:25:00.647265 +++ killed by SIGTERM +++
+414134 01:25:00.647277 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414465, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+414134 01:25:01.152436 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414481, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+414134 01:25:01.204746 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414526, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414537 01:25:01.208141 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414537 01:25:01.209048 +++ killed by SIGTERM +++
+414134 01:25:01.209074 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414537, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+414134 01:25:02.514086 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414540, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+414134 01:25:06.060456 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414690, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414983 01:25:17.009770 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414992 01:25:17.009959 +++ killed by SIGTERM +++
+414991 01:25:17.009968 +++ killed by SIGTERM +++
+414990 01:25:17.009971 +++ killed by SIGTERM +++
+414989 01:25:17.009974 +++ killed by SIGTERM +++
+414988 01:25:17.009977 +++ killed by SIGTERM +++
+414987 01:25:17.009980 +++ killed by SIGTERM +++
+414986 01:25:17.009983 +++ killed by SIGTERM +++
+414985 01:25:17.009986 +++ killed by SIGTERM +++
+414984 01:25:17.009989 +++ killed by SIGTERM +++
+414993 01:25:17.011983 +++ killed by SIGTERM +++
+414983 01:25:17.012022 +++ killed by SIGTERM +++
+414134 01:25:17.012059 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414983, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415008 01:25:19.306434 ???(414134 01:25:19.309083 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415008, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414134 01:25:19.951360 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415022, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414134 01:25:21.643618 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415033, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+414134 01:25:23.460993 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415046, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+414134 01:25:25.722058 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415066, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414134 01:25:26.180455 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415079, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+414134 01:25:27.443066 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415091, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415103 01:25:29.289638 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415113 01:25:29.289821 +++ killed by SIGTERM +++
+415112 01:25:29.289830 +++ killed by SIGTERM +++
+415110 01:25:29.289833 +++ killed by SIGTERM +++
+415109 01:25:29.289836 +++ killed by SIGTERM +++
+415108 01:25:29.289839 +++ killed by SIGTERM +++
+415107 01:25:29.289842 +++ killed by SIGTERM +++
+415106 01:25:29.289845 +++ killed by SIGTERM +++
+415105 01:25:29.289848 +++ killed by SIGTERM +++
+415104 01:25:29.289851 +++ killed by SIGTERM +++
+415111 01:25:29.291696 +++ killed by SIGTERM +++
+415103 01:25:29.291735 +++ killed by SIGTERM +++
+414134 01:25:29.291746 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415103, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415116 01:25:29.691199 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415126 01:25:29.691401 +++ killed by SIGTERM +++
+415125 01:25:29.691420 +++ killed by SIGTERM +++
+415123 01:25:29.691429 +++ killed by SIGTERM +++
+415122 01:25:29.691438 +++ killed by SIGTERM +++
+415121 01:25:29.691441 +++ killed by SIGTERM +++
+415120 01:25:29.691444 +++ killed by SIGTERM +++
+415119 01:25:29.691447 +++ killed by SIGTERM +++
+415118 01:25:29.691450 +++ killed by SIGTERM +++
+415117 01:25:29.691453 +++ killed by SIGTERM +++
+415124 01:25:29.693042 +++ killed by SIGTERM +++
+415116 01:25:29.693060 +++ killed by SIGTERM +++
+414134 01:25:29.693096 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415116, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415127 01:25:32.188391 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415137 01:25:32.188551 +++ killed by SIGTERM +++
+415135 01:25:32.188565 +++ killed by SIGTERM +++
+415134 01:25:32.188573 +++ killed by SIGTERM +++
+415133 01:25:32.188579 +++ killed by SIGTERM +++
+415132 01:25:32.188585 +++ killed by SIGTERM +++
+415131 01:25:32.188591 +++ killed by SIGTERM +++
+415130 01:25:32.188596 +++ killed by SIGTERM +++
+415129 01:25:32.188602 +++ killed by SIGTERM +++
+415128 01:25:32.188608 +++ killed by SIGTERM +++
+415136 01:25:32.190105 +++ killed by SIGTERM +++
+415127 01:25:32.190127 +++ killed by SIGTERM +++
+414134 01:25:32.190136 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415127, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=0} ---
+414134 01:25:33.504763 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415144, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414134 01:25:34.381174 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415156, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=0} ---
+414134 01:25:35.012281 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415169, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=0} ---
+414134 01:25:37.247658 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415180, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414134 01:25:38.011679 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415194, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+414134 01:25:38.486586 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415207, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415231 01:25:39.391262 execve("/usr/local/bin/node", ["/usr/local/bin/node", "--experimental-import-meta-resol"..., "--require", "/workspaces/material-x/node_modu"..., "--conditions", "node", "--conditions", "development", "/workspaces/material-x/node_modu"...], 0x29ff9760 /* 81 vars */) = 0
+415237 01:25:39.401631 execve("/usr/local/bin/node", ["/usr/local/bin/node", "--experimental-import-meta-resol"..., "--require", "/workspaces/material-x/node_modu"..., "--conditions", "node", "--conditions", "development", "/workspaces/material-x/node_modu"...], 0x29ff9760 /* 81 vars */) = 0
+415244 01:25:39.411665 execve("/usr/local/bin/node", ["/usr/local/bin/node", "--experimental-import-meta-resol"..., "--require", "/workspaces/material-x/node_modu"..., "--conditions", "node", "--conditions", "development", "/workspaces/material-x/node_modu"...], 0x29ff9760 /* 81 vars */) = 0
+415256 01:25:39.506947 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-2cB1Fe", "--id", "success", "--", "echo first", "echo second >&2"], 0x16cd5b20 /* 86 vars */) = 0
+415244 01:25:39.522692 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414069, si_uid=1000} ---
+415244 01:25:39.522805 --- SIGTERM {si_signo=SIGTERM, si_code=SI_TKILL, si_pid=415244, si_uid=1000} ---
+415265 01:25:39.522932 +++ killed by SIGTERM +++
+415264 01:25:39.522943 +++ killed by SIGTERM +++
+415263 01:25:39.522950 +++ killed by SIGTERM +++
+415262 01:25:39.522956 +++ killed by SIGTERM +++
+415251 01:25:39.522963 +++ killed by SIGTERM +++
+415249 01:25:39.522969 +++ killed by SIGTERM +++
+415248 01:25:39.522975 +++ killed by SIGTERM +++
+415247 01:25:39.522981 +++ killed by SIGTERM +++
+415246 01:25:39.522996 +++ killed by SIGTERM +++
+415245 01:25:39.523013 +++ killed by SIGTERM +++
+415244 01:25:39.523292 +++ killed by SIGTERM +++
+414069 01:25:39.523305 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415244, si_uid=1000, si_status=SIGTERM, si_utime=8 /* 0.08 s */, si_stime=2 /* 0.02 s */} ---
+414376 01:25:39.528857 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415139 01:25:39.529169 +++ killed by SIGTERM +++
+414443 01:25:39.529186 +++ killed by SIGTERM +++
+414442 01:25:39.529192 +++ killed by SIGTERM +++
+414441 01:25:39.529198 +++ killed by SIGTERM +++
+414440 01:25:39.529204 +++ killed by SIGTERM +++
+414436 01:25:39.529210 +++ killed by SIGTERM +++
+414435 01:25:39.529216 +++ killed by SIGTERM +++
+414434 01:25:39.529222 +++ killed by SIGTERM +++
+414432 01:25:39.529229 +++ killed by SIGTERM +++
+414406 01:25:39.529240 +++ killed by SIGTERM +++
+414384 01:25:39.529249 +++ killed by SIGTERM +++
+414383 01:25:39.529256 +++ killed by SIGTERM +++
+414382 01:25:39.529261 +++ killed by SIGTERM +++
+414381 01:25:39.529268 +++ killed by SIGTERM +++
+414380 01:25:39.529273 +++ killed by SIGTERM +++
+414379 01:25:39.529279 +++ killed by SIGTERM +++
+414378 01:25:39.529285 +++ killed by SIGTERM +++
+414377 01:25:39.529291 +++ killed by SIGTERM +++
+414408 01:25:39.532854 +++ killed by SIGTERM +++
+414376 01:25:39.532890 +++ killed by SIGTERM +++
+414134 01:25:39.532908 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414376, si_uid=1000, si_status=SIGTERM, si_utime=12 /* 0.12 s */, si_stime=7 /* 0.07 s */} ---
+414410 01:25:39.534563 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415140 01:25:39.534845 +++ killed by SIGTERM +++
+414463 01:25:39.534866 +++ killed by SIGTERM +++
+414462 01:25:39.534874 +++ killed by SIGTERM +++
+414461 01:25:39.534880 +++ killed by SIGTERM +++
+414454 01:25:39.534887 +++ killed by SIGTERM +++
+414453 01:25:39.534894 +++ killed by SIGTERM +++
+414451 01:25:39.534900 +++ killed by SIGTERM +++
+414450 01:25:39.534906 +++ killed by SIGTERM +++
+414444 01:25:39.534913 +++ killed by SIGTERM +++
+414416 01:25:39.534922 +++ killed by SIGTERM +++
+414415 01:25:39.534928 +++ killed by SIGTERM +++
+414414 01:25:39.534934 +++ killed by SIGTERM +++
+414413 01:25:39.534940 +++ killed by SIGTERM +++
+414412 01:25:39.534946 +++ killed by SIGTERM +++
+414410 01:25:39.534952 +++ killed by SIGTERM +++
+414404 01:25:39.534960 +++ killed by SIGTERM +++
+415141 01:25:39.535002 +++ killed by SIGTERM +++
+414445 01:25:39.535011 +++ killed by SIGTERM +++
+414387 01:25:39.535043 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414403 01:25:39.535081 ???( <unfinished ...>
+414998 01:25:39.535258 +++ killed by SIGTERM +++
+414997 01:25:39.535271 +++ killed by SIGTERM +++
+414607 01:25:39.535278 +++ killed by SIGTERM +++
+414571 01:25:39.535285 +++ killed by SIGTERM +++
+414500 01:25:39.535292 +++ killed by SIGTERM +++
+414498 01:25:39.535299 +++ killed by SIGTERM +++
+414439 01:25:39.535305 +++ killed by SIGTERM +++
+414438 01:25:39.535311 +++ killed by SIGTERM +++
+414405 01:25:39.535317 +++ killed by SIGTERM +++
+414403 01:25:39.535324 +++ killed by SIGTERM +++
+414402 01:25:39.535330 +++ killed by SIGTERM +++
+414401 01:25:39.535335 +++ killed by SIGTERM +++
+414400 01:25:39.535341 +++ killed by SIGTERM +++
+414398 01:25:39.535347 +++ killed by SIGTERM +++
+414397 01:25:39.535353 +++ killed by SIGTERM +++
+414389 01:25:39.535358 +++ killed by SIGTERM +++
+414999 01:25:39.535405 +++ killed by SIGTERM +++
+414608 01:25:39.535415 +++ killed by SIGTERM +++
+415219 01:25:39.535448 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415229 01:25:39.535599 +++ killed by SIGTERM +++
+415228 01:25:39.535612 +++ killed by SIGTERM +++
+415227 01:25:39.535619 +++ killed by SIGTERM +++
+415226 01:25:39.535625 +++ killed by SIGTERM +++
+415225 01:25:39.535631 +++ killed by SIGTERM +++
+415224 01:25:39.535637 +++ killed by SIGTERM +++
+415223 01:25:39.535644 +++ killed by SIGTERM +++
+415222 01:25:39.535650 +++ killed by SIGTERM +++
+415221 01:25:39.535666 +++ killed by SIGTERM +++
+415220 01:25:39.535687 +++ killed by SIGTERM +++
+414409 01:25:39.536110 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+415205 01:25:39.536313 +++ killed by SIGTERM +++
+414582 01:25:39.536328 +++ killed by SIGTERM +++
+414574 01:25:39.536337 +++ killed by SIGTERM +++
+414572 01:25:39.536344 +++ killed by SIGTERM +++
+414497 01:25:39.536351 +++ killed by SIGTERM +++
+414449 01:25:39.536358 +++ killed by SIGTERM +++
+414448 01:25:39.536364 +++ killed by SIGTERM +++
+414437 01:25:39.536370 +++ killed by SIGTERM +++
+414433 01:25:39.536376 +++ killed by SIGTERM +++
+414428 01:25:39.536383 +++ killed by SIGTERM +++
+414426 01:25:39.536390 +++ killed by SIGTERM +++
+414418 01:25:39.536396 +++ killed by SIGTERM +++
+415168 01:25:39.536438 +++ killed by SIGTERM +++
+414581 01:25:39.536446 +++ killed by SIGTERM +++
+414499 01:25:39.536452 +++ killed by SIGTERM +++
+414431 01:25:39.536458 +++ killed by SIGTERM +++
+414429 01:25:39.536495 +++ killed by SIGTERM +++
+414430 01:25:39.536728 +++ killed by SIGTERM +++
+415219 01:25:39.538262 +++ killed by SIGTERM +++
+414134 01:25:39.538330 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415219, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+414417 01:25:39.539030 +++ killed by SIGTERM +++
+414391 01:25:39.539065 +++ killed by SIGTERM +++
+414134 01:25:39.539074 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414391, si_uid=1000, si_status=SIGTERM, si_utime=9 /* 0.09 s */, si_stime=6 /* 0.06 s */} ---
+414525 01:25:39.545397 +++ killed by SIGTERM +++
+414387 01:25:39.545449 +++ killed by SIGTERM +++
+414134 01:25:39.545463 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414387, si_uid=1000, si_status=SIGTERM, si_utime=677 /* 6.77 s */, si_stime=226 /* 2.26 s */} ---
+415206 01:25:39.549222 +++ killed by SIGTERM +++
+414409 01:25:39.549263 +++ killed by SIGTERM +++
+414134 01:25:39.549278 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414409, si_uid=1000, si_status=SIGTERM, si_utime=437 /* 4.37 s */, si_stime=147 /* 1.47 s */} ---
+414143 01:25:39.563056 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414168, si_uid=1000, si_status=0, si_utime=91 /* 0.91 s */, si_stime=78 /* 0.78 s */} ---
+414167 01:25:39.565271 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414420 01:25:39.565520 +++ killed by SIGTERM +++
+414204 01:25:39.565534 +++ killed by SIGTERM +++
+414199 01:25:39.565542 +++ killed by SIGTERM +++
+414198 01:25:39.565548 +++ killed by SIGTERM +++
+414197 01:25:39.565556 +++ killed by SIGTERM +++
+414196 01:25:39.565562 +++ killed by SIGTERM +++
+414194 01:25:39.565568 +++ killed by SIGTERM +++
+414193 01:25:39.565575 +++ killed by SIGTERM +++
+414185 01:25:39.565581 +++ killed by SIGTERM +++
+414184 01:25:39.565587 +++ killed by SIGTERM +++
+414182 01:25:39.565593 +++ killed by SIGTERM +++
+414181 01:25:39.565599 +++ killed by SIGTERM +++
+414180 01:25:39.565605 +++ killed by SIGTERM +++
+414179 01:25:39.565611 +++ killed by SIGTERM +++
+414178 01:25:39.565617 +++ killed by SIGTERM +++
+414177 01:25:39.565623 +++ killed by SIGTERM +++
+414176 01:25:39.565629 +++ killed by SIGTERM +++
+414175 01:25:39.565635 +++ killed by SIGTERM +++
+414174 01:25:39.565641 +++ killed by SIGTERM +++
+414173 01:25:39.565647 +++ killed by SIGTERM +++
+414172 01:25:39.565653 +++ killed by SIGTERM +++
+414171 01:25:39.565660 +++ killed by SIGTERM +++
+414207 01:25:39.565737 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414125, si_uid=1000} ---
+414209 01:25:39.565837 +++ killed by SIGTERM +++
+414207 01:25:39.565846 +++ killed by SIGTERM +++
+414206 01:25:39.565853 +++ killed by SIGTERM +++
+414205 01:25:39.565859 +++ killed by SIGTERM +++
+414203 01:25:39.565865 +++ killed by SIGTERM +++
+414202 01:25:39.565871 +++ killed by SIGTERM +++
+414195 01:25:39.565877 +++ killed by SIGTERM +++
+414192 01:25:39.565884 +++ killed by SIGTERM +++
+414186 01:25:39.566791 +++ killed by SIGTERM +++
+414134 01:25:39.566818 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414186, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=0} ---
+414170 01:25:39.567844 +++ killed by SIGTERM +++
+414167 01:25:39.567877 +++ killed by SIGTERM +++
+414132 01:25:39.567894 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=414167, si_uid=1000, si_status=SIGTERM, si_utime=83 /* 0.83 s */, si_stime=48 /* 0.48 s */} ---
+414069 01:25:39.573823 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414125, si_uid=1000, si_status=0, si_utime=418 /* 4.18 s */, si_stime=258 /* 2.58 s */} ---
+415296 01:25:39.593724 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x336966e0 /* 86 vars */) = 0
+415256 01:25:39.596637 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415296, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415297 01:25:39.601202 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x336966e0 /* 86 vars */) = 0
+415256 01:25:39.632754 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415297, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415313 01:25:39.634688 execve("/bin/sh", ["/bin/sh", "-c", "echo first"], 0x336966e0 /* 86 vars */) = 0
+415256 01:25:39.635610 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415313, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415314 01:25:39.637696 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x336966e0 /* 86 vars */) = 0
+415256 01:25:39.639035 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415314, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415315 01:25:39.639746 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x336966e0 /* 86 vars */) = 0
+415256 01:25:39.657516 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415315, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415319 01:25:39.659478 execve("/bin/sh", ["/bin/sh", "-c", "echo second >&2"], 0x336966e0 /* 86 vars */) = 0
+415256 01:25:39.660363 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415319, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415231 01:25:39.665536 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415256, si_uid=1000, si_status=0, si_utime=8 /* 0.08 s */, si_stime=2 /* 0.02 s */} ---
+415320 01:25:39.670673 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x16eb4450 /* 86 vars */) = 0
+415231 01:25:39.672050 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415320, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415321 01:25:39.673997 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-2cB1Fe", "--json", "success"], 0x16eb4450 /* 86 vars */) = 0
+415231 01:25:39.726498 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415321, si_uid=1000, si_status=0, si_utime=5 /* 0.05 s */, si_stime=1 /* 0.01 s */} ---
+415332 01:25:39.728704 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-2cB1Fe", "--id", "failure", "--", "echo before", "echo failing; exit 3", "touch /tmp/campaign-2cB1Fe/failu"...], 0x16cd5b20 /* 86 vars */) = 0
+415237 01:25:39.781289 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414069, si_uid=1000} ---
+415237 01:25:39.781337 --- SIGTERM {si_signo=SIGTERM, si_code=SI_TKILL, si_pid=415237, si_uid=1000} ---
+415312 01:25:39.781578 +++ killed by SIGTERM +++
+415311 01:25:39.781589 +++ killed by SIGTERM +++
+415310 01:25:39.781595 +++ killed by SIGTERM +++
+415309 01:25:39.781600 +++ killed by SIGTERM +++
+415308 01:25:39.781605 +++ killed by SIGTERM +++
+415304 01:25:39.781611 +++ killed by SIGTERM +++
+415303 01:25:39.781616 +++ killed by SIGTERM +++
+415302 01:25:39.781621 +++ killed by SIGTERM +++
+415301 01:25:39.781626 +++ killed by SIGTERM +++
+415300 01:25:39.781632 +++ killed by SIGTERM +++
+415299 01:25:39.781637 +++ killed by SIGTERM +++
+415298 01:25:39.781642 +++ killed by SIGTERM +++
+415291 01:25:39.781647 +++ killed by SIGTERM +++
+415290 01:25:39.781652 +++ killed by SIGTERM +++
+415289 01:25:39.781657 +++ killed by SIGTERM +++
+415288 01:25:39.781668 +++ killed by SIGTERM +++
+415287 01:25:39.781680 +++ killed by SIGTERM +++
+415286 01:25:39.781686 +++ killed by SIGTERM +++
+415285 01:25:39.781692 +++ killed by SIGTERM +++
+415284 01:25:39.781697 +++ killed by SIGTERM +++
+415282 01:25:39.781702 +++ killed by SIGTERM +++
+415281 01:25:39.781707 +++ killed by SIGTERM +++
+415280 01:25:39.781713 +++ killed by SIGTERM +++
+415279 01:25:39.781723 +++ killed by SIGTERM +++
+415278 01:25:39.781729 +++ killed by SIGTERM +++
+415277 01:25:39.781734 +++ killed by SIGTERM +++
+415276 01:25:39.781739 +++ killed by SIGTERM +++
+415275 01:25:39.781744 +++ killed by SIGTERM +++
+415274 01:25:39.781750 +++ killed by SIGTERM +++
+415273 01:25:39.781755 +++ killed by SIGTERM +++
+415272 01:25:39.781760 +++ killed by SIGTERM +++
+415271 01:25:39.781765 +++ killed by SIGTERM +++
+415270 01:25:39.781771 +++ killed by SIGTERM +++
+415269 01:25:39.781776 +++ killed by SIGTERM +++
+415268 01:25:39.781781 +++ killed by SIGTERM +++
+415250 01:25:39.781786 +++ killed by SIGTERM +++
+415243 01:25:39.781791 +++ killed by SIGTERM +++
+415242 01:25:39.781797 +++ killed by SIGTERM +++
+415241 01:25:39.781802 +++ killed by SIGTERM +++
+415240 01:25:39.781807 +++ killed by SIGTERM +++
+415238 01:25:39.781812 +++ killed by SIGTERM +++
+415237 01:25:39.784440 +++ killed by SIGTERM +++
+414069 01:25:39.784463 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415237, si_uid=1000, si_status=SIGTERM, si_utime=42 /* 0.42 s */, si_stime=15 /* 0.15 s */} ---
+415343 01:25:39.784836 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x32a07b00 /* 86 vars */) = 0
+415332 01:25:39.786286 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415343, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415344 01:25:39.788569 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x32a07b00 /* 86 vars */) = 0
+415332 01:25:39.803648 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415344, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415348 01:25:39.805169 execve("/bin/sh", ["/bin/sh", "-c", "echo before"], 0x32a07b00 /* 86 vars */) = 0
+415332 01:25:39.806183 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415348, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415349 01:25:39.808074 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x32a07b00 /* 86 vars */) = 0
+415332 01:25:39.809521 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415349, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415350 01:25:39.810243 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x32a07b00 /* 86 vars */) = 0
+415332 01:25:39.827810 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415350, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415354 01:25:39.829971 execve("/bin/sh", ["/bin/sh", "-c", "echo failing; exit 3"], 0x32a07b00 /* 86 vars */) = 0
+415332 01:25:39.830830 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415354, si_uid=1000, si_status=3, si_utime=0, si_stime=0} ---
+415231 01:25:39.835976 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415332, si_uid=1000, si_status=3, si_utime=5 /* 0.05 s */, si_stime=2 /* 0.02 s */} ---
+415355 01:25:39.839672 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-2cB1Fe", "--json", "failure"], 0x16eb4450 /* 86 vars */) = 0
+415231 01:25:39.891617 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415355, si_uid=1000, si_status=0, si_utime=4 /* 0.04 s */, si_stime=1 /* 0.01 s */} ---
+415366 01:25:39.893512 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-2cB1Fe", "--id", "interrupt", "--", "echo started; sleep 60", "touch /tmp/campaign-2cB1Fe/inter"...], 0x16cd5b20 /* 86 vars */) = 0
+415377 01:25:39.956398 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x3c59fad0 /* 86 vars */) = 0
+415366 01:25:39.957948 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415377, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415378 01:25:39.959474 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x3c59fad0 /* 86 vars */) = 0
+415366 01:25:39.974494 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415378, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415382 01:25:39.976248 execve("/bin/sh", ["/bin/sh", "-c", "echo started; sleep 60"], 0x3c59fad0 /* 86 vars */) = 0
+415383 01:25:39.977204 execve("/usr/bin/sleep", ["sleep", "60"], 0x559a0cc134e8 /* 86 vars */) = 0
+415384 01:25:39.998678 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-2cB1Fe", "--json", "interrupt"], 0x16eb4450 /* 86 vars */) = 0
+415231 01:25:40.050043 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415384, si_uid=1000, si_status=0, si_utime=4 /* 0.04 s */, si_stime=1 /* 0.01 s */} ---
+415366 01:25:40.050367 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415231, si_uid=1000} ---
+415383 01:25:40.050497 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415366, si_uid=1000} ---
+415382 01:25:40.050563 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415366, si_uid=1000} ---
+415383 01:25:40.050600 +++ killed by SIGTERM +++
+415382 01:25:40.050653 +++ killed by SIGTERM +++
+415366 01:25:40.050662 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415382, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+415231 01:25:40.055644 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415366, si_uid=1000, si_status=143, si_utime=6 /* 0.06 s */, si_stime=2 /* 0.02 s */} ---
+415395 01:25:40.058929 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-2cB1Fe", "--json", "interrupt"], 0x16eb55b0 /* 86 vars */) = 0
+415231 01:25:40.110411 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415395, si_uid=1000, si_status=0, si_utime=4 /* 0.04 s */, si_stime=1 /* 0.01 s */} ---
+415407 01:25:40.111920 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "run", "--dir", "/tmp/campaign-2cB1Fe", "--id", "killed", "--", "sleep 60"], 0x16cd5b20 /* 86 vars */) = 0
+415418 01:25:40.162772 execve("/usr/bin/git", ["git", "rev-parse", "HEAD"], 0x114a7880 /* 86 vars */) = 0
+415407 01:25:40.164198 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415418, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415419 01:25:40.165584 execve("/usr/bin/git", ["git", "status", "--porcelain"], 0x114a7880 /* 86 vars */) = 0
+415407 01:25:40.182353 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415419, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415423 01:25:40.183893 execve("/bin/sh", ["/bin/sh", "-c", "sleep 60"], 0x114a7880 /* 86 vars */) = 0
+415424 01:25:40.184847 execve("/usr/bin/sleep", ["sleep", "60"], 0x56293b14a4a8 /* 86 vars */) = 0
+415413 01:25:40.193571 +++ killed by SIGKILL +++
+415416 01:25:40.193592 +++ killed by SIGKILL +++
+415417 01:25:40.193601 +++ killed by SIGKILL +++
+415415 01:25:40.193607 +++ killed by SIGKILL +++
+415411 01:25:40.193615 +++ killed by SIGKILL +++
+415410 01:25:40.193621 +++ killed by SIGKILL +++
+415409 01:25:40.193628 +++ killed by SIGKILL +++
+415408 01:25:40.193634 +++ killed by SIGKILL +++
+415412 01:25:40.193643 +++ killed by SIGKILL +++
+415414 01:25:40.195507 +++ killed by SIGKILL +++
+415407 01:25:40.195523 +++ killed by SIGKILL +++
+415231 01:25:40.195534 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415407, si_uid=1000, si_status=SIGKILL, si_utime=4 /* 0.04 s */, si_stime=1 /* 0.01 s */} ---
+415425 01:25:40.196682 execve("/usr/local/bin/node", ["/usr/local/bin/node", "/workspaces/material-x/packages/"..., "status", "--dir", "/tmp/campaign-2cB1Fe", "--json", "killed"], 0x16eb55b0 /* 86 vars */) = 0
+415231 01:25:40.257399 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415425, si_uid=1000, si_status=0, si_utime=5 /* 0.05 s */, si_stime=0} ---
+415423 01:25:40.257875 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415231, si_uid=1000} ---
+415424 01:25:40.257907 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415231, si_uid=1000} ---
+415423 01:25:40.258007 +++ killed by SIGTERM +++
+415424 01:25:40.258030 +++ killed by SIGTERM +++
+415231 01:25:40.264535 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=414069, si_uid=1000} ---
+415231 01:25:40.264598 --- SIGTERM {si_signo=SIGTERM, si_code=SI_TKILL, si_pid=415231, si_uid=1000} ---
+415254 01:25:40.264685 +++ killed by SIGTERM +++
+415253 01:25:40.264707 +++ killed by SIGTERM +++
+415252 01:25:40.264711 +++ killed by SIGTERM +++
+415236 01:25:40.264719 +++ killed by SIGTERM +++
+415234 01:25:40.264724 +++ killed by SIGTERM +++
+415233 01:25:40.264729 +++ killed by SIGTERM +++
+415232 01:25:40.264733 +++ killed by SIGTERM +++
+415255 01:25:40.264741 +++ killed by SIGTERM +++
+415239 01:25:40.264744 +++ killed by SIGTERM +++
+415235 01:25:40.266847 +++ killed by SIGTERM +++
+415231 01:25:40.266872 +++ killed by SIGTERM +++
+414069 01:25:40.266884 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415231, si_uid=1000, si_status=SIGTERM, si_utime=11 /* 0.11 s */, si_stime=3 /* 0.03 s */} ---
+414068 01:25:40.309524 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414069, si_uid=1000, si_status=1, si_utime=1119 /* 11.19 s */, si_stime=162 /* 1.62 s */} ---
+414056 01:25:40.309693 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=414068, si_uid=1000, si_status=1, si_utime=0, si_stime=0} ---

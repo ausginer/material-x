@@ -1,0 +1,12 @@
+root /workspaces/material-x/packages/drag
+composition                       min    gz9    gz6   br11    str  modules
+draggable alone                  6731   2427   2428   2196    316  7
+draggable + lift                11542   4401   4403   3963   1285  9
+example: resize handle           9388   3668   3671   3321    475  9
+example: drop zone              13181   5103   5108   4603   1384  13
+example: canvas group            9524   3628   3631   3302    421  9
+freeDrag                        15160   5569   5582   5022   1347  15
+freeDrag + bounds + landing     16325   6058   6071   5454   1424  19
+sortable + y                    20559   7350   7356   6652   1598  20
+sortable + xy                   20103   7239   7244   6541   1598  19
+complete                        22238   8077   8086   7284   1686  24

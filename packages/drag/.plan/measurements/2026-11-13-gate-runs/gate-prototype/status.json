@@ -1,0 +1,48 @@
+{
+  "id": "gate-prototype",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 407369,
+    "start": "6086772"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:21:39.013Z",
+  "endedAt": "2026-11-13T01:21:40.400Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "node bench/size/measure-base.scratch.ts --prototype; echo \"[base exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-prototype/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 407400,
+        "start": "6086781"
+      },
+      "startedAt": "2026-11-13T01:21:39.030Z",
+      "endedAt": "2026-11-13T01:21:39.674Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts --prototype; echo \"[now exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-prototype/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 407501,
+        "start": "6086847"
+      },
+      "startedAt": "2026-11-13T01:21:39.685Z",
+      "endedAt": "2026-11-13T01:21:40.400Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

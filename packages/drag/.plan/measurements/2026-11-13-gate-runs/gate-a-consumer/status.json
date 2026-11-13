@@ -1,0 +1,31 @@
+{
+  "id": "gate-a-consumer",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 391064,
+    "start": "6036883"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T01:13:20.100Z",
+  "endedAt": "2026-11-13T01:14:56.582Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --reporter=verbose",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-consumer/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 391080,
+        "start": "6036890"
+      },
+      "startedAt": "2026-11-13T01:13:20.113Z",
+      "endedAt": "2026-11-13T01:14:56.582Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

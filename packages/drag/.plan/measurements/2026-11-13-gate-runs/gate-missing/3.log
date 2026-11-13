@@ -1,0 +1,7 @@
+file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49
+	const wrapper = new Error(summary);
+Error: Build failed with 1 error:
+RolldownError: could not resolve @ydinjs/drag/draggable.js
+    at PluginContextImpl.resolveId (file:///workspaces/material-x/packages/drag/tests/support/published-entries.ts:90:14)
+    at aggregateBindingErrorsIntoJsError (file:///workspaces/material-x/node_modules/rolldown/dist/shared/error-D0SD8_tL.mjs:49:18)
+[measure exit 1]

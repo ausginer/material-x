@@ -1,0 +1,99 @@
+{
+  "id": "gate-g1b-2",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 404537,
+    "start": "6081763"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:20:48.906Z",
+  "endedAt": "2026-11-13T01:20:51.999Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just build",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g1b-2/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 404578,
+        "start": "6081771"
+      },
+      "startedAt": "2026-11-13T01:20:48.933Z",
+      "endedAt": "2026-11-13T01:20:50.003Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g1b-2/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 404791,
+        "start": "6081880"
+      },
+      "startedAt": "2026-11-13T01:20:50.015Z",
+      "endedAt": "2026-11-13T01:20:50.416Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "printf '\\n%s\\n' 'globalThis.gateInjection = \"7tThMnTw3qcDixqbcAkehip2Cezld0Jt2TgpuUC5JRTP6qEDT1Ncsogd0JZkyNf0\";' >> shared/landing.js && tail -n 3 shared/landing.js && git status --short --ignored shared/landing.js src",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g1b-2/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 404883,
+        "start": "6081921"
+      },
+      "startedAt": "2026-11-13T01:20:50.427Z",
+      "endedAt": "2026-11-13T01:20:50.431Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g1b-2/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 404894,
+        "start": "6081923"
+      },
+      "startedAt": "2026-11-13T01:20:50.448Z",
+      "endedAt": "2026-11-13T01:20:50.846Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx just build",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g1b-2/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 404967,
+        "start": "6081964"
+      },
+      "startedAt": "2026-11-13T01:20:50.854Z",
+      "endedAt": "2026-11-13T01:20:51.999Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:11:13 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+ ✓ |browser (chromium)| tests/zz-witness-f6a.browser.test.ts:5 > should load src/kernel/callbacks.ts by form f6a 1ms
+1:11:14 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js?v=da1eabec
+1:11:14 AM [vite] Internal server error: src/kernel/callbacks.ts?w is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/tests/zz-witness-f6a.browser.test.ts:3:27
+  1  |  /* Scratch witness for DRF-23, form f6a. Not committed. */
+  2  |  import { expect, it } from "vitest";
+  3  |  import * as callbacks from "../src/kernel/callbacks.ts?w";
+     |                              ^
+  4  |  it("should load src/kernel/callbacks.ts by form f6a", () => {
+  5  |  	expect(typeof callbacks.queue).toBe("function");
+      at ResolveIdContext._formatLog (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8803:39)
+      at ResolveIdContext.error (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8800:14)
+      at ResolveIdContext.resolveId (file:///workspaces/material-x/packages/drag/node_modules/.vite-temp/vitest.config.ts.timestamp-1794532271954-c11bf906b81b28.mjs:333:41)
+      at async EnvironmentPluginContainer.resolveId (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8498:19)
+      at async TransformPluginContext.resolve (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8733:13)
+      at async resolveId (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26586:22)
+      at async file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26693:23
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26666:4)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8582:14)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |consumer (chromium)| tests/zz-witness-f6a.browser.test.ts [ tests/zz-witness-f6a.browser.test.ts ]
+Error: Failed to import test file /workspaces/material-x/packages/drag/tests/zz-witness-f6a.browser.test.ts
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5847:5
+ ❯ collectTests .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5823:3
+ ❯ startTests .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:6511:17
+
+Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:63317/workspaces/material-x/packages/drag/tests/zz-witness-f6a.browser.test.ts?import&browserv=1794532274572
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 passed (1)
+   Start at  01:11:12
+   Duration  2.28s (worker 96%, import 2%, setup 2%, tests 1%)
+
+[vitest exit 1]

@@ -1,0 +1,51 @@
+/* DRD-55 property 3: each row's module list at the build against the base's, with
+ * `src/<path>.ts` read as `<path>.js`, and each fragment's selection at both.
+ * Run: node graphs.ts <base probe json> <base measure.ts> */
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+
+const [baseJson, baseMeasure] = process.argv.slice(2) as [string, string];
+const base = JSON.parse(await readFile(baseJson, 'utf8')) as { name: string; modules: string[] }[];
+const now = await import(pathToFileURL('bench/size/measure.ts').href);
+const before = await import(pathToFileURL(baseMeasure).href);
+const map = (module: string): string => module.replace(/^src\/(.*)\.ts$/u, '$1.js');
+let ok = true;
+
+for (const composition of now.COMPOSITIONS) {
+  const { modules } = await now.measure(composition);
+  const was = base.find((row) => row.name === composition.name)!.modules.map(map).sort();
+  const same = JSON.stringify(was) === JSON.stringify([...modules].sort());
+  ok &&= same;
+  console.log(`${composition.name}: ${modules.length} modules, ${same ? 'equal to the base under the mapping' : 'DIFFERS'}`);
+  if (!same) console.log('  base', was, '\n  build', [...modules].sort());
+  const old = before.COMPOSITIONS.find((c: { name: string }) => c.name === composition.name);
+  for (const kind of ['present', 'absent'] as const) {
+    const pairs = (old[kind] ?? []).map((fragment: string, i: number) => [fragment, composition[kind][i]]);
+    for (const [from, to] of pairs) {
+      const selectedBefore = base.find((row) => row.name === composition.name)!.modules.filter((m) => m.includes(from)).map(map).sort();
+      const selectedNow = [...modules].filter((m: string) => m.includes(to)).sort();
+      const equal = JSON.stringify(selectedBefore) === JSON.stringify(selectedNow);
+      ok &&= equal;
+      console.log(`  ${kind} ${JSON.stringify(from)} -> ${JSON.stringify(to)}: ${equal ? 'selects the counterparts' : 'DIFFERS'} [${selectedNow.join(', ')}]`);
+    }
+  }
+}
+
+// The fragments against every module the tree can contain, not only those a row reaches.
+const { readdir } = await import('node:fs/promises');
+const src = (await readdir('src', { recursive: true })).filter((f) => /\.ts$/u.test(f) && !f.endsWith('.d.ts')).map((f) => `src/${f}`);
+const universe = [...src, 'tests/fixtures/canvas-group.ts', 'tests/fixtures/drop-zone.ts', 'tests/fixtures/resize-handle.ts', '../box-quad/src/index.ts'];
+const fragments = new Map<string, string>();
+for (const composition of now.COMPOSITIONS) {
+  const old = before.COMPOSITIONS.find((c: { name: string }) => c.name === composition.name);
+  for (const kind of ['present', 'absent'] as const) (old[kind] ?? []).forEach((f: string, i: number) => fragments.set(f, composition[kind][i]));
+}
+console.log('\nfragment mapping over every module of src, the fixtures and box-quad:');
+for (const [from, to] of fragments) {
+  const a = universe.filter((m) => m.includes(from)).map(map).sort();
+  const b = universe.map(map).filter((m) => m.includes(to)).sort();
+  const equal = JSON.stringify(a) === JSON.stringify(b);
+  ok &&= equal;
+  console.log(`  ${JSON.stringify(from)} -> ${JSON.stringify(to)}: ${equal ? 'same selection' : 'DIFFERS'} [${b.join(', ')}]`);
+}
+console.log(ok ? '\nALL EQUAL' : '\nDIFFERENCES FOUND');

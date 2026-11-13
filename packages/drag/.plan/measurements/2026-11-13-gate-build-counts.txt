@@ -1,0 +1,6 @@
+g3            cleans 1, tsdown builds 1
+g5-both       cleans 1, tsdown builds 1
+g5-node       cleans 1, tsdown builds 1
+g5-consumer   cleans 1, tsdown builds 1
+g5-workspace  cleans 1, tsdown builds 1
+g5-browser    cleans 0, tsdown builds 0

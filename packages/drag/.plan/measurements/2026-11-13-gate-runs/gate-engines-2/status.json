@@ -1,0 +1,31 @@
+{
+  "id": "gate-engines-2",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 431691,
+    "start": "6142951"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:31:00.784Z",
+  "endedAt": "2026-11-13T01:33:54.933Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-engines-2/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 431708,
+        "start": "6142958"
+      },
+      "startedAt": "2026-11-13T01:31:00.795Z",
+      "endedAt": "2026-11-13T01:33:54.933Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
