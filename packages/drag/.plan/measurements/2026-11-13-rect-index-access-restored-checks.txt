@@ -1,0 +1,153 @@
+# RectIndex access, P at the restored names: checks on 8904947f6 + patches/P-restored-names.diff.txt. Chromium only. Fri Nov 13 12:12:22 UTC 2026
+
+## Suite
+# node bench/campaign.ts run --id p2-suite -- "npx vitest run -c vitest.config.ts --reporter=verbose"
+{
+  "id": "p2-suite",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p2/packages/drag",
+  "runner": {
+    "pid": 785768,
+    "start": "9960375"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T12:07:15.038Z",
+  "endedAt": "2026-11-13T12:08:52.831Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p2/packages/drag/.campaigns/p2-suite/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "8904947f6a5a64cb9b95d5f1dbe7f98a3661e86c",
+        "dirty": true
+      },
+      "process": {
+        "pid": 785803,
+        "start": "9960420"
+      },
+      "startedAt": "2026-11-13T12:07:15.422Z",
+      "endedAt": "2026-11-13T12:08:52.831Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed | 54 passed (55)
+      Tests  6 failed | 740 passed (746)
+# Failures:
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone 7ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete 1ms
+
+# Verdicts, line numbers and durations removed, against the rollback's end list 2026-11-13-rollback-end-suite-verdicts.txt (8904947f6's code). '<' base, '>' P:
+132,133c132,133
+< ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array
+< ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array
+---
+> ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+> ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row
+
+## Typecheck (npx just typecheck in packages/drag): repo:RF-31 only
+../../.scripts/tsdown-library.ts(53,11): error TS2322 (repo:RF-31)
+
+## Lint of the seven changed files (npx just lint <files>): DRF-38's error only, now at line 52 (57 at the base)
+tests/displacement-sink.browser.test.ts 52:3 error Function name `recorded` should match property name `getBoundingClientRect` func-name-matching
+
+## Mutation W7-a: #read asks the sink about the element at slot 0 instead of the row it read
+# sed 's/if (displacement?.displaced(element)) {/if (displacement?.displaced(this.#items[0]!)) {/' src/sortable/rect-index.ts
+# npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts
+     × should call the layoutAnimation sink with its receiver, with rows in flight 346ms
+     × drag:DRD-50 should settle each row y() measures by asking the sink about that row 654ms
+     × drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 366ms
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 267ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ …(1) ] to deeply equal []
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+      Tests  4 failed (4)
+
+## Mutation W7-b: xy()'s rebuild measures without the sink
+# sed 's/index.measure(0, index.count, getBox, displacement);/index.measure(0, index.count, getBox, null);/' src/sortable/xy.ts
+# npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts
+     × drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 416ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ <div class="row" …(2)></div>, …(33) ] to deeply equal [ …(1) ]
+      Tests  1 failed | 3 passed (4)
+
+## Mutation M8: #read subtracts nothing when the sink answers true
+# sed 's/if (displacement?.displaced(element)) {/if (displacement?.displaced(element) \&\& element === null) {/' src/sortable/rect-index.ts
+# npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts
+     × should call the layoutAnimation sink with its receiver, with rows in flight 334ms
+     × drag:DRD-50 should settle each row y() measures by asking the sink about that row 659ms
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 268ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 1 passed (4)
+
+## Mutation M-axis: y()'s index constructed with LEFT
+# y.ts: import LEFT instead of TOP; new RectIndex(TOP) -> new RectIndex(LEFT)
+# npx vitest run -c vitest.config.ts --project browser tests/sortable.browser.test.ts tests/equivalence-check.browser.test.ts
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  2 failed (2)
+      Tests  18 failed | 32 passed (50)
+    14 predicted insertion geometry disagreed with a fresh measurement at slot 0
+     4 predicted insertion geometry disagreed with a fresh measurement at slot 1
+     1 predicted insertion geometry disagreed with a fresh measurement at slot 5
+# After each mutation the file was restored; the tree then equalled P-restored-names.diff.txt (git diff | cmp).
+
+## For comparison, the proposal's mutation 2 at f552e0ec9 (#read ignores the sink's answer) failed the y W7 test and not the xy W7 test (2026-11-13-rect-index-access-checks.txt), so it doesn't discriminate W7 for xy.
+
+## Flows: probes/rect-index-access/rect-index-flows-restored.browser.test.ts.txt, browser project
+FLOW y collect: count=7 window=[2, 2) placeholder left=8.00 top=112.00 right=208.00 bottom=152.00 centerX=108.00 centerY=132.00
+FLOW y grow: window=[2, 3) slot 2: left=8.00 top=156.00 right=208.00 bottom=212.00 centerX=108.00 centerY=184.00
+FLOW y grow: window=[2, 4) slot 3: left=8.00 top=216.00 right=208.00 bottom=256.00 centerX=108.00 centerY=236.00
+FLOW y grow: window=[2, 5) slot 4: left=8.00 top=260.00 right=208.00 bottom=316.00 centerX=108.00 centerY=288.00
+FLOW y grow: window=[2, 6) slot 5: left=8.00 top=320.00 right=208.00 bottom=360.00 centerX=108.00 centerY=340.00
+FLOW y move: travel(2) = -44.00, the constant every crossed row moved by
+FLOW y after move, slot 2 predicted: left=8.00 top=112.00 right=208.00 bottom=168.00 centerX=108.00 centerY=140.00
+FLOW y after move, slot 2 measured:  left=8.00 top=112.00 right=208.00 bottom=168.00 centerX=108.00 centerY=140.00
+FLOW y after move, slot 3 predicted: left=8.00 top=172.00 right=208.00 bottom=212.00 centerX=108.00 centerY=192.00
+FLOW y after move, slot 3 measured:  left=8.00 top=172.00 right=208.00 bottom=212.00 centerX=108.00 centerY=192.00
+FLOW y after move, slot 4 predicted: left=8.00 top=260.00 right=208.00 bottom=316.00 centerX=108.00 centerY=288.00
+FLOW y after move, slot 4 measured:  left=8.00 top=260.00 right=208.00 bottom=316.00 centerX=108.00 centerY=288.00
+FLOW y after move, slot 5 predicted: left=8.00 top=320.00 right=208.00 bottom=360.00 centerX=108.00 centerY=340.00
+FLOW y after move, slot 5 measured:  left=8.00 top=320.00 right=208.00 bottom=360.00 centerX=108.00 centerY=340.00
+FLOW sink: r3 presented top=170.00, flow top=140.00, cached slot 2 top=140.00
+FLOW sink: after a 13 px shift of the list, holds = false
+FLOW xy rebuild: count=8 window=[0, 8) placeholder centers (58, 38)
+FLOW xy move: slot 0 (c1) report dx=100 dy=0
+FLOW xy move: slot 1 (c2) report dx=100 dy=0
+FLOW xy move: slot 2 (c3) report dx=-200 dy=60
+FLOW xy move: slot 3 (c4) report dx=100 dy=0
+      Tests  3 passed (3)
+
+## Emitted .d.ts: every file equal to the base's except sortable/axis.d.ts
+5,6c5,6
+<  * Receives what committed moves displaced, and settles the geometry an axis
+<  * measures. Its members are always called on the sink, so they may read `this`.
+---
+>  * Receives what committed moves displaced, and answers what each displaced
+>  * element carries. Its members are always called on the sink, so they may read `this`.
+15,20c15,19
+<    * Turns the slots from `first` to before `end` of a buffer an axis has just
+<    * measured into settled geometry, by subtracting what the sink currently holds
+<    * for each slot's element. `items` is parallel to the slots, and nothing outside
+<    * the range is read or written. It computes the answer from animation timing and
+<    * reads no layout. So no animation is cancelled for a rebuild, and a row never
+<    * jumps back.
+---
+>    * Whether a running animation currently displaces `element`. When it does, `dx`
+>    * and `dy` hold what it carries, in viewport units, until the next call. A
+>    * measurement subtracts them to get settled geometry. It computes the answer from
+>    * animation timing and reads no layout. So no animation is cancelled for a
+>    * rebuild, and a row never jumps back.
+22c21,23
+<   settle(values: number[] | Float64Array, items: readonly HTMLElement[], first: number, end: number): void;
+---
+>   displaced(element: HTMLElement): boolean;
+>   readonly dx: number;
+>   readonly dy: number;

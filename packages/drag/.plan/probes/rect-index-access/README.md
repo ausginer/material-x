@@ -1,14 +1,16 @@
 # RectIndex access probe
 
-The prototype for [`rect-index-access-proposal.md`](../../rect-index-access-proposal.md). `RectIndex` owns its geometry storage and every write to it, and the code outside it reads one number at a time. **It changes no production source, test, build file or instrument on the branch.** Every patch is against `f552e0ec9` on `drag/size`, which is also where `drag/rect-index-ownership` starts.
+The prototype for [`rect-index-access-proposal.md`](../../rect-index-access-proposal.md), which the owner approved as `DRD-61`. `RectIndex` owns its geometry storage and every write to it, and the code outside it reads one number at a time. **It changes no production source, test, build file or instrument on the branch.** The proposal's patches are against `f552e0ec9` on `drag/size`, where `drag/rect-index-ownership` started. `P-restored-names.diff.txt` and its flows file are against `8904947f6`, after the mangling rollback, which the branch merged, and they are what [`rect-index-access-handoff.md`](../../rect-index-access-handoff.md) starts from.
 
 | File | What it is |
 | --- | --- |
 | [`patches/P-owned-storage.diff.txt`](patches/P-owned-storage.diff.txt) | **The proposal.** The scratch slot, the placeholder and the slots share one `number[]`. The axis is chosen at construction. `_at`, `_item`, `_insertion`, `_shift` and `_travel` are added, and `_lend`, the view getters and `settle` are removed. The sink's `settle` is replaced by `displaced(element)` and read-only `dx` and `dy`. The patch also changes `tests/displacement-sink.browser.test.ts` and regenerates `build/property-names.json` |
+| [`patches/P-restored-names.diff.txt`](patches/P-restored-names.diff.txt) | **The decided form, against `8904947f6`.** P with each `_` removed, then formatted, linted and autofixed. It changes the same seven source and test files, and no build file, because `DRD-60` removed the map. [Checks](../../measurements/2026-11-13-rect-index-access-restored-checks.txt), [size](../../measurements/2026-11-13-rect-index-access-restored-size.txt) |
 | [`patches/VY-fixed-y-axis.diff.txt`](patches/VY-fixed-y-axis.diff.txt) | P, but `_shift` and `_travel` are written for y and the constructor has no axis. It prices the choice at construction |
 | [`patches/VSEP-separate-placeholder.diff.txt`](patches/VSEP-separate-placeholder.diff.txt) | P, but the placeholder stays in its own `Float64Array`, read through `_placeholder(field)`. It prices the shared storage |
 | [`patches/VF-module-functions.diff.txt`](patches/VF-module-functions.diff.txt) | VY, but the shift and the travel are module functions in `rect-index.ts`. They reach the slot array through an accessor set in a static block, so a composition without `y()` doesn't carry them |
 | [`rect-index-flows.browser.test.ts.txt`](rect-index-flows.browser.test.ts.txt) | **The runnable flows.** A `y` flow, a `y` flow with a row in flight, and an `xy` flow, against `RectIndex` alone with real layout. Each step prints `FLOW` lines and asserts the result |
+| [`rect-index-flows-restored.browser.test.ts.txt`](rect-index-flows-restored.browser.test.ts.txt) | The same flows, at the restored names, for a tree with `P-restored-names.diff.txt` applied |
 | [`sink-drop-probe.test.ts.txt`](sink-drop-probe.test.ts.txt) | Bytes allocated per drag-and-drop cycle under `rect-index.ts`, `linear-shift.ts` and `layout-animation.ts`, with `layoutAnimation()` composed. Each cycle makes one committed move, which reads a row through the sink, and one drop, which confirms a slot through the sink |
 | [`inline-check.ts.txt`](inline-check.ts.txt) | A Node script that drives `y()`'s and `xy()`'s scans and a measurement against stub elements until TurboFan optimizes them. Run with `--trace-turbo-inlining`, it shows whether `_at`, `#read` and `displaced` are inlined |
 
@@ -55,6 +57,10 @@ npx vitest run -c vitest.config.ts
 At the base, four size rows fail. With P, three fail, because "complete" is under its ceiling.
 
 **Remove the worktree** when done: `git -C /workspaces/material-x worktree remove --force /tmp/ria-inspect`.
+
+### At the restored names
+
+The same steps inspect the decided form. Make the worktree at `8904947f6` instead of `f552e0ec9`, apply `"$PROBE/patches/P-restored-names.diff.txt"`, and copy `"$PROBE/rect-index-flows-restored.browser.test.ts.txt"` as the flows test. At the base, six size rows fail. With the patch, the same six fail: "complete" stays over its ceiling, by 101 B. The suite has 746 tests, and only the two W7 titles differ from the base's verdict list.
 
 ## How the readings were made
 
