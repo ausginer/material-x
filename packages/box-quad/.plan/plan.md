@@ -53,6 +53,22 @@ The package's argument, alternatives, measurements and findings. The current-sta
 
 ## Record
 
+### 2026-11-13 — `coordinates`' ancestry array, explored and recommended against
+
+The owner asked whether `coordinates()` without `above` could read the ancestor walk's `DOMMatrix` directly instead of through a fresh `Space` array. The proposal is [`coordinates-walk-proposal.md`](coordinates-walk-proposal.md), and the evidence is in [`probes/coordinates-walk/`](probes/coordinates-walk/README.md). **No decision is minted, and production source is unchanged until the owner evaluates it.**
+
+**The array can go, and the behavior is kept.** Three formulations share the walk through an internal helper, with no module state and no result object. Each passes the whole suite and a parity probe against `27c8f5495`, which compares slots, `false` outputs and platform read order. The finiteness regression still fails when its write is moved.
+
+**The architect recommends declining, on measured grounds:**
+
+- **Bytes:** +13 to +43 B Brotli on box-quad's module.
+- **Allocation, fallback path:** 92 to 161 B less per call. No shipped drag code uses this path.
+- **Allocation, `above` path:** 40 to 57 B more per call. drag's `lift` uses this path. A control that keeps the array and splits only the helper doesn't move either path, so the cost comes from `coordinates` reading its inherited values from two kinds of source. The mechanism isn't identified.
+
+**Timing wasn't recorded,** and no owner hold was arranged. Adopting the change would need at least a wording edit to `BQ-12` property 8. If it also bounded the `above` path or forbade the intermediate, it would need a superseding decision (proposal §5).
+
+**Also observed:** the existing suite passes with the walk's composition order reversed. That proof gap is routed to the owner (proposal §6).
+
 ### 2026-11-13 — BQ-12's finiteness proof lands, and property 12 is reworded
 
 The test unit from [`coordinates-finiteness-handoff.md`](coordinates-finiteness-handoff.md) landed at `0e90ec136`, reported at `810021e0b` in [`coordinates-finiteness-report.md`](coordinates-finiteness-report.md). The architect's disposition is [`coordinates-finiteness-assessment.md`](coordinates-finiteness-assessment.md). **reviewer-1 is closed, and BQ-12 has no pending proof.** The test reaches `coordinates`' finiteness check through the DOM with the review's nine nested `scale(1e38)` ancestors. It asserts the three earlier checks pass before the call, and a filled `number[]` keeps its values, keys and `length` on `false`. The review's mutation fails it and no other test. No source changed.
