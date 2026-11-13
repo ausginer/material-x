@@ -199,7 +199,7 @@ export class Session<
         if (this.#presentation.signal.aborted) {
           runDragDisposer(dispose, this.#releasedWith, gesture, receiver);
         } else {
-          this.#disposers.add(dispose, receiver);
+          this.#disposers._add(dispose, receiver);
         }
       },
       // Steps drain before the pass that requested them ends, and an operation

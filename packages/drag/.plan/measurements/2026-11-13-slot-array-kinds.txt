@@ -1,0 +1,6 @@
+# node v26.13.0, node --allow-natives-syntax, 2026-11-13, on 436b105c6's checkout
+append+double true false false
+write at 1026 into empty true false
+write at 600 into empty false true
+length=12000 false true
+length=600 fill false false true

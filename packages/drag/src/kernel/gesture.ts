@@ -282,8 +282,8 @@ export class Gesture<
     if (this.#running) {
       // Steps coalesce by step and receiver. A running step is no longer
       // waiting, so a request it makes for itself adds it again.
-      if (!this.#steps.has(step, receiver)) {
-        this.#steps.add(step, receiver);
+      if (!this.#steps._has(step, receiver)) {
+        this.#steps._add(step, receiver);
       }
     } else {
       // Requested while idle, the step is the first step of its own pass. The
@@ -325,7 +325,7 @@ export class Gesture<
     } else {
       // Every registration is its own entry, so the same pair runs once per
       // call.
-      this.#disposers.add(dispose, receiver);
+      this.#disposers._add(dispose, receiver);
     }
   }
 
@@ -416,7 +416,7 @@ export class Gesture<
 
     this.#resolveDestroyed = null;
     this.#session = null;
-    this.#steps.clear();
+    this.#steps._clear();
     session?._terminate();
 
     runDisposers(this.#disposers, null, this);

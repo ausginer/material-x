@@ -54,23 +54,23 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
    * drop targets are re-read at their next read.
    */
   handleEvent(): void {
-    this.#behavior.bounds?.invalidate();
+    this.#behavior._bounds?.invalidate();
     this.#targets?.invalidate();
   }
 
   /** Computes the motion and moves the visual by it. */
-  translate(): void {
+  _translate(): void {
     this.#computeMotion();
     this.#lift.translate(this.#motion.x, this.#motion.y);
   }
 
   /** Places the visual at a viewport point and keeps following the pointer. */
-  moveTo(point: Point): void {
+  _moveTo(point: Point): void {
     this.#offsetX =
       point.x - this.#lift.rect.left - (this.#drag.x - this.#drag.originX);
     this.#offsetY =
       point.y - this.#lift.rect.top - (this.#drag.y - this.#drag.originY);
-    this.translate();
+    this._translate();
   }
 
   start(): void {
@@ -78,7 +78,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
   }
 
   move(): void {
-    this.translate();
+    this._translate();
     this.#targets?.move();
 
     if (this.#behavior._config.onMove) {
@@ -134,13 +134,13 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
       home = false;
     }
 
-    if (!this.#behavior.landing || !home) {
+    if (!this.#behavior._landing || !home) {
       return;
     }
 
     const { x, y } = this.#home();
 
-    this.#lift.land(x, y, this.#behavior.landing);
+    this.#lift.land(x, y, this.#behavior._landing);
   }
 
   end(): void {
@@ -152,13 +152,13 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution> 
     this.#motion.x = this.#drag.x - this.#drag.originX + this.#offsetX;
     this.#motion.y = this.#drag.y - this.#drag.originY + this.#offsetY;
 
-    if (this.#behavior.axis === 'x') {
+    if (this.#behavior._axis === 'x') {
       this.#motion.y = 0;
-    } else if (this.#behavior.axis === 'y') {
+    } else if (this.#behavior._axis === 'y') {
       this.#motion.x = 0;
     }
 
-    this.#behavior.bounds?.apply(this.#motion, this.#lift.rect);
+    this.#behavior._bounds?.apply(this.#motion, this.#lift.rect);
   }
 
   #geometry(): DragGeometry {

@@ -68,11 +68,11 @@ export interface LinearShift {
    * just produced, marks the placeholder stale, and reports the span when a sink is
    * installed. Reads one crossed row when the constant is not established.
    */
-  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void;
+  _moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void;
 
-  invalidate(): void;
+  _invalidate(): void;
 
-  retire(): void;
+  _retire(): void;
 }
 
 export function linearShift(index: RectIndex): LinearShift {
@@ -166,22 +166,22 @@ export function linearShift(index: RectIndex): LinearShift {
       index._collect(snapshot, dragged, placeholder, gap);
 
       // Read once: `_measure` writes into this buffer and never replaces it.
-      const { values, _count: count } = index;
+      const { _values: values, _count: count } = index;
 
       // Toward the pointer only: under the order term, a slot on the other side of
       // the placeholder is never nearer than the placeholder's own center.
       if (pointerY > index._placeholderRect[CENTER_Y]!) {
         while (
-          index.end < count &&
-          (index._first === index.end ||
-            values[(index.end - 1) * STRIDE + CENTER_Y]! < pointerY)
+          index._end < count &&
+          (index._first === index._end ||
+            values[(index._end - 1) * STRIDE + CENTER_Y]! < pointerY)
         ) {
-          index._measure(index.end, index.end + 1, getBox, displacement);
+          index._measure(index._end, index._end + 1, getBox, displacement);
         }
       } else {
         while (
           index._first > 0 &&
-          (index._first === index.end ||
+          (index._first === index._end ||
             values[index._first * STRIDE + CENTER_Y]! > pointerY)
         ) {
           index._measure(index._first - 1, index._first, getBox, displacement);
@@ -193,7 +193,7 @@ export function linearShift(index: RectIndex): LinearShift {
       lastGap = gap;
     },
 
-    moved(gap, snapshot, context) {
+    _moved(gap, snapshot, context) {
       // A dirty buffer describes a tree that has already changed under it, an empty
       // one is a single-item collection, and an unknown or unchanged gap proposes no
       // span at all.
@@ -207,7 +207,7 @@ export function linearShift(index: RectIndex): LinearShift {
         dirty = true;
         lastGap = -1;
         placeholderIsStale = false;
-        index.invalidate();
+        index._invalidate();
         return;
       }
 
@@ -218,7 +218,7 @@ export function linearShift(index: RectIndex): LinearShift {
 
       if (rowDistance < 0) {
         // Any crossed row works, because they all traveled the same constant.
-        const probe = index.items[lo]!;
+        const probe = index._items[lo]!;
         let observed = (
           context.box ? context.box(probe) : probe
         ).getBoundingClientRect().top;
@@ -233,7 +233,7 @@ export function linearShift(index: RectIndex): LinearShift {
           observed = scratch[TOP]!;
         }
 
-        delta = observed - index.values[lo * STRIDE + TOP]!;
+        delta = observed - index._values[lo * STRIDE + TOP]!;
         rowDistance = delta < 0 ? -delta : delta;
       }
 
@@ -241,7 +241,7 @@ export function linearShift(index: RectIndex): LinearShift {
 
       if (context.displacement) {
         // Read once, outside a loop that calls into the sink.
-        const { items } = index;
+        const { _items: items } = index;
 
         for (let i = lo; i < hi; i += 1) {
           context.displacement.report(items[i]!, 0, -delta, context.space);
@@ -256,20 +256,20 @@ export function linearShift(index: RectIndex): LinearShift {
       }
     },
 
-    invalidate() {
+    _invalidate() {
       dirty = true;
       rowDistance = -1;
       placeholderIsStale = false;
-      index.invalidate();
+      index._invalidate();
     },
 
-    retire() {
+    _retire() {
       dirty = true;
       lastGap = -1;
       snapshotVersion = -1;
       rowDistance = -1;
       placeholderIsStale = false;
-      index.retire();
+      index._retire();
     },
   };
 }

@@ -103,14 +103,14 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   drop(): VerdictAwaiter<ReorderResolution> | null {
     const isPointerOperation = this.#direction === null;
 
-    this.#frame.cancel();
+    this.#frame._cancel();
 
     if (isPointerOperation) {
-      this.#behavior.axis.confirm(this.#query, this.#context);
+      this.#behavior._axis.confirm(this.#query, this.#context);
       this.#query.pointerX = this.#drag.x;
       this.#query.pointerY = this.#drag.y;
       this.#query.insertion =
-        this.#behavior.axis.resolve(this.#query, this.#context) ??
+        this.#behavior._axis.resolve(this.#query, this.#context) ??
         this.#query.insertion;
     }
 
@@ -139,11 +139,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   settle(outcome: Outcome<ReorderResolution>): void {
     const recovery = this.#recordResult(outcome);
 
-    if (this.#behavior.landing && recovery !== RECOVERY_IMMEDIATE) {
+    if (this.#behavior._landing && recovery !== RECOVERY_IMMEDIATE) {
       // Called once: it moves the placeholder and then reads layout.
       const { left, top } = this.#landingTarget(recovery);
 
-      this.#lift.land(left, top, this.#behavior.landing);
+      this.#lift.land(left, top, this.#behavior._landing);
     }
   }
 
@@ -172,7 +172,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
       this.#drag.requestCancel(CANCEL_ITEM_REMOVED);
     }
 
-    this.#behavior.axis.invalidate();
+    this.#behavior._axis.invalidate();
   }
 
   /** The gap under the pointer, and the placeholder moved to it. */
@@ -180,7 +180,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     this.#query.pointerX = this.#drag.x;
     this.#query.pointerY = this.#drag.y;
 
-    const resolved = this.#behavior.axis.resolve(this.#query, this.#context);
+    const resolved = this.#behavior._axis.resolve(this.#query, this.#context);
 
     if (resolved === null) {
       return;
@@ -196,11 +196,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
 
     try {
       movePlaceholder(this.#context.placeholder, resolved);
-      this.#behavior.axis.moved(this.#query, this.#context);
+      this.#behavior._axis.moved(this.#query, this.#context);
       stale = false;
     } finally {
       if (stale) {
-        this.#behavior.axis.invalidate();
+        this.#behavior._axis.invalidate();
       }
     }
   }

@@ -1,0 +1,65 @@
+{
+  "id": "selection-end-2",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 582999,
+    "start": "8125294"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T07:01:24.221Z",
+  "endedAt": "2026-11-13T07:04:24.090Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "node /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-build.ts /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-tree && node /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/step-check.ts /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-tree /workspaces/material-x/packages/drag /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/end-tree.list build/property-names.json",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end-2/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "8f238ef32eeeb9169827ae6c046c24f61628ede1",
+        "dirty": true
+      },
+      "process": {
+        "pid": 583029,
+        "start": "8125302"
+      },
+      "startedAt": "2026-11-13T07:01:24.237Z",
+      "endedAt": "2026-11-13T07:01:24.847Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/v5.sh",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end-2/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "8f238ef32eeeb9169827ae6c046c24f61628ede1",
+        "dirty": true
+      },
+      "process": {
+        "pid": 583135,
+        "start": "8125365"
+      },
+      "startedAt": "2026-11-13T07:01:24.864Z",
+      "endedAt": "2026-11-13T07:01:27.835Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end-2/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "8f238ef32eeeb9169827ae6c046c24f61628ede1",
+        "dirty": true
+      },
+      "process": {
+        "pid": 583587,
+        "start": "8125667"
+      },
+      "startedAt": "2026-11-13T07:01:27.885Z",
+      "endedAt": "2026-11-13T07:04:24.090Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

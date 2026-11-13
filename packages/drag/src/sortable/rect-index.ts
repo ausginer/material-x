@@ -71,8 +71,8 @@ function capacityFor(needed: number): number {
 const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
- * The hot path: each axis rule reads `values`, the slot range it scans and
- * `_placeholderRect` once per resolution, and `items` only when proposing a gap
+ * The hot path: each axis rule reads `_values`, the slot range it scans and
+ * `_placeholderRect` once per resolution, and `_items` only when proposing a gap
  * change. Do not add a read inside the candidate loop.
  */
 export class RectIndex {
@@ -109,7 +109,7 @@ export class RectIndex {
    * Valid until the next `_collect`, the only operation that replaces the buffer.
    * Read it again after a `_collect`.
    */
-  get values(): ReadonlyFloat64Array {
+  get _values(): ReadonlyFloat64Array {
     return this.#values;
   }
 
@@ -117,7 +117,7 @@ export class RectIndex {
     return this.#placeholderRect;
   }
 
-  get items(): readonly HTMLElement[] {
+  get _items(): readonly HTMLElement[] {
     return this.#items;
   }
 
@@ -130,7 +130,7 @@ export class RectIndex {
     return this.#first;
   }
 
-  get end(): number {
+  get _end(): number {
     return this.#end;
   }
 
@@ -287,7 +287,7 @@ export class RectIndex {
   }
 
   /** One flag, because any reason for staleness forces the same full rebuild. */
-  invalidate(): void {
+  _invalidate(): void {
     this.#dirty = true;
   }
 
@@ -295,7 +295,7 @@ export class RectIndex {
    * Empties the element array, which would retain DOM between operations, and keeps
    * the numeric buffer for reuse.
    */
-  retire(): void {
+  _retire(): void {
     this.#items.length = 0;
     this.#dirty = true;
     this.#measured = -1;
@@ -324,8 +324,8 @@ export function verifyEquivalence(
   heldPlaceholder: ReadonlyFloat64Array | null,
 ): void {
   // Taken before the rebuild below rewrites them.
-  const { _count: held, _first: first, end } = index;
-  const predicted = index.values.slice(0, end * STRIDE);
+  const { _count: held, _first: first, _end: end } = index;
+  const predicted = index._values.slice(0, end * STRIDE);
   const predictedPlaceholder = index._placeholderRect.slice();
 
   // A relocation leaves the placeholder's x where the rebuild measured it.
@@ -333,9 +333,9 @@ export function verifyEquivalence(
     predictedPlaceholder[LEFT] = heldPlaceholder[LEFT]!;
     predictedPlaceholder[RIGHT] = heldPlaceholder[RIGHT]!;
   }
-  const predictedItems = [...index.items];
+  const predictedItems = [...index._items];
 
-  index.invalidate();
+  index._invalidate();
   index._collect(snapshot, dragged, placeholder, first);
 
   index._measure(first, end, getBox, displacement);
@@ -344,9 +344,9 @@ export function verifyEquivalence(
     Math.abs(a - b) > EQUIVALENCE_SLACK;
   // Read once, outside the comparison loops.
   const {
-    values,
+    _values: values,
     _placeholderRect: placeholderRect,
-    items,
+    _items: items,
     _count: count,
   } = index;
   let mismatch = count === held ? '' : `count ${held}, measured ${count}`;

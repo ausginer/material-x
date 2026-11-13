@@ -1,0 +1,82 @@
+{
+  "id": "selection-base",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 562593,
+    "start": "8088728"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T06:55:18.548Z",
+  "endedAt": "2026-11-13T06:57:16.300Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-13-selection-base-suite.json; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-base/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "6e8174f6430eb489f0c643d3d879b8239f0dc0bc",
+        "dirty": true
+      },
+      "process": {
+        "pid": 562625,
+        "start": "8088735"
+      },
+      "startedAt": "2026-11-13T06:55:18.564Z",
+      "endedAt": "2026-11-13T06:56:56.555Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/keep-tree.sh /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/base-tree",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-base/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "6e8174f6430eb489f0c643d3d879b8239f0dc0bc",
+        "dirty": true
+      },
+      "process": {
+        "pid": 567315,
+        "start": "8098536"
+      },
+      "startedAt": "2026-11-13T06:56:56.579Z",
+      "endedAt": "2026-11-13T06:56:56.662Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx just size; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-base/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "6e8174f6430eb489f0c643d3d879b8239f0dc0bc",
+        "dirty": true
+      },
+      "process": {
+        "pid": 567342,
+        "start": "8098547"
+      },
+      "startedAt": "2026-11-13T06:56:56.688Z",
+      "endedAt": "2026-11-13T06:56:59.711Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/dry-each.sh",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-base/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "6e8174f6430eb489f0c643d3d879b8239f0dc0bc",
+        "dirty": true
+      },
+      "process": {
+        "pid": 567669,
+        "start": "8098853"
+      },
+      "startedAt": "2026-11-13T06:56:59.750Z",
+      "endedAt": "2026-11-13T06:57:16.300Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
