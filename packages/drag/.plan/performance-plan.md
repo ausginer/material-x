@@ -173,6 +173,10 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Owner direction, 2026-11-13: source prefixes for step 3.** Use an explicit `_` prefix in source for the ordinary internal properties selected for publish-time mangling. Public names and properties read by the platform keep their names; `#private` members need no additional prefix. The build selects the marked properties rather than inferring a list of safe names from TypeScript analysis. The architect records the choice under `DRO-15` and prepares its implementation handoff after assessing [`published-gate-report.md`](published-gate-report.md). Budgets remain unchanged. A transform that selects properties by type is deferred to [§6](#6-deferred-property-selection-by-type).
 
+**Step 2 landed on 2026-11-13** at `79b4c3132` and `69c260685`, and its [report](published-gate-report.md) is accepted in `00-index.md` §Disposition of the published gate report. The gate reads the emitted tree. Its figures differ from `src` by −7 to +16 B Brotli, and no verdict changed. `DRF-23` is closed.
+
+**Step 3 is decided as `DRD-56`,** from the owner's direction above. `_`-prefixed internal properties in `src`, 29 names to start, are confirmed by reading their use sites. One committed map gives each its output name. A step inside `tsdown`'s build renames them in the emitted JavaScript, leaves the `.d.ts` files unchanged, and keeps the source maps leading back to `src`. A node test validates the publication. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. The exploration estimated −30 to −119 B Brotli per row. Budgets are unchanged, a verdict that changes goes to `DRO-4`, and the deferred campaigns stay stopped.
+
 ## 3. Rules every unit follows
 
 `DRD-40`'s properties, in short:
@@ -202,7 +206,7 @@ Source tests stay for internal behavior and development instruments. The mangle 
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
 - **Added on 2026-11-12, when P4 opened:** the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14`'s four items were answered on 2026-11-12, and `DRF-20` is closed.
-- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Step 1 landed (`DRD-54`). Step 2 (`DRD-55`) and the repair of `DRF-23` are handed off together. Step 3, the mangle, waits for step 2's figures.
+- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Steps 1 and 2 landed (`DRD-54`, `DRD-55`). Step 3 is decided as `DRD-56` and handed off. The type-directed transform is deferred (§6).
 
 ## 5. Post-1.0.0: virtualized lists
 
