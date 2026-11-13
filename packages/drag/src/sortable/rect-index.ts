@@ -13,7 +13,8 @@
  * `collect`. A rebuild measures every slot, so its window is all of them.
  *
  * Each axis rule creates its own instance inside its factory, so the cache has one
- * owner. The cache owns its storage, and every write to it is a method: each
+ * owner. `xy()` creates a `RetainingRectIndex`, which also keeps each slot's left
+ * and top across one rebuild. The cache owns its storage, and every write to it is a method: each
  * measurement, the settling of a measurement and a predicted shift. Code outside
  * reads one value at a time, through `at`, `item` and `insertion`, and never holds
  * the slot array or the element array.
@@ -334,6 +335,46 @@ export class RectIndex {
     values[offset + BOTTOM] = bottom;
     values[offset + CENTER_X] = (left + right) * 0.5;
     values[offset + CENTER_Y] = (top + bottom) * 0.5;
+  }
+}
+
+/**
+ * A `RectIndex` that also holds each slot's left and top across one rebuild, for an
+ * axis rule that compares the slots on both sides of it. It is a subclass so that a
+ * composition that never constructs it doesn't carry it.
+ */
+export class RetainingRectIndex extends RectIndex {
+  /**
+   * Each slot's left and top as `retain` copied them, packed `[left, top]`. It
+   * grows only by appending and never shrinks, like the slot array.
+   */
+  readonly #retained: number[] = [];
+
+  /**
+   * The left of `slot` at `LEFT`, or its top at `TOP`, as the last `retain` copied
+   * it. Valid for the slots below the count at that call.
+   */
+  retained(slot: number, field: number): number {
+    // `LEFT` and `TOP` are 0 and 1, the two fields of a retained pair.
+    return this.#retained[slot * 2 + field]!;
+  }
+
+  /**
+   * Copies every slot's left and top where `retained` reads them. A rebuild doesn't
+   * write them, so a caller compares the slots across it. Every slot is inside the
+   * window.
+   */
+  retain(): void {
+    // Locals, not repeated reads inside the loop.
+    const retained = this.#retained;
+    const { count } = this;
+
+    // From slot 0 up, so each write lands at or below the length: a write at the
+    // length appends, and the array has no hole.
+    for (let i = 0; i < count; i += 1) {
+      retained[i * 2] = this.at(i, LEFT);
+      retained[i * 2 + 1] = this.at(i, TOP);
+    }
   }
 }
 

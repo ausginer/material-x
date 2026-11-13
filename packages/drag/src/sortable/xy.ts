@@ -17,7 +17,8 @@ import {
   CENTER_Y,
   LEFT,
   PLACEHOLDER,
-  RectIndex,
+  type RectIndex,
+  RetainingRectIndex,
   TOP,
 } from './rect-index.ts';
 
@@ -44,11 +45,9 @@ function refresh(
 /** The axis rule for a wrapping field of items. */
 export function xy(): AxisInstaller {
   return () => {
-    const index = new RectIndex();
+    const index = new RetainingRectIndex();
     /** The gap the buffer reflects, or `-1` when nothing is known. */
     let last = -1;
-    /** The origins held before the DOM write, packed `[left, top]` per slot. */
-    let before = new Float64Array(0);
     const invalidate = (): void => {
       last = -1;
       index.invalidate();
@@ -127,16 +126,8 @@ export function xy(): AxisInstaller {
           return;
         }
 
-        if (before.length < held * 2) {
-          before = new Float64Array(held * 2);
-        }
-
         // Before the refresh rewrites the slots.
-        for (let i = 0; i < held; i += 1) {
-          before[i * 2] = index.at(i, LEFT);
-          before[i * 2 + 1] = index.at(i, TOP);
-        }
-
+        index.retain();
         index.invalidate();
         refresh(
           index,
@@ -155,8 +146,8 @@ export function xy(): AxisInstaller {
         const span = count < held ? count : held;
 
         for (let i = 0; i < span; i += 1) {
-          const dx = before[i * 2]! - index.at(i, LEFT);
-          const dy = before[i * 2 + 1]! - index.at(i, TOP);
+          const dx = index.retained(i, LEFT) - index.at(i, LEFT);
+          const dy = index.retained(i, TOP) - index.at(i, TOP);
 
           if (dx !== 0 || dy !== 0) {
             displacement.report(index.item(i), dx, dy, context.space);
