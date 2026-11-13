@@ -177,6 +177,8 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Step 3 is decided as `DRD-56`,** from the owner's direction above. `_`-prefixed internal properties in `src`, 29 names to start, are confirmed by reading their use sites. One committed map gives each its output name. A step inside `tsdown`'s build renames them in the emitted JavaScript, leaves the `.d.ts` files unchanged, and keeps the source maps leading back to `src`. A node test validates the publication. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. The exploration estimated −30 to −119 B Brotli per row. Budgets are unchanged, a verdict that changes goes to `DRO-4`, and the deferred campaigns stay stopped.
 
+**Step 3 landed on 2026-11-13** at `f7b7b300b` and `31f92f5a9`, and its [report](publish-mangle-report.md) is accepted in [`publish-mangle-assessment.md`](publish-mangle-assessment.md). The gate on the renamed build reads −31 to −66 B Brotli on the rows without `sortable`, and −102 to −110 B on the three rows with it. "example: resize handle" and "freeDrag" turn green and go to `DRO-4`. Four rows stay red: "draggable alone", "example: drop zone", "freeDrag + bounds + landing" and "complete". Budgets are unchanged. A fresh independent review of the publication pipeline is recommended in that assessment's §9.
+
 ## 3. Rules every unit follows
 
 `DRD-40`'s properties, in short:
@@ -193,7 +195,7 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Carried forward on 2026-11-12, when the runtime pass closed.** None is a runtime task in this pass.
 
-- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, and the same five after the window (`DRO-4`). The owner's.
+- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's.
 - Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. The record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
 - `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
@@ -206,7 +208,7 @@ Source tests stay for internal behavior and development instruments. The mangle 
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
 - **Added on 2026-11-12, when P4 opened:** the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14`'s four items were answered on 2026-11-12, and `DRF-20` is closed.
-- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Steps 1 and 2 landed (`DRD-54`, `DRD-55`). Step 3 is decided as `DRD-56` and handed off. The type-directed transform is deferred (§6).
+- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Steps 1 to 3 landed (`DRD-54`, `DRD-55`, `DRD-56`). An independent review of the publication pipeline is recommended and not started. The type-directed transform is deferred (§6).
 
 ## 5. Post-1.0.0: virtualized lists
 
