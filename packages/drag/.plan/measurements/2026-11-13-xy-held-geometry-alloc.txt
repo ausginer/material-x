@@ -1,0 +1,126 @@
+# xy() held-geometry proposal: allocation, Chromium only, heap sampling at 16 B
+# probes: DRD-52's C6 probes (probes/rect-index-ownership/) and probes/xy-held-geometry/xy-held-alloc-probe.test.ts.txt,
+# appended to a scratch copy of tests/hot-path.browser.test.ts (shipped project, __DEV__ false); each probe test launched alone
+# through bench/campaign.ts run, three rounds, each round base, VX, P, VS. VX = VX-held-as-measured.diff.txt.
+# base: 61f883d09. The variants: the base with one patch applied. Campaign ids xyh-<tree>-r<round>.
+# node v26.13.0, nproc 12; the campaign's load record follows.
+load-before 2.78 3.09 3.18 4/8783 959621 nproc=12 2026-11-13T15:16:37+00:00
+campaign xyh-base-r1 exit=0 2026-11-13T15:19:40+00:00 load 3.20 2.93 3.09 3/8794 963734
+campaign xyh-VX-r1 exit=0 2026-11-13T15:22:47+00:00 load 4.28 3.65 3.36 4/8826 969490
+campaign xyh-P-r1 exit=0 2026-11-13T15:23:53+00:00 load 7.95 5.16 3.92 6/9154 974783
+campaign xyh-VS-r1 exit=0 2026-11-13T15:24:56+00:00 load 7.63 5.56 4.13 9/9215 980526
+campaign xyh-base-r2 exit=0 2026-11-13T15:28:05+00:00 load 4.10 4.87 4.15 7/9065 986199
+campaign xyh-VX-r2 exit=0 2026-11-13T15:31:09+00:00 load 3.53 4.38 4.09 2/8995 988688
+campaign xyh-P-r2 exit=0 2026-11-13T15:32:07+00:00 load 4.35 4.48 4.14 5/9051 989973
+campaign xyh-VS-r2 exit=0 2026-11-13T15:33:04+00:00 load 3.20 4.14 4.05 3/9010 991154
+campaign xyh-base-r3 exit=0 2026-11-13T15:36:08+00:00 load 3.20 3.61 3.85 8/9025 994948
+campaign xyh-VX-r3 exit=0 2026-11-13T15:39:11+00:00 load 5.52 4.31 4.06 2/9003 997537
+campaign xyh-P-r3 exit=0 2026-11-13T15:40:08+00:00 load 5.66 4.47 4.12 3/9013 998723
+campaign xyh-VS-r3 exit=0 2026-11-13T15:41:05+00:00 load 4.38 4.31 4.09 2/9020 999941
+load-after 4.38 4.31 4.09 2/9020 999942 2026-11-13T15:41:05+00:00
+
+# The suite of the final VX, its size build and flows, and VX's mutations ran during the campaign in other trees.
+
+## Readings, mean (range) of the launches, bytes
+
+| Probe | base | VX | P | VS |
+| --- | --: | --: | --: | --: |
+| y sample | 50.05 (49.43 to 50.44), n=3 | 50.53 (49.94 to 50.87), n=3 | 50.86 (50.17 to 51.89), n=3 | 49.66 (49.18 to 50.24), n=3 |
+| xy sample | 49.81 (49.03 to 51.15), n=3 | 50.27 (49.76 to 51.19), n=3 | – | – |
+| y move, cold | 115.10 (112.48 to 116.70), n=3 | 115.75 (113.76 to 118.22), n=3 | 115.65 (113.94 to 116.58), n=3 | 114.17 (111.98 to 116.90), n=3 |
+| y move, warm | 17.20 (15.92 to 18.20), n=3 | 16.37 (15.92 to 17.04), n=3 | – | – |
+| xy move, sink | 846.53 (838.52 to 854.90), n=3 | 837.15 (833.82 to 838.92), n=3 | 835.46 (831.36 to 837.62), n=3 | 837.14 (831.40 to 841.88), n=3 |
+| xy first move, sink | 6869.87 (6854.67 to 6899.07), n=3 | 6679.02 (6645.60 to 6726.27), n=3 | 7239.86 (7209.33 to 7257.33), n=3 | 7962.18 (7922.27 to 8013.07), n=3 |
+
+## Mean differences against base
+y sample, VX - base: +0.48
+y sample, P - base: +0.81
+y sample, VS - base: -0.39
+xy sample, VX - base: +0.46
+y move, cold, VX - base: +0.65
+y move, cold, P - base: +0.55
+y move, cold, VS - base: -0.93
+y move, warm, VX - base: -0.83
+xy move, sink, VX - base: -9.38
+xy move, sink, P - base: -11.07
+xy move, sink, VS - base: -9.39
+xy first move, sink, VX - base: -190.85
+xy first move, sink, P - base: +369.99
+xy first move, sink, VS - base: +1092.31
+
+## Raw lines
+base r1 y sample: 49.43 keys={"sortable/operation.ts:move": 19772}
+base r1 xy sample: 49.03 keys={"sortable/operation.ts:move": 19612}
+base r1 y move, cold: 116.12 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8672, "sortable/linear-shift.ts:moved": 1248, "sortable/rect-index.ts:shift": 13164}
+base r1 y move, warm: 18.20 moves=200 keys={"sortable/rect-index.ts:collect": 72, "sortable/rect-index.ts:#read": 3568}
+base r1 xy move, sink: 838.52 moves=200 keys={"sortable/xy.ts:resolve": 5064, "sortable/xy.ts:moved": 2280, "sortable/rect-index.ts:collect": 90548, "sortable/rect-index.ts:#read": 69812}
+base r1 xy first move, sink: 6899.07 moves=60 keys={"sortable/xy.ts:resolve": 6916, "sortable/xy.ts:refresh": 1256, "sortable/rect-index.ts:get first": 280, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 92836, "sortable/rect-index.ts:measurePlaceholder": 472, "sortable/rect-index.ts:#read": 46324, "sortable/rect-index.ts:measure": 212, "sortable/rect-index.ts:at": 7092, "sortable/rect-index.ts:item": 44, "sortable/rect-index.ts:insertion": 684, "sortable/xy.ts:moved": 33420, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:invalidate": 68, "sortable/xy.ts:invalidate": 140, "sortable/xy.ts:retire": 260, "sortable/rect-index.ts:retire": 108, "sortable/xy.ts:": 12888, "sortable/rect-index.ts:RectIndex": 2904, "sortable/xy.ts:xy": 924}
+base r1 XYH-CALIBRATION length=38 typed=126.64 appended=570.81 kept=2000
+base r2 y sample: 50.28 keys={"sortable/operation.ts:move": 20112}
+base r2 xy sample: 51.15 keys={"sortable/operation.ts:move": 20460}
+base r2 y move, cold: 116.70 moves=200 keys={"sortable/rect-index.ts:#read": 8904, "sortable/linear-shift.ts:moved": 1296, "sortable/rect-index.ts:shift": 13140}
+base r2 y move, warm: 15.92 moves=200 keys={"sortable/rect-index.ts:#read": 3184}
+base r2 xy move, sink: 846.18 moves=200 keys={"sortable/xy.ts:resolve": 4968, "sortable/xy.ts:moved": 2436, "sortable/rect-index.ts:collect": 91724, "sortable/rect-index.ts:#read": 70108}
+base r2 xy first move, sink: 6855.87 moves=60 keys={"sortable/xy.ts:resolve": 6896, "sortable/xy.ts:refresh": 1240, "sortable/rect-index.ts:get first": 420, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 93084, "sortable/rect-index.ts:measurePlaceholder": 472, "sortable/rect-index.ts:#read": 46020, "sortable/rect-index.ts:measure": 164, "sortable/rect-index.ts:at": 6664, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 728, "sortable/xy.ts:moved": 32744, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:invalidate": 68, "sortable/xy.ts:invalidate": 196, "sortable/xy.ts:retire": 204, "sortable/rect-index.ts:retire": 60, "sortable/xy.ts:": 12604, "sortable/rect-index.ts:RectIndex": 3024, "sortable/xy.ts:xy": 868}
+base r3 y sample: 50.44 keys={"sortable/operation.ts:move": 20176}
+base r3 xy sample: 49.24 keys={"sortable/operation.ts:move": 19696}
+base r3 y move, cold: 112.48 moves=200 keys={"sortable/rect-index.ts:#read": 7508, "sortable/linear-shift.ts:moved": 1452, "sortable/rect-index.ts:shift": 13536}
+base r3 y move, warm: 17.48 moves=200 keys={"sortable/rect-index.ts:collect": 72, "sortable/rect-index.ts:#read": 3424}
+base r3 xy move, sink: 854.90 moves=200 keys={"sortable/xy.ts:resolve": 5160, "sortable/xy.ts:moved": 2436, "sortable/rect-index.ts:collect": 91312, "sortable/rect-index.ts:#read": 72072}
+base r3 xy first move, sink: 6854.67 moves=60 keys={"sortable/xy.ts:resolve": 7220, "sortable/xy.ts:refresh": 1164, "sortable/rect-index.ts:get first": 280, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 93152, "sortable/rect-index.ts:measurePlaceholder": 496, "sortable/rect-index.ts:#read": 45516, "sortable/rect-index.ts:measure": 164, "sortable/rect-index.ts:at": 6808, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 684, "sortable/xy.ts:moved": 32600, "sortable/rect-index.ts:get count": 76, "sortable/xy.ts:invalidate": 172, "sortable/xy.ts:retire": 212, "sortable/rect-index.ts:retire": 80, "sortable/xy.ts:": 12724, "sortable/rect-index.ts:RectIndex": 3196, "sortable/xy.ts:xy": 952}
+VX r1 y sample: 50.78 keys={"sortable/operation.ts:move": 20312}
+VX r1 xy sample: 49.76 keys={"sortable/operation.ts:move": 19904}
+VX r1 y move, cold: 115.26 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8440, "sortable/linear-shift.ts:moved": 1140, "sortable/rect-index.ts:shift": 13332}
+VX r1 y move, warm: 15.92 moves=200 keys={"sortable/rect-index.ts:#read": 3184}
+VX r1 xy move, sink: 838.72 moves=200 keys={"sortable/xy.ts:resolve": 4872, "sortable/xy.ts:moved": 2616, "sortable/rect-index.ts:collect": 90236, "sortable/rect-index.ts:#read": 70020}
+VX r1 xy first move, sink: 6665.20 moves=60 keys={"sortable/xy.ts:resolve": 7308, "sortable/xy.ts:refresh": 1344, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 92820, "sortable/rect-index.ts:measurePlaceholder": 496, "sortable/rect-index.ts:#read": 45892, "sortable/rect-index.ts:measure": 180, "sortable/rect-index.ts:at": 6848, "sortable/rect-index.ts:item": 44, "sortable/rect-index.ts:insertion": 652, "sortable/xy.ts:moved": 7908, "sortable/rect-index.ts:get first": 252, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:invalidate": 68, "sortable/rect-index.ts:held": 6452, "sortable/rect-index.ts:retain": 15076, "sortable/xy.ts:invalidate": 196, "sortable/xy.ts:retire": 204, "sortable/rect-index.ts:retire": 92, "sortable/xy.ts:": 7472, "sortable/rect-index.ts:RetainingRectIndex": 3032, "sortable/rect-index.ts:RectIndex": 2552, "sortable/xy.ts:xy": 924}
+VX r2 y sample: 49.94 keys={"sortable/operation.ts:move": 19976}
+VX r2 xy sample: 51.19 keys={"sortable/operation.ts:move": 20476}
+VX r2 y move, cold: 118.22 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8444, "sortable/linear-shift.ts:moved": 1272, "sortable/rect-index.ts:shift": 13788}
+VX r2 y move, warm: 17.04 moves=200 keys={"sortable/rect-index.ts:collect": 48, "sortable/rect-index.ts:#read": 3360}
+VX r2 xy move, sink: 833.82 moves=200 keys={"sortable/xy.ts:resolve": 4536, "sortable/xy.ts:moved": 2412, "sortable/rect-index.ts:collect": 91092, "sortable/rect-index.ts:#read": 68724}
+VX r2 xy first move, sink: 6645.60 moves=60 keys={"sortable/xy.ts:resolve": 7012, "sortable/xy.ts:refresh": 1252, "sortable/rect-index.ts:get first": 316, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 92732, "sortable/rect-index.ts:measurePlaceholder": 496, "sortable/rect-index.ts:#read": 45760, "sortable/rect-index.ts:measure": 164, "sortable/rect-index.ts:at": 7028, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 672, "sortable/xy.ts:moved": 7684, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:held": 6400, "sortable/rect-index.ts:retain": 15100, "sortable/xy.ts:invalidate": 196, "sortable/rect-index.ts:invalidate": 36, "sortable/xy.ts:retire": 236, "sortable/rect-index.ts:retire": 140, "sortable/xy.ts:": 7556, "sortable/rect-index.ts:RetainingRectIndex": 2948, "sortable/rect-index.ts:RectIndex": 2552, "sortable/xy.ts:xy": 868}
+VX r3 y sample: 50.87 keys={"sortable/operation.ts:move": 20348}
+VX r3 xy sample: 49.86 keys={"sortable/operation.ts:move": 19944}
+VX r3 y move, cold: 113.76 moves=200 keys={"sortable/rect-index.ts:#read": 8520, "sortable/linear-shift.ts:moved": 1092, "sortable/rect-index.ts:shift": 13140}
+VX r3 y move, warm: 16.16 moves=200 keys={"sortable/rect-index.ts:#read": 3232}
+VX r3 xy move, sink: 838.92 moves=200 keys={"sortable/xy.ts:resolve": 4872, "sortable/xy.ts:moved": 2436, "sortable/rect-index.ts:collect": 90932, "sortable/rect-index.ts:#read": 69544}
+VX r3 xy first move, sink: 6726.27 moves=60 keys={"sortable/xy.ts:resolve": 7148, "sortable/xy.ts:refresh": 1304, "sortable/rect-index.ts:get first": 200, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 94268, "sortable/rect-index.ts:measurePlaceholder": 488, "sortable/rect-index.ts:#read": 46056, "sortable/rect-index.ts:measure": 180, "sortable/rect-index.ts:at": 6440, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 728, "sortable/xy.ts:moved": 8196, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:invalidate": 68, "sortable/rect-index.ts:held": 7160, "sortable/rect-index.ts:retain": 15180, "sortable/xy.ts:invalidate": 164, "sortable/xy.ts:retire": 216, "sortable/rect-index.ts:retire": 108, "sortable/xy.ts:": 7376, "sortable/rect-index.ts:RetainingRectIndex": 2996, "sortable/rect-index.ts:RectIndex": 2452, "sortable/xy.ts:xy": 840}
+P r1 y sample: 50.52 keys={"sortable/operation.ts:move": 20208}
+P r1 y move, cold: 113.94 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 7992, "sortable/linear-shift.ts:moved": 1092, "sortable/rect-index.ts:shift": 13564}
+P r1 xy move, sink: 837.40 moves=200 keys={"sortable/xy.ts:resolve": 4920, "sortable/xy.ts:moved": 2544, "sortable/rect-index.ts:collect": 89124, "sortable/rect-index.ts:#read": 70892}
+P r1 xy first move, sink: 7209.33 moves=60 keys={"sortable/xy.ts:resolve": 10056, "sortable/xy.ts:refresh": 1280, "sortable/rect-index.ts:get first": 68, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 93136, "sortable/rect-index.ts:measurePlaceholder": 496, "sortable/rect-index.ts:#read": 45976, "sortable/rect-index.ts:measure": 148, "sortable/rect-index.ts:at": 6436, "sortable/rect-index.ts:item": 44, "sortable/rect-index.ts:insertion": 704, "sortable/xy.ts:moved": 7788, "sortable/rect-index.ts:get count": 44, "sortable/rect-index.ts:held": 6580, "sortable/rect-index.ts:retain": 28728, "sortable/rect-index.ts:invalidate": 32, "sortable/xy.ts:invalidate": 120, "sortable/xy.ts:retire": 236, "sortable/rect-index.ts:retire": 140, "sortable/xy.ts:": 9128, "sortable/rect-index.ts:RectIndex": 4092, "sortable/xy.ts:xy": 980}
+P r2 y sample: 50.17 keys={"sortable/operation.ts:move": 20068}
+P r2 y move, cold: 116.44 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8208, "sortable/linear-shift.ts:moved": 1344, "sortable/rect-index.ts:shift": 13596}
+P r2 xy move, sink: 837.62 moves=200 keys={"sortable/xy.ts:resolve": 4944, "sortable/xy.ts:moved": 2364, "sortable/rect-index.ts:collect": 90564, "sortable/rect-index.ts:#read": 69652}
+P r2 xy first move, sink: 7257.33 moves=60 keys={"sortable/xy.ts:resolve": 9480, "sortable/xy.ts:refresh": 1304, "sortable/rect-index.ts:get first": 36, "sortable/rect-index.ts:collect": 93908, "sortable/rect-index.ts:measurePlaceholder": 440, "sortable/rect-index.ts:#read": 46864, "sortable/rect-index.ts:measure": 196, "sortable/rect-index.ts:at": 6772, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 672, "sortable/xy.ts:moved": 7932, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:get end": 32, "sortable/rect-index.ts:held": 6248, "sortable/rect-index.ts:retain": 29464, "sortable/rect-index.ts:invalidate": 68, "sortable/xy.ts:invalidate": 188, "sortable/xy.ts:retire": 236, "sortable/rect-index.ts:retire": 92, "sortable/xy.ts:": 8908, "sortable/rect-index.ts:RectIndex": 3916, "sortable/xy.ts:xy": 812}
+P r3 y sample: 51.89 keys={"sortable/operation.ts:move": 20756}
+P r3 y move, cold: 116.58 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8092, "sortable/linear-shift.ts:moved": 1188, "sortable/rect-index.ts:shift": 13896}
+P r3 xy move, sink: 831.36 moves=200 keys={"sortable/xy.ts:resolve": 4824, "sortable/xy.ts:moved": 2544, "sortable/rect-index.ts:collect": 89504, "sortable/rect-index.ts:#read": 69400}
+P r3 xy first move, sink: 7252.93 moves=60 keys={"sortable/xy.ts:resolve": 9856, "sortable/xy.ts:refresh": 1216, "sortable/rect-index.ts:get first": 232, "sortable/rect-index.ts:get end": 36, "sortable/rect-index.ts:collect": 93396, "sortable/rect-index.ts:measurePlaceholder": 460, "sortable/rect-index.ts:#read": 45736, "sortable/rect-index.ts:measure": 164, "sortable/rect-index.ts:at": 6548, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 704, "sortable/xy.ts:moved": 7956, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:held": 6956, "sortable/rect-index.ts:retain": 29400, "sortable/xy.ts:invalidate": 196, "sortable/rect-index.ts:invalidate": 36, "sortable/xy.ts:retire": 204, "sortable/rect-index.ts:retire": 140, "sortable/xy.ts:": 9200, "sortable/rect-index.ts:RectIndex": 4020, "sortable/xy.ts:xy": 980}
+VS r1 y sample: 49.18 keys={"sortable/operation.ts:move": 19672}
+VS r1 y move, cold: 111.98 moves=200 keys={"sortable/rect-index.ts:#read": 8196, "sortable/linear-shift.ts:moved": 1164, "sortable/rect-index.ts:get count": 100, "sortable/rect-index.ts:shift": 12936}
+VS r1 xy move, sink: 831.40 moves=200 keys={"sortable/xy.ts:resolve": 4824, "sortable/xy.ts:moved": 2712, "sortable/rect-index.ts:collect": 88280, "sortable/rect-index.ts:#read": 70464}
+VS r1 xy first move, sink: 7922.27 moves=60 keys={"sortable/xy.ts:resolve": 6732, "sortable/xy.ts:refresh": 1196, "sortable/rect-index.ts:get first": 188, "sortable/rect-index.ts:get end": 36, "sortable/rect-index.ts:collect": 138628, "sortable/rect-index.ts:measurePlaceholder": 452, "sortable/rect-index.ts:#read": 51928, "sortable/rect-index.ts:measure": 288, "sortable/rect-index.ts:at": 6416, "sortable/rect-index.ts:item": 76, "sortable/rect-index.ts:insertion": 728, "sortable/xy.ts:moved": 3524, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:retain": 14240, "sortable/rect-index.ts:invalidate": 68, "sortable/xy.ts:invalidate": 164, "sortable/xy.ts:retire": 180, "sortable/rect-index.ts:retire": 92, "sortable/xy.ts:": 8732, "sortable/rect-index.ts:RectIndex": 3112, "sortable/xy.ts:xy": 812}
+VS r2 y sample: 49.55 keys={"sortable/operation.ts:move": 19820}
+VS r2 y move, cold: 116.90 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8192, "sortable/linear-shift.ts:moved": 1224, "sortable/rect-index.ts:shift": 13824}
+VS r2 xy move, sink: 838.14 moves=200 keys={"sortable/xy.ts:resolve": 5136, "sortable/xy.ts:moved": 2568, "sortable/rect-index.ts:collect": 89952, "sortable/rect-index.ts:#read": 69972}
+VS r2 xy first move, sink: 8013.07 moves=60 keys={"sortable/xy.ts:resolve": 6940, "sortable/xy.ts:refresh": 1208, "sortable/rect-index.ts:get first": 68, "sortable/rect-index.ts:get end": 68, "sortable/rect-index.ts:collect": 138968, "sortable/rect-index.ts:measurePlaceholder": 488, "sortable/rect-index.ts:#read": 53840, "sortable/rect-index.ts:measure": 132, "sortable/rect-index.ts:at": 6448, "sortable/rect-index.ts:item": 44, "sortable/rect-index.ts:insertion": 704, "sortable/xy.ts:moved": 3556, "sortable/rect-index.ts:get count": 32, "sortable/rect-index.ts:retain": 14288, "sortable/rect-index.ts:invalidate": 68, "sortable/xy.ts:invalidate": 188, "sortable/xy.ts:retire": 192, "sortable/rect-index.ts:retire": 108, "sortable/xy.ts:": 9084, "sortable/rect-index.ts:RectIndex": 3044, "sortable/xy.ts:xy": 924}
+VS r3 y sample: 50.24 keys={"sortable/operation.ts:move": 20096}
+VS r3 y move, cold: 113.62 moves=200 keys={"sortable/rect-index.ts:collect": 140, "sortable/rect-index.ts:#read": 8220, "sortable/linear-shift.ts:moved": 1224, "sortable/rect-index.ts:shift": 13140}
+VS r3 xy move, sink: 841.88 moves=200 keys={"sortable/xy.ts:resolve": 4848, "sortable/xy.ts:moved": 2460, "sortable/rect-index.ts:collect": 90224, "sortable/rect-index.ts:#read": 70844}
+VS r3 xy first move, sink: 7951.20 moves=60 keys={"sortable/xy.ts:resolve": 6804, "sortable/xy.ts:refresh": 1384, "sortable/rect-index.ts:get first": 36, "sortable/rect-index.ts:get end": 36, "sortable/rect-index.ts:collect": 139020, "sortable/rect-index.ts:measurePlaceholder": 520, "sortable/rect-index.ts:#read": 53036, "sortable/rect-index.ts:measure": 164, "sortable/rect-index.ts:at": 6400, "sortable/rect-index.ts:item": 44, "sortable/rect-index.ts:insertion": 704, "sortable/xy.ts:moved": 3548, "sortable/rect-index.ts:get count": 76, "sortable/rect-index.ts:retain": 13660, "sortable/rect-index.ts:invalidate": 68, "sortable/xy.ts:invalidate": 164, "sortable/xy.ts:retire": 180, "sortable/rect-index.ts:retire": 92, "sortable/xy.ts:": 8932, "sortable/rect-index.ts:RectIndex": 2884, "sortable/xy.ts:xy": 784}
+
+## Per-function attribution, mean of the three launches
+# first move: bytes per operation (30 operations, each on a fresh sortable, 2 committed moves per operation)
+# move: bytes per committed move (200 moves, after 100)
+== first move
+base: sortable/rect-index.ts:#read=1531.8, sortable/rect-index.ts:RectIndex=101.4, sortable/rect-index.ts:at=228.5, sortable/rect-index.ts:collect=3100.8, sortable/rect-index.ts:get count=2.5, sortable/rect-index.ts:get end=2.3, sortable/rect-index.ts:get first=10.9, sortable/rect-index.ts:insertion=23.3, sortable/rect-index.ts:invalidate=1.5, sortable/rect-index.ts:item=2.2, sortable/rect-index.ts:measure=6.0, sortable/rect-index.ts:measurePlaceholder=16.0, sortable/rect-index.ts:retire=2.8, sortable/xy.ts:=424.6, sortable/xy.ts:invalidate=5.6, sortable/xy.ts:moved=1097.4, sortable/xy.ts:refresh=40.7, sortable/xy.ts:resolve=233.7, sortable/xy.ts:retire=7.5, sortable/xy.ts:xy=30.5
+VX: sortable/rect-index.ts:#read=1530.1, sortable/rect-index.ts:RectIndex=84.0, sortable/rect-index.ts:RetainingRectIndex=99.7, sortable/rect-index.ts:at=225.7, sortable/rect-index.ts:collect=3109.1, sortable/rect-index.ts:get count=2.5, sortable/rect-index.ts:get end=2.3, sortable/rect-index.ts:get first=8.5, sortable/rect-index.ts:held=222.4, sortable/rect-index.ts:insertion=22.8, sortable/rect-index.ts:invalidate=1.9, sortable/rect-index.ts:item=2.2, sortable/rect-index.ts:measure=5.8, sortable/rect-index.ts:measurePlaceholder=16.4, sortable/rect-index.ts:retain=504.0, sortable/rect-index.ts:retire=3.8, sortable/xy.ts:=248.9, sortable/xy.ts:invalidate=6.2, sortable/xy.ts:moved=264.3, sortable/xy.ts:refresh=43.3, sortable/xy.ts:resolve=238.5, sortable/xy.ts:retire=7.3, sortable/xy.ts:xy=29.2
+P: sortable/rect-index.ts:#read=1539.7, sortable/rect-index.ts:RectIndex=133.6, sortable/rect-index.ts:at=219.5, sortable/rect-index.ts:collect=3116.0, sortable/rect-index.ts:get count=2.2, sortable/rect-index.ts:get end=1.5, sortable/rect-index.ts:get first=3.7, sortable/rect-index.ts:held=219.8, sortable/rect-index.ts:insertion=23.1, sortable/rect-index.ts:invalidate=1.5, sortable/rect-index.ts:item=2.2, sortable/rect-index.ts:measure=5.6, sortable/rect-index.ts:measurePlaceholder=15.5, sortable/rect-index.ts:retain=973.2, sortable/rect-index.ts:retire=4.1, sortable/xy.ts:=302.6, sortable/xy.ts:invalidate=5.6, sortable/xy.ts:moved=263.1, sortable/xy.ts:refresh=42.2, sortable/xy.ts:resolve=326.6, sortable/xy.ts:retire=7.5, sortable/xy.ts:xy=30.8
+VS: sortable/rect-index.ts:#read=1764.5, sortable/rect-index.ts:RectIndex=100.4, sortable/rect-index.ts:at=214.0, sortable/rect-index.ts:collect=4629.1, sortable/rect-index.ts:get count=2.0, sortable/rect-index.ts:get end=1.6, sortable/rect-index.ts:get first=3.2, sortable/rect-index.ts:insertion=23.7, sortable/rect-index.ts:invalidate=2.3, sortable/rect-index.ts:item=1.8, sortable/rect-index.ts:measure=6.5, sortable/rect-index.ts:measurePlaceholder=16.2, sortable/rect-index.ts:retain=468.8, sortable/rect-index.ts:retire=3.2, sortable/xy.ts:=297.2, sortable/xy.ts:invalidate=5.7, sortable/xy.ts:moved=118.1, sortable/xy.ts:refresh=42.1, sortable/xy.ts:resolve=227.5, sortable/xy.ts:retire=6.1, sortable/xy.ts:xy=28.0
+== move
+base: sortable/rect-index.ts:#read=353.3, sortable/rect-index.ts:collect=456.0, sortable/xy.ts:moved=11.9, sortable/xy.ts:resolve=25.3
+VX: sortable/rect-index.ts:#read=347.1, sortable/rect-index.ts:collect=453.8, sortable/xy.ts:moved=12.4, sortable/xy.ts:resolve=23.8
+P: sortable/rect-index.ts:#read=349.9, sortable/rect-index.ts:collect=448.7, sortable/xy.ts:moved=12.4, sortable/xy.ts:resolve=24.5
+VS: sortable/rect-index.ts:#read=352.1, sortable/rect-index.ts:collect=447.4, sortable/xy.ts:moved=12.9, sortable/xy.ts:resolve=24.7

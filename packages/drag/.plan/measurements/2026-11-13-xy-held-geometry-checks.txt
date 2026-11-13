@@ -1,0 +1,36 @@
+# xy() held-geometry proposal: checks, Chromium only, 2026-11-13, node v26.13.0
+# trees: detached scratch worktrees of 61f883d09 (base) with one patch from probes/xy-held-geometry/patches/
+
+## Suite, final VX (VX-retaining-subclass.diff.txt): npx vitest run -c vitest.config.ts
+     × should satisfy the declared graph and ceiling of draggable alone
+     × should satisfy the declared graph and ceiling of example: resize handle
+     × should satisfy the declared graph and ceiling of example: drop zone
+     × should satisfy the declared graph and ceiling of freeDrag
+     × should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+     × should satisfy the declared graph and ceiling of complete
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed | 54 passed (55)
+      Tests  6 failed | 740 passed (746)
+Base at 61f883d09, from owner-edits-integration-report.md §Verification: 740 passed, 6 failed, all in tests/size.node.test.ts. The same six rows fail here.
+
+## Typecheck: npx tsc -p tsconfig.json --noEmit, in P, VS, VX as measured and the final VX
+Each tree: one error only, ../../.scripts/tsdown-library.ts(53,11) TS2322 (repo:RF-31, present at the base).
+
+## Lint and format on src/sortable/rect-index.ts and src/sortable/xy.ts
+final VX: just fmt, just lint-fix, just fmt, then just lint: clean (oxlint and eslint).
+VX as measured: oxlint consistent-type-imports at xy.ts:15 (RectIndex used only as a type); the final patch imports it with 'type'.
+P: fmt-check clean, lint clean. VS: lint clean, fmt-check reports one file; not reformatted (VS is not recommended; formatting changes no runtime).
+
+## Mutations of VX, one at a time, run against the flows file (browser project)
+VX as measured, MX1-retain-after-rebuild: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ Tests 2 failed (2); failed: × wrapping × animation
+VX as measured, MX2-held-ignores-field: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ Tests 2 failed (2); failed: × wrapping × animation
+VX as measured, MX3-rebuild-without-sink: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯ Tests 1 failed | 1 passed (2); failed: × animation
+VX as measured, MX4-retain-wrong-slot: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ Tests 2 failed (2); failed: × wrapping × animation
+final VX, MX1-retain-after-rebuild: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ Tests 2 failed (2); failed: × wrapping × animation
+final VX, MX2-retained-ignores-field: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ Tests 2 failed (2); failed: × wrapping × animation
+final VX, MX3-rebuild-without-sink: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯ Tests 1 failed | 1 passed (2); failed: × animation
+final VX, MX4-retain-copies-slot-0: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ Tests 2 failed (2); failed: × wrapping × animation
+MX1: retain() moved after the rebuild. MX2: the read ignores the field (slot * 2). MX3: moved's rebuild passes null as the sink. MX4: retain copies slot 0's left into every slot.
+
+## Emitted declarations
+The 27 .d.ts files the size run's build emitted are byte-identical between the base and the final VX; no rect-index.d.ts is emitted.

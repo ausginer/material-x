@@ -1,0 +1,205 @@
+/*
+ * xy() held-geometry prototype: the wrapping and animation flows through the real
+ * `xy()` installer, with real layout. Copied to `tests/xy-held-flows.browser.test.ts`
+ * in a tree at the baseline or with a variant patch applied, and run in the
+ * `browser` project only:
+ *
+ *   npx vitest run -c vitest.config.ts --project browser \
+ *     tests/xy-held-flows.browser.test.ts --silent=false
+ *
+ * Each committed move prints one `FLOW` line per reported cell: the vector `xy()`
+ * passed to the sink, rounded to 0.1 px. The oracle is each cell's flow position,
+ * read through `offsetLeft` and `offsetTop`, which ignore a running animation:
+ * every reported vector must be the cell's flow travel, negated, and every cell
+ * whose flow position changed must be reported. The lines are compared between
+ * trees; the assertions are the prototype's correctness claims. Not a test of the
+ * suite.
+ */
+import { ancestry, space } from '@ydinjs/box-quad';
+import { afterEach, describe, expect, it } from 'vitest';
+import type { AxisContext, DisplacementSink } from '../src/sortable/axis.ts';
+import { insertionAt, type Insertion } from '../src/sortable/domain.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
+
+type Report = { id: string; dx: number; dy: number };
+
+afterEach(() => {
+  document.body.replaceChildren();
+});
+
+/** A wrapping field of 100 × 60 cells, three per row, with `c0` dragged. */
+function field(count: number) {
+  const list = document.createElement('div');
+
+  list.style.cssText = 'display:flex;flex-wrap:wrap;width:300px;margin:8px';
+
+  const cells: HTMLElement[] = [];
+
+  const add = (n: number): void => {
+    for (let i = 0; i < n; i += 1) {
+      const cell = document.createElement('div');
+
+      cell.id = `c${cells.length}`;
+      cell.style.cssText = 'width:100px;height:60px;background:#ddd';
+      list.append(cell);
+      cells.push(cell);
+    }
+  };
+
+  add(count);
+
+  const placeholder = document.createElement('div');
+
+  placeholder.style.cssText = 'width:100px;height:60px';
+  cells[0]!.before(placeholder);
+  cells[0]!.style.display = 'none';
+  document.body.append(list);
+
+  return { list, cells, placeholder, dragged: cells[0]!, add };
+}
+
+/** Where flow puts `cell`, in viewport units, whatever an animation draws. */
+function flow(list: HTMLElement, cell: HTMLElement): [number, number] {
+  const rect = list.getBoundingClientRect();
+
+  return [
+    rect.left + cell.offsetLeft - list.offsetLeft,
+    rect.top + cell.offsetTop - list.offsetTop,
+  ];
+}
+
+function recordingSink(
+  reports: Report[],
+  inner: DisplacementSink | null,
+): DisplacementSink {
+  return {
+    get dx() {
+      return inner ? inner.dx : 0;
+    },
+    get dy() {
+      return inner ? inner.dy : 0;
+    },
+    report(element, dx, dy, space_) {
+      reports.push({ id: element.id, dx, dy });
+      inner?.report(element, dx, dy, space_);
+    },
+    displaced: (element) => (inner ? inner.displaced(element) : false),
+    retire() {
+      inner?.retire();
+    },
+  };
+}
+
+/**
+ * Drives `xy()` the way an operation does: a resolution at the target cell's flow
+ * center, the placeholder moved to the gap it returns, then `moved`. Returns the
+ * reports of each committed move.
+ */
+function drive(
+  label: string,
+  setup: ReturnType<typeof field>,
+  geometry: ReturnType<ReturnType<typeof xy>>,
+  context: AxisContext,
+  reports: Report[],
+  version: number,
+  targets: readonly number[],
+): void {
+  const { list, cells, placeholder, dragged } = setup;
+  const snapshot = { items: cells.slice(), version };
+  const destination = cells.filter((cell) => cell !== dragged);
+  let insertion: Insertion = insertionAt(
+    destination,
+    [...list.children]
+      .filter((element) => element !== dragged)
+      .indexOf(placeholder),
+  );
+
+  for (const target of targets) {
+    const [x, y] = flow(list, destination[target]!);
+    const resolved = geometry.resolve(
+      { pointerX: x + 50, pointerY: y + 30, snapshot, insertion, item: dragged },
+      context,
+    );
+
+    expect(resolved).not.toBeNull();
+
+    const before = destination.map((cell) => flow(list, cell));
+
+    if (resolved!.after) {
+      resolved!.after.before(placeholder);
+    } else {
+      resolved!.before!.after(placeholder);
+    }
+
+    insertion = resolved!;
+    reports.length = 0;
+    geometry.moved(
+      { pointerX: x + 50, pointerY: y + 30, snapshot, insertion, item: dragged },
+      context,
+    );
+
+    const reported = new Map(reports.map((report) => [report.id, report]));
+
+    console.log(`FLOW ${label} v${version} target ${target} -> gap ${insertion.index}: ${reports.length} reported`);
+
+    destination.forEach((cell, slot) => {
+      const [x0, y0] = before[slot]!;
+      const [x1, y1] = flow(list, cell);
+      const report = reported.get(cell.id);
+
+      if (report) {
+        console.log(`FLOW ${label}   ${cell.id} dx=${report.dx.toFixed(1)} dy=${report.dy.toFixed(1)}`);
+        expect(report.dx).toBeCloseTo(x0 - x1, 1);
+        expect(report.dy).toBeCloseTo(y0 - y1, 1);
+      } else {
+        expect([x0 - x1, y0 - y1]).toEqual([0, 0]);
+      }
+    });
+  }
+}
+
+describe('xy() held geometry flows', () => {
+  for (const animated of [false, true]) {
+    const label = animated ? 'animation' : 'wrapping';
+
+    it(`${label} flow: every committed move reports each cell's flow travel, negated`, () => {
+      const setup = field(12);
+      const reports: Report[] = [];
+      const itemSpace = space();
+
+      ancestry(setup.list, itemSpace);
+
+      const inner = animated
+        ? layoutAnimation({ duration: 60_000, easing: 'linear' })()
+        : null;
+      const context: AxisContext = {
+        placeholder: setup.placeholder,
+        displacement: recordingSink(reports, inner),
+        space: itemSpace,
+      };
+      const geometry = xy()();
+
+      // Across wraps, forward and back. With the animation, every move after the
+      // first measures cells that a running animation still draws away from flow.
+      drive(label, setup, geometry, context, reports, 1, [4, 9, 1, 10, 5]);
+
+      if (animated) {
+        const running = setup.cells.filter(
+          (cell) => cell.getAnimations().length > 0,
+        ).length;
+
+        console.log(`FLOW ${label} running animations: ${running}`);
+        expect(running).toBeGreaterThan(0);
+      }
+
+      // A second operation on the same installer, over a larger collection: the
+      // held geometry grows with it.
+      geometry.retire();
+      setup.add(9);
+      drive(label, setup, geometry, context, reports, 2, [15, 2, 19, 7]);
+      geometry.retire();
+      inner?.retire();
+    });
+  }
+});

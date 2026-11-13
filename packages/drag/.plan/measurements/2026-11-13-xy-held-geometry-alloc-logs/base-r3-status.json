@@ -1,0 +1,116 @@
+{
+  "id": "xyh-base-r3",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag",
+  "runner": {
+    "pid": 991155,
+    "start": "11195359"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T15:33:04.903Z",
+  "endedAt": "2026-11-13T15:36:08.127Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag/.campaigns/xyh-base-r3/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 991172,
+        "start": "11195371"
+      },
+      "startedAt": "2026-11-13T15:33:04.927Z",
+      "endedAt": "2026-11-13T15:33:18.947Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag/.campaigns/xyh-base-r3/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 991467,
+        "start": "11196775"
+      },
+      "startedAt": "2026-11-13T15:33:18.963Z",
+      "endedAt": "2026-11-13T15:33:33.190Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag/.campaigns/xyh-base-r3/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 991752,
+        "start": "11198199"
+      },
+      "startedAt": "2026-11-13T15:33:33.204Z",
+      "endedAt": "2026-11-13T15:33:50.481Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag/.campaigns/xyh-base-r3/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 992166,
+        "start": "11199927"
+      },
+      "startedAt": "2026-11-13T15:33:50.492Z",
+      "endedAt": "2026-11-13T15:35:42.701Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'XYH move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag/.campaigns/xyh-base-r3/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 994329,
+        "start": "11211150"
+      },
+      "startedAt": "2026-11-13T15:35:42.716Z",
+      "endedAt": "2026-11-13T15:35:59.861Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'XYH first move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/base/packages/drag/.campaigns/xyh-base-r3/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 994668,
+        "start": "11212866"
+      },
+      "startedAt": "2026-11-13T15:35:59.877Z",
+      "endedAt": "2026-11-13T15:36:08.127Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

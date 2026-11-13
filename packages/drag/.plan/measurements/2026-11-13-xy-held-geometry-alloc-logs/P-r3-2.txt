@@ -1,0 +1,3 @@
+C6-MOVE-PROBE moves=200 perMove=116.58 keys={"sortable/rect-index.ts:collect":140,"sortable/rect-index.ts:#read":8092,"sortable/linear-shift.ts:moved":1188,"sortable/rect-index.ts:shift":13896}
+ Test Files  1 passed (1)
+      Tests  1 passed | 15 skipped (16)

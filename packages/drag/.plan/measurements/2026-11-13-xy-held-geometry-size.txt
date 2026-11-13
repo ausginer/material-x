@@ -1,0 +1,175 @@
+# xy() held-geometry proposal: size, Chromium-independent (npx just size, the gate on the published build)
+# base: 61f883d09 (drag/size head; drag/rect-index-ownership fast-forwarded to it), detached scratch worktrees with the main checkout's node_modules linked
+# variants: the base with one patch from probes/xy-held-geometry/patches/ applied to src/sortable/rect-index.ts and xy.ts
+# node v26.13.0, 2026-11-13T15:21:27+00:00
+
+## base
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20221 min   7290 gz   6577 br  20 modules
+sortable + xy                   20073 min   7266 gz   6534 br  19 modules
+complete                        21803 min   7950 gz   7175 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 110 B
+
+## P
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20376 min   7360 gz   6637 br  20 modules
+sortable + xy                   20115 min   7296 gz   6563 br  19 modules
+complete                        21958 min   8022 gz   7213 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 148 B
+
+## VS
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20322 min   7328 gz   6615 br  20 modules
+sortable + xy                   20057 min   7262 gz   6535 br  19 modules
+complete                        21904 min   7988 gz   7196 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 131 B
+
+## VX
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20221 min   7290 gz   6577 br  20 modules
+sortable + xy                   20121 min   7286 gz   6563 br  19 modules
+complete                        21803 min   7950 gz   7175 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 110 B
+
+## VXd
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20221 min   7290 gz   6577 br  20 modules
+sortable + xy                   20117 min   7282 gz   6561 br  19 modules
+complete                        21803 min   7950 gz   7175 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 110 B
+
+## deltas against base (min, gz, br), and the variant's absolute br
+P:
+  draggable alone                (0, 0, 0) br=2189
+  draggable + lift               (0, 0, 0) br=3968
+  example: resize handle         (0, 0, 0) br=3314
+  example: drop zone             (0, 0, 0) br=4598
+  example: canvas group          (0, 0, 0) br=3300
+  freeDrag                       (0, 0, 0) br=5018
+  freeDrag + bounds + landing    (0, 0, 0) br=5450
+  sortable + y                   (155, 70, 60) br=6637
+  sortable + xy                  (42, 30, 29) br=6563
+  complete                       (155, 72, 38) br=7213
+VS:
+  draggable alone                (0, 0, 0) br=2189
+  draggable + lift               (0, 0, 0) br=3968
+  example: resize handle         (0, 0, 0) br=3314
+  example: drop zone             (0, 0, 0) br=4598
+  example: canvas group          (0, 0, 0) br=3300
+  freeDrag                       (0, 0, 0) br=5018
+  freeDrag + bounds + landing    (0, 0, 0) br=5450
+  sortable + y                   (101, 38, 38) br=6615
+  sortable + xy                  (-16, -4, 1) br=6535
+  complete                       (101, 38, 21) br=7196
+VX:
+  draggable alone                (0, 0, 0) br=2189
+  draggable + lift               (0, 0, 0) br=3968
+  example: resize handle         (0, 0, 0) br=3314
+  example: drop zone             (0, 0, 0) br=4598
+  example: canvas group          (0, 0, 0) br=3300
+  freeDrag                       (0, 0, 0) br=5018
+  freeDrag + bounds + landing    (0, 0, 0) br=5450
+  sortable + y                   (0, 0, 0) br=6577
+  sortable + xy                  (48, 20, 29) br=6563
+  complete                       (0, 0, 0) br=7175
+VXd:
+  draggable alone                (0, 0, 0) br=2189
+  draggable + lift               (0, 0, 0) br=3968
+  example: resize handle         (0, 0, 0) br=3314
+  example: drop zone             (0, 0, 0) br=4598
+  example: canvas group          (0, 0, 0) br=3300
+  freeDrag                       (0, 0, 0) br=5018
+  freeDrag + bounds + landing    (0, 0, 0) br=5450
+  sortable + y                   (0, 0, 0) br=6577
+  sortable + xy                  (44, 16, 27) br=6561
+  complete                       (0, 0, 0) br=7175
+
+## VXF: VX-retaining-subclass.diff.txt, the final names (retain, retained, #retained, type-only RectIndex import), formatted and linted
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20221 min   7290 gz   6577 br  20 modules
+sortable + xy                   20133 min   7284 gz   6564 br  19 modules
+complete                        21803 min   7950 gz   7175 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 110 B
+VXF deltas:
+  draggable alone                (0, 0, 0) br=2189
+  draggable + lift               (0, 0, 0) br=3968
+  example: resize handle         (0, 0, 0) br=3314
+  example: drop zone             (0, 0, 0) br=4598
+  example: canvas group          (0, 0, 0) br=3300
+  freeDrag                       (0, 0, 0) br=5018
+  freeDrag + bounds + landing    (0, 0, 0) br=5450
+  sortable + y                   (0, 0, 0) br=6577
+  sortable + xy                  (60, 18, 30) br=6564
+  complete                       (0, 0, 0) br=7175
