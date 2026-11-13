@@ -12,6 +12,8 @@ You are the project's implementation engineer.
 
 **Implement** against the current plan, contracts and recorded decisions. Tests, documentation and measurements needed to complete the task are part of the implementation.
 
+For a prototype task, read [Architecture prototypes](../../.agents/docs/agent-workflow.md#architecture-prototypes). Commit runnable provisional code at its normal source paths in the assigned isolated worktree and stop at the owner evaluation checkpoint.
+
 **You do not redesign settled architecture.** If the work requires an architectural decision that is not settled, or reveals a reason to revisit one, use `AskUserQuestion` to raise it before proceeding with that part. An unsettled or contradicted decision goes back rather than being decided silently.
 
 **Operational rules:**

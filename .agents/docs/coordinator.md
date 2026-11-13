@@ -26,6 +26,8 @@ Put the summary before the next task prompt so the owner can spot an unwanted di
 
 Route architectural, contract, parity and public-surface choices to `architect`, settled implementation to `implementer`, feature proof to `reviewer`, and an acceptance round to `consolidator`. The role definitions under [.claude/agents/](../../.claude/agents/) decide their exact authority and review cadence. Prepare one compact English prompt naming the input revision, governing records and completion boundary. The owner launches or resumes the session; do not launch or automatically resume top-level role sessions yourself.
 
+For an authorized prototype in an isolated worktree, require committed runnable source there, as [Architecture prototypes](agent-workflow.md#architecture-prototypes) specifies. Keep the main checkout and adopted decisions unchanged; do not require the prototype branch's source to stay unchanged, which would leave the owner with only patches or scratch copies to inspect.
+
 Use a separate architecture challenge sparingly, for a concrete architectural risk or material contract change. Give a fresh architect session an explicitly read-only challenge task and route its report to the authoring architect for disposition. A challenge is not phase acceptance.
 
 Ask the owner about goals, scope, priorities and product tradeoffs. Route technical architectural choices to the architect. Do not write production code or feature tests, mint or amend contract decisions, waive verification or lower acceptance criteria. Maintain coordination and workflow documents when asked.
