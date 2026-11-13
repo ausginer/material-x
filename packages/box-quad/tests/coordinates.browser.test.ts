@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { ancestry, box, coordinates, space, type Box } from '../src/index.ts';
+import { ancestry, coordinates } from '../src/index.ts';
 import {
   createBox,
   createFlowBox,
@@ -10,7 +10,6 @@ import {
 } from './support/fixtures.ts';
 
 const BOX_LENGTH = 8;
-const SPACE_LENGTH = 5;
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -30,7 +29,7 @@ afterEach(resetDocument);
 
 const TOLERANCE = 0.000001;
 
-function sentinels(): Box {
+function sentinels(): Float64Array {
   return new Float64Array(BOX_LENGTH).map((_value, index) => index + 1);
 }
 
@@ -389,7 +388,7 @@ describe('ancestry without a principal box', () => {
     });
     const source = createBox({ parent, styles: { display: 'contents' } });
 
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
     expectNear(inherited(source)[SPACE_A]!, 2);
   });
 
@@ -405,12 +404,12 @@ describe('ancestry without a principal box', () => {
 
     source.textContent = 'aaaa bbbb cccc dddd eeee ffff';
     expect(source.getClientRects().length).toBeGreaterThan(1);
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
     expectNear(inherited(source)[SPACE_A]!, 2);
   });
 
   it('should answer for a disconnected element', () => {
-    const out = space();
+    const out: number[] = [];
 
     expect(ancestry(document.createElement('div'), out)).toBe(true);
     expectNear(out[SPACE_A]!, 1);
@@ -424,10 +423,10 @@ describe('ancestry without a principal box', () => {
         transform: 'rotateX(30deg)',
       },
     });
-    const out = space();
+    const out: number[] = [];
 
     expect(ancestry(createBox({ parent }), out)).toBe(false);
-    expect(Array.from(out)).toEqual([0, 0, 0, 0, 0]);
+    expect(out).toEqual([]);
   });
 });
 
@@ -440,7 +439,7 @@ describe('coordinates with a supplied ancestry', () => {
       parent,
       styles: { left: '10px', top: '20px', transform: 'rotate(30deg)' },
     });
-    const supplied = box();
+    const supplied: number[] = [];
 
     expect(coordinates(source, supplied, inherited(source))).toBe(true);
 
@@ -454,7 +453,7 @@ describe('coordinates with a supplied ancestry', () => {
   it('should measure an element whose own transform is not 2D as a failure', () => {
     const source = createBox({ styles: { transform: 'rotateX(30deg)' } });
 
-    expect(coordinates(source, box(), inherited(source))).toBe(false);
+    expect(coordinates(source, [], inherited(source))).toBe(false);
   });
 });
 
@@ -502,11 +501,11 @@ describe('coordinates recognized limits', () => {
 
     source.remove();
 
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
   });
 
   it('should reject an element with no principal box', () => {
-    expect(coordinates(createBox({ styles: { display: 'none' } }), box())).toBe(
+    expect(coordinates(createBox({ styles: { display: 'none' } }), [])).toBe(
       false,
     );
   });
@@ -527,15 +526,12 @@ describe('coordinates recognized limits', () => {
     });
 
     expect(source.getClientRects().length).toBeGreaterThan(1);
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
   });
 
   it('should reject a 3D transform', () => {
     expect(
-      coordinates(
-        createBox({ styles: { transform: 'rotateY(30deg)' } }),
-        box(),
-      ),
+      coordinates(createBox({ styles: { transform: 'rotateY(30deg)' } }), []),
     ).toBe(false);
   });
 
@@ -544,7 +540,7 @@ describe('coordinates recognized limits', () => {
       styles: { width: '200px', height: '200px', perspective: '500px' },
     });
 
-    expect(coordinates(createBox({ parent }), box())).toBe(false);
+    expect(coordinates(createBox({ parent }), [])).toBe(false);
   });
 
   it('should reject an ancestor preserve-3d', () => {
@@ -556,12 +552,12 @@ describe('coordinates recognized limits', () => {
       },
     });
 
-    expect(coordinates(createBox({ parent }), box())).toBe(false);
+    expect(coordinates(createBox({ parent }), [])).toBe(false);
   });
 
   it('should reject a 3D individual translate', () => {
     expect(
-      coordinates(createBox({ styles: { translate: '0px 0px 10px' } }), box()),
+      coordinates(createBox({ styles: { translate: '0px 0px 10px' } }), []),
     ).toBe(false);
   });
 
@@ -575,18 +571,6 @@ describe('coordinates recognized limits', () => {
       },
     });
 
-    expect(() => coordinates(source, box())).toThrow('owner document failed');
-  });
-});
-
-describe('box', () => {
-  it('should allocate storage of the required length', () => {
-    expect(box()).toHaveLength(BOX_LENGTH);
-  });
-});
-
-describe('space', () => {
-  it('should allocate storage of the required length', () => {
-    expect(space()).toHaveLength(SPACE_LENGTH);
+    expect(() => coordinates(source, [])).toThrow('owner document failed');
   });
 });

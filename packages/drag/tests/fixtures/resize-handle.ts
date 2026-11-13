@@ -2,7 +2,12 @@
  * The smallest useful behavior: no lift and no verdict. The size is in the target's
  * own box, so the viewport delta converts through that box. Escape restores the size.
  */
-import { box, coordinates, delta, localDelta } from '@ydinjs/box-quad';
+import {
+  coordinates,
+  localDelta,
+  type Box,
+  type Delta,
+} from '@ydinjs/box-quad';
 import {
   draggable,
   type BehaviorOperation,
@@ -10,14 +15,14 @@ import {
 } from '../../src/draggable.ts';
 
 type Size = Readonly<{ width: number; height: number }>;
-type State = Size & { readonly basis: Float64Array };
+type State = Size & { readonly basis: Box };
 
 export function resizeHandle(
   handle: HTMLElement,
   target: HTMLElement,
   onEnd: (size: Size | 'restored') => void,
 ): DraggableController<BehaviorOperation> {
-  const local = delta();
+  const local: Delta = [];
   const write = (width: number, height: number): void => {
     target.style.width = `${width}px`;
     target.style.height = `${height}px`;
@@ -31,7 +36,7 @@ export function resizeHandle(
       state: {
         width: target.offsetWidth,
         height: target.offsetHeight,
-        basis: box(),
+        basis: [],
       },
     }),
 

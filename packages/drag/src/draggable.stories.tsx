@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
-  box as createBox,
   coordinates,
-  delta,
   localDelta,
+  type Box,
+  type Delta,
 } from '@ydinjs/box-quad';
 import { useEffect, useRef, type JSX } from 'react';
 import { draggable } from './draggable.ts';
@@ -15,7 +15,7 @@ const meta: Meta = {
 
 export default meta;
 
-type State = Readonly<{ width: number; height: number; basis: Float64Array }>;
+type State = Readonly<{ width: number; height: number; basis: Box }>;
 
 /**
  * A behavior with no lift: a resize handle. The size is in the target's own box, so
@@ -29,7 +29,7 @@ function ResizeDemo(): JSX.Element {
   useEffect(() => {
     const target = targetRef.current!;
     const handle = handleRef.current!;
-    const local = delta();
+    const local: Delta = [];
     const write = (width: number, height: number): void => {
       target.style.width = `${width}px`;
       target.style.height = `${height}px`;
@@ -41,7 +41,7 @@ function ResizeDemo(): JSX.Element {
         state: {
           width: target.offsetWidth,
           height: target.offsetHeight,
-          basis: createBox(),
+          basis: [],
         },
       }),
       activate(drag, state) {

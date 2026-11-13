@@ -66,7 +66,7 @@ Support is based on the one-unfragmented-principal-2D-border-box model. It is no
 
 | Case | Status | Boundary |
 | --- | :-: | --- |
-| Caller-owned reusable `Float64Array` output | **Supported** | No hot-path validation |
+| Caller-owned reusable numeric storage output | **Supported** | No hot-path validation |
 | Realm-owned DOM geometry | **Supported** | Any constructed DOM geometry uses the current source owner document |
 | Reads wholly within one iframe document | **Supported** | That document's realm and layout viewport |
 

@@ -1,22 +1,24 @@
 /**
- * One caller-owned box measurement, laid out as
- * `[a, b, c, d, e, f, width, height]`.
+ * One caller-owned box measurement in eight numeric slots:
  *
- * - `a`…`f` — the affine matrix from the element's untransformed local
- *   border-box space into its document viewport. It is always expressed in the
- *   canonical viewport basis, so two boxes measured from the same document are
- *   directly comparable.
- * - `width`/`height` — the untransformed border-box dimensions the matrix acts
- *   on.
+ * - `[0]` `a`, `[1]` `b`, `[2]` `c`, `[3]` `d`, `[4]` `e`, `[5]` `f` — the
+ *   affine matrix from the element's untransformed local border-box space into
+ *   its document viewport. It is always expressed in the canonical viewport
+ *   basis, so two boxes measured from the same document are directly
+ *   comparable.
+ * - `[6]` `width`, `[7]` `height` — the untransformed border-box dimensions the
+ *   matrix acts on.
  *
  * These eight values are exactly what {@link projection} reads. What an element
  * *inherits* is a fact about its ancestry rather than about its box, so it is a
  * {@link Space} and not part of this.
+ *
+ * Growable storage such as `[]` or a plain object may start empty. A fixed-size
+ * store such as a typed array needs at least eight slots. The storage must hold
+ * each written number exactly, as `number[]`, `Float64Array` and a plain object
+ * do.
  */
-export type Box = Float64Array;
-
-/** Required length of a {@link Box}. */
-const BOX_LENGTH = 8;
+export type Box = Record<number, number>;
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -28,14 +30,15 @@ const BOX_WIDTH = 6;
 const BOX_HEIGHT = 7;
 
 /**
- * One caller-owned inherited space, laid out as `[a, b, c, d, ancestorZoom]`.
+ * One caller-owned inherited space in five numeric slots:
  *
- * - `a`…`d` — the **linear part of the space the element inherits**:
- *   everything strictly above it in the flat tree, with its own transform and
- *   zoom excluded. This is the space a transform *authored on the element* acts
- *   in, so inverting it turns a viewport delta into the translation to write.
- *   Translation is omitted because a delta is unaffected by it.
- * - `ancestorZoom` — the cumulative CSS `zoom` of the same nodes. It is
+ * - `[0]` `a`, `[1]` `b`, `[2]` `c`, `[3]` `d` — the **linear part of the space
+ *   the element inherits**: everything strictly above it in the flat tree, with
+ *   its own transform and zoom excluded. This is the space a transform
+ *   *authored on the element* acts in, so inverting it turns a viewport delta
+ *   into the translation to write. Translation is omitted because a delta is
+ *   unaffected by it.
+ * - `[4]` `ancestorZoom` — the cumulative CSS `zoom` of the same nodes. It is
  *   reported because `zoom`, unlike `transform`, is not escaped by the top
  *   layer: a consumer promoting an element and positioning it by matrix has to
  *   divide the inherited zoom back out.
@@ -43,11 +46,13 @@ const BOX_HEIGHT = 7;
  * It holds no element reference and describes the ancestry at the moment
  * {@link ancestry} ran, exactly as a {@link Box} describes the layout at the
  * moment {@link coordinates} ran.
+ *
+ * Growable storage such as `[]` or a plain object may start empty. A fixed-size
+ * store such as a typed array needs at least five slots. The storage must hold
+ * each written number exactly, as `number[]`, `Float64Array` and a plain object
+ * do.
  */
-export type Space = Float64Array;
-
-/** Required length of a {@link Space}. */
-const SPACE_LENGTH = 5;
+export type Space = Record<number, number>;
 
 const SPACE_A = 0;
 const SPACE_B = 1;
@@ -56,31 +61,32 @@ const SPACE_D = 3;
 const SPACE_ANCESTOR_ZOOM = 4;
 
 /**
- * A projected border-box quad in p1, p2, p3, p4 physical-corner order,
- * `[x1, y1, x2, y2, x3, y3, x4, y4]`.
+ * A caller-owned projected border-box quad in eight numeric slots, with the
+ * corners in p1, p2, p3, p4 physical-corner order:
+ *
+ * - `[0]` `x1`, `[1]` `y1` — p1, the local origin corner.
+ * - `[2]` `x2`, `[3]` `y2` — p2, `width` along the local x axis.
+ * - `[4]` `x3`, `[5]` `y3` — p3, the corner opposite p1.
+ * - `[6]` `x4`, `[7]` `y4` — p4, `height` along the local y axis.
+ *
+ * Growable storage such as `[]` or a plain object may start empty. A fixed-size
+ * store such as a typed array needs at least eight slots. The storage must hold
+ * each written number exactly, as `number[]`, `Float64Array` and a plain object
+ * do.
  */
-export type Quad = Float64Array;
+export type Quad = Record<number, number>;
 
-/** Required length of a {@link Quad}. */
-const QUAD_LENGTH = 8;
-
-/** Allocates storage for one {@link Box}. */
-export const box = (): Box => new Float64Array(BOX_LENGTH);
-
-/** Allocates storage for one {@link Space}. */
-export const space = (): Space => new Float64Array(SPACE_LENGTH);
-
-/** Allocates storage for one {@link Quad}. */
-export const quad = (): Quad => new Float64Array(QUAD_LENGTH);
-
-/** A caller-owned `[x, y]` delta, written by {@link localDelta}. */
-export type Delta = Float64Array;
-
-/** Required length of a {@link Delta}. */
-const DELTA_LENGTH = 2;
-
-/** Allocates storage for one {@link Delta}. */
-export const delta = (): Delta => new Float64Array(DELTA_LENGTH);
+/**
+ * A caller-owned delta in two numeric slots, written by {@link localDelta}:
+ *
+ * - `[0]` `x`, `[1]` `y` — the delta along the basis's local x and y axes.
+ *
+ * Growable storage such as `[]` or a plain object may start empty. A fixed-size
+ * store such as a typed array needs at least two slots. The storage must hold
+ * each written number exactly, as `number[]`, `Float64Array` and a plain object
+ * do.
+ */
+export type Delta = Record<number, number>;
 
 // Hoisted so the minifier can mangle each call site down to one identifier.
 // `finite` is deliberately not named `isFinite`: the global of that name
@@ -280,7 +286,7 @@ export function ancestry(element: HTMLElement, out: Space): boolean {
  * the two forms differ only in who owns the intermediate value.
  *
  * **Precondition:** `above` must be *this* element's inherited space. Nothing
- * can check that: a `Space` is a caller-owned numeric array holding no element,
+ * can check that: a `Space` is caller-owned numeric storage holding no element,
  * so a space read from somewhere else produces a confidently wrong matrix, in
  * the same way {@link projection}'s same-viewport requirement does.
  *
@@ -297,7 +303,7 @@ export function ancestry(element: HTMLElement, out: Space): boolean {
 export function coordinates(
   element: HTMLElement,
   out: Box,
-  above?: Space,
+  above?: Readonly<Space>,
 ): boolean {
   const view = element.ownerDocument.defaultView!;
   // A disconnected element has no principal box, so it is already covered by
@@ -311,11 +317,13 @@ export function coordinates(
   let inherited = above;
 
   if (!inherited) {
-    inherited = space();
+    const read: Space = [];
 
-    if (!ancestry(element, inherited)) {
+    if (!ancestry(element, read)) {
       return false;
     }
+
+    inherited = read;
   }
 
   const style = view.getComputedStyle(element);
@@ -395,10 +403,14 @@ export function coordinates(
  *
  * **Precondition:** `source` and `relativeTo` must have been measured in the
  * same viewport coordinate space — normally the same `Document`. These are
- * caller-owned numeric arrays, so that is a documented requirement rather than
+ * caller-owned numeric storage, so that is a documented requirement rather than
  * something hidden metadata could enforce.
  */
-export function projection(source: Box, out: Quad, relativeTo?: Box): boolean {
+export function projection(
+  source: Readonly<Box>,
+  out: Quad,
+  relativeTo?: Readonly<Box>,
+): boolean {
   let a = source[BOX_A]!;
   let b = source[BOX_B]!;
   let c = source[BOX_C]!;
@@ -489,7 +501,7 @@ export function projection(source: Box, out: Quad, relativeTo?: Box): boolean {
  * result is not finite.
  */
 export function localDelta(
-  basis: Space | Box,
+  basis: Readonly<Space> | Readonly<Box>,
   dx: number,
   dy: number,
   out: Delta,

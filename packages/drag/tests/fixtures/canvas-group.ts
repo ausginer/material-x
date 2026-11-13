@@ -8,7 +8,7 @@
  * - rollback through `use`, which also runs on destruction, where `end` does not;
  * - a save that can fail.
  */
-import { ancestry, delta, localDelta, space } from '@ydinjs/box-quad';
+import { ancestry, localDelta, type Delta, type Space } from '@ydinjs/box-quad';
 import {
   draggable,
   type BehaviorOperation,
@@ -22,7 +22,7 @@ type State = Readonly<{
   guidesX: readonly number[];
   guidesY: readonly number[];
   /** What a node inherits, so that a viewport delta converts to `translate`. */
-  basis: Float64Array;
+  basis: Space;
 }>;
 
 /** One activated move of the group. */
@@ -65,7 +65,7 @@ export function canvasGroup(
   guide: (x: number | null, y: number | null) => void,
 ): CanvasGroup {
   const selection = new Set<HTMLElement>();
-  const local = delta();
+  const local: Delta = [];
   let handle = 0;
 
   const panel = draggable<State, undefined, GroupMove>(canvas, {
@@ -99,7 +99,7 @@ export function canvasGroup(
           })),
           guidesX: others.map((node) => node.offsetLeft),
           guidesY: others.map((node) => node.offsetTop),
-          basis: space(),
+          basis: [],
         },
       };
     },
