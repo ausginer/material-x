@@ -30,9 +30,9 @@ function refresh(
   index: RectIndex,
   snapshot: CollectionSnapshot,
   dragged: HTMLElement,
-  getBox: ((item: HTMLElement) => HTMLElement) | null,
+  getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
   placeholder: HTMLElement,
-  displacement: DisplacementSink | null,
+  displacement: DisplacementSink | null | undefined,
 ): void {
   index.collect(snapshot, dragged, placeholder, 0);
 

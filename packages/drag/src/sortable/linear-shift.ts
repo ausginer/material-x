@@ -56,9 +56,9 @@ export interface LinearShift {
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
+    getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
     placeholder: HTMLElement,
-    displacement: DisplacementSink | null,
+    displacement: DisplacementSink | null | undefined,
     gap: number,
     pointerY: number,
   ): void;

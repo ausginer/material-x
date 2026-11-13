@@ -7,6 +7,8 @@ import type { CollectionSnapshot, Insertion } from './domain.ts';
  * carries. Its members are always called on the sink, so they may read `this`.
  */
 export interface DisplacementSink {
+  readonly dx: number;
+  readonly dy: number;
   /**
    * Reports one element a committed move displaced, with its travel negated. The
    * vector is a viewport quantity, and `space` is what the collection inherits.
@@ -20,8 +22,6 @@ export interface DisplacementSink {
    * rebuild, and a row never jumps back.
    */
   displaced(element: HTMLElement): boolean;
-  readonly dx: number;
-  readonly dy: number;
   retire(this: DisplacementSink): void;
 }
 
@@ -41,9 +41,9 @@ export type AxisQuery = Readonly<{
 export type AxisContext = Readonly<{
   placeholder: HTMLElement;
   /** The geometry source, or `null` to measure each candidate itself. */
-  box: ((item: HTMLElement) => HTMLElement) | null;
+  box?: ((item: HTMLElement) => HTMLElement) | null;
   /** The composed sink, or `null` with no displacement. */
-  displacement: DisplacementSink | null;
+  displacement?: DisplacementSink | null;
   /** The space a displaced element's vector is reported in. */
   space: Space;
 }>;

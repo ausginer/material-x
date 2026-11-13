@@ -174,8 +174,8 @@ export class RectIndex {
   measure(
     lo: number,
     hi: number,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    displacement: DisplacementSink | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
   ): void {
     // A local, not repeated field reads inside the loop.
     const items = this.#items;
@@ -226,8 +226,8 @@ export class RectIndex {
    */
   travel(
     slot: number,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    displacement: DisplacementSink | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
   ): number {
     const axis = this.#axis;
 
@@ -243,7 +243,7 @@ export class RectIndex {
    * may an axis rule whose committed move relocated the placeholder.
    */
   measurePlaceholder(placeholder: HTMLElement): void {
-    this.#read(PLACEHOLDER, placeholder, null, null);
+    this.#read(PLACEHOLDER, placeholder);
   }
 
   /**
@@ -261,8 +261,8 @@ export class RectIndex {
   holds(
     gap: number,
     snapshot: CollectionSnapshot,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    displacement: DisplacementSink | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
   ): boolean {
     // Read once: each is used twice below.
     const first = this.#first;
@@ -308,14 +308,14 @@ export class RectIndex {
   #read(
     slot: number,
     element: HTMLElement,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    displacement: DisplacementSink | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
   ): void {
     const values = this.#values;
     const offset = (slot + LEADING) * STRIDE;
     // The box, because the placeholder is sized from the box's footprint, so both
     // sides of the comparison are the same kind of rect.
-    const rect = (getBox ? getBox(element) : element).getBoundingClientRect();
+    const rect = (getBox?.(element) ?? element).getBoundingClientRect();
     let dx = 0;
     let dy = 0;
 
@@ -353,9 +353,9 @@ export function verifyEquivalence(
   index: RectIndex,
   snapshot: CollectionSnapshot,
   dragged: HTMLElement,
-  getBox: ((item: HTMLElement) => HTMLElement) | null,
+  getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
   placeholder: HTMLElement,
-  displacement: DisplacementSink | null,
+  displacement: DisplacementSink | null | undefined,
   heldLeft: number,
   heldRight: number,
 ): void {

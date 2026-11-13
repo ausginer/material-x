@@ -252,3 +252,7 @@ This unit didn't change the rule or `DRD-61`.
 ## Next
 
 The architect reads this report, decides its acceptance, and decides on §Wording for the architect. `DRO-4`'s re-base, `DRF-38`'s scope and the rollback report's acceptance stay separate.
+
+## Follow-up after the independent review
+
+The owner's request moved this follow-up onto `drag/size`, where it landed with the owner's edits. The old comment, the new comment and the checks are in [`owner-edits-integration-report.md`](owner-edits-integration-report.md) §What changed and §Lint. The list's entries kept their routing. The only entry that changed is the renamed `tests/callbacks.browser.test.ts`.

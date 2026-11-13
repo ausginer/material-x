@@ -616,10 +616,9 @@ export const DRAG_SHIPPED_BROWSER_TESTS: readonly string[] = [
  */
 export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
   // `src/kernel/callbacks.ts`, which no entry publishes.
-  'tests/callback-list.browser.test.ts',
-  // The displacement sink's `report` and `settle`, which only the unpublished
-  // installer types declare, and `STRIDE` and `TOP` from
-  // `src/sortable/rect-index.ts`, which no entry publishes.
+  'tests/callbacks.browser.test.ts',
+  // The displacement sink's `report` and `displaced`, which only the unpublished
+  // installer types declare.
   'tests/displacement-sink.browser.test.ts',
   // The development equivalence check's report.
   'tests/equivalence-check.browser.test.ts',
