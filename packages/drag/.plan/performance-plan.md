@@ -171,6 +171,8 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Step 2 is decided as `DRD-55`:** the size gate reads the published build through its exports map, box-quad stays on its source, and every ceiling stays. [`published-gate-handoff.md`](published-gate-handoff.md) repairs `DRF-23` in part A and implements `DRD-55` in part B. Its per-row figures, from `src` and from the build, are the results that the mangle waits for. A verdict that changes goes to `DRO-4`. Budgets are unchanged, and the deferred campaigns stay stopped.
 
+**Owner direction, 2026-11-13: source prefixes for step 3.** Use an explicit `_` prefix in source for the ordinary internal properties selected for publish-time mangling. Public names and properties read by the platform keep their names; `#private` members need no additional prefix. The build selects the marked properties rather than inferring a list of safe names from TypeScript analysis. The architect records the choice under `DRO-15` and prepares its implementation handoff after assessing [`published-gate-report.md`](published-gate-report.md). Budgets remain unchanged. A transform that selects properties by type is deferred to [§6](#6-deferred-property-selection-by-type).
+
 ## 3. Rules every unit follows
 
 `DRD-40`'s properties, in short:
@@ -207,3 +209,9 @@ Source tests stay for internal behavior and development instruments. The mangle 
 **Owner direction, 2026-11-12:** plan a separate extension for drag and drop in virtualized lists. `yvirt` is a working name, not a decided API or architecture. The current `y()` does not support virtualized lists.
 
 The future design covers moving a file into a folder while scrolling a virtualized file list, and reordering across the rendered window's boundary. It must consider stable item identity when DOM rows are removed or reused, and an operation that outlives its source row. Whether this needs a separate behavior, capability or adapter remains for that design. This work is not a prerequisite for 1.0.0 or for `DRD-49`.
+
+## 6. Deferred: property selection by type
+
+**Owner direction, 2026-11-13:** retain the idea of a build transform that takes an explicit set of internal types or classes, prefixes their property declarations and uses in the emitted code, then applies property mangling. Source names would stay readable without prefixes.
+
+The transform must handle the same object being accessed through different structural types, and keep declarations, destructuring and property accesses consistent. Its scope, maintenance cost and measured benefit need evaluation before adoption. No delivery version or date is assigned. This work is not a prerequisite for step 3's source prefixes.
