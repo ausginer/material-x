@@ -1,0 +1,206 @@
+/*
+ * RectIndex access prototype: the y and xy flows against the index alone, with
+ * real layout. Copied to `tests/rect-index-flows.browser.test.ts` in a tree with
+ * `patches/P-owned-storage.diff.txt` applied, and run in the `browser` project:
+ *
+ *   npx vitest run -c vitest.config.ts --project browser \
+ *     tests/rect-index-flows.browser.test.ts --silent=false
+ *
+ * Each step prints `FLOW` lines: what the axis code reads, one number at a time,
+ * and what a fresh measurement of the same tree gives. The assertions are the
+ * prototype's correctness claims; the lines are for inspection. Not a test of the
+ * suite.
+ */
+import { afterEach, describe, expect, it } from 'vitest';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import {
+  BOTTOM,
+  CENTER_X,
+  CENTER_Y,
+  LEFT,
+  PLACEHOLDER,
+  RectIndex,
+  RIGHT,
+  STRIDE,
+  TOP,
+} from '../src/sortable/rect-index.ts';
+
+const FIELDS = ['left', 'top', 'right', 'bottom', 'centerX', 'centerY'];
+const SLACK = 1 / 16;
+
+afterEach(() => {
+  document.body.replaceChildren();
+});
+
+/** A list of rows of the given heights, a dragged row taken out of flow, and a placeholder in its place. */
+function column(heights: readonly number[], dragged: number) {
+  const list = document.createElement('div');
+
+  list.style.cssText = 'width:200px;margin:8px';
+
+  const rows = heights.map((height, i) => {
+    const row = document.createElement('div');
+
+    row.id = `r${i}`;
+    row.style.cssText = `height:${height}px;margin:4px 0;background:#ddd`;
+    list.append(row);
+    return row;
+  });
+  const placeholder = document.createElement('div');
+
+  placeholder.style.cssText = `height:${heights[dragged]!}px;margin:4px 0`;
+  rows[dragged]!.before(placeholder);
+  rows[dragged]!.style.display = 'none';
+  document.body.append(list);
+  return { rows, placeholder, dragged: rows[dragged]!, snapshot: { items: rows, version: 1 } };
+}
+
+/** Every field of `slot` in `index`, as one line. */
+function line(index: RectIndex, slot: number): string {
+  return FIELDS.map((name, field) => `${name}=${index._at(slot, field).toFixed(2)}`).join(' ');
+}
+
+/** `predicted` agrees with `fresh` on every field of every slot from `lo` to before `hi`. */
+function expectSameSlots(predicted: RectIndex, fresh: RectIndex, lo: number, hi: number): void {
+  for (let slot = lo; slot < hi; slot += 1) {
+    for (let field = 0; field < STRIDE; field += 1) {
+      expect(Math.abs(predicted._at(slot, field) - fresh._at(slot, field))).toBeLessThanOrEqual(SLACK);
+    }
+  }
+}
+
+describe('RectIndex access prototype', () => {
+  it('y flow: window growth, a committed move predicted by _travel and _shift, and the re-read placeholder', () => {
+    // Rows of two heights, r2 dragged: 7 destination slots, the placeholder at gap 2.
+    const { rows, placeholder, dragged, snapshot } = column([40, 56, 40, 56, 40, 56, 40, 56], 2);
+    const index = new RectIndex(TOP);
+
+    index._collect(snapshot, dragged, placeholder, 2);
+    console.log(`FLOW y collect: count=${index._count} window=[${index._first}, ${index._end}) placeholder ${line(index, PLACEHOLDER)}`);
+
+    // The pointer is below: the window grows down from the placeholder's gap.
+    const pointerY = rows[5]!.getBoundingClientRect().bottom;
+
+    while (index._end < index._count && (index._first === index._end || index._at(index._end - 1, CENTER_Y) < pointerY)) {
+      index._measure(index._end, index._end + 1, null, null);
+      console.log(`FLOW y grow: window=[${index._first}, ${index._end}) slot ${index._end - 1}: ${line(index, index._end - 1)}`);
+    }
+
+    // A committed move: the placeholder goes from gap 2 to gap 4, crossing slots 2 and 3.
+    const lo = 2;
+    const hi = 4;
+
+    index._item(hi).before(placeholder);
+
+    const delta = index._travel(lo, null, null);
+
+    console.log(`FLOW y move: _travel(${lo}) = ${delta.toFixed(2)}, the constant every crossed row moved by`);
+    index._shift(lo, hi, delta);
+    index._measurePlaceholder(placeholder);
+
+    const fresh = new RectIndex(TOP);
+
+    fresh._collect(snapshot, dragged, placeholder, index._first);
+    fresh._measure(index._first, index._end, null, null);
+
+    for (let slot = index._first; slot < index._end; slot += 1) {
+      console.log(`FLOW y after move, slot ${slot} predicted: ${line(index, slot)}`);
+      console.log(`FLOW y after move, slot ${slot} measured:  ${line(fresh, slot)}`);
+    }
+
+    expect(delta).toBeCloseTo(-(40 + 4), 3);
+    expectSameSlots(index, fresh, index._first, index._end);
+    expectSameSlots(index, fresh, PLACEHOLDER, PLACEHOLDER + 1);
+    // The cross axis did not move, and the shift left it alone.
+    expect(index._at(lo, LEFT)).toBe(fresh._at(lo, LEFT));
+    expect(index._insertion(4).after).toBe(index._item(4));
+  });
+
+  it('y flow: a row in flight is measured where flow puts it, and _holds sees a shift of the whole list', async () => {
+    const { rows, placeholder, dragged, snapshot } = column([40, 40, 40, 40, 40, 40], 0);
+    const sink = layoutAnimation({ duration: 60_000, easing: 'linear' })();
+    const index = new RectIndex(TOP);
+    const flowTop = rows[3]!.getBoundingClientRect().top;
+
+    // r3 is drawn 30 px low by a running animation, as a committed move leaves it.
+    sink.report(rows[3]!, 0, 30, new Float64Array([1, 0, 0, 1, 1]));
+    await new Promise(requestAnimationFrame);
+
+    const presented = rows[3]!.getBoundingClientRect().top;
+
+    index._collect(snapshot, dragged, placeholder, 0);
+    index._measure(0, index._count, null, sink);
+    console.log(`FLOW sink: r3 presented top=${presented.toFixed(2)}, flow top=${flowTop.toFixed(2)}, cached slot 2 top=${index._at(2, TOP).toFixed(2)}`);
+    expect(presented - flowTop).toBeGreaterThan(20);
+    expect(index._at(2, TOP)).toBeCloseTo(flowTop, 0);
+    expect(index._holds(0, snapshot, null, sink)).toBe(true);
+
+    // Every row moves by one vector: a scroll whose event has not arrived.
+    document.body.style.paddingTop = '13px';
+    console.log(`FLOW sink: after a 13 px shift of the list, _holds = ${index._holds(0, snapshot, null, sink)}`);
+    expect(index._holds(0, snapshot, null, sink)).toBe(false);
+    sink.retire();
+    document.body.style.paddingTop = '';
+  });
+
+  it('xy flow: a full rebuild, and the displacement of each cell across a committed move', () => {
+    const list = document.createElement('div');
+
+    list.style.cssText = 'display:flex;flex-wrap:wrap;width:300px;margin:8px';
+
+    const cells = Array.from({ length: 9 }, (_, i) => {
+      const cell = document.createElement('div');
+
+      cell.id = `c${i}`;
+      cell.style.cssText = 'width:100px;height:60px;background:#ddd';
+      list.append(cell);
+      return cell;
+    });
+    const placeholder = document.createElement('div');
+
+    placeholder.style.cssText = 'width:100px;height:60px';
+    cells[0]!.before(placeholder);
+    cells[0]!.style.display = 'none';
+    document.body.append(list);
+
+    const snapshot = { items: cells, version: 1 };
+    const index = new RectIndex();
+    const rebuild = (): void => {
+      index._invalidate();
+      index._collect(snapshot, cells[0]!, placeholder, 0);
+      index._measure(0, index._count, null, null);
+    };
+
+    rebuild();
+    console.log(`FLOW xy rebuild: count=${index._count} window=[${index._first}, ${index._end}) placeholder centers (${index._at(PLACEHOLDER, CENTER_X)}, ${index._at(PLACEHOLDER, CENTER_Y)})`);
+
+    // A committed move: the placeholder goes from gap 0 to gap 4, across a wrap.
+    const before = Array.from({ length: index._count }, (_, slot) => [index._at(slot, LEFT), index._at(slot, TOP)] as const);
+    const drawn = cells.slice(1).map((cell) => cell.getBoundingClientRect());
+
+    index._item(4).before(placeholder);
+    rebuild();
+
+    for (let slot = 0; slot < index._count; slot += 1) {
+      const dx = before[slot]![0] - index._at(slot, LEFT);
+      const dy = before[slot]![1] - index._at(slot, TOP);
+      const now = index._item(slot).getBoundingClientRect();
+
+      if (dx !== 0 || dy !== 0) {
+        console.log(`FLOW xy move: slot ${slot} (${index._item(slot).id}) report dx=${dx} dy=${dy}`);
+      }
+
+      // The reported vector is the cell's travel, negated: what xy() reports.
+      expect(dx).toBeCloseTo(drawn[slot]!.left - now.left, 3);
+      expect(dy).toBeCloseTo(drawn[slot]!.top - now.top, 3);
+      expect(index._at(slot, RIGHT) - index._at(slot, LEFT)).toBe(100);
+      expect(index._at(slot, BOTTOM) - index._at(slot, TOP)).toBe(60);
+    }
+
+    // Slots 0 to 3 moved back one cell. Slot 2 wrapped up a row, to the end of the
+    // first: it traveled +200 px along x and -60 px along y, reported negated.
+    expect(before[2]![0] - index._at(2, LEFT)).toBe(-200);
+    expect(before[2]![1] - index._at(2, TOP)).toBe(60);
+    expect(before[5]![0] - index._at(5, LEFT)).toBe(0);
+  });
+});

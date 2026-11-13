@@ -1,0 +1,689 @@
+# RectIndex access allocation readings. Chromium (shipped project, __DEV__ false), heap sampling at 16 B.
+# Base f552e0ec9 (wt-base), then P = P-owned-storage.diff.txt on f552e0ec9 (wt-p), each with the four DRD-52 probes and sink-drop-probe.test.ts.txt appended to tests/hot-path.browser.test.ts, identical in both trees.
+# Each probe test launched alone, 3 times, through bench/campaign.ts run (alloc-campaign.sh below). Machine record (date, uptime, nproc, HEAD before; uptime after):
+Fri Nov 13 11:37:41 UTC 2026
+ 11:37:41 up 1 day,  3:10,  0 users,  load average: 5.17, 3.70, 3.23
+12
+f552e0ec9a0f4ad08d98c953381d679d44a6d4fe
+campaign exit 0
+ 11:46:53 up 1 day,  3:19,  0 users,  load average: 6.79, 5.33, 4.29
+Fri Nov 13 11:46:53 UTC 2026
+ 11:46:53 up 1 day,  3:19,  0 users,  load average: 6.79, 5.33, 4.29
+12
+f552e0ec9a0f4ad08d98c953381d679d44a6d4fe
+campaign exit 0
+ 11:56:03 up 1 day,  3:28,  0 users,  load average: 3.42, 4.05, 4.31
+
+## Tabulated (alloc-table.ts below)
+## /tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc
+1.log: C6-PROBE y per=85.96
+2.log: C6-PROBE y per=87.62
+3.log: C6-PROBE y per=84.17
+4.log: C6-PROBE xy per=50.15
+5.log: C6-PROBE xy per=50.33
+6.log: C6-PROBE xy per=48.37
+7.log: C6-MOVE-PROBE per=129.06
+8.log: C6-MOVE-PROBE per=126.00
+9.log: C6-MOVE-PROBE per=130.96
+10.log: C6-WARM-MOVE-PROBE per=15.56
+11.log: C6-WARM-MOVE-PROBE per=16.48
+12.log: C6-WARM-MOVE-PROBE per=17.20
+13.log: RIA-SINK-DROP-PROBE per=3730.00 insertions=180 cacheAndShiftPerDrop=1715.60 sinkExceptReportPerDrop=77.27
+14.log: RIA-SINK-DROP-PROBE per=3715.47 insertions=180 cacheAndShiftPerDrop=1705.60 sinkExceptReportPerDrop=77.27
+15.log: RIA-SINK-DROP-PROBE per=3681.73 insertions=180 cacheAndShiftPerDrop=1681.27 sinkExceptReportPerDrop=77.27
+MEAN C6-PROBE y: 85.92 (n=3, min 84.17, max 87.62)
+MEAN C6-PROBE xy: 49.62 (n=3, min 48.37, max 50.33)
+MEAN C6-MOVE-PROBE: 128.67 (n=3, min 126.00, max 130.96)
+MEAN C6-WARM-MOVE-PROBE: 16.41 (n=3, min 15.56, max 17.20)
+MEAN RIA-SINK-DROP-PROBE cache+shift: 1700.82 (n=3, min 1681.27, max 1715.60)
+MEAN RIA-SINK-DROP-PROBE sink-not-report: 77.27 (n=3, min 77.27, max 77.27)
+MEAN RIA-SINK-DROP-PROBE: 3709.07 (n=3, min 3681.73, max 3730.00)
+## /tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc
+1.log: C6-PROBE y per=50.26
+2.log: C6-PROBE y per=48.11
+3.log: C6-PROBE y per=49.54
+4.log: C6-PROBE xy per=49.09
+5.log: C6-PROBE xy per=48.02
+6.log: C6-PROBE xy per=49.48
+7.log: C6-MOVE-PROBE per=117.68
+8.log: C6-MOVE-PROBE per=112.02
+9.log: C6-MOVE-PROBE per=113.70
+10.log: C6-WARM-MOVE-PROBE per=17.20
+11.log: C6-WARM-MOVE-PROBE per=15.68
+12.log: C6-WARM-MOVE-PROBE per=15.28
+13.log: RIA-SINK-DROP-PROBE per=3282.40 insertions=180 cacheAndShiftPerDrop=1284.87 sinkExceptReportPerDrop=77.73
+14.log: RIA-SINK-DROP-PROBE per=3324.27 insertions=180 cacheAndShiftPerDrop=1316.20 sinkExceptReportPerDrop=76.00
+15.log: RIA-SINK-DROP-PROBE per=3307.73 insertions=180 cacheAndShiftPerDrop=1301.60 sinkExceptReportPerDrop=77.73
+MEAN C6-PROBE y: 49.30 (n=3, min 48.11, max 50.26)
+MEAN C6-PROBE xy: 48.86 (n=3, min 48.02, max 49.48)
+MEAN C6-MOVE-PROBE: 114.47 (n=3, min 112.02, max 117.68)
+MEAN C6-WARM-MOVE-PROBE: 16.05 (n=3, min 15.28, max 17.20)
+MEAN RIA-SINK-DROP-PROBE cache+shift: 1300.89 (n=3, min 1284.87, max 1316.20)
+MEAN RIA-SINK-DROP-PROBE sink-not-report: 77.16 (n=3, min 76.00, max 77.73)
+MEAN RIA-SINK-DROP-PROBE: 3304.80 (n=3, min 3282.40, max 3324.27)
+
+## Raw probe lines
+### base
+1.log: C6-PROBE y perMove=85.96 keys={"sortable/y.ts:resolve":8640,"sortable/linear-shift.ts:_refresh":5208,"sortable/operation.ts:move":20536}
+2.log: C6-PROBE y perMove=87.62 keys={"sortable/y.ts:resolve":9348,"sortable/linear-shift.ts:_refresh":5328,"sortable/rect-index.ts:get _end":188,"sortable/operation.ts:move":20184}
+3.log: C6-PROBE y perMove=84.17 keys={"sortable/y.ts:resolve":9324,"sortable/linear-shift.ts:_refresh":4728,"sortable/operation.ts:move":19616}
+4.log: C6-PROBE xy perMove=50.15 keys={"sortable/operation.ts:move":20060}
+5.log: C6-PROBE xy perMove=50.33 keys={"sortable/operation.ts:move":20132}
+6.log: C6-PROBE xy perMove=48.37 keys={"sortable/operation.ts:move":19348}
+7.log: C6-MOVE-PROBE moves=200 perMove=129.06 keys={"sortable/linear-shift.ts:_refresh":4932,"sortable/rect-index.ts:_measurePlaceholder":3040,"sortable/rect-index.ts:pack":4704,"sortable/linear-shift.ts:_moved":1140,"sortable/rect-index.ts:get _count":104,"sortable/linear-shift.ts:advance":11892}
+8.log: C6-MOVE-PROBE moves=200 perMove=126.00 keys={"sortable/rect-index.ts:get _items":112,"sortable/linear-shift.ts:_refresh":4596,"sortable/rect-index.ts:_measurePlaceholder":2864,"sortable/rect-index.ts:pack":5304,"sortable/linear-shift.ts:_moved":1272,"sortable/linear-shift.ts:advance":11052}
+9.log: C6-MOVE-PROBE moves=200 perMove=130.96 keys={"sortable/linear-shift.ts:_refresh":5232,"sortable/rect-index.ts:_measurePlaceholder":3184,"sortable/rect-index.ts:pack":4840,"sortable/linear-shift.ts:_moved":1092,"sortable/linear-shift.ts:advance":11844}
+10.log: C6-WARM-MOVE-PROBE moves=200 perMove=15.56 keys={"sortable/linear-shift.ts:_refresh":3040,"sortable/rect-index.ts:pack":72}
+11.log: C6-WARM-MOVE-PROBE moves=200 perMove=16.48 keys={"sortable/linear-shift.ts:_refresh":3296}
+12.log: C6-WARM-MOVE-PROBE moves=200 perMove=17.20 keys={"sortable/linear-shift.ts:_refresh":3440}
+13.log: RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3730.00 keys={"sortable/layout-animation.ts:":4636,"sortable/linear-shift.ts:_refresh":3588,"sortable/rect-index.ts:_collect":42708,"sortable/rect-index.ts:_measurePlaceholder":2128,"sortable/rect-index.ts:pack":7836,"sortable/rect-index.ts:_measure":1776,"sortable/linear-shift.ts:_moved":17788,"sortable/layout-animation.ts:report":116228,"sortable/linear-shift.ts:advance":9216,"sortable/rect-index.ts:_holds":17896}
+14.log: RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3715.47 keys={"sortable/layout-animation.ts:":4636,"sortable/linear-shift.ts:_refresh":3816,"sortable/rect-index.ts:_collect":42228,"sortable/rect-index.ts:_measurePlaceholder":1728,"sortable/rect-index.ts:pack":7704,"sortable/rect-index.ts:_measure":1968,"sortable/linear-shift.ts:_moved":17744,"sortable/layout-animation.ts:report":115956,"sortable/linear-shift.ts:advance":8940,"sortable/rect-index.ts:_holds":18208}
+15.log: RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3681.73 keys={"sortable/layout-animation.ts:":4636,"sortable/linear-shift.ts:_refresh":3636,"sortable/rect-index.ts:_collect":41672,"sortable/rect-index.ts:_measurePlaceholder":1952,"sortable/rect-index.ts:pack":7248,"sortable/rect-index.ts:_measure":1776,"sortable/linear-shift.ts:_moved":17816,"sortable/layout-animation.ts:report":115392,"sortable/linear-shift.ts:advance":8616,"sortable/rect-index.ts:_holds":18160}
+### p
+1.log: C6-PROBE y perMove=50.26 keys={"sortable/operation.ts:move":20104}
+2.log: C6-PROBE y perMove=48.11 keys={"sortable/operation.ts:move":19244}
+3.log: C6-PROBE y perMove=49.54 keys={"sortable/operation.ts:move":19816}
+4.log: C6-PROBE xy perMove=49.09 keys={"sortable/operation.ts:move":19636}
+5.log: C6-PROBE xy perMove=48.02 keys={"sortable/operation.ts:move":19208}
+6.log: C6-PROBE xy perMove=49.48 keys={"sortable/operation.ts:move":19792}
+7.log: C6-MOVE-PROBE moves=200 perMove=117.68 keys={"sortable/rect-index.ts:_collect":140,"sortable/rect-index.ts:#read":9044,"sortable/linear-shift.ts:_moved":1188,"sortable/rect-index.ts:_shift":13164}
+8.log: C6-MOVE-PROBE moves=200 perMove=112.02 keys={"sortable/rect-index.ts:_collect":112,"sortable/rect-index.ts:#read":8372,"sortable/linear-shift.ts:_moved":1368,"sortable/rect-index.ts:_shift":12552}
+9.log: C6-MOVE-PROBE moves=200 perMove=113.70 keys={"sortable/rect-index.ts:_collect":112,"sortable/rect-index.ts:#read":7916,"sortable/linear-shift.ts:_moved":1224,"sortable/rect-index.ts:_shift":13488}
+10.log: C6-WARM-MOVE-PROBE moves=200 perMove=17.20 keys={"sortable/rect-index.ts:_collect":48,"sortable/rect-index.ts:#read":3392}
+11.log: C6-WARM-MOVE-PROBE moves=200 perMove=15.68 keys={"sortable/rect-index.ts:#read":3136}
+12.log: C6-WARM-MOVE-PROBE moves=200 perMove=15.28 keys={"sortable/rect-index.ts:#read":3056}
+13.log: RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3282.40 keys={"sortable/layout-animation.ts:":4636,"sortable/rect-index.ts:_at":3660,"sortable/rect-index.ts:_collect":42228,"sortable/rect-index.ts:#read":14080,"sortable/linear-shift.ts:_moved":1908,"sortable/layout-animation.ts:report":115188,"sortable/rect-index.ts:_shift":8280,"sortable/rect-index.ts:_travel":2112,"sortable/layout-animation.ts:displaced":28,"sortable/rect-index.ts:_holds":4824}
+14.log: RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3324.27 keys={"sortable/layout-animation.ts:":4560,"sortable/rect-index.ts:_at":3456,"sortable/rect-index.ts:_collect":43168,"sortable/rect-index.ts:#read":14848,"sortable/linear-shift.ts:_moved":1908,"sortable/layout-animation.ts:report":115924,"sortable/rect-index.ts:_shift":8788,"sortable/rect-index.ts:_travel":2208,"sortable/rect-index.ts:_holds":4596}
+15.log: RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3307.73 keys={"sortable/layout-animation.ts:":4636,"sortable/rect-index.ts:_at":3324,"sortable/rect-index.ts:_collect":42424,"sortable/rect-index.ts:#read":14720,"sortable/linear-shift.ts:_moved":1596,"sortable/layout-animation.ts:report":115704,"sortable/rect-index.ts:_shift":8892,"sortable/rect-index.ts:_travel":2292,"sortable/layout-animation.ts:displaced":28,"sortable/rect-index.ts:_holds":4848}
+
+## status.json, base
+{
+  "id": "ria-base-alloc",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag",
+  "runner": {
+    "pid": 758698,
+    "start": "9783064"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:37:41.954Z",
+  "endedAt": "2026-11-13T11:46:53.387Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 758723,
+        "start": "9783077"
+      },
+      "startedAt": "2026-11-13T11:37:41.983Z",
+      "endedAt": "2026-11-13T11:37:58.280Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 759095,
+        "start": "9784708"
+      },
+      "startedAt": "2026-11-13T11:37:58.303Z",
+      "endedAt": "2026-11-13T11:38:14.401Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 759486,
+        "start": "9786320"
+      },
+      "startedAt": "2026-11-13T11:38:14.419Z",
+      "endedAt": "2026-11-13T11:38:29.796Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 759829,
+        "start": "9787859"
+      },
+      "startedAt": "2026-11-13T11:38:29.810Z",
+      "endedAt": "2026-11-13T11:38:44.023Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 760223,
+        "start": "9789282"
+      },
+      "startedAt": "2026-11-13T11:38:44.037Z",
+      "endedAt": "2026-11-13T11:38:58.566Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 760503,
+        "start": "9790736"
+      },
+      "startedAt": "2026-11-13T11:38:58.581Z",
+      "endedAt": "2026-11-13T11:39:13.661Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 760822,
+        "start": "9792246"
+      },
+      "startedAt": "2026-11-13T11:39:13.677Z",
+      "endedAt": "2026-11-13T11:39:31.288Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 761444,
+        "start": "9794009"
+      },
+      "startedAt": "2026-11-13T11:39:31.306Z",
+      "endedAt": "2026-11-13T11:39:50.286Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 762218,
+        "start": "9795908"
+      },
+      "startedAt": "2026-11-13T11:39:50.302Z",
+      "endedAt": "2026-11-13T11:40:08.169Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 762773,
+        "start": "9797696"
+      },
+      "startedAt": "2026-11-13T11:40:08.180Z",
+      "endedAt": "2026-11-13T11:42:00.503Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 765762,
+        "start": "9808930"
+      },
+      "startedAt": "2026-11-13T11:42:00.514Z",
+      "endedAt": "2026-11-13T11:43:52.352Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 768305,
+        "start": "9820115"
+      },
+      "startedAt": "2026-11-13T11:43:52.364Z",
+      "endedAt": "2026-11-13T11:45:44.565Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/13.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 771163,
+        "start": "9831336"
+      },
+      "startedAt": "2026-11-13T11:45:44.583Z",
+      "endedAt": "2026-11-13T11:46:06.978Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/14.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 771578,
+        "start": "9833578"
+      },
+      "startedAt": "2026-11-13T11:46:06.996Z",
+      "endedAt": "2026-11-13T11:46:29.677Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-base/packages/drag/.campaigns/ria-base-alloc/15.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 772498,
+        "start": "9835848"
+      },
+      "startedAt": "2026-11-13T11:46:29.697Z",
+      "endedAt": "2026-11-13T11:46:53.387Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
+
+## status.json, P
+{
+  "id": "ria-p-alloc",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag",
+  "runner": {
+    "pid": 773327,
+    "start": "9838220"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:46:53.529Z",
+  "endedAt": "2026-11-13T11:56:03.871Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 773344,
+        "start": "9838235"
+      },
+      "startedAt": "2026-11-13T11:46:53.563Z",
+      "endedAt": "2026-11-13T11:47:12.158Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 773916,
+        "start": "9840100"
+      },
+      "startedAt": "2026-11-13T11:47:12.219Z",
+      "endedAt": "2026-11-13T11:47:28.844Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 774301,
+        "start": "9841764"
+      },
+      "startedAt": "2026-11-13T11:47:28.861Z",
+      "endedAt": "2026-11-13T11:47:44.467Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 774783,
+        "start": "9843327"
+      },
+      "startedAt": "2026-11-13T11:47:44.488Z",
+      "endedAt": "2026-11-13T11:47:58.736Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 775238,
+        "start": "9844754"
+      },
+      "startedAt": "2026-11-13T11:47:58.754Z",
+      "endedAt": "2026-11-13T11:48:13.010Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 775536,
+        "start": "9846182"
+      },
+      "startedAt": "2026-11-13T11:48:13.037Z",
+      "endedAt": "2026-11-13T11:48:28.246Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 775798,
+        "start": "9847705"
+      },
+      "startedAt": "2026-11-13T11:48:28.267Z",
+      "endedAt": "2026-11-13T11:48:46.409Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 776101,
+        "start": "9849521"
+      },
+      "startedAt": "2026-11-13T11:48:46.423Z",
+      "endedAt": "2026-11-13T11:49:04.039Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 776378,
+        "start": "9851283"
+      },
+      "startedAt": "2026-11-13T11:49:04.051Z",
+      "endedAt": "2026-11-13T11:49:21.289Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 776637,
+        "start": "9853009"
+      },
+      "startedAt": "2026-11-13T11:49:21.305Z",
+      "endedAt": "2026-11-13T11:51:14.451Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 777172,
+        "start": "9864325"
+      },
+      "startedAt": "2026-11-13T11:51:14.464Z",
+      "endedAt": "2026-11-13T11:53:06.429Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 777685,
+        "start": "9875522"
+      },
+      "startedAt": "2026-11-13T11:53:06.441Z",
+      "endedAt": "2026-11-13T11:54:58.457Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/13.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 778270,
+        "start": "9886725"
+      },
+      "startedAt": "2026-11-13T11:54:58.471Z",
+      "endedAt": "2026-11-13T11:55:20.333Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/14.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 778556,
+        "start": "9888913"
+      },
+      "startedAt": "2026-11-13T11:55:20.348Z",
+      "endedAt": "2026-11-13T11:55:42.069Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-p/packages/drag/.campaigns/ria-p-alloc/15.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 778863,
+        "start": "9891086"
+      },
+      "startedAt": "2026-11-13T11:55:42.082Z",
+      "endedAt": "2026-11-13T11:56:03.871Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
+
+## alloc-campaign.sh
+#!/usr/bin/env bash
+# Usage: alloc-campaign.sh <worktree> <id>. Each probe test launched alone, 3 times.
+set -uo pipefail
+cd "$1/packages/drag"
+V="npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t"
+steps=()
+for t in "C6 probe y:" "C6 probe xy:" "C6 move probe" "C6 warm move probe" "RIA sink drop probe"; do
+  for r in 1 2 3; do steps+=("$V '$t'"); done
+done
+date; uptime; nproc; git rev-parse HEAD
+node bench/campaign.ts run --id "$2" -- "${steps[@]}"
+echo "campaign exit $?"; uptime
+
+## alloc-table.ts
+// Usage: node alloc-table.ts <campaign dir>...: one line per probe reading, then
+// per-probe means, and for the sink drop probe the bytes under rect-index.ts and
+// linear-shift.ts, and under layout-animation.ts apart from `report`.
+import { readFileSync, readdirSync } from 'node:fs';
+for (const dir of process.argv.slice(2)) {
+  console.log(`## ${dir}`);
+  const groups = new Map<string, number[]>();
+  const logs = readdirSync(dir).filter((f) => f.endsWith('.log')).sort((a, b) => parseInt(a) - parseInt(b));
+  for (const log of logs) {
+    for (const line of readFileSync(`${dir}/${log}`, 'utf8').split('\n')) {
+      const m = /^(C6-PROBE (y|xy)|C6-MOVE-PROBE|C6-WARM-MOVE-PROBE|RIA-SINK-DROP-PROBE)\b.*?per(?:Move|Drop)=([\d.]+) keys=(\{.*\})/.exec(line);
+      if (!m) continue;
+      const name = m[1]!;
+      const keys = JSON.parse(m[4]!) as Record<string, number>;
+      let value = Number(m[3]);
+      let extra = '';
+      if (name === 'RIA-SINK-DROP-PROBE') {
+        const cycles = Number(/cycles=(\d+)/.exec(line)![1]);
+        const insertions = /insertions=(\d+)/.exec(line)![1];
+        const cache = Object.entries(keys).filter(([k]) => k.startsWith('sortable/rect-index.ts') || k.startsWith('sortable/linear-shift.ts')).reduce((s, [, v]) => s + v, 0) / cycles;
+        const sink = Object.entries(keys).filter(([k]) => k.startsWith('sortable/layout-animation.ts') && !k.endsWith(':report')).reduce((s, [, v]) => s + v, 0) / cycles;
+        extra = ` insertions=${insertions} cacheAndShiftPerDrop=${cache.toFixed(2)} sinkExceptReportPerDrop=${sink.toFixed(2)}`;
+        (groups.get(`${name} cache+shift`) ?? groups.set(`${name} cache+shift`, []).get(`${name} cache+shift`)!).push(cache);
+        (groups.get(`${name} sink-not-report`) ?? groups.set(`${name} sink-not-report`, []).get(`${name} sink-not-report`)!).push(sink);
+      }
+      (groups.get(name) ?? groups.set(name, []).get(name)!).push(value);
+      console.log(`${log}: ${name} per=${value.toFixed(2)}${extra}`);
+    }
+  }
+  for (const [name, values] of groups) {
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    console.log(`MEAN ${name}: ${mean.toFixed(2)} (n=${values.length}, min ${Math.min(...values).toFixed(2)}, max ${Math.max(...values).toFixed(2)})`);
+  }
+}

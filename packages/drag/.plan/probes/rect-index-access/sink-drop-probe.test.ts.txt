@@ -1,0 +1,72 @@
+/*
+ * RectIndex access probe: allocation per drop and per first committed move with
+ * `layoutAnimation()` composed, in the sortable axis code. Appended like
+ * `alloc-probe.test.ts.txt` and launched alone with `-t 'RIA sink drop probe'`.
+ * Each cycle presses r4, crosses one row, down and then up on alternate cycles, which commits a move and reads one row
+ * to establish the constant, and drops, which confirms one slot against the tree.
+ * Both re-reads go through the sink. The animations last 1 ms, so each cycle
+ * starts with nothing in flight and presses r4 where flow puts it.
+ */
+import { layoutAnimation as probeLayoutAnimation } from '../src/sortable/layout-animation.ts';
+
+describe('RIA sink drop probe', () => {
+  it.runIf(isChromium)('RIA sink drop probe y: bytes per drop under src/sortable/', async () => {
+    const list = makeList(20);
+    let moves = 0;
+    // A committed move or a drop inserts into the list.
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.addedNodes.length > 0) {
+          moves += 1;
+        }
+      }
+    });
+
+    observer.observe(list, { childList: true });
+    onCleanup(() => observer.disconnect());
+    basicSortable(list, { displacement: probeLayoutAnimation({ duration: 1 }) });
+
+    const row = (document.querySelector('#r5') as HTMLElement).getBoundingClientRect().height;
+    // Down one row, then back up, so r4 alternates between two slots.
+    let down = true;
+    const cycle = async (): Promise<void> => {
+      const start = await press('#r4');
+      const sign = down ? 1 : -1;
+
+      down = !down;
+      await commands.pointerMove(start.x, start.y + sign * 10, 2);
+      await frames();
+      await commands.pointerMove(start.x, start.y + sign * 1.6 * row);
+      await frames(2);
+      await release();
+      await frames(4);
+    };
+
+    for (let i = 0; i < 20; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one cycle per step
+      await cycle();
+    }
+
+    await commands.startHeapSampling(16);
+    moves = 0;
+
+    const cycles = 60;
+
+    for (let i = 0; i < cycles; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- one cycle per step
+      await cycle();
+    }
+
+    const bytes = await commands.stopHeapSampling('/src/');
+
+    // Delivered before the count is read.
+    await frames();
+
+    const keys = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/rect-index.ts') || key.startsWith('sortable/linear-shift.ts') || key.startsWith('sortable/layout-animation.ts'));
+    const total = keys.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `RIA-SINK-DROP-PROBE cycles=${cycles} insertions=${moves} perDrop=${(total / cycles).toFixed(2)} keys=${JSON.stringify(Object.fromEntries(keys))}`,
+    );
+  }, 300_000);
+});

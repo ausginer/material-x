@@ -1,0 +1,102 @@
+# RectIndex access checks: P-owned-storage.diff.txt applied to f552e0ec9. Chromium only. Fri Nov 13 11:46:28 UTC 2026
+
+## Suite
+# node bench/campaign.ts run --id p-final-suite -- "npx vitest run -c vitest.config.ts --reporter=verbose"
+# status.json:
+{
+  "id": "p-final-suite",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-flows/packages/drag",
+  "runner": {
+    "pid": 768581,
+    "start": "9820538"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T11:43:56.653Z",
+  "endedAt": "2026-11-13T11:45:40.207Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose",
+      "log": "/tmp/claude-1000/-workspaces-material-x/349ded77-beb5-4899-8d18-77db6fe793d2/scratchpad/wt-flows/packages/drag/.campaigns/p-final-suite/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "f552e0ec9a0f4ad08d98c953381d679d44a6d4fe",
+        "dirty": true
+      },
+      "process": {
+        "pid": 768606,
+        "start": "9820545"
+      },
+      "startedAt": "2026-11-13T11:43:56.669Z",
+      "endedAt": "2026-11-13T11:45:40.207Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}
+
+ Test Files  1 failed | 55 passed (56)
+      Tests  3 failed | 748 passed (751)
+# Failures:
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone 6ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing 1ms
+
+# Verdicts, line numbers removed, against the base's verdict list 2026-11-13-slot-array-end-suite-verdicts.txt (5ec3b4b2d, whose src, tests, bench and build equal f552e0ec9's). '<' base, '>' P:
+1d0
+< × |node| tests/size.node.test.ts > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+130,131c129,130
+< ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each range y() measures in the cache's own buffer and element array
+< ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each xy() rebuild in the cache's own buffer and element array
+---
+> ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+> ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row
+736a736
+> ✓ |node| tests/size.node.test.ts > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+
+## Typecheck and lint of the patched tree
+# npx tsc -p packages/drag/tsconfig.json --noEmit: only the base's .scripts/tsdown-library.ts(53,11) TS2322 (repo:RF-31).
+.scripts/tsdown-library.ts(53,11): error TS2322: Type 'import("/workspaces/material-x/node_modules/vite/dist/node/index").Plugin<any>' is not assignable to type 'import("/workspaces/material-x/node_modules/rolldown/dist/shared/define-config-QuM53xoi").E<any>'.
+# oxlint src/sortable tests/displacement-sink.browser.test.ts:
+# eslint, same files (the one error is DRF-38's, at the base's line):
+  52:3  error  Function name `recorded` should match property name `getBoundingClientRect`  func-name-matching
+✖ 1 problem (1 error, 0 warnings)
+
+## Mutation 1: y()'s index constructed with LEFT, so _shift moves x
+# sed 's/new RectIndex(TOP)/new RectIndex(LEFT)/' src/sortable/y.ts (import adjusted); npx vitest run -c vitest.config.ts --project browser tests/sortable.browser.test.ts tests/equivalence-check.browser.test.ts
+     × should report a placeholder that a committed move displaces along x 654ms
+     × should pull at admission, so a row added with no invalidate can be dragged 218ms
+     × should pull again at activation, so a change during the press is seen 215ms
+     × should decline quietly when the item left the document during the press 255ms
+     × should land at the rebased home when a drag is canceled after a rebase 153ms
+     × should carry item, from, to, previous and next, so insertBefore applies 153ms
+     × should reach the end gap with a null next 150ms
+     × should decline on altKey 150ms
+     × should cancel with a fault when a pull during a drag throws 144ms
+     × should apply an invalidate from inside onStart 150ms
+     × should reach the first gap, moving a row to the start 161ms
+     × should move a factory result that is already in the document 127ms
+     × should hide the placeholder from assistive technology and mirror the slot 118ms
+     × should keep a custom placeholder element and apply the mechanics 120ms
+     × should honor handle: a press elsewhere does not admit 250ms
+     × should re-measure on scroll during a drag, nested scrollers included 238ms
+     × drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 179ms
+     × drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 139ms
+ Test Files  2 failed (2)
+      Tests  18 failed | 32 passed (50)
+     14 predicted insertion geometry disagreed with a fresh measurement at slot 0
+      4 predicted insertion geometry disagreed with a fresh measurement at slot 1
+      1 predicted insertion geometry disagreed with a fresh measurement at slot 5
+
+## Mutation 2: #read ignores the sink's answer
+# 'if (displacement?.displaced(element)) {' -> 'if (displacement?.displaced(element) && element === null) {'; npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts tests/rect-index-flows.browser.test.ts
+     × y flow: a row in flight is measured where flow puts it, and _holds sees a shift of the whole list 46ms
+     × should call the layoutAnimation sink with its receiver, with rows in flight 326ms
+     × drag:DRD-50 should settle each row y() measures by asking the sink about that row 655ms
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 270ms
+AssertionError: expected [ …(1) ] to deeply equal []
+AssertionError: expected 1 to be greater than or equal to 4
+AssertionError: expected -1 to be 3 // Object.is equality
+AssertionError: expected 170 to be close to 140, received difference is 30, but expected 0.5
+ Test Files  2 failed (2)
+      Tests  4 failed | 3 passed (7)

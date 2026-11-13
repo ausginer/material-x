@@ -1,0 +1,67 @@
+// Usage: node --allow-natives-syntax --trace-turbo-inlining check.ts <rect-index.ts>
+// Drives y()'s scan, xy()'s scan and a measurement with a sink against stub
+// elements until TurboFan optimizes them, then prints each function's
+// optimization status. The trace shows whether the index's accessors are inlined.
+const { RectIndex, CENTER_X, CENTER_Y, PLACEHOLDER, TOP } = await import(process.argv[2]!);
+
+type Stub = { getBoundingClientRect(): DOMRectReadOnly };
+const N = 400;
+const items: Stub[] = [];
+for (let i = 0; i < N; i += 1) {
+  const top = i * 40 + (i % 3) * 0.25;
+  const rect = { left: (i % 7) * 10, top, right: (i % 7) * 10 + 100, bottom: top + 40 } as DOMRectReadOnly;
+  items.push({ getBoundingClientRect: () => rect });
+}
+const placeholder = items[0]!;
+const snapshot = { items, version: 1 };
+// A sink with nothing in flight, like layoutAnimation's common case.
+const sink = { dx: 0, dy: 0, displaced(_e: unknown) { return false; }, report() {}, retire() {}, settle() {} };
+
+const y = new RectIndex(TOP);
+const xy = new RectIndex();
+
+function scanY(index: any, pointerY: number): number {
+  const first = index._first;
+  const end = index._end;
+  const anchor = index._at(PLACEHOLDER, CENTER_Y);
+  let best = Math.abs(pointerY - anchor);
+  let nearest = -1;
+  for (let i = first; i < end; i += 1) {
+    const distance = Math.abs(pointerY - index._at(i, CENTER_Y));
+    if (distance < best) { best = distance; nearest = i; }
+  }
+  return nearest;
+}
+
+function scanXY(index: any, pointerX: number, pointerY: number): number {
+  const count = index._count;
+  const dxAnchor = pointerX - index._at(PLACEHOLDER, CENTER_X);
+  const dyAnchor = pointerY - index._at(PLACEHOLDER, CENTER_Y);
+  let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
+  let nearest = -1;
+  for (let i = 0; i < count; i += 1) {
+    const dx = pointerX - index._at(i, CENTER_X);
+    const dy = pointerY - index._at(i, CENTER_Y);
+    const distance = dx * dx + dy * dy;
+    if (distance < best) { best = distance; nearest = i; }
+  }
+  return nearest;
+}
+
+function rebuild(index: any): void {
+  index._invalidate();
+  index._collect(snapshot, items[N - 1], placeholder, 0);
+  index._measure(0, index._count, null, sink);
+}
+
+rebuild(y);
+rebuild(xy);
+let sum = 0;
+for (let k = 0; k < 20000; k += 1) {
+  sum += scanY(y, (k % N) * 40);
+  sum += scanXY(xy, (k % 70), (k % N) * 40);
+  if (k % 50 === 0) { rebuild(xy); y._shift(1, 10, k % 2 ? 40 : -40); }
+}
+const optimization = new Function('f', 'return %GetOptimizationStatus(f)') as (f: Function) => number;
+const status = (f: Function) => ((optimization(f) & 32) !== 0 ? 'turbofan' : 'not turbofan');
+console.log(`RESULT sum=${sum} scanY=${status(scanY)} scanXY=${status(scanXY)} rebuild=${status(rebuild)}`);

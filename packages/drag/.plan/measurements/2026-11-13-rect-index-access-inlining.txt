@@ -1,0 +1,83 @@
+# V8 inlining trace of the P patch's RectIndex (final patch), Node v26.13.0, Fri Nov 13 11:44:17 UTC 2026
+# node --allow-natives-syntax --trace-turbo-inlining inline-check.ts <tree>/packages/drag/src/sortable/rect-index.ts
+# Lines mentioning inlining, addresses removed, counted:
+     12 Considering  { <SharedFunctionInfo _at>} for inlining with  { <FeedbackVector[7]>}
+      6 Inlining  { <SharedFunctionInfo _at>} into  { <SharedFunctionInfo>} (inside try-block)
+      4 Inlining  { <SharedFunctionInfo _at>} into  { <SharedFunctionInfo scanXY>}
+      4 Considering  { <SharedFunctionInfo getBoundingClientRect>} for inlining with  { <FeedbackVector[0]>}
+      4 Considering  { <SharedFunctionInfo displaced>} for inlining with  { <FeedbackVector[0]>}
+      3 Considering  { <SharedFunctionInfo get _count>} for inlining with  { <FeedbackVector[4]>}
+      3 Considering  { <SharedFunctionInfo #read>} for inlining with  { <FeedbackVector[52]>}
+      3 Budget used: 0/920 -- 1 candidate(s) for inlining:
+      3   - target:  { <SharedFunctionInfo scanXY>}, bytecode size: 161, existing opt code's inlined bytecode size: 147
+      3   - target:  { <SharedFunctionInfo #read>}, bytecode size: 238, existing opt code's inlined bytecode size: 7
+      2 Inlining  { <SharedFunctionInfo get _count>} into  { <SharedFunctionInfo>} (inside try-block)
+      2 Inlining  { <SharedFunctionInfo _at>} into  { <SharedFunctionInfo scanY>}
+      2 Considering  { <SharedFunctionInfo get _first>} for inlining with  { <FeedbackVector[2]>}
+      2 Considering  { <SharedFunctionInfo get _end>} for inlining with  { <FeedbackVector[2]>}
+      1 RESULT sum=7946924 scanY=turbofan scanXY=turbofan rebuild=not turbofan
+      1 Inlining small function(s) at call site #90:JSCall
+      1 Inlining small function(s) at call site #758:JSCall
+      1 Inlining small function(s) at call site #700:JSCall
+      1 Inlining small function(s) at call site #69:JSCall
+      1 Inlining small function(s) at call site #688:JSCall
+      1 Inlining small function(s) at call site #562:JSCall
+      1 Inlining small function(s) at call site #543:JSCall
+      1 Inlining small function(s) at call site #417:JSCall
+      1 Inlining small function(s) at call site #382:JSCall
+      1 Inlining small function(s) at call site #318:JSCall
+      1 Inlining small function(s) at call site #207:JSCall
+      1 Inlining small function(s) at call site #187:JSCall
+      1 Inlining small function(s) at call site #166:JSCall
+      1 Inlining small function(s) at call site #149:JSCall
+      1 Inlining small function(s) at call site #1486:JSCall
+      1 Inlining small function(s) at call site #1467:JSCall
+      1 Inlining small function(s) at call site #141:JSCall
+      1 Inlining small function(s) at call site #1238:JSCall
+      1 Inlining small function(s) at call site #119:JSCall
+      1 Inlining small function(s) at call site #108:JSCall
+      1 Inlining small function(s) at call site #107:JSCall
+      1 Inlining small function(s) at call site #1079:JSCall
+      1 Inlining  { <SharedFunctionInfo scanY>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo scanXY>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo rebuild>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo getBoundingClientRect>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo getBoundingClientRect>} into  { <SharedFunctionInfo _measure>}
+      1 Inlining  { <SharedFunctionInfo getBoundingClientRect>} into  { <SharedFunctionInfo _collect>}
+      1 Inlining  { <SharedFunctionInfo getBoundingClientRect>} into  { <SharedFunctionInfo #read>}
+      1 Inlining  { <SharedFunctionInfo get _first>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo get _first>} into  { <SharedFunctionInfo scanY>}
+      1 Inlining  { <SharedFunctionInfo get _end>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo get _end>} into  { <SharedFunctionInfo scanY>}
+      1 Inlining  { <SharedFunctionInfo get _count>} into  { <SharedFunctionInfo scanXY>}
+      1 Inlining  { <SharedFunctionInfo displaced>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo displaced>} into  { <SharedFunctionInfo _measure>}
+      1 Inlining  { <SharedFunctionInfo displaced>} into  { <SharedFunctionInfo _collect>}
+      1 Inlining  { <SharedFunctionInfo displaced>} into  { <SharedFunctionInfo #read>}
+      1 Inlining  { <SharedFunctionInfo _measurePlaceholder>} into  { <SharedFunctionInfo _collect>}
+      1 Inlining  { <SharedFunctionInfo _measure>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo _invalidate>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo #read>} into  { <SharedFunctionInfo>} (inside try-block)
+      1 Inlining  { <SharedFunctionInfo #read>} into  { <SharedFunctionInfo _measure>}
+      1 Inlining  { <SharedFunctionInfo #read>} into  { <SharedFunctionInfo _collect>}
+      1 Considering  { <SharedFunctionInfo scanY>} for inlining with  { <FeedbackVector[22]>}
+      1 Considering  { <SharedFunctionInfo scanXY>} for inlining with  { <FeedbackVector[24]>}
+      1 Considering  { <SharedFunctionInfo rebuild>} for inlining with  { <FeedbackVector[17]>}
+      1 Considering  { <SharedFunctionInfo _shift>} for inlining with  { <FeedbackVector[26]>}
+      1 Considering  { <SharedFunctionInfo _measurePlaceholder>} for inlining with  { <FeedbackVector[4]>}
+      1 Considering  { <SharedFunctionInfo _measure>} for inlining with  { <FeedbackVector[18]>}
+      1 Considering  { <SharedFunctionInfo _invalidate>} for inlining with  { <FeedbackVector[2]>}
+      1 Considering  { <SharedFunctionInfo _collect>} for inlining with  { <FeedbackVector[56]>}
+      1 Budget used: 813/920 -- 2 candidate(s) for inlining:
+      1 Budget used: 575/920 -- 3 candidate(s) for inlining:
+      1 Budget used: 473/920 -- 3 candidate(s) for inlining:
+      1 Budget used: 394/920 -- 2 candidate(s) for inlining:
+      1 Budget used: 360/920 -- 3 candidate(s) for inlining:
+      1 Budget used: 34/920 -- 1 candidate(s) for inlining:
+      1 Budget used: 326/920 -- 4 candidate(s) for inlining:
+      1 Budget used: 31/920 -- 1 candidate(s) for inlining:
+      1 Budget used: 165/920 -- 3 candidate(s) for inlining:
+      1 Budget used: 131/920 -- 4 candidate(s) for inlining:
+      1 Budget used: 0/920 -- 4 candidate(s) for inlining:
+      1 Budget used: 0/920 -- 2 candidate(s) for inlining:
+      1   - target:  { <SharedFunctionInfo scanY>}, bytecode size: 131, existing opt code's inlined bytecode size: 80
