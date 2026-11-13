@@ -127,7 +127,7 @@
   },
   "dependencies": {
     "@ydinjs/core": "0.1.0",
-    "type-fest": "5.5.0"
+    "type-fest": "5.10.0"
   },
   "devDependencies": {
     "@ydinjs/tproc": "0.1.0"

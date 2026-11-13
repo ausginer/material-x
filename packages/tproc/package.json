@@ -79,7 +79,7 @@
   "dependencies": {
     "just-camel-case": "6.2.0",
     "just-kebab-case": "4.2.0",
-    "type-fest": "5.5.0"
+    "type-fest": "5.10.0"
   },
   "engines": {
     "node": ">=24"
