@@ -1,0 +1,143 @@
+# DRD-62's type narrowing: the architect's feasibility check, typecheck only, 2026-11-13
+# tree: a detached scratch worktree of f79f66fe2, removed after the check. Not the unit's code.
+# The diff below is a sketch that shows the narrowing compiles; the unit owns its own source.
+
+## Typecheck: npx tsc -p tsconfig.json --noEmit, from packages/drag
+With the diff: one error only, ../../.scripts/tsdown-library.ts(53,11) TS2322 (repo:RF-31, present at the base).
+
+## Declaration project: npx vitest run -c vitest.config.ts --project declaration tests/rect-index.declaration.test.ts
+With the diff: Test Files 1 passed (1), Tests 1 passed (1), Type Errors no errors.
+
+## Widening mutations, one at a time, typecheck output beyond repo:RF-31
+at's field back to number:          tests/rect-index.declaration.test.ts(9,5) and (11,5): TS2578 Unused '@ts-expect-error' directive.
+                                     The declaration project: Test Files 1 failed (1).
+retained's field widened to Field:  tests/rect-index.declaration.test.ts(14,5): TS2578 Unused '@ts-expect-error' directive.
+constructor's axis back to number:  src/sortable/rect-index.ts(105,5): TS2322 Type 'number' is not assignable to type 'NearEdge' (the #axis assignment),
+                                     tests/rect-index.declaration.test.ts(19,5) and (21,5): TS2578.
+#axis back to number:               no error. A private field's type is not observable from outside the class; it is checked by reading.
+
+## The diff, against f79f66fe2
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index 8adbf066e..b9234028e 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -42,6 +42,18 @@ export const CENTER_Y = 5;
+ /** The slot `at` reads the placeholder at. */
+ export const PLACEHOLDER = -1;
+ 
++/** One of the six packed fields of a slot. */
++type Field =
++  | typeof LEFT
++  | typeof TOP
++  | typeof RIGHT
++  | typeof BOTTOM
++  | typeof CENTER_X
++  | typeof CENTER_Y;
++
++/** The near edge of an axis: `LEFT` for x, `TOP` for y. */
++type NearEdge = typeof LEFT | typeof TOP;
++
+ /**
+  * The slots stored before slot 0: the scratch slot, then the placeholder. Slot `s`
+  * is at `(s + LEADING) * STRIDE`.
+@@ -76,7 +88,7 @@ export class RectIndex {
+    * `LEFT` or `TOP`: the axis `shift` moves along and `travel` reads. An index that
+    * never shifts keeps the default.
+    */
+-  readonly #axis: number;
++  readonly #axis: NearEdge;
+ 
+   /** The window's first slot. */
+   #first = 0;
+@@ -89,7 +101,7 @@ export class RectIndex {
+ 
+   #measured = -1;
+ 
+-  constructor(axis: number = LEFT) {
++  constructor(axis: NearEdge = LEFT) {
+     this.#axis = axis;
+   }
+ 
+@@ -110,7 +122,7 @@ export class RectIndex {
+    * One packed field of `slot`, or of the placeholder at `PLACEHOLDER`. A slot's
+    * value is valid inside the window.
+    */
+-  at(slot: number, field: number): number {
++  at(slot: number, field: Field): number {
+     return this.#values[(slot + LEADING) * STRIDE + field]!;
+   }
+ 
+@@ -354,7 +366,7 @@ export class RetainingRectIndex extends RectIndex {
+    * The left of `slot` at `LEFT`, or its top at `TOP`, as the last `retain` copied
+    * it. Valid for the slots below the count at that call.
+    */
+-  retained(slot: number, field: number): number {
++  retained(slot: number, field: NearEdge): number {
+     // `LEFT` and `TOP` are 0 and 1, the two fields of a retained pair.
+     return this.#retained[slot * 2 + field]!;
+   }
+@@ -407,7 +419,7 @@ export function verifyEquivalence(
+ 
+   for (let slot = PLACEHOLDER; slot < end; slot += 1) {
+     for (let field = 0; field < STRIDE; field += 1) {
+-      predicted.push(index.at(slot, field));
++      predicted.push(index.at(slot, field as Field));
+     }
+   }
+ 
+@@ -426,7 +438,7 @@ export function verifyEquivalence(
+ 
+   index.measure(first, end, getBox, displacement);
+ 
+-  const differs = (slot: number, field: number): boolean =>
++  const differs = (slot: number, field: Field): boolean =>
+     Math.abs(
+       predicted[(slot - PLACEHOLDER) * STRIDE + field]! - index.at(slot, field),
+     ) > EQUIVALENCE_SLACK;
+@@ -441,14 +453,14 @@ export function verifyEquivalence(
+ 
+   for (let slot = first; mismatch === '' && slot < end; slot += 1) {
+     for (let field = 0; mismatch === '' && field < STRIDE; field += 1) {
+-      if (differs(slot, field)) {
++      if (differs(slot, field as Field)) {
+         mismatch = `slot ${slot}`;
+       }
+     }
+   }
+ 
+   for (let field = LEFT; mismatch === '' && field <= BOTTOM; field += 1) {
+-    if (differs(PLACEHOLDER, field)) {
++    if (differs(PLACEHOLDER, field as Field)) {
+       mismatch = 'the placeholder';
+     }
+   }
+diff --git a/packages/drag/tests/rect-index.declaration.test.ts b/packages/drag/tests/rect-index.declaration.test.ts
+new file mode 100644
+index 000000000..eaf1f566a
+--- /dev/null
++++ b/packages/drag/tests/rect-index.declaration.test.ts
+@@ -0,0 +1,24 @@
++import { describe, it } from 'vitest';
++import { BOTTOM, CENTER_X, CENTER_Y, LEFT, RectIndex, RetainingRectIndex, RIGHT, STRIDE, TOP } from '../src/sortable/rect-index.ts';
++
++describe('t', () => {
++  it('should', () => {
++    const index = new RetainingRectIndex();
++    const field: number = LEFT;
++    for (const f of [LEFT, TOP, RIGHT, BOTTOM, CENTER_X, CENTER_Y] as const) index.at(0, f);
++    // @ts-expect-error x
++    index.at(0, STRIDE);
++    // @ts-expect-error x
++    index.at(0, field);
++    index.retained(0, LEFT); index.retained(0, TOP);
++    // @ts-expect-error x
++    index.retained(0, RIGHT);
++    // @ts-expect-error x
++    index.retained(0, field);
++    new RectIndex(); new RectIndex(TOP);
++    // @ts-expect-error x
++    new RectIndex(RIGHT);
++    // @ts-expect-error x
++    new RectIndex(field);
++  });
++});
