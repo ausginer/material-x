@@ -1,6 +1,8 @@
 # Publication build handoff
 
-**For:** one `implementer` unit on `drag/mangle-remediation`, from the commit that adds this handoff. That branch contains `drag/size` up to `1719df16c`, with `DRD-57`'s rename at `b50204f66`. If the owner merges this branch into `drag/size` first, the unit runs there from the merge, and nothing below changes. **If the branch is checked out in a linked worktree without installed dependencies, install them there first.** The unit builds, tests and measures.
+**For:** one `implementer` unit on `drag/mangle-remediation`, from the commit that adds this handoff's amendment. That branch contains `drag/size` up to `31bac1381`, the dependency update, merged at `63bb1bea1`, with `DRD-57`'s rename at `b50204f66`. If the owner merges this branch into `drag/size` first, the unit runs there from the merge, and nothing below changes. The unit builds, tests and measures.
+
+**Tools:** `tsdown` 0.23.7, `rolldown` 1.3.2 and `rolldown-plugin-dts` 0.30.2, as the lockfile installs them. `DRD-59`'s amendment was read with these versions. **If the branch is checked out in a linked worktree without installed dependencies,** run `npm ci` there, then build `@ydinjs/vite-traits-plugin` and `@ydinjs/box-quad` in it. `tsdown.config.ts` imports the first, and the declarations resolve the second's `.d.ts`.
 
 **Governing records:**
 
@@ -12,13 +14,13 @@
 
 **Goal:** after this unit, `just build` publishes minified JavaScript modules with complete source maps and declaration modules without map references. Oxc renames the internal properties through a map that each build computes. The custom renamer, the reader, the generator and the committed map are gone. The publication test checks `DRD-59` property 7.
 
-**Evidence to reuse:** the probe scripts in [`probes/publication-build/`](probes/publication-build/README.md). [`mangle-plugin.ts.txt`](probes/publication-build/mangle-plugin.ts.txt), [`names.ts.txt`](probes/publication-build/names.ts.txt) and [`p5.config.ts.txt`](probes/publication-build/p5.config.ts.txt) are the candidate the decision measured. They are probes, not production code. Write the production files to the repository's conventions (CONTRIBUTING Part I, the technical English guide), and keep the behavior that `DRD-59` states.
+**Evidence to reuse:** the probe scripts in [`probes/publication-build/`](probes/publication-build/README.md). [`mangle-plugin.ts.txt`](probes/publication-build/mangle-plugin.ts.txt), [`names.ts.txt`](probes/publication-build/names.ts.txt) and [`p4.config.ts.txt`](probes/publication-build/p4.config.ts.txt) with `DTS='{"sourcemap":false}'` are the candidate the amendment measured. `p5.config.ts.txt` is the first reading's two configurations, which the amendment drops. The probe plugin has no annotation guard. They are probes, not production code. Write the production files to the repository's conventions (CONTRIBUTING Part I, the technical English guide), and keep the behavior that `DRD-59` states.
 
 ## Boundaries
 
 **Change only:**
 
-- `packages/drag/tsdown.config.ts`: the two configurations (`DRD-59` property 1);
+- `packages/drag/tsdown.config.ts`: the one configuration (`DRD-59` property 1);
 - `packages/drag/build/`: add the map's computation and the rename plugin, in one or two modules. Remove `rename-properties.ts`, `property-names.ts`, `generate-property-names.ts` and `property-names.json`;
 - `packages/drag/tests/publication.node.test.ts`: property 7's standing checks. Remove the name-set test and the old V3 and V4;
 - records: the report, and `measurements/` files with the prefix `2026-11-<day>-publication-build-`.
@@ -42,11 +44,12 @@ Before any change, from `packages/drag`:
 
 ## Item 2. The build
 
-1. **Two configurations** in `tsdown.config.ts`, as `DRD-59` property 1 states. Only the JavaScript configuration has `exports`. The declaration configuration has `dts: { emitDtsOnly: true }` and `sourcemap: false`. State in the file why the declarations are a second configuration: `tsdown` runs the JavaScript and the declarations as one Rolldown build with one `sourcemap` option, and with it on, every `.d.ts` gets a reference to a map that isn't emitted. Cite `DRD-59` with one bare pointer.
-2. **The map** (property 3a), computed once in each build of the JavaScript configuration, before any chunk renders. It uses the same entries (`files.json`'s `runtime`), `define` and shared plugins as the JavaScript configuration, with `@ydinjs/box-quad` external, and writes nothing to disk. Fail when the result isn't exactly one chunk.
-3. **The rename plugin** (property 3b and 3c). It ignores a `.d.ts` chunk. Its errors name the chunk and the names:
+1. **One configuration** in `tsdown.config.ts`, as `DRD-59` property 1 states: the current one, with `minify: true`, `dts: { sourcemap: false }`, and the rename plugin in place of `renameProperties`. Don't add a second configuration or `emitDtsOnly`. At 1.3.2, a declaration-only configuration publishes foreign declaration files (proposal §9, A2).
+2. **The map** (property 3a), computed once in each build, before any chunk renders. It uses the same entries (`files.json`'s `runtime`), `define` and shared plugins as the configuration, with `@ydinjs/box-quad` external, and writes nothing to disk. Fail when the result isn't exactly one chunk.
+3. **The rename plugin** (property 3b to 3d). It returns nothing for a `.d.ts` chunk, which the same build now renders. Its errors name the chunk or the module, and the names:
    - **a kept name equal to an output name:** say that the name is both a property that stays and the output name of a prefixed property;
-   - **a prefixed name without an output name:** say that the build's map doesn't cover the name, and that the map's single-chunk build should have seen the module.
+   - **a prefixed name without an output name:** say that the build's map doesn't cover the name, and that the map's single-chunk build should have seen the module;
+   - **an annotation comment in a module under `src`:** say that the rename pass would delete it, and that Oxc's `minifySync` can't keep it. The check reads comments, not string literals.
 4. **`legalComments: 'inline'`** in the rename pass's codegen, with a comment saying that without it the pass deletes license comments.
 5. **Remove** the four files in §Boundaries. Nothing else imports them.
 
@@ -75,23 +78,24 @@ Each witness edits a copy-backed file and is then restored. Confirm every restor
 | W4, V1 | `Reflect.get(this.#session!, '_decide')` in the same place, or another plain string holding a marker name | **V1 fails,** naming the module and the string |
 | W5, V2 | `_probe?(): void;` in `DraggableController`, as M6 | **V2 fails,** naming `kernel/gesture.d.ts` and `_probe`. Repeat with `'_probe'?(): void;` |
 | W6, V3 positions | The rename plugin returns the renamed code without its map | **V3 fails,** naming at least one renamed property. If V3 passes, stop and return |
-| W7, V3 sources | Rolldown's `sourcemapExcludeSources: true` in the JavaScript configuration, through `outputOptions` | **V3 fails** on `sourcesContent` |
-| W8, V4 | `sourcemap: true` in the declaration configuration | **V4 fails** on the `.d.ts` references |
+| W7, V3 sources | Rolldown's `sourcemapExcludeSources: true` in the configuration, through `outputOptions` | **V3 fails** on `sourcesContent` |
+| W8, V4 | `dts: { sourcemap: true }` | **V4 fails** on the `.d.ts` references and the `.d.ts.map` files. The amendment's probe wrote 22 of each |
 | W9, legal comments | `/*! probe */` and `/** @license probe */` at the top of `src/fault.ts` | Both are in `fault.js` and the build passes. Then remove `legalComments: 'inline'` from the rename pass: both are gone. That is the proposal's N5 |
+| W10, the annotation guard | At the top of `src/fault.ts`, `import { box } from '@ydinjs/box-quad';` and `export const probe = /* @__PURE__ */ box();`. Then, in place of the second line, `export const probe = '@__PURE__';` | **The build fails** on the first, naming `src/fault.ts`. **It passes** on the second, and V1 passes. Then disable the guard and build the first: `fault.js` has no annotation. That is the proposal's §9 A3 |
 
 ## Item 5. One-time checks
 
 1. **Byte identity:** two builds of the end tree give identical files.
-2. **Annotations:** each published `.js` holds at least as many `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotations as the same module of a build with `minify: false` and the rename. Record the counts per module. The proposal read 9 in 6 modules, against 8 in the unminified build.
-3. **Documentation comments:** run [`jsdoc2.ts.txt`](probes/publication-build/jsdoc2.ts.txt) against TypeScript's emit ([`tsconfig.ref.json.txt`](probes/publication-build/tsconfig.ref.json.txt)) and the published `.d.ts` files. Required: no block lost on a declaration that a published `.d.ts` declares. Check the classifier's "lost" entries by hand, as the proposal's N9 did.
-4. **Declarations:** each published `.d.ts` equals the base tree's, apart from the removed `sourceMappingURL` line and the final newline.
+2. **Annotations:** each published `.js` holds at least as many `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotations as the same module of the base tree from item 1. Record the counts per module. The amendment read 9 in 6 modules, against 8 in the base tree, with no module fewer ([`annot.ts.txt`](probes/publication-build/annot.ts.txt)). Don't compare against a build with the rename plugin and `minify: false`: the rename pass deletes every annotation, so that build has none.
+3. **Documentation comments:** run [`jsdoc2.ts.txt`](probes/publication-build/jsdoc2.ts.txt) against TypeScript's emit ([`tsconfig.ref.json.txt`](probes/publication-build/tsconfig.ref.json.txt)) and the published `.d.ts` files. Required: no block lost on a declaration that a published `.d.ts` declares. Check the classifier's "lost" entries by hand. The amendment read 123 kept and one "lost" entry, on the third `requestStep` overload of the internal class `Gesture` (proposal §9).
+4. **Declarations:** each published `.d.ts` is byte-identical to the base tree's, and the published directories hold no `.d.ts` that the base tree lacks. At 1.3.2 the base tree already has no `sourceMappingURL` in a `.d.ts`.
 5. **Engines:** the consumer project's files in Firefox and WebKit, once, through `vitest.engines.config.ts` or a scratch configuration that's removed afterwards. Not added to the suite.
 6. **The map:** record its keys and values. Required: exactly the 53 prefixed names in `src`, the same as the base map's keys.
 
 ## Item 6. Readings
 
 - **The suite**, all projects, through the runner. Every project passes, apart from the size rows whose verdicts the gate gives. The consumer project passes every test.
-- **The gate:** `npx just size`, every row minified, gzip-9 and Brotli-11, at the base and at the end, with the difference and the verdict. Expected, from the proposal: −9 to +9 B Brotli, and no verdict change. A changed verdict goes to `DRO-4`, and budgets don't change.
+- **The gate:** `npx just size`, every row minified, gzip-9 and Brotli-11, at the base and at the end, with the difference and the verdict. Expected, from the proposal at 1.2.15: −9 to +9 B Brotli, and no verdict change. The gate wasn't run at 1.3.2, so this is an expectation, not a reading. A changed verdict goes to `DRO-4`, and budgets don't change.
 - **Build time:** `tsdown`'s reported times at the base and at the end.
 - **Published size:** the total bytes of the published `.js`, `.js.map` and `.d.ts` files at the base and at the end.
 
@@ -128,7 +132,8 @@ Each witness edits a copy-backed file and is then restored. Confirm every restor
 
 Stop and return, without working around it, when:
 
-- Rolldown or `tsdown` doesn't accept a configuration that `DRD-59` property 1 requires, or the two configurations write or clean each other's files;
+- the lockfile installs other versions of `tsdown`, `rolldown` or `rolldown-plugin-dts` than §For names;
+- Rolldown or `tsdown` doesn't accept the configuration that `DRD-59` property 1 requires, or the build writes a `.d.ts` reference, a `.d.ts.map`, or a `.d.ts` that the base tree lacks;
 - the map's build gives more than one chunk, or its keys differ from the 53 prefixed names in `src`;
 - W6 passes V3, or any other witness doesn't give its required result;
 - a published `.d.ts` differs from the base other than item 5.4's lines, or the JSDoc check finds a lost block;

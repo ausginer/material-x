@@ -1,0 +1,9 @@
+// Counts pure and no-side-effects annotations per published module in two outputs.
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+const [min, plain] = process.argv.slice(2);
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.js') ? [join(d, f)] : []);
+const count = (t: string) => (t.match(/[@#]__(PURE|NO_SIDE_EFFECTS)__/g) ?? []).length;
+let tm = 0, tp = 0, fewer: string[] = [], per: string[] = [];
+for (const f of walk(min)) { const r = relative(min, f); const m = count(readFileSync(f, 'utf8')); const p = count(readFileSync(join(plain, r), 'utf8')); tm += m; tp += p; if (m < p) fewer.push(r); if (m || p) per.push(`${r} ${p}->${m}`); }
+console.log(`minified ${tm}, unminified ${tp}; modules with fewer: ${JSON.stringify(fewer)}`); console.log(per.join('\n'));

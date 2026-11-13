@@ -2165,9 +2165,9 @@ Decided on 2026-11-13 on the owner's direction. The owner chose the simplificati
 
 **Amended on 2026-11-13 by `DRD-59`:** once `DRD-59`'s unit lands, property 8's first bullet reads "the publication test passes", because no file holds the map. Nothing else changes, and the unit stays separate.
 
-#### DRD-59 — The publication is minified by `tsdown`, Oxc renames the internal properties through a map that each build computes, and the declarations come from a build without maps
+#### DRD-59 — The publication is minified by `tsdown`, Oxc renames the internal properties through a map that each build computes, and the declarations have no maps
 
-**`tsdown.config.ts` has two configurations. The JavaScript configuration minifies with `tsdown`'s `minify: true` and writes source maps with `sourcesContent`. The declaration configuration writes `.d.ts` files only, with no maps and no map references. The internal properties that `DRD-56` and `DRD-57` select are renamed by Oxc's own `mangleProps`. One plugin applies it in each module, through a map that a single-chunk build of the same entries computes. The custom renamer, its reader, its generator and the committed map go. The publication test checks the maps and the declarations. Budgets are unchanged.** [`publication-build-proposal.md`](publication-build-proposal.md) is the reasoning and the probes, and [`publication-build-handoff.md`](publication-build-handoff.md) implements it.
+**`tsdown.config.ts` keeps one configuration. It minifies with `tsdown`'s `minify: true`, writes source maps with `sourcesContent`, and writes `.d.ts` files with no maps and no map references. The internal properties that `DRD-56` and `DRD-57` select are renamed by Oxc's own `mangleProps`. One plugin applies it in each JavaScript module, through a map that a single-chunk build of the same entries computes, and refuses an annotation comment in `src` that its rename would delete. The custom renamer, its reader, its generator and the committed map go. The publication test checks the maps and the declarations. Budgets are unchanged.** [`publication-build-proposal.md`](publication-build-proposal.md) is the reasoning and the probes, and [`publication-build-handoff.md`](publication-build-handoff.md) implements it.
 
 Decided on 2026-11-13 by the architect, on the owner's requirements for the publication:
 
@@ -2184,42 +2184,45 @@ Decided on 2026-11-13 by the architect, on the owner's requirements for the publ
 **Why:**
 
 - **The custom pipeline existed for the withdrawn requirement.** `DRD-56` properties 5 and 6 required the step to change nothing but the names, and every other token to keep its mapping. That is why the step rewrites characters with its own map, why it has its own reader, and why V4 compares positions. With the requirement gone, Oxc renames in its own AST pass and Rolldown composes the maps ([proposal](publication-build-proposal.md) §4.1).
-- **One plugin is necessary, and its reason is demonstrated.** Rolldown 1.2.15 refuses `output.minify.mangleProps` when a build has more than one JavaScript chunk, even with a complete `cache` (proposal §2, L1). drag's publication is unbundled. Bundling per entry would duplicate the kernel and split identity across entries, such as `DragFault` and the module-level `admitted` set.
-- **Oxc's rename, applied in each chunk, matches the custom renamer.** With the committed map as `cache`, the minified `.js` is byte-identical to the custom renamer followed by native minification. Its maps also name every renamed property access (proposal §2, N2).
-- **The map comes from the tools.** A single-chunk Rolldown build of every entry with native `mangleProps` returns a map with the same 53 keys, and it is deterministic. Oxc picks the output names against every property name in that one chunk. That is `DRD-56` property 4's "equal to no name that stays", met without a reader (proposal §2, N3).
+- **One plugin is necessary, and its reason is demonstrated.** Rolldown refuses `output.minify.mangleProps` when a build has more than one JavaScript chunk, even with a complete `cache`: at 1.2.15 (proposal §2, L1), and still at 1.3.2 (proposal §9). drag's publication is unbundled. Bundling per entry would duplicate the kernel and split identity across entries, such as `DragFault` and the module-level `admitted` set.
+- **Oxc's rename, applied in each chunk, matches the custom renamer.** With the committed map as `cache`, the minified `.js` is byte-identical to the custom renamer followed by native minification, at 1.2.15. Its maps also name every renamed property access (proposal §2, N2).
+- **The map comes from the tools.** A single-chunk Rolldown build of every entry with native `mangleProps` returns a map with the same 53 keys, and it is deterministic, at 1.2.15 and at 1.3.2. Oxc picks the output names against every property name in that one chunk. That is `DRD-56` property 4's "equal to no name that stays", met without a reader (proposal §2, N3).
 - **Oxc doesn't protect a pinned name** from a kept name in the same chunk, and Oxc can list a chunk's kept names. So the build checks each chunk with Oxc's own listing (proposal §2, N4).
 - **`quoted: true`** renames a string key in property position together with its property, and keeps plain strings, which V1 catches (proposal §2, N4, `DRF-28`).
-- **The rename pass needs `legalComments: 'inline'`.** Native minification keeps legal comments, and Oxc's codegen drops them by default (proposal §2, N5).
-- **The declaration reference needs the second configuration.** With the build's `sourcemap` on, no `dts` option stops the `.d.ts` reference to a map that isn't emitted. A declaration-only configuration with `sourcemap: false` writes none, and its `.d.ts` files are otherwise identical to the current ones (proposal §2, L2, N7). `drag2`'s `D-111` reached the same diagnosis and strips the reference with a hook.
+- **The rename pass needs `legalComments: 'inline'`.** Native minification keeps legal comments, and Oxc's codegen drops them by default (proposal §2, N5, and §9 at 1.3.2).
+- **The rename pass deletes annotation comments, and no option keeps them.** Native minification keeps a `@__PURE__`, `#__PURE__` or `@__NO_SIDE_EFFECTS__` that `src` writes. After the rename pass none is left, and `minifySync`'s codegen offers only `removeWhitespace`, `asciiOnly` and `legalComments`. The annotations in today's output are Rolldown's own, and the minifier writes them again: 8 in 6 modules in the current build without minification, 9 in the same 6 with it. `src` writes none. So the build refuses an annotation in `src` rather than delete it without a word (proposal §9, A3).
+- **One configuration writes the declarations.** `rolldown-plugin-dts` 0.30.2 removes each `.d.ts` reference when declaration maps are off, so the JavaScript maps and the declaration maps are set apart in one build. Its 27 `.d.ts` files are byte-identical to the current build's. A second, declaration-only configuration would now publish 216 foreign declaration files and added side-effect imports (proposal §9, A1 and A2).
 - **No declaration maps.** They would point at `src/*.ts`, which the package doesn't publish (proposal §2, N8).
-- **The declarations already keep their documentation.** Every JSDoc block on a declaration that a published `.d.ts` declares is in it: 115 of 115, against TypeScript's own emit. The rest are maintainer notes under the [documentation model](../../../.agents/docs/documentation.md) §5 (proposal §2, N9).
-- **Size:** the gate moves by −9 to +9 B Brotli per row, and no verdict changes (proposal §6).
+- **The declarations already keep their documentation.** Every JSDoc block on a declaration that a published `.d.ts` declares is in it, against TypeScript's own emit: 115 of 115 at 1.2.15, and 123 of 123 at 1.3.2, where the published files also keep the 8 module headers (proposal §9). The rest are maintainer notes under the [documentation model](../../../.agents/docs/documentation.md) §5 (proposal §2, N9).
+- **Size:** the gate moves by −9 to +9 B Brotli per row, and no verdict changes, at 1.2.15 (proposal §6). Not measured at 1.3.2.
 
 **Required properties:**
 
-1. **Two configurations, one `tsdown` run.**
-   - Both have the same entries, platform, format, target, `define`, `unbundle` and shared plugin list.
-   - **JavaScript:** `minify: true`, `sourcemap: true`, `dts: false`, the rename plugin, and `exports`.
-   - **Declarations:** `dts: { emitDtsOnly: true }` and `sourcemap: false`, with no rename plugin and no `exports`.
+1. **One configuration.**
+   - `tsdown.config.ts` keeps its entries, platform, format, target, `define`, `unbundle`, `exports` and shared plugin list.
+   - It sets `minify: true`, `sourcemap: true`, `dts: { sourcemap: false }` and the rename plugin.
+   - Declaration maps are off in that option, and not because `tsconfig.base.json` leaves out `declarationMap`.
    - `just build` stays the clean, then `tsdown --config tsdown.config.ts`, so `DRD-55` property 1 is unchanged.
 2. **Minification** is `tsdown`'s `minify: true` with Rolldown's comment defaults. No custom code minifies. `keepNames` stays off: function and class `name` values aren't part of the contract.
 3. **The internal properties.** `DRD-56` properties 1 to 3 and `DRD-57` properties 1 to 3 stay: the marker `^_[A-Za-z]`, the selection by declaration, and the names that keep their names.
-   - **(a) The map.** Before any module renders, one in-memory Rolldown build bundles every runtime entry in `files.json` into one chunk, with the JavaScript configuration's `define` and shared plugins, and `@ydinjs/box-quad` external. It applies native `minify.mangleProps` with `include: /^_[A-Za-z]/` and `quoted: true`, and its `mangleCache` is the map. The build fails when that build gives more than one chunk. The map is written nowhere.
-   - **(b) The rename.** In `renderChunk`, for each JavaScript chunk, `rolldown/utils`' `minifySync` runs with compression and identifier mangling off, whitespace kept, `legalComments: 'inline'`, a source map, and `mangleProps` with the same `include`, `quoted: true` and the map as `cache`. The plugin returns the code and the map. Rolldown composes the map and then minifies.
+   - **(a) The map.** Before any module renders, one in-memory Rolldown build bundles every runtime entry in `files.json` into one chunk, with the configuration's `define` and shared plugins, and `@ydinjs/box-quad` external. It applies native `minify.mangleProps` with `include: /^_[A-Za-z]/` and `quoted: true`, and its `mangleCache` is the map. The build fails when that build gives more than one chunk. The map is written nowhere.
+   - **(b) The rename.** In `renderChunk`, for each JavaScript chunk, and for no `.d.ts` chunk, `rolldown/utils`' `minifySync` runs with compression and identifier mangling off, whitespace kept, `legalComments: 'inline'`, a source map, and `mangleProps` with the same `include`, `quoted: true` and the map as `cache`. The plugin returns the code and the map. Rolldown composes the map and then minifies.
    - **(c) The build fails,** naming the chunk and the names, when a chunk's kept property names include an output name, or when Oxc assigns a name that the map lacks. The kept names are those that Oxc lists with `include: /^/`, the marker as `exclude`, and `quoted: true`.
-   - **No other custom build code** for the JavaScript: no reader, no map arithmetic, no committed map and no generator.
+   - **(d) The build fails,** naming the module, when a comment in a module under `src` is a `@__PURE__`, `#__PURE__`, `@__NO_SIDE_EFFECTS__` or `#__NO_SIDE_EFFECTS__` annotation. The rename pass would delete it.
+   - **No other custom build code** for the JavaScript: no reader, no map arithmetic, no committed map, no generator and no second configuration.
 4. **Source maps.**
    - Each published `.js` with mappings has a `.js.map` beside it and a `sourceMappingURL` that names it. A module with no mappings, a single re-export, has neither.
    - Each map's `sourcesContent` holds the full text of each source, equal to the file under `src`.
    - Each renamed property in a published module leads to the `src` text of its prefixed name, after class member modifiers. A key that the output writes as shorthand may lead to its value instead.
-   - Other mappings are the tools'. Some minified locals carry no `names` entry, as they don't without the rename (proposal §2, L3).
+   - Other mappings are the tools'.
 5. **Declarations.**
    - Separate `.d.ts` modules, as now.
    - No `.d.ts` holds a `sourceMappingURL`, and no `.d.ts.map` is emitted.
    - Every JSDoc block on a declaration that a published `.d.ts` declares is kept.
    - No `.d.ts` holds a marker name in any form.
 6. **Annotations and license notices.**
-   - Each published module keeps every `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotation that its unminified build has, and the minifier may add more.
+   - Each published module keeps every `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotation that Rolldown's output of it has without the rename and without minification, and the minifier may add more.
+   - `src` writes no annotation, and property 3d keeps it that way.
    - Each legal comment in a source module (`/*!`, `//!`, `@license`, `@preserve`) is kept in its published module. `src` has none today.
    - `LICENSE` is in the package root, and npm packs it whatever `files` lists. `@ydinjs/box-quad` stays external, so the publication bundles no third-party code.
 7. **The publication test**, on `DRD-55` property 1's one build:
@@ -2256,7 +2259,16 @@ Decided on 2026-11-13 by the architect, on the owner's requirements for the publ
 
 **What this amends:** `DRD-58` property 8's first bullet. Once this decision's unit lands, the map doesn't exist, and the bullet reads "the publication test passes". `DRD-58`'s unit stays separate (proposal §8).
 
-**Revisit** when Rolldown accepts `mangleProps` for a build with several chunks. Property 3's plugin and map build then give way to a `minify.mangleProps` option.
+**Revisit** when Rolldown accepts `mangleProps` for a build with several chunks. Property 3's plugin and map build then give way to a `minify.mangleProps` option, and property 3d goes with them. Until then, property 3d goes when `minifySync` can keep annotation comments.
+
+**Amended on 2026-11-13, before implementation, after the dependency update at `31bac1381`** ([proposal](publication-build-proposal.md) §9, [readings](measurements/2026-11-13-publication-build-recheck-readings.txt)). Observed with `tsdown` 0.23.7, `rolldown` 1.3.2 and `rolldown-plugin-dts` 0.30.2.
+
+- **Property 1** is one configuration. **It used to say** "Two configurations, one `tsdown` run": a JavaScript configuration with `dts: false`, and a declaration configuration with `dts: { emitDtsOnly: true }`, `sourcemap: false`, no rename plugin and no `exports`.
+- **Property 3:** (b) excludes the `.d.ts` chunks, which the same build now renders. (d) is new.
+- **Property 4's last bullet** used to add "Some minified locals carry no `names` entry, as they don't without the rename (proposal §2, L3)". At 1.3.2, every minified identifier and private name carries its name.
+- **Property 6's first bullet** used to compare against "its unminified build". With the rename plugin and minification off, that build has no annotation at all, so the comparison was empty.
+- **Unchanged:** properties 2, 3a to 3c, 5, 7, 8 and 9. L1 holds, so the plugin and the map's build stay.
+- **Not repeated after the update,** and carried as assumptions that the unit tests: N2's byte identity with the custom renamer, N4's edge cases, and the size readings. W1 to W3 and the gate test them.
 
 **What this doesn't decide:**
 
@@ -3495,4 +3507,4 @@ No timing was taken.
 | DRD-56 | active, decided on 2026-11-13 by the architect on the owner's answer to `DRO-15` step 3: source prefixes, then publish-time mangling, with no selection by type. Clarifies `DRD-51` property 3 and answers `DRD-54`'s question on three engines. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. Budgets are unchanged. **Implemented** at `f7b7b300b` and `31f92f5a9`, reported at `78797ebf6`, and accepted on 2026-11-13 ([assessment](publish-mangle-assessment.md)). Properties 1 and 6 corrected in place the same day: the members that a published type declares, and the bounded class member exception to V4. The two changed verdicts went to `DRO-4`. No independent review has read it yet. **Property 2's selection extended on 2026-11-13 by `DRD-57`.** The [publish mangle review](reviews/publish-mangle/publish-mangle-summary.md) read it at `436b105c6`. **Superseded in part on 2026-11-13 by `DRD-59`:** properties 4 to 6 and property 7's V2 to V4 |
 | DRD-57 | active, decided on 2026-11-13 by the architect on the owner's request to audit `DRD-56`'s selection, from [`mangle-selection-audit.md`](mangle-selection-audit.md) at `436b105c6`. Amends `DRD-56` property 2's starting set and adds the one-character rule to its property 1. [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it. Budgets are unchanged. **Implemented** at `b50204f66`, and reported at `1719df16c`. The architect hasn't read the report. Property 4 is superseded by `DRD-59` |
 | DRD-58 | active, decided on 2026-11-13 on the owner's direction. Replaces `RectIndex`'s growable `Float64Array` slot buffer with one `number[]`, and removes the lifetime and reentrancy rules that replacement required. Amends `DRD-52` properties 1, 4 and 6, and `DRD-50` W7's helpers. [`slot-array-handoff.md`](slot-array-handoff.md) implements it after `DRD-57`'s unit. Costs are reported, not gated. Not implemented. Property 8's first bullet amended by `DRD-59` |
-| DRD-59 | active, decided on 2026-11-13 by the architect on the owner's requirements for the publication. Supersedes `DRD-56` properties 4 to 6 and property 7's V2 to V4, and `DRD-57` property 4, amends `DRD-58` property 8, and withdraws the remediation proposal at `be151f9ed`. Decides `DRF-24` to `DRF-37`. [`publication-build-handoff.md`](publication-build-handoff.md) implements it. Budgets are unchanged. Not implemented |
+| DRD-59 | active, decided on 2026-11-13 by the architect on the owner's requirements for the publication. Supersedes `DRD-56` properties 4 to 6 and property 7's V2 to V4, and `DRD-57` property 4, amends `DRD-58` property 8, and withdraws the remediation proposal at `be151f9ed`. Decides `DRF-24` to `DRF-37`. [`publication-build-handoff.md`](publication-build-handoff.md) implements it. Budgets are unchanged. Not implemented. **Amended on 2026-11-13 after the dependency update at `31bac1381`:** one configuration, and the build refuses an annotation in `src` |

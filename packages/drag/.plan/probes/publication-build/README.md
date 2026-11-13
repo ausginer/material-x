@@ -15,7 +15,7 @@ The scripts for [`publication-build-proposal.md`](../../publication-build-propos
 | [`names.ts.txt`](names.ts.txt) | The map computed by one in-memory Rolldown build of every runtime entry as a single chunk, with native `minify.mangleProps`. Run directly, it computes the map twice and compares it with the committed map |
 | [`mangle-plugin.ts.txt`](mangle-plugin.ts.txt) | The candidate plugin: the kept-name check, then the rename of each JavaScript chunk through Oxc with the computed map |
 | [`p4.config.ts.txt`](p4.config.ts.txt) | One configuration with the candidate plugin and native `minify: true`. `DTS=` sets the `dts` option, which the declaration-map probes used |
-| [`p5.config.ts.txt`](p5.config.ts.txt) | **The candidate:** two configurations, JavaScript with maps and the plugin, and declarations only without maps |
+| [`p5.config.ts.txt`](p5.config.ts.txt) | **The first reading's candidate:** two configurations, JavaScript with maps and the plugin, and declarations only without maps. The amendment replaces it with `p4` and `DTS='{"sourcemap":false}'` (proposal §9) |
 | [`p6.config.ts.txt`](p6.config.ts.txt) | One module, `src/fault.ts`, built with variants of minification and the plugin, for the legal comment probe. `src/fault.ts` was prefixed with three legal comments in the scratch copy only, and restored |
 | [`edge.ts.txt`](edge.ts.txt), [`edge2.ts.txt`](edge2.ts.txt) | Oxc `mangleProps` on small inputs: shorthand keys, destructuring, quoted keys, `in`, computed keys, plain strings, a `cache` target equal to a kept name, and the listing of a chunk's kept names |
 | [`mapcheck.ts.txt`](mapcheck.ts.txt) | Classifies the mapping of every identifier, private name and property token in each emitted module by the `src` text it leads to. `NAMES=` selects the map that identifies renamed properties |
@@ -26,3 +26,19 @@ The scripts for [`publication-build-proposal.md`](../../publication-build-propos
 **Correction during the run.** The first runs of `p4.config.ts` used a plugin that didn't skip declaration chunks. Oxc reprinted them, and every `.d.ts.map` came out with empty `mappings`. The plugin was corrected to return `null` for a `.d.ts` chunk, as the current renamer does. Every reading in the readings file is from the corrected plugin.
 
 The readings are in [`2026-11-13-publication-build-readings.txt`](../../measurements/2026-11-13-publication-build-readings.txt).
+
+## Recheck after the dependency update
+
+[`publication-build-proposal.md`](../../publication-build-proposal.md) §9. **Base:** `packages/drag` at `63bb1bea1`, after merging `drag/size` at `31bac1381`. Tools: `tsdown` 0.23.7, `rolldown` 1.3.2, `rolldown-plugin-dts` 0.30.2, installed with `npm ci` in the `drag/mangle-remediation` worktree. The scratch tree was made as above, with `node_modules` linked to that worktree's, after building `@ydinjs/vite-traits-plugin` and `@ydinjs/box-quad` there. `p1`, `p4`, `p5`, `p6`, `pcur`, `names.ts`, `mapcheck.ts` and `jsdoc2.ts` ran unchanged, apart from two scratch edits stated below.
+
+| File | What it does |
+| --- | --- |
+| [`p7.config.ts.txt`](p7.config.ts.txt) | `p5`'s declaration configuration alone, which shows the files it writes at 1.3.2 |
+| [`p8.config.ts.txt`](p8.config.ts.txt) | `p4` with `minify: false`: the rename plugin without minification, which has no annotation left |
+| [`dtscmp.ts.txt`](dtscmp.ts.txt) | Compares the `.d.ts` files of two outputs, after removing a trailing `sourceMappingURL` line, and counts the references |
+| [`annot.ts.txt`](annot.ts.txt) | Counts `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotations per module in two outputs |
+| [`annot-edge.ts.txt`](annot-edge.ts.txt) | `minifySync` on a small module with three annotations: the rename pass, the rename pass then minification, and minification alone |
+
+**Scratch edits.** `p1` was also run with `, cache: names` removed. For `p6`, `src/fault.ts` was prefixed with the three legal comments, an import of `box` from `@ydinjs/box-quad`, two annotated calls of it and an annotated function, as the readings file lists, and restored and compared with `cmp`. The scratch `probe/mangle-plugin.ts` read `legalComments: process.env.NOLEGAL ? 'none' : 'inline'`, so that one `p6` run could turn the option off.
+
+The readings are in [`2026-11-13-publication-build-recheck-readings.txt`](../../measurements/2026-11-13-publication-build-recheck-readings.txt).
