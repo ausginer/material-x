@@ -408,8 +408,8 @@ describe('drag:DRI-10 destruction', () => {
           },
           onStart(item) {
             refs.push(new WeakRef(item));
-            // The callback reads `behavior`, so the controller keeps it
-            // reachable until the controller is released.
+            // The callback captures the variable, not its object, so clearing
+            // `behavior` below releases the object whether or not the controller is.
             assertType(behavior);
           },
         });
