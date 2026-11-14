@@ -1,0 +1,12 @@
+// For a consumer that loads the publication without a bundler: the .js bytes each public entry loads,
+// following relative imports. @ydinjs/box-quad is not counted.
+import { readFileSync } from 'node:fs';
+import { dirname, resolve, relative } from 'node:path';
+import files from '../files.json' with { type: 'json' };
+const out = resolve(process.argv[2]!);
+const reach = (f: string, seen = new Set<string>()): Set<string> => {
+  if (seen.has(f)) return seen; seen.add(f);
+  for (const m of readFileSync(f, 'utf8').matchAll(/(?:from|import)\s*["']([^"']+)["']/g)) if (m[1]!.startsWith('.')) reach(resolve(dirname(f), m[1]!), seen);
+  return seen;
+};
+for (const e of files.runtime) { const s = reach(resolve(out, `${e}.js`)); let n = 0; for (const f of s) n += readFileSync(f).byteLength; console.log(`${e.padEnd(26)} ${String(n).padStart(6)} B in ${s.size} files`); }

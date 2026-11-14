@@ -1,0 +1,36 @@
+## rename output: declaration nodes by kind
+      7 GetAccessor
+     32 MethodDeclaration
+      7 MethodSignature
+     13 PropertyAssignment
+     11 PropertyDeclaration
+      9 PropertySignature
+## PropertyAssignment nodes
+declaration	src/free-drag/bounds.ts:23:19	_left	PropertyAssignment
+declaration	src/free-drag/bounds.ts:23:29	_top	PropertyAssignment
+declaration	src/free-drag/bounds.ts:23:38	_right	PropertyAssignment
+declaration	src/free-drag/bounds.ts:23:49	_bottom	PropertyAssignment
+declaration	src/lift.ts:306:13	_duration	PropertyAssignment
+declaration	src/lift.ts:307:13	_easing	PropertyAssignment
+declaration	src/lift.ts:308:13	_landing	PropertyAssignment
+declaration	src/sortable/layout-animation.ts:107:11	_animation	PropertyAssignment
+declaration	src/sortable/layout-animation.ts:108:11	_dx	PropertyAssignment
+declaration	src/sortable/layout-animation.ts:109:11	_dy	PropertyAssignment
+declaration	src/sortable/behavior.ts:280:9	_visual	PropertyAssignment
+declaration	src/sortable/behavior.ts:281:9	_box	PropertyAssignment
+declaration	src/sortable/behavior.ts:282:9	_direction	PropertyAssignment
+## shorthand records in the location files
+/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-rename-locations.txt:13
+/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-mangle-rename-locations.txt:11
+## '*' marks in the report's declaration table (8904947f6)
+\*`_duration` 306
+\*`_easing` 307
+\*`_landing` 308
+\*`_visual` 280
+\*`_box` 281
+\*`_direction` 282
+\*`_animation` 107
+\*`_dx` 108
+\*`_dy` 109
+9
+79:The probe visits 79 declaration nodes. They are the 67 declarations of the handoff. The three overload signatures of `gesture.ts`'s `_enter` count with its implementation, and the 12 keys marked `*` belong to object literals typed by an interface, which the interface member's rename reaches. Lines are at commit A.

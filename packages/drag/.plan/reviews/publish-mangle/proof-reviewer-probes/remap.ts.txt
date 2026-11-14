@@ -1,0 +1,15 @@
+// remap.ts <map file> <genLine:genCol (1-based line, 1-based col)> <srcLine:srcCol (1-based)> [source index]: retarget one mapping
+import { readFileSync, writeFileSync } from 'node:fs';
+import { addMapping, allMappings, fromMap, GenMapping, toEncodedMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+const [file, gen, src] = process.argv.slice(2) as [string, string, string];
+const raw = JSON.parse(readFileSync(file, 'utf8'));
+const [gl, gc] = gen.split(':').map(Number); const [sl, sc] = src.split(':').map(Number);
+const out = new GenMapping({ file: raw.file });
+let hit = 0;
+for (const m of allMappings(fromMap(raw))) {
+  if (m.generated.line === gl && m.generated.column === gc - 1) { m.original = { line: sl!, column: sc! - 1 }; hit++; }
+  addMapping(out, m.source ? { generated: m.generated, source: m.source, original: m.original } : { generated: m.generated });
+}
+const enc = toEncodedMap(out);
+writeFileSync(file, JSON.stringify({ ...raw, mappings: enc.mappings }));
+console.log(`retargeted ${hit} mapping(s)`);

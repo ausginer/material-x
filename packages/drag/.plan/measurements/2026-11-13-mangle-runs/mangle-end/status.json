@@ -1,0 +1,116 @@
+{
+  "id": "mangle-end",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 511973,
+    "start": "7547938"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T05:25:10.795Z",
+  "endedAt": "2026-11-13T05:31:54.452Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just size; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-end/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 511999,
+        "start": "7547963"
+      },
+      "startedAt": "2026-11-13T05:25:10.847Z",
+      "endedAt": "2026-11-13T05:25:15.843Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/v5.sh",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-end/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 512292,
+        "start": "7548465"
+      },
+      "startedAt": "2026-11-13T05:25:15.874Z",
+      "endedAt": "2026-11-13T05:25:20.856Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/dry-each.sh",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-end/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 512857,
+        "start": "7548967"
+      },
+      "startedAt": "2026-11-13T05:25:20.886Z",
+      "endedAt": "2026-11-13T05:25:35.806Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-13-mangle-end-suite.json; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-end/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 514800,
+        "start": "7550460"
+      },
+      "startedAt": "2026-11-13T05:25:35.819Z",
+      "endedAt": "2026-11-13T05:27:13.536Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-end/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 517585,
+        "start": "7560234"
+      },
+      "startedAt": "2026-11-13T05:27:13.554Z",
+      "endedAt": "2026-11-13T05:30:08.488Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/consumer-engines.sh",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-end/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 519589,
+        "start": "7577728"
+      },
+      "startedAt": "2026-11-13T05:30:08.499Z",
+      "endedAt": "2026-11-13T05:31:54.451Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+// Compares each .d.ts of two outputs after removing a trailing sourceMappingURL line.
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, relative } from 'node:path';
+const [a, b] = process.argv.slice(2);
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.d.ts') ? [join(d, f)] : []);
+const strip = (t: string) => t.replace(/\n?\/\/# sourceMappingURL=[^\n]*\n?$/, '');
+const fa = walk(a).map((f) => relative(a, f)).sort(), fb = walk(b).map((f) => relative(b, f)).sort();
+let same = 0, diff: string[] = [], refsA = 0, refsB = 0;
+for (const f of fa) {
+  if (!existsSync(join(b, f))) continue;
+  const ta = readFileSync(join(a, f), 'utf8'), tb = readFileSync(join(b, f), 'utf8');
+  if (/sourceMappingURL/.test(ta)) refsA++; if (/sourceMappingURL/.test(tb)) refsB++;
+  if (strip(ta) === strip(tb)) same++; else diff.push(f);
+}
+console.log(`${a}: ${fa.length} .d.ts, ${refsA} with a reference; ${b}: ${fb.length} .d.ts, ${refsB} with a reference`);
+console.log(`only in ${a}: ${JSON.stringify(fa.filter((f) => !fb.includes(f)))}; only in ${b}: ${fb.filter((f) => !fa.includes(f)).length} files`);
+console.log(`equal after removing the reference line: ${same}; different: ${JSON.stringify(diff)}`);

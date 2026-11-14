@@ -1,0 +1,52 @@
+/*
+ * C6 ownership probe: per-sample allocation in the sortable axis code. Appended to
+ * a scratch worktree's `tests/hot-path.browser.test.ts`, which runs in the
+ * `shipped` project with `__DEV__` false. Each axis is launched alone, with
+ * `-t 'C6 probe y:'` or `-t 'C6 probe xy:'`: after `y()` in the same launch,
+ * `xy()` reads an empty profile. Not a test of the suite: it prints and asserts
+ * nothing.
+ */
+import { xy as probeXy } from '../src/sortable/xy.ts';
+
+describe('C6 probe', () => {
+  for (const axis of ['y', 'xy'] as const) {
+    it.runIf(isChromium)(`C6 probe ${axis}: bytes per sample under src/sortable/`, async () => {
+      const list = makeList(20);
+
+      basicSortable(list, axis === 'xy' ? { axis: probeXy() } : {});
+
+      const start = await press('#r0');
+
+      await commands.pointerMove(start.x, start.y + 10, 2);
+      await frames();
+
+      // Warm pass, not sampled, as the kernel's allocation test does.
+      for (let i = 0; i < 300; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one sample per step
+        await commands.pointerMove(start.x + (i % 40), start.y + 12 + (i % 3));
+      }
+
+      await frames();
+      await commands.startHeapSampling(16);
+
+      const moves = 400;
+
+      for (let i = 0; i < moves; i += 1) {
+        // Inside one slot, and never still, so every frame resolves.
+        // oxlint-disable-next-line no-await-in-loop -- one sample per step
+        await commands.pointerMove(start.x + (i % 40), start.y + 12 + (i % 3));
+      }
+
+      const bytes = await commands.stopHeapSampling('/src/');
+
+      await commands.keyPress('Escape');
+
+      const sortable = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/'));
+      const total = sortable.reduce((sum, [, size]) => sum + size, 0);
+
+      console.log(
+        `C6-PROBE ${axis} perMove=${(total / moves).toFixed(2)} keys=${JSON.stringify(Object.fromEntries(sortable))}`,
+      );
+    }, 180_000);
+  }
+});

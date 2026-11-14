@@ -1,0 +1,436 @@
+# Allocation probe launches, tree: base (2e47e7afe, src equal to 8904947f6), shipped project, Chromium, one probe test per launch, through bench/campaign.ts run (id alloc-base)
+
+## launch 1: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:30:50 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=2c9d5dd4
+stdout | tests/hot-path.browser.test.ts:383 > C6 probe > C6 probe y: bytes per sample under src/sortable/
+C6-PROBE y perMove=87.33 keys={"sortable/y.ts:resolve":8952,"sortable/linear-shift.ts:refresh":5544,"sortable/rect-index.ts:get end":196,"sortable/operation.ts:move":20240}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:30:49
+   Duration  12.87s (tests 96%, worker 3%)
+
+
+## launch 2: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:31:04 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:383 > C6 probe > C6 probe xy: bytes per sample under src/sortable/
+C6-PROBE xy perMove=48.46 keys={"sortable/operation.ts:move":19384}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:31:03
+   Duration  13.16s (tests 95%, worker 4%)
+
+
+## launch 3: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:31:19 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:430 > C6 move probe > C6 move probe y: bytes per committed move under src/sortable/
+C6-MOVE-PROBE moves=200 perMove=124.62 keys={"sortable/linear-shift.ts:refresh":4704,"sortable/rect-index.ts:measurePlaceholder":3120,"sortable/rect-index.ts:pack":4872,"sortable/linear-shift.ts:moved":1224,"sortable/linear-shift.ts:advance":11004}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:31:18
+   Duration  16.33s (tests 96%, worker 4%)
+
+
+## launch 4: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:31:36 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:488 > C6 warm move probe > C6 warm move probe y: bytes per committed move under src/sortable/
+C6-WARM-MOVE-PROBE moves=200 perMove=14.56 keys={"sortable/linear-shift.ts:refresh":2912}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:31:35
+   Duration  110.93s (tests 100%)
+
+
+## launch 5: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:33:27 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:550 > RIA sink drop probe > RIA sink drop probe y: bytes per drop under src/sortable/
+RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3727.73 keys={"sortable/layout-animation.ts:":4560,"sortable/linear-shift.ts:refresh":3708,"sortable/rect-index.ts:collect":42104,"sortable/rect-index.ts:measurePlaceholder":2224,"sortable/rect-index.ts:pack":7644,"sortable/rect-index.ts:measure":1952,"sortable/linear-shift.ts:moved":17980,"sortable/layout-animation.ts:report":116552,"sortable/linear-shift.ts:advance":8664,"sortable/rect-index.ts:holds":18276}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:33:27
+   Duration  20.83s (tests 98%, worker 2%)
+
+
+## launch 6: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:33:49 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:383 > C6 probe > C6 probe y: bytes per sample under src/sortable/
+C6-PROBE y perMove=86.67 keys={"sortable/y.ts:resolve":9432,"sortable/linear-shift.ts:refresh":5328,"sortable/operation.ts:move":19908}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:33:49
+   Duration  12.63s (tests 97%, worker 2%)
+
+
+## launch 7: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:34:02 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:383 > C6 probe > C6 probe xy: bytes per sample under src/sortable/
+C6-PROBE xy perMove=50.29 keys={"sortable/operation.ts:move":20116}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:34:02
+   Duration  12.57s (tests 97%, worker 2%)
+
+
+## launch 8: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:34:16 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:430 > C6 move probe > C6 move probe y: bytes per committed move under src/sortable/
+C6-MOVE-PROBE moves=200 perMove=127.64 keys={"sortable/linear-shift.ts:refresh":4668,"sortable/rect-index.ts:measurePlaceholder":3232,"sortable/rect-index.ts:pack":4980,"sortable/linear-shift.ts:moved":1476,"sortable/linear-shift.ts:advance":11172}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:34:15
+   Duration  16.05s (tests 97%, worker 3%)
+
+
+## launch 9: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:34:33 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:488 > C6 warm move probe > C6 warm move probe y: bytes per committed move under src/sortable/
+C6-WARM-MOVE-PROBE moves=200 perMove=16.28 keys={"sortable/linear-shift.ts:refresh":3184,"sortable/rect-index.ts:pack":72}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:34:32
+   Duration  110.90s (tests 100%)
+
+
+## launch 10: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:36:25 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:550 > RIA sink drop probe > RIA sink drop probe y: bytes per drop under src/sortable/
+RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3706.80 keys={"sortable/layout-animation.ts:":4636,"sortable/linear-shift.ts:refresh":3612,"sortable/rect-index.ts:collect":42132,"sortable/rect-index.ts:measurePlaceholder":1952,"sortable/rect-index.ts:pack":7176,"sortable/rect-index.ts:measure":1792,"sortable/linear-shift.ts:moved":17832,"sortable/layout-animation.ts:report":116064,"sortable/linear-shift.ts:advance":8964,"sortable/rect-index.ts:holds":18248}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:36:24
+   Duration  20.84s (tests 98%, worker 1%)
+
+
+## launch 11: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:36:47 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:383 > C6 probe > C6 probe y: bytes per sample under src/sortable/
+C6-PROBE y perMove=83.21 keys={"sortable/y.ts:resolve":9120,"sortable/linear-shift.ts:refresh":5208,"sortable/operation.ts:move":18956}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:36:46
+   Duration  12.81s (tests 96%, worker 3%)
+
+
+## launch 12: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:37:01 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:383 > C6 probe > C6 probe xy: bytes per sample under src/sortable/
+C6-PROBE xy perMove=49.71 keys={"sortable/operation.ts:move":19884}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:37:00
+   Duration  12.90s (tests 96%, worker 3%)
+
+
+## launch 13: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:37:14 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:430 > C6 move probe > C6 move probe y: bytes per committed move under src/sortable/
+C6-MOVE-PROBE moves=200 perMove=133.98 keys={"sortable/linear-shift.ts:refresh":5184,"sortable/rect-index.ts:measurePlaceholder":3296,"sortable/rect-index.ts:pack":5656,"sortable/linear-shift.ts:moved":1224,"sortable/linear-shift.ts:advance":11436}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:37:14
+   Duration  16.04s (tests 97%, worker 3%)
+
+
+## launch 14: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:37:31 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:488 > C6 warm move probe > C6 warm move probe y: bytes per committed move under src/sortable/
+C6-WARM-MOVE-PROBE moves=200 perMove=15.04 keys={"sortable/linear-shift.ts:refresh":3008}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:37:31
+   Duration  111.08s (tests 100%)
+
+
+## launch 15: npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'RIA sink drop probe'
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag
+
+12:39:23 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=14d1bf84
+stdout | tests/hot-path.browser.test.ts:550 > RIA sink drop probe > RIA sink drop probe y: bytes per drop under src/sortable/
+RIA-SINK-DROP-PROBE cycles=60 insertions=180 perDrop=3728.93 keys={"sortable/layout-animation.ts:":4636,"sortable/linear-shift.ts:refresh":3612,"sortable/rect-index.ts:collect":42944,"sortable/rect-index.ts:measurePlaceholder":2128,"sortable/rect-index.ts:pack":7452,"sortable/rect-index.ts:measure":2032,"sortable/linear-shift.ts:moved":18156,"sortable/layout-animation.ts:report":115612,"sortable/linear-shift.ts:advance":8664,"sortable/rect-index.ts:holds":18500}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+Type Errors  no errors
+   Start at  12:39:23
+   Duration  20.83s (tests 98%, worker 2%)
+

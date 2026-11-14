@@ -1,0 +1,19 @@
+node bench/size/measure.ts 
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20221 min   7290 gz   6577 br  20 modules
+sortable + xy                   20073 min   7266 gz   6534 br  19 modules
+complete                        21803 min   7950 gz   7175 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 110 B
+error: recipe `size` failed on line 59 with exit code 1

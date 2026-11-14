@@ -1,0 +1,88 @@
+# Property mangling exploration, measured by the architect on 2026-11-12 at b0287f1ae (packages/drag/src = 237d65d2f).
+# Probes: probes/property-mangling/*.ts.txt, run from packages/drag. Rolldown 1.2.15; consumer bundles with minify: true, platform neutral, __DEV__ false, @ydinjs/box-quad from its src; gzip level 9; Brotli quality 11, lgwin 22, generic mode (DRD-51 property 1). Deltas by probes/size-pass/delta.ts.txt.
+# Tier 1: tier1-names.json, the names ownership.ts finds eligible against published.json, without zIndex (29 in the all-entry bundle).
+# Tier 2: tier2-names.json, the same against published-without-installers.json (AxisInstaller and DisplacementInstaller opaque), without zIndex (39 in the bundle).
+# zIndex was in both tiers as first computed. Mangling it failed four DRI-13 landing tests (suite-tier1-with-zindex.json); it is excluded from every table below.
+
+## In the row's bundle: size-mangle.ts.txt, minify { mangleProps } against minify: true (minify: {} reads 0/0/0 against minify: true on every row: src-minify-object.json)
+row                          src-minify-object               src-tier1
+                                    min/gz9/br              min/gz9/br
+draggable alone                          0/0/0            -221/-61/-40
+draggable + lift                         0/0/0            -221/-56/-37
+ex: resize handle                        0/0/0            -221/-59/-60
+ex: drop zone                            0/0/0            -221/-56/-51
+ex: canvas group                         0/0/0            -221/-58/-44
+freeDrag                                 0/0/0            -355/-74/-67
+freeDrag+b+l                             0/0/0            -355/-74/-63
+sortable + y                             0/0/0           -553/-134/-94
+sortable + xy                            0/0/0          -485/-126/-111
+complete                                 0/0/0          -599/-136/-107
+
+## At publish: publish.ts.txt. 'published-plain' against the src base shows how the unbundled build differs from what the gate reads
+row                            published-plain
+                                    min/gz9/br
+draggable alone                          0/0/0
+draggable + lift                         0/0/0
+ex: resize handle                        0/0/0
+ex: drop zone                            0/0/0
+ex: canvas group                         0/0/0
+freeDrag                              +6/+2/+5
+freeDrag+b+l                         +6/+4/+16
+sortable + y                           0/+1/-7
+sortable + xy                           0/0/-7
+complete                               0/+2/-1
+
+## At publish, mangled modules against the unmangled modules
+row                            published-tier1         published-tier2
+                                    min/gz9/br              min/gz9/br
+draggable alone                   -221/-54/-35            -221/-47/-32
+draggable + lift                  -221/-49/-38            -221/-45/-27
+ex: resize handle                 -221/-51/-54            -221/-49/-53
+ex: drop zone                     -221/-50/-45            -221/-45/-28
+ex: canvas group                  -221/-49/-30            -221/-47/-32
+freeDrag                          -355/-69/-66            -355/-64/-57
+freeDrag+b+l                      -355/-69/-65            -355/-63/-57
+sortable + y                    -555/-133/-106          -837/-165/-140
+sortable + xy                   -485/-119/-103          -739/-152/-139
+complete                        -601/-146/-119          -893/-179/-156
+
+## Inventory of the all-entry bundle (inventory.json): see the exploration's section 2
+{"published":[53,1772],"platform":[185,5630],"tier1":[29,935],"installer":[6,316]}
+
+## Runtime check: Chromium browser and shipped projects, 363 tests, through vitest.tree.config.ts.txt and bench/campaign.ts
+control (unmangled tree): 358 passed, 5 failed
+   failed: tests/hot-path.browser.test.ts | drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+   failed: tests/hot-path.browser.test.ts | drag:DRI-17 hot path drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+   failed: tests/requests.browser.test.ts | drag:DRI-1 a request does not change the running step should finish the step when a custom element reaction asks to press during activate
+   failed: tests/sortable.browser.test.ts | drag:DRD-52 development equivalence check should report a placeholder that a committed move displaces along x
+   failed: tests/terminals.browser.test.ts | drag:DRI-6 reentrant input should refuse a nested press, and take the next real one
+tier 1 with zIndex: 347 passed, 16 failed
+   failed: tests/hot-path.browser.test.ts | drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+   failed: tests/hot-path.browser.test.ts | drag:DRI-17 hot path drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should keep duplicate checking apart from insertion
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should run a queue first in first out, each entry on its receiver
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should run a stack last in first out, each entry on its receiver
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should be empty before the first add and after the last run of a queue
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should be empty before the first add and after the last run of a stack
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should remove an entry before calling it, so a throw leaves the rest
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should drop every entry on clear
+   failed: tests/landing.browser.test.ts | drag:DRI-13 landing should stay above relative siblings for the whole flight
+   failed: tests/landing.browser.test.ts | drag:DRI-13 landing should stay above z-index siblings for the whole flight
+   failed: tests/landing.browser.test.ts | drag:DRI-13 landing should keep an item with its own z-index on top, in every engine
+   failed: tests/landing.browser.test.ts | drag:DRI-13 landing should keep an absolutely positioned item on top
+   failed: tests/requests.browser.test.ts | drag:DRI-1 a request does not change the running step should finish the step when a custom element reaction asks to press during activate
+   failed: tests/sortable.browser.test.ts | drag:DRD-52 development equivalence check should report a placeholder that a committed move displaces along x
+   failed: tests/terminals.browser.test.ts | drag:DRI-6 reentrant input should refuse a nested press, and take the next real one
+tier 1: 351 passed, 12 failed
+   failed: tests/hot-path.browser.test.ts | drag:DRI-17 hot path should allocate per sample only the CSS string a lifted write needs
+   failed: tests/hot-path.browser.test.ts | drag:DRI-17 hot path drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should keep duplicate checking apart from insertion
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should run a queue first in first out, each entry on its receiver
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should run a stack last in first out, each entry on its receiver
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should be empty before the first add and after the last run of a queue
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should be empty before the first add and after the last run of a stack
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should remove an entry before calling it, so a throw leaves the rest
+   failed: tests/callback-list.browser.test.ts | drag:DRD-35 callback lists should drop every entry on clear
+   failed: tests/requests.browser.test.ts | drag:DRI-1 a request does not change the running step should finish the step when a custom element reaction asks to press during activate
+   failed: tests/sortable.browser.test.ts | drag:DRD-52 development equivalence check should report a placeholder that a committed move displaces along x
+   failed: tests/terminals.browser.test.ts | drag:DRI-6 reentrant input should refuse a nested press, and take the next real one

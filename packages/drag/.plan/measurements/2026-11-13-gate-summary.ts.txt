@@ -1,0 +1,16 @@
+/* Per-project files, tests and failures from a run's verbose log. */
+import { readFile } from 'node:fs/promises';
+const [log] = process.argv.slice(2) as [string];
+const line = /^ (✓|×|↓) \|([\w-]+)(?: \(chromium\))?\|\s+(?:TS\s+)?(tests\/\S+?)(?::\d+)? > (.*?)(?: \d+ms)?$/u;
+const rows: { project: string; file: string; name: string; status: string }[] = [];
+for (const text of (await readFile(log, 'utf8')).split('\n')) {
+  const m = line.exec(text);
+  if (m) rows.push({ project: m[2]!, file: m[3]!, name: m[4]!.split(' > ').join(' '), status: m[1] === '✓' ? 'passed' : m[1] === '×' ? 'failed' : 'skipped' });
+}
+for (const project of [...new Set(rows.map((r) => r.project))].sort()) {
+  const own = rows.filter((r) => r.project === project);
+  const failed = own.filter((r) => r.status === 'failed');
+  console.log(`${project}: ${new Set(own.map((r) => r.file)).size} files, ${own.length} tests, ${failed.length} failed${failed.length ? ': ' + failed.map((r) => `${r.file} > ${r.name}`).join(' | ') : ''}`);
+}
+console.log(`total ${rows.length}, passed ${rows.filter((r) => r.status === 'passed').length}`);
+if (process.argv[3]) await (await import('node:fs/promises')).writeFile(process.argv[3], rows.map((r) => `${r.project}\t${r.file}\t${r.name}\t${r.status}`).sort().join('\n') + '\n');

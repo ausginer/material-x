@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..8a58f0f65 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -101,7 +101,7 @@ export class RectIndex {
+ 
+   #measured = -1;
+ 
+-  constructor(axis: NearEdge = LEFT) {
++  constructor(axis: number = LEFT) {
+     this.#axis = axis;
+   }
+ 

@@ -1,0 +1,129 @@
+/**
+ * Emulates a publish-time property mangle and what a consumer then bundles.
+ *
+ * 1. Builds every published entry as unbundled modules, as `tsdown --unbundle`
+ *    does: one unminified module per source module, `__DEV__` false, and
+ *    `@ydinjs/box-quad` external. That is the `plain` tree.
+ * 2. Passes each module through `minifySync` with only `mangleProps`, in turn,
+ *    sharing one name cache, so a name maps to one output name in every module.
+ *    No compression and no identifier mangling. That is the `mangled` tree.
+ * 3. Bundles every row of `bench/size/measure.ts` from each tree, with the gate's
+ *    consumer options (`minify: true`), the fixtures' imports pointed at the tree.
+ *
+ * `node publish.ts --names <names.json> --out <dir> [--all-entries]` writes plain.json and
+ * mangled.json in the size probe's row format, and the cache to cache.json.
+ */
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { dirname, join, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { brotliCompressSync, gzipSync } from 'node:zlib';
+
+const args = process.argv.slice(2);
+const option = (name: string): string | undefined => {
+  const i = args.indexOf(name);
+  return i < 0 ? undefined : args[i + 1];
+};
+const REPO = '/workspaces/material-x';
+const root = resolve(option('--root') ?? join(REPO, 'packages/drag'));
+const out = resolve(option('--out')!);
+const names: string[] = JSON.parse(readFileSync(option('--names')!, 'utf8'));
+const require = createRequire(join(root, 'package.json'));
+const { rolldown } = await import(pathToFileURL(require.resolve('rolldown')).href);
+const { minifySync } = await import(pathToFileURL(require.resolve('rolldown/utils')).href);
+const { COMPOSITIONS } = await import(pathToFileURL(join(root, 'bench/size/measure.ts')).href);
+const BOX_QUAD = join(REPO, 'packages/box-quad/src/index.ts');
+
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const published = Object.keys(pkg.exports).filter((k) => k.endsWith('.js')).map((k) => join(root, 'src', k.slice(2).replace(/\.js$/, '.ts')));
+// `--all-entries` keeps every module's exports, for tests that import internals.
+const allEntries = args.includes('--all-entries');
+const entries = allEntries
+  ? readdirSync(join(root, 'src'), { recursive: true, encoding: 'utf8' })
+      .filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+      .map((f) => join(root, 'src', f))
+  : published;
+
+rmSync(out, { recursive: true, force: true });
+const plainDir = join(out, 'plain');
+const mangledDir = join(out, 'mangled');
+
+const build = await rolldown({
+  input: entries,
+  platform: 'neutral',
+  external: ['@ydinjs/box-quad'],
+  transform: { define: { __DEV__: 'false' } },
+  ...(allEntries ? { preserveEntrySignatures: 'strict' } : {}),
+});
+const { output } = await build.generate({ format: 'es', preserveModules: true, preserveModulesRoot: join(root, 'src'), minify: false });
+await build.close();
+
+let cache: Record<string, string | false> = {};
+const include = new RegExp(`^(?:${names.join('|')})$`);
+for (const chunk of output.filter((c: { type: string }) => c.type === 'chunk')) {
+  for (const dir of [plainDir, mangledDir]) mkdirSync(dirname(join(dir, chunk.fileName)), { recursive: true });
+  writeFileSync(join(plainDir, chunk.fileName), chunk.code);
+  const result = minifySync(chunk.fileName, chunk.code, {
+    module: true,
+    compress: false,
+    mangle: false,
+    codegen: { removeWhitespace: false },
+    mangleProps: { include, cache },
+  });
+  if (result.errors?.length) throw new Error(`${chunk.fileName}: ${JSON.stringify(result.errors)}`);
+  cache = result.mangleCache ?? cache;
+  writeFileSync(join(mangledDir, chunk.fileName), result.code);
+}
+writeFileSync(join(out, 'cache.json'), `${JSON.stringify(cache, null, 2)}\n`);
+
+// The fixtures, with their `../../src/x.ts` imports pointed at a tree.
+function fixture(tree: string, path: string): string {
+  const text = readFileSync(join(root, `${path}.ts`), 'utf8').replace(/(['"])\.\.\/\.\.\/src\/([^'"]+)\.ts\1/g, (_m, q, p) => `${q}${join(tree, `${p}.js`)}${q}`);
+  const file = join(tree, '..', `${tree.split('/').pop()}-${path.replace(/\//g, '-')}.ts`);
+  writeFileSync(file, text);
+  return file;
+}
+
+async function rows(tree: string) {
+  const result = [];
+  for (const composition of COMPOSITIONS) {
+    const keep: string[] = [];
+    const lines = Object.entries(composition.imports as Record<string, string[]>).map(([path, exported]) => {
+      keep.push(...exported);
+      const target = path.startsWith('src/') ? join(tree, `${path.slice(4)}.js`) : fixture(tree, path);
+      return `import { ${exported.join(', ')} } from ${JSON.stringify(target)};`;
+    });
+    const dir = mkdtempSync(join(tmpdir(), 'drag-pm-row-'));
+    const input = join(dir, 'entry.js');
+    writeFileSync(input, `${lines.join('\n')}\nglobalThis.keep = [${keep.join(', ')}];\n`);
+    const bundle = await rolldown({
+      input,
+      platform: 'neutral',
+      resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+      transform: { define: { __DEV__: 'false' } },
+      onLog(level: string, log: { code: string; message: string }, handler: (l: string, g: unknown) => void) {
+        if (log.code === 'UNRESOLVED_IMPORT') throw new Error(log.message);
+        handler(level, log);
+      },
+    });
+    const { output: chunks } = await bundle.generate({ format: 'es', minify: true });
+    await bundle.close();
+    rmSync(dir, { recursive: true, force: true });
+    const bytes = new TextEncoder().encode(chunks.filter((c: { type: string }) => c.type === 'chunk').map((c: { code: string }) => c.code).join(''));
+    result.push({
+      name: composition.name,
+      minified: bytes.byteLength,
+      gzip9: gzipSync(bytes, { level: 9 }).byteLength,
+      gzip6: gzipSync(bytes, { level: 6 }).byteLength,
+      brotli: brotliCompressSync(bytes).byteLength,
+    });
+  }
+  return result;
+}
+
+if (!allEntries) {
+  writeFileSync(join(out, 'plain.json'), `${JSON.stringify(await rows(plainDir), null, 2)}\n`);
+  writeFileSync(join(out, 'mangled.json'), `${JSON.stringify(await rows(mangledDir), null, 2)}\n`);
+}
+console.log(`${Object.keys(cache).length} cache entries; ${relative(process.cwd(), out)}`);

@@ -1,0 +1,8 @@
+# xy() held-geometry timing check: one operation per arm, --check-only, no timed batch (outside any hold; times nothing)
+# page and runner: probes/xy-held-geometry/timing/; before = 61f883d09's src/sortable/ copied; production = VX-retaining-subclass.diff.txt applied to 61f883d09
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, affinity: pid 973961's current affinity mask: fff (not pinned), uptime: 15:23:44 up 1 day,  6:56,  0 users,  load average: 8.73, 5.21, 3.92, loadavg 8.73, 5.21, 3.92
+surfaces: {"fieldCount":2000,"fieldRows":81,"columnCount":2000,"fieldPointer":[20,410],"columnPointer":[100,41630]}, 157.0.8103.38
+A: xy() rebuild, no sink: one operation per arm before timing: {"before":{"reads":2001,"result":500,"reports":[]},"production":{"reads":2001,"result":500,"reports":[]},"control":{"reads":2001,"result":500,"reports":[]}}
+M: xy() committed move forward and back, layoutAnimation(), one cell in flight: one operation per arm before timing: {"before":{"reads":4002,"result":1001,"reports":["1001 40 0","1001 -40 0"]},"production":{"reads":4002,"result":1001,"reports":["1001 40 0","1001 -40 0"]},"control":{"reads":4002,"result":1001,"reports":["1001 40 0","1001 -40 0"]}}
+C: y() scan of a grown window, no sink, after both xy() cases: one operation per arm before timing: {"before":{"reads":0,"result":2000,"reports":[]},"production":{"reads":0,"result":2000,"reports":[]},"control":{"reads":0,"result":2000,"reports":[]}}
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, affinity: pid 973961's current affinity mask: fff (not pinned), uptime: 15:23:45 up 1 day,  6:56,  0 users,  load average: 8.73, 5.21, 3.92, loadavg 8.73, 5.21, 3.92

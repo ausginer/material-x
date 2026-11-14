@@ -4,7 +4,7 @@
  */
 import { afterEach, beforeEach } from 'vitest';
 import { commands, server } from 'vitest/browser';
-import { draggable } from '../../src/draggable.ts';
+import { draggable, type Outcome } from '../../src/draggable.ts';
 import { DragFault } from '../../src/fault.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -300,4 +300,13 @@ export function isClean(list: HTMLElement): boolean {
 
 export function faultMessages(): string[] {
   return faults.map((fault) => (fault.cause as Error).message);
+}
+
+/** Logs an outcome, with a cancel's origin. */
+export function noteOutcome(outcome: Outcome): void {
+  log.push(
+    outcome.type === 'canceled'
+      ? `end:canceled:${outcome.origin}`
+      : `end:${outcome.type}`,
+  );
 }

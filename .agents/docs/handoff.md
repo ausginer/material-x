@@ -64,6 +64,8 @@ The closing message is normally three to five short lines: status, resulting com
 
 Before returning, save cited evidence in the owning record and stop the unit's background processes. The agent that created a scratch probe, worktree or build directory removes it after that, once it is no longer needed, and removes nothing it did not create. Preserve unrelated edits, other sessions' work and shared caches; state the owner and purpose of retained scratch work.
 
+For a runnable prototype in an assigned isolated worktree, follow [Architecture prototypes](agent-workflow.md#architecture-prototypes): deliver the code committed at its normal source paths in that worktree, not only as patches or retained scratch files.
+
 ## Commit the finalized state
 
 **Commit every finalized handoff state without waiting to be asked.** A state is finalized when your unit of work is complete and ready to hand to the next role or to the user. Each role commits its result before handing it on: an architect's contract or plan, an implementer's implementation, a reviewer's review artifact, or a completed remediation pass.

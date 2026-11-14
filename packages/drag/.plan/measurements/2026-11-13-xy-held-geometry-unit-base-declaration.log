@@ -1,0 +1,33 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag
+
+ ✓ |declaration| tests/authoring.declaration.test.ts:23 > drag:DRI-18 the type requirement > should let activate name no lift member on a drag
+ ✓ |declaration| tests/authoring.declaration.test.ts:44 > drag:DRI-18 the type requirement > should let a controller step name no lift member on the operation
+ ✓ |declaration| tests/authoring.declaration.test.ts:53 > drag:DRI-18 the type requirement > should refuse visual and box in an admission
+ ✓ |declaration| tests/authoring.declaration.test.ts:63 > drag:DRI-18 the type requirement > should compose the lift in the operation
+ ✓ |declaration| tests/authoring.declaration.test.ts:91 > drag:DRI-18 the type requirement > should accept class instances with extra members
+ ✓ |declaration| tests/authoring.declaration.test.ts:130 > drag:DRI-18 the type requirement > should not let a controller or a drag reach the session
+ ✓ |declaration| tests/authoring.declaration.test.ts:167 > drag:DRI-18 the type requirement > should refuse the removed names
+ ✓ |declaration| tests/authoring.declaration.test.ts:180 > drag:DRD-30 the activation result > should give a drag no state
+ ✓ |declaration| tests/authoring.declaration.test.ts:192 > drag:DRD-30 the activation result > should give a behavior none of the operation hooks
+ ✓ |declaration| tests/authoring.declaration.test.ts:207 > drag:DRD-30 the activation result > should require activate
+ ✓ |declaration| tests/authoring.declaration.test.ts:212 > drag:DRD-30 the activation result > should let activate return the operation or null, and nothing else
+ ✓ |declaration| tests/authoring.declaration.test.ts:221 > drag:DRD-30 the activation result > should give a step the operation type or null, through the controller and through a drag
+ ✓ |declaration| tests/callbacks.declaration.test.ts:53 > drag:DRI-8 requestStep receiver typing > should check a declared receiver at a Drag and at the controller
+ ✓ |declaration| tests/callbacks.declaration.test.ts:68 > drag:DRI-8 requestStep receiver typing > should keep a receiver-free step as it was
+ ✓ |declaration| tests/callbacks.declaration.test.ts:104 > drag:DRI-9 and drag:DRI-10 use receiver typing > should check a declared receiver at a Drag and at the controller
+ ✓ |declaration| tests/callbacks.declaration.test.ts:139 > drag:DRD-35 the receiver is an object > should refuse a primitive receiver at a Drag
+ ✓ |declaration| tests/callbacks.declaration.test.ts:152 > drag:DRD-35 the receiver is an object > should refuse a primitive receiver at the controller
+ ✓ |declaration| tests/callbacks.declaration.test.ts:176 > drag:DRD-35 capabilities declare their receiver > should refuse the axis and the sink passed to use without their receiver
+ ✓ |declaration| tests/published-types.declaration.test.ts:12 > drag:DRD-39 the published types > should let an operation name the type its drop returns
+ ✓ |declaration| tests/published-types.declaration.test.ts:19 > drag:DRD-39 the published types > should let a free drag config name its axis and home types
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+Type Errors  no errors
+   Start at  17:01:08
+   Duration  191ms (typecheck 100%)
+
+STEP EXIT CODE: 0

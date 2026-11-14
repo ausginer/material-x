@@ -1,0 +1,4 @@
+[93m[warning][0m DisplacementInstaller, defined in @ydinjs/drag/src/sortable/axis.ts, is referenced by sortable/layout-animation.layoutAnimation but not included in the documentation
+[93m[warning][0m AxisInstaller, defined in @ydinjs/drag/src/sortable/axis.ts, is referenced by sortable/xy.xy but not included in the documentation
+[96m[info][0m html generated at /tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/typedoc-base
+[93m[warning][0m Found 0 errors and 2 warnings

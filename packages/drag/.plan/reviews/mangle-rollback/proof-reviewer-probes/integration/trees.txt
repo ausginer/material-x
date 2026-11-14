@@ -1,0 +1,6 @@
+## drag2 and box-quad blobs at p1, p2, merge
+packages/drag2/src/kernel/presentation.ts p1=baa8f7d37 p2=baa8f7d37 m=baa8f7d37
+packages/drag2/tests/perf/m5.browser.test.ts p1=3aa9efb12 p2=3aa9efb12 m=3aa9efb12
+packages/box-quad/src/index.ts p1=289d4318a p2=d8e7e6bee m=d8e7e6bee
+## drag code at 55e109210 vs 6296b741a outside .plan
+(empty = identical)

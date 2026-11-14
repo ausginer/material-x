@@ -1,0 +1,31 @@
+{
+  "id": "gate-engines",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 419058,
+    "start": "6126081"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T01:28:12.079Z",
+  "endedAt": "2026-11-13T01:30:31.928Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-engines/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 419074,
+        "start": "6126088"
+      },
+      "startedAt": "2026-11-13T01:28:12.095Z",
+      "endedAt": "2026-11-13T01:30:31.928Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

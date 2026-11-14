@@ -2,19 +2,33 @@
  * The packed destination-slot geometry cache, shared by every axis rule.
  *
  * The cache is dimension-neutral: it packs both centers and both edges and has no
- * rule about which of them matters. It is one `Float64Array` plus one parallel
- * element array, indexed by destination position, which is the collection minus the
- * dragged item. A slot is therefore the index the resulting `Insertion` needs.
+ * rule about which of them matters. It is one `number[]` of packed slots plus one
+ * parallel element array, indexed by destination position, which is the collection
+ * minus the dragged item. A slot is therefore the index the resulting `Insertion`
+ * needs. The same array holds the placeholder, at slot `PLACEHOLDER`, and one
+ * scratch slot before it, which a single re-read uses.
  *
- * The element array holds every slot. The packed buffer holds measured geometry for
- * one contiguous range of slots, the window: every slot after `refresh`, and only
- * the slots `measure` added after `collect`.
+ * The element array holds every slot. The slot array holds measured geometry for
+ * one contiguous range of slots, the window: the slots `measure` added after
+ * `collect`. A rebuild measures every slot, so its window is all of them.
  *
  * Each axis rule creates its own instance inside its factory, so the cache has one
- * owner.
+ * owner. `xy()` creates a `RetainingRectIndex`, which also keeps each slot's left
+ * and top across one rebuild. The cache owns its storage, and every write to it is a method: each
+ * measurement, the settling of a measurement and a predicted shift. Code outside
+ * reads one value at a time, through `at`, `item` and `insertion`, and never holds
+ * the slot array or the element array.
+ *
+ * The axis that `shift` and `travel` work along is chosen at construction, as data:
+ * both apply the same arithmetic to either axis, so the cache keeps no rule about
+ * which one a list moves along.
  */
 import type { DisplacementSink } from './axis.ts';
-import type { CollectionSnapshot } from './domain.ts';
+import {
+  type CollectionSnapshot,
+  type Insertion,
+  insertionAt,
+} from './domain.ts';
 
 /** Packed `[left, top, right, bottom, centerX, centerY]` per destination slot. */
 export const STRIDE = 6;
@@ -25,39 +39,26 @@ export const BOTTOM = 3;
 export const CENTER_X = 4;
 export const CENTER_Y = 5;
 
+/** The slot `at` reads the placeholder at. */
+export const PLACEHOLDER = -1;
+
+/** One of the six packed fields of a slot. */
+type Field =
+  | typeof LEFT
+  | typeof TOP
+  | typeof RIGHT
+  | typeof BOTTOM
+  | typeof CENTER_X
+  | typeof CENTER_Y;
+
+/** The near edge of an axis: `LEFT` for x, `TOP` for y. */
+type NearEdge = typeof LEFT | typeof TOP;
+
 /**
- * The read-only view of a packed buffer. `Float64Array` is assignable to it and
- * `view[0] = 1` is a type error. It has no runtime cost.
+ * The slots stored before slot 0: the scratch slot, then the placeholder. Slot `s`
+ * is at `(s + LEADING) * STRIDE`.
  */
-export type ReadonlyFloat64Array = Readonly<{
-  [index: number]: number;
-  length: number;
-  slice(start?: number, end?: number): Float64Array;
-}>;
-
-/** Packs one rect as a slot at `offset`: both edges on each axis, then both centers. */
-function pack(
-  target: Float64Array,
-  offset: number,
-  rect: DOMRectReadOnly,
-): void {
-  target[offset + LEFT] = rect.left;
-  target[offset + TOP] = rect.top;
-  target[offset + RIGHT] = rect.right;
-  target[offset + BOTTOM] = rect.bottom;
-  target[offset + CENTER_X] = (rect.left + rect.right) * 0.5;
-  target[offset + CENTER_Y] = (rect.top + rect.bottom) * 0.5;
-}
-
-function capacityFor(needed: number): number {
-  let capacity = 1;
-
-  while (capacity < needed) {
-    capacity *= 2;
-  }
-
-  return capacity;
-}
+const LEADING = 2;
 
 /**
  * One slack value, sized to the precision at which geometry is reported. Gecko
@@ -69,25 +70,25 @@ function capacityFor(needed: number): number {
 const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
- * The hot path: each axis rule reads `values`, the slot range it scans and
- * `placeholderRect` once per resolution, and `items` only when proposing a gap
- * change. Do not add a read inside the candidate loop.
+ * The hot path: each axis rule reads the slot range it scans once per resolution,
+ * then one number per candidate through `at`.
  */
 export class RectIndex {
   /**
-   * Re-allocated only when the collection outgrows it. It never shrinks: it is
-   * bounded by the largest collection the controller saw, and released with it.
+   * The scratch slot, the placeholder, then the packed slots. It grows only by
+   * appending, so it never has a hole, and it never shrinks: it holds the largest
+   * collection the index measured, and is released with the index.
    */
-  #values: Float64Array = new Float64Array(0);
-
-  /**
-   * The placeholder's rect, packed like a slot. Measured once per rebuild here, so a
-   * resolution with nothing stale reads no layout at all.
-   */
-  readonly #placeholderRect: Float64Array = new Float64Array(STRIDE);
+  readonly #values: number[] = [];
 
   /** Destination-ordered elements, parallel to the packed slots. */
   readonly #items: HTMLElement[] = [];
+
+  /**
+   * `LEFT` or `TOP`: the axis `shift` moves along and `travel` reads. An index that
+   * never shifts keeps the default.
+   */
+  readonly #axis: NearEdge;
 
   /** The window's first slot. */
   #first = 0;
@@ -95,24 +96,13 @@ export class RectIndex {
   /** The slot after the window's last one: the window is empty when it equals `#first`. */
   #end = 0;
 
-  /** Slots the packed buffer can hold: a power of two once fitted. */
-  #capacity = 0;
-
   /** Starts stale, at a version no collection holds, so the first read measures. */
   #dirty = true;
 
   #measured = -1;
 
-  get values(): ReadonlyFloat64Array {
-    return this.#values;
-  }
-
-  get placeholderRect(): ReadonlyFloat64Array {
-    return this.#placeholderRect;
-  }
-
-  get items(): readonly HTMLElement[] {
-    return this.#items;
+  constructor(axis: NearEdge = LEFT) {
+    this.#axis = axis;
   }
 
   get count(): number {
@@ -129,30 +119,27 @@ export class RectIndex {
   }
 
   /**
-   * Measures every slot, only when something marked the cache dirty or the
-   * collection version changed. `getBox` is the configured geometry source, or
-   * `null` when every candidate is its own box. `displacement` is the composed sink,
-   * or `null`.
+   * One packed field of `slot`, or of the placeholder at `PLACEHOLDER`. A slot's
+   * value is valid inside the window.
    */
-  refresh(
-    snapshot: CollectionSnapshot,
-    dragged: HTMLElement,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    placeholder: HTMLElement,
-    displacement: DisplacementSink | null,
-  ): void {
-    this.collect(snapshot, dragged, placeholder, 0);
+  at(slot: number, field: Field): number {
+    return this.#values[(slot + LEADING) * STRIDE + field]!;
+  }
 
-    // An empty window after `collect` is a rebuild, or a collection with no slot.
-    if (this.#first === this.#end) {
-      this.measure(0, this.#items.length, getBox, displacement);
-    }
+  /** The element at `slot`. */
+  item(slot: number): HTMLElement {
+    return this.#items[slot]!;
+  }
+
+  /** The insertion at gap `gap` of the destination. */
+  insertion(gap: number): Insertion {
+    return insertionAt(this.#items, gap);
   }
 
   /**
-   * `refresh` without the slots: when the cache is stale, collects every slot's
-   * element and measures the placeholder, and leaves an empty window at `slot`.
-   * `measure` then adds slots to the window.
+   * When the cache is stale, collects every slot's element and measures the
+   * placeholder, and leaves an empty window at `slot`. `measure` then adds slots to
+   * the window.
    */
   collect(
     snapshot: CollectionSnapshot,
@@ -164,13 +151,9 @@ export class RectIndex {
       return;
     }
 
-    if (snapshot.items.length > this.#capacity) {
-      this.#capacity = capacityFor(snapshot.items.length);
-      this.#values = new Float64Array(this.#capacity * STRIDE);
-    }
-
-    // A local, not repeated field reads: the loop writes it once per slot.
+    // Locals, not repeated field reads inside the loops.
     const items = this.#items;
+    const values = this.#values;
     let n = 0;
 
     for (const item of snapshot.items) {
@@ -180,7 +163,13 @@ export class RectIndex {
       }
     }
 
-    pack(this.#placeholderRect, 0, placeholder.getBoundingClientRect());
+    // Appended, because `measure` may first write a slot in the middle of the
+    // collection, and a write past the length would leave a hole.
+    for (let i = values.length; i < (n + LEADING) * STRIDE; i += 1) {
+      values.push(0);
+    }
+
+    this.measurePlaceholder(placeholder);
     // Truncated, so that a shrinking collection does not retain elements, and so
     // that its length is the slot count.
     items.length = n;
@@ -191,33 +180,22 @@ export class RectIndex {
   }
 
   /**
-   * Measures the slots from `lo` to before `hi`, settled through the sink, and adds
-   * them to the window. The range starts or ends at the window's first or end slot,
-   * so the window stays one contiguous range.
+   * Measures the slots from `lo` to before `hi`, each settled through the sink, and
+   * adds them to the window. The range starts or ends at the window's first or end
+   * slot, so the window stays one contiguous range.
    */
   measure(
     lo: number,
     hi: number,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    displacement: DisplacementSink | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
   ): void {
-    // Locals, not repeated field reads inside the loop.
-    const values = this.#values;
+    // A local, not repeated field reads inside the loop.
     const items = this.#items;
 
     for (let i = lo; i < hi; i += 1) {
-      const item = items[i]!;
-      // The box, because the placeholder is sized from the box's footprint, so both
-      // sides of the comparison are the same kind of rect.
-      pack(
-        values,
-        i * STRIDE,
-        (getBox ? getBox(item) : item).getBoundingClientRect(),
-      );
+      this.#read(i, items[i]!, getBox, displacement);
     }
-
-    // The slots must hold where flow puts a row, not where an animation draws it.
-    displacement?.settle(values, items, lo, hi);
 
     // An empty window sits at the slot `collect` gave it, so a range next to it
     // extends it the same way.
@@ -231,36 +209,54 @@ export class RectIndex {
   }
 
   /**
-   * Advances a span of slots by a constant along y. The center is recomputed from
-   * the shifted edges, so the arithmetic is the one a full scan performs.
+   * Moves the slots from `lo` to before `hi` by `delta` along the index's axis: both
+   * edges move, and the center is recomputed from them, so the arithmetic is the
+   * one a measurement performs. The other axis does not change. The range is inside
+   * the window.
    */
-  advance(lo: number, hi: number, delta: number): void {
-    // Read once, outside the per-slot loop.
+  shift(lo: number, hi: number, delta: number): void {
+    // Locals, not repeated field reads inside the loop.
     const values = this.#values;
+    const axis = this.#axis;
 
     for (let i = lo; i < hi; i += 1) {
-      const offset = i * STRIDE;
-      const top = values[offset + TOP]! + delta;
-      const bottom = values[offset + BOTTOM]! + delta;
+      // The near edge on the axis. The far edge and the center follow it at the
+      // same distances as `RIGHT` and `CENTER_X` follow `LEFT`.
+      const offset = (i + LEADING) * STRIDE + axis;
+      const near = values[offset]! + delta;
+      const far = values[offset + RIGHT]! + delta;
 
-      values[offset + TOP] = top;
-      values[offset + BOTTOM] = bottom;
-      values[offset + CENTER_Y] = (top + bottom) * 0.5;
+      values[offset] = near;
+      values[offset + RIGHT] = far;
+      values[offset + CENTER_X] = (near + far) * 0.5;
     }
   }
 
   /**
-   * Re-reads the placeholder's fields along y. A relocation in a column leaves both
-   * x coordinates unchanged.
+   * How far `slot`'s element now is, along the index's axis, from where the cache
+   * holds it: measured again like a rebuild measures it, settled through the sink.
+   * The slot is inside the window.
    */
-  remeasurePlaceholder(placeholder: HTMLElement): void {
-    const { top, bottom } = placeholder.getBoundingClientRect();
-    // A local is smaller than three field reads, even with mangled private names.
-    const placeholderRect = this.#placeholderRect;
+  travel(
+    slot: number,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
+  ): number {
+    const axis = this.#axis;
 
-    placeholderRect[TOP] = top;
-    placeholderRect[BOTTOM] = bottom;
-    placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
+    this.#read(-LEADING, this.#items[slot]!, getBox, displacement);
+
+    return (
+      this.#values[axis]! - this.#values[(slot + LEADING) * STRIDE + axis]!
+    );
+  }
+
+  /**
+   * Measures the placeholder again, packed like a slot. A rebuild calls it, and so
+   * may an axis rule whose committed move relocated the placeholder.
+   */
+  measurePlaceholder(placeholder: HTMLElement): void {
+    this.#read(PLACEHOLDER, placeholder);
   }
 
   /**
@@ -278,8 +274,8 @@ export class RectIndex {
   holds(
     gap: number,
     snapshot: CollectionSnapshot,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
-    displacement: DisplacementSink | null,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
   ): boolean {
     // Read once: each is used twice below.
     const first = this.#first;
@@ -290,20 +286,15 @@ export class RectIndex {
     }
 
     const slot = end - gap > gap - first ? end - 1 : first;
-    const item = this.#items[slot]!;
-    // Packed like a slot, because the sink settles slots. Only left and top are
-    // compared.
-    const scratch = new Float64Array(STRIDE);
+    const values = this.#values;
+    const offset = (slot + LEADING) * STRIDE;
 
-    pack(scratch, 0, (getBox ? getBox(item) : item).getBoundingClientRect());
-    displacement?.settle(scratch, [item], 0, 1);
-
-    const offset = slot * STRIDE;
+    // Into the scratch slot, at offset 0. Only left and top are compared.
+    this.#read(-LEADING, this.#items[slot]!, getBox, displacement);
 
     return (
-      Math.abs(scratch[LEFT]! - this.#values[offset + LEFT]!) <=
-        EQUIVALENCE_SLACK &&
-      Math.abs(scratch[TOP]! - this.#values[offset + TOP]!) <= EQUIVALENCE_SLACK
+      Math.abs(values[LEFT]! - values[offset + LEFT]!) <= EQUIVALENCE_SLACK &&
+      Math.abs(values[TOP]! - values[offset + TOP]!) <= EQUIVALENCE_SLACK
     );
   }
 
@@ -314,62 +305,162 @@ export class RectIndex {
 
   /**
    * Empties the element array, which would retain DOM between operations, and keeps
-   * the numeric buffer for reuse.
+   * the slot array for reuse.
    */
   retire(): void {
     this.#items.length = 0;
     this.#dirty = true;
     this.#measured = -1;
   }
+
+  /**
+   * Reads `element`'s rect, or its box's, into `slot`, settled: what a running
+   * animation of the sink currently carries is subtracted, so the slot holds where
+   * flow puts the element, not where the animation draws it.
+   */
+  #read(
+    slot: number,
+    element: HTMLElement,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    displacement?: DisplacementSink | null,
+  ): void {
+    const values = this.#values;
+    const offset = (slot + LEADING) * STRIDE;
+    // The box, because the placeholder is sized from the box's footprint, so both
+    // sides of the comparison are the same kind of rect.
+    const rect = (getBox?.(element) ?? element).getBoundingClientRect();
+    let dx = 0;
+    let dy = 0;
+
+    if (displacement?.displaced(element)) {
+      ({ dx, dy } = displacement);
+    }
+
+    const left = rect.left - dx;
+    const top = rect.top - dy;
+    const right = rect.right - dx;
+    const bottom = rect.bottom - dy;
+
+    values[offset + LEFT] = left;
+    values[offset + TOP] = top;
+    values[offset + RIGHT] = right;
+    values[offset + BOTTOM] = bottom;
+    values[offset + CENTER_X] = (left + right) * 0.5;
+    values[offset + CENTER_Y] = (top + bottom) * 0.5;
+  }
 }
 
 /**
- * Development only: the window the previous advance wrote must equal what a fresh
- * measurement of the same slots in the tree now produces. Every test that drives a
- * drag through `y()` checks it. It forces the rebuild, measures every slot of the
- * window again and compares a copy, so a mismatch leaves the cache correct, and the
- * measurement has one definition. It is a free function so that it tree-shakes from
- * the published build.
+ * A `RectIndex` that also holds each slot's left and top across one rebuild, for an
+ * axis rule that compares the slots on both sides of it. It is a subclass so that a
+ * composition that never constructs it doesn't carry it.
+ */
+export class RetainingRectIndex extends RectIndex {
+  /**
+   * Each slot's left and top as `retain` copied them, packed `[left, top]`. It
+   * grows only by appending and never shrinks, like the slot array.
+   */
+  readonly #retained: number[] = [];
+
+  /**
+   * The left of `slot` at `LEFT`, or its top at `TOP`, as the last `retain` copied
+   * it. Valid for the slots below the count at that call.
+   */
+  retained(slot: number, field: NearEdge): number {
+    // `LEFT` and `TOP` are 0 and 1, the two fields of a retained pair.
+    return this.#retained[slot * 2 + field]!;
+  }
+
+  /**
+   * Copies every slot's left and top where `retained` reads them. A rebuild doesn't
+   * write them, so a caller compares the slots across it. Every slot is inside the
+   * window.
+   */
+  retain(): void {
+    // Locals, not repeated reads inside the loop.
+    const retained = this.#retained;
+    const { count } = this;
+
+    // From slot 0 up, so each write lands at or below the length: a write at the
+    // length appends, and the array has no hole.
+    for (let i = 0; i < count; i += 1) {
+      retained[i * 2] = this.at(i, LEFT);
+      retained[i * 2 + 1] = this.at(i, TOP);
+    }
+  }
+}
+
+/**
+ * Development only: the window the previous committed move wrote must equal what a
+ * fresh measurement of the same slots in the tree now produces. Every test that
+ * drives a drag through `y()` checks it. It forces the rebuild, measures every
+ * slot of the window again and compares a copy, so a mismatch leaves the cache
+ * correct, and the measurement has one definition. It is a free function so that it
+ * tree-shakes from the published build.
+ *
+ * `heldLeft` and `heldRight` are the placeholder's left and right as the cache held
+ * them before the re-read after a committed move, or `NaN` when there was none. The
+ * relocation must have left its x where the last rebuild measured it.
  */
 export function verifyEquivalence(
   index: RectIndex,
   snapshot: CollectionSnapshot,
   dragged: HTMLElement,
-  getBox: ((item: HTMLElement) => HTMLElement) | null,
+  getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
   placeholder: HTMLElement,
-  displacement: DisplacementSink | null,
+  displacement: DisplacementSink | null | undefined,
+  heldLeft: number,
+  heldRight: number,
 ): void {
   // Taken before the rebuild below rewrites them.
   const { count: held, first, end } = index;
-  const predicted = index.values.slice(0, end * STRIDE);
-  const predictedPlaceholder = index.placeholderRect.slice();
-  const predictedItems = [...index.items];
+  const predicted: number[] = [];
+  const predictedItems: HTMLElement[] = [];
+
+  for (let slot = PLACEHOLDER; slot < end; slot += 1) {
+    for (let field = 0; field < STRIDE; field += 1) {
+      predicted.push(index.at(slot, field as Field));
+    }
+  }
+
+  // A relocation leaves the placeholder's x where the rebuild measured it.
+  if (!Number.isNaN(heldLeft)) {
+    predicted[LEFT] = heldLeft;
+    predicted[RIGHT] = heldRight;
+  }
+
+  for (let slot = 0; slot < held; slot += 1) {
+    predictedItems.push(index.item(slot));
+  }
 
   index.invalidate();
   index.collect(snapshot, dragged, placeholder, first);
 
   index.measure(first, end, getBox, displacement);
 
-  const differs = (a: number, b: number): boolean =>
-    Math.abs(a - b) > EQUIVALENCE_SLACK;
-  // Read once, outside the comparison loops.
-  const { values, placeholderRect, items, count } = index;
+  const differs = (slot: number, field: Field): boolean =>
+    Math.abs(
+      predicted[(slot - PLACEHOLDER) * STRIDE + field]! - index.at(slot, field),
+    ) > EQUIVALENCE_SLACK;
+  const { count } = index;
   let mismatch = count === held ? '' : `count ${held}, measured ${count}`;
 
   for (let slot = 0; mismatch === '' && slot < held; slot += 1) {
-    if (predictedItems[slot] !== items[slot]) {
+    if (predictedItems[slot] !== index.item(slot)) {
       mismatch = `slot ${slot}`;
     }
   }
 
-  for (let i = first * STRIDE; mismatch === '' && i < end * STRIDE; i += 1) {
-    if (differs(predicted[i]!, values[i]!)) {
-      mismatch = `slot ${Math.floor(i / STRIDE)}`;
+  for (let slot = first; mismatch === '' && slot < end; slot += 1) {
+    for (let field = 0; mismatch === '' && field < STRIDE; field += 1) {
+      if (differs(slot, field as Field)) {
+        mismatch = `slot ${slot}`;
+      }
     }
   }
 
   for (let field = LEFT; mismatch === '' && field <= BOTTOM; field += 1) {
-    if (differs(predictedPlaceholder[field]!, placeholderRect[field]!)) {
+    if (differs(PLACEHOLDER, field as Field)) {
       mismatch = 'the placeholder';
     }
   }

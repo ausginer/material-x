@@ -1,0 +1,37 @@
+### grab-test-delays: mutation=test-delays file=activation.browser.test.ts
+ packages/drag/tests/activation.browser.test.ts | 3 +++
+ 1 file changed, 3 insertions(+)
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/packages/drag
+
+9:54:18 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=fe627f76
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:48 > drag:DRI-3 activation > should run no hook for a custom behavior whose item was disconnected during the press
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:83 > drag:DRI-14 command activation > should decline a command quietly when its item leaves during the lift
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:101 > drag:DRI-14 command activation > should decline a command quietly when its move becomes impossible during the lift
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:120 > drag:DRI-14 command activation > should land a keyboard command from the old slot
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 3342ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 3316ms
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:191 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:210 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:236 > drag:DRI-17 coalescing > should schedule one frame for several samples in one task
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 7 skipped (9)
+   Start at  09:54:18
+   Duration  7.66s (tests 92%, worker 7%, import 1%)
+
+exit=0

@@ -1,0 +1,14 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..dfeaa488f 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -49,7 +49,8 @@ type Field =
+   | typeof RIGHT
+   | typeof BOTTOM
+   | typeof CENTER_X
+-  | typeof CENTER_Y;
++  | typeof CENTER_Y
++  | typeof STRIDE;
+ 
+ /** The near edge of an axis: `LEFT` for x, `TOP` for y. */
+ type NearEdge = typeof LEFT | typeof TOP;

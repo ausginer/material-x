@@ -1,0 +1,3 @@
+every column: code equal true; plain 530 mappings, this 530; missing 0; extra 0
+boundaries: code equal true; plain 530 mappings, this 530; missing 0; extra 0
+column 0: code equal true; plain 530 mappings, this 530; missing 400; extra 400

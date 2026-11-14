@@ -41,6 +41,16 @@ export type FreeDragConfig = Readonly<{
 }>;
 
 /**
+ * The controller's `invalidate` step: calls the operation's `handleEvent`, so its
+ * bounds and drop targets are re-read at their next read. With no operation,
+ * nothing is stale, because each activation marks the bounds stale before its
+ * first read.
+ */
+export function invalidate(operation: FreeDragOperation | null): void {
+  operation?.handleEvent();
+}
+
+/**
  * The behavior `draggable` runs for one root: admission and activation. It holds
  * only controller-lifetime values, which the operation reads through it.
  */
@@ -68,15 +78,6 @@ export class FreeDragBehavior implements Behavior<
     this.bounds = config.bounds?.(this.window) ?? null;
     this.landing = config.landing ?? null;
   }
-
-  /**
-   * Step: the bounds are re-read at their next read, and so are the current
-   * operation's drop targets.
-   */
-  readonly invalidate = (operation: FreeDragOperation | null): void => {
-    this.bounds?.invalidate();
-    operation?.handleEvent();
-  };
 
   /** The admission's `state` is the visual: `config.visual`, or the root. */
   admit(event: PointerEvent): Admission<HTMLElement> | null {

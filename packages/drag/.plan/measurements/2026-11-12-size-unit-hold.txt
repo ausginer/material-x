@@ -1,0 +1,8 @@
+# The hold of DRD-44 property 6 around the two compare.ts processes
+hold confirmed by the owner: 2026-11-12T12:34:45+00:00 (recorded on the answer, before the first browser process)
+moves process start: 2026-11-12T12:34:55+00:00
+moves process end: 2026-11-12T12:49:17+00:00, exit 0
+cycles process start: 2026-11-12T12:49:17+00:00
+cycles process end: 2026-11-12T13:02:51+00:00, exit 0
+released: 2026-11-12T13:11:15+00:00 (owner confirmed the release)
+# nothing else from the implementing session ran between the hold and the release; the exit codes are each process's own, captured before the line was written

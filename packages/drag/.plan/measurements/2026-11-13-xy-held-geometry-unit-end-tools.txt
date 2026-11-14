@@ -1,0 +1,9 @@
+node v26.13.0
+rolldown 1.3.2 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/rolldown/package.json
+tsdown 0.23.7 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/tsdown/package.json
+vitest 5.1.0 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/vitest/package.json
+@vitest/browser-playwright 5.1.0 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/@vitest/browser-playwright/package.json
+playwright 1.65.0 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/playwright/package.json
+typescript 6.0.2 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/typescript/package.json
+CHROME_EXECUTABLE=unset
+chrome: Google Chrome for Testing 157.0.8103.38 

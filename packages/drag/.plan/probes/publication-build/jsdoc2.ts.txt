@@ -1,0 +1,26 @@
+// Classify each JSDoc block of tsc's declaration emit that the published .d.ts lacks:
+// a module header, a block on a declaration the published file doesn't declare, or a lost block.
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { parseSync } from 'rolldown/utils';
+const [ref, pub] = process.argv.slice(2);
+const walk = (d: string): string[] => readdirSync(d).flatMap((f) => statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : f.endsWith('.d.ts') ? [join(d, f)] : []);
+const norm = (b: string) => b.replace(/^\s*\*?\s?/gm, ' ').replace(/\s+/g, ' ').trim();
+const tally: Record<string, number> = {};
+for (const f of walk(ref)) {
+  const p = join(pub, relative(ref, f));
+  if (!existsSync(p)) continue;
+  const rt = readFileSync(f, 'utf8'), pt = readFileSync(p, 'utf8');
+  const have = new Set((pt.match(/\/\*\*[\s\S]*?\*\//g) ?? []).map(norm));
+  const ast = parseSync(f, rt, { lang: 'dts' } as any);
+  for (const c of ast.comments.filter((c: any) => c.type === 'Block' && c.value.startsWith('*'))) {
+    const text = norm(rt.slice(c.start, c.end));
+    if (have.has(text)) { tally['kept'] = (tally['kept'] ?? 0) + 1; continue; }
+    const after = rt.slice(c.end).trimStart();
+    const name = /^(?:export\s+)?(?:declare\s+)?(?:(?:abstract|readonly|static|private|protected|public|get|set)\s+)*(?:(?:function|class|interface|type|const|let|var|enum)\s+)?([\w$#]+)/.exec(after)?.[1];
+    const kind = after.startsWith('import') ? 'module header (before imports)' : name && new RegExp(`(?<![\\w$])${name.replace('$', '\\$')}(?![\\w$])`).test(pt) ? `LOST on a published declaration` : 'on a declaration the published file omits';
+    tally[kind] = (tally[kind] ?? 0) + 1;
+    if (process.env.SHOW && kind.startsWith('LOST')) console.log(`${relative(ref, f)}: ${name}: ${text.slice(0, 90)}`);
+  }
+}
+console.log(tally);

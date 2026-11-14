@@ -1,0 +1,37 @@
+Runs 1 and 2 of build/generate-property-names.ts, before the map was first written (build/property-names.json held {}), on commit A's src with commit B's build/ files:
+equal
+Run 3, after formatting and lint, compared with the committed build/property-names.json:
+equal
+
+Run 1's output:
+{
+  "_advance": "w",
+  "_animation": "h",
+  "_collect": "n",
+  "_config": "a",
+  "_count": "f",
+  "_decide": "i",
+  "_detach": "j",
+  "_direction": "k",
+  "_dx": "o",
+  "_dy": "p",
+  "_empty": "q",
+  "_enter": "b",
+  "_first": "d",
+  "_holds": "r",
+  "_lend": "z",
+  "_measure": "l",
+  "_measurePlaceholder": "s",
+  "_placeholderRect": "m",
+  "_raise": "c",
+  "_raiseInPass": "A",
+  "_rebase": "B",
+  "_refresh": "C",
+  "_root": "e",
+  "_run": "t",
+  "_schedule": "u",
+  "_stepTarget": "v",
+  "_terminate": "D",
+  "_updateInsertion": "E",
+  "_window": "g"
+}

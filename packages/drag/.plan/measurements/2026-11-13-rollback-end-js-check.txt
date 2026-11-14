@@ -1,0 +1,27 @@
+DIFFERS lift.js (240 vs 240 lines)
+  193: - 						landing: landing
+  193: + 						landing
+DIFFERS sortable/behavior.js (126 vs 126 lines)
+  117: - 				visual: visual,
+  117: + 				visual,
+  119: - 				direction: direction
+  119: + 				direction
+DIFFERS sortable/layout-animation.js (101 vs 101 lines)
+  62: - 				animation: animation,
+  62: + 				animation,
+  94: - 			for (const { animation: animation } of running.values()) animation.cancel();
+  94: + 			for (const { animation } of running.values()) animation.cancel();
+DIFFERS sortable/linear-shift.js (98 vs 98 lines)
+  42: - 			const { values: values, count: count } = index;
+  42: + 			const { values, count } = index;
+  74: - 				const { items: items } = index;
+  74: + 				const { items } = index;
+DIFFERS sortable/xy.js (88 vs 88 lines)
+  30: - 				const { values: values, count: count, placeholderRect: placeholderRect, items: items } = index;
+  30: + 				const { values, count, placeholderRect, items } = index;
+  70: - 				const { values: values, items: items, count: count } = index;
+  70: + 				const { values, items, count } = index;
+DIFFERS sortable/y.js (52 vs 52 lines)
+  20: - 				const { values: values, first: first, end: end } = index;
+  20: + 				const { values, first, end } = index;
+60 files compared, 6 differ

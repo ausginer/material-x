@@ -1,0 +1,324 @@
+/**
+ * Compares two `CallbackList` implementations in Chromium:
+ *
+ * - "string": `src/kernel/callback-list.ts` at `0a28f909a`. A list holds the
+ *   name of its insertion method and adds with `this.#entries[name](…)`.
+ * - "function": `src/kernel/callbacks.ts` as the owner's uncommitted edit on
+ *   `drag/size`. A list holds `Array.prototype.push` or `unshift` and adds
+ *   with `this.#insert.call(this.#entries, …)`.
+ *
+ * Both sources are type-stripped and loaded unchanged as two modules of one
+ * page, so both classes exist in the same isolate. Each variant has its own
+ * generated harness functions, so no harness call site sees both classes.
+ * Within one implementation the queue and the stack share the class, as the
+ * controller's step queue and the disposer stacks do in production, so both
+ * kinds are warmed before any timing.
+ *
+ * Paths, timed per batch with `performance.now()` on a cross-origin-isolated
+ * page (5 µs clock):
+ *
+ * - `add/run d1`: one `add` then one `run`, per operation.
+ * - `add/run d4`: four `add` calls then four `run` calls, per operation.
+ * - `construct`: one `queue()` and one `stack()`, per operation, stored into a
+ *   ring so the lists escape.
+ *
+ * The callback increments a counter on its receiver. After every batch the
+ * harness compares the counter with the expected count and fails the run on a
+ * mismatch. Construction is checked by counting `empty` lists.
+ *
+ * A third variant, "control", loads the `0a28f909a` source again as its own
+ * module, so it is a second class with the same code. Its distance from
+ * "string" measures the probe's noise and order bias.
+ *
+ * Each round times one batch per variant per case. The order rotates every
+ * round and reverses every other round, so each variant takes each position
+ * equally often. Each launch is a fresh browser process, and the module
+ * evaluated first rotates by launch.
+ *
+ * Run from the repository root: `node <copy>.ts [--launches N] [--out file]`.
+ */
+import { execFileSync } from 'node:child_process';
+import { readFile, writeFile } from 'node:fs/promises';
+import { createRequire, stripTypeScriptTypes } from 'node:module';
+import { parseArgs } from 'node:util';
+
+const root = process.cwd();
+const require = createRequire(`${root}/package.json`);
+const { chromium } = require('playwright-core') as typeof import('playwright-core');
+
+const { values } = parseArgs({
+  options: {
+    launches: { type: 'string', default: '6' },
+    rounds: { type: 'string', default: '40' },
+    warmup: { type: 'string', default: '30' },
+    out: { type: 'string' },
+  },
+});
+
+const LAUNCHES = Number(values.launches);
+const ROUNDS = Number(values.rounds);
+const WARMUP = Number(values.warmup);
+const BASE = '0a28f909a';
+const OLD_PATH = 'packages/drag/src/kernel/callback-list.ts';
+const NEW_PATH = 'packages/drag/src/kernel/callbacks.ts';
+
+const oldSource = execFileSync('git', ['show', `${BASE}:${OLD_PATH}`], {
+  encoding: 'utf8',
+});
+const newSource = await readFile(`${root}/${NEW_PATH}`, 'utf8');
+
+const modules: Record<string, string> = {
+  'string.js': stripTypeScriptTypes(oldSource),
+  'function.js': stripTypeScriptTypes(newSource),
+};
+// The control: the same `0a28f909a` source as a second module, so a second
+// class with its own feedback. Its distance from "string" is the probe's noise
+// and order bias.
+modules['control.js'] = modules['string.js']!;
+
+/** Operations per timed batch, sized for a few milliseconds per batch. */
+const PATHS = {
+  d1: 1_000_000,
+  d4: 200_000,
+  construct: 400_000,
+} as const;
+
+/** One harness module per implementation, with its own function literals. */
+function harness(name: 'string' | 'function' | 'control'): string {
+  const make =
+    name !== 'function'
+      ? `import { CallbackList } from './${name}.js';
+const queue = () => CallbackList.queue(), stack = () => CallbackList.stack();`
+      : `import { queue, stack } from './function.js';`;
+
+  return `${make}
+function callback_${name}(argument) { this.count += argument; }
+const ring_${name} = new Array(1024);
+function check(actual, expected, label) {
+  if (actual !== expected) throw new Error(label + ': ' + actual + ' !== ' + expected);
+}
+function d1_${name}(list, receiver, n) {
+  for (let i = 0; i < n; i += 1) { list.add(callback_${name}, receiver); list.run(1); }
+}
+function d4_${name}(list, receiver, n) {
+  for (let i = 0; i < n; i += 1) {
+    list.add(callback_${name}, receiver); list.add(callback_${name}, receiver);
+    list.add(callback_${name}, receiver); list.add(callback_${name}, receiver);
+    list.run(1); list.run(1); list.run(1); list.run(1);
+  }
+}
+function construct_${name}(n) {
+  for (let i = 0; i < n; i += 1) {
+    ring_${name}[(i * 2) & 1023] = queue();
+    ring_${name}[(i * 2 + 1) & 1023] = stack();
+  }
+  let empty = 0;
+  for (let i = 0; i < 1024; i += 1) { if (ring_${name}[i].empty) empty += 1; }
+  return empty;
+}
+const lists = { queue: queue(), stack: stack() };
+export function batch(path, kind, n) {
+  if (path === 'construct') {
+    const start = performance.now();
+    const empty = construct_${name}(n);
+    const ms = performance.now() - start;
+    check(empty, Math.min(1024, n * 2), '${name} construct');
+    return ms;
+  }
+  const list = lists[kind];
+  const receiver = { count: 0 };
+  const run = path === 'd1' ? d1_${name} : d4_${name};
+  const start = performance.now();
+  run(list, receiver, n);
+  const ms = performance.now() - start;
+  check(receiver.count, path === 'd1' ? n : n * 4, '${name} ' + path + ' ' + kind);
+  check(list.empty, true, '${name} ' + path + ' ' + kind + ' empty');
+  return ms;
+}
+`;
+}
+
+modules['string-harness.js'] = harness('string');
+modules['function-harness.js'] = harness('function');
+modules['control-harness.js'] = harness('control');
+
+const IMPLS = ['string', 'function', 'control'] as const;
+
+/** Batch descriptors: each path for both kinds, construction once. */
+const CASES = [
+  ['d1', 'queue'],
+  ['d1', 'stack'],
+  ['d4', 'queue'],
+  ['d4', 'stack'],
+  ['construct', 'both'],
+] as const;
+
+type Reading = {
+  launch: number;
+  firstLoaded: string;
+  round: number;
+  path: string;
+  kind: string;
+  impl: string;
+  order: number;
+  ops: number;
+  ms: number;
+};
+
+const readings: Reading[] = [];
+const executablePath = process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome';
+const browserVersion: string[] = [];
+
+for (let launch = 0; launch < LAUNCHES; launch += 1) {
+  const browser = await chromium.launch({ executablePath, headless: true });
+  browserVersion.push(browser.version());
+  const page = await browser.newPage();
+  await page.route('http://localhost:9/**', (route) => {
+    const file = new URL(route.request().url()).pathname.slice(1);
+    const isolation = {
+      'cross-origin-opener-policy': 'same-origin',
+      'cross-origin-embedder-policy': 'require-corp',
+    };
+    if (file === '' || file === 'index.html') {
+      return route.fulfill({
+        contentType: 'text/html',
+        headers: isolation,
+        body: '<!doctype html><title>dispatch</title>',
+      });
+    }
+    return route.fulfill({
+      contentType: 'text/javascript',
+      headers: isolation,
+      body: modules[file]!,
+    });
+  });
+  await page.goto('http://localhost:9/index.html');
+
+  const order = IMPLS.map((_, i) => IMPLS[(i + launch) % 3]!);
+  const isolated = await page.evaluate(async (names) => {
+    const g = globalThis as unknown as Record<string, unknown>;
+    for (const name of names) {
+      g[name] = await import(`./${name}-harness.js`);
+    }
+    return crossOriginIsolated;
+  }, order);
+
+  const run = (impl: string, path: string, kind: string, ops: number) =>
+    page.evaluate(
+      ([impl, path, kind, ops]) =>
+        (
+          (globalThis as unknown as Record<string, { batch: Function }>)[impl]!
+            .batch as (p: string, k: string, n: number) => number
+        )(path, kind, ops),
+      [impl, path, kind, ops] as const,
+    );
+
+  for (let round = -WARMUP; round < ROUNDS; round += 1) {
+    const rotated = order.map((_, i) => order[(i + round + WARMUP) % 3]!);
+    const pair = round % 2 === 0 ? rotated : rotated.reverse();
+    for (const [path, kind] of CASES) {
+      const ops = PATHS[path];
+      for (let position = 0; position < 3; position += 1) {
+        const impl = pair[position]!;
+        const ms = await run(impl, path, kind, ops);
+        if (round >= 0) {
+          readings.push({
+            launch,
+            firstLoaded: order[0]!,
+            round,
+            path,
+            kind,
+            impl,
+            order: position,
+            ops,
+            ms,
+          });
+        }
+      }
+    }
+  }
+
+  process.stderr.write(`launch ${launch} done, crossOriginIsolated=${isolated}\n`);
+  await browser.close();
+}
+
+/** Nanoseconds per operation. */
+const ns = (r: Reading) => (r.ms * 1e6) / r.ops;
+const median = (xs: number[]) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m]! : (s[m - 1]! + s[m]!) / 2;
+};
+const quantile = (xs: number[], q: number) => {
+  const s = [...xs].sort((a, b) => a - b);
+  return s[Math.min(s.length - 1, Math.floor(q * s.length))]!;
+};
+
+const lines: string[] = [];
+lines.push(
+  `chrome ${browserVersion[0]}, ${LAUNCHES} launches, ${WARMUP} warm-up rounds, ${ROUNDS} timed rounds`,
+);
+lines.push(
+  'ns/op: median [p10 p90] over all batches. Paired ratio: batch / same-round "string" batch − 1, median [p10 p90], count below 0, per-launch medians.',
+);
+
+const fmt = (xs: number[], digits = 2, scale = 1, unit = '') =>
+  `${(median(xs) * scale).toFixed(digits)}${unit} [${(quantile(xs, 0.1) * scale).toFixed(digits)}${unit} ${(quantile(xs, 0.9) * scale).toFixed(digits)}${unit}]`;
+
+for (const [path, kind] of CASES) {
+  const rows = readings.filter((r) => r.path === path && r.kind === kind);
+  lines.push(`\n${path} ${kind}, ${PATHS[path]} ops per batch`);
+  for (const impl of IMPLS) {
+    lines.push(`  ${impl.padEnd(9)} ${fmt(rows.filter((r) => r.impl === impl).map(ns))} ns/op`);
+  }
+  for (const impl of ['function', 'control'] as const) {
+    const ratios: number[] = [];
+    const perLaunch: string[] = [];
+    for (let launch = 0; launch < LAUNCHES; launch += 1) {
+      const launchRatios: number[] = [];
+      for (let round = 0; round < ROUNDS; round += 1) {
+        const pick = (name: string) =>
+          rows.find((r) => r.launch === launch && r.round === round && r.impl === name)!;
+        const ratio = ns(pick(impl)) / ns(pick('string')) - 1;
+        ratios.push(ratio);
+        launchRatios.push(ratio);
+      }
+      perLaunch.push(`${(median(launchRatios) * 100).toFixed(1)}%`);
+    }
+    const below = ratios.filter((x) => x < 0).length;
+    lines.push(
+      `  ${`${impl}/string`.padEnd(16)} ${fmt(ratios, 1, 100, '%')}, ${below}/${ratios.length} below 0; per launch ${perLaunch.join(' ')}`,
+    );
+  }
+}
+
+const summary = lines.join('\n');
+process.stdout.write(`${summary}\n`);
+
+if (values.out) {
+  // One row per timed batch, so the raw file stays small.
+  const columns = ['launch', 'firstLoaded', 'round', 'path', 'kind', 'impl', 'order', 'ms'] as const;
+  const head = {
+    base: BASE,
+    oldPath: OLD_PATH,
+    newPath: NEW_PATH,
+    browser: browserVersion,
+    node: process.version,
+    launches: LAUNCHES,
+    warmupRounds: WARMUP,
+    rounds: ROUNDS,
+    opsPerBatch: PATHS,
+    summary: lines,
+    readingColumns: columns,
+    readingNote:
+      'One row per timed batch. ops per batch is opsPerBatch[path]; ms is the batch duration from performance.now(); order is the position inside the round.',
+  };
+  const rows = readings.map((r) => `  ${JSON.stringify(columns.map((c) => r[c]))}`);
+  await writeFile(
+    values.out,
+    JSON.stringify(head, null, 1).replace(
+      /\n}$/,
+      `,\n "readings": [\n${rows.join(',\n')}\n ]\n}\n`,
+    ),
+  );
+}

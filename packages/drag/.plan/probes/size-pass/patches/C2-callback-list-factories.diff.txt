@@ -1,0 +1,60 @@
+diff --git a/packages/drag/src/kernel/callback-list.ts b/packages/drag/src/kernel/callback-list.ts
+index 508d30127..d36198603 100644
+--- a/packages/drag/src/kernel/callback-list.ts
++++ b/packages/drag/src/kernel/callback-list.ts
+@@ -24,20 +24,11 @@ type Entries<Argument> = Array<ListedCallback<Argument> | object | undefined>;
+  * entry.
+  */
+ export class CallbackList<Argument> {
+-  /** A list run first in first out. */
+-  static queue<Argument>(): CallbackList<Argument> {
+-    return new CallbackList<Argument>('unshift');
+-  }
+-
+-  /** A list run last in first out. */
+-  static stack<Argument>(): CallbackList<Argument> {
+-    return new CallbackList<Argument>('push');
+-  }
+-
+   readonly #entries: Entries<Argument> = [];
+   readonly #insertName: 'push' | 'unshift';
+ 
+-  private constructor(insertName: 'push' | 'unshift') {
++  /** `unshift` makes a list run first in first out, `push` last in first out. */
++  constructor(insertName: 'push' | 'unshift') {
+     this.#insertName = insertName;
+   }
+ 
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index 9538c0ff0..cdb615568 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -131,13 +131,13 @@ export class Gesture<
+   readonly #threshold: number;
+   readonly #listeners = new AbortController();
+   /** Controller-lifetime cleanup, each with its receiver, run at teardown. */
+-  readonly #disposers = CallbackList.stack<null>();
++  readonly #disposers = new CallbackList<null>('push');
+ 
+   /**
+    * Deferred steps with their receivers, in request order. Empty on the hot
+    * path.
+    */
+-  readonly #steps = CallbackList.queue<Operation | null>();
++  readonly #steps = new CallbackList<Operation | null>('unshift');
+ 
+   #session: Session<State, Verdict, Operation> | null = null;
+   #running = false;
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 39bdca695..ea9d3c976 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -143,7 +143,7 @@ export class Session<
+   /** Escape and `drag.signal`, closed when the presentation is released. */
+   readonly #presentation = new AbortController();
+   /** Operation cleanup, each with its receiver, run at release. */
+-  readonly #disposers = CallbackList.stack<Outcome | null>();
++  readonly #disposers = new CallbackList<Outcome | null>('push');
+   #phase:
+     | typeof PENDING
+     | typeof ACTIVE

@@ -1,0 +1,176 @@
+/* P4 size probe. Not an instrument: `bench/size/measure.ts` stays the gate.
+ *
+ * Bundles every row of `bench/size/measure.ts`'s COMPOSITIONS with the same
+ * Rolldown options, from a tree that holds `src` and `tests/fixtures` (the
+ * checkout, or a copy with a candidate patch applied), and prints for each row:
+ *
+ *   minified bytes, gzip bytes at level 9 and at level 6, Brotli bytes at
+ *   quality 11 (the figure `measure.ts` gates on), and the UTF-8 bytes of the
+ *   string literals and template text that survive minification.
+ *
+ * Compression settings, all from `node:zlib`:
+ *   gzip-9: gzipSync(bytes, { level: 9 }); windowBits 15, memLevel 8,
+ *           strategy Z_DEFAULT_STRATEGY (zlib defaults). Header included.
+ *   gzip-6: the same at level 6, zlib's default level.
+ *   brotli: brotliCompressSync(bytes) with no options: quality 11, lgwin 22,
+ *           mode BROTLI_MODE_GENERIC. Identical to `measure.ts`.
+ *
+ * `--modules` also builds each row with `preserveModules` and prints each
+ * module's minified bytes as its own chunk. Those figures rank modules; they
+ * do not add up to the row, and they are not booked (CONTRIBUTING §15).
+ *
+ * `--strings` lists each surviving string literal of 8 or more bytes per row.
+ *
+ * Run: cp size.ts.txt <scratch>/size.ts && node <scratch>/size.ts --root <tree> [--json <file>] [--modules] [--strings]
+ */
+/* oxlint-disable */
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, relative, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { brotliCompressSync, gzipSync } from 'node:zlib';
+
+const REPO = '/workspaces/material-x';
+const DRAG = join(REPO, 'packages/drag');
+const require = createRequire(join(DRAG, 'package.json'));
+const { rolldown } = await import(pathToFileURL(require.resolve('rolldown')).href);
+const { parseAst } = await import(
+  pathToFileURL(require.resolve('rolldown/parseAst')).href
+);
+const { COMPOSITIONS } = await import(
+  pathToFileURL(join(DRAG, 'bench/size/measure.ts')).href
+);
+const BOX_QUAD = join(REPO, 'packages/box-quad/src/index.ts');
+
+const args = process.argv.slice(2);
+const option = (name) => {
+  const index = args.indexOf(name);
+  return index === -1 ? undefined : args[index + 1];
+};
+const root = resolve(option('--root') ?? DRAG);
+const jsonPath = option('--json');
+const withModules = args.includes('--modules');
+const withStrings = args.includes('--strings');
+// Property mangling: a JSON array of names, or `--minify-object` for `minify: {}`.
+const mangleFile = option('--mangle');
+const mangleNames = mangleFile ? JSON.parse(readFileSync(mangleFile, 'utf8')) : null;
+const minifyOption = mangleNames
+  ? { mangleProps: { include: new RegExp(`^(?:${mangleNames.join('|')})$`) } }
+  : args.includes('--minify-object')
+    ? {}
+    : true;
+
+function entrySource(imports) {
+  const names = [];
+  const lines = Object.entries(imports).map(([path, exported]) => {
+    names.push(...exported);
+    return `import { ${exported.join(', ')} } from ${JSON.stringify(join(root, `${path}.ts`))};`;
+  });
+  return `${lines.join('\n')}\nglobalThis.keep = [${names.join(', ')}];\n`;
+}
+
+async function build(source, preserveModules) {
+  const directory = await mkdtemp(join(tmpdir(), 'drag-p4-'));
+  try {
+    const input = join(directory, 'entry.js');
+    await writeFile(input, source);
+    const bundle = await rolldown({
+      input,
+      platform: 'neutral',
+      resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+      transform: { define: { __DEV__: 'false' } },
+      onLog(level, log, handler) {
+        if (log.code === 'UNRESOLVED_IMPORT') throw new Error(log.message);
+        handler(level, log);
+      },
+    });
+    try {
+      const { output } = await bundle.generate({
+        format: 'es',
+        minify: minifyOption,
+        preserveModules,
+      });
+      return { input, chunks: output.filter((c) => c.type === 'chunk') };
+    } finally {
+      await bundle.close();
+    }
+  } finally {
+    await rm(directory, { force: true, recursive: true });
+  }
+}
+
+function strings(code) {
+  const found = [];
+  const visit = (node) => {
+    if (!node || typeof node.type !== 'string') return;
+    if (node.type === 'Literal' && typeof node.value === 'string') {
+      found.push(node.value);
+    } else if (node.type === 'TemplateElement') {
+      found.push(node.value.cooked ?? node.value.raw);
+    }
+    for (const key of Object.keys(node)) {
+      const value = node[key];
+      if (Array.isArray(value)) value.forEach(visit);
+      else if (value && typeof value === 'object') visit(value);
+    }
+  };
+  visit(parseAst(code));
+  return found;
+}
+
+const encoder = new TextEncoder();
+const rows = [];
+
+for (const composition of COMPOSITIONS) {
+  const { input, chunks } = await build(entrySource(composition.imports), false);
+  const code = chunks.map((c) => c.code).join('');
+  const bytes = encoder.encode(code);
+  const literals = strings(code);
+  const row = {
+    name: composition.name,
+    minified: bytes.byteLength,
+    gzip9: gzipSync(bytes, { level: 9 }).byteLength,
+    gzip6: gzipSync(bytes, { level: 6 }).byteLength,
+    brotli: brotliCompressSync(bytes).byteLength,
+    stringBytes: literals.reduce((sum, s) => sum + encoder.encode(s).byteLength, 0),
+    modules: chunks
+      .flatMap((c) => Object.keys(c.modules))
+      .filter((id) => id !== input)
+      .map((id) => relative(root, id))
+      .sort(),
+  };
+  if (withStrings) {
+    row.strings = [...new Set(literals.filter((s) => encoder.encode(s).byteLength >= 8))];
+  }
+  if (withModules) {
+    const split = await build(entrySource(composition.imports), true);
+    row.perModule = Object.fromEntries(
+      split.chunks
+        .map((c) => [
+          relative(root, c.facadeModuleId ?? c.moduleIds?.[0] ?? c.fileName),
+          encoder.encode(c.code).byteLength,
+        ])
+        .filter(([id]) => !id.startsWith('..') || id.includes('box-quad'))
+        .sort((a, b) => b[1] - a[1]),
+    );
+  }
+  rows.push(row);
+}
+
+const pad = (v, n) => String(v).padStart(n);
+console.log(`root ${root}`);
+console.log(
+  `${'composition'.padEnd(30)} ${pad('min', 6)} ${pad('gz9', 6)} ${pad('gz6', 6)} ${pad('br11', 6)} ${pad('str', 6)}  modules`,
+);
+for (const r of rows) {
+  console.log(
+    `${r.name.padEnd(30)} ${pad(r.minified, 6)} ${pad(r.gzip9, 6)} ${pad(r.gzip6, 6)} ${pad(r.brotli, 6)} ${pad(r.stringBytes, 6)}  ${r.modules.length}`,
+  );
+  if (r.strings) for (const s of r.strings) console.log(`    string ${JSON.stringify(s)}`);
+  if (r.perModule) {
+    for (const [id, n] of Object.entries(r.perModule)) console.log(`    ${pad(n, 6)} ${id}`);
+  }
+}
+if (jsonPath) await writeFile(jsonPath, `${JSON.stringify(rows, null, 2)}\n`);

@@ -14,6 +14,8 @@ You own decisions that need architectural, contract, parity or public-surface au
 
 Do not implement production code or tests, and do not turn a requested analysis into an implementation task. When a problem has several reasonable solutions, choose or recommend one and say why. Prefer specifying required properties over prescribing code. Raise the question when the available information is insufficient.
 
+When explicitly asked for a runnable prototype, read [Architecture prototypes](../../.agents/docs/agent-workflow.md#architecture-prototypes). Deliver provisional code committed at its normal source paths in the assigned isolated worktree, then stop for owner evaluation; this is not production adoption.
+
 **When the question turns on repository policy**, retrieve the governing section of `CONTRIBUTING.md` rather than the file — which section governs is usually part of what you are deciding, so identify it first:
 
 ```

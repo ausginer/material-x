@@ -1,0 +1,19 @@
+import { deepStrictEqual } from 'node:assert';
+const befores: Array<() => unknown> = [];
+const tests: Array<[string, () => unknown]> = [];
+export const describe = (_: string, fn: () => void) => fn();
+export const beforeAll = (fn: () => unknown) => { befores.push(fn); };
+export const it = (name: string, fn: () => unknown) => { tests.push([name, fn]); };
+export const expect = (actual: unknown) => ({
+  toEqual(expected: unknown) {
+    try { deepStrictEqual(actual, expected); } catch { throw new Error(JSON.stringify(actual, null, 1)); }
+  },
+});
+export async function runAll(): Promise<void> {
+  for (const b of befores) await b();
+  for (const [name, fn] of tests) {
+    const short = name.replace(/^should /, '').slice(0, 60);
+    try { await fn(); console.log(`PASS ${short}`); }
+    catch (e) { const m = (e as Error).message; console.log(`FAIL ${short}\n  ${m.split('\n').slice(0, 14).join('\n  ')}${m.split('\n').length > 14 ? `\n  ... (${m.split('\n').length} lines)` : ''}`); }
+  }
+}

@@ -1,0 +1,29 @@
+# At 87288b9d2, in packages/drag, 2026-11-13, by the architect. Three untracked probe files were created, then removed:
+#   src/sortable/zz-clean-probe-1.ts, src/kernel/zz-clean-probe-1.ts, sortable/zz-clean-probe-1.ts (the emitted directory)
+# The pathspecs, from packageFilesToCleanPathspecs(files.json):
+#   _virtual draggable.d.ts draggable.d.ts.map draggable.js draggable.js.map fault.d.ts fault.d.ts.map fault.js fault.js.map free-drag free-drag.d.ts free-drag.d.ts.map free-drag.js free-drag.js.map kernel lift lift.d.ts lift.d.ts.map lift.js lift.js.map shared sortable sortable.d.ts sortable.d.ts.map sortable.js sortable.js.map
+# command: git clean -n -fx -e .vite -e node_modules -- <pathspecs>   (-n: list only, delete nothing)
+Would remove draggable.d.ts
+Would remove draggable.js
+Would remove draggable.js.map
+Would remove fault.d.ts
+Would remove fault.js
+Would remove fault.js.map
+Would remove free-drag.d.ts
+Would remove free-drag.js
+Would remove free-drag.js.map
+Would remove free-drag/
+Would remove kernel/
+Would remove lift.d.ts
+Would remove lift.js
+Would remove lift.js.map
+Would remove lift/
+Would remove shared/
+Would remove sortable.d.ts
+Would remove sortable.js
+Would remove sortable.js.map
+Would remove sortable/
+# git clean -n -x -- src/sortable/zz-clean-probe-1.ts src/kernel/zz-clean-probe-1.ts sortable/zz-clean-probe-1.ts   (the same probes, named directly)
+Would remove sortable/zz-clean-probe-1.ts
+Would remove src/kernel/zz-clean-probe-1.ts
+Would remove src/sortable/zz-clean-probe-1.ts

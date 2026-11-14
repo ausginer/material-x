@@ -1,0 +1,150 @@
+{
+  "id": "gate-a-base",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 376243,
+    "start": "6022383"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:10:55.092Z",
+  "endedAt": "2026-11-13T01:11:21.709Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f1.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 376259,
+        "start": "6022389"
+      },
+      "startedAt": "2026-11-13T01:10:55.106Z",
+      "endedAt": "2026-11-13T01:10:57.812Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f2.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 376868,
+        "start": "6022661"
+      },
+      "startedAt": "2026-11-13T01:10:57.825Z",
+      "endedAt": "2026-11-13T01:11:01.185Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f3.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 377630,
+        "start": "6022998"
+      },
+      "startedAt": "2026-11-13T01:11:01.199Z",
+      "endedAt": "2026-11-13T01:11:04.625Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f4.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 378374,
+        "start": "6023342"
+      },
+      "startedAt": "2026-11-13T01:11:04.636Z",
+      "endedAt": "2026-11-13T01:11:07.985Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f5.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 379122,
+        "start": "6023678"
+      },
+      "startedAt": "2026-11-13T01:11:07.995Z",
+      "endedAt": "2026-11-13T01:11:11.408Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f6a.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 379868,
+        "start": "6024020"
+      },
+      "startedAt": "2026-11-13T01:11:11.420Z",
+      "endedAt": "2026-11-13T01:11:14.843Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f6b.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 380616,
+        "start": "6024366"
+      },
+      "startedAt": "2026-11-13T01:11:14.873Z",
+      "endedAt": "2026-11-13T01:11:18.130Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-e.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-base/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 381359,
+        "start": "6024692"
+      },
+      "startedAt": "2026-11-13T01:11:18.141Z",
+      "endedAt": "2026-11-13T01:11:21.709Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

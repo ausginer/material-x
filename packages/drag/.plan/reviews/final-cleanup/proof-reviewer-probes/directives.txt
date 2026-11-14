@@ -1,0 +1,221 @@
+tsc exit=1; errors in the copies: 100
+errors outside the copies: 2
+  ../drag2/src/kernel/presentation.ts(13,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'. Did you mean 'Box'?
+  ../drag2/src/kernel/presentation.ts(15,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?
+
+## zz-rv-old-authoring.declaration.test.ts: 37 directives, 37 errors, 0 not on a directive's next line, 0 directives with no error
+27: // A drag has no `lift`.
+    28: TS2339 Property 'lift' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+29: // A drag has no `translate`.
+    30: TS2339 Property 'translate' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+31: // A drag has no `visual`.
+    32: TS2339 Property 'visual' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+33: // A drag has no `box`.
+    34: TS2339 Property 'box' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+35: // A drag has no `rect`.
+    36: TS2339 Property 'rect' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+37: // A drag has no `visualSpace`.
+    38: TS2339 Property 'visualSpace' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+48: // An operation has no `lift` unless the behavior adds one.
+    49: TS2339 Property 'lift' does not exist on type 'BehaviorOperation<unknown>'.
+54: // An admission has no `visual`.
+    55: TS2353 Object literal may only specify known properties, and 'visual' does not exist in type 'Readonly<{ item: HTMLElement; handle?: HTMLElement | undefined; state?: undefined; }>'.
+56: // An admission has no `box`.
+    57: TS2353 Object literal may only specify known properties, and 'box' does not exist in type 'Readonly<{ item: HTMLElement; handle?: HTMLElement | undefined; state?: undefined; }>'.
+77: // A lift has no `translatedX`.
+    78: TS2551 Property 'translatedX' does not exist on type 'Readonly<{ visual: HTMLElement; box: HTMLElement; rect: DOMRectReadOnly; boxWidth: number; boxHeight: number; visualSpace: Space; itemSpace: Space; translate(x: number, y: number): void; land(x: number, y: number, landing: Landing): void; }>'. Did you mean 'translate'?
+133: // The controller has no session member.
+    134: TS2339 Property 'session' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+135: // The controller's type has no pass entry.
+    136: TS2339 Property 'enter' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+137: // The controller's type has no fault entry.
+    138: TS2339 Property 'raise' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+139: // The controller's type has no verdict fault entry.
+    140: TS2339 Property 'raiseInPass' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+141: // The controller's type has no session slot.
+    142: TS2339 Property 'detach' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+143: // The controller's type has no listener.
+    144: TS2339 Property 'handleEvent' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+148: // A drag has no state machine.
+    149: TS2339 Property 'phase' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+150: // A drag has no next step.
+    151: TS2339 Property 'next' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+152: // A drag has no decision.
+    153: TS2339 Property 'decision' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+158: // The operation has no state machine.
+    159: TS2339 Property 'phase' does not exist on type 'BehaviorOperation<unknown>'.
+160: // The operation has no next step.
+    161: TS2339 Property 'next' does not exist on type 'BehaviorOperation<unknown>'.
+162: // The operation has no decision.
+    163: TS2339 Property 'decision' does not exist on type 'BehaviorOperation<unknown>'.
+170: // `run` is `requestStep`.
+    171: TS2339 Property 'run' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+172: // `requestApply` is `requestStep`.
+    173: TS2339 Property 'requestApply' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+174: // A behavior has no `lift` member.
+    175: TS2353 Object literal may only specify known properties, and 'lift' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+185: // A drag has no `state`: `activate` receives it.
+    186: TS2339 Property 'state' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+195: // `start` is the operation's.
+    196: TS2353 Object literal may only specify known properties, and 'start' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+197: // `move` is the operation's.
+    198: TS2353 Object literal may only specify known properties, and 'move' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+199: // `drop` is the operation's.
+    200: TS2353 Object literal may only specify known properties, and 'drop' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+201: // `settle` is the operation's.
+    202: TS2353 Object literal may only specify known properties, and 'settle' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+203: // `end` is the operation's.
+    204: TS2353 Object literal may only specify known properties, and 'end' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+208: // Without `activate` no operation exists.
+    209: TS2741 Property 'activate' is missing in type '{ admit: () => null; }' but required in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+215: // `false` is not an operation.
+    216: TS2559 Type 'boolean' has no properties in common with type 'BehaviorOperation<unknown>'.
+217: // `undefined` is not an operation.
+    218: TS2322 Type 'undefined' is not assignable to type 'BehaviorOperation<unknown> | null'.
+228: // The step may receive `null`.
+    229: TS18047 'operation' is possibly 'null'.
+239: // The step may receive `null`.
+    240: TS18047 'operation' is possibly 'null'.
+243: // A step does not receive a drag.
+    244: TS2345 Argument of type '(drag: Drag<Lifted> | null) => void' is not assignable to parameter of type '(this: undefined, operation: Lifted | null) => void'.
+
+## zz-rv-old-callbacks.declaration.test.ts: 13 directives, 13 errors, 0 not on a directive's next line, 0 directives with no error
+31: // A step that declares its receiver needs one.
+    32: TS2345 Argument of type '(this: Holder) => void' is not assignable to parameter of type '(this: undefined, operation: unknown) => void'.
+33: // The receiver must be the step's `this` type.
+    34: TS2345 Argument of type 'object' is not assignable to parameter of type 'Holder'.
+64: // A step that declares its receiver needs one.
+    65: TS2345 Argument of type '(this: Holder, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: undefined, operation: BehaviorOperation<unknown> | null) => void'.
+86: // Cleanup that declares its receiver needs one.
+    87: TS2345 Argument of type '(this: Resource, outcome: Outcome | null) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+88: // The receiver must be the cleanup's `this` type.
+    89: TS2345 Argument of type 'object' is not assignable to parameter of type 'Resource'.
+90: // Operation cleanup receives an outcome, not an operation.
+    91: TS2345 Argument of type '(this: Resource, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: this, outcome: Outcome | null) => void'.
+121: // Cleanup that declares its receiver needs one.
+    122: TS2345 Argument of type '(this: { retired: boolean; }) => void' is not assignable to parameter of type '(this: undefined) => void'.
+143: // A receiver is an object.
+    144: TS2345 Argument of type '(this: number, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: object, operation: BehaviorOperation<unknown> | null) => void'.
+145: // A receiver is an object.
+    146: TS2345 Argument of type '(this: string) => void' is not assignable to parameter of type '(this: object, outcome: Outcome | null) => void'.
+155: // A receiver is an object.
+    156: TS2345 Argument of type '(this: number, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: object, operation: BehaviorOperation<unknown> | null) => void'.
+157: // A receiver is an object.
+    158: TS2345 Argument of type '(this: string) => void' is not assignable to parameter of type '(this: object) => void'.
+169: // `retire` declares the axis as its receiver.
+    170: TS2345 Argument of type '(this: InsertionGeometry) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+171: // `retire` declares the sink as its receiver.
+    172: TS2345 Argument of type '(this: DisplacementSink) => void' is not assignable to parameter of type '(this: undefined) => void'.
+
+## zz-rv-old-published-types.declaration.test.ts: 0 directives, 0 errors, 0 not on a directive's next line, 0 directives with no error
+
+## zz-rv-new-authoring.declaration.test.ts: 37 directives, 37 errors, 0 not on a directive's next line, 0 directives with no error
+27: // A drag has no `lift`.
+    28: TS2339 Property 'lift' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+29: // A drag has no `translate`.
+    30: TS2339 Property 'translate' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+31: // A drag has no `visual`.
+    32: TS2339 Property 'visual' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+33: // A drag has no `box`.
+    34: TS2339 Property 'box' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+35: // A drag has no `rect`.
+    36: TS2339 Property 'rect' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+37: // A drag has no `visualSpace`.
+    38: TS2339 Property 'visualSpace' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+48: // An operation has no `lift` unless the behavior adds one.
+    49: TS2339 Property 'lift' does not exist on type 'BehaviorOperation<unknown>'.
+54: // An admission has no `visual`.
+    55: TS2353 Object literal may only specify known properties, and 'visual' does not exist in type 'Readonly<{ item: HTMLElement; handle?: HTMLElement | undefined; state?: undefined; }>'.
+56: // An admission has no `box`.
+    57: TS2353 Object literal may only specify known properties, and 'box' does not exist in type 'Readonly<{ item: HTMLElement; handle?: HTMLElement | undefined; state?: undefined; }>'.
+77: // A lift has no `translatedX`.
+    78: TS2551 Property 'translatedX' does not exist on type 'Readonly<{ visual: HTMLElement; box: HTMLElement; rect: DOMRectReadOnly; boxWidth: number; boxHeight: number; visualSpace: Space; itemSpace: Space; translate(x: number, y: number): void; land(x: number, y: number, landing: Landing): void; }>'. Did you mean 'translate'?
+133: // The controller has no session member.
+    134: TS2339 Property 'session' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+135: // The controller's type has no pass entry.
+    136: TS2339 Property 'enter' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+137: // The controller's type has no fault entry.
+    138: TS2339 Property 'raise' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+139: // The controller's type has no verdict fault entry.
+    140: TS2339 Property 'raiseInPass' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+141: // The controller's type has no session slot.
+    142: TS2339 Property 'detach' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+143: // The controller's type has no listener.
+    144: TS2339 Property 'handleEvent' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+148: // A drag has no state machine.
+    149: TS2339 Property 'phase' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+150: // A drag has no next step.
+    151: TS2339 Property 'next' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+152: // A drag has no decision.
+    153: TS2339 Property 'decision' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+158: // The operation has no state machine.
+    159: TS2339 Property 'phase' does not exist on type 'BehaviorOperation<unknown>'.
+160: // The operation has no next step.
+    161: TS2339 Property 'next' does not exist on type 'BehaviorOperation<unknown>'.
+162: // The operation has no decision.
+    163: TS2339 Property 'decision' does not exist on type 'BehaviorOperation<unknown>'.
+170: // `run` is `requestStep`.
+    171: TS2339 Property 'run' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+172: // `requestApply` is `requestStep`.
+    173: TS2339 Property 'requestApply' does not exist on type 'DraggableController<BehaviorOperation<unknown>>'.
+174: // A behavior has no `lift` member.
+    175: TS2353 Object literal may only specify known properties, and 'lift' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+185: // A drag has no `state`: `activate` receives it.
+    186: TS2339 Property 'state' does not exist on type 'Readonly<{ item: HTMLElement; pointerId: number; x: number; y: number; originX: number; originY: number; signal: AbortSignal; use(dispose: (this: undefined, outcome: Outcome | null) => void): void; use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void; req...'.
+195: // `start` is the operation's.
+    196: TS2353 Object literal may only specify known properties, and 'start' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+197: // `move` is the operation's.
+    198: TS2353 Object literal may only specify known properties, and 'move' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+199: // `drop` is the operation's.
+    200: TS2353 Object literal may only specify known properties, and 'drop' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+201: // `settle` is the operation's.
+    202: TS2353 Object literal may only specify known properties, and 'settle' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+203: // `end` is the operation's.
+    204: TS2353 Object literal may only specify known properties, and 'end' does not exist in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+208: // Without `activate` no operation exists.
+    209: TS2741 Property 'activate' is missing in type '{ admit: () => null; }' but required in type 'Behavior<undefined, unknown, BehaviorOperation<unknown>>'.
+215: // `false` is not an operation.
+    216: TS2559 Type 'boolean' has no properties in common with type 'BehaviorOperation<unknown>'.
+217: // `undefined` is not an operation.
+    218: TS2322 Type 'undefined' is not assignable to type 'BehaviorOperation<unknown> | null'.
+228: // The step may receive `null`.
+    229: TS18047 'operation' is possibly 'null'.
+239: // The step may receive `null`.
+    240: TS18047 'operation' is possibly 'null'.
+243: // A step does not receive a drag.
+    244: TS2345 Argument of type '(drag: Drag<Lifted> | null) => void' is not assignable to parameter of type '(this: undefined, operation: Lifted | null) => void'.
+
+## zz-rv-new-callbacks.declaration.test.ts: 13 directives, 13 errors, 0 not on a directive's next line, 0 directives with no error
+31: // A step that declares its receiver needs one.
+    32: TS2345 Argument of type '(this: Holder) => void' is not assignable to parameter of type '(this: undefined, operation: unknown) => void'.
+33: // The receiver must be the step's `this` type.
+    34: TS2345 Argument of type 'object' is not assignable to parameter of type 'Holder'.
+69: // A step that declares its receiver needs one.
+    70: TS2345 Argument of type '(this: Holder, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: undefined, operation: BehaviorOperation<unknown> | null) => void'.
+89: // Cleanup that declares its receiver needs one.
+    90: TS2345 Argument of type '(this: Resource, outcome: Outcome | null) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+91: // The receiver must be the cleanup's `this` type.
+    92: TS2345 Argument of type 'object' is not assignable to parameter of type 'Resource'.
+93: // Operation cleanup receives an outcome, not an operation.
+    94: TS2345 Argument of type '(this: Resource, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: this, outcome: Outcome | null) => void'.
+124: // Cleanup that declares its receiver needs one.
+    125: TS2345 Argument of type '(this: { retired: boolean; }) => void' is not assignable to parameter of type '(this: undefined) => void'.
+146: // A receiver is an object.
+    147: TS2345 Argument of type '(this: number, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: object, operation: BehaviorOperation<unknown> | null) => void'.
+148: // A receiver is an object.
+    149: TS2345 Argument of type '(this: string) => void' is not assignable to parameter of type '(this: object, outcome: Outcome | null) => void'.
+158: // A receiver is an object.
+    159: TS2345 Argument of type '(this: number, operation: BehaviorOperation<unknown> | null) => void' is not assignable to parameter of type '(this: object, operation: BehaviorOperation<unknown> | null) => void'.
+160: // A receiver is an object.
+    161: TS2345 Argument of type '(this: string) => void' is not assignable to parameter of type '(this: object) => void'.
+172: // `retire` declares the axis as its receiver.
+    173: TS2345 Argument of type '(this: InsertionGeometry) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+174: // `retire` declares the sink as its receiver.
+    175: TS2345 Argument of type '(this: DisplacementSink) => void' is not assignable to parameter of type '(this: undefined) => void'.
+
+## zz-rv-new-published-types.declaration.test.ts: 0 directives, 0 errors, 0 not on a directive's next line, 0 directives with no error
+
+## old against new, directive by directive (reason, then error codes and messages)
+authoring.declaration.test.ts: reasons equal=true, error sequences equal=true
+callbacks.declaration.test.ts: reasons equal=true, error sequences equal=true
+published-types.declaration.test.ts: reasons equal=true, error sequences equal=true

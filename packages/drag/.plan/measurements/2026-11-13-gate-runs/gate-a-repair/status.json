@@ -1,0 +1,150 @@
+{
+  "id": "gate-a-repair",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 384671,
+    "start": "6033493"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:12:46.195Z",
+  "endedAt": "2026-11-13T01:13:13.170Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f1.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 384687,
+        "start": "6033499"
+      },
+      "startedAt": "2026-11-13T01:12:46.207Z",
+      "endedAt": "2026-11-13T01:12:48.799Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f2.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 385197,
+        "start": "6033759"
+      },
+      "startedAt": "2026-11-13T01:12:48.808Z",
+      "endedAt": "2026-11-13T01:12:52.188Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f3.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 385947,
+        "start": "6034098"
+      },
+      "startedAt": "2026-11-13T01:12:52.199Z",
+      "endedAt": "2026-11-13T01:12:55.598Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f4.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 386664,
+        "start": "6034439"
+      },
+      "startedAt": "2026-11-13T01:12:55.607Z",
+      "endedAt": "2026-11-13T01:12:59.144Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f5.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 387433,
+        "start": "6034794"
+      },
+      "startedAt": "2026-11-13T01:12:59.156Z",
+      "endedAt": "2026-11-13T01:13:02.642Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f6a.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 388159,
+        "start": "6035144"
+      },
+      "startedAt": "2026-11-13T01:13:02.653Z",
+      "endedAt": "2026-11-13T01:13:06.061Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-f6b.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 388960,
+        "start": "6035486"
+      },
+      "startedAt": "2026-11-13T01:13:06.081Z",
+      "endedAt": "2026-11-13T01:13:09.595Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer --project browser --reporter=verbose tests/zz-witness-e.browser.test.ts; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-a-repair/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 389716,
+        "start": "6035840"
+      },
+      "startedAt": "2026-11-13T01:13:09.619Z",
+      "endedAt": "2026-11-13T01:13:13.170Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

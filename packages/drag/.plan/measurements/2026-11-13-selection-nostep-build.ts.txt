@@ -1,0 +1,18 @@
+/**
+ * The package's build without the step: `tsdown.config.ts` with every plugin but
+ * `drag:rename-properties`, its source maps and declarations kept, into <out>,
+ * outside the checkout. As `2026-11-13-mangle-generator-build.ts.txt` builds, but
+ * with `dts` and `sourcemap` as configured. Then copies the published file list
+ * there, so <out> holds the same paths as the package's publication.
+ * `node nostep-build.ts <out>`
+ */
+import { mkdir } from 'node:fs/promises';
+process.chdir('/workspaces/material-x/packages/drag');
+const { build } = await import('/workspaces/material-x/node_modules/tsdown/dist/index.mjs');
+const { default: config } = await import('/workspaces/material-x/packages/drag/tsdown.config.ts');
+const { RENAME_PROPERTIES } = await import('/workspaces/material-x/packages/drag/build/rename-properties.ts');
+const outDir = process.argv[2]!;
+await mkdir(outDir, { recursive: true });
+await build({ ...config, config: false, cwd: process.cwd(), outDir, exports: false, logLevel: 'warn',
+  plugins: [config.plugins].flat().filter((p: any) => p?.name !== RENAME_PROPERTIES) });
+console.log(`built without ${RENAME_PROPERTIES} into ${outDir}`);

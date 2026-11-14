@@ -29,10 +29,10 @@
     "lint:fix": "just lint-fix"
   },
   "dependencies": {
-    "@size-limit/file": "12.1.0"
+    "@size-limit/file": "14.3.0"
   },
   "devDependencies": {
-    "@types/node": "26.1.1"
+    "@types/node": "26.6.6"
   },
   "peerDependencies": {
     "size-limit": "^14"

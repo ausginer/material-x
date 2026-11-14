@@ -1,0 +1,251 @@
+/**
+ * Lists every property declaration in `src` whose name isn't `#private` and isn't
+ * already `_`-prefixed: class members, interface and type-literal members, and
+ * object-literal keys. Groups them by symbol, links an object-literal key to the
+ * member its contextual type declares, and reports for each group:
+ *
+ * - where each declaration is, and the type or object that declares it;
+ * - every reference the language service finds, by tree (src, tests, bench);
+ * - `dts`: whether an emitted `.d.ts` declares the same member, matched by module,
+ *   container name and member name;
+ * - `platform`: whether a declaration or a contextual member comes from outside
+ *   `src` (lib.dom, a dependency);
+ * - `literal`: object-literal keys whose literal has no contextual type from `src`
+ *   (where it flows has to be read);
+ * - `strings`: whether the name occurs as a string literal in src, tests or bench.
+ *
+ * Discovery only. The decision is made by reading the code.
+ *
+ * `node audit.ts <package root>`
+ */
+import { createRequire } from 'node:module';
+import type TS from '/workspaces/material-x/node_modules/typescript/lib/typescript.d.ts';
+const ts: typeof TS = createRequire('/workspaces/material-x/package.json')('typescript');
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+
+const root = process.argv[2]!;
+const srcDir = join(root, 'src');
+
+const parsed = ts.parseJsonConfigFileContent(
+  ts.readConfigFile(join(root, 'tsconfig.json'), ts.sys.readFile).config,
+  ts.sys,
+  root,
+);
+const files = parsed.fileNames;
+const host: TS.LanguageServiceHost = {
+  getCompilationSettings: () => parsed.options,
+  getScriptFileNames: () => files,
+  getScriptVersion: () => '1',
+  getScriptSnapshot: (f) => {
+    try {
+      return ts.ScriptSnapshot.fromString(readFileSync(f, 'utf8'));
+    } catch {
+      return undefined;
+    }
+  },
+  getCurrentDirectory: () => root,
+  getDefaultLibFileName: ts.getDefaultLibFilePath,
+  fileExists: ts.sys.fileExists,
+  readFile: ts.sys.readFile,
+  readDirectory: ts.sys.readDirectory,
+  directoryExists: ts.sys.directoryExists,
+  getDirectories: ts.sys.getDirectories,
+};
+const service = ts.createLanguageService(host);
+const program = service.getProgram()!;
+const checker = program.getTypeChecker();
+
+const rel = (f: string) => relative(root, f);
+const where = (file: TS.SourceFile, pos: number) => {
+  const { line } = file.getLineAndCharacterOfPosition(pos);
+  return `${rel(file.fileName)}:${line + 1}`;
+};
+const inSrc = (f: string) => f.startsWith(srcDir + '/');
+
+/** The nearest named container: class, interface or type alias, else a literal. */
+const containerOf = (node: TS.Node): string => {
+  for (let n: TS.Node | undefined = node.parent; n; n = n.parent) {
+    if ((ts.isClassDeclaration(n) || ts.isClassExpression(n)) && n.name) return `class ${n.name.text}`;
+    if (ts.isClassExpression(n) && ts.isVariableDeclaration(n.parent) && ts.isIdentifier(n.parent.name))
+      return `class ${n.parent.name.text}`;
+    if (ts.isInterfaceDeclaration(n)) return `interface ${n.name.text}`;
+    if (ts.isTypeAliasDeclaration(n)) return `type ${n.name.text}`;
+    if (ts.isObjectLiteralExpression(n)) {
+      const sf = n.getSourceFile();
+      return `literal@${where(sf, n.getStart())}`;
+    }
+  }
+  return '?';
+};
+
+// ---- the emitted declarations: module, container, member ----
+const dtsMembers = new Set<string>();
+const walkDir = (dir: string, out: string[]) => {
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (e === 'node_modules' || e === 'src' || e.startsWith('.')) continue;
+    if (statSync(p).isDirectory()) walkDir(p, out);
+    else if (e.endsWith('.d.ts')) out.push(p);
+  }
+};
+const dtsFiles: string[] = [];
+for (const top of readdirSync(root)) {
+  const p = join(root, top);
+  if (top.endsWith('.d.ts')) dtsFiles.push(p);
+  else if (['kernel', 'shared', 'sortable', 'free-drag', 'lift'].includes(top) && statSync(p).isDirectory())
+    walkDir(p, dtsFiles);
+}
+const dtsAnyName = new Set<string>();
+for (const f of dtsFiles) {
+  const sf = ts.createSourceFile(f, readFileSync(f, 'utf8'), ts.ScriptTarget.Latest, true);
+  const mod = rel(f).replace(/\.d\.ts$/, '');
+  const visit = (n: TS.Node) => {
+    if (
+      (ts.isPropertySignature(n) ||
+        ts.isMethodSignature(n) ||
+        ts.isPropertyDeclaration(n) ||
+        ts.isMethodDeclaration(n) ||
+        ts.isGetAccessorDeclaration(n) ||
+        ts.isSetAccessorDeclaration(n)) &&
+      n.name &&
+      ts.isIdentifier(n.name)
+    ) {
+      dtsMembers.add(`${mod}|${containerOf(n)}|${n.name.text}`);
+      dtsAnyName.add(n.name.text);
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+}
+
+// ---- the declarations in src ----
+type Decl = { at: string; container: string; kind: string; node: TS.Node; name: string; module: string };
+const groups = new Map<TS.Symbol, { decls: Decl[]; platform: string[]; literal: string[] }>();
+
+const keyOf = (decl: TS.Node, name: TS.Identifier) => {
+  const sym = checker.getSymbolAtLocation(name);
+  return sym;
+};
+
+const record = (sym: TS.Symbol | undefined, d: Decl) => {
+  if (!sym) return;
+  let g = groups.get(sym);
+  if (!g) groups.set(sym, (g = { decls: [], platform: [], literal: [] }));
+  if (!g.decls.some((x) => x.at === d.at && x.kind === d.kind)) g.decls.push(d);
+  for (const decl of sym.declarations ?? []) {
+    const f = decl.getSourceFile().fileName;
+    if (!inSrc(f)) {
+      const s = `${rel(f).replace(/^.*node_modules\//, '')}`;
+      if (!g.platform.includes(s)) g.platform.push(s);
+    }
+  }
+  return g;
+};
+
+for (const sf of program.getSourceFiles()) {
+  if (!inSrc(sf.fileName) || sf.fileName.endsWith('.d.ts') || sf.fileName.includes('.stories.')) continue;
+  const module = rel(sf.fileName).replace(/^src\//, '').replace(/\.ts$/, '');
+  const visit = (n: TS.Node) => {
+    const isMember =
+      ts.isPropertyDeclaration(n) ||
+      ts.isPropertySignature(n) ||
+      ts.isMethodSignature(n) ||
+      ts.isMethodDeclaration(n) ||
+      ts.isGetAccessorDeclaration(n) ||
+      ts.isSetAccessorDeclaration(n) ||
+      ts.isPropertyAssignment(n) ||
+      ts.isShorthandPropertyAssignment(n);
+    if (isMember && (n as any).name && ts.isIdentifier((n as any).name)) {
+      const name = (n as any).name as TS.Identifier;
+      if (!name.text.startsWith('_')) {
+        const container = containerOf(n);
+        const kind = ts.SyntaxKind[n.kind];
+        const d: Decl = { at: where(sf, name.getStart()), container, kind, node: n, name: name.text, module };
+        // An object-literal key: group it with the member its contextual type declares.
+        const inLiteral = ts.isObjectLiteralExpression(n.parent);
+        let sym = keyOf(n, name);
+        if (inLiteral) {
+          const lit = n.parent as TS.ObjectLiteralExpression;
+          const ctx = checker.getContextualType(lit);
+          const raw = ctx?.getProperty(name.text);
+          const prop = raw && checker.getRootSymbols(raw)[0];
+          const declared = prop?.declarations?.[0];
+          const canon =
+            declared && (declared as any).name && inSrc(declared.getSourceFile().fileName)
+              ? (checker.getSymbolAtLocation((declared as any).name) ?? prop)
+              : prop;
+          if (canon) {
+            record(canon, d);
+          } else {
+            const g = record(sym, d);
+            if (g) {
+              const c = ctx ? checker.typeToString(ctx) : 'none';
+              const s = `${d.at} (contextual: ${c})`;
+              if (!g.literal.includes(s)) g.literal.push(s);
+            }
+          }
+        } else {
+          record(sym, d);
+        }
+      }
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+}
+
+// ---- string occurrences ----
+const stringNames = new Map<string, string[]>();
+for (const sf of program.getSourceFiles()) {
+  const f = sf.fileName;
+  if (f.includes('node_modules') || !f.startsWith(root)) continue;
+  const visit = (n: TS.Node) => {
+    if (ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n)) {
+      const a = stringNames.get(n.text) ?? [];
+      a.push(where(sf, n.getStart()));
+      stringNames.set(n.text, a);
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+}
+
+// ---- references ----
+const out: string[] = [];
+const rows = [...groups.entries()]
+  .map(([sym, g]) => ({ sym, g, name: sym.getName() }))
+  .sort((a, b) => a.name.localeCompare(b.name) || a.g.decls[0]!.at.localeCompare(b.g.decls[0]!.at));
+
+for (const { sym, g, name } of rows) {
+  const first = g.decls[0]!;
+  const refs = service.findReferences(first.node.getSourceFile().fileName, (first.node as any).name.getStart()) ?? [];
+  const byTree: Record<string, string[]> = { src: [], tests: [], bench: [], other: [] };
+  for (const r of refs)
+    for (const e of r.references) {
+      if (e.isDefinition) continue;
+      const sf = program.getSourceFile(e.fileName)!;
+      const at = where(sf, e.textSpan.start);
+      const tree = rel(e.fileName).split('/')[0]!;
+      (byTree[tree] ?? byTree.other!).push(at);
+    }
+  const dts = g.decls
+    .filter((d) => !d.container.startsWith('literal@'))
+    .some((d) => dtsMembers.has(`${d.module}|${d.container}|${name}`));
+  const dtsName = dtsAnyName.has(name);
+  out.push(
+    [
+      `## ${name}`,
+      ...g.decls.map((d) => `  decl ${d.at}  ${d.container}  ${d.kind}`),
+      `  dts-member: ${dts ? 'YES' : 'no'}  (name in any .d.ts: ${dtsName ? 'yes' : 'no'})`,
+      `  platform: ${g.platform.length ? g.platform.join(', ') : 'none'}`,
+      ...(g.literal.length ? [`  uncontextual literal: ${g.literal.join('; ')}`] : []),
+      `  strings: ${(stringNames.get(name) ?? []).join(', ') || 'none'}`,
+      `  refs src(${byTree.src!.length}): ${byTree.src!.join(', ')}`,
+      `  refs tests(${byTree.tests!.length}): ${byTree.tests!.join(', ')}`,
+      `  refs bench(${byTree.bench!.length}) other(${byTree.other!.length}): ${[...byTree.bench!, ...byTree.other!].join(', ')}`,
+    ].join('\n'),
+  );
+}
+console.log(`${rows.length} symbol groups, ${dtsFiles.length} declaration files read\n`);
+console.log(out.join('\n\n'));

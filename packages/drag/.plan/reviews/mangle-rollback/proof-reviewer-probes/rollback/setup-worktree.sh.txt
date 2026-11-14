@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Usage: setup-worktree.sh <dir> <commit> — a detached worktree whose node_modules links to the
+# checkout's installed packages, except @ydinjs/*, which link to the worktree's own packages.
+set -euo pipefail
+dir=$1; commit=$2; main=/workspaces/material-x
+git -C "$main" worktree add --detach "$dir" "$commit"
+mkdir -p "$dir/node_modules/@ydinjs"
+for e in "$main"/node_modules/* "$main"/node_modules/.bin "$main"/node_modules/.cache; do
+  n=$(basename "$e"); [ "$n" = "@ydinjs" ] && continue; [ -e "$e" ] || continue
+  ln -s "$e" "$dir/node_modules/$n"
+done
+for p in "$main"/node_modules/@ydinjs/*; do n=$(basename "$p"); ln -s "../../packages/$n" "$dir/node_modules/@ydinjs/$n"; done
+for p in "$main"/packages/*/node_modules; do pk=$(basename "$(dirname "$p")"); [ -d "$dir/packages/$pk" ] && ln -s "$p" "$dir/packages/$pk/node_modules"; done

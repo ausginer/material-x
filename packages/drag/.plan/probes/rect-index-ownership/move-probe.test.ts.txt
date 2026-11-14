@@ -1,0 +1,57 @@
+/*
+ * C6 ownership probe: allocation per committed move in `y()`'s shift rule.
+ * Appended like `alloc-probe.test.ts.txt` and launched alone with
+ * `-t 'C6 move probe'`, which matches no other probe. The pointer crosses one
+ * row and back, so every resolution commits a move.
+ */
+describe('C6 move probe', () => {
+  it.runIf(isChromium)('C6 move probe y: bytes per committed move under src/sortable/', async () => {
+    const list = makeList(20);
+    let moves = 0;
+    // A committed move relocates the placeholder: one insertion in the list.
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.addedNodes.length > 0) {
+          moves += 1;
+        }
+      }
+    });
+
+    observer.observe(list, { childList: true });
+    onCleanup(() => observer.disconnect());
+    basicSortable(list);
+
+    const start = await press('#r4');
+    const row = (document.querySelector('#r5') as HTMLElement).getBoundingClientRect().height;
+
+    await commands.pointerMove(start.x, start.y + 10, 2);
+    await frames();
+
+    const cross = async (count: number): Promise<void> => {
+      for (let i = 0; i < count; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+        await commands.pointerMove(start.x, start.y + (i % 2 === 0 ? 1.6 : 0.4) * row);
+        // oxlint-disable-next-line no-await-in-loop -- one resolution per crossing
+        await frames();
+      }
+    };
+
+    await cross(100);
+    moves = 0;
+    await commands.startHeapSampling(16);
+    await cross(200);
+
+    const bytes = await commands.stopHeapSampling('/src/');
+
+    // Delivered before the count is read.
+    await frames();
+    await commands.keyPress('Escape');
+
+    const shift = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/linear-shift.ts') || key.startsWith('sortable/rect-index.ts'));
+    const total = shift.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `C6-MOVE-PROBE moves=${moves} perMove=${(total / Math.max(moves, 1)).toFixed(2)} keys=${JSON.stringify(Object.fromEntries(shift))}`,
+    );
+  }, 180_000);
+});

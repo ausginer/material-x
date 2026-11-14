@@ -1,5 +1,5 @@
 import type { Writable } from 'type-fest';
-import type { CallbackList } from './callback-list.ts';
+import type { List as CallbackList } from './callbacks.ts';
 import type { Outcome } from './outcome.ts';
 
 export interface Fallible {
@@ -93,9 +93,9 @@ export function runDragDisposer<Argument>(
 }
 
 /**
- * Runs every disposer in `disposers`, a list `CallbackList.stack()` made, so
- * last in first out. A throw is reported through `raise`, called on the
- * controller, and the walk continues.
+ * Runs every disposer in `disposers`, a list `stack()` made, so last in first
+ * out. A throw is reported through `raise`, called on the controller, and the
+ * walk continues.
  */
 export function runDisposers<Argument>(
   disposers: CallbackList<Argument>,

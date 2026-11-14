@@ -1,0 +1,291 @@
+ packages/drag/src/sortable/xy.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag
+
+12:44:07 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/wt-mut/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e6e88913
+ ❯ |browser (chromium)| tests/displacement-sink.browser.test.ts (4 tests | 1 failed) 1649ms
+   ❯ sortable options (4)
+     × drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 422ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:167 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+AssertionError: expected [ <div class="row" …(2)></div>, …(33) ] to deeply equal [ …(1) ]
+
+- Expected
++ Received
+
+@@ -1,8 +1,239 @@
+  [
+    <div
+      class="row"
++     id="r1"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 1
++   </div>,
++   <div
++     class="row"
++     id="r2"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 2
++   </div>,
++   <div
++     class="row"
++     id="r3"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 3
++   </div>,
++   <div
++     class="row"
++     id="r4"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 4
++   </div>,
++   <div
++     class="row"
++     id="r5"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 5
++   </div>,
++   <div
++     class="row"
++     id="r6"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 6
++   </div>,
++   <div
++     class="row"
++     id="r7"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 7
++   </div>,
++   <div
++     class="row"
++     id="r8"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 8
++   </div>,
++   <div
++     class="row"
++     id="r9"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 9
++   </div>,
++   <div
++     class="row"
++     id="r10"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 10
++   </div>,
++   <div
++     class="row"
++     id="r11"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 11
++   </div>,
++   <div
++     class="row"
++     id="r1"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 1
++   </div>,
++   <div
++     class="row"
++     id="r2"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 2
++   </div>,
++   <div
++     class="row"
++     id="r3"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 3
++   </div>,
++   <div
++     class="row"
++     id="r4"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 4
++   </div>,
++   <div
++     class="row"
++     id="r5"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 5
++   </div>,
++   <div
++     class="row"
++     id="r6"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 6
++   </div>,
++   <div
++     class="row"
++     id="r7"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 7
++   </div>,
++   <div
++     class="row"
++     id="r8"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 8
++   </div>,
++   <div
++     class="row"
++     id="r9"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 9
++   </div>,
++   <div
++     class="row"
++     id="r10"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 10
++   </div>,
++   <div
++     class="row"
++     id="r11"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 11
++   </div>,
++   <div
++     class="row"
++     id="r1"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 1
++   </div>,
++   <div
++     class="row"
++     id="r2"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 2
++   </div>,
++   <div
++     class="row"
++     id="r3"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 3
++   </div>,
++   <div
++     class="row"
++     id="r4"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 4
++   </div>,
++   <div
++     class="row"
++     id="r5"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 5
++   </div>,
++   <div
++     class="row"
++     id="r6"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 6
++   </div>,
++   <div
++     class="row"
++     id="r7"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 7
++   </div>,
++   <div
++     class="row"
++     id="r8"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 8
++   </div>,
++   <div
++     class="row"
++     id="r9"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 9
++   </div>,
++   <div
++     class="row"
++     id="r10"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 10
++   </div>,
++   <div
++     class="row"
++     id="r11"
++     style="width: 100px; height: 60px; touch-action: none;"
++   >
++     Row 11
++   </div>,
++   <div
++     class="row"
+      id="r11"
+      style="width: 100px; height: 60px; touch-action: none;"
+    >
+      Row 11
+    </div>,
+
+ ❯ expectOwnRows tests/displacement-sink.browser.test.ts:84:18
+     82| function expectOwnRows(calls: readonly DisplacedCall[]): void {
+     83|   for (const { element, read } of calls) {
+     84|     expect(read).toEqual([element]);
+       |                  ^
+     85|   }
+     86| }
+ ❯ tests/displacement-sink.browser.test.ts:198:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 25 passed (26)
+      Tests  1 failed | 353 passed (354)
+   Start at  12:44:06
+   Duration  41.28s (tests 95%, worker 4%, import 1%)
+
+[mutation M7b exit 1]

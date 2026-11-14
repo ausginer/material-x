@@ -1,0 +1,129 @@
+# RectIndex ownership: C6 revisited
+# revision: c0d6b920575646a55d633eff4c8d5227b0d9907d (packages/drag/src identical to 0a28f909a)
+# node v26.13.0, rolldown 1.2.15, nproc 12, cpu 12th Gen Intel(R) Core(TM) i7-1255U, browser Google Chrome for Testing 157.0.8103.38 
+# size probe: packages/drag/.plan/probes/size-pass/size.ts.txt; compression: gzip-9 = zlib gzipSync level 9 (windowBits 15, memLevel 8, default strategy, header included); br11 = brotliCompressSync defaults (quality 11, lgwin 22, generic mode), identical to bench/size/measure.ts
+# variant trees: a detached worktree of the revision with packages/drag/.plan/probes/rect-index-ownership/patches/<name>.diff.txt applied
+# probe run labels: base = the revision; ve = E; vg = G; vh = H; vd = D; vi = P. Each key breakdown is <module>:<function> bytes, as the suite's stopHeapSampling reports it
+# owner-staged: the owner's staged Callbacks edit (git diff --cached at the time of the reading) applied to a scratch worktree; the main checkout was not touched
+
+## base (the revision)
+composition                       min    gz9    gz6   br11    str  modules
+draggable alone                  6733   2433   2436   2197    327  7
+draggable + lift                11544   4410   4412   3974   1296  9
+example: resize handle           9390   3675   3678   3310    486  9
+example: drop zone              13183   5111   5117   4610   1395  13
+example: canvas group            9526   3633   3636   3306    432  9
+freeDrag                        15201   5585   5598   5036   1358  15
+freeDrag + bounds + landing     16366   6072   6085   5476   1435  19
+sortable + y                    20741   7434   7444   6721   1609  20
+sortable + xy                   20297   7333   7342   6602   1609  19
+complete                        22420   8159   8169   7356   1697  24
+
+## deltas from base, minified/gzip-9/Brotli-11 bytes (C6 = packages/drag/.plan/probes/size-pass/patches/C6-y-only-cache-writes-out-of-rect-index.diff.txt, from the size pass)
+row                     C6-y-only-cache-writes  A-lend-both-writes-inl  B-shared-placeholder-m   C-B-with-closure-lend  D-B-with-xy-rebuild-in
+                                    min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br
+draggable alone                          0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+draggable + lift                         0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: resize handle                        0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: drop zone                            0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: canvas group                         0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+freeDrag                                 0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+freeDrag+b+l                             0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+sortable + y                       -71/-28/-13              -48/+4/+18             -61/-28/-27              -75/-26/-6            -156/-60/-46
+sortable + xy                     -226/-92/-76            -199/-82/-63             -59/-27/-22            -158/-72/-57             -79/-30/-18
+complete                           -71/-28/-18               -48/+3/+1             -61/-28/-25             -75/-27/-22            -156/-60/-52
+
+row                      E-D-with-closure-lend     F-D-with-cast-write  G-E-with-every-access-  H-E-with-writer-once-a   P-proposed-range-lend
+                                    min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br              min/gz9/br
+draggable alone                          0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+draggable + lift                         0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: resize handle                        0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: drop zone                            0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+ex: canvas group                         0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+freeDrag                                 0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+freeDrag+b+l                             0/0/0                   0/0/0                   0/0/0                   0/0/0                   0/0/0
+sortable + y                      -170/-57/-47            -188/-80/-56            -222/-59/-50            -142/-31/-25            -144/-57/-46
+sortable + xy                     -178/-74/-55            -197/-83/-61            -221/-69/-69            -178/-74/-55            -170/-71/-57
+complete                          -170/-58/-53            -188/-81/-54            -222/-62/-60            -142/-33/-29            -144/-57/-43
+
+## joint: the owner's staged edit as the base, and P applied over it
+row                          owner-staged-base
+                                    min/gz9/br
+draggable alone                       -2/-6/-1
+draggable + lift                     -2/-9/-11
+ex: resize handle                    -2/-7/+11
+ex: drop zone                         -2/-8/-7
+ex: canvas group                      -2/-5/-4
+freeDrag                             -2/-9/-12
+freeDrag+b+l                         -2/-8/-17
+sortable + y                         +6/-11/-7
+sortable + xy                        +6/-13/-5
+complete                             +6/-11/-7
+
+row                        owner-staged-with-P
+                                    min/gz9/br
+draggable alone                          0/0/0
+draggable + lift                         0/0/0
+ex: resize handle                        0/0/0
+ex: drop zone                            0/0/0
+ex: canvas group                         0/0/0
+freeDrag                                 0/0/0
+freeDrag+b+l                             0/0/0
+sortable + y                      -144/-58/-51
+sortable + xy                     -170/-72/-54
+complete                          -144/-56/-47
+
+## allocation per sample, bytes per pointer move under src/sortable/ (alloc-probe.test.ts.txt; 20 rows, Chromium, shipped project, __DEV__ false, heap sampling interval 16 B, collected objects included, 300 warm moves then 400 sampled moves inside one slot)
+base rep1 C6-PROBE y perMove=86.27 keys={"sortable/y.ts:resolve":9396,"sortable/linear-shift.ts:refresh":5160,"sortable/operation.ts:move":19952}
+base rep1 C6-PROBE xy perMove=51.94 keys={"sortable/operation.ts:move":20776}
+ve rep1 C6-PROBE y perMove=89.60 keys={"sortable/y.ts:resolve":9780,"sortable/linear-shift.ts:refresh":5736,"sortable/operation.ts:move":20324}
+ve rep1 C6-PROBE xy perMove=49.51 keys={"sortable/operation.ts:move":19804}
+vg rep1 C6-PROBE y perMove=187.15 keys={"sortable/y.ts:resolve":23316,"sortable/y.ts:":2412,"sortable/linear-shift.ts:refresh":24132,"sortable/linear-shift.ts:":5400,"sortable/operation.ts:move":19600}
+vg rep1 C6-PROBE xy perMove=107.59 keys={"sortable/xy.ts:resolve":22708,"sortable/operation.ts:move":20328}
+base rep2 C6-PROBE y perMove=87.14 keys={"sortable/y.ts:resolve":9348,"sortable/linear-shift.ts:refresh":5568,"sortable/operation.ts:move":19940}
+base rep2 C6-PROBE xy perMove=49.78 keys={"sortable/behavior.ts:updateInsertion":160,"sortable/operation.ts:move":19752}
+ve rep2 C6-PROBE y perMove=87.51 keys={"sortable/y.ts:resolve":9456,"sortable/linear-shift.ts:refresh":5328,"sortable/operation.ts:move":20220}
+ve rep2 C6-PROBE xy perMove=49.71 keys={"sortable/operation.ts:move":19884}
+vg rep2 C6-PROBE y perMove=186.70 keys={"sortable/y.ts:resolve":22736,"sortable/y.ts:":2520,"sortable/linear-shift.ts:refresh":24032,"sortable/linear-shift.ts:":4908,"sortable/operation.ts:move":20484}
+vg rep2 C6-PROBE xy perMove=107.36 keys={"sortable/xy.ts:resolve":22988,"sortable/operation.ts:move":19956}
+base rep3 C6-PROBE y perMove=85.97 keys={"sortable/y.ts:resolve":9204,"sortable/linear-shift.ts:refresh":5772,"sortable/operation.ts:move":19412}
+base rep3 C6-PROBE xy perMove=50.74 keys={"sortable/operation.ts:move":20296}
+ve rep3 C6-PROBE y perMove=83.03 keys={"sortable/y.ts:resolve":9456,"sortable/linear-shift.ts:refresh":4884,"sortable/operation.ts:move":18872}
+ve rep3 C6-PROBE xy perMove=51.04 keys={"sortable/operation.ts:move":20416}
+vg rep3 C6-PROBE y perMove=185.15 keys={"sortable/y.ts:resolve":22344,"sortable/y.ts:":2388,"sortable/linear-shift.ts:refresh":24176,"sortable/linear-shift.ts:":5196,"sortable/operation.ts:move":19956}
+vg rep3 C6-PROBE xy perMove=105.51 keys={"sortable/xy.ts:resolve":22764,"sortable/operation.ts:move":19440}
+vh rep1 C6-PROBE y perMove=84.89 keys={"sortable/y.ts:resolve":8760,"sortable/linear-shift.ts:refresh":5412,"sortable/operation.ts:move":19784}
+vh rep1 C6-PROBE xy perMove=48.30 keys={"sortable/operation.ts:move":19320}
+vi rep1 C6-PROBE y perMove=84.60 keys={"sortable/y.ts:resolve":8892,"sortable/linear-shift.ts:refresh":5256,"sortable/operation.ts:move":19692}
+vi rep1 C6-PROBE xy perMove=49.43 keys={"sortable/operation.ts:move":19772}
+
+## allocation per committed move, bytes under src/sortable/linear-shift.ts and src/sortable/rect-index.ts (move-probe.test.ts.txt; 20 rows, 100 warm crossings then 200 sampled, one placeholder relocation per crossing, counted by a MutationObserver)
+base rep1 C6-MOVE-PROBE moves=200 perMove=116.94 keys={"sortable/linear-shift.ts:refresh":4980,"sortable/rect-index.ts:collect":112,"sortable/rect-index.ts:remeasurePlaceholder":5444,"sortable/linear-shift.ts:moved":1044,"sortable/rect-index.ts:advance":11808}
+ve rep1 C6-MOVE-PROBE moves=200 perMove=182.96 keys={"sortable/linear-shift.ts:refresh":4848,"sortable/rect-index.ts:measurePlaceholder":3616,"sortable/rect-index.ts:pack":5076,"sortable/linear-shift.ts:moved":12564,"sortable/linear-shift.ts:":10488}
+base rep2 C6-MOVE-PROBE moves=200 perMove=121.86 keys={"sortable/linear-shift.ts:refresh":4908,"sortable/rect-index.ts:remeasurePlaceholder":5412,"sortable/linear-shift.ts:moved":1452,"sortable/rect-index.ts:advance":12600}
+ve rep2 C6-MOVE-PROBE moves=200 perMove=186.22 keys={"sortable/linear-shift.ts:refresh":5160,"sortable/rect-index.ts:measurePlaceholder":3392,"sortable/rect-index.ts:pack":5096,"sortable/linear-shift.ts:moved":12700,"sortable/linear-shift.ts:":10896}
+base rep3 C6-MOVE-PROBE moves=200 perMove=124.02 keys={"sortable/linear-shift.ts:refresh":4824,"sortable/rect-index.ts:remeasurePlaceholder":5756,"sortable/linear-shift.ts:moved":1296,"sortable/rect-index.ts:get count":148,"sortable/rect-index.ts:advance":12780}
+ve rep3 C6-MOVE-PROBE moves=200 perMove=185.88 keys={"sortable/linear-shift.ts:refresh":4704,"sortable/rect-index.ts:measurePlaceholder":3424,"sortable/rect-index.ts:pack":4940,"sortable/linear-shift.ts:moved":12704,"sortable/rect-index.ts:get count":76,"sortable/linear-shift.ts:":11328}
+vh rep1 C6-MOVE-PROBE moves=200 perMove=132.80 keys={"sortable/linear-shift.ts:refresh":5364,"sortable/rect-index.ts:measurePlaceholder":3232,"sortable/rect-index.ts:pack":5112,"sortable/linear-shift.ts:moved":1116,"sortable/linear-shift.ts:advance":11736}
+vh rep2 C6-MOVE-PROBE moves=200 perMove=132.08 keys={"sortable/linear-shift.ts:refresh":5052,"sortable/rect-index.ts:measurePlaceholder":3136,"sortable/rect-index.ts:pack":4864,"sortable/linear-shift.ts:moved":1500,"sortable/rect-index.ts:get count":152,"sortable/linear-shift.ts:advance":11712}
+vh rep3 C6-MOVE-PROBE moves=200 perMove=129.50 keys={"sortable/linear-shift.ts:refresh":5184,"sortable/rect-index.ts:measurePlaceholder":3136,"sortable/rect-index.ts:pack":5052,"sortable/linear-shift.ts:moved":1224,"sortable/linear-shift.ts:advance":11304}
+vd rep1 C6-MOVE-PROBE moves=200 perMove=134.24 keys={"sortable/linear-shift.ts:refresh":4668,"sortable/rect-index.ts:collect":140,"sortable/rect-index.ts:measurePlaceholder":3488,"sortable/rect-index.ts:pack":4884,"sortable/linear-shift.ts:moved":1272,"sortable/rect-index.ts:advance":12396}
+vi rep1 C6-MOVE-PROBE moves=200 perMove=125.40 keys={"sortable/linear-shift.ts:refresh":4368,"sortable/rect-index.ts:measurePlaceholder":3344,"sortable/rect-index.ts:pack":5020,"sortable/linear-shift.ts:moved":1092,"sortable/linear-shift.ts:advance":11256}
+vd rep2 C6-MOVE-PROBE moves=200 perMove=136.26 keys={"sortable/linear-shift.ts:refresh":5112,"sortable/rect-index.ts:measurePlaceholder":3312,"sortable/rect-index.ts:pack":4644,"sortable/linear-shift.ts:moved":1224,"sortable/rect-index.ts:advance":12960}
+vi rep2 C6-MOVE-PROBE moves=200 perMove=134.88 keys={"sortable/linear-shift.ts:refresh":5052,"sortable/rect-index.ts:measurePlaceholder":3440,"sortable/rect-index.ts:pack":5192,"sortable/linear-shift.ts:moved":1200,"sortable/rect-index.ts:get count":152,"sortable/linear-shift.ts:advance":11940}
+vd rep3 C6-MOVE-PROBE moves=200 perMove=131.76 keys={"sortable/linear-shift.ts:refresh":4980,"sortable/rect-index.ts:measurePlaceholder":3168,"sortable/rect-index.ts:pack":4644,"sortable/linear-shift.ts:moved":1320,"sortable/rect-index.ts:advance":12240}
+vi rep3 C6-MOVE-PROBE moves=200 perMove=123.00 keys={"sortable/linear-shift.ts:refresh":4596,"sortable/rect-index.ts:measurePlaceholder":2832,"sortable/rect-index.ts:pack":4884,"sortable/linear-shift.ts:moved":1164,"sortable/linear-shift.ts:advance":11124}
+
+## joint: U1 (packages/drag/.plan/probes/size-pass/patches/U1-recommended-unit.diff.txt) and P applied together; both apply cleanly, typecheck passes
+row                        U1-recommended-unit               U1-with-P
+                                    min/gz9/br              min/gz9/br
+draggable alone                          0/0/0                   0/0/0
+draggable + lift                         0/0/0                   0/0/0
+ex: resize handle                        0/0/0                   0/0/0
+ex: drop zone                            0/0/0                   0/0/0
+ex: canvas group                         0/0/0                   0/0/0
+freeDrag                              -26/0/-1                -26/0/-1
+freeDrag+b+l                         -26/-1/-2               -26/-1/-2
+sortable + y                       -44/-14/-17            -188/-71/-53
+sortable + xy                        -30/-8/-2            -200/-80/-64
+complete                           -44/-14/-17            -188/-71/-56

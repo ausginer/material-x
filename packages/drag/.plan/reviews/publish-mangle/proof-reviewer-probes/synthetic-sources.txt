@@ -1,0 +1,260 @@
+=== synth1
+--- build/property-names.json
+{
+ "_acc": "Q0",
+ "_as": "Q1",
+ "_dp": "Q2",
+ "_gen": "Q3",
+ "_gt": "Q4",
+ "_m": "Q5",
+ "_oa": "Q6",
+ "_oc": "Q7",
+ "_og": "Q8",
+ "_om": "Q9",
+ "_plain": "Q10",
+ "_pp": "Q11",
+ "_pub": "Q12",
+ "_ro": "Q13",
+ "_sg": "Q14",
+ "_sm": "Q15",
+ "_st": "Q16"
+}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+class Probe {
+  readonly _ro = 1;
+  static _st = 2;
+  _plain = 3;
+  constructor(
+    private readonly _pp: number,
+    public _pub: number,
+  ) {}
+  get _gt(): number {
+    return this._pp;
+  }
+  set _gt(v: number) {
+    this._plain = v;
+  }
+  static get _sg(): number {
+    return 1;
+  }
+  async _as(): Promise<void> {}
+  *_gen(): Generator<number> {
+    yield 1;
+  }
+  static _sm(): void {}
+  accessor _acc = 4;
+  _m(o?: { _oc: number }, { _dp: dp }: { _dp: number } = { _dp: 1 }): number {
+    return (o?._oc ?? 0) + dp + this._gt + Probe._st + this._ro + this._pub;
+  }
+}
+export const lit = { get _og() { return 1; }, _om() {}, async _oa() {} };
+export function use(): number {
+  const p = new Probe(1, 2);
+  p._gt = 5;
+  void p._as(); p._gen(); Probe._sm(); void Probe._sg; void p._acc;
+  return p._m({ _oc: 1 }, { _dp: 2 }) + lit._og;
+}
+
+=== synth2
+--- build/property-names.json
+{
+ "_ab": "Q0",
+ "_dc": "Q1",
+ "_def": "Q2",
+ "_jd": "Q3",
+ "_opt": "Q4",
+ "_ov": "Q5",
+ "_pa": "Q6",
+ "_pg": "Q7",
+ "_pgen": "Q8",
+ "_ps": "Q9",
+ "_pv": "Q10",
+ "_r1": "Q11",
+ "_sr": "Q12"
+}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+abstract class Base {
+  protected abstract _ab(): number;
+  abstract kab(): number;
+}
+export class Probe extends Base {
+  private static readonly _sr = 1;
+  private static readonly ksr = 1;
+  private _pv = 1;
+  private kpv = 1;
+  _def!: number;
+  kdef!: number;
+  _opt?: number;
+  kopt?: number;
+  declare _dc: number;
+  public override _ov = 1;
+  public override kov = 1;
+  protected _ab(): number { return 1; }
+  kab(): number { return 1; }
+  private async _pa(): Promise<void> {}
+  private async kpa(): Promise<void> {}
+  private get _pg(): number { return 1; }
+  private get kpg(): number { return 1; }
+  protected *_pgen(): Generator<number> { yield 1; }
+  protected *kpgen(): Generator<number> { yield 1; }
+  public static _ps(): void {}
+  public static kps(): void {}
+  readonly _r1 = 1; readonly kr1 = 2;
+  /** doc */
+  readonly _jd = 1;
+  /** doc */
+  readonly kjd = 1;
+  sum(): number {
+    return Probe._sr + Probe.ksr + this._pv + this.kpv + this._def + this.kdef + (this._opt ?? 0) + (this.kopt ?? 0)
+      + this._dc + this._ov + this.kov + this._ab() + this.kab() + this._pg + this.kpg + this._r1 + this.kr1 + this._jd + this.kjd;
+  }
+  m(): void { void this._pa(); void this.kpa(); this._pgen(); this.kpgen(); Probe._ps(); Probe.kps(); }
+}
+
+=== synth3
+--- build/property-names.json
+{ "_size": "k" }
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+class Store {
+  _size = 1;
+  'k' = 2;
+  read(): number {
+    return this._size * 10 + this['k'];
+  }
+}
+export function probe(): number {
+  return new Store().read();
+}
+
+=== synth4
+--- build/property-names.json
+{"_a":"Q0","_b":"Q1","_c":"Q2","_d":"Q3","_e":"Q4","_f":"Q5","_g":"Q6","_h":"Q7","_i":"Q8"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+/**
+ * astral 😀 𝒳 and a line separator here:<U+2028>after it, and a paragraph separator:<U+2029>after it
+ */
+export function f(o: { _a: string; _b: string; _c: number }): string {
+  return '😀😀😀' + o._a + '𝒳' + o._b + '<U+2028>' + o._c;
+}
+/** carriage return in a comment:
+ inside */
+export function g(o: { _d: number; _e: number }): number {
+  return o._d + /* 😀 */ o._e;
+}
+export const h = { _f: '😀', _g: `𝒳<U+2028>${1}` };
+export class K {
+  readonly _h = '😀';
+  _i = 1;
+}
+
+=== synth5
+--- build/property-names.json
+{"_alpha":"a","_beta":"b","_gamma":"c","_delta":"d","_epsilon":"e","_zeta":"z","_eta":"t"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number; _beta: number; _gamma: number; _delta: number }): string {
+  return `😀${o._alpha}<U+2028>${o._beta}𝒳${o._gamma}` + String(o._delta) + '😀';
+}
+export const h = { _epsilon: 1, keep: 2, _zeta: 3 };
+export function g(o: { _eta: number; keep: number }): number { return o._eta + o.keep; }
+
+=== synth5-astral-only
+--- build/property-names.json
+{"_alpha":"a","_beta":"b","_gamma":"c","_delta":"d","_epsilon":"e","_zeta":"z","_eta":"t"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number; _beta: number; _gamma: number; _delta: number }): string {
+  return `😀${o._alpha} ${o._beta}𝒳${o._gamma}` + String(o._delta) + '😀';
+}
+export const h = { _epsilon: 1, keep: 2, _zeta: 3 };
+export function g(o: { _eta: number; keep: number }): number { return o._eta + o.keep; }
+
+=== synth5-ls-string
+--- build/property-names.json
+{"_alpha":"a","_beta":"b","_gamma":"c","_delta":"d","_epsilon":"e","_zeta":"z","_eta":"t"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number; _beta: number; _gamma: number; _delta: number }): string {
+  const s = 'a<U+2028>b';
+  return `😀${o._alpha} ${o._beta}𝒳${o._gamma}` + String(o._delta) + '😀';
+}
+export const h = { _epsilon: 1, keep: 2, _zeta: 3 };
+export function g(o: { _eta: number; keep: number }): number { return o._eta + o.keep; }
+
+=== synth5-ls-comment
+--- build/property-names.json
+{"_alpha":"a","_beta":"b","_gamma":"c","_delta":"d","_epsilon":"e","_zeta":"z","_eta":"t"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number; _beta: number; _gamma: number; _delta: number }): string {
+  /* a<U+2028>b */
+  return `😀${o._alpha} ${o._beta}𝒳${o._gamma}` + String(o._delta) + '😀';
+}
+export const h = { _epsilon: 1, keep: 2, _zeta: 3 };
+export function g(o: { _eta: number; keep: number }): number { return o._eta + o.keep; }
+
+=== synth5-cr-comment
+--- build/property-names.json
+{"_alpha":"a","_beta":"b","_gamma":"c","_delta":"d","_epsilon":"e","_zeta":"z","_eta":"t"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number; _beta: number; _gamma: number; _delta: number }): string {
+  /* a
+b */
+  return `😀${o._alpha} ${o._beta}𝒳${o._gamma}` + String(o._delta) + '😀';
+}
+export const h = { _epsilon: 1, keep: 2, _zeta: 3 };
+export function g(o: { _eta: number; keep: number }): number { return o._eta + o.keep; }
+
+=== synth5-ls-template
+--- build/property-names.json
+{"_alpha":"a","_beta":"b","_gamma":"c","_delta":"d","_epsilon":"e","_zeta":"z","_eta":"t"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number; _beta: number; _gamma: number; _delta: number }): string {
+  return `😀${o._alpha}<U+2028>${o._beta}𝒳${o._gamma}` + String(o._delta) + '😀';
+}
+export const h = { _epsilon: 1, keep: 2, _zeta: 3 };
+export function g(o: { _eta: number; keep: number }): number { return o._eta + o.keep; }
+
+=== synth6
+--- build/property-names.json
+{"_alpha":"a"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export function f(o: { _alpha: number }, k: { keep: number; other: string }): string {
+  return String(o._alpha) + `x<U+2028>y${k.keep}` + k.other;
+}
+export function g(k: { keep: number }): number {
+  return k.keep * 2;
+}
+
+=== synth7
+--- build/property-names.json
+{"_x":"a","_y":"b"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export class C {
+  constructor(private readonly _w: number) {}
+  get value(): number {
+    return 1;
+  }
+}
+export function f(o: { _x?: number } | undefined, { _y: y }: { _y: number }): number {
+  return (o?._x ?? 0) + y + new C(1).value;
+}
+export const z = { get _z(): number { return 1; } };
+
+=== synth8
+--- build/property-names.json
+{"_a1":"kpp","_a2":"kget","_a3":"kstat","_a4":"kacc","_a5":"kro2","_a6":"kpriv","_a7":"kopt","_a8":"kpat","_a9":"q"}
+--- src/probe.ts (raw U+2028, U+2029 and CR written as <U+2028>, <U+2029>, <CR>)
+export class Kept {
+  constructor(public kpp: number) {}
+  private get kget(): number { return 1; }
+  static kstat(): number { return 1; }
+  accessor kacc = 1;
+  readonly kro = 1; readonly kro2 = 2;
+  /** doc */
+  private kpriv = 1;
+  use(): number { return this.kget + Kept.kstat() + this.kpriv; }
+}
+export function kfn(o?: { kopt: number }, { kpat: p }: { kpat: number } = { kpat: 1 }): number {
+  return (o?.kopt ?? 0) + p;
+}
+export class Renamed {
+  _a1 = 1; _a2 = 2; _a3 = 3; _a4 = 4; _a5 = 5; _a6 = 6; _a7 = 7; _a8 = 8; _a9 = 9;
+  sum(): number { return this._a1 + this._a2 + this._a3 + this._a4 + this._a5 + this._a6 + this._a7 + this._a8 + this._a9; }
+}

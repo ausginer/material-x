@@ -1,0 +1,9 @@
+@@ -75,7 +75,7 @@
+           outputColumn = 0;
+           i += 1;
+         } else {
+-          addSegment(map, line, outputColumn, chunk.fileName, line, column);
++          addSegment(map, line, outputColumn, chunk.fileName, line, column + 1);
+           output += code[i];
+           column += 1;
+           outputColumn += 1;

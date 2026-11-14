@@ -1,0 +1,23 @@
+vitest run -c vitest.config.ts 
+
+ RUN  v5.1.0 /workspaces/material-x/packages/box-quad
+
+8:04:44 AM [vite] (client) warning: 
+/workspaces/material-x/packages/box-quad/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/box-quad/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=118e802e
+
+ Test Files  7 passed (7)
+      Tests  242 passed (242)
+   Start at  08:04:43
+   Duration  1.86s (worker 77%, tests 14%, import 9%)
+

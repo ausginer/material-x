@@ -1,0 +1,2 @@
+throw new Error('G3: a tsdown configuration that throws while it loads');
+ M tsdown.config.ts

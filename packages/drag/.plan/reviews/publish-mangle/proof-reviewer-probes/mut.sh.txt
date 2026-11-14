@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# mut.sh <name> <file> <append-text> : copy the real publication, append text to file, run the test
+set -euo pipefail
+S=/tmp/claude-1000/-workspaces-material-x/e3c43916-0e3e-460e-a62c-bcc3f264cc84/scratchpad
+D=$S/mut/$1; rm -rf "$D"; mkdir -p "$S/mut"; cp -a "$S/real/pkg" "$D"
+printf '\n%s\n' "$3" >> "$D/$2"
+echo "== $1 ($2 += $3)"; (cd "$D" && node tests/run.ts) | grep -v '^PASS' | sed 's/^/  /' || true
+echo "  (others PASS)"

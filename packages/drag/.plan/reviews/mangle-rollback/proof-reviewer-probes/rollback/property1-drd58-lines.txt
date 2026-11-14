@@ -1,0 +1,37 @@
+## _name parameters at f7b7b300b^
+f7b7b300b^:packages/drag/tests/coordinates.browser.test.ts:89:    async (_name, css) => {
+f7b7b300b^:packages/drag/tests/coordinates.browser.test.ts:146:    async (_name, css) => {
+f7b7b300b^:packages/drag/tests/coordinates.browser.test.ts:284:    async (_name, css) => {
+f7b7b300b^:packages/drag/tests/landing.browser.test.ts:162:  ])('should stay above %s for the whole flight', async (_name, css) => {
+f7b7b300b^:packages/drag/tests/sortable.browser.test.ts:585:    async (_name, act) => {
+
+## package.json f7b7b300b^ -> b8e37b37c
+diff --git a/packages/drag/package.json b/packages/drag/package.json
+index 0b834573a..956197569 100644
+--- a/packages/drag/package.json
++++ b/packages/drag/package.json
+@@ -98,8 +98,8 @@
+     "@ydinjs/box-quad": "0.1.0"
+   },
+   "devDependencies": {
+-    "@types/react": "19.2.17",
+-    "@types/react-dom": "19.2.3",
++    "@types/react": "19.3.0",
++    "@types/react-dom": "19.3.0",
+     "react": "19.3.1",
+     "react-dom": "19.3.1",
+     "type-fest": "5.10.0"
+## 5ec3b4b2d files
+ packages/drag/src/sortable/axis.ts                 |  2 +-
+ packages/drag/src/sortable/layout-animation.ts     |  2 +-
+ packages/drag/src/sortable/linear-shift.ts         |  4 +-
+ packages/drag/src/sortable/rect-index.ts           | 66 +++++++++-------------
+ .../drag/tests/displacement-sink.browser.test.ts   | 21 ++++---
+ 5 files changed, 41 insertions(+), 54 deletions(-)
+
+## changed-line comparison: (f7b7b300b^..b8e37b37c) vs (5ec3b4b2d^..5ec3b4b2d read without markers)
+src/sortable/axis.ts: equal (2 lines)
+src/sortable/layout-animation.ts: equal (2 lines)
+src/sortable/linear-shift.ts: equal (4 lines)
+src/sortable/rect-index.ts: equal (66 lines)
+tests/displacement-sink.browser.test.ts: equal (21 lines)

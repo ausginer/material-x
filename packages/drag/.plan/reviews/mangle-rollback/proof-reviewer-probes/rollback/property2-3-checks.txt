@@ -1,0 +1,46 @@
+## config blobs: f7b7b300b / b8e37b37c
+tsdown.config.ts 0c81e0f32cfbd4734069cab2fc954f87ad19e670 0c81e0f32cfbd4734069cab2fc954f87ad19e670
+tsconfig.json 745c8a8e0645c47a1ae2d15378f66cd3beff5b50 745c8a8e0645c47a1ae2d15378f66cd3beff5b50
+## build/ at b8e37b37c
+(entries: 0)
+## build/ at 7420cbb9a
+packages/drag/build/generate-property-names.ts
+packages/drag/build/property-names.json
+packages/drag/build/property-names.ts
+packages/drag/build/rename-properties.ts
+## property 3: name-status 7420cbb9a..b8e37b37c, all paths outside .plan
+M	packages/drag/bench/compare.ts
+D	packages/drag/build/generate-property-names.ts
+D	packages/drag/build/property-names.json
+D	packages/drag/build/property-names.ts
+D	packages/drag/build/rename-properties.ts
+M	packages/drag/src/free-drag.ts
+M	packages/drag/src/free-drag/behavior.ts
+M	packages/drag/src/free-drag/bounds.ts
+M	packages/drag/src/free-drag/drop-targets.ts
+M	packages/drag/src/free-drag/operation.ts
+M	packages/drag/src/kernel/callbacks.ts
+M	packages/drag/src/kernel/drag.ts
+M	packages/drag/src/kernel/gesture.ts
+M	packages/drag/src/kernel/session.ts
+M	packages/drag/src/lift.ts
+M	packages/drag/src/shared/invalidation.ts
+M	packages/drag/src/sortable.ts
+M	packages/drag/src/sortable/behavior.ts
+M	packages/drag/src/sortable/layout-animation.ts
+M	packages/drag/src/sortable/linear-shift.ts
+M	packages/drag/src/sortable/operation.ts
+M	packages/drag/src/sortable/rect-index.ts
+M	packages/drag/src/sortable/xy.ts
+M	packages/drag/src/sortable/y.ts
+M	packages/drag/tests/authoring.declaration.test.ts
+M	packages/drag/tests/callback-list.browser.test.ts
+D	packages/drag/tests/publication.node.test.ts
+M	packages/drag/tsconfig.json
+M	packages/drag/tsdown.config.ts
+## removed test files
+D	packages/drag/tests/publication.node.test.ts
+## protected paths
+(empty above = unchanged)
+packages/drag/vitest.config.ts
+packages/drag/vitest.engines.config.ts

@@ -1,0 +1,13 @@
+import { minifySync } from 'rolldown/utils';
+const include = /^_[A-Za-z]/;
+const run = (label: string, code: string, cache: Record<string, string | false> = {}, extra = {}) => {
+  const r = minifySync('m.js', code, { module: true, compress: false, mangle: false, codegen: { removeWhitespace: true }, mangleProps: { include, cache, ...extra }, sourcemap: false });
+  console.log(`--- ${label}\n${r.code.trim()}\n    cache out: ${JSON.stringify(r.mangleCache)}${r.errors.length ? '\n    errors: ' + r.errors.map((e: any) => e.message).join('; ') : ''}`);
+};
+run('shorthand key and destructuring', 'export function f(_a, o){ const { _b } = o; return { _a, _b }; }');
+run('quoted key, in, bracket (quoted:false)', `export class C { _size = 1; ['_size2'] = 2; } export const t = (o) => '_size' in o || o['_size'];`);
+run('same, quoted:true', `export class C { _size = 1; } export const t = (o) => '_size' in o || o['_size'];`, {}, { quoted: true });
+run('auto names avoid kept props and strings?', `export const o = { a: 1, b: 2, c: 3, e: 4 }; export const s = "d"; export class K { _p = 1; _q = 2; _r = 3; }`);
+run('cache target equal to a kept prop in this chunk', `export const o = { k: 1 }; export class K { _size = 2; get v() { return this._size + o.k; } }`, { _size: 'k' });
+run('private and static', 'export class K { #x = 1; static _s = 2; _m() { return this.#x + K._s; } }');
+run('template and Object.keys', 'export const f = (o) => [o[`_tpl`], Object.keys({ _k: 1 })];');

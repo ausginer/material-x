@@ -1,0 +1,199 @@
+/**
+ * The RectIndex access timing check (DRD-61 property 11, the handoff's item 7): one
+ * Chromium process, one page, three arms per case, 7 rounds in rotated order,
+ * judged by compare.ts's paired rule as DRD-50 property 2's probe judged it.
+ *
+ * usage: node runner.ts <output directory>
+ *
+ * Case C stops before timing when any arm reads a rect during one operation.
+ */
+import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+import { writeFile } from 'node:fs/promises';
+import { cpus, loadavg } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const WORKTREE = '/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership';
+const PACKAGE = `${WORKTREE}/packages/drag/package.json`;
+const BOX_QUAD = `${WORKTREE}/packages/box-quad/src/index.ts`;
+const here = dirname(fileURLToPath(import.meta.url));
+const require = createRequire(PACKAGE);
+const { rolldown } = (await import(
+  pathToFileURL(require.resolve('rolldown')).href
+)) as typeof import('rolldown');
+// CommonJS: the namespace's `default` is the module's exports.
+const { chromium } = (
+  (await import(pathToFileURL(require.resolve('playwright')).href)) as {
+    default: typeof import('playwright');
+  }
+).default;
+
+const ROUNDS = 7;
+const ARMS = ['before', 'production', 'control'] as const;
+const CASES = [
+  { name: 'A', label: "A: xy() rebuild, no sink" },
+  { name: 'B', label: "B: xy() rebuild, layoutAnimation(), nothing in flight" },
+  { name: 'C', label: "C: y() scan of a grown window, no sink" },
+] as const;
+/** A batch lasts at least this long; calibration aims at three times it. */
+const MINIMUM_BATCH_MS = 100;
+
+const median = (values: readonly number[]): number => {
+  const sorted = values.toSorted((x, y) => x - y);
+  const middle = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2 === 1
+    ? sorted[middle]!
+    : (sorted[middle - 1]! + sorted[middle]!) / 2;
+};
+
+/** compare.ts's `pairedVerdict` rule, with `timingSigns(7)` = 6, unrounded. */
+function verdict(differences: readonly number[], aa: readonly number[]) {
+  const required = Math.ceil((differences.length * 6) / 7);
+  const higher = differences.filter((value) => value > 0).length;
+  const lower = differences.filter((value) => value < 0).length;
+  const middle = median(differences);
+  const bound = Math.max(...aa.map((value) => Math.abs(value)));
+  const label =
+    higher >= required && middle > bound
+      ? 'slower'
+      : lower >= required && -middle > bound
+        ? 'faster'
+        : 'no difference shown';
+
+  return { label, higher, lower, required, median: middle, bound };
+}
+
+function machine(): string {
+  const affinity = execFileSync('taskset', ['-p', String(process.pid)], { encoding: 'utf8' }).trim();
+  const uptime = execFileSync('uptime', { encoding: 'utf8' }).trim();
+
+  return `nproc ${cpus().length}, node ${process.version}, cpu ${cpus()[0]!.model}, cpu_core 0-3, cpu_atom 4-11, affinity: ${affinity} (not pinned), uptime: ${uptime}, loadavg ${loadavg().map((value) => value.toFixed(2)).join(', ')}`;
+}
+
+const output = process.argv[2]!;
+
+console.log(`# before: ${machine()}`);
+
+const built = await rolldown({
+  input: join(here, 'page.ts'),
+  platform: 'browser',
+  resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+  transform: { define: { __DEV__: 'false' } },
+});
+const { output: chunks } = await built.generate({ format: 'iife' });
+const code = chunks[0].code;
+
+await built.close();
+await writeFile(join(output, 'bundle.js.txt'), code);
+
+if (process.argv[3] === '--bundle-only') {
+  console.log(`bundled ${code.length} characters; no browser launched`);
+  process.exit(0);
+}
+
+const browser = await chromium.launch({
+  executablePath: process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome',
+});
+const result: Record<string, unknown> = {
+  browser: browser.version(),
+  rounds: ROUNDS,
+};
+
+try {
+  const page = await browser.newPage();
+
+  await page.setContent('<!doctype html><html><body style="margin:0"></body></html>');
+  await page.addScriptTag({ content: code });
+
+  const layout = await page.evaluate(() => (globalThis as any).probe.setup());
+
+  // Two frames, so the page has rendered the laid-out surfaces before any timing.
+  await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      }),
+  );
+  result['layout'] = layout;
+  console.log(`surfaces: ${JSON.stringify(layout)}, ${browser.version()}`);
+
+  const cases: Record<string, unknown>[] = [];
+
+  for (const { name, label } of CASES) {
+    const check: Record<string, { reads: number; result: number | null }> = await page.evaluate(
+      (each) => (globalThis as any).probe.prepare(each),
+      name,
+    );
+
+    console.log(`${label}: one operation per arm before timing: ${JSON.stringify(check)}`);
+
+    if (name === 'C' && Object.values(check).some(({ reads }) => reads !== 0)) {
+      console.log('case C: an arm read a rect during one operation; stopped before timing');
+      result['stoppedAt'] = 'C';
+      process.exitCode = 2;
+      break;
+    }
+
+    const size: number = await page.evaluate(
+      (ms) => (globalThis as any).probe.calibrate(ms),
+      MINIMUM_BATCH_MS * 3,
+    );
+    const rounds: Record<string, { us: number; ms: number }>[] = [];
+
+    for (let r = 0; r < ROUNDS; r += 1) {
+      const order = ARMS.map((_, i) => ARMS[(i + r) % ARMS.length]!);
+      const readings = await page.evaluate(
+        ([o, s]) => (globalThis as any).probe.round(o, s),
+        [order, size] as const,
+      );
+
+      rounds.push(readings);
+      console.log(
+        `${name} round ${r + 1} order ${order.join(',')}: ${ARMS.map((arm) => `${arm} ${readings[arm]!.us.toFixed(3)} µs (${readings[arm]!.ms.toFixed(1)} ms)`).join(', ')}`,
+      );
+    }
+
+    const of = (arm: string): number[] => rounds.map((round) => round[arm]!.us);
+    const differences = of('production').map((value, i) => value - of('before')[i]!);
+    const aa = of('control').map((value, i) => value - of('production')[i]!);
+    const judged = verdict(differences, aa);
+    const shortest = Math.min(...rounds.flatMap((round) => ARMS.map((arm) => round[arm]!.ms)));
+    const beforeMedian = median(of('before'));
+
+    cases.push({
+      name,
+      label,
+      check,
+      batchSize: size,
+      warmUp: `one discarded batch of ${size} operations per arm per round`,
+      shortestTimedBatchMs: shortest,
+      everyTimedBatchAtLeastMinimum: shortest >= MINIMUM_BATCH_MS,
+      rounds,
+      differences,
+      aa,
+      beforeMedianUs: beforeMedian,
+      productionMedianUs: median(of('production')),
+      controlMedianUs: median(of('control')),
+      verdict: judged,
+      medianShareOfBefore: judged.median / beforeMedian,
+      boundShareOfBefore: judged.bound / beforeMedian,
+    });
+    console.log(
+      `${label}: ${judged.label}: higher in ${judged.higher} of ${ROUNDS}, lower in ${judged.lower}, median ${judged.median.toFixed(3)} µs (${((judged.median / beforeMedian) * 100).toFixed(1)} % of before), A/A bound ${judged.bound.toFixed(3)} µs (${((judged.bound / beforeMedian) * 100).toFixed(1)} % of before), before median ${beforeMedian.toFixed(3)} µs, batch ${size} operations, shortest timed batch ${shortest.toFixed(1)} ms`,
+    );
+  }
+
+  result['cases'] = cases;
+
+  if (cases.some((each) => !each['everyTimedBatchAtLeastMinimum'])) {
+    console.log(`a timed batch lasted less than ${MINIMUM_BATCH_MS} ms`);
+    process.exitCode = 1;
+  }
+} finally {
+  await browser.close();
+}
+
+await writeFile(join(output, 'probe.json'), `${JSON.stringify(result, null, 2)}\n`);
+console.log(`# after: ${machine()}`);

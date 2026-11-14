@@ -1,0 +1,120 @@
+node ../../.scripts/package-files.ts clean --package .
+Removing draggable.d.ts
+Removing draggable.js
+Removing draggable.js.map
+Removing fault.d.ts
+Removing fault.js
+Removing fault.js.map
+Removing free-drag.d.ts
+Removing free-drag.js
+Removing free-drag.js.map
+Removing free-drag/
+Removing kernel/
+Removing lift.d.ts
+Removing lift.js
+Removing lift.js.map
+Removing lift/
+Removing shared/
+Removing sortable.d.ts
+Removing sortable.js
+Removing sortable.js.map
+Removing sortable/
+tsdown --config tsdown.config.ts
+ℹ tsdown v0.23.2 powered by rolldown v1.2.15
+ℹ config file: /workspaces/material-x/packages/drag/tsdown.config.ts 
+ℹ entry: src/draggable.ts, src/lift.ts, src/lift/landing.ts, src/fault.ts, src/sortable.ts, src/sortable/y.ts, src/sortable/xy.ts, src/sortable/landing.ts, src/sortable/layout-animation.ts, src/free-drag.ts, src/free-drag/bounds.ts, src/free-drag/drop-targets.ts, src/free-drag/landing.ts
+ℹ target: esnext
+ℹ tsconfig: tsconfig.json
+ℹ Build start
+ℹ /lift.js                            7.63 kB │ gzip: 2.80 kB
+ℹ /sortable/layout-animation.js       3.64 kB │ gzip: 1.57 kB
+ℹ /sortable/xy.js                     3.14 kB │ gzip: 1.21 kB
+ℹ /sortable/y.js                      1.77 kB │ gzip: 0.79 kB
+ℹ /free-drag/drop-targets.js          1.74 kB │ gzip: 0.84 kB
+ℹ /free-drag/bounds.js                1.24 kB │ gzip: 0.56 kB
+ℹ /draggable.js                       1.18 kB │ gzip: 0.64 kB
+ℹ /sortable.js                        1.08 kB │ gzip: 0.51 kB
+ℹ /free-drag.js                       1.05 kB │ gzip: 0.51 kB
+ℹ /fault.js                           0.70 kB │ gzip: 0.43 kB
+ℹ /free-drag/landing.js               0.05 kB │ gzip: 0.06 kB
+ℹ /lift/landing.js                    0.05 kB │ gzip: 0.06 kB
+ℹ /sortable/landing.js                0.05 kB │ gzip: 0.06 kB
+ℹ /kernel/session.js.map             24.40 kB │ gzip: 7.33 kB
+ℹ /kernel/gesture.js.map             16.06 kB │ gzip: 5.13 kB
+ℹ /lift.js.map                       15.94 kB │ gzip: 5.31 kB
+ℹ /sortable/rect-index.js.map        15.14 kB │ gzip: 5.25 kB
+ℹ /kernel/session.js                 12.13 kB │ gzip: 3.91 kB
+ℹ /sortable/linear-shift.js.map      11.59 kB │ gzip: 4.04 kB
+ℹ /sortable/behavior.js.map          11.53 kB │ gzip: 3.96 kB
+ℹ /sortable/operation.js.map         10.65 kB │ gzip: 3.21 kB
+ℹ /free-drag/operation.js.map         7.56 kB │ gzip: 2.47 kB
+ℹ /sortable/xy.js.map                 7.52 kB │ gzip: 2.65 kB
+ℹ /sortable/layout-animation.js.map   7.41 kB │ gzip: 2.85 kB
+ℹ /sortable/rect-index.js             6.34 kB │ gzip: 2.50 kB
+ℹ /kernel/gesture.js                  6.32 kB │ gzip: 2.37 kB
+ℹ /sortable/operation.js              5.43 kB │ gzip: 1.80 kB
+ℹ /free-drag/behavior.js.map          5.33 kB │ gzip: 2.05 kB
+ℹ /free-drag/drop-targets.js.map      5.26 kB │ gzip: 2.12 kB
+ℹ /shared/landing.js.map              5.09 kB │ gzip: 2.08 kB
+ℹ /sortable/y.js.map                  5.02 kB │ gzip: 1.98 kB
+ℹ /sortable/behavior.js               4.43 kB │ gzip: 1.66 kB
+ℹ /kernel/drag.js.map                 4.38 kB │ gzip: 1.65 kB
+ℹ /free-drag/domain.js.map            4.21 kB │ gzip: 1.58 kB
+ℹ /kernel/callbacks.js.map            3.84 kB │ gzip: 1.52 kB
+ℹ /sortable/placement.js.map          3.77 kB │ gzip: 1.58 kB
+ℹ /free-drag/geometry.js.map          3.71 kB │ gzip: 1.36 kB
+ℹ /free-drag/operation.js             3.69 kB │ gzip: 1.33 kB
+ℹ /sortable/linear-shift.js           3.60 kB │ gzip: 1.37 kB
+ℹ /sortable/domain.js.map             3.48 kB │ gzip: 1.42 kB
+ℹ /free-drag/bounds.js.map            3.45 kB │ gzip: 1.44 kB
+ℹ /sortable/collection.js.map         3.37 kB │ gzip: 1.33 kB
+ℹ /free-drag.js.map                   2.65 kB │ gzip: 1.10 kB
+ℹ /sortable.js.map                    2.62 kB │ gzip: 1.06 kB
+ℹ /sortable/keyboard.js.map           2.33 kB │ gzip: 1.06 kB
+ℹ /kernel/callbacks.js                2.20 kB │ gzip: 0.98 kB
+ℹ /shared/landing.js                  2.09 kB │ gzip: 1.01 kB
+ℹ /draggable.js.map                   2.08 kB │ gzip: 0.94 kB
+ℹ /free-drag/geometry.js              2.02 kB │ gzip: 0.85 kB
+ℹ /sortable/collection.js             2.00 kB │ gzip: 0.89 kB
+ℹ /free-drag/behavior.js              1.96 kB │ gzip: 0.87 kB
+ℹ /sortable/placement.js              1.85 kB │ gzip: 0.80 kB
+ℹ /shared/invalidation.js.map         1.49 kB │ gzip: 0.69 kB
+ℹ /sortable/keyboard.js               1.15 kB │ gzip: 0.57 kB
+ℹ /fault.js.map                       1.07 kB │ gzip: 0.63 kB
+ℹ /shared/invalidation.js             0.79 kB │ gzip: 0.40 kB
+ℹ /kernel/drag.js                     0.75 kB │ gzip: 0.36 kB
+ℹ /sortable/domain.js                 0.62 kB │ gzip: 0.37 kB
+ℹ /shared/focus.js.map                0.51 kB │ gzip: 0.33 kB
+ℹ /shared/focus.js                    0.32 kB │ gzip: 0.21 kB
+ℹ /shared/timing.js.map               0.29 kB │ gzip: 0.23 kB
+ℹ /free-drag/domain.js                0.29 kB │ gzip: 0.22 kB
+ℹ /shared/timing.js                   0.13 kB │ gzip: 0.13 kB
+ℹ /lift.d.ts                          2.34 kB │ gzip: 1.06 kB
+ℹ /free-drag/drop-targets.d.ts        2.04 kB │ gzip: 0.94 kB
+ℹ /draggable.d.ts                     1.82 kB │ gzip: 0.81 kB
+ℹ /free-drag.d.ts                     1.16 kB │ gzip: 0.53 kB
+ℹ /sortable.d.ts                      1.10 kB │ gzip: 0.47 kB
+ℹ /free-drag/bounds.d.ts              0.87 kB │ gzip: 0.50 kB
+ℹ /sortable/y.d.ts                    0.54 kB │ gzip: 0.35 kB
+ℹ /sortable/layout-animation.d.ts     0.47 kB │ gzip: 0.30 kB
+ℹ /fault.d.ts                         0.37 kB │ gzip: 0.27 kB
+ℹ /free-drag/landing.d.ts             0.18 kB │ gzip: 0.11 kB
+ℹ /lift/landing.d.ts                  0.18 kB │ gzip: 0.11 kB
+ℹ /sortable/landing.d.ts              0.18 kB │ gzip: 0.11 kB
+ℹ /sortable/xy.d.ts                   0.17 kB │ gzip: 0.16 kB
+ℹ /free-drag/domain.d.ts              3.28 kB │ gzip: 1.19 kB
+ℹ /sortable/axis.d.ts                 2.75 kB │ gzip: 1.19 kB
+ℹ /kernel/drag.d.ts                   2.69 kB │ gzip: 1.10 kB
+ℹ /sortable/domain.d.ts               2.23 kB │ gzip: 0.88 kB
+ℹ /kernel/behavior.d.ts               2.15 kB │ gzip: 0.98 kB
+ℹ /sortable/behavior.d.ts             2.04 kB │ gzip: 0.92 kB
+ℹ /shared/landing.d.ts                2.02 kB │ gzip: 0.93 kB
+ℹ /kernel/gesture.d.ts                1.52 kB │ gzip: 0.65 kB
+ℹ /free-drag/behavior.d.ts            1.24 kB │ gzip: 0.61 kB
+ℹ /kernel/outcome.d.ts                0.62 kB │ gzip: 0.32 kB
+ℹ /sortable/placement.d.ts            0.51 kB │ gzip: 0.31 kB
+ℹ /kernel/admission.d.ts              0.40 kB │ gzip: 0.28 kB
+ℹ /sortable/operation.d.ts            0.06 kB │ gzip: 0.06 kB
+ℹ /free-drag/operation.d.ts           0.04 kB │ gzip: 0.05 kB
+ℹ 90 files, total: 306.17 kB
+✔ Build complete in 301ms

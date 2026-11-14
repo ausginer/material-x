@@ -1,0 +1,7 @@
+// Prints every size composition's module list, from the package's current build.
+import { COMPOSITIONS, measure } from '/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/bench/size/measure.ts';
+for (const composition of COMPOSITIONS) {
+  const m = await measure(composition);
+  console.log(`${composition.name}: ${m.brotli} br, ${m.modules.length} modules`);
+  for (const module of m.modules) console.log(`  ${module}`);
+}

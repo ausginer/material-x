@@ -22,7 +22,7 @@
     "typecheck": "just typecheck"
   },
   "devDependencies": {
-    "size-limit": "12.1.0",
+    "size-limit": "14.3.0",
     "size-limit-preset-rolldown": "0.1.0"
   }
 }

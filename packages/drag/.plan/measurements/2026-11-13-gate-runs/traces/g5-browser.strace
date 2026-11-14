@@ -1,0 +1,259 @@
+415447 01:25:40.329780 execve("/usr/local/bin/npx", ["npx", "vitest", "run", "-c", "vitest.config.ts", "--project", "browser"], 0x7ffcdcaf14d8 /* 47 vars */) = 0
+415447 01:25:40.330831 execve("/usr/local/bin/node", ["node", "/usr/local/bin/npx", "vitest", "run", "-c", "vitest.config.ts", "--project", "browser"], 0x7ffdddec9538 /* 47 vars */) = 0
+415459 01:25:40.573888 execve("/usr/bin/sh", ["sh", "-c", "'vitest' run -c vitest.config.ts"...], 0xebddf60 /* 73 vars */) = 0
+415460 01:25:40.574778 execve("/workspaces/material-x/node_modules/.bin/vitest", ["vitest", "run", "-c", "vitest.config.ts", "--project", "browser"], 0x55e7a9da2468 /* 73 vars */) = 0
+415460 01:25:40.576027 execve("/usr/local/bin/node", ["node", "/workspaces/material-x/node_modu"..., "run", "-c", "vitest.config.ts", "--project", "browser"], 0x7ffe3e606110 /* 73 vars */) = 0
+415549 01:25:41.060501 execve("/usr/local/bin/chrome", ["/usr/local/bin/chrome", "--disable-field-trial-config", "--disable-background-networking", "--disable-background-timer-throt"..., "--disable-backgrounding-occluded"..., "--disable-back-forward-cache", "--disable-breakpad", "--disable-client-side-phishing-d"..., "--disable-component-extensions-w"..., "--disable-component-update", "--no-default-browser-check", "--disable-default-apps", "--disable-dev-shm-usage", "--disable-edgeupdater", "--disable-extensions", "--disable-features=AvoidUnnecess"..., "--enable-features=CDPScreenshotN"..., "--allow-pre-commit-input", "--disable-hang-monitor", "--disable-ipc-flooding-protectio"..., "--disable-popup-blocking", "--disable-prompt-on-repost", "--disable-renderer-backgrounding", "--disable-updater-scheduler", "--force-color-profile=srgb", "--metrics-recording-only", "--no-first-run", "--password-store=basic", "--use-mock-keychain", "--no-service-autorun", "--export-tagged-pdf", "--disable-search-engine-choice-s"..., ...], 0xc221ab0 /* 77 vars */) = 0
+415552 01:25:41.084509 execve("/opt/chrome/chrome_crashpad_handler", ["/opt/chrome/chrome_crashpad_hand"..., "--monitor-self", "--monitor-self-annotation=ptype="..., "--user-stream-region=6,65568", "--database=/home/node/.config/go"..., "--annotation=lsb-release=Debian "..., "--annotation=plat=Linux", "--annotation=prod=Chrome_Linux", "--annotation=ver=157.0.8103.38", "--initial-client-fd=9", "--shared-client-connection"], 0x2320000cc000 /* 78 vars */) = 0
+415549 01:25:41.085377 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415551, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415554 01:25:41.085995 execve("/opt/chrome/chrome_crashpad_handler", ["/opt/chrome/chrome_crashpad_hand"..., "--no-periodic-tasks", "--monitor-self-annotation=ptype="..., "--database=/home/node/.config/go"..., "--annotation=lsb-release=Debian "..., "--annotation=plat=Linux", "--annotation=prod=Chrome_Linux", "--annotation=ver=157.0.8103.38", "--initial-client-fd=4", "--shared-client-connection"], 0x7fff02542678 /* 78 vars */) = 0
+415552 01:25:41.086233 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415553, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415557 01:25:41.090293 execve("/opt/chrome/chrome", ["/opt/chrome/chrome", "--type=zygote", "--no-zygote-sandbox", "--no-sandbox", "--headless", "--crashpad-handler-pid=415552", "--enable-crash-reporter=,", "--noerrdialogs", "--user-data-dir=/tmp/playwright_"..., "--change-stack-guard-on-fork=ena"...], 0x2320000cc000 /* 79 vars */) = 0
+415558 01:25:41.090700 execve("/opt/chrome/chrome", ["/opt/chrome/chrome", "--type=zygote", "--no-sandbox", "--headless", "--crashpad-handler-pid=415552", "--enable-crash-reporter=,", "--noerrdialogs", "--user-data-dir=/tmp/playwright_"..., "--change-stack-guard-on-fork=ena"...], 0x2320000cc000 /* 79 vars */) = 0
+415587 01:25:41.116823 execve("/proc/self/exe", ["/proc/self/exe", "--type=utility", "--utility-sub-type=network.mojom"..., "--lang=en-US", "--service-sandbox-type=none", "--no-sandbox", "--disable-dev-shm-usage", "--use-angle=swiftshader-webgl", "--mute-audio", "--crashpad-handler-pid=415552", "--enable-crash-reporter=,", "--noerrdialogs", "--user-data-dir=/tmp/playwright_"..., "--change-stack-guard-on-fork=ena"..., "--shared-files=v8_context_snapsh"..., "--field-trial-handle=3,i,1514371"..., "--enable-features=CDPScreenshotN"..., "--disable-features=AimEnabled,Au"..., "--variations-seed-version", "--pseudonymization-salt-handle=7"..., "--trace-process-track-uuid=31907"...], 0x2320000cc000 /* 79 vars */) = 0
+415558 01:25:41.216485 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415651, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415558 01:25:41.294354 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415674, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415722 01:25:41.315547 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+415723 01:25:41.316740 +++ killed by SIGTERM +++
+415722 01:25:41.316780 +++ killed by SIGTERM +++
+415558 01:25:41.316801 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415722, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+415558 01:25:41.569940 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415724, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415766 01:25:41.578241 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+415767 01:25:41.579361 +++ killed by SIGTERM +++
+415766 01:25:41.579375 +++ killed by SIGTERM +++
+415558 01:25:41.579397 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415766, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+415558 01:25:41.599714 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415768, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415777 01:25:41.604002 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+415777 01:25:41.605040 +++ killed by SIGTERM +++
+415558 01:25:41.605057 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415777, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+415558 01:25:57.390144 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415778, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=0} ---
+415558 01:26:00.714055 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416047, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415558 01:26:01.188129 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416061, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415558 01:26:04.261000 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416073, si_uid=1000, si_status=0, si_utime=0, si_stime=2 /* 0.02 s */} ---
+415558 01:26:04.325728 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416087, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415558 01:26:07.278119 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416098, si_uid=1000, si_status=0, si_utime=0, si_stime=1 /* 0.01 s */} ---
+416115 01:26:07.303563 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416123 01:26:07.303697 +++ killed by SIGTERM +++
+416121 01:26:07.303712 +++ killed by SIGTERM +++
+416120 01:26:07.303724 +++ killed by SIGTERM +++
+416119 01:26:07.303731 +++ killed by SIGTERM +++
+416118 01:26:07.303738 +++ killed by SIGTERM +++
+416117 01:26:07.303744 +++ killed by SIGTERM +++
+416116 01:26:07.303781 +++ killed by SIGTERM +++
+416122 01:26:07.305063 +++ killed by SIGTERM +++
+416115 01:26:07.305084 +++ killed by SIGTERM +++
+415558 01:26:07.305098 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416115, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=1 /* 0.01 s */} ---
+416124 01:26:10.218058 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416131 01:26:10.218237 +++ killed by SIGTERM +++
+416133 01:26:10.218245 +++ killed by SIGTERM +++
+416132 01:26:10.218249 +++ killed by SIGTERM +++
+416130 01:26:10.218252 +++ killed by SIGTERM +++
+416129 01:26:10.218255 +++ killed by SIGTERM +++
+416128 01:26:10.218258 +++ killed by SIGTERM +++
+416127 01:26:10.218261 +++ killed by SIGTERM +++
+416126 01:26:10.218270 +++ killed by SIGTERM +++
+416125 01:26:10.218280 +++ killed by SIGTERM +++
+416134 01:26:10.220836 +++ killed by SIGTERM +++
+416124 01:26:10.220852 +++ killed by SIGTERM +++
+415558 01:26:10.220858 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416124, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+416138 01:26:12.941925 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416143 01:26:12.942136 +++ killed by SIGTERM +++
+416148 01:26:12.942160 +++ killed by SIGTERM +++
+416142 01:26:12.942169 +++ killed by SIGTERM +++
+416141 01:26:12.942176 +++ killed by SIGTERM +++
+416140 01:26:12.942183 +++ killed by SIGTERM +++
+416139 01:26:12.942190 +++ killed by SIGTERM +++
+416147 01:26:12.942241 +++ killed by SIGTERM +++
+416146 01:26:12.942251 +++ killed by SIGTERM +++
+416145 01:26:12.942258 +++ killed by SIGTERM +++
+416144 01:26:12.944934 +++ killed by SIGTERM +++
+416138 01:26:12.944974 +++ killed by SIGTERM +++
+415558 01:26:12.944985 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416138, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=1 /* 0.01 s */} ---
+416154 01:26:15.375694 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416164 01:26:15.375872 +++ killed by SIGTERM +++
+416163 01:26:15.375884 +++ killed by SIGTERM +++
+416162 01:26:15.375887 +++ killed by SIGTERM +++
+416161 01:26:15.375890 +++ killed by SIGTERM +++
+416160 01:26:15.375893 +++ killed by SIGTERM +++
+416159 01:26:15.375896 +++ killed by SIGTERM +++
+416158 01:26:15.375899 +++ killed by SIGTERM +++
+416157 01:26:15.375902 +++ killed by SIGTERM +++
+416156 01:26:15.375905 +++ killed by SIGTERM +++
+416155 01:26:15.375908 +++ killed by SIGTERM +++
+416154 01:26:15.378154 +++ killed by SIGTERM +++
+415558 01:26:15.378168 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416154, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+416177 01:26:17.577243 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416187 01:26:17.577418 +++ killed by SIGTERM +++
+416186 01:26:17.577433 +++ killed by SIGTERM +++
+416185 01:26:17.577440 +++ killed by SIGTERM +++
+416184 01:26:17.577447 +++ killed by SIGTERM +++
+416183 01:26:17.577453 +++ killed by SIGTERM +++
+416182 01:26:17.577459 +++ killed by SIGTERM +++
+416181 01:26:17.577465 +++ killed by SIGTERM +++
+416180 01:26:17.577471 +++ killed by SIGTERM +++
+416179 01:26:17.577477 +++ killed by SIGTERM +++
+416178 01:26:17.577483 +++ killed by SIGTERM +++
+416177 01:26:17.578917 +++ killed by SIGTERM +++
+415558 01:26:17.578943 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416177, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=0} ---
+415558 01:26:19.082595 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416193, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415558 01:26:19.306175 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416205, si_uid=1000, si_status=0, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415558 01:26:20.599920 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416217, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+415558 01:26:21.401943 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=416229, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+416241 01:26:21.487728 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416251 01:26:21.487899 +++ killed by SIGTERM +++
+416250 01:26:21.487908 +++ killed by SIGTERM +++
+416249 01:26:21.487912 +++ killed by SIGTERM +++
+416248 01:26:21.487915 +++ killed by SIGTERM +++
+416247 01:26:21.487918 +++ killed by SIGTERM +++
+416246 01:26:21.487921 +++ killed by SIGTERM +++
+416245 01:26:21.487924 +++ killed by SIGTERM +++
+416244 01:26:21.487927 +++ killed by SIGTERM +++
+416243 01:26:21.487930 +++ killed by SIGTERM +++
+416242 01:26:21.487933 +++ killed by SIGTERM +++
+416241 01:26:21.489994 +++ killed by SIGTERM +++
+415558 01:26:21.490015 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416241, si_uid=1000, si_status=SIGTERM, si_utime=1 /* 0.01 s */, si_stime=1 /* 0.01 s */} ---
+415649 01:26:22.195081 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416150 01:26:22.195384 +++ killed by SIGTERM +++
+415710 01:26:22.195402 +++ killed by SIGTERM +++
+415709 01:26:22.195410 +++ killed by SIGTERM +++
+415708 01:26:22.195416 +++ killed by SIGTERM +++
+415705 01:26:22.195423 +++ killed by SIGTERM +++
+415704 01:26:22.195429 +++ killed by SIGTERM +++
+415703 01:26:22.195435 +++ killed by SIGTERM +++
+415702 01:26:22.195441 +++ killed by SIGTERM +++
+415701 01:26:22.195447 +++ killed by SIGTERM +++
+415671 01:26:22.195455 +++ killed by SIGTERM +++
+415670 01:26:22.195461 +++ killed by SIGTERM +++
+415650 01:26:22.195469 +++ killed by SIGTERM +++
+415649 01:26:22.195475 +++ killed by SIGTERM +++
+415648 01:26:22.195481 +++ killed by SIGTERM +++
+415647 01:26:22.195487 +++ killed by SIGTERM +++
+415646 01:26:22.195493 +++ killed by SIGTERM +++
+415644 01:26:22.195499 +++ killed by SIGTERM +++
+415643 01:26:22.195505 +++ killed by SIGTERM +++
+415645 01:26:22.198572 +++ killed by SIGTERM +++
+415642 01:26:22.198606 +++ killed by SIGTERM +++
+415558 01:26:22.198618 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415642, si_uid=1000, si_status=SIGTERM, si_utime=11 /* 0.11 s */, si_stime=5 /* 0.05 s */} ---
+415669 01:26:22.201192 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416152 01:26:22.201443 +++ killed by SIGTERM +++
+416151 01:26:22.201463 +++ killed by SIGTERM +++
+415721 01:26:22.201469 +++ killed by SIGTERM +++
+415720 01:26:22.201476 +++ killed by SIGTERM +++
+415719 01:26:22.201482 +++ killed by SIGTERM +++
+415718 01:26:22.201489 +++ killed by SIGTERM +++
+415717 01:26:22.201495 +++ killed by SIGTERM +++
+415716 01:26:22.201501 +++ killed by SIGTERM +++
+415715 01:26:22.201507 +++ killed by SIGTERM +++
+415706 01:26:22.201514 +++ killed by SIGTERM +++
+415681 01:26:22.201522 +++ killed by SIGTERM +++
+415679 01:26:22.201529 +++ killed by SIGTERM +++
+415678 01:26:22.201535 +++ killed by SIGTERM +++
+415677 01:26:22.201541 +++ killed by SIGTERM +++
+415676 01:26:22.201547 +++ killed by SIGTERM +++
+415675 01:26:22.201553 +++ killed by SIGTERM +++
+415673 01:26:22.201560 +++ killed by SIGTERM +++
+415672 01:26:22.201566 +++ killed by SIGTERM +++
+415667 01:26:22.201616 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+415652 01:26:22.201673 ???( <unfinished ...>
+416190 01:26:22.201862 +++ killed by SIGTERM +++
+416189 01:26:22.201880 +++ killed by SIGTERM +++
+416188 01:26:22.201887 +++ killed by SIGTERM +++
+416175 01:26:22.201893 +++ killed by SIGTERM +++
+416174 01:26:22.201900 +++ killed by SIGTERM +++
+415821 01:26:22.201906 +++ killed by SIGTERM +++
+415820 01:26:22.201912 +++ killed by SIGTERM +++
+415763 01:26:22.201918 +++ killed by SIGTERM +++
+415761 01:26:22.201924 +++ killed by SIGTERM +++
+415757 01:26:22.201931 +++ killed by SIGTERM +++
+415685 01:26:22.201939 +++ killed by SIGTERM +++
+415684 01:26:22.201948 +++ killed by SIGTERM +++
+415668 01:26:22.201961 +++ killed by SIGTERM +++
+415667 01:26:22.201974 +++ killed by SIGTERM +++
+415666 01:26:22.201984 +++ killed by SIGTERM +++
+415665 01:26:22.201994 +++ killed by SIGTERM +++
+415664 01:26:22.202004 +++ killed by SIGTERM +++
+415662 01:26:22.202014 +++ killed by SIGTERM +++
+415661 01:26:22.202024 +++ killed by SIGTERM +++
+415654 01:26:22.202034 +++ killed by SIGTERM +++
+416259 01:26:22.202121 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416262 01:26:22.202317 +++ killed by SIGTERM +++
+416261 01:26:22.202335 +++ killed by SIGTERM +++
+416260 01:26:22.202346 +++ killed by SIGTERM +++
+416259 01:26:22.202357 +++ killed by SIGTERM +++
+416258 01:26:22.202367 +++ killed by SIGTERM +++
+416256 01:26:22.202377 +++ killed by SIGTERM +++
+416255 01:26:22.202387 +++ killed by SIGTERM +++
+416254 01:26:22.202397 +++ killed by SIGTERM +++
+416253 01:26:22.202407 +++ killed by SIGTERM +++
+415680 01:26:22.202443 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+416257 01:26:22.202569 +++ killed by SIGTERM +++
+416024 01:26:22.202791 +++ killed by SIGTERM +++
+416023 01:26:22.202813 +++ killed by SIGTERM +++
+416022 01:26:22.202824 +++ killed by SIGTERM +++
+415839 01:26:22.202835 +++ killed by SIGTERM +++
+415837 01:26:22.202847 +++ killed by SIGTERM +++
+415822 01:26:22.202858 +++ killed by SIGTERM +++
+415760 01:26:22.202870 +++ killed by SIGTERM +++
+415714 01:26:22.202884 +++ killed by SIGTERM +++
+415713 01:26:22.202895 +++ killed by SIGTERM +++
+415700 01:26:22.202905 +++ killed by SIGTERM +++
+415698 01:26:22.202916 +++ killed by SIGTERM +++
+415697 01:26:22.202926 +++ killed by SIGTERM +++
+415696 01:26:22.202935 +++ killed by SIGTERM +++
+415695 01:26:22.202945 +++ killed by SIGTERM +++
+415693 01:26:22.202955 +++ killed by SIGTERM +++
+415688 01:26:22.202965 +++ killed by SIGTERM +++
+415683 01:26:22.202975 +++ killed by SIGTERM +++
+415762 01:26:22.203036 +++ killed by SIGTERM +++
+416252 01:26:22.205456 +++ killed by SIGTERM +++
+415558 01:26:22.205528 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=416252, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=1 /* 0.01 s */} ---
+415707 01:26:22.206473 +++ killed by SIGTERM +++
+415669 01:26:22.206506 +++ killed by SIGTERM +++
+415558 01:26:22.206544 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415669, si_uid=1000, si_status=SIGTERM, si_utime=12 /* 0.12 s */, si_stime=5 /* 0.05 s */} ---
+415756 01:26:22.212467 +++ killed by SIGTERM +++
+415680 01:26:22.212498 +++ killed by SIGTERM +++
+415558 01:26:22.212520 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415680, si_uid=1000, si_status=SIGTERM, si_utime=700 /* 7.00 s */, si_stime=237 /* 2.37 s */} ---
+415652 01:26:22.215515 +++ killed by SIGTERM +++
+415558 01:26:22.215564 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415652, si_uid=1000, si_status=SIGTERM, si_utime=484 /* 4.84 s */, si_stime=159 /* 1.59 s */} ---
+415567 01:26:22.226893 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415587, si_uid=1000, si_status=0, si_utime=95 /* 0.95 s */, si_stime=82 /* 0.82 s */} ---
+415615 01:26:22.227614 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+415686 01:26:22.227809 +++ killed by SIGTERM +++
+415616 01:26:22.227816 +++ killed by SIGTERM +++
+415615 01:26:22.227820 +++ killed by SIGTERM +++
+415614 01:26:22.227823 +++ killed by SIGTERM +++
+415613 01:26:22.227826 +++ killed by SIGTERM +++
+415612 01:26:22.227829 +++ killed by SIGTERM +++
+415611 01:26:22.227832 +++ killed by SIGTERM +++
+415610 01:26:22.227835 +++ killed by SIGTERM +++
+415602 01:26:22.227838 +++ killed by SIGTERM +++
+415600 01:26:22.227840 +++ killed by SIGTERM +++
+415599 01:26:22.227843 +++ killed by SIGTERM +++
+415598 01:26:22.227846 +++ killed by SIGTERM +++
+415597 01:26:22.227849 +++ killed by SIGTERM +++
+415596 01:26:22.227852 +++ killed by SIGTERM +++
+415595 01:26:22.227855 +++ killed by SIGTERM +++
+415594 01:26:22.227858 +++ killed by SIGTERM +++
+415593 01:26:22.227861 +++ killed by SIGTERM +++
+415592 01:26:22.227865 +++ killed by SIGTERM +++
+415591 01:26:22.227868 +++ killed by SIGTERM +++
+415590 01:26:22.227871 +++ killed by SIGTERM +++
+415589 01:26:22.227874 +++ killed by SIGTERM +++
+415588 01:26:22.227877 +++ killed by SIGTERM +++
+415586 01:26:22.227879 +++ killed by SIGTERM +++
+415625 01:26:22.227930 --- SIGTERM {si_signo=SIGTERM, si_code=SI_USER, si_pid=415549, si_uid=1000} ---
+415638 01:26:22.228001 +++ killed by SIGTERM +++
+415628 01:26:22.228005 +++ killed by SIGTERM +++
+415625 01:26:22.228008 +++ killed by SIGTERM +++
+415624 01:26:22.228011 +++ killed by SIGTERM +++
+415623 01:26:22.228014 +++ killed by SIGTERM +++
+415622 01:26:22.228017 +++ killed by SIGTERM +++
+415621 01:26:22.228020 +++ killed by SIGTERM +++
+415618 01:26:22.228023 +++ killed by SIGTERM +++
+415617 01:26:22.228026 +++ killed by SIGTERM +++
+415603 01:26:22.229355 +++ killed by SIGTERM +++
+415558 01:26:22.229398 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415603, si_uid=1000, si_status=SIGTERM, si_utime=0, si_stime=0} ---
+415584 01:26:22.230468 +++ killed by SIGTERM +++
+415557 01:26:22.230502 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_KILLED, si_pid=415584, si_uid=1000, si_status=SIGTERM, si_utime=96 /* 0.96 s */, si_stime=48 /* 0.48 s */} ---
+415460 01:26:22.236045 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415549, si_uid=1000, si_status=0, si_utime=446 /* 4.46 s */, si_stime=284 /* 2.84 s */} ---
+415459 01:26:22.276040 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415460, si_uid=1000, si_status=0, si_utime=858 /* 8.58 s */, si_stime=101 /* 1.01 s */} ---
+415447 01:26:22.276213 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=415459, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---

@@ -1,0 +1,31 @@
+{
+  "id": "consumer-w1",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 295669,
+    "start": "2757750"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-12T16:06:48.767Z",
+  "endedAt": "2026-11-12T16:07:25.241Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project consumer",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/consumer-w1/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "9c7b730472bd3d766dd31f9ede42035316e928af",
+        "dirty": true
+      },
+      "process": {
+        "pid": 295685,
+        "start": "2757756"
+      },
+      "startedAt": "2026-11-12T16:06:48.779Z",
+      "endedAt": "2026-11-12T16:07:25.241Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

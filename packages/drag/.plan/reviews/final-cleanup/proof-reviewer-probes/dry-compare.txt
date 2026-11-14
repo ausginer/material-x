@@ -1,0 +1,6 @@
+# Each entry alone: node <compare> --prove|--floors --dry --only <name>, with f9e56fe7d's compare.ts (head) and 27c60a9ac's (new). Names from the rollback review's dry-end.txt.
+# diff head new:
+(identical)
+# per verdict, new:
+13
+10

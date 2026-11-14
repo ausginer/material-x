@@ -1,0 +1,40 @@
+// Every runtime member access and every value import that crosses from one unit to another, by the
+// declaration the type checker binds it to. Names under the marker are the crossings that break a
+// per-unit rename; the rest keep their names in every unit.
+import ts from 'typescript';
+import { resolve, relative } from 'node:path';
+import { unitOf } from './units.ts';
+const root = resolve(import.meta.dirname, '..');
+const cfg = ts.getParsedCommandLineOfConfigFile(resolve(root, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} })!;
+const program = ts.createProgram(cfg.fileNames.filter((f) => /\/(src|tests\/fixtures)\//.test(f)), cfg.options);
+const checker = program.getTypeChecker();
+const rel = (f: string) => relative(root, f);
+const members = new Map<string, Set<string>>(); const imports = new Map<string, Set<string>>();
+const put = (m: Map<string, Set<string>>, k: string, v: string) => { const s = m.get(k) ?? new Set(); s.add(v); m.set(k, s); };
+for (const sf of program.getSourceFiles()) {
+  const unit = unitOf(sf.fileName);
+  if (!unit || sf.isDeclarationFile) continue;
+  const visit = (n: ts.Node): void => {
+    if (ts.isImportDeclaration(n) && !n.importClause?.isTypeOnly && n.importClause?.namedBindings && ts.isNamedImports(n.importClause.namedBindings)) {
+      for (const el of n.importClause.namedBindings.elements) {
+        if (el.isTypeOnly) continue;
+        let s = checker.getSymbolAtLocation(el.name); if (s && s.flags & ts.SymbolFlags.Alias) s = checker.getAliasedSymbol(s);
+        const d = s?.declarations?.[0]; const u = d && unitOf(d.getSourceFile().fileName);
+        if (u && u !== unit && s && s.flags & ts.SymbolFlags.Value) put(imports, `${unit} <- ${u}`, `${el.name.text} (${rel(d.getSourceFile().fileName)})`);
+      }
+    }
+    if (ts.isPropertyAccessExpression(n) && !ts.isPrivateIdentifier(n.name)) {
+      const s = checker.getSymbolAtLocation(n.name);
+      for (const d of s?.declarations ?? []) {
+        const u = unitOf(d.getSourceFile().fileName);
+        if (u && u !== unit) put(members, `${unit} -> ${u}`, `${n.name.text} (${rel(d.getSourceFile().fileName)})`);
+      }
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+}
+console.log('## Value imports across units');
+for (const [k, v] of [...imports].sort()) console.log(`  ${k}: ${[...v].sort().join(', ')}`);
+console.log('\n## Member accesses across units, by the declaration they bind to');
+for (const [k, v] of [...members].sort()) console.log(`  ${k}: ${[...v].sort().join(', ')}`);

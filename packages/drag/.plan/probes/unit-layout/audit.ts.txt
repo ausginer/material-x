@@ -1,0 +1,100 @@
+// Cross-unit audit of the internal properties (marker ^_[A-Za-z]) under the three-unit layout.
+// For each occurrence of a marker name in property position in src and tests/fixtures, the type checker
+// gives the declarations it binds to; an occurrence whose declarations lie in another unit is a crossing.
+// It also lists every marker name that occurs in more than one unit, and every object type that carries
+// marker properties declared in more than one unit.
+import ts from 'typescript';
+import { resolve, relative } from 'node:path';
+import { unitOf, type Unit } from './units.ts';
+const root = resolve(import.meta.dirname, '..');
+const MARK = /^_[A-Za-z]/;
+const cfg = ts.getParsedCommandLineOfConfigFile(resolve(root, 'tsconfig.json'), {}, { ...ts.sys, onUnRecoverableConfigFileDiagnostic: () => {} })!;
+const program = ts.createProgram(cfg.fileNames.filter((f) => /\/(src|tests\/fixtures)\//.test(f)), cfg.options);
+const checker = program.getTypeChecker();
+const rel = (f: string) => relative(root, f);
+const pos = (n: ts.Node) => { const sf = n.getSourceFile(); const { line } = sf.getLineAndCharacterOfPosition(n.getStart()); return `${rel(sf.fileName)}:${line + 1}`; };
+const declUnits = (s: ts.Symbol | undefined): Set<Unit> => {
+  const out = new Set<Unit>();
+  if (!s) return out;
+  if (s.flags & ts.SymbolFlags.Alias) s = checker.getAliasedSymbol(s);
+  const decls = s.declarations ?? [];
+  // union and mapped properties
+  const links = (s as any).links;
+  for (const d of decls) { const u = unitOf(d.getSourceFile().fileName); if (u) out.add(u); }
+  if (links?.containingType && !decls.length) out.add('?' as Unit);
+  return out;
+};
+type Occ = { name: string; unit: Unit; at: string; kind: string; runtime: boolean; owners: Set<Unit> };
+const occs: Occ[] = [];
+const carriers = new Map<string, { at: string; units: Map<string, Set<Unit>> }>();
+function propsByUnit(t: ts.Type): Map<string, Set<Unit>> {
+  const m = new Map<string, Set<Unit>>();
+  for (const p of checker.getPropertiesOfType(checker.getApparentType(t))) if (MARK.test(p.name)) m.set(p.name, declUnits(p));
+  return m;
+}
+function noteCarrier(expr: ts.Expression) {
+  const t = checker.getTypeAtLocation(expr);
+  const m = propsByUnit(t);
+  const units = new Set([...m.values()].flatMap((s) => [...s]));
+  if (units.size > 1) carriers.set(checker.typeToString(t), { at: pos(expr), units: m });
+}
+function baseOwners(cls: ts.ClassLikeDeclaration | ts.InterfaceDeclaration, name: string): Set<Unit> {
+  const out = new Set<Unit>();
+  for (const h of cls.heritageClauses ?? []) for (const e of h.types) {
+    const t = checker.getTypeAtLocation(e);
+    const p = t.getProperty(name);
+    for (const u of declUnits(p)) out.add(u);
+  }
+  return out;
+}
+for (const sf of program.getSourceFiles()) {
+  const unit = unitOf(sf.fileName);
+  if (!unit || sf.isDeclarationFile) continue;
+  const visit = (n: ts.Node): void => {
+    const add = (name: string, kind: string, runtime: boolean, owners: Set<Unit>, at: ts.Node) => occs.push({ name, unit, at: pos(at), kind, runtime, owners });
+    if (ts.isPropertyAccessExpression(n) && MARK.test(n.name.text)) {
+      add(n.name.text, 'access', true, declUnits(checker.getSymbolAtLocation(n.name)), n.name); noteCarrier(n.expression);
+    } else if (ts.isElementAccessExpression(n) && ts.isStringLiteralLike(n.argumentExpression) && MARK.test(n.argumentExpression.text)) {
+      add(n.argumentExpression.text, 'element', true, declUnits(checker.getSymbolAtLocation(n.argumentExpression)), n); noteCarrier(n.expression);
+    } else if ((ts.isPropertyAssignment(n) || ts.isShorthandPropertyAssignment(n) || ts.isMethodDeclaration(n) || ts.isGetAccessor(n) || ts.isSetAccessor(n)) && ts.isObjectLiteralExpression(n.parent) && n.name && MARK.test(n.name.getText())) {
+      const name = n.name.getText().replace(/^['"]|['"]$/g, '');
+      const ctx = checker.getContextualType(n.parent);
+      const owners = new Set<Unit>([unit]);
+      if (ctx) for (const u of declUnits(checker.getPropertyOfType(ctx, name) ?? (ctx.isUnion() ? ctx.types.map((t) => t.getProperty(name)).find(Boolean) : undefined))) owners.add(u);
+      add(name, 'object key', true, owners, n.name);
+    } else if ((ts.isPropertyDeclaration(n) || ts.isMethodDeclaration(n) || ts.isGetAccessor(n) || ts.isSetAccessor(n)) && ts.isClassLike(n.parent) && n.name && MARK.test(n.name.getText())) {
+      const owners = new Set<Unit>([unit, ...baseOwners(n.parent, n.name.getText())]);
+      add(n.name.getText(), 'class member', true, owners, n.name);
+    } else if ((ts.isPropertySignature(n) || ts.isMethodSignature(n)) && n.name && MARK.test(n.name.getText())) {
+      const p = n.parent;
+      const owners = new Set<Unit>([unit, ...(ts.isInterfaceDeclaration(p) ? baseOwners(p, n.name.getText()) : [])]);
+      add(n.name.getText(), 'type member', false, owners, n.name);
+    } else if (ts.isBindingElement(n) && ts.isObjectBindingPattern(n.parent)) {
+      const key = n.propertyName ?? n.name;
+      if (ts.isIdentifier(key) && MARK.test(key.text)) {
+        const t = checker.getTypeAtLocation(n.parent);
+        add(key.text, 'destructure', true, declUnits(t.getProperty(key.text)), key);
+      }
+    } else if (ts.isBinaryExpression(n) && n.operatorToken.kind === ts.SyntaxKind.InKeyword && ts.isStringLiteralLike(n.left) && MARK.test(n.left.text)) {
+      add(n.left.text, '`in`', true, new Set(), n);
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+}
+const runtime = occs.filter((o) => o.runtime);
+console.log(`marker occurrences in property position: ${occs.length} (${runtime.length} at runtime), names: ${new Set(occs.map((o) => o.name)).size}`);
+const byUnit: Record<string, number> = {};
+for (const o of runtime) byUnit[o.unit] = (byUnit[o.unit] ?? 0) + 1;
+console.log('runtime occurrences per unit:', byUnit);
+console.log('\n## Crossings: an occurrence whose declarations lie in another unit, or in more than one');
+const cross = occs.filter((o) => [...o.owners].some((u) => u !== o.unit) || o.owners.size === 0);
+for (const o of cross) console.log(`  ${o.unit.padEnd(9)} ${o.kind.padEnd(12)} ${o.name.padEnd(20)} owners=${[...o.owners].join('+') || 'unresolved'}  ${o.at}`);
+console.log(`  (${cross.length}; runtime ${cross.filter((o) => o.runtime).length})`);
+console.log('\n## Marker names that occur in more than one unit');
+const names = new Map<string, Map<Unit, number>>();
+for (const o of runtime) { const m = names.get(o.name) ?? new Map(); m.set(o.unit, (m.get(o.unit) ?? 0) + 1); names.set(o.name, m); }
+for (const [n, m] of [...names].sort()) if (m.size > 1) console.log(`  ${n.padEnd(20)} ${[...m].map(([u, c]) => `${u}:${c}`).join(' ')}`);
+console.log('\n## Object types whose marker properties are declared in more than one unit');
+for (const [t, { at, units }] of carriers) console.log(`  ${t.slice(0, 80)}  at ${at}\n    ${[...units].map(([n, u]) => `${n}:${[...u].join('+')}`).join(' ')}`);
+if (process.env.LIST) for (const o of runtime.filter((o) => o.unit === process.env.LIST)) console.log(o.kind, o.name, o.at, [...o.owners].join('+'));

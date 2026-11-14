@@ -1,0 +1,286 @@
+{
+  "id": "xhg-unit-mutations",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag",
+  "runner": {
+    "pid": 1069726,
+    "start": "11732323"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T17:02:34.585Z",
+  "endedAt": "2026-11-13T17:11:28.768Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MT1 typecheck npx just typecheck",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1069752,
+        "start": "11732340"
+      },
+      "startedAt": "2026-11-13T17:02:34.613Z",
+      "endedAt": "2026-11-13T17:02:36.561Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MT1 declaration npx vitest run -c vitest.config.ts --project declaration tests/rect-index.declaration.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1069974,
+        "start": "11732537"
+      },
+      "startedAt": "2026-11-13T17:02:36.584Z",
+      "endedAt": "2026-11-13T17:02:38.777Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MT2 typecheck npx just typecheck",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1070291,
+        "start": "11732759"
+      },
+      "startedAt": "2026-11-13T17:02:38.808Z",
+      "endedAt": "2026-11-13T17:02:41.085Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MT2 declaration npx vitest run -c vitest.config.ts --project declaration tests/rect-index.declaration.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1070494,
+        "start": "11732989"
+      },
+      "startedAt": "2026-11-13T17:02:41.112Z",
+      "endedAt": "2026-11-13T17:02:43.452Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MT3 typecheck npx just typecheck",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1070764,
+        "start": "11733225"
+      },
+      "startedAt": "2026-11-13T17:02:43.471Z",
+      "endedAt": "2026-11-13T17:02:45.508Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MT3 declaration npx vitest run -c vitest.config.ts --project declaration tests/rect-index.declaration.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1070969,
+        "start": "11733431"
+      },
+      "startedAt": "2026-11-13T17:02:45.525Z",
+      "endedAt": "2026-11-13T17:02:47.843Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX1 file npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1071272,
+        "start": "11733665"
+      },
+      "startedAt": "2026-11-13T17:02:47.866Z",
+      "endedAt": "2026-11-13T17:02:53.025Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX1 suite npx just test --reporter=default --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut/MX1-suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1071865,
+        "start": "11734184"
+      },
+      "startedAt": "2026-11-13T17:02:53.053Z",
+      "endedAt": "2026-11-13T17:04:33.027Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX2 file npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1075087,
+        "start": "11744182"
+      },
+      "startedAt": "2026-11-13T17:04:33.040Z",
+      "endedAt": "2026-11-13T17:04:36.512Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX2 suite npx just test --reporter=default --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut/MX2-suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1075492,
+        "start": "11744531"
+      },
+      "startedAt": "2026-11-13T17:04:36.530Z",
+      "endedAt": "2026-11-13T17:06:17.647Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX3 file npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1078736,
+        "start": "11754644"
+      },
+      "startedAt": "2026-11-13T17:06:17.658Z",
+      "endedAt": "2026-11-13T17:06:21.010Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX3 suite npx just test --reporter=default --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut/MX3-suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1079275,
+        "start": "11754981"
+      },
+      "startedAt": "2026-11-13T17:06:21.026Z",
+      "endedAt": "2026-11-13T17:08:00.168Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX4 file npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/13.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1082698,
+        "start": "11764896"
+      },
+      "startedAt": "2026-11-13T17:08:00.181Z",
+      "endedAt": "2026-11-13T17:08:03.477Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX4 suite npx just test --reporter=default --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut/MX4-suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/14.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1083211,
+        "start": "11765228"
+      },
+      "startedAt": "2026-11-13T17:08:03.500Z",
+      "endedAt": "2026-11-13T17:09:43.863Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX5 file npx vitest run -c vitest.config.ts --project browser tests/displacement-sink.browser.test.ts",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/15.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1086495,
+        "start": "11775266"
+      },
+      "startedAt": "2026-11-13T17:09:43.875Z",
+      "endedAt": "2026-11-13T17:09:47.775Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut-step.sh MX5 suite npx just test --reporter=default --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/mut/MX5-suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-mutations/16.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b4117dae2b0c54b366d5fffcb9776734aa4903d9",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1087013,
+        "start": "11775658"
+      },
+      "startedAt": "2026-11-13T17:09:47.795Z",
+      "endedAt": "2026-11-13T17:11:28.768Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

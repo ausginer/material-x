@@ -191,17 +191,22 @@ describe('drag:DRD-20 behavior instances', () => {
     async () => {
       const before = await commands.countHeapObjects('FreeDragBehavior');
       const box = makeList(1).firstElementChild as HTMLElement;
-      let controller: ReturnType<typeof freeDrag> | null = freeDrag(box, {
-        onDrop: () => FreeDragResolution.accept(),
-      });
+      // Only this function's frame holds the controller, so the controller is
+      // unreachable once the function returns.
+      const dragThenDestroy = async (): Promise<void> => {
+        const controller = freeDrag(box, {
+          onDrop: () => FreeDragResolution.accept(),
+        });
 
-      await dragAndDrop(box, 30);
-      // The instrument sees the instance while the controller is alive.
-      expect(await commands.countHeapObjects('FreeDragBehavior')).toBe(
-        before + 1,
-      );
-      await controller.requestDestroy();
-      controller = null;
+        await dragAndDrop(box, 30);
+        // The instrument sees the instance while the controller is alive.
+        expect(await commands.countHeapObjects('FreeDragBehavior')).toBe(
+          before + 1,
+        );
+        await controller.requestDestroy();
+      };
+
+      await dragThenDestroy();
       box.remove();
       await wait(50);
       expect(await commands.countHeapObjects('FreeDragBehavior')).toBe(before);

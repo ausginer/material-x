@@ -1,0 +1,83 @@
+# command: npx vitest run -c vitest.engines.config.ts tests/free-drag.browser.test.ts -t 'should re-read bounds on invalidate' --reporter=verbose
+# tree: d5ab84a83 with R1 applied (item 2), 2026-11-12T14:25:52+00:00
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+2:25:53 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 228ms
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2:25:55 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo
+ ✓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 199ms
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual
+ ↓ |browser/firefox (firefox)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+2:25:56 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/eaa3b71eacde83d5e54d5c8d7e8c35eea767a7d1/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo
+ ✓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 85ms
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual
+ ↓ |browser/webkit (webkit)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta
+
+ Test Files  3 passed (3)
+      Tests  3 passed | 27 skipped (30)
+   Start at  14:25:53
+   Duration  3.84s (worker 40%, tests 37%, import 23%)
+
+exit 0

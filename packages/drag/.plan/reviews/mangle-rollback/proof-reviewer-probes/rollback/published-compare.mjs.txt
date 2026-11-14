@@ -1,0 +1,52 @@
+// Usage: node published-compare.mjs <base drag dir> <end drag dir> <packlist> <end commit's src dir via git>
+// Compares the published files of two builds, reading each \b_([A-Za-z]) in the base as its letter.
+import { readFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { join, dirname, resolve } from 'node:path';
+const [base, end, list, commit] = process.argv.slice(2);
+const files = readFileSync(list, 'utf8').split('\n').filter((f) => /\.(js|js\.map|d\.ts)$/.test(f));
+const read = (dir, f) => readFileSync(join(dir, f), 'utf8');
+const unmark = (s) => s.replace(/\b_([A-Za-z])/g, '$1');
+const marker = /\b_[A-Za-z][\w$]*/g;
+let dtsEqual = 0, dtsByte = 0, jsEqual = 0, jsByte = 0;
+for (const f of files) {
+  const b = read(base, f), e = read(end, f);
+  if (f.endsWith('.d.ts')) {
+    if (b === e) dtsByte++;
+    if (unmark(b) === e) dtsEqual++; else console.log(`d.ts differs under the reading: ${f}`);
+    if (/sourceMappingURL/.test(e)) console.log(`d.ts has sourceMappingURL: ${f}`);
+    const m = e.match(marker); if (m) console.log(`marker in ${f}: ${[...new Set(m)].join(' ')}`);
+  } else if (f.endsWith('.js')) {
+    if (b === e) jsByte++;
+    if (unmark(b) === e) jsEqual++;
+    else {
+      const bl = unmark(b).split('\n'), el = e.split('\n');
+      console.log(`js differs under the reading: ${f} (${bl.length} vs ${el.length} lines)`);
+      for (let i = 0; i < Math.max(bl.length, el.length); i++) if (bl[i] !== el[i]) console.log(`  ${i + 1}: base~ ${JSON.stringify(bl[i])}\n  ${i + 1}: end   ${JSON.stringify(el[i])}`);
+    }
+    const m = e.match(marker); if (m) console.log(`marker in ${f}: ${[...new Set(m)].join(' ')}`);
+    const hasMap = files.includes(f + '.map');
+    const url = /\/\/# sourceMappingURL=(\S+)\s*$/.exec(e);
+    if (!hasMap) console.log(`js without published map: ${f} (${e.trim().length} chars, sourceMappingURL ${url ? url[1] : 'none'})`);
+    else if (!url || url[1] !== f.split('/').pop() + '.map') console.log(`js map reference unexpected: ${f} ${url && url[1]}`);
+  } else {
+    const map = JSON.parse(e);
+    const bmap = JSON.parse(b);
+    if (!map.mappings) console.log(`map without mappings: ${f}`);
+    map.sources.forEach((s, i) => {
+      const abs = resolve(dirname(join(end, f)), s);
+      const rel = abs.slice(resolve(end).length + 1);
+      if (!rel.startsWith('src/')) { console.log(`map source outside src: ${f} -> ${s}`); return; }
+      const want = execFileSync('git', ['-C', end, 'show', `${commit}:packages/drag/${rel}`], { encoding: 'utf8' });
+      if (map.sourcesContent?.[i] !== want) console.log(`sourcesContent differs: ${f} [${s}]`);
+      if (map.sourcesContent?.[i] !== read(end, rel)) console.log(`sourcesContent differs from worktree file: ${f} [${s}]`);
+    });
+    if (JSON.stringify(bmap.sources) !== JSON.stringify(map.sources)) console.log(`map sources list differs from base: ${f}`);
+    if (bmap.names?.length || map.names?.length) {
+      const bn = (bmap.names ?? []).map(unmark), en = map.names ?? [];
+      if (JSON.stringify(bn) !== JSON.stringify(en)) console.log(`map names differ under the reading: ${f}`);
+    }
+  }
+}
+const n = (x) => files.filter((f) => f.endsWith(x) && !(x === '.js' && f.endsWith('.d.ts'))).length;
+console.log(`summary: ${files.length} files; d.ts ${n('.d.ts')}: ${dtsEqual} equal under the reading, ${dtsByte} byte-identical; js ${n('.js')}: ${jsEqual} equal under the reading, ${jsByte} byte-identical; js.map ${n('.js.map')}`);

@@ -1,0 +1,23 @@
+prove	applies	about 1 ms of script per cycle, at the drop
+prove	applies	one object of about 1 KB retained per operation past destruction
+prove	FAILS	one forced layout per move	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+prove	FAILS	one O(n) walk per move	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+prove	applies	1 KB allocated per move
+prove	applies	one entry on the step list per frame
+prove	applies	an array of four numbers per sample, in Gesture.enter
+prove	FAILS	30 µs of script per move, in the page	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+prove	applies	300 µs of script per cycle, in the page
+floors	applies	300 µs of script per cycle, at the drop
+floors	applies	100 µs of script per cycle, at the drop
+floors	FAILS	100 µs of script per move	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	FAILS	30 µs of script per move	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	FAILS	10 µs of script per move	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	applies	one object with two number properties per sample, in Session's #move
+floors	applies	one object with two number properties retained per operation
+floors	FAILS	30 µs of script per move, in the page	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	FAILS	10 µs of script per move, in the page	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	FAILS	5 µs of script per move, in the page	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	FAILS	2 µs of script per move, in the page	Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+floors	applies	300 µs of script per cycle, in the page
+floors	applies	100 µs of script per cycle, in the page
+floors	applies	30 µs of script per cycle, in the page

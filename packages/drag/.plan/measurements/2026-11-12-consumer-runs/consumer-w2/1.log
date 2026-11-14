@@ -1,0 +1,207 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+4:08:28 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:50 > drag:DRI-13 landing > should land additively from where it was dropped 384ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:74 > drag:DRI-13 landing > should start nothing when the visual is already where it lands 147ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:96 > drag:DRI-13 landing > should start nothing without a landing composed 152ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: Uncaught DragFault: drag: Failed to execute 'animate' on 'Element': duration must be non-negative or auto]
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand 183ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:134 > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation 382ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above static siblings for the whole flight 235ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight 233ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight 232ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine 233ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top 235ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:208 > drag:DRI-13 landing > should leave no inline style from elevation 248ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:227 > drag:DRI-13 landing > should start no animation when no landing is composed 150ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:245 > drag:DRI-13 landing > should give a landing that `landing()` starts zero duration with reduced motion 184ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:286 > drag:DRI-13 landing > should call a duration function with reduced motion, and still land at once 185ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:307 > drag:DRI-13 landing > should land an accepted drop at its new slot 264ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable 350ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:351 > drag:DRI-13 landing > should keep timing a custom landing named 150ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:385 > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object 150ms
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: Uncaught DragFault: drag: hide]
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand 186ms
+4:08:33 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js?v=da1eabec
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:50 > drag:DRI-13 landing > should land additively from where it was dropped 372ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:74 > drag:DRI-13 landing > should start nothing when the visual is already where it lands 151ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:96 > drag:DRI-13 landing > should start nothing without a landing composed 150ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: Uncaught DragFault: drag: Failed to execute 'animate' on 'Element': duration must be non-negative or auto]
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand 185ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:134 > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation 380ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above static siblings for the whole flight 233ms
+ × |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight 233ms
+   → expected <div class="row" id="r2" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+ × |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight 233ms
+   → expected <div class="row" id="r2" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+ × |consumer (chromium)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine 235ms
+   → expected <div class="row" id="r2" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+ × |consumer (chromium)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top 234ms
+   → expected <div class="row" id="r1" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:208 > drag:DRI-13 landing > should leave no inline style from elevation 249ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:227 > drag:DRI-13 landing > should start no animation when no landing is composed 150ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:245 > drag:DRI-13 landing > should give a landing that `landing()` starts zero duration with reduced motion 183ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:286 > drag:DRI-13 landing > should call a duration function with reduced motion, and still land at once 184ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:307 > drag:DRI-13 landing > should land an accepted drop at its new slot 249ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable 349ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:351 > drag:DRI-13 landing > should keep timing a custom landing named 151ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:385 > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object 151ms
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: Uncaught DragFault: drag: hide]
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand 184ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight
+AssertionError: expected <div class="row" id="r2" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  <div[22m
+[2m    class="row"[22m
+[32m-   id="r0"[39m
+[31m+   id="r2"[39m
+[2m    style="height: 40px; touch-action: none; user-select: none; background: rgb(204, 204, 221); position: relative;"[22m
+[2m  >[22m
+[32m-   Row 0[39m
+[31m+   Row 2[39m
+[2m  </div>[22m
+
+ ❯ tests/landing.browser.test.ts:174:36
+    172|     await frames(5);
+    173|     expect(row('r0').getAnimations().length).toBeGreaterThan(0);
+    174|     expect(topAtCenter(row('r0'))).toBe(row('r0'));
+       |                                    ^
+    175|   });
+    176|
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight
+AssertionError: expected <div class="row" id="r2" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  <div[22m
+[2m    class="row"[22m
+[32m-   id="r0"[39m
+[31m+   id="r2"[39m
+[2m    style="height: 40px; touch-action: none; user-select: none; background: rgb(204, 204, 221); position: relative; z-index: 5;"[22m
+[2m  >[22m
+[32m-   Row 0[39m
+[31m+   Row 2[39m
+[2m  </div>[22m
+
+ ❯ tests/landing.browser.test.ts:174:36
+    172|     await frames(5);
+    173|     expect(row('r0').getAnimations().length).toBeGreaterThan(0);
+    174|     expect(topAtCenter(row('r0'))).toBe(row('r0'));
+       |                                    ^
+    175|   });
+    176|
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |consumer (chromium)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine
+AssertionError: expected <div class="row" id="r2" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  <div[22m
+[2m    class="row"[22m
+[32m-   id="r0"[39m
+[31m+   id="r2"[39m
+[2m    style="height: 40px; touch-action: none; user-select: none; background: rgb(204, 204, 221); position: relative; z-index: 5;"[22m
+[2m  >[22m
+[32m-   Row 0[39m
+[31m+   Row 2[39m
+[2m  </div>[22m
+
+ ❯ tests/landing.browser.test.ts:188:36
+    186|     await commands.pointerUp();
+    187|     await frames(5);
+    188|     expect(topAtCenter(row('r0'))).toBe(row('r0'));
+       |                                    ^
+    189|   });
+    190|
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |consumer (chromium)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top
+AssertionError: expected <div class="row" id="r1" …(1)></div> to be <div class="row" id="r0" …(1)></div> // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  <div[22m
+[2m    class="row"[22m
+[32m-   id="r0"[39m
+[32m-   style="height: 40px; touch-action: none; user-select: none; background: rgb(204, 204, 221); position: absolute; left: 0px; right: 0px; top: 0px; z-index: 0;"[39m
+[31m+   id="r1"[39m
+[31m+   style="height: 40px; touch-action: none; user-select: none; background: rgb(204, 204, 221); position: absolute; left: 0px; right: 0px; top: 40px; z-index: 1;"[39m
+[2m  >[22m
+[32m-   Row 0[39m
+[31m+   Row 1[39m
+[2m  </div>[22m
+
+ ❯ tests/landing.browser.test.ts:205:36
+    203|     await commands.pointerUp();
+    204|     await frames(5);
+    205|     expect(topAtCenter(row('r0'))).toBe(row('r0'));
+       |                                    ^
+    206|   });
+    207|
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 34 passed (38)
+   Start at  16:08:27
+   Duration  10.56s (tests 98%, worker 2%, import 1%)
+

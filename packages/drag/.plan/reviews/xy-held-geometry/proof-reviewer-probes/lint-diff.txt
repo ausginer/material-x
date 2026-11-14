@@ -1,0 +1,6 @@
+# Whole-package lint, f79f66fe2 against 7184d069c, scratch-worktree paths removed
+# both: ✖ 49 problems (49 errors, 0 warnings); oxlint passed
+58c58
+<   53:3  error  Function name `recorded` should match property name `getBoundingClientRect`  func-name-matching
+---
+>   59:3  error  Function name `recorded` should match property name `getBoundingClientRect`  func-name-matching

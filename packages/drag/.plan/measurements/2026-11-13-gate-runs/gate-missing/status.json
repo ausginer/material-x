@@ -1,0 +1,82 @@
+{
+  "id": "gate-missing",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 406999,
+    "start": "6086606"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:21:37.323Z",
+  "endedAt": "2026-11-13T01:21:38.932Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just build",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-missing/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 407015,
+        "start": "6086612"
+      },
+      "startedAt": "2026-11-13T01:21:37.339Z",
+      "endedAt": "2026-11-13T01:21:38.302Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "mv kernel/drag.js /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drag.js.moved && bash -c 'node bench/size/measure.ts 2>&1 | grep -E \"^[a-z]|Error|resolve|VIOLATION\" | head -12; echo \"[measure exit ${PIPESTATUS[0]}]\"'; mv /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drag.js.moved kernel/drag.js",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-missing/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 407197,
+        "start": "6086709"
+      },
+      "startedAt": "2026-11-13T01:21:38.312Z",
+      "endedAt": "2026-11-13T01:21:38.427Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "mv draggable.js /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/draggable.js.moved && bash -c 'node bench/size/measure.ts 2>&1 | grep -E \"^[a-z]|Error|resolve|VIOLATION\" | head -12; echo \"[measure exit ${PIPESTATUS[0]}]\"'; mv /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/draggable.js.moved draggable.js",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-missing/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 407258,
+        "start": "6086722"
+      },
+      "startedAt": "2026-11-13T01:21:38.443Z",
+      "endedAt": "2026-11-13T01:21:38.570Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-missing/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 407296,
+        "start": "6086736"
+      },
+      "startedAt": "2026-11-13T01:21:38.582Z",
+      "endedAt": "2026-11-13T01:21:38.932Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

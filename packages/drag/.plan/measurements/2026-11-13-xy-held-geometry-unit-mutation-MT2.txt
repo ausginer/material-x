@@ -1,0 +1,46 @@
+MUTATION MT2 (typecheck): npx just typecheck
+tsc -p tsconfig.json --noEmit
+../../.scripts/tsdown-library.ts(53,11): error TS2322: Type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/vite/dist/node/index").Plugin<any>' is not assignable to type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/rolldown/dist/shared/define-config-QuM53xoi").E<any>'.
+  Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+    Type 'ObjectHook<(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult, { ...; }> | undefined' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+        Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'LoadExtraOptions' has no properties in common with type '{ ssr?: boolean | undefined; }'.
+tests/rect-index.declaration.test.ts(42,5): error TS2578: Unused '@ts-expect-error' directive.
+error: recipe `typecheck` failed on line 37 with exit code 1
+STEP EXIT CODE: 1
+REVERTED: src clean
+MUTATION MT2 (declaration): npx vitest run -c vitest.config.ts --project declaration tests/rect-index.declaration.test.ts
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag
+
+ ❯ |declaration|  TS  tests/rect-index.declaration.test.ts (3 tests | 1 failed)
+   ❯ RectIndex fields (3)
+     × should accept only LEFT or TOP as retained's field
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/rect-index.declaration.test.ts:37 > RectIndex fields > should accept only LEFT or TOP as retained's field
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/rect-index.declaration.test.ts:42:5
+     40|     index.retained(0, LEFT);
+     41|     index.retained(0, TOP);
+     42|     // @ts-expect-error `RIGHT` is not retained.
+       |     ^
+     43|     index.retained(0, RIGHT);
+     44|     // @ts-expect-error A number may be any field or none.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+Type Errors  no errors
+   Start at  17:02:42
+   Duration  977ms (typecheck 100%)
+
+STEP EXIT CODE: 1
+REVERTED: src clean

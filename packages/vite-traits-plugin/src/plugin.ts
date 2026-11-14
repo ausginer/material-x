@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { RolldownMagicString } from 'rolldown';
+import type { Plugin as RolldownPlugin, RolldownMagicString } from 'rolldown';
 import type { Plugin } from 'vite';
 import {
   analyzeModule,
@@ -25,7 +25,7 @@ const CANDIDATE = /\.[cm]?[jt]sx?$/u;
  * Each `impl` site is analyzed and lowered transactionally; a failed proof
  * warns and leaves the site unchanged.
  */
-export function viteTraitsPlugin(): Plugin {
+export function viteTraitsPlugin(): Plugin & RolldownPlugin {
   // A `RolldownMagicString` is only understood by rolldown's native build
   // pipeline. Vite's dev-server plugin container treats `code` as a plain
   // string and forwards the object verbatim to the builtin native transforms,
@@ -43,7 +43,7 @@ export function viteTraitsPlugin(): Plugin {
         }
       : { code: magic };
 
-  const plugin: Plugin = {
+  const plugin: Plugin & RolldownPlugin = {
     name: 'trait-flattener',
     configResolved(config) {
       serve = config.command === 'serve';
@@ -138,7 +138,7 @@ export function viteTraitsPlugin(): Plugin {
 
       return augmented ? emit(augmented, cleanId) : null;
     },
-  };
+  } satisfies Plugin;
 
   plugin.enforce = 'pre';
 

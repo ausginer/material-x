@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Prints the tool versions as they resolve from the current directory (packages/drag).
+set -euo pipefail
+echo "node $(node --version)"
+for p in rolldown tsdown vitest @vitest/browser-playwright playwright typescript typedoc; do
+  v=$(node -e "const {createRequire}=require('node:module');const r=createRequire(process.cwd()+'/');let f;try{f=r.resolve('$p/package.json')}catch{const path=require('node:path');let d=path.dirname(r.resolve('$p'));while(!require('node:fs').existsSync(d+'/package.json'))d=path.dirname(d);f=d+'/package.json'}const j=require(f);console.log(j.version+' '+require('node:path').relative(process.cwd(),f))")
+  echo "$p $v"
+done
+chrome="${CHROME_EXECUTABLE:-/usr/local/bin/chrome}"
+echo "chrome executable: $chrome (CHROME_EXECUTABLE=${CHROME_EXECUTABLE:-unset})"
+"$chrome" --version

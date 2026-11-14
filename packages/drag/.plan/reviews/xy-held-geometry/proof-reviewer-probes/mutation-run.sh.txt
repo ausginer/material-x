@@ -1,0 +1,17 @@
+#!/bin/bash
+# usage: run.sh <name> <kind: decl|browser> <file> <anchor> <replacement>
+set -u
+S=/tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad
+D=$S/wt-end/packages/drag
+name=$1; kind=$2; file=$3; anchor=$4; repl=$5
+cd "$D" || exit 9
+git diff --quiet || { echo "tree dirty before $name"; exit 9; }
+node $S/mut/apply.mjs "$file" "$anchor" "$repl" || exit 9
+git diff > $S/mut/$name.diff.txt
+if [ "$kind" = decl ]; then
+  { echo "## npx just typecheck"; npx just typecheck 2>&1; echo "exit $?"; echo "## declaration project"; npx vitest run -c vitest.config.ts --project declaration tests/rect-index.declaration.test.ts 2>&1; echo "exit $?"; } > $S/mut/$name.txt
+else
+  { npx vitest run -c vitest.config.ts --project browser --reporter=verbose tests/displacement-sink.browser.test.ts 2>&1; echo "exit $?"; } > $S/mut/$name.txt
+fi
+git checkout -- "$file"
+git diff --quiet && echo "$name reverted"

@@ -1,0 +1,7 @@
+} from '../../src/draggable.ts';
+import { landing } from '../../src/lift/landing.ts';
+import { Lifter, type Lift } from '../../src/lift.ts';
+import { queue } from '../../src/kernel/callbacks.ts';
+globalThis.gateNonEntry = queue;
+
+ M tests/fixtures/drop-zone.ts

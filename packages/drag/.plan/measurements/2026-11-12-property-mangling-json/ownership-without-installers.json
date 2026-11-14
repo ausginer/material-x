@@ -1,0 +1,2369 @@
+[
+  {
+    "name": "abort",
+    "library": 0,
+    "platform": 8,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:69",
+      "kernel/session.ts:296",
+      "kernel/session.ts:399",
+      "kernel/session.ts:400"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "aborted",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:199",
+      "kernel/session.ts:543"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "abs",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "sortable/rect-index.ts:283",
+      "sortable/rect-index.ts:285",
+      "sortable/rect-index.ts:344",
+      "sortable/y.ts:59"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "accept",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "acquire",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "activate",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "activeElement",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "shared/focus.ts:3",
+      "shared/focus.ts:5",
+      "shared/focus.ts:6",
+      "kernel/session.ts:47"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "add",
+    "library": 4,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/gesture.ts:99",
+      "kernel/gesture.ts:369",
+      "kernel/gesture.ts:386"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "addEventListener",
+    "library": 0,
+    "platform": 10,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:72",
+      "kernel/session.ts:81",
+      "kernel/session.ts:90",
+      "kernel/session.ts:99"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "admit",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "advance",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "after",
+    "library": 13,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "sortable/placement.ts:92",
+      "sortable/behavior.ts:191"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "altKey",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/behavior.ts:83",
+      "sortable/behavior.ts:131"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "animate",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:83",
+      "shared/landing.ts:98",
+      "sortable/layout-animation.ts:99"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "animation",
+    "library": 6,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "apply",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "at",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/collection.ts:36"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "axis",
+    "library": 21,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "before",
+    "library": 11,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "sortable/placement.ts:90",
+      "sortable/operation.ts:252"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "blur",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:187"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "body",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:48",
+      "lift.ts:184"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "bottom",
+    "library": 4,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/bounds.ts:59",
+      "free-drag/bounds.ts:76",
+      "free-drag/drop-targets.ts:96",
+      "sortable/rect-index.ts:49"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "bounds",
+    "library": 8,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "box",
+    "library": 22,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "boxHeight",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "boxSizing",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:341",
+      "sortable/placement.ts:48"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "boxWidth",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "button",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:93",
+      "kernel/session.ts:333",
+      "kernel/gesture.ts:358"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "buttons",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:368"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "call",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "kernel/callbacks.ts:64",
+      "kernel/callbacks.ts:73",
+      "kernel/drag.ts:89",
+      "kernel/session.ts:509"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "cancel",
+    "library": 6,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:90",
+      "shared/landing.ts:103",
+      "shared/landing.ts:104",
+      "sortable/layout-animation.ts:84"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "cancelAnimationFrame",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "shared/invalidation.ts:36"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "cancelLanding",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "capture",
+    "library": 2,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:245",
+      "shared/invalidation.ts:9"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "cause",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "fault.ts:22"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "clear",
+    "library": 2,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:156"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "clientX",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:373",
+      "kernel/session.ts:413",
+      "kernel/gesture.ts:370"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "clientY",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:374",
+      "kernel/session.ts:414",
+      "kernel/gesture.ts:370"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "collect",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "command",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "compareDocumentPosition",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/xy.ts:95"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "composedPath",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/gesture.ts:74",
+      "free-drag/behavior.ts:92",
+      "sortable/behavior.ts:249"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "composite",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:85",
+      "sortable/layout-animation.ts:104"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "config",
+    "library": 26,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "confirm",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "contains",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/behavior.ts:181"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "count",
+    "library": 9,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "createElement",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/placement.ts:35"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "current",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "currentRect",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "decide",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "defaultView",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "kernel/gesture.ts:156",
+      "free-drag/behavior.ts:65",
+      "free-drag.ts:57",
+      "sortable/behavior.ts:115"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "delete",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:85",
+      "sortable/layout-animation.ts:113"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "detach",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "direction",
+    "library": 5,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "displacement",
+    "library": 16,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "distance",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "document",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/behavior.ts:169"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "DOCUMENT_POSITION_FOLLOWING",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/xy.ts:99"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "DOMRectReadOnly",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/geometry.ts:17"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "drop",
+    "library": 7,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "duration",
+    "library": 10,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:85",
+      "shared/landing.ts:99",
+      "sortable/layout-animation.ts:104"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "dx",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "dy",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "easing",
+    "library": 10,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:85",
+      "sortable/layout-animation.ts:104"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "effect",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:52"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "empty",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "end",
+    "library": 14,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "enter",
+    "library": 15,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "filter",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "sortable/collection.ts:25",
+      "sortable/keyboard.ts:55"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "find",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/behavior.ts:250"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "finished",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:111"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "first",
+    "library": 10,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "floor",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/rect-index.ts:357"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "focus",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:50",
+      "lift.ts:185"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "from",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "fromX",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "fromY",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "get",
+    "library": 0,
+    "platform": 4,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:154",
+      "sortable/layout-animation.ts:77",
+      "sortable/layout-animation.ts:112",
+      "sortable/layout-animation.ts:130"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getAttribute",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:166",
+      "lift.ts:197",
+      "sortable/placement.ts:36"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getBoundingClientRect",
+    "library": 0,
+    "platform": 8,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:258",
+      "free-drag/bounds.ts:48",
+      "free-drag/drop-targets.ts:81",
+      "sortable/operation.ts:265"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getComputedStyle",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:95",
+      "lift.ts:271"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getComputedTiming",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:52"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getPropertyPriority",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:148"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getPropertyValue",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:145",
+      "lift.ts:274"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "getSelection",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:391"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "handle",
+    "library": 11,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "handleEvent",
+    "library": 5,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "has",
+    "library": 2,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/gesture.ts:95",
+      "kernel/gesture.ts:361",
+      "kernel/gesture.ts:376"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "hasAttribute",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:141"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "hasPointerCapture",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:353",
+      "kernel/session.ts:533"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "height",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:352",
+      "free-drag/geometry.ts:21",
+      "sortable/placement.ts:50"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "hidePopover",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:202"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "holds",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "home",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "host",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:33"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "hypot",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:131"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "includes",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/behavior.ts:92",
+      "sortable/operation.ts:159",
+      "sortable/behavior.ts:153",
+      "sortable/behavior.ts:251"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "index",
+    "library": 10,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "indexOf",
+    "library": 0,
+    "platform": 4,
+    "unresolved": 0,
+    "sites": [
+      "sortable/collection.ts:42",
+      "sortable/collection.ts:58",
+      "sortable/collection.ts:75",
+      "sortable/keyboard.ts:48"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "innerHeight",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/bounds.ts:41"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "innerWidth",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/bounds.ts:40"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "insertion",
+    "library": 15,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "inset",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:350"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "invalidate",
+    "library": 32,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "isComposing",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/behavior.ts:135"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "isConnected",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:45",
+      "kernel/session.ts:421",
+      "sortable/operation.ts:247",
+      "sortable/operation.ts:259"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "isPrimary",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:93",
+      "kernel/session.ts:332",
+      "kernel/gesture.ts:359"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "isTrusted",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/gesture.ts:107"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "item",
+    "library": 44,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "items",
+    "library": 26,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "itemSpace",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "key",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:314",
+      "sortable/behavior.ts:135"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "land",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "landing",
+    "library": 15,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "left",
+    "library": 4,
+    "platform": 11,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:357",
+      "free-drag/bounds.ts:56",
+      "free-drag/bounds.ts:71",
+      "free-drag/drop-targets.ts:93"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "lend",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "length",
+    "library": 1,
+    "platform": 15,
+    "unresolved": 0,
+    "sites": [
+      "kernel/callbacks.ts:39",
+      "kernel/callbacks.ts:47",
+      "kernel/callbacks.ts:78",
+      "lift.ts:163"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "localDeltaX",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "localDeltaY",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "map",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:274"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "margin",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:342"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "matches",
+    "library": 0,
+    "platform": 6,
+    "unresolved": 0,
+    "sites": [
+      "kernel/gesture.ts:80",
+      "shared/landing.ts:80",
+      "lift.ts:198",
+      "lift.ts:201"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "matchMedia",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:78"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "max",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/bounds.ts:71",
+      "free-drag/bounds.ts:75"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "measure",
+    "library": 5,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "measurePlaceholder",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "message",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "fault.ts:7"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "min",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/bounds.ts:70",
+      "free-drag/bounds.ts:74"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "move",
+    "library": 7,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "moved",
+    "library": 7,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "moveTo",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "name",
+    "library": 1,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "next",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "nextElementSibling",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "sortable/placement.ts:65",
+      "sortable/operation.ts:250",
+      "sortable/behavior.ts:195"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "offsetHeight",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:287",
+      "sortable/behavior.ts:183"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "offsetWidth",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:286"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "onDrop",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "onEnd",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "onMove",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "onReorder",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "onStart",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "origin",
+    "library": 10,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "originPointerX",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "originPointerY",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "originRect",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "originX",
+    "library": 8,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "originY",
+    "library": 8,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "ownerDocument",
+    "library": 0,
+    "platform": 12,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:25",
+      "kernel/session.ts:47",
+      "kernel/session.ts:48",
+      "kernel/session.ts:48"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "parentElement",
+    "library": 0,
+    "platform": 4,
+    "unresolved": 0,
+    "sites": [
+      "sortable/operation.ts:248",
+      "sortable/operation.ts:249",
+      "sortable/operation.ts:260",
+      "sortable/operation.ts:260"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "parentNode",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:33",
+      "sortable/placement.ts:85",
+      "sortable/placement.ts:85"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "passive",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "shared/invalidation.ts:10",
+      "shared/invalidation.ts:12"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "placeholder",
+    "library": 18,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "placeholderRect",
+    "library": 7,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "pointerId",
+    "library": 11,
+    "platform": 6,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:75",
+      "kernel/session.ts:84",
+      "kernel/session.ts:105",
+      "kernel/session.ts:341"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "pointerX",
+    "library": 9,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "pointerY",
+    "library": 10,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "pop",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/callbacks.ts:72",
+      "kernel/callbacks.ts:73"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "popover",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:368"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "position",
+    "library": 1,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "shared/landing.ts:95",
+      "lift.ts:349"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "positionX",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "positionY",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "preventDefault",
+    "library": 0,
+    "platform": 4,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:108",
+      "kernel/session.ts:316",
+      "kernel/session.ts:390",
+      "kernel/gesture.ts:387"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "preventScroll",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:50",
+      "lift.ts:185"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "previous",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "previousElementSibling",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/placement.ts:60"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "progress",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:52"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "push",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/callbacks.ts:10"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "queue",
+    "library": 1,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "raise",
+    "library": 11,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "raiseInPass",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "reason",
+    "library": 12,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "rebase",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "rect",
+    "library": 13,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "refresh",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "reject",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "releasePointerCapture",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:534"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "remove",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/behavior.ts:188"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "removeAllRanges",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:391"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "removeAttribute",
+    "library": 0,
+    "platform": 4,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:167",
+      "lift.ts:206",
+      "free-drag/drop-targets.ts:69",
+      "sortable/placement.ts:43"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "removeProperty",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:159"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "report",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "request",
+    "library": 14,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "requestAnimationFrame",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "shared/invalidation.ts:31"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "requestCancel",
+    "library": 12,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "requestDestroy",
+    "library": 8,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "requestStep",
+    "library": 16,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "resolve",
+    "library": 5,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "retire",
+    "library": 13,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "right",
+    "library": 4,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "free-drag/bounds.ts:58",
+      "free-drag/bounds.ts:72",
+      "free-drag/drop-targets.ts:94",
+      "sortable/rect-index.ts:48"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "root",
+    "library": 8,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "rotate",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:360"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "run",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "scale",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:361"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "schedule",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "set",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:148",
+      "sortable/layout-animation.ts:116"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "setAttribute",
+    "library": 0,
+    "platform": 5,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:208",
+      "free-drag/drop-targets.ts:70",
+      "sortable/placement.ts:38",
+      "sortable/placement.ts:39"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "setPointerCapture",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:427"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "setProperty",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:157",
+      "lift.ts:345"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "settle",
+    "library": 9,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "shadowRoot",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "shared/focus.ts:5",
+      "shared/focus.ts:6"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "showPopover",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:179"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "signal",
+    "library": 10,
+    "platform": 14,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:67",
+      "kernel/session.ts:194",
+      "kernel/session.ts:199",
+      "kernel/session.ts:226"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "size",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:125"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "slice",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "snapshot",
+    "library": 10,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "space",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "stack",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "start",
+    "library": 7,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "state",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "stepTarget",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "stopPropagation",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:109"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "style",
+    "library": 0,
+    "platform": 25,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:145",
+      "lift.ts:148",
+      "lift.ts:157",
+      "lift.ts:159"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "target",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "targets",
+    "library": 5,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "terminate",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "then",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:503",
+      "sortable/layout-animation.ts:111"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "threshold",
+    "library": 11,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "timing",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "to",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "top",
+    "library": 4,
+    "platform": 12,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:356",
+      "free-drag/bounds.ts:57",
+      "free-drag/bounds.ts:75",
+      "free-drag/drop-targets.ts:95"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "toX",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "toY",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "transform",
+    "library": 0,
+    "platform": 2,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:291",
+      "lift.ts:365"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "transformOrigin",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:358"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "transition",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:348"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "translate",
+    "library": 14,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:359"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "trusted",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "type",
+    "library": 25,
+    "platform": 6,
+    "unresolved": 0,
+    "sites": [
+      "kernel/session.ts:310",
+      "kernel/session.ts:329",
+      "kernel/session.ts:345",
+      "kernel/session.ts:347"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "unshift",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "kernel/callbacks.ts:10"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "untrusted",
+    "library": 3,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "updateInsertion",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "use",
+    "library": 17,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "value",
+    "library": 6,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "values",
+    "library": 9,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "sortable/layout-animation.ts:152"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "version",
+    "library": 8,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "viewportDeltaX",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "viewportDeltaY",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "visual",
+    "library": 20,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "visualRect",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "visualSpace",
+    "library": 4,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": false
+  },
+  {
+    "name": "width",
+    "library": 0,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:351",
+      "free-drag/geometry.ts:20",
+      "sortable/placement.ts:49"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "window",
+    "library": 7,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "x",
+    "library": 39,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:299",
+      "lift.ts:322",
+      "free-drag/geometry.ts:18"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "y",
+    "library": 39,
+    "platform": 3,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:300",
+      "lift.ts:323",
+      "free-drag/geometry.ts:19"
+    ],
+    "eligible": false
+  },
+  {
+    "name": "zIndex",
+    "library": 2,
+    "platform": 0,
+    "unresolved": 0,
+    "sites": [],
+    "eligible": true
+  },
+  {
+    "name": "zoom",
+    "library": 0,
+    "platform": 1,
+    "unresolved": 0,
+    "sites": [
+      "lift.ts:355"
+    ],
+    "eligible": false
+  }
+]

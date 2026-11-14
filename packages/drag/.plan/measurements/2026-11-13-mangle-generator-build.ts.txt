@@ -1,0 +1,25 @@
+/**
+ * Builds as `generate-property-names.ts` does (the package config without the
+ * step, into a temporary directory) and compares every `.js` with commit A's tree.
+ * `node generator-build-equals-a.ts <commit A tree>`
+ */
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+process.chdir('/workspaces/material-x/packages/drag');
+const { build } = await import('tsdown');
+const { default: config } = await import('/workspaces/material-x/packages/drag/tsdown.config.ts');
+const { RENAME_PROPERTIES } = await import('/workspaces/material-x/packages/drag/build/rename-properties.ts');
+const tree = process.argv[2]!;
+const outDir = await mkdtemp(join(tmpdir(), 'drag-generator-build-'));
+await build({ ...config, config: false, cwd: process.cwd(), outDir, dts: false, exports: false, sourcemap: false, logLevel: 'warn',
+  plugins: [config.plugins].flat().filter((p: any) => p?.name !== RENAME_PROPERTIES) });
+const files = (await readdir(outDir, { recursive: true })).filter((f) => f.endsWith('.js')).sort();
+let differ = 0;
+for (const f of files) {
+  const a = (await readFile(join(tree, f), 'utf8')).replace(/\n\/\/# sourceMappingURL=.*$/u, '');
+  const b = await readFile(join(outDir, f), 'utf8');
+  if (a !== b) { differ += 1; console.log(`differs: ${f}`); }
+}
+console.log(`${files.length} modules compared with commit A's tree (its sourceMappingURL line removed, since this build has no maps); ${differ} differ`);
+await rm(outDir, { recursive: true, force: true });

@@ -1,0 +1,61 @@
+# M2: src/free-drag/behavior.ts line 50, the step's body 'operation?.handleEvent();' replaced with 'void operation;'
+50c50
+<   operation?.handleEvent();
+---
+>   void operation;
+# command: npx vitest run -c vitest.config.ts tests/free-drag.browser.test.ts -t 'should re-read bounds on invalidate' --reporter=verbose
+# 2026-11-12T14:26:04+00:00
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+2:26:05 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo
+ × |browser (chromium)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 228ms
+   → expected 300 to be close to 200, received difference is 100, but expected 0.5
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5)
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual
+ ↓ |browser (chromium)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate
+AssertionError: expected 300 to be close to 200, received difference is 100, but expected 0.5
+ ❯ tests/free-drag.browser.test.ts:116:47
+    114|     controller.invalidate();
+    115|     await moveHeld(at.x + 1, at.y);
+    116|     expect(box.getBoundingClientRect().right).toBeCloseTo(200, 0);
+       |                                               ^
+    117|     await commands.keyPress('Escape');
+    118|   });
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=63d2eda9:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 9 skipped (10)
+Type Errors  no errors
+   Start at  14:26:04
+   Duration  835ms (tests 61%, worker 30%, import 9%)
+
+exit 1
+# restored; cmp against the saved copy: identical

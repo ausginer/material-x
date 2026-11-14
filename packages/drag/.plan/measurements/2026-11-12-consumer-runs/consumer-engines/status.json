@@ -1,0 +1,31 @@
+{
+  "id": "consumer-engines",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 309775,
+    "start": "2800690"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-12T16:13:58.168Z",
+  "endedAt": "2026-11-12T16:16:52.523Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/consumer-engines/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "9c7b730472bd3d766dd31f9ede42035316e928af",
+        "dirty": true
+      },
+      "process": {
+        "pid": 309798,
+        "start": "2800697"
+      },
+      "startedAt": "2026-11-12T16:13:58.183Z",
+      "endedAt": "2026-11-12T16:16:52.523Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

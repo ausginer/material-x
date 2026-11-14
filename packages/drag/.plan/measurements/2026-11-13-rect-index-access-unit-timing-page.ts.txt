@@ -1,0 +1,251 @@
+/**
+ * The page of the RectIndex access timing check (DRD-61 property 11, the handoff's
+ * item 7), built on DRD-50 property 2's paired probe. Bundled into one IIFE with
+ * both trees: `before` is 8904947f6's src/sortable/, copied, and `production` is
+ * the unit's end, imported from the worktree. `control` is a second production
+ * instance. Each arm drives its own tree's `y()` or `xy()` installer, through
+ * `resolve` and `invalidate`, with its own RectIndex and, in case B, its own
+ * tree's `layoutAnimation()` sink. The page calls only members that both trees
+ * have under the same names.
+ */
+import { layoutAnimation as beforeLayoutAnimation } from './before/layout-animation.ts';
+import { xy as beforeXy } from './before/xy.ts';
+import { y as beforeY } from './before/y.ts';
+import { layoutAnimation as productionLayoutAnimation } from '/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/src/sortable/layout-animation.ts';
+import { xy as productionXy } from '/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/src/sortable/xy.ts';
+import { y as productionY } from '/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/src/sortable/y.ts';
+
+type Geometry = ReturnType<ReturnType<typeof productionXy>>;
+type Sink = ReturnType<ReturnType<typeof productionLayoutAnimation>>;
+type Insertion = { index: number; before: HTMLElement | null; after: HTMLElement | null };
+type Snapshot = { items: readonly HTMLElement[]; version: number };
+type Surface = {
+  dragged: HTMLElement;
+  placeholder: HTMLElement;
+  snapshot: Snapshot;
+  /** The committed gap: where the placeholder is, in the destination view. */
+  insertion: Insertion;
+  pointerX: number;
+  pointerY: number;
+};
+type Arm = { geometry: Geometry; sink: Sink | null; surface: Surface; rebuilds: boolean };
+
+const ITEMS = 2000;
+/** The placeholder follows this item, as in DRD-50's field. */
+const PLACEHOLDER_AFTER = 1000;
+const SPACE = new Float64Array(5);
+
+let field: Surface;
+let column: Surface;
+
+/** One surface: `count` items in `container`, a lifted dragged item, and a placeholder. */
+function build(container: HTMLElement, itemCss: string, version: number): Surface {
+  const items: HTMLElement[] = [];
+  const destination: HTMLElement[] = [];
+  // The dragged item is in the snapshot and outside the container, as a lifted item.
+  const dragged = document.createElement('div');
+  let placeholder!: HTMLElement;
+
+  dragged.style.cssText = 'position:fixed;left:0;top:0;width:40px;height:20px';
+  document.body.append(dragged);
+  items.push(dragged);
+
+  for (let i = 0; i < ITEMS; i += 1) {
+    const cell = document.createElement('div');
+
+    cell.style.cssText = itemCss;
+    cell.textContent = String(i);
+    container.append(cell);
+    items.push(cell);
+    destination.push(cell);
+
+    if (i === PLACEHOLDER_AFTER) {
+      placeholder = document.createElement('div');
+      placeholder.style.cssText = itemCss;
+      container.append(placeholder);
+    }
+  }
+
+  document.body.append(container);
+
+  const gap = PLACEHOLDER_AFTER + 1;
+
+  return {
+    dragged,
+    placeholder,
+    snapshot: { items, version },
+    insertion: { index: gap, before: destination[gap - 1]!, after: destination[gap]! },
+    pointerX: 0,
+    pointerY: 0,
+  };
+}
+
+/**
+ * Case A and B: fixed-size cells in a wrapping flex container. Case C: a column of
+ * fixed-height rows. Both laid out here, before any timing.
+ */
+function setup(): Readonly<Record<string, unknown>> {
+  const fieldElement = document.createElement('div');
+  const columnElement = document.createElement('div');
+
+  fieldElement.style.cssText = 'display:flex;flex-wrap:wrap;width:1000px';
+  columnElement.style.cssText = 'display:block;width:200px';
+  field = build(fieldElement, 'width:40px;height:20px;flex:none', 1);
+  column = build(columnElement, 'width:200px;height:20px', 2);
+  void document.body.offsetHeight;
+
+  // A fixed pointer inside the field, over cell 500.
+  const target = field.snapshot.items[1 + 500]!.getBoundingClientRect();
+
+  field.pointerX = (target.left + target.right) / 2;
+  field.pointerY = (target.top + target.bottom) / 2;
+
+  // Over the last row of the column.
+  const last = column.snapshot.items[ITEMS]!.getBoundingClientRect();
+
+  column.pointerX = (last.left + last.right) / 2;
+  column.pointerY = (last.top + last.bottom) / 2;
+
+  const tops = new Set(field.snapshot.items.slice(1).map((cell) => cell.offsetTop));
+
+  return {
+    fieldCount: ITEMS,
+    fieldRows: tops.size,
+    columnCount: ITEMS,
+    fieldPointer: [field.pointerX, field.pointerY],
+    columnPointer: [column.pointerX, column.pointerY],
+  };
+}
+
+const CASES: Record<string, { axis: 'xy' | 'y'; sink: boolean }> = {
+  A: { axis: 'xy', sink: false },
+  B: { axis: 'xy', sink: true },
+  C: { axis: 'y', sink: false },
+};
+
+function makeArm(kind: string, name: string): Arm {
+  const { axis, sink } = CASES[name]!;
+  const before = kind === 'before';
+  const install = axis === 'xy' ? (before ? beforeXy : productionXy) : before ? beforeY : productionY;
+  const geometry = install()() as Geometry;
+  const displacement = sink
+    ? ((before ? beforeLayoutAnimation : productionLayoutAnimation)()() as Sink)
+    : null;
+
+  return { geometry, sink: displacement, surface: axis === 'xy' ? field : column, rebuilds: axis === 'xy' };
+}
+
+function resolve({ geometry, sink, surface }: Arm): Insertion | null {
+  return geometry.resolve(
+    {
+      pointerX: surface.pointerX,
+      pointerY: surface.pointerY,
+      snapshot: surface.snapshot,
+      insertion: surface.insertion,
+      item: surface.dragged,
+    },
+    { placeholder: surface.placeholder, box: null, displacement: sink as never, space: SPACE },
+  ) as Insertion | null;
+}
+
+/** One operation: case A and B rebuild, case C scans a window that is already grown. */
+function operation(arm: Arm): Insertion | null {
+  if (arm.rebuilds) {
+    arm.geometry.invalidate();
+  }
+
+  return resolve(arm);
+}
+
+/** Mean µs per operation over `size` operations, and the batch's duration in ms. */
+function batch(arm: Arm, size: number): Readonly<{ us: number; ms: number }> {
+  const start = performance.now();
+
+  for (let i = 0; i < size; i += 1) {
+    operation(arm);
+  }
+
+  const ms = performance.now() - start;
+
+  return { us: (ms * 1000) / size, ms };
+}
+
+/** Rect reads during one operation, counted on the prototype for that call only. */
+function rectReadsOf(arm: Arm): Readonly<{ reads: number; result: number | null }> {
+  const read = Element.prototype.getBoundingClientRect;
+  let reads = 0;
+
+  Element.prototype.getBoundingClientRect = function counted(this: Element) {
+    reads += 1;
+    return read.call(this);
+  };
+
+  try {
+    const result = operation(arm);
+
+    return { reads, result: result ? result.index : null };
+  } finally {
+    Element.prototype.getBoundingClientRect = read;
+  }
+}
+
+const arms = new Map<string, Arm>();
+
+/**
+ * Creates the three arms of one case, each with its own installer instance. In case
+ * C, one resolve at the pointer grows each arm's window to the end of the list.
+ * Then one operation per arm is counted for rect reads, and its answer recorded.
+ */
+function prepare(name: string): Readonly<Record<string, unknown>> {
+  arms.clear();
+
+  for (const kind of ['before', 'production', 'control']) {
+    const arm = makeArm(kind, name);
+
+    arms.set(kind, arm);
+
+    if (!arm.rebuilds) {
+      resolve(arm);
+    }
+  }
+
+  const check: Record<string, { reads: number; result: number | null }> = {};
+
+  for (const [kind, arm] of arms) {
+    check[kind] = rectReadsOf(arm);
+  }
+
+  return check;
+}
+
+/**
+ * Doubles the batch size until a production batch lasts at least `ms`, after one
+ * discarded batch, so the size is set on warm code.
+ */
+function calibrate(ms: number): number {
+  let size = 1;
+
+  batch(arms.get('production')!, 64);
+
+  while (batch(arms.get('production')!, size).ms < ms) {
+    size *= 2;
+  }
+
+  return size;
+}
+
+/** One round: each arm in `order` discards a warm-up batch, then times one batch. */
+function round(order: readonly string[], size: number): Record<string, { us: number; ms: number }> {
+  const readings: Record<string, { us: number; ms: number }> = {};
+
+  for (const kind of order) {
+    const arm = arms.get(kind)!;
+
+    batch(arm, size);
+    readings[kind] = batch(arm, size);
+  }
+
+  return readings;
+}
+
+Object.assign(globalThis, { probe: { setup, prepare, calibrate, round } });

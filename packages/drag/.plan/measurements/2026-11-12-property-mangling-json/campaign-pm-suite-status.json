@@ -1,0 +1,48 @@
+{
+  "id": "pm-suite",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 229540,
+    "start": "2082464"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-12T14:14:15.914Z",
+  "endedAt": "2026-11-12T14:16:14.471Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.pm-plain.scratch.config.ts --project browser --project shipped --reporter=json --outputFile=/tmp/claude-1000/-workspaces-material-x/fd3608c1-14ec-4b02-9629-db4e2842128e/scratchpad/pm/suite-plain.json; echo vitest exit $?",
+      "log": "/tmp/claude-1000/-workspaces-material-x/fd3608c1-14ec-4b02-9629-db4e2842128e/scratchpad/pm/campaigns/pm-suite/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b0287f1aee276001a82ac1439effd9164f31593c",
+        "dirty": true
+      },
+      "process": {
+        "pid": 229570,
+        "start": "2082471"
+      },
+      "startedAt": "2026-11-12T14:14:15.930Z",
+      "endedAt": "2026-11-12T14:15:14.271Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.pm-mangled.scratch.config.ts --project browser --project shipped --reporter=json --outputFile=/tmp/claude-1000/-workspaces-material-x/fd3608c1-14ec-4b02-9629-db4e2842128e/scratchpad/pm/suite-mangled.json; echo vitest exit $?",
+      "log": "/tmp/claude-1000/-workspaces-material-x/fd3608c1-14ec-4b02-9629-db4e2842128e/scratchpad/pm/campaigns/pm-suite/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b0287f1aee276001a82ac1439effd9164f31593c",
+        "dirty": true
+      },
+      "process": {
+        "pid": 230804,
+        "start": "2088307"
+      },
+      "startedAt": "2026-11-12T14:15:14.286Z",
+      "endedAt": "2026-11-12T14:16:14.471Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

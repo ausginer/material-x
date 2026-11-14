@@ -29,13 +29,13 @@ describe('drag:DRI-18 module graphs and size', () => {
     const { modules } = measured.get('draggable alone')!;
 
     expect(modules.toSorted()).toEqual([
-      'src/draggable.ts',
-      'src/fault.ts',
-      'src/kernel/callback-list.ts',
-      'src/kernel/drag.ts',
-      'src/kernel/gesture.ts',
-      'src/kernel/session.ts',
-      'src/shared/focus.ts',
+      'draggable.js',
+      'fault.js',
+      'kernel/callbacks.js',
+      'kernel/drag.js',
+      'kernel/gesture.js',
+      'kernel/session.js',
+      'shared/focus.js',
     ]);
   });
 });

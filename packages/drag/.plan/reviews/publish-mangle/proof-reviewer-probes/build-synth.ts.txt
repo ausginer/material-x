@@ -1,0 +1,13 @@
+// build-synth.ts <pkgdir>: builds <pkgdir>/src/*.ts like drag's config (no dts), with the step and <pkgdir>/build/property-names.json
+import { readFile, readdir } from 'node:fs/promises';
+import { build } from '/workspaces/material-x/node_modules/tsdown/dist/index.mjs';
+import { renameProperties } from '/workspaces/material-x/packages/drag/build/rename-properties.ts';
+const dir = process.argv[2]!;
+const names = JSON.parse(await readFile(`${dir}/build/property-names.json`, 'utf8'));
+const entry = (await readdir(`${dir}/src`)).filter(f => f.endsWith('.ts')).map(f => `src/${f}`);
+await build({
+  config: false, cwd: dir, entry, platform: 'neutral', dts: false, format: 'esm', sourcemap: true,
+  target: 'esnext', outDir: dir, fixedExtension: false, clean: false, unbundle: true, logLevel: 'warn',
+  define: { __DEV__: 'false' }, exports: false,
+  plugins: process.argv.includes('--no-step') ? [] : [renameProperties(names)],
+});

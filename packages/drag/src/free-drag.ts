@@ -4,7 +4,11 @@
  * sends it home.
  */
 import { draggable } from './draggable.ts';
-import { FreeDragBehavior, type FreeDragConfig } from './free-drag/behavior.ts';
+import {
+  FreeDragBehavior,
+  type FreeDragConfig,
+  invalidate,
+} from './free-drag/behavior.ts';
 import {
   FreeDragResolution,
   type DragAxis,
@@ -61,7 +65,7 @@ export function freeDrag(
   kernel.use(lifter.cancelLanding);
 
   return {
-    invalidate: () => kernel.requestStep(behavior.invalidate),
+    invalidate: () => kernel.requestStep(invalidate),
     moveTo: (point) =>
       // One step per call: it carries the point, and DRI-8 keeps calls in order.
       kernel.requestStep((operation) => {

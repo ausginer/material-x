@@ -1,0 +1,13 @@
+# commit 2 (U1) against 1d304128b, size.ts.txt probe
+row                                         c2
+                                    min/gz9/br
+draggable alone                          0/0/0
+draggable + lift                         0/0/0
+ex: resize handle                        0/0/0
+ex: drop zone                            0/0/0
+ex: canvas group                         0/0/0
+freeDrag                              -26/0/-1
+freeDrag+b+l                          -26/-1/0
+sortable + y                       -44/-15/-12
+sortable + xy                       -30/-9/-10
+complete                           -44/-14/-15

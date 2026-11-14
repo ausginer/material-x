@@ -1,0 +1,12 @@
+# TypeScript transpileModule (ESNext) of each edited plugin source at f9e56fe7d and 27c60a9ac. Script below; run from the checkout root with typescript resolved from its node_modules.
+packages/vite-custom-element-assets/src/index.ts: emitted JavaScript identical=true (8560 and 8560 chars)
+packages/vite-traits-plugin/src/plugin.ts: emitted JavaScript identical=true (5419 and 5419 chars)
+
+# emit.mjs
+import { execFileSync } from 'node:child_process';
+import ts from 'typescript';
+const files = ['packages/vite-custom-element-assets/src/index.ts', 'packages/vite-traits-plugin/src/plugin.ts'];
+for (const file of files) {
+  const out = ['f9e56fe7d', '27c60a9ac'].map((c) => ts.transpileModule(execFileSync('git', ['show', `${c}:${file}`], { encoding: 'utf8' }), { compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, verbatimModuleSyntax: false } }).outputText);
+  console.log(`${file}: emitted JavaScript identical=${out[0] === out[1]} (${out[0].length} and ${out[1].length} chars)`);
+}

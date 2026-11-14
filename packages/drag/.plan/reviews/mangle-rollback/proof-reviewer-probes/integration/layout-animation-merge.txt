@@ -1,0 +1,58 @@
+## git merge-tree --write-tree --name-only f0b66c2ec 7d8d7a805
+5ffd1beacd4223f473db9891c9b2f505c686f910
+packages/drag/src/sortable/layout-animation.ts
+
+Auto-merging packages/drag/src/sortable/layout-animation.ts
+CONFLICT (content): Merge conflict in packages/drag/src/sortable/layout-animation.ts
+
+## drag side (0a28f909a..f0b66c2ec) changed lines vs p2..merge (7d8d7a805..6296b741a)
+equal
+## main side (0a28f909a..7d8d7a805) changed lines vs p1..merge (f0b66c2ec..6296b741a)
+equal
+
+## p1..merge
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index c749249e7..aa8127170 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -14,7 +14,7 @@
+  *
+  * No lifecycle waits for it: an animation in flight never delays release or teardown.
+  */
+-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
++import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
+ import type { DisplacementInstaller, DisplacementSink } from './axis.ts';
+ 
+ export type LayoutAnimationOptions = Readonly<{
+@@ -59,7 +59,7 @@ export const layoutAnimation =
+   }: LayoutAnimationOptions = {}): DisplacementInstaller =>
+   () => {
+     const running = new Map<HTMLElement, RowAnimation>();
+-    const local = delta();
++    const local: Delta = [];
+     // What the last `displaced` call answered with, read through the getters.
+     let carriedX = 0;
+     let carriedY = 0;
+## main side
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 54da6b863..ab119b5cd 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -14,7 +14,7 @@
+  *
+  * No lifecycle waits for it: an animation in flight never delays release or teardown.
+  */
+-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
++import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
+ import type { DisplacementInstaller, DisplacementSink } from './axis.ts';
+ import {
+   BOTTOM,
+@@ -68,7 +68,7 @@ export const layoutAnimation =
+   }: LayoutAnimationOptions = {}): DisplacementInstaller =>
+   () => {
+     const running = new Map<HTMLElement, RowAnimation>();
+-    const local = delta();
++    const local: Delta = [];
+ 
+     return {
+       report(element: HTMLElement, dx: number, dy: number, space: Space): void {

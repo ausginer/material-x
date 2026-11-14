@@ -1,0 +1,117 @@
+// Run from packages/vite-traits-plugin at 27c60a9ac. Output follows the source.
+// RF-31 type probe. Each export is one case; the expected verdict is in its comment.
+// Run from packages/vite-traits-plugin with:
+//   npx tsc --ignoreConfig --noEmit --strict --target esnext --module nodenext \
+//     --moduleResolution nodenext --skipLibCheck rf31-probe.ts
+import type { Plugin as RolldownPlugin } from 'rolldown';
+import type { Plugin } from 'vite';
+
+// P1 (error): Vite 8.3.8's declared `Plugin` against Rolldown 1.3.2's: RF-31 itself.
+declare const vitePlugin: Plugin;
+export const p1: RolldownPlugin = vitePlugin;
+
+// P2 (accepted): the fix's form, with no `load` hook, as `viteTraitsPlugin` has.
+export const p2: Plugin & RolldownPlugin = {
+  name: 'p2',
+  transform(code, id) {
+    return id.endsWith('.ts') ? { code } : null;
+  },
+} satisfies Plugin;
+
+// P3 (accepted): the fix's form, with a `load` handler that takes only `id`, as the asset plugins have.
+export const p3: Plugin & RolldownPlugin = {
+  name: 'p3',
+  load: {
+    handler(id) {
+      return id;
+    },
+  },
+} satisfies Plugin;
+
+// P4 (error): a genuine mismatch through the fix's form. Vite's argument satisfies
+// the parameter; Rolldown's `rawId: string` does not.
+export const p4: Plugin & RolldownPlugin = {
+  name: 'p4',
+  load(id, options?: { ssr?: boolean; rawId?: number }) {
+    return options?.rawId === 1 ? id : null;
+  },
+} satisfies Plugin;
+
+// P5 (accepted): P4 typed as Vite's `Plugin` only, as before the fix.
+export const p5: Plugin = {
+  name: 'p5',
+  load(id, options?: { ssr?: boolean; rawId?: number }) {
+    return options?.rawId === 1 ? id : null;
+  },
+};
+
+// P6 (error): a result Rolldown does not accept, through the fix's form.
+export const p6: Plugin & RolldownPlugin = {
+  name: 'p6',
+  transform(code) {
+    return { code, moduleType: 1 };
+  },
+} satisfies Plugin;
+
+// P7 (accepted, the limit): Vite's declared `load` options shape, through the fix's
+// form. Only TypeScript's weak-type check rejects it (P1), and a constituent of an
+// intersection target does not apply that check. Reading the optional `ssr` from
+// Rolldown's argument gives `undefined`.
+export const p7: Plugin & RolldownPlugin = {
+  name: 'p7',
+  load(id, options?: { ssr?: boolean }) {
+    return options?.ssr ? id : null;
+  },
+} satisfies Plugin;
+
+// P8 (error): P7 checked against Rolldown's type directly. The second `satisfies`
+// also applies excess-property checks against Rolldown, so the real plugins could
+// not use it with their Vite-only members (`enforce`, `configResolved`).
+export const p8: Plugin & RolldownPlugin = {
+  name: 'p8',
+  load(id, options?: { ssr?: boolean }) {
+    return options?.ssr ? id : null;
+  },
+} satisfies Plugin satisfies RolldownPlugin;
+
+/* Output:
+rf31-probe.ts(10,14): error TS2322: Type 'import("/workspaces/material-x/node_modules/vite/dist/node/index").Plugin<any>' is not assignable to type 'import("/workspaces/material-x/node_modules/rolldown/dist/shared/define-config-QuM53xoi").E<any>'.
+  Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+    Type 'ObjectHook<(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult, { ...; }> | undefined' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+        Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'LoadExtraOptions' has no properties in common with type '{ ssr?: boolean | undefined; }'.
+rf31-probe.ts(32,14): error TS2322: Type '{ name: string; load(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; rawId?: number | undefined; } | undefined): string | null; }' is not assignable to type 'Plugin<any> & Plugin<any>'.
+  Type '{ name: string; load(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; rawId?: number | undefined; } | undefined): string | null; }' is not assignable to type 'Plugin<any>'.
+    Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; rawId?: number | undefined; } | undefined) => string | null' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+        Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; rawId?: number | undefined; } | undefined) => string | null' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'LoadExtraOptions' is not assignable to type '{ ssr?: boolean | undefined; rawId?: number | undefined; }'.
+              Types of property 'rawId' are incompatible.
+                Type 'string' is not assignable to type 'number'.
+rf31-probe.ts(48,14): error TS2322: Type '{ name: string; transform(this: TransformPluginContext, code: string): { code: string; moduleType: number; }; }' is not assignable to type 'Plugin<any> & Plugin<any>'.
+  Type '{ name: string; transform(this: TransformPluginContext, code: string): { code: string; moduleType: number; }; }' is not assignable to type 'Plugin<any>'.
+    Types of property 'transform' are incompatible.
+      Type '(this: TransformPluginContext, code: string) => { code: string; moduleType: number; }' is not assignable to type 'ObjectHook<(this: TransformPluginContext, code: string, id: string, options?: { moduleType: ModuleType; ssr?: boolean | undefined; } | undefined) => Promise<...> | TransformResult, { ...; }> | undefined'.
+        Type '(this: TransformPluginContext, code: string) => { code: string; moduleType: number; }' is not assignable to type '(this: TransformPluginContext, code: string, id: string, options?: { moduleType: ModuleType; ssr?: boolean | undefined; } | undefined) => Promise<...> | TransformResult'.
+          Type '{ code: string; moduleType: number; }' is not assignable to type 'Promise<TransformResult> | TransformResult'.
+            Type '{ code: string; moduleType: number; }' is not assignable to type 'Omit<SourceDescription, "code"> & { code?: string | RolldownMagicString | undefined; }'.
+              Type '{ code: string; moduleType: number; }' is not assignable to type 'Omit<SourceDescription, "code">'.
+                Types of property 'moduleType' are incompatible.
+                  Type 'number' is not assignable to type 'ModuleType | undefined'.
+rf31-probe.ts(50,3): error TS2322: Type '(this: TransformPluginContext, code: string) => { code: string; moduleType: number; }' is not assignable to type 'ObjectHook<(this: TransformPluginContext, code: string, id: string, options?: { moduleType: ModuleType; ssr?: boolean | undefined; } | undefined) => Promise<...> | TransformResult, { ...; }> | undefined'.
+  Type '(this: TransformPluginContext, code: string) => { code: string; moduleType: number; }' is not assignable to type '(this: TransformPluginContext, code: string, id: string, options?: { moduleType: ModuleType; ssr?: boolean | undefined; } | undefined) => Promise<...> | TransformResult'.
+    Type '{ code: string; moduleType: number; }' is not assignable to type 'Promise<TransformResult> | TransformResult'.
+      Type '{ code: string; moduleType: number; }' is not assignable to type 'Omit<SourceDescription, "code"> & { code?: string | RolldownMagicString | undefined; }'.
+        Type '{ code: string; moduleType: number; }' is not assignable to type 'Omit<SourceDescription, "code">'.
+          Types of property 'moduleType' are incompatible.
+            Type 'number' is not assignable to type 'ModuleType | undefined'.
+rf31-probe.ts(74,20): error TS1360: Type '{ name: string; load(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined): string | null; }' does not satisfy the expected type 'Plugin<any>'.
+  Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+    Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => string | null' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => string | null' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+        Types of parameters 'options' and 'options' are incompatible.
+          Type 'LoadExtraOptions' has no properties in common with type '{ ssr?: boolean | undefined; }'.
+*/

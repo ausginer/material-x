@@ -1,0 +1,65 @@
+{
+  "id": "gate-g3",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 408361,
+    "start": "6089312"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:22:04.387Z",
+  "endedAt": "2026-11-13T01:23:08.030Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "printf '%s\\n' \"throw new Error('G3: a tsdown configuration that throws while it loads');\" > tsdown.config.ts && cat tsdown.config.ts && git status --short tsdown.config.ts",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g3/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 408377,
+        "start": "6089318"
+      },
+      "startedAt": "2026-11-13T01:22:04.401Z",
+      "endedAt": "2026-11-13T01:22:04.405Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "strace -f -z --seccomp-bpf -qq -tt -e trace=execve -o /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/g3.strace npx vitest run -c vitest.config.ts --reporter=verbose; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g3/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 408388,
+        "start": "6089320"
+      },
+      "startedAt": "2026-11-13T01:22:04.415Z",
+      "endedAt": "2026-11-13T01:23:08.013Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "cp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/tsdown.config.ts.orig tsdown.config.ts && cmp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/tsdown.config.ts.orig tsdown.config.ts && echo restored && git status --short tsdown.config.ts",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g3/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 410340,
+        "start": "6095681"
+      },
+      "startedAt": "2026-11-13T01:23:08.024Z",
+      "endedAt": "2026-11-13T01:23:08.030Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

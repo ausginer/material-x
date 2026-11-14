@@ -1,0 +1,13 @@
+// build-real.ts <outDir> [--no-step] [--names <json>] [--step <module>]: builds drag's publication from the real tree into outDir
+import { readFile } from 'node:fs/promises';
+import { parseArgs } from 'node:util';
+import { build } from '/workspaces/material-x/node_modules/tsdown/dist/index.mjs';
+import config from '/workspaces/material-x/packages/drag/tsdown.config.ts';
+const { positionals: [outDir], values } = parseArgs({ allowPositionals: true, options: { 'no-step': { type: 'boolean' }, names: { type: 'string' }, step: { type: 'string' } } });
+const plugins = [config.plugins].flat().filter((p: any) => p?.name !== 'drag:rename-properties');
+if (!values['no-step']) {
+  const names = JSON.parse(await readFile(values.names ?? '/workspaces/material-x/packages/drag/build/property-names.json', 'utf8'));
+  const { renameProperties } = await import(values.step ?? '/workspaces/material-x/packages/drag/build/rename-properties.ts');
+  plugins.push(renameProperties(names));
+}
+await build({ ...config, config: false, cwd: '/workspaces/material-x/packages/drag', outDir, exports: false, logLevel: 'warn', plugins });

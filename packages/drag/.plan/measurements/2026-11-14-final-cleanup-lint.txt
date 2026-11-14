@@ -1,0 +1,59 @@
+# npx just lint (packages/drag) at 27c60a9ac
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+exit 0
+
+# The 49 errors' autofix alone (fmt, lint-fix, fmt, lint on the 10 files): 39 void removals become 39 chai-friendly/no-unused-expressions errors
+tests/callbacks.declaration.test.ts:72:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/callbacks.declaration.test.ts:75:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/callbacks.declaration.test.ts:131:3: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/callbacks.declaration.test.ts:135:3: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/callbacks.declaration.test.ts:177:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/destruction.browser.test.ts:408:11: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:28:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:32:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:34:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:36:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:38:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:49:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:59:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:60:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:74:13: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:78:13: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:134:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:136:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:138:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:140:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:142:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:144:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:149:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:151:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:153:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:159:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:161:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:163:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:171:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:173:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:184:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:186:9: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:229:11: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:230:11: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:240:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:241:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/authoring.declaration.test.ts:245:7: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/published-types.declaration.test.ts:16:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+tests/published-types.declaration.test.ts:28:5: error chai-friendly(no-unused-expressions): Expected an assignment or function call and instead saw an expression.
+error: recipe `lint` failed on line 49 with exit code 1
+
+# Plugin lint errors that exist at f9e56fe7d in lines this unit does not change
+vite-custom-element-assets src/index.ts (eslint):
+  237:26  error  Use the 'u' flag  require-unicode-regexp
+  238:26  error  Use the 'u' flag  require-unicode-regexp
+vite-custom-element-assets package (oxlint):
+src/css/generation.ts:256:23: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+src/css/generation.ts:257:15: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+error: recipe `lint` failed on line 22 with exit code 1
+vite-traits-plugin package (eslint):
+  85:5  error  for..in loops are slower than Object.{keys,values,entries} and have their caveats  no-restricted-syntax
+✖ 1 problem (1 error, 0 warnings)
+error: recipe `lint` failed on line 26 with exit code 1

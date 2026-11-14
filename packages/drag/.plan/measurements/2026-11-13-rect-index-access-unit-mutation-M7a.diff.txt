@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index f1bdf3b56..71da366c3 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -319,7 +319,7 @@ export class RectIndex {
+     let dx = 0;
+     let dy = 0;
+ 
+-    if (displacement?.displaced(element)) {
++    if (displacement?.displaced(this.#items[0]!)) {
+       ({ dx, dy } = displacement);
+     }
+ 

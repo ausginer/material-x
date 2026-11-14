@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Runs each --prove and --floors entry alone with --dry, so a stale entry does not
+# hide the entries after it. Prints one result line per entry.
+set -u
+prove=(
+  'about 1 ms of script per cycle, at the drop'
+  'one object of about 1 KB retained per operation past destruction'
+  'one forced layout per move'
+  'one O(n) walk per move'
+  '1 KB allocated per move'
+  'one entry on the step list per frame'
+  'an array of four numbers per sample, in Gesture.enter'
+  '30 µs of script per move, in the page'
+  '300 µs of script per cycle, in the page'
+)
+floors=(
+  '300 µs of script per cycle, at the drop'
+  '100 µs of script per cycle, at the drop'
+  '100 µs of script per move'
+  '30 µs of script per move'
+  '10 µs of script per move'
+  "one object with two number properties per sample, in Session's #move"
+  'one object with two number properties retained per operation'
+  '30 µs of script per move, in the page'
+  '10 µs of script per move, in the page'
+  '5 µs of script per move, in the page'
+  '2 µs of script per move, in the page'
+  '300 µs of script per cycle, in the page'
+  '100 µs of script per cycle, in the page'
+  '30 µs of script per cycle, in the page'
+)
+check() {
+  local mode=$1 name=$2 out
+  out=$(node bench/compare.ts "--$mode" --dry --only "$name" 2>&1)
+  if grep -qxF "applies: $name" <<<"$out" || grep -qxF "applies: $name, expected to stay quiet" <<<"$out"; then
+    echo "$mode	applies	$name"
+  else
+    echo "$mode	FAILS	$name	$(grep -m1 '^Error' <<<"$out")"
+  fi
+}
+for n in "${prove[@]}"; do check prove "$n"; done
+for n in "${floors[@]}"; do check floors "$n"; done

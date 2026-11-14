@@ -1,0 +1,251 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+4:06:50 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js?v=da1eabec
+4:06:56 PM [vite] Internal server error: src/kernel/callbacks.ts is not a published entry of @ydinjs/drag
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/tests/landing.browser.test.ts:3:7
+  1  |  /** `drag:DRI-13`: landing and elevation. */
+  2  |  import { afterEach, describe, expect, it } from "vitest";
+  3  |  import "../src/kernel/callbacks.ts";
+     |          ^
+  4  |  import { freeDrag, FreeDragResolution } from "../src/free-drag.ts";
+  5  |  import { Lifter } from "../src/lift.ts";
+      at ResolveIdContext._formatLog (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8803:39)
+      at ResolveIdContext.error (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8800:14)
+      at ResolveIdContext.resolveId (file:///workspaces/material-x/packages/drag/node_modules/.vite-temp/vitest.config.ts.timestamp-1794499609145-b264a51930ccc8.mjs:333:41)
+      at async EnvironmentPluginContainer.resolveId (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8498:19)
+      at async TransformPluginContext.resolve (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8733:13)
+      at async resolveId (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26586:22)
+      at async file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26693:23
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:26666:4)
+      at async EnvironmentPluginContainer.transform (file:///workspaces/material-x/node_modules/vite/dist/node/chunks/node.js:8582:14)
+ ❯ |consumer (chromium)| tests/landing.browser.test.ts (0 test)
+code or code-insiders is not installed
+
+Could not open node.js in the editor.
+The editor process exited with an error: (code 127).
+
+ ❯ |consumer (chromium)| tests/coordinates.browser.test.ts (27 tests | 19 failed) 3980ms
+   ❯ drag:DRI-16 no-lift move and resize (12)
+     × should follow the pointer under rotate 174ms
+     × should follow the pointer under scale 169ms
+     × should follow the pointer under skew 96ms
+     × should follow the pointer under zoom 175ms
+     × should follow the pointer under rotate, scale and zoom 184ms
+     × should follow the pointer with own rotate 168ms
+     × should need a division by the element own zoom, which a behavior states 171ms
+     × should resize along the pointer under rotate, through the element Box 144ms
+     × should resize along the pointer under scale, through the element Box 139ms
+     × should resize along the pointer under skew, through the element Box 133ms
+     × should resize along the pointer under zoom, through the element Box 162ms
+     × should resize along the pointer under rotate, scale and zoom, through the element Box 150ms
+   ❯ drag:DRI-16 lifted (8)
+     × should follow the pointer exactly under rotate 135ms
+     × should follow the pointer exactly under scale 137ms
+     × should follow the pointer exactly under skew 63ms
+     × should follow the pointer exactly under zoom 148ms
+     × should follow the pointer exactly under rotate, scale and zoom 150ms
+     × should follow the pointer exactly under own rotate on the item 136ms
+     × should follow the pointer for an item with its own zoom 74ms
+ ❯ |consumer (chromium)| tests/sortable.browser.test.ts (49 tests | 1 failed) 14914ms
+   ❯ sortable options (12)
+     × should honor handle: a press elsewhere does not admit 282ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |consumer (chromium)| tests/landing.browser.test.ts [ tests/landing.browser.test.ts ]
+Error: Failed to import test file /workspaces/material-x/packages/drag/tests/landing.browser.test.ts
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5847:5
+ ❯ collectTests .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5823:3
+ ❯ startTests .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:6511:17
+
+Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:63317/workspaces/material-x/packages/drag/tests/landing.browser.test.ts?import&browserv=1794499616918
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under scale
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under skew
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under zoom
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate, scale and zoom
+AssertionError: expected 47.169905660283014 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:103:9
+    101|       expect(
+    102|         distance(after.x - start.x, after.y - start.y, 40, 25),
+    103|       ).toBeLessThan(1);
+       |         ^
+    104|       await commands.keyPress('Escape');
+    105|     },
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:108 > drag:DRI-16 no-lift move and resize > should follow the pointer with own rotate
+AssertionError: expected 36.05551275463989 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:120:68
+    118|     const after = centerOf(node);
+    119|
+    120|     expect(distance(after.x - start.x, after.y - start.y, 30, 20)).toB…
+       |                                                                    ^
+    121|       1,
+    122|     );
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:126 > drag:DRI-16 no-lift move and resize > should need a division by the element own zoom, which a behavior states
+AssertionError: expected 36.05551275463989 to be less than 1.5
+ ❯ tests/coordinates.browser.test.ts:138:68
+    136|     const after = centerOf(node);
+    137|
+    138|     expect(distance(after.x - start.x, after.y - start.y, 30, 20)).toB…
+       |                                                                    ^
+    139|       1.5,
+    140|     );
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, through the element Box
+AssertionError: expected 17.99038105676658 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:171:9
+    169|       expect(
+    170|         Math.abs(parseFloat(target.style.width) - Math.max(80, expecte…
+    171|       ).toBeLessThan(1);
+       |         ^
+    172|       expect(
+    173|         Math.abs(
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under scale, through the element Box
+AssertionError: expected 30 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:171:9
+    169|       expect(
+    170|         Math.abs(parseFloat(target.style.width) - Math.max(80, expecte…
+    171|       ).toBeLessThan(1);
+       |         ^
+    172|       expect(
+    173|         Math.abs(
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under skew, through the element Box
+AssertionError: expected 11.360299999999995 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:171:9
+    169|       expect(
+    170|         Math.abs(parseFloat(target.style.width) - Math.max(80, expecte…
+    171|       ).toBeLessThan(1);
+       |         ^
+    172|       expect(
+    173|         Math.abs(
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under zoom, through the element Box
+AssertionError: expected 10 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:171:9
+    169|       expect(
+    170|         Math.abs(parseFloat(target.style.width) - Math.max(80, expecte…
+    171|       ).toBeLessThan(1);
+       |         ^
+    172|       expect(
+    173|         Math.abs(
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, scale and zoom, through the element Box
+AssertionError: expected 6.3470383697657695 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:171:9
+    169|       expect(
+    170|         Math.abs(parseFloat(target.style.width) - Math.max(80, expecte…
+    171|       ).toBeLessThan(1);
+       |         ^
+    172|       expect(
+    173|         Math.abs(
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under scale
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under skew
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under zoom
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate, scale and zoom
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under own rotate on the item
+AssertionError: expected 72.11102550927978 to be less than 1
+ ❯ tests/coordinates.browser.test.ts:213:68
+    211|     const after = centerOf(node);
+    212|
+    213|     expect(distance(after.x - start.x, after.y - start.y, 60, 40)).toB…
+       |                                                                    ^
+    214|       1,
+    215|     );
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  |consumer (chromium)| tests/coordinates.browser.test.ts:219 > drag:DRI-16 lifted > should follow the pointer for an item with its own zoom
+AssertionError: expected 72.11102550927978 to be less than 1.5
+ ❯ tests/coordinates.browser.test.ts:245:68
+    243|     const after = centerOf(node);
+    244|
+    245|     expect(distance(after.x - start.x, after.y - start.y, 60, 40)).toB…
+       |                                                                    ^
+    246|       1.5,
+    247|     );
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+ FAIL  |consumer (chromium)| tests/sortable.browser.test.ts:742 > sortable options > should honor handle: a press elsewhere does not admit
+AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "start",[39m
+[32m-   "end:accepted",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ tests/sortable.browser.test.ts:762:17
+    760|     expect(log).toEqual([]);
+    761|     await dragAndDrop('#r0 .grip', 45);
+    762|     expect(log).toEqual(['start', 'end:accepted']);
+       |                 ^
+    763|   });
+    764|
+ ❯ .vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/plugins.DPQHVT0p-vDHaMBXC.js?v=da1eabec:5237:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/21]⎯
+
+
+ Test Files  3 failed | 19 passed (22)
+      Tests  20 failed | 287 passed (307)
+   Start at  16:06:49
+   Duration  35.68s (worker 87%, tests 12%)
+

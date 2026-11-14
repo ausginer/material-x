@@ -35,9 +35,10 @@ import type { AxisContext, DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import {
   CENTER_Y,
+  LEFT,
+  PLACEHOLDER,
   type RectIndex,
-  STRIDE,
-  TOP,
+  RIGHT,
   verifyEquivalence,
 } from './rect-index.ts';
 
@@ -47,7 +48,7 @@ export interface LinearShift {
    * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
    * is stale, and grows the window until it brackets the pointer. `gap` is the gap
    * the placeholder occupies at the moment of the scan, which only the caller
-   * knows, or `-1` for none. The stale placeholder is read first, because the
+   * knows. The stale placeholder is read first, because the
    * development check compares it against the tree. That check runs here, one frame
    * after the move, because at the move's own instant the animations it started
    * have no resolved timing yet.
@@ -55,17 +56,18 @@ export interface LinearShift {
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
-    getBox: ((item: HTMLElement) => HTMLElement) | null,
+    getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
     placeholder: HTMLElement,
-    displacement: DisplacementSink | null,
+    displacement: DisplacementSink | null | undefined,
     gap: number,
     pointerY: number,
   ): void;
 
   /**
-   * After a committed move: advances the crossed slots to the geometry the DOM write
-   * just produced, marks the placeholder stale, and reports the span when a sink is
-   * installed. Reads one crossed row when the constant is not established.
+   * After a committed move: has the cache shift the crossed slots to the geometry
+   * the DOM write just produced, marks the placeholder stale, and reports the span
+   * when a sink is installed. Reads one crossed row when the constant is not
+   * established.
    */
   moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void;
 
@@ -74,6 +76,7 @@ export interface LinearShift {
   retire(): void;
 }
 
+/** `index` was constructed with `TOP` as its axis. */
 export function linearShift(index: RectIndex): LinearShift {
   /** A prediction is valid only against a buffer that describes the DOM. */
   let dirty = true;
@@ -98,6 +101,14 @@ export function linearShift(index: RectIndex): LinearShift {
   /** Written only inside `__DEV__` branches, so it folds away with them. */
   let advanceUnchecked = false;
 
+  /**
+   * The placeholder's left and right as the cache held them before the re-read,
+   * or `NaN` when no re-read followed the last committed move. Written only inside
+   * `__DEV__` branches.
+   */
+  let heldLeft = Number.NaN;
+  let heldRight = Number.NaN;
+
   return {
     refresh(
       snapshot,
@@ -110,7 +121,15 @@ export function linearShift(index: RectIndex): LinearShift {
     ) {
       if (placeholderIsStale) {
         placeholderIsStale = false;
-        index.remeasurePlaceholder(placeholder);
+
+        if (__DEV__ && advanceUnchecked) {
+          // The rule predicts that a relocation leaves both x coordinates where
+          // the rebuild measured them, and the check compares that prediction.
+          heldLeft = index.at(PLACEHOLDER, LEFT);
+          heldRight = index.at(PLACEHOLDER, RIGHT);
+        }
+
+        index.measurePlaceholder(placeholder);
       }
 
       if (
@@ -127,22 +146,25 @@ export function linearShift(index: RectIndex): LinearShift {
           getBox,
           placeholder,
           displacement,
+          heldLeft,
+          heldRight,
         );
+        heldLeft = Number.NaN;
+        heldRight = Number.NaN;
       }
 
-      // With no gap, the window starts at the list's start and grows down.
-      index.collect(snapshot, dragged, placeholder, gap < 0 ? 0 : gap);
+      index.collect(snapshot, dragged, placeholder, gap);
 
-      // Read once: `measure` writes into this buffer and never replaces it.
-      const { values, count } = index;
+      // Read once, outside the loops.
+      const { count } = index;
 
       // Toward the pointer only: under the order term, a slot on the other side of
       // the placeholder is never nearer than the placeholder's own center.
-      if (pointerY > index.placeholderRect[CENTER_Y]!) {
+      if (pointerY > index.at(PLACEHOLDER, CENTER_Y)) {
         while (
           index.end < count &&
           (index.first === index.end ||
-            values[(index.end - 1) * STRIDE + CENTER_Y]! < pointerY)
+            index.at(index.end - 1, CENTER_Y) < pointerY)
         ) {
           index.measure(index.end, index.end + 1, getBox, displacement);
         }
@@ -150,7 +172,7 @@ export function linearShift(index: RectIndex): LinearShift {
         while (
           index.first > 0 &&
           (index.first === index.end ||
-            values[index.first * STRIDE + CENTER_Y]! > pointerY)
+            index.at(index.first, CENTER_Y) > pointerY)
         ) {
           index.measure(index.first - 1, index.first, getBox, displacement);
         }
@@ -158,10 +180,7 @@ export function linearShift(index: RectIndex): LinearShift {
 
       snapshotVersion = snapshot.version;
       dirty = false;
-
-      if (gap >= 0) {
-        lastGap = gap;
-      }
+      lastGap = gap;
     },
 
     moved(gap, snapshot, context) {
@@ -184,37 +203,21 @@ export function linearShift(index: RectIndex): LinearShift {
 
       const lo = lastGap < gap ? lastGap : gap;
       const hi = lastGap < gap ? gap : lastGap;
+
       let delta = lastGap < gap ? -rowDistance : rowDistance;
 
       if (rowDistance < 0) {
-        // Any crossed row works, because they all traveled the same constant.
-        const probe = index.items[lo]!;
-        let observed = (
-          context.box ? context.box(probe) : probe
-        ).getBoundingClientRect().top;
-
-        if (context.displacement) {
-          // The row may be mid-flight from an earlier move, and both sides of the
-          // difference must be settled geometry.
-          const scratch = new Float64Array(STRIDE);
-
-          scratch[TOP] = observed;
-          context.displacement.settle(scratch, [probe], 0, 1);
-          observed = scratch[TOP]!;
-        }
-
-        delta = observed - index.values[lo * STRIDE + TOP]!;
+        // Any crossed row works, because they all traveled the same constant. The
+        // row may be mid-flight from an earlier move, so the cache settles it.
+        delta = index.travel(lo, context.box, context.displacement);
         rowDistance = delta < 0 ? -delta : delta;
       }
 
-      index.advance(lo, hi, delta);
+      index.shift(lo, hi, delta);
 
       if (context.displacement) {
-        // Read once, outside a loop that calls into the sink.
-        const { items } = index;
-
         for (let i = lo; i < hi; i += 1) {
-          context.displacement.report(items[i]!, 0, -delta, context.space);
+          context.displacement.report(index.item(i), 0, -delta, context.space);
         }
       }
 

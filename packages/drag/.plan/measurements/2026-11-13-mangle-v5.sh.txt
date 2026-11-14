@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# V5: two builds of one tree; every published file must be byte-identical.
+set -euo pipefail
+cd /workspaces/material-x/packages/drag
+work=$(mktemp -d)
+list() { node -e 'for (const f of require("./package.json").files) console.log(f)' | while read -r f; do if [ -d "$f" ]; then find "$f" -type f; else echo "$f"; fi; done | sort; }
+for n in 1 2; do
+  npx just build > "$work/build-$n.log" 2>&1
+  mkdir "$work/$n"; list > "$work/list-$n.txt"; tar cf - -T "$work/list-$n.txt" | tar xf - -C "$work/$n"
+  (cd "$work/$n" && sha256sum $(cat "$work/list-$n.txt")) > "$work/$n.sha256"
+done
+cmp "$work/list-1.txt" "$work/list-2.txt" && echo "file lists equal: $(wc -l < "$work/list-1.txt") files"
+if diff -r "$work/1" "$work/2"; then echo "V5: the two builds are byte-identical"; else echo "V5: DIFFER"; fi
+cat "$work/1.sha256"
+rm -r "$work"

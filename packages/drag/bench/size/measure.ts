@@ -1,10 +1,21 @@
 /* oxlint-disable no-await-in-loop, no-console -- a measurement script: serial, and it prints */
 /* eslint-disable @typescript-eslint/strict-void-return -- `promisify` takes the callback form as it is */
 /**
- * Minified and Brotli size per composition, with Rolldown, as drag2's harness does.
- * An unresolved import fails the build, and the module graphs are asserted.
+ * Minified, gzip and Brotli size per composition, with Rolldown, as drag2's
+ * harness does, from the tree that `just build` emits into the package root.
  *
- * `node bench/size/measure.ts` prints the table and exits non-zero on a violation.
+ * Each row resolves as a consumer of the publication resolves it. An import of a
+ * published entry's source, `src/<entry>.ts`, from a row or from a fixture,
+ * bundles that entry's emitted file, found through `package.json`'s exports map;
+ * an import of any other module under `src/` is an error that names it.
+ * `@ydinjs/box-quad` is bundled from its source. An unresolved import, a missing
+ * emitted file among them, fails the build, and the module graphs are asserted.
+ *
+ * Brotli is quality 11 and is what the ceilings gate. gzip is level 9 with zlib's
+ * other defaults, and is printed for the record only.
+ *
+ * `node bench/size/measure.ts` measures the tree as it is, prints the table and
+ * exits non-zero on a violation; `npx just size` builds first.
  * `--prototype` also measures the prototype at its revision, read with `git archive`.
  */
 import { execFile as execFileCallback } from 'node:child_process';
@@ -13,8 +24,9 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { brotliCompressSync } from 'node:zlib';
-import { rolldown } from 'rolldown';
+import { brotliCompressSync, gzipSync } from 'node:zlib';
+import { type Plugin, rolldown } from 'rolldown';
+import { publishedEntries } from '../../tests/support/published-entries.ts';
 
 const execFile = promisify(execFileCallback);
 
@@ -38,9 +50,9 @@ export type Composition = Readonly<{
   present?: readonly string[];
 }>;
 
-const SORTABLE_ONLY = ['src/sortable'];
+const SORTABLE_ONLY = ['sortable'];
 const OPTIONAL = ['shared/landing', 'layout-animation'];
-const FREE_DRAG_ONLY = ['src/free-drag'];
+const FREE_DRAG_ONLY = ['free-drag'];
 
 export const COMPOSITIONS: readonly Composition[] = [
   {
@@ -49,7 +61,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     budget: 2139,
     control: 2024,
     absent: [
-      'src/lift',
+      'lift',
       'box-quad',
       'rect-index',
       'linear-shift',
@@ -63,7 +75,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'draggable + lift',
     imports: { 'src/draggable': ['draggable'], 'src/lift': ['Lifter'] },
     budget: 4169,
-    present: ['src/lift', 'box-quad'],
+    present: ['lift', 'box-quad'],
     absent: [...SORTABLE_ONLY, ...FREE_DRAG_ONLY, ...OPTIONAL],
   },
   {
@@ -71,13 +83,13 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: { 'tests/fixtures/resize-handle': ['resizeHandle'] },
     budget: 3313,
     present: ['box-quad'],
-    absent: ['src/lift', ...SORTABLE_ONLY, ...OPTIONAL],
+    absent: ['lift', ...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'example: drop zone',
     imports: { 'tests/fixtures/drop-zone': ['dropZone'] },
     budget: 4431,
-    present: ['src/lift', 'shared/landing'],
+    present: ['lift', 'shared/landing'],
     absent: [...SORTABLE_ONLY, 'layout-animation'],
   },
   {
@@ -85,13 +97,13 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: { 'tests/fixtures/canvas-group': ['canvasGroup'] },
     budget: 3314,
     present: ['box-quad'],
-    absent: ['src/lift', ...SORTABLE_ONLY, ...OPTIONAL],
+    absent: ['lift', ...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'freeDrag',
     imports: { 'src/free-drag': ['freeDrag'] },
     budget: 4967,
-    present: ['src/lift'],
+    present: ['lift'],
     absent: [
       ...SORTABLE_ONLY,
       ...OPTIONAL,
@@ -140,6 +152,7 @@ export const COMPOSITIONS: readonly Composition[] = [
 export type Measurement = Readonly<{
   composition: Composition;
   minified: number;
+  gzip: number;
   brotli: number;
   modules: readonly string[];
 }>;
@@ -155,14 +168,21 @@ function entrySource(imports: Exports, base: string): string {
 }
 
 /**
- * Bundles one composition from `base`, which holds `src` and the fixtures.
- * `packageRoot` resolves the package's own name for the prototype's examples.
+ * Bundles one composition, with `plugins` before Rolldown's own resolution.
+ * Module paths are reported relative to `base`.
  */
 export async function bundleSize(
   source: string,
   base: string,
-  packageRoot?: string,
-): Promise<Readonly<{ minified: number; brotli: number; modules: string[] }>> {
+  plugins: readonly Plugin[],
+): Promise<
+  Readonly<{
+    minified: number;
+    gzip: number;
+    brotli: number;
+    modules: string[];
+  }>
+> {
   const directory = await mkdtemp(join(tmpdir(), 'drag-size-'));
 
   try {
@@ -175,18 +195,7 @@ export async function bundleSize(
       platform: 'neutral',
       resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
       transform: { define: { __DEV__: 'false' } },
-      plugins: [
-        {
-          name: 'package-name',
-          resolveId(id) {
-            const match = /^@ydinjs\/drag\/(.+)\.js$/u.exec(id);
-
-            return match && packageRoot
-              ? `${packageRoot}/src/${match[1]}.ts`
-              : null;
-          },
-        },
-      ],
+      plugins: [...plugins],
       onLog(level, log, handler) {
         if (log.code === 'UNRESOLVED_IMPORT') {
           throw new Error(`size: ${log.message}`);
@@ -205,6 +214,7 @@ export async function bundleSize(
 
       return {
         minified: bytes.byteLength,
+        gzip: gzipSync(bytes, { level: 9 }).byteLength,
         brotli: brotliCompressSync(bytes).byteLength,
         modules: chunks.flatMap((chunk) =>
           (Object.keys(chunk.modules) as readonly string[])
@@ -220,8 +230,14 @@ export async function bundleSize(
   }
 }
 
+const PUBLISHED: readonly Plugin[] = [publishedEntries(ROOT)];
+
 export async function measure(composition: Composition): Promise<Measurement> {
-  const result = await bundleSize(entrySource(composition.imports, ROOT), ROOT);
+  const result = await bundleSize(
+    entrySource(composition.imports, ROOT),
+    ROOT,
+    PUBLISHED,
+  );
 
   return { composition, ...result };
 }
@@ -292,6 +308,15 @@ async function measurePrototype(): Promise<Map<string, readonly number[]>> {
     await execFile('tar', ['-xf', archive, '-C', directory]);
 
     const root = join(directory, 'packages/drag/prototype');
+    // The prototype's examples import the package by name, from its source.
+    const packageName: Plugin = {
+      name: 'package-name',
+      resolveId(id) {
+        const match = /^@ydinjs\/drag\/(.+)\.js$/u.exec(id);
+
+        return match ? `${root}/src/${match[1]}.ts` : null;
+      },
+    };
 
     for (const [name, template] of Object.entries(PROTOTYPE_ROWS)) {
       const source = template
@@ -300,7 +325,9 @@ async function measurePrototype(): Promise<Map<string, readonly number[]>> {
           /@ydinjs\/drag\/([\w/-]+)\.js/gu,
           (_, path: string) => `${root}/src/${path}.ts`,
         );
-      const { minified, brotli } = await bundleSize(source, root, root);
+      const { minified, brotli } = await bundleSize(source, root, [
+        packageName,
+      ]);
 
       readings.set(name, [minified, brotli]);
     }
@@ -327,7 +354,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
     failed += found.length;
     console.log(
-      `${composition.name.padEnd(30)} ${String(measurement.minified).padStart(6)} min ${String(measurement.brotli).padStart(6)} br  ${measurement.modules.length} modules${comparison}`,
+      `${composition.name.padEnd(30)} ${String(measurement.minified).padStart(6)} min ${String(measurement.gzip).padStart(6)} gz ${String(measurement.brotli).padStart(6)} br  ${measurement.modules.length} modules${comparison}`,
     );
 
     for (const line of found) {

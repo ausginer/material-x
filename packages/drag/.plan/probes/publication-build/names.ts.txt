@@ -1,0 +1,28 @@
+// Phase 1: one Rolldown build of every runtime entry as a single chunk, with native mangleProps;
+// its mangleCache is the map the unbundled publication applies per chunk.
+import { build } from 'rolldown';
+import { resolve } from 'node:path';
+import files from '../files.json' with { type: 'json' };
+import { constructLibraryTsdownPlugins } from '../../../.scripts/tsdown-library.ts';
+const root = resolve(import.meta.dirname, '..');
+export async function propertyNames(): Promise<Record<string, string>> {
+  const entry = files.runtime.map((e, i) => `export * as e${i} from ${JSON.stringify(resolve(root, 'src', e + '.ts'))};`).join('\n');
+  const out = await build({
+    input: 'all', write: false, platform: 'neutral', transform: { define: { __DEV__: 'false' } },
+    external: [/^@ydinjs\/box-quad/],
+    plugins: [{ name: 'all', resolveId: (id) => (id === 'all' ? id : null), load: (id) => (id === 'all' ? entry : null) }, ...constructLibraryTsdownPlugins()],
+    output: { format: 'esm', minify: { mangleProps: { include: /^_[A-Za-z]/, quoted: true } } },
+  });
+  if (out.output.filter((o) => o.type === 'chunk').length !== 1) throw new Error('not one chunk');
+  return out.mangleCache as Record<string, string>;
+}
+if (import.meta.main) {
+  const t = performance.now();
+  const a = await propertyNames(); const b = await propertyNames();
+  console.log(`${Object.keys(a).length} names in ${(performance.now() - t).toFixed(0)} ms for two runs; deterministic: ${JSON.stringify(a) === JSON.stringify(b)}`);
+  const committed = (await import('../build/property-names.json', { with: { type: 'json' } })).default;
+  const ka = Object.keys(a).sort(), kc = Object.keys(committed).sort();
+  console.log('same keys as committed map:', JSON.stringify(ka) === JSON.stringify(kc), 'missing:', kc.filter((k) => !(k in a)), 'extra:', ka.filter((k) => !(k in committed)));
+  console.log('value lengths:', Object.values(a).reduce((n: any, v: any) => ((n[v.length] = (n[v.length] ?? 0) + 1), n), {}));
+  console.log(JSON.stringify(a));
+}

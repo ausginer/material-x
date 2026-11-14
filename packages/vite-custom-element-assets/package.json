@@ -32,9 +32,9 @@
   "dependencies": {
     "@jridgewell/gen-mapping": "0.3.13",
     "@minify-html/node": "0.18.1",
-    "lightningcss": "1.32.0",
-    "oxfmt": "0.58.0",
-    "rolldown": "1.1.5",
+    "lightningcss": "1.33.0",
+    "oxfmt": "0.78.0",
+    "rolldown": "1.3.2",
     "sorcery": "1.0.0"
   },
   "peerDependencies": {

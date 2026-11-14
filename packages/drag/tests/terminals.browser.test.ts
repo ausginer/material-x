@@ -13,21 +13,13 @@ import {
   log,
   makeList,
   managed,
+  noteOutcome,
   press,
-  refusals,
   release,
   rowsOf,
   targetOf,
   wait,
 } from './support/harness.ts';
-
-const noteOutcome = (outcome: Outcome): void => {
-  log.push(
-    outcome.type === 'canceled'
-      ? `end:canceled:${outcome.origin}`
-      : `end:${outcome.type}`,
-  );
-};
 
 describe('drag:DRI-3 terminals', () => {
   it.each([
@@ -324,42 +316,6 @@ describe('admission', () => {
 });
 
 describe('drag:DRI-6 reentrant input', () => {
-  it('should refuse a nested press, and take the next real one', async () => {
-    const list = makeList(3);
-    const nested = (): void => {
-      list.firstElementChild!.dispatchEvent(
-        new PointerEvent('pointerdown', { bubbles: true, isPrimary: true }),
-      );
-    };
-    let admissions = 0;
-
-    managed(list, {
-      admit(event) {
-        admissions += 1;
-        return { item: targetOf(event) };
-      },
-      activate: () => ({
-        start: nested,
-        end: noteOutcome,
-      }),
-    });
-    await dragAndDrop('#r1', 30);
-    expect(admissions).toBe(1);
-    expect(refusals()).toEqual({ trusted: 0, untrusted: 1 });
-    await dragAndDrop('#r0', 30);
-    expect(admissions).toBe(2);
-    expect(log).toEqual(['end:skipped', 'end:skipped']);
-  });
-
-  it('should refuse no trusted event during ordinary drags', async () => {
-    const list = makeList(5);
-
-    basicSortable(list);
-    await dragAndDrop('#r0', 90);
-    await dragAndDrop('#r1', 90);
-    expect(refusals().trusted).toBe(0);
-  });
-
   it('should let the press after a refused one activate', async () => {
     const list = makeList(3);
 

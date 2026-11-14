@@ -1,0 +1,65 @@
+{
+  "id": "rollback-base",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag",
+  "runner": {
+    "pid": 724410,
+    "start": "9582021"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:04:11.479Z",
+  "endedAt": "2026-11-13T11:04:21.373Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just test --reporter=verbose --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/rb/base-suite.json; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-base/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": false
+      },
+      "process": {
+        "pid": 724434,
+        "start": "9582028"
+      },
+      "startedAt": "2026-11-13T11:04:11.493Z",
+      "endedAt": "2026-11-13T11:04:12.110Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx just size; echo \"[size exit $?]\"",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-base/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": false
+      },
+      "process": {
+        "pid": 724509,
+        "start": "9582090"
+      },
+      "startedAt": "2026-11-13T11:04:12.121Z",
+      "endedAt": "2026-11-13T11:04:13.498Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash .plan/measurements/2026-11-13-mangle-dry-each.sh.txt",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-base/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": false
+      },
+      "process": {
+        "pid": 724644,
+        "start": "9582229"
+      },
+      "startedAt": "2026-11-13T11:04:13.507Z",
+      "endedAt": "2026-11-13T11:04:21.373Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag
+
+6:06:45 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=fb8bfcc6
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:95 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight 297ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:138 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row 651ms
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:173 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 408ms
+   → expected 12 to be greater than or equal to 22
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:212 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 277ms
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:465 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap 21ms
+   → expected [ 100, +0 ] to deeply equal [ +0, +0 ]
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:471 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating 17ms
+   → expected [ 100, +0 ] to deeply equal [ +0, +0 ]
+ × |browser (chromium)| tests/displacement-sink.browser.test.ts:485 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection 17ms
+   → expected [ 100, +0 ] to deeply equal [ +0, +0 ]
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:173 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+AssertionError: expected 12 to be greater than or equal to 22
+ ❯ tests/displacement-sink.browser.test.ts:207:26
+    205|     // Two rebuilds of the 11 destination rows, at least.
+    206|     expect(new Set(calls.map((call) => call.element)).size).toBe(11);
+    207|     expect(calls.length).toBeGreaterThanOrEqual(22);
+       |                          ^
+    208|     expect(faults).toEqual([]);
+    209|     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:465 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap
+AssertionError: expected [ 100, +0 ] to deeply equal [ +0, +0 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   0,[39m
+[31m+   100,[39m
+[2m    0,[22m
+[2m  ][22m
+
+ ❯ driveCommittedMoves tests/displacement-sink.browser.test.ts:432:36
+    430|         expect(report.dy).toBeCloseTo(y0 - y1, 1);
+    431|       } else {
+    432|         expect([x0 - x1, y0 - y1]).toEqual([0, 0]);
+       |                                    ^
+    433|       }
+    434|     }
+ ❯ tests/displacement-sink.browser.test.ts:468:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:471 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating
+AssertionError: expected [ 100, +0 ] to deeply equal [ +0, +0 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   0,[39m
+[31m+   100,[39m
+[2m    0,[22m
+[2m  ][22m
+
+ ❯ driveCommittedMoves tests/displacement-sink.browser.test.ts:432:36
+    430|         expect(report.dy).toBeCloseTo(y0 - y1, 1);
+    431|       } else {
+    432|         expect([x0 - x1, y0 - y1]).toEqual([0, 0]);
+       |                                    ^
+    433|       }
+    434|     }
+ ❯ tests/displacement-sink.browser.test.ts:476:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:485 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection
+AssertionError: expected [ 100, +0 ] to deeply equal [ +0, +0 ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   0,[39m
+[31m+   100,[39m
+[2m    0,[22m
+[2m  ][22m
+
+ ❯ driveCommittedMoves tests/displacement-sink.browser.test.ts:432:36
+    430|         expect(report.dy).toBeCloseTo(y0 - y1, 1);
+    431|       } else {
+    432|         expect([x0 - x1, y0 - y1]).toEqual([0, 0]);
+       |                                    ^
+    433|       }
+    434|     }
+ ❯ tests/displacement-sink.browser.test.ts:488:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 3 passed (7)
+   Start at  18:06:44
+   Duration  2.37s (tests 82%, worker 17%, import 1%)
+
+exit 1

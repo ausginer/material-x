@@ -1,0 +1,12 @@
+// Elements-kind probe for DRD-58: what each way of sizing a plain array leaves
+// V8 holding. Run as a .js copy: node --allow-natives-syntax <copy>.js
+const a = []; for (let i = 0; i < 12; i++) a.push(0); a[3] = 1.5;
+console.log('append+double', %HasDoubleElements(a), %HasHoleyElements(a), %HasDictionaryElements(a));
+const b = []; b[171*6] = 1.5;
+console.log('write at 1026 into empty', %HasDictionaryElements(b), %HasHoleyElements(b));
+const c = []; c[100*6] = 1.5;
+console.log('write at 600 into empty', %HasDictionaryElements(c), %HasHoleyElements(c));
+const d = []; d.length = 12000;
+console.log('length=12000', %HasDictionaryElements(d), %HasHoleyElements(d));
+const e = []; e.length = 600; e.fill(0); e[1]=1.5;
+console.log('length=600 fill', %HasDictionaryElements(e), %HasHoleyElements(e), %HasDoubleElements(e));

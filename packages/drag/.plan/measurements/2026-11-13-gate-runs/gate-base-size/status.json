@@ -1,0 +1,48 @@
+{
+  "id": "gate-base-size",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 375114,
+    "start": "6018752"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T01:10:18.784Z",
+  "endedAt": "2026-11-13T01:10:19.468Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "node /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/size.ts --json .plan/measurements/2026-11-13-gate-base-size-probe.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-base-size/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 375130,
+        "start": "6018758"
+      },
+      "startedAt": "2026-11-13T01:10:18.798Z",
+      "endedAt": "2026-11-13T01:10:19.152Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-base-size/2.log",
+      "state": "failed",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": true
+      },
+      "process": {
+        "pid": 375180,
+        "start": "6018794"
+      },
+      "startedAt": "2026-11-13T01:10:19.162Z",
+      "endedAt": "2026-11-13T01:10:19.467Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+// P1: Rolldown's native output.minify with mangleProps on drag's unbundled build.
+import { defineConfig } from 'tsdown';
+import { packageFilesToCustomExports, packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import names from './build/property-names.json' with { type: 'json' };
+import files from './files.json' with { type: 'json' };
+export default defineConfig({
+  entry: packageFilesToTsdownEntries(files), platform: 'neutral', dts: false, format: 'esm',
+  sourcemap: true, target: 'esnext', outDir: 'out-p1', fixedExtension: false, clean: true,
+  plugins: constructLibraryTsdownPlugins(), define: { __DEV__: 'false' }, unbundle: true,
+  minify: { mangleProps: { include: /^_[A-Za-z]/, cache: names } },
+});

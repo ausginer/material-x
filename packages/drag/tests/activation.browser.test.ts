@@ -27,7 +27,6 @@ import {
   release,
   rowsOf,
   targetOf,
-  wait,
 } from './support/harness.ts';
 
 const row = (id: string): HTMLElement =>
@@ -147,8 +146,6 @@ describe('drag:DRI-13 a grab during a landing', () => {
       const list = makeList(4);
 
       basicSortable(list, {
-        // Slow enough that the flight moves well under 1 px between the press and
-        // the activation.
         landing: landing({ duration: 20_000, easing: 'linear' }),
         onReorder({ item, next }) {
           if (verdict === 'rejected') {
@@ -161,7 +158,17 @@ describe('drag:DRI-13 a grab during a landing', () => {
       });
       await grab('#r0', 0, 90);
       await release();
-      await wait(300);
+
+      // Held at its midpoint, the flight is half its length from both of its
+      // ends, and the visual doesn't move however long the grab takes.
+      const landingAnimations = row('r0').getAnimations();
+
+      expect(landingAnimations).not.toHaveLength(0);
+
+      for (const animation of landingAnimations) {
+        animation.pause();
+        animation.currentTime = 10_000;
+      }
 
       const pressed = centerOf('#r0');
 

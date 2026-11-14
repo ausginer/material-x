@@ -1,0 +1,121 @@
+{
+  "id": "selection-end",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 576005,
+    "start": "8111359"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T06:59:04.886Z",
+  "endedAt": "2026-11-13T07:01:06.572Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just size; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b50204f6651c6174b2d515c32c007e61f6290fc5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 576062,
+        "start": "8111369"
+      },
+      "startedAt": "2026-11-13T06:59:04.909Z",
+      "endedAt": "2026-11-13T06:59:07.098Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/dry-each.sh",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b50204f6651c6174b2d515c32c007e61f6290fc5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 576395,
+        "start": "8111590"
+      },
+      "startedAt": "2026-11-13T06:59:07.113Z",
+      "endedAt": "2026-11-13T06:59:25.710Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-13-selection-end-suite.json; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "b50204f6651c6174b2d515c32c007e61f6290fc5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 578567,
+        "start": "8113451"
+      },
+      "startedAt": "2026-11-13T06:59:25.730Z",
+      "endedAt": "2026-11-13T07:01:06.410Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/keep-tree.sh /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/end-tree",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "8f238ef32eeeb9169827ae6c046c24f61628ede1",
+        "dirty": true
+      },
+      "process": {
+        "pid": 582095,
+        "start": "8123521"
+      },
+      "startedAt": "2026-11-13T07:01:06.424Z",
+      "endedAt": "2026-11-13T07:01:06.475Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-build.ts /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-tree && node /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/step-check.ts /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/nostep-tree /workspaces/material-x/packages/drag /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/end-tree.list build/property-names.json",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/5.log",
+      "state": "failed",
+      "revision": {
+        "commit": "8f238ef32eeeb9169827ae6c046c24f61628ede1",
+        "dirty": true
+      },
+      "process": {
+        "pid": 582122,
+        "start": "8123527"
+      },
+      "startedAt": "2026-11-13T07:01:06.488Z",
+      "endedAt": "2026-11-13T07:01:06.572Z",
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/sel/v5.sh",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/6.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    },
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.plan/measurements/2026-11-13-selection-runs/selection-end/7.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    }
+  ]
+}

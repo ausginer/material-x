@@ -1,5 +1,5 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { RolldownMagicString } from 'rolldown';
+import { RolldownMagicString, type Plugin as RolldownPlugin } from 'rolldown';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
 import {
@@ -42,7 +42,7 @@ function normalizePath(target: string, base?: string): string {
 
 export function constructCSSStyles(
   options?: ConstructCSSStylesOptions,
-): Plugin {
+): Plugin & RolldownPlugin {
   return {
     name: 'vite-construct-css-styles',
     enforce: 'pre',
@@ -82,10 +82,10 @@ export function constructCSSStyles(
         };
       },
     },
-  };
+  } satisfies Plugin;
 }
 
-export function constructHTMLTemplate(): Plugin {
+export function constructHTMLTemplate(): Plugin & RolldownPlugin {
   return {
     name: 'vite-construct-html-template',
     enforce: 'pre',
@@ -125,7 +125,7 @@ export function constructHTMLTemplate(): Plugin {
         };
       },
     },
-  };
+  } satisfies Plugin;
 }
 
 function normalizeOxcSetting(
@@ -144,7 +144,7 @@ function normalizeOxcSetting(
 
 export function constructCSSTokens(
   options?: ConstructCSSTokensOptions,
-): Plugin {
+): Plugin & RolldownPlugin {
   // Every entry this instance evaluated, and every file the generation
   // resolved while doing so. The pair is deliberately not a per-entry map: in
   // a shared generation a module already loaded for an earlier entry resolves
@@ -300,5 +300,5 @@ export function constructCSSTokens(
           .toArray();
       },
     },
-  };
+  } satisfies Plugin;
 }

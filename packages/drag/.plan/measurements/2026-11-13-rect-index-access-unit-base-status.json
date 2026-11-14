@@ -1,0 +1,116 @@
+{
+  "id": "ria-base",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag",
+  "runner": {
+    "pid": 800586,
+    "start": "10085742"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T12:28:08.691Z",
+  "endedAt": "2026-11-13T12:30:01.620Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/step.sh npx just test --reporter=verbose --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/base/suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/ria-base/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": false
+      },
+      "process": {
+        "pid": 800608,
+        "start": "10085749"
+      },
+      "startedAt": "2026-11-13T12:28:08.704Z",
+      "endedAt": "2026-11-13T12:29:46.688Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/step.sh npx just size",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/ria-base/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": false
+      },
+      "process": {
+        "pid": 802323,
+        "start": "10095548"
+      },
+      "startedAt": "2026-11-13T12:29:46.698Z",
+      "endedAt": "2026-11-13T12:29:47.998Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash -c 'mkdir -p /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/base/dts && git ls-files --others --ignored --exclude-standard -- \"*.d.ts\" | grep -v node_modules | while read f; do mkdir -p \"/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/base/dts/$(dirname \"$f\")\"; cp \"$f\" \"/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/base/dts/$f\"; done; find /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/base/dts -name \"*.d.ts\" | wc -l'",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/ria-base/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": false
+      },
+      "process": {
+        "pid": 802487,
+        "start": "10095680"
+      },
+      "startedAt": "2026-11-13T12:29:48.013Z",
+      "endedAt": "2026-11-13T12:29:48.147Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/step.sh npx just lint",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/ria-base/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": false
+      },
+      "process": {
+        "pid": 802583,
+        "start": "10095694"
+      },
+      "startedAt": "2026-11-13T12:29:48.158Z",
+      "endedAt": "2026-11-13T12:29:57.501Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/step.sh npx just typecheck",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/ria-base/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": false
+      },
+      "process": {
+        "pid": 802747,
+        "start": "10096630"
+      },
+      "startedAt": "2026-11-13T12:29:57.515Z",
+      "endedAt": "2026-11-13T12:29:58.389Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/step.sh npx typedoc --options typedoc.json --out /tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad/base/typedoc",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/ria-base/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "2e47e7afe12e0ff242bd9fccf49fe80a4066e26b",
+        "dirty": false
+      },
+      "process": {
+        "pid": 802808,
+        "start": "10096718"
+      },
+      "startedAt": "2026-11-13T12:29:58.402Z",
+      "endedAt": "2026-11-13T12:30:01.619Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

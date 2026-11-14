@@ -1,0 +1,136 @@
+# Allocation probes, DRD-52 property 9 and the handoff's item 6. Chromium, shipped project (__DEV__ false), heap sampling at 16 B.
+# Probes: .plan/probes/rect-index-ownership/alloc-probe.test.ts.txt ('C6 probe') and move-probe.test.ts.txt ('C6 move probe', 100 warm crossings), and the warm variant ('C6 warm move probe'): move-probe.test.ts.txt with cross(2000) before the 200 sampled crossings, the test timeout 900_000 and the line tag C6-WARM-MOVE-PROBE. All three appended to scratch copies of tests/hot-path.browser.test.ts in detached worktrees of 1d304128b (base) and 237d65d2f (unit). The runner is below; base and unit alternate.
+#
+# DISCARDED for xy: in this run each 'C6 probe' invocation ran y and then xy in one page, and every xy line reads perMove=0.00 keys={} at both trees. A diagnostic run of xy alone at the unit (the probe with one extra console.log of the whole profile, not kept as a reading) printed log=["start","end:canceled"] and all={"kernel/session.ts:handleEvent":280,"sortable/operation.ts:move":20636,"lift.ts:translate":22300}, C6-PROBE xy perMove=51.59. So xy after y in the same run is blind, and the xy readings are taken alone in 2026-11-12-size-unit-alloc-xy.txt. The y lines here are kept as the y per-sample reading.
+#
+# runner:
+#   #!/bin/bash
+#   # Runs the allocation probes alternately at the base and the unit, three runs each.
+#   SP=/tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad
+#   OUT=$SP/alloc-out; mkdir -p $OUT
+#   for probe in 'C6 probe' 'C6 move probe' 'C6 warm move probe'; do
+#     tag=$(echo "$probe" | tr ' ' '-')
+#     for run in 1 2 3; do
+#       for t in base unit; do
+#         cd $SP/$t/packages/drag
+#         echo "# tree=$t rev=$(git rev-parse --short HEAD) probe='$probe' run=$run start=$(date -Is)"
+#         npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts -t "$probe" --silent=false --testTimeout=900000 2>&1 | grep -E "C6-|Tests |Test Files|FAIL|Error"
+#         echo "# end=$(date -Is)"
+#       done
+#     done
+#   done
+
+# tree=base rev=1d304128b probe='C6 probe' run=1 start=2026-11-12T12:10:08+00:00
+C6-PROBE y perMove=84.27 keys={"sortable/y.ts:resolve":8940,"sortable/linear-shift.ts:refresh":5208,"sortable/operation.ts:move":19560}
+C6-PROBE xy perMove=0.00 keys={}
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:10:34+00:00
+# tree=unit rev=237d65d2f probe='C6 probe' run=1 start=2026-11-12T12:10:34+00:00
+C6-PROBE y perMove=86.60 keys={"sortable/y.ts:resolve":9096,"sortable/linear-shift.ts:refresh":5460,"sortable/operation.ts:move":20084}
+C6-PROBE xy perMove=0.00 keys={}
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:10:59+00:00
+# tree=base rev=1d304128b probe='C6 probe' run=2 start=2026-11-12T12:10:59+00:00
+C6-PROBE y perMove=86.52 keys={"sortable/y.ts:resolve":9504,"sortable/linear-shift.ts:refresh":5316,"sortable/operation.ts:move":19788}
+C6-PROBE xy perMove=0.00 keys={}
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:11:25+00:00
+# tree=unit rev=237d65d2f probe='C6 probe' run=2 start=2026-11-12T12:11:25+00:00
+C6-PROBE y perMove=84.96 keys={"sortable/y.ts:resolve":8904,"sortable/linear-shift.ts:refresh":5028,"sortable/operation.ts:move":20052}
+C6-PROBE xy perMove=0.00 keys={}
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:11:50+00:00
+# tree=base rev=1d304128b probe='C6 probe' run=3 start=2026-11-12T12:11:50+00:00
+C6-PROBE y perMove=85.74 keys={"sortable/y.ts:resolve":9276,"sortable/linear-shift.ts:refresh":5052,"sortable/operation.ts:move":19968}
+C6-PROBE xy perMove=0.00 keys={}
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:12:16+00:00
+# tree=unit rev=237d65d2f probe='C6 probe' run=3 start=2026-11-12T12:12:16+00:00
+C6-PROBE y perMove=87.37 keys={"sortable/y.ts:resolve":8784,"sortable/linear-shift.ts:refresh":5328,"sortable/operation.ts:move":20836}
+C6-PROBE xy perMove=0.00 keys={}
+ Test Files  1 passed (1)
+      Tests  2 passed | 11 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:12:41+00:00
+# tree=base rev=1d304128b probe='C6 move probe' run=1 start=2026-11-12T12:12:41+00:00
+C6-MOVE-PROBE moves=200 perMove=125.40 keys={"sortable/linear-shift.ts:refresh":5028,"sortable/rect-index.ts:collect":140,"sortable/rect-index.ts:remeasurePlaceholder":6112,"sortable/linear-shift.ts:moved":1320,"sortable/rect-index.ts:advance":12480}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:12:58+00:00
+# tree=unit rev=237d65d2f probe='C6 move probe' run=1 start=2026-11-12T12:12:58+00:00
+C6-MOVE-PROBE moves=200 perMove=131.18 keys={"sortable/linear-shift.ts:refresh":5184,"sortable/rect-index.ts:measurePlaceholder":3232,"sortable/rect-index.ts:pack":4824,"sortable/linear-shift.ts:moved":1164,"sortable/linear-shift.ts:advance":11832}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:13:14+00:00
+# tree=base rev=1d304128b probe='C6 move probe' run=2 start=2026-11-12T12:13:14+00:00
+C6-MOVE-PROBE moves=200 perMove=124.44 keys={"sortable/linear-shift.ts:refresh":5052,"sortable/rect-index.ts:collect":140,"sortable/rect-index.ts:remeasurePlaceholder":6232,"sortable/linear-shift.ts:moved":1428,"sortable/rect-index.ts:advance":12036}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:13:31+00:00
+# tree=unit rev=237d65d2f probe='C6 move probe' run=2 start=2026-11-12T12:13:31+00:00
+C6-MOVE-PROBE moves=200 perMove=128.86 keys={"sortable/linear-shift.ts:refresh":4824,"sortable/rect-index.ts:measurePlaceholder":3184,"sortable/rect-index.ts:pack":5140,"sortable/linear-shift.ts:moved":1188,"sortable/linear-shift.ts:advance":11436}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:13:47+00:00
+# tree=base rev=1d304128b probe='C6 move probe' run=3 start=2026-11-12T12:13:47+00:00
+C6-MOVE-PROBE moves=200 perMove=124.08 keys={"sortable/linear-shift.ts:refresh":5232,"sortable/rect-index.ts:remeasurePlaceholder":5584,"sortable/linear-shift.ts:moved":1272,"sortable/rect-index.ts:get count":148,"sortable/rect-index.ts:advance":12580}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:14:04+00:00
+# tree=unit rev=237d65d2f probe='C6 move probe' run=3 start=2026-11-12T12:14:04+00:00
+C6-MOVE-PROBE moves=200 perMove=126.28 keys={"sortable/linear-shift.ts:refresh":4668,"sortable/rect-index.ts:measurePlaceholder":3392,"sortable/rect-index.ts:pack":4776,"sortable/linear-shift.ts:moved":1164,"sortable/linear-shift.ts:advance":11256}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:14:21+00:00
+# tree=base rev=1d304128b probe='C6 warm move probe' run=1 start=2026-11-12T12:14:21+00:00
+C6-WARM-MOVE-PROBE moves=200 perMove=14.44 keys={"sortable/linear-shift.ts:refresh":2816,"sortable/rect-index.ts:collect":72}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:16:12+00:00
+# tree=unit rev=237d65d2f probe='C6 warm move probe' run=1 start=2026-11-12T12:16:12+00:00
+C6-WARM-MOVE-PROBE moves=200 perMove=16.96 keys={"sortable/linear-shift.ts:refresh":3392}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:18:04+00:00
+# tree=base rev=1d304128b probe='C6 warm move probe' run=2 start=2026-11-12T12:18:04+00:00
+C6-WARM-MOVE-PROBE moves=200 perMove=17.56 keys={"sortable/linear-shift.ts:refresh":3440,"sortable/rect-index.ts:collect":72}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:19:55+00:00
+# tree=unit rev=237d65d2f probe='C6 warm move probe' run=2 start=2026-11-12T12:19:55+00:00
+C6-WARM-MOVE-PROBE moves=200 perMove=16.48 keys={"sortable/linear-shift.ts:refresh":3296}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:21:47+00:00
+# tree=base rev=1d304128b probe='C6 warm move probe' run=3 start=2026-11-12T12:21:47+00:00
+C6-WARM-MOVE-PROBE moves=200 perMove=16.48 keys={"sortable/linear-shift.ts:refresh":3296}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:23:39+00:00
+# tree=unit rev=237d65d2f probe='C6 warm move probe' run=3 start=2026-11-12T12:23:39+00:00
+C6-WARM-MOVE-PROBE moves=200 perMove=17.56 keys={"sortable/linear-shift.ts:refresh":3440,"sortable/rect-index.ts:pack":72}
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+Type Errors  no errors
+# end=2026-11-12T12:25:30+00:00

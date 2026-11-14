@@ -1,0 +1,7 @@
+// usage: node apply.mjs <file> <anchor> <replacement>  — replaces exactly one occurrence, fails otherwise
+import fs from 'node:fs';
+const [file, anchor, replacement] = process.argv.slice(2);
+const text = fs.readFileSync(file, 'utf8');
+const n = text.split(anchor).length - 1;
+if (n !== 1) { console.error(`anchor found ${n} times in ${file}`); process.exit(2); }
+fs.writeFileSync(file, text.replace(anchor, () => replacement));

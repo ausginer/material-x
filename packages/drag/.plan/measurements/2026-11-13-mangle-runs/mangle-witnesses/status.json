@@ -1,0 +1,133 @@
+{
+  "id": "mangle-witnesses",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 495864,
+    "start": "7456138"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T05:09:52.666Z",
+  "endedAt": "2026-11-13T05:24:42.608Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M1 'npx just build; echo \"[build exit $?]\"; npx vitest run -c vitest.config.ts --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 495889,
+        "start": "7456146"
+      },
+      "startedAt": "2026-11-13T05:09:52.681Z",
+      "endedAt": "2026-11-13T05:10:54.493Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M2 'npx vitest run -c vitest.config.ts --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 498464,
+        "start": "7462329"
+      },
+      "startedAt": "2026-11-13T05:10:54.504Z",
+      "endedAt": "2026-11-13T05:21:04.056Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M3 'npx vitest run -c vitest.config.ts --project node --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 503587,
+        "start": "7523286"
+      },
+      "startedAt": "2026-11-13T05:21:04.075Z",
+      "endedAt": "2026-11-13T05:21:10.592Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M4 'npx vitest run -c vitest.config.ts --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 504306,
+        "start": "7523940"
+      },
+      "startedAt": "2026-11-13T05:21:10.622Z",
+      "endedAt": "2026-11-13T05:23:52.302Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M5 'npx vitest run -c vitest.config.ts --project node --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 508540,
+        "start": "7540111"
+      },
+      "startedAt": "2026-11-13T05:23:52.330Z",
+      "endedAt": "2026-11-13T05:24:09.254Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M6 'npx vitest run -c vitest.config.ts --project node --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 509419,
+        "start": "7541809"
+      },
+      "startedAt": "2026-11-13T05:24:09.312Z",
+      "endedAt": "2026-11-13T05:24:24.728Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/witness.sh M7 'npx vitest run -c vitest.config.ts --project node --reporter=verbose'",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-witnesses/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "31f92f5a95ed9da782f8ce667d111e6f9e180897",
+        "dirty": true
+      },
+      "process": {
+        "pid": 510292,
+        "start": "7543354"
+      },
+      "startedAt": "2026-11-13T05:24:24.762Z",
+      "endedAt": "2026-11-13T05:24:42.608Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

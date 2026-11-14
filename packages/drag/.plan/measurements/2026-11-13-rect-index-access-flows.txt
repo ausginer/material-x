@@ -1,0 +1,25 @@
+# RectIndex access flows, P-owned-storage.diff.txt applied to f552e0ec9, Chromium, Fri Nov 13 11:46:12 UTC 2026
+# npx vitest run -c vitest.config.ts --project browser tests/rect-index-flows.browser.test.ts --silent=false
+FLOW y collect: count=7 window=[2, 2) placeholder left=8.00 top=112.00 right=208.00 bottom=152.00 centerX=108.00 centerY=132.00
+FLOW y grow: window=[2, 3) slot 2: left=8.00 top=156.00 right=208.00 bottom=212.00 centerX=108.00 centerY=184.00
+FLOW y grow: window=[2, 4) slot 3: left=8.00 top=216.00 right=208.00 bottom=256.00 centerX=108.00 centerY=236.00
+FLOW y grow: window=[2, 5) slot 4: left=8.00 top=260.00 right=208.00 bottom=316.00 centerX=108.00 centerY=288.00
+FLOW y grow: window=[2, 6) slot 5: left=8.00 top=320.00 right=208.00 bottom=360.00 centerX=108.00 centerY=340.00
+FLOW y move: _travel(2) = -44.00, the constant every crossed row moved by
+FLOW y after move, slot 2 predicted: left=8.00 top=112.00 right=208.00 bottom=168.00 centerX=108.00 centerY=140.00
+FLOW y after move, slot 2 measured:  left=8.00 top=112.00 right=208.00 bottom=168.00 centerX=108.00 centerY=140.00
+FLOW y after move, slot 3 predicted: left=8.00 top=172.00 right=208.00 bottom=212.00 centerX=108.00 centerY=192.00
+FLOW y after move, slot 3 measured:  left=8.00 top=172.00 right=208.00 bottom=212.00 centerX=108.00 centerY=192.00
+FLOW y after move, slot 4 predicted: left=8.00 top=260.00 right=208.00 bottom=316.00 centerX=108.00 centerY=288.00
+FLOW y after move, slot 4 measured:  left=8.00 top=260.00 right=208.00 bottom=316.00 centerX=108.00 centerY=288.00
+FLOW y after move, slot 5 predicted: left=8.00 top=320.00 right=208.00 bottom=360.00 centerX=108.00 centerY=340.00
+FLOW y after move, slot 5 measured:  left=8.00 top=320.00 right=208.00 bottom=360.00 centerX=108.00 centerY=340.00
+FLOW sink: r3 presented top=170.00, flow top=140.00, cached slot 2 top=140.00
+FLOW sink: after a 13 px shift of the list, _holds = false
+FLOW xy rebuild: count=8 window=[0, 8) placeholder centers (58, 38)
+FLOW xy move: slot 0 (c1) report dx=100 dy=0
+FLOW xy move: slot 1 (c2) report dx=100 dy=0
+FLOW xy move: slot 2 (c3) report dx=-200 dy=60
+FLOW xy move: slot 3 (c4) report dx=100 dy=0
+ Test Files  1 passed (1)
+      Tests  3 passed (3)

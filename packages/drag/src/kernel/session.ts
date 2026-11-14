@@ -1,7 +1,7 @@
 import { deepActiveElement } from '../shared/focus.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
-import { CallbackList } from './callback-list.ts';
+import * as Callbacks from './callbacks.ts';
 import { runDisposers, runDragDisposer, type KernelDrag } from './drag.ts';
 import type { Gesture } from './gesture.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
@@ -143,7 +143,7 @@ export class Session<
   /** Escape and `drag.signal`, closed when the presentation is released. */
   readonly #presentation = new AbortController();
   /** Operation cleanup, each with its receiver, run at release. */
-  readonly #disposers = CallbackList.stack<Outcome | null>();
+  readonly #disposers = Callbacks.stack<Outcome | null>();
   #phase:
     | typeof PENDING
     | typeof ACTIVE

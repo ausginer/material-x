@@ -1,0 +1,13 @@
+import { defineConfig } from 'tsdown';
+import { packageFilesToCustomExports, packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import { mangleInternalProperties } from './probe/mangle-plugin.ts';
+import { propertyNames } from './probe/names.ts';
+import files from './files.json' with { type: 'json' };
+export default defineConfig({
+  entry: packageFilesToTsdownEntries(files), platform: 'neutral', exports: packageFilesToCustomExports(files),
+  dts: process.env.DTS ? JSON.parse(process.env.DTS) : true, format: 'esm', sourcemap: true, target: 'esnext',
+  outDir: process.env.OUT ?? 'out-p4', fixedExtension: false, clean: !process.env.OUT || process.env.OUT !== '.',
+  plugins: [...constructLibraryTsdownPlugins(), mangleInternalProperties(propertyNames)], define: { __DEV__: 'false' }, unbundle: true,
+  minify: true,
+});

@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 4711ac67d..7829988a1 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -37,7 +37,7 @@ function refresh(
+   index.collect(snapshot, dragged, placeholder, 0);
+ 
+   if (index.first === index.end) {
+-    index.measure(0, index.count, getBox, displacement);
++    index.measure(0, index.count, getBox, null);
+   }
+ }
+ 

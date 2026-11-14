@@ -143,7 +143,7 @@ describe('drag:DRI-17 hot path', () => {
       const original = Element.prototype.getBoundingClientRect;
       let placeholderReads = 0;
 
-      Element.prototype.getBoundingClientRect = function measure(
+      Element.prototype.getBoundingClientRect = function getBoundingClientRect(
         this: Element,
       ) {
         if (this.hasAttribute('data-drag-placeholder')) {

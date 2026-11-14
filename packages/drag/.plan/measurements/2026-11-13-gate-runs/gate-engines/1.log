@@ -1,0 +1,237 @@
+vitest run -c vitest.engines.config.ts 
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+1:28:13 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+1:28:53 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/037f49d46fd9503d9beaaf315c2770a30529ab93/deps/vitest_n_vite_module-runner.js?v=63d2eda9
+1:30:06 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=030f686b
+Failed to close the browser for the "browser/webkit (webkit)" project. browserType.launch: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libpulsecommon-17.0.so                           ║
+║     libblas.so.3                                     ║
+║     liblapack.so.3                                   ║
+║     libpxbackend-1.0.so                              ║
+║     libGLESv2.so.2                                   ║
+║     libx264.so                                       ║
+╚══════════════════════════════════════════════════════╝
+    at /workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1098:55
+    at async PlaywrightBrowserProvider.createContext (/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1271:19)
+    at async PlaywrightBrowserProvider.openBrowserPage (/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1345:19)
+    at async PlaywrightBrowserProvider.openPage (/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1366:23)
+    at async TestProject._openBrowserPage (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:6726:3)
+    at async BrowserWorker.openPage (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:4668:3)
+    at async BrowserWorker.openPages (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:4648:3)
+    at async BrowserWorker.runTests (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:4592:3) {
+  log: [],
+  name: 'Error'
+}
+1:30:24 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ab3bbbdeeb85c6f5ea3e99da42e6846e27e6b1ad/deps/vitest_n_vite_module-runner.js?v=030f686b
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 3 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯ Unhandled Reporter Error ⎯⎯
+Error: browserType.launch: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libpulsecommon-17.0.so                           ║
+║     libblas.so.3                                     ║
+║     liblapack.so.3                                   ║
+║     libpxbackend-1.0.so                              ║
+║     libGLESv2.so.2                                   ║
+║     libx264.so                                       ║
+╚══════════════════════════════════════════════════════╝
+ ❯ ../../node_modules/@vitest/browser-playwright/dist/index.js:1098:55
+ ❯ PlaywrightBrowserProvider.createContext ../../node_modules/@vitest/browser-playwright/dist/index.js:1271:19
+ ❯ PlaywrightBrowserProvider.openBrowserPage ../../node_modules/@vitest/browser-playwright/dist/index.js:1345:19
+ ❯ PlaywrightBrowserProvider.openPage ../../node_modules/@vitest/browser-playwright/dist/index.js:1366:23
+ ❯ TestProject._openBrowserPage ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:6726:3
+ ❯ BrowserWorker.openPage ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4668:3
+ ❯ BrowserWorker.openPages ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4648:3
+ ❯ BrowserWorker.runTests ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4592:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: browserType.launch: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libpulsecommon-17.0.so                           ║
+║     libblas.so.3                                     ║
+║     liblapack.so.3                                   ║
+║     libpxbackend-1.0.so                              ║
+║     libGLESv2.so.2                                   ║
+║     libx264.so                                       ║
+╚══════════════════════════════════════════════════════╝
+ ❯ ../../node_modules/@vitest/browser-playwright/dist/index.js:1098:55
+ ❯ PlaywrightBrowserProvider.createContext ../../node_modules/@vitest/browser-playwright/dist/index.js:1271:19
+ ❯ PlaywrightBrowserProvider.openBrowserPage ../../node_modules/@vitest/browser-playwright/dist/index.js:1345:19
+ ❯ PlaywrightBrowserProvider.openPage ../../node_modules/@vitest/browser-playwright/dist/index.js:1366:23
+ ❯ TestProject._openBrowserPage ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:6726:3
+ ❯ BrowserWorker.openPage ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4668:3
+ ❯ BrowserWorker.openPages ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4648:3
+ ❯ BrowserWorker.runTests ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4592:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: browserType.launch: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libpulsecommon-17.0.so                           ║
+║     libblas.so.3                                     ║
+║     liblapack.so.3                                   ║
+║     libpxbackend-1.0.so                              ║
+║     libGLESv2.so.2                                   ║
+║     libx264.so                                       ║
+╚══════════════════════════════════════════════════════╝
+ ❯ ../../node_modules/@vitest/browser-playwright/dist/index.js:1098:55
+ ❯ PlaywrightBrowserProvider.createContext ../../node_modules/@vitest/browser-playwright/dist/index.js:1271:19
+ ❯ PlaywrightBrowserProvider.openBrowserPage ../../node_modules/@vitest/browser-playwright/dist/index.js:1345:19
+ ❯ PlaywrightBrowserProvider.openPage ../../node_modules/@vitest/browser-playwright/dist/index.js:1366:23
+ ❯ TestProject._openBrowserPage ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:6726:3
+ ❯ BrowserWorker.openPage ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4668:3
+ ❯ BrowserWorker.openPages ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4648:3
+ ❯ BrowserWorker.runTests ../../node_modules/vitest/dist/chunks/index.1TqnEahn.js:4592:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  54 passed (81)
+      Tests  717 passed | 9 skipped (726)
+     Errors  3 errors
+   Start at  01:28:12
+   Duration  138.84s (worker 92%, tests 8%)
+
+error during close browserType.launch: 
+╔══════════════════════════════════════════════════════╗
+║ Host system is missing dependencies to run browsers. ║
+║ Missing libraries:                                   ║
+║     libpulsecommon-17.0.so                           ║
+║     libblas.so.3                                     ║
+║     liblapack.so.3                                   ║
+║     libpxbackend-1.0.so                              ║
+║     libGLESv2.so.2                                   ║
+║     libx264.so                                       ║
+╚══════════════════════════════════════════════════════╝
+    at /workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1098:55
+    at async PlaywrightBrowserProvider.createContext (/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1271:19)
+    at async PlaywrightBrowserProvider.openBrowserPage (/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1345:19)
+    at async PlaywrightBrowserProvider.openPage (/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js:1366:23)
+    at async TestProject._openBrowserPage (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:6726:3)
+    at async BrowserWorker.openPage (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:4668:3)
+    at async BrowserWorker.openPages (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:4648:3)
+    at async BrowserWorker.runTests (/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js:4592:3) {
+  log: [],
+  name: 'Error',
+  type: 'Unhandled Error',
+  stacks: [
+    {
+      method: '',
+      file: '/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js',
+      line: 1098,
+      column: 55
+    },
+    {
+      method: 'PlaywrightBrowserProvider.createContext',
+      file: '/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js',
+      line: 1271,
+      column: 19
+    },
+    {
+      method: 'PlaywrightBrowserProvider.openBrowserPage',
+      file: '/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js',
+      line: 1345,
+      column: 19
+    },
+    {
+      method: 'PlaywrightBrowserProvider.openPage',
+      file: '/workspaces/material-x/node_modules/@vitest/browser-playwright/dist/index.js',
+      line: 1366,
+      column: 23
+    },
+    {
+      method: 'TestProject._openBrowserPage',
+      file: '/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js',
+      line: 6726,
+      column: 3
+    },
+    {
+      method: 'BrowserWorker.openPage',
+      file: '/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js',
+      line: 4668,
+      column: 3
+    },
+    {
+      method: 'BrowserWorker.openPages',
+      file: '/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js',
+      line: 4648,
+      column: 3
+    },
+    {
+      method: 'BrowserWorker.runTests',
+      file: '/workspaces/material-x/node_modules/vitest/dist/chunks/index.1TqnEahn.js',
+      line: 4592,
+      column: 3
+    }
+  ]
+}
+error: recipe `test-engines` failed on line 33 with exit code 1

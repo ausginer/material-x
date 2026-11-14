@@ -117,9 +117,79 @@ When the target row shows no difference, the architect decides what follows (`DR
 
 ### P4. Size pass
 
-**Not started.** The owner chooses when it starts. After the runtime units, under CONTRIBUTING Part II: delete machinery before compressing syntax (§16), and measure each change by composition (§15). Any byte saving that adds work on a hot path goes to the owner (§0). `DRO-4`'s re-base is the owner's decision, and it is made against the figures the owner accepts.
+**Opened by the owner on 2026-11-12** on `drag/size` from `0a28f909a`, the squash merge of #15. **Governing decision:** `DRD-51`, with `DRO-4` and `DRO-14`. **Opening assessment:** [`size-pass-assessment.md`](size-pass-assessment.md), with the probe and the candidate patches in [`probes/size-pass/`](probes/size-pass/README.md) and the raw readings in [`2026-11-12-size-pass-readings.txt`](measurements/2026-11-12-size-pass-readings.txt).
+
+It works under CONTRIBUTING Part II: delete machinery before compressing syntax (§16), and measure each change by composition (§15). Any byte saving that adds work on a hot path goes to the owner (§0). `DRO-4`'s re-base is the owner's decision, made after the pass against the figures the owner accepts (§18).
+
+**What the opening found.** The reachability gate (§1.1) removes nothing: every guard is reachable through correct use. No runtime vocabulary ships unfolded, and the shipped diagnostics are already identities. Seven candidates were measured as patches against `0a28f909a`. Each takes 1 to 76 B Brotli off a row, and the largest set takes 26 to 120 B. **No set makes a red row green,** so the pass removes machinery, and the budgets stay a question for `DRO-4`.
+
+**How each unit measures** (`DRD-51`):
+
+- every row as minified, gzip-9 and Brotli-11 bytes, with the settings recorded in the assessment's §1. Brotli-11 gates, and gzip is recorded and not gated. Only joint readings are booked;
+- control rows named before the reading, each at exactly 0 B;
+- a change that only removes work: the per-sample tests, the hot-path censuses and the three-engine suite, with no `compare.ts` run. A change that adds or moves hot-path work also runs `compare.ts --before <its base> --only <rows>` and goes to the owner;
+- no ceiling, control figure or `measure.ts` change, and the deferred campaigns stay stopped. `bench/campaign.ts` isn't one of them (§3).
+
+**First unit, handed off on 2026-11-12:** [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md), from `1d304128b`. It carries:
+
+- `DRF-13` and `DRF-14` (`DRD-51` §First unit);
+- `RectIndex`'s ownership (`DRD-52`, proposal P with the owner's two conditions);
+- the completion of the owner's `kernel/callbacks.ts` refactor (`DRD-53`).
+
+Expected against `1d304128b`: −62 B Brotli on "sortable + y", −56 B on "sortable + xy", −65 B on "complete" and −1 B on "freeDrag". The five rows that import neither `sortable` nor `freeDrag` must read exactly 0 B. Because `DRD-52` moves work on the committed-move path, the unit also:
+
+- reads allocation per committed move after warm-up, where the 7 B is provisional;
+- runs `compare.ts` on the move and cycle rows.
+
+**`DRO-14`, answered in part on 2026-11-12:** item 1 (C2) is rejected, and the named module factories stay (`DRD-53`). Item 2 (C6) is approved as `DRD-52`. Items 3 (C1, `DRF-20`) and 4 (C5) are unanswered, and nothing is taken for them. The architect recommends not taking either.
+
+**The owner's commit `1d304128b`** puts "example: resize handle" 8 B over its 3,313 B ceiling. Budgets are unchanged, and `DRO-4` holds the re-base.
+
+**The first unit landed on 2026-11-12** at `237d65d2f`, and its [report](size-pass-unit-report.md) is accepted in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md):
+
+- size equals the joint reading on every row: −62 B Brotli on "sortable + y", −56 B on "sortable + xy", −65 B on "complete" and −1 B on "freeDrag", with the controls at 0/0/0;
+- allocation stands: +0.84 B per committed move warm, inside a run-to-run spread of about 3 B, and +4.13 B cold, consistently;
+- timing reads "no difference shown" on ten rows. That is inconclusive, so speed is unmeasured in either direction, and the rows' A/A bounds don't limit a possible slowdown;
+- six size rows stay over their ceilings, and `DRF-13` and `DRF-14` are closed.
+
+**Corrected on 2026-11-13** on the owner's direction ([`rect-index-access-assessment.md`](rect-index-access-assessment.md) §7.4). The timing item said "timing holds: "no difference shown" on ten rows, which doesn't exclude a slowdown below their A/A bounds". That implies that a larger slowdown is excluded, and the A/A bound isn't such a limit. The verdict doesn't change.
+
+**Second unit, handed off on 2026-11-12:** [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md), from `ed4bd589f`. It makes `freeDrag`'s `invalidate` step a module function (`DRD-51`, as amended), and corrects the C6 probe's launch documentation. Expected: −1 B Brotli on "freeDrag" and −5 B on "freeDrag + bounds + landing", and 0/0/0 on the eight other rows. It only removes work, so it runs no `compare.ts` row.
+
+**Property mangling, explored on 2026-11-12:** [`property-mangling-exploration.md`](property-mangling-exploration.md). The internal property names that survive minification take 30 to 119 B Brotli per row, and a publish-time mangle could take them. Nothing checks the published build today, so it would start with a suite against that build. **`DRO-15` holds it for the owner.** Budgets are unchanged.
+
+**The second unit landed on 2026-11-12** at `e22db849c` and `0c13786ea`, and its [report](size-pass-followup-report.md) is accepted in `00-index.md` §Disposition of the size pass follow-up report. It took 1 B Brotli off "freeDrag" and 5 B off "freeDrag + bounds + landing", with the eight control rows at 0/0/0, and each documented probe launch selected one test.
+
+**`DRO-14` was answered in full on 2026-11-12.** The owner rejected items 3 (C1) and 4 (C5): the idle fast path and the lift's capture functions stay unchanged, and `DRF-20` is closed. No measured machinery candidate remains.
+
+**`DRO-15` was answered in part on 2026-11-12.** The owner started its first two steps, each a unit of its own:
+
+1. consumer tests against the real `tsdown` output: `DRD-54`, handed off in [`consumer-tests-handoff.md`](consumer-tests-handoff.md);
+2. the size gate on that output, decided when step 1 reports.
+
+Source tests stay for internal behavior and development instruments. The mangle waits for the published build's results. Six rows stay over their ceilings, budgets are unchanged, and the deferred campaigns stay stopped.
+
+**Step 1 landed on 2026-11-13** at `5ea7bb7e6`, and its [report](consumer-tests-report.md) is accepted in [`consumer-tests-assessment.md`](consumer-tests-assessment.md). 326 public browser tests pass against the emitted tree. The guard gap `DRF-23` is open: the consumer resolver lets an absolute path to a non-entry module reach its source.
+
+**Step 2 is decided as `DRD-55`:** the size gate reads the published build through its exports map, box-quad stays on its source, and every ceiling stays. [`published-gate-handoff.md`](published-gate-handoff.md) repairs `DRF-23` in part A and implements `DRD-55` in part B. Its per-row figures, from `src` and from the build, are the results that the mangle waits for. A verdict that changes goes to `DRO-4`. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+**Owner direction, 2026-11-13: source prefixes for step 3.** Use an explicit `_` prefix in source for the ordinary internal properties selected for publish-time mangling. Public names and properties read by the platform keep their names; `#private` members need no additional prefix. The build selects the marked properties rather than inferring a list of safe names from TypeScript analysis. The architect records the choice under `DRO-15` and prepares its implementation handoff after assessing [`published-gate-report.md`](published-gate-report.md). Budgets remain unchanged. A transform that selects properties by type is deferred to [§6](#6-deferred-property-selection-by-type).
+
+**Step 2 landed on 2026-11-13** at `79b4c3132` and `69c260685`, and its [report](published-gate-report.md) is accepted in `00-index.md` §Disposition of the published gate report. The gate reads the emitted tree. Its figures differ from `src` by −7 to +16 B Brotli, and no verdict changed. `DRF-23` is closed.
+
+**Step 3 is decided as `DRD-56`,** from the owner's direction above. `_`-prefixed internal properties in `src`, 29 names to start, are confirmed by reading their use sites. One committed map gives each its output name. A step inside `tsdown`'s build renames them in the emitted JavaScript, leaves the `.d.ts` files unchanged, and keeps the source maps leading back to `src`. A node test validates the publication. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. The exploration estimated −30 to −119 B Brotli per row. Budgets are unchanged, a verdict that changes goes to `DRO-4`, and the deferred campaigns stay stopped.
+
+**Step 3 landed on 2026-11-13** at `f7b7b300b` and `31f92f5a9`, and its [report](publish-mangle-report.md) is accepted in [`publish-mangle-assessment.md`](publish-mangle-assessment.md). The gate on the renamed build reads −31 to −66 B Brotli on the rows without `sortable`, and −102 to −110 B on the three rows with it. "example: resize handle" and "freeDrag" turn green and go to `DRO-4`. Four rows stay red: "draggable alone", "example: drop zone", "freeDrag + bounds + landing" and "complete". Budgets are unchanged. A fresh independent review of the publication pipeline is recommended in that assessment's §9.
+
+**Property mangling deferred on 2026-11-13** (`DRD-60`). `DRD-57` extended the selection, and `DRD-59` was to replace the pipeline. The owner then stopped the mangling and layout exploration, and deferred property mangling, because its measured savings don't justify its complexity. Those savings were −34 to −135 B Brotli per row. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) removes the prefixes, the build step and the publication test from `690769539`, and keeps `DRD-58`'s slot array, the dependency update, the consumer project and the gate on the published build. The publication stays unbundled, unminified ESM with source maps and documented declarations. "example: resize handle" and "freeDrag" are expected over their ceilings again, and go to `DRO-4`. Budgets are unchanged.
+
+**`RectIndex`'s storage, decided on 2026-11-13** (`DRD-61`). The owner approved proposal P in [`rect-index-access-proposal.md`](rect-index-access-proposal.md): `RectIndex` owns its storage and every write to it, code outside reads one value at a time, and the displacement sink answers per element. Against `8904947f6`, after the rollback, it reads −31, +22 and −92 B Brotli on the `sortable` rows, and no verdict changes. [`rect-index-access-handoff.md`](rect-index-access-handoff.md) implements it, with allocation readings and a focused timing check. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+**It landed on 2026-11-13** at `010a9ef39`, and its [report](rect-index-access-report.md) is accepted in [`rect-index-access-assessment.md`](rect-index-access-assessment.md). Size equals the figures above, and no verdict changes. Allocation falls by 34.74 B per `y()` sample, 11.77 B per cold committed move and 406.53 B per drop with `layoutAnimation()`, and shows no difference per `xy()` sample or per warm move. Those are bytes allocated. The timing check reads "no difference shown" for `xy()`'s rebuild, with and without the sink, and for `y()`'s scan. That is inconclusive, so speed is unmeasured in either direction, and the A/A thresholds don't limit a possible slowdown.
 
 ## 3. Rules every unit follows
+
+**Owner direction, 2026-11-13: local development checks use Chromium only.** For the current drag phase, source and consumer browser tests, witnesses and probes run in Chromium. This replaces earlier requirements for local Firefox and WebKit runs, including those in existing handoffs. Missing Firefox or WebKit executables or host libraries do not block local development, and restoring them is not required. Their checks are deferred to a separate CI that the owner plans; this instruction does not establish that CI or claim cross-engine verification. Preserve the engine configurations and historical results.
 
 `DRD-40`'s properties, in short:
 
@@ -128,26 +198,37 @@ When the target row shows no difference, the architect decides what follows (`DR
 - **An instrument change is shown by an injection it catches** (`DRD-23`), and the floors are measured again after it.
 - **Nothing else runs on the machine from the same session** during a timing run. Other sessions can't be controlled, so the load average is the record of them.
 - **A long sequence of runs goes through [`bench/campaign.ts`](../bench/campaign.ts).** It runs the commands in order, stops at the first failure, and records each command's revision, process, times, exit code and log in `.campaigns/<id>/status.json`. `campaign.ts status` reports each run as running, succeeded, failed or interrupted from that file and `/proc`, not from a log. It writes nothing while a step runs. It changes no scenario, rule or threshold. Report: [`campaign-runner-report.md`](campaign-runner-report.md).
+- **The runner isn't a campaign.** Added on 2026-11-12 (`DRD-51` property 3, as amended). "The deferred campaigns" are named measurement work: the page check, B3', the in-page floors, `--prove` and `--floors`. They stay stopped until a decision restarts one. The runner only orders the runs a unit's handoff asks for, such as allocation probes, the `compare.ts` runs it names and suites, and a unit uses it for any sequence of them. It does no work while a step runs, so it may run during a hold.
+- **A unit waits for a process through the process itself:** the runner, a foreground command, or the harness's notice that a background command exited. It never waits by searching the process table for a pattern, as in `until ! pgrep -f <name>`. The waiting shell's own command line contains the pattern, so the search always finds it, and the wait never ends. This happened on 2026-11-10, before B2 and B3, and again on 2026-11-12, when three such loops ran into a hold ([assessment](size-pass-unit-assessment.md) §5).
 
 ## 4. Open items this plan doesn't decide
 
 **Carried forward on 2026-11-12, when the runtime pass closed.** None is a runtime task in this pass.
 
-- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, and the same five after the window (`DRO-4`). The owner's.
+- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's.
 - Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. The record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
+- **Added on 2026-11-13 by the owner:** Firefox and WebKit checks in a separate CI. Local development uses Chromium (§3); the CI is planned and not configured by this unit.
 - `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
 - `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
-- The optional findings `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so.
+- The optional findings `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so. `DRF-13` and `DRF-14` were closed on 2026-11-12 by P4's first unit.
 - Trace candidates 4 and 5: `DRO-1`'s pull at a press and the landing's computed position. Each is a decision first ([assessment](performance-window-correction-assessment.md) §4.1).
 - The retained plateau of about 4 KB in `DRO-4`, whose retainer isn't known.
 - The owner's DevTools check of the saved traces ([assessment](performance-trace-assessment.md)).
 - `xy()`'s shared rebuild: its probe can't limit a slowdown, and its rebuild with rows in flight wasn't timed ([assessment](performance-window-correction-assessment.md) §5).
 - The animation-end layout outside the tested scenario: a flex or grid container, rows with layout containment, Firefox and WebKit, and what tracing adds to a layout ([probe](animation-end-layout-probe.md) §5).
 - A README note on long lists and `layoutAnimation`. A documentation decision, the owner's, which needs its own measurement of the layer cost first.
+- **Added on 2026-11-12, when P4 opened:** the contract gap that the threshold isn't stated finite ([assessment](size-pass-assessment.md) §3). `DRO-14`'s four items were answered on 2026-11-12, and `DRF-20` is closed.
+- **Added on 2026-11-12:** `DRO-15`, a publish-time mangle of internal property names. Steps 1 to 3 landed (`DRD-54`, `DRD-55`, `DRD-56`). **On 2026-11-13 the owner deferred property mangling** (`DRD-60`), and step 3 is rolled back. Whether it returns would be a new decision. The type-directed transform stays deferred (§6).
 
 ## 5. Post-1.0.0: virtualized lists
 
 **Owner direction, 2026-11-12:** plan a separate extension for drag and drop in virtualized lists. `yvirt` is a working name, not a decided API or architecture. The current `y()` does not support virtualized lists.
 
 The future design covers moving a file into a folder while scrolling a virtualized file list, and reordering across the rendered window's boundary. It must consider stable item identity when DOM rows are removed or reused, and an operation that outlives its source row. Whether this needs a separate behavior, capability or adapter remains for that design. This work is not a prerequisite for 1.0.0 or for `DRD-49`.
+
+## 6. Deferred: property selection by type
+
+**Owner direction, 2026-11-13:** retain the idea of a build transform that takes an explicit set of internal types or classes, prefixes their property declarations and uses in the emitted code, then applies property mangling. Source names would stay readable without prefixes.
+
+The transform must handle the same object being accessed through different structural types, and keep declarations, destructuring and property accesses consistent. Its scope, maintenance cost and measured benefit need evaluation before adoption. No delivery version or date is assigned. This work is not a prerequisite for step 3's source prefixes. **On 2026-11-13 the owner deferred property mangling as a whole** (`DRD-60`), so this transform has no step to follow, and stays deferred with it.

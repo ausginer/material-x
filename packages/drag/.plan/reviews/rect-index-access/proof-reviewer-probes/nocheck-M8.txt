@@ -1,0 +1,46 @@
+# HEAD 30bf21e6eb0f9814ec01d1870119178c5527651a, patch: nocheck-M8.diff.txt
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-probe/packages/drag
+
+1:44:17 PM [vite] (client) warning: 
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+
+ ❯ |browser (chromium)| tests/displacement-sink.browser.test.ts (4 tests | 1 failed) 1625ms
+   ❯ sortable options (4)
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 315ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:206 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected 2 to be 3 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 3[39m
+[31m+ 2[39m
+
+ ❯ tests/displacement-sink.browser.test.ts:287:30
+    285|     expect(overR3.carried).toBe(true);
+    286|     expect(overR3.top - overR3.dy).toBeCloseTo(settledTop, 0);
+    287|     expect(placeholderGap()).toBe(expected);
+       |                              ^
+    288|     expect(expected).toBe(3);
+    289|     expect(r3.getAnimations()).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  13:44:17
+   Duration  2.27s (tests 83%, worker 16%, import 1%)
+
+[exit 1]

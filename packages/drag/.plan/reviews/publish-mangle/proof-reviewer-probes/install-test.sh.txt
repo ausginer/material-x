@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# install-test.sh <pkgdir>: copies the publication test at HEAD into <pkgdir>/tests with resolvable imports
+set -euo pipefail
+H=$(dirname "$(readlink -f "$0")")
+mkdir -p "$1/tests"
+git -C /workspaces/material-x show HEAD:packages/drag/tests/publication.node.test.ts \
+ | sed -e "s#from 'vitest'#from '$H/shim.ts'#" \
+       -e "s#from '../build/property-names.ts'#from '/workspaces/material-x/packages/drag/build/property-names.ts'#" \
+       -e "s#from 'rolldown/utils'#from '/workspaces/material-x/node_modules/rolldown/dist/utils-index.mjs'#" \
+       -e "s#from '@jridgewell/gen-mapping'#from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs'#" \
+ > "$1/tests/publication.node.test.ts"
+cat > "$1/tests/run.ts" <<EOT
+import { runAll } from '$H/shim.ts';
+await import('./publication.node.test.ts');
+await runAll();
+EOT

@@ -1,0 +1,15 @@
+# coreSets, f9e56fe7d's literal against 27c60a9ac's Object.fromEntries, with the record's own read()
+sysfs: before={"cpu_core":"0-3","cpu_atom":"4-11"} after={"cpu_core":"0-3","cpu_atom":"4-11"} equal=true
+fixture: before={"cpu_core":"0-11","cpu_atom":"12-19"} after={"cpu_core":"0-11","cpu_atom":"12-19"} equal=true
+
+# coresets.mjs
+// The two coreSets expressions of machineRecord, copied from f9e56fe7d and 27c60a9ac,
+// with the same read(). A missing device file reads as null in both, and so does a
+// file the probe substitutes, to show both orders and both value kinds.
+import { readFile } from 'node:fs/promises';
+for (const root of ['/sys/devices', process.argv[2]]) {
+  const read = (path) => readFile(path.replace('/sys/devices', root), 'utf8').then((t) => t.trim(), () => null);
+  const before = { cpu_core: await read('/sys/devices/cpu_core/cpus'), cpu_atom: await read('/sys/devices/cpu_atom/cpus') };
+  const after = Object.fromEntries(await Promise.all(['cpu_core', 'cpu_atom'].map(async (device) => [device, await read(`/sys/devices/${device}/cpus`)])));
+  console.log(`${root === '/sys/devices' ? 'sysfs' : 'fixture'}: before=${JSON.stringify(before)} after=${JSON.stringify(after)} equal=${JSON.stringify(before) === JSON.stringify(after)}`);
+}

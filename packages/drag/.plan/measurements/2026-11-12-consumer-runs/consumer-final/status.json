@@ -1,0 +1,42 @@
+{
+  "id": "consumer-final",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 306156,
+    "start": "2789078"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-12T16:12:02.046Z",
+  "endedAt": "2026-11-12T16:13:42.457Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-12-consumer-final-suite.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/consumer-final/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "9c7b730472bd3d766dd31f9ede42035316e928af",
+        "dirty": true
+      },
+      "process": {
+        "pid": 306179,
+        "start": "2789084"
+      },
+      "startedAt": "2026-11-12T16:12:02.059Z",
+      "endedAt": "2026-11-12T16:13:42.457Z",
+      "exitCode": 1,
+      "signal": null
+    },
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/consumer-final/2.log",
+      "state": "pending",
+      "revision": null,
+      "process": null,
+      "startedAt": null,
+      "endedAt": null,
+      "exitCode": null,
+      "signal": null
+    }
+  ]
+}

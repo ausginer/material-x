@@ -14,9 +14,19 @@ Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.m
 
 The workspace contains core, tproc, material-x, drag, drag2, box-quad and the three build-tool packages. `@ydinjs/drag` is the production drag package, and the private drag2 is kept as its reference evidence and measurement arm (`drag:DRD-13`), not as a replacement. Recover their status from `packages/drag/.plan/00-index.md` and source rather than assuming a merge or consumer migration has happened.
 
+## Explain architectural decisions before implementation
+
+After reading an architect's report and its governing records, summarize the main decisions for the owner in Russian before handing dependent work to an implementer. Normally use three or four bullets, with one or two sentences per bullet; add bullets when the report contains more distinct decisions.
+
+Explain the chosen mechanism and its reason, changes to the owner's requirements, added complexity or constraints, and the main costs and tradeoffs. Make consequential choices explicit, such as custom tooling instead of native tool options, new allocations, or changes to ownership and public APIs. Distinguish measured results from estimates and unresolved assumptions. Decision IDs, conformance labels and next-role instructions do not replace this explanation.
+
+Put the summary before the next task prompt so the owner can spot an unwanted direction before implementation starts. This summary adds no approval checkpoint to already authorized work; route an actual conflict with the owner's requirements before dependent implementation proceeds.
+
 ## Route one bounded task
 
 Route architectural, contract, parity and public-surface choices to `architect`, settled implementation to `implementer`, feature proof to `reviewer`, and an acceptance round to `consolidator`. The role definitions under [.claude/agents/](../../.claude/agents/) decide their exact authority and review cadence. Prepare one compact English prompt naming the input revision, governing records and completion boundary. The owner launches or resumes the session; do not launch or automatically resume top-level role sessions yourself.
+
+For an authorized prototype in an isolated worktree, require committed runnable source there, as [Architecture prototypes](agent-workflow.md#architecture-prototypes) specifies. Keep the main checkout and adopted decisions unchanged; do not require the prototype branch's source to stay unchanged, which would leave the owner with only patches or scratch copies to inspect.
 
 Use a separate architecture challenge sparingly, for a concrete architectural risk or material contract change. Give a fresh architect session an explicitly read-only challenge task and route its report to the authoring architect for disposition. A challenge is not phase acceptance.
 

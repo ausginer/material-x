@@ -1,0 +1,113 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index ac630af9f..eba2b7fac 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -15,7 +15,7 @@
+  * Each axis rule creates its own instance inside its factory, so the cache has one
+  * owner. The cache owns its storage, and every write to it is a method: each
+  * measurement, the settling of a measurement and a predicted shift. Code outside
+- * reads one value at a time, through `at`, `item` and `insertion`, and never holds
++ * reads one value at a time, through `at`, `held`, `item` and `insertion`, and never holds
+  * the slot array or the element array.
+  *
+  * The axis that `shift` and `travel` work along is chosen at construction, as data:
+@@ -71,6 +71,13 @@ export class RectIndex {
+   /** Destination-ordered elements, parallel to the packed slots. */
+   readonly #items: HTMLElement[] = [];
+ 
++  /**
++   * Each slot's left and top as `retain` copied them, packed `[left, top]`, so that
++   * they survive a rebuild. It grows only by appending and never shrinks, like the
++   * slot array.
++   */
++  readonly #held: number[] = [];
++
+   /**
+    * `LEFT` or `TOP`: the axis `shift` moves along and `travel` reads. An index that
+    * never shifts keeps the default.
+@@ -113,6 +120,15 @@ export class RectIndex {
+     return this.#values[(slot + LEADING) * STRIDE + field]!;
+   }
+ 
++  /**
++   * The left of `slot` at `LEFT`, or its top at `TOP`, as the last `retain` held
++   * it. Valid for the slots below the count at that call.
++   */
++  held(slot: number, field: number): number {
++    // `LEFT` and `TOP` are 0 and 1, the two fields of a held pair.
++    return this.#held[slot * 2 + field]!;
++  }
++
+   /** The element at `slot`. */
+   item(slot: number): HTMLElement {
+     return this.#items[slot]!;
+@@ -285,6 +301,27 @@ export class RectIndex {
+     );
+   }
+ 
++  /**
++   * Copies every slot's left and top where `held` reads them. A rebuild doesn't
++   * write them, so a caller compares the slots across it. Every slot is inside the
++   * window.
++   */
++  retain(): void {
++    // Locals, not repeated field reads inside the loop.
++    const values = this.#values;
++    const held = this.#held;
++    const count = this.#items.length;
++
++    // From slot 0 up, so each write lands at or below the length: a write at the
++    // length appends, and the array has no hole.
++    for (let i = 0; i < count; i += 1) {
++      const offset = (i + LEADING) * STRIDE;
++
++      held[i * 2] = values[offset + LEFT]!;
++      held[i * 2 + 1] = values[offset + TOP]!;
++    }
++  }
++
+   /** One flag, because any reason for staleness forces the same full rebuild. */
+   invalidate(): void {
+     this.#dirty = true;
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index af5549626..2a26d6304 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -47,8 +47,6 @@ export function xy(): AxisInstaller {
+     const index = new RectIndex();
+     /** The gap the buffer reflects, or `-1` when nothing is known. */
+     let last = -1;
+-    /** The origins held before the DOM write, packed `[left, top]` per slot. */
+-    let before = new Float64Array(0);
+     const invalidate = (): void => {
+       last = -1;
+       index.invalidate();
+@@ -127,16 +125,8 @@ export function xy(): AxisInstaller {
+           return;
+         }
+ 
+-        if (before.length < held * 2) {
+-          before = new Float64Array(held * 2);
+-        }
+-
+         // Before the refresh rewrites the slots.
+-        for (let i = 0; i < held; i += 1) {
+-          before[i * 2] = index.at(i, LEFT);
+-          before[i * 2 + 1] = index.at(i, TOP);
+-        }
+-
++        index.retain();
+         index.invalidate();
+         refresh(
+           index,
+@@ -155,8 +145,8 @@ export function xy(): AxisInstaller {
+         const span = count < held ? count : held;
+ 
+         for (let i = 0; i < span; i += 1) {
+-          const dx = before[i * 2]! - index.at(i, LEFT);
+-          const dy = before[i * 2 + 1]! - index.at(i, TOP);
++          const dx = index.held(i, LEFT) - index.at(i, LEFT);
++          const dy = index.held(i, TOP) - index.at(i, TOP);
+ 
+           if (dx !== 0 || dy !== 0) {
+             displacement.report(index.item(i), dx, dy, context.space);

@@ -1,0 +1,82 @@
+{
+  "id": "mangle-a",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 474681,
+    "start": "7314444"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T04:46:15.728Z",
+  "endedAt": "2026-11-13T04:50:56.583Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just size; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-a/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 474707,
+        "start": "7314452"
+      },
+      "startedAt": "2026-11-13T04:46:15.742Z",
+      "endedAt": "2026-11-13T04:46:16.855Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "bash /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/dry-each.sh",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-a/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 474864,
+        "start": "7314565"
+      },
+      "startedAt": "2026-11-13T04:46:16.868Z",
+      "endedAt": "2026-11-13T04:46:25.206Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-13-mangle-a-suite.json; echo \"[exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-a/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 476301,
+        "start": "7315400"
+      },
+      "startedAt": "2026-11-13T04:46:25.216Z",
+      "endedAt": "2026-11-13T04:48:02.241Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": ". ~/.cache/ms-playwright/webkit-env.sh && npx just test-engines",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/mangle-a/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "c42c5b08479fd265fa2041e8f0918ace6a9248bd",
+        "dirty": true
+      },
+      "process": {
+        "pid": 479523,
+        "start": "7325104"
+      },
+      "startedAt": "2026-11-13T04:48:02.253Z",
+      "endedAt": "2026-11-13T04:50:56.583Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

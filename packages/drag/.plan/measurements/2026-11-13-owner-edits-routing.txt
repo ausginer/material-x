@@ -1,0 +1,113 @@
+# vitest list --filesOnly, project<TAB>file; callback-list renamed to callbacks in the base column for the diff
+## base afc9e1504
+browser (chromium)	tests/activation.browser.test.ts
+browser (chromium)	tests/authoring.browser.test.ts
+browser (chromium)	tests/callbacks.browser.test.ts
+browser (chromium)	tests/classes.browser.test.ts
+browser (chromium)	tests/click-guard.browser.test.ts
+browser (chromium)	tests/commit.browser.test.ts
+browser (chromium)	tests/coordinates.browser.test.ts
+browser (chromium)	tests/destruction.browser.test.ts
+browser (chromium)	tests/displacement-sink.browser.test.ts
+browser (chromium)	tests/drop-targets.browser.test.ts
+browser (chromium)	tests/equivalence-check.browser.test.ts
+browser (chromium)	tests/faults.browser.test.ts
+browser (chromium)	tests/focus.browser.test.ts
+browser (chromium)	tests/frameworks.browser.test.ts
+browser (chromium)	tests/free-drag.browser.test.ts
+browser (chromium)	tests/input.browser.test.ts
+browser (chromium)	tests/landing.browser.test.ts
+browser (chromium)	tests/operation-lifecycle.browser.test.ts
+browser (chromium)	tests/order.browser.test.ts
+browser (chromium)	tests/refusals.browser.test.ts
+browser (chromium)	tests/release.browser.test.ts
+browser (chromium)	tests/requests.browser.test.ts
+browser (chromium)	tests/scoped-requests.browser.test.ts
+browser (chromium)	tests/sortable.browser.test.ts
+browser (chromium)	tests/terminals.browser.test.ts
+browser (chromium)	tests/verdict.browser.test.ts
+consumer (chromium)	tests/activation.browser.test.ts
+consumer (chromium)	tests/authoring.browser.test.ts
+consumer (chromium)	tests/classes.browser.test.ts
+consumer (chromium)	tests/click-guard.browser.test.ts
+consumer (chromium)	tests/commit.browser.test.ts
+consumer (chromium)	tests/coordinates.browser.test.ts
+consumer (chromium)	tests/destruction.browser.test.ts
+consumer (chromium)	tests/drop-targets.browser.test.ts
+consumer (chromium)	tests/faults.browser.test.ts
+consumer (chromium)	tests/focus.browser.test.ts
+consumer (chromium)	tests/frameworks.browser.test.ts
+consumer (chromium)	tests/free-drag.browser.test.ts
+consumer (chromium)	tests/input.browser.test.ts
+consumer (chromium)	tests/landing.browser.test.ts
+consumer (chromium)	tests/operation-lifecycle.browser.test.ts
+consumer (chromium)	tests/order.browser.test.ts
+consumer (chromium)	tests/release.browser.test.ts
+consumer (chromium)	tests/requests.browser.test.ts
+consumer (chromium)	tests/scoped-requests.browser.test.ts
+consumer (chromium)	tests/sortable.browser.test.ts
+consumer (chromium)	tests/terminals.browser.test.ts
+consumer (chromium)	tests/verdict.browser.test.ts
+declaration	tests/authoring.declaration.test.ts
+declaration	tests/callbacks.declaration.test.ts
+declaration	tests/published-types.declaration.test.ts
+node	tests/campaign.node.test.ts
+node	tests/exports.node.test.ts
+node	tests/size.node.test.ts
+shipped (chromium)	tests/hot-path.browser.test.ts
+## integrated tree
+browser (chromium)	tests/activation.browser.test.ts
+browser (chromium)	tests/authoring.browser.test.ts
+browser (chromium)	tests/callbacks.browser.test.ts
+browser (chromium)	tests/classes.browser.test.ts
+browser (chromium)	tests/click-guard.browser.test.ts
+browser (chromium)	tests/commit.browser.test.ts
+browser (chromium)	tests/coordinates.browser.test.ts
+browser (chromium)	tests/destruction.browser.test.ts
+browser (chromium)	tests/displacement-sink.browser.test.ts
+browser (chromium)	tests/drop-targets.browser.test.ts
+browser (chromium)	tests/equivalence-check.browser.test.ts
+browser (chromium)	tests/faults.browser.test.ts
+browser (chromium)	tests/focus.browser.test.ts
+browser (chromium)	tests/frameworks.browser.test.ts
+browser (chromium)	tests/free-drag.browser.test.ts
+browser (chromium)	tests/input.browser.test.ts
+browser (chromium)	tests/landing.browser.test.ts
+browser (chromium)	tests/operation-lifecycle.browser.test.ts
+browser (chromium)	tests/order.browser.test.ts
+browser (chromium)	tests/refusals.browser.test.ts
+browser (chromium)	tests/release.browser.test.ts
+browser (chromium)	tests/requests.browser.test.ts
+browser (chromium)	tests/scoped-requests.browser.test.ts
+browser (chromium)	tests/sortable.browser.test.ts
+browser (chromium)	tests/terminals.browser.test.ts
+browser (chromium)	tests/verdict.browser.test.ts
+consumer (chromium)	tests/activation.browser.test.ts
+consumer (chromium)	tests/authoring.browser.test.ts
+consumer (chromium)	tests/classes.browser.test.ts
+consumer (chromium)	tests/click-guard.browser.test.ts
+consumer (chromium)	tests/commit.browser.test.ts
+consumer (chromium)	tests/coordinates.browser.test.ts
+consumer (chromium)	tests/destruction.browser.test.ts
+consumer (chromium)	tests/drop-targets.browser.test.ts
+consumer (chromium)	tests/faults.browser.test.ts
+consumer (chromium)	tests/focus.browser.test.ts
+consumer (chromium)	tests/frameworks.browser.test.ts
+consumer (chromium)	tests/free-drag.browser.test.ts
+consumer (chromium)	tests/input.browser.test.ts
+consumer (chromium)	tests/landing.browser.test.ts
+consumer (chromium)	tests/operation-lifecycle.browser.test.ts
+consumer (chromium)	tests/order.browser.test.ts
+consumer (chromium)	tests/release.browser.test.ts
+consumer (chromium)	tests/requests.browser.test.ts
+consumer (chromium)	tests/scoped-requests.browser.test.ts
+consumer (chromium)	tests/sortable.browser.test.ts
+consumer (chromium)	tests/terminals.browser.test.ts
+consumer (chromium)	tests/verdict.browser.test.ts
+declaration	tests/authoring.declaration.test.ts
+declaration	tests/callbacks.declaration.test.ts
+declaration	tests/published-types.declaration.test.ts
+node	tests/campaign.node.test.ts
+node	tests/exports.node.test.ts
+node	tests/size.node.test.ts
+shipped (chromium)	tests/hot-path.browser.test.ts

@@ -1,0 +1,30 @@
+# Heap tests: head-nodrop deletes 'controller = null'; new-leak keeps the controller in the test's frame
+classes head-clean exit=0 ::  Tests 2 passed | 10 skipped (12) ::
+classes head-nodrop exit=1 ::  Tests 2 failed | 10 skipped (12) :: AssertionError: expected 1 to be +0 // Object.is equality
+classes new-clean exit=0 ::  Tests 2 passed | 10 skipped (12) ::
+classes new-leak exit=1 ::  Tests 2 failed | 10 skipped (12) :: AssertionError: expected 1 to be +0 // Object.is equality
+destruction head-clean exit=0 ::  Tests 2 passed | 44 skipped (46) ::
+destruction head-nodrop exit=1 ::  Tests 2 failed | 44 skipped (46) :: AssertionError: expected 1 to be +0 // Object.is equality
+destruction new-clean exit=0 ::  Tests 2 passed | 44 skipped (46) ::
+destruction new-leak exit=1 ::  Tests 2 failed | 44 skipped (46) :: AssertionError: expected 1 to be +0 // Object.is equality
+
+# mutate.py
+# Usage: mutate.py <file> <head-nodrop|new-leak> <classes|destruction>.
+import sys
+path, kind, which = sys.argv[1:4]
+s = open(path).read()
+def sub(old, new):
+    global s
+    assert s.count(old) == 1, old
+    s = s.replace(old, new, 1)
+if kind == 'head-nodrop':
+    # The test keeps its own reference to the destroyed controller.
+    sub("      controller = null;\n", "")
+else:
+    # The controller escapes the function, so the test's frame still holds it.
+    name = 'dragThenDestroy' if which == 'classes' else 'operateThenDestroy'
+    sub(f"      const {name} = async (): Promise<void> => {{\n", f"      const leaked: unknown[] = [];\n      const {name} = async (): Promise<void> => {{\n")
+    call = "freeDrag(box, {" if which == 'classes' else "sortable(list, {"
+    sub(f"        const controller = {call}", f"        const controller = {call}")
+    sub("        await controller.requestDestroy();\n      };", "        await controller.requestDestroy();\n        leaked.push(controller);\n      };")
+open(path, 'w').write(s)

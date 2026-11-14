@@ -1,0 +1,99 @@
+{
+  "id": "gate-g2",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 402919,
+    "start": "6079335"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:20:24.618Z",
+  "endedAt": "2026-11-13T01:20:26.679Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just build",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g2/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 402935,
+        "start": "6079342"
+      },
+      "startedAt": "2026-11-13T01:20:24.632Z",
+      "endedAt": "2026-11-13T01:20:25.786Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g2/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 403173,
+        "start": "6079458"
+      },
+      "startedAt": "2026-11-13T01:20:25.795Z",
+      "endedAt": "2026-11-13T01:20:26.205Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "cp src/kernel/drag.ts /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drag.ts.orig && printf '%s\\n' 'globalThis.gateInjection = \"7tThMnTw3qcDixqbcAkehip2Cezld0Jt2TgpuUC5JRTP6qEDT1Ncsogd0JZkyNf0\";' >> src/kernel/drag.ts && tail -n 2 src/kernel/drag.ts && git status --short src",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g2/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 403265,
+        "start": "6079501"
+      },
+      "startedAt": "2026-11-13T01:20:26.224Z",
+      "endedAt": "2026-11-13T01:20:26.231Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g2/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 403277,
+        "start": "6079503"
+      },
+      "startedAt": "2026-11-13T01:20:26.249Z",
+      "endedAt": "2026-11-13T01:20:26.663Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "cp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drag.ts.orig src/kernel/drag.ts && cmp /tmp/claude-1000/-workspaces-material-x/6d4fe90d-6659-43cb-baec-7ce8f897927d/scratchpad/gate/drag.ts.orig src/kernel/drag.ts && echo restored && git status --short src",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-g2/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 403351,
+        "start": "6079546"
+      },
+      "startedAt": "2026-11-13T01:20:26.673Z",
+      "endedAt": "2026-11-13T01:20:26.678Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

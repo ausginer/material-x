@@ -1,0 +1,44 @@
+## npx just typecheck
+tsc -p tsconfig.json --noEmit
+../../.scripts/tsdown-library.ts(53,11): error TS2322: Type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/vite/dist/node/index").Plugin<any>' is not assignable to type 'import("/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/node_modules/rolldown/dist/shared/define-config-QuM53xoi").E<any>'.
+  Types of property '[DEFINED_HOOK_NAMES.load]' are incompatible.
+    Type 'ObjectHook<(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult, { ...; }> | undefined' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+      Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type 'ObjectHook<(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>, { ...; }> | undefined'.
+        Type '(this: PluginContext, id: string, options?: { ssr?: boolean | undefined; } | undefined) => Promise<LoadResult> | LoadResult' is not assignable to type '(this: PluginContext, id: string, options: LoadExtraOptions) => Promise<MaybePromise<LoadResult>> | MaybePromise<...>'.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'LoadExtraOptions' has no properties in common with type '{ ssr?: boolean | undefined; }'.
+tests/rect-index.declaration.test.ts(31,5): error TS2578: Unused '@ts-expect-error' directive.
+error: recipe `typecheck` failed on line 37 with exit code 1
+exit 1
+## declaration project
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag
+
+ ❯ |declaration|  TS  tests/rect-index.declaration.test.ts (3 tests | 1 failed)
+   ❯ RectIndex fields (3)
+     × should accept only the six geometry fields as at's field
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/rect-index.declaration.test.ts:22 > RectIndex fields > should accept only the six geometry fields as at's field
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/rect-index.declaration.test.ts:31:5
+     29|     index.at(0, CENTER_X);
+     30|     index.at(0, CENTER_Y);
+     31|     // @ts-expect-error `STRIDE` is a slot's length, not a field.
+       |     ^
+     32|     index.at(0, STRIDE);
+     33|     // @ts-expect-error A number may be any field or none.
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+Type Errors  no errors
+   Start at  18:06:18
+   Duration  411ms (typecheck 100%)
+
+exit 1

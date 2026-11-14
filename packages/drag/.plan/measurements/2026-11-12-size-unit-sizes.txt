@@ -1,0 +1,45 @@
+# Size readings, DRD-51 property 1: .plan/probes/size-pass/size.ts.txt copied to a scratch .ts, run one after the other
+# base: a detached worktree of 1d304128b; unit: the main checkout at 237d65d2f, the last code commit
+# node v26.13.0, 12th Gen Intel(R) Core(TM) i7-1255U
+
+## base
+root /tmp/claude-1000/-workspaces-material-x/fc4a4f39-b7a5-4718-a1d7-51fcda589c92/scratchpad/base/packages/drag
+composition                       min    gz9    gz6   br11    str  modules
+draggable alone                  6731   2427   2428   2196    316  7
+draggable + lift                11542   4401   4403   3963   1285  9
+example: resize handle           9388   3668   3671   3321    475  9
+example: drop zone              13181   5103   5108   4603   1384  13
+example: canvas group            9524   3628   3631   3302    421  9
+freeDrag                        15199   5576   5590   5024   1347  15
+freeDrag + bounds + landing     16364   6064   6077   5459   1424  19
+sortable + y                    20747   7423   7430   6714   1598  20
+sortable + xy                   20303   7320   7326   6597   1598  19
+complete                        22426   8148   8158   7349   1686  24
+
+## unit
+root /workspaces/material-x/packages/drag
+composition                       min    gz9    gz6   br11    str  modules
+draggable alone                  6731   2427   2428   2196    316  7
+draggable + lift                11542   4401   4403   3963   1285  9
+example: resize handle           9388   3668   3671   3321    475  9
+example: drop zone              13181   5103   5108   4603   1384  13
+example: canvas group            9524   3628   3631   3302    421  9
+freeDrag                        15173   5576   5589   5023   1347  15
+freeDrag + bounds + landing     16338   6063   6077   5459   1424  19
+sortable + y                    20559   7350   7356   6652   1598  20
+sortable + xy                   20103   7239   7244   6541   1598  19
+complete                        22238   8077   8086   7284   1686  24
+
+## the unit against the base, minified/gzip-9/Brotli-11
+row                                         c3
+                                    min/gz9/br
+draggable alone                          0/0/0
+draggable + lift                         0/0/0
+ex: resize handle                        0/0/0
+ex: drop zone                            0/0/0
+ex: canvas group                         0/0/0
+freeDrag                              -26/0/-1
+freeDrag+b+l                          -26/-1/0
+sortable + y                      -188/-73/-62
+sortable + xy                     -200/-81/-56
+complete                          -188/-71/-65

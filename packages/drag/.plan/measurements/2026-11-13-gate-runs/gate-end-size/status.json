@@ -1,0 +1,65 @@
+{
+  "id": "gate-end-size",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 401372,
+    "start": "6078562"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T01:20:16.892Z",
+  "endedAt": "2026-11-13T01:20:18.364Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just build",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-end-size/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 401395,
+        "start": "6078569"
+      },
+      "startedAt": "2026-11-13T01:20:16.907Z",
+      "endedAt": "2026-11-13T01:20:17.728Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-end-size/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 401551,
+        "start": "6078652"
+      },
+      "startedAt": "2026-11-13T01:20:17.740Z",
+      "endedAt": "2026-11-13T01:20:18.046Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "node bench/size/measure.ts; echo \"[measure exit $?]\"",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-end-size/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "69c260685bd37141fe69356c07e547cb589fa6c8",
+        "dirty": true
+      },
+      "process": {
+        "pid": 401612,
+        "start": "6078684"
+      },
+      "startedAt": "2026-11-13T01:20:18.055Z",
+      "endedAt": "2026-11-13T01:20:18.364Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

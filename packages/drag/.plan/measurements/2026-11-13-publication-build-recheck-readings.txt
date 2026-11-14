@@ -1,0 +1,106 @@
+# Publication build probes, rechecked after the dependency update
+# tree = packages/drag at 63bb1bea1 (drag/mangle-remediation, after merging drag/size at 31bac1381 "repo: update dependencies")
+# Installed by `npm ci` in the drag/mangle-remediation worktree from the lockfile at 63bb1bea1:
+#   tsdown 0.23.7, rolldown 1.3.2, @rolldown/binding-linux-x64-gnu 1.3.2, @oxc-project/types 0.158.0 (rolldown pins =0.158.0; rolldown 1.2.15 pinned =0.155.0 at 1719df16c),
+#   rolldown-plugin-dts 0.30.2, oxc-transform 0.158.0, typescript 6.0.2, @jridgewell/gen-mapping 0.3.13, node 26.13.0
+# Previous readings: 2026-11-13-publication-build-readings.txt, at tsdown 0.23.2, rolldown 1.2.15, rolldown-plugin-dts 0.29.0-beta.2
+# `@ydinjs/vite-traits-plugin` and `@ydinjs/box-quad` were built in the worktree first (tsdown --config tsdown.config.ts in each).
+
+## L1: native output.minify.mangleProps on the unbundled build (p1.config.ts, and p1 without `cache`)
+with cache:    [INVALID_OPTION] Invalid value for option "output.minify.mangleProps" - property mangling is currently supported only when a build generates one JavaScript chunk. Use a single-chunk build or remove "mangleProps".
+without cache: the same error
+=> unchanged: the plugin and the map's single-chunk build stay.
+
+## L2: declaration-map references, one configuration with sourcemap: true (p4.config.ts, DTS=...)
+DTS=true                    27 .d.ts, 0 with sourceMappingURL, 0 .d.ts.map, 30 .js.map
+DTS={"sourcemap":false}     27 .d.ts, 0 with sourceMappingURL, 0 .d.ts.map, 30 .js.map
+DTS={"sourcemap":true}      27 .d.ts, 22 with sourceMappingURL, 22 .d.ts.map, 30 .js.map
+current tsdown.config.ts (pcur, dts: true, renamer, no minify): 27 .d.ts, 0 with sourceMappingURL
+previously (0.29.0-beta.2): DTS=true and DTS={"sourcemap":false} gave 22 of 27 .d.ts with a dangling reference
+mechanism, read in node_modules/rolldown-plugin-dts/dist/index.mjs (0.30.2), createFakeJsPlugin's generateBundle:
+  when its sourcemap option is off, each .d.ts chunk's trailing `//# sourceMappingURL=` line is removed, and chunk.map and chunk.sourcemapFileName are cleared.
+  its sourcemap option defaults to compilerOptions.declarationMap, which tsconfig.base.json doesn't set.
+=> L2 lifted: declaration maps and their references are off independently of the JavaScript maps, in one configuration.
+
+## The one-configuration candidate: p4.config.ts with DTS={"sourcemap":false} (out-l2b), built twice (out-l2b2)
+out-l2b vs out-l2b2: identical (90 files)
+out-l2b vs out-cur, every .d.ts: 27 of 27 byte-identical (cmp)
+out-l2b vs out-p5 (the two-configuration candidate), every .js and .js.map: identical
+.js total bytes: out-cur 80259, out-l2b 28940 (previous candidate at 1.2.15: 28943)
+tsdown "Build complete": out-cur 414 ms, out-l2b 395 ms, out-l2b2 318 ms (single runs, not a measurement)
+
+## The two-configuration candidate under the update (p5.config.ts, and its declaration configuration alone as p7.config.ts)
+p5: 309 files, where out-l2b has 90. Its declaration configuration writes 246 files.
+p7 alone: 246 .d.ts; 30 in the package's directories, 216 under out-p7/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/node_modules/{type-fest,tagged-tag}/
+  three .d.ts files that no published module had: kernel/callbacks.d.ts, shared/invalidation.d.ts, sortable/keyboard.d.ts
+  11 of 27 shared .d.ts differ from out-cur: added side-effect imports, e.g. lift.d.ts gains `import "./draggable.js";`,
+  kernel/drag.d.ts gains `import "../workspaces/.../node_modules/type-fest/index.js";` and `import "./callbacks.js";`
+previously (0.29.0-beta.2): the same configuration's .d.ts equalled the current build's apart from the reference line
+=> `emitDtsOnly` in a separate configuration now publishes foreign declarations. Cause not investigated: the configuration is dropped.
+
+## Map: names.ts run directly (the single-chunk build)
+53 names in 44 ms for two runs; deterministic: true
+same keys as committed map: true missing: [] extra: []
+value lengths: { '1': 52, '2': 1 }
+values differing from the committed map: 50 of 53
+{"_add":"_","_advance":"B","_animation":"m","_axis":"t","_bottom":"v","_bounds":"f","_box":"V","_cancel":"h","_clear":"H","_collect":"A","_config":"e","_count":"l","_decide":"b","_detach":"S","_direction":"C","_displacement":"j","_duration":"U","_dx":"M","_dy":"N","_easing":"W","_empty":"P","_end":"o","_enter":"n","_first":"s","_has":"G","_holds":"F","_invalidate":"r","_items":"p","_landing":"i","_left":"w","_lend":"K","_measure":"T","_measurePlaceholder":"I","_moveTo":"q","_moved":"J","_placeholderRect":"E","_raise":"a","_raiseInPass":"Y","_rebase":"X","_refresh":"Z","_retire":"g","_right":"D","_root":"c","_run":"L","_schedule":"R","_stepTarget":"z","_terminate":"Q","_top":"O","_translate":"k","_updateInsertion":"$","_values":"u","_visual":"ee","_window":"d"}
+The candidate builds passed the plugin's kept-name and unmapped-name checks.
+
+## Embedded sources and map quality (mapcheck.ts, NAMES = the computed map above), out-l2b
+sourcesContent equal to src: 30/30
+  2279  identifier: mangled, map names its source name
+  3238  identifier: maps to its source name
+   273  identifier: no own mapping
+     3  module: no map, no URL
+   513  private: mangled, map names its source name
+   513  private: maps to its source name
+   189  property (renamed): maps to its source name
+   189  property: mangled, map names its source name
+   688  property: maps to its source name
+     1  property: no own mapping
+    11  renamed field key: maps to its source name, named
+    30  renamed method key: maps to its source name, named
+     1  renamed object key: maps to "animation,\n "
+     1  renamed object key: maps to "count,\n     "
+     1  renamed object key: maps to "first, _end:"
+    30  renamed object key: maps to its source name, named
+previously: 380 identifiers and 82 private names led to the right source identifier with no `name`; 11 renamed field keys led to the member's start.
+=> L3 lifted for this tree: no mapping class lacks its name; the 3 shorthand keys still lead to their values.
+
+## Documentation comments against tsc's declaration emit (tsconfig.ref.json, jsdoc2.ts)
+out-cur:  { kept: 123, 'on a declaration the published file omits': 29, 'LOST on a published declaration': 1 }
+out-l2b:  { kept: 123, 'on a declaration the published file omits': 29, 'LOST on a published declaration': 1 }
+SHOW=1: kernel/gesture.d.ts: requestStep: /** The session's `Drag` forwards a step with its receiver, or with none. */
+  checked by hand: in out-tsc/kernel/gesture.d.ts it is on the third `requestStep` overload of the internal class `Gesture`, which the
+  published kernel/gesture.d.ts doesn't declare; the published `DraggableController.requestStep` overloads keep both of their blocks.
+previously: kept 115, module headers 8. The 8 module headers are now kept in the published .d.ts, in out-cur as in out-l2b.
+
+## Annotations (annot.ts): out-l2b against the unminified renamer build out-cur, and against p8 (Oxc rename pass, minify: false)
+out-l2b vs out-cur: minified 9, unminified 8; modules with fewer: []
+  kernel/gesture.js 1->1, lift.js 1->2, sortable/layout-animation.js 1->1, sortable/linear-shift.js 1->1, sortable/rect-index.js 3->3, sortable/xy.js 1->1
+  (out-cur -> out-l2b; src writes no annotation: grep of src for __PURE__ and __NO_SIDE_EFFECTS__ matches no file)
+out-l2b vs out-p8: minified 9, unminified 0
+=> the rename pass deletes every annotation comment, and the native minifier writes the 9 again from its own analysis.
+
+## Annotations and legal comments written in source (p6.config.ts)
+scratch src/fault.ts prefixed with:
+  /*! Bang notice */
+  /** @license Apache-2.0 probe */
+  // @preserve line probe
+  import { box } from '@ydinjs/box-quad';
+  export const probePure = /* @__PURE__ */ box();
+  export const probeHash = /* #__PURE__ */ box();
+  /* @__NO_SIDE_EFFECTS__ */ export function probeNse(o: { size: number }): number { return o.size; }
+V=nomin                                                        legal=3 pure=2 nse=1 map=yes
+V=min (native minify, no plugin)                               legal=3 pure=2 nse=1 map=yes
+V=min-plugin (native minify after the rename pass)             legal=3 pure=0 nse=0 map=yes
+V=min-plugin, rename pass with legalComments 'none' (NOLEGAL)  legal=0 pure=0 nse=0 map=yes
+(src/fault.ts restored; cmp against git show HEAD:packages/drag/src/fault.ts: equal)
+annot-edge.ts, minifySync alone on a small module:
+  rename pass:            `export const a = f();` `export const b = g(1);` `export function h(o) { return o.q; }`  (all three annotations gone, /*! keep */ kept)
+  rename pass, then minify: no annotation
+  minifySync minify alone:  no annotation
+rolldown 1.3.2's CodegenOptions for minifySync: removeWhitespace, asciiOnly, legalComments. No option keeps annotation comments.
+=> legal comments: unchanged, the rename pass needs legalComments: 'inline'.
+=> annotations: the rename pass deletes source-written annotations that native minification keeps. Not established whether 1.2.15 did the same:
+   the earlier probe had no source-written annotation (N6 compared counts only).

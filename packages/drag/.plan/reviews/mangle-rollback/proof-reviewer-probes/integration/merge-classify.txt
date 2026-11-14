@@ -1,0 +1,10 @@
+NEEDS READING: packages/drag/.plan/main-integration-report.md  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/.plan/measurements/2026-11-14-main-integration-box-quad-suite.log  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/.plan/measurements/2026-11-14-main-integration-drag-suite.log  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/.plan/measurements/2026-11-14-main-integration-final-status.json  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/.plan/measurements/2026-11-14-main-integration-initial-status.json  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/.plan/measurements/2026-11-14-main-integration-size.txt  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/.plan/measurements/2026-11-14-main-integration-typecheck.txt  (drag side changed=0, main side changed=0, merge=p1:n p2:n)
+NEEDS READING: packages/drag/src/sortable/layout-animation.ts  (drag side changed=1, main side changed=1, merge=p1:n p2:n)
+NEEDS READING: packages/drag/tests/displacement-sink.browser.test.ts  (drag side changed=1, main side changed=0, merge=p1:n p2:n)
+paths taken whole from the side that changed them: 852

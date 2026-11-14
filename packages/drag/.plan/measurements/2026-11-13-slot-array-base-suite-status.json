@@ -1,0 +1,31 @@
+{
+  "id": "slot-array-base-suite",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 667475,
+    "start": "9001478"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T09:27:26.050Z",
+  "endedAt": "2026-11-13T09:29:05.695Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just test --reporter=verbose --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/m/base-suite.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/slot-array-base-suite/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "706b9148131970d245486d1c0bc7dc852824c8eb",
+        "dirty": false
+      },
+      "process": {
+        "pid": 667504,
+        "start": "9001485"
+      },
+      "startedAt": "2026-11-13T09:27:26.065Z",
+      "endedAt": "2026-11-13T09:29:05.695Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

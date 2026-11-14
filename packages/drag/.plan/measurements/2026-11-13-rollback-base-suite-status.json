@@ -1,0 +1,31 @@
+{
+  "id": "rollback-base-suite-3",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag",
+  "runner": {
+    "pid": 727273,
+    "start": "9587881"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:05:10.108Z",
+  "endedAt": "2026-11-13T11:06:49.742Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just test --reporter=verbose --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/rb/base-suite.json; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-base-suite-3/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": false
+      },
+      "process": {
+        "pid": 727290,
+        "start": "9587891"
+      },
+      "startedAt": "2026-11-13T11:05:10.125Z",
+      "endedAt": "2026-11-13T11:06:49.742Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

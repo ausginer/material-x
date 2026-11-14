@@ -1,0 +1,31 @@
+{
+  "id": "gate-base-suite",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 372691,
+    "start": "6009193"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-13T01:08:43.195Z",
+  "endedAt": "2026-11-13T01:10:18.732Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --reporter=verbose --reporter=json --outputFile.json=.plan/measurements/2026-11-13-gate-base-suite.json",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/gate-base-suite/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "7154dd4c3f9f85dfe7a6ffa054ae58424acfcc19",
+        "dirty": false
+      },
+      "process": {
+        "pid": 372707,
+        "start": "6009199"
+      },
+      "startedAt": "2026-11-13T01:08:43.209Z",
+      "endedAt": "2026-11-13T01:10:18.732Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

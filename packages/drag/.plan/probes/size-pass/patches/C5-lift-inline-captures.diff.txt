@@ -1,0 +1,136 @@
+diff --git a/packages/drag/src/lift.ts b/packages/drag/src/lift.ts
+index d10e72246..e4d7ba837 100644
+--- a/packages/drag/src/lift.ts
++++ b/packages/drag/src/lift.ts
+@@ -136,39 +136,6 @@ const LIFTED_PROPS: readonly string[] = [
+   'background-color',
+ ];
+ 
+-/** Restores exactly the declarations the lift owns, once per property. */
+-function captureInlineStyles(visual: HTMLElement): () => void {
+-  const hadStyleAttribute = visual.hasAttribute('style');
+-  const saved = new Map<string, readonly [string, string]>();
+-
+-  for (const prop of LIFTED_PROPS) {
+-    const value = visual.style.getPropertyValue(prop);
+-
+-    if (value) {
+-      saved.set(prop, [value, visual.style.getPropertyPriority(prop)]);
+-    }
+-  }
+-
+-  return () => {
+-    for (const prop of LIFTED_PROPS) {
+-      const value = saved.get(prop);
+-
+-      if (value) {
+-        visual.style.setProperty(prop, value[0], value[1]);
+-      } else {
+-        visual.style.removeProperty(prop);
+-      }
+-    }
+-
+-    if (!hadStyleAttribute && visual.style.length === 0) {
+-      // Chromium keeps a pending CSSOM write past `removeAttribute` and recreates
+-      // an empty attribute later, unless the attribute is read first.
+-      visual.getAttribute('style');
+-      visual.removeAttribute('style');
+-    }
+-  };
+-}
+-
+ /**
+  * Promotion runs the popover focusing steps, which focus an `autofocus`
+  * descendant. The library does not choose where focus goes, so this puts it back.
+@@ -189,31 +156,6 @@ function showKeepingFocus(visual: HTMLElement): void {
+   }
+ }
+ 
+-/**
+- * Records the visual's popover attribute and open state before the lift writes
+- * them, and returns how to put both back.
+- */
+-function captureTopLayer(visual: HTMLElement): () => void {
+-  const priorAttribute = visual.getAttribute('popover');
+-  const priorOpen = visual.matches(':popover-open');
+-
+-  return () => {
+-    if (visual.matches(':popover-open')) {
+-      visual.hidePopover();
+-    }
+-
+-    if (priorAttribute === null) {
+-      visual.removeAttribute('popover');
+-    } else {
+-      visual.setAttribute('popover', priorAttribute);
+-    }
+-
+-    if (priorOpen && visual.matches('[popover]')) {
+-      showKeepingFocus(visual);
+-    }
+-  };
+-}
+-
+ /**
+  * The viewport delta last translated to. Held apart from the `Lift`, so only
+  * `translate` writes it, in place: a sample allocates nothing for it.
+@@ -272,8 +214,19 @@ export class Lifter {
+       // Every UA value is read before the first write: interleaving them would
+       // force a style recalculation per property.
+       const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
+-      const restoreStyles = captureInlineStyles(visual);
+-      const restoreTopLayer = captureTopLayer(visual);
++      const hadStyleAttribute = visual.hasAttribute('style');
++      const saved = new Map<string, readonly [string, string]>();
++
++      for (const prop of LIFTED_PROPS) {
++        const value = visual.style.getPropertyValue(prop);
++
++        if (value) {
++          saved.set(prop, [value, visual.style.getPropertyPriority(prop)]);
++        }
++      }
++
++      const priorAttribute = visual.getAttribute('popover');
++      const priorOpen = visual.matches(':popover-open');
+       const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
+       const displacement: Displacement = { x: 0, y: 0 };
+       let promoted = false;
+@@ -331,10 +284,35 @@ export class Lifter {
+       drag.use(() => {
+         try {
+           if (promoted) {
+-            restoreTopLayer();
++            if (visual.matches(':popover-open')) {
++              visual.hidePopover();
++            }
++
++            if (priorAttribute === null) {
++              visual.removeAttribute('popover');
++            } else {
++              visual.setAttribute('popover', priorAttribute);
++            }
++
++            if (priorOpen && visual.matches('[popover]')) {
++              showKeepingFocus(visual);
++            }
+           }
+         } finally {
+-          restoreStyles();
++          for (const prop of LIFTED_PROPS) {
++            const value = saved.get(prop);
++
++            if (value) {
++              visual.style.setProperty(prop, value[0], value[1]);
++            } else {
++              visual.style.removeProperty(prop);
++            }
++          }
++
++          if (!hadStyleAttribute && visual.style.length === 0) {
++            visual.getAttribute('style');
++            visual.removeAttribute('style');
++          }
+         }
+       });
+ 

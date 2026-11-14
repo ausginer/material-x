@@ -1,0 +1,12 @@
+import { defineConfig } from 'tsdown';
+import { packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import { mangleInternalProperties } from './probe/mangle-plugin.ts';
+import { propertyNames } from './probe/names.ts';
+const v = process.env.V!;
+const minify = v.includes('codegen') ? { codegen: { legalComments: 'inline' as const } } : v.includes('nomin') ? false : true;
+export default defineConfig({
+  entry: { fault: 'src/fault.ts' }, platform: 'neutral', format: 'esm', target: 'esnext', outDir: `out-p6-${v}`, fixedExtension: false, clean: true,
+  dts: false, sourcemap: true, unbundle: true, minify, ...(v.includes('legal') ? { outputOptions: { comments: { legal: true, annotation: true, jsdoc: false } } } : {}),
+  plugins: v.includes('plugin') ? [...constructLibraryTsdownPlugins(), mangleInternalProperties(propertyNames)] : constructLibraryTsdownPlugins(),
+});

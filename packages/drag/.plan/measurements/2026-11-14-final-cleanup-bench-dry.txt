@@ -1,0 +1,62 @@
+# node bench/compare.ts --prove --dry and --floors --dry, f9e56fe7d's compare.ts (head) and the new one
+head prove exit=1
+head floors exit=1
+new prove exit=1
+new floors exit=1
+## prove: diff head new
+3c3
+< file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:1297
+---
+> file:///workspaces/material-x/packages/drag/bench/compare.ts:1297
+8,10c8,10
+<     at applyInjection (file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:1297:13)
+<     at async applyAll (file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:1326:32)
+<     at async file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:2191:7
+---
+>     at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:1297:13)
+>     at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:1326:32)
+>     at async file:///workspaces/material-x/packages/drag/bench/compare.ts:2199:7
+## prove: new output
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+file:///workspaces/material-x/packages/drag/bench/compare.ts:1297
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:1297:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:1326:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:2199:7
+
+Node.js v26.13.0
+## floors: diff head new
+3c3
+< file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:1297
+---
+> file:///workspaces/material-x/packages/drag/bench/compare.ts:1297
+8,10c8,10
+<     at applyInjection (file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:1297:13)
+<     at async applyAll (file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:1326:32)
+<     at async file:///workspaces/material-x/packages/drag/bench/zz-compare-head.ts:2194:7
+---
+>     at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:1297:13)
+>     at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:1326:32)
+>     at async file:///workspaces/material-x/packages/drag/bench/compare.ts:2202:7
+## floors: new output
+applies: 300 µs of script per cycle, at the drop
+applies: 100 µs of script per cycle, at the drop
+file:///workspaces/material-x/packages/drag/bench/compare.ts:1297
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:1297:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:1326:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:2202:7
+
+Node.js v26.13.0
+
+# coreSets, the old literal against the new construction
+{"cpu_core":"0-3","cpu_atom":"4-11"}
+{"cpu_core":"0-3","cpu_atom":"4-11"}
+identical: true

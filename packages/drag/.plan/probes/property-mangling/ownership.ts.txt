@@ -1,0 +1,116 @@
+/**
+ * Resolves every property-name use site in `src/` with the type checker, and lists
+ * the names that are safe to mangle by name. A name is eligible when:
+ * - every use resolves to a declaration in this package's `src/`, and none to a
+ *   platform or dependency declaration, or to nothing;
+ * - it isn't in the given published set;
+ * - at least one declaration is a value (a class member or an object literal's
+ *   property): a name only an interface declares may describe a platform object,
+ *   as `ReadonlyFloat64Array`'s `slice` does;
+ * - no module in `src/` exports it, because a namespace import reads exports as
+ *   properties, and an export name isn't mangled;
+ * - the platform doesn't call it by name on a library object: `handleEvent`.
+ * Stories aren't shipped, so they aren't read.
+ * `node ownership.ts --root <packages/drag> --published <published.json> --out <file.json> [--names <eligible.json>]`
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { join, resolve, sep } from 'node:path';
+
+const args = process.argv.slice(2);
+const option = (name: string): string | undefined => {
+  const i = args.indexOf(name);
+  return i < 0 ? undefined : args[i + 1];
+};
+const root = resolve(option('--root') ?? '/workspaces/material-x/packages/drag');
+const published = new Set(Object.keys(JSON.parse(readFileSync(option('--published')!, 'utf8'))));
+const require = createRequire(join(root, 'package.json'));
+const ts = require('typescript') as typeof import('typescript');
+const config = ts.getParsedCommandLineOfConfigFile(join(root, 'tsconfig.json'), {}, {
+  ...ts.sys,
+  onUnRecoverableConfigFileDiagnostic: () => {},
+} as never)!;
+const srcDir = join(root, 'src') + sep;
+const files = config.fileNames.filter((f) => f.startsWith(srcDir) && !f.includes('.stories.'));
+const PROTOCOL = new Set(['handleEvent']);
+const program = ts.createProgram(files, { ...config.options, noEmit: true });
+const checker = program.getTypeChecker();
+
+type Use = { library: number; platform: number; unresolved: number; sites: string[] };
+const uses = new Map<string, Use>();
+const record = (name: string, kind: 'library' | 'platform' | 'unresolved', site: string) => {
+  if (!uses.has(name)) uses.set(name, { library: 0, platform: 0, unresolved: 0, sites: [] });
+  const u = uses.get(name)!;
+  u[kind] += 1;
+  if (kind !== 'library' && u.sites.length < 4) u.sites.push(site);
+};
+const kindOf = (symbol: ts.Symbol | undefined): 'library' | 'platform' | 'unresolved' => {
+  const decls = symbol?.declarations ?? [];
+  if (decls.length === 0) return 'unresolved';
+  // Any declaration outside this package's src makes the name someone else's.
+  return decls.every((d) => d.getSourceFile().fileName.startsWith(srcDir)) ? 'library' : 'platform';
+};
+const symbolsAt = (node: ts.Node): ts.Symbol[] => {
+  const s = checker.getSymbolAtLocation(node);
+  if (!s) return [];
+  const out = [s];
+  // A union's property is synthetic: look at each constituent's property.
+  if ((s as { links?: { containingType?: ts.UnionType } }).links?.containingType) {
+    for (const t of (s as any).links.containingType.types as ts.Type[]) {
+      const p = t.getProperty(s.getName());
+      if (p) out.push(p);
+    }
+  }
+  // An object literal's key also names the contextual type's property.
+  const parent = node.parent;
+  if (parent && (ts.isPropertyAssignment(parent) || ts.isShorthandPropertyAssignment(parent) || ts.isMethodDeclaration(parent)) && ts.isObjectLiteralExpression(parent.parent)) {
+    const contextual = checker.getContextualType(parent.parent);
+    for (const t of contextual ? (contextual.isUnion() ? contextual.types : [contextual]) : []) {
+      const p = t.getProperty(s.getName());
+      if (p) out.push(p);
+    }
+  }
+  return out;
+};
+
+const exported = new Set<string>();
+const valueDeclared = new Set<string>();
+for (const sf of program.getSourceFiles()) {
+  if (!sf.fileName.startsWith(srcDir)) continue;
+  const moduleSymbol = checker.getSymbolAtLocation(sf);
+  if (moduleSymbol) for (const e of checker.getExportsOfModule(moduleSymbol)) exported.add(e.getName());
+  const declare = (n: ts.Node): void => {
+    const name = (n as { name?: ts.Node }).name;
+    if (name && ts.isIdentifier(name) && (ts.isPropertyDeclaration(n) || ts.isMethodDeclaration(n) || ts.isGetAccessorDeclaration(n) || ts.isSetAccessorDeclaration(n) || ts.isPropertyAssignment(n) || ts.isShorthandPropertyAssignment(n))) valueDeclared.add(name.text);
+    ts.forEachChild(n, declare);
+  };
+  declare(sf);
+  const visit = (node: ts.Node): void => {
+    let name: ts.Node | undefined;
+    if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.name)) name = node.name;
+    else if ((ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node) || ts.isMethodDeclaration(node) || ts.isPropertyDeclaration(node) || ts.isGetAccessorDeclaration(node) || ts.isSetAccessorDeclaration(node) || ts.isPropertySignature(node) || ts.isMethodSignature(node)) && node.name && ts.isIdentifier(node.name)) name = node.name;
+    else if (ts.isBindingElement(node) && ts.isObjectBindingPattern(node.parent)) name = node.propertyName && ts.isIdentifier(node.propertyName) ? node.propertyName : ts.isIdentifier(node.name) ? node.name : undefined;
+    if (name) {
+      const text = (name as ts.Identifier).text;
+      const site = `${sf.fileName.slice(srcDir.length)}:${sf.getLineAndCharacterOfPosition(name.getStart()).line + 1}`;
+      let symbols = symbolsAt(name);
+      if (ts.isBindingElement(node)) {
+        const t = checker.getTypeAtLocation(node.parent);
+        symbols = (t.isUnion() ? t.types : [t]).map((x) => x.getProperty(text)).filter((x): x is ts.Symbol => !!x);
+      }
+      const kinds = symbols.map(kindOf);
+      record(text, kinds.length === 0 ? 'unresolved' : kinds.includes('platform') ? 'platform' : kinds.includes('unresolved') ? 'unresolved' : 'library', site);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+}
+
+const rows = [...uses].map(([name, u]) => ({
+  name,
+  ...u,
+  eligible: u.platform === 0 && u.unresolved === 0 && !published.has(name) && valueDeclared.has(name) && !exported.has(name) && !PROTOCOL.has(name),
+})).sort((a, b) => a.name.localeCompare(b.name));
+writeFileSync(option('--out')!, `${JSON.stringify(rows, null, 2)}\n`);
+if (option('--names')) writeFileSync(option('--names')!, `${JSON.stringify(rows.filter((r) => r.eligible).map((r) => r.name))}\n`);
+console.log(`${files.length} files, ${rows.length} names, ${rows.filter((r) => r.eligible).length} eligible`);

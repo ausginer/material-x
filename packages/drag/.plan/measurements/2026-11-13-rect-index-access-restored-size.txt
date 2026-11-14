@@ -1,0 +1,71 @@
+# RectIndex access, P at the restored names: size against the rollback's end. Tools as installed in the main checkout. Fri Nov 13 12:12:22 UTC 2026
+# Trees: scratch worktrees of 8904947f6 (drag/size after the mangle rollback), base unchanged; P = patches/P-restored-names.diff.txt applied.
+# base rev: 8904947f6a5a64cb9b95d5f1dbe7f98a3661e86c   P rev: 8904947f6a5a64cb9b95d5f1dbe7f98a3661e86c + patch
+# Command, in each tree's packages/drag: npx just size. No rename step exists at this base (DRD-60).
+# P was ported from P-owned-storage.diff.txt by removing each marker '_' (strip.ts below), then just fmt, lint-fix on src/sortable, fmt.
+
+## Per-row figures, P, and P - base (minified / gzip-9 / Brotli-11, B)
+draggable alone                6728 / 2422 / 2189     0 / 0 / 0
+draggable + lift               11539 / 4397 / 3968    0 / 0 / 0
+example: resize handle         9385 / 3664 / 3314     0 / 0 / 0
+example: drop zone             13178 / 5101 / 4598    0 / 0 / 0
+example: canvas group          9521 / 3623 / 3300     0 / 0 / 0
+freeDrag                       15157 / 5565 / 5018    0 / 0 / 0
+freeDrag + bounds + landing    16322 / 6055 / 5450    0 / 0 / 0
+sortable + y                   20230 / 7295 / 6588    -205 / -28 / -31
+sortable + xy                  20082 / 7271 / 6537    +103 / +65 / +22
+complete                       21812 / 7956 / 7166    -302 / -93 / -92
+
+## Base output (gate lines)
+node bench/size/measure.ts
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20435 min   7323 gz   6619 br  20 modules
+sortable + xy                   19979 min   7206 gz   6515 br  19 modules
+complete                        22114 min   8049 gz   7258 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 193 B
+error: recipe `size` failed on line 59 with exit code 1
+
+## P output (gate lines)
+node bench/size/measure.ts
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11539 min   4397 gz   3968 br  9 modules
+example: resize handle           9385 min   3664 gz   3314 br  9 modules
+  VIOLATION: over its 3313 B ceiling by 1 B
+example: drop zone              13178 min   5101 gz   4598 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 167 B
+example: canvas group            9521 min   3623 gz   3300 br  9 modules
+freeDrag                        15157 min   5565 gz   5018 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 51 B
+freeDrag + bounds + landing     16322 min   6055 gz   5450 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 240 B
+sortable + y                    20230 min   7295 gz   6588 br  20 modules
+sortable + xy                   20082 min   7271 gz   6537 br  19 modules
+complete                        21812 min   7956 gz   7166 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 101 B
+error: recipe `size` failed on line 59 with exit code 1
+
+## Ceilings, bench/size/measure.ts: sortable + y 6733, sortable + xy 6617, complete 7065.
+## strip.ts
+// Usage: node strip.ts <in> : prints the file with internal `_name` members unprefixed.
+import { readFileSync } from 'node:fs';
+process.stdout.write(readFileSync(process.argv[2]!, 'utf8').replace(/(?<![\w$#])_([A-Za-z]\w*)/g, '$1'));
+## delta.ts
+// Usage: node delta.ts <base.txt> <variant.txt>: per-row min/gz/br deltas.
+import { readFileSync } from 'node:fs';
+const read = (f: string) => new Map(readFileSync(f, 'utf8').split('\n').map((l) => /^(.+?)\s+(\d+) min\s+(\d+) gz\s+(\d+) br/.exec(l)).filter(Boolean).map((m) => [m![1]!.trim(), [+m![2]!, +m![3]!, +m![4]!]] as const));
+const [a, b] = [read(process.argv[2]!), read(process.argv[3]!)];
+for (const [k, v] of a) { const w = b.get(k)!; console.log(`${k.padEnd(30)} ${w.join(' / ').padEnd(22)} ${w.map((x, i) => x - v[i]!).map((d) => (d > 0 ? '+' : '') + d).join(' / ')}`); }

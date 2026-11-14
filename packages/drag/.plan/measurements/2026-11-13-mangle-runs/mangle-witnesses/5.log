@@ -1,0 +1,204 @@
+[scratch edit M5]
+--- /tmp/tmp.kndpZRKUwu/build/rename-properties.ts	2026-11-13 05:08:21.864152324 +0000
++++ build/rename-properties.ts	2026-11-13 05:23:52.354044864 +0000
+@@ -87,7 +87,6 @@
+ 
+       return {
+         code: output,
+-        map: { version: 3, sources: [chunk.fileName], names: [], mappings },
+       };
+     },
+   };
+[run] npx vitest run -c vitest.config.ts --project node --reporter=verbose
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+ ✓ |node| tests/exports.node.test.ts:33 > the public surface > should list the contract entries in files.json 11ms
+ ✓ |node| tests/exports.node.test.ts:39 > the public surface > should export exactly those entries 17ms
+ ✓ |node| tests/exports.node.test.ts:47 > the public surface > should stay private 4ms
+ ✓ |node| tests/publication.node.test.ts:189 > drag:DRD-56 the published property names > should map exactly the prefixed property names in src 236ms
+ ✓ |node| tests/publication.node.test.ts:217 > drag:DRD-56 the published property names > should leave no prefixed property name or string in an emitted module (V1) 38ms
+ ✓ |node| tests/publication.node.test.ts:239 > drag:DRD-56 the published property names > should declare no prefixed identifier (V2) 26ms
+ ✓ |node| tests/publication.node.test.ts:255 > drag:DRD-56 the published property names > should give distinct, unprefixed output names that no remaining property uses (V3) 14ms
+ × |node| tests/publication.node.test.ts:290 > drag:DRD-56 the published property names > should map each renamed property to its prefixed name in src (V4) 65ms
+   → expected [ …(24) ] to deeply equal []
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone 16ms
+   → expected [ …(2) ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift 1ms
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone 3ms
+   → expected [ 'over its 4431 B ceiling by 137 B' ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group 1ms
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag 0ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing 2ms
+   → expected [ 'over its 5210 B ceiling by 209 B' ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + y 0ms
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + xy 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete 4ms
+   → expected [ 'over its 7065 B ceiling by 108 B' ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:28 > drag:DRI-18 module graphs and size > should bring no lift, box-quad, sortable, cache or landing code with draggable alone 1ms
+ ✓ |node| tests/campaign.node.test.ts:104 > campaign runner > a run whose steps all succeed > should exit 0 6ms
+ ✓ |node| tests/campaign.node.test.ts:108 > campaign runner > a run whose steps all succeed > should record the run as succeeded 0ms
+ ✓ |node| tests/campaign.node.test.ts:112 > campaign runner > a run whose steps all succeed > should record each command with exit code 0 2ms
+ ✓ |node| tests/campaign.node.test.ts:125 > campaign runner > a run whose steps all succeed > should write each step's stdout and stderr to its log 3ms
+ ✓ |node| tests/campaign.node.test.ts:133 > campaign runner > a run whose steps all succeed > should record the revision of each step 7ms
+ ✓ |node| tests/campaign.node.test.ts:144 > campaign runner > a run whose steps all succeed > should record ordered start and end times 1ms
+ ✓ |node| tests/campaign.node.test.ts:154 > campaign runner > a run whose steps all succeed > should be reported as succeeded 270ms
+ ✓ |node| tests/campaign.node.test.ts:174 > campaign runner > a run with a failing step > should exit with the failing step's exit code 2ms
+ ✓ |node| tests/campaign.node.test.ts:178 > campaign runner > a run with a failing step > should record the run as failed 4ms
+ ✓ |node| tests/campaign.node.test.ts:182 > campaign runner > a run with a failing step > should record the failing step and its exit code 3ms
+ ✓ |node| tests/campaign.node.test.ts:192 > campaign runner > a run with a failing step > should not run the steps after the failure 5ms
+ ✓ |node| tests/campaign.node.test.ts:196 > campaign runner > a run with a failing step > should keep the failing step's log 7ms
+ ✓ |node| tests/campaign.node.test.ts:200 > campaign runner > a run with a failing step > should be reported as failed 1052ms
+ ✓ |node| tests/campaign.node.test.ts:230 > campaign runner > a run whose runner receives SIGTERM during a step > should be reported as running while the step runs 0ms
+ ✓ |node| tests/campaign.node.test.ts:237 > campaign runner > a run whose runner receives SIGTERM during a step > should exit with the code of SIGTERM 0ms
+ ✓ |node| tests/campaign.node.test.ts:241 > campaign runner > a run whose runner receives SIGTERM during a step > should record the run as interrupted by SIGTERM 0ms
+ ✓ |node| tests/campaign.node.test.ts:248 > campaign runner > a run whose runner receives SIGTERM during a step > should stop the step and record it as interrupted 0ms
+ ✓ |node| tests/campaign.node.test.ts:255 > campaign runner > a run whose runner receives SIGTERM during a step > should not run the steps after the interruption 1ms
+ ✓ |node| tests/campaign.node.test.ts:262 > campaign runner > a run whose runner receives SIGTERM during a step > should keep the interrupted step's log 1ms
+ ✓ |node| tests/campaign.node.test.ts:266 > campaign runner > a run whose runner receives SIGTERM during a step > should be reported as interrupted with no step alive 292ms
+ ✓ |node| tests/campaign.node.test.ts:288 > campaign runner > a run whose runner is killed during a step > should leave the recorded state as running 1ms
+ ✓ |node| tests/campaign.node.test.ts:292 > campaign runner > a run whose runner is killed during a step > should be reported as interrupted 1ms
+ ✓ |node| tests/campaign.node.test.ts:296 > campaign runner > a run whose runner is killed during a step > should report that the orphaned step is still alive 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/publication.node.test.ts:290 > drag:DRD-56 the published property names > should map each renamed property to its prefixed name in src (V4)
+AssertionError: expected [ …(24) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "free-drag/behavior.js:41:37 _root: maps to src/free-drag/behavior.ts:91:34, \"handle(this._root);\"",
++   "free-drag/behavior.js:48:32 _config: maps to src/free-drag/behavior.ts:103:27, \"visual ? this._config.vi\"",
++   "free-drag/behavior.js:48:46 _root: maps to src/free-drag/behavior.ts:103:49, \"visual(this._root) : thi\"",
++   "free-drag/behavior.js:48:56 _root: maps to src/free-drag/behavior.ts:103:56, \"this._root) : this._root\"",
++   "free-drag/behavior.js:54:89 _window: maps to src/free-drag/behavior.ts:123:30, \"drag, this._window) ?? n\"",
++   "free-drag/behavior.js:55:65 _window: maps to src/free-drag/behavior.ts:127:7, \"listenForInvalidation(th\"",
++   "free-drag/operation.js:56:47 _config: maps to src/free-drag/operation.ts:85:12, \"#behavior._config.onMove\"",
++   "free-drag/operation.js:62:149 _window: maps to src/free-drag/operation.ts:105:12, \"#behavior._window,\"",
++   "free-drag/operation.js:109:49 _config: maps to src/free-drag/operation.ts:176:14, \"#behavior._config.home({\"",
++   "kernel/gesture.js:104:20 _raise: maps to src/kernel/gesture.ts:253:19, \"this._raise, error, this\"",
++   "kernel/gesture.js:114:53 _stepTarget: maps to src/kernel/gesture.ts:293:30, \"#session._stepTarget() :\"",
++   "kernel/gesture.js:146:36 _run: maps to src/kernel/gesture.ts:346:16, \"#steps._run(this.#sessio\"",
++   "kernel/gesture.js:146:68 _stepTarget: maps to src/kernel/gesture.ts:346:49, \"#session._stepTarget() :\"",
++   "sortable/behavior.js:56:92 _direction: maps to src/sortable/behavior.ts:162:44, \"item, state._direction);\"",
++   "sortable/linear-shift.js:43:66 _first: maps to src/sortable/linear-shift.ts:175:23, \"count &&\"",
++   "sortable/linear-shift.js:43:136 _measure: maps to src/sortable/linear-shift.ts:177:33, \"1) * STRIDE + CENTER_Y]!\"",
++   "sortable/linear-shift.js:44:38 _first: maps to src/sortable/linear-shift.ts:184:12, \"index._first === index.e\"",
++   "sortable/linear-shift.js:44:70 _first: maps to src/sortable/linear-shift.ts:185:13, \"values[index._first * ST\"",
++   "sortable/linear-shift.js:44:100 _measure: maps to src/sortable/linear-shift.ts:185:57, \"pointerY)\"",
++   "sortable/linear-shift.js:44:108 _first: maps to src/sortable/linear-shift.ts:185:57, \"pointerY)\"",
++   "sortable/linear-shift.js:44:121 _first: maps to src/sortable/linear-shift.ts:187:17, \"_measure(index._first - \"",
++   "sortable/xy.js:11:35 _measure: maps to src/sortable/xy.ts:40:5, \"index._measure(0, index.\"",
++   "sortable/xy.js:11:46 _count: maps to src/sortable/xy.ts:40:11, \"_measure(0, index._count\"",
++   "sortable/xy.js:30:31 _placeholderRect: maps to src/sortable/xy.ts:75:19, \"count,\"",
++ ]
+
+ ❯ tests/publication.node.test.ts:305:19
+    303|     }
+    304|
+    305|     expect(found).toEqual([]);
+       |                   ^
+    306|   });
+    307| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 2139 B ceiling by 23 B",
++   "control moved by 138 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 137 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4431 B ceiling by 137 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 209 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 5210 B ceiling by 209 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+AssertionError: expected [ 'over its 7065 B ceiling by 108 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 7065 B ceiling by 108 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  5 failed | 37 passed (42)
+   Start at  05:23:54
+   Duration  14.08s (tests 85%, import 8%, setup 3%, transform 2%, worker 2%)
+
+[run exit 1]
+[restored build/rename-properties.ts: cmp equal]

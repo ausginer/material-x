@@ -1,0 +1,24 @@
+// Candidate glue: the publication's internal-property mangle, on Oxc's own mangleProps.
+import type { Rolldown } from 'tsdown';
+import { minifySync } from 'rolldown/utils';
+const include = /^_[A-Za-z]/;
+const renameOnly = { module: true, compress: false, mangle: false, codegen: { removeWhitespace: false, legalComments: 'inline' } } as const;
+export function mangleInternalProperties(names: () => Promise<Record<string, string>>): Rolldown.Plugin {
+  let cache: Record<string, string>;
+  let targets: Set<string>;
+  return {
+    name: 'drag:mangle-internal-properties',
+    async buildStart() { cache = await names(); targets = new Set(Object.values(cache)); },
+    renderChunk(code, chunk) {
+      if (chunk.fileName.endsWith('.d.ts')) return null;
+      // Oxc lists the chunk's kept property names, quoted ones included; none may be an output name.
+      const kept = Object.keys(minifySync(chunk.fileName, code, { ...renameOnly, mangleProps: { include: /^/, exclude: include, quoted: true } }).mangleCache ?? {});
+      const clash = kept.filter((n) => targets.has(n));
+      if (clash.length) this.error(`${chunk.fileName}: ${clash.join(', ')} is both kept and an output name`);
+      const r = minifySync(chunk.fileName, code, { ...renameOnly, sourcemap: true, mangleProps: { include, quoted: true, cache } });
+      const added = Object.keys(r.mangleCache ?? {}).filter((k) => !Object.hasOwn(cache, k));
+      if (added.length) this.error(`${chunk.fileName}: ${added.join(', ')} has no output name`);
+      return { code: r.code, map: r.map };
+    },
+  };
+}

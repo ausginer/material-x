@@ -1,0 +1,402 @@
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index 2e0bf6987..596889512 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -74,7 +74,6 @@ export class FreeDragBehavior implements Behavior<
+    * operation's drop targets.
+    */
+   readonly invalidate = (operation: FreeDragOperation | null): void => {
+-    this.bounds?.invalidate();
+     operation?.handleEvent();
+   };
+ 
+diff --git a/packages/drag/src/kernel/callback-list.ts b/packages/drag/src/kernel/callback-list.ts
+index 508d30127..d36198603 100644
+--- a/packages/drag/src/kernel/callback-list.ts
++++ b/packages/drag/src/kernel/callback-list.ts
+@@ -24,20 +24,11 @@ type Entries<Argument> = Array<ListedCallback<Argument> | object | undefined>;
+  * entry.
+  */
+ export class CallbackList<Argument> {
+-  /** A list run first in first out. */
+-  static queue<Argument>(): CallbackList<Argument> {
+-    return new CallbackList<Argument>('unshift');
+-  }
+-
+-  /** A list run last in first out. */
+-  static stack<Argument>(): CallbackList<Argument> {
+-    return new CallbackList<Argument>('push');
+-  }
+-
+   readonly #entries: Entries<Argument> = [];
+   readonly #insertName: 'push' | 'unshift';
+ 
+-  private constructor(insertName: 'push' | 'unshift') {
++  /** `unshift` makes a list run first in first out, `push` last in first out. */
++  constructor(insertName: 'push' | 'unshift') {
+     this.#insertName = insertName;
+   }
+ 
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index 9538c0ff0..5df47450e 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -131,13 +131,13 @@ export class Gesture<
+   readonly #threshold: number;
+   readonly #listeners = new AbortController();
+   /** Controller-lifetime cleanup, each with its receiver, run at teardown. */
+-  readonly #disposers = CallbackList.stack<null>();
++  readonly #disposers = new CallbackList<null>('push');
+ 
+   /**
+    * Deferred steps with their receivers, in request order. Empty on the hot
+    * path.
+    */
+-  readonly #steps = CallbackList.queue<Operation | null>();
++  readonly #steps = new CallbackList<Operation | null>('unshift');
+ 
+   #session: Session<State, Verdict, Operation> | null = null;
+   #running = false;
+@@ -279,21 +279,14 @@ export class Gesture<
+       return;
+     }
+ 
+-    if (this.#running) {
+-      // Steps coalesce by step and receiver. A running step is no longer
+-      // waiting, so a request it makes for itself adds it again.
+-      if (!this.#steps.has(step, receiver)) {
+-        this.#steps.add(step, receiver);
+-      }
+-    } else {
+-      // Requested while idle, the step is the first step of its own pass. The
+-      // list stays empty, so an idle request allocates nothing.
+-      this.enter(
+-        step,
+-        this.#session ? this.#session.stepTarget() : null,
+-        receiver,
+-      );
++    // Steps coalesce by step and receiver. A running step is no longer waiting,
++    // so a request it makes for itself adds it again. Requested while idle, the
++    // step runs in the pass this enters.
++    if (!this.#steps.has(step, receiver)) {
++      this.#steps.add(step, receiver);
+     }
++
++    this.enter();
+   }
+ 
+   requestCancel(reason?: unknown): void {
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 39bdca695..ea9d3c976 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -143,7 +143,7 @@ export class Session<
+   /** Escape and `drag.signal`, closed when the presentation is released. */
+   readonly #presentation = new AbortController();
+   /** Operation cleanup, each with its receiver, run at release. */
+-  readonly #disposers = CallbackList.stack<Outcome | null>();
++  readonly #disposers = new CallbackList<Outcome | null>('push');
+   #phase:
+     | typeof PENDING
+     | typeof ACTIVE
+diff --git a/packages/drag/src/lift.ts b/packages/drag/src/lift.ts
+index d10e72246..e4d7ba837 100644
+--- a/packages/drag/src/lift.ts
++++ b/packages/drag/src/lift.ts
+@@ -136,39 +136,6 @@ const LIFTED_PROPS: readonly string[] = [
+   'background-color',
+ ];
+ 
+-/** Restores exactly the declarations the lift owns, once per property. */
+-function captureInlineStyles(visual: HTMLElement): () => void {
+-  const hadStyleAttribute = visual.hasAttribute('style');
+-  const saved = new Map<string, readonly [string, string]>();
+-
+-  for (const prop of LIFTED_PROPS) {
+-    const value = visual.style.getPropertyValue(prop);
+-
+-    if (value) {
+-      saved.set(prop, [value, visual.style.getPropertyPriority(prop)]);
+-    }
+-  }
+-
+-  return () => {
+-    for (const prop of LIFTED_PROPS) {
+-      const value = saved.get(prop);
+-
+-      if (value) {
+-        visual.style.setProperty(prop, value[0], value[1]);
+-      } else {
+-        visual.style.removeProperty(prop);
+-      }
+-    }
+-
+-    if (!hadStyleAttribute && visual.style.length === 0) {
+-      // Chromium keeps a pending CSSOM write past `removeAttribute` and recreates
+-      // an empty attribute later, unless the attribute is read first.
+-      visual.getAttribute('style');
+-      visual.removeAttribute('style');
+-    }
+-  };
+-}
+-
+ /**
+  * Promotion runs the popover focusing steps, which focus an `autofocus`
+  * descendant. The library does not choose where focus goes, so this puts it back.
+@@ -189,31 +156,6 @@ function showKeepingFocus(visual: HTMLElement): void {
+   }
+ }
+ 
+-/**
+- * Records the visual's popover attribute and open state before the lift writes
+- * them, and returns how to put both back.
+- */
+-function captureTopLayer(visual: HTMLElement): () => void {
+-  const priorAttribute = visual.getAttribute('popover');
+-  const priorOpen = visual.matches(':popover-open');
+-
+-  return () => {
+-    if (visual.matches(':popover-open')) {
+-      visual.hidePopover();
+-    }
+-
+-    if (priorAttribute === null) {
+-      visual.removeAttribute('popover');
+-    } else {
+-      visual.setAttribute('popover', priorAttribute);
+-    }
+-
+-    if (priorOpen && visual.matches('[popover]')) {
+-      showKeepingFocus(visual);
+-    }
+-  };
+-}
+-
+ /**
+  * The viewport delta last translated to. Held apart from the `Lift`, so only
+  * `translate` writes it, in place: a sample allocates nothing for it.
+@@ -272,8 +214,19 @@ export class Lifter {
+       // Every UA value is read before the first write: interleaving them would
+       // force a style recalculation per property.
+       const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
+-      const restoreStyles = captureInlineStyles(visual);
+-      const restoreTopLayer = captureTopLayer(visual);
++      const hadStyleAttribute = visual.hasAttribute('style');
++      const saved = new Map<string, readonly [string, string]>();
++
++      for (const prop of LIFTED_PROPS) {
++        const value = visual.style.getPropertyValue(prop);
++
++        if (value) {
++          saved.set(prop, [value, visual.style.getPropertyPriority(prop)]);
++        }
++      }
++
++      const priorAttribute = visual.getAttribute('popover');
++      const priorOpen = visual.matches(':popover-open');
+       const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
+       const displacement: Displacement = { x: 0, y: 0 };
+       let promoted = false;
+@@ -331,10 +284,35 @@ export class Lifter {
+       drag.use(() => {
+         try {
+           if (promoted) {
+-            restoreTopLayer();
++            if (visual.matches(':popover-open')) {
++              visual.hidePopover();
++            }
++
++            if (priorAttribute === null) {
++              visual.removeAttribute('popover');
++            } else {
++              visual.setAttribute('popover', priorAttribute);
++            }
++
++            if (priorOpen && visual.matches('[popover]')) {
++              showKeepingFocus(visual);
++            }
+           }
+         } finally {
+-          restoreStyles();
++          for (const prop of LIFTED_PROPS) {
++            const value = saved.get(prop);
++
++            if (value) {
++              visual.style.setProperty(prop, value[0], value[1]);
++            } else {
++              visual.style.removeProperty(prop);
++            }
++          }
++
++          if (!hadStyleAttribute && visual.style.length === 0) {
++            visual.getAttribute('style');
++            visual.removeAttribute('style');
++          }
+         }
+       });
+ 
+diff --git a/packages/drag/src/sortable/axis.ts b/packages/drag/src/sortable/axis.ts
+index bd58372f1..3672a30b8 100644
+--- a/packages/drag/src/sortable/axis.ts
++++ b/packages/drag/src/sortable/axis.ts
+@@ -37,7 +37,7 @@ export type AxisQuery = Readonly<{
+   pointerY: number;
+   snapshot: CollectionSnapshot;
+   /** The committed gap: where the placeholder is. */
+-  insertion: Insertion | null;
++  insertion: Insertion;
+   /** Excluded from the candidates, whose center would otherwise always win. */
+   item: HTMLElement;
+ }>;
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index 649f79dad..f08553be8 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -34,6 +34,7 @@
+ import type { AxisContext, DisplacementSink } from './axis.ts';
+ import type { CollectionSnapshot } from './domain.ts';
+ import {
++  BOTTOM,
+   CENTER_Y,
+   type RectIndex,
+   STRIDE,
+@@ -110,7 +111,13 @@ export function linearShift(index: RectIndex): LinearShift {
+     ) {
+       if (placeholderIsStale) {
+         placeholderIsStale = false;
+-        index.remeasurePlaceholder(placeholder);
++        const { top, bottom } = placeholder.getBoundingClientRect();
++        // The cache's own buffer, written in place.
++        const placeholderRect = index.placeholderRect as Float64Array;
++
++        placeholderRect[TOP] = top;
++        placeholderRect[BOTTOM] = bottom;
++        placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
+       }
+ 
+       if (
+@@ -207,7 +214,17 @@ export function linearShift(index: RectIndex): LinearShift {
+         rowDistance = delta < 0 ? -delta : delta;
+       }
+ 
+-      index.advance(lo, hi, delta);
++      const values = index.values as Float64Array;
++
++      for (let i = lo; i < hi; i += 1) {
++        const offset = i * STRIDE;
++        const top = values[offset + TOP]! + delta;
++        const bottom = values[offset + BOTTOM]! + delta;
++
++        values[offset + TOP] = top;
++        values[offset + BOTTOM] = bottom;
++        values[offset + CENTER_Y] = (top + bottom) * 0.5;
++      }
+ 
+       if (context.displacement) {
+         // Read once, outside a loop that calls into the sink.
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b1fcae5f8..a1c67bb02 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -230,39 +230,6 @@ export class RectIndex {
+     }
+   }
+ 
+-  /**
+-   * Advances a span of slots by a constant along y. The center is recomputed from
+-   * the shifted edges, so the arithmetic is the one a full scan performs.
+-   */
+-  advance(lo: number, hi: number, delta: number): void {
+-    // Read once, outside the per-slot loop.
+-    const values = this.#values;
+-
+-    for (let i = lo; i < hi; i += 1) {
+-      const offset = i * STRIDE;
+-      const top = values[offset + TOP]! + delta;
+-      const bottom = values[offset + BOTTOM]! + delta;
+-
+-      values[offset + TOP] = top;
+-      values[offset + BOTTOM] = bottom;
+-      values[offset + CENTER_Y] = (top + bottom) * 0.5;
+-    }
+-  }
+-
+-  /**
+-   * Re-reads the placeholder's fields along y. A relocation in a column leaves both
+-   * x coordinates unchanged.
+-   */
+-  remeasurePlaceholder(placeholder: HTMLElement): void {
+-    const { top, bottom } = placeholder.getBoundingClientRect();
+-    // A local is smaller than three field reads, even with mangled private names.
+-    const placeholderRect = this.#placeholderRect;
+-
+-    placeholderRect[TOP] = top;
+-    placeholderRect[BOTTOM] = bottom;
+-    placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
+-  }
+-
+   /**
+    * Whether one slot's element is still where the cache holds it: measured again like
+    * a rebuild measures it, and compared on left and top within `EQUIVALENCE_SLACK`. A
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index b3f224d39..7f461592f 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -46,7 +46,7 @@ export function xy(): AxisInstaller {
+           context.placeholder,
+           context.displacement,
+         );
+-        last = query.insertion ? query.insertion.index : -1;
++        last = query.insertion.index;
+ 
+         // Read once, outside the candidate loop.
+         const { values, count, placeholderRect, items } = index;
+@@ -85,7 +85,7 @@ export function xy(): AxisInstaller {
+       confirm(query, context) {
+         if (
+           !index.holds(
+-            query.insertion ? query.insertion.index : -1,
++            query.insertion.index,
+             query.snapshot,
+             context.box,
+             context.displacement,
+@@ -98,7 +98,7 @@ export function xy(): AxisInstaller {
+       moved(query, context) {
+         // Read once: the per-row loop below calls into it.
+         const { displacement } = context;
+-        const gap = query.insertion!.index;
++        const gap = query.insertion.index;
+         // Taken before the refresh below rewrites the count.
+         const held = index.count;
+ 
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 313bd48c5..f4849627f 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -49,7 +49,7 @@ export function y(): AxisInstaller {
+           context.box,
+           context.placeholder,
+           context.displacement,
+-          query.insertion ? query.insertion.index : -1,
++          query.insertion.index,
+           pointerY,
+         );
+ 
+@@ -89,7 +89,7 @@ export function y(): AxisInstaller {
+       confirm(query, context) {
+         if (
+           !index.holds(
+-            query.insertion ? query.insertion.index : -1,
++            query.insertion.index,
+             query.snapshot,
+             context.box,
+             context.displacement,
+@@ -100,7 +100,7 @@ export function y(): AxisInstaller {
+       },
+ 
+       moved(query, context) {
+-        shift.moved(query.insertion!.index, query.snapshot, context);
++        shift.moved(query.insertion.index, query.snapshot, context);
+       },
+ 
+       retire() {

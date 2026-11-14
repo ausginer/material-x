@@ -1,0 +1,312 @@
+--U-	accept	src 1 tests 15	src/free-drag/domain.ts:86  literal@src/free-drag/domain.ts:85  PropertyAssignment
+--U-	accept	src 1 tests 31	src/sortable/domain.ts:61  literal@src/sortable/domain.ts:60  PropertyAssignment
+D---	acquire	src 2 tests 28	src/lift.ts:247  class Lifter  MethodDeclaration
+---S	activate	src 4 tests 136	src/free-drag/behavior.ts:107  class FreeDragBehavior  MethodDeclaration
+D--S	activate	src 4 tests 136	src/kernel/behavior.ts:56  interface Behavior  MethodSignature
+---S	activate	src 4 tests 136	src/sortable/behavior.ts:140  class SortableBehavior  MethodDeclaration
+---S	add	src 3 tests 14	src/kernel/callbacks.ts:60  class List  MethodDeclaration
+---S	admit	src 4 tests 137	src/free-drag/behavior.ts:83  class FreeDragBehavior  MethodDeclaration
+D--S	admit	src 4 tests 137	src/kernel/behavior.ts:45  interface Behavior  MethodSignature
+---S	admit	src 4 tests 137	src/sortable/behavior.ts:130  class SortableBehavior  MethodDeclaration
+D---	after	src 12 tests 0	src/sortable/domain.ts:21  type Insertion  PropertySignature ; src/sortable/domain.ts:31  literal@src/sortable/domain.ts:28  PropertyAssignment ; src/sortable/collection.ts:63  literal@src/sortable/collection.ts:60  PropertyAssignment
+D--S	apply	src 2 tests 0	src/free-drag/bounds.ts:11  interface MotionConstraint  MethodSignature ; src/free-drag/bounds.ts:64  literal@src/free-drag/bounds.ts:63  MethodDeclaration
+D--S	axis	src 1 tests 2	src/free-drag/behavior.ts:29  type FreeDragConfig  PropertySignature
+---S	axis	src 3 tests 0	src/free-drag/behavior.ts:66  class FreeDragBehavior  PropertyDeclaration
+D--S	axis	src 3 tests 13	src/sortable/behavior.ts:47  type SortableConfig  PropertySignature
+---S	axis	src 12 tests 0	src/sortable/behavior.ts:97  class SortableBehavior  PropertyDeclaration
+D---	before	src 10 tests 0	src/sortable/domain.ts:20  type Insertion  PropertySignature ; src/sortable/domain.ts:30  literal@src/sortable/domain.ts:28  PropertyAssignment ; src/sortable/collection.ts:62  literal@src/sortable/collection.ts:60  PropertyAssignment
+--US	bottom	src 3 tests 0	src/free-drag/bounds.ts:23  literal@src/free-drag/bounds.ts:23  PropertyAssignment
+D--S	bounds	src 2 tests 7	src/free-drag/behavior.ts:34  type FreeDragConfig  PropertySignature
+---S	bounds	src 5 tests 0	src/free-drag/behavior.ts:67  class FreeDragBehavior  PropertyDeclaration
+D--S	box	src 4 tests 0	src/lift.ts:29  type Lift  PropertySignature ; src/lift.ts:284  literal@src/lift.ts:282  ShorthandPropertyAssignment
+D--S	box	src 8 tests 0	src/sortable/axis.ts:48  type AxisContext  PropertySignature ; src/sortable/behavior.ts:223  literal@src/sortable/behavior.ts:221  PropertyAssignment
+--US	box	src 2 tests 0	src/sortable/behavior.ts:281  literal@src/sortable/behavior.ts:279  PropertyAssignment
+D--S	box	src 2 tests 2	src/sortable/behavior.ts:57  type SortableConfig  MethodSignature
+---S	box	src 2 tests 0	src/sortable/behavior.ts:68  type PressState  PropertySignature
+D--S	box	src 1 tests 0	src/sortable/placement.ts:13  type PlaceholderContext  PropertySignature ; src/sortable/behavior.ts:175  literal@src/sortable/behavior.ts:172  PropertyAssignment
+D--S	boxHeight	src 3 tests 1	src/lift.ts:33  type Lift  PropertySignature ; src/lift.ts:287  literal@src/lift.ts:282  PropertyAssignment
+D--S	boxWidth	src 2 tests 0	src/lift.ts:32  type Lift  PropertySignature ; src/lift.ts:286  literal@src/lift.ts:282  PropertyAssignment
+---S	cancel	src 5 tests 0	src/shared/invalidation.ts:17  interface FrameTask  MethodSignature ; src/shared/invalidation.ts:34  literal@src/shared/invalidation.ts:28  MethodDeclaration
+D---	cancelLanding	src 3 tests 27	src/lift.ts:381  class Lifter  PropertyDeclaration
+--U-	capture	src 0 tests 0	src/kernel/session.ts:226  literal@src/kernel/session.ts:226  PropertyAssignment
+--U-	capture	src 1 tests 8	src/kernel/session.ts:245  literal@src/kernel/session.ts:244  PropertyAssignment
+--U-	capture	src 0 tests 0	src/kernel/session.ts:67  literal@src/kernel/session.ts:67  PropertyAssignment
+--U-	capture	src 1 tests 8	src/shared/invalidation.ts:9  literal@src/shared/invalidation.ts:7  PropertyAssignment
+--U-	cause	src 2 tests 0	src/fault.ts:22  literal@src/fault.ts:22  ShorthandPropertyAssignment
+----	clear	src 1 tests 1	src/kernel/callbacks.ts:77  class List  MethodDeclaration
+D---	command	src 3 tests 1	src/kernel/behavior.ts:50  interface Behavior  MethodSignature
+----	command	src 3 tests 1	src/sortable/behavior.ts:134  class SortableBehavior  MethodDeclaration
+--U-	composite	src 1 tests 0	src/shared/landing.ts:85  literal@src/shared/landing.ts:85  PropertyAssignment
+--U-	composite	src 1 tests 0	src/sortable/layout-animation.ts:104  literal@src/sortable/layout-animation.ts:104  PropertyAssignment
+D---	confirm	src 3 tests 0	src/sortable/axis.ts:65  interface InsertionGeometry  MethodSignature ; src/sortable/xy.ts:111  literal@src/sortable/xy.ts:57  MethodDeclaration ; src/sortable/y.ts:89  literal@src/sortable/y.ts:41  MethodDeclaration
+D---	current	src 2 tests 0	src/free-drag/drop-targets.ts:26  interface DropTargetTracker  PropertySignature ; src/free-drag/drop-targets.ts:119  literal@src/free-drag/drop-targets.ts:118  GetAccessor
+D---	currentRect	src 1 tests 0	src/free-drag/domain.ts:32  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:56  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D--S	displacement	src 10 tests 0	src/sortable/axis.ts:50  type AxisContext  PropertySignature ; src/sortable/behavior.ts:224  literal@src/sortable/behavior.ts:221  PropertyAssignment
+D--S	displacement	src 2 tests 9	src/sortable/behavior.ts:60  type SortableConfig  PropertySignature
+---S	displacement	src 2 tests 0	src/sortable/behavior.ts:98  class SortableBehavior  PropertyDeclaration
+D---	distance	src 1 tests 0	src/shared/landing.ts:9  type LandingTimingContext  PropertySignature ; src/shared/landing.ts:131  literal@src/shared/landing.ts:126  PropertyAssignment
+D--S	drop	src 2 tests 0	src/free-drag/drop-targets.ts:30  interface DropTargetTracker  MethodSignature ; src/free-drag/drop-targets.ts:125  literal@src/free-drag/drop-targets.ts:118  MethodDeclaration
+---S	drop	src 3 tests 12	src/free-drag/operation.ts:89  class FreeDragOperation  MethodDeclaration
+D--S	drop	src 3 tests 12	src/kernel/behavior.ts:23  interface BehaviorOperation  MethodSignature
+---S	drop	src 3 tests 12	src/sortable/operation.ts:103  class SortableOperation  MethodDeclaration
+--U-	duration	src 2 tests 0	src/lift.ts:306  literal@src/lift.ts:303  PropertyAssignment
+----	duration	src 2 tests 0	src/lift.ts:59  type NamedLanding  PropertySignature
+D---	duration	src 1 tests 26	src/shared/landing.ts:14  type LandingOptions  PropertySignature
+D---	duration	src 2 tests 0	src/shared/landing.ts:35  interface Landing  PropertySignature ; src/shared/landing.ts:124  literal@src/shared/landing.ts:123  PropertyAssignment
+--U-	duration	src 2 tests 3	src/shared/landing.ts:85  literal@src/shared/landing.ts:85  PropertyAssignment
+--U-	duration	src 2 tests 3	src/shared/landing.ts:99  literal@src/shared/landing.ts:98  PropertyAssignment
+--U-	duration	src 3 tests 3	src/sortable/layout-animation.ts:104  literal@src/sortable/layout-animation.ts:104  ShorthandPropertyAssignment
+D---	duration	src 1 tests 8	src/sortable/layout-animation.ts:30  type LayoutAnimationOptions  PropertySignature
+--U-	easing	src 2 tests 0	src/lift.ts:307  literal@src/lift.ts:303  PropertyAssignment
+----	easing	src 2 tests 0	src/lift.ts:60  type NamedLanding  PropertySignature
+D---	easing	src 1 tests 8	src/shared/landing.ts:15  type LandingOptions  PropertySignature
+D---	easing	src 2 tests 0	src/shared/landing.ts:35  interface Landing  PropertySignature ; src/shared/landing.ts:134  literal@src/shared/landing.ts:123  ShorthandPropertyAssignment
+--U-	easing	src 2 tests 2	src/shared/landing.ts:85  literal@src/shared/landing.ts:85  ShorthandPropertyAssignment
+--U-	easing	src 2 tests 2	src/sortable/layout-animation.ts:104  literal@src/sortable/layout-animation.ts:104  ShorthandPropertyAssignment
+D---	easing	src 1 tests 1	src/sortable/layout-animation.ts:31  type LayoutAnimationOptions  PropertySignature
+---S	end	src 4 tests 20	src/free-drag/operation.ts:146  class FreeDragOperation  MethodDeclaration
+D--S	end	src 4 tests 20	src/kernel/behavior.ts:33  interface BehaviorOperation  MethodSignature
+---S	end	src 4 tests 20	src/sortable/operation.ts:150  class SortableOperation  MethodDeclaration
+---S	end	src 9 tests 0	src/sortable/rect-index.ts:133  class RectIndex  GetAccessor
+D---	from	src 3 tests 4	src/sortable/domain.ts:41  type ReorderRequest  PropertySignature ; src/sortable/collection.ts:75  literal@src/sortable/collection.ts:73  PropertyAssignment
+D---	fromX	src 1 tests 1	src/shared/landing.ts:5  type LandingTimingContext  PropertySignature ; src/shared/landing.ts:127  literal@src/shared/landing.ts:126  ShorthandPropertyAssignment
+D---	fromY	src 1 tests 0	src/shared/landing.ts:6  type LandingTimingContext  PropertySignature ; src/shared/landing.ts:128  literal@src/shared/landing.ts:126  ShorthandPropertyAssignment
+--US	handle	src 7 tests 0	src/free-drag/behavior.ts:102  literal@src/free-drag/behavior.ts:102  ShorthandPropertyAssignment
+D--S	handle	src 2 tests 1	src/free-drag/behavior.ts:30  type FreeDragConfig  MethodSignature
+D--S	handle	src 4 tests 0	src/kernel/admission.ts:8  type Admission  PropertySignature
+--US	handle	src 7 tests 0	src/sortable/behavior.ts:278  literal@src/sortable/behavior.ts:278  ShorthandPropertyAssignment
+D--S	handle	src 2 tests 1	src/sortable/behavior.ts:53  type SortableConfig  MethodSignature
+----	handleEvent	src 2 tests 0	src/free-drag/operation.ts:56  class FreeDragOperation  MethodDeclaration
+----	handleEvent	src 0 tests 0	src/kernel/gesture.ts:225  class Gesture  MethodDeclaration
+----	handleEvent	src 0 tests 0	src/kernel/session.ts:309  class Session  MethodDeclaration
+----	has	src 1 tests 4	src/kernel/callbacks.ts:43  class List  MethodDeclaration
+D--S	home	src 2 tests 3	src/free-drag/behavior.ts:33  type FreeDragConfig  PropertySignature
+D---	index	src 9 tests 0	src/sortable/domain.ts:19  type Insertion  PropertySignature ; src/sortable/domain.ts:29  literal@src/sortable/domain.ts:28  ShorthandPropertyAssignment ; src/sortable/collection.ts:61  literal@src/sortable/collection.ts:60  PropertyAssignment
+D---	insertion	src 14 tests 0	src/sortable/axis.ts:40  type AxisQuery  PropertySignature ; src/sortable/operation.ts:85  literal@src/sortable/operation.ts:82  ShorthandPropertyAssignment
+D--S	invalidate	src 1 tests 4	src/free-drag.ts:49  interface FreeDragController  PropertySignature ; src/free-drag.ts:68  literal@src/free-drag.ts:67  PropertyAssignment
+D--S	invalidate	src 3 tests 0	src/free-drag/bounds.ts:16  interface MotionConstraint  MethodSignature ; src/free-drag/bounds.ts:80  literal@src/free-drag/bounds.ts:63  MethodDeclaration
+D--S	invalidate	src 2 tests 0	src/free-drag/drop-targets.ts:35  interface DropTargetTracker  MethodSignature ; src/free-drag/drop-targets.ts:129  literal@src/free-drag/drop-targets.ts:118  MethodDeclaration
+D--S	invalidate	src 1 tests 18	src/sortable.ts:43  interface SortableController  PropertySignature ; src/sortable.ts:66  literal@src/sortable.ts:65  PropertyAssignment
+D--S	invalidate	src 6 tests 0	src/sortable/axis.ts:59  interface InsertionGeometry  MethodSignature ; src/sortable/xy.ts:109  literal@src/sortable/xy.ts:57  ShorthandPropertyAssignment ; src/sortable/y.ts:85  literal@src/sortable/y.ts:41  MethodDeclaration
+---S	invalidate	src 1 tests 0	src/sortable/behavior.ts:124  class SortableBehavior  PropertyDeclaration
+---S	invalidate	src 3 tests 0	src/sortable/linear-shift.ts:73  interface LinearShift  MethodSignature ; src/sortable/linear-shift.ts:259  literal@src/sortable/linear-shift.ts:125  MethodDeclaration
+---S	invalidate	src 5 tests 0	src/sortable/rect-index.ts:290  class RectIndex  MethodDeclaration
+--US	item	src 6 tests 105	src/free-drag/behavior.ts:101  literal@src/free-drag/behavior.ts:100  PropertyAssignment
+D--S	item	src 2 tests 2	src/free-drag/domain.ts:15  type FreeDragSubject  PropertySignature ; src/free-drag/geometry.ts:80  literal@src/free-drag/geometry.ts:79  ShorthandPropertyAssignment ; src/free-drag/operation.ts:177  literal@src/free-drag/operation.ts:176  PropertyAssignment
+D--S	item	src 6 tests 105	src/kernel/admission.ts:3  type Admission  PropertySignature
+D--S	item	src 18 tests 15	src/kernel/drag.ts:21  type Drag  PropertySignature ; src/kernel/session.ts:188  literal@src/kernel/session.ts:187  PropertyAssignment
+D--S	item	src 10 tests 0	src/sortable/axis.ts:42  type AxisQuery  PropertySignature ; src/sortable/operation.ts:83  literal@src/sortable/operation.ts:82  PropertyAssignment
+--US	item	src 13 tests 105	src/sortable/behavior.ts:277  literal@src/sortable/behavior.ts:276  ShorthandPropertyAssignment
+D--S	item	src 1 tests 22	src/sortable/domain.ts:40  type ReorderRequest  PropertySignature ; src/sortable/collection.ts:74  literal@src/sortable/collection.ts:73  ShorthandPropertyAssignment
+D--S	item	src 2 tests 2	src/sortable/placement.ts:9  type PlaceholderContext  PropertySignature ; src/sortable/behavior.ts:173  literal@src/sortable/behavior.ts:172  PropertyAssignment
+D--S	items	src 2 tests 23	src/sortable/behavior.ts:46  type SortableConfig  MethodSignature
+D--S	items	src 15 tests 0	src/sortable/domain.ts:9  type CollectionSnapshot  PropertySignature ; src/sortable/behavior.ts:236  literal@src/sortable/behavior.ts:236  PropertyAssignment
+---S	items	src 7 tests 0	src/sortable/rect-index.ts:120  class RectIndex  GetAccessor
+D--S	itemSpace	src 2 tests 0	src/lift.ts:37  type Lift  PropertySignature ; src/lift.ts:289  literal@src/lift.ts:282  ShorthandPropertyAssignment
+D--S	land	src 3 tests 10	src/lift.ts:48  type Lift  MethodSignature ; src/lift.ts:295  literal@src/lift.ts:282  PropertyAssignment
+D--S	landing	src 2 tests 5	src/free-drag/behavior.ts:35  type FreeDragConfig  PropertySignature
+---S	landing	src 3 tests 0	src/free-drag/behavior.ts:68  class FreeDragBehavior  PropertyDeclaration
+--US	landing	src 4 tests 0	src/lift.ts:308  literal@src/lift.ts:303  ShorthandPropertyAssignment
+---S	landing	src 2 tests 0	src/lift.ts:61  type NamedLanding  PropertySignature
+D--S	landing	src 2 tests 17	src/sortable/behavior.ts:59  type SortableConfig  PropertySignature
+---S	landing	src 3 tests 0	src/sortable/behavior.ts:99  class SortableBehavior  PropertyDeclaration
+--US	left	src 3 tests 0	src/free-drag/bounds.ts:23  literal@src/free-drag/bounds.ts:23  PropertyAssignment
+----	length	src 0 tests 0	src/sortable/rect-index.ts:36  type ReadonlyFloat64Array  PropertySignature
+D---	localDeltaX	src 1 tests 1	src/free-drag/domain.ts:29  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:53  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D---	localDeltaX	src 2 tests 5	src/free-drag/domain.ts:55  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:88  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D---	localDeltaY	src 1 tests 0	src/free-drag/domain.ts:30  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:54  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D---	localDeltaY	src 2 tests 6	src/free-drag/domain.ts:56  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:89  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D--S	move	src 2 tests 0	src/free-drag/drop-targets.ts:28  interface DropTargetTracker  MethodSignature ; src/free-drag/drop-targets.ts:122  literal@src/free-drag/drop-targets.ts:118  MethodDeclaration
+---S	move	src 4 tests 19	src/free-drag/operation.ts:80  class FreeDragOperation  MethodDeclaration
+D--S	move	src 4 tests 19	src/kernel/behavior.ts:21  interface BehaviorOperation  MethodSignature
+---S	move	src 4 tests 19	src/sortable/operation.ts:95  class SortableOperation  MethodDeclaration
+D---	moved	src 3 tests 0	src/sortable/axis.ts:67  interface InsertionGeometry  MethodSignature ; src/sortable/xy.ts:124  literal@src/sortable/xy.ts:57  MethodDeclaration ; src/sortable/y.ts:102  literal@src/sortable/y.ts:41  MethodDeclaration
+----	moved	src 2 tests 0	src/sortable/linear-shift.ts:71  interface LinearShift  MethodSignature ; src/sortable/linear-shift.ts:196  literal@src/sortable/linear-shift.ts:125  MethodDeclaration
+D---	moveTo	src 1 tests 5	src/free-drag.ts:51  interface FreeDragController  PropertySignature ; src/free-drag.ts:69  literal@src/free-drag.ts:67  PropertyAssignment
+----	moveTo	src 1 tests 0	src/free-drag/operation.ts:68  class FreeDragOperation  MethodDeclaration
+D--S	name	src 0 tests 0	src/fault.ts:19  class DragFault  PropertyDeclaration
+D---	next	src 1 tests 17	src/sortable/domain.ts:44  type ReorderRequest  PropertySignature ; src/sortable/collection.ts:78  literal@src/sortable/collection.ts:73  PropertyAssignment
+D--S	onDrop	src 2 tests 24	src/free-drag/behavior.ts:24  type FreeDragConfig  PropertySignature
+D--S	onEnd	src 2 tests 11	src/free-drag/behavior.ts:27  type FreeDragConfig  MethodSignature
+D--S	onEnd	src 1 tests 21	src/sortable/behavior.ts:51  type SortableConfig  MethodSignature
+D--S	onMove	src 2 tests 2	src/free-drag/behavior.ts:26  type FreeDragConfig  MethodSignature
+D--S	onReorder	src 2 tests 38	src/sortable/behavior.ts:49  type SortableConfig  PropertySignature
+D--S	onStart	src 1 tests 1	src/free-drag/behavior.ts:25  type FreeDragConfig  MethodSignature
+D--S	onStart	src 1 tests 9	src/sortable/behavior.ts:50  type SortableConfig  MethodSignature
+D---	origin	src 1 tests 0	src/free-drag/domain.ts:112  type FreeDragCanceledResult  PropertySignature
+--U-	origin	src 1 tests 0	src/free-drag/operation.ts:123  literal@src/free-drag/operation.ts:119  PropertyAssignment
+D---	origin	src 5 tests 4	src/kernel/outcome.ts:15  type CanceledOutcome  PropertySignature
+--U-	origin	src 6 tests 4	src/kernel/session.ts:274  literal@src/kernel/session.ts:274  ShorthandPropertyAssignment
+D---	origin	src 1 tests 0	src/sortable/domain.ts:94  type SortableCanceledResult  PropertySignature
+--U-	origin	src 1 tests 0	src/sortable/operation.ts:214  literal@src/sortable/operation.ts:211  PropertyAssignment
+D---	originPointerX	src 1 tests 0	src/free-drag/domain.ts:23  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:49  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D---	originPointerY	src 1 tests 0	src/free-drag/domain.ts:24  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:50  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D---	originRect	src 1 tests 0	src/free-drag/domain.ts:31  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:55  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D--S	originX	src 8 tests 15	src/kernel/drag.ts:26  type Drag  PropertySignature ; src/kernel/session.ts:192  literal@src/kernel/session.ts:187  PropertyAssignment
+D--S	originY	src 8 tests 15	src/kernel/drag.ts:27  type Drag  PropertySignature ; src/kernel/session.ts:193  literal@src/kernel/session.ts:187  PropertyAssignment
+--U-	passive	src 1 tests 0	src/shared/invalidation.ts:10  literal@src/shared/invalidation.ts:7  PropertyAssignment
+--U-	passive	src 1 tests 0	src/shared/invalidation.ts:12  literal@src/shared/invalidation.ts:12  PropertyAssignment
+D--S	placeholder	src 15 tests 0	src/sortable/axis.ts:46  type AxisContext  PropertySignature ; src/sortable/behavior.ts:222  literal@src/sortable/behavior.ts:221  ShorthandPropertyAssignment
+D--S	placeholder	src 1 tests 9	src/sortable/behavior.ts:58  type SortableConfig  PropertySignature
+D--S	pointerId	src 10 tests 0	src/kernel/drag.ts:23  type Drag  PropertySignature ; src/kernel/session.ts:189  literal@src/kernel/session.ts:187  ShorthandPropertyAssignment
+D--S	pointerX	src 1 tests 0	src/free-drag/domain.ts:21  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:47  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D--S	pointerX	src 1 tests 0	src/free-drag/domain.ts:38  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:82  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D--S	pointerX	src 4 tests 0	src/sortable/axis.ts:36  type AxisQuery  PropertySignature ; src/sortable/operation.ts:86  literal@src/sortable/operation.ts:82  PropertyAssignment
+D--S	pointerY	src 1 tests 0	src/free-drag/domain.ts:22  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:48  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D--S	pointerY	src 1 tests 0	src/free-drag/domain.ts:39  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:83  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D--S	pointerY	src 5 tests 0	src/sortable/axis.ts:37  type AxisQuery  PropertySignature ; src/sortable/operation.ts:87  literal@src/sortable/operation.ts:82  PropertyAssignment
+--US	position	src 0 tests 0	src/shared/landing.ts:96  literal@src/shared/landing.ts:96  PropertyAssignment
+D---	positionX	src 1 tests 1	src/free-drag/domain.ts:41  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:84  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D---	positionY	src 1 tests 0	src/free-drag/domain.ts:42  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:85  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+--U-	preventScroll	src 1 tests 0	src/kernel/session.ts:50  literal@src/kernel/session.ts:50  PropertyAssignment
+--U-	preventScroll	src 1 tests 0	src/lift.ts:185  literal@src/lift.ts:185  PropertyAssignment
+D---	previous	src 1 tests 1	src/sortable/domain.ts:43  type ReorderRequest  PropertySignature ; src/sortable/collection.ts:77  literal@src/sortable/collection.ts:73  PropertyAssignment
+D---	reason	src 1 tests 0	src/free-drag/domain.ts:103  type FreeDragRejectedResult  PropertySignature
+D---	reason	src 1 tests 1	src/free-drag/domain.ts:111  type FreeDragCanceledResult  PropertySignature
+--U-	reason	src 1 tests 1	src/free-drag/operation.ts:122  literal@src/free-drag/operation.ts:119  PropertyAssignment
+--U-	reason	src 1 tests 0	src/free-drag/operation.ts:130  literal@src/free-drag/operation.ts:127  PropertyAssignment
+D---	reason	src 3 tests 3	src/kernel/outcome.ts:14  type CanceledOutcome  PropertySignature
+--U-	reason	src 4 tests 3	src/kernel/session.ts:274  literal@src/kernel/session.ts:274  ShorthandPropertyAssignment
+D---	reason	src 1 tests 0	src/sortable/domain.ts:83  type SortableRejectedResult  PropertySignature
+D---	reason	src 1 tests 1	src/sortable/domain.ts:93  type SortableCanceledResult  PropertySignature
+--U-	reason	src 1 tests 1	src/sortable/operation.ts:213  literal@src/sortable/operation.ts:211  PropertyAssignment
+--U-	reason	src 1 tests 0	src/sortable/operation.ts:233  literal@src/sortable/operation.ts:231  PropertyAssignment
+D--S	rect	src 10 tests 14	src/lift.ts:31  type Lift  PropertySignature ; src/lift.ts:285  literal@src/lift.ts:282  ShorthandPropertyAssignment
+D--S	rect	src 1 tests 0	src/sortable/placement.ts:14  type PlaceholderContext  PropertySignature ; src/sortable/behavior.ts:176  literal@src/sortable/behavior.ts:172  PropertyAssignment
+--US	reject	src 0 tests 13	src/free-drag/domain.ts:87  literal@src/free-drag/domain.ts:85  PropertyAssignment
+--US	reject	src 0 tests 12	src/sortable/domain.ts:62  literal@src/sortable/domain.ts:60  PropertyAssignment
+D--S	report	src 3 tests 0	src/sortable/axis.ts:14  interface DisplacementSink  MethodSignature ; src/sortable/layout-animation.ts:74  literal@src/sortable/layout-animation.ts:73  MethodDeclaration
+D--S	request	src 1 tests 1	src/free-drag/domain.ts:102  type FreeDragRejectedResult  PropertySignature
+D--S	request	src 1 tests 0	src/free-drag/domain.ts:109  type FreeDragCanceledResult  PropertySignature
+D--S	request	src 3 tests 12	src/free-drag/domain.ts:97  type FreeDragAcceptedResult  PropertySignature
+--US	request	src 1 tests 0	src/free-drag/operation.ts:121  literal@src/free-drag/operation.ts:119  PropertyAssignment
+--US	request	src 1 tests 1	src/free-drag/operation.ts:129  literal@src/free-drag/operation.ts:127  PropertyAssignment
+--US	request	src 3 tests 12	src/free-drag/operation.ts:133  literal@src/free-drag/operation.ts:133  PropertyAssignment
+D--S	request	src 1 tests 0	src/sortable/domain.ts:72  type SortableAcceptedResult  PropertySignature
+D--S	request	src 1 tests 0	src/sortable/domain.ts:78  type SortableNoopResult  PropertySignature
+D--S	request	src 1 tests 0	src/sortable/domain.ts:84  type SortableRejectedResult  PropertySignature
+D--S	request	src 1 tests 0	src/sortable/domain.ts:96  type SortableCanceledResult  PropertySignature
+--US	request	src 1 tests 0	src/sortable/operation.ts:215  literal@src/sortable/operation.ts:211  PropertyAssignment
+--US	request	src 1 tests 0	src/sortable/operation.ts:222  literal@src/sortable/operation.ts:222  PropertyAssignment
+--US	request	src 1 tests 0	src/sortable/operation.ts:227  literal@src/sortable/operation.ts:227  PropertyAssignment
+--US	request	src 1 tests 0	src/sortable/operation.ts:234  literal@src/sortable/operation.ts:231  PropertyAssignment
+D--S	requestCancel	src 1 tests 2	src/free-drag.ts:52  interface FreeDragController  PropertySignature ; src/free-drag.ts:74  literal@src/free-drag.ts:67  PropertyAssignment
+D--S	requestCancel	src 3 tests 1	src/kernel/drag.ts:72  type Drag  MethodSignature ; src/kernel/session.ts:216  literal@src/kernel/session.ts:187  PropertyAssignment
+---S	requestCancel	src 3 tests 19	src/kernel/gesture.ts:299  class Gesture  MethodDeclaration
+D--S	requestCancel	src 3 tests 19	src/kernel/gesture.ts:42  interface DraggableController  MethodSignature
+D--S	requestCancel	src 1 tests 5	src/sortable.ts:44  interface SortableController  PropertySignature ; src/sortable.ts:69  literal@src/sortable.ts:65  PropertyAssignment
+D--S	requestDestroy	src 2 tests 20	src/free-drag.ts:53  interface FreeDragController  PropertySignature ; src/free-drag.ts:77  literal@src/free-drag.ts:67  PropertyAssignment
+---S	requestDestroy	src 4 tests 37	src/kernel/gesture.ts:306  class Gesture  MethodDeclaration
+D--S	requestDestroy	src 4 tests 37	src/kernel/gesture.ts:44  interface DraggableController  MethodSignature
+D--S	requestDestroy	src 2 tests 20	src/sortable.ts:45  interface SortableController  PropertySignature ; src/sortable.ts:72  literal@src/sortable.ts:65  PropertyAssignment
+D--S	requestStep	src 4 tests 22	src/kernel/drag.ts:59  type Drag  MethodSignature ; src/kernel/drag.ts:67  type Drag  MethodSignature ; src/kernel/session.ts:208  literal@src/kernel/session.ts:187  PropertyAssignment
+---S	requestStep	src 6 tests 37	src/kernel/gesture.ts:262  class Gesture  MethodDeclaration ; src/kernel/gesture.ts:265  class Gesture  MethodDeclaration ; src/kernel/gesture.ts:270  class Gesture  MethodDeclaration ; src/kernel/gesture.ts:274  class Gesture  MethodDeclaration
+D--S	requestStep	src 8 tests 37	src/kernel/gesture.ts:30  interface DraggableController  MethodSignature ; src/kernel/gesture.ts:37  interface DraggableController  MethodSignature
+D--S	resolve	src 4 tests 0	src/sortable/axis.ts:57  interface InsertionGeometry  MethodSignature ; src/sortable/xy.ts:58  literal@src/sortable/xy.ts:57  MethodDeclaration ; src/sortable/y.ts:42  literal@src/sortable/y.ts:41  MethodDeclaration
+D--S	retire	src 2 tests 1	src/sortable/axis.ts:29  interface DisplacementSink  MethodSignature ; src/sortable/layout-animation.ts:155  literal@src/sortable/layout-animation.ts:73  MethodDeclaration
+D--S	retire	src 3 tests 1	src/sortable/axis.ts:68  interface InsertionGeometry  MethodSignature ; src/sortable/xy.ts:176  literal@src/sortable/xy.ts:57  MethodDeclaration ; src/sortable/y.ts:106  literal@src/sortable/y.ts:41  MethodDeclaration
+---S	retire	src 2 tests 0	src/sortable/linear-shift.ts:75  interface LinearShift  MethodSignature ; src/sortable/linear-shift.ts:266  literal@src/sortable/linear-shift.ts:125  MethodDeclaration
+---S	retire	src 2 tests 0	src/sortable/rect-index.ts:298  class RectIndex  MethodDeclaration
+--US	right	src 3 tests 0	src/free-drag/bounds.ts:23  literal@src/free-drag/bounds.ts:23  PropertyAssignment
+---S	settle	src 3 tests 17	src/free-drag/operation.ts:115  class FreeDragOperation  MethodDeclaration
+D--S	settle	src 3 tests 17	src/kernel/behavior.ts:28  interface BehaviorOperation  MethodSignature
+D--S	settle	src 4 tests 2	src/sortable/axis.ts:23  interface DisplacementSink  MethodSignature ; src/sortable/layout-animation.ts:122  literal@src/sortable/layout-animation.ts:73  MethodDeclaration
+---S	settle	src 3 tests 17	src/sortable/operation.ts:139  class SortableOperation  MethodDeclaration
+D--S	signal	src 1 tests 0	src/free-drag/domain.ts:92  type OnDrop  PropertySignature ; src/free-drag/operation.ts:112  literal@src/free-drag/operation.ts:112  ShorthandPropertyAssignment
+D--S	signal	src 3 tests 2	src/kernel/drag.ts:29  type Drag  PropertySignature ; src/kernel/session.ts:194  literal@src/kernel/session.ts:187  PropertyAssignment
+--US	signal	src 4 tests 6	src/kernel/gesture.ts:160  literal@src/kernel/gesture.ts:159  PropertyAssignment
+--US	signal	src 4 tests 6	src/kernel/gesture.ts:165  literal@src/kernel/gesture.ts:164  PropertyAssignment
+--US	signal	src 0 tests 0	src/kernel/session.ts:226  literal@src/kernel/session.ts:226  PropertyAssignment
+--US	signal	src 4 tests 6	src/kernel/session.ts:246  literal@src/kernel/session.ts:244  PropertyAssignment
+--US	signal	src 0 tests 0	src/kernel/session.ts:67  literal@src/kernel/session.ts:67  PropertyAssignment
+--US	signal	src 5 tests 6	src/shared/invalidation.ts:12  literal@src/shared/invalidation.ts:12  ShorthandPropertyAssignment
+--US	signal	src 5 tests 6	src/shared/invalidation.ts:8  literal@src/shared/invalidation.ts:7  ShorthandPropertyAssignment
+D--S	signal	src 1 tests 2	src/sortable/domain.ts:67  type OnReorder  PropertySignature ; src/sortable/operation.ts:136  literal@src/sortable/operation.ts:136  ShorthandPropertyAssignment
+----	slice	src 3 tests 0	src/sortable/rect-index.ts:37  type ReadonlyFloat64Array  MethodSignature
+D---	snapshot	src 9 tests 0	src/sortable/axis.ts:38  type AxisQuery  PropertySignature ; src/sortable/operation.ts:84  literal@src/sortable/operation.ts:82  ShorthandPropertyAssignment
+D---	space	src 3 tests 0	src/sortable/axis.ts:52  type AxisContext  PropertySignature ; src/sortable/behavior.ts:225  literal@src/sortable/behavior.ts:221  PropertyAssignment
+---S	start	src 3 tests 22	src/free-drag/operation.ts:76  class FreeDragOperation  MethodDeclaration
+D--S	start	src 3 tests 22	src/kernel/behavior.ts:20  interface BehaviorOperation  MethodSignature
+D--S	start	src 2 tests 0	src/shared/landing.ts:42  interface Landing  MethodSignature ; src/shared/landing.ts:136  literal@src/shared/landing.ts:122  PropertyAssignment
+---S	start	src 3 tests 22	src/sortable/operation.ts:91  class SortableOperation  MethodDeclaration
+--US	state	src 4 tests 4	src/free-drag/behavior.ts:103  literal@src/free-drag/behavior.ts:100  PropertyAssignment
+D--S	state	src 4 tests 4	src/kernel/admission.ts:10  type Admission  PropertySignature
+--US	state	src 4 tests 4	src/sortable/behavior.ts:279  literal@src/sortable/behavior.ts:276  PropertyAssignment
+D---	target	src 1 tests 8	src/free-drag/domain.ts:62  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:91  literal@src/free-drag/geometry.ts:79  ShorthandPropertyAssignment
+D--S	targets	src 2 tests 8	src/free-drag/behavior.ts:40  type FreeDragConfig  PropertySignature
+D--S	targets	src 1 tests 8	src/free-drag/drop-targets.ts:14  type DropTargetsOptions  MethodSignature
+D--S	threshold	src 1 tests 0	src/free-drag/behavior.ts:28  type FreeDragConfig  PropertySignature
+---S	threshold	src 6 tests 8	src/free-drag/behavior.ts:62  class FreeDragBehavior  PropertyDeclaration
+D--S	threshold	src 6 tests 8	src/kernel/behavior.ts:43  interface Behavior  PropertySignature
+D--S	threshold	src 2 tests 0	src/sortable/behavior.ts:52  type SortableConfig  PropertySignature
+---S	threshold	src 6 tests 8	src/sortable/behavior.ts:92  class SortableBehavior  PropertyDeclaration
+D---	timing	src 2 tests 1	src/shared/landing.ts:30  interface Landing  MethodSignature ; src/shared/landing.ts:123  literal@src/shared/landing.ts:122  PropertyAssignment
+D---	to	src 3 tests 5	src/sortable/domain.ts:42  type ReorderRequest  PropertySignature ; src/sortable/collection.ts:76  literal@src/sortable/collection.ts:73  PropertyAssignment
+--US	top	src 3 tests 0	src/free-drag/bounds.ts:23  literal@src/free-drag/bounds.ts:23  PropertyAssignment
+D---	toX	src 1 tests 0	src/shared/landing.ts:7  type LandingTimingContext  PropertySignature ; src/shared/landing.ts:129  literal@src/shared/landing.ts:126  ShorthandPropertyAssignment
+D---	toY	src 1 tests 1	src/shared/landing.ts:8  type LandingTimingContext  PropertySignature ; src/shared/landing.ts:130  literal@src/shared/landing.ts:126  ShorthandPropertyAssignment
+---S	translate	src 3 tests 0	src/free-drag/operation.ts:62  class FreeDragOperation  MethodDeclaration
+D--S	translate	src 5 tests 16	src/lift.ts:39  type Lift  MethodSignature ; src/lift.ts:290  literal@src/lift.ts:282  PropertyAssignment
+--US	translate	src 0 tests 0	src/shared/landing.ts:84  literal@src/shared/landing.ts:84  PropertyAssignment
+--US	translate	src 0 tests 0	src/shared/landing.ts:84  literal@src/shared/landing.ts:84  PropertyAssignment
+--US	translate	src 0 tests 0	src/sortable/layout-animation.ts:101  literal@src/sortable/layout-animation.ts:101  PropertyAssignment
+--US	translate	src 0 tests 0	src/sortable/layout-animation.ts:102  literal@src/sortable/layout-animation.ts:102  PropertyAssignment
+--U-	trusted	src 0 tests 0	src/kernel/gesture.ts:102  literal@src/kernel/gesture.ts:102  PropertyAssignment
+----	trusted	src 1 tests 0	src/kernel/gesture.ts:103  ?  PropertySignature
+D--S	type	src 2 tests 14	src/free-drag/domain.ts:101  type FreeDragRejectedResult  PropertySignature
+D--S	type	src 2 tests 14	src/free-drag/domain.ts:107  type FreeDragCanceledResult  PropertySignature
+D--S	type	src 2 tests 14	src/free-drag/domain.ts:96  type FreeDragAcceptedResult  PropertySignature
+--US	type	src 2 tests 14	src/free-drag/operation.ts:120  literal@src/free-drag/operation.ts:119  PropertyAssignment
+--US	type	src 2 tests 14	src/free-drag/operation.ts:128  literal@src/free-drag/operation.ts:127  PropertyAssignment
+--US	type	src 2 tests 14	src/free-drag/operation.ts:133  literal@src/free-drag/operation.ts:133  PropertyAssignment
+D--S	type	src 5 tests 18	src/kernel/outcome.ts:13  type CanceledOutcome  PropertySignature
+D--S	type	src 7 tests 20	src/kernel/outcome.ts:4  type SkippedOutcome  PropertySignature ; src/kernel/session.ts:21  literal@src/kernel/session.ts:21  PropertyAssignment
+D--S	type	src 7 tests 20	src/kernel/outcome.ts:7  type VerdictOutcome  PropertySignature
+--US	type	src 5 tests 18	src/kernel/session.ts:274  literal@src/kernel/session.ts:274  PropertyAssignment
+--US	type	src 7 tests 20	src/kernel/session.ts:488  literal@src/kernel/session.ts:488  PropertyAssignment
+D--S	type	src 1 tests 23	src/sortable/domain.ts:71  type SortableAcceptedResult  PropertySignature
+D--S	type	src 1 tests 23	src/sortable/domain.ts:77  type SortableNoopResult  PropertySignature
+D--S	type	src 1 tests 23	src/sortable/domain.ts:82  type SortableRejectedResult  PropertySignature
+D--S	type	src 1 tests 23	src/sortable/domain.ts:88  type SortableCanceledResult  PropertySignature
+--US	type	src 1 tests 23	src/sortable/operation.ts:212  literal@src/sortable/operation.ts:211  PropertyAssignment
+--US	type	src 1 tests 23	src/sortable/operation.ts:222  literal@src/sortable/operation.ts:222  PropertyAssignment
+--US	type	src 1 tests 23	src/sortable/operation.ts:227  literal@src/sortable/operation.ts:227  PropertyAssignment
+--US	type	src 1 tests 23	src/sortable/operation.ts:232  literal@src/sortable/operation.ts:231  PropertyAssignment
+--U-	untrusted	src 0 tests 0	src/kernel/gesture.ts:102  literal@src/kernel/gesture.ts:102  PropertyAssignment
+----	untrusted	src 1 tests 0	src/kernel/gesture.ts:104  ?  PropertySignature
+D--S	use	src 7 tests 35	src/kernel/drag.ts:35  type Drag  MethodSignature ; src/kernel/drag.ts:40  type Drag  MethodSignature ; src/kernel/session.ts:195  literal@src/kernel/session.ts:187  PropertyAssignment
+---S	use	src 5 tests 42	src/kernel/gesture.ts:317  class Gesture  MethodDeclaration ; src/kernel/gesture.ts:318  class Gesture  MethodDeclaration ; src/kernel/gesture.ts:322  class Gesture  MethodDeclaration
+D--S	use	src 6 tests 42	src/kernel/gesture.ts:49  interface DraggableController  MethodSignature ; src/kernel/gesture.ts:54  interface DraggableController  MethodSignature
+D---	value	src 5 tests 1	src/kernel/outcome.ts:8  type VerdictOutcome  PropertySignature
+--U-	value	src 5 tests 1	src/kernel/session.ts:488  literal@src/kernel/session.ts:488  PropertyAssignment
+----	values	src 8 tests 0	src/sortable/rect-index.ts:112  class RectIndex  GetAccessor
+D--S	version	src 7 tests 0	src/sortable/domain.ts:10  type CollectionSnapshot  PropertySignature ; src/sortable/behavior.ts:236  literal@src/sortable/behavior.ts:236  PropertyAssignment
+D---	viewportDeltaX	src 1 tests 1	src/free-drag/domain.ts:26  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:51  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D---	viewportDeltaX	src 1 tests 1	src/free-drag/domain.ts:49  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:86  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D---	viewportDeltaY	src 1 tests 0	src/free-drag/domain.ts:27  type DragGeometry  PropertySignature ; src/free-drag/geometry.ts:52  literal@src/free-drag/geometry.ts:46  PropertyAssignment
+D---	viewportDeltaY	src 1 tests 0	src/free-drag/domain.ts:50  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:87  literal@src/free-drag/geometry.ts:79  PropertyAssignment
+D--S	visual	src 2 tests 1	src/free-drag/behavior.ts:32  type FreeDragConfig  MethodSignature
+D--S	visual	src 2 tests 1	src/free-drag/domain.ts:16  type FreeDragSubject  PropertySignature ; src/free-drag/geometry.ts:81  literal@src/free-drag/geometry.ts:79  PropertyAssignment ; src/free-drag/operation.ts:178  literal@src/free-drag/operation.ts:176  PropertyAssignment
+D--S	visual	src 5 tests 3	src/lift.ts:27  type Lift  PropertySignature ; src/lift.ts:283  literal@src/lift.ts:282  ShorthandPropertyAssignment
+--US	visual	src 4 tests 0	src/sortable/behavior.ts:280  literal@src/sortable/behavior.ts:279  ShorthandPropertyAssignment
+D--S	visual	src 2 tests 3	src/sortable/behavior.ts:55  type SortableConfig  MethodSignature
+---S	visual	src 2 tests 0	src/sortable/behavior.ts:66  type PressState  PropertySignature
+D--S	visual	src 1 tests 0	src/sortable/placement.ts:11  type PlaceholderContext  PropertySignature ; src/sortable/behavior.ts:174  literal@src/sortable/behavior.ts:172  PropertyAssignment
+D---	visualRect	src 1 tests 0	src/free-drag/domain.ts:57  type FreeDragRequest  PropertySignature ; src/free-drag/geometry.ts:90  literal@src/free-drag/geometry.ts:79  ShorthandPropertyAssignment
+D--S	visualSpace	src 3 tests 1	src/lift.ts:35  type Lift  PropertySignature ; src/lift.ts:288  literal@src/lift.ts:282  ShorthandPropertyAssignment
+D--S	x	src 2 tests 0	src/free-drag/bounds.ts:11  interface MotionConstraint  PropertySignature
+D--S	x	src 8 tests 8	src/free-drag/domain.ts:11  type Point  PropertySignature ; src/free-drag/operation.ts:180  literal@src/free-drag/operation.ts:180  PropertyAssignment
+--US	x	src 4 tests 0	src/free-drag/operation.ts:32  literal@src/free-drag/operation.ts:32  PropertyAssignment
+D--S	x	src 14 tests 17	src/kernel/drag.ts:24  type Drag  PropertySignature ; src/kernel/session.ts:190  literal@src/kernel/session.ts:187  ShorthandPropertyAssignment
+---S	x	src 4 tests 0	src/lift.ts:221  type Displacement  PropertySignature ; src/lift.ts:278  literal@src/lift.ts:278  PropertyAssignment
+--US	x	src 4 tests 0	src/lift.ts:304  literal@src/lift.ts:303  ShorthandPropertyAssignment
+---S	x	src 2 tests 0	src/lift.ts:57  type NamedLanding  PropertySignature
+D--S	y	src 2 tests 0	src/free-drag/bounds.ts:11  interface MotionConstraint  PropertySignature
+D--S	y	src 8 tests 8	src/free-drag/domain.ts:11  type Point  PropertySignature ; src/free-drag/operation.ts:180  literal@src/free-drag/operation.ts:180  PropertyAssignment
+--US	y	src 4 tests 0	src/free-drag/operation.ts:32  literal@src/free-drag/operation.ts:32  PropertyAssignment
+D--S	y	src 14 tests 17	src/kernel/drag.ts:25  type Drag  PropertySignature ; src/kernel/session.ts:191  literal@src/kernel/session.ts:187  ShorthandPropertyAssignment
+---S	y	src 4 tests 0	src/lift.ts:221  type Displacement  PropertySignature ; src/lift.ts:278  literal@src/lift.ts:278  PropertyAssignment
+--US	y	src 4 tests 0	src/lift.ts:305  literal@src/lift.ts:303  ShorthandPropertyAssignment
+---S	y	src 2 tests 0	src/lift.ts:58  type NamedLanding  PropertySignature
+--U-	zIndex	src 0 tests 0	src/shared/landing.ts:96  literal@src/shared/landing.ts:96  PropertyAssignment
+--U-	zIndex	src 0 tests 0	src/shared/landing.ts:97  literal@src/shared/landing.ts:97  PropertyAssignment

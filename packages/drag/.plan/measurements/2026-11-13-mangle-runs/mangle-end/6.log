@@ -1,0 +1,918 @@
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+
+ RUN  v5.0.5 /workspaces/material-x/packages/drag
+
+5:30:11 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/9d89fffb4aebba42dd0fb0d95bc3dc2d62691283/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/9d89fffb4aebba42dd0fb0d95bc3dc2d62691283/deps/vitest_n_vite_module-runner.js?v=98cd84da
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:48 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged 141ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:64 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen 200ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:81 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press 104ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:99 > drag:DRI-14 collection > should decline quietly when the item left the document during the press 278ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 165ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 136ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 164ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 68ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 53ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag 183ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed 156ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency 127ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:373 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies 152ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:395 > drag:DRI-14 collection > should reach the end gap with a null next 156ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:411 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge 68ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:429 > drag:DRI-14 collection > should decline on altKey 156ms
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+[Error: DragFault: drag: items]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws 167ms
+stderr | tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+[Error: DragFault: drag: visual]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws 165ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation 157ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart 189ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:531 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction 20ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:547 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start 168ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:555 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it 138ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself 178ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself 152ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out 180ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container 186ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it 151ms
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container 251ms
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release 165ms
+stderr | tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:647 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left 150ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it 151ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:680 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document 165ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:696 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none 151ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:707 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot 123ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:726 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics 133ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:742 > sortable options > should honor handle: a press elsewhere does not admit 259ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:765 > sortable options > should refuse a press through data-drag-ignore 150ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:775 > sortable options > should honor visual: the named node is lifted and the item stays 124ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:793 > sortable options > should honor box: a box around the visual keeps the rest of its footprint 130ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:813 > sortable options > should honor box: a box inside the visual sizes the whole footprint 117ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:831 > sortable options > should resolve a grid with xy() 231ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:854 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 239ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction 262ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included 526ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:951 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 204ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:991 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6670ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:1073 > sortable options > should ignore a second pointer during a drag 82ms
+ ✓ |consumer/firefox (firefox)| tests/sortable.browser.test.ts:1104 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect 119ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:32 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction cancel during activation 311ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:54 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction destroy during activation 150ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to cancel during activate 150ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to destroy during activate 145ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:148 > drag:DRI-1 a request does not change the running step > should leave a hook alone when it requests a cancel 147ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:184 > drag:DRI-1 a request does not change the running step > should apply an idle request before the call returns 158ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:203 > drag:DRI-2 one reader and fixed precedence > should apply a destroy requested from settle before the terminal 143ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:222 > drag:DRI-2 one reader and fixed precedence > should run deferred steps before the decision, with no drag behind it 155ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:247 > drag:DRI-2 one reader and fixed precedence > should see a request made by a deferred step on its next turn 151ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:271 > drag:DRI-2 one reader and fixed precedence > should not pull when a release queues collection work and then cancels 143ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:305 > drag:DRI-2 one reader and fixed precedence > should keep a cancel first when a callback also invalidates 151ms
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: DragFault: drag: after the work]
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once 150ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:350 > drag:DRI-8 deferred writes > should run a step at once when no pass is running 3ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:364 > drag:DRI-8 deferred writes > should run steps between steps in request order 149ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs 150ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback 146ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:426 > drag:DRI-8 deferred writes > should give a step null before activation 24ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:443 > drag:DRI-8 deferred writes > should give a step the operation activate returned while the operation is active 142ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:481 > drag:DRI-8 deferred writes > should give a step null while a verdict is pending 151ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:506 > drag:DRI-8 deferred writes > should give a step null behind a decision 120ms
+stderr | tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides
+[Error: DragFault: drag: from a step]
+stderr | tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation
+[Error: DragFault: drag: idle]
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides 120ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation 7ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:556 > drag:DRI-8 deferred writes > should do nothing for a moveTo behind a cancel, and land from the prior position 125ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass 110ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:606 > drag:DRI-8 deferred writes > should move nothing with a collection change after the drop 222ms
+ ✓ |consumer/firefox (firefox)| tests/requests.browser.test.ts:629 > drag:DRI-8 deferred writes > should run a step requested in settle before end with null, and none requested in end 182ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:143 > drag:DRI-10 destruction > should admit no press after destruction 144ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from admit 148ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from activate 151ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from start 155ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from move 150ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from drop 152ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from verdict 144ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from settle 149ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from dispose 156ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from end 145ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from reaction 155ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from listener 150ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:199 > drag:DRI-10 destruction > should return one promise by identity on every call 8ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:211 > drag:DRI-10 destruction > should settle the promise after teardown 6ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:225 > drag:DRI-10 destruction > should give disposers null and deliver no settle or end 119ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:256 > drag:DRI-10 destruction > should do nothing for a later request 146ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null 116ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:303 > drag:DRI-10 destruction > should not restore focus on destruction 154ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations 284ms
+ ↓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:345 > drag:DRI-10 destruction > should retain no drag view or state after a custom behavior is destroyed
+ ↓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:444 > drag:DRI-10 destruction > should not apply an Escape dispatched by the verdict abort during destruction 145ms
+ ✓ |consumer/firefox (firefox)| tests/destruction.browser.test.ts:485 > drag:DRI-10 destruction > should not report a thenable rejected by the verdict abort during destruction 150ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:50 > drag:DRI-13 landing > should land additively from where it was dropped 350ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:74 > drag:DRI-13 landing > should start nothing when the visual is already where it lands 120ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:96 > drag:DRI-13 landing > should start nothing without a landing composed 125ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: DragFault: drag: Element.animate: Duration (-5) must be nonnegative]
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand 156ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:134 > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation 303ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above static siblings for the whole flight 207ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight 205ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight 198ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine 204ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top 199ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:208 > drag:DRI-13 landing > should leave no inline style from elevation 256ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:227 > drag:DRI-13 landing > should start no animation when no landing is composed 140ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:245 > drag:DRI-13 landing > should give a landing that `landing()` starts zero duration with reduced motion 152ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:286 > drag:DRI-13 landing > should call a duration function with reduced motion, and still land at once 158ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:307 > drag:DRI-13 landing > should land an accepted drop at its new slot 251ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable 314ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:351 > drag:DRI-13 landing > should keep timing a custom landing named 130ms
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:385 > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object 118ms
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: DragFault: drag: hide]
+ ✓ |consumer/firefox (firefox)| tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand 146ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:50 > drag:DRI-21 freeDrag + dropTargets > should mark the target under the pointer, name it at the drop and clear the mark at release 404ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:87 > drag:DRI-21 freeDrag + dropTargets > should resolve the target at the release, with no frame before it 137ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:118 > drag:DRI-21 freeDrag + dropTargets > should clear the mark when the controller is destroyed mid-drag 200ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:137 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets on invalidate 198ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:158 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets after a scroll 235ms
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: DragFault: drag: targets]
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 237ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws 461ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:306 > drag:DRI-21 freeDrag + dropTargets > should name no target without the capability 232ms
+ ✓ |consumer/firefox (firefox)| tests/drop-targets.browser.test.ts:330 > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime 471ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:55 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on a child, and reorder at the next press 268ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:71 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press 268ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:87 > drag:DRI-19 input ownership > should end a press whose release the window never saw at the next sample with no button 287ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:112 > drag:DRI-19 input ownership > should admit a primary press while a press whose release was missed is pending 164ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:154 > drag:DRI-19 input ownership > should keep an active drag following the pointer when the page stops pointermove 148ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:173 > drag:DRI-19 input ownership > should ignore a second pointer moving during a drag 147ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:196 > drag:DRI-19 input ownership > should reorder links marked draggable="false" 151ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:295 > drag:DRI-19 nested roots > should reorder the inner list only, with no attribute 151ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:307 > drag:DRI-19 nested roots > should move a column from its header 150ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:317 > drag:DRI-19 nested roots > should run a keyboard command on the inner list only 35ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:331 > drag:DRI-4 Escape > should cancel and keep a modal dialog open 154ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:351 > drag:DRI-4 Escape > should cancel and keep an auto popover open 149ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:375 > drag:DRI-4 Escape > should cancel a pending verdict and keep a modal dialog open 182ms
+ ✓ |consumer/firefox (firefox)| tests/input.browser.test.ts:397 > drag:DRI-4 Escape > should not prevent Escape before start 30ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:154 > a React consumer > should resolve the verdict from a real layout effect 189ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:180 > a React consumer > should keep the placeholder in place until the commit lands 190ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:210 > a React consumer > should accept a commit that inserts content above the placeholder 162ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:232 > a React consumer > should accept a commit that mounts a new keyed row into the gap 151ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:255 > a React consumer > should see a list the framework rerendered during a press 135ms
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item 310ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:295 > a React consumer > should deliver no callback during an unmount 117ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else 299ms
+ ✓ |consumer/firefox (firefox)| tests/frameworks.browser.test.ts:367 > a keyed reconciler that rewrites the whole list > should keep keyboard focus through a rewrite 52ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:45 > drag:DRI-11 the click guard > should swallow the trailing click of a rejected drop, which produces one 172ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:59 > drag:DRI-11 the click guard > should swallow the trailing click of an accepted reorder, where the engine produces one 192ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:70 > drag:DRI-11 the click guard > should swallow the trailing click of a cancel with the button held 170ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:84 > drag:DRI-11 the click guard > should swallow the trailing click after destruction with the button held 169ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:99 > drag:DRI-11 the click guard > should keep the click of a press below the threshold 31ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:113 > drag:DRI-11 the click guard > should deliver a later click on the same list at once 167ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:123 > drag:DRI-11 the click guard > should hold for a custom behavior with no lift 169ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:161 > drag:DRI-11 the click guard > should swallow a click while nothing has expired it 114ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:168 > drag:DRI-11 the click guard > should swallow one click only 113ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:175 > drag:DRI-11 the click guard > should expire in the task after that pointer pointerup 118ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:184 > drag:DRI-11 the click guard > should still swallow a click in the task of that pointer pointerup 117ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:192 > drag:DRI-11 the click guard > should not expire at another pointer pointerup 125ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:203 > drag:DRI-11 the click guard > should expire at that pointer pointercancel 133ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:211 > drag:DRI-11 the click guard > should expire at the next primary pointerdown 131ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:220 > drag:DRI-11 the click guard > should deliver a real click after the release 184ms
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:232 > drag:DRI-11 the click guard > should prevent only the move that crosses the threshold 129ms
+ ↓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:264 > drag:DRI-11 the click guard > should complete a touch drag with no platform cancel, and keep the next click
+ ↓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:298 > drag:DRI-11 the click guard > should cancel with origin interrupted when the platform cancels a touch
+ ↓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:325 > drag:DRI-11 the click guard > should follow the primary touch and ignore a second finger
+ ✓ |consumer/firefox (firefox)| tests/click-guard.browser.test.ts:350 > drag:DRI-11 the click guard > should prevent nothing on a press 29ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate 158ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under scale 163ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under skew 157ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under zoom 150ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate, scale and zoom 150ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:108 > drag:DRI-16 no-lift move and resize > should follow the pointer with own rotate 152ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:126 > drag:DRI-16 no-lift move and resize > should need a division by the element own zoom, which a behavior states 159ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, through the element Box 126ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under scale, through the element Box 116ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under skew, through the element Box 118ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under zoom, through the element Box 115ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, scale and zoom, through the element Box 123ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate 128ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under scale 120ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under skew 131ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under zoom 110ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate, scale and zoom 119ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under own rotate on the item 125ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:219 > drag:DRI-16 lifted > should follow the pointer for an item with its own zoom 127ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:251 > drag:DRI-16 lifted > should keep the rendered size across the lift under scale and zoom 113ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor scale(.5), following the pointer 148ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor zoom:2, following the pointer 151ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:307 > drag:DRI-16 required environments for a sortable > should reorder a list in a shadow root 216ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:326 > drag:DRI-16 required environments for a sortable > should reorder a list in a same-origin iframe the parent controls 225ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:349 > drag:DRI-16 required environments for a sortable > should stay visible when dragged out of an overflow:hidden list 110ms
+ ✓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:360 > drag:DRI-16 required environments for a sortable > should stay above a later positioned panel 119ms
+ ↓ |consumer/firefox (firefox)| tests/coordinates.browser.test.ts:382 > drag:DRI-16 required environments for a sortable > should read a Space for an ancestor it can represent
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:29 > drag:DRI-9 release order > should release in the fixed order 158ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:76 > drag:DRI-9 release order > should run the terminal in the task of the decision, before the landing ends 121ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is accepted 148ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is rejected 147ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is canceled 149ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:128 > drag:DRI-9 release order > should leave no style attribute when there was none 151ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:142 > drag:DRI-9 release order > should restore an open popover the page had 155ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:159 > drag:DRI-9 release order > should pass each outcome to a disposer 443ms
+stderr | tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+[Error: DragFault: drag: middle]
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw 150ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:216 > drag:DRI-9 release order > should run a late use at once with the outcome 149ms
+stderr | tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+[Error: DragFault: drag: late]
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use 160ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:256 > drag:DRI-9 release order > should run a late use on a destroyed controller at once 7ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:269 > drag:DRI-9 release order > should leave no placeholder, capture, listener or style after an operation 207ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:297 > drag:DRI-9 release order > should not retain the signal past a press that never activates 94ms
+ ✓ |consumer/firefox (firefox)| tests/release.browser.test.ts:321 > drag:DRI-9 release order > should remove the sortable placeholder before the lift is released 150ms
+stderr | tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run
+[Error: DragFault: drag: move]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: DragFault: drag: first]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: DragFault: drag: second]
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run 163ms
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide 142ms
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: DragFault: drag: disposer 2]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: DragFault: drag: disposer 1]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: DragFault: drag: controller use]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: plain]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: null]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: undefined]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: text]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: Symbol(symbol)]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: frozen]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel
+[Error: DragFault: drag: boom]
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each 120ms
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity 8ms
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:162 > drag:DRI-7 faults > should include the original message when it can be read 3ms
+stderr | tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction
+[Error: DragFault: drag: boom]
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel 156ms
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction 151ms
+stderr | tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported
+[Error: DragFault: drag: settle]
+stderr | tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller
+[Error: DragFault: drag: lift/visual-no-box-space]
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported 149ms
+stderr | tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+[Error: DragFault: drag: show]
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller 285ms
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: DragFault: drag: show]
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: DragFault: drag: restore]
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide 144ms
+ ✓ |consumer/firefox (firefox)| tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides 150ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw
+[Error: DragFault: drag: cancel]
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw
+[Error: DragFault: drag: destroy]
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw 150ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw
+[Error: DragFault: drag: fault]
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw 150ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw 152ms
+stderr | tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws
+[Error: DragFault: drag: start]
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:52 > drag:DRI-3 terminals > should report nothing when activate declines 153ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws 144ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:79 > drag:DRI-3 terminals > should run end once for a drop with no verdict 151ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:90 > drag:DRI-3 terminals > should run end for a release that lands the item on its own gap 149ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:100 > drag:DRI-4 cancel > should ignore a cancel on an idle controller 6ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:110 > drag:DRI-4 cancel > should keep the first reason and origin 110ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:132 > drag:DRI-4 cancel > should change nothing with a cancel after the decision 150ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:151 > drag:DRI-4 cancel > should cancel on Escape with origin escape 128ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:163 > drag:DRI-4 cancel > should retire a pending press on Escape, with no terminal 127ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:184 > drag:DRI-4 cancel > should cancel on lostpointercapture with origin interrupted 221ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:201 > drag:DRI-4 cancel > should release presentation at once on a cancel with the button held 135ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:211 > drag:DRI-4 cancel > should not let a retained drag cancel a later operation 304ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:234 > admission > should require a primary button press 3ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:262 > admission > should refuse a press through data-drag-ignore before the handle, for a custom behavior 148ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:280 > admission > should acquire pointer capture on the root 151ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:296 > admission > should activate only at the threshold 57ms
+ ✓ |consumer/firefox (firefox)| tests/terminals.browser.test.ts:319 > drag:DRI-6 reentrant input > should let the press after a refused one activate 295ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop 154ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis 124ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo 158ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 197ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 150ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 333ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing 231ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home 150ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual 300ms
+ ✓ |consumer/firefox (firefox)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta 119ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:60 > drag:DRI-18 resize handle > should resize with no lift, and Escape should restore 201ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:92 > drag:DRI-18 resize handle > should resize in viewport distance inside a scaled parent 152ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of true where it says 450ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of false where it says 451ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:150 > drag:DRI-18 canvas group > should move in canvas units under scale, and save 152ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:160 > drag:DRI-18 canvas group > should follow the pointer under rotation, through box-quad 176ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:176 > drag:DRI-18 canvas group > should roll back on Escape 186ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:185 > drag:DRI-18 canvas group > should roll back on destruction, with no end and no flag 147ms
+stderr | tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save
+[Error: DragFault: drag: save failed]
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save 149ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:203 > drag:DRI-18 canvas group > should render a nudge from foreign code through requestStep 186ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:242 > drag:DRD-27 the lift in the operation > should give a lifted behavior a drag with only the kernel keys 152ms
+ ✓ |consumer/firefox (firefox)| tests/authoring.browser.test.ts:257 > drag:DRD-27 the lift in the operation > should give the lift exactly its nine keys 145ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:61 > drag:DRI-9 commit ownership > should keep a translate committed in onEnd 151ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:78 > drag:DRI-9 commit ownership > should keep left and top committed in onEnd 148ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:95 > drag:DRI-9 commit ownership > should revert at release a write to a lifted property made during the lift 147ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:124 > drag:DRI-9 README examples > should reorder with the quick start 153ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:147 > drag:DRI-9 README examples > should keep the free-drag example where it was dropped, across two drags 299ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:179 > drag:DRI-9 README examples > should keep the scrolling-container example where it was dropped, and land it home 2451ms
+ ✓ |consumer/firefox (firefox)| tests/commit.browser.test.ts:249 > drag:DRI-20 free drag offset > should commit where dropped without home in an unscrolled page 150ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:49 > drag:DRI-3 activation > should run no hook for a custom behavior whose item was disconnected during the press 105ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:84 > drag:DRI-14 command activation > should decline a command quietly when its item leaves during the lift 31ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:102 > drag:DRI-14 command activation > should decline a command quietly when its move becomes impossible during the lift 34ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:121 > drag:DRI-14 command activation > should land a keyboard command from the old slot 8ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 564ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 567ms
+stderr | tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate 227ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion 150ms
+ ✓ |consumer/firefox (firefox)| tests/activation.browser.test.ts:226 > drag:DRI-17 coalescing > should schedule one frame for several samples in one task 123ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:33 > drag:DRI-12 focus > should let two arrow presses in a row reorder twice 41ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:45 > drag:DRI-12 focus > should keep focus through a pointer reorder 149ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:55 > drag:DRI-12 focus > should restore focus after an async verdict 64ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:72 > drag:DRI-12 focus > should leave focus where the user moved it during a verdict 33ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:94 > drag:DRI-12 focus > should restore focus inside an open shadow root 34ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:111 > drag:DRI-12 focus > should restore focus to a descendant of the item 216ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:133 > drag:DRI-12 focus > should keep focus when the lift promotes an autofocus descendant 54ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:152 > drag:DRI-12 focus > should leave nothing focused when an autofocus descendant is promoted with nothing focused 116ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:173 > drag:DRI-12 focus > should not restore focus on destruction 10ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:187 > drag:DRI-12 focus > should not scroll on a pointer restore 155ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:211 > drag:DRI-12 focus > should scroll a keyboard restore of an off-screen row into view 48ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:232 > drag:DRI-12 focus > should keep :focus-visible on a keyboard restore 34ms
+ ✓ |consumer/firefox (firefox)| tests/focus.browser.test.ts:242 > drag:DRI-12 focus > should restore a pointer drop without :focus-visible 183ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag 405ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag 410ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late resolve after destruction reach nothing 258ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late reject after destruction reach nothing 254ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:92 > drag:DRI-5 verdict > should not abort the signal on acceptance 190ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:109 > drag:DRI-5 verdict > should abort drag.signal at release while the verdict signal stays live 156ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:132 > drag:DRI-5 verdict > should read then once, and take the first completion 150ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault
+[Error: DragFault: drag: accessor]
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault 149ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault
+[Error: DragFault: drag: call]
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault 146ms
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: DragFault: drag: thrown]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: DragFault: drag: rejected]
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault 332ms
+ ✓ |consumer/firefox (firefox)| tests/verdict.browser.test.ts:234 > drag:DRI-5 verdict > should hold a verdict through a pending drop, then finish 185ms
+ ✓ |consumer/firefox (firefox)| tests/classes.browser.test.ts:37 > drag:DRD-20 detached controller methods > should run draggable controller methods called on the controller 152ms
+ ✓ |consumer/firefox (firefox)| tests/classes.browser.test.ts:72 > drag:DRD-20 detached controller methods > should run sortable controller methods detached 320ms
+ ✓ |consumer/firefox (firefox)| tests/classes.browser.test.ts:100 > drag:DRD-20 detached controller methods > should run freeDrag controller methods detached 146ms
+ ✓ |consumer/firefox (firefox)| tests/classes.browser.test.ts:128 > drag:DRD-34 receivers > should call a step with no receiver, requested while idle and during a pass 148ms
+ ✓ |consumer/firefox (firefox)| tests/classes.browser.test.ts:151 > drag:DRD-34 receivers > should re-read freeDrag bounds on invalidate called during a pass 291ms
+ ↓ |consumer/firefox (firefox)| tests/classes.browser.test.ts:190 > drag:DRD-20 behavior instances > should retain no freeDrag behavior instance after destruction
+stderr | tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+[Error: DragFault: drag: constructor]
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines 140ms
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use 157ms
+stderr | tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+[Error: DragFault: drag: after the cancel]
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines 145ms
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws 148ms
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation 150ms
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there 148ms
+ ✓ |consumer/firefox (firefox)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate 152ms
+stderr | tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws
+[Error: DragFault: drag: end throws]
+ ✓ |consumer/firefox (firefox)| tests/order.browser.test.ts:71 > drag:DRI-9 and drag:DRI-12 release order > should start the landing before the focus call 150ms
+ ✓ |consumer/firefox (firefox)| tests/order.browser.test.ts:96 > drag:DRI-9 and drag:DRI-12 release order > should keep focus through two arrow presses that reorder in end 45ms
+ ✓ |consumer/firefox (firefox)| tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws 41ms
+ ✓ |consumer/firefox (firefox)| tests/order.browser.test.ts:122 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end requests destruction 46ms
+ ✓ |consumer/firefox (firefox)| tests/order.browser.test.ts:135 > drag:DRI-9 and drag:DRI-12 release order > should not restore focus when destruction is requested before the terminal 32ms
+ ✓ |consumer/firefox (firefox)| tests/scoped-requests.browser.test.ts:24 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while a later operation is active 295ms
+ ✓ |consumer/firefox (firefox)| tests/scoped-requests.browser.test.ts:52 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while idle 151ms
+ ✓ |consumer/firefox (firefox)| tests/scoped-requests.browser.test.ts:72 > drag:DRI-8 scoped requests > should give a late disposer the outcome after destruction of a concluded operation 150ms
+ ✓ |consumer/firefox (firefox)| tests/scoped-requests.browser.test.ts:97 > drag:DRI-8 scoped requests > should give a late disposer null when destruction released its operation 149ms
+Skipping host requirements validation logic because `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS` env variable is set.
+5:31:16 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/654f12e6611cb160715f5bf801078efe22dd986b/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/654f12e6611cb160715f5bf801078efe22dd986b/deps/vitest_n_vite_module-runner.js?v=e5b74c58
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:48 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged 92ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:64 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen 110ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:81 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press 48ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:99 > drag:DRI-14 collection > should decline quietly when the item left the document during the press 132ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 85ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 44ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 82ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 28ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 36ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag 111ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed 52ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency 60ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:373 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies 83ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:395 > drag:DRI-14 collection > should reach the end gap with a null next 80ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:411 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge 31ms
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: DragFault: drag: items]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:429 > drag:DRI-14 collection > should decline on altKey 81ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws 79ms
+stderr | tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+[Error: DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+[Error: DragFault: drag: visual]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws 81ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation 81ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart 79ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:531 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction 3ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:547 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start 78ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:555 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it 81ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself 81ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself 80ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out 81ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container 80ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it 80ms
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container 185ms
+stderr | tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release 93ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:647 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left 80ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it 87ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:680 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document 116ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:696 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none 100ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:707 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot 51ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:726 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics 49ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:742 > sortable options > should honor handle: a press elsewhere does not admit 135ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:765 > sortable options > should refuse a press through data-drag-ignore 99ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:775 > sortable options > should honor visual: the named node is lifted and the item stays 61ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:793 > sortable options > should honor box: a box around the visual keeps the rest of its footprint 49ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:813 > sortable options > should honor box: a box inside the visual sizes the whole footprint 47ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:831 > sortable options > should resolve a grid with xy() 145ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:854 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 168ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction 174ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included 379ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:951 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 113ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:991 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 4378ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:1073 > sortable options > should ignore a second pointer during a drag 48ms
+ ✓ |consumer/webkit (webkit)| tests/sortable.browser.test.ts:1104 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect 61ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:32 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction cancel during activation 159ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:54 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction destroy during activation 75ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to cancel during activate 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to destroy during activate 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:148 > drag:DRI-1 a request does not change the running step > should leave a hook alone when it requests a cancel 85ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:184 > drag:DRI-1 a request does not change the running step > should apply an idle request before the call returns 76ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:203 > drag:DRI-2 one reader and fixed precedence > should apply a destroy requested from settle before the terminal 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:222 > drag:DRI-2 one reader and fixed precedence > should run deferred steps before the decision, with no drag behind it 80ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:247 > drag:DRI-2 one reader and fixed precedence > should see a request made by a deferred step on its next turn 80ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:271 > drag:DRI-2 one reader and fixed precedence > should not pull when a release queues collection work and then cancels 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:305 > drag:DRI-2 one reader and fixed precedence > should keep a cancel first when a callback also invalidates 79ms
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: DragFault: drag: after the work]
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:350 > drag:DRI-8 deferred writes > should run a step at once when no pass is running 2ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:364 > drag:DRI-8 deferred writes > should run steps between steps in request order 79ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs 79ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:426 > drag:DRI-8 deferred writes > should give a step null before activation 20ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:443 > drag:DRI-8 deferred writes > should give a step the operation activate returned while the operation is active 81ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:481 > drag:DRI-8 deferred writes > should give a step null while a verdict is pending 82ms
+stderr | tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides
+[Error: DragFault: drag: from a step]
+stderr | tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation
+[Error: DragFault: drag: idle]
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:506 > drag:DRI-8 deferred writes > should give a step null behind a decision 61ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides 53ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation 5ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:556 > drag:DRI-8 deferred writes > should do nothing for a moveTo behind a cancel, and land from the prior position 80ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass 54ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:606 > drag:DRI-8 deferred writes > should move nothing with a collection change after the drop 146ms
+ ✓ |consumer/webkit (webkit)| tests/requests.browser.test.ts:629 > drag:DRI-8 deferred writes > should run a step requested in settle before end with null, and none requested in end 112ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:143 > drag:DRI-10 destruction > should admit no press after destruction 83ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from admit 81ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from activate 79ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from start 85ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from move 97ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from drop 77ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from verdict 83ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from settle 76ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from dispose 82ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from end 79ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from reaction 80ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from listener 82ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:199 > drag:DRI-10 destruction > should return one promise by identity on every call 2ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:211 > drag:DRI-10 destruction > should settle the promise after teardown 3ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:225 > drag:DRI-10 destruction > should give disposers null and deliver no settle or end 42ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:256 > drag:DRI-10 destruction > should do nothing for a later request 80ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null 50ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:303 > drag:DRI-10 destruction > should not restore focus on destruction 80ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations 115ms
+ ↓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:345 > drag:DRI-10 destruction > should retain no drag view or state after a custom behavior is destroyed
+ ↓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:444 > drag:DRI-10 destruction > should not apply an Escape dispatched by the verdict abort during destruction 81ms
+ ✓ |consumer/webkit (webkit)| tests/destruction.browser.test.ts:485 > drag:DRI-10 destruction > should not report a thenable rejected by the verdict abort during destruction 97ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:50 > drag:DRI-13 landing > should land additively from where it was dropped 265ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:74 > drag:DRI-13 landing > should start nothing when the visual is already where it lands 58ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: DragFault: drag: Type error]
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:96 > drag:DRI-13 landing > should start nothing without a landing composed 50ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand 76ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:134 > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation 149ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above static siblings for the whole flight 125ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight 129ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight 130ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine 127ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top 129ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:208 > drag:DRI-13 landing > should leave no inline style from elevation 179ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:227 > drag:DRI-13 landing > should start no animation when no landing is composed 49ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:245 > drag:DRI-13 landing > should give a landing that `landing()` starts zero duration with reduced motion 78ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:286 > drag:DRI-13 landing > should call a duration function with reduced motion, and still land at once 85ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:307 > drag:DRI-13 landing > should land an accepted drop at its new slot 190ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable 160ms
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: DragFault: drag: hide]
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:351 > drag:DRI-13 landing > should keep timing a custom landing named 50ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:385 > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object 48ms
+ ✓ |consumer/webkit (webkit)| tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand 80ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:50 > drag:DRI-21 freeDrag + dropTargets > should mark the target under the pointer, name it at the drop and clear the mark at release 175ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:87 > drag:DRI-21 freeDrag + dropTargets > should resolve the target at the release, with no frame before it 51ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:118 > drag:DRI-21 freeDrag + dropTargets > should clear the mark when the controller is destroyed mid-drag 79ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:137 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets on invalidate 81ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:158 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets after a scroll 118ms
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: DragFault: drag: targets]
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 105ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws 259ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:306 > drag:DRI-21 freeDrag + dropTargets > should name no target without the capability 112ms
+ ✓ |consumer/webkit (webkit)| tests/drop-targets.browser.test.ts:330 > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime 274ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:55 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on a child, and reorder at the next press 191ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:71 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press 193ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:87 > drag:DRI-19 input ownership > should end a press whose release the window never saw at the next sample with no button 193ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:112 > drag:DRI-19 input ownership > should admit a primary press while a press whose release was missed is pending 99ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:154 > drag:DRI-19 input ownership > should keep an active drag following the pointer when the page stops pointermove 94ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:173 > drag:DRI-19 input ownership > should ignore a second pointer moving during a drag 81ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:196 > drag:DRI-19 input ownership > should reorder links marked draggable="false" 81ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:295 > drag:DRI-19 nested roots > should reorder the inner list only, with no attribute 80ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:307 > drag:DRI-19 nested roots > should move a column from its header 81ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:317 > drag:DRI-19 nested roots > should run a keyboard command on the inner list only 32ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:331 > drag:DRI-4 Escape > should cancel and keep a modal dialog open 82ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:351 > drag:DRI-4 Escape > should cancel and keep an auto popover open 80ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:375 > drag:DRI-4 Escape > should cancel a pending verdict and keep a modal dialog open 112ms
+ ✓ |consumer/webkit (webkit)| tests/input.browser.test.ts:397 > drag:DRI-4 Escape > should not prevent Escape before start 27ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:154 > a React consumer > should resolve the verdict from a real layout effect 132ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:180 > a React consumer > should keep the placeholder in place until the commit lands 110ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:210 > a React consumer > should accept a commit that inserts content above the placeholder 82ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:232 > a React consumer > should accept a commit that mounts a new keyed row into the gap 81ms
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:255 > a React consumer > should see a list the framework rerendered during a press 79ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item 160ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:295 > a React consumer > should deliver no callback during an unmount 52ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else 159ms
+ ✓ |consumer/webkit (webkit)| tests/frameworks.browser.test.ts:367 > a keyed reconciler that rewrites the whole list > should keep keyboard focus through a rewrite 32ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:45 > drag:DRI-11 the click guard > should swallow the trailing click of a rejected drop, which produces one 108ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:59 > drag:DRI-11 the click guard > should swallow the trailing click of an accepted reorder, where the engine produces one 93ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:70 > drag:DRI-11 the click guard > should swallow the trailing click of a cancel with the button held 97ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:84 > drag:DRI-11 the click guard > should swallow the trailing click after destruction with the button held 97ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:99 > drag:DRI-11 the click guard > should keep the click of a press below the threshold 15ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:113 > drag:DRI-11 the click guard > should deliver a later click on the same list at once 94ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:123 > drag:DRI-11 the click guard > should hold for a custom behavior with no lift 101ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:161 > drag:DRI-11 the click guard > should swallow a click while nothing has expired it 45ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:168 > drag:DRI-11 the click guard > should swallow one click only 54ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:175 > drag:DRI-11 the click guard > should expire in the task after that pointer pointerup 79ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:184 > drag:DRI-11 the click guard > should still swallow a click in the task of that pointer pointerup 50ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:192 > drag:DRI-11 the click guard > should not expire at another pointer pointerup 48ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:203 > drag:DRI-11 the click guard > should expire at that pointer pointercancel 46ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:211 > drag:DRI-11 the click guard > should expire at the next primary pointerdown 50ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:220 > drag:DRI-11 the click guard > should deliver a real click after the release 96ms
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:232 > drag:DRI-11 the click guard > should prevent only the move that crosses the threshold 42ms
+ ↓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:264 > drag:DRI-11 the click guard > should complete a touch drag with no platform cancel, and keep the next click
+ ↓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:298 > drag:DRI-11 the click guard > should cancel with origin interrupted when the platform cancels a touch
+ ↓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:325 > drag:DRI-11 the click guard > should follow the primary touch and ignore a second finger
+ ✓ |consumer/webkit (webkit)| tests/click-guard.browser.test.ts:350 > drag:DRI-11 the click guard > should prevent nothing on a press 26ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate 85ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under scale 87ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under skew 91ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under zoom 80ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate, scale and zoom 81ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:108 > drag:DRI-16 no-lift move and resize > should follow the pointer with own rotate 81ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:126 > drag:DRI-16 no-lift move and resize > should need a division by the element own zoom, which a behavior states 80ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, through the element Box 48ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under scale, through the element Box 66ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under skew, through the element Box 48ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under zoom, through the element Box 49ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, scale and zoom, through the element Box 48ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate 48ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under scale 49ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under skew 47ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under zoom 49ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate, scale and zoom 48ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under own rotate on the item 47ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:219 > drag:DRI-16 lifted > should follow the pointer for an item with its own zoom 48ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:251 > drag:DRI-16 lifted > should keep the rendered size across the lift under scale and zoom 50ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor scale(.5), following the pointer 78ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor zoom:2, following the pointer 83ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:307 > drag:DRI-16 required environments for a sortable > should reorder a list in a shadow root 110ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:326 > drag:DRI-16 required environments for a sortable > should reorder a list in a same-origin iframe the parent controls 112ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:349 > drag:DRI-16 required environments for a sortable > should stay visible when dragged out of an overflow:hidden list 51ms
+ ✓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:360 > drag:DRI-16 required environments for a sortable > should stay above a later positioned panel 48ms
+ ↓ |consumer/webkit (webkit)| tests/coordinates.browser.test.ts:382 > drag:DRI-16 required environments for a sortable > should read a Space for an ancestor it can represent
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:29 > drag:DRI-9 release order > should release in the fixed order 84ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:76 > drag:DRI-9 release order > should run the terminal in the task of the decision, before the landing ends 50ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is accepted 77ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is rejected 82ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is canceled 79ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:128 > drag:DRI-9 release order > should leave no style attribute when there was none 83ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:142 > drag:DRI-9 release order > should restore an open popover the page had 79ms
+stderr | tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+[Error: DragFault: drag: middle]
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:159 > drag:DRI-9 release order > should pass each outcome to a disposer 245ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw 82ms
+stderr | tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+[Error: DragFault: drag: late]
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:216 > drag:DRI-9 release order > should run a late use at once with the outcome 77ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use 82ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:256 > drag:DRI-9 release order > should run a late use on a destroyed controller at once 2ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:269 > drag:DRI-9 release order > should leave no placeholder, capture, listener or style after an operation 127ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:297 > drag:DRI-9 release order > should not retain the signal past a press that never activates 97ms
+ ✓ |consumer/webkit (webkit)| tests/release.browser.test.ts:321 > drag:DRI-9 release order > should remove the sortable placeholder before the lift is released 80ms
+stderr | tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run
+[Error: DragFault: drag: move]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: DragFault: drag: first]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: DragFault: drag: second]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run 73ms
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: DragFault: drag: disposer 2]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: DragFault: drag: disposer 1]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: DragFault: drag: controller use]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide 80ms
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: plain]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: null]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: undefined]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: text]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: Symbol(symbol)]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: frozen]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel
+[Error: DragFault: drag: boom]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each 53ms
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity 8ms
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:162 > drag:DRI-7 faults > should include the original message when it can be read 1ms
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel 87ms
+stderr | tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction
+[Error: DragFault: drag: boom]
+stderr | tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported
+[Error: DragFault: drag: settle]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction 79ms
+stderr | tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller
+[Error: DragFault: drag: lift/visual-no-box-space]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported 79ms
+stderr | tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+[Error: DragFault: drag: show]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller 196ms
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: DragFault: drag: show]
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: DragFault: drag: restore]
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide 80ms
+ ✓ |consumer/webkit (webkit)| tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides 83ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw
+[Error: DragFault: drag: cancel]
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw
+[Error: DragFault: drag: destroy]
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw 80ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw
+[Error: DragFault: drag: fault]
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw 79ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw 80ms
+stderr | tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws
+[Error: DragFault: drag: start]
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:52 > drag:DRI-3 terminals > should report nothing when activate declines 82ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws 84ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:79 > drag:DRI-3 terminals > should run end once for a drop with no verdict 76ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:90 > drag:DRI-3 terminals > should run end for a release that lands the item on its own gap 80ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:100 > drag:DRI-4 cancel > should ignore a cancel on an idle controller 4ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:110 > drag:DRI-4 cancel > should keep the first reason and origin 43ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:132 > drag:DRI-4 cancel > should change nothing with a cancel after the decision 81ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:151 > drag:DRI-4 cancel > should cancel on Escape with origin escape 57ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:163 > drag:DRI-4 cancel > should retire a pending press on Escape, with no terminal 40ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:184 > drag:DRI-4 cancel > should cancel on lostpointercapture with origin interrupted 137ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:201 > drag:DRI-4 cancel > should release presentation at once on a cancel with the button held 42ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:211 > drag:DRI-4 cancel > should not let a retained drag cancel a later operation 161ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:234 > admission > should require a primary button press 3ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:262 > admission > should refuse a press through data-drag-ignore before the handle, for a custom behavior 78ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:280 > admission > should acquire pointer capture on the root 111ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:296 > admission > should activate only at the threshold 20ms
+ ✓ |consumer/webkit (webkit)| tests/terminals.browser.test.ts:319 > drag:DRI-6 reentrant input > should let the press after a refused one activate 156ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop 72ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis 52ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo 81ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 87ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 88ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 193ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing 161ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home 81ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual 163ms
+ ✓ |consumer/webkit (webkit)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta 49ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:60 > drag:DRI-18 resize handle > should resize with no lift, and Escape should restore 115ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:92 > drag:DRI-18 resize handle > should resize in viewport distance inside a scaled parent 81ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of true where it says 392ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of false where it says 375ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:150 > drag:DRI-18 canvas group > should move in canvas units under scale, and save 83ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:160 > drag:DRI-18 canvas group > should follow the pointer under rotation, through box-quad 113ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:176 > drag:DRI-18 canvas group > should roll back on Escape 113ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:185 > drag:DRI-18 canvas group > should roll back on destruction, with no end and no flag 80ms
+stderr | tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save
+[Error: DragFault: drag: save failed]
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save 85ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:203 > drag:DRI-18 canvas group > should render a nudge from foreign code through requestStep 80ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:242 > drag:DRD-27 the lift in the operation > should give a lifted behavior a drag with only the kernel keys 78ms
+ ✓ |consumer/webkit (webkit)| tests/authoring.browser.test.ts:257 > drag:DRD-27 the lift in the operation > should give the lift exactly its nine keys 80ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:61 > drag:DRI-9 commit ownership > should keep a translate committed in onEnd 72ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:78 > drag:DRI-9 commit ownership > should keep left and top committed in onEnd 83ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:95 > drag:DRI-9 commit ownership > should revert at release a write to a lifted property made during the lift 82ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:124 > drag:DRI-9 README examples > should reorder with the quick start 76ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:147 > drag:DRI-9 README examples > should keep the free-drag example where it was dropped, across two drags 178ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:179 > drag:DRI-9 README examples > should keep the scrolling-container example where it was dropped, and land it home 2360ms
+ ✓ |consumer/webkit (webkit)| tests/commit.browser.test.ts:249 > drag:DRI-20 free drag offset > should commit where dropped without home in an unscrolled page 84ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:49 > drag:DRI-3 activation > should run no hook for a custom behavior whose item was disconnected during the press 69ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:84 > drag:DRI-14 command activation > should decline a command quietly when its item leaves during the lift 29ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:102 > drag:DRI-14 command activation > should decline a command quietly when its move becomes impossible during the lift 34ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:121 > drag:DRI-14 command activation > should land a keyboard command from the old slot 8ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 421ms
+stderr | tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 429ms
+stderr | tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate 108ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion 81ms
+ ✓ |consumer/webkit (webkit)| tests/activation.browser.test.ts:226 > drag:DRI-17 coalescing > should schedule one frame for several samples in one task 52ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:33 > drag:DRI-12 focus > should let two arrow presses in a row reorder twice 34ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:45 > drag:DRI-12 focus > should keep focus through a pointer reorder 80ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:55 > drag:DRI-12 focus > should restore focus after an async verdict 67ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:72 > drag:DRI-12 focus > should leave focus where the user moved it during a verdict 30ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:94 > drag:DRI-12 focus > should restore focus inside an open shadow root 32ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:111 > drag:DRI-12 focus > should restore focus to a descendant of the item 116ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:133 > drag:DRI-12 focus > should keep focus when the lift promotes an autofocus descendant 19ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:152 > drag:DRI-12 focus > should leave nothing focused when an autofocus descendant is promoted with nothing focused 44ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:173 > drag:DRI-12 focus > should not restore focus on destruction 8ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:187 > drag:DRI-12 focus > should not scroll on a pointer restore 91ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:211 > drag:DRI-12 focus > should scroll a keyboard restore of an off-screen row into view 27ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:232 > drag:DRI-12 focus > should keep :focus-visible on a keyboard restore 34ms
+ ✓ |consumer/webkit (webkit)| tests/focus.browser.test.ts:242 > drag:DRI-12 focus > should restore a pointer drop without :focus-visible 112ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag 289ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag 284ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late resolve after destruction reach nothing 195ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late reject after destruction reach nothing 187ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:92 > drag:DRI-5 verdict > should not abort the signal on acceptance 112ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:109 > drag:DRI-5 verdict > should abort drag.signal at release while the verdict signal stays live 82ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault
+[Error: DragFault: drag: accessor]
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:132 > drag:DRI-5 verdict > should read then once, and take the first completion 77ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault
+[Error: DragFault: drag: call]
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault 86ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault 93ms
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: DragFault: drag: thrown]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: DragFault: drag: rejected]
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault 193ms
+ ✓ |consumer/webkit (webkit)| tests/verdict.browser.test.ts:234 > drag:DRI-5 verdict > should hold a verdict through a pending drop, then finish 113ms
+ ✓ |consumer/webkit (webkit)| tests/classes.browser.test.ts:37 > drag:DRD-20 detached controller methods > should run draggable controller methods called on the controller 76ms
+ ✓ |consumer/webkit (webkit)| tests/classes.browser.test.ts:72 > drag:DRD-20 detached controller methods > should run sortable controller methods detached 165ms
+ ✓ |consumer/webkit (webkit)| tests/classes.browser.test.ts:100 > drag:DRD-20 detached controller methods > should run freeDrag controller methods detached 80ms
+ ✓ |consumer/webkit (webkit)| tests/classes.browser.test.ts:128 > drag:DRD-34 receivers > should call a step with no receiver, requested while idle and during a pass 96ms
+ ✓ |consumer/webkit (webkit)| tests/classes.browser.test.ts:151 > drag:DRD-34 receivers > should re-read freeDrag bounds on invalidate called during a pass 126ms
+ ↓ |consumer/webkit (webkit)| tests/classes.browser.test.ts:190 > drag:DRD-20 behavior instances > should retain no freeDrag behavior instance after destruction
+stderr | tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+[Error: DragFault: drag: constructor]
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines 76ms
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use 74ms
+stderr | tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+[Error: DragFault: drag: after the cancel]
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines 82ms
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws 96ms
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation 84ms
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there 82ms
+ ✓ |consumer/webkit (webkit)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate 76ms
+ ✓ |consumer/webkit (webkit)| tests/order.browser.test.ts:71 > drag:DRI-9 and drag:DRI-12 release order > should start the landing before the focus call 77ms
+stderr | tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws
+[Error: DragFault: drag: end throws]
+ ✓ |consumer/webkit (webkit)| tests/order.browser.test.ts:96 > drag:DRI-9 and drag:DRI-12 release order > should keep focus through two arrow presses that reorder in end 30ms
+ ✓ |consumer/webkit (webkit)| tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws 35ms
+ ✓ |consumer/webkit (webkit)| tests/order.browser.test.ts:122 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end requests destruction 28ms
+ ✓ |consumer/webkit (webkit)| tests/order.browser.test.ts:135 > drag:DRI-9 and drag:DRI-12 release order > should not restore focus when destruction is requested before the terminal 31ms
+ ✓ |consumer/webkit (webkit)| tests/scoped-requests.browser.test.ts:24 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while a later operation is active 159ms
+ ✓ |consumer/webkit (webkit)| tests/scoped-requests.browser.test.ts:52 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while idle 80ms
+ ✓ |consumer/webkit (webkit)| tests/scoped-requests.browser.test.ts:72 > drag:DRI-8 scoped requests > should give a late disposer the outcome after destruction of a concluded operation 77ms
+ ✓ |consumer/webkit (webkit)| tests/scoped-requests.browser.test.ts:97 > drag:DRI-8 scoped requests > should give a late disposer null when destruction released its operation 97ms
+
+ Test Files  44 passed (44)
+      Tests  638 passed | 14 skipped (652)
+   Start at  05:30:09
+   Duration  105.00s (worker 94%, tests 6%)
+
+[consumer engines exit 0; config deleted: yes]

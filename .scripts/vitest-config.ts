@@ -8,6 +8,10 @@ import {
   type TestProjectInlineConfiguration,
 } from 'vitest/config';
 import type { BrowserCommand } from 'vitest/node';
+// The rule lives with the package it resolves, and the package does not publish
+// its tests.
+// eslint-disable-next-line import-x/no-relative-packages
+import { publishedEntries } from '../packages/drag/tests/support/published-entries.ts';
 import {
   createViteConfig,
   createMaterialXViteConfig,
@@ -150,6 +154,19 @@ type NodeTestProjectOptions = Readonly<{
  * its failure.
  */
 type NodeProjectBuild = Readonly<{
+  globalSetup: readonly string[];
+  setupFiles: readonly string[];
+}>;
+
+/**
+ * A browser project that runs a package's public browser tests against the files
+ * its build emits for publication. `globalSetup` builds once, before any of the
+ * project's files starts, and `setupFiles` raises a failed build in each file.
+ * `sourceOnly` lists the browser files that read a development instrument or an
+ * internal member, which the build folds away or does not publish.
+ */
+type ConsumerProject = Readonly<{
+  sourceOnly: readonly string[];
   globalSetup: readonly string[];
   setupFiles: readonly string[];
 }>;
@@ -429,6 +446,7 @@ function createDragTestProjects(
   commands?: Record<string, BrowserCommand<any[]>>,
   shipped: readonly string[] = [],
   nodeBuild?: NodeProjectBuild,
+  consumer?: ConsumerProject,
 ): UserConfig[] {
   return [
     createDragBrowserTestProject(
@@ -451,6 +469,26 @@ function createDragTestProjects(
               commands,
             ),
             { define: { __DEV__: 'false' } } satisfies UserConfig,
+          ),
+        ]
+      : []),
+    ...(consumer
+      ? [
+          mergeConfig(
+            createDragBrowserTestProject(
+              root,
+              scopedName('consumer', scope),
+              ['tests/**/*.browser.test.ts'],
+              [...shipped, ...consumer.sourceOnly],
+              commands,
+            ),
+            {
+              plugins: [publishedEntries(fileURLToPath(root))],
+              test: {
+                globalSetup: [...consumer.globalSetup],
+                setupFiles: [...consumer.setupFiles],
+              },
+            } satisfies UserConfig,
           ),
         ]
       : []),
@@ -572,6 +610,43 @@ export const DRAG_SHIPPED_BROWSER_TESTS: readonly string[] = [
 ];
 
 /**
+ * `@ydinjs/drag`'s browser files that run in the source projects only, because
+ * each test in them reads a development instrument, which the build folds away,
+ * or an internal member, which the package does not publish.
+ */
+export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
+  // `src/kernel/callbacks.ts`, which no entry publishes.
+  'tests/callbacks.browser.test.ts',
+  // The displacement sink's `report` and `displaced`, which only the unpublished
+  // installer types declare.
+  'tests/displacement-sink.browser.test.ts',
+  // The development equivalence check's report.
+  'tests/equivalence-check.browser.test.ts',
+  // The refusal count.
+  'tests/refusals.browser.test.ts',
+];
+
+/**
+ * `@ydinjs/drag`'s consumer project: the browser files apart from the `shipped`
+ * and source-only ones, against the build that `just build` makes.
+ */
+export const DRAG_CONSUMER: ConsumerProject = {
+  sourceOnly: DRAG_SOURCE_ONLY_BROWSER_TESTS,
+  globalSetup: ['tests/support/build-package.node.ts'],
+  setupFiles: ['tests/support/require-build.ts'],
+};
+
+/**
+ * `@ydinjs/drag`'s node project reads the build that the consumer project reads,
+ * because the size gate bundles the emitted tree. Both projects take the same
+ * global setup, which builds once per run with either project or both.
+ */
+export const DRAG_NODE_BUILD: NodeProjectBuild = {
+  globalSetup: DRAG_CONSUMER.globalSetup,
+  setupFiles: DRAG_CONSUMER.setupFiles,
+};
+
+/**
  * `@ydinjs/drag`'s browser suite in Chromium, Firefox and WebKit, as one project per
  * engine because browser projects are serialized one per group. The repository's
  * own Chrome runs the Chromium projects and Playwright's browsers run the others,
@@ -645,11 +720,19 @@ export function createDragTestConfig(
   commands?: Record<string, BrowserCommand<any[]>>,
   shipped: readonly string[] = [],
   nodeBuild?: NodeProjectBuild,
+  consumer?: ConsumerProject,
 ): UserConfig {
   return {
     test: {
       projects: assignGroupOrder(
-        createDragTestProjects(root, undefined, commands, shipped, nodeBuild),
+        createDragTestProjects(
+          root,
+          undefined,
+          commands,
+          shipped,
+          nodeBuild,
+          consumer,
+        ),
       ),
     },
   };
@@ -690,13 +773,15 @@ export function createWorkspaceTestConfig(
     options.coreRoot,
     'core',
   );
-  const [dragBrowser, dragShipped, dragDeclaration, dragNode] =
+  const [dragBrowser, dragShipped, dragConsumer, dragDeclaration, dragNode] =
     createDragTestProjects(
       options.dragRoot,
       'drag',
       options.dragCommands,
       DRAG_SHIPPED_BROWSER_TESTS,
-    ) as [UserConfig, UserConfig, UserConfig, UserConfig];
+      DRAG_NODE_BUILD,
+      DRAG_CONSUMER,
+    ) as [UserConfig, UserConfig, UserConfig, UserConfig, UserConfig];
   const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
     createDragTestProjects(
       options.drag2Root,
@@ -723,6 +808,7 @@ export function createWorkspaceTestConfig(
         boxQuadBrowser,
         dragBrowser,
         dragShipped,
+        dragConsumer,
         dragNode,
         dragDeclaration,
         drag2Browser,

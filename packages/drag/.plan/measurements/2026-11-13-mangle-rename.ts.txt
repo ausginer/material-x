@@ -1,0 +1,115 @@
+/**
+ * The type checker's rename, `name` → `_name`, for every property declaration in
+ * `src` with one of the 29 names. Locations come from `findRenameLocations` at each
+ * declaration, except a shorthand key (its rename would include the binding it
+ * reads; the declared member's rename reaches it as a key), with shorthand and destructuring prefixes and suffixes, and not in
+ * comments or strings. All locations are computed on the unchanged tree, then
+ * applied per file from the end. Prints every edited location.
+ *
+ * `node rename.ts <package root> [--dry]`
+ */
+import { createRequire } from 'node:module';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import type TS from '/workspaces/material-x/node_modules/typescript/lib/typescript.d.ts';
+
+const ts: typeof TS = createRequire('/workspaces/material-x/package.json')('typescript');
+const root = process.argv[2]!;
+const dry = process.argv.includes('--dry');
+const NAMES = new Set(
+  'advance animation collect config count decide detach direction dx dy empty enter first holds lend measure measurePlaceholder placeholderRect raise raiseInPass rebase refresh root run schedule stepTarget terminate updateInsertion window'.split(
+    ' ',
+  ),
+);
+
+const parsed = ts.parseJsonConfigFileContent(
+  ts.readConfigFile(join(root, 'tsconfig.json'), ts.sys.readFile).config,
+  ts.sys,
+  root,
+);
+const host: TS.LanguageServiceHost = {
+  getCompilationSettings: () => parsed.options,
+  getScriptFileNames: () => parsed.fileNames,
+  getScriptVersion: () => '1',
+  getScriptSnapshot: (f) => {
+    try {
+      return ts.ScriptSnapshot.fromString(readFileSync(f, 'utf8'));
+    } catch {
+      return undefined;
+    }
+  },
+  getCurrentDirectory: () => root,
+  getDefaultLibFileName: ts.getDefaultLibFilePath,
+  fileExists: ts.sys.fileExists,
+  readFile: ts.sys.readFile,
+  readDirectory: ts.sys.readDirectory,
+  directoryExists: ts.sys.directoryExists,
+  getDirectories: ts.sys.getDirectories,
+};
+const service = ts.createLanguageService(host);
+const program = service.getProgram()!;
+
+const isDeclarationName = (node: TS.Identifier): boolean => {
+  const p = node.parent;
+  return (
+    (ts.isPropertyDeclaration(p) ||
+      ts.isPropertySignature(p) ||
+      ts.isMethodDeclaration(p) ||
+      ts.isMethodSignature(p) ||
+      ts.isGetAccessorDeclaration(p) ||
+      ts.isSetAccessorDeclaration(p) ||
+      ts.isPropertyAssignment(p)) &&
+    p.name === node
+  );
+};
+
+type Edit = { file: string; start: number; length: number; text: string };
+const edits = new Map<string, Edit>();
+
+for (const file of program.getSourceFiles()) {
+  if (!file.fileName.startsWith(join(root, 'src/'))) continue;
+  const visit = (node: TS.Node): void => {
+    if (ts.isIdentifier(node) && NAMES.has(node.text) && isDeclarationName(node)) {
+      const locations =
+        service.findRenameLocations(file.fileName, node.getStart(), false, false, {
+          providePrefixAndSuffixTextForRename: true,
+        }) ?? [];
+      for (const l of locations) {
+        const text = `${l.prefixText ?? ''}_${node.text}${l.suffixText ?? ''}`;
+        const key = `${l.fileName}:${l.textSpan.start}`;
+        const previous = edits.get(key);
+        if (previous && previous.text !== text) {
+          // The same span seen from two declarations: a shorthand that is both a
+          // property and a binding. Both renames apply.
+          previous.text = mergeShorthand(previous.text, text, node.text);
+        } else if (!previous) {
+          edits.set(key, { file: l.fileName, start: l.textSpan.start, length: l.textSpan.length, text });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+}
+
+/** `_a: a` and `a: _a`-style variants of one shorthand: only the property is renamed. */
+function mergeShorthand(a: string, b: string, name: string): string {
+  const property = [a, b].find((t) => t.startsWith(`_${name}:`)) ?? [a, b].find((t) => t.endsWith(`: ${name}`));
+  if (!property) throw new Error(`conflicting edits: ${a} | ${b}`);
+  return `_${name}: ${name}`;
+}
+
+const byFile = Map.groupBy(edits.values(), (e) => e.file);
+for (const [file, list] of [...byFile].sort(([a], [b]) => a.localeCompare(b))) {
+  let text = readFileSync(file, 'utf8');
+  const source = program.getSourceFile(file)!;
+  for (const e of list.sort((a, b) => a.start - b.start)) {
+    const { line, character } = source.getLineAndCharacterOfPosition(e.start);
+    console.log(`${relative(root, file)}:${line + 1}:${character + 1}\t${text.slice(e.start, e.start + e.length)} → ${e.text}`);
+  }
+  for (const e of list.sort((a, b) => b.start - a.start)) {
+    text = text.slice(0, e.start) + e.text + text.slice(e.start + e.length);
+  }
+  if (!dry) writeFileSync(file, text);
+}
+console.log(`${edits.size} locations in ${byFile.size} files`);

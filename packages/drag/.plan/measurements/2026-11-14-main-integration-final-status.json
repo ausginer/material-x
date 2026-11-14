@@ -1,0 +1,31 @@
+{
+  "id": "merge-main-box-quad-final-20261114",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 1173466,
+    "start": "17152198"
+  },
+  "state": "failed",
+  "startedAt": "2026-11-14T08:05:53.259Z",
+  "endedAt": "2026-11-14T08:07:33.855Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx just test",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/merge-main-box-quad-final-20261114/1.log",
+      "state": "failed",
+      "revision": {
+        "commit": "f0b66c2ec1022e93c146a3afd40175e19fd3c7e6",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1173486,
+        "start": "17152205"
+      },
+      "startedAt": "2026-11-14T08:05:53.272Z",
+      "endedAt": "2026-11-14T08:07:33.855Z",
+      "exitCode": 1,
+      "signal": null
+    }
+  ]
+}

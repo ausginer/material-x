@@ -12,7 +12,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair. On 2026-11-08 the architect proposed a change to the `Lift` in [`lift-representation-proposal.md`](lift-representation-proposal.md). With the owner's clarifications it is decided as `DRD-29`. [`lift-representation-handoff.md`](lift-representation-handoff.md) implements it, after repairing `DRF-2`, and reports its figures for `DRO-7`. The kernel's per-sample reading from the instrument repair stays open, apart from that unit. The [lift representation report](lift-representation-report.md) was read at `d258573fa`, in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md): `DRF-2` is closed, and `DRD-29` conforms except `DRF-3`, whose repair is that record's §3. The owner then proposed that `activate` return the behavior's operation, decided as `DRD-30`, which replaces that record's recommendation. [`activation-result-handoff.md`](activation-result-handoff.md) implements it after `DRF-3`'s repair, and its costs are `DRO-8`. `DRF-3` was repaired at `d7828a280`. `DRD-30` was implemented at `da139407e` and `3a67df0ea` and reported at `d99ebd304`. The architect read both at `d99ebd304`, in [`activation-result-assessment.md`](activation-result-assessment.md). `DRD-30` conforms, and is amended so that `freeDrag`'s motion belongs to its operation. `DRF-3` is closed, and `DRF-4` is open. That record's §6 is the remediation before the combined review. The owner then directed that `sortable` stop copying the `items()` array, decided as `DRD-31` from [`items-copy-assessment.md`](items-copy-assessment.md). [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner approved the gate's revision in [`execution-boundary-assessment.md`](execution-boundary-assessment.md), decided as `DRD-32` with its cost in `DRO-9`. It was implemented from `8943f14e5` at `a8327a7c8`, inside `DRO-9`'s figures, and [`execution-boundary-report.md`](execution-boundary-report.md) reports it. The owner inspects it before any review. On 2026-11-09 the owner accepted closed, named capability slots for v1 from [`feature-composition-assessment.md`](feature-composition-assessment.md), decided as `DRD-33`, which amends `DRD-2`. The slot's charge is `DRO-10`, an accepted drop's landing into its target is `DRO-11`, and the `bounds` defect found there is `DRF-5`. [`feature-composition-handoff.md`](feature-composition-handoff.md) implements them. On the same day the owner withdrew the detached-call guarantee for `DraggableController` and let `draggable` return its `Gesture`, with one shared pass implementation. That is decided as `DRD-34` from the owner's uncommitted edit on `39af0ef44`, and [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md) completes the edit. It was implemented at `fd7ae3e43` and reported at `03d1449e2`. The architect read both at `03d1449e2`, in [`gesture-receiver-assessment.md`](gesture-receiver-assessment.md): `DRD-34` conforms, and no cost is accepted. The owner inspects it before any review. Later that day the owner chose receiver-aware `requestStep` and `use` through one internal `CallbackList`, from the model at `9f885b9a9` on `drag/step-queue-model` and the owner's uncommitted edit on it. That is decided as `DRD-35`, which amends `DRD-34`, with its costs in `DRO-12`. [`callback-list-handoff.md`](callback-list-handoff.md) ports it to production. No combined review starts before the owner has read its report. It was implemented at `53c87f988` and reported at `f06a99c4f`, and the architect read the report at `2bec0c431` (§Disposition of the callback list report). The owner then chose the uncommitted `CallbackList` edit on `2bec0c431`, which inserts with `push` or `unshift` and runs with `pop`, decided as `DRD-36`. The owner also turned `@typescript-eslint/unbound-method` off for this package, decided as `DRD-37`, and clarified CONTRIBUTING so that `Drag` and `Lift` are types, decided as `DRD-38`. `DRO-12` is amended for `DRD-36`, and `DRO-13` asks about the other declarations. [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md) implements the three decisions. No combined review starts before the owner has read its report. They were implemented at `50ed18a17` and reported at `36dbd55db`. On 2026-11-10 the owner accepted `DRO-12` and deferred `DRO-13`, and the architect read the report in [`callback-list-completion-assessment.md`](callback-list-completion-assessment.md): the three decisions conform. That record's §6 gives the revision, the scope and the open obligations for the combined review, which the owner directs next. The [combined review](reviews/combined-ownership/combined-ownership-summary.md) read `b01a0283d` and registered `DRF-6` to `DRF-18`. The owner had accepted `DRO-7` and `DRO-8` before it. The architect read it at `92fbb93e1`, after the owner's type-only `Fallible` commit, in [`combined-review-assessment.md`](combined-review-assessment.md) (§Disposition of the combined review). `DRF-4`, `DRF-5` and `DRF-11` are closed, `DRD-39` decides `DRF-10`, and [`combined-review-remediation-handoff.md`](combined-review-remediation-handoff.md) is the last unit before merge. That record's §7 lists the owner's remaining decisions. The remediation was implemented from `d1a262306` to `83f472624` and reported at `f2ac81bc5`, and a feature proof read it at `26919a938`. The architect read both at `26919a938`, in [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) (§Disposition of the combined review remediation). `DRF-6`, `DRF-8`, `DRF-9`, `DRF-10`, `DRF-12` and `DRF-16` are closed, and `DRD-39` is implemented. The proof's two title findings are `DRF-19`, owed before merge, and [`test-title-follow-up-handoff.md`](test-title-follow-up-handoff.md) repairs it. That record's §5 replaces the earlier §7 as the list of merge conditions and owner decisions.
 
-**Status, 2026-11-10, after the merge:** the architect read the [test title follow-up report](test-title-follow-up-report.md) at `377264b3d` and the diff of `60680eb75`, and closed `DRF-19` (§Disposition of the test title follow-up). `drag/feature-composition` was squash-merged to `main` as `a9c323f6a` (#14). The six size rows stay red with unchanged budgets, as the pull request states. The record holds no answer to decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2. On the same day the owner opened the runtime-performance phase on `drag/performance` from `a9c323f6a`: runtime speed first, bundle size second. `DRD-40` decides how it measures, [`performance-plan.md`](performance-plan.md) is its plan, and [`performance-instrument-handoff.md`](performance-instrument-handoff.md) is its first unit. That unit repairs `DRF-1` and `DRF-7`. It returned at `b8f1d1b35` after items 1 and 2: the step-list injection adds no bytes at the current source. `DRD-41` decides the return, and the [handoff](performance-instrument-handoff.md) says how the unit resumes (§Disposition of the performance instrument return). The unit completed at `c279973a3`, and the architect read it on 2026-11-11 in [`performance-instrument-assessment.md`](performance-instrument-assessment.md) (§Disposition of the performance instrument report). `DRF-1` is closed, and the baseline of `a9c323f6a` is recorded. `DRD-42` repairs the kernel per-sample test with a warm pass. `DRD-43` finds that no timing row can resolve an optimization yet and adds in-page rows. [`performance-resolution-handoff.md`](performance-resolution-handoff.md) implements both, and no optimization unit starts before it reports. The baseline's reading for the owner is in `DRO-4`. The unit reported at `39c8b432c` on `drag/performance-resolution`, and the architect read it on 2026-11-11 in [`performance-resolution-assessment.md`](performance-resolution-assessment.md) (§Disposition of the performance resolution report). `DRD-42` conforms. The in-page rows run, and their gate injections don't flag, at a load above the machine's four P-core threads. `DRD-44` attributes that to the machine or the method with one experiment, which [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md) runs. The retained excess is attributed to V8's internal arrays and bounded within 400 operations, and its reading for the owner is in `DRO-4`. The experiment ran at `24cdadc48`, and the architect read it on 2026-11-11 in [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md) (§Disposition of the performance sensitivity report). Its outcome is not resolved on both gate rows: the speed gauge measures its own first run rather than the machine, and unpinned readings always span both core classes. At the quietest load on record the gates' bounds are still too wide for an optimization unit, so the method changes in any outcome. `DRD-45` withdraws the gauge test, and one same-page check, which [`performance-page-check-handoff.md`](performance-page-check-handoff.md) runs, decides whether the spread comes from the page, the window or the clock. The alias cleanup at `566ebfc65` on `drag/performance` makes 10 of the 23 entries stale, and they are repaired before any campaign on that source. The page check returned at `f344a0ea8` before any browser process: the cycle row's end check counts the page's whole log. The owner then stopped the check. `DRD-46` keeps it for possible later use and redirects the phase to short scenario traces, which [`performance-trace-handoff.md`](performance-trace-handoff.md) records (§Disposition of the page check return). An optimization unit starts on one candidate the architect selects from those traces, and a focused paired measurement confirms it. The traces were recorded at `e92e21eed`, and the architect read them on 2026-11-11 in [`performance-trace-assessment.md`](performance-trace-assessment.md) (§Disposition of the performance trace report). `DRD-47` selects the drop's re-measure in a changed form: the unconditional call protects a scroll whose event hasn't arrived yet, so the drop confirms the cache against one row instead. [`performance-drop-handoff.md`](performance-drop-handoff.md) implements it, once the owner brings `566ebfc65`'s source and this record onto one branch. The bundle's missing module markers are `DRF-21`, and they change no recorded verdict. The branches were joined on `drag/performance` at `093f31c7f`. The unit implemented `DRD-47` at `bf9d1caed` and reported at `8eda874f0`, and the architect read it on 2026-11-12 in [`performance-drop-assessment.md`](performance-drop-assessment.md) (§Disposition of the performance drop report). `DRD-47` conforms and is confirmed: the 2,000-item cycle row is faster by 2,449 µs of script per cycle. The owner approved its geometry rule and accepted its +125 to +140 B Brotli, with no budget change (`DRO-4`). `DRD-48` decides `DRF-22`: `freeDrag`'s drop measures its targets and its bounds again, and [`free-drag-drop-handoff.md`](free-drag-drop-handoff.md) implements it. The unit implemented it at `71f20df20` and reported at `7cb2207ae`, and the architect read it on 2026-11-12 in [`free-drag-drop-assessment.md`](free-drag-drop-assessment.md) (§Disposition of the free drag drop report). `DRD-48` conforms, and `DRF-22` is closed. The owner accepted its +5 B Brotli, with no budget change. `DRD-49` selects the trace report's candidate 1: `y()` measures a window of rows that grows from the placeholder toward the pointer, instead of every row. [`performance-window-handoff.md`](performance-window-handoff.md) implements it. The owner approved its scope and ordering term and deferred virtualized lists until after 1.0.0. The unit implemented it at `501f60ab7` and reported at `56c1c27c3`, and the architect read it on 2026-11-12 in [`performance-window-assessment.md`](performance-window-assessment.md) (§Disposition of the performance window report). `DRD-49` conforms and is confirmed: the 2,000-item cycle row is faster by 2,508 µs of script per cycle. To fit the ceilings, the unit shared `xy()`'s rebuild with `y()`'s code, and with a sink each read allocates a view and a copy. `DRD-50` removes the allocation by range settling, and a paired probe decides whether the shared rebuild stays. [`performance-window-correction-handoff.md`](performance-window-correction-handoff.md) implements it. The unit implemented it at `8d002529a` and reported at `566d4d29e`, and the architect read it on 2026-11-12 in [`performance-window-correction-assessment.md`](performance-window-correction-assessment.md) (§Disposition of the performance window correction report). `DRD-50` conforms. The probe read "no difference shown", so the shared rebuild stays, and its A/A bounds don't limit a possible slowdown. The owner accepted the window's final bytes, with no budget change (`DRO-4`). The trace candidates are done, rejected or decisions first. One attribution probe is recommended and not started: the layout after a row animation ends at 2,000 items. If it finds nothing the library controls, the runtime pass is ready to close. The architect ran it on 2026-11-12 at `bb8e5ebb8` and recorded it in [`animation-end-layout-probe.md`](animation-end-layout-probe.md) (§Disposition of the animation-end layout probe). In Chromium 157, in a block list of fixed-height rows, every tested variant that started or stopped an animation or style of `translate`, `transform` or `opacity` invalidated the row's layout, and that layout cost more at 2,000 rows than at 20. None of the library-controlled forms the probe considered avoided it with the same rendering and cleanup, so the architect recommended closing the runtime pass. **The owner closed the runtime pass on 2026-11-12** ([`performance-plan.md`](performance-plan.md) §2 P3, which lists the confirmed results and the open items). Budgets are unchanged, and the deferred campaigns stay stopped. The owner inspects the code before a pull request is prepared and the phase closes. P4 hasn't started.
+**Status, 2026-11-10, after the merge:** the architect read the [test title follow-up report](test-title-follow-up-report.md) at `377264b3d` and the diff of `60680eb75`, and closed `DRF-19` (§Disposition of the test title follow-up). `drag/feature-composition` was squash-merged to `main` as `a9c323f6a` (#14). The six size rows stay red with unchanged budgets, as the pull request states. The record holds no answer to decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2. On the same day the owner opened the runtime-performance phase on `drag/performance` from `a9c323f6a`: runtime speed first, bundle size second. `DRD-40` decides how it measures, [`performance-plan.md`](performance-plan.md) is its plan, and [`performance-instrument-handoff.md`](performance-instrument-handoff.md) is its first unit. That unit repairs `DRF-1` and `DRF-7`. It returned at `b8f1d1b35` after items 1 and 2: the step-list injection adds no bytes at the current source. `DRD-41` decides the return, and the [handoff](performance-instrument-handoff.md) says how the unit resumes (§Disposition of the performance instrument return). The unit completed at `c279973a3`, and the architect read it on 2026-11-11 in [`performance-instrument-assessment.md`](performance-instrument-assessment.md) (§Disposition of the performance instrument report). `DRF-1` is closed, and the baseline of `a9c323f6a` is recorded. `DRD-42` repairs the kernel per-sample test with a warm pass. `DRD-43` finds that no timing row can resolve an optimization yet and adds in-page rows. [`performance-resolution-handoff.md`](performance-resolution-handoff.md) implements both, and no optimization unit starts before it reports. The baseline's reading for the owner is in `DRO-4`. The unit reported at `39c8b432c` on `drag/performance-resolution`, and the architect read it on 2026-11-11 in [`performance-resolution-assessment.md`](performance-resolution-assessment.md) (§Disposition of the performance resolution report). `DRD-42` conforms. The in-page rows run, and their gate injections don't flag, at a load above the machine's four P-core threads. `DRD-44` attributes that to the machine or the method with one experiment, which [`performance-sensitivity-handoff.md`](performance-sensitivity-handoff.md) runs. The retained excess is attributed to V8's internal arrays and bounded within 400 operations, and its reading for the owner is in `DRO-4`. The experiment ran at `24cdadc48`, and the architect read it on 2026-11-11 in [`performance-sensitivity-assessment.md`](performance-sensitivity-assessment.md) (§Disposition of the performance sensitivity report). Its outcome is not resolved on both gate rows: the speed gauge measures its own first run rather than the machine, and unpinned readings always span both core classes. At the quietest load on record the gates' bounds are still too wide for an optimization unit, so the method changes in any outcome. `DRD-45` withdraws the gauge test, and one same-page check, which [`performance-page-check-handoff.md`](performance-page-check-handoff.md) runs, decides whether the spread comes from the page, the window or the clock. The alias cleanup at `566ebfc65` on `drag/performance` makes 10 of the 23 entries stale, and they are repaired before any campaign on that source. The page check returned at `f344a0ea8` before any browser process: the cycle row's end check counts the page's whole log. The owner then stopped the check. `DRD-46` keeps it for possible later use and redirects the phase to short scenario traces, which [`performance-trace-handoff.md`](performance-trace-handoff.md) records (§Disposition of the page check return). An optimization unit starts on one candidate the architect selects from those traces, and a focused paired measurement confirms it. The traces were recorded at `e92e21eed`, and the architect read them on 2026-11-11 in [`performance-trace-assessment.md`](performance-trace-assessment.md) (§Disposition of the performance trace report). `DRD-47` selects the drop's re-measure in a changed form: the unconditional call protects a scroll whose event hasn't arrived yet, so the drop confirms the cache against one row instead. [`performance-drop-handoff.md`](performance-drop-handoff.md) implements it, once the owner brings `566ebfc65`'s source and this record onto one branch. The bundle's missing module markers are `DRF-21`, and they change no recorded verdict. The branches were joined on `drag/performance` at `093f31c7f`. The unit implemented `DRD-47` at `bf9d1caed` and reported at `8eda874f0`, and the architect read it on 2026-11-12 in [`performance-drop-assessment.md`](performance-drop-assessment.md) (§Disposition of the performance drop report). `DRD-47` conforms and is confirmed: the 2,000-item cycle row is faster by 2,449 µs of script per cycle. The owner approved its geometry rule and accepted its +125 to +140 B Brotli, with no budget change (`DRO-4`). `DRD-48` decides `DRF-22`: `freeDrag`'s drop measures its targets and its bounds again, and [`free-drag-drop-handoff.md`](free-drag-drop-handoff.md) implements it. The unit implemented it at `71f20df20` and reported at `7cb2207ae`, and the architect read it on 2026-11-12 in [`free-drag-drop-assessment.md`](free-drag-drop-assessment.md) (§Disposition of the free drag drop report). `DRD-48` conforms, and `DRF-22` is closed. The owner accepted its +5 B Brotli, with no budget change. `DRD-49` selects the trace report's candidate 1: `y()` measures a window of rows that grows from the placeholder toward the pointer, instead of every row. [`performance-window-handoff.md`](performance-window-handoff.md) implements it. The owner approved its scope and ordering term and deferred virtualized lists until after 1.0.0. The unit implemented it at `501f60ab7` and reported at `56c1c27c3`, and the architect read it on 2026-11-12 in [`performance-window-assessment.md`](performance-window-assessment.md) (§Disposition of the performance window report). `DRD-49` conforms and is confirmed: the 2,000-item cycle row is faster by 2,508 µs of script per cycle. To fit the ceilings, the unit shared `xy()`'s rebuild with `y()`'s code, and with a sink each read allocates a view and a copy. `DRD-50` removes the allocation by range settling, and a paired probe decides whether the shared rebuild stays. [`performance-window-correction-handoff.md`](performance-window-correction-handoff.md) implements it. The unit implemented it at `8d002529a` and reported at `566d4d29e`, and the architect read it on 2026-11-12 in [`performance-window-correction-assessment.md`](performance-window-correction-assessment.md) (§Disposition of the performance window correction report). `DRD-50` conforms. The probe read "no difference shown", so the shared rebuild stays, and its A/A bounds don't limit a possible slowdown. The owner accepted the window's final bytes, with no budget change (`DRO-4`). The trace candidates are done, rejected or decisions first. One attribution probe is recommended and not started: the layout after a row animation ends at 2,000 items. If it finds nothing the library controls, the runtime pass is ready to close. The architect ran it on 2026-11-12 at `bb8e5ebb8` and recorded it in [`animation-end-layout-probe.md`](animation-end-layout-probe.md) (§Disposition of the animation-end layout probe). In Chromium 157, in a block list of fixed-height rows, every tested variant that started or stopped an animation or style of `translate`, `transform` or `opacity` invalidated the row's layout, and that layout cost more at 2,000 rows than at 20. None of the library-controlled forms the probe considered avoided it with the same rendering and cleanup, so the architect recommended closing the runtime pass. **The owner closed the runtime pass on 2026-11-12** ([`performance-plan.md`](performance-plan.md) §2 P3, which lists the confirmed results and the open items). Budgets are unchanged, and the deferred campaigns stay stopped. The owner inspects the code before a pull request is prepared and the phase closes. P4 hasn't started. `drag/performance` was squash-merged to `main` as `0a28f909a` (#15). **On 2026-11-12 the owner opened P4, the size pass, on `drag/size` from `0a28f909a`.** The architect read the package under CONTRIBUTING Part II in [`size-pass-assessment.md`](size-pass-assessment.md), with the probe and patches in [`probes/size-pass/`](probes/size-pass/README.md). No nannying, dead runtime vocabulary or diagnostic prose is left to remove. The measured candidates are worth tens of bytes per row, and no set of them makes a red row green, so `DRO-4`'s re-base stays the owner's. `DRD-51` decides how the pass measures and recommends its first unit, `DRF-13` and `DRF-14` together. `DRO-14` holds the four candidates that move a decision, a boundary or hot-path work. Budgets are unchanged, and the deferred campaigns stay stopped. At the owner's request, the architect revisited C6 at `c0d6b9205` in [`rect-index-ownership-proposal.md`](rect-index-ownership-proposal.md), with the variants in [`probes/rect-index-ownership/`](probes/rect-index-ownership/README.md). `RectIndex` becomes the dimension-neutral cache, each axis module holds its own policy, and `y()`'s prediction writes the slot buffer only through a lend scoped to one call and one range. That replaces C6's form in `DRO-14` item 2, which waits for the owner. The owner's staged `Callbacks` edit was left as it is. **The owner then committed that edit as `1d304128b`, approved P, and rejected C2.** `DRD-52` decides P, with the development check keeping the placeholder's x and the 7 B per committed move provisional. `DRD-53` decides the module factories. [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) is one unit that implements U1, `DRD-52` and `DRD-53` from `1d304128b`. `DRO-14` items 3 and 4 are unanswered. Budgets are unchanged, and `example: resize handle` is now 8 B over its ceiling. **The unit landed at `237d65d2f`, and the architect accepted its report** in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md): −62 B Brotli on "sortable + y", −56 B on "sortable + xy" and −65 B on "complete", with the allocation and timing results and their uncertainty under `DRD-52`. [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md) carries the `invalidate` step's repair and the probe's launch documentation. `bench/campaign.ts` is now stated to be the tool for sequencing runs, apart from the deferred campaigns, which stay stopped. The architect then explored property mangling in [`property-mangling-exploration.md`](property-mangling-exploration.md), and `DRO-15` asks the owner whether the build shortens the internal property names. **The follow-up landed at `e22db849c` and `0c13786ea`, reported at `fe529df4c`, and the architect accepted it** (§Disposition of the size pass follow-up report). The owner then answered `DRO-14` items 3 and 4: C1's idle fast path and C5's capture functions stay unchanged. `DRF-20` closes, and P4 has no measured machinery candidate left. On `DRO-15` the owner started its first two steps, each a unit of its own, and holds the mangle until the published build's results exist. `DRD-54` decides the first step, and [`consumer-tests-handoff.md`](consumer-tests-handoff.md) implements it. Budgets are unchanged, and the deferred campaigns stay stopped. **The first step landed at `5ea7bb7e6` and reported at `87288b9d2`, and the architect accepted it on 2026-11-13** in [`consumer-tests-assessment.md`](consumer-tests-assessment.md) (§Disposition of the consumer tests report). 326 public browser tests pass against the emitted tree. The owner found that the consumer resolver lets an absolute path to a non-entry module reach its source. That is `DRF-23`, and `DRD-54` property 2 now decides by the resolved file. The build's clean doesn't target `src/`. On the owner's direction, `DRD-55` decides step 2: the size gate reads the published build through its exports map, one build per run serves both projects, box-quad stays on its source, and every ceiling stays. [`published-gate-handoff.md`](published-gate-handoff.md) repairs `DRF-23`, then implements `DRD-55`. The mangle stays pending, budgets are unchanged, and the deferred campaigns stay stopped. **Step 2 landed at `79b4c3132` and `69c260685`, reported at `2d9a2f482`, and the architect accepted it on 2026-11-13** (§Disposition of the published gate report). `DRF-23` is closed. The gate reads the emitted tree, the figures differ from `src` by −7 to +16 B Brotli, and no verdict changed. **The owner answered `DRO-15` step 3:** explicit `_` prefixes in source for strictly internal properties, then publish-time mangling, with public and platform names unchanged and no selection by type. The type-directed transform is deferred to [`performance-plan.md`](performance-plan.md) §6. `DRD-56` decides the step: one committed map from source name to output name, a step inside `tsdown`'s build, unchanged `.d.ts` files, source maps that lead back to `src`, and a node test that validates the publication. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. Budgets are unchanged. **Step 3 landed at `f7b7b300b` and `31f92f5a9`, reported at `78797ebf6`, and the architect accepted it on 2026-11-13** in [`publish-mangle-assessment.md`](publish-mangle-assessment.md) (§Disposition of the publish mangle report). `DRD-56`'s properties 1 and 6 are corrected in place: property 1 names the members that a published type declares, and V4 accepts a `readonly` field's upstream mapping to its own member start, within a stated bound. The gain is −31 to −110 B Brotli per row. "example: resize handle" and "freeDrag" turn green and go to `DRO-4`, and four rows stay red. Budgets are unchanged, and the type-directed transform stays deferred. A fresh independent review of the publication pipeline is recommended, and the owner decides whether to start it. **On the owner's request, the architect audited the selection at `436b105c6`:** `DRD-57` adds 30 internal declarations that the starting set missed, because their names are also platform or published members, and [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it. The independent review stays pinned to `436b105c6`. **On the owner's direction, `DRD-58` replaces `RectIndex`'s growable `Float64Array` slot buffer with one `number[]` that nothing replaces**, and removes the lifetime and reentrancy rules that replacement required. Fixed-size buffers stay as they are. [`slot-array-handoff.md`](slot-array-handoff.md) implements it after `DRD-57`'s unit, and reports its costs without a timing gate. **At the owner's request, the architect explored the owner's three-unit layout** at `cc9818a96` in [`unit-layout-exploration.md`](unit-layout-exploration.md), with the candidate in [`probes/unit-layout/`](probes/unit-layout/README.md): a kernel chunk, a sortable chunk and a freeDrag chunk, each built as one chunk with native mangling. `FrameTask._schedule` and `_cancel` are the only marker names that cross a unit, and either repair makes the layout pass the consumer project as `DRD-59`'s build does. `DRO-16` asks the owner to choose between the layout and `DRD-59`. `DRF-39`, registered as `DRF-38` at `1c99666f2`: two consumer tests count heap instances by class name, and both builds fail them. Nothing is adopted, and budgets are unchanged. **`DRD-58` landed at `5ec3b4b2d` and reported at `690769539`, and the architect accepted it on 2026-11-13** (§Disposition of the slot array report). On the owner's direction it was checked in Chromium only. The three `sortable` rows are 31 to 32 B Brotli smaller, the control rows don't move, no verdict changed, and allocation moved within its spread. The owner's separate revert of property mangling keeps the slot array. The baseline lint and typecheck errors are `DRF-38` and `repo:RF-31`. **On 2026-11-13 the owner stopped the mangling and layout exploration, and deferred property mangling,** because its measured savings don't justify its complexity. `DRD-60` records it: `DRD-56` and `DRD-57` are superseded, `DRD-59` is withdrawn before implementation, and `DRO-16` with it. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) is one unit from `drag/size` at `f552e0ec9`, which this branch has merged. It removes the prefixes, the build step and the publication test, and keeps `DRD-58`'s slot array, the dependency update, the consumer project and the gate on the published build. The experiments stay as evidence, and budgets are unchanged. **Reconciled with `drag/size` at `f552e0ec9`:** `DRD-58`'s accepted result and `repo:RF-31` are carried over. `drag/size` registered `DRF-38` for the baseline lint error, so the class-name finding first registered here under that number is `DRF-39`. The rollback reports the baseline lint and typecheck errors apart from any new one, and its acceptance closes neither. **At the owner's request, the architect explored `RectIndex` owning its storage and every write to it** in [`rect-index-access-proposal.md`](rect-index-access-proposal.md) at `a61b76e9c`, on `drag/rect-index-ownership`, which merged `drag/size` at `8904947f6` after the rollback. **The owner approved proposal P and its displacement-sink interface.** `DRD-61` records it, and amends `DRD-52`, `DRD-58`, `DRD-50` and `DRD-33` choice 9. Ported to the restored names and measured against `8904947f6`, P reads −31, +22 and −92 B Brotli on the `sortable` rows, and no verdict changes: "complete" stays over its ceiling, by 101 B. The green "complete" of the mangled build is historical. [`rect-index-access-handoff.md`](rect-index-access-handoff.md) is one unit from `8904947f6` that implements it. It carries the replacement W7 tests and their mutations, size and allocation readings, and a focused timing check under the owner's hold, and its report keeps reduced allocation apart from unmeasured speed. Budgets are unchanged, and the deferred campaigns stay stopped. The rollback's report hasn't been read by the architect yet, and the 49 baseline lint errors and `repo:RF-31` stay unrepaired. **`DRD-61` landed at `010a9ef39`, reported at `f788b2b80`, and the architect accepted it on 2026-11-13** in [`rect-index-access-assessment.md`](rect-index-access-assessment.md) (§Disposition of the RectIndex access report). The size readings equal `DRD-61`'s figures, and no verdict changes. Allocation falls per `y()` sample, per cold committed move and per drop with a sink. Timing reads "no difference shown" in all three cases, so speed is unmeasured. `DRD-61` property 11 and the handoff read the A/A threshold as a limit on a slowdown the check could miss, and both are corrected. The verdicts and the rule stay as recorded. Budgets are unchanged, the deferred campaigns stay stopped, and the rollback report's acceptance is still pending. **At the owner's request, the architect explored moving `xy()`'s previous geometry into `RectIndex`** in [`xy-held-geometry-proposal.md`](xy-held-geometry-proposal.md) at `61f883d09`, which `drag/rect-index-ownership` fast-forwarded to, with the prototype in [`probes/xy-held-geometry/`](probes/xy-held-geometry/README.md). It recommends VX: `xy()` constructs a `RetainingRectIndex`, a subclass in `rect-index.ts` that keeps each slot's left and top across one rebuild in a private `number[]`, and `xy()` keeps its rule and owns no geometry array. "sortable + y", "complete" and the seven control rows read 0 B, and "sortable + xy" +30 B Brotli. Its timing check is prepared and waits for the owner's hold. Nothing is adopted, no decision is recorded, and budgets are unchanged. **At the owner's request, the final VX patch is applied to `src/sortable/rect-index.ts` and `src/sortable/xy.ts` as provisional source for inspection.** It stays provisional until the owner decides, and is reverted if VX isn't adopted. **The owner accepted VX on 2026-11-13, on the condition that the field types are narrowed in both classes.** `DRD-62` records it. `at` accepts the six geometry fields. `retained`, the constructor's `axis` and `#axis` accept only `LEFT` or `TOP`. The narrowing changes no emitted JavaScript, and a compile-time test checks it. Speed is unmeasured, and no timing run or hold is requested. [`xy-held-geometry-handoff.md`](xy-held-geometry-handoff.md) is one unit from `f79f66fe2`'s source. It adds the narrowed types, the compile-time test and the flows as suite tests, each shown by its mutations, and reads the size. A fresh independent reviewer reads its report before the architect's final acceptance. Budgets are unchanged. **The unit landed at `b4117dae2` and reported at `7184d069c`, an independent review read it at `c4d02d45c`, and the architect accepted it on 2026-11-14** in [`xy-held-geometry-assessment.md`](xy-held-geometry-assessment.md) (§Disposition of the xy() held geometry report). The build's 60 `.js` and `.d.ts` files are byte-identical to `f79f66fe2`'s, one source map differs because it embeds the typed source, and every size row reads 0/0/0. The review's one finding, tier C, is that the report counted 64 files of Vite's cache as emitted files. The report is corrected in place, and its saved measurements aren't changed. `DRD-62` property 2 now names the base's `held === 0` exit. Speed is unmeasured, budgets are unchanged, and integration is the owner's. **On the owner's authorization, `main` was integrated after box-quad's pull request 16, at `6296b741a`** ([report](main-integration-report.md)). **The architect read the rollback's report there on 2026-11-14 and accepted it** (§Disposition of the mangling rollback report). Its readings describe `b8e37b37c`, before `DRD-61`, `DRD-62` and the integration. `DRF-24` to `DRF-37` and `DRF-39` are closed. `DRF-38` understated the base, and is widened to the 49 ESLint errors that every whole-package lint since has found. It stays open with `repo:RF-31`. The owner's rerun at commit A is accepted, and the failing test's dependence on elapsed time is `DRF-40`. **An independent feature proof read the rollback and the integration merge at `fdaab3781`, and the architect read it on 2026-11-14** (§Disposition of the rollback and integration reviews). `DRD-60` properties 1, 2 and 4 hold at `b8e37b37c`, and its one tier-C finding corrected a count in the report. The integration review found nothing. The record requires nothing more before the drag pull request, and that disposition lists what the owner decides. Budgets are unchanged, and the deferred campaigns stay stopped.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -857,7 +857,7 @@ Decided on 2026-11-09, on the owner's acceptance of closed, named slots for v1, 
 - **Choice 6, how the targets' staleness is set:** directly, as `bounds` does, under C6's exception. A step per scroll event cost bytes on every composition in the first draft.
 - **Choice 7, a scroll with the pointer still:** the mark is updated at the next sample, as `sortable`'s insertion is. A sample does no work without movement (DRI-17). **The drop is always correct:** `drop()` resolves at the release position and measures again after any invalidation. **Amended on 2026-11-12 by `DRD-48`:** the drop marks the targets and the bounds stale before it resolves, so it measures every target again. Measuring only after an invalidation missed a scroll whose event hadn't arrived (`DRF-22`).
 - **Choice 8, published slot interfaces:** `Landing`, `LandingOptions` and `LandingTimingContext` from each landing entry. `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions` from `free-drag/drop-targets.js`. `bounds.js` keeps exporting its types as now. The `axis` and `displacement` interfaces stay private (`DRD-2`).
-- **Choice 9, `RectIndex`:** private fields read through getters typed as read-only views, as measured in [`rect-index.diff.txt`](probes/feature-composition/rect-index.diff.txt). CONTRIBUTING's class-encapsulation rule requires the change, and this is the form chosen. A closure is also allowed, but a class keeps the development check's access in one declaration.
+- **Choice 9, `RectIndex`:** private fields read through getters typed as read-only views, as measured in [`rect-index.diff.txt`](probes/feature-composition/rect-index.diff.txt). CONTRIBUTING's class-encapsulation rule requires the change, and this is the form chosen. A closure is also allowed, but a class keeps the development check's access in one declaration. **Amended 2026-11-12 by `DRD-52`:** writes leave the class only through `lend`, which is scoped to one call and one slot range. **Amended 2026-11-13 by `DRD-61`:** no getter returns a view. Code outside reads one value at a time through `at`, `item` and `insertion`, and no write leaves the class. It used to say that the private fields are read through getters typed as read-only views, and that writes leave only through `lend`.
 - **Choice 10, names:** `targets`, `free-drag/drop-targets.js`, `dropTargets`, `target`, `data-drop-over`, `DropTargets`, `DropTargetTracker`, `DropTargetDrag` and `DropTargetsOptions`, as prototyped. They may change only for clarity.
 
 **Returned to the owner:** choice 5, an accepted drop's landing into its target, is `DRO-11`. Choice 1, the slot's cost, is `DRO-10`.
@@ -1015,6 +1015,8 @@ Decided on 2026-11-09 on the owner's direction, from the model at `9f885b9a9` on
 
 **Amended 2026-11-09 by `DRD-36` and `DRD-37`.** `DRD-36` replaces property 5's direction function and supersedes the owner's direction that kept it. `DRD-37` supersedes property 8. The text above is unchanged.
 
+**Amended 2026-11-12 by `DRD-53`.** Property 5's file is `src/kernel/callbacks.ts`, its class is `List`, which is exported only as a type, and the factories are the module's `queue()` and `stack()`. The text above is unchanged.
+
 #### DRD-36 — A `CallbackList` inserts at its kind's end and runs from the array's end
 
 **Each list holds the name of the array method it inserts with. `CallbackList.queue()` makes a list that adds with `unshift`, and `CallbackList.stack()` one that adds with `push`. `run` is the same for both: it removes the last entry with `pop` and calls it. No list holds a function of its own.**
@@ -1046,6 +1048,8 @@ Decided on 2026-11-09 on the owner's direction, from the owner's uncommitted edi
 **Not adopted:** the per-list direction function implemented at `53c87f988`. The representations that `DRD-35` deferred stay deferred, on the same conditions. This decision compares nothing and reopens nothing.
 
 **Cost.** `DRO-12`, as amended. By reading, a list loses its direction function. A queue's `add` now moves the waiting entries, where the previous version's `run` moved them. Timing stays deferred, so nothing measures that.
+
+**Amended 2026-11-12 by `DRD-53`:** properties 1, 3 and 4. A list holds the array method itself, the factories are module functions, and the class is exported only as a type. The text above is unchanged.
 
 #### DRD-37 — `@typescript-eslint/unbound-method` is off for `packages/drag`
 
@@ -1624,6 +1628,1119 @@ Decided on 2026-11-12 by the architect, on [`performance-window-report.md`](perf
 
 **Result, 2026-11-12** ([report](performance-window-correction-report.md) at `566d4d29e`, [assessment](performance-window-correction-assessment.md)). Implemented at `8d002529a`, and it conforms. A measurement settles a slot range of the cache's own buffer and element array and allocates nothing for the sink. W7 and W8 pass in all three engines, and M7 and M8 each fail their witness in all three. The probe of `xy()`'s rebuild reads "no difference shown" in both cases, so the shared rebuild stays, and property 3 didn't apply. **The reading doesn't bound a slowdown.** The A/A bounds, 650 µs with no sink and 807 µs with `layoutAnimation`, are the rule's thresholds and not limits on how much slower the shared rebuild could be. The rule found no slowdown, and both median differences are negative, −219.5 µs and −135.9 µs. The probe can't resolve the effect this decision inferred, about 20 µs, which remains an inference. The bytes against `71f20df20` are +143 B Brotli on "sortable + y", +36 B on "sortable + xy" and +149 B on "complete", and the owner accepts them (`DRO-4`). The "Why" bullet above said a probe "can resolve it". It could resolve only a slowdown larger than its spread.
 
+**Amended on 2026-11-13 by `DRD-61`: property 1, and property 4's W7, M7 and M8.**
+
+- **Property 1:** a measurement no longer passes a range to the sink. `RectIndex` asks `displaced(element)` once for each row it reads, and subtracts the sink's `dx` and `dy` itself. No array, view or object is constructed for the sink, and the sink receives no array. The drop's confirmation and `linearShift`'s probe read through the same path, into the index's scratch slot, and construct no scratch of their own.
+- **W7** asserts that each `displaced` call asks about exactly the row read just before it, in a `y()` drag and across `xy()` rebuilds. Its mutations are `DRD-61`'s M7a and M7b.
+- **M8** is a read path that subtracts nothing when the sink answers `true`. W8, W8's title and property 2's probe result stand.
+- **What they used to say:**
+  - property 1: "`DisplacementSink.settle` settles exactly the slots in a range it receives, in the buffer and element array as given. `RectIndex`'s measurement passes the cache's own buffer and element array with the range it read, and allocates nothing for the sink. The drop's confirmation and `linearShift`'s probe settle their one-slot scratch with a one-slot range";
+  - W7: "every `settle` call that a measurement makes during a `y()` drag and during an `xy()` rebuild receives the cache's buffer and element array, the same two objects across the operation, and the range it read";
+  - M7: "`501f60ab7`'s call with a view and a copy", which `DRD-58` replaced by a copy of the slot array;
+  - M8: "a `settle` that ignores the range's start".
+
+**Corrected on 2026-11-13** on the independent review of the unit ([assessment](rect-index-access-assessment.md) §7.2). Property 1's amendment said "Nothing is allocated for the sink" and ended "and allocate nothing". It is a statement about the source, as `DRD-61` property 3 now says, and not a byte count: heap sampling attributes bytes to `#read`, `travel` and `displaced` in the per-drop probe, and those are allocation readings with no established cause.
+
+#### DRD-51 — The size pass removes what the gate rejects first, and the owner decides each item that moves a decision, a boundary or hot-path work
+
+**P4 measures every row as minified, gzip-9 and Brotli-11 bytes, books only joint readings, and names its control rows before it measures. Its first unit removes the unreachable `null` gap (`DRF-13`) and the duplicate bounds invalidation (`DRF-14`). A candidate that changes an owner-directed decision, a semantic boundary or an accepted encapsulation, or that adds hot-path work, waits for `DRO-14`.** [`performance-plan.md`](performance-plan.md) §2 P4 applies this decision.
+
+Decided on 2026-11-12 by the architect, on the owner's request to open the size pass on `drag/size` from `0a28f909a`, from [`size-pass-assessment.md`](size-pass-assessment.md).
+
+**Why:**
+
+- **The gate removes nothing here.** Three read-only inventories and the architect's reading found every guard reachable through correct use, no runtime vocabulary that isn't folded, and shipped diagnostics that are already identities (assessment §3). Part II's first three classes have no candidate.
+- **What remains is small, and most of it is a decision.** The seven measured candidates take 1 to 76 B Brotli off a row (assessment §5). Two of them repair open findings and touch no decision. The others amend `DRD-36`, trade `RectIndex`'s encapsulation, remove a §2.1 boundary, or add per-frame work against §0.
+- **No measured set closes a red row.** With every candidate, "complete" is still 216 B over its ceiling and "draggable alone" 32 B over. The excess is the costs the owner accepted, so the re-base is `DRO-4`'s and comes after the pass (§18).
+
+**Required properties:**
+
+1. **Readings.** A unit reports every row of `bench/size/measure.ts` as minified, gzip-9 and Brotli-11 bytes at its base and at its last commit, with the settings of the assessment's §1, through [`size.ts.txt`](probes/size-pass/size.ts.txt) or a tool that reproduces its base figures. Brotli-11 is the figure the ceilings gate. gzip is recorded and not gated. Where the figures disagree in sign, the report says so. Only a joint reading of what lands is booked, and per-candidate ablations only rank.
+2. **Control rows.** Before it measures, a unit names the rows that its change can't reach, and each of them must read exactly 0/0/0. A non-zero control is a finding before the unit continues.
+3. **Fixed during the pass.** Every ceiling, `draggable alone`'s control figure and `measure.ts` itself stay as they are, and `DRO-4` holds the re-base. The deferred campaigns stay stopped: the page check, B3', the in-page floors, `--prove` and `--floors`.
+4. **Runtime.** A change that only removes operations from the paths it touches is checked by the exact instruments: the per-sample tests and the hot-path censuses, with the suite in three engines. It runs no `compare.ts` row. A change that adds or moves work on a per-sample, per-frame, drop or activation path also runs `compare.ts --before <its base> --only <the rows that reach the path>`, and its size and timing go to the owner together under §0.
+5. **Owner items.** A candidate in `DRO-14` isn't implemented before the owner answers that item. A new candidate of the same kind goes to the owner the same way.
+6. **Correctness and ownership hold,** as `DRD-40` property 7 states. A size change that would move an owner in `DRD-24`, `DRD-26`, `DRD-27` or `DRD-33` isn't a size change (§13).
+
+**First unit: `DRF-13` and `DRF-14`** (patch `U1-recommended-unit`, which leaves out the type changes of item 1):
+
+1. **`DRF-13`.** `AxisQuery.insertion` is `Insertion`. `y.ts` and `xy.ts` read `query.insertion.index` with no `null` arm and no `!`. `SortableOperation`'s query type no longer removes a `null` with `SetNonNullable`, and an import left unused goes. `LinearShift.refresh` receives a gap that is never negative: its `gap < 0 ? 0 : gap` and its `if (gap >= 0)` go, and its JSDoc no longer offers `-1` for that parameter. **What stays:** `lastGap`'s own `-1`, which means no known gap after `retire` or after a move the shift can't predict, `RectIndex.holds`, and `xy.ts`'s `last`.
+2. **`DRF-14`.** `FreeDragBehavior.invalidate` calls only `operation?.handleEvent()`, which marks the bounds and the drop targets stale. With no operation, nothing is lost, because each activation marks the bounds stale before its first read. **This decision withdraws `DRF-14`'s naming half:** the scroll and resize listener is the operation object, so its entry must be `handleEvent`, and a second name would cost a member for no behavior. The step's comment says which entry it calls.
+3. **Expected:** −17 B Brotli on "sortable + y" and "complete", −2 B on "sortable + xy", −1 B on "freeDrag" and −2 B on "freeDrag + bounds + landing", against `0a28f909a`. **Control rows:** "draggable alone", "draggable + lift" and the three examples read exactly 0/0/0.
+4. **Verification:** typecheck, format and lint on the changed files, the full suite in Chromium and in three engines with only the known failures (the five `DRO-4` size rows), the per-sample tests, `measure.ts`, and property 1's readings. By property 4, no `compare.ts` row runs.
+5. **Nothing else changes.** `DRF-15`, `DRF-20` and every `DRO-14` item are outside this unit.
+
+**What this amends:** `DRD-40` property 6's last sentence, "A size change is measured with `bench/size/measure.ts` and with the timing rows it could affect", is replaced by property 4 above for this pass. A change that only removes work can't make a timing row slower, and no timing row resolves a change of a few branches (`DRD-43`). The exact instruments can show an allocation or a layout read that a change adds. `DRD-36` and `DRD-32` stand until the owner answers `DRO-14`.
+
+**Amended 2026-11-12 by `DRD-52`:** item 5 of the first unit no longer holds as written. The unit also carries `DRD-52` and `DRD-53`, and runs `compare.ts` by property 4. `DRO-14` items 3 and 4 and `DRF-15` stay outside it.
+
+**Result, 2026-11-12:** the first unit landed in `15e9d1ef2`, `312f4ec32` and `237d65d2f`, reported at `ed4bd589f` and accepted in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md).
+
+- **Size, against `1d304128b`, Brotli-11:** −62 B on "sortable + y", −56 B on "sortable + xy", −65 B on "complete", −1 B on "freeDrag" and 0 B on "freeDrag + bounds + landing", which is −26 B minified. The five control rows read 0/0/0. gzip and Brotli never disagree in sign. Every row equals the architect's joint reading.
+- **No ceiling closes.** Six rows stay over: "freeDrag" by 56 B, "complete" by 219 B, "freeDrag + bounds + landing" by 249 B, and "draggable alone", "example: resize handle" and "example: drop zone" as before. "sortable + y" has 81 B of headroom and "sortable + xy" 76 B. Budgets are unchanged, and `DRO-4` holds the re-base.
+- **Runtime:** see `DRD-52`'s result. The suite fails only on the six size rows in Chromium, and passes in three engines.
+- **Item 2's lint finding:** `DRF-14`'s change left `FreeDragBehavior.invalidate` reading no `this`, and `class-methods-use-this` reports it. Repaired by the amendment below.
+
+**Amended 2026-11-12, §First unit item 2:** the step that `FreeDragController.invalidate` requests is a function of `free-drag/behavior.ts`'s module, not a member of `FreeDragBehavior`. It calls only `operation?.handleEvent()` and reads no other state. The controller requests the same function on every call, so calls coalesce in its own step list as before. It takes 1 B Brotli off "freeDrag" and 5 B off "freeDrag + bounds + landing", against `ed4bd589f`, and the other eight rows read 0/0/0 (assessment §3). [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md) implements it.
+
+**Amended 2026-11-12, property 3:** "the deferred campaigns" are the measurement work it names, and no other. **`bench/campaign.ts` isn't one of them.** It sequences the runs a unit's handoff asks for, and a unit uses it for that. A unit waits for a process through the process itself, never by searching the process table for a pattern that its own command line contains ([`performance-plan.md`](performance-plan.md) §3, assessment §5).
+
+**Result of the amendment of item 2, 2026-11-12:** landed at `e22db849c`, reported at `fe529df4c` and accepted (§Disposition of the size pass follow-up report).
+
+- **Size, against `d5ab84a83`:** −13/−7/−1 on "freeDrag" and −13/−5/−5 on "freeDrag + bounds + landing", minified/gzip-9/Brotli-11, equal to the architect's reading. The eight control rows read 0/0/0.
+- **The lint finding is closed.** `class-methods-use-this` reports nothing on the two files.
+- **No ceiling closes.** "freeDrag" is 55 B over and "freeDrag + bounds + landing" 244 B over. The other four red rows and the four green rows read as at `ed4bd589f`.
+
+**P4's machinery candidates are done, 2026-11-12.** U1, C6 (`DRD-52`) and the `invalidate` step landed. The owner rejected C2 (`DRD-53`), and C1 and C5 (`DRO-14` items 3 and 4). No measured candidate remains. What remains of the pass is `DRO-15`'s steps (`DRD-54`), and `DRO-4`'s re-base against figures the owner accepts.
+
+**Amended 2026-11-13 by `DRD-55`, properties 1 and 3.**
+
+- **Property 1:** once `DRD-55` lands, a reading is booked from the gate on the published build, using `measure.ts`'s printed minified, gzip-9 and Brotli-11 figures. `size.ts.txt` reads `src`, so it then ranks candidates and no longer books them.
+- **Property 3:** `measure.ts` changes for `DRD-55`'s instrument change. Every ceiling and the control figure stay.
+- **What they used to say:**
+  - property 1: readings were taken "through `size.ts.txt` or a tool that reproduces its base figures";
+  - property 3: "`measure.ts` itself" stayed as it was during the pass.
+
+#### DRD-52 — `RectIndex` is the dimension-neutral cache, and `y()`'s prediction writes it through a lend scoped to one call and one range
+
+**`RectIndex` holds no axis policy. `xy.ts` holds its full rebuild, and `linear-shift.ts` holds `y()`'s prediction, which writes the slot buffer only through `lend(lo, hi, write)`: during the call, and inside the range. The placeholder's re-read is one shared `measurePlaceholder`. The development check still compares the placeholder's x with what the last rebuild measured.** [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) implements it.
+
+Decided on 2026-11-12 on the owner's approval of proposal P in [`rect-index-ownership-proposal.md`](rect-index-ownership-proposal.md), measured at `c0d6b9205`, with two conditions of the owner's. The architect then measured it again at the unit's base, `1d304128b` ([readings](measurements/2026-11-12-size-unit-base-readings.txt)).
+
+**The owner's direction:**
+
+- **Proposal P is approved.**
+- **The existing development check is preserved, including the placeholder's x.**
+- **The 7 B more per committed move is provisional.** It is checked again after warm-up, together with the planned timing comparison.
+- **One unit carries `DRF-13` and `DRF-14` (U1), this decision and `DRD-53`.** Budgets stay unchanged.
+
+**How the check keeps the placeholder's x.** The proposal re-measured all six fields of the placeholder after a committed move, so its x became the fresh reading and a placeholder moving along x was no longer reported (proposal §3.4). Keeping `RectIndex`'s y-only `remeasurePlaceholder` instead gives back about 30 B Brotli of the saving: with U1, −31 B on "sortable + y" instead of −62 B. **This decision keeps the shared six-field re-read in the shipped code, and gives the development check the placeholder's x as the cache held it before the re-read.** That state is written only inside `__DEV__` branches. Its patch reads 0/0/0 against the proposal's on every row, and a witness shows it reports what the base reports (property 7).
+
+**Required properties:**
+
+1. **`RectIndex`'s responsibilities.** It alone allocates the slot buffer and replaces it, which happens only in `collect`. It writes the element array, the window and the staleness. It makes every measurement: `collect`, `measure`, `measurePlaceholder` and `holds`. It has no `refresh`, `advance` or `remeasurePlaceholder`. Both axes use every member except `lend`.
+2. **`measurePlaceholder(placeholder)`** packs the placeholder's rect like a slot, from one `getBoundingClientRect`. `collect` calls it. `linear-shift.ts` calls it on the first refresh after a committed move, as it calls `remeasurePlaceholder` now.
+3. **`xy.ts`'s rebuild** is a module function that does what `RectIndex.refresh` does: `collect` with the window at slot 0, then `measure` of every slot when the window is empty. It uses only `RectIndex`'s public members. `DRD-50`'s outcome holds: `xy()` still rebuilds through `collect` and `measure`.
+4. **`lend(lo, hi, write)`** calls `write(values, lo, hi)` once, with the writable slot buffer.
+   - **Lifetime:** the reference is valid during the call only.
+   - **Extent:** `lo` to before `hi` is inside the window, and `write` reads and writes nothing outside it.
+   - **Reentrancy:** `write` calls neither `collect` nor `xy.ts`'s rebuild. Any other member may be called.
+   - This is the rule that `measure` gives the sink's `settle`, and the JSDoc says so. Nothing checks it at runtime.
+5. **The prediction in `linear-shift.ts`.**
+   - Its writer is created once per `linearShift`, so a committed move allocates no function.
+   - The committed move's displacement along y is rule state, which `moved` sets before it lends.
+   - The arithmetic is unchanged: the top and the bottom move by the displacement, and the center is recomputed from the moved edges.
+   - The report loop is unchanged.
+6. **Reads.** The getters are unchanged, and they return read-only views. The `values` getter states its lifetime: valid until the next `collect`, the only operation that replaces the buffer.
+7. **The development check reports what it reports at the base.**
+   - After a committed move, it compares the placeholder's left and right with what the cache held before the re-read, which is the last rebuild's measurement.
+   - It compares the placeholder's top and bottom with the re-read, and every field of every slot in the window, as now.
+   - Its message is unchanged.
+   - Its added state is written only inside `__DEV__` branches, and the shipped build of every row is byte-identical to the same change without it.
+   - **Witness:** a development-project test in which only the placeholder moves along x, by its position's parity. The drag reports the fault "at the placeholder" at the base and with this decision. With the held x removed from the check, the test fails.
+8. **Behavior.** Nothing that `y()` or the confirmation reads changes. `y()` never reads the placeholder's x, and the confirmation reads slots only. In the shipped build, the cached x of the placeholder is the fresh reading after a re-read. Nothing reads it.
+9. **Runtime.** Per sample: no change. Per committed move: `lend` and the writer run where one method call ran, and the lend allocates nothing. The proposal read 7 B more per committed move in code that wasn't warm, and **that figure is provisional.** The unit's handoff states how it is read again.
+
+**What this amends:**
+
+- **`DRD-33` choice 9:** `RectIndex`'s private fields are still read through getters typed as read-only views. **Writes leave the class only through `lend`.**
+- **`DRD-51` §First unit item 5:** the unit also carries this decision and `DRD-53`. By property 4 it runs `compare.ts`, because this decision moves work on the committed-move path.
+- **`DRO-14` item 2** is answered.
+
+**Not adopted:**
+
+- The proposal's §3.4, under which the check no longer compared the placeholder's x.
+- `RectIndex`'s y-only `remeasurePlaceholder`, which gives back about 30 B.
+- The proposal's variants D to H, for the reasons in its §4.
+
+**Cost.** Against `1d304128b`, with U1 (Brotli-11):
+
+- −62 B on "sortable + y", −56 B on "sortable + xy" and −65 B on "complete";
+- −1 B on "freeDrag";
+- 0 B on "freeDrag + bounds + landing", which is −26 B minified;
+- exactly 0/0/0 on the five other rows.
+
+Without U1: −51, −54 and −47 B. No ceiling changes, and `DRO-4` keeps the re-base.
+
+**Result, 2026-11-12:** implemented in `237d65d2f`, reported at `ed4bd589f` and accepted in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md). The cost is as stated above.
+
+- **Properties 1 to 6 and 8 hold.** `lend`'s and the `values` getter's JSDoc state property 4's and property 6's rules.
+- **Property 7 holds.** The witness, "drag:DRD-52 development equivalence check", passes in Chromium, Firefox and WebKit at the unit and at `1d304128b`'s source, and fails in all three with the held x removed (M1). In the three-engine suite, the check throws in the witness and nowhere else.
+- **Property 9: the provisional 7 B is replaced by readings, and their uncertainty is kept** (assessment §2.1). Three runs per tree, heap sampling at 16 B:
+  - **warm,** after 2,000 crossings: +0.84 B per committed move. The difference is smaller than the spread inside either tree, so the reading bounds the excess below 7 B and doesn't resolve about 1 B in either direction;
+  - **cold,** after 100 crossings: +4.13 B, with every unit run above every base run. A drag with fewer committed moves than that warm-up sees about 4 B more per committed move;
+  - **per sample:** +0.80 B for `y()` and +0.55 B for `xy()`, each below the 4 B limit, with spreads of 2 to 3 B;
+  - warm, the committed-move code allocates nothing the probe sees, at either tree.
+- **Timing:** `compare.ts --before 1d304128b` reads "no difference shown" on all ten move and cycle rows, and every layout count equals the base's. That is inconclusive: the rule found neither "slower" nor "faster", so a speed change in either direction is unmeasured. The rows' A/A bounds, 8 to 325 µs of script and 51 to 3,305 µs of task time, are the thresholds the rule used. A slowdown smaller than a bound can't read "slower", and a larger one isn't excluded either. Four idle background tasks of the implementing session overlapped the first four seconds of the moves process (assessment §2.2). The verdict stands with that overlap recorded.
+
+**Corrected on 2026-11-13** on the owner's direction ([`rect-index-access-assessment.md`](rect-index-access-assessment.md) §7.4). The timing bullet said "That doesn't show the absence of a slowdown smaller than a row's A/A bound", which implies that a larger slowdown is excluded. `DRD-50`'s result had already recorded that the A/A bound isn't such a limit. The verdict, the rule and the bounds don't change.
+
+**Amended 2026-11-13 by `DRD-58`, properties 1, 4 and 6.** The slot buffer is one `number[]` for the index's life, so nothing replaces it.
+
+- **Property 1:** `RectIndex` alone grows the slot array, in `collect`, by appending. Nothing replaces it.
+- **Property 4:** `lend` keeps its extent rule, and `write` writes the array only during the call, which is the class-encapsulation rule. The lifetime and reentrancy clauses are removed.
+- **Property 6:** the `values` getter returns the same array for the index's life, typed `readonly number[]`, and gives no lifetime.
+- **What they used to say:**
+  - property 1: "It alone allocates the slot buffer and replaces it, which happens only in `collect`";
+  - property 4: "**Lifetime:** the reference is valid during the call only" and "**Reentrancy:** `write` calls neither `collect` nor `xy.ts`'s rebuild. Any other member may be called";
+  - property 6: "The `values` getter states its lifetime: valid until the next `collect`, the only operation that replaces the buffer."
+
+**Amended on 2026-11-13 by `DRD-61`, properties 1, 4, 5 and 6.** `RectIndex` applies the prediction itself, and code outside reads one value at a time.
+
+- **Property 1:** `RectIndex` also moves the crossed slots, through `shift(lo, hi, delta)`, and re-reads one row through `travel`. Only `y()` calls those two. `xy()` uses every other member.
+- **Property 4 is removed,** with `lend`.
+- **Property 5:** `linear-shift.ts` decides `lo`, `hi` and `delta`, and calls `shift`. It has no writer and no displacement rule state. The arithmetic and the report loop are unchanged.
+- **Property 6:** no getter returns a view. `at(slot, field)`, `item(slot)` and `insertion(gap)` each return one value, and `count`, `first` and `end` stay.
+- **Property 7 holds as written.** The check copies the window and the placeholder through `at`.
+- **What they used to say:**
+  - property 1: "It makes every measurement: `collect`, `measure`, `measurePlaceholder` and `holds`. It has no `refresh`, `advance` or `remeasurePlaceholder`. Both axes use every member except `lend`";
+  - property 4: "`lend(lo, hi, write)` calls `write(values, lo, hi)` once, with the writable slot buffer", with its extent rule, and `write` writing the array only during the call, as `DRD-58` amended it;
+  - property 5: "Its writer is created once per `linearShift`, so a committed move allocates no function" and "The committed move's displacement along y is rule state, which `moved` sets before it lends";
+  - property 6: "The getters are unchanged, and they return read-only views", the `values` getter returning the same array for the index's life, as `DRD-58` amended it.
+
+**Amended on 2026-11-13 by `DRD-62`, property 1.** `xy()`'s index is a `RetainingRectIndex`, a subclass of `RectIndex` in `rect-index.ts` that also keeps each slot's left and top across one rebuild. `xy()` uses every member of `RectIndex` except `shift` and `travel`, and only `xy()` calls the subclass's `retain` and `retained`. **What it used to say,** as `DRD-61` amended it: "Only `y()` calls those two. `xy()` uses every other member."
+
+#### DRD-53 — Callback lists are made by `queue()` and `stack()` in `kernel/callbacks.ts`, and insert through a stored array method
+
+**`src/kernel/callbacks.ts` exports the factories `queue()` and `stack()`, and its class `List` only as a type. A list holds `Array.prototype.unshift` or `push` and calls it on its array to insert. The owner's commit `1d304128b` is the implementation in `src`, and [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) completes what refers to the old module outside `src`.**
+
+Decided on 2026-11-12 on the owner's direction, from `1d304128b`, with the owner's dispatch probe at `c0d6b9205` ([README](probes/callback-dispatch/README.md)). In Chromium, adding and running an entry through the stored function was 14 to 16% faster for a queue and 24 to 25% faster for a stack than through the method's name.
+
+**The owner's direction:**
+
+- **The original C2 is rejected.** Its single constructor with `'unshift'` or `'push'` at each call site isn't taken.
+- **The named module factories stay.**
+- **The owner's source edits are committed unchanged.** The unit finishes the browser test's and the allocation probe's imports and the size test's module path, and fixes the stale comments.
+
+**Required properties:**
+
+1. **The factories.** `queue()` and `stack()` are named exports of `src/kernel/callbacks.ts`. `List` is exported as a type only, so no other module can construct a list. Callers import the factories or the module's namespace, as `gesture.ts` and `session.ts` do.
+2. **Insertion.** A queue holds `Array.prototype.unshift` and a stack holds `Array.prototype.push`, each read once when the module is evaluated, in a private read-only field. `add` calls it on the list's array with the callback and the receiver in one call.
+3. **Everything else in `DRD-36` holds:**
+   - one `pop`-based `run` that doesn't branch on the kind;
+   - callback and receiver in two adjacent slots, with no object per entry;
+   - `empty`, `has`, `add` and `clear`;
+   - removal before the call;
+   - a list that decides nothing about when its entries run;
+   - the three instances.
+
+   A list owns no function: the array method it holds is the one shared builtin.
+
+4. **The comments state this representation.** No comment says that a list holds a method's name, or names `CallbackList.queue()` or `CallbackList.stack()`.
+
+**What this amends:**
+
+- **`DRD-36` property 1:** "the private constructor" and "the method's name, in a private read-only field" now read: the factory, and the method itself in a private read-only field.
+- **`DRD-36` property 3's last sentence** no longer holds, because a list holds the shared method and not its name. Its first two sentences hold.
+- **`DRD-36` property 4's** "the private constructor and the two factories" now reads: the two module factories, and a class exported only as a type.
+- **`DRD-35` property 5's** file and class names now read `src/kernel/callbacks.ts` and `List`.
+- **`DRO-14` item 1** is answered.
+
+**Cost.** The owner's commit against `c0d6b9205`, in Brotli-11:
+
+- −1 B on "draggable alone" and −11 B on "draggable + lift";
+- **+11 B on "example: resize handle"**;
+- −7 B on "example: drop zone" and −4 B on "example: canvas group";
+- −12 B on "freeDrag" and −17 B on "freeDrag + bounds + landing";
+- −7 B on "sortable + y", −5 B on "sortable + xy" and −7 B on "complete".
+
+Minified: −2 B on the rows without `sortable`, and +6 B on the three with it. **"example: resize handle" is now 3,321 B, 8 B over its 3,313 B ceiling,** and it joins the rows `DRO-4` holds. The budgets stay unchanged.
+
+**Result, 2026-11-12:** completed in `15e9d1ef2` and accepted in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md).
+
+- **Properties 1 and 4 hold.** The browser test and the allocation probe import the module's namespace and make every list with `queue()` or `stack()`. The size test expects `src/kernel/callbacks.ts`. `callbacks.ts`'s class comment and `drag.ts`'s `runDisposers` JSDoc no longer name a method's name or `CallbackList.stack()`.
+- **The owner's code changed only in those two comments.** The commit reads 0/0/0 against `1d304128b` on every row.
+- **The allocation probe,** run once and not gated: `queue()` and `stack()` 72 B each empty and 239 B used, against 32 B and 167 B for a bare array.
+
+#### DRD-54 — A consumer project runs the public browser tests against the package's own build, and the source projects keep every test
+
+**A Chromium browser project, `consumer`, runs the browser tests that observe only the published surface against the files that `tsdown` emits for publication, resolved through the package's exports map. The build runs once per test run, before any of the project's files starts. The source projects keep every test. The tests of internal behavior and of development instruments run only there. The size gate stays on `src` until a separate unit moves it (`DRO-15` step 2).** [`consumer-tests-handoff.md`](consumer-tests-handoff.md) implements it.
+
+Decided on 2026-11-12 by the architect, on the owner's answer to `DRO-15`: start its first two steps, keep source tests for internal behavior and development instruments, and adopt the mangle only after the published build's results exist.
+
+**Why:**
+
+- **Nothing reads the published build now.** Every test and the size gate import `src`. The exploration found the `zIndex` break only when the suite ran against a built tree ([`property-mangling-exploration.md`](property-mangling-exploration.md) §4). The build already differs from what the gate bundles by −7 to +16 B Brotli (§3), so the build and `src` can differ without any mangle.
+- **The source projects keep every test.** They run with `__DEV__` true, so every browser test also exercises the development checks, such as the harness's check that no trusted event is refused (`drag:DRI-6`). A test that ran against the build only would lose them. The consumer project adds runs and removes none.
+- **A test that reads a development instrument or an internal member can't run against the build.** The build folds `__DEV__` away, and a module that no entry exports isn't published. In the exploration's control, an unmangled build, five tests failed for those reasons alone. A test that reads the refusal count and expects 0 passes against the build without checking anything. For the same reason, the harness's check reads 0 there and checks nothing, and the source projects carry it.
+- **Selection is by file.** The consumer project's file list then states exactly what it covers, and no test reads which build it runs against. Vitest 5.0.5's tag filter, `tagsFilter`, is an option of the run's `UserConfig`, not of a project's `InlineConfig`, so it can't select tests per project. A source-only test in a file of public tests moves to a file that the consumer project excludes, with its title and body unchanged.
+- **The tests keep importing `src` paths.** The consumer project resolves each published entry's source path to the package's own specifier. Rewriting the imports to package specifiers would make `tsc` and the source run depend on a build.
+- **Chromium only, for now.** The build is the same code in every engine, and the three-engine source run covers engine differences. Whether the consumer project also runs in three engines before a mangle ships is decided with `DRO-15` step 3.
+
+**Required properties:**
+
+1. **The build.** The consumer project reads what `just build` emits: `package-files.ts clean`, then `tsdown --config tsdown.config.ts`, unchanged. It runs once per test run, before any consumer file starts, and no test builds the tree or reads it during a build. A failed build fails each consumer file with `tsdown`'s output, and the other projects' verdicts stand, as `DRAG2_NODE_BUILD` does for drag2.
+2. **Resolution.** In the consumer project, an import of one of the thirteen published entries' source files, `src/<entry>.ts`, resolves as the specifier `@ydinjs/drag/<entry>.js` resolves for a consumer: through `package.json`'s exports map, to the emitted file. `@ydinjs/box-quad` resolves as it does in the source projects. **Any other module under `src/` is an error at resolution** in that project, and the error names the module.
+3. **Selection.** The consumer project runs every file of the Chromium `browser` project except the `shipped` files and the source-only files. The source-only files are one list beside `DRAG_SHIPPED_BROWSER_TESTS`, each with the reason. A test is source-only when it reads a development instrument, such as the refusal count or a development check's report, or an internal member: a module that no entry exports, or a member that no published type declares. A type-only import isn't a reason.
+4. **The source projects keep every test.** Each source project runs the same test titles as before. A moved test keeps its title and body, under a `describe` of the same title.
+5. **Witnesses.** A runtime import of a non-entry module in a consumer file fails the consumer project at resolution. A fault placed in the emitted tree after the build, and only there, fails at least one consumer test whose source run passes. A failed build fails every consumer file and leaves the source projects' verdicts standing.
+6. **Unchanged:** `src`, `bench`, `tsdown.config.ts`, `package.json`, `files.json`, the size gate and every ceiling. The `shipped` project and its hot-path census stay on `src` with `__DEV__` false. No three-engine configuration takes the consumer project.
+
+**Step 2, the gate on the published build,** is a separate unit, decided when this one reports. Known now:
+
+- it is an instrument change under `DRD-23`, so an injection shows that the gate catches bytes added to the emitted tree;
+- every ceiling and `draggable alone`'s control figure stay as they are. A row whose verdict changes only because the gate reads the build goes to the owner under `DRO-4`, not into a re-base;
+- `size.node.test.ts`'s graph assertions and `measure.ts`'s `present` and `absent` lists name `src/` paths, and they need the emitted paths;
+- whether `@ydinjs/box-quad` is bundled from its source, as now, or from its build is decided in that unit.
+
+**What this doesn't decide:** the publish step and its mangle (`DRO-15` step 3), whether the `shipped` census moves to the build, and `DRO-4`'s re-base.
+
+**Result, 2026-11-13:** implemented at `5ea7bb7e6`, reported at `87288b9d2` and accepted with one guard gap ([assessment](consumer-tests-assessment.md)).
+
+- The `consumer` project runs 22 files and 326 tests against the emitted tree, and all of them pass.
+- The source projects keep their titles and verdicts.
+- The source-only list has four files. One test beyond the handoff's list joined it: the sink receiver test reads `report` and `settle`, which only an unpublished installer type declares.
+- The Chromium suite went from 58.2 s to 99.6 s.
+- **The gap is `DRF-23`.** The resolver handles only relative specifiers, so an absolute path to a non-entry module loads its source.
+
+**Amended 2026-11-13, property 2 (`DRF-23`): the file an import reaches decides, not the form of its specifier.**
+
+- **The rule.** In the consumer project, every import that would reach a file under the package's `src/` ends one of two ways:
+  - it reaches the emitted file of the published entry whose source that file is, as `@ydinjs/drag/<entry>.js` resolves;
+  - or it is an error at resolution that names the module.
+- **The forms it covers:**
+  - a relative specifier;
+  - an absolute filesystem path;
+  - a path from the Vite root;
+  - a `/@fs/` path;
+  - a `file:` URL;
+  - any of these with a query or hash suffix.
+- **No module whose file is under `src/` loads in that project.**
+- **Property 5's first witness tries every one of those forms.** It runs against the resolver before the repair, where at least the absolute path loads the source module, and against the repair, where every form fails. A witness that only the repaired resolver can pass is the discriminating one.
+- **The size gate's resolution follows the same rule** (`DRD-55`).
+- **What property 2 used to say:** "an import of one of the thirteen published entries' source files, `src/<entry>.ts`, resolves as the specifier `@ydinjs/drag/<entry>.js` resolves", and "any other module under `src/` is an error at resolution". The handoff's W1 tried only the relative form. [`published-gate-handoff.md`](published-gate-handoff.md) part A implements this amendment.
+
+#### DRD-55 — The size gate measures the package's published build, through its exports map, with every ceiling unchanged
+
+**`tests/size.node.test.ts` and `bench/size/measure.ts` bundle each row from the files that `just build` emits. Entries resolve through `package.json`'s exports map, and the fixtures' imports follow the consumer project's rule. One build per Vitest run serves both the consumer and the node project. `@ydinjs/box-quad` stays bundled from its source. Every row, ceiling and control figure stays. A verdict that changes only because the gate reads the build goes to the owner under `DRO-4`.** [`published-gate-handoff.md`](published-gate-handoff.md) part B implements it. This is `DRO-15` step 2.
+
+Decided on 2026-11-13 by the architect, on the owner's request to decide step 2 after `DRD-54`'s unit reported ([assessment](consumer-tests-assessment.md)).
+
+**Why:**
+
+- **The gate should measure what a consumer installs.**
+  - The emulated build differs from `src` by −7 to +16 B Brotli per row ([exploration](property-mangling-exploration.md) §3).
+  - A publish-time mangle would change only the build, so its gain can be gated only there.
+  - The owner holds the mangle until the published build's results exist, and this unit's per-row figures are those results.
+- **One build per run.** `outDir` is the package root, so the build rewrites the files that the consumer project reads. A second build during a run could rewrite them while a file reads them. One build, finished before either project starts, keeps both projects on the same tree ([assessment](consumer-tests-assessment.md) §4).
+- **The resolution rule is the consumer project's.**
+  - A row exists to measure what importing a published entry brings.
+  - A fixture that reached a non-entry module would measure code that a consumer can't import.
+  - The rule decides by the resolved file, as `DRD-54` property 2 does since its amendment.
+- **box-quad stays on its source:**
+  - Drag's run doesn't build box-quad. Its emitted `index.js` is what box-quad's last build left, and nothing in drag's run makes it. Reading it would make drag's gate depend on an artifact that the run doesn't produce.
+  - The ceilings were set with box-quad from its source. Keeping it there leaves drag's build as the only thing that changes, so every verdict change is attributable to drag's build.
+  - box-quad's publication has no transform beyond erasing types: it is unbundled, with no define and no mangle.
+  - **Revisit this** if box-quad's publication gains a transform that changes its code.
+- **The graphs keep their meaning.** The build is unbundled, so each module under `src/` has exactly one emitted file. A graph assertion that names `src/<path>` names `<path>.js` instead, and selects the same modules. If a row's graph changed beyond that mapping, the build would be changing what an import brings, which is `DRI-18`'s subject. That is a return condition, not a re-mapping.
+- **gzip-9 is printed by the gate itself.** `DRD-51` property 1 books minified, gzip-9 and Brotli-11 readings. Once the gate reads the build, `size.ts.txt`, which reads `src`, can no longer reproduce its figures. The gate printing gzip-9 keeps property 1 satisfiable without a second probe.
+- **A changed verdict isn't re-based.** The ceilings and `draggable alone`'s control stay as they are. A row that turns red or green only because the gate reads the build is a measured fact for the owner's re-base (`DRO-4`, `DRD-51` property 3).
+
+**Required properties:**
+
+1. **The build.**
+   - It is `just build`'s build, unchanged: `package-files.ts clean`, then `tsdown --config tsdown.config.ts`.
+   - In every configuration with `@ydinjs/drag`'s consumer or node project, it runs exactly once per Vitest run. That holds with both projects, and with either one alone. It finishes before any file of either project starts. No file builds the tree.
+   - **A failed build** fails the gate's file and every consumer file with `tsdown`'s output. The `browser`, `shipped` and `declaration` projects' verdicts stand.
+2. **Resolution.**
+   - Each row imports the same entries and named exports as before.
+   - An entry resolves as `@ydinjs/drag/<entry>.js` does for a consumer, through the exports map, to the emitted file.
+   - A fixture's import follows `DRD-54` property 2's rule, as amended.
+   - `@ydinjs/box-quad` resolves to `packages/box-quad/src/index.ts`.
+   - `--prototype` is unchanged.
+3. **The graphs.** Each row's module list at the build equals its list from `src`, with each `src/<path>.ts` read as `<path>.js`, and box-quad's module unchanged. Every `present` and `absent` fragment, and "draggable alone"'s expected list, selects the emitted counterparts of what it selected before.
+4. **Fixed:** every row's name and imports, every `budget` and `control`, Rolldown's options, `minify: true`, the `__DEV__` define and the Brotli settings.
+5. **Figures.**
+   - `measure.ts` prints minified, gzip-9 and Brotli-11 bytes per row. Brotli-11 is gated, and gzip-9 is recorded only.
+   - Two readings of one build agree to the byte.
+   - `npx just size` builds, then measures. `node bench/size/measure.ts` measures the tree in the package root and says so in its header.
+6. **Injection (`DRD-23`).**
+   - Bytes added to one emitted module after the build, and to nothing else, raise the Brotli figure of every row whose graph contains that module. They move "draggable alone"'s control when its graph contains the module, and leave every other row's figure unchanged.
+   - The same bytes added only to that module's source file leave every figure unchanged.
+   - A fixture's runtime import of a non-entry module fails its row with an error that names the module.
+7. **Readings.** The unit reports every row at its base, read from `src`, and at its end, read from the build, as minified, gzip-9 and Brotli-11, with the difference and the verdict at each.
+
+**What this amends:**
+
+- **`DRD-51` property 1.** Once this decision lands, a size reading is booked from the gate on the published build, using `measure.ts`'s printed figures. A candidate's joint reading builds the candidate tree first. `size.ts.txt` reads `src`, so it ranks candidates and no longer books them.
+- **`DRD-51` property 3.** "`measure.ts` itself" stays as it is, except for this decision's instrument change. Every ceiling and the control figure stay.
+
+**What this doesn't decide:**
+
+- the publish step and its mangle (`DRO-15` step 3);
+- whether the consumer project runs in three engines (`DRD-54`);
+- whether the `shipped` census moves to the build;
+- `DRO-4`'s re-base.
+
+**Result, 2026-11-13:** part A landed at `79b4c3132` and part B at `69c260685`. Both were reported at `2d9a2f482` and accepted (§Disposition of the published gate report).
+
+- **Size.** The gate reads the emitted tree, and every row's graph equals its graph from `src` under the path mapping.
+- **Readings.** The figures moved by −7 to +16 B Brotli against `src`: +4 B on "freeDrag", +16 B on "freeDrag + bounds + landing", −7 B on each `sortable` row, −1 B on "complete", and 0 on the five other rows.
+- **No row's verdict changed,** so nothing goes to `DRO-4` from this unit. The six rows over their ceilings are the same six as before.
+- **Witnesses.** Bytes added to an emitted module raise exactly the rows whose graphs contain it, and the same bytes in `src` change nothing.
+- **One build per run** serves both projects, counted by tracing the processes the run started.
+- **`DRF-23` is closed at `79b4c3132`.**
+
+#### DRD-56 — Internal properties carry a `_` prefix in source, and the publication build shortens exactly those names through one committed map
+
+**A property that only this package's own code reads or writes, and that the publication build should shorten, is named with a `_` prefix in `src`. The `tsdown` build renames every such property in the emitted JavaScript, using one committed map from source name to output name. Public names, names the platform reads or calls, and `#private` members keep their names. No tool picks the names from types. The `.d.ts` output doesn't change, each module's source map still leads back to `src`, and a test validates the publication that the build actually produces. Budgets are unchanged.** This is `DRO-15` step 3, and [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it.
+
+Decided on 2026-11-13 by the architect, on the owner's answer to `DRO-15`:
+
+- explicit underscore prefixes in source for strictly internal properties, followed by publish-time mangling;
+- public and platform names unchanged;
+- the mangled set is not inferred from types.
+
+The owner's direction is in [`performance-plan.md`](performance-plan.md) §2 at `3b8f2d788`, and the type-directed transform is deferred in its §6.
+
+**Why:**
+
+- **The prefix makes each choice visible, and a person makes it.** The exploration chose names by type analysis, and the analysis was wrong about `zIndex` ([exploration](property-mangling-exploration.md) §2). With a prefix, the name in `src` states that the property is internal, a reviewer sees each one in a diff, and the build needs no analysis.
+- **The prefix removes the platform risk by construction.** `src` itself runs with `_config`, so a prefixed key that reached a platform API would already fail in the source projects. Renaming `_config` to a short name can only break something that reads the name as text: a string key, a computed key, or an enumeration whose result depends on the names. Property 1 forbids those, and validation V1 finds them.
+- **One committed map keeps the modules consistent.** The build is unbundled, so the modules that share an object are renamed separately. Using one fixed map from source name to output name means every module renames `_config` the same way. Committing the map makes a build reproducible, and a new prefixed name shows up as a change to the map.
+- **An output name must not equal a name that stays.** The renamer sees one module at a time, so on its own it could give a prefixed member a short name that another module uses unprefixed on the same object, such as `x`. The map is built with the whole publication in view, and V3 checks it.
+- **The step belongs to `tsdown`'s build.** Every path that builds the publication then includes it: `just build`, the consumer project, the gate, and a publish. A separate step after the build could be skipped. `tsdown` composes the source map that a plugin returns with its own, so the published maps lead back to `src`.
+- **This fits CONTRIBUTING.** §11 says to let the minifier shorten identifiers. The prefix is a marker for the tool, not a shortened name. Part I's priorities already rely on `#private` names being mangled, so those take no prefix. The class encapsulation rules still apply to a prefixed member: mutable state stays in `#private` fields.
+- **Tier 2 isn't taken.** Its names are members of `DRD-39`'s installer types, and those types are declared in the emitted `.d.ts` files. The exploration recommended against it, and the owner didn't choose it.
+
+**Required properties:**
+
+1. **The marker.**
+   - A property name of one `_` followed by a letter, `^_[A-Za-z]`, marks an internal property that the publication build shortens. It covers class members, object literal keys, member accesses and destructuring keys.
+   - `src` uses no such name for anything else: not for a binding, a parameter, a module export, a string or a computed key, or a property that code enumerates by name.
+   - Names with two leading underscores, such as `__DEV__` and `__dragRefused`, are not markers.
+   - **These keep their names:**
+     - `#private` members;
+     - every member that an emitted `.d.ts` declares;
+     - every name the platform reads, writes or calls, such as `handleEvent` and a keyframe's keys;
+     - every property stored on a platform object;
+     - every property of an object that a consumer creates, and every member that a published type declares on an object that a consumer receives;
+     - every member of a development instrument that tests read through a global, such as the refusal count's `trusted` and `untrusted`.
+2. **The selection is explicit, and made by reading the code.**
+   - **The starting set** is the exploration's tier 1 that the bundle contains: `advance`, `animation`, `collect`, `config`, `count`, `decide`, `detach`, `direction`, `dx`, `dy`, `empty`, `enter`, `first`, `holds`, `lend`, `measure`, `measurePlaceholder`, `placeholderRect`, `raise`, `raiseInPass`, `rebase`, `refresh`, `root`, `run`, `schedule`, `stepTarget`, `terminate`, `updateInsertion` and `window`. That is 29 names.
+   - **The prefix applies to a declaration, not to every use of a name.** For each name, every internal declaration with that name is renamed together with its uses. A parameter or local binding with the same name, such as `root: HTMLElement`, stays.
+   - **Each declaration is confirmed by reading its use sites against property 1.** One that fails stays unprefixed, and the report gives the reason.
+   - **No tool selects or adds a name.** A later prefixed name is added by hand, in a diff that also changes the map.
+3. **The source rename changes no behavior.**
+   - Each declaration is renamed with the type checker's rename, and `tsc` checks the result.
+   - A test, bench or probe that names a renamed member follows the rename and changes nothing else. That includes `@ts-expect-error` lines that assert a published type lacks the member.
+   - `compare.ts`'s injection texts follow the rename. **The rename makes no injection stale:** `--prove --dry` and `--floors --dry` report the same entries applying at the base and at the end. Entries that `DRD-45` property 9 already lists as stale stay as they are. The dry checks start no browser and measure nothing, so they aren't the deferred campaigns of `DRD-51` property 3.
+4. **The map.**
+   - One committed file, kept out of the publication, maps each prefixed name to its output name.
+   - Its keys are exactly the prefixed property names in `src`, found by reading the syntax, and a test fails when the two differ.
+   - Its output names are distinct, valid identifier names, unprefixed, and equal to no property name that stays in the publication.
+   - A committed script generates it deterministically from the unrenamed publication, and a person reviews the diff.
+5. **The step.**
+   - It is part of the `tsdown` build, so `just build`'s two commands produce the renamed publication.
+   - It renames properties in each emitted JavaScript module using the committed map, and changes nothing else in the module: its statements, its comments that bundlers read (`@__PURE__`, `#__PURE__`, `@__NO_SIDE_EFFECTS__`) and its `sourceMappingURL` stay.
+   - **A prefixed name that the map lacks fails the build,** and the error names it.
+   - The `.d.ts` and `.d.ts.map` output is byte-identical to a build without the step.
+   - The step adds no runtime code.
+6. **Source maps.**
+   - Every emitted module's map is valid.
+   - Every renamed property's position in the emitted code maps to the position in `src` where the prefixed name is written.
+     - **One exception:** the renamed name is a class member, and the build without the step already maps that token to the start of the member that declares it. The mapping then stays at the member start. From that position, the `src` text holds only class member modifiers and whitespace, and then the same prefixed name. No other form passes: not a different name, a decorator, a comment, or a position in another member.
+   - Every other token in the emitted code maps to the same `src` position as the corresponding token does without the step.
+7. **The publication is validated.** A node test reads the run's one build (`DRD-55` property 1) and checks every file that `package.json`'s `files` selects:
+   - **V1:** no emitted `.js` file holds a property name or a string literal that matches `^_[A-Za-z]`;
+   - **V2:** no emitted `.d.ts` file holds an identifier that matches `^_[A-Za-z]`;
+   - **V3:** the map satisfies property 4 against this build;
+   - **V4:** each renamed position maps back as property 6 states;
+   - **V5:** two builds of one tree give byte-identical `.js`, `.js.map`, `.d.ts` and `.d.ts.map` files. The handoff checks this once, outside the test.
+
+   The consumer project's tests run against the renamed build and must all pass.
+
+8. **Engines.** The consumer project stays Chromium only, which settles `DRD-54`'s open question. The renaming touches no name that an engine treats differently, by property 1. A one-time run of the consumer files in Firefox and WebKit against the renamed build validates that, and isn't added to the suite.
+9. **Budgets.** Every ceiling and the control figure stay. The unit reports every row as read by the gate on the renamed build, against the build without the renaming. A verdict that changes goes to the owner under `DRO-4`.
+
+**Expected:** the exploration's emulated publication read −30 to −66 B Brotli on the rows without `sortable`, and −103 to −119 B on the three `sortable` rows, at `b0287f1ae`. It also read that "freeDrag" and "example: resize handle" would fall below their ceilings. Those are estimates. The gate's joint reading is the booked figure (`DRD-51` property 1, as amended).
+
+**What this amends:** `DRD-51` property 3 is clarified: `--prove --dry` and `--floors --dry` aren't campaigns. `DRD-54`'s question on three engines is answered by property 8.
+
+**What this doesn't decide:**
+
+- the type-directed transform ([`performance-plan.md`](performance-plan.md) §6, deferred);
+- whether the `shipped` census moves to the build;
+- `DRO-4`'s re-base;
+- prefixes for any package other than `@ydinjs/drag`. That would be a CONTRIBUTING change.
+
+**Corrected on 2026-11-13, in place** ([assessment](publish-mangle-assessment.md) §3 and §4):
+
+- **Property 6, the class member exception.** Rolldown 1.2.15 maps a `readonly` class field to the start of its member, with or without the step, and a map that `renderChunk` returns can't move that mapping. Property 6's second bullet then contradicted its third for four renamed fields. On the owner's answer during the unit, the third bullet governs, within the bound that the exception states. V4 refers to property 6, so it applies the same bound. Before the correction, the second bullet had no exception.
+- **Property 1, objects that a consumer receives.** The bullet read "every property of an object that a consumer creates, or receives under a published type". It now names the members that the published type declares. That is how the selection and the handoff read it: `Gesture`'s `enter`, `raise`, `raiseInPass` and `detach` aren't declared by `DraggableController`, and are prefixed. No selection changes.
+
+**Result, 2026-11-13:** commit A at `f7b7b300b` and commit B at `31f92f5a9`, reported at `78797ebf6` and accepted ([assessment](publish-mangle-assessment.md), §Disposition of the publish mangle report).
+
+- **Selection.** All 37 declarations of the 29 names are prefixed. Each was read against property 1, and none stays.
+- **Rename.** With each `_name` read as `name`, `src` doesn't differ. The `.d.ts` files are byte-identical, and the dry checks apply the same entries as at the base.
+- **Step.** It renames 145 names in the emitted modules through 29 map entries, and changes nothing else. All 6,902 mappings keep their `src` positions. Four of them use property 6's exception.
+- **Validation.** The publication test passes, and M1 to M7 fail as required. V5 holds. The consumer project passes 326 of 326 on the renamed build, and its files pass in Firefox and WebKit once.
+- **Size, Brotli-11, base → end:** −31 to −66 B on the seven rows without `sortable`, and −102 to −110 B on the three rows with it. "example: resize handle" and "freeDrag" turn green. Ceilings and the control are unchanged, and the verdicts go to `DRO-4`.
+
+**Extended on 2026-11-13 by `DRD-57`:** property 2's selection adds 30 declarations that its starting set missed, and a one-character name isn't selected.
+
+**Superseded in part on 2026-11-13 by `DRD-59`,** on the owner's requirements for the publication, which withdraw the requirement to keep the JavaScript text and the source map segments. Properties 4, 5 and 6 and property 7's V2 to V4 are replaced. Properties 1 to 3, 8 and 9 and V1 stay. The rationale's claims about what V1 finds (`DRF-30`) and about a publish (`DRF-31`) are corrected there.
+
+**Superseded on 2026-11-13 by `DRD-60`,** on the owner's decision to defer property mangling. The prefixes, the step and the publication test go. Two statements stay: property 8's first sentence, that the consumer project is Chromium only, and the clarification of `DRD-51` property 3.
+
+#### DRD-57 — The prefix selection is made per declaration across `src`, and adds 30 declarations
+
+**Every property declaration in `src` that `DRD-56` property 1 admits carries the `_` prefix, also when a platform member or a published member has the same name. The audit at `436b105c6` adds 30 declarations under 24 new names to `DRD-56`'s 37 declarations. The installer types' members, names of one character, and everything that property 1 keeps stay unprefixed. The step, the publication test and the map's generator don't change, and the map is generated again. Budgets are unchanged.** [`mangle-selection-audit.md`](mangle-selection-audit.md) is the audit, and [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it.
+
+Decided on 2026-11-13 by the architect, on the owner's request to audit the selection after `RectIndex.values` was found unprefixed.
+
+**Why:**
+
+- **The starting set came from a rule about names.** The exploration counted a name as eligible only when every use of it resolved to this package, because Rolldown's `mangleProps` renames every occurrence of a name. `DRD-56` renames one declaration and its uses, and its property 2 already says the prefix applies to a declaration. The starting set therefore left out every internal declaration whose name the platform or a published type also uses: `RectIndex.values` beside `Map.values()`, `FrameTask.cancel` beside `Animation.cancel()`, and 28 more ([audit](mangle-selection-audit.md) §1).
+- **The extension applies `DRD-56`'s own rule.** Each added declaration passes property 1 for the same reasons as a declaration that is already prefixed on the same class or type, such as `_config` beside `axis`, `_empty` beside `has`, and `_direction` beside `visual`. No step property changes.
+- **A name of one character gains nothing.** The map's output names are at least one character, so a prefix on `x` or `y` adds a map entry and the rename's risk, and no bytes.
+- **The installer members stay out,** as the owner chose under `DRO-15`. The exclusion is stated by declaration: members of internal types that only share a name with an installer member are selected ([audit](mangle-selection-audit.md) §5).
+- **The pipeline doesn't change,** so the independent review pinned to `436b105c6`, which reads `build/` and the publication test, still reads the code that this unit runs.
+
+**Required properties:**
+
+1. **The selection.** The 30 declarations in [audit](mangle-selection-audit.md) §3 are prefixed, each together with its uses, by the type checker's rename at that declaration. A declaration with the same name that isn't in that table keeps its name. With `DRD-56`'s 37 declarations, 67 declarations under 53 names are prefixed.
+2. **What stays** is [audit](mangle-selection-audit.md) §4 and §5. This includes every member that an emitted `.d.ts` declares, every class member that implements a member of a published interface, and every member of an installer type or of an object that implements one.
+3. **A property whose name is one character isn't prefixed.** This adds to `DRD-56` property 1's list of names that keep their names.
+4. **The map.** The committed script generates `build/property-names.json` again. Its keys are exactly the 53 prefixed names in `src`, and a person reviews its diff. **The rename and the map change in one commit,** because the step fails a build on a prefixed name that the map lacks.
+5. **Nothing else in the pipeline changes:** `build/*.ts`, `tsdown.config.ts`, `tests/publication.node.test.ts`, `package.json`, `files.json` and `.scripts/`. The `.d.ts` output is byte-identical. `DRD-56` properties 3 and 5 to 9 apply as written.
+6. **Budgets.** Every ceiling and the control figure stay. The gate's reading on the published build is the booked figure (`DRD-51` property 1), and a verdict that changes goes to `DRO-4`.
+
+**Estimated:** about 128 occurrences in the emitted modules and about 600 characters before compression, across the whole publication ([audit](mangle-selection-audit.md) §6). Not measured.
+
+**What this amends:** `DRD-56` property 2's starting set. The selection is `DRD-56`'s 37 declarations and these 30. Property 3 adds a rule to `DRD-56` property 1.
+
+**What this doesn't decide:**
+
+- the type-directed transform ([`performance-plan.md`](performance-plan.md) §6, deferred);
+- the installer types' names, or any name that a `.d.ts` declares;
+- the independent review of `DRD-56`'s pipeline. Its pin, its scope and its passes stay as they are;
+- whether the `shipped` census moves to the build, and `DRO-4`'s re-base.
+
+**Implemented on 2026-11-13** at `b50204f66`, and reported at `1719df16c` ([report](mangle-selection-report.md)). The architect hasn't read the report. **Property 4 is superseded by `DRD-59`:** the map is computed in each build, and no file holds it. Properties 1 to 3 and 6 stay.
+
+**Superseded on 2026-11-13 by `DRD-60`.** Its 30 declarations take back their names without the `_`. The [audit](mangle-selection-audit.md) stays as the record of the selection.
+
+#### DRD-58 — `RectIndex`'s slot buffer is one `number[]` for the index's life, and the rules that replacement required go
+
+**`RectIndex.#values` is one `number[]`, created with the index and never replaced. It grows only by appending, in `_collect`, so it never has a hole. `#capacity` and `capacityFor` go. The `values` getter returns the same array, typed `readonly number[]`, for the index's life. `_lend` stays the only way a write leaves the class. It keeps its extent rule, and loses its lifetime and reentrancy clauses, which existed only because `_collect` could replace the buffer. The packed layout, the window and every value read from it are unchanged. Fixed-size buffers stay `Float64Array`.** [`slot-array-handoff.md`](slot-array-handoff.md) implements it.
+
+Decided on 2026-11-13 on the owner's direction. The owner chose the simplification for itself: the unit reports its costs, and a speed-up is not required to justify it. The member names below are `436b105c6`'s. `DRD-57` prefixes `values`, `items`, `end`, `invalidate` and `retire`, and the unit runs after it.
+
+**The owner's direction:**
+
+- **Replace the growable `#values` buffer with `number[]`,** and remove manual capacity management and buffer replacement.
+- **Simplify the ownership rules that existed because `_collect` replaced the buffer.**
+- **Keep the packed geometry and its behavior.**
+- **Only the growable slot buffer is in scope.** Fixed-size buffers, such as box-quad's out parameters, are not.
+- **Check the affected sink signatures and declarations explicitly.**
+- **Use the existing behavior, geometry, allocation and size checks, and report the costs.**
+- **The independent review stays pinned to `436b105c6`.**
+
+**Why the rules go.** `DRD-52` gave `_lend` a lifetime ("valid during the call only") and a reentrancy rule ("`write` calls neither `_collect` nor a rebuild that calls it"), and the `values` getter a lifetime ("valid until the next `_collect`"). The owner asked for them because a reference could outlive its buffer ([proposal](rect-index-ownership-proposal.md) §1, §3.1). An array that is never replaced can't be outlived, so all three go. **The class-encapsulation rule doesn't depend on replacement**, so changes still leave the class only through a method: a writer writes during its lend, and a reader gets a read-only view. The extent rule describes the window, not the buffer's lifetime, so it stays.
+
+**Why it must grow by appending.** `y()`'s window starts at the placeholder's slot, so `_measure` writes slots in the middle of the collection first. A write past an array's length leaves a hole. In V8, a write at index 600 of an empty array left it holey, and a write at index 1,026, which is slot 171 at `STRIDE` 6, made it a dictionary ([probe](measurements/2026-11-13-slot-array-kinds.js.txt), [output](measurements/2026-11-13-slot-array-kinds.txt)). Assigning a larger `length` left the array holey too. Appending numbers keeps the array packed, and the engine manages its capacity.
+
+**Required properties:**
+
+1. **The slot array.** `#values` is a `readonly` field holding one `number[]`, created with the index. Nothing assigns it again. No field, function or comment states a capacity. Nothing in `src` allocates a typed array for the slots.
+2. **Growth.** Before `_measure` writes a slot, the array's length covers that slot. `_collect` makes it so by appending numbers at the array's end, and only when the collection has more slots than the array holds. No write lands past the array's length, and nothing assigns `length` upward. **The array never shrinks:** it holds the largest collection the index has measured, and `retire` keeps it, as now. The unit shows this property by listing every write and growth site in the report. It adds no instrument.
+3. **The geometry.** The layout is `[left, top, right, bottom, centerX, centerY]` per slot, at `STRIDE` 6. `pack`'s arithmetic, the window, `_measure`'s range, `settle`'s range and every read site don't change. A slot inside the window holds the same IEEE double that the `Float64Array` held. A slot outside the window is unspecified, and nothing reads it, as now.
+4. **Reads.** The `values` getter returns `readonly number[]`: the same array for the index's life, like `items` and `_placeholderRect`. Its JSDoc says that the contents are valid inside the window. It no longer gives a lifetime. A read site no longer has to read after the `_collect` it depends on.
+5. **`_lend(lo, hi, write)`** calls `write(values, lo, hi)` once with the writable `number[]`.
+   - **Extent, unchanged:** `lo` to before `hi` is inside the window, and `write` reads and writes nothing outside it.
+   - **Ownership:** `write` writes the array only during the call. This is the class-encapsulation rule. It no longer describes when the reference is valid.
+   - **Removed:** the lifetime clause and the reentrancy clause.
+   - The JSDoc still says that this is the rule `_measure` gives the sink's `settle`, and that nothing checks it at runtime.
+6. **Fixed-size buffers stay `Float64Array`.** These are `#placeholderRect`, `_holds`'s one-slot scratch, `linear-shift.ts`'s one-slot probe scratch and `heldPlaceholder`, `ReadonlyFloat64Array`, which still types `_placeholderRect` and `verifyEquivalence`'s `heldPlaceholder`, and everything outside `src/sortable/` (box-quad's out parameters, `free-drag/geometry.ts`, the stories and the fixtures).
+7. **Shared signatures.** A function or method that receives both the slot array and a fixed-size buffer takes `number[] | Float64Array`, with no cast, copy or conversion at any call site. A read-only view (`readonly number[]`, `ReadonlyFloat64Array`) is not assignable to it. **The union is written in each parameter and not named,** so that no `.d.ts` gains a declaration (property 8). The affected declarations:
+
+   | Declaration | At `436b105c6` | After |
+   | --- | --- | --- |
+   | `rect-index.ts` module JSDoc | "one `Float64Array` plus one parallel element array"; "alone allocates the buffer" | One `number[]`; `RectIndex` alone grows it |
+   | `pack(target, offset, rect)` | `target: Float64Array` | `number[] \| Float64Array`: the slot array, `#placeholderRect` and `_holds`'s scratch |
+   | `capacityFor` | Power-of-two capacity | Removed |
+   | `#values` and its JSDoc | `Float64Array`, replaced when outgrown, "never shrinks" | Property 1. "Never shrinks" stays true |
+   | `#capacity` | Field | Removed |
+   | `get values()` | `ReadonlyFloat64Array`, "valid until the next `_collect`" | `readonly number[]`, property 4 |
+   | `_collect` | Replaces the buffer when outgrown | Property 2 |
+   | `_lend`'s `write` parameter and JSDoc | `(values: Float64Array, lo, hi) => void`, three rules | `(values: number[], lo, hi) => void`, property 5 |
+   | `verifyEquivalence`'s `predicted` | A `Float64Array` copy | A `number[]` copy, by `slice` as now |
+   | `axis.ts` `DisplacementSink.settle`'s `values` | `Float64Array` | `number[] \| Float64Array`: `_measure` passes the slot array, and `_holds` and the probe pass a one-slot `Float64Array`. The range rule in its JSDoc is unchanged. **Emitted in `sortable/axis.d.ts`** (property 8) |
+   | `layout-animation.ts` `settle`'s `values` | `Float64Array` | As `axis.ts`. The body is unchanged |
+   | `linear-shift.ts` `advance`'s `values` | `Float64Array` | `number[]` |
+   | `linear-shift.ts`, `xy.ts` and `y.ts` read sites | Untyped destructuring of `values` | Unchanged. A comment whose reason is replacement is rewritten or removed |
+   | `xy.ts` `before` | A growable `Float64Array`, replaced when outgrown | **Unchanged.** It isn't the slot buffer (see "What this doesn't decide") |
+
+8. **The publication.**
+   - No prefixed name is added or removed, so `build/property-names.json`, generated again, is byte-identical. The publication test passes.
+   - **One `.d.ts` line changes:** `settle`'s `values` parameter in the emitted `sortable/axis.d.ts` becomes `number[] | Float64Array`. Every other emitted `.d.ts` is byte-identical, and no `.d.ts` file is added. `DisplacementSink` is one of `DRD-39`'s unpublished installer types, which no entry exports, and CONTRIBUTING Part II §8 keeps no compatibility for it. `DRD-50` changed the same signature on the same ground.
+   - `DRD-39` property 3's instrument still holds: `typedoc` warns only about `AxisInstaller` and `DisplacementInstaller`.
+9. **Tests.** Only the helpers in `tests/displacement-sink.browser.test.ts` that identify the cache by its `ArrayBuffer` change: they identify it by being an array. `DRD-50`'s W7 still asserts that every measurement's `settle` receives one slot array and one element array, each with the range it read, and no test title changes. **A copy mutation shows that W7 still discriminates:** `_measure` passing `settle` a copy of the slot array fails W7. M8 still fails W8.
+
+**Costs, reported and not gated.** The owner asked for a report, and no reading returns the unit.
+
+- **Size:** every row, minified, gzip-9 and Brotli-11, at the base and at the end. The seven rows without `sortable` are control rows and must read exactly 0/0/0 (`DRD-51` property 2). A non-zero control row is a finding.
+- **Allocation:** `DRD-52`'s probes, per sample in each axis and per committed move cold and warm, at the base and at the end.
+- **Expected, not measured:** the first `_collect` of each index appends six numbers per slot, where the base allocated one typed array. V8 first holds an array of zeros as small integers, and the first fractional coordinate converts it to doubles once. `pack` and `settle` now receive two representations.
+- **Timing isn't measured.** The owner named the checks, and `DRD-50`'s result showed that a paired probe on this cache can't resolve an effect of this size. The report says that timing is unmeasured. `DRD-51` property 4 governs changes made for bytes in the size pass, and this isn't one.
+
+**What this amends:**
+
+- **`DRD-52` properties 1, 4 and 6,** by properties 1, 5 and 4 above. Its §Amendment states what they used to say.
+- **`DRD-50` W7's implementation.** The helpers no longer read an `ArrayBuffer`, and the copy mutation stands in for M7, whose view-and-copy call no longer applies to an array.
+
+**What this doesn't decide:**
+
+- **`xy.ts`'s `before`,** the other growable typed buffer in `src/sortable/`. It belongs to `xy()`'s committed move, not to `RectIndex`, so it is outside the owner's scope. The owner may extend this decision to it.
+- **Fixed-size buffers as `number[]`.** That would give `pack` and `settle` one representation, and the owner excluded it.
+- Removing `_lend`. It is the class's write method, and `DRD-52`'s ownership stands.
+- The independent review of `DRD-56`'s pipeline, its pin to `436b105c6`, and `DRO-4`'s re-base.
+
+**Amended on 2026-11-13 by `DRD-59`:** once `DRD-59`'s unit lands, property 8's first bullet reads "the publication test passes", because no file holds the map. Nothing else changes, and the unit stays separate.
+
+**Result, 2026-11-13:** implemented at `5ec3b4b2d`, reported at `690769539` and accepted (§Disposition of the slot array report). Properties 1 to 7 and 9 hold. Property 8 held under the publication pipeline as it stood: the map regenerated byte-identically, the publication test passed, one `.d.ts` line changed, and `typedoc` warned as before.
+
+- **Chromium only.** On the owner's direction of 2026-11-13 ([`performance-plan.md`](performance-plan.md) §3), local checks ran in Chromium only. Firefox and WebKit are deferred to the CI the owner plans, and this result claims no cross-engine verification. In Chromium, the copy mutation fails W7 for `y()` and `xy()`, and M8 fails W8.
+- **Size,** with the same tools at the base `706b91481` and the end: "sortable + y" −31 B Brotli, "sortable + xy" −32 B and "complete" −31 B, each −121 B minified. The seven control rows read 0/0/0, and no verdict changed.
+- **Allocation:** no probe moved by more than the spread inside either tree. The mean differences are +0.01 B per `y()` sample, −1.45 B per `xy()` sample, −0.04 B per cold committed move and −0.29 B per warm one.
+- **Not measured:** timing, and the three costs §Costs lists as expected. They stay inferred.
+
+**The slot array doesn't depend on the publish-time mangle.** Properties 1 to 7 and 9 don't use `DRD-56`'s pipeline or `DRD-57`'s prefixes. Property 8's map and publication-test clauses checked that pipeline as it stood, and they lapse with it. **The owner is reverting property mangling separately, and that revert keeps `5ec3b4b2d`'s slot array, signatures and test helpers.** A plain `git revert b50204f66` conflicts with `5ec3b4b2d` in `rect-index.ts` and `linear-shift.ts`, and the reverted side of the getter hunk is `get values(): ReadonlyFloat64Array`. The architect found this on 2026-11-13 in a scratch worktree at `690769539`, which has been removed. A resolution keeps this decision's types and comments under whichever member names the revert restores:
+
+- the getter returns `readonly number[]`;
+- `_lend`'s `write` takes `number[]`;
+- `pack`'s `target` and `settle`'s `values` are `number[] | Float64Array`;
+- `#capacity` and `capacityFor` stay removed.
+
+The `sortable/axis.d.ts` line stays too.
+
+**Amended on 2026-11-13 by `DRD-60`.** `DRD-59`'s amendment above is withdrawn with `DRD-59`. The §Result above stands, and the rollback keeps the types it lists. The members that this entry writes with the prefix, such as `_collect`, `_lend`, `_measure`, `_holds` and `_placeholderRect`, are named without it once `DRD-60`'s unit lands. Property 8's first bullet then stops applying, because neither the map nor the publication test exists. The other properties stay.
+
+**Amended on 2026-11-13 by `DRD-61`, properties 1, 3 to 7 and 9.** The slot array stays one `number[]` that grows only by appending, and it now holds every geometry value of the index.
+
+- **Property 1:** the array holds the scratch slot and the placeholder before the destination slots. Apart from `xy.ts`'s `before`, nothing in `src/sortable/` allocates a typed array for geometry.
+- **Property 3:** `pack` goes into the one read path, with its arithmetic, and `settle`'s range goes with `settle`. The layout, the window and every value read don't change.
+- **Property 4:** no getter returns the array. `at(slot, field)` returns one value.
+- **Property 5 is removed,** with `lend`. Its §What this doesn't decide left removing `lend` open, and `DRD-61` decides it.
+- **Property 6:** `#placeholderRect`, `holds`'s scratch, `linear-shift.ts`'s probe scratch, `heldPlaceholder` and `ReadonlyFloat64Array` go, because the storage holds what they held. Everything outside `src/sortable/` stays.
+- **Property 7:** no signature takes `number[] | Float64Array`, because `pack` and `settle` go. The emitted `sortable/axis.d.ts` changes as `DRD-61` property 6 states.
+- **Property 9:** W7 is replaced by `DRD-61` property 10, and its copy mutation by M7a and M7b.
+- **What they used to say:**
+  - property 1: the array held the destination slots, and "Nothing in `src` allocates a typed array for the slots";
+  - property 3: "`pack`'s arithmetic, the window, `_measure`'s range, `settle`'s range and every read site don't change";
+  - property 4: "The `values` getter returns `readonly number[]`: the same array for the index's life";
+  - property 5: "`_lend(lo, hi, write)` calls `write(values, lo, hi)` once with the writable `number[]`", with its extent and ownership rules;
+  - property 6: "Fixed-size buffers stay `Float64Array`. These are `#placeholderRect`, `_holds`'s one-slot scratch, `linear-shift.ts`'s one-slot probe scratch and `heldPlaceholder`, `ReadonlyFloat64Array` …";
+  - property 7: "A function or method that receives both the slot array and a fixed-size buffer takes `number[] | Float64Array`";
+  - property 9: "`DRD-50`'s W7 still asserts that every measurement's `settle` receives one slot array and one element array, each with the range it read".
+
+**Amended on 2026-11-13 by `DRD-62`:** property 7's row for `xy.ts`'s `before`, and the first bullet of §What this doesn't decide. `before` is removed. `xy()`'s previous geometry is in `RetainingRectIndex`'s `#retained`, a `number[]` that grows only by appending, as property 2 requires of the slot array. **What they used to say:** the row's last column, "**Unchanged.** It isn't the slot buffer (see "What this doesn't decide")", and the bullet, "`xy.ts`'s `before`, the other growable typed buffer in `src/sortable/`. It belongs to `xy()`'s committed move, not to `RectIndex`, so it is outside the owner's scope. The owner may extend this decision to it."
+
+#### DRD-59 — The publication is minified by `tsdown`, Oxc renames the internal properties through a map that each build computes, and the declarations have no maps
+
+**`tsdown.config.ts` keeps one configuration. It minifies with `tsdown`'s `minify: true`, writes source maps with `sourcesContent`, and writes `.d.ts` files with no maps and no map references. The internal properties that `DRD-56` and `DRD-57` select are renamed by Oxc's own `mangleProps`. One plugin applies it in each JavaScript module, through a map that a single-chunk build of the same entries computes, and refuses an annotation comment in `src` that its rename would delete. The custom renamer, its reader, its generator and the committed map go. The publication test checks the maps and the declarations. Budgets are unchanged.** [`publication-build-proposal.md`](publication-build-proposal.md) is the reasoning and the probes, and [`publication-build-handoff.md`](publication-build-handoff.md) implements it.
+
+Decided on 2026-11-13 by the architect, on the owner's requirements for the publication:
+
+- separate `.js` and `.d.ts` modules;
+- JavaScript fully minified, including the approved internal-property mangling;
+- declarations that keep every documentation comment;
+- a `.js.map` for each module that embeds the complete source through `sourcesContent` and supports debugging the minified code;
+- declaration maps optional, and no reference to a map that doesn't exist;
+- native `tsdown`, Rolldown and Oxc options first, and a custom plugin only for a demonstrated requirement that native tooling can't meet;
+- the annotations that downstream bundlers need, and the required license notices.
+
+**The owner withdrew** the requirement to preserve the previous JavaScript text and identical source map segments.
+
+**Why:**
+
+- **The custom pipeline existed for the withdrawn requirement.** `DRD-56` properties 5 and 6 required the step to change nothing but the names, and every other token to keep its mapping. That is why the step rewrites characters with its own map, why it has its own reader, and why V4 compares positions. With the requirement gone, Oxc renames in its own AST pass and Rolldown composes the maps ([proposal](publication-build-proposal.md) §4.1).
+- **One plugin is necessary, and its reason is demonstrated.** Rolldown refuses `output.minify.mangleProps` when a build has more than one JavaScript chunk, even with a complete `cache`: at 1.2.15 (proposal §2, L1), and still at 1.3.2 (proposal §9). drag's publication is unbundled. Bundling per entry would duplicate the kernel and split identity across entries, such as `DragFault` and the module-level `admitted` set.
+- **Oxc's rename, applied in each chunk, matches the custom renamer.** With the committed map as `cache`, the minified `.js` is byte-identical to the custom renamer followed by native minification, at 1.2.15. Its maps also name every renamed property access (proposal §2, N2).
+- **The map comes from the tools.** A single-chunk Rolldown build of every entry with native `mangleProps` returns a map with the same 53 keys, and it is deterministic, at 1.2.15 and at 1.3.2. Oxc picks the output names against every property name in that one chunk. That is `DRD-56` property 4's "equal to no name that stays", met without a reader (proposal §2, N3).
+- **Oxc doesn't protect a pinned name** from a kept name in the same chunk, and Oxc can list a chunk's kept names. So the build checks each chunk with Oxc's own listing (proposal §2, N4).
+- **`quoted: true`** renames a string key in property position together with its property, and keeps plain strings, which V1 catches (proposal §2, N4, `DRF-28`).
+- **The rename pass needs `legalComments: 'inline'`.** Native minification keeps legal comments, and Oxc's codegen drops them by default (proposal §2, N5, and §9 at 1.3.2).
+- **The rename pass deletes annotation comments, and no option keeps them.** Native minification keeps a `@__PURE__`, `#__PURE__` or `@__NO_SIDE_EFFECTS__` that `src` writes. After the rename pass none is left, and `minifySync`'s codegen offers only `removeWhitespace`, `asciiOnly` and `legalComments`. The annotations in today's output are Rolldown's own, and the minifier writes them again: 8 in 6 modules in the current build without minification, 9 in the same 6 with it. `src` writes none. So the build refuses an annotation in `src` rather than delete it without a word (proposal §9, A3).
+- **One configuration writes the declarations.** `rolldown-plugin-dts` 0.30.2 removes each `.d.ts` reference when declaration maps are off, so the JavaScript maps and the declaration maps are set apart in one build. Its 27 `.d.ts` files are byte-identical to the current build's. A second, declaration-only configuration would now publish 216 foreign declaration files and added side-effect imports (proposal §9, A1 and A2).
+- **No declaration maps.** They would point at `src/*.ts`, which the package doesn't publish (proposal §2, N8).
+- **The declarations already keep their documentation.** Every JSDoc block on a declaration that a published `.d.ts` declares is in it, against TypeScript's own emit: 115 of 115 at 1.2.15, and 123 of 123 at 1.3.2, where the published files also keep the 8 module headers (proposal §9). The rest are maintainer notes under the [documentation model](../../../.agents/docs/documentation.md) §5 (proposal §2, N9).
+- **Size:** the gate moves by −9 to +9 B Brotli per row, and no verdict changes, at 1.2.15 (proposal §6). Not measured at 1.3.2.
+
+**Required properties:**
+
+1. **One configuration.**
+   - `tsdown.config.ts` keeps its entries, platform, format, target, `define`, `unbundle`, `exports` and shared plugin list.
+   - It sets `minify: true`, `sourcemap: true`, `dts: { sourcemap: false }` and the rename plugin.
+   - Declaration maps are off in that option, and not because `tsconfig.base.json` leaves out `declarationMap`.
+   - `just build` stays the clean, then `tsdown --config tsdown.config.ts`, so `DRD-55` property 1 is unchanged.
+2. **Minification** is `tsdown`'s `minify: true` with Rolldown's comment defaults. No custom code minifies. `keepNames` stays off: function and class `name` values aren't part of the contract.
+3. **The internal properties.** `DRD-56` properties 1 to 3 and `DRD-57` properties 1 to 3 stay: the marker `^_[A-Za-z]`, the selection by declaration, and the names that keep their names.
+   - **(a) The map.** Before any module renders, one in-memory Rolldown build bundles every runtime entry in `files.json` into one chunk, with the configuration's `define` and shared plugins, and `@ydinjs/box-quad` external. It applies native `minify.mangleProps` with `include: /^_[A-Za-z]/` and `quoted: true`, and its `mangleCache` is the map. The build fails when that build gives more than one chunk. The map is written nowhere.
+   - **(b) The rename.** In `renderChunk`, for each JavaScript chunk, and for no `.d.ts` chunk, `rolldown/utils`' `minifySync` runs with compression and identifier mangling off, whitespace kept, `legalComments: 'inline'`, a source map, and `mangleProps` with the same `include`, `quoted: true` and the map as `cache`. The plugin returns the code and the map. Rolldown composes the map and then minifies.
+   - **(c) The build fails,** naming the chunk and the names, when a chunk's kept property names include an output name, or when Oxc assigns a name that the map lacks. The kept names are those that Oxc lists with `include: /^/`, the marker as `exclude`, and `quoted: true`.
+   - **(d) The build fails,** naming the module, when a comment in a module under `src` is a `@__PURE__`, `#__PURE__`, `@__NO_SIDE_EFFECTS__` or `#__NO_SIDE_EFFECTS__` annotation. The rename pass would delete it.
+   - **No other custom build code** for the JavaScript: no reader, no map arithmetic, no committed map, no generator and no second configuration.
+4. **Source maps.**
+   - Each published `.js` with mappings has a `.js.map` beside it and a `sourceMappingURL` that names it. A module with no mappings, a single re-export, has neither.
+   - Each map's `sourcesContent` holds the full text of each source, equal to the file under `src`.
+   - Each renamed property in a published module leads to the `src` text of its prefixed name, after class member modifiers. A key that the output writes as shorthand may lead to its value instead.
+   - Other mappings are the tools'.
+5. **Declarations.**
+   - Separate `.d.ts` modules, as now.
+   - No `.d.ts` holds a `sourceMappingURL`, and no `.d.ts.map` is emitted.
+   - Every JSDoc block on a declaration that a published `.d.ts` declares is kept.
+   - No `.d.ts` holds a marker name in any form.
+6. **Annotations and license notices.**
+   - Each published module keeps every `@__PURE__`, `#__PURE__` and `@__NO_SIDE_EFFECTS__` annotation that Rolldown's output of it has without the rename and without minification, and the minifier may add more.
+   - `src` writes no annotation, and property 3d keeps it that way.
+   - Each legal comment in a source module (`/*!`, `//!`, `@license`, `@preserve`) is kept in its published module. `src` has none today.
+   - `LICENSE` is in the package root, and npm packs it whatever `files` lists. `@ydinjs/box-quad` stays external, so the publication bundles no third-party code.
+7. **The publication test**, on `DRD-55` property 1's one build:
+   - **V1:** unchanged. No published `.js` holds a property name, string literal or template text that matches the marker.
+   - **V2:** no published `.d.ts` holds an identifier, string literal or template text that matches the marker.
+   - **V3:** property 4's map checks. The test takes the map from the build's own function. It splits `src` lines at CR LF, LF, CR, U+2028 and U+2029.
+   - **V4:** property 5's map references.
+   - **Removed:** the name-set test, the old V3 and the old V4. V5 stays a one-time check in the unit.
+8. **What is publishable.**
+   - `just build` alone guarantees properties 1, 2 and 3. Every marker name that Oxc finds in property position is renamed, every module uses the same map, and no output name is a kept name.
+   - A tree is publishable only when a Vitest run's node and consumer projects read it and passed.
+   - **No publication hook.** No path publishes the package, and `@ydinjs/drag` is `private` ([remediation assessment](mangle-remediation-assessment.md) §2).
+   - **Obligation:** the change that makes the package publishable, by removing `"private": true` or by adding a workflow or script that packs or publishes it, makes the packed tree one that those projects read and passed in the same job.
+9. **Budgets.** Every ceiling and the control figure stay. The unit reports every row at its base and its end. A changed verdict goes to `DRO-4`. The consumer project stays Chromium only, and the unit runs its files in Firefox and WebKit once, as `DRD-56` property 8 did.
+
+**What this replaces:**
+
+- **`DRD-56` property 4,** the committed map and its generator, by property 3a.
+- **`DRD-56` property 5,** a step that changes nothing but names, keeps every comment and leaves the `.d.ts` output byte-identical, by properties 2, 3b, 5 and 6.
+- **`DRD-56` property 6,** the renamed positions and every other token's mapping, by property 4.
+- **`DRD-56` property 7:**
+  - V1 stays;
+  - V2 is extended;
+  - V3, V4 and the name-set test are replaced by property 3c and the new V3 and V4;
+  - V5 becomes the unit's one-time check.
+- **`DRD-56`'s rationale bullets** on the committed map and on the step's placement, as far as they argue for them. The step is still part of the `tsdown` build.
+- **`DRD-57` property 4:** the regenerated map, and the rule that the rename and the map change in one commit.
+- **The remediation proposal at `be151f9ed`** ([assessment](mangle-remediation-assessment.md), [handoff](mangle-remediation-handoff.md)), withdrawn before implementation. Its validation decision never received a number. Its §2 finding and its rule on what is publishable are kept, in property 8 (proposal §4.2).
+
+**Corrections, from the review:**
+
+- **`DRF-30`:** `DRD-56`'s rationale said that V1 finds computed keys and enumerations. V1 finds literal strings and templates only. A key computed at runtime is excluded by `DRD-56` property 1 and by property 2's reading of the use sites.
+- **`DRF-31`:** `DRD-56`'s rationale listed a publish among the paths that build the publication. None exists. Property 8 states what is publishable.
+
+**What this amends:** `DRD-58` property 8's first bullet. Once this decision's unit lands, the map doesn't exist, and the bullet reads "the publication test passes". `DRD-58`'s unit stays separate (proposal §8).
+
+**Revisit** when Rolldown accepts `mangleProps` for a build with several chunks. Property 3's plugin and map build then give way to a `minify.mangleProps` option, and property 3d goes with them. Until then, property 3d goes when `minifySync` can keep annotation comments.
+
+**Amended on 2026-11-13, before implementation, after the dependency update at `31bac1381`** ([proposal](publication-build-proposal.md) §9, [readings](measurements/2026-11-13-publication-build-recheck-readings.txt)). Observed with `tsdown` 0.23.7, `rolldown` 1.3.2 and `rolldown-plugin-dts` 0.30.2.
+
+- **Property 1** is one configuration. **It used to say** "Two configurations, one `tsdown` run": a JavaScript configuration with `dts: false`, and a declaration configuration with `dts: { emitDtsOnly: true }`, `sourcemap: false`, no rename plugin and no `exports`.
+- **Property 3:** (b) excludes the `.d.ts` chunks, which the same build now renders. (d) is new.
+- **Property 4's last bullet** used to add "Some minified locals carry no `names` entry, as they don't without the rename (proposal §2, L3)". At 1.3.2, every minified identifier and private name carries its name.
+- **Property 6's first bullet** used to compare against "its unminified build". With the rename plugin and minification off, that build has no annotation at all, so the comparison was empty.
+- **Unchanged:** properties 2, 3a to 3c, 5, 7, 8 and 9. L1 holds, so the plugin and the map's build stay.
+- **Not repeated after the update,** and carried as assumptions that the unit tests: N2's byte identity with the custom renamer, N4's edge cases, and the size readings. W1 to W3 and the gate test them.
+
+**What this doesn't decide:**
+
+- the owner's shared-tooling proposals S1 to S4 (proposal §7): the dangling declaration references in other packages, `classVarCleanupPlugin`, a CONTRIBUTING statement of the marker, and the upstream limitation;
+- `DRD-57`'s report at `1719df16c`, whose rename is this decision's base;
+- the type-directed transform, `DRO-4`'s re-base and the `shipped` census.
+
+**Withdrawn on 2026-11-13 by `DRD-60`, before implementation.** The owner deferred property mangling. [`publication-build-handoff.md`](publication-build-handoff.md) doesn't run, and nothing that this decision requires is built.
+
+#### DRD-60 — Property mangling is deferred: `src` drops the `_` prefixes, the build renames nothing, and the checks that served the rename go
+
+**The package doesn't shorten its internal property names. Every declaration that `DRD-56` and `DRD-57` prefixed takes back its name without the `_`, together with its uses in `src`, the tests, the bench and the one typechecked probe. `build/` and `tests/publication.node.test.ts` go, and `tsdown.config.ts` and `tsconfig.json` read as they did before `DRD-56`. The publication stays `tsdown`'s unbundled, unminified ESM: one readable `.js` per module with its `.js.map`, and the documented `.d.ts` files without maps. No plugin, minification or chunk layout is added. `DRD-58`'s slot array, the dependency update, the consumer project and the size gate stay. Budgets are unchanged.** [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) implements it.
+
+Decided on 2026-11-13 by the architect, on the owner's decision: **defer property mangling, because its measured savings don't justify its complexity.** The owner also stopped the layout exploration (`DRO-16`), asked for one bounded rollback from `drag/size` in new commits, and asked that the experiments stay as historical evidence.
+
+**The measured savings.** Read by the gate on the published build at `DRD-57`'s end, `b50204f66`, against `c42c5b084`, before any prefix: −34 to −90 B Brotli on the seven rows without `sortable`, and −132 to −135 B on the three rows with it. Minified, −241 to −928 B. Two verdicts changed: "example: resize handle" and "freeDrag" went under their ceilings. These figures are the two readings of [`publish-mangle-report.md`](publish-mangle-report.md) §8 and [`mangle-selection-report.md`](mangle-selection-report.md) §5, end against base, read with `rolldown` 1.2.15. `DRD-57`'s base equals `DRD-56`'s end, so the difference is between two measured trees, not a sum of ablations.
+
+**The complexity they bought, or would have:**
+
+- **In `src`:** 318 occurrences of 53 prefixed names in 19 modules, and a marker rule whose list of names that stay has seven entries (`DRD-56` property 1, `DRD-57` property 3), which a contributor applies by reading use sites.
+- **In the build:** 386 lines of build code and a 55-line committed map, and a 307-line publication test.
+- **In review:** 14 findings against that pipeline (`DRF-24` to `DRF-37`), and a replacement (`DRD-59`) that needs a custom pass, a computed map and two guards, because Rolldown refuses native property mangling in a build of several chunks.
+- **The alternative layout** that makes the mangling native needs four configurations, a boundary check of its own and the gate's graph checks read through the maps, and changes what a consumer without a bundler loads ([exploration](unit-layout-exploration.md) §8).
+- **Minification** renames classes that two consumer tests count by name (`DRF-39`).
+
+**Why the rollback has this shape:**
+
+- **The prefixes exist only for the rename.** `DRD-56` chose them as a marker for the tool. Without the tool, a `_` name is the shortened-looking source that CONTRIBUTING Part II §11 warns against, and the marker's rules have nothing to protect.
+- **The names go back to what they were.** At `drag/size`'s `690769539`, reading each marker `_name` as `name` gives `f7b7b300b^`'s `src`, plus `DRD-58`'s change, except for keys that the type checker's rename wrote as `key: binding`, where `src` had a shorthand key. The rollback writes those as shorthand again. So the result is a tree that the record has already tested, plus the slot array.
+- **The checks that go test only the rename.** Every case in `tests/publication.node.test.ts` is `DRD-56` property 7: the map's name set, V1, V2, V3 and V4. Nothing else imports `build/`. The consumer project (`DRD-54`) and the gate on the published build (`DRD-55`) exist because the build differs from `src`, and they stay.
+- **The publication is the one that `DRD-55` measured before the rename.** Its `tsdown.config.ts` was unchanged from `a9c323f6a` to `31f92f5a9`, which added only the plugin, and `tsconfig.json` gained only `./build/**/*`.
+
+**Required properties:**
+
+1. **Source names.**
+   - Each of the 67 declarations under 53 names that `DRD-56` and `DRD-57` prefixed takes back its name without the `_`, renamed at its declaration by the type checker's rename, with its uses.
+   - A key that the prefixing expanded to `key: binding` is written as a shorthand key again.
+   - **Followers:** a test, bench or probe that names a renamed member follows it and changes nothing else. These are `tests/authoring.declaration.test.ts`'s `@ts-expect-error` lines, `tests/callback-list.browser.test.ts`, `bench/compare.ts`'s injection texts, and `.plan/probes/callback-list/allocation.ts`, which `tsconfig.json` typechecks.
+   - **No `_` name is left in property position** in `src`, `tests` or `bench`. A parameter that was named `_name` before `DRD-56`, such as the unused test-case names in `tests/coordinates.browser.test.ts`, keeps its name, because it was never a marker.
+   - **The check:** against `f7b7b300b^`, the package's code tree outside `.plan/` differs only in `package.json`, by the dependency update, and in the five files of `5ec3b4b2d`, by `DRD-58`'s lines. `.plan/probes/callback-list/allocation.ts` equals its text at `f7b7b300b^`.
+2. **The build.**
+   - `build/` goes, with its four files.
+   - `tsdown.config.ts` is byte-identical to its text at `f7b7b300b`, and `tsconfig.json` to its text at `f7b7b300b`.
+   - The publication's files are the same paths as at `690769539`: each runtime module's `.js` and `.js.map`, and each `.d.ts`. No `.d.ts.map` and no `sourceMappingURL` in a `.d.ts`, as now.
+   - Each published `.d.ts` equals the one at `690769539`, once a marker name in the latter is read without its `_`.
+   - `.scripts/`, `package.json`, `files.json`, the `Justfile` and the Vitest configurations don't change. No plugin, minification option or chunk layout is added.
+3. **The checks.** `tests/publication.node.test.ts` goes. Every other test file stays, apart from property 1's followers. The consumer project, `DRAG_SOURCE_ONLY_BROWSER_TESTS`, the node project's size test and `bench/size/measure.ts` don't change.
+4. **`compare.ts` stays current.** `--prove --dry` and `--floors --dry` apply the same entries at the base and at the end, as `DRD-56` property 3 required of the prefixing. The dry checks start no browser and aren't campaigns (`DRD-51` property 3, as clarified by `DRD-56`).
+5. **Budgets.** Every ceiling and the control figure stay. The unit reports every row at its base and its end. Each verdict, changed or not, goes to `DRO-4` as a reading.
+
+**Expected, not measured:** each row grows by about what the mangling took off. At `rolldown` 1.3.2 that is a rough figure, because the savings were read at 1.2.15. "example: resize handle" and "freeDrag" are expected to go back over their ceilings. "example: canvas group" had 12 B left before the mangling and may follow them. The consumer project passes 326 of 326, which includes `DRF-39`'s two tests.
+
+**What this supersedes:**
+
+- **`DRD-56`,** apart from two statements that don't depend on the rename. **`DRD-56` property 8's first sentence stays:** the consumer project is Chromium only, which settles `DRD-54`'s open question. **The clarification of `DRD-51` property 3 stays:** `--prove --dry` and `--floors --dry` aren't campaigns.
+- **`DRD-57`,** whole. Its audit stays as the record of the selection.
+- **`DRD-59`,** withdrawn before implementation, apart from property 8. **`DRD-59` property 8 stays:** a tree is publishable only when a Vitest run's node and consumer projects read it and passed, and the change that makes the package publishable carries that obligation. Its reason is that the build differs from `src`, which stays true without the rename.
+- **`DRO-15`'s step 3 and `DRO-16`.** `DRO-15`'s steps 1 and 2 stand as `DRD-54` and `DRD-55`.
+
+**What this amends:** `DRD-58`. Its member names are written with the prefix, such as `_collect`, `_lend` and `_measure`. After this unit they are `collect`, `lend` and `measure`. `DRD-59`'s amendment to `DRD-58` property 8 is withdrawn with `DRD-59`. Once this unit lands, property 8's first bullet no longer applies, because neither the map nor the publication test exists. `DRD-58`'s other properties stay.
+
+**What this doesn't decide:**
+
+- **Whether property mangling returns.** That would be a new decision, with its own measurement. The type-directed transform ([`performance-plan.md`](performance-plan.md) §6) stays deferred with it. [`property-mangling-exploration.md`](property-mangling-exploration.md), [`publication-build-proposal.md`](publication-build-proposal.md), [`unit-layout-exploration.md`](unit-layout-exploration.md) and their probes are kept as evidence, each with only a status line added.
+- `DRO-4`'s re-base and the red rows.
+- The owner's shared-tooling proposals S1 to S4 ([proposal](publication-build-proposal.md) §7). S3, a CONTRIBUTING statement of the marker, has no marker left to state.
+- `box-quad`'s `sideEffects`.
+- `DRD-58`'s result, accepted on 2026-11-13 (§Disposition of the slot array report). The rollback keeps the types its §Result lists.
+- `DRF-38` and `repo:RF-31`, the baseline lint and typecheck errors. The rollback reports them apart from any new error, and doesn't repair them.
+
+**Result, 2026-11-14:** implemented at `cc752cc1b` and `b8e37b37c` from `7420cbb9a`, reported at `8904947f6` and accepted (§Disposition of the mangling rollback report). Properties 1 to 5 hold at `b8e37b37c` on the saved evidence. The consumer project passes 326 of 326, every row grows by 35 to 144 B Brotli, and "example: resize handle" and "freeDrag" went over their ceilings, as expected. `DRF-24` to `DRF-37` and `DRF-39` are closed. `DRF-38` is widened to the base's 49 ESLint errors and stays open with `repo:RF-31`. **The result is historical:** `DRD-61`, `DRD-62` and the box-quad integration changed `src` since, and at `6296b741a` only the removals, the two configuration files and the absence of markers are checked again. **Independently proved on 2026-11-14:** a `reviewer` feature proof at `fdaab3781` established properties 1, 2 and 4, and property 3 as [handoff](mangle-rollback-handoff.md) §Independent review lists it, at `b8e37b37c` against `7420cbb9a`, with its own builds and no browser. Its one finding, tier C, corrected a count in the report (§Disposition of the rollback and integration reviews). The proof is of `b8e37b37c`, and doesn't make the result current.
+
+#### DRD-61 — `RectIndex` owns its storage and every write to it: callers read one value at a time, `linearShift` decides a shift that the index applies, and the sink answers per element
+
+**`RectIndex` keeps one `number[]` for its life, holding a scratch slot, the placeholder and the destination slots. Its axis is chosen when it is constructed. Code outside reads one value at a time through `at`, `item` and `insertion`, and never holds the storage or the element array. Every write is a method of the class, including `shift(lo, hi, delta)`, which applies the prediction, and `travel`, which re-reads one row. `linearShift` decides `lo`, `hi` and `delta`. `DisplacementSink.settle` is replaced by `displaced(element)` with read-only `dx` and `dy`, so the sink receives no array and writes nothing of the index. `lend`, the getters `values`, `placeholderRect` and `items`, and the fixed-size scratches go. `xy()`'s geometry rules don't change. Budgets are unchanged.** [`rect-index-access-handoff.md`](rect-index-access-handoff.md) implements it from `drag/size` at `8904947f6`.
+
+Decided on 2026-11-13 on the owner's approval of proposal P and its displacement-sink interface, in [`rect-index-access-proposal.md`](rect-index-access-proposal.md) at `a61b76e9c`. The architect then ported P to the names that `DRD-60` restored, and checked and measured it at `8904947f6` ([size](measurements/2026-11-13-rect-index-access-restored-size.txt), [checks](measurements/2026-11-13-rect-index-access-restored-checks.txt), [patch](probes/rect-index-access/patches/P-restored-names.diff.txt)).
+
+**The owner's direction:**
+
+- **Proposal P is approved, with its sink interface.** That answers the proposal's §5 items 1 and 3. VF and keeping `DRD-52` and `DRD-58` as they are aren't taken.
+- **The unit targets `drag/size` after the mangling rollback, at `8904947f6`.** It uses the restored property names and keeps the `number[]` storage.
+- **The proposal's size claims are reconciled with that publication baseline.** The green "complete" that the mangled build read is historical.
+- **The unit carries:**
+  - the replacement W7 tests and their discriminating mutation;
+  - the Chromium correctness checks;
+  - current size and allocation readings;
+  - the focused timing check that the proposal's §4.3 describes.
+
+  This answers the proposal's §5 item 2: the runtime isn't accepted on the inlining trace alone.
+
+- **The deferred campaigns stay stopped, and budgets are unchanged.**
+- **The report keeps reduced allocation apart from unmeasured speed.**
+- **The 49 existing lint errors and `repo:RF-31` are accounted for and not repaired** ([rollback report](mangle-rollback-report.md) §Baseline errors).
+
+**Names.** The proposal wrote `_at`, `_item`, `_insertion`, `_shift` and `_travel`. Under `DRD-60` they are `at`, `item`, `insertion`, `shift` and `travel`, and the members they join are `collect`, `measure`, `measurePlaceholder`, `holds`, `count`, `first`, `end`, `invalidate` and `retire`. Removing each `_` from P, then formatting, gives the restored-name patch. Against `8904947f6`, the rollback differs from `f552e0ec9` with each `_` removed only in line breaks, in `layout-animation.ts`, `rect-index.ts` and `xy.ts` ([checks](measurements/2026-11-13-rect-index-access-restored-checks.txt)).
+
+**Size, reconciled.** The gate on the published build, Brotli-11, at `8904947f6` and with P:
+
+| Row | `8904947f6` | P | P − base | Ceiling | Proposal, "plain" build at `f552e0ec9` |
+| --- | --: | --: | --: | --: | --: |
+| sortable + y | 6619 | 6588 | −31 | 6733 | −45 |
+| sortable + xy | 6515 | 6537 | +22 | 6617 | +37 |
+| complete | 7258 | 7166 | −92 | 7065 | −93 |
+
+- **Minified:** −205, +103 and −302 B. The seven rows without `sortable` read exactly 0/0/0.
+- **No verdict changes.** "complete" stays over its ceiling, by 101 B instead of 193 B. "sortable + y" keeps 145 B of headroom, and "sortable + xy" 80 B.
+- **Why the differences aren't the proposal's:** its "plain" build kept each `_`, one byte at every occurrence, and the rollback's build has none.
+- **Historical:** the proposal's "renamed" column and its "complete" at 7,040 B, under its ceiling, were read under `DRD-56`'s mangling. `DRD-60` removed that mangling, so those figures are no longer evidence for this decision.
+
+**Why:**
+
+- **The class-encapsulation rule, applied to the whole path.**
+  - The proposal's §2 found that every caller needs one value per slot and field, an element, an insertion, a boolean or a distance.
+  - With `lend`, a writer outside the class held the storage during a call. With `settle`, the sink did too, for every measured range. Under this decision, every geometry write is a method of `RectIndex`, and nothing outside it receives the storage.
+- **It removes allocation and adds none.** The scratch `Float64Array`s and their one-element arrays go, and a read returns a number. At `f552e0ec9`, allocation fell per `y()` sample, per cold committed move and per drop with a sink, and no probe moved up (proposal §4.2).
+- **The axis is data, not a rule.** `DRD-52` property 1 took axis policy out of `RectIndex`. Naming the axis at construction keeps that, for 7 to 12 B more than writing y into the index.
+- **The shared storage pays for itself.** A separate placeholder array was 16 to 19 B larger.
+
+**Required properties:**
+
+1. **The storage.**
+   - `#values` is one `readonly` `number[]` for the index's life. It holds the scratch slot, then the placeholder, then the destination slots, `STRIDE` numbers each, in `DRD-58`'s packed layout.
+   - The placeholder is the slot `PLACEHOLDER`, which is −1. The scratch slot is before it and is private.
+   - **It grows only by appending, in `collect`,** to cover the two leading slots and every destination slot. `DRD-58` property 2 holds: no write lands past the array's length, nothing assigns `length` upward, and the array never shrinks.
+   - **Apart from `xy()`'s `before` (property 8), nothing in `src/sortable/` allocates a typed array for geometry.** `#placeholderRect`, `holds`'s scratch, `linearShift`'s probe scratch and `ReadonlyFloat64Array` go. The development check keeps the placeholder's x as two numbers, written only inside `__DEV__` branches.
+2. **The axis is chosen at construction.**
+   - The constructor takes `axis: number`, and the default is `LEFT`. `y()` constructs `new RectIndex(TOP)`. `xy()` constructs `new RectIndex()`, and never calls `shift` or `travel`.
+   - `shift` and `travel` find the near edge at `axis`, the far edge at `axis + RIGHT` and the center at `axis + CENTER_X`, with the same arithmetic for both values. No branch in the index depends on the axis.
+3. **Reads.**
+   - `at(slot, field): number` returns one field, and `item(slot): HTMLElement` the element at a slot. `insertion(gap)` returns the insertion at a gap.
+   - `count`, `first` and `end` are unchanged.
+   - No member returns the storage, the element array or a view of either. **`at` and `item` construct nothing:** each returns a value the index already holds, a number from the storage or an element from the element array, and neither creates an array, a view or an object in its source. This is a property of the source, checked by reading it, and not a byte count. A heap-sampling reading attributed to `at` or `item` is reported under property 11 as allocation, and its cause is stated only once it is established. `insertion` returns the `Insertion` that `insertionAt` builds, which `y()` and `xy()` return now.
+4. **Writes, all methods of `RectIndex`:**
+   - `collect`, `measure`, `measurePlaceholder`, `holds`, `invalidate` and `retire` keep what they do;
+   - `shift(lo, hi, delta)` moves the slots from `lo` to before `hi` along the axis, inside the window. Both edges move by `delta`, and the center is recomputed from the moved edges, which is `DRD-52` property 5's arithmetic;
+   - `travel(slot, getBox, displacement): number` reads the slot's element, or its box, into the scratch slot, settled, and returns the scratch's near edge minus the slot's cached near edge;
+   - `holds` reads into the same scratch slot, and `measure` writes each slot once, in place;
+   - **`lend` is removed, and no member takes a callback that receives the storage.**
+5. **One read path.** One private method reads one element's rect, asks the sink once about that element, and writes the slot's six fields once, already settled. `measure`, `holds` and `travel` use it. `measurePlaceholder` uses it without a sink. `pack` goes into it, with the same arithmetic: each edge minus what the sink carries, and each center from the two settled edges.
+6. **The sink answers, and writes nothing of the index.**
+   - `DisplacementSink.displaced(element: HTMLElement): boolean`. When it returns `true`, the read-only `dx` and `dy` hold what the element's animation carries, in viewport units, until the next call. When it returns `false`, the index subtracts nothing. `settle` is removed.
+   - `layoutAnimation`'s sink holds `dx` and `dy` in closure variables behind getters. Per call, its work is one `Map` lookup and, for a running row, one `getComputedTiming`. It reads no layout.
+   - The type stays one of `DRD-39`'s unpublished installer types, and Part II §8 keeps no compatibility for it. The emitted `sortable/axis.d.ts` replaces `settle` and its documentation with the three members and theirs. No other `.d.ts` changes, and `typedoc` warns as before.
+7. **`linearShift` decides.**
+   - `moved` computes `lo` and `hi`. On the first committed move after an invalidation, `delta` comes from `travel`. Later, it comes from the known row distance, with the move's sign.
+   - It calls `shift(lo, hi, delta)` and reports each crossed row through `item`, with the same vector as now.
+   - The writer closure and the `delta` rule state go, and `delta` is a local.
+8. **`xy()` is unchanged as a rule.** It rebuilds through `collect` and `measure(0, count)`, reads through `at`, `item` and `insertion`, and keeps its own `before` array, which isn't the index's storage.
+9. **The development check** copies the window and the placeholder through `at`. `DRD-52` property 7 holds: it compares the placeholder's x with what the cache held before the re-read, and its message is unchanged.
+10. **Witnesses, each shown by a mutation it catches.**
+    - **W7, replaced: each measured row is settled by asking about that row.** With `layoutAnimation` composed, every `displaced` call during a `y()` drag asks about exactly the destination row whose rect was read just before it, and no other row was read in between. The drag grows the window across at least three slots after slot 0. The same holds across two `xy()` rebuilds of 11 destination rows. The titles are "drag:DRD-50 should settle each row y() measures by asking the sink about that row" and "drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row".
+    - **M7a:** the read path asks the sink about the element at slot 0 instead of the row it read. Both W7 tests must fail.
+    - **M7b:** `xy()`'s rebuild measures without the sink. The `xy()` W7 test must fail. At the port, it was the only test that failed.
+    - **W8, unchanged as `DRD-50` states it:** when a resolution grows the window over a row in flight, the gap it holds equals the gap of the rows' flow positions. **The gap assertion is the one that observes the index's settled value.** **M8** is now a read path that subtracts nothing when the sink answers `true`, and W8's gap assertion must fail. W8's settled-top assertion, the presented top minus `dy`, compares `layoutAnimation`'s `dy` with flow and reads nothing that `RectIndex` writes. It is a check of property 6's sink, and it passes under M8.
+    - **The axis witness:** with `y()`'s index constructed with `LEFT`, the development check must fault, in `sortable.browser.test.ts` or `equivalence-check.browser.test.ts`.
+    - Every mutation was checked at the port. Both W7 tests failed on M7a, and on M7b only the `xy()` W7 test failed. M8 failed W8, and the axis mutation failed 18 of 50 tests on the check's fault. The proposal's mutation 2, which is M8, didn't fail the `xy()` W7 test, so it isn't W7's mutation.
+    - Every other test keeps its verdict, including "should call the layoutAnimation sink with its receiver, with rows in flight" and `DRD-52`'s development equivalence check.
+11. **Costs, and how each is read.**
+    - **Size:** every row at the base and at the end. The seven rows without `sortable` must read exactly 0/0/0. The expected figures are the table above, and the patch reads them. No ceiling or control figure changes, and a changed verdict goes to `DRO-4`.
+    - **Allocation:** `DRD-52`'s probes per sample and per committed move, cold and warm, and the proposal's per-drop probe with a sink, at the base and at the end. They are reported and not gated.
+    - **Timing:** one focused paired check of `xy()`'s rebuild and `y()`'s scan, which the handoff specifies from `DRD-50` property 2's probe. It runs under `DRD-44` property 6's hold. Its verdict is reported as it reads, with the sign counts, the median difference and the A/A threshold that the rule used. "No difference shown" is inconclusive: the run met neither directional rule. None of those figures limits the size of a slowdown that the check could have missed. A "slower" verdict in any case goes to the owner before the report is accepted (Part II §0 and §14). The code stays as implemented, and nothing is reverted by the unit.
+    - **The report doesn't infer speed from allocation.** A reduction in bytes allocated is reported as allocation. A speed change that the timing check doesn't resolve is unmeasured, whatever its size, and the report says so.
+
+    **Corrected on 2026-11-13** on the unit's report ([assessment](rect-index-access-assessment.md) §3.2). The timing bullet said "'No difference shown' bounds only a slowdown larger than its A/A bound", and the next bullet said "The speed below the timing check's bound is unmeasured". Both read the A/A threshold as a limit on the slowdown the check would catch. A slowdown larger than the threshold also reads "no difference shown" when fewer than 6 of 7 rounds agree, as `DRD-50`'s result had recorded. The rule and the recorded verdicts don't change.
+
+**Corrected on 2026-11-13** on the independent review at `bdb2c73c8` ([assessment](rect-index-access-assessment.md) §7). Neither correction changes the code, a test or a verdict.
+
+- **Property 3** said "`at` and `item` allocate nothing". That could be read as a measured byte count, and the per-drop probe attributes 3,300, 3,288 and 3,600 B over 60 drops to `at`. The property meant the source, as the rationale's "a read returns a number" says, and it now states that reading. Property 3 holds under it.
+- **Property 10's W8 bullet** said "W8, unchanged as a property: its settled top is the presented top minus `dy`", and "W8 must fail" on M8. The settled-top assertion reads the sink's `dy`, not the index, and passes under M8. W8 fails M8 on its gap assertion, with the development check (the check faults and the gap reads −1) and without it (the gap reads 2 for 3).
+
+**What this amends.** Each amended entry says what it used to say.
+
+- **`DRD-52`:**
+  - property 1: `shift` and `travel` are added, and `lend` goes;
+  - property 4 is removed;
+  - property 5: `linearShift` passes `lo`, `hi` and `delta` to `shift`;
+  - property 6: the getters go, and `at`, `item` and `insertion` read.
+
+  Property 7 holds as written, and the check copies through `at`.
+
+- **`DRD-58`:**
+  - property 1: the storage also holds the scratch slot and the placeholder;
+  - property 3: `pack` goes into the read path, with its arithmetic, and `settle`'s range goes with `settle`;
+  - property 4: no getter returns the array;
+  - property 5: `lend` goes;
+  - property 6: `#placeholderRect`, the scratches and `ReadonlyFloat64Array` go, because the storage holds them;
+  - property 7: no shared signature takes the union;
+  - property 9: W7 is replaced.
+- **`DRD-50`:** property 1, and property 4's W7 and M7, which are replaced by property 10 above. M8 changes with the read path.
+- **`DRD-33` choice 9:** no getter returns a view, and the accessors return one value each. Writes don't leave the class.
+
+**Rejected:**
+
+- **VF:** the shift and the travel as module functions. At `f552e0ec9`, "sortable + xy" read −25 B against P's +37 B, and the other two rows 8 and 20 B more than P. It writes the storage from outside the class.
+- **VY:** y written into `shift` and `travel`. It puts an axis rule back into `RectIndex`.
+- **VSEP:** the placeholder in its own array, which is 16 to 19 B larger.
+- **Keeping `DRD-52` and `DRD-58` as they are.**
+
+**What this doesn't decide:**
+
+- **Named accessors, a scan inside `RectIndex`, and `xy()`'s `before` in the index's storage.** They weren't prototyped (proposal §4.1).
+- **`DRF-38`'s scope** and the other 48 lint errors at the base, and `repo:RF-31`. The unit adds no error and repairs none.
+- **The acceptance of the rollback's report** at `8904947f6`. The architect hasn't read it yet. The unit takes `8904947f6`'s code as its base on the owner's direction.
+- **`DRO-4`'s re-base and the red rows.**
+- **Firefox and WebKit,** deferred to the owner's planned CI ([`performance-plan.md`](performance-plan.md) §3).
+
+**Result, 2026-11-13:** implemented at `010a9ef39`, reported at `f788b2b80` and accepted ([assessment](rect-index-access-assessment.md), §Disposition of the RectIndex access report). Properties 1 to 10 hold. The size table above is read exactly, the seven control rows read 0/0/0, and no verdict changes. **Allocation:** −34.74 B per `y()` sample, −11.77 B per cold committed move and −406.53 B per drop with `layoutAnimation()`, each beyond its spread. The `xy()` sample and the warm move show no difference. Those are bytes allocated. **Timing:** "no difference shown" in all three cases, which is inconclusive, so the speed of `xy()`'s rebuild and `y()`'s scan is unmeasured in either direction. The lint and typecheck baselines are unchanged.
+
+**Reviewed on 2026-11-13** by an independent feature proof at `bdb2c73c8` ([review](reviews/rect-index-access/proof-reviewer.md)), with three tier-C findings and no tier A or B. Properties 3 and 10 are corrected as stated above, and the acceptance stands (§Disposition of the RectIndex access review). One comment in `.scripts/vitest-config.ts` goes to a follow-up ([handoff](rect-index-access-handoff.md) §Follow-up after the independent review).
+
+**Amended on 2026-11-13 by `DRD-62`, properties 1, 2, 3 and 8, and §What this doesn't decide.** `xy()`'s previous geometry is held by `RetainingRectIndex`, a subclass in `rect-index.ts`, and the field and axis parameters accept only their constants. `xy()`'s rule is unchanged.
+
+- **Property 1:** nothing in `src/sortable/` allocates a typed array for geometry, with no exception.
+- **Property 2:** the constructor takes `axis: NearEdge`, which is `LEFT` or `TOP`, and the default is `LEFT`. `#axis` has the same type. `xy()` constructs `new RetainingRectIndex()`, and never calls `shift` or `travel`.
+- **Property 3:** `at(slot: number, field: Field)`, where `Field` is one of the six geometry fields. `RetainingRectIndex.retained(slot, field)` is one more read that constructs nothing.
+- **Property 8:** `xy()` calls `retain` before its rebuild, and reads through `at`, `retained`, `item` and `insertion`. It keeps no geometry array.
+- **§What this doesn't decide:** `xy()`'s `before` is decided. Named accessors and a scan inside `RectIndex` stay undecided.
+- **What they used to say:**
+  - property 1: "Apart from `xy()`'s `before` (property 8), nothing in `src/sortable/` allocates a typed array for geometry";
+  - property 2: "The constructor takes `axis: number`, and the default is `LEFT`. … `xy()` constructs `new RectIndex()`, and never calls `shift` or `travel`";
+  - property 3: "`at(slot, field): number` returns one field";
+  - property 8: "It rebuilds through `collect` and `measure(0, count)`, reads through `at`, `item` and `insertion`, and keeps its own `before` array, which isn't the index's storage";
+  - §What this doesn't decide: "Named accessors, a scan inside `RectIndex`, and `xy()`'s `before` in the index's storage. They weren't prototyped (proposal §4.1)".
+
+#### DRD-62 — `xy()`'s previous geometry is held by `RetainingRectIndex`, and the index's field and axis parameters accept only their constants
+
+**`rect-index.ts` exports `RetainingRectIndex extends RectIndex`. It keeps each slot's left and top across one rebuild in `#retained`, its own private `number[]`. `retain()` is its only write, and `retained(slot, field)` reads one number. `xy()` constructs it, calls `retain()` before its rebuild, and compares `retained` with `at`. It keeps its sorting policy and owns no geometry array. `y()` keeps constructing `RectIndex`, and its compositions don't change by a byte. `at`'s field accepts only the six geometry fields. `retained`'s field, the constructor's `axis` and the private `#axis` accept only `LEFT` or `TOP`. These are literal unions written from the constants, and `slot` stays `number`. The narrowing changes no emitted JavaScript, and a compile-time test shows that invalid fields are rejected. Speed is unmeasured.** [`xy-held-geometry-handoff.md`](xy-held-geometry-handoff.md) implements it from the provisional source at `f79f66fe2`.
+
+Decided on 2026-11-13 on the owner's acceptance of VX, on the condition that the field types are narrowed in both classes. The input is [`xy-held-geometry-proposal.md`](xy-held-geometry-proposal.md), written at `316003d76` against `61f883d09`, with its [probe](probes/xy-held-geometry/README.md). At the owner's request, its final patch was applied unchanged at `f79f66fe2` as provisional source. This decision adopts that source and requires the type change on top of it. The architect checked that the change compiles and that the compile-time test discriminates. The check ran in a scratch worktree of `f79f66fe2`, which has since been removed ([check](measurements/2026-11-13-xy-held-geometry-types-check.txt)).
+
+**Corrected on 2026-11-13, before implementation,** on the owner's direction. Two statements changed, and the adopted source, the verification and the measured results didn't:
+
+- **The review's place in the sequence.** The decision said only that the unit comes "with the required verification and an independent review", and the handoff had the owner start the review after the architect accepted the report. The report now goes to a fresh independent reviewer first, and the architect's final acceptance follows the review.
+- **What finishes before the first report.** Property 2 said "Every read finishes before the first report (proposal §2)", and §Rejected said a per-slot re-measure fails "because each read would follow the previous slot's report". Read literally, the first forbade the loop's own `retained`, `at` and `item` calls. The constraint is on DOM measurement: the rebuild finishes measuring before the loop that reports starts, and the loop reads only the index's cached values. Proposal §2's "All reads finish before the first report" means the same.
+
+**The owner's direction:**
+
+- **VX is accepted as a subclass,** with its names `RetainingRectIndex`, `retain` and `retained`, as at `f79f66fe2`. That answers the proposal's §5 items 1 and 2. P, VS and keeping `before` aren't taken.
+- **The acceptance is conditional on narrowed field types in both classes.** The types are literal unions derived from the existing constants:
+  - `RectIndex.at` accepts the six geometry fields;
+  - `RetainingRectIndex.retained` accepts only `LEFT` or `TOP`;
+  - `RectIndex`'s constructor `axis` and its private `#axis` accept only `LEFT` or `TOP`.
+
+  `slot` stays numeric. The change adds no runtime validation, no `NaN` fallback and no other behavioral change. A small compile-time check shows that invalid fields are rejected.
+
+- **Speed stays explicitly unmeasured.** The owner requested no timing run and no hold. That answers §5 item 3: the decision is accepted on size, flows and allocation, and the prepared timing check isn't run.
+- **One bounded implementation unit reuses the committed prototype,** with the required verification and an independent review. **A fresh independent reviewer reads the unit's report before the architect's final acceptance.**
+
+**Why:**
+
+- **The class-encapsulation rule, applied to the last geometry outside the index.** `DRD-58` and `DRD-61` both left `xy()`'s `before` out of scope. With this decision, every geometry value in `src/sortable/` is in `rect-index.ts`, private to the class that writes it. `xy()` keeps what is policy: when it rebuilds, the span it compares, the sign of the vector, which cells it reports, and the sink call (proposal §2).
+- **The subclass is the only placement in which `y()` pays nothing.** "sortable + y" and "complete" are byte-identical to the base, because the bundler drops the subclass from a composition that never constructs it. A class method doesn't tree-shake, so P and VS charge every `y()` composition. P costs +60 and +38 B Brotli, and VS +38 and +21 B (proposal §4.1).
+- **Narrowed types state the field contract where the compiler checks it,** as CONTRIBUTING Part II §1.2 and §3 prefer: literal unions over runtime enums, and no runtime bytes. At `f79f66fe2`, `at(slot, field: number)` accepts any number, and `retained` would silently read a neighbouring pair for a field other than `LEFT` or `TOP`. Each type is written with `typeof` from the constants, so a constant and its type can't disagree.
+
+**Required properties:**
+
+1. **The subclass, as at `f79f66fe2`.**
+   - `RetainingRectIndex extends RectIndex` is exported from `rect-index.ts`.
+   - `#retained` is one `readonly` `number[]` for the index's life. It holds each slot's left, then its top. It grows only by appending, written from index 0 up, so `DRD-58` property 2's rule holds for it. It never shrinks, and no member returns it.
+   - **`retain()` is its only write.** It copies the left and the top of every slot below `count` through `at`.
+   - **`retained(slot, field)` returns one number** from `#retained`, in `DRD-61` property 3's sense: it constructs nothing in its source. It is valid for the slots below the count at the last `retain`.
+   - The subclass reaches no private member of `RectIndex`. It uses `at` and `count`.
+2. **`xy()` holds its policy, and no geometry.**
+   - It constructs `new RetainingRectIndex()`.
+   - With a sink, a known, changed gap and at least one slot held, `moved` reads the count, calls `retain()`, then invalidates and rebuilds with the sink. For each slot below the smaller of the two counts, it computes `dx = retained(i, LEFT) − at(i, LEFT)` and `dy = retained(i, TOP) − at(i, TOP)`. It reports the element through `item` when either is non-zero.
+   - Without a sink, with an unknown or unchanged gap, or with no slot held, it only invalidates. The last case is the base's: an index that holds no slot has nothing to compare.
+   - **`xy.ts` holds no geometry array.** It adds no closure and no per-row object.
+   - **DOM measurement finishes before the first report.** The rebuild measures every slot, with the sink, before the loop that reports starts, and the loop measures nothing. Inside the loop, `retained`, `at` and `item` read the index's cached values and stay readable after a report. A report starts an animation, and in Chromium 157 starting one invalidated the row's layout in every variant the [animation-end layout probe](animation-end-layout-probe.md) tried, so a measurement after a report would force a layout once per row (proposal §2).
+
+   **Corrected on 2026-11-14,** on the independent review ([assessment](xy-held-geometry-assessment.md) §4.2). The second and third bullets didn't name the `held === 0` exit, which `xy.ts` has at `61f883d09`, at `f79f66fe2` and at `7184d069c`. Read literally, the second required a rebuild when the index held no slot. The adopted source and the behaviour it requires don't change. **What they used to say:** "With a sink and a known, changed gap, `moved` reads the count, calls `retain()`, then invalidates and rebuilds with the sink." and "Without a sink, or with an unknown or unchanged gap, it only invalidates."
+
+3. **`y()` is unchanged.** It constructs `new RectIndex(TOP)`. `y.ts` and `linear-shift.ts` don't change. "sortable + y" and "complete" read exactly 0/0/0 against `61f883d09`.
+4. **The field types.**
+   - `rect-index.ts` declares two type aliases, each a union of `typeof` the constants:
+     - `Field`, the six geometry fields `LEFT`, `TOP`, `RIGHT`, `BOTTOM`, `CENTER_X` and `CENTER_Y`;
+     - `NearEdge`, `LEFT` or `TOP`, the near edge of each axis.
+   - Both are module-private. Callers pass the constants, and no module needs to name either alias.
+   - The signatures are:
+     - `at(slot: number, field: Field)`;
+     - `retained(slot: number, field: NearEdge)`;
+     - `constructor(axis: NearEdge = LEFT)`;
+     - `readonly #axis: NearEdge`.
+   - **No other signature changes.** Every `slot`, `lo`, `hi`, `gap` and `delta` stays `number`.
+5. **Type-only.**
+   - **The emitted JavaScript doesn't change.** There is no runtime check, no `NaN` or default fallback, no lookup table, no unrolled loop, no overload and no second accessor that takes a `number`.
+   - **The development check's loops are left as they are.** `verifyEquivalence` iterates fields with a numeric counter. Where that counter is passed as a field, it is narrowed by a type assertion to `Field` at that point.
+   - **Against `f79f66fe2`:** every size row reads 0/0/0 in all three columns, and every emitted `.d.ts` is byte-identical.
+6. **The compile-time check:** `tests/rect-index.declaration.test.ts`, which the `declaration` project and `typecheck` check.
+   - **It accepts:**
+     - each of the six constants at `at`;
+     - `LEFT` and `TOP` at `retained` and at the constructor;
+     - a constructor call with no argument.
+   - **It rejects, each with `@ts-expect-error`:**
+     - at `at`: a number outside the six fields, such as `STRIDE`, and a value typed `number`;
+     - at `retained`: `RIGHT` and a value typed `number`;
+     - at the constructor: `RIGHT` and a value typed `number`.
+   - **Its mutations fail it:**
+     - MT1 widens `at`'s field back to `number`;
+     - MT2 widens `retained`'s field to `Field`;
+     - MT3 widens the constructor's `axis` back to `number`.
+   - **`#axis` is checked by reading.** A private field's type isn't observable from outside the class.
+7. **The behavioral witness.** The proposal's flows become three tests in `tests/displacement-sink.browser.test.ts`. They drive the real `xy()` installer through `resolve` and `moved` on a wrapping field with a recording sink. In each, every reported vector equals the cell's flow travel, negated, within 0.1 px. Flow travel is read through `offsetLeft` and `offsetTop`. Every cell whose flow position changed is reported. The titles are:
+   - "drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap";
+   - "drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating", with `layoutAnimation` delegated to and running animations at the end;
+   - "drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection".
+
+   **Each mutation must fail what it names:**
+   - MX1, `retain` after the rebuild: all three;
+   - MX2, `retained` ignoring its field: all three;
+   - MX3, `moved`'s rebuild without the sink: the animation test;
+   - MX4, `retain` copying slot 0 into every slot: all three;
+   - MX5, `retain` writing only below `#retained`'s length once that is non-zero: the larger-collection test.
+
+   No other test changes.
+
+**Costs:**
+
+- **Size,** Brotli-11 against `61f883d09`, as the proposal's final-names column reads it:
+  - "sortable + xy" +30 B (+60 minified, +18 gzip), at 6,564 B against its 6,617 B ceiling;
+  - "sortable + y", "complete" and the seven control rows: 0/0/0;
+  - **no verdict changes.** "complete" stays 110 B over its ceiling.
+
+  Property 5 adds nothing to these figures. No budget changes.
+
+- **`y()` pays nothing:**
+  - 0 B in every row that bundles it;
+  - no memory: no field, and no wider slot;
+  - no work: its code is the base's.
+
+  **One risk is unmeasured.** On a page that runs `xy()` and `y()` together, `RectIndex`'s methods see two receiver classes, so their property accesses may become polymorphic (proposal §4.3).
+
+- **Allocation,** read on VX as measured, heap sampling at 16 B, three launches per tree (proposal §4.4):
+  - **no difference shown** per `y()` sample, per `xy()` sample, per `y()` committed move, cold or warm, and per `xy()` committed move after warm-up;
+  - **per operation with one first move on a fresh `xy()` index:** 6,679.02 B against the base's 6,869.87 B, which is 191 B less;
+  - **the base undercounts,** because the sampler doesn't see a `Float64Array`'s contents. A larger saving is an inference from the calibration, not a reading.
+- **Speed: unmeasured** in both directions, on every path:
+  - `retain`'s copy through `at`, and the compare through `retained`;
+  - `xy()`'s rebuild on a subclass instance;
+  - the polymorphism above.
+
+  Allocation isn't speed, and nothing here infers one from the other.
+
+**Limits of the evidence:**
+
+- **Chromium only,** on one machine ([`performance-plan.md`](performance-plan.md) §3).
+- **The flows cover one wrapping geometry.** It is 100 × 60 cells, three per row, with no gaps, margins or transforms, and one 60-second linear animation. The installer is driven directly, not through a pointer.
+- **The mutations ran against the probe flows, not against the suite.** No suite test at `f79f66fe2` asserts the reported vectors. "should animate displaced rows with layoutAnimation, in xy() too" asserts only that some animation runs. Property 7 adds that assertion.
+- **The allocation readings were taken on VX as measured.** It differs from `f79f66fe2` in member names and a type-only import. The final names were read for size, flows, suite, typecheck and lint, and not for allocation. Names don't change what is allocated, but that is an inference.
+- **The allocation campaign, the size builds, the flows and the suite overlapped on the machine.** Bytes allocated don't depend on load, and no timing ran.
+- **The type change was checked by typecheck and by the declaration project only.** Property 5's size and `.d.ts` identity are the unit's to show.
+
+**What this amends.** Each amended entry says what it used to say.
+
+- **`DRD-61`:**
+  - property 1: `before` is no longer an exception;
+  - property 2: the axis is typed `NearEdge`, and `xy()` constructs `RetainingRectIndex`;
+  - property 3: `at`'s field is typed `Field`, and `retained` is one more read that constructs nothing;
+  - property 8: `xy()` keeps no geometry array;
+  - §What this doesn't decide: `xy()`'s `before` is decided.
+- **`DRD-58`:**
+  - property 7's table row for `xy.ts`'s `before`;
+  - the first bullet of §What this doesn't decide.
+
+  **The proposal's §6 calls this table "property 6's",** but the table is property 7's.
+
+- **`DRD-52` property 1,** as `DRD-61` amended it: `xy()`'s index is a `RetainingRectIndex`, and only `xy()` uses `retain` and `retained`.
+
+**Rejected:**
+
+- **P,** a second array in `RectIndex`: +60 and +38 B Brotli on `y()`'s rows.
+- **VS,** an 8-number slot. It costs +38 and +21 B on `y()`'s rows, a third more slot storage, and 1,092 B more on a fresh `xy()` index's first move.
+- **VXd's `drift(slot, field)`.** It is 2 B smaller on "sortable + xy", and moves the vector's sign into the index.
+- **A rebuild that reports.** It moves `xy()`'s reporting policy into the index, against `DRD-52` property 1.
+- **A per-slot re-measure,** because each slot's measurement would follow the previous slot's report and force a layout.
+- **Two banks of slots,** which add an offset to every `at`.
+- **For the types:**
+  - **runtime validation or a `NaN` fallback,** which the owner excluded;
+  - **a runtime or `const` enum,** against CONTRIBUTING Part II §3;
+  - **a branded or narrowed `slot`,** which the owner excluded;
+  - **exported aliases,** which no module needs.
+
+**What this doesn't decide:**
+
+- **Speed.** It stays unmeasured, including the polymorphism risk. The timing check in [`probes/xy-held-geometry/timing/`](probes/xy-held-geometry/README.md#the-timing-check) remains prepared. It runs only if the owner asks for it, under `DRD-44` property 6's hold.
+- **Firefox and WebKit,** deferred to the owner's planned CI.
+- **Field types elsewhere,** such as `STRIDE`, `PLACEHOLDER` or `verifyEquivalence`'s parameters.
+- **`DRO-4`'s re-base and the red rows,** the baseline lint errors, `DRF-38` and `repo:RF-31`.
+- **box-quad's separate PR, the deferred campaigns, and the rollback report's acceptance.**
+
+**Result, 2026-11-14:** implemented at `b4117dae2`, reported at `7184d069c`, reviewed independently at `c4d02d45c`, and accepted ([assessment](xy-held-geometry-assessment.md), §Disposition of the xy() held geometry report). Properties 1 to 7 hold, in Chromium only.
+
+- **Source:** `rect-index.ts` is the architect's sketch, blob `b9234028e`. `xy.ts`, `y.ts` and `linear-shift.ts` are unchanged from `f79f66fe2`.
+- **Emitted files,** against `f79f66fe2`'s source: the build emits 90 files, and all of them are published. Its 33 `.js` and 27 `.d.ts` files are byte-identical. **One of its 30 source maps differs:** `sortable/rect-index.js.map` embeds the typed source, and its mappings follow the shifted lines. Property 5 covers JavaScript and declarations, not maps. A source map that embeds its source changes with any change to that source, so this is expected and accepted. The published package isn't byte-identical, only its JavaScript and declarations are.
+- **Size:** every row reads 0/0/0 against `f79f66fe2`. Against `61f883d09`, only "sortable + xy" moves, +60 / +18 / +30 B, to 6,564 B Brotli under its 6,617 B ceiling. The same six rows stay red, "complete" by 110 B. No budget changes.
+- **The witnesses:** MT1 to MT3 fail the declaration test, and MX1 to MX5 fail the three `drag:DRD-62` tests as property 7 names. The mutations now run against the suite, not only the probe flows. Of the five, the suite at `f79f66fe2` caught only MX1 and MX3, and neither through an asserted vector. The new tests don't pass a box, and their counts don't fall across a rebuild, so the box path and the `count < held` side of the span aren't witnessed.
+- **Allocation** stands as the proposal read it, under §Costs, and wasn't run again. **Speed is unmeasured** in both directions, including the polymorphism risk. The timing check stays prepared and unrun.
+- **Baselines:** the 49 ESLint errors, with `DRF-38`'s line moved from 53 to 59, and `repo:RF-31`. Nothing new, and nothing repaired.
+- **Property 2 is corrected in place** to name the base's `held === 0` exit.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -1722,7 +2839,7 @@ The [round summary](reviews/combined-ownership/combined-ownership-summary.md) at
 | `DRF-10` | Decided by `DRD-39`. Required before merge, in the same handoff |
 | `DRF-11` | Closed at this commit. The contract's DRI-9 now states `DRD-27`'s rule |
 | `DRF-7` | Deferred with `DRF-1`, before the next `compare.ts --prove` run |
-| `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17`, `DRF-18` | Optional. Open, with no merge condition |
+| `DRF-13`, `DRF-14`, `DRF-15`, `DRF-17`, `DRF-18` | Optional. Open, with no merge condition. **`DRF-13` and `DRF-14` closed on 2026-11-12** by `312f4ec32` |
 | Declaration kinds in `packages/drag`'s tests and bench (`reviewer-4`, `cleanup-9`) | Outside `DRO-13`. No unit is owed. A unit that edits such a file for another reason applies the rule there |
 | Declaration kinds in `core`, `tproc` and `vite-traits-plugin` | Routed to the repository register with the architect's reading (assessment §5). No id is allocated here |
 | The repository register's stale `RF-22` high-water mark | Routed to that register's owner (assessment §6) |
@@ -1923,9 +3040,539 @@ The [probe](animation-end-layout-probe.md), run by the architect on 2026-11-12 a
 
 **Next:** the owner inspects the code before a pull request is prepared and the phase closes. The deferred instrument campaigns stay stopped, and no budget changes.
 
+## Disposition of the size pass unit report
+
+The [report](size-pass-unit-report.md) at `ed4bd589f`, read by the architect on 2026-11-12 in [`size-pass-unit-assessment.md`](size-pass-unit-assessment.md).
+
+| Item | Disposition |
+| --- | --- |
+| Items 1, 2 and 5: the base, `DRD-53`'s completion and the size readings | Accepted. Every row equals the joint reading |
+| Item 3, U1 | Accepted. Its lint finding is repaired by `DRD-51`'s amendment of §First unit item 2 (assessment §3) |
+| Item 4, `DRD-52` with the witness and M1 | Accepted |
+| Item 6, allocation | Accepted as "stands", with the spreads and the consistent cold excess recorded under `DRD-52` property 9 |
+| Item 6's blind launch of `xy()` after `y()` | The documentation allowed it. The next unit corrects it (assessment §4) |
+| Item 7, timing | Accepted as "holds". **The hold record is corrected in the report:** four of the session's background tasks overlapped the moves process's first four seconds (assessment §2.2) |
+| Item 8, the suites and the check's throw sites | Accepted |
+| The `faults` test that failed once at the handoff | It passed in this unit's Chromium run. Nothing is owed unless it fails again |
+
+**Next:** [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md), one implementer unit. The deferred measurement campaigns stay stopped, and `bench/campaign.ts` stays the tool for sequencing runs (`DRD-51` property 3, as amended).
+
+## Disposition of the size pass follow-up report
+
+The [report](size-pass-followup-report.md) at `fe529df4c`, read by the architect on 2026-11-12. The unit's commits are `e22db849c`, the source, and `0c13786ea`, the probe's documentation. The unit is small, so the architect's checks are recorded here and not in a separate assessment.
+
+| What the architect checked | Result |
+| --- | --- |
+| `git diff --stat d5ab84a83 fe529df4c -- packages/drag` | `src/free-drag.ts`, `src/free-drag/behavior.ts`, the four probe files, the report and `measurements/`. All inside the handoff's §Boundaries |
+| `e22db849c`'s source diff against [R1](probes/size-pass/patches/R1-invalidate-step-as-behavior-module-function.diff.txt) | The added and removed lines equal the patch's |
+| The [size delta](measurements/2026-11-12-followup-commit1-sizes.txt) | Equal to the report's table: −13/−7/−1 and −13/−5/−5 on the two `freeDrag` rows, and 0/0/0 on the eight control rows |
+| [`measure.ts`](measurements/2026-11-12-followup-measure.txt) at `e22db849c` | "freeDrag" 5,022 B Brotli, 55 B over. "freeDrag + bounds + landing" 5,454 B, 244 B over. The four green rows as at the base |
+| The [witness](measurements/2026-11-12-followup-witness.txt) and [M2](measurements/2026-11-12-followup-m2.txt) | Passes in three engines. Fails in Chromium under M2 with "expected 300 to be close to 200", and the restore is identical under `cmp` |
+| The [suites](measurements/2026-11-12-followup-suites/) | Chromium: 420 tests, 414 passed, and the 6 failures are `size.node.test.ts`'s ceiling rows. Three engines: 1,071 passed, 18 skipped. Hot path: 9 of 9 |
+| Item 3's [launches](measurements/2026-11-12-followup-c6-probes/) | Each ran 1 test and skipped 12, with one probe line whose functions are under `sortable/`. Both move lines count `moves=200` |
+| `warm-move-probe.test.ts.txt` against `move-probe.test.ts.txt` | The four differences that the report lists, and a fifth: the header comment, which the handoff asked for |
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, the base | Accepted |
+| Item 2, the `invalidate` step | Accepted. `DRD-51`'s amended §First unit item 2 holds, and the unit report's lint finding is closed |
+| Item 3, the probe's launch documentation | Accepted. The report says that the warm probe differs "in exactly four places". The header comment is a fifth difference, which the handoff required. Nothing is owed |
+| Item 3's readings | Observations, not gated, as the handoff states |
+
+**The owner's decisions, recorded with this disposition on 2026-11-12:**
+
+- **`DRO-14` items 3 and 4 are rejected.** C1's idle fast path and C5's capture functions stay unchanged. `DRF-20` closes.
+- **`DRO-15`: steps 1 and 2 start,** each as its own unit. Source tests stay for internal behavior and development instruments. The mangle waits for the published build's results. `DRD-54` decides step 1.
+- Budgets are unchanged, and the deferred campaigns stay stopped.
+
+**Next:** [`consumer-tests-handoff.md`](consumer-tests-handoff.md), one implementer unit, `DRO-15` step 1.
+
+## Disposition of the consumer tests report
+
+The [report](consumer-tests-report.md) at `87288b9d2`, read by the architect on 2026-11-13 in [`consumer-tests-assessment.md`](consumer-tests-assessment.md). The unit's code commit is `5ea7bb7e6`.
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, the base | Accepted |
+| Item 2, the source-only tests | Accepted, with the sink receiver test added to the handoff's list (assessment §1) |
+| Item 3, the consumer project | Accepted, with one gap. Properties 1 and 3 to 6 hold. Property 2 holds for relative specifiers only: `DRF-23` (assessment §2) |
+| W1 | Holds for the form the handoff named. It doesn't discriminate the gap, and that is the handoff's omission |
+| W2, W3 | Accepted. W3's first attempt is discarded correctly, because `tsdown` ignores a missing `--config` path |
+| The note on the clean | Correct, and about the emitted `sortable/`. The clean doesn't target `src/sortable/` or any other path under `src/` (assessment §3) |
+
+**The owner's direction, 2026-11-13:**
+
+- route `DRF-23`'s repair and a discriminating witness with the next unit, keeping the rule that non-public source imports are rejected;
+- decide `DRO-15` step 2;
+- record the clean-path clarification in the assessment;
+- keep budgets unchanged and the mangle pending.
+
+**Recorded:**
+
+- `DRF-23`;
+- `DRD-54` property 2, as amended;
+- `DRD-55`, the gate on the published build;
+- `DRD-51` properties 1 and 3, as amended.
+
+**Next:** [`published-gate-handoff.md`](published-gate-handoff.md), one implementer unit. Part A repairs `DRF-23`, and part B implements `DRD-55`.
+
+## Disposition of the published gate report
+
+The [report](published-gate-report.md) at `2d9a2f482`, read by the architect on 2026-11-13 at `3b8f2d788`, whose only change after the report is the owner's direction in [`performance-plan.md`](performance-plan.md). The unit's code commits are `79b4c3132` (part A) and `69c260685` (part B). The architect's checks are recorded here, and not in a separate assessment.
+
+| What the architect checked | Result |
+| --- | --- |
+| `git diff --stat 7154dd4c3 2d9a2f482 -- packages/drag .scripts` | `.scripts/vitest-config.ts`, `packages/drag/vitest.config.ts`, three `tests/support/` files, `bench/size/measure.ts`, `tests/size.node.test.ts`, the report and `measurements/`. All inside the handoff's §Boundaries |
+| `tests/support/published-entries.ts` and the configuration diff | Read in full. Every specifier is resolved first, and the file it reaches under `src/` decides. A missing emitted entry is the plugin's error instead of a fallback to `src` |
+| The build sharing in `build-package.node.ts` | One promise per process, under a `Symbol.for` key, awaited by every project's global setup |
+| `measure.ts` and the expected list | Only the three `src/` fragments and the seven paths changed. The rows, ceilings, controls and bundling settings are as before. gzip-9 is printed and not gated |
+| [`gate-end-size`](measurements/2026-11-13-gate-runs/gate-end-size/) and [`gate-base-size`](measurements/2026-11-13-gate-runs/gate-base-size/) | Equal to the report's table on every row. Steps 2 and 3 of the end reading are identical |
+| The final suite, the three-engine run and the consumer run after the repair | 746 tests with 740 passed, 1,071 passed with 18 skipped, and 326 of 326, as reported |
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, the base | Accepted |
+| Part A, items 2 to 4 | Accepted. The witness discriminates: F2, F3, F4, F5 and F6b loaded the source at the old resolver, and every form fails at the repair. `DRF-23` is closed |
+| Part B, items 5 and 6 | Accepted. `DRD-55` properties 1 to 5 hold |
+| Item 7, G1 to G5 | Accepted. The first G1 runs, which joined the `sourceMappingURL` comment, are rightly discarded |
+| The size table | Accepted. No verdict changes. gzip-9 and Brotli-11 disagree in sign on "sortable + y" and "complete", as recorded |
+
+**The report's notes:**
+
+- **`.scripts/vitest-config.ts` imports drag's rule from `tests/support/`.** Accepted: the handoff placed the shared rule there, and the rule belongs to the package it resolves.
+- **One fixture's non-entry import fails the whole size file.** Accepted. The file stops with an error that names the module, and that is the purpose of G4.
+- **The first run of a new consumer configuration** can reload the page while the dependency optimizer fills its cache. Accepted as an environment fact. A witness repeats a run that this disturbs, as the unit did.
+- **`npx just test-engines` needs `~/.cache/ms-playwright/webkit-env.sh` in this container.** An environment fact, recorded here. The recipe doesn't change.
+- **The architect's note:** the build's promise lives for the process. In watch mode, a rerun therefore reads the first build, as reruns did before this unit. `vitest run` is unaffected.
+
+**The owner's decision, 2026-11-13** (`DRO-15`):
+
+- step 3 uses explicit `_` prefixes in source for strictly internal properties, followed by publish-time mangling;
+- public and platform names are unchanged;
+- the mangled set isn't inferred from types, and the type-directed transform is deferred ([`performance-plan.md`](performance-plan.md) §6);
+- budgets are unchanged.
+
+**Recorded:** `DRD-55`'s result, and `DRD-56`. **Next:** [`publish-mangle-handoff.md`](publish-mangle-handoff.md), one implementer unit.
+
+## Disposition of the publish mangle report
+
+The [report](publish-mangle-report.md) at `78797ebf6`, read by the architect on 2026-11-13 in [`publish-mangle-assessment.md`](publish-mangle-assessment.md). The unit's code commits are `f7b7b300b` (A) and `31f92f5a9` (B). The report's runs weren't repeated. The assessment's §1 lists what the architect checked.
+
+| Item | Result |
+| --- | --- |
+| Items 1 to 8 | Accepted. No return condition was met |
+| The V4 exception for `readonly` fields | Recorded in `DRD-56` property 6 as a bounded correction (assessment §3) |
+| `Gesture`'s members under property 1 | The report's reading is the decision's. Property 1's wording is corrected (assessment §4) |
+| `.plan/probes/callback-list/allocation.ts` | Accepted. `DRD-56` property 3 requires the line, and the handoff's §Boundaries omitted the path (assessment §5) |
+| M2's aborted consumer run | Holds as required, and isn't rerun. The mismatched publication that M2 builds can't come from the build, because V1 rejects it in the same run (assessment §6) |
+| `classVarCleanupPlugin` | Confirmed inert in drag's build. A repository-level observation, not registered here, and the owner's to open (assessment §8) |
+
+**Recorded:**
+
+- `DRD-56`'s result, and its corrections to properties 1 and 6;
+- `DRO-15`'s measured gain;
+- the changed verdicts under `DRO-4`, with no budget change.
+
+**Next:** the owner decides whether to start a fresh independent review of the publication pipeline and its validation. Assessment §9 gives the recommended scope: a `consolidator` round with `reviewer`, `integrity`, and `cleanup` limited to `build/` and the publication test. The type-directed transform stays deferred.
+
+## Disposition of the publish mangle review
+
+The [summary](reviews/publish-mangle/publish-mangle-summary.md) at `6e8174f64`, of the tree at `436b105c6`, with no tier A finding. The architect's first reading, [`mangle-remediation-assessment.md`](mangle-remediation-assessment.md) at `be151f9ed`, proposed a remediation of the custom pipeline and was never integrated. On the owner's requirements of 2026-11-13, `DRD-59` replaces that pipeline, and the remediation is withdrawn before implementation ([proposal](publication-build-proposal.md) §4).
+
+| Findings | Under `DRD-59` |
+| --- | --- |
+| `DRF-24`, `DRF-25` | Withdrawn with the requirement they test. The new V3 checks renamed positions |
+| `DRF-26`, `DRF-33` to `DRF-37` | Moot: the machinery they concern goes |
+| `DRF-27`, `DRF-28`, `DRF-29` | Decided in `DRD-59` properties 3 and 7. The unit implements them |
+| `DRF-30`, `DRF-31` | Decided in `DRD-59`'s corrections and property 8 |
+| `DRF-32` | The map workflow goes. A CONTRIBUTING statement of the marker is the owner's proposal S3 |
+
+**Next:** [`publication-build-handoff.md`](publication-build-handoff.md). The findings close when the architect accepts its report.
+
+**Replaced on 2026-11-13** by §Disposition of the mangling deferral. `DRD-59` is withdrawn, and its handoff doesn't run.
+
+## Disposition of the mangling deferral
+
+On 2026-11-13 the owner stopped the mangling and layout exploration and deferred property mangling, because its measured savings don't justify its complexity. `DRD-60` records it. Read at `690769539` on `drag/size`, merged into `drag/mangle-remediation` at `a9da5a563`.
+
+| Item | Disposition |
+| --- | --- |
+| `DRF-24` to `DRF-37` | Moot: the publication pipeline and the test they concern go. They close when the architect accepts the rollback's report |
+| `DRF-39`, registered as `DRF-38` at `1c99666f2` | Moot: the publication isn't minified. It closes on the same report, with the consumer project at 326 of 326 |
+| `DRO-16` | Withdrawn. No option is taken |
+| [`publication-build-handoff.md`](publication-build-handoff.md) | Withdrawn with `DRD-59`. It doesn't run |
+| [`publication-build-proposal.md`](publication-build-proposal.md), [`unit-layout-exploration.md`](unit-layout-exploration.md), [`property-mangling-exploration.md`](property-mangling-exploration.md), and their probes and readings | Kept unchanged as evidence, apart from a status line at the top of each |
+| The owner's proposals S1 to S4 | Not decided here. S3 has no marker left to state |
+| `DRF-38`, the baseline lint error, and `repo:RF-31`, the baseline typecheck error | Not this unit's. They stay open on their own cleanup units, and the rollback's acceptance closes neither. The rollback records both at its base and reports them apart from any new error |
+
+**Next:** [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md), one implementer unit.
+
+## Disposition of the slot array report
+
+The [report](slot-array-report.md) at `690769539`, read by the architect on 2026-11-13. The implementation is `5ec3b4b2d`. The architect read its diff and the saved evidence and didn't repeat the report's runs. The one check the architect ran was a scratch revert of `b50204f66`, for the mangling revert (`DRD-58` §Result).
+
+| Item | Result |
+| --- | --- |
+| The return at `b66a9bf6d` | Kept as history. The handoff at `8f18d2f67` said to keep the old browser builds, but its command, `npx playwright install` without `PLAYWRIGHT_SKIP_BROWSER_GC=1`, removed them together with WebKit's unpacked libraries and `webkit-env.sh`. **That was the architect's error.** The owner's amendment at `706b91481` replaced the browser requirements, so nothing is restored. A later handoff that installs browsers and has to keep the old builds names the variable |
+| Items 1 to 5 | Accepted. No return condition was met, and the tool list is identical at the base and at the end |
+| Properties 1 to 7 | Hold in `5ec3b4b2d`'s diff. `#values` is `readonly number[] = []`. Its one growth site is `_collect`'s append loop, up to `n * STRIDE`, and nothing assigns its `length`. Every `_measure` range ends at or below `_count`. The architect's own reading of the write and read sites agrees with the report's §Property 2. `capacityFor` and `#capacity` are gone. The fixed-size buffers and `xy.ts`'s `before` are unchanged |
+| Property 9 | Accepted. The architect compared the saved base and end verdict lists, and they differ only in line numbers. The saved outputs show the copy mutation failing W7's identity assertion for `y()` ("expected 2 to be 1") and `xy()` ("expected 3 to be 1"), and M8 failing W8 (119.94 against 80) |
+| Property 8 | Accepted from the saved evidence. The `.d.ts` diff is the one `settle` line, the map is byte-identical, and `typedoc` gives the same two warnings |
+| Size | Accepted. The architect compared the saved base and end rows: only the three `sortable` rows changed. Nothing goes to `DRO-4` |
+| Allocation | Accepted as reported, and not rerun |
+| Firefox and WebKit | Not run, on the owner's direction. Deferred to the owner's planned CI |
+| ESLint, `tests/displacement-sink.browser.test.ts:57` | The same error at the base and at the end, on a line the unit didn't change. Registered as `DRF-38` |
+| `npx just typecheck` | Exits 1 at the base and at the end, on `.scripts/tsdown-library.ts(53,11)`. `packages/drag` has no error of its own. Registered as `repo:RF-31` |
+
+**Recorded:**
+
+- `DRD-58`'s result, with what the owner's mangling revert keeps;
+- `DRF-38`;
+- `repo:RF-31`.
+
+**Next:** none for `DRD-58`. `DRF-38` and `repo:RF-31` go to cleanup units that the owner starts. `DRD-57`'s status row still reads "Not implemented". Its result was never recorded, and this disposition doesn't record it.
+
+## Disposition of the RectIndex access report
+
+The [report](rect-index-access-report.md) at `f788b2b80`, read by the architect on 2026-11-13 in [`rect-index-access-assessment.md`](rect-index-access-assessment.md). The implementation is `010a9ef39`. The architect read its diff against the reference patch and the saved evidence, and reran nothing.
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, the base | Accepted. `2e47e7afe`'s `src`, `tests` and `bench` equal `8904947f6`'s, and the tools are identical at both ends |
+| Items 2 and 3, `DRD-61` properties 1 to 9 | Accepted. Five differences from the reference patch, all accepted. One of them corrects the architect's patch: the held placeholder x is two numbers, as properties 1 and 9 say, not a tuple (assessment §2) |
+| Item 4, W7, W8 and the mutations | Accepted. Only the two W7 titles change. M7a, M7b, M8 and the axis mutation each fail what item 4 names |
+| Item 5, the publication | Accepted. Only `sortable/axis.d.ts` differs, and `typedoc` warns as at the base |
+| Item 6, size | Accepted. −31, +22 and −92 B Brotli on the `sortable` rows, as `DRD-61` recorded, with the controls at 0/0/0 and no verdict change. Nothing goes to `DRO-4` |
+| Item 6, allocation | Accepted as bytes allocated: reductions per `y()` sample, per cold committed move and per drop with a sink, and no difference per `xy()` sample or per warm move. No speed is inferred from them |
+| Item 7, timing | Accepted. "No difference shown" in all three cases, under the hold, on the first attempt. Inconclusive, so a speed change in either direction is unmeasured. Nothing goes to the owner |
+| The report's §Wording for the architect | **Accepted.** `DRD-61` property 11 and the handoff's item 7 are corrected in place: the A/A threshold is the rule's threshold, not a limit on a slowdown the check could have missed. The verdicts and the rule don't change (assessment §3.2) |
+| Lint and typecheck | The base's 49 ESLint errors and `repo:RF-31`, with nothing new and nothing repaired. `DRF-38`'s line moves from 57 to 53 |
+
+**Recorded:** `DRD-61`'s result and the correction of its property 11, and the handoff's corrected item 7.
+
+**Not decided here:** `DRD-52`'s result and `performance-plan.md`'s P4 summary of the size pass unit describe their timing as not excluding "a slowdown below" the A/A bounds, which implies the same limit. They are left as they are, for the owner (assessment §3.2). `DRF-38`'s scope, `repo:RF-31`, `DRO-4`'s re-base and the rollback report's acceptance stay separate. Budgets are unchanged, and the deferred campaigns stay stopped. **Since then,** the owner directed both wording corrections, and they are made (§Disposition of the RectIndex access review).
+
+## Disposition of the RectIndex access review
+
+The independent [feature proof](reviews/rect-index-access/proof-reviewer.md) at `bdb2c73c8`, which read `2e47e7afe..f788b2b80` and ran its checks at `30bf21e6e`, whose `src` and `tests` equal `010a9ef39`'s. Read by the architect on 2026-11-13 in [`rect-index-access-assessment.md`](rect-index-access-assessment.md) §7, against `DRD-61` and the assessment at `30bf21e6e`. The architect used the saved evidence and the review's probes, and reran nothing.
+
+| Item | Decision |
+| --- | --- |
+| `reviewer-1`, the source-only list's comment | **Accepted, tier C.** `tests/displacement-sink.browser.test.ts` stays on `DRAG_SOURCE_ONLY_BROWSER_TESTS`, because it reads `report` and `displaced`, which only the unpublished installer types declare. The comment's reasons, `settle`, `STRIDE` and `TOP`, are out of date. **Follow-up:** the one comment, in the [handoff](rect-index-access-handoff.md) §Follow-up after the independent review. No finding is registered, because the follow-up carries it |
+| `reviewer-2`, property 3's "allocate nothing" | **Accepted, tier C. `DRD-61` property 3 is corrected in place** to the source reading it meant: `at` and `item` construct nothing. The report's "Yes" holds under it. The bytes the per-drop probe attributes to `at` stay in the allocation record as a reading whose cause isn't established. `DRD-50`'s amendment by `DRD-61` said "allocate nothing" in the same sense, and is corrected the same way. No probe is opened for the cause (assessment §7.2) |
+| `reviewer-3`, W8's settled-top assertion | **Accepted, tier C. `DRD-61` property 10 is corrected in place:** W8's gap assertion observes the index's settled value, and M8 is attributed to it. The settled-top assertion checks the sink. No test changes (assessment §7.3) |
+| The review's §Timing evidence | Agrees with the assessment's §3. The three verdicts stand as recorded. The review's sign-test spans hold only if the rounds are independent, which one unpinned process doesn't establish. They stay in the review as its reading, and no record turns them into a bound |
+| The review's baseline, size and allocation results | Agree with the assessment. Nothing changes |
+| `DRD-52`'s result and `performance-plan.md`'s P4 summary | **Corrected on the owner's direction,** as the assessment's §3.2 described. "No difference shown" is inconclusive, and the A/A bounds don't limit a slowdown. The verdicts and bounds don't change (assessment §7.4) |
+
+**Recorded:** the corrections of `DRD-61` properties 3 and 10, of `DRD-50`'s amendment by `DRD-61`, and of `DRD-52`'s timing result. The P4 summary's correction. The follow-up item.
+
+**Next:** the follow-up after the independent review, one implementer item, when the owner starts it. `DRD-61`'s acceptance stands. `DRF-38`'s scope, `repo:RF-31`, `DRO-4`'s re-base and the rollback report's acceptance stay separate. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+## Disposition of the xy() held geometry report
+
+The [report](xy-held-geometry-report.md) at `7184d069c` and the independent [feature proof](reviews/xy-held-geometry/proof-reviewer.md) at `c4d02d45c`, which read and ran `7184d069c`. Read by the architect on 2026-11-14 in [`xy-held-geometry-assessment.md`](xy-held-geometry-assessment.md), against `DRD-62`. The implementation is `b4117dae2`. The architect used the saved evidence and the review's probes, and reran nothing.
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, the base | Accepted. `ae85d8f6a`'s `src`, `tests` and `bench` equal `f79f66fe2`'s, and the tools are identical at both ends |
+| Items 2 and 3, properties 4 to 6 | Accepted. The `src` diff is the sketch, blob `b9234028e`. The declaration test differs from the sketch as the report lists, as item 3 asks. MT1 to MT3, and the review's RT1 and RT2, fail it |
+| Item 4, property 7 | Accepted. The oracle reads layout offsets, not the index. MX1 to MX5, and the review's RB1 and RB2, fail what they name |
+| Item 5, the publication | **Accepted, with the report corrected.** The build's 60 `.js` and `.d.ts` files are byte-identical. One source map, `sortable/rect-index.js.map`, differs, which property 5 doesn't cover. Every size row reads 0/0/0 |
+| `reviewer-1`, Vite's cache counted as emitted files | **Accepted, tier C.** The report's 124 paths are the build's 60 and 64 files of Vite's dependency cache. **The report is corrected in place** to count and name only the build's output, and to state that it didn't compare source maps and that one differs. The saved measurements still read 124 and aren't changed. No source or test is implicated (assessment §4.1) |
+| The review's `held === 0` note | **`DRD-62` property 2 is corrected in place** to name the base's exit. The source doesn't change (assessment §4.2) |
+| The review's other notes and limits | The box path and the `count < held` side aren't witnessed, and are recorded as limits. The 98-character comment line isn't a finding, and isn't routed. No unit is opened (assessment §4.3) |
+| Size, lint and typecheck | The base's six red rows, "complete" over by 110 B, the 49 ESLint errors with `DRF-38`'s line moved, and `repo:RF-31`. Nothing new, nothing repaired, and no budget change |
+| Allocation and speed | Allocation stands as `DRD-62` §Costs reads it, and wasn't run again. Speed is unmeasured in both directions, including the polymorphism risk |
+
+**Recorded:** `DRD-62`'s result and the correction of its property 2, and the report's corrected emitted-file passages.
+
+**Next:** none for `DRD-62`. Integration and the pull request are the owner's. `DRF-38`'s scope, `repo:RF-31`, `DRO-4`'s re-base and the rollback report's acceptance stay separate. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+## Disposition of the mangling rollback report
+
+The [report](mangle-rollback-report.md) at `8904947f6`, read by the architect on 2026-11-14 on `drag/size` at `6296b741a`, against `DRD-60` and its [handoff](mangle-rollback-handoff.md). The implementation is `cc752cc1b` (commit A) and `b8e37b37c` (commit B), from the base `7420cbb9a`, whose code is `690769539`'s. The architect read the saved evidence and reran none of the unit's checks. The architect's own checks were mechanical, at `6296b741a`: the tree state below and one whole-package lint ([output](measurements/2026-11-14-rollback-disposition-lint.txt)).
+
+**The report's result is historical.** It describes `b8e37b37c`. Since then `DRD-61` (`010a9ef39`), `DRD-62` (`b4117dae2`) and the box-quad integration at `6296b741a` ([report](main-integration-report.md)) changed `src` and `tests`. So `DRD-60` property 1's comparison with `f7b7b300b^`, the `.js` and `.d.ts` comparisons and the size figures hold for `b8e37b37c` only. None of those later units' acceptances accepted the rollback, and this disposition accepts none of them again. **What still holds at `6296b741a`:** `build/` and `tests/publication.node.test.ts` don't exist; `tsdown.config.ts` and `tsconfig.json` are byte-identical to `f7b7b300b`'s; `src` and `bench` have no `\b_[A-Za-z]` name; and `tests` has only the five `_name` parameters that property 1 keeps.
+
+| Item | Disposition |
+| --- | --- |
+| Tools, and item 1, the base | Accepted. The tool versions are the handoff's. The base's lint list is wider than the handoff expected (the lint row below) |
+| Item 2, commit A | Accepted. The file list, the 27 byte-identical `.d.ts` files and the `.js` names check hold in the saved outputs |
+| Commit A's consumer failure and the rerun | **Accepted as the owner's direction.** The first run met the handoff's return condition "a consumer test fails". The owner directed one rerun of the same command, on stated terms, in place of the return, and it passed 326 of 326. The rerun shows the failure isn't steady, and doesn't explain it. **It isn't attributed to the rollback:** commit A changes no path the test runs, the end passed 326 of 326 on its first run, and the same test failed once before, on 2026-11-09, at a tree without the rollback. Registered as `DRF-40`. It doesn't bear on `DRF-39`, which reads the end |
+| Item 3, commit B | Accepted on the saved evidence: the marker search, the six-file `--stat`, the 95 changed lines equal to `5ec3b4b2d`'s, `DRD-58` §Result's types, and the probe's text. `lint-fix`'s `object-shorthand` restored the shorthand keys, not `fmt` as the handoff expected. The checks hold either way |
+| Item 3.6, the `.js` lines | **Accepted, with the report corrected in place:** the saved output lists 10 lines in six files, not 11. `rect-index.ts`'s six restored keys are in `verifyEquivalence`, whose only call `define: { __DEV__: 'false' }` folds to dead code. The build drops the function, so no published line changes there |
+| Item 4 | Accepted. The dry checks' outputs are byte-identical at the base and the end, no published file holds a marker, and the source maps hold as reported |
+| Item 5, the suite | Accepted. The consumer project passes 326 of 326, including `DRF-39`'s two tests. The node project fails only the six size rows, and the five publication tests are gone |
+| Item 5, the gate | Accepted. Every row grows by 35 to 144 B Brotli, none falls, and none exceeds the 160 B return condition. The verdicts go to `DRO-4` as a reading. No budget changes |
+| Published size | Accepted as reported |
+| **The baseline lint: 49 errors, not one** | **The discrepancy is the architect's.** `DRF-38` was registered from the slot array unit's lint of its five changed files, as if it were the whole package's. The report's 49 are the base's, unchanged at commit A and at the end, and no new error appeared. The independent review of `DRD-62` counted the same 49 at `f79f66fe2` and `7184d069c`, and the architect's run at `6296b741a` gives the same 49 by file and rule. **`DRF-38` is widened in place** to all 49, rather than a new finding. It stays open, and the rollback repairs none of it |
+| The baseline typecheck | `repo:RF-31` only, unchanged at all three points. It stays open. At `6296b741a`, drag's typecheck also reports two TS2724 errors in `packages/drag2/src/kernel/presentation.ts`, from box-quad's removed factories, which `BQ-12` places outside its scope ([main integration report](main-integration-report.md)). They aren't the rollback's |
+| The three extra ignored outputs in a fresh worktree | Accepted. A later handoff that runs the suite in a fresh worktree names them with the two it already names |
+| **Independent proof** | **Missing for the rollback itself.** The reviews of `DRD-61` and `DRD-62` put it out of scope. Their own runs on trees that contain it corroborate item 5's consumer verdict and the baseline lint, and the architect's checks above cover the removals and the two configuration files. **Not covered independently:** property 1's comparison, property 2's publication comparison, property 4's dry checks and item 4's publication checks. **Routed** to one narrow `reviewer` feature proof ([handoff](mangle-rollback-handoff.md) §Independent review). The closures below don't depend on it |
+| `DRF-24` to `DRF-37` | **Closed.** What each concerns is gone: the build step, its map, the generator and the publication test at `cc752cc1b`, and the marker at `b8e37b37c` (`DRF-32`). They are still gone at `6296b741a` |
+| `DRF-39` | **Closed.** The publication isn't minified, and the consumer project passes 326 of 326 at `b8e37b37c` and in the independent run at `7184d069c` |
+| `DRF-38` and `repo:RF-31` | Open, as `DRD-60` requires. `DRF-38` is widened |
+
+**Recorded:**
+
+- `DRD-60`'s result;
+- the closure of `DRF-24` to `DRF-37` and `DRF-39`;
+- `DRF-38`'s widening, and `DRF-40`;
+- the rollback's verdicts in `DRO-4`;
+- the report's corrected line count;
+- [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) §Independent review.
+
+**Before the drag pull request,** the record requires:
+
+1. **The independent feature proof** of the rollback, and the architect's reading of it. A defect it finds is decided before the pull request.
+
+**The owner decides,** and the record doesn't:
+
+2. whether to merge with five red size rows and unchanged budgets. `DRO-4`'s re-base stays open, as it was when `drag/feature-composition` merged with red rows;
+3. whether to merge with lint and typecheck exiting 1, on `DRF-38`, `repo:RF-31` and `BQ-12`'s two drag2 errors, or to run `DRF-38`'s cleanup unit first;
+4. whether `DRF-40`'s repair comes first. Until then, a full run may fail that test again;
+5. decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2, which the record still doesn't answer.
+
+The open findings the pull request carries are `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21`, `DRF-38` and `DRF-40`. Its verification is Chromium only, and the speed of `DRD-61` and `DRD-62` is unmeasured.
+
+**Next:** the independent feature proof, when the owner starts it. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+**Since then,** the proof ran and item 1 is met. §Disposition of the rollback and integration reviews replaces the list above.
+
+## Disposition of the rollback and integration reviews
+
+The independent [feature proof](reviews/mangle-rollback/proof-reviewer.md) at `fdaab3781`, which read `drag/size` at `55e109210` and the historical commits in detached scratch worktrees. Read by the architect on 2026-11-14 at `fdaab3781`, against `DRD-60`, [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) §Independent review and the [main integration report](main-integration-report.md). The architect used the review's saved outputs and probes, checked `rollback-reviewer-1`'s sum against the report's table, and reran nothing. `fdaab3781`'s code outside `.plan/` is `6296b741a`'s.
+
+**The review has two scopes, with separate evidence and conclusions.** Neither result stands in for the other.
+
+### The rollback: `DRD-60`'s independent proof
+
+**Complete, with one tier-C finding.** Pinned to the base `7420cbb9a`, commit A `cc752cc1b`, commit B `b8e37b37c` and the report at `8904947f6`. The review built each commit in its own worktree, against that worktree's box-quad, and started no browser.
+
+| Item | Disposition |
+| --- | --- |
+| Property 1, at `b8e37b37c` | Holds: the markers, the code tree against `f7b7b300b^`, `DRD-58`'s 95 lines, the probe file and `DRD-58` §Result's types. The rename is the marker reading and nothing else |
+| Property 2 | Holds. `build/` is gone, and the two configuration files are `f7b7b300b`'s. The 27 `.d.ts` files at `b8e37b37c` are byte-identical to the base's. No published file holds a marker, and the source maps hold |
+| Property 3, as §Independent review lists it | Holds |
+| Property 4 | Holds. The dry outputs are byte-identical at the base and `b8e37b37c`. 13 entries apply, and the 10 that fail are `DRD-45` property 9's stale entries |
+| The report's items 2 to 4 | Agree, apart from `rollback-reviewer-1`. The review's builds reproduce all 90 saved hashes at each of the three commits |
+| `rollback-reviewer-1`, the interface-typed key count | **Accepted, tier C. The report is corrected in place.** §Commit B read "the 12 keys marked `*` belong to object literals typed by an interface". It now reads "the 9 keys marked `*` belong to object literals typed by an interface", with a note that quotes the old wording. The table marks 9, and 79 − 3 − 9 = 67, the handoff's count. The probe's output, its 13 `PropertyAssignment` nodes and the rename are unchanged. No source, test or decision is implicated, and no finding is registered |
+
+**Two file counts, kept apart.** The build emits **90 files**: 33 `.js`, 30 `.js.map` and 27 `.d.ts`. The report's "90 published files" (items 1.5 and 2.3) and the three `-tree.sha256` files count those. `npm pack --dry-run` lists **92 paths**: the 90, with `README.md` and `package.json`. The review's "published file list" is the 92. Each list is the same at the base, A and B. The report's items enumerate what they count, so they aren't changed.
+
+**Evidence limits:**
+
+- the rename probe wasn't rerun, and its result was checked through the tree comparisons;
+- the review read the A-to-B `.js` lines with a whole-file comparison and the report with its own probe. The two lists agree, and no third reading exists;
+- no browser, suite, consumer project or size row is in this scope.
+
+**`DRD-60`'s independent proof is complete,** and no defect returns the unit. **The proof is of `b8e37b37c`.** At `6296b741a`, only what §Disposition of the mangling rollback report checked again still holds: the removals, the two configuration files and the absence of markers.
+
+### The main integration at `6296b741a`
+
+**No finding.** The review compared every path with the merge base `0a28f909a` and both parents, `f0b66c2ec` and `7d8d7a805`.
+
+- 852 paths were taken whole from the only side that changed them. The merge adds the integration report and its six measurements. Two paths needed reading.
+- **`layout-animation.ts`,** the one conflict, keeps main's two lines and `DRD-61`'s change, and nothing else.
+- **The test helper's `space()` migration** is two lines. It follows box-quad's API at `7d8d7a805`, and changes no assertion, fixture or routing.
+- The integration report's claims agree.
+
+**Focused checks, not whole ones:**
+
+- Chromium, `browser` project, the four files that use `layoutAnimation` or the sink: 99 of 99;
+- drag's typecheck: the three known errors;
+- lint and format of the two edited files: `DRF-38`'s line 59 only.
+
+**Evidence limits:**
+
+- **No saved full suite is tied to `6296b741a`.** The integration's run, 747 of 752, recorded `f0b66c2ec` with `dirty: true`, the merge in progress. The five red size rows rest on that run's table, not on a build of the commit;
+- whole-package lint, the consumer project, box-quad's suite, Firefox and WebKit weren't run.
+
+**Recorded as reviewed, with a null result.** The integration decides nothing, as its report says, and this disposition accepts nothing outside the review's scope.
+
+**Outside the merge, for information:** drag2's own typecheck fails against main's box-quad, with three `TS2724` errors for the removed factories and a `TS2322` at `tests/decisions.node.test.ts:740` that doesn't involve box-quad, besides `repo:RF-31`. Neither parent changed those drag2 files, and box-quad at the merge is main's, so main has the same errors. They aren't drag's, and this record registers nothing for them.
+
+### Recorded
+
+- the report's corrected count, with the old wording quoted;
+- `DRD-60`'s independent proof, in its result and its status row;
+- the integration review's null result;
+- the findings' high-water mark, from `DRF-39` to `DRF-40`. `DRF-40` was registered at `55e109210` without moving it.
+
+### Before the drag pull request
+
+**The record requires nothing more.** Its one requirement, the independent proof, is met. What follows is the owner's.
+
+**Current failing checks at the tip,** whose code is `6296b741a`'s:
+
+- **`npx just test`:** five size rows, read on the integration's uncommitted tree. "draggable alone" is 50 B Brotli over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; "complete" 67 B;
+- **`npx just lint`:** `DRF-38`'s 49 ESLint errors, all in `tests` and `bench`;
+- **`npx just typecheck`:** `repo:RF-31`, and `BQ-12`'s two drag2 errors. The drag2 errors are on main already. `repo:RF-31` isn't: its inferred cause, the dependency update `31bac1381`, isn't an ancestor of `7d8d7a805`, so this pull request brings it to main.
+
+**Decisions:**
+
+1. **Size:** merge with the five red rows and unchanged budgets, as `drag/feature-composition` did, or order `DRO-4`'s re-base first. **Recommendation: merge with them red.** A re-base moves the ceilings to sizes that include the costs in the historical list below, so those come first ([`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2).
+2. **Lint and typecheck:** merge with both exiting 1, or run `DRF-38`'s cleanup unit first. Only the lint errors are drag's code. The typecheck errors are a shared script's and drag2's, and no drag unit repairs them.
+3. **`DRF-40`:** repair it first, or merge with it open. It doesn't fail at the tip. It failed twice, each time under load, and may fail a full run again.
+4. **The suite's evidence at the tip:** state in the pull request that no full run is tied to `6296b741a`, or have one full run made at the tip first.
+
+**Historical costs, not failing checks:**
+
+- **Open since 2026-11-10,** on code that is on main since `a9c323f6a`: decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2, `DRO-10`'s excess and the reported costs no approval covers. They don't gate this merge. They come before the re-base;
+- **Already approved or weighed, nothing to decide:** `DRD-47`'s, `DRD-48`'s and `DRD-49`'s bytes; the rollback's growth, which the owner weighed in `DRD-60`; `DRD-61`'s size, which sent nothing to `DRO-4`; `DRD-62`'s 0 B; the integration changes no budget;
+- **Unmeasured, not a cost:** the speed of `DRD-61` and `DRD-62`. The verification is Chromium only.
+
+**Defaults in force, not before the pull request:** `DRO-1`, `DRO-2` and `DRO-11` keep their defaults, unanswered. `DRO-3` is owed before a release, not a merge.
+
+**The open findings the pull request carries:** `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21`, `DRF-38` and `DRF-40`.
+
+**Next:** none from the record. The pull request and the four decisions are the owner's. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+**Since then,** the owner ran `DRF-38`'s cleanup unit, with `repo:RF-31` and `DRF-40`. §Disposition of the final cleanup answers decisions 1 to 4 and replaces the failing checks and the open findings above.
+
+## Disposition of the final cleanup
+
+The [report](final-cleanup-report.md) at `e0e4cee55`, on the implementation at `27c60a9ac` from `f9e56fe7d`, and its independent [feature proof](reviews/final-cleanup/proof-reviewer.md) at `ea706c49d`. Read by the architect on 2026-11-14 at `ea706c49d`, against `DRF-38`, `DRF-40` and `repo:RF-31`. The owner approved the cleanup on 2026-11-14. `ea706c49d`'s code outside `packages/drag/.plan/` is `27c60a9ac`'s, by the architect's `git diff`.
+
+The architect reused the proof's saved outputs and probes, and ran one check: both plugin packages' lint ([output](measurements/2026-11-14-final-cleanup-disposition-plugin-lint.txt)). It settles a line that the proof's saved output drops (§The report's claims).
+
+**The implementation at `27c60a9ac` is accepted.** `DRF-38`, `DRF-40` and `repo:RF-31` close. Both of the proof's tier-C findings are accepted. One correction is routed, and one older gap is registered.
+
+### `drag:DRF-38`: closed
+
+| Required property | Evidence | Holds |
+| --- | --- | --- |
+| Lint exits 0 | The report's output and the proof's run. The diff adds no disable comment, `@ts-ignore`, `@ts-expect-error`, `as any` or `as unknown`, and changes no lint, `tsconfig`, package or lock file | Yes |
+| Each `@ts-expect-error` still fails without its directive, for its comment's reason | The proof's directives probe: 37 and 13 directives at both commits, each error on the line after its directive. The sequences of codes and messages are identical. No directive is unused, and no other error appears except drag2's two `TS2724`. Making the receiver `Holder` gives the same `TS2345` in the old inline step and in `unknownReceiverStep` | Yes |
+| A heap count runs after the reference that the test drops before it | Both tests hold the controller only in an inner function's frame. Kept in the test's frame, both fail at the class count (the proof's rows 1 and 2, and the report's matrix). Without the drop, `f9e56fe7d`'s tests fail | Yes |
+| `bench/compare.ts` produces the same injections and output | The per-entry dry checks below. The injection definitions lie outside the diff's two hunks. Under `--dry`, neither changed function runs, and `coreSets` gives the same JSON on this machine's sysfs and on a fixture | Yes |
+
+**The per-entry dry checks.** The report's dry runs stop at the third entry of each mode, so they exercise only the first two `--prove` and the first two `--floors` entries. The proof ran each of the 23 entries alone, with `--dry --only <name>`, once with `f9e56fe7d`'s `compare.ts` and once with `27c60a9ac`'s. The two outputs are identical ([comparison](reviews/final-cleanup/proof-reviewer-probes/dry-compare.txt), [`f9e56fe7d`](reviews/final-cleanup/proof-reviewer-probes/dry-head.txt), [`27c60a9ac`](reviews/final-cleanup/proof-reviewer-probes/dry-new.txt)):
+
+| Mode | Applies (exit 0) | Doesn't apply (exit 1) |
+| --- | --- | --- |
+| `--prove`, 9 entries | about 1 ms of script per cycle, at the drop; one object of about 1 KB retained per operation past destruction; 1 KB allocated per move; one entry on the step list per frame; an array of four numbers per sample, in `Gesture.enter`; 300 µs of script per cycle, in the page | one forced layout per move; one O(n) walk per move; 30 µs of script per move, in the page |
+| `--floors`, 14 entries | 300 µs and 100 µs of script per cycle, at the drop; one object with two number properties per sample, in `Session`'s `#move`; one object with two number properties retained per operation; 300 µs, 100 µs and 30 µs of script per cycle, in the page | 100 µs, 30 µs and 10 µs of script per move; 30 µs, 10 µs, 5 µs and 2 µs of script per move, in the page |
+
+That is 13 that apply and 10 that don't. The 10 fail with the same message at both commits: "injection does not apply in sortable/operation.ts: `this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);`". They are `DRD-45` property 9's stale entries, and this unit didn't change them.
+
+### `final-cleanup-reviewer-1` → `DRF-41`
+
+**Accepted, tier C.** The comment at `tests/destruction.browser.test.ts:411` to `:412` says the controller keeps `behavior` reachable, and the proof's rows 3 and 4 show the object's release follows the test's variable.
+
+**The minimal correction:** replace the comment with one that states what the read does. The callback captures the variable, not the object, so the object's release follows the variable, which the test clears after destruction, and not the controller's release. Nothing else changes: not the read, the assignment, an assertion or the title.
+
+- **Not deletion:** with no comment, the read and the test's title still suggest that the sentinel checks the controller's release.
+- **Not the sentinel's repair:** that changes what the test asserts, so it is `DRF-42`.
+
+**Routed** to [`heap-comment-handoff.md`](heap-comment-handoff.md). `DRF-38`'s required property doesn't depend on a comment, so `DRF-38` closes with `DRF-41` open.
+
+### The behavior sentinel → `DRF-42`
+
+The proof's §Observation outside the change. **Registered, not treated as repaired.** The sentinel has been unable to detect a retained callback since `a9c323f6a`. `27c60a9ac` moved the controller into an inner function and left the sentinel's object, its variable and `behavior = null` as they were, so its verdict still follows the variable (the proof's rows 3 and 4). `DRF-38` barred changing what a test asserts, so the cleanup couldn't repair it, and accepting the cleanup doesn't. Routed to a drag test unit, which the owner starts. It doesn't gate the pull request.
+
+### `drag:DRF-40`: closed
+
+| Required property | Evidence |
+| --- | --- |
+| The verdict doesn't depend on how long the grab takes | The proof: 1 s between the release and the pause, and 2 s between the read and the grab, pass in both cases. The report: a 1 s wait passes 4 of 4, and fails `f9e56fe7d`'s rejected case by 4.72 px |
+| It fails when activation cancels the landing before it measures | The report's M1, and the proof's independent mutation: 5 px and 45 px off, in both cases |
+| It fails when activation measures without the landing's current offset | The report's M2, and the proof's independent mutation, which measures with every animation moved past its end: 5 px and 45 px off, in both cases |
+
+- **What is unchanged:** the duration, the easing, the 1 px tolerance, both assertions and both cases. The test asserts that the landing exists at the grab.
+- **The pause doesn't change the path under test:** `Lifter.acquire` reads the visual's rect before it writes anything, cancels the landing in its `finally`, and reads no play state. That a paused landing presents the same state as a playing one within one synchronous call is the proof's reasoning, not a measurement.
+- **Evidence limits:** Chromium. The report's matrix covers the `browser` and `consumer` projects for its own mutations, and the proof's covers the `browser` project only.
+
+### `repo:RF-31`: closed
+
+The cause, the fix and the boundary of what its check guarantees are in [`repo:RF-31`](../../../.plan/00-index.md). In short: the required property holds at `27c60a9ac`. Every consumer typechecks apart from the expected drag2 errors, nothing is cast, and the emitted JavaScript is unchanged. `@ydinjs/vite-traits-plugin`'s `index.d.ts` declares the intersection, which is assignable to Vite's `Plugin`.
+
+**`final-cleanup-reviewer-2`: accepted, tier C, recorded in `repo:RF-31` beside P7.** The check can't see a hook's use of a Vite-only context member such as `this.environment`. No form of the check catches that in a program that loads Vite's types. What makes the current hooks compatible is the proof's audit of every implemented hook at `27c60a9ac`, not the check. **The report is corrected in place** (§The report's claims).
+
+### The report's claims
+
+They agree with the proof, apart from these:
+
+- **§`repo:RF-31`'s description of the check: corrected in place.** It said that assigning to the intersection "checks every implemented hook against Rolldown's signature", that an unacceptable transform result fails (P6), and it named P7 as the one limit. P6 doesn't separate the intersection from Vite's type, which rejects it too. The check also misses a hook's Vite-only context members. The report now says this, with a note that quotes the old wording.
+- **"`--prove --dry` and `--floors --dry` give the same output":** true. Each run stops at its third entry, and the per-entry checks above cover the other entries. Not changed.
+- **The plugin lint errors:** the report lists some of them, as it says. The proof adds five ESLint errors in `@ydinjs/vite-custom-element-assets`. **The proof's saved output** counts seven ESLint errors in that package and lists six: it drops `src/css/css.ts:31`, which its text names. The architect's run lists all seven. **Registered as [`repo:RF-32`](../../../.plan/00-index.md).** No line `27c60a9ac` changed carries one.
+
+### Size, build, typecheck and the full suite
+
+- **Size:** at `27c60a9ac` the `just size` table is byte-identical to the main integration's, and nothing that sets size changed. Five rows are red: "draggable alone" 50 B over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; and "complete" 67 B. **The owner accepts them with budgets unchanged** (`DRO-4`).
+- **Build:** the report's hashes give 1,920 byte-identical files across the six tsdown consumers. The proof's emit comparison gives identical JavaScript for both edited plugin sources. Nothing was rebuilt in review.
+- **Typecheck:** drag reports only drag2's two `TS2724`, from box-quad's removed factories (`BQ-12`). **By the owner's direction, they stay expected failures:** drag2 remains excluded and unsuppressed. drag2's own typecheck has its four known errors.
+- **The full Chromium suite at `27c60a9ac`:** the status record ([size and status](measurements/2026-11-14-final-cleanup-size.txt)) gives revision `27c60a9ac` before and after, `git status` empty both times, `suite exit=1` and `size exit=1`. The [log](measurements/2026-11-14-final-cleanup-drag-suite.log) gives 56 files and 752 tests: 747 pass, and the 5 failures are the five size rows. "Type Errors" reports none. The run started at 09:25:59, 24 s after `27c60a9ac`'s commit time and before `e0e4cee55`. Its totals equal the main integration's.
+- **The limits of that tie:**
+  - the log carries no revision line, and the wrapper that wrote the status record isn't saved. The tie rests on the record, the timestamps and the counts;
+  - the log isn't verbose, so it gives no per-project verdicts;
+  - `just test` runs `vitest.config.ts`, whose browser projects are Chromium only. Firefox and WebKit didn't run, and no timing, allocation or campaign ran;
+  - the proof didn't rerun the suite. Its unmutated focused runs of the three changed browser tests passed at identical code.
+
+### Recorded
+
+- `DRF-38`, `DRF-40` and `repo:RF-31` closed at `27c60a9ac`;
+- `DRF-41` and `DRF-42` registered, and the high-water mark moved to `DRF-42`;
+- `repo:RF-32` registered;
+- the boundary of `repo:RF-31`'s check, beside P7;
+- the report's §`repo:RF-31` corrected in place, with the old wording quoted;
+- the owner's acceptance of the five size rows in `DRO-4`;
+- [`heap-comment-handoff.md`](heap-comment-handoff.md).
+
+### Before the drag pull request
+
+**The record requires nothing more.** The four decisions of §Disposition of the rollback and integration reviews are answered:
+
+1. **Size:** the owner accepts the five red rows with budgets unchanged. `DRO-4`'s re-base stays open;
+2. **Lint and typecheck:** the cleanup ran first. drag's lint exits 0. drag's typecheck exits 1 on drag2's two `TS2724` only, which the owner keeps as expected failures;
+3. **`DRF-40`:** repaired and closed;
+4. **The suite's evidence:** one full Chromium run is tied to `27c60a9ac`, within the limits above. The pull request states them.
+
+**Failing checks at the tip,** whose code is `27c60a9ac`'s: `npx just test` fails the five size rows, and `npx just typecheck` reports drag2's two `TS2724`. Both are accepted.
+
+**The owner decides** whether `DRF-41`'s correction comes first. **Recommendation: yes.** It is a comment in a file this branch changes, the unit is bounded, and it owes no full suite. If it lands, the full suite stays tied to `27c60a9ac`, and the pull request says the later change is a comment, with its focused run.
+
+**The open findings the pull request carries:** `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42`, and `DRF-41` unless its unit runs first. `repo:RF-32` isn't drag's, and this branch doesn't change it.
+
+**Historical costs, unchanged:** decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2 and `DRO-10`'s excess stay open. They don't gate this merge, and they come before the re-base. `DRO-1`, `DRO-2` and `DRO-11` keep their defaults, and `DRO-3` is owed before a release.
+
+**Next:** the owner's. `DRF-41`'s unit if the owner chooses it, then the pull request. Budgets are unchanged, and the deferred campaigns stay stopped.
+
+**Since then,** the owner ran `DRF-41`'s unit first. §Disposition of the heap-comment correction closes `DRF-41` and replaces the open findings above.
+
+## Disposition of the heap-comment correction
+
+The [report](heap-comment-report.md) at `7021f1013`, on the comment change at `3c7028cc9` from the base `87c688fd3`. Read by the architect on 2026-11-14 at `7021f1013`, against `DRF-41` and [`heap-comment-handoff.md`](heap-comment-handoff.md). The architect read the diff and reused the report's checks. The architect's own checks were mechanical:
+
+- `git diff 87c688fd3 7021f1013` outside `packages/drag/.plan/` changes only `tests/destruction.browser.test.ts`: one hunk, two comment lines removed and two added;
+- the same comparison from `27c60a9ac` gives the same single hunk;
+- `behavior = null` is at `:429`, below the comment;
+- `npx just lint` on the test file exits 0.
+
+| Handoff item | Disposition |
+| --- | --- |
+| Property 1, what the read does | Holds. The comment says that the callback captures the variable, not its object, and that clearing `behavior` below releases the object whether or not the controller is released |
+| Property 2, agrees with the proof's rows 3 and 4 | Holds. It no longer says that the controller keeps the object reachable |
+| Property 3, no bookkeeping | Holds. No finding id, review name or commit |
+| Scope | Holds. The read, `behavior = null`, the `WeakRef` list, every assertion and the title are unchanged. `src` and `bench` are unchanged |
+| Lint and typecheck | `npx just lint` exits 0. `npx just typecheck` reports only drag2's two `TS2724`, which are expected |
+| The focused run | Chromium, `browser` project: the one test passes, with 22 skipped |
+
+**`DRF-41` is closed at `3c7028cc9`.** The handoff used the suggested wording unchanged. `oxfmt` leaves the second line at 87 characters, and lint accepts it.
+
+**What this doesn't change:**
+
+- **`DRF-42` stays open.** The comment now describes the sentinel's limit, and the sentinel still can't detect a retained callback;
+- **the full Chromium suite stays tied to `27c60a9ac`,** within the limits in §Disposition of the final cleanup. The tip's code differs from `27c60a9ac` only by these two comment lines, which execute nothing. No full suite ran at `3c7028cc9` or later, and the pull request says so.
+
+**Before the drag pull request:** the record requires nothing more. The failing checks are those of §Disposition of the final cleanup, which the owner accepted: the five size rows and drag2's two `TS2724`. **The open findings the pull request carries** are `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42`. `repo:RF-32` isn't drag's.
+
+**Next:** the pull request, which is the owner's. Budgets are unchanged, and the deferred campaigns stay stopped.
+
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-22`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-42`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -2084,23 +3731,25 @@ Tier C, **closed on 2026-11-10**. Found by the combined review at `b01a0283d` (`
 
 #### DRF-13 — `AxisQuery.insertion` admits `null`, which no producer supplies
 
-Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-2`). Noted earlier in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) item 8.
+Tier C, **closed on 2026-11-12** by `312f4ec32`, `DRD-51`'s first unit ([assessment](size-pass-unit-assessment.md)). Found by the combined review at `b01a0283d` (`cleanup-2`). Noted earlier in [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) item 8.
 
 - **Current behavior:** `AxisQuery.insertion` is `Insertion | null`. `SortableOperation` holds it as `SetNonNullable`, `y.ts` and `xy.ts` test it for `null`, and both assert it with `!`.
 - **Why it is a problem:** branches and a type-level narrowing serve a state that correct use can't reach. The axis types aren't published.
 - **Evidence:** `src/sortable/axis.ts:38`, `operation.ts:49`, `y.ts:42` and `:76`, `xy.ts:48` and `:85`.
 - **Required property:** the committed gap's type says whether it can be absent, and the producer and the consumers agree.
 - **When:** optional, with no merge condition ([`combined-review-assessment.md`](combined-review-assessment.md) §4). A later unit that changes the axis rules may take it.
+- **2026-11-12:** `DRD-51`'s recommended first unit repairs it, with the two `gap < 0` branches in `linear-shift.ts` that it makes unreachable: −17 B Brotli on "sortable + y" and "complete" as a joint reading with `DRF-14` ([assessment](size-pass-assessment.md) §5).
 
 #### DRF-14 — `freeDrag`'s invalidation calls `handleEvent()` with no event and invalidates the bounds twice
 
-Tier C, open. Found by the combined review at `b01a0283d` (`cleanup-3`).
+Tier C, **closed on 2026-11-12** by `312f4ec32`, `DRD-51`'s first unit ([assessment](size-pass-unit-assessment.md)). The step that change left reading no `this` becomes a module function under `DRD-51`'s amendment of §First unit item 2. Found by the combined review at `b01a0283d` (`cleanup-3`).
 
 - **Current behavior:** `FreeDragBehavior.invalidate` calls `this.bounds?.invalidate()` and then `operation?.handleEvent()`, which invalidates the bounds again and the tracker.
 - **Why it is a problem:** the stale-marking entry carries the DOM listener's name where it is called as a method, and one of the two bounds calls is redundant. Idempotent: no behavior changes.
 - **Evidence:** `src/free-drag/behavior.ts:76-79`, `src/free-drag/operation.ts:52-55`.
 - **Required property:** each cache is marked stale once per invalidation, and the entry is named for what it does where it is called outside a listener.
 - **When:** optional, with no merge condition ([`combined-review-assessment.md`](combined-review-assessment.md) §4).
+- **Amended on 2026-11-12 by `DRD-51`:** the naming half of the required property is withdrawn. The listener is the operation object, so its entry must be `handleEvent`. The required property is now that each cache is marked stale once per invalidation. `DRD-51`'s recommended first unit repairs it.
 
 #### DRF-15 — `shared/timing.ts` has one importer since the lift stopped using the defaults
 
@@ -2160,7 +3809,7 @@ Tier C, **closed at `60680eb75`**, read by the architect on 2026-11-10 at `a9c32
 
 #### DRF-20 — `DRD-32`'s reason for keeping an idle step off the step list no longer holds
 
-Tier C, open. Found by the architect on 2026-11-10, reading the instrument unit's return at `b8f1d1b35`.
+Tier C, **closed on 2026-11-12:** the owner kept the branch (`DRO-14` item 3). Found by the architect on 2026-11-10, reading the instrument unit's return at `b8f1d1b35`.
 
 - **Current behavior:** `Gesture.requestStep` on an idle controller passes the step to `enter` as the first step of its own pass, so that the list stays empty. `DRD-32` decided this because "through the list it allocated on every sample" (G4). `DRD-35` property 3 restates the rule.
 - **Why it is a question:** since `DRD-35` and `DRD-36` the list keeps its entries in one reused array. The step-list injection sends every idle step through the list, and the bytes row doesn't flag it (`DRD-41`). The rule's stated reason no longer supports it. `DRD-32`'s mutation "an idle step through the list" was shown to fail before `DRD-35`, and hasn't run since. Whether any test fails on it now isn't known.
@@ -2168,6 +3817,8 @@ Tier C, open. Found by the architect on 2026-11-10, reading the instrument unit'
 - **Evidence:** `src/kernel/gesture.ts`, `requestStep`, and the comment "The list stays empty, so an idle request allocates nothing". [`execution-boundary-assessment.md`](execution-boundary-assessment.md) §5, v1. [`n3-prove.json`](measurements/2026-11-10-performance-n3-prove.json), the step-list injection.
 - **Required property:** none yet. Whether the branch earns its place is a question for the size pass ([`performance-plan.md`](performance-plan.md) §2 P4), with a reading of the frame path's timing. Removing it would change `DRD-32` and `DRD-35`, so it is a decision first.
 - **When:** not before the size pass.
+- **2026-11-12, in the size pass:** the removal measured −5 to −15 B Brotli on every row, and it adds work to each idle request, which frame tasks make up to once per frame ([assessment](size-pass-assessment.md) §5, C1). `DRO-14` item 3 puts it to the owner, and the architect recommends keeping the branch. It closes if the owner keeps it.
+- **Closed on 2026-11-12.** The owner kept C1's idle fast path. The branch's reason is now the work it saves per idle request (§0), not an allocation. Its comment's claim that an idle request allocates nothing still holds, so no source changes. `DRD-32` and `DRD-35` property 3 stand.
 
 #### DRF-21 — `compare.ts` places a bundle line in a module by comment markers, and two modules have none
 
@@ -2189,6 +3840,210 @@ Tier C, **closed at `71f20df20`** by `DRD-48`, decided on 2026-11-12 ([assessmen
 - **Not a defect today.** `DRI-21` says the drop resolves "against geometry measured after any invalidation", and the tracker does that.
 - **Required property:** none yet. A target list is usually short, so measuring every target at the drop may cost less than a confirmation. That is a decision, with its bytes.
 - **When:** not before `DRD-47`'s unit reports.
+
+#### DRF-23 — The consumer resolver lets a non-relative import of a non-entry module reach its source
+
+Tier B, **closed at `79b4c3132`**, read by the architect on 2026-11-13 at `2d9a2f482` (§Disposition of the published gate report). Found and reproduced by the owner on 2026-11-13 at `87288b9d2`. Read by the architect on the same day ([assessment](consumer-tests-assessment.md) §2).
+
+**Closure:** the resolver resolves every specifier first and decides by the file it reaches. At the old resolver, F2, F3, F4, F5 and F6b loaded `src/kernel/callbacks.ts`. At the repair, every form fails with an error that names it, and an entry imported by its absolute path gives the emitted module ([report](published-gate-report.md) §2).
+
+- **Current behavior.** `resolvePublishedEntries` in `.scripts/vitest-config.ts` acts only on specifiers that start with `.`. It returns `null` for every other specifier, and Vite then resolves it as in the source projects. In the consumer project, `../src/kernel/callbacks.ts` is rejected, but the absolute filesystem path of the same file loads `src/kernel/callbacks.ts`.
+- **The same test, read but not reproduced:**
+  - also lets through a path from the Vite root, a `/@fs/` path and a `file:` URL;
+  - rejects a relative specifier with a query for the wrong reason, and would reject an entry's source in that form instead of redirecting it.
+- **Why it is a defect.** `DRD-54` property 2 requires every non-entry module under `src/` to be an error at resolution in the consumer project. The project exists to show what the build does, and a test that reached source through this gap would pass against `src` while appearing to test the build.
+- **Not observed in the suite.** None of the 22 consumer files imports `src` by a non-relative path, so no committed verdict is affected.
+- **Required property:** `DRD-54` property 2, as amended on 2026-11-13. The resolved file decides, every specifier form is covered, and no module under `src/` loads in the consumer project. Its witness must load the source module at `87288b9d2`'s resolver and fail at the repair.
+- **When:** [`published-gate-handoff.md`](published-gate-handoff.md) part A, before part B, whose fixtures need the same rule.
+
+#### DRF-24 — V4 checks the text at a renamed position's mapping, not the position that `DRD-56` property 6 requires
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **withdrawn by `DRD-59` with the requirement it tests**: V4 and the step go, and the new V3 checks renamed positions. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round at `436b105c6` as `reviewer-1` ([summary](reviews/publish-mangle/publish-mangle-summary.md), [report](reviews/publish-mangle/proof-reviewer.md)).
+
+- **Current behavior:** `writes` accepts any mapping whose `src` text is `MODIFIERS`, then the key, and it applies that to every occurrence. An access mapped to its declaration's member start (`readonly _root`) passes, and the first form of V4 rejected it. An access mapped to another access of the same name, or a declaration mapped into another member, passes both forms.
+- **Why it is a problem:** property 6 says "No other form passes: not … a position in another member", and assessment §3 says that applying the exception to every occurrence isn't weaker than the first form. Both describe a position bound that the test doesn't check.
+- **Required property:** V4 rejects what property 6 rejects, or the record states the bound that V4 enforces.
+
+#### DRF-25 — `DRD-56` property 6's mappings for kept tokens have no standing check
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **withdrawn by `DRD-59` with the requirement it tests**: no requirement fixes the mapping of a kept token. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round at `436b105c6` as `reviewer-2`.
+
+- **Current behavior:** V4 inspects only occurrences of output names. Property 6 bullets 1 and 3, every map valid and every other token at its `src` position, were checked once, by the report's step check.
+- **Why it is a problem:** a copy of the step that moved 3,737 of 6,902 mappings passed the build and all five tests.
+- **Required property:** property 6 bullets 1 and 3 hold for every build the suite accepts, or the record states that they were a one-time acceptance.
+
+#### DRF-26 — The step's map counts generated lines at LF only
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, no instance at `436b105c6`, **moot under `DRD-59`**: the step that counts lines goes. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `reviewer-3`.
+
+- **Current behavior:** `build/rename-properties.ts` starts a line only at `\n`. Rolldown keeps a raw U+2028 in a template literal and counts it as a line break, so every later mapping in that module moves. With no renamed name after the separator, every test passes (7 of 25 mappings moved in the probe).
+- **Why it is a problem:** property 6 requires every token to keep its `src` position. `src` has no LS, PS or CR today.
+- **Required property:** the step's map keeps every token's position for any module Rolldown can emit, including one with a raw LS or PS.
+
+#### DRF-27 — The publication test resolves positions with lines split at LF only
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, no instance at `436b105c6`, fails closed. **Decided by `DRD-59` property 7:** V3 splits `src` lines at every line terminator. Reported by the publish-mangle round as `reviewer-4`.
+
+- **Current behavior:** `positionOf` and the `src` lookup split at `\n` (`tests/publication.node.test.ts:68`, `:70`, `:161`). Rolldown's original lines count CR, LS and PS.
+- **Why it is a problem:** a correct source change, such as a CR or a pasted U+2028 in a comment, fails V4 on a correct publication.
+- **Required property:** V3 and V4 resolve generated and original positions with the line rule that the maps use.
+
+#### DRF-28 — A kept property written as a string key can share an output name and pass every check
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, no instance at `436b105c6`. **Decided by `DRD-59` property 3:** `quoted: true`, and the build's check of each chunk's kept names, which Oxc lists. Reported by the publish-mangle round as `reviewer-5`.
+
+- **Current behavior:** `readNames` doesn't count quoted or computed string keys as property names, and the generator's `kept` set and V3 both use it. With `{ "_size": "k" }`, a class with `_size` and `'k'` passes the name set and V1 to V4, and its result changes from 12 to 22.
+- **Why it is a problem:** `DRD-56` property 4 requires that an output name equals no property name that stays. Property 1 doesn't forbid unprefixed string keys.
+- **Required property:** no output name equals a property name that stays, however that name is written.
+
+#### DRF-29 — V2 doesn't see prefixed member names written as strings in `.d.ts`
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, no instance at `436b105c6`. **Decided by `DRD-59` property 7:** V2 rejects identifiers, string literals and template texts. Reported by the publish-mangle round as `reviewer-6`.
+
+- **Current behavior:** V2 visits `Identifier` nodes only. A quoted key, a computed string key or a string-literal type that declares a prefixed member passes all five tests.
+- **Why it is a problem:** the step would rename the uses, and the `.d.ts` would declare a member that doesn't exist at runtime. Property 1 requires every member that a `.d.ts` declares to keep its name.
+- **Required property:** no emitted `.d.ts` declares a member under a prefixed name, in any syntax.
+
+#### DRF-30 — `DRD-56`'s rationale says that V1 finds computed keys and enumerations
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open. **Decided by `DRD-59`'s corrections:** the record states what V1 finds. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `reviewer-7`.
+
+- **Current behavior:** the rationale says string keys, computed keys and enumerations are forbidden, "and validation V1 finds them". V1 finds only prefixed property names and literal strings or template texts that start with the prefix. `o['_' + 'config']`, `JSON.parse('{"_config":1}')` and `Object.keys(o)` pass.
+- **Why it is a problem:** a reader relies on V1 for forms that only code reading excludes.
+- **Required property:** the record states what V1 detects, or V1 detects what the record says.
+
+#### DRF-31 — A plain build or a publish enforces almost none of `DRD-56` property 7
+
+Tier B, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open. **Decided by `DRD-59` property 8:** what `just build` guarantees, what is publishable, and the obligation on a release change. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `reviewer-8`.
+
+- **Current behavior:** `just build` fails only on an unmapped prefixed property name or a prefixed shorthand key. V1's string half, V2, V3, V4 and the name set hold only for a tree that a publication-test run read and passed. `package.json` has no `prepack` or `prepublishOnly` script, so a publish neither builds nor validates. A duplicate output name, a stale key and a prefixed `.d.ts` member all build cleanly.
+- **Why it is a problem:** `DRD-56` places the step inside the build because "a separate step after the build could be skipped". The validation has no such placement.
+- **Required property:** a tree that a publish can ship satisfies property 7, or the record states that only a tree that a passing test run read is publishable.
+
+#### DRF-32 — The `_` marker and the map workflow are stated only in the record
+
+Tier C, **closed at `b8e37b37c`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open. **Under `DRD-59`** the map workflow goes. A statement of the marker in CONTRIBUTING is the owner's proposal S3 ([proposal](publication-build-proposal.md) §7). Reported by the publish-mangle round as `integrity-1`.
+
+- **Current behavior:** only `DRD-56` and `build/` name the marker, the map and `build/generate-property-names.ts`. The build's error for an unmapped name names the map, not the script. Regenerating after one new name moved 5 of the 29 existing assignments.
+- **Why it is a problem:** a contributor learns the convention from the record or by reading `build/`, and the regeneration diff a person reviews (`DRD-56`, `DRD-57` property 4) is larger than the change.
+- **Required property:** a current-state document or the failure itself tells a contributor that a `_` property is renamed, what is owed, and how the map is brought in line.
+
+#### DRF-33 — `DRD-56` property 6 holds only while `classVarCleanupPlugin` is inert in drag's build
+
+Tier C, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **moot for drag under `DRD-59`**: no requirement depends on a token's exact mapping. The plugin's inertness is the owner's proposal S2. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `integrity-2`.
+
+- **Current behavior:** with `experimental.nativeMagicString` on, the plugin rewrites `var X = class`, the chunk's own map points renamed tokens at statement starts, and V4 fails at 79 positions in 8 modules. Without the step the same token maps to the statement start with the plugin, and to the name without it.
+- **Why it is a problem:** the precondition is stated nowhere, and assessment §8 prices enabling the option by size only. The failure is loud, but it isn't attributed to the plugin.
+- **Required property:** the condition under which property 6 holds is stated where a change to it is read, or checked where it fails with its cause.
+
+#### DRF-34 — Comments in emitted modules name members by their source names
+
+Tier C, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **moot under `DRD-59`**: a minified module keeps only legal comments and annotations. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `integrity-3`.
+
+- **Current behavior:** twelve comment lines in six emitted modules name renamed members, for example `_run` in `kernel/callbacks.js:11-12`, beside the method `t` at line 46. Property 5 keeps every comment.
+- **Why it is a problem:** within one published file, the comment and the code disagree.
+- **Required property:** a published comment that names a renamed member doesn't mislead, or the decision records that it may.
+
+#### DRF-35 — The reserved-word list and the identifier rule are written in the generator and in the test
+
+Tier C, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **moot under `DRD-59`**: the generator and its rules go. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `cleanup-1`.
+
+- **Current behavior:** `RESERVED` is defined in `build/generate-property-names.ts` and in `tests/publication.node.test.ts`, and the identifier rule is `FIRST`/`REST` in one and `IDENTIFIER_NAME` in the other. Nothing says the second is a deliberate independent oracle.
+- **Required property:** one definition, or the second states that it is deliberately independent.
+
+#### DRF-36 — The test recomputes the prefixed names in `src` with the generator's own reader
+
+Tier C, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **moot under `DRD-59`**: the reader and the name-set test go. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `cleanup-2`.
+
+- **Current behavior:** the name-set test walks `src` with the same `readNames` and `isPrefixed` as the generator, with its own copies of the directory walk. It catches a stale map, not a reader defect. `DRF-28` is a reader defect that neither sees.
+- **Required property:** one owner of "the prefixed property names in `src`", or the test states what it checks that the generator can't.
+
+#### DRF-37 — The generator's name sequence handles names of any length, and the map has only one-character names
+
+Tier C, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report). Before that: open, **moot under `DRD-59`**: Oxc assigns the output names. Closes when `DRD-59`'s unit lands. Reported by the publish-mangle round as `cleanup-3`.
+
+- **Current behavior:** `candidates()` yields names of any length, and all 29 outputs are one character. Under `DRD-57` property 4 the map has 53 keys, `FIRST` has 53 characters, and `x` and `y` are kept, so the branch is reached on the next regeneration, untested.
+- **Required property:** the sequence's extent is justified by the names it serves or by a stated bound. The note on `DRD-57` is the consolidator's, not the pass's.
+
+#### DRF-38 — drag's lint exits non-zero on 49 ESLint errors in its tests and bench
+
+Tier C, **closed at `27c60a9ac`**. Read by the architect on 2026-11-14 from the [final cleanup report](final-cleanup-report.md) and its [independent proof](reviews/final-cleanup/proof-reviewer.md) (§Disposition of the final cleanup): lint exits 0 with nothing suppressed, and each part of the required property holds. The one defect the unit added, a comment, is `DRF-41` and doesn't bear on this property. The behavior sentinel's older coverage gap is `DRF-42`, and this closure doesn't repair it. Registered by the architect on 2026-11-13 from the [slot array report](slot-array-report.md) at `690769539`. **Widened on 2026-11-14** from the [mangle rollback report](mangle-rollback-report.md) §Baseline errors (§Disposition of the mangling rollback report). Before closure: open.
+
+- **Current behavior:** `npx just lint` from `packages/drag` reports 49 ESLint errors, and oxlint reports none. ESLint calls 39 of them fixable with `--fix`. At `6296b741a` the architect's run gives ([output](measurements/2026-11-14-rollback-disposition-lint.txt)):
+
+  | File | Rule | Errors |
+  | --- | --- | --- |
+  | `tests/authoring.declaration.test.ts` | `@typescript-eslint/no-meaningless-void-operator` | 31 |
+  | `tests/callbacks.declaration.test.ts` | `@typescript-eslint/no-meaningless-void-operator` | 5 |
+  | `tests/callbacks.declaration.test.ts` | `prefer-arrow-callback` | 1 |
+  | `tests/published-types.declaration.test.ts` | `@typescript-eslint/no-meaningless-void-operator` | 2 |
+  | `tests/destruction.browser.test.ts` | `@typescript-eslint/no-meaningless-void-operator` | 1 |
+  | `tests/classes.browser.test.ts` | `no-useless-assignment` | 1 |
+  | `tests/destruction.browser.test.ts` | `no-useless-assignment` | 1 |
+  | `tests/displacement-sink.browser.test.ts` | `func-name-matching` | 1, at 59:3 |
+  | `tests/hot-path.browser.test.ts` | `func-name-matching` | 1 |
+  | `tests/landing.browser.test.ts` | `func-name-matching` | 1 |
+  | `tests/order.browser.test.ts` | `func-name-matching` | 1 |
+  | `bench/compare.ts` | `camelcase` | 2 |
+  | `bench/compare.ts` | `consistent-this` | 1 |
+
+  The same 49, by file and rule, are in the saved outputs at `7420cbb9a`, `cc752cc1b` and `b8e37b37c` ([rollback report](mangle-rollback-report.md) §Baseline errors), and in the independent review's run at `f79f66fe2` and `7184d069c` ([review](reviews/xy-held-geometry/proof-reviewer.md) §Suite, lint and typecheck). Only the `displacement-sink` line moves (57, then 53, then 59), and `61f883d09` renamed `callback-list.declaration.test.ts` to `callbacks.declaration.test.ts`. Which tool update introduced each rule's errors isn't established.
+
+- **Why it is a problem:** the lint exits 1 at every base, so a unit can show only that it adds no error, not that lint passes, and handoff.md's lint check turns into a comparison with the base.
+- **Routed** to a drag cleanup unit for an `implementer`, which the owner starts.
+- **Required property:** drag's lint exits 0 at the tip, with every test asserting what it asserts now and every helper recording the same reads. In particular:
+  - each `@ts-expect-error` line still fails to typecheck without its directive, for the reason its comment gives;
+  - a heap count still runs after the reference that the test drops before it;
+  - `bench/compare.ts` produces the same injections and the same output.
+- **Return to the architect** if a fix needs a rule turned off, an `eslint-disable` comment, or a change to what a test asserts or measures. `--fix` alone may remove a `void` that a type assertion needs, or an assignment whose purpose is to drop a reference before a heap count.
+- **Not the mangling rollback's.** [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) records the base's errors and reports them apart from any new error. It doesn't change these files beyond its followers' names, and accepting its report doesn't close this finding.
+- **Amended on 2026-11-14.** It used to be titled "drag's lint exits non-zero on a test helper's function name", and its current behavior read: "`npx just lint` from `packages/drag` reports one ESLint error, `func-name-matching`, at `tests/displacement-sink.browser.test.ts:57:3` … It reports it at `706b91481` and at `5ec3b4b2d` alike. The line was last changed in `5ea7bb7e6`. The tools are those of `31bac1381`. Whether that update introduced the error isn't established." Its required property was "drag's lint exits 0 at the tip, and the test helper still records the same reads", and its routing said it needs no decision unless the change alters what the helper records. **The one error was the architect's error:** the slot array report linted only its five changed files, and the finding was registered from that output as if it were the whole package's.
+
+#### DRF-39 — Two consumer tests count heap instances by class name, which the minified build renames
+
+Tier B, **closed at `b8e37b37c`, moot under `DRD-60`**: the publication isn't minified, so both classes keep their names. Read by the architect on 2026-11-14 (§Disposition of the mangling rollback report): the consumer project passes 326 of 326 at the rollback's end, including both tests, and again in the independent suite run at `7184d069c`. Before that: moot by `DRD-60`, to close when the architect accepted the rollback's report with the consumer project at 326 of 326. **Registered as `DRF-38` at `1c99666f2`, on `drag/mangle-remediation`, and renumbered on 2026-11-13** when this branch merged `drag/size` at `f552e0ec9`, where `DRF-38` is the lint error. `1c99666f2`'s commit message calls it `DRF-38`. Found by the architect on 2026-11-13 while exploring the three-unit layout ([exploration](unit-layout-exploration.md) §9), in `DRD-59`'s candidate and in the layout alike.
+
+- **Current behavior:** `tests/classes.browser.test.ts:190` and `tests/destruction.browser.test.ts:381` run in the consumer project. Each counts heap objects through `countHeapObjects('FreeDragBehavior')` or `countHeapObjects('SortableBehavior')`, which reads constructor names in a heap snapshot. `DRD-59` property 2 keeps `keepNames` off, so minification renames both classes, and each test reads +0 where it expects +1. Observed on `DRD-59`'s candidate, `p4.config.ts` with `dts: { sourcemap: false }`: 324 of 326 consumer tests pass, and these two fail ([readings](measurements/2026-11-13-unit-layout-readings.txt)).
+- **Why it is a problem:** the consumer project is the runtime check of the publication (`DRD-54`), and two of its tests can't read the build that `DRD-59` decides. [`publication-build-proposal.md`](publication-build-proposal.md) §3 says that no test depends on function or class names, which is false. `DRD-59`'s handoff returns on any failing consumer test, so its unit would stop at its first run of the consumer project.
+- **No consumer observes it:** class names aren't part of the contract, and the retention that the tests check doesn't depend on them.
+- **Required property:** the consumer project passes on the minified build, and both retention checks still run in a project that can read the class names.
+- **Recommended:** the two class counts move to a file of their own, which `DRAG_SOURCE_ONLY_BROWSER_TESTS` lists. Its rule already covers a test that reads what the package doesn't publish, and the rest of both tests, and both files, stay in the consumer project. Keeping the two class names in the build would cost bytes on every row that bundles them. The architect decides it with `DRO-16`'s answer, since it applies to either build.
+
+#### DRF-40 — A `DRI-13` test bounds the landing's travel by how long a grab takes
+
+Tier C, **closed at `27c60a9ac`**. Read by the architect on 2026-11-14 from the [final cleanup report](final-cleanup-report.md) §`drag:DRF-40` and its [independent proof](reviews/final-cleanup/proof-reviewer.md) (§Disposition of the final cleanup). The test pauses the landing at its midpoint after the release, so the verdict doesn't depend on elapsed time, and a mutation of each kind fails both cases. The landing and the lift are unchanged. Registered by the architect on 2026-11-14 from the [mangle rollback report](mangle-rollback-report.md) §Commit A (§Disposition of the mangling rollback report). Before closure: open.
+
+- **Current behavior:** `tests/activation.browser.test.ts` › "drag:DRI-13 a grab during a landing" › "should keep the visual under the pointer during a %s landing" grabs during a 90 px landing that runs 20 s, linear, which is 4.5 px/s. It requires the visual within 1 px of where it was read before the grab. So it passes only when the read before the grab and the read after activation are less than about 222 ms apart. Its comment states that assumption: "Slow enough that the flight moves well under 1 px between the press and the activation."
+- **Observed failing twice, both in Chromium, both on the rejected case, both in a run that shared the machine with other work:**
+  - on 2026-11-09, in the second full run of the feature-composition revision ([assessment](feature-composition-assessment.md) §7, [handoff](feature-composition-handoff.md) §The unexplained landing-test failure). The assertion's message wasn't recorded;
+  - on 2026-11-13, at `cc752cc1b`, in the consumer project while the node project built the size compositions: 1.05 px, about 233 ms ([log](measurements/2026-11-13-rollback-a-node-consumer.log)).
+- **Observed passing:** 20 runs of the block at each of two commits, in each of three engines ([feature composition report](feature-composition-report.md) §The landing-test failure); 10 isolated runs at `cc752cc1b` ([results](measurements/2026-11-13-rollback-a-landing-repeats.txt)); and every other full run on record, including the rollback's base and end.
+- **The cause isn't established.** Elapsed time under load is consistent with both failures and with the test's constants. Neither failure changed code on the path the test runs: commit A renames nothing at runtime, and the 2026-11-09 revision didn't change `sortable` or the lift from its first version.
+- **Why it is a problem:** the verdict can depend on the machine's load rather than on `DRI-13`, so a full run can fail without a defect. A handoff that returns on any failing consumer test stops on it.
+- **Required property:** the test's verdict doesn't depend on how long the grab takes, and it still fails when activation measures the visual without the landing's current offset, or cancels the landing before it measures (`DRD-18`). A mutation of each kind is shown failing it.
+- **Routed** to a drag test unit for an `implementer`, which the owner starts. It needs no decision unless the test can't meet the property without a change to the landing or the lift.
+
+#### DRF-41 — A comment in the destruction heap test says the controller keeps the behavior sentinel reachable
+
+Tier C, **closed at `3c7028cc9`**. Read by the architect on 2026-11-14 from the [heap-comment report](heap-comment-report.md) at `7021f1013` (§Disposition of the heap-comment correction): the two comment lines are replaced, and nothing else changes. Registered by the architect on 2026-11-14 from `final-cleanup-reviewer-1` in the [final cleanup proof](reviews/final-cleanup/proof-reviewer.md) §Findings (§Disposition of the final cleanup). Before closure: open.
+
+- **Current behavior:** `tests/destruction.browser.test.ts:411` to `:412`, added at `27c60a9ac`, reads: "The callback reads `behavior`, so the controller keeps it reachable until the controller is released." The callback captures the variable, not the object, and the test sets the variable to `null` after destruction. In the proof, a live controller that was never destroyed and is kept in the test's frame doesn't keep the object: the `WeakRef` assertion passes and the test fails only at the class count. With `behavior = null` removed, the object stays reachable and the assertion fails ([logs](reviews/final-cleanup/proof-reviewer-probes/browser/)).
+- **Why it is a problem:** the comment tells a reader that the sentinel checks whether the controller releases what its callbacks read, and the assertion can't fail that way. No assertion is affected.
+- **Required property:** the comment beside the read states what the read does, consistently with the sentinel's observed reachability: the callback captures the variable, and the object's release follows the variable, not the controller.
+- **Decided correction:** replace the comment, not delete it, and change nothing else. Without a comment, the read and the test's title still suggest that the sentinel checks the controller's release. A change to what the test asserts is `DRF-42`'s, not this finding's.
+- **Routed** to [`heap-comment-handoff.md`](heap-comment-handoff.md), one `implementer` unit, which the owner starts.
+
+#### DRF-42 — The destruction heap test's behavior sentinel can't detect a retained callback
+
+Tier C, open. Registered by the architect on 2026-11-14 from the [final cleanup proof](reviews/final-cleanup/proof-reviewer.md) §Observation outside the change (§Disposition of the final cleanup). **Present since `a9c323f6a`**, which introduced the read as `void behavior`. **Not repaired by the final cleanup:** `27c60a9ac` moved the controller into an inner function and left the sentinel as it was, and `DRF-38`'s closure doesn't cover it.
+
+- **Current behavior:** `drag:DRI-10 destruction` › "should retain no item, behavior, view or behavior instance after 3 operations and destruction" creates `behavior`, an empty object, keeps a `WeakRef` to it, and reads the variable in `onStart`. After destruction the test sets `behavior = null`, then asserts that the `WeakRef` is empty. The object is reachable only through that variable, so clearing the variable releases it whether or not anything keeps the callback. Row 3 of the proof's heap table shows a live controller kept in the test's frame passing the sentinel assertion. Row 4 shows the assertion failing only when the test keeps the variable.
+- **Why it is a problem:** the title says the test checks that no "behavior" is retained, and the sentinel's assertion can't fail on a retained callback. The class count still detects a retained `SortableBehavior` instance. A retention of the consumer's callbacks that keeps no instance, such as a reference to the options that outlives `requestDestroy`, has no check in this test.
+- **Required property:**
+  - at the sentinel's assertion, nothing the test controls holds the sentinel's object, apart from the callbacks it passed to the controller. So the assertion fails when anything keeps those callbacks reachable after destruction;
+  - a mutation that keeps the consumer's options or callbacks reachable after `requestDestroy`, and keeps no `SortableBehavior` instance, fails the sentinel's assertion while the class count passes. The proof's row 3 mutation fails the sentinel's assertion too;
+  - the test's other assertions, its Chromium-only condition and its operations stay as they are. Its title states what its body checks.
+- **Routed** to a drag test unit for an `implementer`, which the owner starts. It doesn't gate the drag pull request. **Return to the architect** if the property needs a change under `src/`, or a change to another assertion.
 
 ## Owner decisions
 
@@ -2240,6 +4095,14 @@ A row that is still slower comes with its attributed cause. You decide under CON
 **The free drag drop's bytes, accepted on 2026-11-12** ([report](free-drag-drop-report.md) §Item 5, [assessment](free-drag-drop-assessment.md) §1). The owner accepts `DRD-48`'s +5 B Brotli on "freeDrag" and "freeDrag + bounds + landing", now 69 B and 266 B over their ceilings. Both rows were already red. No budget changes, and the size re-base stays open.
 
 **The window's bytes, accepted on 2026-11-12** ([report](performance-window-correction-report.md) §Item 6, [assessment](performance-window-correction-assessment.md) §3). The owner accepts `DRD-49`'s window as `DRD-50` left it, against `71f20df20`: +143 B Brotli on "sortable + y", +36 B on "sortable + xy" and +149 B on "complete", for about 2.3 to 2.5 ms less script per drag at 2,000 items. "sortable + y" has 12 B left under its ceiling and "sortable + xy" 15 B. "complete" is 291 B over its 7,065 B ceiling, up from 142 B. No budget changes. The five red rows are the same as at `bf9d1caed`, and the size re-base stays open.
+
+**The publish mangle's verdicts, 2026-11-13** ([report](publish-mangle-report.md) §8, [assessment](publish-mangle-assessment.md) §7). `DRD-56` shortens the internal property names in the published build. The gate on that build reads −31 to −66 B Brotli on the rows without `sortable`, and −102 to −110 B on the three rows with it, against `c42c5b084`. **Two verdicts changed:** "example: resize handle" went from 8 B over to 43 B under its 3,313 B ceiling, and "freeDrag" went from 59 B over to 7 B under its 4,967 B ceiling. **Four rows stay red:** "draggable alone", 23 B over, with its control moved by 138 B; "example: drop zone", 137 B over; "freeDrag + bounds + landing", 209 B over; and "complete", 108 B over. This is a saving, so there is no cost to accept. No ceiling or control changes, and the size re-base stays open.
+
+**The mangling deferral, 2026-11-13** (`DRD-60`). At `690769539`, after `DRD-57` and `DRD-58`, four rows are red: "draggable alone", 15 B over, with its control moved by 130 B; "example: drop zone", 118 B over; "freeDrag + bounds + landing", 152 B over; and "complete", 58 B over ([slot array report](slot-array-report.md) §Size). The rollback gives back what the mangling took off, which was −34 to −135 B Brotli per row when it was measured. "example: resize handle" and "freeDrag" are expected over their ceilings again, and "example: canvas group" may follow. That is the cost the owner weighed in deferring the mangling. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) reports the reading. No ceiling or control changes, and the size re-base stays open.
+
+**The mangling rollback's verdicts, read on 2026-11-14** ([report](mangle-rollback-report.md) §Readings, §Disposition of the mangling rollback report). **At `b8e37b37c`,** against its base `7420cbb9a`, whose code is `690769539`'s, every row grows by 35 to 144 B Brotli. Two verdicts changed, as `DRD-60` expected: "example: resize handle" went from under to 1 B over its 3,313 B ceiling, and "freeDrag" from under to 51 B over its 4,967 B ceiling. "example: canvas group" stayed under, with 14 B left, after reading 8 B over at commit A. The four rows that were red grew: "draggable alone" is 50 B over, with its control moved by 165 B; "example: drop zone" 167 B; "freeDrag + bounds + landing" 240 B; and "complete" 193 B. This is the cost the owner weighed in deferring the mangling, and nothing more is asked of the owner. **These figures describe `b8e37b37c` only.** `DRD-61`, `DRD-62` and the box-quad integration changed the source since. The latest independent reading, at `7184d069c`, has six red rows ([review](reviews/xy-held-geometry/proof-reviewer.md) §Size and emitted files). The latest reading, at `6296b741a` in the [main integration report](main-integration-report.md), has five: "draggable alone" 50 B over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; and "complete" 67 B. "example: resize handle" is under again there, with 30 B left, and "example: canvas group" has 28 B left. No ceiling or control changes: `bench/size/measure.ts` is unchanged since `690769539`. The size re-base stays open.
+
+**The five red rows, accepted for the drag pull request on 2026-11-14** (§Disposition of the final cleanup). At `27c60a9ac` the `just size` table is byte-identical to the main integration's: "draggable alone" 50 B over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; and "complete" 67 B. The owner accepts these five failures with budgets unchanged. This answers decision 1 of §Disposition of the rollback and integration reviews, and moves no ceiling or control. The size re-base stays open.
 
 #### DRO-5 — Keep `599684791` reachable after the squash merge
 
@@ -2444,6 +4307,102 @@ No timing was taken.
 - The interfaces in `tests/` and `bench/` are outside it: `GroupMove`, `CanvasGroup`, `ReactFixture`, `CdpSession`, `Page`, `Lifted`, `Named`, `Held`, `PageContext` and `Scenario`. They are unpublished, some describe host-provided objects, and no unit is owed for them. A unit that edits one of those files for another reason applies CONTRIBUTING's rule there.
 - The other packages' declarations belong to the repository register.
 
+#### DRO-14 — The size pass's trade-offs
+
+**Answered on 2026-11-12: item 1 is rejected (`DRD-53`), item 2 is approved as `DRD-52`, and items 3 and 4 are rejected. C1's idle fast path and C5's capture functions stay unchanged.** Each item was measured on `0a28f909a` ([assessment](size-pass-assessment.md) §5, [patches](probes/size-pass/README.md)). Brotli-11 figures, against that commit. Answering an item re-bases nothing, and `DRO-4` keeps the re-base.
+
+1. **C2, `CallbackList`'s factories.** Without `queue()`, `stack()` and the private constructor, the three call sites pass `'unshift'` or `'push'` to the constructor. −12 to −25 B on every row, −62 B minified. Runtime: one construction per controller and per operation, the same as now. **Cost:** `DRD-36`, decided on your direction, names the factories and the private constructor, and the list's kind is then named by its array method at each call site. **Recommendation: take it.** It is the only kernel saving with no runtime cost. A unit would amend `DRD-36` properties 1 and 4. **Rejected by the owner on 2026-11-12.** The named factories stay, as module functions in `kernel/callbacks.ts` that the owner committed at `1d304128b` (`DRD-53`).
+2. **C6, `RectIndex`'s ownership and `y()`'s geometry work** ([proposal](rect-index-ownership-proposal.md), [patches](probes/rect-index-ownership/README.md), measured against `c0d6b9205`). **Proposed:**
+   - `RectIndex` holds no axis policy, and its placeholder re-read becomes one shared `measurePlaceholder`.
+   - `xy()`'s rebuild moves into `xy.ts`.
+   - `y()`'s prediction moves into `linear-shift.ts`. It writes the slot buffer only through `lend(lo, hi, write)`: during the call only, and only inside the range, as `measure` already lends the buffer to the sink.
+
+   −46 B on "sortable + y", −57 B on "sortable + xy" and −43 B on "complete". Over your staged `Callbacks` edit: −51, −54 and −47 B. **Cost:**
+   - `RectIndex` is no longer the only writer of its slot buffer.
+   - Per sample: no change.
+   - Per committed move: one more call, and about 7 B more allocated in code that isn't warm.
+   - The development check no longer reports a placeholder that moves along x, which `y()` never reads.
+
+   **Recommendation: take the proposal,** and approve its runtime under §14. Its unit also runs `compare.ts` (`DRD-51` property 4). The alternative that lends nothing is the proposal's variant D: the same on "sortable + y", 9 B smaller on "complete", and 39 B larger on "sortable + xy". **Revised on 2026-11-12 at the owner's request:** this item used to recommend C6 as patched in the size pass. That patch had `linear-shift.ts` write both buffers through a cast of the read-only getters, under a required property that only those two modules write them. That form stated no lifetime for a buffer that `collect` replaces. **Approved by the owner on 2026-11-12, with two conditions:** the development check keeps the placeholder's x, and the 7 B per committed move is provisional until it is read after warm-up with the timing comparison. Decided as `DRD-52`.
+
+3. **C1, `DRF-20`.** An idle `requestStep` goes through the step list. −5 to −15 B on every row, −45 B minified. **Cost:** `sortable`'s and `dropTargets`' frame tasks request a step from `requestAnimationFrame`, up to once per frame. Each such request then also scans the empty list, inserts, takes a turn of the reader and removes the entry. It amends `DRD-32` and `DRD-35` property 3. **Recommendation: keep the branch.** By §0 the per-frame work wins over a few bytes. If you keep it, `DRF-20` closes: the branch's reason is now that it does less work per idle request, and its comment's claim that nothing is allocated still holds. **Rejected by the owner on 2026-11-12.** The branch stays, and `DRF-20` is closed.
+4. **C5, the lift's capture functions inlined.** −7 to −22 B on the lifted rows, **+2 B on "complete"**, −76 to −80 B minified, and two closures fewer per grab. **Cost:** two named single-purpose boundaries in `lift.ts` go (§2.1, §17), and on the largest row Brotli goes the wrong way. **Recommendation: don't take it.** **Rejected by the owner on 2026-11-12.** The capture functions stay unchanged.
+
+#### DRO-15 — A publish-time mangle of the library's internal property names
+
+**Answered on 2026-11-13. Raised on 2026-11-12 by the architect** from [`property-mangling-exploration.md`](property-mangling-exploration.md). The owner decides whether the package's build shortens its internal property names, and in what order the work runs.
+
+**Answered in part on 2026-11-12.** The owner started option 1's first two steps, each as its own unit: consumer tests against the real `tsdown` output, then the size gate on that output. Source tests stay for internal behavior and development instruments. **Whether the build mangles names, and with which tier, waits for the published build's results.** `DRD-54` decides step 1, and [`consumer-tests-handoff.md`](consumer-tests-handoff.md) implements it. Budgets are unchanged.
+
+**2026-11-13:**
+
+- **Step 1 landed** at `5ea7bb7e6` and was accepted, with the guard gap `DRF-23` ([assessment](consumer-tests-assessment.md)).
+- **Step 2 is decided as `DRD-55`:** the gate reads the published build, with every ceiling unchanged.
+- [`published-gate-handoff.md`](published-gate-handoff.md) repairs `DRF-23`, then implements `DRD-55`. Its per-row figures, from `src` and from the build, are the results that step 3 waits for.
+- The mangle stays pending.
+
+**Answered on 2026-11-13.**
+
+- **Step 2 landed** at `69c260685`, and `DRF-23` closed at `79b4c3132`. The figures from `src` and from the build differ by −7 to +16 B Brotli, and no verdict changed (§Disposition of the published gate report).
+- **Step 3: the owner chose explicit `_` prefixes** in source for strictly internal properties, followed by publish-time mangling. Public and platform names stay unchanged, and the mangled set isn't inferred from types.
+- **The type-directed transform**, which would prefix chosen types' properties in the build, is deferred ([`performance-plan.md`](performance-plan.md) §6).
+- **Budgets are unchanged.**
+- **Recorded and handed off:** `DRD-56` decides step 3, and [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. Option 2, the installer types' names, isn't taken.
+
+**Step 3 landed on 2026-11-13** at `f7b7b300b` and `31f92f5a9`, and was accepted ([assessment](publish-mangle-assessment.md)). **The measured gain,** read by the gate on the published build against `c42c5b084`, Brotli-11: −31 to −66 B on the seven rows without `sortable`, and −102 to −110 B on "sortable + y", "sortable + xy" and "complete". That is −221 to −599 B minified. "example: resize handle" and "freeDrag" turn green, as the exploration estimated, and both go to `DRO-4`. Budgets are unchanged. The type-directed transform stays deferred.
+
+**The selection was extended on 2026-11-13** by `DRD-57`, on the owner's request: 30 internal declarations whose names a platform member or a published member also uses. The installer members stay out, and budgets are unchanged.
+
+**The mechanism changed on 2026-11-13 by `DRD-59`,** on the owner's requirements for the publication. The JavaScript is fully minified. Oxc's own `mangleProps` renames the same selection through a map that each build computes, and the custom renamer and the committed map go. The owner withdrew the requirement to keep the previous JavaScript text and source map segments. Budgets are unchanged.
+
+**Deferred on 2026-11-13.** The owner deferred property mangling, because its measured savings don't justify its complexity, and asked for a rollback from `drag/size`. Measured on the published build, step 3 with `DRD-57`'s extension took −34 to −90 B Brotli off the rows without `sortable` and −132 to −135 B off the three rows with it. `DRD-60` records the decision, and [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) removes the prefixes, the build step and the publication test. Steps 1 and 2 stay as `DRD-54` and `DRD-55`. The type-directed transform stays deferred, and budgets are unchanged.
+
+**What was found.** About 950 B of a 28,664 B minified bundle of every entry are internal property names, which no minifier shortens, because they aren't `#private`: such as `config`, `enter`, `raise`, `first`, `collect` and `measurePlaceholder`. Rolldown can shorten them by name, with names the type checker finds eligible. A consumer's bundler doesn't, so the package's own build would have to.
+
+**Measured** at `b0287f1ae`, Brotli-11, the build emulated with Rolldown and the rows bundled from it as a consumer would:
+
+- −30 to −66 B on the rows without `sortable`, and −103 to −119 B on "sortable + y", "sortable + xy" and "complete";
+- "freeDrag" (−66 B, 56 B over now) and "example: resize handle" (−54 B, 8 B over) would fall below their ceilings. No other red row would;
+- no runtime work: a shorter name is the same property access.
+
+**Costs and risks:**
+
+- **Nothing checks the published build today.** The tests and the gate read `src`. The bundled rows from the unmangled build already differ from the gate's figures by −7 to +16 B.
+- **Type analysis isn't enough.** It found `zIndex` eligible, a key of a keyframe object passed to `animate()`. Mangled, four landing tests failed. The suite against the built tree found it.
+- **The published modules get harder to read,** and so do stack traces through internal methods.
+
+**Options:**
+
+1. **Take the internal names, in three units** (the architect's recommendation): the suite against the published build; then the gate on the published build, an instrument change under `DRD-23`; then the publish step, with the eligible names computed by the type checker, pinned by a test, and their cache committed.
+2. Also take the names reachable only through `DRD-39`'s unpublished installer types: 34 to 37 B more on the `sortable` rows. **Not recommended:** it makes those types' member names a build detail, and it takes less off six of the seven other rows.
+3. Take nothing, and keep the record.
+
+**Recommendation: option 1.** Its first unit is worth having without the mangle, because nothing now runs the suite against what a consumer installs. Budgets don't change in the exploration, and `DRO-4` keeps the re-base, which option 1's second unit would move to the published build's figures.
+
+#### DRO-16 — The publication's layout: three single-chunk units, or `DRD-59`'s per-module build
+
+**Raised on 2026-11-13 by the architect** from [`unit-layout-exploration.md`](unit-layout-exploration.md), at the owner's request to explore the owner's intended layout. **Withdrawn on 2026-11-13:** the owner stopped the exploration and deferred property mangling (`DRD-60`). No option is taken, and the exploration and its probes stay as evidence.
+
+**The layout:** a kernel chunk with `draggable`, `fault`, `lift`, the kernel and `shared/*`, a sortable chunk, and a freeDrag chunk. Each is one Rolldown input with native `minify.mangleProps`, the kernel's chunk is external to the feature builds, and each public entry is a re-export facade at its current path. The candidate is in [`probes/unit-layout/`](probes/unit-layout/README.md).
+
+**What was found,** observed in Chromium at `cc9818a96`:
+
+- **One family of accesses crosses a unit:** `FrameTask._schedule` and `_cancel`, declared in `shared/invalidation.ts`, called 3 times from `sortable` and 3 times from `freeDrag`. Each unit renames them differently, and 114 of 326 consumer tests fail. No other marker name crosses, and every unprefixed member that crosses is declared in a published `.d.ts` (exploration §2).
+- **Either repair passes 324 of 326,** and the two failures are `DRF-39`: `shared/invalidation.ts` bundled into each feature unit, or `FrameTask`'s two members unprefixed (§2.2).
+- **The rows:** −25 to +32 B Brotli against `DRD-59`'s build, with the same four rows over their ceilings. Each row keeps the same `src` modules as the current build, apart from `box-quad`'s index in "draggable alone", which costs 57 B minified. `"sideEffects": false` in `box-quad` removes it, and the row reads 2,148 B (§3).
+- **Maps and annotations:** every renamed property maps to its source name, and annotations that `src` writes survive. `DRD-59`'s kept-name check and annotation guard aren't needed (§4, §5).
+- **Costs that no row measures:** a consumer without a bundler loads a whole unit, for example 10,496 B for `fault.js` against 229 B; a chunk's legal comments reach every bundle that uses it; the gate's graph checks need the maps; the boundary needs a check of its own; the build has four configurations (§2.3, §3, §8).
+
+**Options:**
+
+1. **The layout, with `shared/invalidation.ts` in each feature unit.** No source change. The kernel chunk exports only public names, and an app with both features holds two copies, 178 B Brotli.
+2. **The layout, with `FrameTask`'s members unprefixed.** One copy, +29 B minified on the `sortable` rows, two declarations fewer in `DRD-56`'s selection, and two internal exports from the kernel chunk.
+3. **`DRD-59` as amended:** one module per source module, and Oxc's rename pass through a computed map.
+
+**Separately:** `box-quad`'s `sideEffects`, which is that package's decision, and `DRF-39`, which applies to every option.
+
+**Recommendation: option 1,** if the owner accepts per-unit loading for consumers without a bundler. The mangling itself is then native, as the owner's requirements for the publication ask, where `DRD-59` needs a custom pass and two guards for it. The boundary check and the gate change are bounded and testable. Option 1 or 2 becomes a new decision that supersedes `DRD-59` properties 1 and 3 and changes `DRD-55`'s graph checks. Budgets stay unchanged in every option.
+
 ## Decision status
 
 | Decision | Status |
@@ -2479,11 +4438,11 @@ No timing was taken.
 | DRD-29 | active, decided on 2026-11-08 on the owner's clarifications. Implemented at `b33890461` ([`lift-representation-report.md`](lift-representation-report.md) item 3). Read by the architect at `d258573fa`: it conforms except `DRF-3`, whose required property was added to its `land` bullets on 2026-11-08. Amends `DRD-27`'s public types and lift properties and `DRD-28`'s `lift.js` row. `DRD-33` amends it: `land(x, y, landing)` requires a `Landing`, which replaces `LandingTiming`, the default timing leaves the lift, and the `DRF-3` bullet keeps the caller's `Landing` value |
 | DRD-30 | active, decided on 2026-11-08 on the owner's proposal. Implemented at `da139407e` and `3a67df0ea` ([report](activation-result-report.md)). Read by the architect at `d99ebd304` ([assessment](activation-result-assessment.md)): conforms. Amended the same day: the behavior keeps no operation state, the operation may keep its behavior, and the type-argument rule. [`activation-result-assessment.md`](activation-result-assessment.md) §6 implements the amendment, with `DRF-4`. Amends `DRD-2`, `DRD-6`, `DRD-11`, `DRD-20`, `DRD-27`, and the contract's vocabulary, public surface, DRI-3, DRI-8, DRI-9 and DRI-18. Replaces [`operation-lifetime-assessment.md`](operation-lifetime-assessment.md) §2 |
 | DRD-31 | active, decided on 2026-11-08 on the owner's direction, from [`items-copy-assessment.md`](items-copy-assessment.md). Supersedes `DRD-25`'s `items()` copy bullet and amends the contract's DRI-14. Implemented at `4ef33b96e`, after `a390dfa29` and `0e7e1c7ef`, from [`items-borrowing-handoff.md`](items-borrowing-handoff.md), and reported at `72f669ce1` ([report](items-borrowing-report.md)). When this row was written no review had read it. The combined review read it at `b01a0283d` (corrected on 2026-11-10) |
-| DRD-32 | active, decided on 2026-11-08 on the owner's approval of v3, from [`execution-boundary-assessment.md`](execution-boundary-assessment.md), with its cost in `DRO-9`. Amends `DRD-1`, `DRD-24`, `DRD-26`, `DRO-6`'s accepted functions and the contract's DRI-6. Implemented at `a8327a7c8` from `8943f14e5`. Reported in [`execution-boundary-report.md`](execution-boundary-report.md), with every row inside `DRO-9`. When this row was written no review had read it. The combined review read it at `b01a0283d` (corrected on 2026-11-10). `DRD-34` merges the input gate and the request entry into one shared pass that receives internal work with its receiver, removes `InputHandler`, `apply()` and `#run`, makes `raise` a method, and withdraws the rejection of a receiver argument. `DRF-20`, open since 2026-11-10, says that its reason for keeping an idle step off the list no longer holds. The rule stands |
-| DRD-33 | active, decided on 2026-11-09 on the owner's acceptance of the slot model, from [`feature-composition-assessment.md`](feature-composition-assessment.md), with the slot's charge in `DRO-10`. Amends `DRD-2` in place, `DRD-27`, `DRD-28`, `DRD-29`, and the contract's vocabulary, public surface, DRI-9, DRI-13, DRI-17, DRI-18 and DRI-20, and adds DRI-21. Repairs `DRF-5`. Implemented at `8626b04fd`, `59cc79e74`, `bfc2bfb0e` and `11950690f` from [`feature-composition-handoff.md`](feature-composition-handoff.md), and reported at `0bb03f3ea` ([report](feature-composition-report.md)). The `targets` slot's +78 B and +59 B are above `DRO-10`'s 45 B and wait for the owner. When this row was written no review had read it. The combined review read it at `b01a0283d` (corrected on 2026-11-10) |
+| DRD-32 | active, decided on 2026-11-08 on the owner's approval of v3, from [`execution-boundary-assessment.md`](execution-boundary-assessment.md), with its cost in `DRO-9`. Amends `DRD-1`, `DRD-24`, `DRD-26`, `DRO-6`'s accepted functions and the contract's DRI-6. Implemented at `a8327a7c8` from `8943f14e5`. Reported in [`execution-boundary-report.md`](execution-boundary-report.md), with every row inside `DRO-9`. When this row was written no review had read it. The combined review read it at `b01a0283d` (corrected on 2026-11-10). `DRD-34` merges the input gate and the request entry into one shared pass that receives internal work with its receiver, removes `InputHandler`, `apply()` and `#run`, makes `raise` a method, and withdraws the rejection of a receiver argument. `DRF-20`, open since 2026-11-10, says that its reason for keeping an idle step off the list no longer holds. The rule stands. `DRF-20` closed on 2026-11-12: the owner kept the idle branch (`DRO-14` item 3), whose reason is now the work it saves per idle request |
+| DRD-33 | active, decided on 2026-11-09 on the owner's acceptance of the slot model, from [`feature-composition-assessment.md`](feature-composition-assessment.md), with the slot's charge in `DRO-10`. Amends `DRD-2` in place, `DRD-27`, `DRD-28`, `DRD-29`, and the contract's vocabulary, public surface, DRI-9, DRI-13, DRI-17, DRI-18 and DRI-20, and adds DRI-21. Repairs `DRF-5`. Implemented at `8626b04fd`, `59cc79e74`, `bfc2bfb0e` and `11950690f` from [`feature-composition-handoff.md`](feature-composition-handoff.md), and reported at `0bb03f3ea` ([report](feature-composition-report.md)). The `targets` slot's +78 B and +59 B are above `DRO-10`'s 45 B and wait for the owner. When this row was written no review had read it. The combined review read it at `b01a0283d` (corrected on 2026-11-10). `DRD-52` amends choice 9. **Choice 9 amended on 2026-11-13 by `DRD-61`:** reads return one value, and no write leaves the class |
 | DRD-34 | active, decided on 2026-11-09 on the owner's direction, from the owner's uncommitted edit on `39af0ef44` ([`owner-edit.diff.txt`](probes/gesture-receiver/owner-edit.diff.txt)). Amends `DRD-20`, `DRD-24`, `DRD-32` and the contract's public surface. Implemented at `fd7ae3e43` from [`gesture-receiver-handoff.md`](gesture-receiver-handoff.md), reported at `03d1449e2` ([report](gesture-receiver-report.md)). Read by the architect at `03d1449e2` ([assessment](gesture-receiver-assessment.md)): conforms. Its costs are reported and not accepted. When this row was written no review had read it. The combined review read it at `b01a0283d` (corrected on 2026-11-10). `DRD-35` amends its properties 6, 8 and 9 and supersedes its exclusion of receiver support. `DRD-37` supersedes its property 9 |
-| DRD-35 | active, decided on 2026-11-09 on the owner's direction, from the model at `9f885b9a9` and the owner's uncommitted edit on it ([`owner-edit.diff.txt`](probes/callback-list/owner-edit.diff.txt)), with its costs in `DRO-12`. Amends `DRD-16`, `DRD-34` and the contract's public surface, DRI-8, DRI-9 and DRI-10. Implemented at `53c87f988` from [`callback-list-handoff.md`](callback-list-handoff.md), reported at `f06a99c4f` ([report](callback-list-report.md)). The architect read the report at `2bec0c431` (§Disposition of the callback list report). `DRD-36` replaces its property 5's direction function, and `DRD-37` supersedes its property 8. Its costs are accepted under `DRO-12` |
-| DRD-36 | active, decided on 2026-11-09 on the owner's direction, from the owner's uncommitted edit on `2bec0c431` ([`insertion-edit.diff.txt`](probes/callback-list/insertion-edit.diff.txt)). Amends `DRD-35`, and `DRO-12`'s figures. Implemented at `50ed18a17` from [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md), reported at `36dbd55db` ([report](callback-list-completion-report.md)). Read by the architect ([assessment](callback-list-completion-assessment.md)): conforms. Its costs are accepted under `DRO-12` |
+| DRD-35 | active, decided on 2026-11-09 on the owner's direction, from the model at `9f885b9a9` and the owner's uncommitted edit on it ([`owner-edit.diff.txt`](probes/callback-list/owner-edit.diff.txt)), with its costs in `DRO-12`. Amends `DRD-16`, `DRD-34` and the contract's public surface, DRI-8, DRI-9 and DRI-10. Implemented at `53c87f988` from [`callback-list-handoff.md`](callback-list-handoff.md), reported at `f06a99c4f` ([report](callback-list-report.md)). The architect read the report at `2bec0c431` (§Disposition of the callback list report). `DRD-36` replaces its property 5's direction function, and `DRD-37` supersedes its property 8. Its costs are accepted under `DRO-12`. `DRD-53` renames property 5's file and class |
+| DRD-36 | active, decided on 2026-11-09 on the owner's direction, from the owner's uncommitted edit on `2bec0c431` ([`insertion-edit.diff.txt`](probes/callback-list/insertion-edit.diff.txt)). Amends `DRD-35`, and `DRO-12`'s figures. Implemented at `50ed18a17` from [`callback-list-completion-handoff.md`](callback-list-completion-handoff.md), reported at `36dbd55db` ([report](callback-list-completion-report.md)). Read by the architect ([assessment](callback-list-completion-assessment.md)): conforms. Its costs are accepted under `DRO-12`. **Amended on 2026-11-12 by `DRD-53`:** module factories in `kernel/callbacks.ts`, and insertion through the stored array method |
 | DRD-37 | active, decided on 2026-11-09 on the owner's direction. Supersedes `DRD-34` property 9 and `DRD-35` property 8. Implemented at `50ed18a17`, reported at `36dbd55db`. Read by the architect ([assessment](callback-list-completion-assessment.md)): conforms. Property 3 was clarified on 2026-11-10: it is checked by reading lint's output |
 | DRD-38 | active, decided on 2026-11-09 on the owner's direction, under CONTRIBUTING's TypeScript section as clarified at `2bec0c431`. Amends the contract's public surface. `DRO-13` holds the other declarations, and the owner deferred it on 2026-11-10. Implemented at `50ed18a17`, reported at `36dbd55db`. Read by the architect ([assessment](callback-list-completion-assessment.md)): conforms |
 | DRD-39 | active, decided on 2026-11-10 by the architect on `DRF-10`, from [`combined-review-assessment.md`](combined-review-assessment.md) §3. Amends the contract's public surface. [`combined-review-remediation-handoff.md`](combined-review-remediation-handoff.md) item 1 implemented it at `d1a262306`, reported at `f2ac81bc5` ([report](combined-review-remediation-report.md)). Proven by the [feature proof](reviews/combined-ownership/remediation-reviewer.md) at `26919a938`, and read by the architect ([assessment](combined-review-remediation-assessment.md)): conforms. `DRF-10` is closed |
@@ -2497,4 +4456,16 @@ No timing was taken.
 | DRD-47 | active, decided on 2026-11-11 by the architect on the trace report at `e92e21eed` ([assessment](performance-trace-assessment.md) §2 and §3), under `DRD-46` property 8. Amended the contract's `DRI-14` at `bf9d1caed`, and [`performance-plan.md`](performance-plan.md) §2 P3. **Implemented at `bf9d1caed` and confirmed** ([report](performance-drop-report.md) at `8eda874f0`, [assessment](performance-drop-assessment.md)): the 2,000-item cycle row is faster by 2,449 µs of script per cycle. The owner approved the geometry rule and accepted +125 to +140 B Brotli on 2026-11-12 (`DRO-4`) |
 | DRD-48 | active, decided on 2026-11-12 by the architect on `DRF-22` ([assessment](performance-drop-assessment.md) §4). Amends `DRD-33` choice 7. Amended the contract's `DRI-20` and `DRI-21` at `71f20df20`. **Implemented at `71f20df20`** ([report](free-drag-drop-report.md) at `7cb2207ae`, [assessment](free-drag-drop-assessment.md)), which closes `DRF-22`. The owner approved the reads at the drop and accepted +5 B Brotli on 2026-11-12 (`DRO-4`) |
 | DRD-49 | active, decided on 2026-11-12 by the architect on the trace report at `e92e21eed` ([assessment](free-drag-drop-assessment.md) §2), under `DRD-46` property 8. Narrows `y()`'s terms. Amended the contract's `DRI-14` at `501f60ab7`. **Implemented at `501f60ab7` and confirmed** ([report](performance-window-report.md) at `56c1c27c3`, [assessment](performance-window-assessment.md)). The owner approved its scope and ordering term on 2026-11-12, before the unit. Property 8 amended by `DRD-50`. The owner accepted its final bytes on 2026-11-12, as `DRD-50`'s unit measured them (`DRO-4`) |
-| DRD-50 | active, decided on 2026-11-12 by the architect on the window report at `56c1c27c3` ([assessment](performance-window-assessment.md) §2 and §3). Amends `DRD-49` property 8 and the internal `DisplacementSink.settle`. **Implemented at `8d002529a`, and it conforms** ([report](performance-window-correction-report.md) at `566d4d29e`, [assessment](performance-window-correction-assessment.md)). The probe read "no difference shown", so the shared rebuild stays, and the reading bounds no slowdown |
+| DRD-50 | active, decided on 2026-11-12 by the architect on the window report at `56c1c27c3` ([assessment](performance-window-assessment.md) §2 and §3). Amends `DRD-49` property 8 and the internal `DisplacementSink.settle`. **Implemented at `8d002529a`, and it conforms** ([report](performance-window-correction-report.md) at `566d4d29e`, [assessment](performance-window-correction-assessment.md)). The probe read "no difference shown", so the shared rebuild stays, and the reading bounds no slowdown. `DRD-58`: W7's helpers identify the slot array by being an array, and a copy mutation replaces M7. **Amended on 2026-11-13 by `DRD-61`:** property 1, and W7, M7 and M8. The sink answers per element, and receives no array. That amendment's "allocate nothing" is corrected on 2026-11-13 to the source reading |
+| DRD-51 | active, decided on 2026-11-12 by the architect on the owner's request to open P4, from [`size-pass-assessment.md`](size-pass-assessment.md). Amends `DRD-40` property 6 for the size pass, and `DRF-14`'s required property. Applied by [`performance-plan.md`](performance-plan.md) §2 P4. Its first unit, `DRF-13` and `DRF-14`, is recommended and not started. `DRO-14` holds the owner's items. **Amended on 2026-11-12 by `DRD-52`:** its first unit also carries `DRD-52` and `DRD-53`, and [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) implements all three. **First unit landed on 2026-11-12** at `237d65d2f` and accepted ([assessment](size-pass-unit-assessment.md)). **Amended on 2026-11-12:** §First unit item 2's step becomes a module function, which [`size-pass-followup-handoff.md`](size-pass-followup-handoff.md) implements, and property 3 separates `bench/campaign.ts` from the deferred campaigns. **The amendment of item 2 landed on 2026-11-12** at `e22db849c` and was accepted (§Disposition of the size pass follow-up report). With `DRO-14` answered in full, no measured candidate remains. **Properties 1 and 3 amended on 2026-11-13 by `DRD-55`:** readings are booked from the gate on the published build, and `measure.ts` changes for that instrument change only |
+| DRD-52 | active, decided on 2026-11-12 on the owner's approval of proposal P in [`rect-index-ownership-proposal.md`](rect-index-ownership-proposal.md), with the owner's two conditions. Amends `DRD-33` choice 9 and `DRD-51` §First unit, and answers `DRO-14` item 2. [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) implements it. Its 7 B per committed move is provisional. **Implemented on 2026-11-12** at `237d65d2f` and accepted ([assessment](size-pass-unit-assessment.md)). Property 9's 7 B is replaced by readings: +0.84 B per committed move warm, +4.13 B cold, both with their spreads. `DRD-58` amends properties 1, 4 and 6: the slot buffer is one `number[]` that nothing replaces. **Amended on 2026-11-13 by `DRD-61`:** properties 1, 4, 5 and 6. `lend` goes, and `RectIndex` applies the shift. **Corrected on 2026-11-13:** the timing result's A/A bounds are the rule's thresholds and don't limit a slowdown. **Amended on 2026-11-13 by `DRD-62`:** property 1. `xy()`'s index is a `RetainingRectIndex` |
+| DRD-53 | active, decided on 2026-11-12 on the owner's direction, from the owner's commit `1d304128b`. Amends `DRD-35` property 5 and `DRD-36` properties 1, 3 and 4, and answers `DRO-14` item 1. [`size-pass-unit-handoff.md`](size-pass-unit-handoff.md) completes it outside `src`. `example: resize handle` is 8 B over its ceiling from `1d304128b`. **Completed on 2026-11-12** at `15e9d1ef2` and accepted ([assessment](size-pass-unit-assessment.md)) |
+| DRD-54 | active, decided on 2026-11-12 by the architect on the owner's answer to `DRO-15`, which started its steps 1 and 2. Decides step 1, the `consumer` project. [`consumer-tests-handoff.md`](consumer-tests-handoff.md) implements it. Step 2, the gate on the published build, is decided when step 1 reports. **Implemented at `5ea7bb7e6`** and accepted on 2026-11-13 ([assessment](consumer-tests-assessment.md)). **Property 2 amended on 2026-11-13** for `DRF-23`: the resolved file decides, whatever the specifier form. [`published-gate-handoff.md`](published-gate-handoff.md) part A implements the amendment. Step 2 is `DRD-55`. The amendment was implemented at `79b4c3132`. `DRD-56` property 8 keeps the consumer project in Chromium only |
+| DRD-55 | active, decided on 2026-11-13 by the architect on the owner's direction after `DRD-54`'s unit reported. `DRO-15` step 2: the size gate reads the published build. Amends `DRD-51` properties 1 and 3. [`published-gate-handoff.md`](published-gate-handoff.md) part B implements it. Every ceiling and the control figure stay, and a changed verdict goes to `DRO-4`. **Implemented** at `69c260685`, with `DRF-23` repaired at `79b4c3132`, and accepted on 2026-11-13 (§Disposition of the published gate report). No verdict changed |
+| DRD-56 | superseded on 2026-11-13 by `DRD-60`, apart from property 8's first sentence and the clarification of `DRD-51` property 3. Was: active, decided on 2026-11-13 by the architect on the owner's answer to `DRO-15` step 3: source prefixes, then publish-time mangling, with no selection by type. Clarifies `DRD-51` property 3 and answers `DRD-54`'s question on three engines. [`publish-mangle-handoff.md`](publish-mangle-handoff.md) implements it. Budgets are unchanged. **Implemented** at `f7b7b300b` and `31f92f5a9`, reported at `78797ebf6`, and accepted on 2026-11-13 ([assessment](publish-mangle-assessment.md)). Properties 1 and 6 corrected in place the same day: the members that a published type declares, and the bounded class member exception to V4. The two changed verdicts went to `DRO-4`. No independent review has read it yet. **Property 2's selection extended on 2026-11-13 by `DRD-57`.** The [publish mangle review](reviews/publish-mangle/publish-mangle-summary.md) read it at `436b105c6`. **Superseded in part on 2026-11-13 by `DRD-59`:** properties 4 to 6 and property 7's V2 to V4. **Superseded on 2026-11-13 by `DRD-60`:** the owner deferred property mangling, and [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) removes the prefixes, the step and the publication test |
+| DRD-57 | superseded on 2026-11-13 by `DRD-60`. Was: active, decided on 2026-11-13 by the architect on the owner's request to audit `DRD-56`'s selection, from [`mangle-selection-audit.md`](mangle-selection-audit.md) at `436b105c6`. Amends `DRD-56` property 2's starting set and adds the one-character rule to its property 1. [`mangle-selection-handoff.md`](mangle-selection-handoff.md) implements it. Budgets are unchanged. **Implemented** at `b50204f66`, and reported at `1719df16c`. The architect hasn't read the report. Property 4 is superseded by `DRD-59`. **Superseded on 2026-11-13 by `DRD-60`:** its 30 declarations take back their names, and its audit stays as the record |
+| DRD-58 | active, decided on 2026-11-13 on the owner's direction. Replaces `RectIndex`'s growable `Float64Array` slot buffer with one `number[]`, and removes the lifetime and reentrancy rules that replacement required. Amends `DRD-52` properties 1, 4 and 6, and `DRD-50` W7's helpers. [`slot-array-handoff.md`](slot-array-handoff.md) implements it after `DRD-57`'s unit. Costs are reported, not gated. **Implemented at `5ec3b4b2d`**, reported at `690769539` and accepted on 2026-11-13 in Chromium only (§Disposition of the slot array report). −31 to −32 B Brotli on the `sortable` rows, the controls unchanged, and allocation within its spread. The owner's separate mangling revert keeps it (its §Result). Property 8's first bullet was amended by `DRD-59`, and that amendment is withdrawn with `DRD-59`. **Amended on 2026-11-13 by `DRD-60`:** its prefixed member names lose the `_`, and the rollback keeps the types its §Result lists. **Amended on 2026-11-13 by `DRD-61`:** properties 1, 3 to 7 and 9. The array also holds the scratch slot and the placeholder. **Amended on 2026-11-13 by `DRD-62`:** property 7's row for `xy.ts`'s `before`. It goes into `RetainingRectIndex` |
+| DRD-59 | withdrawn on 2026-11-13 by `DRD-60`, before implementation, apart from property 8. Was: active, decided on 2026-11-13 by the architect on the owner's requirements for the publication. Supersedes `DRD-56` properties 4 to 6 and property 7's V2 to V4, and `DRD-57` property 4, amends `DRD-58` property 8, and withdraws the remediation proposal at `be151f9ed`. Decides `DRF-24` to `DRF-37`. [`publication-build-handoff.md`](publication-build-handoff.md) implements it. Budgets are unchanged. Not implemented. **Amended on 2026-11-13 after the dependency update at `31bac1381`:** one configuration, and the build refuses an annotation in `src`. **`DRF-39`:** two consumer tests fail on its build, before its unit starts. `DRO-16` weighs the three-unit layout against it. **Withdrawn on 2026-11-13 by `DRD-60`:** the owner deferred property mangling. Property 8, what is publishable, stays |
+| DRD-60 | active, decided on 2026-11-13 by the architect on the owner's decision to defer property mangling, because its measured savings don't justify its complexity. Supersedes `DRD-56` (apart from property 8's first sentence and the clarification of `DRD-51` property 3) and `DRD-57`, withdraws `DRD-59` (apart from property 8), amends `DRD-58`'s member names, and withdraws `DRO-16`. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) implements it from `drag/size` at `f552e0ec9`, as merged into `drag/mangle-remediation`. Budgets are unchanged. **Implemented at `cc752cc1b` and `b8e37b37c`, reported at `8904947f6` and accepted on 2026-11-14** (§Disposition of the mangling rollback report). `DRF-24` to `DRF-37` and `DRF-39` are closed, and `DRF-38` is widened and stays open with `repo:RF-31`. The result is historical: later units changed `src`. **Independently proved at `b8e37b37c` on 2026-11-14** (§Disposition of the rollback and integration reviews) |
+| DRD-61 | active, decided on 2026-11-13 on the owner's approval of proposal P and its displacement-sink interface, in [`rect-index-access-proposal.md`](rect-index-access-proposal.md) at `a61b76e9c`. `RectIndex` owns its storage and every write to it, and the sink answers `displaced(element)`. Amends `DRD-52` properties 1, 4, 5 and 6, `DRD-58` properties 1, 3 to 7 and 9, `DRD-50` property 1 and W7, M7 and M8, and `DRD-33` choice 9. Measured at the restored names against `8904947f6`: −31, +22 and −92 B Brotli on the `sortable` rows, and no verdict changes. [`rect-index-access-handoff.md`](rect-index-access-handoff.md) implements it from `drag/size` at `8904947f6`, with a focused timing check under the owner's hold. Budgets are unchanged. **Implemented at `010a9ef39`, reported at `f788b2b80` and accepted** ([assessment](rect-index-access-assessment.md)). Timing reads "no difference shown" in all three cases, so speed is unmeasured. Property 11's reading of the A/A threshold is corrected in place. **Reviewed at `bdb2c73c8`:** properties 3 and 10 are corrected in place, the acceptance stands, and one `.scripts/vitest-config.ts` comment goes to a follow-up. **Amended on 2026-11-13 by `DRD-62`:** properties 1, 2, 3 and 8. `xy()`'s `before` goes into `RetainingRectIndex`, and the field and axis types are narrowed |
+| DRD-62 | active, decided on 2026-11-13 on the owner's acceptance of VX in [`xy-held-geometry-proposal.md`](xy-held-geometry-proposal.md) at `316003d76`, on the condition of narrowed field types. Adopts the provisional source at `f79f66fe2`. `xy()`'s previous geometry is held by `RetainingRectIndex`, and `at`, `retained` and the axis accept only their constants. Amends `DRD-61` properties 1, 2, 3 and 8, `DRD-58` property 7's table and §What this doesn't decide, and `DRD-52` property 1. [`xy-held-geometry-handoff.md`](xy-held-geometry-handoff.md) implements it. A fresh independent reviewer reads its report before the architect's final acceptance. Speed is unmeasured, and budgets are unchanged. **Implemented at `b4117dae2`, reported at `7184d069c`, reviewed at `c4d02d45c` and accepted on 2026-11-14** ([assessment](xy-held-geometry-assessment.md)). The 60 `.js` and `.d.ts` files are byte-identical to `f79f66fe2`'s, `sortable/rect-index.js.map` differs, and every size row reads 0/0/0. Property 2 is corrected in place to name the base's `held === 0` exit |

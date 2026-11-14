@@ -1,0 +1,29 @@
+diff --git a/packages/drag/src/free-drag.ts b/packages/drag/src/free-drag.ts
+index 1e8bb741e..99f1c97f7 100644
+--- a/packages/drag/src/free-drag.ts
++++ b/packages/drag/src/free-drag.ts
+@@ -61,7 +61,7 @@ export function freeDrag(
+   kernel.use(lifter.cancelLanding);
+ 
+   return {
+-    invalidate: () => kernel.requestStep(behavior.invalidate),
++    invalidate: () => kernel.requestStep(FreeDragBehavior.invalidate),
+     moveTo: (point) =>
+       // One step per call: it carries the point, and DRI-8 keeps calls in order.
+       kernel.requestStep((operation) => {
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index ebb4066dd..f17886f18 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -74,9 +74,9 @@ export class FreeDragBehavior implements Behavior<
+    * are re-read at their next read. With no operation, nothing is stale,
+    * because each activation marks the bounds stale before its first read.
+    */
+-  readonly invalidate = (operation: FreeDragOperation | null): void => {
++  static invalidate(this: void, operation: FreeDragOperation | null): void {
+     operation?.handleEvent();
+-  };
++  }
+ 
+   /** The admission's `state` is the visual: `config.visual`, or the root. */
+   admit(event: PointerEvent): Admission<HTMLElement> | null {

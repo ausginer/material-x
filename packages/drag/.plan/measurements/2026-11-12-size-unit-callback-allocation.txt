@@ -1,0 +1,7 @@
+node v26.13.0, 200000 instances per row
+bare array, empty  32.0 B
+bare array, used   167.1 B
+queue(), empty     72.1 B
+stack(), empty     72.0 B
+queue(), used      239.5 B
+stack(), used      239.3 B

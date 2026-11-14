@@ -1,0 +1,13 @@
+applies: about 1 ms of script per cycle, at the drop
+applies: one object of about 1 KB retained per operation past destruction
+file:///workspaces/material-x/packages/drag/bench/compare.ts:1297
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in sortable/operation.ts: this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+    at applyInjection (file:///workspaces/material-x/packages/drag/bench/compare.ts:1297:13)
+    at async applyAll (file:///workspaces/material-x/packages/drag/bench/compare.ts:1326:32)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:2191:7
+
+Node.js v26.13.0
+[exit 1]

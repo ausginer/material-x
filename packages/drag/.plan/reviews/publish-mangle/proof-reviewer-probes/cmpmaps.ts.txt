@@ -1,0 +1,13 @@
+// cmpmaps.ts <a> <b>: count mappings of b whose (generated -> original) differ from a, over all .js.map
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { allMappings, fromMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+const [a, b] = process.argv.slice(2) as [string, string];
+let total = 0, moved = 0;
+for (const f of readdirSync(a, { recursive: true }).map(String).filter(f => f.endsWith('.js.map') && !/^(src|tests|build)\//.test(f))) {
+  const key = (m: any) => `${m.generated.line}:${m.generated.column}>${m.source}:${m.original?.line}:${m.original?.column}`;
+  const A = new Set(allMappings(fromMap(JSON.parse(readFileSync(join(a, f), 'utf8')))).map(key));
+  const B = allMappings(fromMap(JSON.parse(readFileSync(join(b, f), 'utf8')))).map(key);
+  total += A.size; moved += B.filter(k => !A.has(k)).length + Math.max(0, A.size - B.length);
+}
+console.log(`${b.split('/').pop()}: ${moved} of ${total} mappings differ from ${a.split('/').pop()}`);

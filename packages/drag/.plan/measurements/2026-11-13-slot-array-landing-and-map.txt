@@ -1,0 +1,11 @@
+$ git log --oneline 436b105c6..HEAD -- packages/drag/src packages/drag/tests packages/drag/bench packages/drag/build
+b50204f66 drag: prefix the 30 internal declarations that DRD-57 selects, and regenerate the property map with 53 names
+$ keys of build/property-names.json
+53 _values:true _items:true _end:true
+
+# base map regeneration
+53 names, 263 occurrences in the build; /tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/m/base-property-names.json
+MAP-IDENTICAL
+# end map regeneration
+53 names, 263 occurrences in the build; /tmp/claude-1000/-workspaces-material-x/82645d30-d973-4972-b334-84f879b87a53/scratchpad/m/end-property-names.json
+MAP-IDENTICAL

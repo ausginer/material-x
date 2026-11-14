@@ -1,0 +1,31 @@
+{
+  "id": "rollback-a-rerun",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag",
+  "runner": {
+    "pid": 737085,
+    "start": "9637506"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T11:13:26.328Z",
+  "endedAt": "2026-11-13T11:14:05.898Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts --project node --project consumer --reporter=verbose; echo \"[vitest exit $?]\"",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-mangle-remediation/packages/drag/.campaigns/rollback-a-rerun/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "7420cbb9aee26cfb63256976ba69a921cd4dd223",
+        "dirty": true
+      },
+      "process": {
+        "pid": 737102,
+        "start": "9637513"
+      },
+      "startedAt": "2026-11-13T11:13:26.345Z",
+      "endedAt": "2026-11-13T11:14:05.898Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

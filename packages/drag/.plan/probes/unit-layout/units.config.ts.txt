@@ -1,0 +1,64 @@
+// Candidate: the owner's layout. Three units, kernel, sortable and free-drag, each built from one input
+// into one chunk under chunks/, with Rolldown's native minify.mangleProps. The feature units import the
+// kernel's chunk as an external module. Each public entry is a re-export facade, written as an asset, so
+// package.json's exports map is unchanged. The declarations come from the current unbundled
+// configuration with its JavaScript removed. Probe only: OUT= sets the directory, NOMIN=1 builds the units
+// without minification (and so without the rename), as the annotation baseline.
+import { dirname, resolve } from 'node:path';
+import { defineConfig, type Rolldown, type UserConfig } from 'tsdown';
+import { packageFilesToTsdownEntries } from '../../.scripts/package-files.ts';
+import { constructLibraryTsdownPlugins } from '../../.scripts/tsdown-library.ts';
+import files from './files.json' with { type: 'json' };
+import { chunkFile, facadeSource, layout } from './probe/layout.ts';
+import { UNITS, unitOf, type Unit } from './probe/units.ts';
+
+const OUT = process.env.OUT ?? '.';
+const plan = layout();
+const MANGLE = { mangleProps: { include: /^_[A-Za-z]/, quoted: true } };
+
+/** In a feature unit, every import that reaches a kernel module becomes an import of the kernel's chunk. */
+function kernelExternal(): Rolldown.Plugin {
+  return {
+    name: 'probe:kernel-external',
+    resolveId(source, importer) {
+      if (!importer || !source.startsWith('.')) return null;
+      return unitOf(resolve(dirname(importer), source)) === 'kernel' ? { id: './kernel.js', external: true } : null;
+    },
+  };
+}
+
+/** The public entries, each a re-export of the chunk that declares each name. */
+function facades(): Rolldown.Plugin {
+  return {
+    name: 'probe:facades',
+    generateBundle() {
+      for (const [entry, names] of plan.facades) this.emitFile({ type: 'asset', fileName: `${entry}.js`, source: facadeSource(entry, names) });
+    },
+  };
+}
+
+/** The declaration configuration keeps only the .d.ts files. */
+function declarationsOnly(): Rolldown.Plugin {
+  return {
+    name: 'probe:declarations-only',
+    generateBundle(_, bundle) {
+      for (const name of Object.keys(bundle)) if (!name.endsWith('.d.ts')) delete bundle[name];
+    },
+  };
+}
+
+const unit = (u: Unit): UserConfig => ({
+  entry: { [chunkFile(u).replace(/\.js$/, '')]: plan.inputs.get(u)! },
+  platform: 'neutral', format: 'esm', target: 'esnext', outDir: OUT, fixedExtension: false, clean: false,
+  dts: false, sourcemap: true, define: { __DEV__: 'false' },
+  minify: process.env.NOMIN ? false : MANGLE,
+  plugins: [...constructLibraryTsdownPlugins(), ...(u === 'kernel' ? [facades()] : [kernelExternal()])],
+});
+
+const declarations: UserConfig = {
+  entry: packageFilesToTsdownEntries(files), platform: 'neutral', format: 'esm', target: 'esnext', outDir: OUT,
+  fixedExtension: false, clean: false, unbundle: true, dts: { sourcemap: false }, sourcemap: false,
+  define: { __DEV__: 'false' }, plugins: [...constructLibraryTsdownPlugins(), declarationsOnly()],
+};
+
+export default defineConfig([...UNITS.map(unit), declarations]);

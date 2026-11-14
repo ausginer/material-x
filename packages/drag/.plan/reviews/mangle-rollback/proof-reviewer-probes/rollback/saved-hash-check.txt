@@ -1,0 +1,3 @@
+base (wt-base): 90 hashes in 2026-11-13-rollback-base-tree.sha256; mismatches: none
+a (wt-a): 90 hashes in 2026-11-13-rollback-a-tree.sha256; mismatches: none
+end (wt-end): 90 hashes in 2026-11-13-rollback-end-tree.sha256; mismatches: none

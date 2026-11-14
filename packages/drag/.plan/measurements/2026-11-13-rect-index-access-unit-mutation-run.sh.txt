@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Applies one mutation patch to the scratch tree, runs the named browser tests, and restores the tree.
+# Usage: run.sh <name> <test files...>   (no files = the whole browser project)
+set -u
+S=/tmp/claude-1000/-workspaces-material-x/b1c47542-7713-48b0-bd45-597d88244a3a/scratchpad
+name=$1; shift
+git checkout -q -- src
+git -C ../.. apply "$S/mut/$name.diff" || { echo "[apply failed]"; exit 1; }
+git diff --stat
+npx vitest run -c vitest.config.ts --project browser "$@"
+code=$?
+git checkout -q -- src
+echo "[mutation $name exit $code]"
+exit 0

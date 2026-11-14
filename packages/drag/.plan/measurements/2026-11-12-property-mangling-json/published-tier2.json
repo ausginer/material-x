@@ -1,0 +1,72 @@
+[
+  {
+    "name": "draggable alone",
+    "minified": 6510,
+    "gzip9": 2380,
+    "gzip6": 2381,
+    "brotli": 2164
+  },
+  {
+    "name": "draggable + lift",
+    "minified": 11321,
+    "gzip9": 4356,
+    "gzip6": 4357,
+    "brotli": 3936
+  },
+  {
+    "name": "example: resize handle",
+    "minified": 9167,
+    "gzip9": 3619,
+    "gzip6": 3621,
+    "brotli": 3268
+  },
+  {
+    "name": "example: drop zone",
+    "minified": 12960,
+    "gzip9": 5058,
+    "gzip6": 5062,
+    "brotli": 4575
+  },
+  {
+    "name": "example: canvas group",
+    "minified": 9303,
+    "gzip9": 3581,
+    "gzip6": 3583,
+    "brotli": 3270
+  },
+  {
+    "name": "freeDrag",
+    "minified": 14824,
+    "gzip9": 5514,
+    "gzip6": 5523,
+    "brotli": 4971
+  },
+  {
+    "name": "freeDrag + bounds + landing",
+    "minified": 15989,
+    "gzip9": 6004,
+    "gzip6": 6014,
+    "brotli": 5418
+  },
+  {
+    "name": "sortable + y",
+    "minified": 19722,
+    "gzip9": 7186,
+    "gzip6": 7189,
+    "brotli": 6505
+  },
+  {
+    "name": "sortable + xy",
+    "minified": 19364,
+    "gzip9": 7087,
+    "gzip6": 7092,
+    "brotli": 6395
+  },
+  {
+    "name": "complete",
+    "minified": 21345,
+    "gzip9": 7900,
+    "gzip6": 7906,
+    "brotli": 7127
+  }
+]

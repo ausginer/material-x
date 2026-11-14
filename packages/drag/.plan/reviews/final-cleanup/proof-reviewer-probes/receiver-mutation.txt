@@ -1,0 +1,14 @@
+# Mutation: the receiver-free step declares 'this: Holder' instead of 'this: unknown'.
+# zz-rv-receiver: 27c60a9ac's unknownReceiverStep; zz-rv-receiver-old: f9e56fe7d's inline step. tsc -p tsconfig.json --noEmit from packages/drag.
+53c53
+< function unknownReceiverStep(this: unknown): void {
+---
+> function unknownReceiverStep(this: Holder): void {
+74c74
+<     panel.requestStep(function step(this: unknown) {
+---
+>     panel.requestStep(function step(this: Holder) {
+tests/zz-rv-receiver-old.declaration.test.ts(74,32): error TS2345: Argument of type '(this: Holder) => void' is not assignable to parameter of type '(this: undefined, operation: BehaviorOperation<unknown> | null) => void'.
+tests/zz-rv-receiver.declaration.test.ts(79,23): error TS2345: Argument of type '(this: Holder) => void' is not assignable to parameter of type '(this: undefined, operation: BehaviorOperation<unknown> | null) => void'.
+../drag2/src/kernel/presentation.ts(13,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'. Did you mean 'Box'?
+../drag2/src/kernel/presentation.ts(15,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?

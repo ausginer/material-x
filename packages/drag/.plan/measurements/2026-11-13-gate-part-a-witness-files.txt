@@ -1,0 +1,80 @@
+Part A scratch witness files, as placed under tests/ for both runs and then removed.
+Each ran as its own Vitest run with --project consumer --project browser.
+
+===== tests/zz-witness-f1.browser.test.ts
+/* Scratch witness for DRF-23, form f1. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from '../src/kernel/callbacks.ts';
+
+it('should load src/kernel/callbacks.ts by form f1', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-f2.browser.test.ts
+/* Scratch witness for DRF-23, form f2. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from '/workspaces/material-x/packages/drag/src/kernel/callbacks.ts';
+
+it('should load src/kernel/callbacks.ts by form f2', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-f3.browser.test.ts
+/* Scratch witness for DRF-23, form f3. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from '/src/kernel/callbacks.ts';
+
+it('should load src/kernel/callbacks.ts by form f3', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-f4.browser.test.ts
+/* Scratch witness for DRF-23, form f4. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from '/@fs/workspaces/material-x/packages/drag/src/kernel/callbacks.ts';
+
+it('should load src/kernel/callbacks.ts by form f4', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-f5.browser.test.ts
+/* Scratch witness for DRF-23, form f5. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from 'file:///workspaces/material-x/packages/drag/src/kernel/callbacks.ts';
+
+it('should load src/kernel/callbacks.ts by form f5', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-f6a.browser.test.ts
+/* Scratch witness for DRF-23, form f6a. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from '../src/kernel/callbacks.ts?w';
+
+it('should load src/kernel/callbacks.ts by form f6a', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-f6b.browser.test.ts
+/* Scratch witness for DRF-23, form f6b. Not committed. */
+import { expect, it } from 'vitest';
+import * as callbacks from '/workspaces/material-x/packages/drag/src/kernel/callbacks.ts?w';
+
+it('should load src/kernel/callbacks.ts by form f6b', () => {
+  expect(typeof callbacks.queue).toBe('function');
+});
+
+===== tests/zz-witness-e.browser.test.ts
+/* Scratch witness for DRF-23, an entry's source by two forms. Not committed. */
+import { expect, it } from 'vitest';
+import { draggable as published } from '@ydinjs/drag/draggable.js';
+import { draggable as relative } from '../src/draggable.ts';
+import { draggable as absolute } from '/workspaces/material-x/packages/drag/src/draggable.ts';
+
+it('should give the same draggable by the relative and absolute forms', () => {
+  expect(absolute).toBe(relative);
+});
+
+it('should give the emitted draggable by both forms', () => {
+  expect([relative, absolute]).toEqual([published, published]);
+});

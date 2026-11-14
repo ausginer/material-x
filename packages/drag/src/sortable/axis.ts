@@ -3,29 +3,25 @@ import type { Space } from '@ydinjs/box-quad';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 
 /**
- * Receives what committed moves displaced, and settles the geometry an axis
- * measures. Its members are always called on the sink, so they may read `this`.
+ * Receives what committed moves displaced, and answers what each displaced element
+ * carries. Its members are always called on the sink, so they may read `this`.
  */
 export interface DisplacementSink {
+  readonly dx: number;
+  readonly dy: number;
   /**
    * Reports one element a committed move displaced, with its travel negated. The
    * vector is a viewport quantity, and `space` is what the collection inherits.
    */
   report(element: HTMLElement, dx: number, dy: number, space: Space): void;
   /**
-   * Turns the slots from `first` to before `end` of a buffer an axis has just
-   * measured into settled geometry, by subtracting what the sink currently holds
-   * for each slot's element. `items` is parallel to the slots, and nothing outside
-   * the range is read or written. It computes the answer from animation timing and
-   * reads no layout. So no animation is cancelled for a rebuild, and a row never
-   * jumps back.
+   * Whether a running animation currently displaces `element`. When it does, `dx`
+   * and `dy` hold what it carries, in viewport units, until the next call. A
+   * measurement subtracts them to get settled geometry. It computes the answer from
+   * animation timing and reads no layout. So no animation is cancelled for a
+   * rebuild, and a row never jumps back.
    */
-  settle(
-    values: Float64Array,
-    items: readonly HTMLElement[],
-    first: number,
-    end: number,
-  ): void;
+  displaced(element: HTMLElement): boolean;
   retire(this: DisplacementSink): void;
 }
 
@@ -37,7 +33,7 @@ export type AxisQuery = Readonly<{
   pointerY: number;
   snapshot: CollectionSnapshot;
   /** The committed gap: where the placeholder is. */
-  insertion: Insertion | null;
+  insertion: Insertion;
   /** Excluded from the candidates, whose center would otherwise always win. */
   item: HTMLElement;
 }>;
@@ -45,9 +41,9 @@ export type AxisQuery = Readonly<{
 export type AxisContext = Readonly<{
   placeholder: HTMLElement;
   /** The geometry source, or `null` to measure each candidate itself. */
-  box: ((item: HTMLElement) => HTMLElement) | null;
+  box?: ((item: HTMLElement) => HTMLElement) | null;
   /** The composed sink, or `null` with no displacement. */
-  displacement: DisplacementSink | null;
+  displacement?: DisplacementSink | null;
   /** The space a displaced element's vector is reported in. */
   space: Space;
 }>;

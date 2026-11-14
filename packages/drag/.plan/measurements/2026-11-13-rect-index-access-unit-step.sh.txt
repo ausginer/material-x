@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Runs one command, prints its exit code, and exits 0 so the campaign continues.
+"$@"
+code=$?
+echo "[exit $code]"
+exit 0

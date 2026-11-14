@@ -1,0 +1,10 @@
+import { readFileSync } from 'node:fs';
+const [base, ...cands] = process.argv.slice(2).map((f) => [f.split('/').pop().replace('.json',''), JSON.parse(readFileSync(f, 'utf8'))]);
+const short = (n) => n.replace('example: ','ex: ').replace('freeDrag + bounds + landing','freeDrag+b+l');
+console.log('row'.padEnd(22) + cands.map(([n]) => n.slice(0,22).padStart(24)).join(''));
+console.log(''.padEnd(22) + cands.map(() => 'min/gz9/br'.padStart(24)).join(''));
+for (const [i, r] of base[1].entries()) {
+  let line = short(r.name).padEnd(22);
+  for (const [, c] of cands) { const x = c[i]; const f = (k) => { const d = x[k]-r[k]; return (d>0?'+':'')+d; }; line += `${f('minified')}/${f('gzip9')}/${f('brotli')}`.padStart(24); }
+  console.log(line);
+}

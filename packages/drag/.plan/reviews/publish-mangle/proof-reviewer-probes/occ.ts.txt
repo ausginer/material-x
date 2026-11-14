@@ -1,0 +1,25 @@
+// occ.ts <pkgdir> [--all]: each property occurrence of an output name, its mapping and the src text there
+import { readFile, readdir } from 'node:fs/promises';
+import { dirname, join, relative, resolve } from 'node:path';
+import { allMappings, fromMap } from '/workspaces/material-x/node_modules/@jridgewell/gen-mapping/dist/gen-mapping.mjs';
+import { readNames } from '/workspaces/material-x/packages/drag/build/property-names.ts';
+const root = process.argv[2]!;
+const names: Record<string, string> = JSON.parse(await readFile(join(root, 'build/property-names.json'), 'utf8'));
+const out = new Map(Object.entries(names).map(([k, v]) => [v, k]));
+const files = (await readdir(root, { recursive: true })).filter(f => f.endsWith('.js') && !f.startsWith('src') && !f.startsWith('tests') && !f.startsWith('node_modules'));
+for (const file of files.sort()) {
+  const code = await readFile(join(root, file), 'utf8');
+  let map; try { map = JSON.parse(await readFile(join(root, file + '.map'), 'utf8')); } catch { continue; }
+  const ms = new Map(allMappings(fromMap(map)).map(m => [`${m.generated.line - 1}:${m.generated.column}`, m]));
+  for (const { name, start } of readNames(file, code).properties) {
+    if (!out.has(name) && !process.argv.includes('--all')) continue;
+    const head = code.slice(0, start); const line = head.split('\n').length - 1; const col = start - (head.lastIndexOf('\n') + 1);
+    const m = ms.get(`${line}:${col}`);
+    let t = '(no mapping)';
+    if (m?.source) { const src = resolve(dirname(join(root, file)), m.source); const txt = (await readFile(src, 'utf8')).split('\n')[m.original.line - 1] ?? ''; t = `${relative(root, src).replace(/^(\.\.\/)+workspaces\/material-x\/packages\/drag\//, '')}:${m.original.line}:${m.original.column + 1} ${JSON.stringify(txt.slice(m.original.column, m.original.column + 30))}`; }
+    const key = out.get(name);
+    const kind = !m ? 'NONE' : t.includes(`"${key}`) ? 'exact' : 'other';
+    if (process.argv.includes('--other') && kind === 'exact') continue;
+    console.log(`${kind.padEnd(5)} ${file}:${line + 1}:${col + 1} ${name}${key ? `(${key})` : ''} -> ${t}`);
+  }
+}

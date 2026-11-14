@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Copies the published files (package.json's `files`) to <dir> and prints their SHA-256.
+# `keep-tree.sh <dir>`, from packages/drag.
+set -euo pipefail
+dest=$1
+list() { node -e 'for (const f of require("./package.json").files) console.log(f)' | while read -r f; do if [ -d "$f" ]; then find "$f" -type f; else echo "$f"; fi; done | sort; }
+mkdir -p "$dest"; list > "$dest.list"; tar cf - -T "$dest.list" | tar xf - -C "$dest"
+(cd "$dest" && sha256sum $(cat "$dest.list"))
