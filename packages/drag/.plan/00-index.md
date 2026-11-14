@@ -3429,9 +3429,119 @@ The independent [feature proof](reviews/mangle-rollback/proof-reviewer.md) at `f
 
 **Next:** none from the record. The pull request and the four decisions are the owner's. Budgets are unchanged, and the deferred campaigns stay stopped.
 
+**Since then,** the owner ran `DRF-38`'s cleanup unit, with `repo:RF-31` and `DRF-40`. §Disposition of the final cleanup answers decisions 1 to 4 and replaces the failing checks and the open findings above.
+
+## Disposition of the final cleanup
+
+The [report](final-cleanup-report.md) at `e0e4cee55`, on the implementation at `27c60a9ac` from `f9e56fe7d`, and its independent [feature proof](reviews/final-cleanup/proof-reviewer.md) at `ea706c49d`. Read by the architect on 2026-11-14 at `ea706c49d`, against `DRF-38`, `DRF-40` and `repo:RF-31`. The owner approved the cleanup on 2026-11-14. `ea706c49d`'s code outside `packages/drag/.plan/` is `27c60a9ac`'s, by the architect's `git diff`.
+
+The architect reused the proof's saved outputs and probes, and ran one check: both plugin packages' lint ([output](measurements/2026-11-14-final-cleanup-disposition-plugin-lint.txt)). It settles a line that the proof's saved output drops (§The report's claims).
+
+**The implementation at `27c60a9ac` is accepted.** `DRF-38`, `DRF-40` and `repo:RF-31` close. Both of the proof's tier-C findings are accepted. One correction is routed, and one older gap is registered.
+
+### `drag:DRF-38`: closed
+
+| Required property | Evidence | Holds |
+| --- | --- | --- |
+| Lint exits 0 | The report's output and the proof's run. The diff adds no disable comment, `@ts-ignore`, `@ts-expect-error`, `as any` or `as unknown`, and changes no lint, `tsconfig`, package or lock file | Yes |
+| Each `@ts-expect-error` still fails without its directive, for its comment's reason | The proof's directives probe: 37 and 13 directives at both commits, each error on the line after its directive. The sequences of codes and messages are identical. No directive is unused, and no other error appears except drag2's two `TS2724`. Making the receiver `Holder` gives the same `TS2345` in the old inline step and in `unknownReceiverStep` | Yes |
+| A heap count runs after the reference that the test drops before it | Both tests hold the controller only in an inner function's frame. Kept in the test's frame, both fail at the class count (the proof's rows 1 and 2, and the report's matrix). Without the drop, `f9e56fe7d`'s tests fail | Yes |
+| `bench/compare.ts` produces the same injections and output | The per-entry dry checks below. The injection definitions lie outside the diff's two hunks. Under `--dry`, neither changed function runs, and `coreSets` gives the same JSON on this machine's sysfs and on a fixture | Yes |
+
+**The per-entry dry checks.** The report's dry runs stop at the third entry of each mode, so they exercise only the first two `--prove` and the first two `--floors` entries. The proof ran each of the 23 entries alone, with `--dry --only <name>`, once with `f9e56fe7d`'s `compare.ts` and once with `27c60a9ac`'s. The two outputs are identical ([comparison](reviews/final-cleanup/proof-reviewer-probes/dry-compare.txt), [`f9e56fe7d`](reviews/final-cleanup/proof-reviewer-probes/dry-head.txt), [`27c60a9ac`](reviews/final-cleanup/proof-reviewer-probes/dry-new.txt)):
+
+| Mode | Applies (exit 0) | Doesn't apply (exit 1) |
+| --- | --- | --- |
+| `--prove`, 9 entries | about 1 ms of script per cycle, at the drop; one object of about 1 KB retained per operation past destruction; 1 KB allocated per move; one entry on the step list per frame; an array of four numbers per sample, in `Gesture.enter`; 300 µs of script per cycle, in the page | one forced layout per move; one O(n) walk per move; 30 µs of script per move, in the page |
+| `--floors`, 14 entries | 300 µs and 100 µs of script per cycle, at the drop; one object with two number properties per sample, in `Session`'s `#move`; one object with two number properties retained per operation; 300 µs, 100 µs and 30 µs of script per cycle, in the page | 100 µs, 30 µs and 10 µs of script per move; 30 µs, 10 µs, 5 µs and 2 µs of script per move, in the page |
+
+That is 13 that apply and 10 that don't. The 10 fail with the same message at both commits: "injection does not apply in sortable/operation.ts: `this.#lift.translate(drag.x - drag.originX, drag.y - drag.originY);`". They are `DRD-45` property 9's stale entries, and this unit didn't change them.
+
+### `final-cleanup-reviewer-1` → `DRF-41`
+
+**Accepted, tier C.** The comment at `tests/destruction.browser.test.ts:411` to `:412` says the controller keeps `behavior` reachable, and the proof's rows 3 and 4 show the object's release follows the test's variable.
+
+**The minimal correction:** replace the comment with one that states what the read does. The callback captures the variable, not the object, so the object's release follows the variable, which the test clears after destruction, and not the controller's release. Nothing else changes: not the read, the assignment, an assertion or the title.
+
+- **Not deletion:** with no comment, the read and the test's title still suggest that the sentinel checks the controller's release.
+- **Not the sentinel's repair:** that changes what the test asserts, so it is `DRF-42`.
+
+**Routed** to [`heap-comment-handoff.md`](heap-comment-handoff.md). `DRF-38`'s required property doesn't depend on a comment, so `DRF-38` closes with `DRF-41` open.
+
+### The behavior sentinel → `DRF-42`
+
+The proof's §Observation outside the change. **Registered, not treated as repaired.** The sentinel has been unable to detect a retained callback since `a9c323f6a`. `27c60a9ac` moved the controller into an inner function and left the sentinel's object, its variable and `behavior = null` as they were, so its verdict still follows the variable (the proof's rows 3 and 4). `DRF-38` barred changing what a test asserts, so the cleanup couldn't repair it, and accepting the cleanup doesn't. Routed to a drag test unit, which the owner starts. It doesn't gate the pull request.
+
+### `drag:DRF-40`: closed
+
+| Required property | Evidence |
+| --- | --- |
+| The verdict doesn't depend on how long the grab takes | The proof: 1 s between the release and the pause, and 2 s between the read and the grab, pass in both cases. The report: a 1 s wait passes 4 of 4, and fails `f9e56fe7d`'s rejected case by 4.72 px |
+| It fails when activation cancels the landing before it measures | The report's M1, and the proof's independent mutation: 5 px and 45 px off, in both cases |
+| It fails when activation measures without the landing's current offset | The report's M2, and the proof's independent mutation, which measures with every animation moved past its end: 5 px and 45 px off, in both cases |
+
+- **What is unchanged:** the duration, the easing, the 1 px tolerance, both assertions and both cases. The test asserts that the landing exists at the grab.
+- **The pause doesn't change the path under test:** `Lifter.acquire` reads the visual's rect before it writes anything, cancels the landing in its `finally`, and reads no play state. That a paused landing presents the same state as a playing one within one synchronous call is the proof's reasoning, not a measurement.
+- **Evidence limits:** Chromium. The report's matrix covers the `browser` and `consumer` projects for its own mutations, and the proof's covers the `browser` project only.
+
+### `repo:RF-31`: closed
+
+The cause, the fix and the boundary of what its check guarantees are in [`repo:RF-31`](../../../.plan/00-index.md). In short: the required property holds at `27c60a9ac`. Every consumer typechecks apart from the expected drag2 errors, nothing is cast, and the emitted JavaScript is unchanged. `@ydinjs/vite-traits-plugin`'s `index.d.ts` declares the intersection, which is assignable to Vite's `Plugin`.
+
+**`final-cleanup-reviewer-2`: accepted, tier C, recorded in `repo:RF-31` beside P7.** The check can't see a hook's use of a Vite-only context member such as `this.environment`. No form of the check catches that in a program that loads Vite's types. What makes the current hooks compatible is the proof's audit of every implemented hook at `27c60a9ac`, not the check. **The report is corrected in place** (§The report's claims).
+
+### The report's claims
+
+They agree with the proof, apart from these:
+
+- **§`repo:RF-31`'s description of the check: corrected in place.** It said that assigning to the intersection "checks every implemented hook against Rolldown's signature", that an unacceptable transform result fails (P6), and it named P7 as the one limit. P6 doesn't separate the intersection from Vite's type, which rejects it too. The check also misses a hook's Vite-only context members. The report now says this, with a note that quotes the old wording.
+- **"`--prove --dry` and `--floors --dry` give the same output":** true. Each run stops at its third entry, and the per-entry checks above cover the other entries. Not changed.
+- **The plugin lint errors:** the report lists some of them, as it says. The proof adds five ESLint errors in `@ydinjs/vite-custom-element-assets`. **The proof's saved output** counts seven ESLint errors in that package and lists six: it drops `src/css/css.ts:31`, which its text names. The architect's run lists all seven. **Registered as [`repo:RF-32`](../../../.plan/00-index.md).** No line `27c60a9ac` changed carries one.
+
+### Size, build, typecheck and the full suite
+
+- **Size:** at `27c60a9ac` the `just size` table is byte-identical to the main integration's, and nothing that sets size changed. Five rows are red: "draggable alone" 50 B over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; and "complete" 67 B. **The owner accepts them with budgets unchanged** (`DRO-4`).
+- **Build:** the report's hashes give 1,920 byte-identical files across the six tsdown consumers. The proof's emit comparison gives identical JavaScript for both edited plugin sources. Nothing was rebuilt in review.
+- **Typecheck:** drag reports only drag2's two `TS2724`, from box-quad's removed factories (`BQ-12`). **By the owner's direction, they stay expected failures:** drag2 remains excluded and unsuppressed. drag2's own typecheck has its four known errors.
+- **The full Chromium suite at `27c60a9ac`:** the status record ([size and status](measurements/2026-11-14-final-cleanup-size.txt)) gives revision `27c60a9ac` before and after, `git status` empty both times, `suite exit=1` and `size exit=1`. The [log](measurements/2026-11-14-final-cleanup-drag-suite.log) gives 56 files and 752 tests: 747 pass, and the 5 failures are the five size rows. "Type Errors" reports none. The run started at 09:25:59, 24 s after `27c60a9ac`'s commit time and before `e0e4cee55`. Its totals equal the main integration's.
+- **The limits of that tie:**
+  - the log carries no revision line, and the wrapper that wrote the status record isn't saved. The tie rests on the record, the timestamps and the counts;
+  - the log isn't verbose, so it gives no per-project verdicts;
+  - `just test` runs `vitest.config.ts`, whose browser projects are Chromium only. Firefox and WebKit didn't run, and no timing, allocation or campaign ran;
+  - the proof didn't rerun the suite. Its unmutated focused runs of the three changed browser tests passed at identical code.
+
+### Recorded
+
+- `DRF-38`, `DRF-40` and `repo:RF-31` closed at `27c60a9ac`;
+- `DRF-41` and `DRF-42` registered, and the high-water mark moved to `DRF-42`;
+- `repo:RF-32` registered;
+- the boundary of `repo:RF-31`'s check, beside P7;
+- the report's §`repo:RF-31` corrected in place, with the old wording quoted;
+- the owner's acceptance of the five size rows in `DRO-4`;
+- [`heap-comment-handoff.md`](heap-comment-handoff.md).
+
+### Before the drag pull request
+
+**The record requires nothing more.** The four decisions of §Disposition of the rollback and integration reviews are answered:
+
+1. **Size:** the owner accepts the five red rows with budgets unchanged. `DRO-4`'s re-base stays open;
+2. **Lint and typecheck:** the cleanup ran first. drag's lint exits 0. drag's typecheck exits 1 on drag2's two `TS2724` only, which the owner keeps as expected failures;
+3. **`DRF-40`:** repaired and closed;
+4. **The suite's evidence:** one full Chromium run is tied to `27c60a9ac`, within the limits above. The pull request states them.
+
+**Failing checks at the tip,** whose code is `27c60a9ac`'s: `npx just test` fails the five size rows, and `npx just typecheck` reports drag2's two `TS2724`. Both are accepted.
+
+**The owner decides** whether `DRF-41`'s correction comes first. **Recommendation: yes.** It is a comment in a file this branch changes, the unit is bounded, and it owes no full suite. If it lands, the full suite stays tied to `27c60a9ac`, and the pull request says the later change is a comment, with its focused run.
+
+**The open findings the pull request carries:** `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42`, and `DRF-41` unless its unit runs first. `repo:RF-32` isn't drag's, and this branch doesn't change it.
+
+**Historical costs, unchanged:** decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2 and `DRO-10`'s excess stay open. They don't gate this merge, and they come before the re-base. `DRO-1`, `DRO-2` and `DRO-11` keep their defaults, and `DRO-3` is owed before a release.
+
+**Next:** the owner's. `DRF-41`'s unit if the owner chooses it, then the pull request. Budgets are unchanged, and the deferred campaigns stay stopped.
+
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-40`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-42`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -3826,7 +3936,7 @@ Tier C, **closed at `cc752cc1b`, moot under `DRD-60`**: what it concerns is gone
 
 #### DRF-38 — drag's lint exits non-zero on 49 ESLint errors in its tests and bench
 
-Tier C, open. Registered by the architect on 2026-11-13 from the [slot array report](slot-array-report.md) at `690769539`. **Widened on 2026-11-14** from the [mangle rollback report](mangle-rollback-report.md) §Baseline errors (§Disposition of the mangling rollback report).
+Tier C, **closed at `27c60a9ac`**. Read by the architect on 2026-11-14 from the [final cleanup report](final-cleanup-report.md) and its [independent proof](reviews/final-cleanup/proof-reviewer.md) (§Disposition of the final cleanup): lint exits 0 with nothing suppressed, and each part of the required property holds. The one defect the unit added, a comment, is `DRF-41` and doesn't bear on this property. The behavior sentinel's older coverage gap is `DRF-42`, and this closure doesn't repair it. Registered by the architect on 2026-11-13 from the [slot array report](slot-array-report.md) at `690769539`. **Widened on 2026-11-14** from the [mangle rollback report](mangle-rollback-report.md) §Baseline errors (§Disposition of the mangling rollback report). Before closure: open.
 
 - **Current behavior:** `npx just lint` from `packages/drag` reports 49 ESLint errors, and oxlint reports none. ESLint calls 39 of them fixable with `--fix`. At `6296b741a` the architect's run gives ([output](measurements/2026-11-14-rollback-disposition-lint.txt)):
 
@@ -3870,7 +3980,7 @@ Tier B, **closed at `b8e37b37c`, moot under `DRD-60`**: the publication isn't mi
 
 #### DRF-40 — A `DRI-13` test bounds the landing's travel by how long a grab takes
 
-Tier C, open. Registered by the architect on 2026-11-14 from the [mangle rollback report](mangle-rollback-report.md) §Commit A (§Disposition of the mangling rollback report).
+Tier C, **closed at `27c60a9ac`**. Read by the architect on 2026-11-14 from the [final cleanup report](final-cleanup-report.md) §`drag:DRF-40` and its [independent proof](reviews/final-cleanup/proof-reviewer.md) (§Disposition of the final cleanup). The test pauses the landing at its midpoint after the release, so the verdict doesn't depend on elapsed time, and a mutation of each kind fails both cases. The landing and the lift are unchanged. Registered by the architect on 2026-11-14 from the [mangle rollback report](mangle-rollback-report.md) §Commit A (§Disposition of the mangling rollback report). Before closure: open.
 
 - **Current behavior:** `tests/activation.browser.test.ts` › "drag:DRI-13 a grab during a landing" › "should keep the visual under the pointer during a %s landing" grabs during a 90 px landing that runs 20 s, linear, which is 4.5 px/s. It requires the visual within 1 px of where it was read before the grab. So it passes only when the read before the grab and the read after activation are less than about 222 ms apart. Its comment states that assumption: "Slow enough that the flight moves well under 1 px between the press and the activation."
 - **Observed failing twice, both in Chromium, both on the rejected case, both in a run that shared the machine with other work:**
@@ -3881,6 +3991,28 @@ Tier C, open. Registered by the architect on 2026-11-14 from the [mangle rollbac
 - **Why it is a problem:** the verdict can depend on the machine's load rather than on `DRI-13`, so a full run can fail without a defect. A handoff that returns on any failing consumer test stops on it.
 - **Required property:** the test's verdict doesn't depend on how long the grab takes, and it still fails when activation measures the visual without the landing's current offset, or cancels the landing before it measures (`DRD-18`). A mutation of each kind is shown failing it.
 - **Routed** to a drag test unit for an `implementer`, which the owner starts. It needs no decision unless the test can't meet the property without a change to the landing or the lift.
+
+#### DRF-41 — A comment in the destruction heap test says the controller keeps the behavior sentinel reachable
+
+Tier C, open. Registered by the architect on 2026-11-14 from `final-cleanup-reviewer-1` in the [final cleanup proof](reviews/final-cleanup/proof-reviewer.md) §Findings (§Disposition of the final cleanup).
+
+- **Current behavior:** `tests/destruction.browser.test.ts:411` to `:412`, added at `27c60a9ac`, reads: "The callback reads `behavior`, so the controller keeps it reachable until the controller is released." The callback captures the variable, not the object, and the test sets the variable to `null` after destruction. In the proof, a live controller that was never destroyed and is kept in the test's frame doesn't keep the object: the `WeakRef` assertion passes and the test fails only at the class count. With `behavior = null` removed, the object stays reachable and the assertion fails ([logs](reviews/final-cleanup/proof-reviewer-probes/browser/)).
+- **Why it is a problem:** the comment tells a reader that the sentinel checks whether the controller releases what its callbacks read, and the assertion can't fail that way. No assertion is affected.
+- **Required property:** the comment beside the read states what the read does, consistently with the sentinel's observed reachability: the callback captures the variable, and the object's release follows the variable, not the controller.
+- **Decided correction:** replace the comment, not delete it, and change nothing else. Without a comment, the read and the test's title still suggest that the sentinel checks the controller's release. A change to what the test asserts is `DRF-42`'s, not this finding's.
+- **Routed** to [`heap-comment-handoff.md`](heap-comment-handoff.md), one `implementer` unit, which the owner starts.
+
+#### DRF-42 — The destruction heap test's behavior sentinel can't detect a retained callback
+
+Tier C, open. Registered by the architect on 2026-11-14 from the [final cleanup proof](reviews/final-cleanup/proof-reviewer.md) §Observation outside the change (§Disposition of the final cleanup). **Present since `a9c323f6a`**, which introduced the read as `void behavior`. **Not repaired by the final cleanup:** `27c60a9ac` moved the controller into an inner function and left the sentinel as it was, and `DRF-38`'s closure doesn't cover it.
+
+- **Current behavior:** `drag:DRI-10 destruction` › "should retain no item, behavior, view or behavior instance after 3 operations and destruction" creates `behavior`, an empty object, keeps a `WeakRef` to it, and reads the variable in `onStart`. After destruction the test sets `behavior = null`, then asserts that the `WeakRef` is empty. The object is reachable only through that variable, so clearing the variable releases it whether or not anything keeps the callback. Row 3 of the proof's heap table shows a live controller kept in the test's frame passing the sentinel assertion. Row 4 shows the assertion failing only when the test keeps the variable.
+- **Why it is a problem:** the title says the test checks that no "behavior" is retained, and the sentinel's assertion can't fail on a retained callback. The class count still detects a retained `SortableBehavior` instance. A retention of the consumer's callbacks that keeps no instance, such as a reference to the options that outlives `requestDestroy`, has no check in this test.
+- **Required property:**
+  - at the sentinel's assertion, nothing the test controls holds the sentinel's object, apart from the callbacks it passed to the controller. So the assertion fails when anything keeps those callbacks reachable after destruction;
+  - a mutation that keeps the consumer's options or callbacks reachable after `requestDestroy`, and keeps no `SortableBehavior` instance, fails the sentinel's assertion while the class count passes. The proof's row 3 mutation fails the sentinel's assertion too;
+  - the test's other assertions, its Chromium-only condition and its operations stay as they are. Its title states what its body checks.
+- **Routed** to a drag test unit for an `implementer`, which the owner starts. It doesn't gate the drag pull request. **Return to the architect** if the property needs a change under `src/`, or a change to another assertion.
 
 ## Owner decisions
 
@@ -3938,6 +4070,8 @@ A row that is still slower comes with its attributed cause. You decide under CON
 **The mangling deferral, 2026-11-13** (`DRD-60`). At `690769539`, after `DRD-57` and `DRD-58`, four rows are red: "draggable alone", 15 B over, with its control moved by 130 B; "example: drop zone", 118 B over; "freeDrag + bounds + landing", 152 B over; and "complete", 58 B over ([slot array report](slot-array-report.md) §Size). The rollback gives back what the mangling took off, which was −34 to −135 B Brotli per row when it was measured. "example: resize handle" and "freeDrag" are expected over their ceilings again, and "example: canvas group" may follow. That is the cost the owner weighed in deferring the mangling. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) reports the reading. No ceiling or control changes, and the size re-base stays open.
 
 **The mangling rollback's verdicts, read on 2026-11-14** ([report](mangle-rollback-report.md) §Readings, §Disposition of the mangling rollback report). **At `b8e37b37c`,** against its base `7420cbb9a`, whose code is `690769539`'s, every row grows by 35 to 144 B Brotli. Two verdicts changed, as `DRD-60` expected: "example: resize handle" went from under to 1 B over its 3,313 B ceiling, and "freeDrag" from under to 51 B over its 4,967 B ceiling. "example: canvas group" stayed under, with 14 B left, after reading 8 B over at commit A. The four rows that were red grew: "draggable alone" is 50 B over, with its control moved by 165 B; "example: drop zone" 167 B; "freeDrag + bounds + landing" 240 B; and "complete" 193 B. This is the cost the owner weighed in deferring the mangling, and nothing more is asked of the owner. **These figures describe `b8e37b37c` only.** `DRD-61`, `DRD-62` and the box-quad integration changed the source since. The latest independent reading, at `7184d069c`, has six red rows ([review](reviews/xy-held-geometry/proof-reviewer.md) §Size and emitted files). The latest reading, at `6296b741a` in the [main integration report](main-integration-report.md), has five: "draggable alone" 50 B over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; and "complete" 67 B. "example: resize handle" is under again there, with 30 B left, and "example: canvas group" has 28 B left. No ceiling or control changes: `bench/size/measure.ts` is unchanged since `690769539`. The size re-base stays open.
+
+**The five red rows, accepted for the drag pull request on 2026-11-14** (§Disposition of the final cleanup). At `27c60a9ac` the `just size` table is byte-identical to the main integration's: "draggable alone" 50 B over, with its control moved by 165 B; "example: drop zone" 131 B; "freeDrag" 20 B; "freeDrag + bounds + landing" 206 B; and "complete" 67 B. The owner accepts these five failures with budgets unchanged. This answers decision 1 of §Disposition of the rollback and integration reviews, and moves no ceiling or control. The size re-base stays open.
 
 #### DRO-5 — Keep `599684791` reachable after the squash merge
 

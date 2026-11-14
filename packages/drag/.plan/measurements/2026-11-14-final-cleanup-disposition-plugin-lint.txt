@@ -1,0 +1,33 @@
+# Architect's run at ea706c49d (code identical to 27c60a9ac outside packages/drag/.plan), 2026-11-14T10:04:15Z
+=== vite-custom-element-assets: oxlint .
+src/css/generation.ts:256:23: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+src/css/generation.ts:257:15: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+exit=1
+=== vite-custom-element-assets: eslint .
+
+<repo>/packages/vite-custom-element-assets/src/css/css.ts
+  31:32  error  Use the 'u' flag  require-unicode-regexp
+
+<repo>/packages/vite-custom-element-assets/src/html.ts
+  20:3  error  Identifier 'minify_css' is not in camel case                                camelcase
+  21:3  error  Identifier 'minify_js' is not in camel case                                 camelcase
+  22:3  error  Identifier 'keep_comments' is not in camel case                             camelcase
+  23:3  error  Identifier 'allow_removing_spaces_between_attributes' is not in camel case  camelcase
+
+<repo>/packages/vite-custom-element-assets/src/index.ts
+  237:26  error  Use the 'u' flag  require-unicode-regexp
+  238:26  error  Use the 'u' flag  require-unicode-regexp
+
+✖ 7 problems (7 errors, 0 warnings)
+
+exit=1
+=== vite-traits-plugin: oxlint .
+exit=0
+=== vite-traits-plugin: eslint .
+
+<repo>/packages/vite-traits-plugin/src/analyze.ts
+  85:5  error  for..in loops are slower than Object.{keys,values,entries} and have their caveats  no-restricted-syntax
+
+✖ 1 problem (1 error, 0 warnings)
+
+exit=1
