@@ -1,12 +1,14 @@
 /** What an axis rule and a displacement sink are, for `y()`, `xy()` and sortable. */
 import type { Space } from '@ydinjs/box-quad';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
+import type { Invalidatable } from './invalidatable.ts';
+import type { Retirable } from './retirable.ts';
 
 /**
  * Receives what committed moves displaced, and answers what each displaced element
  * carries. Its members are always called on the sink, so they may read `this`.
  */
-export interface DisplacementSink {
+export interface DisplacementSink extends Retirable {
   readonly dx: number;
   readonly dy: number;
   /**
@@ -22,7 +24,6 @@ export interface DisplacementSink {
    * rebuild, and a row never jumps back.
    */
   displaced(element: HTMLElement): boolean;
-  retire(this: DisplacementSink): void;
 }
 
 export type DisplacementInstaller = () => DisplacementSink;
@@ -48,11 +49,9 @@ export type AxisContext = Readonly<{
   space: Space;
 }>;
 
-export interface InsertionGeometry {
+export interface InsertionGeometry extends Invalidatable, Retirable {
   /** A new gap, or `null` when the committed one still wins. */
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
-  /** Staleness only, because scroll calls it many times a second. */
-  invalidate(this: InsertionGeometry): void;
   /**
    * Before a pointer drop's resolution: measures one cached slot again, and calls
    * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
@@ -61,7 +60,6 @@ export interface InsertionGeometry {
   confirm(query: AxisQuery, context: AxisContext): void;
   /** The committed move landed: keep the cache true and report what moved. */
   moved(query: AxisQuery, context: AxisContext): void;
-  retire(this: InsertionGeometry): void;
 }
 
 export type AxisInstaller = () => InsertionGeometry;

@@ -76,6 +76,14 @@ const SPACE_ANCESTOR_ZOOM = 4;
  */
 export type Quad = Record<number, number>;
 
+const QUAD_X1 = 0;
+const QUAD_Y1 = 1;
+const QUAD_X2 = 2;
+const QUAD_Y2 = 3;
+const QUAD_X3 = 4;
+const QUAD_Y3 = 5;
+const QUAD_X4 = 6;
+const QUAD_Y4 = 7;
 /**
  * A caller-owned delta in two numeric slots, written by {@link localDelta}:
  *
@@ -88,11 +96,8 @@ export type Quad = Record<number, number>;
  */
 export type Delta = Record<number, number>;
 
-// Hoisted so the minifier can mangle each call site down to one identifier.
-// `finite` is deliberately not named `isFinite`: the global of that name
-// coerces its argument, and these must not.
-const { parseFloat: parse, isFinite: finite } = Number;
-const { abs, min } = Math;
+const DELTA_X = 0;
+const DELTA_Y = 1;
 
 /**
  * The border-box extent along one axis, used only when the matrix is too
@@ -107,20 +112,20 @@ function getBorderSize(
   start: 'Left' | 'Top',
   end: 'Right' | 'Bottom',
 ): number {
-  const value = parse(style[dimension]);
+  const value = Number.parseFloat(style[dimension]);
 
   return style.boxSizing === 'border-box'
     ? value
     : value +
-        parse(style[`padding${start}`]) +
-        parse(style[`padding${end}`]) +
-        parse(style[`border${start}Width`]) +
-        parse(style[`border${end}Width`]);
+        Number.parseFloat(style[`padding${start}`]) +
+        Number.parseFloat(style[`padding${end}`]) +
+        Number.parseFloat(style[`border${start}Width`]) +
+        Number.parseFloat(style[`border${end}Width`]);
 }
 
 function get2DRotation(value: string): number | undefined {
   const values = value.split(' ');
-  const angle = parse(values.at(-1)!);
+  const angle = Number.parseFloat(values.at(-1)!);
 
   // A single component is a bare z rotation. Anything else names an axis, and
   // only a full turn about it is representable in 2D.
@@ -181,10 +186,10 @@ function composeNode(
 
   if (style.scale !== 'none') {
     const values = style.scale.split(' ');
-    const scaleX = parse(values[0]!);
-    const scaleY = parse(values[1] ?? values[0]!);
+    const scaleX = Number.parseFloat(values[0]!);
+    const scaleY = Number.parseFloat(values[1] ?? values[0]!);
 
-    if (values.length > 2 && parse(values[2]!) !== 1) {
+    if (values.length > 2 && Number.parseFloat(values[2]!) !== 1) {
       return false;
     }
 
@@ -208,7 +213,7 @@ function composeNode(
   if (style.translate !== 'none') {
     const values = style.translate.split(' ');
 
-    if (values.length > 2 && parse(values[2]!) !== 0) {
+    if (values.length > 2 && Number.parseFloat(values[2]!) !== 0) {
       return false;
     }
   }
@@ -221,7 +226,7 @@ function composeNode(
  * unparsable value is not a zoom.
  */
 function zoomOf(style: CSSStyleDeclaration): number {
-  const zoom = parse(style.zoom);
+  const zoom = Number.parseFloat(style.zoom);
 
   return zoom > 0 ? zoom : 1;
 }
@@ -305,7 +310,6 @@ export function coordinates(
   out: Box,
   above?: Readonly<Space>,
 ): boolean {
-  const view = element.ownerDocument.defaultView!;
   // A disconnected element has no principal box, so it is already covered by
   // the rect count below and needs no separate `isConnected` probe.
   const rects = element.getClientRects();
@@ -326,8 +330,12 @@ export function coordinates(
     inherited = read;
   }
 
-  const style = view.getComputedStyle(element);
-  const node = composeNode(style, view.DOMMatrix, zoomOf(style));
+  const style = element.ownerDocument.defaultView!.getComputedStyle(element);
+  const node = composeNode(
+    style,
+    element.ownerDocument.defaultView!.DOMMatrix,
+    zoomOf(style),
+  );
 
   if (node === false) {
     return false;
@@ -349,10 +357,10 @@ export function coordinates(
   const c = ia * nc + ic * nd;
   const d = ib * nc + id * nd;
   const rect = rects[0]!;
-  const absoluteA = abs(a);
-  const absoluteB = abs(b);
-  const absoluteC = abs(c);
-  const absoluteD = abs(d);
+  const absoluteA = Math.abs(a);
+  const absoluteB = Math.abs(b);
+  const absoluteC = Math.abs(c);
+  const absoluteD = Math.abs(d);
   const diagonal = absoluteA * absoluteD;
   const antiDiagonal = absoluteB * absoluteC;
   const determinant = diagonal - antiDiagonal;
@@ -361,7 +369,7 @@ export function coordinates(
   let height: number;
 
   // Fall back before AABB inversion significantly amplifies input error.
-  if (abs(determinant) > determinantScale * 0.05) {
+  if (Math.abs(determinant) > determinantScale * 0.05) {
     width = (rect.width * absoluteD - rect.height * absoluteC) / determinant;
     height = (rect.height * absoluteA - rect.width * absoluteB) / determinant;
   } else {
@@ -373,7 +381,7 @@ export function coordinates(
   // is, since any NaN or infinity poisons it (and `Infinity - Infinity` is
   // NaN). `e` and `f` are omitted — they are finite whenever the linear part
   // and the size are, as a client rect is always finite.
-  if (!finite(a + b + c + d + width + height)) {
+  if (!Number.isFinite(a + b + c + d + width + height)) {
     return false;
   }
 
@@ -381,8 +389,8 @@ export function coordinates(
   out[BOX_B] = b;
   out[BOX_C] = c;
   out[BOX_D] = d;
-  out[BOX_E] = rect.left - min(0, a * width) - min(0, c * height);
-  out[BOX_F] = rect.top - min(0, b * width) - min(0, d * height);
+  out[BOX_E] = rect.left - Math.min(0, a * width) - Math.min(0, c * height);
+  out[BOX_F] = rect.top - Math.min(0, b * width) - Math.min(0, d * height);
   out[BOX_WIDTH] = width;
   out[BOX_HEIGHT] = height;
   return true;
@@ -427,7 +435,7 @@ export function projection(
     // turns into a non-finite reciprocal, so this one test also covers it.
     const inverseDeterminant = 1 / (ta * td - tb * tc);
 
-    if (!inverseDeterminant || !finite(inverseDeterminant)) {
+    if (!inverseDeterminant || !Number.isFinite(inverseDeterminant)) {
       return false;
     }
 
@@ -469,18 +477,18 @@ export function projection(
 
   // As in `coordinates`, one sum covers every corner. `x3`/`y3` are omitted:
   // they are sums of terms already in the check.
-  if (!finite(e + f + x2 + y2 + x4 + y4)) {
+  if (!Number.isFinite(e + f + x2 + y2 + x4 + y4)) {
     return false;
   }
 
-  out[0] = e;
-  out[1] = f;
-  out[2] = x2;
-  out[3] = y2;
-  out[4] = x3;
-  out[5] = y3;
-  out[6] = x4;
-  out[7] = y4;
+  out[QUAD_X1] = e;
+  out[QUAD_Y1] = f;
+  out[QUAD_X2] = x2;
+  out[QUAD_Y2] = y2;
+  out[QUAD_X3] = x3;
+  out[QUAD_Y3] = y3;
+  out[QUAD_X4] = x4;
+  out[QUAD_Y4] = y4;
   return true;
 }
 
@@ -516,11 +524,11 @@ export function localDelta(
 
   // One sum covers both results. A singular determinant gives an infinite
   // reciprocal, so each product is infinite or `NaN` and the sum is not finite.
-  if (!finite(x + y)) {
+  if (!Number.isFinite(x + y)) {
     return false;
   }
 
-  out[0] = x;
-  out[1] = y;
+  out[DELTA_X] = x;
+  out[DELTA_Y] = y;
   return true;
 }

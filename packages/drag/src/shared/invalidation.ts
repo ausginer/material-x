@@ -12,30 +12,31 @@ export function listenForInvalidation(
   window.addEventListener('resize', listener, { signal, passive: true });
 }
 
-export interface FrameTask {
-  schedule(): void;
-  cancel(): void;
-}
-
 /** One coalesced animation-frame callback. */
-export function createFrameTask(window: Window, run: () => void): FrameTask {
-  let handle = 0;
-  const fire = (): void => {
-    handle = 0;
-    run();
-  };
+export class FrameTask {
+  readonly #window: Window;
+  /** The one function every schedule passes to `requestAnimationFrame`. */
+  readonly #fire;
+  #handle = 0;
 
-  return {
-    schedule() {
-      if (handle === 0) {
-        handle = window.requestAnimationFrame(fire);
-      }
-    },
-    cancel() {
-      if (handle !== 0) {
-        window.cancelAnimationFrame(handle);
-        handle = 0;
-      }
-    },
-  };
+  constructor(window: Window, run: () => void) {
+    this.#window = window;
+    this.#fire = (): void => {
+      this.#handle = 0;
+      run();
+    };
+  }
+
+  schedule(): void {
+    if (this.#handle === 0) {
+      this.#handle = this.#window.requestAnimationFrame(this.#fire);
+    }
+  }
+
+  cancel(): void {
+    if (this.#handle !== 0) {
+      this.#window.cancelAnimationFrame(this.#handle);
+      this.#handle = 0;
+    }
+  }
 }

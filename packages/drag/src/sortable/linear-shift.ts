@@ -33,6 +33,7 @@
  */
 import type { AxisContext, DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
+import type { Invalidatable } from './invalidatable.ts';
 import {
   CENTER_Y,
   LEFT,
@@ -41,9 +42,52 @@ import {
   RIGHT,
   verifyEquivalence,
 } from './rect-index.ts';
+import type { Retirable } from './retirable.ts';
 
-/** One `RectIndex` under the linear shift rule, along y. */
-export interface LinearShift {
+/**
+ * One `RectIndex` under the linear shift rule, along y. The index was constructed
+ * with `TOP` as its axis.
+ */
+export class LinearShift implements Invalidatable, Retirable {
+  readonly #index: RectIndex;
+
+  /** A prediction is valid only against a buffer that describes the DOM. */
+  #dirty = true;
+
+  /** The destination gap the buffer reflects, or `-1` when nothing is known. */
+  #lastGap = -1;
+
+  /** The collection version the buffer holds, or `-1` for nothing. */
+  #snapshotVersion = -1;
+
+  /**
+   * The distance one crossed row travels along the axis, or `-1` while unmeasured.
+   * Every invalidation discards it, because a zoom, a resize or a replaced
+   * collection all change it, and the cache has one staleness flag with no reason
+   * attached. The cost is one row read on the next committed move.
+   */
+  #rowDistance = -1;
+
+  /** A committed move left the cached placeholder rect out of date. */
+  #placeholderIsStale = false;
+
+  /**
+   * The placeholder's left and right as the cache held them before the re-read,
+   * or `NaN` when no re-read followed the last committed move. Written only inside
+   * `__DEV__` branches.
+   */
+  #heldLeft = Number.NaN;
+  #heldRight = Number.NaN;
+
+  constructor(index: RectIndex) {
+    this.#index = index;
+
+    if (__DEV__) {
+      // @ts-expect-error: dev-only expression
+      this.advanceUnchecked = false;
+    }
+  }
+
   /**
    * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
    * is stale, and grows the window until it brackets the pointer. `gap` is the gap
@@ -61,7 +105,85 @@ export interface LinearShift {
     displacement: DisplacementSink | null | undefined,
     gap: number,
     pointerY: number,
-  ): void;
+  ): void {
+    if (this.#placeholderIsStale) {
+      this.#placeholderIsStale = false;
+
+      if (
+        __DEV__ &&
+        // @ts-expect-error: dev-only expression
+        this.advanceUnchecked
+      ) {
+        // The rule predicts that a relocation leaves both x coordinates where
+        // the rebuild measured them, and the check compares that prediction.
+        this.#heldLeft = this.#index.at(PLACEHOLDER, LEFT);
+        this.#heldRight = this.#index.at(PLACEHOLDER, RIGHT);
+      }
+
+      this.#index.measurePlaceholder(placeholder);
+    }
+
+    if (
+      __DEV__ &&
+      // @ts-expect-error: dev-only expression
+      this.advanceUnchecked &&
+      !this.#dirty &&
+      this.#snapshotVersion === snapshot.version
+    ) {
+      // @ts-expect-error: dev-only expression
+      this.advanceUnchecked = false;
+      verifyEquivalence(
+        this.#index,
+        snapshot,
+        dragged,
+        getBox,
+        placeholder,
+        displacement,
+        this.#heldLeft,
+        this.#heldRight,
+      );
+      this.#heldLeft = Number.NaN;
+      this.#heldRight = Number.NaN;
+    }
+
+    this.#index.collect(snapshot, dragged, placeholder, gap);
+
+    // Read once, outside the loops.
+
+    // Toward the pointer only: under the order term, a slot on the other side of
+    // the placeholder is never nearer than the placeholder's own center.
+    if (pointerY > this.#index.at(PLACEHOLDER, CENTER_Y)) {
+      while (
+        this.#index.end < this.#index.count &&
+        (this.#index.first === this.#index.end ||
+          this.#index.at(this.#index.end - 1, CENTER_Y) < pointerY)
+      ) {
+        this.#index.measure(
+          this.#index.end,
+          this.#index.end + 1,
+          getBox,
+          displacement,
+        );
+      }
+    } else {
+      while (
+        this.#index.first > 0 &&
+        (this.#index.first === this.#index.end ||
+          this.#index.at(this.#index.first, CENTER_Y) > pointerY)
+      ) {
+        this.#index.measure(
+          this.#index.first - 1,
+          this.#index.first,
+          getBox,
+          displacement,
+        );
+      }
+    }
+
+    this.#snapshotVersion = snapshot.version;
+    this.#dirty = false;
+    this.#lastGap = gap;
+  }
 
   /**
    * After a committed move: has the cache shift the crossed slots to the geometry
@@ -69,180 +191,72 @@ export interface LinearShift {
    * when a sink is installed. Reads one crossed row when the constant is not
    * established.
    */
-  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void;
-
-  invalidate(): void;
-
-  retire(): void;
-}
-
-/** `index` was constructed with `TOP` as its axis. */
-export function linearShift(index: RectIndex): LinearShift {
-  /** A prediction is valid only against a buffer that describes the DOM. */
-  let dirty = true;
-
-  /** The destination gap the buffer reflects, or `-1` when nothing is known. */
-  let lastGap = -1;
-
-  /** The collection version the buffer holds, or `-1` for nothing. */
-  let snapshotVersion = -1;
-
-  /**
-   * The distance one crossed row travels along the axis, or `-1` while unmeasured.
-   * Every invalidation discards it, because a zoom, a resize or a replaced
-   * collection all change it, and the cache has one staleness flag with no reason
-   * attached. The cost is one row read on the next committed move.
-   */
-  let rowDistance = -1;
-
-  /** A committed move left the cached placeholder rect out of date. */
-  let placeholderIsStale = false;
-
-  /** Written only inside `__DEV__` branches, so it folds away with them. */
-  let advanceUnchecked = false;
-
-  /**
-   * The placeholder's left and right as the cache held them before the re-read,
-   * or `NaN` when no re-read followed the last committed move. Written only inside
-   * `__DEV__` branches.
-   */
-  let heldLeft = Number.NaN;
-  let heldRight = Number.NaN;
-
-  return {
-    refresh(
-      snapshot,
-      dragged,
-      getBox,
-      placeholder,
-      displacement,
-      gap,
-      pointerY,
+  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void {
+    // A dirty buffer describes a tree that has already changed under it, an empty
+    // one is a single-item collection, and an unknown or unchanged gap proposes no
+    // span at all.
+    if (
+      this.#dirty ||
+      this.#snapshotVersion !== snapshot.version ||
+      this.#index.count === 0 ||
+      this.#lastGap < 0 ||
+      this.#lastGap === gap
     ) {
-      if (placeholderIsStale) {
-        placeholderIsStale = false;
+      this.#dirty = true;
+      this.#lastGap = -1;
+      this.#placeholderIsStale = false;
+      this.#index.invalidate();
+      return;
+    }
 
-        if (__DEV__ && advanceUnchecked) {
-          // The rule predicts that a relocation leaves both x coordinates where
-          // the rebuild measured them, and the check compares that prediction.
-          heldLeft = index.at(PLACEHOLDER, LEFT);
-          heldRight = index.at(PLACEHOLDER, RIGHT);
-        }
+    const lastGap = this.#lastGap;
+    const lo = lastGap < gap ? lastGap : gap;
+    const hi = lastGap < gap ? gap : lastGap;
 
-        index.measurePlaceholder(placeholder);
-      }
+    let delta = lastGap < gap ? -this.#rowDistance : this.#rowDistance;
 
-      if (
-        __DEV__ &&
-        advanceUnchecked &&
-        !dirty &&
-        snapshotVersion === snapshot.version
-      ) {
-        advanceUnchecked = false;
-        verifyEquivalence(
-          index,
-          snapshot,
-          dragged,
-          getBox,
-          placeholder,
-          displacement,
-          heldLeft,
-          heldRight,
+    if (this.#rowDistance < 0) {
+      // Any crossed row works, because they all traveled the same constant. The
+      // row may be mid-flight from an earlier move, so the cache settles it.
+      delta = this.#index.travel(lo, context.box, context.displacement);
+      this.#rowDistance = delta < 0 ? -delta : delta;
+    }
+
+    this.#index.shift(lo, hi, delta);
+
+    if (context.displacement) {
+      for (let i = lo; i < hi; i += 1) {
+        context.displacement.report(
+          this.#index.item(i),
+          0,
+          -delta,
+          context.space,
         );
-        heldLeft = Number.NaN;
-        heldRight = Number.NaN;
       }
+    }
 
-      index.collect(snapshot, dragged, placeholder, gap);
+    this.#lastGap = gap;
+    this.#placeholderIsStale = true;
 
-      // Read once, outside the loops.
-      const { count } = index;
+    if (__DEV__) {
+      // @ts-expect-error: dev-only expression
+      this.advanceUnchecked = true;
+    }
+  }
 
-      // Toward the pointer only: under the order term, a slot on the other side of
-      // the placeholder is never nearer than the placeholder's own center.
-      if (pointerY > index.at(PLACEHOLDER, CENTER_Y)) {
-        while (
-          index.end < count &&
-          (index.first === index.end ||
-            index.at(index.end - 1, CENTER_Y) < pointerY)
-        ) {
-          index.measure(index.end, index.end + 1, getBox, displacement);
-        }
-      } else {
-        while (
-          index.first > 0 &&
-          (index.first === index.end ||
-            index.at(index.first, CENTER_Y) > pointerY)
-        ) {
-          index.measure(index.first - 1, index.first, getBox, displacement);
-        }
-      }
+  invalidate(): void {
+    this.#dirty = true;
+    this.#rowDistance = -1;
+    this.#placeholderIsStale = false;
+    this.#index.invalidate();
+  }
 
-      snapshotVersion = snapshot.version;
-      dirty = false;
-      lastGap = gap;
-    },
-
-    moved(gap, snapshot, context) {
-      // A dirty buffer describes a tree that has already changed under it, an empty
-      // one is a single-item collection, and an unknown or unchanged gap proposes no
-      // span at all.
-      if (
-        dirty ||
-        snapshotVersion !== snapshot.version ||
-        index.count === 0 ||
-        lastGap < 0 ||
-        lastGap === gap
-      ) {
-        dirty = true;
-        lastGap = -1;
-        placeholderIsStale = false;
-        index.invalidate();
-        return;
-      }
-
-      const lo = lastGap < gap ? lastGap : gap;
-      const hi = lastGap < gap ? gap : lastGap;
-
-      let delta = lastGap < gap ? -rowDistance : rowDistance;
-
-      if (rowDistance < 0) {
-        // Any crossed row works, because they all traveled the same constant. The
-        // row may be mid-flight from an earlier move, so the cache settles it.
-        delta = index.travel(lo, context.box, context.displacement);
-        rowDistance = delta < 0 ? -delta : delta;
-      }
-
-      index.shift(lo, hi, delta);
-
-      if (context.displacement) {
-        for (let i = lo; i < hi; i += 1) {
-          context.displacement.report(index.item(i), 0, -delta, context.space);
-        }
-      }
-
-      lastGap = gap;
-      placeholderIsStale = true;
-
-      if (__DEV__) {
-        advanceUnchecked = true;
-      }
-    },
-
-    invalidate() {
-      dirty = true;
-      rowDistance = -1;
-      placeholderIsStale = false;
-      index.invalidate();
-    },
-
-    retire() {
-      dirty = true;
-      lastGap = -1;
-      snapshotVersion = -1;
-      rowDistance = -1;
-      placeholderIsStale = false;
-      index.retire();
-    },
-  };
+  retire(): void {
+    this.#dirty = true;
+    this.#lastGap = -1;
+    this.#snapshotVersion = -1;
+    this.#rowDistance = -1;
+    this.#placeholderIsStale = false;
+    this.#index.retire();
+  }
 }
