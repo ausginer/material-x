@@ -44,6 +44,26 @@ import {
 } from './rect-index.ts';
 import type { Retirable } from './retirable.ts';
 
+/** One `LinearShift`'s state for the development check. */
+type DevelopmentCheck = {
+  /** A committed move whose prediction the check has not compared yet. */
+  advanceUnchecked: boolean;
+  /**
+   * The placeholder's left and right as the cache held them before the re-read,
+   * or `NaN` when no re-read followed the last committed move.
+   */
+  heldLeft: number;
+  heldRight: number;
+};
+
+/**
+ * Only development builds create it, so a production build carries no field or
+ * initializer for the check.
+ */
+const developmentChecks = __DEV__
+  ? new WeakMap<LinearShift, DevelopmentCheck>()
+  : null;
+
 /**
  * One `RectIndex` under the linear shift rule, along y. The index was constructed
  * with `TOP` as its axis.
@@ -71,20 +91,15 @@ export class LinearShift implements Invalidatable, Retirable {
   /** A committed move left the cached placeholder rect out of date. */
   #placeholderIsStale = false;
 
-  /**
-   * The placeholder's left and right as the cache held them before the re-read,
-   * or `NaN` when no re-read followed the last committed move. Written only inside
-   * `__DEV__` branches.
-   */
-  #heldLeft = Number.NaN;
-  #heldRight = Number.NaN;
-
   constructor(index: RectIndex) {
     this.#index = index;
 
     if (__DEV__) {
-      // @ts-expect-error: dev-only expression
-      this.advanceUnchecked = false;
+      developmentChecks!.set(this, {
+        advanceUnchecked: false,
+        heldLeft: Number.NaN,
+        heldRight: Number.NaN,
+      });
     }
   }
 
@@ -109,41 +124,42 @@ export class LinearShift implements Invalidatable, Retirable {
     if (this.#placeholderIsStale) {
       this.#placeholderIsStale = false;
 
-      if (
-        __DEV__ &&
-        // @ts-expect-error: dev-only expression
-        this.advanceUnchecked
-      ) {
-        // The rule predicts that a relocation leaves both x coordinates where
-        // the rebuild measured them, and the check compares that prediction.
-        this.#heldLeft = this.#index.at(PLACEHOLDER, LEFT);
-        this.#heldRight = this.#index.at(PLACEHOLDER, RIGHT);
+      if (__DEV__) {
+        const check = developmentChecks!.get(this)!;
+
+        if (check.advanceUnchecked) {
+          // The rule predicts that a relocation leaves both x coordinates where
+          // the rebuild measured them, and the check compares that prediction.
+          check.heldLeft = this.#index.at(PLACEHOLDER, LEFT);
+          check.heldRight = this.#index.at(PLACEHOLDER, RIGHT);
+        }
       }
 
       this.#index.measurePlaceholder(placeholder);
     }
 
-    if (
-      __DEV__ &&
-      // @ts-expect-error: dev-only expression
-      this.advanceUnchecked &&
-      !this.#dirty &&
-      this.#snapshotVersion === snapshot.version
-    ) {
-      // @ts-expect-error: dev-only expression
-      this.advanceUnchecked = false;
-      verifyEquivalence(
-        this.#index,
-        snapshot,
-        dragged,
-        getBox,
-        placeholder,
-        displacement,
-        this.#heldLeft,
-        this.#heldRight,
-      );
-      this.#heldLeft = Number.NaN;
-      this.#heldRight = Number.NaN;
+    if (__DEV__) {
+      const check = developmentChecks!.get(this)!;
+
+      if (
+        check.advanceUnchecked &&
+        !this.#dirty &&
+        this.#snapshotVersion === snapshot.version
+      ) {
+        check.advanceUnchecked = false;
+        verifyEquivalence(
+          this.#index,
+          snapshot,
+          dragged,
+          getBox,
+          placeholder,
+          displacement,
+          check.heldLeft,
+          check.heldRight,
+        );
+        check.heldLeft = Number.NaN;
+        check.heldRight = Number.NaN;
+      }
     }
 
     this.#index.collect(snapshot, dragged, placeholder, gap);
@@ -237,8 +253,7 @@ export class LinearShift implements Invalidatable, Retirable {
     this.#placeholderIsStale = true;
 
     if (__DEV__) {
-      // @ts-expect-error: dev-only expression
-      this.advanceUnchecked = true;
+      developmentChecks!.get(this)!.advanceUnchecked = true;
     }
   }
 
