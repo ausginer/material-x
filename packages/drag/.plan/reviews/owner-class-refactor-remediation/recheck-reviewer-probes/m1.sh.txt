@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Reviewer probe: M1 at the end commit, applied by content rather than by line number.
+# Each type is kept under another name and its class is exported under the published
+# name. Usage: m1.sh <tree> <log dir>
+set -u -o pipefail
+T=$1; L=$2; cd "$T/packages/drag"
+vt() { npx vitest run -c vitest.config.ts "$@" 2>&1 | sed 's/\x1b\[[0-9;]*m//g'; }
+summary() { grep -E '^\s+Tests |FAIL |TypeCheckError' | sed 's/^ *//' | sort | uniq -c | sed 's/^/  /'; }
+mutate() { # file interface class
+  sed -i "s/^export interface $2 {/interface ${2}Shape {/; s/^class $3 implements $2 {/class $3 implements ${2}Shape {/" "$1"
+  printf '\nexport type %s = %s;\n' "$2" "$3" >> "$1"
+}
+for m in "M1-bounds src/free-drag/bounds.ts MotionConstraint BoundsConstraint" "M1-drop-targets src/free-drag/drop-targets.ts DropTargetTracker ElementTargetTracker"; do
+  set -- $m; id=$1; f=$2; cp "$f" "$f.rv-bak"; mutate "$f" "$3" "$4"
+  echo "## $id: $(git diff --numstat -- "$f")"; git diff -U0 -- "$f" | grep -E '^[-+][^-+]' | sed 's/^/    /'
+  echo "  tsc errors outside drag2 and the test file: $(npx tsc -p tsconfig.json --noEmit 2>&1 | grep 'error TS' | grep -v drag2/ | grep -vc 'tests/published-types')"
+  vt --project declaration tests/published-types.declaration.test.ts > "$L/$id.log"; echo "  declaration exit=$?"; summary < "$L/$id.log"
+  mv "$f.rv-bak" "$f"
+done
+echo "## control"; vt --project declaration tests/published-types.declaration.test.ts > "$L/M1-control.log"; echo "  declaration exit=$?"; summary < "$L/M1-control.log"
+echo "status: $(git -C "$T" status --porcelain | wc -l) lines"

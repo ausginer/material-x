@@ -1,0 +1,96 @@
+# declaration diff, 5b581fbdf build vs 42f42a164 build (reviewer)
+identical: ./draggable.d.ts
+identical: ./fault.d.ts
+identical: ./free-drag.d.ts
+identical: ./free-drag/behavior.d.ts
+identical: ./free-drag/bounds.d.ts
+identical: ./free-drag/domain.d.ts
+identical: ./free-drag/drop-targets.d.ts
+identical: ./free-drag/landing.d.ts
+identical: ./free-drag/operation.d.ts
+identical: ./kernel/admission.d.ts
+identical: ./kernel/behavior.d.ts
+identical: ./kernel/drag.d.ts
+identical: ./kernel/gesture.d.ts
+identical: ./kernel/outcome.d.ts
+identical: ./lift.d.ts
+identical: ./lift/landing.d.ts
+identical: ./shared/landing.d.ts
+identical: ./sortable.d.ts
+differs: ./sortable/axis.d.ts
+identical: ./sortable/behavior.d.ts
+identical: ./sortable/domain.d.ts
+only at end: ./sortable/invalidatable.d.ts
+identical: ./sortable/landing.d.ts
+differs: ./sortable/layout-animation.d.ts
+identical: ./sortable/operation.d.ts
+identical: ./sortable/placement.d.ts
+only at end: ./sortable/retirable.d.ts
+identical: ./sortable/xy.d.ts
+identical: ./sortable/y.d.ts
+
+## diff -u of differing files
+--- base/packages/drag/./sortable/axis.d.ts	2026-11-14 23:22:26.454801070 +0000
++++ end/packages/drag/./sortable/axis.d.ts	2026-11-14 23:22:27.979363178 +0000
+@@ -1,11 +1,13 @@
+ /** What an axis rule and a displacement sink are, for `y()`, `xy()` and sortable. */
+ import { CollectionSnapshot, Insertion } from "./domain.js";
++import { Invalidatable } from "./invalidatable.js";
++import { Retirable } from "./retirable.js";
+ import { Space } from "@ydinjs/box-quad";
+ /**
+  * Receives what committed moves displaced, and answers what each displaced element
+  * carries. Its members are always called on the sink, so they may read `this`.
+  */
+-export interface DisplacementSink {
++export interface DisplacementSink extends Retirable {
+   readonly dx: number;
+   readonly dy: number;
+   /**
+@@ -21,7 +23,6 @@
+    * rebuild, and a row never jumps back.
+    */
+   displaced(element: HTMLElement): boolean;
+-  retire(this: DisplacementSink): void;
+ }
+ export type DisplacementInstaller = () => DisplacementSink;
+ /** Operation state an axis rule reads. */
+@@ -43,11 +44,9 @@
+   /** The space a displaced element's vector is reported in. */
+   space: Space;
+ }>;
+-export interface InsertionGeometry {
++export interface InsertionGeometry extends Invalidatable, Retirable {
+   /** A new gap, or `null` when the committed one still wins. */
+   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
+-  /** Staleness only, because scroll calls it many times a second. */
+-  invalidate(this: InsertionGeometry): void;
+   /**
+    * Before a pointer drop's resolution: measures one cached slot again, and calls
+    * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
+@@ -56,6 +55,5 @@
+   confirm(query: AxisQuery, context: AxisContext): void;
+   /** The committed move landed: keep the cache true and report what moved. */
+   moved(query: AxisQuery, context: AxisContext): void;
+-  retire(this: InsertionGeometry): void;
+ }
+ export type AxisInstaller = () => InsertionGeometry;
+\ No newline at end of file
+--- base/packages/drag/./sortable/layout-animation.d.ts	2026-11-14 23:22:26.454205879 +0000
++++ end/packages/drag/./sortable/layout-animation.d.ts	2026-11-14 23:22:27.978833161 +0000
+@@ -7,4 +7,4 @@
+  * Written `displacement: layoutAnimation()`. Row animations outlive the operation
+  * that started them, and the controller cancels what is running on destruction.
+  */
+-export declare const layoutAnimation: ({ duration, easing }?: LayoutAnimationOptions) => DisplacementInstaller;
+\ No newline at end of file
++export declare function layoutAnimation({ duration, easing }?: LayoutAnimationOptions): DisplacementInstaller;
+\ No newline at end of file
+### new ./sortable/invalidatable.d.ts
+export interface Invalidatable {
+  /** Staleness only, because scroll calls it many times a second. */
+  invalidate(this: Invalidatable): void;
+}### new ./sortable/retirable.d.ts
+export interface Retirable {
+  retire(this: Retirable): void;
+}

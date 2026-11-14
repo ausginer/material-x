@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Reviewer probe: the remediation's mutations M5 and M6 (M1 is m1.sh) at the end commit, and the
+# new bounds cases against 5b581fbdf and commit A. Usage: mutations.sh <scratch dir> <mutation dir> <log dir>
+set -u -o pipefail
+S=$1; M=$2; L=$3
+vt() { npx vitest run -c vitest.config.ts "$@" 2>&1 | sed 's/\x1b\[[0-9;]*m//g'; }
+summary() { grep -E '^\s+Tests |FAIL |AssertionError|TypeCheckError' | sed 's/^ *//' | sort | uniq -c | sed 's/^/  /'; }
+cd "$S/end/packages/drag"
+echo "## control at end: declaration project, published-types"
+vt --project declaration tests/published-types.declaration.test.ts > "$L/m1-control.log"; echo "  exit=$?"; summary < "$L/m1-control.log"
+f=src/sortable/linear-shift.ts; cp "$f" "$f.rv-bak"
+sed -i 's/developmentChecks!.get(this)!.advanceUnchecked = true;/developmentChecks!.get(this)!.advanceUnchecekd = true;/' "$f"
+echo "## M5: $(git diff --stat -- "$f" | tail -1)"
+npx tsc -p tsconfig.json --noEmit 2>&1 | grep 'error TS' | grep -v drag2/ | sed 's/^/  /'
+mv "$f.rv-bak" "$f"
+f=src/free-drag/bounds.ts; cp "$f" "$f.rv-bak"; sed -i 's/^  #stale = true;$/  #stale = false;/' "$f"
+echo "## M6: $(git diff --stat -- "$f" | tail -1): browser project, DRD-63 cases"
+vt --project browser tests/free-drag.browser.test.ts -t DRD-63 > "$L/M6.log"; echo "  exit=$?"; summary < "$L/M6.log"
+mv "$f.rv-bak" "$f"
+echo "## end, unmutated: browser and consumer projects, DRD-63 cases"
+vt --project browser --project consumer tests/free-drag.browser.test.ts -t DRD-63 > "$L/drd63-end.log"; echo "  exit=$?"; summary < "$L/drd63-end.log"; grep -E '✓|passed' "$L/drd63-end.log" | sed 's/^/  /' | head -8
+echo "  end status: $(git -C "$S/end" status --porcelain | wc -l) lines"
+block=$(sed -n "/^describe('drag:DRD-63 a fresh bounds constraint'/,\$p" "$S/end/packages/drag/tests/free-drag.browser.test.ts")
+for t in base a; do
+  cd "$S/$t/packages/drag"; f=tests/free-drag.browser.test.ts; cp "$f" "$f.rv-bak"; printf '\n%s\n' "$block" >> "$f"
+  echo "## the DRD-63 cases appended at $t ($(git rev-parse --short HEAD)): browser project"
+  vt --project browser tests/free-drag.browser.test.ts -t DRD-63 > "$L/drd63-$t.log"; echo "  exit=$?"; summary < "$L/drd63-$t.log"
+  mv "$f.rv-bak" "$f"; echo "  $t status: $(git -C "$S/$t" status --porcelain | wc -l) lines"
+done
