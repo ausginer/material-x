@@ -183,3 +183,5 @@ The architect reads the report, closes `DRF-24` to `DRF-37` and `DRF-39` (§Disp
 **Out of scope:** the suite and the consumer project, the size rows and their verdicts, the baseline lint and typecheck errors (`DRF-38`, `repo:RF-31`), `DRF-40`, everything after `8904947f6`, timing, allocation, Firefox and WebKit. Don't run `compare.ts` scenarios, `--prove` or `--floors` without `--dry`, or any campaign.
 
 **Output:** `reviews/mangle-rollback/proof-reviewer.md`, in the tiers and form of [`reviews/xy-held-geometry/proof-reviewer.md`](reviews/xy-held-geometry/proof-reviewer.md), with its probes and outputs beside it. Commit it and push the branch. The review changes nothing outside its own directory. The architect decides its findings.
+
+**Completed on 2026-11-14** at `fdaab3781` ([review](reviews/mangle-rollback/proof-reviewer.md)). Properties 1, 2 and 4, and property 3 as listed above, hold at `b8e37b37c`. The one finding, tier C, corrected a count in the report ([`00-index.md`](00-index.md) §Disposition of the rollback and integration reviews).

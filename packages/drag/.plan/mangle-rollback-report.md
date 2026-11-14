@@ -76,7 +76,9 @@ The first suite attempt didn't start, because the worktree lacked the outputs li
 
 **Declarations renamed.** The type checker's `findRenameLocations` ran at each declaration in `src` whose name is in the removed map's 53 names, with shorthand prefixes and suffixes. All locations were computed on commit A's tree and applied once. The rename is [this probe](measurements/2026-11-13-rollback-rename.ts.txt), and [its output](measurements/2026-11-13-rollback-rename-output.txt) lists each declaration and each of the 338 edited locations in 21 files. No location fell outside `src`, `tests`, `bench` and the probe file. No two declarations asked for different text at one location.
 
-The probe visits 79 declaration nodes. They are the 67 declarations of the handoff. The three overload signatures of `gesture.ts`'s `_enter` count with its implementation, and the 12 keys marked `*` belong to object literals typed by an interface, which the interface member's rename reaches. Lines are at commit A.
+The probe visits 79 declaration nodes. They are the 67 declarations of the handoff. The three overload signatures of `gesture.ts`'s `_enter` count with its implementation, and the 9 keys marked `*` belong to object literals typed by an interface, which the interface member's rename reaches. Lines are at commit A.
+
+**Corrected on 2026-11-14** by the architect ([`00-index.md`](00-index.md) §Disposition of the rollback and integration reviews), from the independent review's `rollback-reviewer-1` ([review](reviews/mangle-rollback/proof-reviewer.md)). The sentence above read "the 12 keys marked `*` belong to object literals typed by an interface". The table marks 9, so 79 − 3 − 9 = 67. The probe's output is unchanged: its 13 `PropertyAssignment` nodes are those 9 and the four keys of `free-drag/bounds.ts`'s untyped literal ([count](reviews/mangle-rollback/proof-reviewer-probes/rollback/declaration-count.txt)).
 
 | File | Declarations (name, line) |
 | --- | --- |
