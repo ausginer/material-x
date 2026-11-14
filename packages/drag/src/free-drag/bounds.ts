@@ -29,7 +29,8 @@ class BoundsConstraint implements MotionConstraint {
   readonly #box = { left: 0, top: 0, right: 0, bottom: 0 };
   /** The last read: `#box`, or `null` for unconstrained. */
   #held: Box | null = null;
-  #stale = false;
+  /** Stale from the start, so the first `apply` measures. */
+  #stale = true;
 
   constructor(window: Window, source?: BoundsSource) {
     this.#window = window;
