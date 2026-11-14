@@ -1,0 +1,31 @@
+# Plugin packages built from f9e56fe7d's sources (head) and from 27c60a9ac's (new): sha256
+2c2
+< 930fa76920227d78e6e1cb20d20ac3489a000ae6fd816fcb79843095b6663a40  packages/vite-traits-plugin/index.js.map
+---
+> 4b60967c6d1b5ed45d7e9049a20e724e28ae6d495e0f078f59092077c48709f9  packages/vite-traits-plugin/index.js.map
+25c25
+< 6f7d03c07a8bbbe9c315e02fbedea6fee872a37ed2e4da44402ca681c21fe63d  packages/vite-custom-element-assets/index.js.map
+---
+> c2e3746762f075fbabd1175c72024b9bbcf7ced3a319d41c3330d8eb2e9d9e17  packages/vite-custom-element-assets/index.js.map
+(every other output, including both index.js files, is identical)
+
+# Source maps, field by field
+vtp differing fields: sourcesContent,mappings | sources whose content differs: src/plugin.ts
+vcea differing fields: sourcesContent,mappings | sources whose content differs: src/index.ts
+
+# Every tsdown consumer of the shared plugin lists, built at f9e56fe7d and at the new sources
+box-quad: 65 files, identical
+core: 198 files, identical
+drag: 807 files, identical
+drag2: 308 files, identical
+material-x: 499 files, identical
+tproc: 43 files, identical
+vite-traits-plugin: differs:
+1c1
+< 44b62786c7d1260c8c121a3180fd34b6dfbb603925df64a79892701efdeb8a38  packages/vite-traits-plugin/index.d.ts
+---
+> becf0ccc85aa43786fa4f1f1e4188f15d251e36187e2259c9c72ac375a432ea6  packages/vite-traits-plugin/index.d.ts
+3c3
+< 930fa76920227d78e6e1cb20d20ac3489a000ae6fd816fcb79843095b6663a40  packages/vite-traits-plugin/index.js.map
+---
+> 4b60967c6d1b5ed45d7e9049a20e724e28ae6d495e0f078f59092077c48709f9  packages/vite-traits-plugin/index.js.map

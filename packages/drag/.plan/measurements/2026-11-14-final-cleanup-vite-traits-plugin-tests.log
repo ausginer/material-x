@@ -1,0 +1,9 @@
+vitest run -c vitest.config.ts
+
+ RUN  v5.1.0 /workspaces/material-x/packages/vite-traits-plugin
+
+
+ Test Files  6 passed (6)
+      Tests  52 passed (52)
+   Start at  09:27:55
+   Duration  419ms (import 39%, transform 33%, tests 25%, worker 3%)

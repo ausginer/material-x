@@ -1,0 +1,82 @@
+# DRI-13 grab test: test version x mutation of Lifter.acquire, Chromium, browser and consumer projects
+new-clean test=new mutation=none no exit=0 ::  Tests 4 passed | 14 skipped (18)
+new-M1 test=new mutation=M1 no exit=1 ::  Tests 4 failed | 14 skipped (18)
+new-M2 test=new mutation=M2 no exit=1 ::  Tests 4 failed | 14 skipped (18)
+new-M3 test=new mutation=M3 no exit=1 ::  Tests 4 failed | 14 skipped (18)
+new-delay test=new mutation=none delay exit=0 ::  Tests 4 passed | 14 skipped (18)
+head-clean test=head mutation=none no exit=0 ::  Tests 4 passed | 14 skipped (18)
+head-M1 test=head mutation=M1 no exit=1 ::  Tests 4 failed | 14 skipped (18)
+head-M2 test=head mutation=M2 no exit=1 ::  Tests 4 failed | 14 skipped (18)
+head-M3 test=head mutation=M3 no exit=1 ::  Tests 2 failed | 2 passed | 14 skipped (18)
+head-delay test=head mutation=none delay exit=1 ::  Tests 2 failed | 2 passed | 14 skipped (18)
+
+## new-M1
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      2 AssertionError: expected 45 to be less than 1
+      2 AssertionError: expected 5 to be less than 1
+## new-M2
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      2 AssertionError: expected 45 to be less than 1
+      2 AssertionError: expected 5 to be less than 1
+## new-M3
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      2 AssertionError: expected 45 to be less than 1
+      2 AssertionError: expected 5 to be less than 1
+## head-delay
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1 AssertionError: expected 4.724399566650391 to be less than 1
+      1 AssertionError: expected 4.724849700927734 to be less than 1
+## head-M3
+      1  FAIL  |browser (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1  FAIL  |consumer (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+      1 AssertionError: expected 1.4995460510253906 to be less than 1
+      1 AssertionError: expected 1.499847412109375 to be less than 1
+
+# mutate.py
+# Usage: mutate.py <lift.ts> <M1|M2|M3>. Rewrites Lifter.acquire's measurement.
+import sys
+path, kind = sys.argv[1], sys.argv[2]
+s = open(path).read()
+anchor = "      const rect = visual.getBoundingClientRect();\n"
+assert s.count(anchor) == 1
+pre = {
+    # Cancels the running landing before anything is measured.
+    'M1': "      this.cancelLanding();\n",
+    # Detaches every animation's effect while measuring, so the flight's offset is absent.
+    'M2': "      const running = visual.getAnimations();\n      const effects = running.map((animation) => animation.effect);\n      for (const animation of running) { animation.effect = null; }\n",
+    # Moves every animation to its start while measuring: the release offset, not the current one.
+    'M3': "      const running = visual.getAnimations();\n      for (const animation of running) { animation.currentTime = 0; }\n",
+}[kind]
+post = {
+    'M1': "",
+    'M2': "      running.forEach((animation, i) => { animation.effect = effects[i]!; });\n",
+    'M3': "",
+}[kind]
+s = s.replace(anchor, pre + anchor + post, 1)
+if kind == 'M2':
+    # The rest of the measurement (coordinates) also runs before the effects return.
+    s = s.replace(post, "", 1)
+    a2 = "      const style = this.#window.getComputedStyle(visual);\n"
+    assert s.count(a2) == 1
+    s = s.replace(a2, post + a2, 1)
+open(path, 'w').write(s)
+
+# delay.py
+# Usage: delay.py <test file>. Waits 1 s between the read before the grab and the grab.
+import sys
+path = sys.argv[1]
+s = open(path).read()
+anchor = "      const pressed = centerOf('#r0');\n"
+assert s.count(anchor) == 1
+s = s.replace(anchor, anchor + "\n      await new Promise((resolve) => { setTimeout(resolve, 1000); });\n", 1)
+open(path, 'w').write(s)
