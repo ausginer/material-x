@@ -1,3 +1,3 @@
 export interface Retirable {
-  retire(): void;
+  retire(this: Retirable): void;
 }

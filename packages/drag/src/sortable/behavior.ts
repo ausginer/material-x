@@ -118,7 +118,10 @@ export class SortableBehavior implements Behavior<
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  invalidate(operation: SortableOperation | null): void {
+  invalidate(
+    this: SortableBehavior,
+    operation: SortableOperation | null,
+  ): void {
     if (operation) {
       operation.rebase(this.#pull());
     }

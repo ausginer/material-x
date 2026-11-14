@@ -100,7 +100,7 @@ class ElementTargetTracker implements DropTargetTracker {
   }
 
   /** Reads layout only when stale, and allocates nothing otherwise. */
-  #resolve(): void {
+  #resolve(this: ElementTargetTracker): void {
     const elements = this.#elements;
 
     if (this.#stale) {
@@ -131,7 +131,7 @@ class ElementTargetTracker implements DropTargetTracker {
     this.#mark(hit);
   }
 
-  #release(): void {
+  #release(this: ElementTargetTracker): void {
     this.#frame.cancel();
     this.#mark(null);
   }
