@@ -150,3 +150,36 @@ Stop and return, without working around it, when:
 ## After this unit
 
 The architect reads the report, closes `DRF-24` to `DRF-37` and `DRF-39` (§Disposition of the mangling deferral), records the verdicts under `DRO-4`, and marks `DRD-60` implemented. **`DRF-38` and `repo:RF-31` stay open:** they are the baseline errors, routed to their own cleanup units, and this unit's acceptance doesn't close them.
+
+## Independent review
+
+**Added on 2026-11-14** by the architect, after the report was accepted ([`00-index.md`](00-index.md) §Disposition of the mangling rollback report). No independent pass has read the rollback: the reviews of `DRD-61` and `DRD-62` put it out of scope. Their suite and lint runs, and the architect's checks at `6296b741a`, cover the consumer verdict, the baseline lint, the removals and the two configuration files. This review covers what only the report establishes.
+
+**For:** one fresh `reviewer` session, a feature proof, which the owner starts. It works on `drag/size` from the commit that adds this section, and reads the historical commits in detached scratch worktrees with the checkout's installed packages. **Pinned to:** the base `7420cbb9a`, commit A `cc752cc1b`, commit B `b8e37b37c` and the report at `8904947f6`. No browser runs.
+
+**Read, in this order:**
+
+1. `DRD-60` in [`00-index.md`](00-index.md);
+2. `git diff 7420cbb9a b8e37b37c -- packages/drag ':!packages/drag/.plan'`;
+3. only then, the report and its measurements.
+
+**Establish independently:**
+
+- **Property 1,** at `b8e37b37c`:
+  - `src` and `bench` have no `\b_[A-Za-z]` name, and `tests` has only the five `_name` parameters that the property keeps;
+  - against `f7b7b300b^`, the code tree outside `.plan/` differs only in the six files that the property's check allows;
+  - in the five files of `5ec3b4b2d`, the changed lines against `f7b7b300b^` equal `5ec3b4b2d`'s, with each `\b_([A-Za-z])` in the latter read as its letter;
+  - `.plan/probes/callback-list/allocation.ts` equals its text at `f7b7b300b^`;
+  - `DRD-58` §Result's types hold under the restored names.
+- **Property 2,** with a build at `7420cbb9a` and one at `b8e37b37c`:
+  - `build/` is gone, and `tsdown.config.ts` and `tsconfig.json` equal `f7b7b300b`'s;
+  - the published file list is the same at both;
+  - each `.d.ts` at `b8e37b37c` equals the base's once each marker in the base's is read without its `_`. No `.d.ts.map` is published, and no `.d.ts` has a `sourceMappingURL`;
+  - no published `.js` or `.d.ts` holds a `\b_[A-Za-z]` name, and each `.js.map`'s `sourcesContent` equals its file under `src`.
+- **Property 3:** between `7420cbb9a` and `b8e37b37c`, `tests/publication.node.test.ts` is the only test file removed, and nothing changes in `.scripts/`, `package.json`, `files.json`, the `Justfile`, the Vitest configurations, `tests/support/` or `bench/size/`.
+- **Property 4:** each `--prove` and `--floors` entry of `bench/compare.ts`, run alone with `--dry`, applies at `b8e37b37c` exactly when it applies at `7420cbb9a`. [`2026-11-13-mangle-dry-each.sh.txt`](measurements/2026-11-13-mangle-dry-each.sh.txt) runs them.
+- **The report:** its claims for items 2 to 4 agree with what the review found.
+
+**Out of scope:** the suite and the consumer project, the size rows and their verdicts, the baseline lint and typecheck errors (`DRF-38`, `repo:RF-31`), `DRF-40`, everything after `8904947f6`, timing, allocation, Firefox and WebKit. Don't run `compare.ts` scenarios, `--prove` or `--floors` without `--dry`, or any campaign.
+
+**Output:** `reviews/mangle-rollback/proof-reviewer.md`, in the tiers and form of [`reviews/xy-held-geometry/proof-reviewer.md`](reviews/xy-held-geometry/proof-reviewer.md), with its probes and outputs beside it. Commit it and push the branch. The review changes nothing outside its own directory. The architect decides its findings.

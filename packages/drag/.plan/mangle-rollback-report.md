@@ -129,10 +129,10 @@ Before the rename, the set of `\b_[A-Za-z]\w*` names in `src` equalled the map's
 | 3.5 `.plan/probes/callback-list/allocation.ts` | Byte-identical to `f7b7b300b^` |
 | 3.6 File list | Equal to commit A's |
 | 3.6 `.d.ts` | All 27 equal commit A's, read unmarked. They hold no marker, so they are byte-identical |
-| 3.6 `.js` | 27 of 33 equal commit A's, read unmarked. The other six differ only on the 11 lines below, where the source now writes a shorthand key. [Output](measurements/2026-11-13-rollback-end-js-check.txt) |
+| 3.6 `.js` | 27 of 33 equal commit A's, read unmarked. The other six differ only on the 10 lines below, where the source now writes a shorthand key. [Output](measurements/2026-11-13-rollback-end-js-check.txt) |
 | 3.7 Lint and typecheck | The same errors as the base, line for line |
 
-**The 11 `.js` lines (item 3.6),** commit A's unmarked line, then the end's:
+**The 10 `.js` lines (item 3.6),** commit A's unmarked line, then the end's. **Corrected on 2026-11-14** by the architect ([`00-index.md`](00-index.md) §Disposition of the mangling rollback report): this passage and the check above said "11 lines", and the saved output and this table list 10.
 
 | File:line | Commit A, unmarked | End |
 | --- | --- | --- |
