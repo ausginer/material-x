@@ -18,6 +18,24 @@ export type DropTargetsOptions = Readonly<{
 export type DropTargetDrag = Pick<Drag, 'x' | 'y' | 'use' | 'requestStep'>;
 
 /**
+ * One operation's drop-target state. `freeDrag` creates it in `activate`, the
+ * operation holds it, and the operation's release ends it.
+ */
+export interface DropTargetTracker {
+  /** The target under the pointer at the last resolution, or `null`. */
+  readonly current: HTMLElement | null;
+  /** Called on each sample. It reads no layout, and resolves at the next frame, in a step. */
+  move(): void;
+  /** Called in the drop step. It resolves at the release position now. */
+  drop(): void;
+  /**
+   * Called on scroll, resize and the controller's `invalidate()`, and at the drop
+   * before `drop()`. It only marks the rects stale.
+   */
+  invalidate(): void;
+}
+
+/**
  * The value a `freeDrag` config holds as `targets`. It holds no state, so one
  * config serves every controller. `freeDrag` calls it once per operation, from
  * `activate`, after the lift's acquisition. Whatever it acquires is released
@@ -31,11 +49,7 @@ export type DropTargets = (
 
 const OVER = 'data-drop-over';
 
-/**
- * One operation's drop-target state. `freeDrag` creates it in `activate`, the
- * operation holds it, and the operation's release ends it.
- */
-class DropTargetTracker {
+class ElementTargetTracker implements DropTargetTracker {
   readonly #drag: DropTargetDrag;
   readonly #frame: FrameTask;
   readonly #rects: DOMRectReadOnly[] = [];
@@ -60,26 +74,19 @@ class DropTargetTracker {
     this.#elements = options.targets();
   }
 
-  /** The target under the pointer at the last resolution, or `null`. */
   get current(): HTMLElement | null {
     return this.#current;
   }
 
-  /** Called on each sample. It reads no layout, and resolves at the next frame, in a step. */
   move(): void {
     this.#frame.schedule();
   }
 
-  /** Called in the drop step. It resolves at the release position now. */
   drop(): void {
     this.#frame.cancel();
     this.#resolve();
   }
 
-  /**
-   * Called on scroll, resize and the controller's `invalidate()`, and at the drop
-   * before `drop()`. It only marks the rects stale.
-   */
   invalidate(): void {
     this.#stale = true;
   }
@@ -130,8 +137,6 @@ class DropTargetTracker {
   }
 }
 
-export type { DropTargetTracker };
-
 /**
  * Tracks the target under the pointer. The mark follows the pointer at most once
  * per frame, and the targets are measured only when stale: at the first
@@ -141,5 +146,5 @@ export type { DropTargetTracker };
  * dropped, and the consumer commits it in `onEnd`.
  */
 export function dropTargets(options: DropTargetsOptions): DropTargets {
-  return (drag, window) => new DropTargetTracker(drag, window, options);
+  return (drag, window) => new ElementTargetTracker(drag, window, options);
 }

@@ -6,6 +6,16 @@
 
 export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
 
+export interface MotionConstraint {
+  /** Clamps the delta in place: one call per sample, allocating nothing. */
+  apply(motion: { x: number; y: number }, originRect: DOMRectReadOnly): void;
+  /**
+   * Staleness only, because scroll calls it many times a second. Also called on
+   * resize, at activation, by the controller's `invalidate()` and at the drop.
+   */
+  invalidate(): void;
+}
+
 type Box = {
   left: number;
   top: number;
@@ -13,10 +23,11 @@ type Box = {
   bottom: number;
 };
 
-class MotionConstraint {
+class BoundsConstraint implements MotionConstraint {
   readonly #window: Window;
   readonly #source?: BoundsSource;
   readonly #box = { left: 0, top: 0, right: 0, bottom: 0 };
+  /** The last read: `#box`, or `null` for unconstrained. */
   #held: Box | null = null;
   #stale = false;
 
@@ -25,7 +36,6 @@ class MotionConstraint {
     this.#source = source;
   }
 
-  /** Clamps the delta in place: one call per sample, allocating nothing. */
   apply(motion: { x: number; y: number }, originRect: DOMRectReadOnly): void {
     const rect = this.#resolve();
 
@@ -42,10 +52,7 @@ class MotionConstraint {
       );
     }
   }
-  /**
-   * Staleness only, because scroll calls it many times a second. Also called on
-   * resize, at activation, by the controller's `invalidate()` and at the drop.
-   */
+
   invalidate(): void {
     this.#stale = true;
   }
@@ -86,10 +93,8 @@ class MotionConstraint {
   }
 }
 
-export type { MotionConstraint };
-
 export type BoundsInstaller = (window: Window) => MotionConstraint;
 
 export function bounds(source?: BoundsSource): BoundsInstaller {
-  return (window) => new MotionConstraint(window, source);
+  return (window) => new BoundsConstraint(window, source);
 }
