@@ -1,0 +1,8 @@
+256c256
+<       developmentChecks!.get(this)!.advanceUnchecked = true;
+---
+>       developmentChecks!.get(this)!.advanceUnchecekd = true;
+--- typecheck
+src/sortable/linear-shift.ts(256,37): error TS2551: Property 'advanceUnchecekd' does not exist on type 'DevelopmentCheck'. Did you mean 'advanceUnchecked'?
+typecheck errors outside drag2: 1
+restored

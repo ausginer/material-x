@@ -1,0 +1,46 @@
+vitest run -c vitest.config.ts --project declaration tests/published-types.declaration.test.ts
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/packages/drag
+
+ ❯ |declaration|  TS  tests/published-types.declaration.test.ts (5 tests | 2 failed)
+   ❯ drag:DRD-63 the published slot types (3)
+     × should let a third party return its own drop-target tracker
+     × should let a third party return a tracker that wraps the built-in one
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/published-types.declaration.test.ts:42 > drag:DRD-63 the published slot types > should let a third party return its own drop-target tracker
+TypeCheckError: Type '{ readonly current HTMLElement | null; move() void; drop() void; invalidate() void; }' is missing the following properties from type 'ElementTargetTracker' #drag, #frame, #rects, #elements, and 5 more.
+ ❯ tests/published-types.declaration.test.ts:45:13
+     43|     const targets: DropTargets = (drag) => {
+     44|       let current: HTMLElement | null = null;
+     45|       const tracker: DropTargetTracker = {
+       |             ^
+     46|         get current() {
+     47|           return current;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |declaration| tests/published-types.declaration.test.ts:62 > drag:DRD-63 the published slot types > should let a third party return a tracker that wraps the built-in one
+TypeCheckError: Type '(drag DropTargetDrag, window Window) => { readonly current HTMLElement | null; move () => void; drop () => void; invalidate () => void; }' is not assignable to type 'DropTargets'.
+  Type '{ readonly current HTMLElement | null; move () => void; drop () => void; invalidate () => void; }' is missing the following properties from type 'ElementTargetTracker' #drag, #frame, #rects, #elements, and 5 more.
+ ❯ tests/published-types.declaration.test.ts:64:11
+     62|   it('should let a third party return a tracker that wraps the built-i…
+     63|     const drops: (HTMLElement | null)[] = [];
+     64|     const targets: DropTargets = (drag, window) => {
+       |           ^
+     65|       const inner = dropTargets({ targets: () => [] })(drag, window);
+     66|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+Type Errors  no errors
+   Start at  22:46:17
+   Duration  408ms (typecheck 100%)
+
+error: recipe `test` failed on line 29 with exit code 1

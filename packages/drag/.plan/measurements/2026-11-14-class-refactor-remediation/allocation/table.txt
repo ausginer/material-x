@@ -1,0 +1,16 @@
+C6-MOVE-PROBE                      base allSrc 55740 56064 56652 | linear-shift keys {"sortable/linear-shift.ts:moved": [1140, 1524, 1428]}
+C6-MOVE-PROBE                      base primary 117.1 117.2 116.4          mean     116.9 | linear-shift.ts:moved 1140 1524 1428 | n=3
+C6-MOVE-PROBE                      end  allSrc 60716 60748 60176 | linear-shift keys {"sortable/linear-shift.ts:moved": [5964, 6372, 6276]}
+C6-MOVE-PROBE                      end  primary 139.7 141.3 135.4          mean     138.8 | linear-shift.ts:moved 5964 6372 6276 | n=3
+C6-WARM-MOVE-PROBE                 base allSrc 33928 33860 34440 | linear-shift keys {}
+C6-WARM-MOVE-PROBE                 base primary 16.0 15.7 14.8             mean      15.5 | linear-shift.ts:moved 0 0 0 | n=3
+C6-WARM-MOVE-PROBE                 end  allSrc 35608 34408 33928 | linear-shift keys {}
+C6-WARM-MOVE-PROBE                 end  primary 16.9 16.7 15.6             mean      16.4 | linear-shift.ts:moved 0 0 0 | n=3
+VERIFY-LIFETIME y idle             base allSrc 127868 128004 127848 | linear-shift keys {"sortable/linear-shift.ts:linearShift": [9004, 8912, 9152]}
+VERIFY-LIFETIME y idle             base primary 3196.7 3200.1 3196.2       mean    3197.7 | linear-shift.ts:moved 0 0 0 | n=3
+VERIFY-LIFETIME y idle             end  allSrc 111204 111604 110480 | linear-shift keys {"sortable/linear-shift.ts:LinearShift": [552, 460, 500]}
+VERIFY-LIFETIME y idle             end  primary 2780.1 2790.1 2762.0       mean    2777.4 | linear-shift.ts:moved 0 0 0 | n=3
+VERIFY-LIFETIME y operated         base allSrc 760500 755000 756744 | linear-shift keys {"sortable/linear-shift.ts:moved": [740, 488, 652], "sortable/linear-shift.ts:retire": [76, 76, 76], "sortable/linear-shift.ts:invalidate": [76, 44, 76], "sortable/linear-shift.ts:linearShift": [9300, 9256, 9444]}
+VERIFY-LIFETIME y operated         base primary 19012.5 18875.0 18918.6    mean   18935.4 | linear-shift.ts:moved 740 488 652 | n=3
+VERIFY-LIFETIME y operated         end  allSrc 737200 739492 742432 | linear-shift keys {"sortable/linear-shift.ts:moved": [2700, 2692, 2568], "sortable/linear-shift.ts:retire": [188, 236, 220], "sortable/linear-shift.ts:invalidate": [156, 204, 172], "sortable/linear-shift.ts:LinearShift": [836, 896, 928]}
+VERIFY-LIFETIME y operated         end  primary 18430.0 18487.3 18560.8    mean   18492.7 | linear-shift.ts:moved 2700 2692 2568 | n=3

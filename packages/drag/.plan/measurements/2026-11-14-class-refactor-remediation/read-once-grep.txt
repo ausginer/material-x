@@ -1,0 +1,15 @@
+src/lift.ts:133:/** Restores exactly the declarations the lift owns, once per property. */
+src/sortable/y.ts:49:    // Read once, outside the candidate loop.
+src/kernel/session.ts:466:  /** `then` is read once, and the first completion wins. */
+src/kernel/session.ts:506:        // Read once and called on its own value, because a thenable's `then`
+src/free-drag/domain.ts:45:     * `home()`, read once at the drop, or the visual's rect at the grab. Without
+src/sortable/behavior.ts:70:/** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
+src/sortable/behavior.ts:79: * runs. A function it creates to hand elsewhere is created once per instance, or
+src/sortable/behavior.ts:80: * once per operation when it closes over the operation. It holds only
+src/sortable/rect-index.ts:282:    // Read once: each is used twice below.
+src/free-drag/drop-targets.ts:11:   * The targets, pulled once per operation, at activation. Where targets
+src/free-drag/drop-targets.ts:40: * config serves every controller. `freeDrag` calls it once per operation, from
+src/free-drag/drop-targets.ts:114:    // Read once, outside the hit-test loop.
+src/shared/landing.ts:13:  /** Milliseconds, or a function called once per landing. */
+src/kernel/gesture.ts:326:      // Every registration is its own entry, so the same pair runs once per
+src/kernel/callbacks.ts:17: * A list holds only the array method it adds with, the shared builtin read once

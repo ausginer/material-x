@@ -1,0 +1,13 @@
+vitest run -c vitest.config.ts --project declaration
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/packages/drag
+
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+Type Errors  no errors
+   Start at  22:48:13
+   Duration  430ms (typecheck 100%)
+

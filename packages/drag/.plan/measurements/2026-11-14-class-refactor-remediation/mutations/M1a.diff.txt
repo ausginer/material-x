@@ -1,0 +1,11 @@
+9c9
+< export interface MotionConstraint {
+---
+> interface MotionConstraintShape {
+26c26
+< class BoundsConstraint implements MotionConstraint {
+---
+> class BoundsConstraint implements MotionConstraintShape {
+100a101,102
+> 
+> export type MotionConstraint = BoundsConstraint;
