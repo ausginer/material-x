@@ -3,8 +3,14 @@
  * which only the unpublished installer types declare. They run in the source
  * projects only.
  */
+import { ancestry, space } from '@ydinjs/box-quad';
 import { describe, expect, it, vi } from 'vitest';
-import type { DisplacementSink } from '../src/sortable/axis.ts';
+import type {
+  AxisContext,
+  DisplacementSink,
+  InsertionGeometry,
+} from '../src/sortable/axis.ts';
+import { type Insertion, insertionAt } from '../src/sortable/domain.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import { xy } from '../src/sortable/xy.ts';
 import {
@@ -289,5 +295,199 @@ describe('sortable options', () => {
     expect(r3.getAnimations()).toHaveLength(1);
     await commands.keyPress('Escape');
     expect(faults).toEqual([]);
+  });
+});
+
+/** One vector `xy()` passed to the sink. */
+type Report = Readonly<{ id: string; dx: number; dy: number }>;
+
+/**
+ * A wrapping field of 100 × 60 cells, three per row in a 300 px flex container,
+ * with `c0` dragged: hidden, and a placeholder in its place. `add` appends cells.
+ */
+function wrappingField(count: number) {
+  const list = document.createElement('div');
+  const cells: HTMLElement[] = [];
+  const add = (n: number): void => {
+    for (let i = 0; i < n; i += 1) {
+      const cell = document.createElement('div');
+
+      cell.id = `c${cells.length}`;
+      cell.style.cssText = 'width:100px;height:60px;background:#ddd';
+      list.append(cell);
+      cells.push(cell);
+    }
+  };
+
+  list.style.cssText = 'display:flex;flex-wrap:wrap;width:300px;margin:8px';
+  add(count);
+
+  const placeholder = document.createElement('div');
+  const dragged = cells[0]!;
+
+  placeholder.style.cssText = 'width:100px;height:60px';
+  dragged.before(placeholder);
+  dragged.style.display = 'none';
+  document.body.append(list);
+
+  return { list, cells, placeholder, dragged, add };
+}
+
+/**
+ * Where flow puts `cell`, in viewport units, whatever an animation draws. It reads
+ * layout offsets, which ignore transforms, and nothing from the index.
+ */
+function flowPosition(list: HTMLElement, cell: HTMLElement): [number, number] {
+  const rect = list.getBoundingClientRect();
+
+  return [
+    rect.left + cell.offsetLeft - list.offsetLeft,
+    rect.top + cell.offsetTop - list.offsetTop,
+  ];
+}
+
+/** Records every report, and delegates each call to `inner` when there is one. */
+function recordingSink(
+  reports: Report[],
+  inner: DisplacementSink | null,
+): DisplacementSink {
+  return {
+    get dx() {
+      return inner ? inner.dx : 0;
+    },
+    get dy() {
+      return inner ? inner.dy : 0;
+    },
+    report(element, dx, dy, reportSpace) {
+      reports.push({ id: element.id, dx, dy });
+      inner?.report(element, dx, dy, reportSpace);
+    },
+    displaced: (element) => (inner ? inner.displaced(element) : false),
+    retire() {
+      inner?.retire();
+    },
+  };
+}
+
+/**
+ * Drives `xy()` the way an operation does: for each target, a resolution at the
+ * target cell's flow center, the placeholder moved to the gap it returns, then
+ * `moved`. After each committed move, every reported vector is its cell's flow
+ * travel, negated, and every unreported cell kept its flow position.
+ */
+function driveCommittedMoves(
+  setup: ReturnType<typeof wrappingField>,
+  geometry: InsertionGeometry,
+  context: AxisContext,
+  reports: Report[],
+  version: number,
+  targets: readonly number[],
+): void {
+  const { list, cells, placeholder, dragged } = setup;
+  const snapshot = { items: cells.slice(), version };
+  const destination = cells.filter((cell) => cell !== dragged);
+  let insertion: Insertion = insertionAt(
+    destination,
+    [...list.children]
+      .filter((element) => element !== dragged)
+      .indexOf(placeholder),
+  );
+
+  for (const target of targets) {
+    const [x, y] = flowPosition(list, destination[target]!);
+    const query = {
+      pointerX: x + 50,
+      pointerY: y + 30,
+      snapshot,
+      insertion,
+      item: dragged,
+    };
+    const resolved = geometry.resolve(query, context);
+
+    expect(resolved).not.toBeNull();
+
+    const before = destination.map((cell) => flowPosition(list, cell));
+
+    if (resolved!.after) {
+      resolved!.after.before(placeholder);
+    } else {
+      resolved!.before!.after(placeholder);
+    }
+
+    insertion = resolved!;
+    reports.length = 0;
+    geometry.moved({ ...query, insertion }, context);
+
+    const reported = new Map(reports.map((report) => [report.id, report]));
+
+    for (const [slot, cell] of destination.entries()) {
+      const [x0, y0] = before[slot]!;
+      const [x1, y1] = flowPosition(list, cell);
+      const report = reported.get(cell.id);
+
+      if (report) {
+        expect(report.dx).toBeCloseTo(x0 - x1, 1);
+        expect(report.dy).toBeCloseTo(y0 - y1, 1);
+      } else {
+        expect([x0 - x1, y0 - y1]).toEqual([0, 0]);
+      }
+    }
+  }
+}
+
+/**
+ * The real `xy()` installer over a 12-cell wrapping field, with a recording sink
+ * that delegates to `inner`. Retired with the sink after the test.
+ */
+function installXy(inner: DisplacementSink | null) {
+  const setup = wrappingField(12);
+  const reports: Report[] = [];
+  const itemSpace = space();
+
+  ancestry(setup.list, itemSpace);
+
+  const context: AxisContext = {
+    placeholder: setup.placeholder,
+    displacement: recordingSink(reports, inner),
+    space: itemSpace,
+  };
+  const geometry = xy()();
+
+  onCleanup(() => {
+    geometry.retire();
+    inner?.retire();
+  });
+
+  return { setup, reports, context, geometry };
+}
+
+describe('xy() reported vectors', () => {
+  it("drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap", () => {
+    const { setup, reports, context, geometry } = installXy(null);
+
+    driveCommittedMoves(setup, geometry, context, reports, 1, [4, 9, 1, 10, 5]);
+  });
+
+  it("drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating", () => {
+    const { setup, reports, context, geometry } = installXy(
+      layoutAnimation({ duration: 60_000, easing: 'linear' })(),
+    );
+
+    driveCommittedMoves(setup, geometry, context, reports, 1, [4, 9, 1, 10, 5]);
+
+    // Running animations at the end: every move after the first measured cells
+    // that an animation still drew away from their flow positions.
+    expect(
+      setup.cells.filter((cell) => cell.getAnimations().length > 0).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection", () => {
+    const { setup, reports, context, geometry } = installXy(null);
+
+    driveCommittedMoves(setup, geometry, context, reports, 1, [4, 9, 1, 10, 5]);
+    geometry.retire();
+    setup.add(9);
+    driveCommittedMoves(setup, geometry, context, reports, 2, [15, 2, 19, 7]);
   });
 });

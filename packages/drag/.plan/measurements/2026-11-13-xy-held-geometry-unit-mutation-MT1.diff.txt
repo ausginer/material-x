@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..617a86454 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -122,7 +122,7 @@ export class RectIndex {
+    * One packed field of `slot`, or of the placeholder at `PLACEHOLDER`. A slot's
+    * value is valid inside the window.
+    */
+-  at(slot: number, field: Field): number {
++  at(slot: number, field: number): number {
+     return this.#values[(slot + LEADING) * STRIDE + field]!;
+   }
+ 

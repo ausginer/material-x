@@ -1,0 +1,176 @@
+/*
+ * xy() held-geometry probe: allocation on `xy()`'s committed-move path, with
+ * `layoutAnimation()` composed, because without a sink a committed move only
+ * invalidates. Appended to a scratch copy of `tests/hot-path.browser.test.ts`,
+ * which runs in the `shipped` project with `__DEV__` false, after `DRD-52`'s C6
+ * probes. Each test is launched alone, with one of
+ *
+ *   -t 'XYH move probe'        bytes per committed move, after 100 crossings
+ *   -t 'XYH first move probe'  bytes per operation of one committed move, each
+ *                              on a fresh sortable, so a fresh index
+ *   -t 'XYH calibration'       what heap sampling sees of the two buffers
+ *
+ * Not a test of the suite: it prints and asserts nothing.
+ */
+import { xy as probeXyHeld } from '../src/sortable/xy.ts';
+import { layoutAnimation as probeLayoutAnimation } from '../src/sortable/layout-animation.ts';
+
+/** A wrapping field of `count` 100 × 60 cells, three per row. */
+function probeField(count: number): HTMLElement {
+  const list = makeList(count, document.body, 'display:flex;flex-wrap:wrap;width:300px');
+
+  for (const row of rowsOf(list)) {
+    row.style.cssText = 'width:100px;height:60px;touch-action:none';
+  }
+
+  return list;
+}
+
+function probeKeys(bytes: Record<string, number>): [string, number][] {
+  return Object.entries(bytes).filter(
+    ([key]) => key.startsWith('sortable/xy.ts') || key.startsWith('sortable/rect-index.ts'),
+  );
+}
+
+describe('XYH probes', () => {
+  it.runIf(isChromium)('XYH move probe: bytes per committed move under xy.ts and rect-index.ts', async () => {
+    const list = probeField(20);
+    let moves = 0;
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.addedNodes.length > 0) {
+          moves += 1;
+        }
+      }
+    });
+
+    observer.observe(list, { childList: true });
+    onCleanup(() => observer.disconnect());
+    basicSortable(list, { axis: probeXyHeld(), displacement: probeLayoutAnimation() });
+
+    // `r4` is the middle cell of the second row: crossing to `r5` and back commits
+    // a move each time, without a wrap.
+    const start = await press('#r4');
+
+    await commands.pointerMove(start.x + 10, start.y, 2);
+    await frames();
+
+    const cross = async (count: number): Promise<void> => {
+      for (let i = 0; i < count; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+        await commands.pointerMove(start.x + (i % 2 === 0 ? 100 : 0), start.y);
+        // oxlint-disable-next-line no-await-in-loop -- one resolution per crossing
+        await frames();
+      }
+    };
+
+    await cross(100);
+    moves = 0;
+    await commands.startHeapSampling(16);
+    await cross(200);
+
+    const bytes = await commands.stopHeapSampling('/src/');
+
+    await frames();
+    await commands.keyPress('Escape');
+
+    const keys = probeKeys(bytes);
+    const total = keys.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `XYH-MOVE-PROBE moves=${moves} perMove=${(total / Math.max(moves, 1)).toFixed(2)} keys=${JSON.stringify(Object.fromEntries(keys))}`,
+    );
+  }, 180_000);
+
+  it.runIf(isChromium)('XYH first move probe: bytes per operation with one committed move, each on a fresh index', async () => {
+    const operations = 30;
+    let moves = 0;
+
+    await commands.startHeapSampling(16);
+
+    for (let i = 0; i < operations; i += 1) {
+      const list = probeField(20);
+      const observer = new MutationObserver((records) => {
+        for (const record of records) {
+          if (record.addedNodes.length > 0) {
+            moves += 1;
+          }
+        }
+      });
+
+      observer.observe(list, { childList: true });
+      basicSortable(list, { axis: probeXyHeld(), displacement: probeLayoutAnimation() });
+
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      const start = await press('#r4');
+
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await commands.pointerMove(start.x + 10, start.y, 2);
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await frames();
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await commands.pointerMove(start.x + 100, start.y);
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await frames();
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await commands.keyPress('Escape');
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await frames();
+      observer.disconnect();
+      list.remove();
+    }
+
+    const bytes = await commands.stopHeapSampling('/src/');
+    const keys = probeKeys(bytes);
+    const total = keys.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `XYH-FIRST-PROBE operations=${operations} moves=${moves} perOperation=${(total / operations).toFixed(2)} keys=${JSON.stringify(Object.fromEntries(keys))}`,
+    );
+  }, 180_000);
+
+  it.runIf(isChromium)('XYH calibration: bytes heap sampling attributes to each buffer form', async () => {
+    const count = 1000;
+    // 19 destination slots at 2 numbers each, as a 20-cell field holds.
+    const length = 38;
+    const kept: unknown[] = [];
+
+    function typedBuffer(): void {
+      for (let i = 0; i < count; i += 1) {
+        const buffer = new Float64Array(length);
+
+        buffer[0] = i;
+        kept.push(buffer);
+      }
+    }
+
+    function appendedBuffer(): void {
+      for (let i = 0; i < count; i += 1) {
+        const buffer: number[] = [];
+
+        for (let j = 0; j < length; j += 1) {
+          buffer[j] = i + j * 0.5;
+        }
+
+        kept.push(buffer);
+      }
+    }
+
+    await commands.startHeapSampling(16);
+    typedBuffer();
+    appendedBuffer();
+
+    // Test files are keyed by their absolute path, so every frame is kept.
+    const bytes = await commands.stopHeapSampling('/');
+    const per = (name: string): string =>
+      (
+        Object.entries(bytes)
+          .filter(([key]) => key.endsWith(`:${name}`))
+          .reduce((sum, [, size]) => sum + size, 0) / count
+      ).toFixed(2);
+
+    console.log(
+      `XYH-CALIBRATION length=${length} typed=${per('typedBuffer')} appended=${per('appendedBuffer')} kept=${kept.length}`,
+    );
+  }, 180_000);
+});

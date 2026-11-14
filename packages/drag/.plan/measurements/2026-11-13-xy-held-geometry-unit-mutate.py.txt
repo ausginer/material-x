@@ -1,0 +1,17 @@
+# Applies one named mutation to the working tree by exact replacement.
+import sys
+X='src/sortable/xy.ts'; R='src/sortable/rect-index.ts'
+M={
+ 'MT1':[(R,"  at(slot: number, field: Field): number {","  at(slot: number, field: number): number {")],
+ 'MT2':[(R,"  retained(slot: number, field: NearEdge): number {","  retained(slot: number, field: Field): number {")],
+ 'MT3':[(R,"  constructor(axis: NearEdge = LEFT) {","  constructor(axis: number = LEFT) {")],
+ 'MX1':[(X,"        index.retain();\n        index.invalidate();","        index.invalidate();"),
+        (X,"        last = gap;\n","        index.retain();\n        last = gap;\n")],
+ 'MX2':[(R,"return this.#retained[slot * 2 + field]!;","return this.#retained[slot * 2]!;")],
+ 'MX3':[(X,"          context.placeholder,\n          displacement,\n        );","          context.placeholder,\n          null,\n        );")],
+ 'MX4':[(R,"retained[i * 2] = this.at(i, LEFT);","retained[i * 2] = this.at(0, LEFT);"),
+        (R,"retained[i * 2 + 1] = this.at(i, TOP);","retained[i * 2 + 1] = this.at(0, TOP);")],
+ 'MX5':[(R,"    for (let i = 0; i < count; i += 1) {\n      retained[i * 2] =","    const bound = retained.length > 0 ? retained.length / 2 : count;\n\n    for (let i = 0; i < bound; i += 1) {\n      retained[i * 2] =")],
+}
+for f,a,b in M[sys.argv[1]]:
+    s=open(f).read(); assert s.count(a)==1,(sys.argv[1],a); open(f,'w').write(s.replace(a,b))

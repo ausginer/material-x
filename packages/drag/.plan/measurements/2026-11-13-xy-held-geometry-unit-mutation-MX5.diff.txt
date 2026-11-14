@@ -1,0 +1,15 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..75a46e7f6 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -383,7 +383,9 @@ export class RetainingRectIndex extends RectIndex {
+ 
+     // From slot 0 up, so each write lands at or below the length: a write at the
+     // length appends, and the array has no hole.
+-    for (let i = 0; i < count; i += 1) {
++    const bound = retained.length > 0 ? retained.length / 2 : count;
++
++    for (let i = 0; i < bound; i += 1) {
+       retained[i * 2] = this.at(i, LEFT);
+       retained[i * 2 + 1] = this.at(i, TOP);
+     }

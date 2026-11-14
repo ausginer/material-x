@@ -1,0 +1,3 @@
+XYH-MOVE-PROBE moves=200 perMove=837.62 keys={"sortable/xy.ts:resolve":4944,"sortable/xy.ts:moved":2364,"sortable/rect-index.ts:collect":90564,"sortable/rect-index.ts:#read":69652}
+ Test Files  1 passed (1)
+      Tests  1 passed | 15 skipped (16)

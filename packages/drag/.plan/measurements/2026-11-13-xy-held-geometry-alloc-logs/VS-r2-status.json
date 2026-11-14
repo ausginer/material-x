@@ -1,0 +1,82 @@
+{
+  "id": "xyh-VS-r2",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/VS/packages/drag",
+  "runner": {
+    "pid": 989974,
+    "start": "11189673"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T15:32:08.025Z",
+  "endedAt": "2026-11-13T15:33:04.799Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/VS/packages/drag/.campaigns/xyh-VS-r2/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 989992,
+        "start": "11189683"
+      },
+      "startedAt": "2026-11-13T15:32:08.045Z",
+      "endedAt": "2026-11-13T15:32:22.078Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/VS/packages/drag/.campaigns/xyh-VS-r2/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 990273,
+        "start": "11191087"
+      },
+      "startedAt": "2026-11-13T15:32:22.092Z",
+      "endedAt": "2026-11-13T15:32:39.342Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'XYH move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/VS/packages/drag/.campaigns/xyh-VS-r2/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 990593,
+        "start": "11192814"
+      },
+      "startedAt": "2026-11-13T15:32:39.356Z",
+      "endedAt": "2026-11-13T15:32:56.750Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'XYH first move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/77ff7aa5-0bb3-45b3-bd82-e9627f681943/scratchpad/xyh/VS/packages/drag/.campaigns/xyh-VS-r2/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "61f883d09f7a73cfa4da9541bcac59d4679e995b",
+        "dirty": true
+      },
+      "process": {
+        "pid": 990871,
+        "start": "11194555"
+      },
+      "startedAt": "2026-11-13T15:32:56.766Z",
+      "endedAt": "2026-11-13T15:33:04.799Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

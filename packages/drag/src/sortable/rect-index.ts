@@ -13,7 +13,8 @@
  * `collect`. A rebuild measures every slot, so its window is all of them.
  *
  * Each axis rule creates its own instance inside its factory, so the cache has one
- * owner. The cache owns its storage, and every write to it is a method: each
+ * owner. `xy()` creates a `RetainingRectIndex`, which also keeps each slot's left
+ * and top across one rebuild. The cache owns its storage, and every write to it is a method: each
  * measurement, the settling of a measurement and a predicted shift. Code outside
  * reads one value at a time, through `at`, `item` and `insertion`, and never holds
  * the slot array or the element array.
@@ -40,6 +41,18 @@ export const CENTER_Y = 5;
 
 /** The slot `at` reads the placeholder at. */
 export const PLACEHOLDER = -1;
+
+/** One of the six packed fields of a slot. */
+type Field =
+  | typeof LEFT
+  | typeof TOP
+  | typeof RIGHT
+  | typeof BOTTOM
+  | typeof CENTER_X
+  | typeof CENTER_Y;
+
+/** The near edge of an axis: `LEFT` for x, `TOP` for y. */
+type NearEdge = typeof LEFT | typeof TOP;
 
 /**
  * The slots stored before slot 0: the scratch slot, then the placeholder. Slot `s`
@@ -75,7 +88,7 @@ export class RectIndex {
    * `LEFT` or `TOP`: the axis `shift` moves along and `travel` reads. An index that
    * never shifts keeps the default.
    */
-  readonly #axis: number;
+  readonly #axis: NearEdge;
 
   /** The window's first slot. */
   #first = 0;
@@ -88,7 +101,7 @@ export class RectIndex {
 
   #measured = -1;
 
-  constructor(axis: number = LEFT) {
+  constructor(axis: NearEdge = LEFT) {
     this.#axis = axis;
   }
 
@@ -109,7 +122,7 @@ export class RectIndex {
    * One packed field of `slot`, or of the placeholder at `PLACEHOLDER`. A slot's
    * value is valid inside the window.
    */
-  at(slot: number, field: number): number {
+  at(slot: number, field: Field): number {
     return this.#values[(slot + LEADING) * STRIDE + field]!;
   }
 
@@ -338,6 +351,46 @@ export class RectIndex {
 }
 
 /**
+ * A `RectIndex` that also holds each slot's left and top across one rebuild, for an
+ * axis rule that compares the slots on both sides of it. It is a subclass so that a
+ * composition that never constructs it doesn't carry it.
+ */
+export class RetainingRectIndex extends RectIndex {
+  /**
+   * Each slot's left and top as `retain` copied them, packed `[left, top]`. It
+   * grows only by appending and never shrinks, like the slot array.
+   */
+  readonly #retained: number[] = [];
+
+  /**
+   * The left of `slot` at `LEFT`, or its top at `TOP`, as the last `retain` copied
+   * it. Valid for the slots below the count at that call.
+   */
+  retained(slot: number, field: NearEdge): number {
+    // `LEFT` and `TOP` are 0 and 1, the two fields of a retained pair.
+    return this.#retained[slot * 2 + field]!;
+  }
+
+  /**
+   * Copies every slot's left and top where `retained` reads them. A rebuild doesn't
+   * write them, so a caller compares the slots across it. Every slot is inside the
+   * window.
+   */
+  retain(): void {
+    // Locals, not repeated reads inside the loop.
+    const retained = this.#retained;
+    const { count } = this;
+
+    // From slot 0 up, so each write lands at or below the length: a write at the
+    // length appends, and the array has no hole.
+    for (let i = 0; i < count; i += 1) {
+      retained[i * 2] = this.at(i, LEFT);
+      retained[i * 2 + 1] = this.at(i, TOP);
+    }
+  }
+}
+
+/**
  * Development only: the window the previous committed move wrote must equal what a
  * fresh measurement of the same slots in the tree now produces. Every test that
  * drives a drag through `y()` checks it. It forces the rebuild, measures every
@@ -366,7 +419,7 @@ export function verifyEquivalence(
 
   for (let slot = PLACEHOLDER; slot < end; slot += 1) {
     for (let field = 0; field < STRIDE; field += 1) {
-      predicted.push(index.at(slot, field));
+      predicted.push(index.at(slot, field as Field));
     }
   }
 
@@ -385,7 +438,7 @@ export function verifyEquivalence(
 
   index.measure(first, end, getBox, displacement);
 
-  const differs = (slot: number, field: number): boolean =>
+  const differs = (slot: number, field: Field): boolean =>
     Math.abs(
       predicted[(slot - PLACEHOLDER) * STRIDE + field]! - index.at(slot, field),
     ) > EQUIVALENCE_SLACK;
@@ -400,14 +453,14 @@ export function verifyEquivalence(
 
   for (let slot = first; mismatch === '' && slot < end; slot += 1) {
     for (let field = 0; mismatch === '' && field < STRIDE; field += 1) {
-      if (differs(slot, field)) {
+      if (differs(slot, field as Field)) {
         mismatch = `slot ${slot}`;
       }
     }
   }
 
   for (let field = LEFT; mismatch === '' && field <= BOTTOM; field += 1) {
-    if (differs(PLACEHOLDER, field)) {
+    if (differs(PLACEHOLDER, field as Field)) {
       mismatch = 'the placeholder';
     }
   }

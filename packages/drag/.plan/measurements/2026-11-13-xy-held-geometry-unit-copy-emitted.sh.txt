@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Copies every emitted .js and .d.ts of the package build to $1, keeping paths.
+set -euo pipefail
+dest=$1
+rm -rf "$dest"; mkdir -p "$dest"
+find . \( -path ./node_modules -o -path ./src -o -path ./tests -o -path ./bench -o -path ./.plan -o -path ./.campaigns \) -prune -o -type f \( -name '*.js' -o -name '*.d.ts' \) -print \
+  | grep -v -E '^\./(eslint|tsdown|vite|vitest|vitest\.engines)\.config\.' | sort | while read -r f; do
+  mkdir -p "$dest/$(dirname "$f")"; cp "$f" "$dest/$f"; done
+(cd "$dest" && find . -type f | sort > ../$(basename "$dest").list && wc -l < ../$(basename "$dest").list)

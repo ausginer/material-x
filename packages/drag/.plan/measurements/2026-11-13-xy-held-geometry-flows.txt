@@ -1,0 +1,216 @@
+# xy() held-geometry flows: probes/xy-held-geometry/xy-held-flows.browser.test.ts.txt
+# run: npx vitest run -c vitest.config.ts --project browser tests/xy-held-flows.browser.test.ts --silent=false
+# trees: detached scratch worktrees of 61f883d09; base unpatched, the others with one patch from probes/xy-held-geometry/patches/
+# Chromium 157.0.8103.38 (the version the timing check reports on this machine), node v26.13.0, 2026-11-13
+
+## Summary
+base: Tests 2 passed (2); FLOW lines 201; differing from base: 0
+P: Tests 2 passed (2); FLOW lines 201; differing from base: 0
+VS: Tests 2 passed (2); FLOW lines 201; differing from base: 0
+VX: Tests 2 passed (2); FLOW lines 201; differing from base: 0
+VXd: Tests 2 passed (2); FLOW lines 201; differing from base: 0
+VXF: Tests 2 passed (2); FLOW lines 201; differing from base: 0
+(VX = VX-held-as-measured.diff.txt, VXF = VX-retaining-subclass.diff.txt, the final names)
+
+## The base's FLOW lines (identical in every tree above)
+FLOW wrapping v1 target 4 -> gap 5: 5 reported
+FLOW wrapping   c1 dx=100.0 dy=0.0
+FLOW wrapping   c2 dx=100.0 dy=0.0
+FLOW wrapping   c3 dx=-200.0 dy=60.0
+FLOW wrapping   c4 dx=100.0 dy=0.0
+FLOW wrapping   c5 dx=100.0 dy=0.0
+FLOW wrapping v1 target 9 -> gap 10: 5 reported
+FLOW wrapping   c6 dx=-200.0 dy=60.0
+FLOW wrapping   c7 dx=100.0 dy=0.0
+FLOW wrapping   c8 dx=100.0 dy=0.0
+FLOW wrapping   c9 dx=-200.0 dy=60.0
+FLOW wrapping   c10 dx=100.0 dy=0.0
+FLOW wrapping v1 target 1 -> gap 1: 9 reported
+FLOW wrapping   c2 dx=-100.0 dy=0.0
+FLOW wrapping   c3 dx=200.0 dy=-60.0
+FLOW wrapping   c4 dx=-100.0 dy=0.0
+FLOW wrapping   c5 dx=-100.0 dy=0.0
+FLOW wrapping   c6 dx=200.0 dy=-60.0
+FLOW wrapping   c7 dx=-100.0 dy=0.0
+FLOW wrapping   c8 dx=-100.0 dy=0.0
+FLOW wrapping   c9 dx=200.0 dy=-60.0
+FLOW wrapping   c10 dx=-100.0 dy=0.0
+FLOW wrapping v1 target 10 -> gap 11: 10 reported
+FLOW wrapping   c2 dx=100.0 dy=0.0
+FLOW wrapping   c3 dx=-200.0 dy=60.0
+FLOW wrapping   c4 dx=100.0 dy=0.0
+FLOW wrapping   c5 dx=100.0 dy=0.0
+FLOW wrapping   c6 dx=-200.0 dy=60.0
+FLOW wrapping   c7 dx=100.0 dy=0.0
+FLOW wrapping   c8 dx=100.0 dy=0.0
+FLOW wrapping   c9 dx=-200.0 dy=60.0
+FLOW wrapping   c10 dx=100.0 dy=0.0
+FLOW wrapping   c11 dx=100.0 dy=0.0
+FLOW wrapping v1 target 5 -> gap 5: 6 reported
+FLOW wrapping   c6 dx=200.0 dy=-60.0
+FLOW wrapping   c7 dx=-100.0 dy=0.0
+FLOW wrapping   c8 dx=-100.0 dy=0.0
+FLOW wrapping   c9 dx=200.0 dy=-60.0
+FLOW wrapping   c10 dx=-100.0 dy=0.0
+FLOW wrapping   c11 dx=-100.0 dy=0.0
+FLOW wrapping v2 target 15 -> gap 16: 11 reported
+FLOW wrapping   c6 dx=-200.0 dy=60.0
+FLOW wrapping   c7 dx=100.0 dy=0.0
+FLOW wrapping   c8 dx=100.0 dy=0.0
+FLOW wrapping   c9 dx=-200.0 dy=60.0
+FLOW wrapping   c10 dx=100.0 dy=0.0
+FLOW wrapping   c11 dx=100.0 dy=0.0
+FLOW wrapping   c12 dx=-200.0 dy=60.0
+FLOW wrapping   c13 dx=100.0 dy=0.0
+FLOW wrapping   c14 dx=100.0 dy=0.0
+FLOW wrapping   c15 dx=-200.0 dy=60.0
+FLOW wrapping   c16 dx=100.0 dy=0.0
+FLOW wrapping v2 target 2 -> gap 2: 14 reported
+FLOW wrapping   c3 dx=200.0 dy=-60.0
+FLOW wrapping   c4 dx=-100.0 dy=0.0
+FLOW wrapping   c5 dx=-100.0 dy=0.0
+FLOW wrapping   c6 dx=200.0 dy=-60.0
+FLOW wrapping   c7 dx=-100.0 dy=0.0
+FLOW wrapping   c8 dx=-100.0 dy=0.0
+FLOW wrapping   c9 dx=200.0 dy=-60.0
+FLOW wrapping   c10 dx=-100.0 dy=0.0
+FLOW wrapping   c11 dx=-100.0 dy=0.0
+FLOW wrapping   c12 dx=200.0 dy=-60.0
+FLOW wrapping   c13 dx=-100.0 dy=0.0
+FLOW wrapping   c14 dx=-100.0 dy=0.0
+FLOW wrapping   c15 dx=200.0 dy=-60.0
+FLOW wrapping   c16 dx=-100.0 dy=0.0
+FLOW wrapping v2 target 19 -> gap 20: 18 reported
+FLOW wrapping   c3 dx=-200.0 dy=60.0
+FLOW wrapping   c4 dx=100.0 dy=0.0
+FLOW wrapping   c5 dx=100.0 dy=0.0
+FLOW wrapping   c6 dx=-200.0 dy=60.0
+FLOW wrapping   c7 dx=100.0 dy=0.0
+FLOW wrapping   c8 dx=100.0 dy=0.0
+FLOW wrapping   c9 dx=-200.0 dy=60.0
+FLOW wrapping   c10 dx=100.0 dy=0.0
+FLOW wrapping   c11 dx=100.0 dy=0.0
+FLOW wrapping   c12 dx=-200.0 dy=60.0
+FLOW wrapping   c13 dx=100.0 dy=0.0
+FLOW wrapping   c14 dx=100.0 dy=0.0
+FLOW wrapping   c15 dx=-200.0 dy=60.0
+FLOW wrapping   c16 dx=100.0 dy=0.0
+FLOW wrapping   c17 dx=100.0 dy=0.0
+FLOW wrapping   c18 dx=-200.0 dy=60.0
+FLOW wrapping   c19 dx=100.0 dy=0.0
+FLOW wrapping   c20 dx=100.0 dy=0.0
+FLOW wrapping v2 target 7 -> gap 7: 13 reported
+FLOW wrapping   c8 dx=-100.0 dy=0.0
+FLOW wrapping   c9 dx=200.0 dy=-60.0
+FLOW wrapping   c10 dx=-100.0 dy=0.0
+FLOW wrapping   c11 dx=-100.0 dy=0.0
+FLOW wrapping   c12 dx=200.0 dy=-60.0
+FLOW wrapping   c13 dx=-100.0 dy=0.0
+FLOW wrapping   c14 dx=-100.0 dy=0.0
+FLOW wrapping   c15 dx=200.0 dy=-60.0
+FLOW wrapping   c16 dx=-100.0 dy=0.0
+FLOW wrapping   c17 dx=-100.0 dy=0.0
+FLOW wrapping   c18 dx=200.0 dy=-60.0
+FLOW wrapping   c19 dx=-100.0 dy=0.0
+FLOW wrapping   c20 dx=-100.0 dy=0.0
+FLOW animation v1 target 4 -> gap 5: 5 reported
+FLOW animation   c1 dx=100.0 dy=0.0
+FLOW animation   c2 dx=100.0 dy=0.0
+FLOW animation   c3 dx=-200.0 dy=60.0
+FLOW animation   c4 dx=100.0 dy=0.0
+FLOW animation   c5 dx=100.0 dy=0.0
+FLOW animation v1 target 9 -> gap 10: 5 reported
+FLOW animation   c6 dx=-200.0 dy=60.0
+FLOW animation   c7 dx=100.0 dy=0.0
+FLOW animation   c8 dx=100.0 dy=0.0
+FLOW animation   c9 dx=-200.0 dy=60.0
+FLOW animation   c10 dx=100.0 dy=0.0
+FLOW animation v1 target 1 -> gap 1: 9 reported
+FLOW animation   c2 dx=-100.0 dy=0.0
+FLOW animation   c3 dx=200.0 dy=-60.0
+FLOW animation   c4 dx=-100.0 dy=0.0
+FLOW animation   c5 dx=-100.0 dy=0.0
+FLOW animation   c6 dx=200.0 dy=-60.0
+FLOW animation   c7 dx=-100.0 dy=0.0
+FLOW animation   c8 dx=-100.0 dy=0.0
+FLOW animation   c9 dx=200.0 dy=-60.0
+FLOW animation   c10 dx=-100.0 dy=0.0
+FLOW animation v1 target 10 -> gap 11: 10 reported
+FLOW animation   c2 dx=100.0 dy=0.0
+FLOW animation   c3 dx=-200.0 dy=60.0
+FLOW animation   c4 dx=100.0 dy=0.0
+FLOW animation   c5 dx=100.0 dy=0.0
+FLOW animation   c6 dx=-200.0 dy=60.0
+FLOW animation   c7 dx=100.0 dy=0.0
+FLOW animation   c8 dx=100.0 dy=0.0
+FLOW animation   c9 dx=-200.0 dy=60.0
+FLOW animation   c10 dx=100.0 dy=0.0
+FLOW animation   c11 dx=100.0 dy=0.0
+FLOW animation v1 target 5 -> gap 5: 6 reported
+FLOW animation   c6 dx=200.0 dy=-60.0
+FLOW animation   c7 dx=-100.0 dy=0.0
+FLOW animation   c8 dx=-100.0 dy=0.0
+FLOW animation   c9 dx=200.0 dy=-60.0
+FLOW animation   c10 dx=-100.0 dy=0.0
+FLOW animation   c11 dx=-100.0 dy=0.0
+FLOW animation running animations: 11
+FLOW animation v2 target 15 -> gap 16: 11 reported
+FLOW animation   c6 dx=-200.0 dy=60.0
+FLOW animation   c7 dx=100.0 dy=0.0
+FLOW animation   c8 dx=100.0 dy=0.0
+FLOW animation   c9 dx=-200.0 dy=60.0
+FLOW animation   c10 dx=100.0 dy=0.0
+FLOW animation   c11 dx=100.0 dy=0.0
+FLOW animation   c12 dx=-200.0 dy=60.0
+FLOW animation   c13 dx=100.0 dy=0.0
+FLOW animation   c14 dx=100.0 dy=0.0
+FLOW animation   c15 dx=-200.0 dy=60.0
+FLOW animation   c16 dx=100.0 dy=0.0
+FLOW animation v2 target 2 -> gap 2: 14 reported
+FLOW animation   c3 dx=200.0 dy=-60.0
+FLOW animation   c4 dx=-100.0 dy=0.0
+FLOW animation   c5 dx=-100.0 dy=0.0
+FLOW animation   c6 dx=200.0 dy=-60.0
+FLOW animation   c7 dx=-100.0 dy=0.0
+FLOW animation   c8 dx=-100.0 dy=0.0
+FLOW animation   c9 dx=200.0 dy=-60.0
+FLOW animation   c10 dx=-100.0 dy=0.0
+FLOW animation   c11 dx=-100.0 dy=0.0
+FLOW animation   c12 dx=200.0 dy=-60.0
+FLOW animation   c13 dx=-100.0 dy=0.0
+FLOW animation   c14 dx=-100.0 dy=0.0
+FLOW animation   c15 dx=200.0 dy=-60.0
+FLOW animation   c16 dx=-100.0 dy=0.0
+FLOW animation v2 target 19 -> gap 20: 18 reported
+FLOW animation   c3 dx=-200.0 dy=60.0
+FLOW animation   c4 dx=100.0 dy=0.0
+FLOW animation   c5 dx=100.0 dy=0.0
+FLOW animation   c6 dx=-200.0 dy=60.0
+FLOW animation   c7 dx=100.0 dy=0.0
+FLOW animation   c8 dx=100.0 dy=0.0
+FLOW animation   c9 dx=-200.0 dy=60.0
+FLOW animation   c10 dx=100.0 dy=0.0
+FLOW animation   c11 dx=100.0 dy=0.0
+FLOW animation   c12 dx=-200.0 dy=60.0
+FLOW animation   c13 dx=100.0 dy=0.0
+FLOW animation   c14 dx=100.0 dy=0.0
+FLOW animation   c15 dx=-200.0 dy=60.0
+FLOW animation   c16 dx=100.0 dy=0.0
+FLOW animation   c17 dx=100.0 dy=0.0
+FLOW animation   c18 dx=-200.0 dy=60.0
+FLOW animation   c19 dx=100.0 dy=0.0
+FLOW animation   c20 dx=100.0 dy=0.0
+FLOW animation v2 target 7 -> gap 7: 13 reported
+FLOW animation   c8 dx=-100.0 dy=0.0
+FLOW animation   c9 dx=200.0 dy=-60.0
+FLOW animation   c10 dx=-100.0 dy=0.0
+FLOW animation   c11 dx=-100.0 dy=0.0
+FLOW animation   c12 dx=200.0 dy=-60.0
+FLOW animation   c13 dx=-100.0 dy=0.0
+FLOW animation   c14 dx=-100.0 dy=0.0
+FLOW animation   c15 dx=200.0 dy=-60.0
+FLOW animation   c16 dx=-100.0 dy=0.0
+FLOW animation   c17 dx=-100.0 dy=0.0
+FLOW animation   c18 dx=200.0 dy=-60.0
+FLOW animation   c19 dx=-100.0 dy=0.0
+FLOW animation   c20 dx=-100.0 dy=0.0

@@ -1,0 +1,133 @@
+{
+  "id": "xhg-unit-base",
+  "cwd": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag",
+  "runner": {
+    "pid": 1057518,
+    "start": "11707770"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-13T16:58:28.989Z",
+  "endedAt": "2026-11-13T17:01:08.881Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/step.sh npx just test --reporter=verbose --reporter=json --outputFile.json=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/base/suite.json",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1057544,
+        "start": "11707779"
+      },
+      "startedAt": "2026-11-13T16:58:29.003Z",
+      "endedAt": "2026-11-13T17:00:07.305Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/step.sh npx just size",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1061221,
+        "start": "11717610"
+      },
+      "startedAt": "2026-11-13T17:00:07.315Z",
+      "endedAt": "2026-11-13T17:00:08.476Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/copy-emitted.sh /tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/base/emitted",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1061369,
+        "start": "11717727"
+      },
+      "startedAt": "2026-11-13T17:00:08.486Z",
+      "endedAt": "2026-11-13T17:00:08.919Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/step.sh npx just lint",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1061770,
+        "start": "11717771"
+      },
+      "startedAt": "2026-11-13T17:00:08.931Z",
+      "endedAt": "2026-11-13T17:00:23.436Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/step.sh npx just typecheck",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1062567,
+        "start": "11719224"
+      },
+      "startedAt": "2026-11-13T17:00:23.454Z",
+      "endedAt": "2026-11-13T17:00:25.214Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/step.sh npx vitest run -c vitest.config.ts --project consumer --reporter=verbose",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1062736,
+        "start": "11719402"
+      },
+      "startedAt": "2026-11-13T17:00:25.237Z",
+      "endedAt": "2026-11-13T17:01:08.187Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad/step.sh npx vitest run -c vitest.config.ts --project declaration --reporter=verbose",
+      "log": "/workspaces/material-x/.claude/worktrees/drag-rect-index-ownership/packages/drag/.campaigns/xhg-unit-base/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "ae85d8f6a2087061c8169e5c5693eb6e16939ce8",
+        "dirty": false
+      },
+      "process": {
+        "pid": 1064661,
+        "start": "11723698"
+      },
+      "startedAt": "2026-11-13T17:01:08.199Z",
+      "endedAt": "2026-11-13T17:01:08.881Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

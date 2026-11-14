@@ -1,0 +1,1173 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag
+
+6:03:54 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e144b091
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:48 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged 192ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:32 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction cancel during activation 342ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:64 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen 209ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:54 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction destroy during activation 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:81 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press 106ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to cancel during activate 149ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:99 > drag:DRI-14 collection > should decline quietly when the item left the document during the press 261ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to destroy during activate 162ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 182ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:148 > drag:DRI-1 a request does not change the running step > should leave a hook alone when it requests a cancel 155ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 134ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:184 > drag:DRI-1 a request does not change the running step > should apply an idle request before the call returns 146ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 181ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:203 > drag:DRI-2 one reader and fixed precedence > should apply a destroy requested from settle before the terminal 168ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 53ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 54ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:222 > drag:DRI-2 one reader and fixed precedence > should run deferred steps before the decision, with no drag behind it 147ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag 198ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:247 > drag:DRI-2 one reader and fixed precedence > should see a request made by a deferred step on its next turn 154ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed 120ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:271 > drag:DRI-2 one reader and fixed precedence > should not pull when a release queues collection work and then cancels 170ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency 111ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:305 > drag:DRI-2 one reader and fixed precedence > should keep a cancel first when a callback also invalidates 142ms
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: Uncaught DragFault: drag: after the work]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:373 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies 166ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once 167ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:350 > drag:DRI-8 deferred writes > should run a step at once when no pass is running 14ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:395 > drag:DRI-14 collection > should reach the end gap with a null next 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:411 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge 67ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:364 > drag:DRI-8 deferred writes > should run steps between steps in request order 152ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:429 > drag:DRI-14 collection > should decline on altKey 167ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs 151ms
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: Uncaught DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+[Error: Uncaught DragFault: drag: items]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws 150ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback 166ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:426 > drag:DRI-8 deferred writes > should give a step null before activation 22ms
+stderr | tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+[Error: Uncaught DragFault: drag: visual]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws 154ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:443 > drag:DRI-8 deferred writes > should give a step the operation activate returned while the operation is active 150ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation 147ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:481 > drag:DRI-8 deferred writes > should give a step null while a verdict is pending 149ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:506 > drag:DRI-8 deferred writes > should give a step null behind a decision 112ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart 165ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:531 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction 15ms
+stderr | tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides
+[Error: Uncaught DragFault: drag: from a step]
+stderr | tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation
+[Error: Uncaught DragFault: drag: idle]
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides 123ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation 10ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:547 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start 172ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:556 > drag:DRI-8 deferred writes > should do nothing for a moveTo behind a cancel, and land from the prior position 151ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:555 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it 149ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass 150ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself 152ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself 148ms
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:606 > drag:DRI-8 deferred writes > should move nothing with a collection change after the drop 217ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/requests.browser.test.ts:629 > drag:DRI-8 deferred writes > should run a step requested in settle before end with null, and none requested in end 183ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out 149ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container 152ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it 147ms
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:95 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight 303ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container 254ms
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release 168ms
+stderr | tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:647 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left 161ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it 150ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:138 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row 648ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:680 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:696 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none 166ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:173 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 367ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:707 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot 134ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:726 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics 134ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:212 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 285ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:465 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap 15ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:471 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating 17ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:485 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection 16ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:742 > sortable options > should honor handle: a press elsewhere does not admit 265ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:56 > drag:DRD-35 callback lists > should keep duplicate checking apart from insertion 13ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:82 > drag:DRD-35 callback lists > should run a queue first in first out, each entry on its receiver 3ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:102 > drag:DRD-35 callback lists > should run a stack last in first out, each entry on its receiver 2ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:126 > drag:DRD-35 callback lists > should be empty before the first add and after the last run of a queue 2ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:126 > drag:DRD-35 callback lists > should be empty before the first add and after the last run of a stack 2ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:143 > drag:DRD-35 callback lists > should remove an entry before calling it, so a throw leaves the rest 3ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:163 > drag:DRD-35 callback lists > should drop every entry on clear 2ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order 161ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:201 > drag:DRI-8 steps with a receiver > should call a step requested while idle on its receiver at once 9ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:765 > sortable options > should refuse a press through data-drag-ignore 151ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:213 > drag:DRI-8 steps with a receiver > should keep a step requested with no receiver apart from the same step with one 155ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:775 > sortable options > should honor visual: the named node is lifted and the item stays 137ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:793 > sortable options > should honor box: a box around the visual keeps the rest of its footprint 129ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:238 > drag:DRI-8 steps with a receiver > should run a pair again when its running step requests it, and coalesce a waiting one 147ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:813 > sortable options > should honor box: a box inside the visual sizes the whole footprint 133ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:285 > drag:DRI-8 steps with a receiver > should keep precedence: destruction before steps, steps before the decision 283ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:831 > sortable options > should resolve a grid with xy() 272ms
+stderr | tests/callbacks.browser.test.ts:345 > drag:DRI-8 steps with a receiver > should report a throw from a receiver step as a fault
+[Error: Uncaught DragFault: drag: from a receiver step]
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:321 > drag:DRI-8 steps with a receiver > should scope a receiver step to its operation 303ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:345 > drag:DRI-8 steps with a receiver > should report a throw from a receiver step as a fault 14ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:854 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 277ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:380 > drag:DRI-9 operation cleanup with a receiver > should run operation cleanup last in first out, on each receiver, once per call 153ms
+stderr | tests/callbacks.browser.test.ts:403 > drag:DRI-9 operation cleanup with a receiver > should continue the walk past a throwing receiver disposer
+[Error: Uncaught DragFault: drag: from a disposer]
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:403 > drag:DRI-9 operation cleanup with a receiver > should continue the walk past a throwing receiver disposer 152ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction 275ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:427 > drag:DRI-9 operation cleanup with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it 146ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:462 > drag:DRI-10 controller cleanup with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once 15ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:488 > drag:DRI-10 controller cleanup with a receiver > should leave a step requested from a disposer during teardown unrun 17ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves 168ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included 527ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:143 > drag:DRI-10 destruction > should admit no press after destruction 160ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from admit 166ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:951 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 216ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from activate 166ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from start 167ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from move 166ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from drop 167ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from verdict 171ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from settle 163ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from dispose 168ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from end 169ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from reaction 166ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from listener 168ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:199 > drag:DRI-10 destruction > should return one promise by identity on every call 10ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:211 > drag:DRI-10 destruction > should settle the promise after teardown 16ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:225 > drag:DRI-10 destruction > should give disposers null and deliver no settle or end 135ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:256 > drag:DRI-10 destruction > should do nothing for a later request 153ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null 128ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:303 > drag:DRI-10 destruction > should not restore focus on destruction 154ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations 313ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:345 > drag:DRI-10 destruction > should retain no drag view or state after a custom behavior is destroyed 248ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 1796ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:444 > drag:DRI-10 destruction > should not apply an Escape dispatched by the verdict abort during destruction 140ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:485 > drag:DRI-10 destruction > should not report a thenable rejected by the verdict abort during destruction 150ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:50 > drag:DRI-13 landing > should land additively from where it was dropped 362ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:74 > drag:DRI-13 landing > should start nothing when the visual is already where it lands 150ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:96 > drag:DRI-13 landing > should start nothing without a landing composed 150ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: Uncaught DragFault: drag: Failed to execute 'animate' on 'Element': duration must be non-negative or auto]
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand 183ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:134 > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation 384ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above static siblings for the whole flight 233ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight 234ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:991 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6750ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight 234ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:1073 > sortable options > should ignore a second pointer during a drag 100ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:1104 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect 133ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine 233ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top 233ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:50 > drag:DRI-21 freeDrag + dropTargets > should mark the target under the pointer, name it at the drop and clear the mark at release 435ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:208 > drag:DRI-13 landing > should leave no inline style from elevation 267ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:87 > drag:DRI-21 freeDrag + dropTargets > should resolve the target at the release, with no frame before it 151ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:227 > drag:DRI-13 landing > should start no animation when no landing is composed 150ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:118 > drag:DRI-21 freeDrag + dropTargets > should clear the mark when the controller is destroyed mid-drag 215ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:245 > drag:DRI-13 landing > should give a landing that `landing()` starts zero duration with reduced motion 186ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:137 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets on invalidate 217ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:286 > drag:DRI-13 landing > should call a duration function with reduced motion, and still land at once 181ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:158 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets after a scroll 250ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:307 > drag:DRI-13 landing > should land an accepted drop at its new slot 267ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: Uncaught DragFault: drag: targets]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 250ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable 350ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:351 > drag:DRI-13 landing > should keep timing a custom landing named 151ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:385 > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object 150ms
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: Uncaught DragFault: drag: hide]
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws 483ms
+ ✓ |browser (chromium)| tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand 184ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:306 > drag:DRI-21 freeDrag + dropTargets > should name no target without the capability 250ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:55 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on a child, and reorder at the next press 307ms
+ ✓ |browser (chromium)| tests/drop-targets.browser.test.ts:330 > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime 500ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:71 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press 513ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:87 > drag:DRI-19 input ownership > should end a press whose release the window never saw at the next sample with no button 284ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:154 > a React consumer > should resolve the verdict from a real layout effect 212ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:112 > drag:DRI-19 input ownership > should admit a primary press while a press whose release was missed is pending 184ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:180 > a React consumer > should keep the placeholder in place until the commit lands 199ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:154 > drag:DRI-19 input ownership > should keep an active drag following the pointer when the page stops pointermove 167ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:210 > a React consumer > should accept a commit that inserts content above the placeholder 183ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:173 > drag:DRI-19 input ownership > should ignore a second pointer moving during a drag 166ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:232 > a React consumer > should accept a commit that mounts a new keyed row into the gap 184ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:196 > drag:DRI-19 input ownership > should reorder links marked draggable="false" 184ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:255 > a React consumer > should see a list the framework rerendered during a press 151ms
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |browser (chromium)| tests/input.browser.test.ts:295 > drag:DRI-19 nested roots > should reorder the inner list only, with no attribute 183ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:307 > drag:DRI-19 nested roots > should move a column from its header 166ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item 348ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:317 > drag:DRI-19 nested roots > should run a keyboard command on the inner list only 50ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:295 > a React consumer > should deliver no callback during an unmount 119ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:331 > drag:DRI-4 Escape > should cancel and keep a modal dialog open 168ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:351 > drag:DRI-4 Escape > should cancel and keep an auto popover open 171ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else 373ms
+ ✓ |browser (chromium)| tests/frameworks.browser.test.ts:367 > a keyed reconciler that rewrites the whole list > should keep keyboard focus through a rewrite 60ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:375 > drag:DRI-4 Escape > should cancel a pending verdict and keep a modal dialog open 194ms
+ ✓ |browser (chromium)| tests/input.browser.test.ts:397 > drag:DRI-4 Escape > should not prevent Escape before start 27ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate 175ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:45 > drag:DRI-11 the click guard > should swallow the trailing click of a rejected drop, which produces one 225ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under scale 152ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:59 > drag:DRI-11 the click guard > should swallow the trailing click of an accepted reorder, where the engine produces one 215ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under skew 150ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under zoom 150ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:70 > drag:DRI-11 the click guard > should swallow the trailing click of a cancel with the button held 217ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate, scale and zoom 151ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:84 > drag:DRI-11 the click guard > should swallow the trailing click after destruction with the button held 218ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:99 > drag:DRI-11 the click guard > should keep the click of a press below the threshold 39ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:108 > drag:DRI-16 no-lift move and resize > should follow the pointer with own rotate 154ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:126 > drag:DRI-16 no-lift move and resize > should need a division by the element own zoom, which a behavior states 150ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:113 > drag:DRI-11 the click guard > should deliver a later click on the same list at once 188ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, through the element Box 124ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:123 > drag:DRI-11 the click guard > should hold for a custom behavior with no lift 204ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under scale, through the element Box 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:161 > drag:DRI-11 the click guard > should swallow a click while nothing has expired it 138ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under skew, through the element Box 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:168 > drag:DRI-11 the click guard > should swallow one click only 119ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under zoom, through the element Box 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:175 > drag:DRI-11 the click guard > should expire in the task after that pointer pointerup 111ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, scale and zoom, through the element Box 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:184 > drag:DRI-11 the click guard > should still swallow a click in the task of that pointer pointerup 117ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate 135ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:192 > drag:DRI-11 the click guard > should not expire at another pointer pointerup 117ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under scale 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:203 > drag:DRI-11 the click guard > should expire at that pointer pointercancel 117ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:211 > drag:DRI-11 the click guard > should expire at the next primary pointerdown 117ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under skew 134ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under zoom 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:220 > drag:DRI-11 the click guard > should deliver a real click after the release 199ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate, scale and zoom 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:232 > drag:DRI-11 the click guard > should prevent only the move that crosses the threshold 117ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under own rotate on the item 133ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:219 > drag:DRI-16 lifted > should follow the pointer for an item with its own zoom 133ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:264 > drag:DRI-11 the click guard > should complete a touch drag with no platform cancel, and keep the next click 300ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:251 > drag:DRI-16 lifted > should keep the rendered size across the lift under scale and zoom 133ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor scale(.5), following the pointer 167ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:298 > drag:DRI-11 the click guard > should cancel with origin interrupted when the platform cancels a touch 267ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor zoom:2, following the pointer 167ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:325 > drag:DRI-11 the click guard > should follow the primary touch and ignore a second finger 350ms
+ ✓ |browser (chromium)| tests/click-guard.browser.test.ts:350 > drag:DRI-11 the click guard > should prevent nothing on a press 21ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:307 > drag:DRI-16 required environments for a sortable > should reorder a list in a shadow root 234ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:326 > drag:DRI-16 required environments for a sortable > should reorder a list in a same-origin iframe the parent controls 250ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:29 > drag:DRI-9 release order > should release in the fixed order 202ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:349 > drag:DRI-16 required environments for a sortable > should stay visible when dragged out of an overflow:hidden list 150ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:76 > drag:DRI-9 release order > should run the terminal in the task of the decision, before the landing ends 150ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:360 > drag:DRI-16 required environments for a sortable > should stay above a later positioned panel 133ms
+ ✓ |browser (chromium)| tests/coordinates.browser.test.ts:382 > drag:DRI-16 required environments for a sortable > should read a Space for an ancestor it can represent 14ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is accepted 168ms
+stderr | tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run
+[Error: Uncaught DragFault: drag: move]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: Uncaught DragFault: drag: first]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: Uncaught DragFault: drag: second]
+ ✓ |browser (chromium)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is rejected 167ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run 164ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide 147ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is canceled 167ms
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: disposer 2]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: disposer 1]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: controller use]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: plain]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: null]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: undefined]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: text]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: Symbol(symbol)]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: frozen]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel
+[Error: Uncaught DragFault: drag: boom]
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each 132ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity 17ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:162 > drag:DRI-7 faults > should include the original message when it can be read 17ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:128 > drag:DRI-9 release order > should leave no style attribute when there was none 184ms
+stderr | tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction
+[Error: Uncaught DragFault: drag: boom]
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel 152ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:142 > drag:DRI-9 release order > should restore an open popover the page had 167ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction 167ms
+stderr | tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported
+[Error: Uncaught DragFault: drag: settle]
+stderr | tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller
+[Error: Uncaught DragFault: drag: lift/visual-no-box-space]
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported 150ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:159 > drag:DRI-9 release order > should pass each outcome to a disposer 450ms
+stderr | tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+[Error: Uncaught DragFault: drag: middle]
+stderr | tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+[Error: Uncaught DragFault: drag: show]
+ ✓ |browser (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw 150ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller 317ms
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: Uncaught DragFault: drag: show]
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: Uncaught DragFault: drag: restore]
+ ✓ |browser (chromium)| tests/release.browser.test.ts:216 > drag:DRI-9 release order > should run a late use at once with the outcome 150ms
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide 150ms
+stderr | tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+[Error: Uncaught DragFault: drag: late]
+ ✓ |browser (chromium)| tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides 170ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use 151ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:256 > drag:DRI-9 release order > should run a late use on a destroyed controller at once 15ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw
+[Error: Uncaught DragFault: drag: cancel]
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw
+[Error: Uncaught DragFault: drag: destroy]
+ ✓ |browser (chromium)| tests/release.browser.test.ts:269 > drag:DRI-9 release order > should leave no placeholder, capture, listener or style after an operation 217ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw 157ms
+ ✓ |browser (chromium)| tests/release.browser.test.ts:297 > drag:DRI-9 release order > should not retain the signal past a press that never activates 104ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw
+[Error: Uncaught DragFault: drag: fault]
+ ✓ |browser (chromium)| tests/release.browser.test.ts:321 > drag:DRI-9 release order > should remove the sortable placeholder before the lift is released 168ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw 170ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw 146ms
+stderr | tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws
+[Error: Uncaught DragFault: drag: start]
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:52 > drag:DRI-3 terminals > should report nothing when activate declines 154ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop 187ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws 152ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis 137ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:79 > drag:DRI-3 terminals > should run end once for a drop with no verdict 148ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo 167ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:90 > drag:DRI-3 terminals > should run end for a release that lands the item on its own gap 167ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:100 > drag:DRI-4 cancel > should ignore a cancel on an idle controller 13ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 217ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:110 > drag:DRI-4 cancel > should keep the first reason and origin 121ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 162ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:132 > drag:DRI-4 cancel > should change nothing with a cancel after the decision 147ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:151 > drag:DRI-4 cancel > should cancel on Escape with origin escape 132ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:163 > drag:DRI-4 cancel > should retire a pending press on Escape, with no terminal 100ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 367ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:184 > drag:DRI-4 cancel > should cancel on lostpointercapture with origin interrupted 217ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:201 > drag:DRI-4 cancel > should release presentation at once on a cancel with the button held 133ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing 250ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home 182ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:211 > drag:DRI-4 cancel > should not let a retained drag cancel a later operation 300ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:234 > admission > should require a primary button press 15ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:262 > admission > should refuse a press through data-drag-ignore before the handle, for a custom behavior 153ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual 322ms
+ ✓ |browser (chromium)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta 131ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:280 > admission > should acquire pointer capture on the root 150ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:296 > admission > should activate only at the threshold 59ms
+ ✓ |browser (chromium)| tests/terminals.browser.test.ts:319 > drag:DRI-6 reentrant input > should let the press after a refused one activate 339ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:60 > drag:DRI-18 resize handle > should resize with no lift, and Escape should restore 227ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:92 > drag:DRI-18 resize handle > should resize in viewport distance inside a scaled parent 167ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:61 > drag:DRI-9 commit ownership > should keep a translate committed in onEnd 183ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:78 > drag:DRI-9 commit ownership > should keep left and top committed in onEnd 167ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of true where it says 451ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:95 > drag:DRI-9 commit ownership > should revert at release a write to a lifted property made during the lift 166ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:124 > drag:DRI-9 README examples > should reorder with the quick start 167ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of false where it says 453ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:147 > drag:DRI-9 README examples > should keep the free-drag example where it was dropped, across two drags 334ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:150 > drag:DRI-18 canvas group > should move in canvas units under scale, and save 164ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:160 > drag:DRI-18 canvas group > should follow the pointer under rotation, through box-quad 199ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:176 > drag:DRI-18 canvas group > should roll back on Escape 200ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:185 > drag:DRI-18 canvas group > should roll back on destruction, with no end and no flag 166ms
+stderr | tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save
+[Error: Uncaught DragFault: drag: save failed]
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save 167ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:203 > drag:DRI-18 canvas group > should render a nudge from foreign code through requestStep 200ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:242 > drag:DRD-27 the lift in the operation > should give a lifted behavior a drag with only the kernel keys 167ms
+ ✓ |browser (chromium)| tests/authoring.browser.test.ts:257 > drag:DRD-27 the lift in the operation > should give the lift exactly its nine keys 166ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:49 > drag:DRI-3 activation > should run no hook for a custom behavior whose item was disconnected during the press 110ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:84 > drag:DRI-14 command activation > should decline a command quietly when its item leaves during the lift 51ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:102 > drag:DRI-14 command activation > should decline a command quietly when its move becomes impossible during the lift 49ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:121 > drag:DRI-14 command activation > should land a keyboard command from the old slot 34ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 649ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:179 > drag:DRI-9 README examples > should keep the scrolling-container example where it was dropped, and land it home 2484ms
+ ✓ |browser (chromium)| tests/commit.browser.test.ts:249 > drag:DRI-20 free drag offset > should commit where dropped without home in an unscrolled page 166ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:33 > drag:DRI-12 focus > should let two arrow presses in a row reorder twice 67ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:45 > drag:DRI-12 focus > should keep focus through a pointer reorder 167ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 648ms
+stderr | tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:55 > drag:DRI-12 focus > should restore focus after an async verdict 83ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:72 > drag:DRI-12 focus > should leave focus where the user moved it during a verdict 50ms
+stderr | tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate 235ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:94 > drag:DRI-12 focus > should restore focus inside an open shadow root 51ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion 150ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:111 > drag:DRI-12 focus > should restore focus to a descendant of the item 249ms
+ ✓ |browser (chromium)| tests/activation.browser.test.ts:226 > drag:DRI-17 coalescing > should schedule one frame for several samples in one task 134ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:133 > drag:DRI-12 focus > should keep focus when the lift promotes an autofocus descendant 68ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:152 > drag:DRI-12 focus > should leave nothing focused when an autofocus descendant is promoted with nothing focused 134ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:173 > drag:DRI-12 focus > should not restore focus on destruction 31ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:187 > drag:DRI-12 focus > should not scroll on a pointer restore 168ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:211 > drag:DRI-12 focus > should scroll a keyboard restore of an off-screen row into view 51ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:232 > drag:DRI-12 focus > should keep :focus-visible on a keyboard restore 49ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag 428ms
+ ✓ |browser (chromium)| tests/focus.browser.test.ts:242 > drag:DRI-12 focus > should restore a pointer drop without :focus-visible 217ms
+ ✓ |browser (chromium)| tests/classes.browser.test.ts:37 > drag:DRD-20 detached controller methods > should run draggable controller methods called on the controller 163ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag 416ms
+ ✓ |browser (chromium)| tests/classes.browser.test.ts:72 > drag:DRD-20 detached controller methods > should run sortable controller methods detached 317ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late resolve after destruction reach nothing 249ms
+ ✓ |browser (chromium)| tests/classes.browser.test.ts:100 > drag:DRD-20 detached controller methods > should run freeDrag controller methods detached 149ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late reject after destruction reach nothing 249ms
+ ✓ |browser (chromium)| tests/classes.browser.test.ts:128 > drag:DRD-34 receivers > should call a step with no receiver, requested while idle and during a pass 154ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:92 > drag:DRI-5 verdict > should not abort the signal on acceptance 204ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:109 > drag:DRI-5 verdict > should abort drag.signal at release while the verdict signal stays live 148ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:132 > drag:DRI-5 verdict > should read then once, and take the first completion 148ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault
+[Error: Uncaught DragFault: drag: accessor]
+ ✓ |browser (chromium)| tests/classes.browser.test.ts:151 > drag:DRD-34 receivers > should re-read freeDrag bounds on invalidate called during a pass 295ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault 154ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault
+[Error: Uncaught DragFault: drag: call]
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault 217ms
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: thrown]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: rejected]
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault 415ms
+ ✓ |browser (chromium)| tests/verdict.browser.test.ts:234 > drag:DRI-5 verdict > should hold a verdict through a pending drop, then finish 181ms
+ ✓ |browser (chromium)| tests/classes.browser.test.ts:190 > drag:DRD-20 behavior instances > should retain no freeDrag behavior instance after destruction 1382ms
+stderr | tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+[Error: Uncaught DragFault: drag: constructor]
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines 164ms
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use 184ms
+ ✓ |browser (chromium)| tests/order.browser.test.ts:71 > drag:DRI-9 and drag:DRI-12 release order > should start the landing before the focus call 174ms
+stderr | tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws
+[Error: Uncaught DragFault: drag: end throws]
+stderr | tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+[Error: Uncaught DragFault: drag: after the cancel]
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines 150ms
+ ✓ |browser (chromium)| tests/order.browser.test.ts:96 > drag:DRI-9 and drag:DRI-12 release order > should keep focus through two arrow presses that reorder in end 67ms
+ ✓ |browser (chromium)| tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws 52ms
+ ✓ |browser (chromium)| tests/order.browser.test.ts:122 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end requests destruction 48ms
+ ✓ |browser (chromium)| tests/order.browser.test.ts:135 > drag:DRI-9 and drag:DRI-12 release order > should not restore focus when destruction is requested before the terminal 54ms
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws 154ms
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation 148ms
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there 153ms
+ ✓ |browser (chromium)| tests/refusals.browser.test.ts:27 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate 189ms
+ ✓ |browser (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate 149ms
+ ✓ |browser (chromium)| tests/refusals.browser.test.ts:104 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one 294ms
+ ✓ |browser (chromium)| tests/refusals.browser.test.ts:131 > drag:DRI-6 reentrant input > should refuse no trusted event during ordinary drags 338ms
+ ✓ |browser (chromium)| tests/scoped-requests.browser.test.ts:24 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while a later operation is active 319ms
+ ✓ |browser (chromium)| tests/scoped-requests.browser.test.ts:52 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while idle 158ms
+stderr | tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+[Error: Uncaught DragFault: drag: drag: the predicted insertion geometry disagreed with a fresh measurement at the placeholder; the linear shift rule does not hold for this list]
+ ✓ |browser (chromium)| tests/scoped-requests.browser.test.ts:72 > drag:DRI-8 scoped requests > should give a late disposer the outcome after destruction of a concluded operation 146ms
+ ✓ |browser (chromium)| tests/scoped-requests.browser.test.ts:97 > drag:DRI-8 scoped requests > should give a late disposer null when destruction released its operation 164ms
+ ✓ |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x 609ms
+6:04:33 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=5fdceb19
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:76 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale 828ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:102 > drag:DRI-17 hot path > should run the spatial search at most once per frame 266ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false 171ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:140 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true 177ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:175 > drag:DRI-17 hot path > drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400 442ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:208 > drag:DRI-17 hot path > drag:DRD-49 should read as many rects from the activation through its first frame for 20 items as for 400 260ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:236 > drag:DRI-17 hot path > should run no consumer callback per sample 186ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:260 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs 10231ms
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:316 > drag:DRI-17 hot path > drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement 5220ms
+6:04:52 PM [vite] (client) warning: 
+/tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /tmp/claude-1000/-workspaces-material-x/41d13f2e-eeb0-4e04-9000-06e2b62c0389/scratchpad/wt-end/packages/drag/.vite/vitest/cb7a82c317871051c535dc464aab698448138aae/deps/vitest_n_vite_module-runner.js?v=f4cb3ef5
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:48 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged 192ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:32 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction cancel during activation 340ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:64 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen 207ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:54 > drag:DRI-1 a request does not change the running step > should let a sortable placeholder reaction destroy during activation 165ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:81 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press 100ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to cancel during activate 150ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:99 > drag:DRI-14 collection > should decline quietly when the item left the document during the press 267ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:73 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to destroy during activate 167ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 181ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:148 > drag:DRI-1 a request does not change the running step > should leave a hook alone when it requests a cancel 151ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 133ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:184 > drag:DRI-1 a request does not change the running step > should apply an idle request before the call returns 150ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 185ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 52ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:203 > drag:DRI-2 one reader and fixed precedence > should apply a destroy requested from settle before the terminal 169ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:222 > drag:DRI-2 one reader and fixed precedence > should run deferred steps before the decision, with no drag behind it 151ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 49ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag 198ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:247 > drag:DRI-2 one reader and fixed precedence > should see a request made by a deferred step on its next turn 146ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed 119ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:271 > drag:DRI-2 one reader and fixed precedence > should not pull when a release queues collection work and then cancels 169ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency 118ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:305 > drag:DRI-2 one reader and fixed precedence > should keep a cancel first when a callback also invalidates 149ms
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: Uncaught DragFault: drag: after the work]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:373 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies 164ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once 166ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:350 > drag:DRI-8 deferred writes > should run a step at once when no pass is running 15ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:395 > drag:DRI-14 collection > should reach the end gap with a null next 171ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:411 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge 68ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:364 > drag:DRI-8 deferred writes > should run steps between steps in request order 151ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:429 > drag:DRI-14 collection > should decline on altKey 164ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:386 > drag:DRI-8 deferred writes > should coalesce one function requested twice before it runs 150ms
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: Uncaught DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws
+[Error: Uncaught DragFault: drag: items]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws 150ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback 171ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:426 > drag:DRI-8 deferred writes > should give a step null before activation 22ms
+stderr | tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation
+[Error: Uncaught DragFault: drag: visual]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws 150ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:443 > drag:DRI-8 deferred writes > should give a step the operation activate returned while the operation is active 143ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation 148ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:481 > drag:DRI-8 deferred writes > should give a step null while a verdict is pending 151ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:506 > drag:DRI-8 deferred writes > should give a step null behind a decision 113ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart 165ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:531 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction 15ms
+stderr | tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides
+[Error: Uncaught DragFault: drag: from a step]
+stderr | tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation
+[Error: Uncaught DragFault: drag: idle]
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:525 > drag:DRI-8 deferred writes > should report a throw in a step as a fault that decides 117ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:544 > drag:DRI-8 deferred writes > should only report a throw in a step with no operation 15ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:547 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start 168ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:556 > drag:DRI-8 deferred writes > should do nothing for a moveTo behind a cancel, and land from the prior position 150ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:555 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it 150ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:586 > drag:DRI-8 deferred writes > should keep the order of moveTo closures in one pass 150ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself 150ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself 150ms
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:606 > drag:DRI-8 deferred writes > should move nothing with a collection change after the drop 218ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/requests.browser.test.ts:629 > drag:DRI-8 deferred writes > should run a step requested in settle before end with null, and none requested in end 189ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out 154ms
+stderr | tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container 148ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it 151ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:143 > drag:DRI-10 destruction > should admit no press after destruction 168ms
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from admit 164ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container 252ms
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from activate 166ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release 163ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from start 170ms
+stderr | tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:647 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left 170ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from move 167ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it 150ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from drop 167ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:680 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document 164ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from verdict 163ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:696 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none 171ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from settle 166ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:707 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot 134ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from dispose 167ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:726 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics 129ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from end 170ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:742 > sortable options > should honor handle: a press elsewhere does not admit 271ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from reaction 163ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:765 > sortable options > should refuse a press through data-drag-ignore 145ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from listener 167ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:199 > drag:DRI-10 destruction > should return one promise by identity on every call 15ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:211 > drag:DRI-10 destruction > should settle the promise after teardown 17ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:775 > sortable options > should honor visual: the named node is lifted and the item stays 134ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:225 > drag:DRI-10 destruction > should give disposers null and deliver no settle or end 133ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:793 > sortable options > should honor box: a box around the visual keeps the rest of its footprint 134ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:256 > drag:DRI-10 destruction > should do nothing for a later request 151ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:813 > sortable options > should honor box: a box inside the visual sizes the whole footprint 133ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null 132ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:831 > sortable options > should resolve a grid with xy() 269ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:303 > drag:DRI-10 destruction > should not restore focus on destruction 155ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:854 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 280ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations 312ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction 273ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:345 > drag:DRI-10 destruction > should retain no drag view or state after a custom behavior is destroyed 255ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included 534ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:951 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 216ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 1740ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:444 > drag:DRI-10 destruction > should not apply an Escape dispatched by the verdict abort during destruction 139ms
+ ✓ |consumer (chromium)| tests/destruction.browser.test.ts:485 > drag:DRI-10 destruction > should not report a thenable rejected by the verdict abort during destruction 149ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:50 > drag:DRI-13 landing > should land additively from where it was dropped 385ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:74 > drag:DRI-13 landing > should start nothing when the visual is already where it lands 151ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:96 > drag:DRI-13 landing > should start nothing without a landing composed 149ms
+stderr | tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+[Error: Uncaught DragFault: drag: Failed to execute 'animate' on 'Element': duration must be non-negative or auto]
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:105 > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand 185ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:134 > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation 385ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above static siblings for the whole flight 231ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above relative siblings for the whole flight 235ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:162 > drag:DRI-13 landing > should stay above z-index siblings for the whole flight 233ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:177 > drag:DRI-13 landing > should keep an item with its own z-index on top, in every engine 231ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:191 > drag:DRI-13 landing > should keep an absolutely positioned item on top 234ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:208 > drag:DRI-13 landing > should leave no inline style from elevation 250ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:227 > drag:DRI-13 landing > should start no animation when no landing is composed 150ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:245 > drag:DRI-13 landing > should give a landing that `landing()` starts zero duration with reduced motion 184ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:286 > drag:DRI-13 landing > should call a duration function with reduced motion, and still land at once 185ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:307 > drag:DRI-13 landing > should land an accepted drop at its new slot 266ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable 348ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:351 > drag:DRI-13 landing > should keep timing a custom landing named 152ms
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:385 > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object 150ms
+stderr | tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+[Error: Uncaught DragFault: drag: hide]
+ ✓ |consumer (chromium)| tests/landing.browser.test.ts:422 > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand 183ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:50 > drag:DRI-21 freeDrag + dropTargets > should mark the target under the pointer, name it at the drop and clear the mark at release 433ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:87 > drag:DRI-21 freeDrag + dropTargets > should resolve the target at the release, with no frame before it 144ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:118 > drag:DRI-21 freeDrag + dropTargets > should clear the mark when the controller is destroyed mid-drag 216ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:991 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6746ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:137 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets on invalidate 217ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:1073 > sortable options > should ignore a second pointer during a drag 100ms
+ ✓ |consumer (chromium)| tests/sortable.browser.test.ts:1104 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect 134ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:158 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets after a scroll 254ms
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: Uncaught DragFault: drag: targets]
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:188 > drag:DRI-21 freeDrag + dropTargets > drag:DRD-48 should name the target under the release position after a scroll whose event has not arrived 246ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:55 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on a child, and reorder at the next press 302ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:71 > drag:DRI-19 input ownership > should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press 280ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws 484ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:87 > drag:DRI-19 input ownership > should end a press whose release the window never saw at the next sample with no button 288ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:306 > drag:DRI-21 freeDrag + dropTargets > should name no target without the capability 253ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:112 > drag:DRI-19 input ownership > should admit a primary press while a press whose release was missed is pending 183ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:154 > drag:DRI-19 input ownership > should keep an active drag following the pointer when the page stops pointermove 163ms
+ ✓ |consumer (chromium)| tests/drop-targets.browser.test.ts:330 > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime 481ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:173 > drag:DRI-19 input ownership > should ignore a second pointer moving during a drag 166ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:196 > drag:DRI-19 input ownership > should reorder links marked draggable="false" 419ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:295 > drag:DRI-19 nested roots > should reorder the inner list only, with no attribute 181ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:154 > a React consumer > should resolve the verdict from a real layout effect 216ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:307 > drag:DRI-19 nested roots > should move a column from its header 167ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:317 > drag:DRI-19 nested roots > should run a keyboard command on the inner list only 51ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:180 > a React consumer > should keep the placeholder in place until the commit lands 199ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:331 > drag:DRI-4 Escape > should cancel and keep a modal dialog open 168ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:210 > a React consumer > should accept a commit that inserts content above the placeholder 183ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:351 > drag:DRI-4 Escape > should cancel and keep an auto popover open 166ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:232 > a React consumer > should accept a commit that mounts a new keyed row into the gap 183ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:375 > drag:DRI-4 Escape > should cancel a pending verdict and keep a modal dialog open 198ms
+ ✓ |consumer (chromium)| tests/input.browser.test.ts:397 > drag:DRI-4 Escape > should not prevent Escape before start 26ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:255 > a React consumer > should see a list the framework rerendered during a press 153ms
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:45 > drag:DRI-11 the click guard > should swallow the trailing click of a rejected drop, which produces one 243ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item 348ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:295 > a React consumer > should deliver no callback during an unmount 122ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:59 > drag:DRI-11 the click guard > should swallow the trailing click of an accepted reorder, where the engine produces one 211ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:70 > drag:DRI-11 the click guard > should swallow the trailing click of a cancel with the button held 216ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else 369ms
+ ✓ |consumer (chromium)| tests/frameworks.browser.test.ts:367 > a keyed reconciler that rewrites the whole list > should keep keyboard focus through a rewrite 60ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:84 > drag:DRI-11 the click guard > should swallow the trailing click after destruction with the button held 212ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:99 > drag:DRI-11 the click guard > should keep the click of a press below the threshold 34ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:113 > drag:DRI-11 the click guard > should deliver a later click on the same list at once 191ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate 184ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under scale 148ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:123 > drag:DRI-11 the click guard > should hold for a custom behavior with no lift 191ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:161 > drag:DRI-11 the click guard > should swallow a click while nothing has expired it 134ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under skew 152ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:168 > drag:DRI-11 the click guard > should swallow one click only 124ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under zoom 156ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:175 > drag:DRI-11 the click guard > should expire in the task after that pointer pointerup 110ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:88 > drag:DRI-16 no-lift move and resize > should follow the pointer under rotate, scale and zoom 145ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:184 > drag:DRI-11 the click guard > should still swallow a click in the task of that pointer pointerup 123ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:108 > drag:DRI-16 no-lift move and resize > should follow the pointer with own rotate 148ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:192 > drag:DRI-11 the click guard > should not expire at another pointer pointerup 112ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:203 > drag:DRI-11 the click guard > should expire at that pointer pointercancel 115ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:126 > drag:DRI-16 no-lift move and resize > should need a division by the element own zoom, which a behavior states 151ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:211 > drag:DRI-11 the click guard > should expire at the next primary pointerdown 118ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, through the element Box 129ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under scale, through the element Box 133ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:220 > drag:DRI-11 the click guard > should deliver a real click after the release 198ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under skew, through the element Box 133ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:232 > drag:DRI-11 the click guard > should prevent only the move that crosses the threshold 116ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under zoom, through the element Box 133ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:145 > drag:DRI-16 no-lift move and resize > should resize along the pointer under rotate, scale and zoom, through the element Box 133ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:264 > drag:DRI-11 the click guard > should complete a touch drag with no platform cancel, and keep the next click 301ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate 136ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under scale 137ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:298 > drag:DRI-11 the click guard > should cancel with origin interrupted when the platform cancels a touch 269ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under skew 132ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under zoom 132ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:325 > drag:DRI-11 the click guard > should follow the primary touch and ignore a second finger 352ms
+ ✓ |consumer (chromium)| tests/click-guard.browser.test.ts:350 > drag:DRI-11 the click guard > should prevent nothing on a press 24ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under rotate, scale and zoom 137ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:187 > drag:DRI-16 lifted > should follow the pointer exactly under own rotate on the item 130ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:219 > drag:DRI-16 lifted > should follow the pointer for an item with its own zoom 131ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:29 > drag:DRI-9 release order > should release in the fixed order 193ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:251 > drag:DRI-16 lifted > should keep the rendered size across the lift under scale and zoom 133ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:76 > drag:DRI-9 release order > should run the terminal in the task of the decision, before the landing ends 149ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor scale(.5), following the pointer 167ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is accepted 170ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:283 > drag:DRI-16 required environments for a sortable > should reorder under ancestor zoom:2, following the pointer 171ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is rejected 169ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:96 > drag:DRI-9 release order > should restore inline styles and popover state exactly on a drop that is canceled 166ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:307 > drag:DRI-16 required environments for a sortable > should reorder a list in a shadow root 233ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:128 > drag:DRI-9 release order > should leave no style attribute when there was none 181ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:326 > drag:DRI-16 required environments for a sortable > should reorder a list in a same-origin iframe the parent controls 247ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:142 > drag:DRI-9 release order > should restore an open popover the page had 165ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:349 > drag:DRI-16 required environments for a sortable > should stay visible when dragged out of an overflow:hidden list 150ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:360 > drag:DRI-16 required environments for a sortable > should stay above a later positioned panel 133ms
+ ✓ |consumer (chromium)| tests/coordinates.browser.test.ts:382 > drag:DRI-16 required environments for a sortable > should read a Space for an ancestor it can represent 15ms
+stderr | tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run
+[Error: Uncaught DragFault: drag: move]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: Uncaught DragFault: drag: first]
+stderr | tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide
+[Error: Uncaught DragFault: drag: second]
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:22 > drag:DRI-7 faults > should cancel once with a fault when move throws, and let the terminal run 161ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:159 > drag:DRI-9 release order > should pass each outcome to a disposer 450ms
+stderr | tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw
+[Error: Uncaught DragFault: drag: middle]
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:44 > drag:DRI-7 faults > should report two faults in one pass once each, and let the first decide 150ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:192 > drag:DRI-9 release order > should run disposers last in first out, past a throw 150ms
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: disposer 2]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: disposer 1]
+stderr | tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each
+[Error: Uncaught DragFault: drag: controller use]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: plain]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: null]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: undefined]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: text]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: Symbol(symbol)]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: frozen]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity
+[Error: Uncaught DragFault: drag: unreadable value]
+stderr | tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel
+[Error: Uncaught DragFault: drag: boom]
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:75 > drag:DRI-7 faults > should report disposer throws during destruction once each 132ms
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:108 > drag:DRI-7 faults > should deliver every hostile value once, typed, with cause identity 17ms
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:162 > drag:DRI-7 faults > should include the original message when it can be read 16ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:216 > drag:DRI-9 release order > should run a late use at once with the outcome 151ms
+stderr | tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use
+[Error: Uncaught DragFault: drag: late]
+stderr | tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction
+[Error: Uncaught DragFault: drag: boom]
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:237 > drag:DRI-9 release order > should report a throw from a late use 155ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:256 > drag:DRI-9 release order > should run a late use on a destroyed controller at once 10ms
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:166 > drag:DRI-7 faults > should leave origin fault when a global listener requests cancel 157ms
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:194 > drag:DRI-7 faults > should deliver no terminal when a global listener requests destruction 165ms
+stderr | tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported
+[Error: Uncaught DragFault: drag: settle]
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:269 > drag:DRI-9 release order > should leave no placeholder, capture, listener or style after an operation 222ms
+stderr | tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller
+[Error: Uncaught DragFault: drag: lift/visual-no-box-space]
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:222 > drag:DRI-7 faults > should keep the outcome when a later fault is reported 148ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:297 > drag:DRI-9 release order > should not retain the signal past a press that never activates 95ms
+ ✓ |consumer (chromium)| tests/release.browser.test.ts:321 > drag:DRI-9 release order > should remove the sortable placeholder before the lift is released 169ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw
+[Error: Uncaught DragFault: drag: cancel]
+stderr | tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+[Error: Uncaught DragFault: drag: show]
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:242 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller 318ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw
+[Error: Uncaught DragFault: drag: destroy]
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: Uncaught DragFault: drag: show]
+stderr | tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+[Error: Uncaught DragFault: drag: restore]
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestCancel before the throw 159ms
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:308 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide 150ms
+stderr | tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw
+[Error: Uncaught DragFault: drag: fault]
+ ✓ |consumer (chromium)| tests/faults.browser.test.ts:326 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides 168ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: requestDestroy before the throw 164ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:30 > drag:DRI-3 terminals > should report a throw from activate once and leave the list clean: nothing before the throw 150ms
+stderr | tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws
+[Error: Uncaught DragFault: drag: start]
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:52 > drag:DRI-3 terminals > should report nothing when activate declines 155ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:51 > freeDrag > should follow the pointer and ask at the drop 176ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:63 > drag:DRI-3 terminals > should run end once when start throws 148ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:71 > freeDrag > should project onto one axis 130ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:79 > drag:DRI-3 terminals > should run end once for a drop with no verdict 150ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:81 > freeDrag > should clamp to bounds and place by moveTo 169ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:90 > drag:DRI-3 terminals > should run end for a release that lands the item on its own gap 168ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:100 > drag:DRI-4 cancel > should ignore a cancel on an idle controller 12ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:103 > freeDrag > should re-read bounds on invalidate 214ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:110 > drag:DRI-4 cancel > should keep the first reason and origin 119ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:120 > freeDrag > drag:DRD-48 should clamp the drop against the bounds after a scroll whose event has not arrived 166ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:132 > drag:DRI-4 cancel > should change nothing with a cancel after the decision 148ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:151 > drag:DRI-4 cancel > should cancel on Escape with origin escape 134ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:163 > drag:DRI-4 cancel > should retire a pending press on Escape, with no terminal 100ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:175 > freeDrag > should clamp against bounds measured again after a scroll between operations (drag:DRF-5) 366ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:184 > drag:DRI-4 cancel > should cancel on lostpointercapture with origin interrupted 218ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:201 > drag:DRI-4 cancel > should release presentation at once on a cancel with the button held 132ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:216 > freeDrag > should land home on a rejection, only with a landing 250ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:230 > freeDrag > should land at a custom home 183ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:211 > drag:DRI-4 cancel > should not let a retained drag cancel a later operation 304ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:234 > admission > should require a primary button press 11ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:262 > admission > should refuse a press through data-drag-ignore before the handle, for a custom behavior 152ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:249 > freeDrag > should honor handle and visual 321ms
+ ✓ |consumer (chromium)| tests/free-drag.browser.test.ts:271 > freeDrag > should report geometry to onStart and onMove with the local delta 133ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:280 > admission > should acquire pointer capture on the root 155ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:296 > admission > should activate only at the threshold 46ms
+ ✓ |consumer (chromium)| tests/terminals.browser.test.ts:319 > drag:DRI-6 reentrant input > should let the press after a refused one activate 337ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:60 > drag:DRI-18 resize handle > should resize with no lift, and Escape should restore 234ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:92 > drag:DRI-18 resize handle > should resize in viewport distance inside a scaled parent 163ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:61 > drag:DRI-9 commit ownership > should keep a translate committed in onEnd 185ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:78 > drag:DRI-9 commit ownership > should keep left and top committed in onEnd 166ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of true where it says 456ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:95 > drag:DRI-9 commit ownership > should revert at release a write to a lifted property made during the lift 163ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:124 > drag:DRI-9 README examples > should reorder with the quick start 171ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:116 > drag:DRI-18 drop zone > should land an async verdict of false where it says 450ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:147 > drag:DRI-9 README examples > should keep the free-drag example where it was dropped, across two drags 330ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:150 > drag:DRI-18 canvas group > should move in canvas units under scale, and save 161ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:160 > drag:DRI-18 canvas group > should follow the pointer under rotation, through box-quad 200ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:176 > drag:DRI-18 canvas group > should roll back on Escape 200ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:185 > drag:DRI-18 canvas group > should roll back on destruction, with no end and no flag 167ms
+stderr | tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save
+[Error: Uncaught DragFault: drag: save failed]
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:195 > drag:DRI-18 canvas group > should roll back and report a failed save 166ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:203 > drag:DRI-18 canvas group > should render a nudge from foreign code through requestStep 206ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:242 > drag:DRD-27 the lift in the operation > should give a lifted behavior a drag with only the kernel keys 160ms
+ ✓ |consumer (chromium)| tests/authoring.browser.test.ts:257 > drag:DRD-27 the lift in the operation > should give the lift exactly its nine keys 170ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:49 > drag:DRI-3 activation > should run no hook for a custom behavior whose item was disconnected during the press 109ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:84 > drag:DRI-14 command activation > should decline a command quietly when its item leaves during the lift 48ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:102 > drag:DRI-14 command activation > should decline a command quietly when its move becomes impossible during the lift 52ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:121 > drag:DRI-14 command activation > should land a keyboard command from the old slot 29ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 650ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:179 > drag:DRI-9 README examples > should keep the scrolling-container example where it was dropped, and land it home 2483ms
+ ✓ |consumer (chromium)| tests/commit.browser.test.ts:249 > drag:DRI-20 free drag offset > should commit where dropped without home in an unscrolled page 166ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:33 > drag:DRI-12 focus > should let two arrow presses in a row reorder twice 56ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:45 > drag:DRI-12 focus > should keep focus through a pointer reorder 167ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:145 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 649ms
+stderr | tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:55 > drag:DRI-12 focus > should restore focus after an async verdict 84ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:72 > drag:DRI-12 focus > should leave focus where the user moved it during a verdict 50ms
+stderr | tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+[Error: Uncaught DragFault: drag: sortable/insertion-placeholder-lost]
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:181 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate 235ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:94 > drag:DRI-12 focus > should restore focus inside an open shadow root 50ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:200 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion 150ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:111 > drag:DRI-12 focus > should restore focus to a descendant of the item 250ms
+ ✓ |consumer (chromium)| tests/activation.browser.test.ts:226 > drag:DRI-17 coalescing > should schedule one frame for several samples in one task 141ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:133 > drag:DRI-12 focus > should keep focus when the lift promotes an autofocus descendant 72ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:152 > drag:DRI-12 focus > should leave nothing focused when an autofocus descendant is promoted with nothing focused 130ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:173 > drag:DRI-12 focus > should not restore focus on destruction 32ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:187 > drag:DRI-12 focus > should not scroll on a pointer restore 169ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:211 > drag:DRI-12 focus > should scroll a keyboard restore of an off-screen row into view 47ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:232 > drag:DRI-12 focus > should keep :focus-visible on a keyboard restore 54ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag 430ms
+ ✓ |consumer (chromium)| tests/focus.browser.test.ts:242 > drag:DRI-12 focus > should restore a pointer drop without :focus-visible 216ms
+ ✓ |consumer (chromium)| tests/classes.browser.test.ts:37 > drag:DRD-20 detached controller methods > should run draggable controller methods called on the controller 158ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag 413ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late resolve after destruction reach nothing 249ms
+ ✓ |consumer (chromium)| tests/classes.browser.test.ts:72 > drag:DRD-20 detached controller methods > should run sortable controller methods detached 315ms
+ ✓ |consumer (chromium)| tests/classes.browser.test.ts:100 > drag:DRD-20 detached controller methods > should run freeDrag controller methods detached 149ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late reject after destruction reach nothing 251ms
+ ✓ |consumer (chromium)| tests/classes.browser.test.ts:128 > drag:DRD-34 receivers > should call a step with no receiver, requested while idle and during a pass 153ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:92 > drag:DRI-5 verdict > should not abort the signal on acceptance 203ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:109 > drag:DRI-5 verdict > should abort drag.signal at release while the verdict signal stays live 148ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:132 > drag:DRI-5 verdict > should read then once, and take the first completion 147ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault
+[Error: Uncaught DragFault: drag: accessor]
+ ✓ |consumer (chromium)| tests/classes.browser.test.ts:151 > drag:DRD-34 receivers > should re-read freeDrag bounds on invalidate called during a pass 298ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then accessor as a fault 153ms
+stderr | tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault
+[Error: Uncaught DragFault: drag: call]
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:178 > drag:DRI-5 verdict > should treat a throwing then call as a fault 147ms
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: thrown]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: rejected]
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault 372ms
+ ✓ |consumer (chromium)| tests/verdict.browser.test.ts:234 > drag:DRI-5 verdict > should hold a verdict through a pending drop, then finish 228ms
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:38 > drag:DRD-30 operation lifecycle > should release a partial acquisition with the outcome when activate declines 164ms
+ ✓ |consumer (chromium)| tests/classes.browser.test.ts:190 > drag:DRD-20 behavior instances > should retain no freeDrag behavior instance after destruction 1353ms
+stderr | tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use
+[Error: Uncaught DragFault: drag: constructor]
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:56 > drag:DRD-30 operation lifecycle > should release with the fault when the operation constructor throws after a use 217ms
+stderr | tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws
+[Error: Uncaught DragFault: drag: after the cancel]
+stderr | tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws
+[Error: Uncaught DragFault: drag: end throws]
+ ✓ |consumer (chromium)| tests/order.browser.test.ts:71 > drag:DRI-9 and drag:DRI-12 release order > should start the landing before the focus call 175ms
+ ✓ |consumer (chromium)| tests/order.browser.test.ts:96 > drag:DRI-9 and drag:DRI-12 release order > should keep focus through two arrow presses that reorder in end 72ms
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then declines 148ms
+ ✓ |consumer (chromium)| tests/order.browser.test.ts:108 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end throws 57ms
+ ✓ |consumer (chromium)| tests/order.browser.test.ts:122 > drag:DRI-9 and drag:DRI-12 release order > should restore focus when end requests destruction 59ms
+ ✓ |consumer (chromium)| tests/order.browser.test.ts:135 > drag:DRI-9 and drag:DRI-12 release order > should not restore focus when destruction is requested before the terminal 51ms
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:75 > drag:DRD-30 operation lifecycle > should keep a cancel recorded in activate when activate then throws 154ms
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:105 > drag:DRD-30 operation lifecycle > should run a step requested in activate after it, with the returned operation 146ms
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:129 > drag:DRD-30 operation lifecycle > should give a step requested in activate null behind a cancel requested there 155ms
+ ✓ |consumer (chromium)| tests/operation-lifecycle.browser.test.ts:148 > drag:DRD-30 operation lifecycle > should start, settle and end with a cancel requested in activate 151ms
+ ✓ |consumer (chromium)| tests/scoped-requests.browser.test.ts:24 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while a later operation is active 323ms
+ ✓ |consumer (chromium)| tests/scoped-requests.browser.test.ts:52 > drag:DRI-8 scoped requests > should not run a step requested through a retained drag while idle 146ms
+ ✓ |consumer (chromium)| tests/scoped-requests.browser.test.ts:72 > drag:DRI-8 scoped requests > should give a late disposer the outcome after destruction of a concluded operation 154ms
+ ✓ |consumer (chromium)| tests/scoped-requests.browser.test.ts:97 > drag:DRI-8 scoped requests > should give a late disposer null when destruction released its operation 166ms
+ ✓ |node| tests/exports.node.test.ts:33 > the public surface > should list the contract entries in files.json 3ms
+ ✓ |node| tests/exports.node.test.ts:39 > the public surface > should export exactly those entries 1ms
+ ✓ |node| tests/exports.node.test.ts:47 > the public surface > should stay private 1ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone 6ms
+   → expected [ …(2) ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift 0ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle 1ms
+   → expected [ 'over its 3313 B ceiling by 1 B' ] to deeply equal []
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone 1ms
+   → expected [ 'over its 4431 B ceiling by 167 B' ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group 0ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag 1ms
+   → expected [ 'over its 4967 B ceiling by 51 B' ] to deeply equal []
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing 1ms
+   → expected [ 'over its 5210 B ceiling by 240 B' ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + y 0ms
+ ✓ |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + xy 0ms
+ × |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete 1ms
+   → expected [ 'over its 7065 B ceiling by 110 B' ] to deeply equal []
+ ✓ |node| tests/size.node.test.ts:28 > drag:DRI-18 module graphs and size > should bring no lift, box-quad, sortable, cache or landing code with draggable alone 0ms
+ ✓ |node| tests/campaign.node.test.ts:104 > campaign runner > a run whose steps all succeed > should exit 0 2ms
+ ✓ |node| tests/campaign.node.test.ts:108 > campaign runner > a run whose steps all succeed > should record the run as succeeded 0ms
+ ✓ |node| tests/campaign.node.test.ts:112 > campaign runner > a run whose steps all succeed > should record each command with exit code 0 1ms
+ ✓ |node| tests/campaign.node.test.ts:125 > campaign runner > a run whose steps all succeed > should write each step's stdout and stderr to its log 1ms
+ ✓ |node| tests/campaign.node.test.ts:133 > campaign runner > a run whose steps all succeed > should record the revision of each step 3ms
+ ✓ |node| tests/campaign.node.test.ts:144 > campaign runner > a run whose steps all succeed > should record ordered start and end times 0ms
+ ✓ |node| tests/campaign.node.test.ts:154 > campaign runner > a run whose steps all succeed > should be reported as succeeded 55ms
+ ✓ |node| tests/campaign.node.test.ts:174 > campaign runner > a run with a failing step > should exit with the failing step's exit code 0ms
+ ✓ |node| tests/campaign.node.test.ts:178 > campaign runner > a run with a failing step > should record the run as failed 0ms
+ ✓ |node| tests/campaign.node.test.ts:182 > campaign runner > a run with a failing step > should record the failing step and its exit code 0ms
+ ✓ |node| tests/campaign.node.test.ts:192 > campaign runner > a run with a failing step > should not run the steps after the failure 0ms
+ ✓ |node| tests/campaign.node.test.ts:196 > campaign runner > a run with a failing step > should keep the failing step's log 0ms
+ ✓ |node| tests/campaign.node.test.ts:200 > campaign runner > a run with a failing step > should be reported as failed 72ms
+ ✓ |node| tests/campaign.node.test.ts:230 > campaign runner > a run whose runner receives SIGTERM during a step > should be reported as running while the step runs 0ms
+ ✓ |node| tests/campaign.node.test.ts:237 > campaign runner > a run whose runner receives SIGTERM during a step > should exit with the code of SIGTERM 0ms
+ ✓ |node| tests/campaign.node.test.ts:241 > campaign runner > a run whose runner receives SIGTERM during a step > should record the run as interrupted by SIGTERM 0ms
+ ✓ |node| tests/campaign.node.test.ts:248 > campaign runner > a run whose runner receives SIGTERM during a step > should stop the step and record it as interrupted 0ms
+ ✓ |node| tests/campaign.node.test.ts:255 > campaign runner > a run whose runner receives SIGTERM during a step > should not run the steps after the interruption 1ms
+ ✓ |node| tests/campaign.node.test.ts:262 > campaign runner > a run whose runner receives SIGTERM during a step > should keep the interrupted step's log 0ms
+ ✓ |node| tests/campaign.node.test.ts:266 > campaign runner > a run whose runner receives SIGTERM during a step > should be reported as interrupted with no step alive 54ms
+ ✓ |node| tests/campaign.node.test.ts:288 > campaign runner > a run whose runner is killed during a step > should leave the recorded state as running 0ms
+ ✓ |node| tests/campaign.node.test.ts:292 > campaign runner > a run whose runner is killed during a step > should be reported as interrupted 0ms
+ ✓ |node| tests/campaign.node.test.ts:296 > campaign runner > a run whose runner is killed during a step > should report that the orphaned step is still alive 0ms
+ ✓ |declaration| tests/authoring.declaration.test.ts:23 > drag:DRI-18 the type requirement > should let activate name no lift member on a drag
+ ✓ |declaration| tests/authoring.declaration.test.ts:44 > drag:DRI-18 the type requirement > should let a controller step name no lift member on the operation
+ ✓ |declaration| tests/authoring.declaration.test.ts:53 > drag:DRI-18 the type requirement > should refuse visual and box in an admission
+ ✓ |declaration| tests/authoring.declaration.test.ts:63 > drag:DRI-18 the type requirement > should compose the lift in the operation
+ ✓ |declaration| tests/authoring.declaration.test.ts:91 > drag:DRI-18 the type requirement > should accept class instances with extra members
+ ✓ |declaration| tests/authoring.declaration.test.ts:130 > drag:DRI-18 the type requirement > should not let a controller or a drag reach the session
+ ✓ |declaration| tests/authoring.declaration.test.ts:167 > drag:DRI-18 the type requirement > should refuse the removed names
+ ✓ |declaration| tests/authoring.declaration.test.ts:180 > drag:DRD-30 the activation result > should give a drag no state
+ ✓ |declaration| tests/authoring.declaration.test.ts:192 > drag:DRD-30 the activation result > should give a behavior none of the operation hooks
+ ✓ |declaration| tests/authoring.declaration.test.ts:207 > drag:DRD-30 the activation result > should require activate
+ ✓ |declaration| tests/authoring.declaration.test.ts:212 > drag:DRD-30 the activation result > should let activate return the operation or null, and nothing else
+ ✓ |declaration| tests/authoring.declaration.test.ts:221 > drag:DRD-30 the activation result > should give a step the operation type or null, through the controller and through a drag
+ ✓ |declaration| tests/callbacks.declaration.test.ts:53 > drag:DRI-8 requestStep receiver typing > should check a declared receiver at a Drag and at the controller
+ ✓ |declaration| tests/callbacks.declaration.test.ts:68 > drag:DRI-8 requestStep receiver typing > should keep a receiver-free step as it was
+ ✓ |declaration| tests/callbacks.declaration.test.ts:104 > drag:DRI-9 and drag:DRI-10 use receiver typing > should check a declared receiver at a Drag and at the controller
+ ✓ |declaration| tests/callbacks.declaration.test.ts:139 > drag:DRD-35 the receiver is an object > should refuse a primitive receiver at a Drag
+ ✓ |declaration| tests/callbacks.declaration.test.ts:152 > drag:DRD-35 the receiver is an object > should refuse a primitive receiver at the controller
+ ✓ |declaration| tests/callbacks.declaration.test.ts:176 > drag:DRD-35 capabilities declare their receiver > should refuse the axis and the sink passed to use without their receiver
+ ✓ |declaration| tests/rect-index.declaration.test.ts:22 > RectIndex fields > should accept only the six geometry fields as at's field
+ ✓ |declaration| tests/rect-index.declaration.test.ts:37 > RectIndex fields > should accept only LEFT or TOP as retained's field
+ ✓ |declaration| tests/rect-index.declaration.test.ts:48 > RectIndex fields > should accept only LEFT or TOP as the constructor's axis
+ ✓ |declaration| tests/published-types.declaration.test.ts:12 > drag:DRD-39 the published types > should let an operation name the type its drop returns
+ ✓ |declaration| tests/published-types.declaration.test.ts:19 > drag:DRD-39 the published types > should let a free drag config name its axis and home types
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 2139 B ceiling by 50 B",
++   "control moved by 165 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+AssertionError: expected [ 'over its 3313 B ceiling by 1 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 3313 B ceiling by 1 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+AssertionError: expected [ 'over its 4431 B ceiling by 167 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4431 B ceiling by 167 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+AssertionError: expected [ 'over its 4967 B ceiling by 51 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 4967 B ceiling by 51 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+AssertionError: expected [ 'over its 5210 B ceiling by 240 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 5210 B ceiling by 240 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+AssertionError: expected [ 'over its 7065 B ceiling by 110 B' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "over its 7065 B ceiling by 110 B",
++ ]
+
+ ❯ tests/size.node.test.ts:24:47
+     22|     'should satisfy the declared graph and ceiling of %s',
+     23|     (name) => {
+     24|       expect(violations(measured.get(name)!)).toEqual([]);
+       |                                               ^
+     25|     },
+     26|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed | 55 passed (56)
+      Tests  6 failed | 746 passed (752)
+Type Errors  no errors
+   Start at  18:03:53
+   Duration  96.43s (tests 97%, worker 2%, import 1%)
+

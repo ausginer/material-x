@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# One mutation: apply, save its patch, run the given command, revert. Always exits 0.
+S=/tmp/claude-1000/-workspaces-material-x/324475be-ec3c-4447-bdba-2522925d9cae/scratchpad
+name=$1; tag=$2; shift 2
+mkdir -p $S/mut
+python3 $S/mutate.py $name || { echo "APPLY FAILED"; exit 0; }
+git diff -- src > $S/mut/$name.patch
+echo "MUTATION $name ($tag): $*"
+"$@"
+echo "STEP EXIT CODE: $?"
+git checkout -- src
+git diff --quiet -- src && echo "REVERTED: src clean"
+exit 0
