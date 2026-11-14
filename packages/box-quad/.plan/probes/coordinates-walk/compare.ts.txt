@@ -1,0 +1,333 @@
+/**
+ * Chromium timing and allocation comparison for `coordinates`, with and
+ * without `above`, between source arms of `packages/box-quad/src/index.ts`.
+ *
+ * It is stored as `.txt` so the package's lint and typecheck don't take it in.
+ * Run it from the repository root, from a copy inside the checkout so that
+ * `playwright` and `rolldown` resolve from the root `node_modules`:
+ *
+ * ```sh
+ * cp packages/box-quad/.plan/probes/coordinates-walk/compare.ts.txt packages/box-quad/compare.ts
+ * node packages/box-quad/compare.ts <out.json> <rounds> base=<base.ts> base2=<base.ts> A=<A.ts> ...
+ * ```
+ *
+ * `<rounds>` of 0 skips the timing rounds and runs only the allocation pages.
+ * Each arm is a whole `src/index.ts`: the base from
+ * `git show 27c8f5495:packages/box-quad/src/index.ts`, and a candidate from
+ * that file with one `arm-*.diff.txt` applied.
+ *
+ * The first arm is the reference, and the second must be the same source as
+ * the first: it is the A/A arm whose differences bound the noise. Each arm is
+ * bundled separately with Rolldown, unminified, so the A/A arm is a distinct
+ * module instance with its own feedback.
+ *
+ * Timing: each round is a new page. In it every arm is warmed up, then every
+ * scenario takes nine samples per arm, the arm order rotating between
+ * samples. A sample is one `performance.now()` span over `CALLS` calls, in ns
+ * per call, and a round keeps each arm's median. Verdict per scenario and arm:
+ * the round-paired difference from the reference, "faster" or "slower" when it
+ * has the same sign in at least six of seven rounds and its median is beyond
+ * the largest A/A difference in any round, otherwise "no difference shown".
+ *
+ * Allocation: in three further pages, the CDP sampling heap profiler, with
+ * objects collected by minor and major GC included, records each arm's
+ * `ALLOCATION_CALLS` calls in its own sampling window after a forced GC. The
+ * reading is sampled bytes per call over the whole window, and the bytes
+ * attributed to each JavaScript function.
+ */
+import { writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+import { rolldown } from 'rolldown';
+
+const CALLS = 4000;
+const SAMPLES = 9;
+const ALLOCATION_CALLS = 20000;
+const ALLOCATION_ROUNDS = 3;
+const SCENARIOS = [
+  { name: 'fallback, depth 2', depth: 0, above: false },
+  { name: 'fallback, depth 14', depth: 12, above: false },
+  { name: 'fallback, depth 32', depth: 30, above: false },
+  { name: 'above, depth 14', depth: 12, above: true },
+] as const;
+
+const [output, roundsArgument, ...armArguments] = process.argv.slice(2);
+const rounds = Number(roundsArgument);
+const arms = armArguments.map((argument) => {
+  const [name, path] = argument.split('=') as [string, string];
+
+  return { name, path };
+});
+
+async function bundle(name: string, path: string): Promise<string> {
+  const build = await rolldown({ input: path, logLevel: 'silent' });
+  const { output: chunks } = await build.generate({
+    format: 'iife',
+    name: `__arm_${name}`,
+  });
+
+  await build.close();
+  return `${chunks[0].code}\n//# sourceURL=arm-${name}.js`;
+}
+
+const sources = await Promise.all(arms.map(({ name, path }) => bundle(name, path)));
+const browser = await chromium.launch({
+  executablePath: '/usr/local/bin/chrome',
+  headless: true,
+});
+const version = browser.version();
+
+async function open() {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+
+  await page.setContent('<!doctype html><html><body></body></html>');
+
+  for (const content of sources) {
+    await page.addScriptTag({ content });
+  }
+
+  return page;
+}
+
+/** Builds the fixture and returns nothing; runs in the page. */
+const setup = `
+globalThis.__fixture = (depth) => {
+  document.body.replaceChildren();
+  let parent = document.body;
+  for (let level = 0; level < depth; level += 1) {
+    const node = document.createElement('div');
+    node.style.cssText = 'position:absolute;left:1px;top:1px;width:200px;height:200px;transform-origin:0 0;rotate:3deg;scale:1.01';
+    parent.append(node);
+    parent = node;
+  }
+  const element = document.createElement('div');
+  element.style.cssText = 'position:absolute;left:2px;top:3px;width:20px;height:10px;box-sizing:border-box;transform-origin:0 0;rotate:-7deg';
+  parent.append(element);
+  return element;
+};
+`;
+
+type Timing = Record<string, Record<string, number[]>>;
+
+const timing: Timing = {};
+const names = arms.map(({ name }) => name);
+
+for (let round = 0; round < rounds; round += 1) {
+  const page = await open();
+
+  await page.addScriptTag({ content: setup });
+
+  for (const scenario of SCENARIOS) {
+    const medians = await page.evaluate(
+      ({ names, depth, above, calls, samples }) => {
+        const g = globalThis as unknown as Record<string, any>;
+        const element = g.__fixture(depth) as HTMLElement;
+        const space: number[] = [];
+        const out: number[] = [];
+        const functions = names.map((name) => g[`__arm_${name}`].coordinates);
+
+        g[`__arm_${names[0]}`].ancestry(element, space);
+
+        const passedAbove = above ? space : undefined;
+        let accepted = 0;
+
+        for (const coordinates of functions) {
+          for (let call = 0; call < calls; call += 1) {
+            accepted += coordinates(element, out, passedAbove) ? 1 : 0;
+          }
+        }
+
+        const times: number[][] = names.map(() => []);
+
+        for (let sample = 0; sample < samples; sample += 1) {
+          for (let offset = 0; offset < names.length; offset += 1) {
+            const index = (sample + offset) % names.length;
+            const coordinates = functions[index];
+            const start = performance.now();
+
+            for (let call = 0; call < calls; call += 1) {
+              accepted += coordinates(element, out, passedAbove) ? 1 : 0;
+            }
+
+            times[index]!.push(((performance.now() - start) / calls) * 1e6);
+          }
+        }
+
+        if (accepted !== calls * names.length * (samples + 1)) {
+          throw new Error('a call returned false');
+        }
+
+        return times.map((values) => {
+          const sorted = values.toSorted((x, y) => x - y);
+
+          return sorted[sorted.length >> 1]!;
+        });
+      },
+      { names, ...scenario, calls: CALLS, samples: SAMPLES },
+    );
+
+    for (const [index, name] of names.entries()) {
+      ((timing[scenario.name] ??= {})[name] ??= []).push(medians[index]!);
+    }
+  }
+
+  await page.close();
+}
+
+function median(values: readonly number[]): number {
+  const sorted = values.toSorted((x, y) => x - y);
+  const middle = sorted.length >> 1;
+
+  return sorted.length % 2 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
+}
+
+const verdicts: Record<string, unknown> = {};
+
+for (const scenario of rounds ? SCENARIOS : []) {
+  const rows = timing[scenario.name]!;
+  const reference = rows[names[0]!]!;
+  const aa = rows[names[1]!]!.map((value, round) => value - reference[round]!);
+  const bound = Math.max(...aa.map(Math.abs));
+
+  verdicts[scenario.name] = Object.fromEntries(
+    names.slice(1).map((name) => {
+      const differences = rows[name]!.map((value, round) => value - reference[round]!);
+      const lower = differences.filter((difference) => difference < 0).length;
+      const higher = differences.filter((difference) => difference > 0).length;
+      const middle = median(differences);
+      const needed = Math.ceil((rounds * 6) / 7);
+      const verdict =
+        Math.abs(middle) > bound && lower >= needed
+          ? 'faster'
+          : Math.abs(middle) > bound && higher >= needed
+            ? 'slower'
+            : 'no difference shown';
+
+      return [
+        name,
+        {
+          referenceMedianNs: median(reference),
+          medianNs: median(rows[name]!),
+          medianDifferenceNs: middle,
+          lower,
+          higher,
+          aaBoundNs: bound,
+          verdict,
+        },
+      ];
+    }),
+  );
+}
+
+type ProfileNode = {
+  callFrame: { functionName: string; url: string };
+  selfSize: number;
+  children: ProfileNode[];
+};
+
+const allocation: Record<string, Record<string, unknown>[]> = {};
+
+for (let round = 0; round < ALLOCATION_ROUNDS; round += 1) {
+  const page = await open();
+  const session = await page.context().newCDPSession(page);
+
+  await page.addScriptTag({ content: setup });
+  await session.send('HeapProfiler.enable');
+
+  for (const scenario of SCENARIOS) {
+    await page.evaluate(
+      ({ names, depth, above, calls }) => {
+        const g = globalThis as unknown as Record<string, any>;
+        const element = g.__fixture(depth);
+        const space: number[] = [];
+
+        g[`__arm_${names[0]}`].ancestry(element, space);
+        g.__run = (name: string, count: number) => {
+          const coordinates = g[`__arm_${name}`].coordinates;
+          const out: number[] = [];
+          const passedAbove = above ? space : undefined;
+
+          for (let call = 0; call < count; call += 1) {
+            coordinates(element, out, passedAbove);
+          }
+        };
+
+        for (const name of names) {
+          g.__run(name, calls);
+        }
+      },
+      { names, ...scenario, calls: CALLS },
+    );
+
+    for (const name of names) {
+      await session.send('HeapProfiler.collectGarbage');
+      await session.send('HeapProfiler.startSampling', {
+        samplingInterval: 32,
+        includeObjectsCollectedByMajorGC: true,
+        includeObjectsCollectedByMinorGC: true,
+      });
+      await page.evaluate(
+        ({ name, count }) => (globalThis as any).__run(name, count),
+        { name, count: ALLOCATION_CALLS },
+      );
+
+      const { profile } = (await session.send('HeapProfiler.stopSampling')) as {
+        profile: { head: ProfileNode };
+      };
+      const byFunction: Record<string, number> = {};
+      let total = 0;
+      const visit = (node: ProfileNode, path: string): void => {
+        const frame = node.callFrame.functionName || '(anonymous)';
+        const here = node.callFrame.url.startsWith('arm-') ? `${path}>${frame}` : path;
+
+        total += node.selfSize;
+
+        if (node.selfSize) {
+          byFunction[here || frame] = (byFunction[here || frame] ?? 0) + node.selfSize;
+        }
+
+        for (const child of node.children) {
+          visit(child, here);
+        }
+      };
+
+      visit(profile.head, '');
+      ((allocation[scenario.name] ??= {}) as Record<string, unknown[]>)[name] ??= [];
+      ((allocation[scenario.name] as Record<string, unknown[]>)[name])!.push({
+        bytesPerCall: total / ALLOCATION_CALLS,
+        byFunctionPerCall: Object.fromEntries(
+          Object.entries(byFunction)
+            .filter(([, bytes]) => bytes / ALLOCATION_CALLS >= 1)
+            .map(([key, bytes]) => [key, bytes / ALLOCATION_CALLS]),
+        ),
+      });
+    }
+  }
+
+  await page.close();
+}
+
+await browser.close();
+
+const result = {
+  browser: version,
+  calls: CALLS,
+  samples: SAMPLES,
+  rounds,
+  arms,
+  timing,
+  verdicts,
+  allocation,
+};
+
+await writeFile(output, JSON.stringify(result, null, 2));
+console.log(JSON.stringify(verdicts, null, 2));
+
+for (const [scenario, rows] of Object.entries(allocation)) {
+  for (const [name, readings] of Object.entries(rows)) {
+    console.log(
+      scenario,
+      name,
+      (readings as { bytesPerCall: number }[]).map((reading) => reading.bytesPerCall.toFixed(1)).join(' '),
+    );
+  }
+}

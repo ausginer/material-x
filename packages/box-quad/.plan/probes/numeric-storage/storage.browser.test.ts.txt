@@ -1,0 +1,292 @@
+/**
+ * Storage-matrix probe for the numeric storage contracts, Chromium only.
+ *
+ * It compares a candidate `src/index.ts` against the baseline module at
+ * `0a28f909a`, which writes into the `Float64Array` storage its own factories
+ * allocate. Each candidate call writes into one storage kind per run, and every
+ * slot must be `Object.is`-equal to the baseline's. A `false` must leave the
+ * storage exactly as it was, keys and length included.
+ *
+ * Run from a scratch copy of the package with the candidate source in `src/`:
+ *
+ * ```sh
+ * cp .plan/probes/numeric-storage/storage.browser.test.ts.txt tests/storage.browser.test.ts
+ * git show 0a28f909a:packages/box-quad/src/index.ts > tests/baseline.ts
+ * npx vitest run -c vitest.config.ts tests/storage.browser.test.ts
+ * ```
+ *
+ * Against the baseline source itself the candidate is `0a28f909a` too, which
+ * shows the arithmetic was already storage-agnostic at run time.
+ */
+import { afterEach, describe, expect, it } from 'vitest';
+import * as candidate from '../src/index.ts';
+import * as baseline from './baseline.ts';
+
+type Storage = Record<number, number>;
+
+const SPACE = 5;
+const BOX = 8;
+const QUAD = 8;
+const DELTA = 2;
+const DX = 3.25;
+const DY = -7.5;
+
+/** Output storage kinds. `n` is the layout's slot count. */
+const KINDS: ReadonlyArray<readonly [string, (n: number) => Storage]> = [
+  ['empty number[]', () => []],
+  ['presized number[]', (n) => Array.from({ length: n }, () => 0)],
+  ['exact Float64Array', (n) => new Float64Array(n)],
+  ['oversized Float64Array', (n) => new Float64Array(n + 4).fill(-7)],
+  ['plain object', () => ({})],
+];
+
+/** Keys, values and `length`, compared with `Object.is` slot by slot. */
+function snapshot(storage: Storage): readonly unknown[] {
+  return [
+    (storage as { length?: number }).length,
+    ...Object.keys(storage).flatMap((key) => [key, storage[Number(key)]]),
+  ];
+}
+
+function expectSlots(actual: Storage, expected: Storage, n: number): void {
+  for (let index = 0; index < n; index += 1) {
+    expect(Object.is(actual[index], expected[index]), `slot ${index}`).toBe(
+      true,
+    );
+  }
+}
+
+/** A successful write leaves growable storage packed at exactly `n` slots. */
+function expectExtent(storage: Storage, n: number, kind: string): void {
+  if (kind === 'empty number[]') {
+    expect(storage).toHaveLength(n);
+    expect(Object.keys(storage)).toHaveLength(n);
+  } else if (kind === 'oversized Float64Array') {
+    expect(Array.from(storage as Float64Array).slice(n)).toEqual([
+      -7, -7, -7, -7,
+    ]);
+  } else if (kind === 'plain object') {
+    expect(Object.keys(storage)).toHaveLength(n);
+  }
+}
+
+function place(styles: string, parent: HTMLElement = document.body) {
+  const element = document.createElement('div');
+
+  element.style.cssText = `position:absolute;box-sizing:border-box;transform-origin:0 0;${styles}`;
+  parent.append(element);
+  return element;
+}
+
+/** Scenarios covering both size paths, zoom, shadow DOM and each `false`. */
+function scenarios(): ReadonlyArray<readonly [string, HTMLElement]> {
+  const plain = place('left:13.5px;top:7.25px;width:20px;height:10px');
+  const turned = place(
+    'left:40px;top:30px;width:120px;height:90px;transform:rotate(30deg) scale(1.5)',
+  );
+  const skewed = place(
+    'left:5px;top:3px;width:33.3px;height:17px;transform:skewX(10deg)',
+    turned,
+  );
+  const zoomed = place('left:60px;top:10px;width:80px;height:80px;zoom:1.5');
+  const rotated = place(
+    'left:2px;top:4px;width:10px;height:6px;rotate:15deg;scale:1.25 0.75',
+    zoomed,
+  );
+  const nearSingular = place(
+    'left:9px;top:9px;width:30px;height:12px;padding:1px 2px;border:1.5px solid;box-sizing:content-box;transform:rotate(45deg) scale(1, 0.01)',
+  );
+  const collapsed = place('left:0;top:0;width:10px;height:10px;transform:scale(0)');
+  const contents = place('display:contents', turned);
+  const flat = place('left:0;top:0;width:50px;height:50px;transform:rotateX(30deg)');
+  const deep = place('width:5px;height:5px', flat);
+  const host = place('left:20px;top:20px;width:40px;height:40px;transform:translate(3px, 4px)');
+  const shadowed = place(
+    'left:1px;top:2px;width:7px;height:9px;rotate:-20deg',
+    host.attachShadow({ mode: 'open' }) as unknown as HTMLElement,
+  );
+  const detached = document.createElement('div');
+
+  return [
+    ['plain', plain],
+    ['transformed ancestor and skew', skewed],
+    ['ancestor zoom with rotate and scale', rotated],
+    ['near-singular fallback size', nearSingular],
+    ['collapsed', collapsed],
+    ['display: contents', contents],
+    ['3D ancestor', deep],
+    ['shadow tree', shadowed],
+    ['disconnected', detached],
+  ];
+}
+
+afterEach(() => {
+  document.body.replaceChildren();
+});
+
+describe.each(KINDS)('%s storage', (kind, allocate) => {
+  it('should match the baseline slot for slot, and leave storage untouched on false', () => {
+    const cases = scenarios();
+    const reference = baseline.box();
+
+    for (const [name, element] of cases) {
+      // ancestry
+      const expectedSpace = baseline.space();
+      const spaceResult = baseline.ancestry(element, expectedSpace);
+      const space = allocate(SPACE);
+      const spaceBefore = snapshot(space);
+
+      expect(candidate.ancestry(element, space), name).toBe(spaceResult);
+
+      if (spaceResult) {
+        expectSlots(space, expectedSpace, SPACE);
+        expectExtent(space, SPACE, kind);
+      } else {
+        expect(snapshot(space), name).toEqual(spaceBefore);
+      }
+
+      // coordinates, with and without the ancestry argument
+      const expectedBox = baseline.box();
+      const boxResult = baseline.coordinates(element, expectedBox);
+
+      for (const above of spaceResult ? [undefined, space] : [undefined]) {
+        const box = allocate(BOX);
+        const boxBefore = snapshot(box);
+
+        expect(candidate.coordinates(element, box, above), name).toBe(
+          boxResult,
+        );
+
+        if (boxResult) {
+          expectSlots(box, expectedBox, BOX);
+          expectExtent(box, BOX, kind);
+        } else {
+          expect(snapshot(box), name).toEqual(boxBefore);
+        }
+      }
+
+      if (!boxResult) {
+        continue;
+      }
+
+      const box = allocate(BOX);
+
+      candidate.coordinates(element, box);
+
+      // projection, into the viewport and relative to the previous box
+      for (const relativeTo of [undefined, reference]) {
+        const expectedQuad = baseline.quad();
+        const quadResult = baseline.projection(
+          expectedBox,
+          expectedQuad,
+          relativeTo,
+        );
+        const quad = allocate(QUAD);
+        const quadBefore = snapshot(quad);
+
+        expect(candidate.projection(box, quad, relativeTo), name).toBe(
+          quadResult,
+        );
+
+        if (quadResult) {
+          expectSlots(quad, expectedQuad, QUAD);
+          expectExtent(quad, QUAD, kind);
+        } else {
+          expect(snapshot(quad), name).toEqual(quadBefore);
+        }
+      }
+
+      // localDelta, through the box and through the space
+      for (const [basis, expectedBasis] of [
+        [box, expectedBox],
+        ...(spaceResult ? [[space, expectedSpace]] : []),
+      ] as const) {
+        const expectedDelta = baseline.delta();
+        const deltaResult = baseline.localDelta(
+          expectedBasis,
+          DX,
+          DY,
+          expectedDelta,
+        );
+        const delta = allocate(DELTA);
+        const deltaBefore = snapshot(delta);
+
+        expect(candidate.localDelta(basis, DX, DY, delta), name).toBe(
+          deltaResult,
+        );
+
+        if (deltaResult) {
+          expectSlots(delta, expectedDelta, DELTA);
+          expectExtent(delta, DELTA, kind);
+        } else {
+          expect(snapshot(delta), name).toEqual(deltaBefore);
+        }
+      }
+
+      reference.set(expectedBox);
+    }
+  });
+
+  it('should leave storage untouched for a singular basis and a singular target', () => {
+    const delta = allocate(DELTA);
+    const deltaBefore = snapshot(delta);
+    const quad = allocate(QUAD);
+    const quadBefore = snapshot(quad);
+
+    expect(candidate.localDelta([1, 2, 2, 4, 1], DX, DY, delta)).toBe(false);
+    expect(snapshot(delta)).toEqual(deltaBefore);
+    expect(
+      candidate.projection([1, 0, 0, 1, 0, 0, 5, 5], quad, [0, 0, 0, 0, 0, 0, 1, 1]),
+    ).toBe(false);
+    expect(snapshot(quad)).toEqual(quadBefore);
+  });
+});
+
+describe('capacity', () => {
+  it('should drop the writes past a fixed-size store, and still return true', () => {
+    // Outside the contract: a fixed-size output needs the layout's capacity.
+    const element = place('left:1px;top:2px;width:3px;height:4px');
+    const short = new Float64Array(4);
+
+    expect(candidate.coordinates(element, short)).toBe(true);
+    expect(Array.from(short)).toEqual([1, 0, 0, 1]);
+  });
+});
+
+/**
+ * Informative, not asserted. Run one kind per invocation, `-t 'per call into
+ * empty number[]'` and so on, so the JIT has seen one storage kind only.
+ */
+describe('throughput', () => {
+  it.each(KINDS.slice(0, 3))(
+    'should report projection and localDelta per call into %s',
+    (kind, allocate) => {
+      const element = place('left:5px;top:6px;width:7px;height:8px;rotate:10deg');
+      const box = allocate(BOX);
+      const quad = allocate(QUAD);
+      const delta = allocate(DELTA);
+      const rounds = 200_000;
+      const samples: number[] = [];
+      let sink = 0;
+
+      candidate.coordinates(element, box);
+
+      for (let run = 0; run < 7; run += 1) {
+        const start = performance.now();
+
+        for (let index = 0; index < rounds; index += 1) {
+          candidate.projection(box, quad, box);
+          candidate.localDelta(box, index, -index, delta);
+          sink += quad[2]! + delta[0]!;
+        }
+
+        samples.push(((performance.now() - start) * 1e6) / rounds);
+      }
+
+      samples.sort((left, right) => left - right);
+      console.log(
+        `${kind}: median ${samples[3]!.toFixed(1)} ns per pair, range ${samples[0]!.toFixed(1)}–${samples[6]!.toFixed(1)} (${sink > 0})`,
+      );
+    },
+  );
+});

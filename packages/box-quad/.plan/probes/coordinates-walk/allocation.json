@@ -1,0 +1,1548 @@
+{
+ "browser": "157.0.8103.38",
+ "note": "Allocation readings only. Each key is <run>:<arm>. smoke.json also took timing samples; they were taken without an owner hold and are not recorded.",
+ "allocation": {
+  "fallback, depth 2": {
+   "smoke.json:base": [
+    {
+     "bytesPerCall": 366.8232,
+     "byFunctionPerCall": {
+      "coordinates": 197.892,
+      "composeNode": 13.7196,
+      "split": 28.133,
+      "ancestry": 124.7896,
+      "abs": 1.2762
+     }
+    },
+    {
+     "bytesPerCall": 366.7468,
+     "byFunctionPerCall": {
+      "coordinates": 197.3654,
+      "composeNode": 13.835,
+      "split": 28.2772,
+      "ancestry": 125.0672,
+      "abs": 1.2666
+     }
+    },
+    {
+     "bytesPerCall": 366.9772,
+     "byFunctionPerCall": {
+      "coordinates": 198.0302,
+      "composeNode": 13.6688,
+      "split": 28.2402,
+      "ancestry": 124.7976,
+      "abs": 1.3404
+     }
+    }
+   ],
+   "smoke.json:base2": [
+    {
+     "bytesPerCall": 367.584,
+     "byFunctionPerCall": {
+      "coordinates": 198.1604,
+      "composeNode": 13.7528,
+      "split": 28.4298,
+      "ancestry": 125.0482,
+      "abs": 1.2816
+     }
+    },
+    {
+     "bytesPerCall": 367.937,
+     "byFunctionPerCall": {
+      "coordinates": 198.6324,
+      "composeNode": 13.4072,
+      "split": 28.3766,
+      "ancestry": 125.3424,
+      "abs": 1.2666
+     }
+    },
+    {
+     "bytesPerCall": 367.7728,
+     "byFunctionPerCall": {
+      "coordinates": 198.454,
+      "composeNode": 13.5976,
+      "split": 28.3348,
+      "ancestry": 125.1818,
+      "abs": 1.2798
+     }
+    }
+   ],
+   "smoke.json:A": [
+    {
+     "bytesPerCall": 274.114,
+     "byFunctionPerCall": {
+      "coordinates": 180.8944,
+      "composeNode": 13.58,
+      "split": 28.2058,
+      "inherit": 49.1838,
+      "abs": 1.251
+     }
+    },
+    {
+     "bytesPerCall": 274.5384,
+     "byFunctionPerCall": {
+      "coordinates": 181.1806,
+      "composeNode": 13.6872,
+      "split": 28.3052,
+      "inherit": 49.1548,
+      "abs": 1.2474
+     }
+    },
+    {
+     "bytesPerCall": 276.4654,
+     "byFunctionPerCall": {
+      "coordinates": 182.6304,
+      "composeNode": 13.984,
+      "split": 28.4494,
+      "inherit": 49.1202,
+      "abs": 1.3872
+     }
+    }
+   ],
+   "smoke.json:B": [
+    {
+     "bytesPerCall": 275.413,
+     "byFunctionPerCall": {
+      "coordinates": 198.2902,
+      "composeNode": 14.0028,
+      "split": 28.154,
+      "inherit": 32.7564,
+      "abs": 1.3314
+     }
+    },
+    {
+     "bytesPerCall": 274.6472,
+     "byFunctionPerCall": {
+      "coordinates": 198.0784,
+      "composeNode": 13.7768,
+      "split": 28.1708,
+      "inherit": 32.4832,
+      "abs": 1.2618
+     }
+    },
+    {
+     "bytesPerCall": 274.0976,
+     "byFunctionPerCall": {
+      "coordinates": 197.5454,
+      "composeNode": 13.71,
+      "split": 27.909,
+      "inherit": 32.7656,
+      "abs": 1.299
+     }
+    }
+   ],
+   "alloc-C.json:base": [
+    {
+     "bytesPerCall": 367.222,
+     "byFunctionPerCall": {
+      "coordinates": 198.5332,
+      "composeNode": 13.5926,
+      "split": 27.9468,
+      "ancestry": 124.956,
+      "abs": 1.293
+     }
+    },
+    {
+     "bytesPerCall": 367.1646,
+     "byFunctionPerCall": {
+      "coordinates": 198.2384,
+      "composeNode": 13.595,
+      "split": 28.3066,
+      "ancestry": 124.9116,
+      "abs": 1.1934
+     }
+    },
+    {
+     "bytesPerCall": 366.5016,
+     "byFunctionPerCall": {
+      "coordinates": 197.5912,
+      "composeNode": 13.6204,
+      "split": 28.0434,
+      "ancestry": 125.002,
+      "abs": 1.3368
+     }
+    }
+   ],
+   "alloc-C.json:base2": [
+    {
+     "bytesPerCall": 366.9476,
+     "byFunctionPerCall": {
+      "coordinates": 197.8736,
+      "composeNode": 13.7528,
+      "split": 28.1064,
+      "ancestry": 125.0196,
+      "abs": 1.2816
+     }
+    },
+    {
+     "bytesPerCall": 365.8858,
+     "byFunctionPerCall": {
+      "coordinates": 196.9522,
+      "composeNode": 13.5996,
+      "split": 28.098,
+      "ancestry": 125.061,
+      "abs": 1.293
+     }
+    },
+    {
+     "bytesPerCall": 367.5222,
+     "byFunctionPerCall": {
+      "coordinates": 198.6452,
+      "composeNode": 13.6722,
+      "split": 28.322,
+      "ancestry": 124.667,
+      "abs": 1.278
+     }
+    }
+   ],
+   "alloc-C.json:C": [
+    {
+     "bytesPerCall": 275.2858,
+     "byFunctionPerCall": {
+      "coordinates": 181.3534,
+      "composeNode": 13.9376,
+      "split": 28.6104,
+      "inherit": 49.23,
+      "abs": 1.251
+     }
+    },
+    {
+     "bytesPerCall": 273.6888,
+     "byFunctionPerCall": {
+      "coordinates": 180.7584,
+      "composeNode": 13.7888,
+      "split": 28.1274,
+      "inherit": 48.6968,
+      "abs": 1.3968
+     }
+    },
+    {
+     "bytesPerCall": 273.7984,
+     "byFunctionPerCall": {
+      "coordinates": 180.5138,
+      "composeNode": 13.754,
+      "split": 28.147,
+      "inherit": 49.252,
+      "abs": 1.269
+     }
+    }
+   ],
+   "alloc-D.json:base": [
+    {
+     "bytesPerCall": 367.3788,
+     "byFunctionPerCall": {
+      "coordinates": 198.1836,
+      "composeNode": 14.0228,
+      "split": 28.3248,
+      "ancestry": 124.603,
+      "abs": 1.3326
+     }
+    },
+    {
+     "bytesPerCall": 366.7552,
+     "byFunctionPerCall": {
+      "coordinates": 197.7962,
+      "composeNode": 13.7444,
+      "split": 28.1428,
+      "ancestry": 124.8168,
+      "abs": 1.32
+     }
+    },
+    {
+     "bytesPerCall": 367.0346,
+     "byFunctionPerCall": {
+      "coordinates": 198.5334,
+      "composeNode": 13.744,
+      "split": 28.0812,
+      "ancestry": 124.4728,
+      "abs": 1.2702
+     }
+    }
+   ],
+   "alloc-D.json:base2": [
+    {
+     "bytesPerCall": 366.6344,
+     "byFunctionPerCall": {
+      "coordinates": 197.8694,
+      "composeNode": 13.61,
+      "split": 27.9482,
+      "ancestry": 124.8908,
+      "abs": 1.3566
+     }
+    },
+    {
+     "bytesPerCall": 366.758,
+     "byFunctionPerCall": {
+      "coordinates": 197.567,
+      "composeNode": 13.6902,
+      "split": 28.0434,
+      "ancestry": 125.2762,
+      "abs": 1.2684
+     }
+    },
+    {
+     "bytesPerCall": 367.3526,
+     "byFunctionPerCall": {
+      "coordinates": 197.5198,
+      "composeNode": 13.7324,
+      "split": 28.3318,
+      "ancestry": 125.5062,
+      "abs": 1.3866
+     }
+    }
+   ],
+   "alloc-D.json:D": [
+    {
+     "bytesPerCall": 366.1396,
+     "byFunctionPerCall": {
+      "coordinates": 197.5286,
+      "composeNode": 13.7394,
+      "split": 28.3606,
+      "inherit": 124.37,
+      "abs": 1.2378
+     }
+    },
+    {
+     "bytesPerCall": 367.085,
+     "byFunctionPerCall": {
+      "coordinates": 197.9502,
+      "composeNode": 13.6842,
+      "split": 28.2436,
+      "inherit": 124.9702,
+      "abs": 1.3506
+     }
+    },
+    {
+     "bytesPerCall": 368.2634,
+     "byFunctionPerCall": {
+      "coordinates": 199.0468,
+      "composeNode": 14.0394,
+      "split": 28.1596,
+      "inherit": 124.7592,
+      "abs": 1.32
+     }
+    }
+   ],
+   "alloc-E.json:base": [
+    {
+     "bytesPerCall": 366.758,
+     "byFunctionPerCall": {
+      "coordinates": 197.7896,
+      "composeNode": 13.742,
+      "split": 28.1232,
+      "ancestry": 124.9072,
+      "abs": 1.2642
+     }
+    },
+    {
+     "bytesPerCall": 366.7464,
+     "byFunctionPerCall": {
+      "coordinates": 197.5854,
+      "composeNode": 13.376,
+      "split": 28.28,
+      "ancestry": 125.2546,
+      "abs": 1.3254
+     }
+    },
+    {
+     "bytesPerCall": 366.736,
+     "byFunctionPerCall": {
+      "coordinates": 197.7538,
+      "composeNode": 13.3884,
+      "split": 28.1806,
+      "ancestry": 125.2006,
+      "abs": 1.2894
+     }
+    }
+   ],
+   "alloc-E.json:base2": [
+    {
+     "bytesPerCall": 367.1128,
+     "byFunctionPerCall": {
+      "coordinates": 198.62,
+      "composeNode": 13.7384,
+      "split": 28.1484,
+      "ancestry": 124.4308,
+      "abs": 1.2702
+     }
+    },
+    {
+     "bytesPerCall": 366.9286,
+     "byFunctionPerCall": {
+      "coordinates": 197.7646,
+      "composeNode": 13.6484,
+      "split": 28.3942,
+      "ancestry": 124.8744,
+      "abs": 1.3146
+     }
+    },
+    {
+     "bytesPerCall": 367.0878,
+     "byFunctionPerCall": {
+      "coordinates": 197.5586,
+      "composeNode": 13.9412,
+      "split": 28.245,
+      "ancestry": 125.1438,
+      "abs": 1.2642
+     }
+    }
+   ],
+   "alloc-E.json:E": [
+    {
+     "bytesPerCall": 275.1694,
+     "byFunctionPerCall": {
+      "coordinates": 181.9026,
+      "composeNode": 13.7948,
+      "split": 28.2674,
+      "inherit": 49.088,
+      "abs": 1.2516
+     }
+    },
+    {
+     "bytesPerCall": 274.455,
+     "byFunctionPerCall": {
+      "coordinates": 181.3458,
+      "composeNode": 13.8768,
+      "split": 28.6202,
+      "inherit": 48.4428,
+      "abs": 1.2972
+     }
+    },
+    {
+     "bytesPerCall": 273.5334,
+     "byFunctionPerCall": {
+      "coordinates": 180.585,
+      "composeNode": 13.8724,
+      "split": 28.3472,
+      "inherit": 48.4762,
+      "abs": 1.341
+     }
+    }
+   ]
+  },
+  "fallback, depth 14": {
+   "smoke.json:base": [
+    {
+     "bytesPerCall": 3023.0994,
+     "byFunctionPerCall": {
+      "coordinates": 202.1264,
+      "composeNode": 10.0972,
+      "split": 705.3466,
+      "ancestry": 1808.8226,
+      "parseFloat": 296.16
+     }
+    },
+    {
+     "bytesPerCall": 3026.5476,
+     "byFunctionPerCall": {
+      "coordinates": 202.3198,
+      "composeNode": 10.1586,
+      "split": 705.6406,
+      "ancestry": 1811.3136,
+      "parseFloat": 296.5782
+     }
+    },
+    {
+     "bytesPerCall": 3024.8582,
+     "byFunctionPerCall": {
+      "coordinates": 201.8998,
+      "composeNode": 10.2194,
+      "split": 705.4348,
+      "ancestry": 1809.7758,
+      "parseFloat": 296.964
+     }
+    }
+   ],
+   "smoke.json:base2": [
+    {
+     "bytesPerCall": 3026.3626,
+     "byFunctionPerCall": {
+      "coordinates": 200.9086,
+      "composeNode": 10.1108,
+      "split": 705.3452,
+      "ancestry": 1812.6868,
+      "parseFloat": 296.7606
+     }
+    },
+    {
+     "bytesPerCall": 3024.4434,
+     "byFunctionPerCall": {
+      "coordinates": 201.7066,
+      "composeNode": 10.0784,
+      "split": 705.4166,
+      "ancestry": 1810.255,
+      "parseFloat": 296.4246
+     }
+    },
+    {
+     "bytesPerCall": 3022.8896,
+     "byFunctionPerCall": {
+      "coordinates": 201.5628,
+      "composeNode": 10.1188,
+      "split": 704.9882,
+      "ancestry": 1809.278,
+      "parseFloat": 296.3862
+     }
+    }
+   ],
+   "smoke.json:A": [
+    {
+     "bytesPerCall": 2869.0358,
+     "byFunctionPerCall": {
+      "coordinates": 234.4012,
+      "composeNode": 10.0968,
+      "split": 707.238,
+      "inherit": 1620.2864,
+      "parseFloat": 296.463
+     }
+    },
+    {
+     "bytesPerCall": 2866.8552,
+     "byFunctionPerCall": {
+      "coordinates": 234.8976,
+      "composeNode": 10.028,
+      "split": 707.0896,
+      "inherit": 1617.7576,
+      "parseFloat": 296.5398
+     }
+    },
+    {
+     "bytesPerCall": 2869.7608,
+     "byFunctionPerCall": {
+      "coordinates": 235.366,
+      "composeNode": 10.2212,
+      "split": 705.5622,
+      "inherit": 1620.3892,
+      "parseFloat": 297.6894
+     }
+    }
+   ],
+   "smoke.json:B": [
+    {
+     "bytesPerCall": 2869.9698,
+     "byFunctionPerCall": {
+      "coordinates": 250.985,
+      "composeNode": 10.2632,
+      "split": 707.5264,
+      "inherit": 1603.478,
+      "parseFloat": 297.1752
+     }
+    },
+    {
+     "bytesPerCall": 2864.6812,
+     "byFunctionPerCall": {
+      "coordinates": 250.4392,
+      "composeNode": 10.3248,
+      "split": 705.1674,
+      "inherit": 1601.5354,
+      "parseFloat": 296.6682
+     }
+    },
+    {
+     "bytesPerCall": 2867.6224,
+     "byFunctionPerCall": {
+      "coordinates": 250.6452,
+      "composeNode": 10.2188,
+      "split": 707.0798,
+      "inherit": 1602.9532,
+      "parseFloat": 296.1852
+     }
+    }
+   ],
+   "alloc-C.json:base": [
+    {
+     "bytesPerCall": 3032.3344,
+     "byFunctionPerCall": {
+      "coordinates": 202.713,
+      "composeNode": 10.2616,
+      "split": 707.8974,
+      "ancestry": 1812.6536,
+      "parseFloat": 298.2552
+     }
+    },
+    {
+     "bytesPerCall": 3025.5618,
+     "byFunctionPerCall": {
+      "coordinates": 201.5444,
+      "composeNode": 10.2268,
+      "split": 705.957,
+      "ancestry": 1810.1182,
+      "parseFloat": 297.1614
+     }
+    },
+    {
+     "bytesPerCall": 3027.2154,
+     "byFunctionPerCall": {
+      "coordinates": 201.4874,
+      "composeNode": 10.3592,
+      "split": 706.9874,
+      "ancestry": 1811.0724,
+      "parseFloat": 296.7414
+     }
+    }
+   ],
+   "alloc-C.json:base2": [
+    {
+     "bytesPerCall": 3029.4874,
+     "byFunctionPerCall": {
+      "coordinates": 201.0902,
+      "composeNode": 10.2248,
+      "split": 705.95,
+      "ancestry": 1814.167,
+      "parseFloat": 297.4974
+     }
+    },
+    {
+     "bytesPerCall": 3026.241,
+     "byFunctionPerCall": {
+      "coordinates": 201.119,
+      "composeNode": 10.31,
+      "split": 706.545,
+      "ancestry": 1810.1804,
+      "parseFloat": 297.5028
+     }
+    },
+    {
+     "bytesPerCall": 3029.4284,
+     "byFunctionPerCall": {
+      "coordinates": 201.7952,
+      "composeNode": 10.3508,
+      "split": 705.7904,
+      "ancestry": 1812.9126,
+      "parseFloat": 298.023
+     }
+    }
+   ],
+   "alloc-C.json:C": [
+    {
+     "bytesPerCall": 2866.7024,
+     "byFunctionPerCall": {
+      "coordinates": 233.962,
+      "composeNode": 10.2904,
+      "split": 705.1016,
+      "inherit": 1618.5732,
+      "parseFloat": 298.242
+     }
+    },
+    {
+     "bytesPerCall": 2865.1942,
+     "byFunctionPerCall": {
+      "coordinates": 234.1426,
+      "composeNode": 10.2432,
+      "split": 705.306,
+      "inherit": 1618.8208,
+      "parseFloat": 296.1138
+     }
+    },
+    {
+     "bytesPerCall": 2866.763,
+     "byFunctionPerCall": {
+      "coordinates": 234.1346,
+      "composeNode": 10.3244,
+      "split": 705.9038,
+      "inherit": 1619.5104,
+      "parseFloat": 296.3328
+     }
+    }
+   ],
+   "alloc-D.json:base": [
+    {
+     "bytesPerCall": 3025.3132,
+     "byFunctionPerCall": {
+      "coordinates": 201.3918,
+      "composeNode": 10.157,
+      "split": 704.578,
+      "ancestry": 1811.1542,
+      "parseFloat": 297.4704
+     }
+    },
+    {
+     "bytesPerCall": 3028.612,
+     "byFunctionPerCall": {
+      "coordinates": 201.8336,
+      "composeNode": 10.2004,
+      "split": 706.3168,
+      "ancestry": 1811.2202,
+      "parseFloat": 298.4976
+     }
+    },
+    {
+     "bytesPerCall": 3031.2078,
+     "byFunctionPerCall": {
+      "coordinates": 201.2588,
+      "composeNode": 10.2188,
+      "split": 706.6248,
+      "ancestry": 1815.7698,
+      "parseFloat": 296.7852
+     }
+    }
+   ],
+   "alloc-D.json:base2": [
+    {
+     "bytesPerCall": 3028.0762,
+     "byFunctionPerCall": {
+      "coordinates": 201.2464,
+      "composeNode": 10.2602,
+      "split": 707.3374,
+      "ancestry": 1811.3556,
+      "parseFloat": 297.3246
+     }
+    },
+    {
+     "bytesPerCall": 3024.6848,
+     "byFunctionPerCall": {
+      "coordinates": 200.7052,
+      "composeNode": 10.1954,
+      "split": 705.5916,
+      "ancestry": 1810.7728,
+      "parseFloat": 296.8548
+     }
+    },
+    {
+     "bytesPerCall": 3027.4778,
+     "byFunctionPerCall": {
+      "coordinates": 201.4078,
+      "composeNode": 10.288,
+      "split": 705.0414,
+      "ancestry": 1813.5294,
+      "parseFloat": 296.634
+     }
+    }
+   ],
+   "alloc-D.json:D": [
+    {
+     "bytesPerCall": 3026.703,
+     "byFunctionPerCall": {
+      "coordinates": 202.0598,
+      "composeNode": 10.174,
+      "split": 703.955,
+      "inherit": 1813.6108,
+      "parseFloat": 296.3538
+     }
+    },
+    {
+     "bytesPerCall": 3025.0114,
+     "byFunctionPerCall": {
+      "coordinates": 201.2318,
+      "composeNode": 10.3776,
+      "split": 704.0404,
+      "inherit": 1811.4418,
+      "parseFloat": 297.3612
+     }
+    },
+    {
+     "bytesPerCall": 3026.79,
+     "byFunctionPerCall": {
+      "coordinates": 200.7152,
+      "composeNode": 10.3064,
+      "split": 706.3532,
+      "inherit": 1813.123,
+      "parseFloat": 295.7244
+     }
+    }
+   ],
+   "alloc-E.json:base": [
+    {
+     "bytesPerCall": 3025.3282,
+     "byFunctionPerCall": {
+      "coordinates": 201.184,
+      "composeNode": 9.8796,
+      "split": 705.6742,
+      "ancestry": 1811.1216,
+      "parseFloat": 296.916
+     }
+    },
+    {
+     "bytesPerCall": 3026.3386,
+     "byFunctionPerCall": {
+      "coordinates": 201.0502,
+      "composeNode": 10.2436,
+      "split": 706.7144,
+      "ancestry": 1811.474,
+      "parseFloat": 296.325
+     }
+    },
+    {
+     "bytesPerCall": 3027.1374,
+     "byFunctionPerCall": {
+      "coordinates": 201.4008,
+      "composeNode": 10.4464,
+      "split": 706.3812,
+      "ancestry": 1810.6964,
+      "parseFloat": 297.7026
+     }
+    }
+   ],
+   "alloc-E.json:base2": [
+    {
+     "bytesPerCall": 3030.3394,
+     "byFunctionPerCall": {
+      "coordinates": 202.064,
+      "composeNode": 10.2432,
+      "split": 706.9902,
+      "ancestry": 1813.974,
+      "parseFloat": 296.5092
+     }
+    },
+    {
+     "bytesPerCall": 3023.7664,
+     "byFunctionPerCall": {
+      "coordinates": 201.3258,
+      "composeNode": 10.1088,
+      "split": 705.712,
+      "ancestry": 1809.3494,
+      "parseFloat": 296.7204
+     }
+    },
+    {
+     "bytesPerCall": 3025.0112,
+     "byFunctionPerCall": {
+      "coordinates": 201.812,
+      "composeNode": 10.3432,
+      "split": 704.921,
+      "ancestry": 1810.397,
+      "parseFloat": 296.9814
+     }
+    }
+   ],
+   "alloc-E.json:E": [
+    {
+     "bytesPerCall": 2868.7186,
+     "byFunctionPerCall": {
+      "coordinates": 234.692,
+      "composeNode": 10.4156,
+      "split": 705.6686,
+      "inherit": 1620.3232,
+      "parseFloat": 297.0792
+     }
+    },
+    {
+     "bytesPerCall": 2867.5874,
+     "byFunctionPerCall": {
+      "coordinates": 233.877,
+      "composeNode": 10.2204,
+      "split": 707.189,
+      "inherit": 1619.2358,
+      "parseFloat": 296.5266
+     }
+    },
+    {
+     "bytesPerCall": 2869.4834,
+     "byFunctionPerCall": {
+      "coordinates": 234.068,
+      "composeNode": 10.3588,
+      "split": 707.203,
+      "inherit": 1620.2684,
+      "parseFloat": 297.039
+     }
+    }
+   ]
+  },
+  "fallback, depth 32": {
+   "smoke.json:base": [
+    {
+     "bytesPerCall": 6832.912,
+     "byFunctionPerCall": {
+      "coordinates": 204.1812,
+      "ancestry": 4164.8134,
+      "split": 1722.14,
+      "parseFloat": 741.2172
+     }
+    },
+    {
+     "bytesPerCall": 6832.8392,
+     "byFunctionPerCall": {
+      "coordinates": 204.8498,
+      "ancestry": 4162.6954,
+      "split": 1723.9138,
+      "parseFloat": 740.8242
+     }
+    },
+    {
+     "bytesPerCall": 6836.0764,
+     "byFunctionPerCall": {
+      "coordinates": 204.0592,
+      "ancestry": 4164.939,
+      "split": 1723.967,
+      "parseFloat": 742.5162
+     }
+    }
+   ],
+   "smoke.json:base2": [
+    {
+     "bytesPerCall": 6838.3374,
+     "byFunctionPerCall": {
+      "coordinates": 203.8056,
+      "ancestry": 4168.2186,
+      "split": 1724.2554,
+      "parseFloat": 741.4764
+     }
+    },
+    {
+     "bytesPerCall": 6834.9866,
+     "byFunctionPerCall": {
+      "coordinates": 204.379,
+      "ancestry": 4166.325,
+      "split": 1721.286,
+      "parseFloat": 742.4508
+     }
+    },
+    {
+     "bytesPerCall": 6831.8094,
+     "byFunctionPerCall": {
+      "coordinates": 204.521,
+      "ancestry": 4163.8764,
+      "parseFloat": 742.4934,
+      "split": 1720.3704
+     }
+    }
+   ],
+   "smoke.json:A": [
+    {
+     "bytesPerCall": 6679.0262,
+     "byFunctionPerCall": {
+      "coordinates": 234.5472,
+      "composeNode": 10.2192,
+      "split": 1722.2184,
+      "inherit": 3969.8432,
+      "parseFloat": 741.666
+     }
+    },
+    {
+     "bytesPerCall": 6686.7662,
+     "byFunctionPerCall": {
+      "coordinates": 234.8284,
+      "composeNode": 10.2348,
+      "split": 1724.9232,
+      "inherit": 3972.8804,
+      "parseFloat": 743.3586
+     }
+    },
+    {
+     "bytesPerCall": 6679.1432,
+     "byFunctionPerCall": {
+      "coordinates": 234.5544,
+      "composeNode": 10.274,
+      "split": 1722.0728,
+      "inherit": 3969.469,
+      "parseFloat": 742.236
+     }
+    }
+   ],
+   "smoke.json:B": [
+    {
+     "bytesPerCall": 6675.1704,
+     "byFunctionPerCall": {
+      "coordinates": 253.7976,
+      "inherit": 3954.6962,
+      "split": 1723.8536,
+      "parseFloat": 742.2666
+     }
+    },
+    {
+     "bytesPerCall": 6675.7312,
+     "byFunctionPerCall": {
+      "coordinates": 253.3616,
+      "inherit": 3956.6112,
+      "parseFloat": 740.4438,
+      "split": 1724.786
+     }
+    },
+    {
+     "bytesPerCall": 6677.374,
+     "byFunctionPerCall": {
+      "coordinates": 252.6544,
+      "inherit": 3956.5992,
+      "split": 1724.4108,
+      "parseFloat": 743.1492
+     }
+    }
+   ],
+   "alloc-C.json:base": [
+    {
+     "bytesPerCall": 6834.3626,
+     "byFunctionPerCall": {
+      "coordinates": 204.3408,
+      "ancestry": 4165.1824,
+      "parseFloat": 742.263,
+      "split": 1722.007
+     }
+    },
+    {
+     "bytesPerCall": 6837.585,
+     "byFunctionPerCall": {
+      "coordinates": 204.3336,
+      "ancestry": 4169.7934,
+      "parseFloat": 740.8122,
+      "split": 1722.0924
+     }
+    },
+    {
+     "bytesPerCall": 6839.283,
+     "byFunctionPerCall": {
+      "coordinates": 205.243,
+      "ancestry": 4167.809,
+      "parseFloat": 742.6236,
+      "split": 1723.0612
+     }
+    }
+   ],
+   "alloc-C.json:base2": [
+    {
+     "bytesPerCall": 6831.636,
+     "byFunctionPerCall": {
+      "coordinates": 203.2196,
+      "ancestry": 4165.1896,
+      "parseFloat": 742.6044,
+      "split": 1720.0638
+     }
+    },
+    {
+     "bytesPerCall": 6834.3622,
+     "byFunctionPerCall": {
+      "coordinates": 204.0198,
+      "ancestry": 4166.4422,
+      "split": 1720.3634,
+      "parseFloat": 742.9788
+     }
+    },
+    {
+     "bytesPerCall": 6835.454,
+     "byFunctionPerCall": {
+      "coordinates": 203.929,
+      "ancestry": 4165.0192,
+      "parseFloat": 742.6812,
+      "split": 1723.302
+     }
+    }
+   ],
+   "alloc-C.json:C": [
+    {
+     "bytesPerCall": 6677.2248,
+     "byFunctionPerCall": {
+      "coordinates": 234.3668,
+      "composeNode": 10.2692,
+      "split": 1723.4686,
+      "inherit": 3966.9412,
+      "parseFloat": 741.6336
+     }
+    },
+    {
+     "bytesPerCall": 6683.131,
+     "byFunctionPerCall": {
+      "coordinates": 234.2952,
+      "composeNode": 10.2612,
+      "split": 1722.987,
+      "inherit": 3971.736,
+      "parseFloat": 743.3184
+     }
+    },
+    {
+     "bytesPerCall": 6682.0864,
+     "byFunctionPerCall": {
+      "coordinates": 233.087,
+      "composeNode": 10.2696,
+      "split": 1725.381,
+      "inherit": 3970.8196,
+      "parseFloat": 741.9696
+     }
+    }
+   ],
+   "alloc-D.json:base": [
+    {
+     "bytesPerCall": 6836.2782,
+     "byFunctionPerCall": {
+      "coordinates": 204.3238,
+      "ancestry": 4166.4548,
+      "split": 1721.6682,
+      "parseFloat": 743.2836
+     }
+    },
+    {
+     "bytesPerCall": 6837.3176,
+     "byFunctionPerCall": {
+      "coordinates": 205.3888,
+      "ancestry": 4166.72,
+      "split": 1721.4358,
+      "parseFloat": 743.2476
+     }
+    },
+    {
+     "bytesPerCall": 6834.968,
+     "byFunctionPerCall": {
+      "coordinates": 204.793,
+      "ancestry": 4165.135,
+      "parseFloat": 741.822,
+      "split": 1722.658
+     }
+    }
+   ],
+   "alloc-D.json:base2": [
+    {
+     "bytesPerCall": 6834.0486,
+     "byFunctionPerCall": {
+      "coordinates": 204.1262,
+      "ancestry": 4164.4054,
+      "parseFloat": 743.205,
+      "split": 1721.7396
+     }
+    },
+    {
+     "bytesPerCall": 6836.7518,
+     "byFunctionPerCall": {
+      "coordinates": 204.351,
+      "ancestry": 4165.2052,
+      "parseFloat": 741.747,
+      "split": 1724.9008
+     }
+    },
+    {
+     "bytesPerCall": 6832.7332,
+     "byFunctionPerCall": {
+      "coordinates": 204.789,
+      "ancestry": 4164.777,
+      "parseFloat": 743.1666,
+      "split": 1719.4548
+     }
+    }
+   ],
+   "alloc-D.json:D": [
+    {
+     "bytesPerCall": 6846.9766,
+     "byFunctionPerCall": {
+      "coordinates": 201.8394,
+      "composeNode": 10.178,
+      "split": 1722.5362,
+      "inherit": 4167.4596,
+      "parseFloat": 744.4158
+     }
+    },
+    {
+     "bytesPerCall": 6842.6152,
+     "byFunctionPerCall": {
+      "coordinates": 201.4002,
+      "composeNode": 10.1656,
+      "split": 1722.4956,
+      "inherit": 4165.8466,
+      "parseFloat": 742.14
+     }
+    },
+    {
+     "bytesPerCall": 6838.0388,
+     "byFunctionPerCall": {
+      "coordinates": 202.4196,
+      "composeNode": 10.2352,
+      "split": 1720.4558,
+      "inherit": 4163.1136,
+      "parseFloat": 741.2826
+     }
+    }
+   ],
+   "alloc-E.json:base": [
+    {
+     "bytesPerCall": 6832.5762,
+     "byFunctionPerCall": {
+      "coordinates": 204.1352,
+      "ancestry": 4163.8896,
+      "parseFloat": 742.2036,
+      "split": 1721.8082
+     }
+    },
+    {
+     "bytesPerCall": 6834.5288,
+     "byFunctionPerCall": {
+      "coordinates": 204.0726,
+      "ancestry": 4163.49,
+      "parseFloat": 743.6964,
+      "split": 1722.714
+     }
+    },
+    {
+     "bytesPerCall": 6838.31,
+     "byFunctionPerCall": {
+      "coordinates": 205.2196,
+      "ancestry": 4166.5644,
+      "split": 1722.924,
+      "parseFloat": 743.046
+     }
+    }
+   ],
+   "alloc-E.json:base2": [
+    {
+     "bytesPerCall": 6833.357,
+     "byFunctionPerCall": {
+      "coordinates": 204.3174,
+      "ancestry": 4165.8558,
+      "parseFloat": 740.724,
+      "split": 1721.888
+     }
+    },
+    {
+     "bytesPerCall": 6835.9018,
+     "byFunctionPerCall": {
+      "coordinates": 204.6072,
+      "ancestry": 4164.5386,
+      "parseFloat": 742.5354,
+      "split": 1723.6548
+     }
+    },
+    {
+     "bytesPerCall": 6835.7844,
+     "byFunctionPerCall": {
+      "coordinates": 204.2588,
+      "ancestry": 4166.9118,
+      "parseFloat": 741.9582,
+      "split": 1722.0952
+     }
+    }
+   ],
+   "alloc-E.json:E": [
+    {
+     "bytesPerCall": 6681.4564,
+     "byFunctionPerCall": {
+      "coordinates": 233.2402,
+      "composeNode": 10.422,
+      "split": 1724.2232,
+      "inherit": 3969.2446,
+      "parseFloat": 743.781
+     }
+    },
+    {
+     "bytesPerCall": 6684.6156,
+     "byFunctionPerCall": {
+      "coordinates": 233.5286,
+      "composeNode": 10.312,
+      "split": 1723.54,
+      "inherit": 3973.3664,
+      "parseFloat": 743.2974
+     }
+    },
+    {
+     "bytesPerCall": 6685.7728,
+     "byFunctionPerCall": {
+      "coordinates": 234.7468,
+      "composeNode": 10.1132,
+      "split": 1723.6506,
+      "inherit": 3973.2864,
+      "parseFloat": 743.4504
+     }
+    }
+   ]
+  },
+  "above, depth 14": {
+   "smoke.json:base": [
+    {
+     "bytesPerCall": 217.6834,
+     "byFunctionPerCall": {
+      "coordinates": 188.7882,
+      "split": 28.3486
+     }
+    },
+    {
+     "bytesPerCall": 217.1562,
+     "byFunctionPerCall": {
+      "coordinates": 188.5508,
+      "split": 28.0392
+     }
+    },
+    {
+     "bytesPerCall": 216.9588,
+     "byFunctionPerCall": {
+      "coordinates": 188.221,
+      "split": 28.1834
+     }
+    }
+   ],
+   "smoke.json:base2": [
+    {
+     "bytesPerCall": 216.8962,
+     "byFunctionPerCall": {
+      "coordinates": 187.846,
+      "split": 28.4886
+     }
+    },
+    {
+     "bytesPerCall": 217.0948,
+     "byFunctionPerCall": {
+      "coordinates": 188.3394,
+      "split": 28.224
+     }
+    },
+    {
+     "bytesPerCall": 217.0476,
+     "byFunctionPerCall": {
+      "coordinates": 188.269,
+      "split": 28.2268
+     }
+    }
+   ],
+   "smoke.json:A": [
+    {
+     "bytesPerCall": 273.8444,
+     "byFunctionPerCall": {
+      "coordinates": 234.6578,
+      "composeNode": 10.4634,
+      "split": 28.1904
+     }
+    },
+    {
+     "bytesPerCall": 274.1032,
+     "byFunctionPerCall": {
+      "coordinates": 234.5414,
+      "composeNode": 10.7536,
+      "split": 28.2604
+     }
+    },
+    {
+     "bytesPerCall": 273.4634,
+     "byFunctionPerCall": {
+      "coordinates": 234.0398,
+      "composeNode": 10.6604,
+      "split": 28.2296
+     }
+    }
+   ],
+   "smoke.json:B": [
+    {
+     "bytesPerCall": 274.4898,
+     "byFunctionPerCall": {
+      "coordinates": 234.8994,
+      "composeNode": 10.7028,
+      "split": 28.3374
+     }
+    },
+    {
+     "bytesPerCall": 273.992,
+     "byFunctionPerCall": {
+      "coordinates": 234.5212,
+      "composeNode": 10.5988,
+      "split": 28.3178
+     }
+    },
+    {
+     "bytesPerCall": 273.9662,
+     "byFunctionPerCall": {
+      "coordinates": 234.5918,
+      "composeNode": 10.4568,
+      "split": 28.385
+     }
+    }
+   ],
+   "alloc-C.json:base": [
+    {
+     "bytesPerCall": 216.6676,
+     "byFunctionPerCall": {
+      "coordinates": 187.6858,
+      "split": 28.4228
+     }
+    },
+    {
+     "bytesPerCall": 216.8766,
+     "byFunctionPerCall": {
+      "coordinates": 187.9308,
+      "split": 28.392
+     }
+    },
+    {
+     "bytesPerCall": 217.9042,
+     "byFunctionPerCall": {
+      "coordinates": 188.8904,
+      "split": 28.4662
+     }
+    }
+   ],
+   "alloc-C.json:base2": [
+    {
+     "bytesPerCall": 217.2432,
+     "byFunctionPerCall": {
+      "coordinates": 188.603,
+      "split": 28.0896
+     }
+    },
+    {
+     "bytesPerCall": 215.9556,
+     "byFunctionPerCall": {
+      "coordinates": 187.4274,
+      "split": 27.9762
+     }
+    },
+    {
+     "bytesPerCall": 216.7446,
+     "byFunctionPerCall": {
+      "coordinates": 187.7298,
+      "split": 28.462
+     }
+    }
+   ],
+   "alloc-C.json:C": [
+    {
+     "bytesPerCall": 273.7768,
+     "byFunctionPerCall": {
+      "coordinates": 234.1214,
+      "composeNode": 10.7884,
+      "split": 28.3164
+     }
+    },
+    {
+     "bytesPerCall": 274.0974,
+     "byFunctionPerCall": {
+      "coordinates": 234.7168,
+      "composeNode": 10.5624,
+      "split": 28.2814
+     }
+    },
+    {
+     "bytesPerCall": 274.2272,
+     "byFunctionPerCall": {
+      "coordinates": 234.6678,
+      "composeNode": 10.6216,
+      "split": 28.3822
+     }
+    }
+   ],
+   "alloc-D.json:base": [
+    {
+     "bytesPerCall": 217.877,
+     "byFunctionPerCall": {
+      "coordinates": 188.9628,
+      "split": 28.378
+     }
+    },
+    {
+     "bytesPerCall": 218.027,
+     "byFunctionPerCall": {
+      "coordinates": 189.1258,
+      "split": 28.3584
+     }
+    },
+    {
+     "bytesPerCall": 216.9996,
+     "byFunctionPerCall": {
+      "coordinates": 188.0826,
+      "split": 28.371
+     }
+    }
+   ],
+   "alloc-D.json:base2": [
+    {
+     "bytesPerCall": 216.0854,
+     "byFunctionPerCall": {
+      "coordinates": 187.3532,
+      "split": 28.1736
+     }
+    },
+    {
+     "bytesPerCall": 217.0338,
+     "byFunctionPerCall": {
+      "coordinates": 188.1874,
+      "split": 28.2982
+     }
+    },
+    {
+     "bytesPerCall": 217.6832,
+     "byFunctionPerCall": {
+      "coordinates": 188.6088,
+      "split": 28.546
+     }
+    }
+   ],
+   "alloc-D.json:D": [
+    {
+     "bytesPerCall": 216.0708,
+     "byFunctionPerCall": {
+      "coordinates": 187.4848,
+      "split": 28.0658
+     }
+    },
+    {
+     "bytesPerCall": 216.2286,
+     "byFunctionPerCall": {
+      "coordinates": 187.3902,
+      "split": 28.2856
+     }
+    },
+    {
+     "bytesPerCall": 216.851,
+     "byFunctionPerCall": {
+      "coordinates": 188.0242,
+      "split": 28.2814
+     }
+    }
+   ],
+   "alloc-E.json:base": [
+    {
+     "bytesPerCall": 217.1356,
+     "byFunctionPerCall": {
+      "coordinates": 188.3602,
+      "split": 28.2002
+     }
+    },
+    {
+     "bytesPerCall": 215.8352,
+     "byFunctionPerCall": {
+      "coordinates": 187.2302,
+      "split": 28.0462
+     }
+    },
+    {
+     "bytesPerCall": 216.1862,
+     "byFunctionPerCall": {
+      "coordinates": 187.5456,
+      "split": 28.0798
+     }
+    }
+   ],
+   "alloc-E.json:base2": [
+    {
+     "bytesPerCall": 216.7606,
+     "byFunctionPerCall": {
+      "coordinates": 187.7334,
+      "split": 28.469
+     }
+    },
+    {
+     "bytesPerCall": 216.8754,
+     "byFunctionPerCall": {
+      "coordinates": 187.9912,
+      "split": 28.336
+     }
+    },
+    {
+     "bytesPerCall": 217.2428,
+     "byFunctionPerCall": {
+      "coordinates": 188.1894,
+      "split": 28.4718
+     }
+    }
+   ],
+   "alloc-E.json:E": [
+    {
+     "bytesPerCall": 256.0414,
+     "byFunctionPerCall": {
+      "coordinates": 216.8126,
+      "composeNode": 10.7028,
+      "split": 27.958
+     }
+    },
+    {
+     "bytesPerCall": 256.7792,
+     "byFunctionPerCall": {
+      "coordinates": 217.5226,
+      "composeNode": 10.6232,
+      "split": 28.0938
+     }
+    },
+    {
+     "bytesPerCall": 256.3616,
+     "byFunctionPerCall": {
+      "coordinates": 217.0682,
+      "composeNode": 10.6804,
+      "split": 28.0602
+     }
+    }
+   ]
+  }
+ },
+ "allocationCalls": 20000,
+ "samplingInterval": 32
+}

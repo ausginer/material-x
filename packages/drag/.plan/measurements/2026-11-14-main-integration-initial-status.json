@@ -1,0 +1,48 @@
+{
+  "id": "merge-main-box-quad-20261114",
+  "cwd": "/workspaces/material-x/packages/drag",
+  "runner": {
+    "pid": 1169548,
+    "start": "17145108"
+  },
+  "state": "interrupted",
+  "startedAt": "2026-11-14T08:04:42.375Z",
+  "endedAt": "2026-11-14T08:05:27.855Z",
+  "interruptedBy": "SIGINT",
+  "steps": [
+    {
+      "command": "cd ../box-quad && npx just test",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/merge-main-box-quad-20261114/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "f0b66c2ec1022e93c146a3afd40175e19fd3c7e6",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1169590,
+        "start": "17145119"
+      },
+      "startedAt": "2026-11-14T08:04:42.425Z",
+      "endedAt": "2026-11-14T08:04:45.582Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx just test",
+      "log": "/workspaces/material-x/packages/drag/.campaigns/merge-main-box-quad-20261114/2.log",
+      "state": "interrupted",
+      "revision": {
+        "commit": "f0b66c2ec1022e93c146a3afd40175e19fd3c7e6",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1170319,
+        "start": "17145438"
+      },
+      "startedAt": "2026-11-14T08:04:45.596Z",
+      "endedAt": "2026-11-14T08:05:27.855Z",
+      "exitCode": null,
+      "signal": "SIGINT"
+    }
+  ]
+}

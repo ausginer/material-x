@@ -14,7 +14,7 @@
  *
  * No lifecycle waits for it: an animation in flight never delays release or teardown.
  */
-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
+import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
 import type { DisplacementInstaller, DisplacementSink } from './axis.ts';
 
 export type LayoutAnimationOptions = Readonly<{
@@ -59,7 +59,7 @@ export const layoutAnimation =
   }: LayoutAnimationOptions = {}): DisplacementInstaller =>
   () => {
     const running = new Map<HTMLElement, RowAnimation>();
-    const local = delta();
+    const local: Delta = [];
     // What the last `displaced` call answered with, read through the getters.
     let carriedX = 0;
     let carriedY = 0;

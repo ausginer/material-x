@@ -1,5 +1,5 @@
 /** `draggable` with no lift: a behavior that moves an element by `translate`. */
-import { ancestry, delta, localDelta, space } from '@ydinjs/box-quad';
+import { ancestry, localDelta, type Delta, type Space } from '@ydinjs/box-quad';
 import { draggable } from '../src/draggable.ts';
 import { makeRows } from './lab.ts';
 
@@ -8,8 +8,8 @@ const lab = {
 
   noLift(): void {
     const box = makeRows(1).firstElementChild as HTMLElement;
-    const basis = space();
-    const local = delta();
+    const basis: Space = [];
+    const local: Delta = [];
 
     draggable(box, {
       admit: () => ({ item: box }),

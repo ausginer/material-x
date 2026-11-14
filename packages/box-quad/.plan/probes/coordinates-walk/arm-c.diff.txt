@@ -1,0 +1,104 @@
+--- a/packages/box-quad/src/index.ts
++++ b/packages/box-quad/src/index.ts
+@@ -227,20 +227,14 @@
+ }
+ 
+ /**
+- * Reads the space `element` inherits into `out`: the linear part of every
+- * flat-tree node strictly above it, composed, together with the cumulative CSS
+- * `zoom` of those same nodes.
++ * The walk behind {@link ancestry}, shared with {@link coordinates} so that its
++ * fallback reads the inherited matrix directly instead of through a `Space`.
+  *
+- * **It never touches the element's own box.** It reads computed style walking
+- * upward and takes no layout, so it answers for an element that has no
+- * principal box of its own — one that is `display: contents`, fragmented across
+- * lines, or disconnected — where {@link coordinates} must refuse.
+- *
+- * Returns `false` and leaves `out` **untouched** when some ancestor is not
+- * representable in 2D: a 3D transform, `perspective`, or `preserve-3d`. That is
+- * a recognized limit, not an error.
++ * Returns the composed matrix of every node strictly above `element`, or
++ * `false` when one is not representable in 2D. It writes `out` only when one is
++ * given, and only once the walk has succeeded.
+  */
+-export function ancestry(element: HTMLElement, out: Space): boolean {
++function inherit(element: HTMLElement, out?: Space): DOMMatrix | false {
+   const view = element.ownerDocument.defaultView!;
+   const Matrix = view.DOMMatrix;
+   const matrix = new Matrix();
+@@ -265,12 +259,33 @@
+     current = flatParentOf(current);
+   }
+ 
+-  out[SPACE_A] = matrix.a;
+-  out[SPACE_B] = matrix.b;
+-  out[SPACE_C] = matrix.c;
+-  out[SPACE_D] = matrix.d;
+-  out[SPACE_ANCESTOR_ZOOM] = ancestorZoom;
+-  return true;
++  if (out) {
++    out[SPACE_A] = matrix.a;
++    out[SPACE_B] = matrix.b;
++    out[SPACE_C] = matrix.c;
++    out[SPACE_D] = matrix.d;
++    out[SPACE_ANCESTOR_ZOOM] = ancestorZoom;
++  }
++
++  return matrix;
++}
++
++/**
++ * Reads the space `element` inherits into `out`: the linear part of every
++ * flat-tree node strictly above it, composed, together with the cumulative CSS
++ * `zoom` of those same nodes.
++ *
++ * **It never touches the element's own box.** It reads computed style walking
++ * upward and takes no layout, so it answers for an element that has no
++ * principal box of its own — one that is `display: contents`, fragmented across
++ * lines, or disconnected — where {@link coordinates} must refuse.
++ *
++ * Returns `false` and leaves `out` **untouched** when some ancestor is not
++ * representable in 2D: a 3D transform, `perspective`, or `preserve-3d`. That is
++ * a recognized limit, not an error.
++ */
++export function ancestry(element: HTMLElement, out: Space): boolean {
++  return !!inherit(element, out);
+ }
+ 
+ /**
+@@ -314,16 +329,10 @@
+     return false;
+   }
+ 
+-  let inherited = above;
+-
+-  if (!inherited) {
+-    const read: Space = [];
++  const inherited = above ? undefined : inherit(element);
+ 
+-    if (!ancestry(element, read)) {
+-      return false;
+-    }
+-
+-    inherited = read;
++  if (inherited === false) {
++    return false;
+   }
+ 
+   const style = view.getComputedStyle(element);
+@@ -333,10 +342,10 @@
+     return false;
+   }
+ 
+-  const ia = inherited[SPACE_A]!;
+-  const ib = inherited[SPACE_B]!;
+-  const ic = inherited[SPACE_C]!;
+-  const id = inherited[SPACE_D]!;
++  const ia = inherited ? inherited.a : above![SPACE_A]!;
++  const ib = inherited ? inherited.b : above![SPACE_B]!;
++  const ic = inherited ? inherited.c : above![SPACE_C]!;
++  const id = inherited ? inherited.d : above![SPACE_D]!;
+   // inherited × own, by scalar product rather than a second `DOMMatrix`
+   // accumulator. An element contributing nothing keeps the inherited part
+   // exactly, since the identity's terms drop out.

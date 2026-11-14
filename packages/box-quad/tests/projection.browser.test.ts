@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { projection, quad, type Box } from '../src/index.ts';
+import { projection } from '../src/index.ts';
 import {
   createBox,
   expectQuad,
@@ -8,7 +8,6 @@ import {
 } from './support/fixtures.ts';
 
 const BOX_LENGTH = 8;
-const QUAD_LENGTH = 8;
 
 const BOX_A = 0;
 const BOX_D = 3;
@@ -19,7 +18,7 @@ const BOX_HEIGHT = 7;
 
 afterEach(resetDocument);
 
-function sentinels(): Box {
+function sentinels(): Float64Array {
   return new Float64Array([11, 22, 33, 44, 55, 66, 77, 88]);
 }
 
@@ -27,7 +26,7 @@ function sentinels(): Box {
  * A measured box built from numbers alone, with no DOM involved. Slots a case
  * does not set are left at zero.
  */
-function syntheticBox(values: readonly number[]): Box {
+function syntheticBox(values: readonly number[]): Float64Array {
   const out = new Float64Array(BOX_LENGTH);
 
   out.set(values);
@@ -41,7 +40,7 @@ describe('projection into the viewport', () => {
         styles: { left: '100px', top: '50px', width: '20px', height: '10px' },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out)).toBe(true);
     expectQuad(out, [100, 50, 120, 50, 120, 60, 100, 60]);
@@ -60,7 +59,7 @@ describe('projection into the viewport', () => {
         },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out)).toBe(true);
     expectQuad(out, [0, 0, 40, 0, 40, 20, 0, 20]);
@@ -79,7 +78,7 @@ describe('projection into the viewport', () => {
         },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out)).toBe(true);
     // p1 stays the origin corner; p2 is width away along the rotated x axis.
@@ -87,7 +86,7 @@ describe('projection into the viewport', () => {
   });
 
   it('should project from synthetic numbers with no DOM at all', () => {
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(syntheticBox([1, 0, 0, 1, 5, 7, 20, 10]), out)).toBe(
       true,
@@ -108,7 +107,7 @@ describe('projection relative to another box', () => {
         styles: { left: '40px', top: '60px', width: '20px', height: '10px' },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out, target)).toBe(true);
     expectQuad(out, [30, 40, 50, 40, 50, 50, 30, 50]);
@@ -132,7 +131,7 @@ describe('projection relative to another box', () => {
         styles: { left: '40px', top: '20px', width: '20px', height: '10px' },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out, target)).toBe(true);
     expectQuad(out, [20, 10, 30, 10, 30, 15, 20, 15]);
@@ -156,7 +155,7 @@ describe('projection relative to another box', () => {
         styles: { left: '0px', top: '40px', width: '20px', height: '10px' },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out, target)).toBe(true);
     expectQuad(out, [40, 0, 40, -20, 50, -20, 50, 0]);
@@ -179,7 +178,7 @@ describe('projection relative to another box', () => {
         styles: { left: '40px', top: '20px', width: '20px', height: '10px' },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out, target)).toBe(true);
     expectQuad(out, [20, 10, 30, 10, 30, 15, 20, 15]);
@@ -210,7 +209,7 @@ describe('projection relative to another box', () => {
         },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out, target)).toBe(true);
     expectQuad(out, [5, 5, 45, 5, 45, 25, 5, 25]);
@@ -228,7 +227,7 @@ describe('projection relative to another box', () => {
         },
       }),
     );
-    const out = quad();
+    const out: number[] = [];
 
     const width = source[BOX_WIDTH]!;
     const height = source[BOX_HEIGHT]!;
@@ -247,8 +246,8 @@ describe('projection relative to another box', () => {
       createBox({ styles: { left: '40px', top: '25px' } }),
     );
     const identity = syntheticBox([1, 0, 0, 1, 0, 0, 0, 0]);
-    const viewport = quad();
-    const relative = quad();
+    const viewport: number[] = [];
+    const relative: number[] = [];
 
     expect(projection(source, viewport)).toBe(true);
     expect(projection(source, relative, identity)).toBe(true);
@@ -270,7 +269,7 @@ describe('projection failure', () => {
     const source = measure(createBox());
     const target = measure(createBox({ styles: { transform: 'scale(0)' } }));
 
-    expect(projection(source, quad(), target)).toBe(false);
+    expect(projection(source, [], target)).toBe(false);
   });
 
   it('should preserve every output sentinel on a non-finite source', () => {
@@ -286,7 +285,7 @@ describe('projection failure', () => {
     expect(
       projection(
         syntheticBox([1, 0, 0, 1, 0, 0, Number.POSITIVE_INFINITY, 10]),
-        quad(),
+        [],
       ),
     ).toBe(false);
   });
@@ -296,7 +295,7 @@ describe('projection purity', () => {
   it('should not read the DOM after measurement', () => {
     const source = createBox({ styles: { left: '10px', top: '20px' } });
     const measured = measure(source);
-    const out = quad();
+    const out: number[] = [];
 
     // Both the layout and the element itself go away between the two steps.
     source.style.left = '900px';
@@ -315,9 +314,9 @@ describe('projection purity', () => {
         styles: { left: '5px', top: '5px', width: '200px', height: '100px' },
       }),
     );
-    const first = quad();
-    const second = quad();
-    const third = quad();
+    const first: number[] = [];
+    const second: number[] = [];
+    const third: number[] = [];
 
     expect(projection(source, first)).toBe(true);
     expect(projection(source, second, target)).toBe(true);
@@ -336,16 +335,10 @@ describe('projection purity', () => {
     const sourceBefore = Array.from(source);
     const targetBefore = Array.from(target);
 
-    expect(projection(source, quad(), target)).toBe(true);
+    expect(projection(source, [], target)).toBe(true);
 
     expect(Array.from(source)).toEqual(sourceBefore);
     expect(Array.from(target)).toEqual(targetBefore);
-  });
-});
-
-describe('quad', () => {
-  it('should allocate storage of the required length', () => {
-    expect(quad()).toHaveLength(QUAD_LENGTH);
   });
 });
 
@@ -355,7 +348,7 @@ describe('measured box reuse', () => {
       styles: { left: '40px', top: '25px', transform: 'scale(2)' },
     });
     const measured = measure(element);
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(measured, out)).toBe(true);
     // The same array carries the drag-space scalars the lift needs.
@@ -414,7 +407,7 @@ describe('projection self-inverse precision', () => {
     'should self-project $description to its own border box exactly',
     ({ matrix, e, f }) => {
       const source = syntheticBox([...matrix, e, f, 20, 10]);
-      const out = quad();
+      const out: number[] = [];
 
       expect(projection(source, out, source)).toBe(true);
       expectQuad(out, [0, 0, 20, 0, 20, 10, 0, 10], EXACT);
@@ -426,7 +419,7 @@ describe('projection self-inverse precision', () => {
     // land at exactly half their viewport coordinates.
     const target = syntheticBox([2, 0, 0, 2, 0, 0, 100, 100]);
     const source = syntheticBox([2, 0, 0, 2, 40, 60, 20, 10]);
-    const out = quad();
+    const out: number[] = [];
 
     expect(projection(source, out, target)).toBe(true);
     expectQuad(out, [20, 30, 40, 30, 40, 40, 20, 40], EXACT);
@@ -434,8 +427,8 @@ describe('projection self-inverse precision', () => {
 
   it('should round-trip a source through its own basis exactly', () => {
     const source = syntheticBox([...rotation(37, 2.25), 13, -8, 20, 10]);
-    const viewport = quad();
-    const local = quad();
+    const viewport: number[] = [];
+    const local: number[] = [];
 
     expect(projection(source, viewport)).toBe(true);
     expect(projection(source, local, source)).toBe(true);

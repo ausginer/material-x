@@ -1,0 +1,63 @@
+{
+  "browser": "157.0.8103.38",
+  "mode": "backing",
+  "arms": [
+    {
+      "name": "base",
+      "path": "packages/box-quad/src/index.ts"
+    }
+  ],
+  "backing": {
+    "array, five slots": {
+      "sampledBytesPerAllocation": 161.533,
+      "retainedHeapBytesEach": 164.0264,
+      "retainedBackingStoreBytesEach": 0.0006,
+      "before": {
+        "usedSize": 1232404,
+        "totalSize": 2166784,
+        "embedderHeapUsedSize": 305712,
+        "backingStorageSize": 2311
+      },
+      "after": {
+        "usedSize": 2872668,
+        "totalSize": 3739648,
+        "embedderHeapUsedSize": 305712,
+        "backingStorageSize": 2317
+      }
+    },
+    "Float64Array(5)": {
+      "sampledBytesPerAllocation": 167.3276,
+      "retainedHeapBytesEach": 164.0024,
+      "retainedBackingStoreBytesEach": 0,
+      "before": {
+        "usedSize": 1236660,
+        "totalSize": 2166784,
+        "embedderHeapUsedSize": 305712,
+        "backingStorageSize": 2317
+      },
+      "after": {
+        "usedSize": 2876684,
+        "totalSize": 3739648,
+        "embedderHeapUsedSize": 305712,
+        "backingStorageSize": 2317
+      }
+    },
+    "Float64Array(16)": {
+      "sampledBytesPerAllocation": 112.6802,
+      "retainedHeapBytesEach": 116.0024,
+      "retainedBackingStoreBytesEach": 128,
+      "before": {
+        "usedSize": 1237176,
+        "totalSize": 2166784,
+        "embedderHeapUsedSize": 305712,
+        "backingStorageSize": 3341
+      },
+      "after": {
+        "usedSize": 2397200,
+        "totalSize": 3215360,
+        "embedderHeapUsedSize": 305712,
+        "backingStorageSize": 1283341
+      }
+    }
+  }
+}

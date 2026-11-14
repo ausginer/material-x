@@ -3,7 +3,7 @@
  * which only the unpublished installer types declare. They run in the source
  * projects only.
  */
-import { ancestry, space } from '@ydinjs/box-quad';
+import { ancestry, type Space } from '@ydinjs/box-quad';
 import { describe, expect, it, vi } from 'vitest';
 import type {
   AxisContext,
@@ -442,7 +442,7 @@ function driveCommittedMoves(
 function installXy(inner: DisplacementSink | null) {
   const setup = wrappingField(12);
   const reports: Report[] = [];
-  const itemSpace = space();
+  const itemSpace: Space = [];
 
   ancestry(setup.list, itemSpace);
 

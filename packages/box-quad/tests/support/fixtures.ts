@@ -1,14 +1,9 @@
 import { expect } from 'vitest';
 import {
   ancestry,
-  box,
   coordinates,
   projection,
-  quad,
-  space,
-  type Box,
   type Quad,
-  type Space,
 } from '../../src/index.ts';
 
 export const QUAD_TOLERANCE = 0.000001;
@@ -88,7 +83,7 @@ export function sentinels(): Float64Array {
 }
 
 export function expectQuad(
-  actual: Float64Array,
+  actual: Readonly<Quad>,
   expected: ArrayLike<number>,
   tolerance: number = QUAD_TOLERANCE,
 ): void {
@@ -115,7 +110,7 @@ export function readQuad(
   out: Quad,
   relativeTo?: HTMLElement,
 ): boolean {
-  const source = box();
+  const source: number[] = [];
 
   if (!coordinates(element, source)) {
     return false;
@@ -125,22 +120,22 @@ export function readQuad(
     return projection(source, out);
   }
 
-  const target = box();
+  const target: number[] = [];
 
   return coordinates(relativeTo, target) && projection(source, out, target);
 }
 
 /** Measures `element`, asserting the measurement succeeded. */
-export function measure(element: HTMLElement): Box {
-  const out = box();
+export function measure(element: HTMLElement): number[] {
+  const out: number[] = [];
 
   expect(coordinates(element, out)).toBe(true);
   return out;
 }
 
 /** Reads the space `element` inherits, asserting the read succeeded. */
-export function inherited(element: HTMLElement): Space {
-  const out = space();
+export function inherited(element: HTMLElement): number[] {
+  const out: number[] = [];
 
   expect(ancestry(element, out)).toBe(true);
   return out;
@@ -150,8 +145,8 @@ export function inherited(element: HTMLElement): Space {
 export function readSuccessfulQuad(
   element: HTMLElement,
   relativeTo?: HTMLElement,
-): Quad {
-  const out = quad();
+): number[] {
+  const out: number[] = [];
   const source = measure(element);
   const target = relativeTo ? measure(relativeTo) : undefined;
 
