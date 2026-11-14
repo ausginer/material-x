@@ -1,0 +1,100 @@
+/**
+ * Reviewer probe: the edited tree's new classes, counted by constructor name with
+ * the instrument the destruction tests use. A controller lives only in an inner
+ * function's frame, runs three operations and is destroyed. Copied into the edited
+ * scratch tree as `tests/zz-rv-lifetime.browser.test.ts` and run in the `browser`
+ * project. It prints the counts: alive after the operations, and after destruction.
+ */
+import { describe, expect, it } from 'vitest';
+import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
+import { bounds } from '../src/free-drag/bounds.ts';
+import { dropTargets } from '../src/free-drag/drop-targets.ts';
+import { ReorderResolution, sortable } from '../src/sortable.ts';
+import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import { xy } from '../src/sortable/xy.ts';
+import { y } from '../src/sortable/y.ts';
+import { commands, dragAndDrop, grab, isChromium, makeList, release, rowsOf, wait } from './support/harness.ts';
+
+const CLASSES = [
+  'FrameTask',
+  'LinearShift',
+  'YAxisGeometry',
+  'XYAxisGeometry',
+  'RectIndex',
+  'RetainingRectIndex',
+  'LayoutAnimationSink',
+  'MotionConstraint',
+  'DropTargetTracker',
+  'SortableBehavior',
+  'FreeDragBehavior',
+] as const;
+
+async function counts(): Promise<Record<string, number>> {
+  const result: Record<string, number> = {};
+
+  for (const name of CLASSES) {
+    // oxlint-disable-next-line no-await-in-loop -- one snapshot per name
+    result[name] = await commands.countHeapObjects(name);
+  }
+
+  return result;
+}
+
+function delta(after: Record<string, number>, before: Record<string, number>): string {
+  return CLASSES.filter((name) => after[name] !== before[name])
+    .map((name) => `${name}${after[name]! - before[name]! > 0 ? '+' : ''}${after[name]! - before[name]!}`)
+    .join(' ') || 'none';
+}
+
+describe('RV lifetime', () => {
+  for (const composition of ['y + layoutAnimation', 'xy + layoutAnimation', 'freeDrag + bounds + targets'] as const) {
+    it.runIf(isChromium)(`RV lifetime ${composition}`, async () => {
+      const before = await counts();
+      const list = makeList(6);
+      let alive = '';
+      let held = '';
+      const operateThenDestroy = async (): Promise<void> => {
+        const controller = composition === 'freeDrag + bounds + targets'
+          ? freeDrag(list.firstElementChild as HTMLElement, {
+            bounds: bounds(),
+            targets: dropTargets({ targets: () => rowsOf(list).slice(1) }),
+            onDrop: () => FreeDragResolution.accept(),
+          })
+          : sortable(list, {
+            items: () => rowsOf(list),
+            axis: composition === 'xy + layoutAnimation' ? xy() : y(),
+            displacement: layoutAnimation({ duration: 20 }),
+            onReorder({ item, next }) {
+              list.insertBefore(item, next);
+              return ReorderResolution.accept();
+            },
+          });
+
+        // The witness: one operation held, so its per-operation objects are alive.
+        await grab(composition === 'freeDrag + bounds + targets' ? list.firstElementChild as HTMLElement : '#r0', 0, 90);
+        held = delta(await counts(), before);
+        await release();
+        await wait(400);
+
+        for (let i = 0; i < 2; i += 1) {
+          // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+          await dragAndDrop(composition === 'freeDrag + bounds + targets' ? list.firstElementChild as HTMLElement : '#r0', 90);
+          // oxlint-disable-next-line no-await-in-loop -- the landing and the row animations end
+          await wait(400);
+        }
+
+        alive = delta(await counts(), before);
+        await controller.requestDestroy();
+      };
+
+      await operateThenDestroy();
+      list.remove();
+      await wait(100);
+
+      const after = delta(await counts(), before);
+
+      console.log(`RV-LIFETIME ${composition}: during the first operation: ${held}; alive after 3 operations: ${alive}; after destruction: ${after}`);
+      expect(after).toBe('none');
+    }, 120_000);
+  }
+});

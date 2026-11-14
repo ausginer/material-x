@@ -1,0 +1,11 @@
+tree: base
+unmutated: ../drag2/src/kernel/presentation.ts:13 TS2724 ../drag2/src/kernel/presentation.ts:15 TS2724
+## axis-retire
+  src/sortable/behavior.ts(207,14): error TS2345: Argument of type '(this: InsertionGeometry) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+  (errors outside drag2: 1)
+## axis-invalidate
+  src/sortable/behavior.ts(209,24): error TS2345: Argument of type '(this: InsertionGeometry) => void' is not assignable to parameter of type '(this: undefined, operation: SortableOperation | null) => void'.
+  (errors outside drag2: 1)
+## sink-retire
+  src/sortable.ts(59,16): error TS2345: Argument of type '(this: DisplacementSink) => void' is not assignable to parameter of type '(this: undefined) => void'.
+  (errors outside drag2: 1)

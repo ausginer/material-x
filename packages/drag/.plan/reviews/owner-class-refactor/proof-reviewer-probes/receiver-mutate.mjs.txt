@@ -1,0 +1,20 @@
+// Reviewer receiver mutations. Run from packages/drag of a scratch tree:
+// `node receiver-mutate.mjs <kind>`. Each kind removes one receiver argument at
+// one call site, in place. The caller restores the file from its own copy.
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const SITES = {
+  'axis-retire': ['src/sortable/behavior.ts', 'drag.use(this.axis.retire, this.axis);', 'drag.use(this.axis.retire);'],
+  'axis-invalidate': ['src/sortable/behavior.ts', 'drag.requestStep(this.axis.invalidate, this.axis);', 'drag.requestStep(this.axis.invalidate);'],
+  'sink-retire': ['src/sortable.ts', 'kernel.use(displacement.retire, displacement);', 'kernel.use(displacement.retire);'],
+  'behavior-invalidate': ['src/sortable.ts', 'kernel.requestStep(behavior.invalidate, behavior);', 'kernel.requestStep(behavior.invalidate);'],
+  'targets-release': ['src/free-drag/drop-targets.ts', 'drag.use(this.#release, this);', 'drag.use(this.#release);'],
+  'targets-resolve': ['src/free-drag/drop-targets.ts', 'drag.requestStep(this.#resolve, this);', 'drag.requestStep(this.#resolve);'],
+};
+const [file, find, replace] = SITES[process.argv[2]] ?? [];
+if (!file) throw new Error(`unknown kind ${process.argv[2]}`);
+const source = readFileSync(file, 'utf8');
+const count = source.split(find).length - 1;
+if (count !== 1) throw new Error(`${file}: ${count} matches for ${find}`);
+writeFileSync(file, source.replace(find, replace));
+console.log(`${process.argv[2]}: ${file}: ${find} -> ${replace}`);

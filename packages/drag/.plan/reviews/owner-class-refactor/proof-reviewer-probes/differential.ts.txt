@@ -1,0 +1,136 @@
+/**
+ * Reviewer probe: the baseline and edited `bounds`, `FrameTask` and `dropTargets`
+ * side by side under node, with stub windows, elements and drags. Each case prints
+ * one trace per tree; the traces must be equal unless the case says otherwise.
+ * Run: `node differential.ts <base root> <edited root>`.
+ */
+const [baseRoot, editedRoot] = process.argv.slice(2);
+const load = async (root: string) => ({
+  bounds: await import(`${root}/packages/drag/src/free-drag/bounds.ts`),
+  invalidation: await import(`${root}/packages/drag/src/shared/invalidation.ts`),
+  targets: await import(`${root}/packages/drag/src/free-drag/drop-targets.ts`),
+});
+const trees = { base: await load(baseRoot!), edited: await load(editedRoot!) };
+
+function stubWindow(log: string[]) {
+  let next = 0;
+  const pending = new Map<number, () => void>();
+  return {
+    innerWidth: 100,
+    innerHeight: 80,
+    requestAnimationFrame(callback: () => void) {
+      next += 1;
+      pending.set(next, callback);
+      log.push(`raf#${next}`);
+      return next;
+    },
+    cancelAnimationFrame(handle: number) {
+      pending.delete(handle);
+      log.push(`caf#${handle}`);
+    },
+    flush() {
+      const due = [...pending];
+      pending.clear();
+      for (const [handle, callback] of due) {
+        log.push(`fire#${handle}`);
+        callback();
+      }
+    },
+  };
+}
+
+const cases: Record<string, (tree: (typeof trees)['base']) => string[]> = {
+  'bounds: first apply with no invalidate, function source': ({ bounds }) => {
+    const log: string[] = [];
+    const constraint = bounds.bounds(() => ({ left: 0, top: 0, right: 50, bottom: 50 }))(stubWindow(log));
+    const motion = { x: 200, y: 200 };
+    const origin = { left: 10, top: 10, right: 20, bottom: 20 };
+    constraint.apply(motion, origin);
+    log.push(`first ${motion.x},${motion.y}`);
+    constraint.invalidate();
+    motion.x = 200; motion.y = 200;
+    constraint.apply(motion, origin);
+    log.push(`after invalidate ${motion.x},${motion.y}`);
+    return log;
+  },
+  'bounds: first apply with no invalidate, viewport': ({ bounds }) => {
+    const log: string[] = [];
+    const constraint = bounds.bounds()(stubWindow(log));
+    const motion = { x: 500, y: 500 };
+    constraint.apply(motion, { left: 10, top: 10, right: 20, bottom: 20 });
+    log.push(`first ${motion.x},${motion.y}`);
+    return log;
+  },
+  'bounds: invalidate then apply, function called once per staleness': ({ bounds }) => {
+    const log: string[] = [];
+    let calls = 0;
+    const constraint = bounds.bounds(() => { calls += 1; return calls === 1 ? { left: 0, top: 0, right: 50, bottom: 50 } : null; })(stubWindow(log));
+    const origin = { left: 10, top: 10, right: 20, bottom: 20 };
+    for (const step of ['inv', 'apply', 'apply', 'inv', 'apply', 'apply']) {
+      if (step === 'inv') { constraint.invalidate(); continue; }
+      const motion = { x: 200, y: -200 };
+      constraint.apply(motion, origin);
+      log.push(`${motion.x},${motion.y} calls=${calls}`);
+    }
+    return log;
+  },
+  'FrameTask: coalescing, cancellation, rescheduling from run': ({ invalidation }) => {
+    const log: string[] = [];
+    const window = stubWindow(log);
+    let task: { schedule(): void; cancel(): void };
+    let again = true;
+    const run = () => { log.push('run'); if (again) { again = false; task.schedule(); } };
+    task = 'FrameTask' in invalidation ? new invalidation.FrameTask(window, run) : invalidation.createFrameTask(window, run);
+    task.schedule(); task.schedule(); window.flush(); window.flush();
+    task.cancel(); task.schedule(); task.cancel(); task.cancel(); window.flush();
+    task.schedule(); window.flush();
+    return log;
+  },
+  'dropTargets: hit trace, release, and a throwing targets()': ({ targets, invalidation }) => {
+    const log: string[] = [];
+    const window = stubWindow(log);
+    const element = (name: string, left: number) => ({
+      name,
+      reads: 0,
+      getBoundingClientRect() { this.reads += 1; log.push(`read ${name}`); return { left, top: 0, right: left + 10, bottom: 10 }; },
+      setAttribute() { log.push(`mark ${name}`); },
+      removeAttribute() { log.push(`unmark ${name}`); },
+    });
+    const elements = [element('a', 0), element('b', 20)];
+    const disposers: Array<[Function, unknown]> = [];
+    const drag = {
+      x: 5, y: 5,
+      use(callback: Function, receiver?: unknown) { disposers.push([callback, receiver]); log.push(`use(${receiver === undefined ? 'alone' : 'receiver'})`); },
+      requestStep(step: Function, receiver?: unknown) { log.push(`step(${receiver === undefined ? 'alone' : 'receiver'})`); step.call(receiver, null); },
+    };
+    const release = () => { for (const [callback, receiver] of disposers.splice(0).reverse()) callback.call(receiver, null); };
+    const tracker = targets.dropTargets({ targets: () => elements })(drag, window);
+    tracker.move(); tracker.move(); window.flush();
+    log.push(`current ${tracker.current?.name ?? null}`);
+    drag.x = 25; tracker.move(); window.flush();
+    log.push(`current ${tracker.current?.name ?? null}`);
+    tracker.invalidate(); drag.x = 99; tracker.move(); tracker.drop(); window.flush();
+    log.push(`current ${tracker.current?.name ?? null}`);
+    drag.x = 5; tracker.move(); window.flush(); tracker.move();
+    release(); window.flush();
+    log.push(`current after release ${tracker.current?.name ?? null}`);
+    try {
+      targets.dropTargets({ targets: () => { throw new Error('consumer'); } })(drag, window);
+    } catch (error) { log.push(`threw ${(error as Error).message}; disposers ${disposers.length}`); }
+    release(); log.push(`released; disposers ${disposers.length}`);
+    void invalidation;
+    return log;
+  },
+};
+
+let differ = 0;
+for (const [name, run] of Object.entries(cases)) {
+  const base = run(trees.base);
+  const edited = run(trees.edited);
+  const same = JSON.stringify(base) === JSON.stringify(edited);
+  if (!same) differ += 1;
+  console.log(`\n## ${name}: ${same ? 'equal' : 'DIFFERENT'}`);
+  console.log(`base:   ${base.join(' | ')}`);
+  if (!same) console.log(`edited: ${edited.join(' | ')}`);
+}
+console.log(`\ncases: ${Object.keys(cases).length}, different: ${differ}`);

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Reviewer probe: typecheck each receiver mutation in one scratch tree.
+# Usage: receiver-typecheck.sh <tree root> <mutate.mjs> <kinds...>
+set -u
+root=$1; mutate=$2; shift 2
+cd "$root/packages/drag" || exit 1
+echo "tree: $root"
+echo "unmutated: $(npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E 'error TS' | sed -E 's/^([^(]+)\(([0-9]+),[0-9]+\): error (TS[0-9]+).*/\1:\2 \3/' | sort | tr '\n' ' ')"
+for kind in "$@"; do
+  file=$(node -e "const m={'axis-retire':'src/sortable/behavior.ts','axis-invalidate':'src/sortable/behavior.ts','sink-retire':'src/sortable.ts','behavior-invalidate':'src/sortable.ts','targets-release':'src/free-drag/drop-targets.ts','targets-resolve':'src/free-drag/drop-targets.ts'};console.log(m[process.argv[1]])" "$kind")
+  cp "$file" "$file.reviewer-bak"
+  node "$mutate" "$kind" >/dev/null || { mv "$file.reviewer-bak" "$file"; continue; }
+  errs=$(npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E 'error TS')
+  mv "$file.reviewer-bak" "$file"
+  echo "## $kind"
+  echo "$errs" | grep -v 'drag2/src/kernel/presentation.ts' | grep -v '^$' | sed 's/^/  /'
+  echo "  (errors outside drag2: $(echo "$errs" | grep -v 'drag2/src/kernel/presentation.ts' | grep -c 'error TS'))"
+done

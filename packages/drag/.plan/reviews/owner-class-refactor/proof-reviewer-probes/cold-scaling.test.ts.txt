@@ -1,0 +1,58 @@
+
+/*
+ * Reviewer probe: does the cold committed-move allocation scale with the number of
+ * sampled moves? The report's `C6 move probe`, unchanged except that the sampled
+ * crossings are a parameter. Appended to a scratch tree's
+ * `tests/hot-path.browser.test.ts` (the `shipped` project, `__DEV__` false), and each
+ * count launched alone with `-t 'RV cold scaling <n> '`. Prints and asserts nothing.
+ */
+describe('RV cold scaling', () => {
+  for (const sampled of [50, 200, 800]) {
+    it.runIf(isChromium)(`RV cold scaling ${sampled} : bytes in y()'s shift rule`, async () => {
+      const list = makeList(20);
+      let moves = 0;
+      const observer = new MutationObserver((records) => {
+        for (const record of records) {
+          if (record.addedNodes.length > 0) {
+            moves += 1;
+          }
+        }
+      });
+
+      observer.observe(list, { childList: true });
+      onCleanup(() => observer.disconnect());
+      basicSortable(list);
+
+      const start = await press('#r4');
+      const row = (document.querySelector('#r5') as HTMLElement).getBoundingClientRect().height;
+
+      await commands.pointerMove(start.x, start.y + 10, 2);
+      await frames();
+
+      const cross = async (count: number): Promise<void> => {
+        for (let i = 0; i < count; i += 1) {
+          // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+          await commands.pointerMove(start.x, start.y + (i % 2 === 0 ? 1.6 : 0.4) * row);
+          // oxlint-disable-next-line no-await-in-loop -- one resolution per crossing
+          await frames();
+        }
+      };
+
+      await cross(100);
+      moves = 0;
+      await commands.startHeapSampling(16);
+      await cross(sampled);
+
+      const bytes = await commands.stopHeapSampling('/src/');
+
+      await frames();
+      await commands.keyPress('Escape');
+
+      const shift = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/linear-shift.ts') || key.startsWith('sortable/rect-index.ts'));
+
+      console.log(
+        `RV-COLD-SCALING sampled=${sampled} moves=${moves} keys=${JSON.stringify(Object.fromEntries(shift))}`,
+      );
+    }, 600_000);
+  }
+});

@@ -1,0 +1,30 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 edited/packages/drag
+
+9:54:28 PM [vite] (client) warning: 
+edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e80f26fe
+stdout | tests/zz-rv-lifetime.browser.test.ts:51 > RV lifetime > RV lifetime y + layoutAnimation
+RV-LIFETIME y + layoutAnimation: during the first operation: FrameTask+1 LinearShift+1 YAxisGeometry+1 RectIndex+1 LayoutAnimationSink+1 SortableBehavior+1; alive after 3 operations: LinearShift+1 YAxisGeometry+1 RectIndex+1 LayoutAnimationSink+1 SortableBehavior+1; after destruction: none
+stdout | tests/zz-rv-lifetime.browser.test.ts:51 > RV lifetime > RV lifetime xy + layoutAnimation
+RV-LIFETIME xy + layoutAnimation: during the first operation: FrameTask+1 XYAxisGeometry+1 RetainingRectIndex+1 LayoutAnimationSink+1 SortableBehavior+1; alive after 3 operations: XYAxisGeometry+1 RetainingRectIndex+1 LayoutAnimationSink+1 SortableBehavior+1; after destruction: none
+stdout | tests/zz-rv-lifetime.browser.test.ts:51 > RV lifetime > RV lifetime freeDrag + bounds + targets
+RV-LIFETIME freeDrag + bounds + targets: during the first operation: FrameTask+1 MotionConstraint+1 DropTargetTracker+1 FreeDragBehavior+1; alive after 3 operations: MotionConstraint+1 FreeDragBehavior+1; after destruction: none
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  21:54:27
+   Duration  67.47s (tests 99%, worker 1%)
+

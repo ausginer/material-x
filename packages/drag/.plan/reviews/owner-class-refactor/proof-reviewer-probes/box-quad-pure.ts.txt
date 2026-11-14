@@ -1,0 +1,45 @@
+/**
+ * Reviewer probe: baseline and edited box-quad `projection` and `localDelta` on the
+ * same inputs, compared slot by slot with `Object.is` (so `-0` and `NaN` count),
+ * including untouched-output cases. Run: `node box-quad-pure.ts <base> <edited>`.
+ */
+const [baseRoot, editedRoot] = process.argv.slice(2);
+const base = await import(`${baseRoot}/packages/box-quad/src/index.ts`);
+const edited = await import(`${editedRoot}/packages/box-quad/src/index.ts`);
+
+let seed = 7;
+const random = (): number => {
+  seed = (seed * 1_103_515_245 + 12_345) % 2 ** 31;
+  return seed / 2 ** 31;
+};
+const SPECIAL = [0, -0, 1, -1, 1e-300, 1e300, Infinity, -Infinity, Number.NaN, 0.1, 3];
+const pick = (): number => (random() < 0.2 ? SPECIAL[Math.floor(random() * SPECIAL.length)]! : (random() - 0.5) * 2000);
+const box = (): number[] => Array.from({ length: 8 }, pick);
+
+let cases = 0;
+let differences = 0;
+const compare = (name: string, run: (module: typeof base, out: number[]) => boolean, outLength: number): void => {
+  const outBase = Array.from({ length: outLength }, () => 42);
+  const outEdited = Array.from({ length: outLength }, () => 42);
+  const resultBase = run(base, outBase);
+  const resultEdited = run(edited, outEdited);
+  cases += 1;
+  if (resultBase !== resultEdited || outBase.some((value, i) => !Object.is(value, outEdited[i]))) {
+    differences += 1;
+    if (differences <= 5) console.log(`DIFFERENT ${name}: ${resultBase} ${outBase} | ${resultEdited} ${outEdited}`);
+  }
+};
+
+for (let i = 0; i < 20_000; i += 1) {
+  const source = box();
+  const relative = box();
+  const dx = pick();
+  const dy = pick();
+  compare('projection', (module, out) => module.projection(source, out), 8);
+  compare('projection relativeTo', (module, out) => module.projection(source, out, relative), 8);
+  compare('localDelta', (module, out) => module.localDelta(source, dx, dy, out), 2);
+}
+// Singular bases.
+compare('localDelta singular', (module, out) => module.localDelta([1, 2, 2, 4], 5, 5, out), 2);
+compare('projection singular relativeTo', (module, out) => module.projection([1, 0, 0, 1, 0, 0, 10, 10], out, [1, 2, 2, 4, 0, 0, 1, 1]), 8);
+console.log(`cases: ${cases}, different: ${differences}`);

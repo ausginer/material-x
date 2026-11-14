@@ -1,0 +1,65 @@
+/**
+ * Reviewer probe: a third party fills `freeDrag`'s `targets` and `bounds` slots with
+ * its own objects, through the published entries and the built declarations.
+ * The contract: "A third party may fill a slot whose type is published", and
+ * `free-drag/drop-targets.js` exports `DropTargets` and `DropTargetTracker`.
+ * Typechecked in each scratch tree after `npx just build`; no directive is expected
+ * to be needed at the baseline.
+ */
+import { freeDrag, FreeDragResolution } from '@ydinjs/drag/free-drag.js';
+import type { BoundsInstaller, MotionConstraint } from '@ydinjs/drag/free-drag/bounds.js';
+import { dropTargets } from '@ydinjs/drag/free-drag/drop-targets.js';
+import type { DropTargets, DropTargetTracker } from '@ydinjs/drag/free-drag/drop-targets.js';
+
+/** T1: a tracker of the third party's own, for a target that is not an element rect. */
+export const ownTargets: DropTargets = (drag) => {
+  let current: HTMLElement | null = null;
+  return {
+    get current() {
+      return current;
+    },
+    move() {
+      current = drag.x > 100 ? document.body : null;
+    },
+    drop() {},
+    invalidate() {},
+  };
+};
+
+/** T2: a tracker that wraps the built-in one and logs each drop. */
+export const loggedTargets: DropTargets = (drag, window) => {
+  const inner = dropTargets({ targets: () => [] })(drag, window);
+  return {
+    get current() {
+      return inner.current;
+    },
+    move: () => inner.move(),
+    drop: () => {
+      inner.drop();
+      console.log(inner.current);
+    },
+    invalidate: () => inner.invalidate(),
+  };
+};
+
+/** T3: a bounds capability of the third party's own. */
+export const ownBounds: BoundsInstaller = () => ({
+  apply(motion) {
+    motion.x = Math.max(motion.x, 0);
+  },
+  invalidate() {},
+});
+
+/** T4: the two types named directly. */
+export function describeTracker(tracker: DropTargetTracker, constraint: MotionConstraint): string {
+  return `${String(tracker.current)} ${typeof constraint.apply}`;
+}
+
+/** T5: the slots filled. */
+export function compose(element: HTMLElement): void {
+  freeDrag(element, {
+    targets: ownTargets,
+    bounds: ownBounds,
+    onDrop: () => FreeDragResolution.accept(),
+  });
+}

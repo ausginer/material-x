@@ -1,0 +1,13 @@
+none:       Tests  357 passed (357)
+axis-retire: src/sortable/behavior.ts: drag.use(this.axis.retire, this.axis); -> drag.use(this.axis.retire);
+axis-retire:       Tests  25 failed | 332 passed (357)
+axis-invalidate: src/sortable/behavior.ts: drag.requestStep(this.axis.invalidate, this.axis); -> drag.requestStep(this.axis.invalidate);
+axis-invalidate:       Tests  2 failed | 355 passed (357)
+sink-retire: src/sortable.ts: kernel.use(displacement.retire, displacement); -> kernel.use(displacement.retire);
+sink-retire:       Tests  4 failed | 353 passed (357)
+behavior-invalidate: src/sortable.ts: kernel.requestStep(behavior.invalidate, behavior); -> kernel.requestStep(behavior.invalidate);
+behavior-invalidate:       Tests  10 failed | 347 passed (357)
+targets-release: src/free-drag/drop-targets.ts: drag.use(this.#release, this); -> drag.use(this.#release);
+targets-release:       Tests  5 failed | 352 passed (357)
+targets-resolve: src/free-drag/drop-targets.ts: drag.requestStep(this.#resolve, this); -> drag.requestStep(this.#resolve);
+targets-resolve:       Tests  8 failed | 349 passed (357)
