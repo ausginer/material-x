@@ -1,0 +1,40 @@
+=== vite-custom-element-assets: npx just lint
+src/css/generation.ts:256:23: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+src/css/generation.ts:257:15: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+error: recipe `lint` failed on line 22 with exit code 1
+exit=1
+=== vite-traits-plugin: npx just lint
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+/workspaces/material-x/packages/vite-traits-plugin/src/analyze.ts
+  85:5  error  for..in loops are slower than Object.{keys,values,entries} and have their caveats  no-restricted-syntax
+✖ 1 problem (1 error, 0 warnings)
+error: recipe `lint` failed on line 26 with exit code 1
+exit=1
+=== vite-custom-element-assets: eslint alone (the recipe stops after oxlint fails)
+/workspaces/material-x/packages/vite-custom-element-assets/src/html.ts
+  20:3  error  Identifier 'minify_css' is not in camel case                                camelcase
+  21:3  error  Identifier 'minify_js' is not in camel case                                 camelcase
+  22:3  error  Identifier 'keep_comments' is not in camel case                             camelcase
+  23:3  error  Identifier 'allow_removing_spaces_between_attributes' is not in camel case  camelcase
+
+/workspaces/material-x/packages/vite-custom-element-assets/src/index.ts
+  237:26  error  Use the 'u' flag  require-unicode-regexp
+  238:26  error  Use the 'u' flag  require-unicode-regexp
+
+✖ 7 problems (7 errors, 0 warnings)
+
+exit=1
+=== lines changed in f9e56fe7d..27c60a9ac (new side)
++++ b/packages/vite-custom-element-assets/src/index.ts
+@@ -2 +2 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
+@@ -45 +45 @@ export function constructCSSStyles(
+@@ -85 +85 @@ export function constructCSSStyles(
+@@ -88 +88 @@ export function constructCSSStyles(
+@@ -128 +128 @@ export function constructHTMLTemplate(): Plugin {
+@@ -147 +147 @@ export function constructCSSTokens(
+@@ -303 +303 @@ export function constructCSSTokens(
++++ b/packages/vite-traits-plugin/src/plugin.ts
+@@ -3 +3 @@ import { fileURLToPath } from 'node:url';
+@@ -28 +28 @@ const CANDIDATE = /\.[cm]?[jt]sx?$/u;
+@@ -46 +46 @@ export function viteTraitsPlugin(): Plugin {
+@@ -141 +141 @@ export function viteTraitsPlugin(): Plugin {

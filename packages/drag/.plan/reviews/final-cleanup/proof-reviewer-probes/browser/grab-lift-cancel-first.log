@@ -1,0 +1,66 @@
+### grab-lift-cancel-first: mutation=lift-cancel-first file=activation.browser.test.ts
+ packages/drag/src/lift.ts | 1 +
+ 1 file changed, 1 insertion(+)
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/packages/drag
+
+9:54:11 AM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=fe627f76
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:48 > drag:DRI-3 activation > should run no hook for a custom behavior whose item was disconnected during the press
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:83 > drag:DRI-14 command activation > should decline a command quietly when its item leaves during the lift
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:101 > drag:DRI-14 command activation > should decline a command quietly when its move becomes impossible during the lift
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:120 > drag:DRI-14 command activation > should land a keyboard command from the old slot
+ × |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 471ms
+   → expected 5 to be less than 1
+ × |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 403ms
+   → expected 45 to be less than 1
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:188 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:207 > drag:DRI-15 placeholder faults > should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+ ↓ |browser (chromium)| tests/activation.browser.test.ts:233 > drag:DRI-17 coalescing > should schedule one frame for several samples in one task
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+AssertionError: expected 5 to be less than 1
+ ❯ tests/activation.browser.test.ts:180:51
+    178|
+    179|       expect(Math.abs(held.x - pressed.x)).toBeLessThan(1);
+    180|       expect(Math.abs(held.y - (pressed.y + 40))).toBeLessThan(1);
+       |                                                   ^
+    181|       await commands.keyPress('Escape');
+    182|       await commands.pointerUp();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+AssertionError: expected 45 to be less than 1
+ ❯ tests/activation.browser.test.ts:180:51
+    178|
+    179|       expect(Math.abs(held.x - pressed.x)).toBeLessThan(1);
+    180|       expect(Math.abs(held.y - (pressed.y + 40))).toBeLessThan(1);
+       |                                                   ^
+    181|       await commands.keyPress('Escape');
+    182|       await commands.pointerUp();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 skipped (9)
+   Start at  09:54:10
+   Duration  2.24s (tests 52%, worker 39%, import 8%)
+
+exit=1

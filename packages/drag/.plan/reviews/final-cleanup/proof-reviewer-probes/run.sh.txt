@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Reviewer focused Chromium probes, `browser` project only, from packages/drag at a clean
+# checkout whose code equals 27c60a9ac. Usage: run.sh <out-dir> <mutate.mjs>.
+# ONLY=<case> runs one case. Each case applies one mutation, runs the named tests, and restores the file with git.
+set -u
+out=$1
+mutate=$2
+cd "$(git rev-parse --show-toplevel)/packages/drag" || exit 1
+
+HEAP_CLASSES='should retain no freeDrag behavior instance after destruction'
+HEAP_DESTRUCTION='should retain no item, behavior, view or behavior instance after 3 operations and destruction'
+GRAB='a grab during a landing'
+
+run() { # name mutation file filter
+  local name=$1 kind=$2 file=$3 filter=$4
+  if [ -n "${ONLY:-}" ] && [ "$ONLY" != "$name" ]; then return 0; fi
+  if [ "$kind" != none ]; then node "$mutate" "$kind" || return 1; fi
+  {
+    echo "### $name: mutation=$kind file=$file"
+    git diff --stat
+    npx vitest run -c vitest.config.ts --project browser --reporter verbose "tests/$file" -t "$filter" 2>&1
+    echo "exit=$?"
+  } > "$out/$name.log"
+  git checkout -- src tests
+  grep -E "^ *(✓|×)|AssertionError|Tests +[0-9]|^exit=" "$out/$name.log" | sed "s/^/$name: /"
+}
+
+echo "revision: $(git rev-parse HEAD) status-before: '$(git status --porcelain -- src tests)'"
+run heap-clean none classes.browser.test.ts "$HEAP_CLASSES"
+run heap-clean-destruction none destruction.browser.test.ts "$HEAP_DESTRUCTION"
+run heap-kept-classes heap-kept-classes classes.browser.test.ts "$HEAP_CLASSES"
+run heap-kept-destruction heap-kept-destruction destruction.browser.test.ts "$HEAP_DESTRUCTION"
+run heap-alive-destruction heap-alive-destruction destruction.browser.test.ts "$HEAP_DESTRUCTION"
+run heap-sentinel-kept heap-sentinel-kept destruction.browser.test.ts "$HEAP_DESTRUCTION"
+run grab-clean none activation.browser.test.ts "$GRAB"
+run grab-lift-cancel-first lift-cancel-first activation.browser.test.ts "$GRAB"
+run grab-lift-end-offset lift-end-offset activation.browser.test.ts "$GRAB"
+run grab-test-delays test-delays activation.browser.test.ts "$GRAB"
+echo "status-after: '$(git status --porcelain -- src tests)'"

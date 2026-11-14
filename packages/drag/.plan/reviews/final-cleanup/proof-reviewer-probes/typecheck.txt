@@ -1,0 +1,25 @@
+# tsc -p tsconfig.json --noEmit per package, then the root tsconfig, at e0e4cee55 (code identical to 27c60a9ac)
+=== box-quad
+exit=0
+=== core
+exit=0
+=== tproc
+exit=0
+=== drag
+../drag2/src/kernel/presentation.ts(13,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'. Did you mean 'Box'?
+../drag2/src/kernel/presentation.ts(15,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?
+exit=1
+=== drag2
+src/kernel/presentation.ts(13,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'. Did you mean 'Box'?
+src/kernel/presentation.ts(15,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?
+tests/decisions.node.test.ts(740,5): error TS2322: Type '(string | number)[]' is not assignable to type 'readonly string[]'.
+tests/perf/m5.browser.test.ts(54,20): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?
+exit=1
+=== vite-custom-element-assets
+exit=0
+=== vite-traits-plugin
+exit=0
+=== material-x
+exit=0
+=== root
+exit=0

@@ -1,0 +1,4 @@
+# npx just lint, packages/drag, at e0e4cee55 (code identical to 27c60a9ac)
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+exit=0

@@ -1,0 +1,5 @@
+# git diff --stat 27c60a9ac HEAD outside packages/drag/.plan (empty: same code)
+# added lines in f9e56fe7d..27c60a9ac naming a disable, ts-ignore, ts-expect-error, cast or rule config
+none
+# changed config files
+none

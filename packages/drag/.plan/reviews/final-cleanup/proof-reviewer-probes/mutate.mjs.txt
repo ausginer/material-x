@@ -1,0 +1,78 @@
+// Reviewer mutations for the focused Chromium probes. Run from packages/drag as
+// `node mutate.mjs <kind>`, with the probe copied out as .mjs. Each kind rewrites one
+// tracked file in place; run.sh.txt restores it with `git checkout` after the run.
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const kind = process.argv[2];
+
+function edit(path, pairs) {
+  let source = readFileSync(path, 'utf8');
+  for (const [find, replace] of pairs) {
+    const count = source.split(find).length - 1;
+    if (count !== 1) throw new Error(`${path}: ${count} matches for ${JSON.stringify(find)}`);
+    source = source.replace(find, replace);
+  }
+  writeFileSync(path, source);
+}
+
+const keep = (name) => [
+  `      const ${name} = async (): Promise<void> => {\n`,
+  `      const kept: object[] = [];\n      const ${name} = async (): Promise<void> => {\n`,
+];
+
+switch (kind) {
+  // The test's own frame keeps the destroyed controller.
+  case 'heap-kept-classes':
+    edit('tests/classes.browser.test.ts', [
+      keep('dragThenDestroy'),
+      ['        await controller.requestDestroy();\n      };', '        await controller.requestDestroy();\n        kept.push(controller);\n      };'],
+    ]);
+    break;
+  case 'heap-kept-destruction':
+    edit('tests/destruction.browser.test.ts', [
+      keep('operateThenDestroy'),
+      ['        await controller.requestDestroy();\n      };', '        await controller.requestDestroy();\n        kept.push(controller);\n      };'],
+    ]);
+    break;
+  // The test's own frame keeps a live controller, never destroyed, which holds `onStart`.
+  case 'heap-alive-destruction':
+    edit('tests/destruction.browser.test.ts', [
+      keep('operateThenDestroy'),
+      ['        await controller.requestDestroy();\n      };', '        kept.push(controller);\n      };'],
+    ]);
+    break;
+  // The test keeps its sentinel: `behavior = null` is removed, and the controller is released as written.
+  case 'heap-sentinel-kept':
+    edit('tests/destruction.browser.test.ts', [['      behavior = null;\n', '']]);
+    break;
+  // Activation cancels every animation of the visual before it measures.
+  case 'lift-cancel-first':
+    edit('src/lift.ts', [
+      ['      const rect = visual.getBoundingClientRect();\n',
+        '      for (const animation of visual.getAnimations()) animation.cancel();\n      const rect = visual.getBoundingClientRect();\n'],
+    ]);
+    break;
+  // Activation measures with every animation moved past its end, so the flight adds no
+  // offset, then puts each back. The landing is not cancelled before the measurement.
+  case 'lift-end-offset':
+    edit('src/lift.ts', [
+      ['      const rect = visual.getBoundingClientRect();\n',
+        '      const moved = visual.getAnimations().map((animation) => [animation, animation.currentTime] as const);\n' +
+        '      for (const [animation] of moved) animation.currentTime = Number(animation.effect!.getComputedTiming().endTime);\n' +
+        '      const rect = visual.getBoundingClientRect();\n'],
+      ['      const style = this.#window.getComputedStyle(visual);\n',
+        '      for (const [animation, time] of moved) animation.currentTime = time;\n      const style = this.#window.getComputedStyle(visual);\n'],
+    ]);
+    break;
+  // 1 s between the release and the pause, and 2 s between the read and the grab.
+  case 'test-delays':
+    edit('tests/activation.browser.test.ts', [
+      ['      await release();\n\n      // Held at its midpoint',
+        '      await release();\n      await new Promise((resolve) => { setTimeout(resolve, 1000); });\n\n      // Held at its midpoint'],
+      ["      const pressed = centerOf('#r0');\n",
+        "      const pressed = centerOf('#r0');\n\n      await new Promise((resolve) => { setTimeout(resolve, 2000); });\n"],
+    ]);
+    break;
+  default:
+    throw new Error(`unknown kind ${kind}`);
+}

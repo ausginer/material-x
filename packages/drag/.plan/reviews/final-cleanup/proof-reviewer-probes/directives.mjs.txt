@@ -1,0 +1,93 @@
+// Reviewer probe for drag:DRF-38's first required property: each `@ts-expect-error`
+// still fails without its directive, for the same reason, at f9e56fe7d and at 27c60a9ac.
+// Run from packages/drag as `node directives.mjs`, with the probe copied there as .mjs.
+// It writes copies of the three declaration tests into tests/ with every directive line
+// blanked to `//`, typechecks the package once, prints each directive's comment beside
+// the errors on its next line, and removes the copies.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { rmSync, writeFileSync } from 'node:fs';
+
+const FILES = [
+  'authoring.declaration.test.ts',
+  'callbacks.declaration.test.ts',
+  'published-types.declaration.test.ts',
+];
+const VERSIONS = { old: 'f9e56fe7d', new: '27c60a9ac' };
+const copies = [];
+const directives = {};
+
+for (const [version, commit] of Object.entries(VERSIONS)) {
+  for (const file of FILES) {
+    const source = execFileSync(
+      'git',
+      ['show', `${commit}:packages/drag/tests/${file}`],
+      { encoding: 'utf8' },
+    );
+    const lines = source.split('\n');
+    const name = `zz-rv-${version}-${file}`;
+    directives[name] = [];
+    lines.forEach((line, i) => {
+      const match = /^(\s*)\/\/ @ts-expect-error(.*)$/u.exec(line);
+      if (match) {
+        directives[name].push({ line: i + 1, reason: match[2].trim() });
+        lines[i] = `${match[1]}//`;
+      }
+    });
+    writeFileSync(`tests/${name}`, lines.join('\n'));
+    copies.push(`tests/${name}`);
+  }
+}
+
+try {
+  const run = spawnSync('npx', ['tsc', '-p', 'tsconfig.json', '--noEmit'], {
+    encoding: 'utf8',
+  });
+  const errors = run.stdout
+    .split('\n')
+    .map((line) => /^tests\/(zz-rv-[^(]+)\((\d+),(\d+)\): error (TS\d+): (.*)$/u.exec(line))
+    .filter(Boolean)
+    .map(([, name, line, , code, message]) => ({ name, line: Number(line), code, message }));
+  const other = run.stdout
+    .split('\n')
+    .filter((line) => /error TS/u.test(line) && !line.startsWith('tests/zz-rv-'));
+  console.log(`tsc exit=${run.status}; errors in the copies: ${errors.length}`);
+  console.log(`errors outside the copies: ${other.length}`);
+  for (const line of other) console.log(`  ${line}`);
+
+  const sequences = {};
+  for (const [name, list] of Object.entries(directives)) {
+    const own = errors.filter((error) => error.name === name);
+    const used = new Set();
+    const rows = [];
+    for (const { line, reason } of list) {
+      const next = own.filter((error) => error.line === line + 1);
+      next.forEach((error) => used.add(error));
+      rows.push({ line, reason, next });
+    }
+    const stray = own.filter((error) => !used.has(error));
+    sequences[name] = rows.map((row) =>
+      row.next.map((error) => `${error.code} ${error.message}`).join(' | '),
+    );
+    console.log(`\n## ${name}: ${list.length} directives, ${own.length} errors, ${stray.length} not on a directive's next line, ${rows.filter((row) => row.next.length === 0).length} directives with no error`);
+    for (const row of rows) {
+      console.log(`${row.line}: // ${row.reason}`);
+      for (const error of row.next) console.log(`    ${row.line + 1}: ${error.code} ${error.message}`);
+      if (row.next.length === 0) console.log('    (no error)');
+    }
+    for (const error of stray) console.log(`  stray ${error.line}: ${error.code} ${error.message}`);
+  }
+
+  console.log('\n## old against new, directive by directive (reason, then error codes and messages)');
+  for (const file of FILES) {
+    const oldName = `zz-rv-old-${file}`;
+    const newName = `zz-rv-new-${file}`;
+    const sameReasons =
+      JSON.stringify(directives[oldName].map((d) => d.reason)) ===
+      JSON.stringify(directives[newName].map((d) => d.reason));
+    const sameErrors =
+      JSON.stringify(sequences[oldName]) === JSON.stringify(sequences[newName]);
+    console.log(`${file}: reasons equal=${sameReasons}, error sequences equal=${sameErrors}`);
+  }
+} finally {
+  for (const copy of copies) rmSync(copy);
+}

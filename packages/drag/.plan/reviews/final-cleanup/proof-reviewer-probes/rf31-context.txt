@@ -1,0 +1,33 @@
+# Hook context: Vite 8.3.8 declares 'declare module "rolldown" { interface MinimalPluginContext extends PluginContextExtension {} }' (node_modules/vite/dist/node/index.d.ts:2047-2050), and PluginContextExtension is { environment: Environment } (:2034-2039).
+# Rolldown 1.3.2's own MinimalPluginContext (define-config-QuM53xoi.d.mts:2186) declares no 'environment'.
+
+## Q5 and Q6, run from packages/vite-traits-plugin with the probe's tsc flags
+import type { Plugin as RolldownPlugin } from 'rolldown';
+import type { Plugin } from 'vite';
+
+// Q5 (reviewer): Q1 through P8's form, `satisfies Plugin satisfies RolldownPlugin`.
+export const q5: Plugin & RolldownPlugin = {
+  name: 'q5',
+  transform(code) {
+    return this.environment.mode === 'dev' ? { code } : null;
+  },
+} satisfies Plugin satisfies RolldownPlugin;
+
+// Q6 (reviewer): Rolldown's type alone, with Vite's types not imported in this file.
+export const q6: RolldownPlugin = {
+  name: 'q6',
+  transform(code) {
+    return this.environment.mode === 'dev' ? { code } : null;
+  },
+};
+/* Output: exit 0, no diagnostics */
+
+## Runtime: Rolldown 1.3.2 alone, one transform hook reading its context
+import { rolldown } from '/workspaces/material-x/node_modules/rolldown/dist/index.mjs';
+const seen = [];
+const bundle = await rolldown({ input: '<scratch>/rt/input.js', plugins: [{ name: 'probe', transform(code) { seen.push(typeof this.environment, 'fs' in this, typeof this.addWatchFile); return null; } }] });
+await bundle.generate({ format: 'esm' });
+console.log('rolldown', (await import('/workspaces/material-x/node_modules/rolldown/package.json', { with: { type: 'json' } })).default.version, 'transform this: typeof environment, has fs, typeof addWatchFile =', seen.join(', '));
+/* Output:
+rolldown 1.3.2 transform this: typeof environment, has fs, typeof addWatchFile = undefined, true, function, undefined, true, function
+*/

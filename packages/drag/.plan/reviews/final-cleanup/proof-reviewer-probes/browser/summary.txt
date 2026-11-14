@@ -1,0 +1,52 @@
+revision: e0e4cee55d5b15c7977a98845a74c30093eac988 status-before: ''
+heap-clean:  ✓ |browser (chromium)| tests/classes.browser.test.ts:190 > drag:DRD-20 behavior instances > should retain no freeDrag behavior instance after destruction 2566ms
+heap-clean:       Tests  1 passed | 5 skipped (6)
+heap-clean: exit=0
+heap-clean-destruction:  ✓ |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 2166ms
+heap-clean-destruction:       Tests  1 passed | 22 skipped (23)
+heap-clean-destruction: exit=0
+heap-kept-classes:  × |browser (chromium)| tests/classes.browser.test.ts:190 > drag:DRD-20 behavior instances > should retain no freeDrag behavior instance after destruction 2130ms
+heap-kept-classes: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+heap-kept-classes: AssertionError: expected 1 to be +0 // Object.is equality
+heap-kept-classes:       Tests  1 failed | 5 skipped (6)
+heap-kept-classes: exit=1
+heap-kept-destruction:  × |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 2876ms
+heap-kept-destruction: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+heap-kept-destruction: AssertionError: expected 1 to be +0 // Object.is equality
+heap-kept-destruction:       Tests  1 failed | 22 skipped (23)
+heap-kept-destruction: exit=1
+heap-alive-destruction:  × |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 2740ms
+heap-alive-destruction: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+heap-alive-destruction: AssertionError: expected 1 to be +0 // Object.is equality
+heap-alive-destruction:       Tests  1 failed | 22 skipped (23)
+heap-alive-destruction: exit=1
+grab-clean:  ✓ |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 366ms
+grab-clean:  ✓ |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 348ms
+grab-clean:       Tests  2 passed | 7 skipped (9)
+grab-clean: exit=0
+grab-lift-cancel-first:  × |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 471ms
+grab-lift-cancel-first:  × |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 403ms
+grab-lift-cancel-first: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+grab-lift-cancel-first: AssertionError: expected 5 to be less than 1
+grab-lift-cancel-first: AssertionError: expected 45 to be less than 1
+grab-lift-cancel-first:       Tests  2 failed | 7 skipped (9)
+grab-lift-cancel-first: exit=1
+grab-lift-end-offset:  × |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 436ms
+grab-lift-end-offset:  × |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 312ms
+grab-lift-end-offset: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+grab-lift-end-offset: AssertionError: expected 5 to be less than 1
+grab-lift-end-offset: AssertionError: expected 45 to be less than 1
+grab-lift-end-offset:       Tests  2 failed | 7 skipped (9)
+grab-lift-end-offset: exit=1
+grab-test-delays:  ✓ |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing 3342ms
+grab-test-delays:  ✓ |browser (chromium)| tests/activation.browser.test.ts:144 > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing 3316ms
+grab-test-delays:       Tests  2 passed | 7 skipped (9)
+grab-test-delays: exit=0
+status-after: ''
+revision: e0e4cee55d5b15c7977a98845a74c30093eac988 status-before: ''
+heap-sentinel-kept:  × |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 1493ms
+heap-sentinel-kept: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+heap-sentinel-kept: AssertionError: expected [ {}, undefined ] to deeply equal [ undefined, undefined ]
+heap-sentinel-kept:       Tests  1 failed | 22 skipped (23)
+heap-sentinel-kept: exit=1
+status-after: ''
