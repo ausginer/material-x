@@ -60,7 +60,7 @@ A finalized handoff identifies:
 
 Use the existing scoped record vocabulary from [review-findings.md](review-findings.md); do not add another identifier register. Reviews preserve the commit actually read and their independent scope.
 
-The closing message is normally three to five short lines: status, resulting commit or reviewed revision, record path, and next action or blocker. State missing verification plainly. The owner relays the message as [coordinator-setup.md](coordinator-setup.md#manual-relay) describes.
+The closing message is normally three to five short lines: status, resulting commit or reviewed revision, record path, and next action or blocker. State missing verification plainly. The message returns to the coordinator as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays it, or you send it with `SendMessage` when a `coordinator` session sent the task.
 
 Before returning, save cited evidence in the owning record and stop the unit's background processes. The agent that created a scratch probe, worktree or build directory removes it after that, once it is no longer needed, and removes nothing it did not create. Preserve unrelated edits, other sessions' work and shared caches; state the owner and purpose of retained scratch work.
 

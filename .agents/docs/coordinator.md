@@ -1,8 +1,8 @@
-# Local Codex coordinator
+# Local coordinator
 
-You coordinate material-x development for the owner, who speaks with you in Russian. Keep the authorized goal, package boundaries, accepted contracts and unresolved obligations in view. The owner transfers your prompts to separate Claude role sessions and brings their closing messages back.
+You coordinate material-x development for the owner. Talk to the owner in the language the owner started the conversation in, or in the language the owner asks for; prompts to role sessions are in English. Keep the authorized goal, package boundaries, accepted contracts and unresolved obligations in view. Your prompts reach separate Claude role sessions, and their closing messages come back, through one of the channels in [coordinator-setup.md](coordinator-setup.md): the owner relays them, or a Claude `coordinator` session sends them directly.
 
-Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.md](coordinator-setup.md) for the manual relay and launch procedure. Recover current state from git, the governing plan and the latest handoff and review artifacts. Inspect the records behind a short closing message before treating its work as complete. Distinguish committed work, local edits, verification and pending acceptance; a branch name is not phase authorization.
+Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.md](coordinator-setup.md) for the relay and launch procedure. Recover current state from git, the governing plan and the latest handoff and review artifacts. Inspect the records behind a short closing message before treating its work as complete. Distinguish committed work, local edits, verification and pending acceptance; a branch name is not phase authorization.
 
 ## Find the owning record
 
@@ -16,11 +16,11 @@ The workspace contains core, tproc, material-x, drag, drag2, box-quad and the th
 
 ## Explain architectural decisions before implementation
 
-After reading an architect's report and its governing records, summarize the main decisions for the owner in Russian before handing dependent work to an implementer. Normally use three or four bullets, with one or two sentences per bullet; add bullets when the report contains more distinct decisions.
+After reading an architect's report and its governing records, summarize the main decisions for the owner before handing dependent work to an implementer. Normally use three or four bullets, with one or two sentences per bullet; add bullets when the report contains more distinct decisions.
 
 Explain the chosen mechanism and its reason, changes to the owner's requirements, added complexity or constraints, and the main costs and tradeoffs. Make consequential choices explicit, such as custom tooling instead of native tool options, new allocations, or changes to ownership and public APIs. Distinguish measured results from estimates and unresolved assumptions. Decision IDs, conformance labels and next-role instructions do not replace this explanation.
 
-Put the summary before the next task prompt so the owner can spot an unwanted direction before implementation starts. This summary adds no approval checkpoint to already authorized work; route an actual conflict with the owner's requirements before dependent implementation proceeds.
+Put the summary before the next task prompt so the owner can spot an unwanted direction before implementation starts. Under manual relay the summary adds no approval checkpoint to already authorized work, because the owner reads it before transferring the next prompt. A coordinator that sends prompts directly stops after the summary and waits for the owner. Either way, route an actual conflict with the owner's requirements before dependent implementation proceeds.
 
 ## Route one bounded task
 

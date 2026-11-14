@@ -25,7 +25,7 @@ A guarded session says so. `Effort guard active` arrives as startup context in e
 - **Seen it — work normally.**
 - **Not seen it — run `claude plugin marketplace add ./` and start a new session before doing governed work or spawning any worker.** A restart is required either way: a plugin does not become loaded in a session already running.
 
-**This binds every governed role**: `architect`, `implementer`, `consolidator`, `reviewer`, `integrity`, `cleanup` and `der` — the set the guard governs, not a subset of it.
+**This binds every governed role**: `architect`, `implementer`, `consolidator`, `reviewer`, `integrity`, `cleanup`, `der` and `coordinator` — the set the guard governs, not a subset of it.
 
 **A role session selects its effort as well as its role.** `--agent` applies the definition's model and not its `effort:`, so the level is the starter's to pass; the guard denies the first tool call of a session that got it wrong, and repairs nothing. [`.scripts/claude-role.sh`](.scripts/claude-role.sh) reads the declared level out of the definition and passes it.
 
@@ -41,7 +41,7 @@ Probes, diagnostics, fixtures and benchmarks are fine for any role that needs on
 
 ## Where things are
 
-- For local coordination, start with [`.agents/docs/coordinator.md`](.agents/docs/coordinator.md) and [`.agents/docs/coordinator-setup.md`](.agents/docs/coordinator-setup.md). The owner relays prompts between Codex and standalone Claude role sessions; role definitions and the guard still govern those sessions.
+- For local coordination, start with [`.agents/docs/coordinator.md`](.agents/docs/coordinator.md) and [`.agents/docs/coordinator-setup.md`](.agents/docs/coordinator-setup.md). The owner relays prompts between Codex and standalone Claude role sessions, or a Claude `coordinator` session sends them directly; role definitions and the guard still govern those sessions.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how code is written: source conventions, and the size and ownership policy. This is a library, not an application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
 - [`.agents/docs/`](.agents/docs/) — conventions and design references: `@ydinjs` architecture, CSS inheritance, attribute-vs-state styling, accessibility, the test layers, the trait flattener plugin, where documentation belongs, and how a review round is run.
 - `.claude/skills/` — task-scoped procedures for `@ydinjs/material-x` component tests, `@ydinjs/tproc` visual contracts, and anything under `.data/tokens`. They apply even when a request does not name them.
