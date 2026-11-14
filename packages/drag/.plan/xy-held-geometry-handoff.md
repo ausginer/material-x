@@ -200,6 +200,8 @@ Stop and return to the architect, with what you have recorded, when:
 
 The owner starts the independent review below on the pushed report. The architect's final acceptance comes after it: the architect reads the report and the review, decides the review's findings, and then decides whether the unit is accepted.
 
+**Done on 2026-11-14:** the review is at `c4d02d45c`, and the unit is accepted in [`xy-held-geometry-assessment.md`](xy-held-geometry-assessment.md).
+
 ## Independent review
 
 **For:** one fresh `reviewer` session, a feature proof, which the owner starts once the report is pushed, before the architect's final acceptance. **Pinned to** the commit that adds the report. **Chromium only.**

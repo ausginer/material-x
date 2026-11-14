@@ -6,8 +6,16 @@
 
 - **No return condition was met.**
 - **The `src` diff is the architect's sketch, byte for byte.** `git diff f79f66fe2 b4117dae2 -- packages/drag/src` gives blob `b9234028e` for `rect-index.ts`, the same blob as the sketch in the [type check](measurements/2026-11-13-xy-held-geometry-types-check.txt).
-- **The emitted `.js` and `.d.ts` files are byte-identical** to the base build's, comments included. Every size row reads 0/0/0.
+- **The build's 60 emitted `.js` and `.d.ts` files are byte-identical** to the base build's, comments included. One of its 30 source maps, `sortable/rect-index.js.map`, differs (§Property 4 and property 5). Every size row reads 0/0/0.
 - **Every mutation failed what the handoff names.** Nothing failed that wasn't expected, apart from the whole-suite coverage the handoff asks for as information.
+
+**Corrected on 2026-11-14 by the architect,** on the independent review's `reviewer-1` ([review](reviews/xy-held-geometry/proof-reviewer.md) §Findings, [assessment](xy-held-geometry-assessment.md) §4.1). The report counted Vite's dependency cache as emitted files, and didn't say that source maps were outside its comparison. **The conclusion holds:** every `.js` and `.d.ts` file the build emits is byte-identical. Five passages are corrected in place, and §What wasn't measured gains a bullet for the source maps. **The saved measurements aren't changed.** The copy script, both copy counts and the emitted-file diff still read 124, because that is what the commands printed. What the passages used to say:
+
+- the third bullet above: "**The emitted `.js` and `.d.ts` files are byte-identical** to the base build's, comments included. Every size row reads 0/0/0.";
+- item 1.6: "124 `.js` and `.d.ts` files copied to scratch, after the size run's build";
+- property 5's row: "`src` diff below; emitted files byte-identical; every size row 0/0/0";
+- §Property 4 and property 5: "**The emitted files:** all 124 emitted `.js` and `.d.ts` files are byte-identical between the base build and the end build.";
+- §The size: "The rows bundle the published build, whose emitted files are byte-identical to the base's, so the lists are the same input".
 
 **Governing records:** `DRD-62` properties 1 to 7, with its costs and limits; what it amends (`DRD-61` properties 1, 2, 3 and 8, `DRD-58` property 7's table, and `DRD-52` property 1); `DRD-61` properties 3 and 10; `DRD-51` properties 1 and 2; `DRF-38` and `repo:RF-31`; CONTRIBUTING Part I §TypeScript, §Class encapsulation and §Unit tests, and Part II §1.2 and §3.
 
@@ -28,7 +36,7 @@
 | 1.3 Suite | 746 tests, 740 pass. The 6 failures are the size rows "draggable alone", "example: resize handle", "example: drop zone", "freeDrag", "freeDrag + bounds + landing" and "complete" in `tests/size.node.test.ts` | [log](measurements/2026-11-13-xy-held-geometry-unit-base-suite.log), [verdicts](measurements/2026-11-13-xy-held-geometry-unit-base-suite-verdicts.txt), [status](measurements/2026-11-13-xy-held-geometry-unit-base-status.json) |
 | 1.4 Size | "sortable + y" 6,577 B, "sortable + xy" 6,564 B and "complete" 7,175 B Brotli, as the proposal's final-VX readings give | [log](measurements/2026-11-13-xy-held-geometry-unit-base-size.log) |
 | 1.5 Lint, typecheck | 49 ESLint errors and no oxlint error. Typecheck: `repo:RF-31` only | [lint](measurements/2026-11-13-xy-held-geometry-unit-base-lint.txt), [typecheck](measurements/2026-11-13-xy-held-geometry-unit-base-typecheck.txt) |
-| 1.6 Emitted files | 124 `.js` and `.d.ts` files copied to scratch, after the size run's build | [copy](measurements/2026-11-13-xy-held-geometry-unit-base-emitted-copy.txt), [script](measurements/2026-11-13-xy-held-geometry-unit-copy-emitted.sh.txt) |
+| 1.6 Emitted files | 124 `.js` and `.d.ts` files copied to scratch, after the size run's build. 60 are the build's own: 33 `.js` and 27 `.d.ts`. The other 64 are Vite's dependency cache under `.vite/vitest/*/deps/`, which the script doesn't exclude. No `.js.map` was copied (corrected on 2026-11-14) | [copy](measurements/2026-11-13-xy-held-geometry-unit-base-emitted-copy.txt), [script](measurements/2026-11-13-xy-held-geometry-unit-copy-emitted.sh.txt) |
 | — Consumer, declaration | Consumer: 22 files, 326 tests, all pass. Declaration: 3 files, 20 tests, all pass | [consumer](measurements/2026-11-13-xy-held-geometry-unit-base-consumer.log), [declaration](measurements/2026-11-13-xy-held-geometry-unit-base-declaration.log) |
 
 ## `DRD-62`, property by property
@@ -39,7 +47,7 @@
 | 2. `xy()` holds its policy, and no geometry | Yes, unchanged | `xy.ts` isn't in the diff |
 | 3. `y()` is unchanged | Yes | `y.ts` and `linear-shift.ts` aren't in the diff. "sortable + y" and "complete" read 0/0/0 against the base, which equals the proposal's final-VX figures against `61f883d09` (§Size) |
 | 4. The field types | Yes | See below |
-| 5. Type-only | Yes | `src` diff below; emitted files byte-identical; every size row 0/0/0 |
+| 5. Type-only | Yes | `src` diff below; the 60 emitted `.js` and `.d.ts` files byte-identical, and `sortable/rect-index.js.map` differs; every size row 0/0/0 |
 | 6. The compile-time check | Yes | `tests/rect-index.declaration.test.ts`; MT1 to MT3 fail it (§Mutations) |
 | 7. The behavioral witness | Yes | Three tests in `tests/displacement-sink.browser.test.ts`; MX1 to MX5 fail what they name (§Mutations) |
 
@@ -65,7 +73,12 @@ No JSDoc changed. None of `at`, `retained` or `#axis` contradicted its new type:
   readonly #axis: NearEdge;
 ```
 
-**The emitted files:** all 124 emitted `.js` and `.d.ts` files are byte-identical between the base build and the end build. `diff -r` and the file-list diff both exit 0 ([diff](measurements/2026-11-13-xy-held-geometry-unit-emitted-diff.txt)). `sortable/rect-index.js` is emitted and no `rect-index.d.ts` is, as at the base.
+**The emitted files.** The build emits 90 files, and the package's `files` list publishes all of them: 33 `.js`, 27 `.d.ts` and 30 `.js.map`.
+
+- **The 60 `.js` and `.d.ts` files are byte-identical** between the base build and the end build. `diff -r` and the file-list diff both exit 0 ([diff](measurements/2026-11-13-xy-held-geometry-unit-emitted-diff.txt)).
+- **That diff's 124 paths aren't all build output.** 64 of them, every path that begins `./.vite/vitest/`, are Vite's dependency cache, which the [copy script](measurements/2026-11-13-xy-held-geometry-unit-copy-emitted.sh.txt) doesn't exclude. They aren't published.
+- **This unit didn't compare the source maps.** One of them differs: `sortable/rect-index.js.map` reads 18.97 kB at the base and 19.29 kB at the end in the build's summary, at line 43 of the saved size logs ([base](measurements/2026-11-13-xy-held-geometry-unit-base-size.log), [end](measurements/2026-11-13-xy-held-geometry-unit-end-size.log)). The review's comparison of `f79f66fe2` with `7184d069c` finds it the only file of the 90 that differs, in its `sourcesContent` and `mappings` ([comparison](reviews/xy-held-geometry/proof-reviewer-probes/emitted-compare.txt)). The map embeds the typed source. The published package is therefore not byte-identical: its JavaScript and declarations are.
+- `sortable/rect-index.js` is emitted and no `rect-index.d.ts` is, as at the base.
 
 ### Where the code differs from the architect's sketch
 
@@ -112,7 +125,7 @@ The three helpers are shared by the tests. They live at the end of the file, aft
 | complete | 21,803 / 7,950 / 7,175 | 21,803 / 7,950 / 7,175 | 0/0/0 | 24 |
 
 - **The violation lines are identical,** so no verdict changed. The same 6 rows are over their ceilings, and "draggable alone"'s control line reads the same.
-- **The module lists.** `measure.ts` prints only the count. I printed every composition's module list from the end build through `measure` ([list](measurements/2026-11-13-xy-held-geometry-unit-end-modules.txt), [script](measurements/2026-11-13-xy-held-geometry-unit-modules.ts.txt)). The base's lists weren't printed. The rows bundle the published build, whose emitted files are byte-identical to the base's, so the lists are the same input; that is an inference, not a second reading. The suite's graph assertions in `tests/size.node.test.ts` have the same verdicts at both points.
+- **The module lists.** `measure.ts` prints only the count. I printed every composition's module list from the end build through `measure` ([list](measurements/2026-11-13-xy-held-geometry-unit-end-modules.txt), [script](measurements/2026-11-13-xy-held-geometry-unit-modules.ts.txt)). The base's lists weren't printed. The rows bundle the published build, whose emitted `.js` and `.d.ts` files are byte-identical to the base's, so the lists are the same input; that is an inference, not a second reading. The suite's graph assertions in `tests/size.node.test.ts` have the same verdicts at both points.
 - **Against `61f883d09`, for the record only:** the end's "sortable + y" 6,577, "sortable + xy" 6,564 and "complete" 7,175 B Brotli equal the proposal's final-VX figures. "sortable + xy" is +60 / +18 / +30 against `61f883d09`, from the proposal. `61f883d09` wasn't built again.
 
 ## The suites
@@ -173,6 +186,7 @@ So at `f79f66fe2`'s suite, only MX1 and MX3 were caught at all, and each by a te
 - **Allocation:** not run. The proposal's readings stand with the limits `DRD-62` states.
 - **Firefox and WebKit:** not run, deferred to the owner's planned CI. No cross-engine claim is made.
 - **The base's module lists:** inferred from the identical emitted files, not printed (§The size).
+- **Source maps:** not compared. `sortable/rect-index.js.map` differs (§Property 4 and property 5; added on 2026-11-14).
 
 ## Next
 
