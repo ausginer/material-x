@@ -41,6 +41,35 @@ function expectNear(
   expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
 }
 
+/**
+ * A 20 × 10 box at (10, 20) inside a `scale(2, 1)` ancestor, inside a
+ * `rotate(90deg)` ancestor at (100, 0). Each transform origin is the top-left
+ * corner of its own element.
+ *
+ * The two ancestor transforms do not commute, so only the order CSS applies them
+ * gives the expected values: the inner scale acts first and the outer rotation
+ * last. Under the rotation a point (x, y) moves to (-y, x).
+ */
+function createNonCommutingAncestry(): HTMLElement {
+  const outer = createBox({
+    styles: {
+      left: '100px',
+      width: '400px',
+      height: '400px',
+      transform: 'rotate(90deg)',
+    },
+  });
+  const inner = createBox({
+    parent: outer,
+    styles: { width: '200px', height: '200px', transform: 'scale(2, 1)' },
+  });
+
+  return createBox({
+    parent: inner,
+    styles: { left: '10px', top: '20px' },
+  });
+}
+
 describe('coordinates', () => {
   it('should report an untransformed box as an identity matrix at its position', () => {
     const measured = measure(
@@ -112,6 +141,28 @@ describe('coordinates', () => {
     });
 
     expectNear(measure(createBox({ parent }))[BOX_A]!, 3);
+  });
+
+  it('should compose non-commuting ancestor transforms in CSS order', () => {
+    // A local point (x, y) is at (x + 10, y + 20) in the scaled ancestor. The
+    // scale takes it to (2x + 20, y + 20). The rotation takes that to
+    // (-y - 20, 2x + 20), and the outer offset adds 100 to the first term. So
+    // the local x axis maps to (0, 2), the local y axis to (-1, 0), and the
+    // local origin to (80, 20).
+    //
+    // The size is asserted as well as the matrix. The projected corners alone
+    // can't detect the other order: at a multiple of 90 degrees, the wrong
+    // matrix and the size derived from it give the same rectangle.
+    const measured = measure(createNonCommutingAncestry());
+
+    expectNear(measured[BOX_A]!, 0);
+    expectNear(measured[BOX_B]!, 2);
+    expectNear(measured[BOX_C]!, -1);
+    expectNear(measured[BOX_D]!, 0);
+    expectNear(measured[BOX_E]!, 80);
+    expectNear(measured[BOX_F]!, 20);
+    expectNear(measured[BOX_WIDTH]!, 20);
+    expectNear(measured[BOX_HEIGHT]!, 10);
   });
 
   it('should honour the individual rotate property', () => {
@@ -325,6 +376,17 @@ describe('ancestry', () => {
     });
 
     expectNear(inherited(createBox({ parent: inner }))[SPACE_A]!, 6);
+  });
+
+  it('should compose non-commuting ancestor transforms in CSS order', () => {
+    // The local x axis (1, 0) is doubled to (2, 0), then rotated to (0, 2).
+    // The local y axis (0, 1) is unscaled, then rotated to (-1, 0).
+    const out = inherited(createNonCommutingAncestry());
+
+    expectNear(out[SPACE_A]!, 0);
+    expectNear(out[SPACE_B]!, 2);
+    expectNear(out[SPACE_C]!, -1);
+    expectNear(out[SPACE_D]!, 0);
   });
 
   it('should include an ancestor zoom in the inherited basis', () => {
