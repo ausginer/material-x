@@ -1,0 +1,14 @@
+node v26.13.0
+rolldown 1.3.2
+tsdown 0.23.7
+vitest 5.1.0
+@vitest/browser-playwright 5.1.0
+playwright 1.65.0
+typescript 6.0.2
+oxlint 1.93.0
+eslint 10.14.0
+oxfmt 0.78.0
+size-limit 14.3.0
+Google Chrome for Testing 157.0.8103.38 
+CHROME_EXECUTABLE=unset
+nproc 12

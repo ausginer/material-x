@@ -1,0 +1,94 @@
+{
+  "fallback, depth 2": {
+    "base2": {
+      "referenceMedianNs": 7700.000002980232,
+      "medianNs": 8250,
+      "medianDifferenceNs": 650.0000059604645,
+      "lower": 0,
+      "higher": 7,
+      "aaBoundNs": 6000,
+      "verdict": "no difference shown"
+    },
+    "edited": {
+      "referenceMedianNs": 7700.000002980232,
+      "medianNs": 7950.000002980233,
+      "medianDifferenceNs": 250.0000000000009,
+      "lower": 2,
+      "higher": 5,
+      "aaBoundNs": 6000,
+      "verdict": "no difference shown"
+    }
+  },
+  "fallback, depth 14": {
+    "base2": {
+      "referenceMedianNs": 71674.99999701977,
+      "medianNs": 74774.99999850988,
+      "medianDifferenceNs": -2700.0000029802322,
+      "lower": 5,
+      "higher": 2,
+      "aaBoundNs": 6525.0000059604645,
+      "verdict": "no difference shown"
+    },
+    "edited": {
+      "referenceMedianNs": 71674.99999701977,
+      "medianNs": 70399.99999850988,
+      "medianDifferenceNs": -2524.999998509884,
+      "lower": 6,
+      "higher": 1,
+      "aaBoundNs": 6525.0000059604645,
+      "verdict": "no difference shown"
+    }
+  },
+  "fallback, depth 32": {
+    "base2": {
+      "referenceMedianNs": 166800.00000447035,
+      "medianNs": 160225.00000149012,
+      "medianDifferenceNs": -4550.000004470348,
+      "lower": 4,
+      "higher": 3,
+      "aaBoundNs": 18349.999994039536,
+      "verdict": "no difference shown"
+    },
+    "edited": {
+      "referenceMedianNs": 166800.00000447035,
+      "medianNs": 163149.99999850988,
+      "medianDifferenceNs": -1125,
+      "lower": 5,
+      "higher": 2,
+      "aaBoundNs": 18349.999994039536,
+      "verdict": "no difference shown"
+    }
+  },
+  "above, depth 14": {
+    "base2": {
+      "referenceMedianNs": 4200.000002980232,
+      "medianNs": 4149.999998509884,
+      "medianDifferenceNs": -25.000005960464023,
+      "lower": 4,
+      "higher": 3,
+      "aaBoundNs": 225.00000149011612,
+      "verdict": "no difference shown"
+    },
+    "edited": {
+      "referenceMedianNs": 4200.000002980232,
+      "medianNs": 4100.000001490116,
+      "medianDifferenceNs": 0.000007450579687429126,
+      "lower": 3,
+      "higher": 4,
+      "aaBoundNs": 225.00000149011612,
+      "verdict": "no difference shown"
+    }
+  }
+}
+fallback, depth 2 base 368.7 367.6 367.4
+fallback, depth 2 base2 369.0 368.4 367.0
+fallback, depth 2 edited 367.4 366.7 366.8
+fallback, depth 14 base 3027.4 3025.7 3029.0
+fallback, depth 14 base2 3024.0 3029.1 3024.8
+fallback, depth 14 edited 3026.2 3030.5 3027.3
+fallback, depth 32 base 6836.1 6840.0 6837.8
+fallback, depth 32 base2 6842.2 6832.2 6835.9
+fallback, depth 32 edited 6839.8 6843.5 6845.4
+above, depth 14 base 216.7 217.1 217.7
+above, depth 14 base2 216.7 216.6 217.6
+above, depth 14 edited 217.3 217.7 217.5

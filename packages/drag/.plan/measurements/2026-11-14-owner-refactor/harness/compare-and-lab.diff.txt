@@ -1,0 +1,188 @@
+diff --git a/packages/drag/bench/compare.ts b/packages/drag/bench/compare.ts
+index 33a94df90..ba924f277 100644
+--- a/packages/drag/bench/compare.ts
++++ b/packages/drag/bench/compare.ts
+@@ -84,6 +84,7 @@ declare const lab: Readonly<{
+   freeDrag(): void;
+   noLift(): void;
+   list(count: number): void;
++  freeDragTargets(count: number): void;
+   destroy(): Promise<void>;
+ }>;
+ 
+@@ -102,11 +103,16 @@ type Bundle = Readonly<{ code: string; modules: readonly ModuleStart[] }>;
+  * module alike. Any other module is keyed by its path from the package, such as
+  * `bench/lab.ts`.
+  */
+-async function bundle(lab: string, sourceRoot: string): Promise<Bundle> {
++async function bundle(
++  lab: string,
++  sourceRoot: string,
++  // Verification copy: each arm bundles its own box-quad.
++  boxQuad = BOX_QUAD,
++): Promise<Bundle> {
+   const built = await rolldown({
+     input: lab,
+     platform: 'browser',
+-    resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
++    resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
+     transform: { define: { __DEV__: 'false' } },
+     plugins: [
+       {
+@@ -667,6 +673,69 @@ const SCENARIOS: readonly Scenario[] = [
+       return delta(before, after, MOVES);
+     },
+   },
++  ...[10, 400].flatMap((count): Scenario[] => [
++    {
++      id: `free drag + bounds + ${count} drop targets, 300 moves, one frame each`,
++      rule: 'exact-and-floor',
++      arms: 'free-drag',
++      async run({ page, metrics }) {
++        await page.evaluate((n) => {
++          lab.freeDragTargets(n);
++        }, count);
++        await page.mouse.move(100, 60);
++        await page.mouse.down();
++        await page.mouse.move(100, 80, { steps: 2 });
++        await page.waitForTimeout(50);
++
++        const before = await metrics();
++
++        for (let i = 0; i < MOVES; i += 1) {
++          await page.mouse.move(100 + (i % 200), 80 + (i % 100));
++          await page.evaluate(() => new Promise(requestAnimationFrame));
++        }
++
++        const after = await metrics();
++
++        await page.mouse.up();
++        return delta(before, after, MOVES);
++      },
++    },
++    {
++      id: `50 free-drag activate-and-drop cycles, bounds + ${count} drop targets`,
++      rule: 'exact-and-floor',
++      arms: 'free-drag',
++      async run({ page, metrics }) {
++        await page.evaluate((n) => {
++          lab.freeDragTargets(n);
++        }, count);
++        await page.waitForTimeout(30);
++
++        const before = await metrics();
++
++        for (let i = 0; i < CYCLES; i += 1) {
++          await page.mouse.move(100, 60);
++          await page.mouse.down();
++          await page.mouse.move(100, 72, { steps: 2 });
++          // Over a target in even cycles, over none in odd ones.
++          await page.mouse.move(i % 2 === 0 ? 50 : 860, 90);
++          await page.evaluate(() => new Promise(requestAnimationFrame));
++          await page.mouse.up();
++          await page.waitForTimeout(ANIMATION_WAIT);
++        }
++
++        const after = await metrics();
++        const ended = await page.evaluate(() => lab.log.length);
++
++        if (ended !== CYCLES) {
++          throw new Error(
++            `${ended} of ${CYCLES} cycles ended: ${JSON.stringify(await page.evaluate(() => lab.log.slice(0, 6)))}`,
++          );
++        }
++
++        return delta(before, after, CYCLES);
++      },
++    },
++  ]),
+   {
+     id: 'draggable no-lift, move: script',
+     rule: 'report',
+@@ -2128,10 +2197,31 @@ async function run(
+           ...(await bundle(
+             lab,
+             await archivedSource(scratch, values.before, 'packages/drag/src'),
++            join(
++              await archivedSource(
++                scratch,
++                values.before,
++                'packages/box-quad/src',
++              ),
++              'index.ts',
++            ),
+           )),
+           restoresFocus: true,
+         };
+ 
++        // Verification copy: the arms' bundles, for checking which box-quad each holds.
++        if (process.env['DUMP_BUNDLES']) {
++          await writeFile(join(process.env['DUMP_BUNDLES'], 'before.js'), before.code);
++          await writeFile(
++            join(process.env['DUMP_BUNDLES'], 'production.js'),
++            production.code,
++          );
++        }
++
++        if (process.env['DUMP_ONLY']) {
++          return;
++        }
++
+         await compareArms(
+           browser,
+           { before, production, control: production },
+diff --git a/packages/drag/bench/lab.ts b/packages/drag/bench/lab.ts
+index ef5586bb4..1a7f92509 100644
+--- a/packages/drag/bench/lab.ts
++++ b/packages/drag/bench/lab.ts
+@@ -4,6 +4,8 @@
+  * its own `src`.
+  */
+ import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
++import { bounds } from '../src/free-drag/bounds.ts';
++import { dropTargets } from '../src/free-drag/drop-targets.ts';
+ import { landing } from '../src/sortable/landing.ts';
+ import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+ import { y } from '../src/sortable/y.ts';
+@@ -97,6 +99,41 @@ const lab = {
+       },
+     });
+   },
++
++  /**
++   * Verification copy: freeDrag with viewport bounds and `count` 20 px drop
++   * targets in rows of 40 below the box. Accepts a drop over a target, rejects
++   * one over none.
++   */
++  freeDragTargets(count: number): void {
++    const box = makeRows(1).firstElementChild as HTMLElement;
++    const arena = document.createElement('div');
++    const zones: HTMLElement[] = [];
++
++    arena.style.cssText = 'display:flex;flex-wrap:wrap;width:800px;';
++
++    for (let i = 0; i < count; i += 1) {
++      const zone = document.createElement('div');
++
++      zone.style.cssText =
++        'width:20px;height:20px;box-sizing:border-box;border:1px solid #889;';
++      arena.append(zone);
++      zones.push(zone);
++    }
++
++    document.body.append(arena);
++    freeDrag(box, {
++      bounds: bounds(),
++      targets: dropTargets({ targets: () => zones }),
++      onDrop: (request) =>
++        request.target
++          ? FreeDragResolution.accept()
++          : FreeDragResolution.reject(),
++      onEnd(result) {
++        lab.log.push(result.type);
++      },
++    });
++  },
+ };
+ 
+ Object.assign(globalThis, { lab });

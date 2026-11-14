@@ -1,0 +1,10 @@
+hold confirmed: 2026-11-14T19:37:54+00:00
+load: 0.61 1.06 1.72 3/3842 1561315
+compare start: 2026-11-14T19:37:54+00:00
+compare end: 2026-11-14T20:33:11+00:00 exit=0 load: 1.23 1.39 1.50 1/3873 1595983
+xy start: 2026-11-14T20:33:11+00:00
+xy end: 2026-11-14T20:34:12+00:00 exit=0 load: 1.93 1.56 1.55 3/3916 1596385
+box-quad start: 2026-11-14T20:34:12+00:00
+box-quad end: 2026-11-14T20:41:36+00:00 exit=0 load: 2.89 2.54 2.07 3/4033 1598493
+released: 2026-11-14T21:00:19+00:00 (owner confirmed the release; the owner said 'Yep, released' after the 20:41:40 request)
+nothing else from the implementing session ran between the hold and the last process's end; one read-only progress check (cat/tail/ls) ran at 20:09:29 at the owner's request

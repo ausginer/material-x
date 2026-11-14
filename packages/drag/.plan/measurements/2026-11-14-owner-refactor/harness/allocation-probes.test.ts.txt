@@ -1,0 +1,437 @@
+/*
+ * C6 ownership probe: per-sample allocation in the sortable axis code. Appended to
+ * a scratch worktree's `tests/hot-path.browser.test.ts`, which runs in the
+ * `shipped` project with `__DEV__` false. Each axis is launched alone, with
+ * `-t 'C6 probe y:'` or `-t 'C6 probe xy:'`: after `y()` in the same launch,
+ * `xy()` reads an empty profile. Not a test of the suite: it prints and asserts
+ * nothing.
+ */
+import { xy as probeXy } from '../src/sortable/xy.ts';
+
+describe('C6 probe', () => {
+  for (const axis of ['y', 'xy'] as const) {
+    it.runIf(isChromium)(`C6 probe ${axis}: bytes per sample under src/sortable/`, async () => {
+      const list = makeList(20);
+
+      basicSortable(list, axis === 'xy' ? { axis: probeXy() } : {});
+
+      const start = await press('#r0');
+
+      await commands.pointerMove(start.x, start.y + 10, 2);
+      await frames();
+
+      // Warm pass, not sampled, as the kernel's allocation test does.
+      for (let i = 0; i < 300; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one sample per step
+        await commands.pointerMove(start.x + (i % 40), start.y + 12 + (i % 3));
+      }
+
+      await frames();
+      await commands.startHeapSampling(16);
+
+      const moves = 400;
+
+      for (let i = 0; i < moves; i += 1) {
+        // Inside one slot, and never still, so every frame resolves.
+        // oxlint-disable-next-line no-await-in-loop -- one sample per step
+        await commands.pointerMove(start.x + (i % 40), start.y + 12 + (i % 3));
+      }
+
+      const bytes = await commands.stopHeapSampling('/src/');
+    const allSrc = Object.values(bytes).reduce((sum, size) => sum + size, 0);
+
+      await commands.keyPress('Escape');
+
+      const sortable = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/'));
+      const total = sortable.reduce((sum, [, size]) => sum + size, 0);
+
+      console.log(
+        `C6-PROBE ${axis} perMove=${(total / moves).toFixed(2)} allSrc=${allSrc} keys=${JSON.stringify(Object.fromEntries(sortable))}`,
+      );
+    }, 180_000);
+  }
+});
+
+/*
+ * C6 ownership probe: allocation per committed move in `y()`'s shift rule.
+ * Appended like `alloc-probe.test.ts.txt` and launched alone with
+ * `-t 'C6 move probe'`, which matches no other probe. The pointer crosses one
+ * row and back, so every resolution commits a move.
+ */
+describe('C6 move probe', () => {
+  it.runIf(isChromium)('C6 move probe y: bytes per committed move under src/sortable/', async () => {
+    const list = makeList(20);
+    let moves = 0;
+    // A committed move relocates the placeholder: one insertion in the list.
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.addedNodes.length > 0) {
+          moves += 1;
+        }
+      }
+    });
+
+    observer.observe(list, { childList: true });
+    onCleanup(() => observer.disconnect());
+    basicSortable(list);
+
+    const start = await press('#r4');
+    const row = (document.querySelector('#r5') as HTMLElement).getBoundingClientRect().height;
+
+    await commands.pointerMove(start.x, start.y + 10, 2);
+    await frames();
+
+    const cross = async (count: number): Promise<void> => {
+      for (let i = 0; i < count; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+        await commands.pointerMove(start.x, start.y + (i % 2 === 0 ? 1.6 : 0.4) * row);
+        // oxlint-disable-next-line no-await-in-loop -- one resolution per crossing
+        await frames();
+      }
+    };
+
+    await cross(100);
+    moves = 0;
+    await commands.startHeapSampling(16);
+    await cross(200);
+
+    const bytes = await commands.stopHeapSampling('/src/');
+    const allSrc = Object.values(bytes).reduce((sum, size) => sum + size, 0);
+
+    // Delivered before the count is read.
+    await frames();
+    await commands.keyPress('Escape');
+
+    const shift = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/linear-shift.ts') || key.startsWith('sortable/rect-index.ts'));
+    const total = shift.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `C6-MOVE-PROBE moves=${moves} perMove=${(total / Math.max(moves, 1)).toFixed(2)} allSrc=${allSrc} keys=${JSON.stringify(Object.fromEntries(shift))}`,
+    );
+  }, 180_000);
+});
+
+/*
+ * C6 ownership probe, warm: allocation per committed move in `y()`'s shift rule,
+ * after 2,000 unsampled crossings. `move-probe.test.ts.txt` with `cross(2000)`
+ * before the 200 sampled crossings, as the size pass's first unit ran it; its
+ * reading is the one `DRD-52` property 9 is judged by. Appended like
+ * `alloc-probe.test.ts.txt` and launched alone with `-t 'C6 warm move probe'`.
+ */
+describe('C6 warm move probe', () => {
+  it.runIf(isChromium)('C6 warm move probe y: bytes per committed move under src/sortable/', async () => {
+    const list = makeList(20);
+    let moves = 0;
+    // A committed move relocates the placeholder: one insertion in the list.
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.addedNodes.length > 0) {
+          moves += 1;
+        }
+      }
+    });
+
+    observer.observe(list, { childList: true });
+    onCleanup(() => observer.disconnect());
+    basicSortable(list);
+
+    const start = await press('#r4');
+    const row = (document.querySelector('#r5') as HTMLElement).getBoundingClientRect().height;
+
+    await commands.pointerMove(start.x, start.y + 10, 2);
+    await frames();
+
+    const cross = async (count: number): Promise<void> => {
+      for (let i = 0; i < count; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+        await commands.pointerMove(start.x, start.y + (i % 2 === 0 ? 1.6 : 0.4) * row);
+        // oxlint-disable-next-line no-await-in-loop -- one resolution per crossing
+        await frames();
+      }
+    };
+
+    await cross(2000);
+    moves = 0;
+    await commands.startHeapSampling(16);
+    await cross(200);
+
+    const bytes = await commands.stopHeapSampling('/src/');
+    const allSrc = Object.values(bytes).reduce((sum, size) => sum + size, 0);
+
+    // Delivered before the count is read.
+    await frames();
+    await commands.keyPress('Escape');
+
+    const shift = Object.entries(bytes).filter(([key]) => key.startsWith('sortable/linear-shift.ts') || key.startsWith('sortable/rect-index.ts'));
+    const total = shift.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `C6-WARM-MOVE-PROBE moves=${moves} perMove=${(total / Math.max(moves, 1)).toFixed(2)} allSrc=${allSrc} keys=${JSON.stringify(Object.fromEntries(shift))}`,
+    );
+  }, 900_000);
+});
+
+/*
+ * xy() held-geometry probe: allocation on `xy()`'s committed-move path, with
+ * `layoutAnimation()` composed, because without a sink a committed move only
+ * invalidates. Appended to a scratch copy of `tests/hot-path.browser.test.ts`,
+ * which runs in the `shipped` project with `__DEV__` false, after `DRD-52`'s C6
+ * probes. Each test is launched alone, with one of
+ *
+ *   -t 'XYH move probe'        bytes per committed move, after 100 crossings
+ *   -t 'XYH first move probe'  bytes per operation of one committed move, each
+ *                              on a fresh sortable, so a fresh index
+ *   -t 'XYH calibration'       what heap sampling sees of the two buffers
+ *
+ * Not a test of the suite: it prints and asserts nothing.
+ */
+import { xy as probeXyHeld } from '../src/sortable/xy.ts';
+import { layoutAnimation as probeLayoutAnimation } from '../src/sortable/layout-animation.ts';
+
+/** A wrapping field of `count` 100 × 60 cells, three per row. */
+function probeField(count: number): HTMLElement {
+  const list = makeList(count, document.body, 'display:flex;flex-wrap:wrap;width:300px');
+
+  for (const row of rowsOf(list)) {
+    row.style.cssText = 'width:100px;height:60px;touch-action:none';
+  }
+
+  return list;
+}
+
+function probeKeys(bytes: Record<string, number>): [string, number][] {
+  return Object.entries(bytes).filter(
+    ([key]) => key.startsWith('sortable/xy.ts') || key.startsWith('sortable/rect-index.ts'),
+  );
+}
+
+describe('XYH probes', () => {
+  it.runIf(isChromium)('XYH move probe: bytes per committed move under xy.ts and rect-index.ts', async () => {
+    const list = probeField(20);
+    let moves = 0;
+    const observer = new MutationObserver((records) => {
+      for (const record of records) {
+        if (record.addedNodes.length > 0) {
+          moves += 1;
+        }
+      }
+    });
+
+    observer.observe(list, { childList: true });
+    onCleanup(() => observer.disconnect());
+    basicSortable(list, { axis: probeXyHeld(), displacement: probeLayoutAnimation() });
+
+    // `r4` is the middle cell of the second row: crossing to `r5` and back commits
+    // a move each time, without a wrap.
+    const start = await press('#r4');
+
+    await commands.pointerMove(start.x + 10, start.y, 2);
+    await frames();
+
+    const cross = async (count: number): Promise<void> => {
+      for (let i = 0; i < count; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one crossing per step
+        await commands.pointerMove(start.x + (i % 2 === 0 ? 100 : 0), start.y);
+        // oxlint-disable-next-line no-await-in-loop -- one resolution per crossing
+        await frames();
+      }
+    };
+
+    await cross(100);
+    moves = 0;
+    await commands.startHeapSampling(16);
+    await cross(200);
+
+    const bytes = await commands.stopHeapSampling('/src/');
+    const allSrc = Object.values(bytes).reduce((sum, size) => sum + size, 0);
+
+    await frames();
+    await commands.keyPress('Escape');
+
+    const keys = probeKeys(bytes);
+    const total = keys.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `XYH-MOVE-PROBE moves=${moves} perMove=${(total / Math.max(moves, 1)).toFixed(2)} allSrc=${allSrc} keys=${JSON.stringify(Object.fromEntries(keys))}`,
+    );
+  }, 180_000);
+
+  it.runIf(isChromium)('XYH first move probe: bytes per operation with one committed move, each on a fresh index', async () => {
+    const operations = 30;
+    let moves = 0;
+
+    await commands.startHeapSampling(16);
+
+    for (let i = 0; i < operations; i += 1) {
+      const list = probeField(20);
+      const observer = new MutationObserver((records) => {
+        for (const record of records) {
+          if (record.addedNodes.length > 0) {
+            moves += 1;
+          }
+        }
+      });
+
+      observer.observe(list, { childList: true });
+      basicSortable(list, { axis: probeXyHeld(), displacement: probeLayoutAnimation() });
+
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      const start = await press('#r4');
+
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await commands.pointerMove(start.x + 10, start.y, 2);
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await frames();
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await commands.pointerMove(start.x + 100, start.y);
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await frames();
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await commands.keyPress('Escape');
+      // oxlint-disable-next-line no-await-in-loop -- one operation per step
+      await frames();
+      observer.disconnect();
+      list.remove();
+    }
+
+    const bytes = await commands.stopHeapSampling('/src/');
+    const allSrc = Object.values(bytes).reduce((sum, size) => sum + size, 0);
+    const keys = probeKeys(bytes);
+    const total = keys.reduce((sum, [, size]) => sum + size, 0);
+
+    console.log(
+      `XYH-FIRST-PROBE operations=${operations} moves=${moves} perOperation=${(total / operations).toFixed(2)} allSrc=${allSrc} keys=${JSON.stringify(Object.fromEntries(keys))}`,
+    );
+  }, 180_000);
+
+  it.runIf(isChromium)('XYH calibration: bytes heap sampling attributes to each buffer form', async () => {
+    const count = 1000;
+    // 19 destination slots at 2 numbers each, as a 20-cell field holds.
+    const length = 38;
+    const kept: unknown[] = [];
+
+    function typedBuffer(): void {
+      for (let i = 0; i < count; i += 1) {
+        const buffer = new Float64Array(length);
+
+        buffer[0] = i;
+        kept.push(buffer);
+      }
+    }
+
+    function appendedBuffer(): void {
+      for (let i = 0; i < count; i += 1) {
+        const buffer: number[] = [];
+
+        for (let j = 0; j < length; j += 1) {
+          buffer[j] = i + j * 0.5;
+        }
+
+        kept.push(buffer);
+      }
+    }
+
+    await commands.startHeapSampling(16);
+    typedBuffer();
+    appendedBuffer();
+
+    // Test files are keyed by their absolute path, so every frame is kept.
+    const bytes = await commands.stopHeapSampling('/');
+    const per = (name: string): string =>
+      (
+        Object.entries(bytes)
+          .filter(([key]) => key.endsWith(`:${name}`))
+          .reduce((sum, [, size]) => sum + size, 0) / count
+      ).toFixed(2);
+
+    console.log(
+      `XYH-CALIBRATION length=${length} typed=${per('typedBuffer')} appended=${per('appendedBuffer')} kept=${kept.length}`,
+    );
+  }, 180_000);
+});
+
+/*
+ * Owner-refactor verification probe: allocation per controller lifetime under
+ * src/, keyed by served source url. Launched alone with
+ * `-t 'VERIFY lifetime probe <kind>'`. Each lifetime creates a controller, runs
+ * one activate-and-drop operation when `operate` is set, and destroys it.
+ * Prints and asserts nothing.
+ */
+import { sortable as verifySortable } from '../src/sortable.ts';
+import { y as verifyY } from '../src/sortable/y.ts';
+import { xy as verifyXy } from '../src/sortable/xy.ts';
+import { layoutAnimation as verifyLayoutAnimation } from '../src/sortable/layout-animation.ts';
+import { freeDrag as verifyFreeDrag, FreeDragResolution as VerifyResolution } from '../src/free-drag.ts';
+import { bounds as verifyBounds } from '../src/free-drag/bounds.ts';
+import { dropTargets as verifyDropTargets } from '../src/free-drag/drop-targets.ts';
+
+describe('VERIFY lifetime probe', () => {
+  const kinds = ['y', 'xy+animation', 'freeDrag+bounds+targets'] as const;
+
+  for (const kind of kinds) {
+    for (const operate of [false, true]) {
+      it.runIf(isChromium)(`VERIFY lifetime probe ${kind} ${operate ? 'operated' : 'idle'}: bytes per lifetime under src/`, async () => {
+        const lifetimes = 40;
+        const warm = 5;
+
+        const once = async (): Promise<void> => {
+          const list = makeList(20);
+          let controller: { requestDestroy(): Promise<void> };
+
+          if (kind === 'freeDrag+bounds+targets') {
+            const zones = rowsOf(list).slice(1);
+
+            controller = verifyFreeDrag(rowsOf(list)[0]!, {
+              bounds: verifyBounds(),
+              targets: verifyDropTargets({ targets: () => zones }),
+              onDrop: (request) => (request.target ? VerifyResolution.accept() : VerifyResolution.reject()),
+            });
+          } else {
+            controller = verifySortable(list, {
+              items: () => rowsOf(list),
+              axis: kind === 'y' ? verifyY() : verifyXy(),
+              ...(kind === 'xy+animation' ? { displacement: verifyLayoutAnimation({ duration: 1 }) } : {}),
+              onReorder({ item, next }) {
+                list.insertBefore(item, next);
+                return ReorderResolution.accept();
+              },
+            });
+          }
+
+          if (operate) {
+            const start = await press('#r0');
+
+            await commands.pointerMove(start.x, start.y + 10, 2);
+            await frames();
+            await commands.pointerMove(start.x, start.y + 90);
+            await frames();
+            await release();
+            await frames();
+          }
+
+          await controller.requestDestroy();
+          list.remove();
+        };
+
+        for (let i = 0; i < warm; i += 1) {
+          // oxlint-disable-next-line no-await-in-loop -- one lifetime per step
+          await once();
+        }
+
+        await commands.startHeapSampling(16);
+
+        for (let i = 0; i < lifetimes; i += 1) {
+          // oxlint-disable-next-line no-await-in-loop -- one lifetime per step
+          await once();
+        }
+
+        const bytes = await commands.stopHeapSampling('/src/');
+    const allSrc = Object.values(bytes).reduce((sum, size) => sum + size, 0);
+
+        console.log(
+          `VERIFY-LIFETIME ${kind} ${operate ? 'operated' : 'idle'} lifetimes=${lifetimes} perLifetime=${(allSrc / lifetimes).toFixed(2)} allSrc=${allSrc} keys=${JSON.stringify(bytes)}`,
+        );
+      }, 300_000);
+    }
+  }
+});
