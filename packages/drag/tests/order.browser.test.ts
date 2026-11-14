@@ -71,22 +71,22 @@ describe('drag:DRI-9 and drag:DRI-12 release order', () => {
   it('should start the landing before the focus call', async () => {
     const list = focusableList(4);
     const seen: number[] = [];
-    const { focus } = HTMLElement.prototype;
+    const { focus: nativeFocus } = HTMLElement.prototype;
 
     onCleanup(() => {
-      HTMLElement.prototype.focus = focus;
+      HTMLElement.prototype.focus = nativeFocus;
     });
     basicSortable(list, { landing: landing({ duration: 500 }) });
     row('r0').focus();
-    HTMLElement.prototype.focus = function recordAnimations(
+    HTMLElement.prototype.focus = function focus(
       this: HTMLElement,
       options?: FocusOptions,
     ): void {
       seen.push(this.getAnimations().length);
-      focus.call(this, options);
+      nativeFocus.call(this, options);
     };
     await dragAndDrop('#r0', 90);
-    HTMLElement.prototype.focus = focus;
+    HTMLElement.prototype.focus = nativeFocus;
     expect(order(list)).toBe('r1,r2,r0,r3');
     expect(seen.length).toBeGreaterThan(0);
     expect(seen[0]).toBeGreaterThan(0);

@@ -2,7 +2,7 @@
  * `drag:DRD-35`, `drag:DRI-8`, `drag:DRI-9` and `drag:DRI-10`: the typing of
  * `requestStep` and `use` with a receiver. Checked by `tsc`, with no run.
  */
-import { describe, it } from 'vitest';
+import { assertType, describe, it } from 'vitest';
 import {
   draggable,
   type BehaviorOperation,
@@ -49,6 +49,11 @@ class Holder {
   }
 }
 
+/** A step that declares an `unknown` receiver, so it needs none. */
+function unknownReceiverStep(this: unknown): void {
+  assertType(this);
+}
+
 describe('drag:DRI-8 requestStep receiver typing', () => {
   it('should check a declared receiver at a Drag and at the controller', () => {
     const holder = new Holder();
@@ -69,11 +74,9 @@ describe('drag:DRI-8 requestStep receiver typing', () => {
     const panel = draggable(root, { admit: () => null, activate: () => null });
 
     panel.requestStep((operation) => {
-      void operation;
+      assertType(operation);
     });
-    panel.requestStep(function step(this: unknown) {
-      void this;
-    });
+    panel.requestStep(unknownReceiverStep);
   });
 });
 
@@ -128,11 +131,11 @@ describe('drag:DRI-9 and drag:DRI-10 use receiver typing', () => {
 
 /** A step and a disposer that declare a primitive receiver. */
 function step(this: number, operation: BehaviorOperation | null): void {
-  void operation;
+  assertType(operation);
 }
 
 function dispose(this: string): void {
-  void this;
+  assertType(this);
 }
 
 describe('drag:DRD-35 the receiver is an object', () => {
@@ -174,6 +177,6 @@ function passAlone(
 
 describe('drag:DRD-35 capabilities declare their receiver', () => {
   it('should refuse the axis and the sink passed to use without their receiver', () => {
-    void passAlone;
+    assertType(passAlone);
   });
 });

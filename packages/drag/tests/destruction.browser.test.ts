@@ -1,5 +1,5 @@
 /** `drag:DRI-10`: destruction. */
-import { describe, expect, it } from 'vitest';
+import { assertType, describe, expect, it } from 'vitest';
 import {
   draggable,
   type BehaviorOperation,
@@ -394,31 +394,38 @@ describe('drag:DRI-10 destruction', () => {
         new WeakRef(list),
       ];
       const items = (): HTMLElement[] => rowsOf(list);
-      let controller: ReturnType<typeof sortable> | null = sortable(list, {
-        items,
-        axis: y(),
-        landing: landing({ duration: 1 }),
-        displacement: layoutAnimation({ duration: 1 }),
-        onReorder({ item, next }) {
-          list.insertBefore(item, next);
-          return ReorderResolution.accept();
-        },
-        onStart(item) {
-          refs.push(new WeakRef(item));
-          void behavior;
-        },
-      });
+      // Only this function's frame holds the controller, so the controller is
+      // unreachable once the function returns.
+      const operateThenDestroy = async (): Promise<void> => {
+        const controller = sortable(list, {
+          items,
+          axis: y(),
+          landing: landing({ duration: 1 }),
+          displacement: layoutAnimation({ duration: 1 }),
+          onReorder({ item, next }) {
+            list.insertBefore(item, next);
+            return ReorderResolution.accept();
+          },
+          onStart(item) {
+            refs.push(new WeakRef(item));
+            // The callback reads `behavior`, so the controller keeps it
+            // reachable until the controller is released.
+            assertType(behavior);
+          },
+        });
 
-      await dragAndDrop('#r0', 90);
-      await dragAndDrop('#r0', -90);
-      await dragAndDrop('#r1', 90);
-      await wait(50);
-      // The instrument sees the instance while the controller is alive.
-      expect(await commands.countHeapObjects('SortableBehavior')).toBe(
-        instancesBefore + 1,
-      );
-      await controller.requestDestroy();
-      controller = null;
+        await dragAndDrop('#r0', 90);
+        await dragAndDrop('#r0', -90);
+        await dragAndDrop('#r1', 90);
+        await wait(50);
+        // The instrument sees the instance while the controller is alive.
+        expect(await commands.countHeapObjects('SortableBehavior')).toBe(
+          instancesBefore + 1,
+        );
+        await controller.requestDestroy();
+      };
+
+      await operateThenDestroy();
       behavior = null;
       holder.remove();
       list.replaceChildren();

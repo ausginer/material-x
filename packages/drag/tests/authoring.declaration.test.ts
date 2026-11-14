@@ -1,7 +1,7 @@
 /* oxlint-disable typescript/no-unsafe-call -- each such line expects a type error */
 /* eslint-disable @typescript-eslint/no-unsafe-call -- each such line expects a type error */
 /** `drag:DRI-18`, `drag:DRD-27` and `drag:DRD-30`: the type requirement. Checked by `tsc`, with no run. */
-import { describe, it } from 'vitest';
+import { assertType, describe, it } from 'vitest';
 import {
   draggable,
   type Admission,
@@ -25,17 +25,17 @@ describe('drag:DRI-18 the type requirement', () => {
       admit: () => null,
       activate(drag) {
         // @ts-expect-error A drag has no `lift`.
-        void drag.lift;
+        assertType(drag.lift);
         // @ts-expect-error A drag has no `translate`.
         drag.translate(0, 0);
         // @ts-expect-error A drag has no `visual`.
-        void drag.visual;
+        assertType(drag.visual);
         // @ts-expect-error A drag has no `box`.
-        void drag.box;
+        assertType(drag.box);
         // @ts-expect-error A drag has no `rect`.
-        void drag.rect;
+        assertType(drag.rect);
         // @ts-expect-error A drag has no `visualSpace`.
-        void drag.visualSpace;
+        assertType(drag.visualSpace);
         return null;
       },
     });
@@ -46,7 +46,7 @@ describe('drag:DRI-18 the type requirement', () => {
 
     panel.requestStep((operation) => {
       // @ts-expect-error An operation has no `lift` unless the behavior adds one.
-      void operation?.lift;
+      assertType(operation?.lift);
     });
   });
 
@@ -56,8 +56,8 @@ describe('drag:DRI-18 the type requirement', () => {
     // @ts-expect-error An admission has no `box`.
     const withBox: Admission<undefined> = { item: root, box: root };
 
-    void withVisual;
-    void withBox;
+    assertType(withVisual);
+    assertType(withBox);
   });
 
   it('should compose the lift in the operation', () => {
@@ -71,11 +71,11 @@ describe('drag:DRI-18 the type requirement', () => {
           lift,
           move() {
             lift.translate(drag.x, drag.y);
-            void lift.visualSpace;
+            assertType(lift.visualSpace);
           },
           settle() {
             // @ts-expect-error A lift has no `translatedX`.
-            void lift.translatedX;
+            assertType(lift.translatedX);
             lift.land(lift.rect.x, lift.rect.y, landing());
           },
         };
@@ -131,36 +131,36 @@ describe('drag:DRI-18 the type requirement', () => {
     const panel = draggable(root, { admit: () => null, activate: () => null });
 
     // @ts-expect-error The controller has no session member.
-    void panel.session;
+    assertType(panel.session);
     // @ts-expect-error The controller's type has no pass entry.
-    void panel.enter;
+    assertType(panel.enter);
     // @ts-expect-error The controller's type has no fault entry.
-    void panel.raise;
+    assertType(panel.raise);
     // @ts-expect-error The controller's type has no verdict fault entry.
-    void panel.raiseInPass;
+    assertType(panel.raiseInPass);
     // @ts-expect-error The controller's type has no session slot.
-    void panel.detach;
+    assertType(panel.detach);
     // @ts-expect-error The controller's type has no listener.
-    void panel.handleEvent;
+    assertType(panel.handleEvent);
     draggable(root, {
       admit: () => null,
       activate(drag) {
         // @ts-expect-error A drag has no state machine.
-        void drag.phase;
+        assertType(drag.phase);
         // @ts-expect-error A drag has no next step.
-        void drag.next;
+        assertType(drag.next);
         // @ts-expect-error A drag has no decision.
-        void drag.decision;
+        assertType(drag.decision);
         return null;
       },
     });
     panel.requestStep((operation: BehaviorOperation | null) => {
       // @ts-expect-error The operation has no state machine.
-      void operation?.phase;
+      assertType(operation?.phase);
       // @ts-expect-error The operation has no next step.
-      void operation?.next;
+      assertType(operation?.next);
       // @ts-expect-error The operation has no decision.
-      void operation?.decision;
+      assertType(operation?.decision);
     });
   });
 
@@ -168,9 +168,9 @@ describe('drag:DRI-18 the type requirement', () => {
     const panel = draggable(root, { admit: () => null, activate: () => null });
 
     // @ts-expect-error `run` is `requestStep`.
-    void panel.run;
+    assertType(panel.run);
     // @ts-expect-error `requestApply` is `requestStep`.
-    void panel.requestApply;
+    assertType(panel.requestApply);
     // @ts-expect-error A behavior has no `lift` member.
     draggable(root, { lift: false, admit: () => null, activate: () => null });
   });
@@ -181,9 +181,9 @@ describe('drag:DRD-30 the activation result', () => {
     draggable<{ value: number }>(root, {
       admit: () => ({ item: root, state: { value: 1 } }),
       activate(drag, state) {
-        void state.value;
+        assertType(state.value);
         // @ts-expect-error A drag has no `state`: `activate` receives it.
-        void drag.state;
+        assertType(drag.state);
         return null;
       },
     });
@@ -226,8 +226,8 @@ describe('drag:DRD-30 the activation result', () => {
           const typed: Lifted | null = operation;
 
           // @ts-expect-error The step may receive `null`.
-          void operation.lift;
-          void typed;
+          assertType(operation.lift);
+          assertType(typed);
         });
         return null;
       },
@@ -237,12 +237,12 @@ describe('drag:DRD-30 the activation result', () => {
       const typed: Lifted | null = operation;
 
       // @ts-expect-error The step may receive `null`.
-      void operation.lift;
-      void typed;
+      assertType(operation.lift);
+      assertType(typed);
     });
     // @ts-expect-error A step does not receive a drag.
     panel.requestStep((drag: Drag<Lifted> | null) => {
-      void drag;
+      assertType(drag);
     });
   });
 });

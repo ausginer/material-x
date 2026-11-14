@@ -1,5 +1,5 @@
 /** `drag:DRD-39`: a type that a published signature names is exported from its entry. Checked by `tsc`, with no run. */
-import { describe, it } from 'vitest';
+import { assertType, describe, it } from 'vitest';
 import type { BehaviorOperation, VerdictAwaiter } from '../src/draggable.ts';
 import type {
   DragAxis,
@@ -13,7 +13,7 @@ describe('drag:DRD-39 the published types', () => {
     const awaiter: VerdictAwaiter<boolean> = () => true;
     const operation: BehaviorOperation<boolean> = { drop: () => awaiter };
 
-    void operation;
+    assertType(operation);
   });
 
   it('should let a free drag config name its axis and home types', () => {
@@ -25,6 +25,6 @@ describe('drag:DRD-39 the published types', () => {
     };
     const config: Pick<FreeDragConfig, 'axis' | 'home'> = { axis, home };
 
-    void config;
+    assertType(config);
   });
 });

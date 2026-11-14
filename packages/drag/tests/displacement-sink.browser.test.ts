@@ -56,7 +56,9 @@ function recordDisplaced(
   const readRect = Element.prototype.getBoundingClientRect;
   const displaced = sink.displaced.bind(sink);
 
-  Element.prototype.getBoundingClientRect = function recorded(this: Element) {
+  Element.prototype.getBoundingClientRect = function getBoundingClientRect(
+    this: Element,
+  ) {
     const rect = readRect.call(this);
 
     if (

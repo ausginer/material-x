@@ -266,18 +266,18 @@ describe('drag:DRI-13 landing', () => {
       },
     }).use(lifter.cancelLanding);
 
-    const { animate } = Element.prototype;
+    const { animate: nativeAnimate } = Element.prototype;
 
-    Element.prototype.animate = function capture(keyframes, options) {
+    Element.prototype.animate = function animate(keyframes, options) {
       durations.push((options as KeyframeAnimationOptions).duration);
-      return animate.call(this, keyframes, options);
+      return nativeAnimate.call(this, keyframes, options);
     };
 
     try {
       await grab('#r0', 0, 45);
       await release();
     } finally {
-      Element.prototype.animate = animate;
+      Element.prototype.animate = nativeAnimate;
     }
 
     expect(durations).toEqual([0]);

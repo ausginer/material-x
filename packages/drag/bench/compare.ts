@@ -1482,16 +1482,19 @@ async function profileOnce(
         timeDeltas: readonly number[];
       };
     };
-    const self = new Map<number, number>();
+    const selfTimeById = new Map<number, number>();
 
     profile.samples.forEach((id, i) => {
-      self.set(id, (self.get(id) ?? 0) + (profile.timeDeltas[i] ?? 0));
+      selfTimeById.set(
+        id,
+        (selfTimeById.get(id) ?? 0) + (profile.timeDeltas[i] ?? 0),
+      );
     });
 
     const byName: Record<string, number> = {};
 
     for (const node of profile.nodes) {
-      const time = self.get(node.id);
+      const time = selfTimeById.get(node.id);
 
       if (time) {
         const { functionName, lineNumber } = node.callFrame;
@@ -1881,10 +1884,15 @@ async function machineRecord(): Promise<Record<string, unknown>> {
     node: process.version,
     cpus: cpus().length,
     model: cpus()[0]?.model ?? null,
-    coreSets: {
-      cpu_core: await read('/sys/devices/cpu_core/cpus'),
-      cpu_atom: await read('/sys/devices/cpu_atom/cpus'),
-    },
+    // Keyed by the sysfs device names, in this order.
+    coreSets: Object.fromEntries(
+      await Promise.all(
+        ['cpu_core', 'cpu_atom'].map(
+          async (device) =>
+            [device, await read(`/sys/devices/${device}/cpus`)] as const,
+        ),
+      ),
+    ),
     load: loadavg(),
     at: new Date().toISOString(),
   };
