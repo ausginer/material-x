@@ -72,8 +72,8 @@ const LEADING = 2;
 const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
- * The hot path: each axis rule reads the slot range it scans once per resolution,
- * then one number per candidate through `at`.
+ * The hot path: an axis rule reads the slot range it scans through the `first`,
+ * `end` and `count` getters, and one number per candidate through `at`.
  */
 export class RectIndex implements Invalidatable, Retirable {
   /**

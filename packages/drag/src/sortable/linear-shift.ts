@@ -148,8 +148,6 @@ export class LinearShift implements Invalidatable, Retirable {
 
     this.#index.collect(snapshot, dragged, placeholder, gap);
 
-    // Read once, outside the loops.
-
     // Toward the pointer only: under the order term, a slot on the other side of
     // the placeholder is never nearer than the placeholder's own center.
     if (pointerY > this.#index.at(PLACEHOLDER, CENTER_Y)) {
