@@ -3539,6 +3539,37 @@ They agree with the proof, apart from these:
 
 **Next:** the owner's. `DRF-41`'s unit if the owner chooses it, then the pull request. Budgets are unchanged, and the deferred campaigns stay stopped.
 
+**Since then,** the owner ran `DRF-41`'s unit first. §Disposition of the heap-comment correction closes `DRF-41` and replaces the open findings above.
+
+## Disposition of the heap-comment correction
+
+The [report](heap-comment-report.md) at `7021f1013`, on the comment change at `3c7028cc9` from the base `87c688fd3`. Read by the architect on 2026-11-14 at `7021f1013`, against `DRF-41` and [`heap-comment-handoff.md`](heap-comment-handoff.md). The architect read the diff and reused the report's checks. The architect's own checks were mechanical:
+
+- `git diff 87c688fd3 7021f1013` outside `packages/drag/.plan/` changes only `tests/destruction.browser.test.ts`: one hunk, two comment lines removed and two added;
+- the same comparison from `27c60a9ac` gives the same single hunk;
+- `behavior = null` is at `:429`, below the comment;
+- `npx just lint` on the test file exits 0.
+
+| Handoff item | Disposition |
+| --- | --- |
+| Property 1, what the read does | Holds. The comment says that the callback captures the variable, not its object, and that clearing `behavior` below releases the object whether or not the controller is released |
+| Property 2, agrees with the proof's rows 3 and 4 | Holds. It no longer says that the controller keeps the object reachable |
+| Property 3, no bookkeeping | Holds. No finding id, review name or commit |
+| Scope | Holds. The read, `behavior = null`, the `WeakRef` list, every assertion and the title are unchanged. `src` and `bench` are unchanged |
+| Lint and typecheck | `npx just lint` exits 0. `npx just typecheck` reports only drag2's two `TS2724`, which are expected |
+| The focused run | Chromium, `browser` project: the one test passes, with 22 skipped |
+
+**`DRF-41` is closed at `3c7028cc9`.** The handoff used the suggested wording unchanged. `oxfmt` leaves the second line at 87 characters, and lint accepts it.
+
+**What this doesn't change:**
+
+- **`DRF-42` stays open.** The comment now describes the sentinel's limit, and the sentinel still can't detect a retained callback;
+- **the full Chromium suite stays tied to `27c60a9ac`,** within the limits in §Disposition of the final cleanup. The tip's code differs from `27c60a9ac` only by these two comment lines, which execute nothing. No full suite ran at `3c7028cc9` or later, and the pull request says so.
+
+**Before the drag pull request:** the record requires nothing more. The failing checks are those of §Disposition of the final cleanup, which the owner accepted: the five size rows and drag2's two `TS2724`. **The open findings the pull request carries** are `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42`. `repo:RF-32` isn't drag's.
+
+**Next:** the pull request, which is the owner's. Budgets are unchanged, and the deferred campaigns stay stopped.
+
 ## Findings
 
 Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-42`**.
@@ -3994,7 +4025,7 @@ Tier C, **closed at `27c60a9ac`**. Read by the architect on 2026-11-14 from the 
 
 #### DRF-41 — A comment in the destruction heap test says the controller keeps the behavior sentinel reachable
 
-Tier C, open. Registered by the architect on 2026-11-14 from `final-cleanup-reviewer-1` in the [final cleanup proof](reviews/final-cleanup/proof-reviewer.md) §Findings (§Disposition of the final cleanup).
+Tier C, **closed at `3c7028cc9`**. Read by the architect on 2026-11-14 from the [heap-comment report](heap-comment-report.md) at `7021f1013` (§Disposition of the heap-comment correction): the two comment lines are replaced, and nothing else changes. Registered by the architect on 2026-11-14 from `final-cleanup-reviewer-1` in the [final cleanup proof](reviews/final-cleanup/proof-reviewer.md) §Findings (§Disposition of the final cleanup). Before closure: open.
 
 - **Current behavior:** `tests/destruction.browser.test.ts:411` to `:412`, added at `27c60a9ac`, reads: "The callback reads `behavior`, so the controller keeps it reachable until the controller is released." The callback captures the variable, not the object, and the test sets the variable to `null` after destruction. In the proof, a live controller that was never destroyed and is kept in the test's frame doesn't keep the object: the `WeakRef` assertion passes and the test fails only at the class count. With `behavior = null` removed, the object stays reachable and the assertion fails ([logs](reviews/final-cleanup/proof-reviewer-probes/browser/)).
 - **Why it is a problem:** the comment tells a reader that the sentinel checks whether the controller releases what its callbacks read, and the assertion can't fail that way. No assertion is affected.
