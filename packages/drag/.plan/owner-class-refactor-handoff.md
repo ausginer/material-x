@@ -10,11 +10,11 @@
 - **`DRO-13`;**
 - **`DRD-60` property 2;**
 - **`DRD-52`'s development check;**
-- the [assessment](owner-class-refactor-assessment.md), with Q1 to Q3 and their defaults;
+- the [assessment](owner-class-refactor-assessment.md), with the owner's answer to Q2, and Q1 and Q3 with their defaults;
 - the [feature proof](reviews/owner-class-refactor/proof-reviewer.md) and the [verification report](owner-refactor-verification-report.md);
 - **CONTRIBUTING:** Part I §TypeScript and §Class encapsulation, and Part II §1.1, §14 and §15.
 
-**The owner's questions.** This handoff builds the defaults of Q1 to Q3. If the record holds a different answer when you start, follow it where it is unambiguous. Otherwise return before commit A.
+**The owner's questions.** Q2 was answered on 2026-11-14, and item 4 builds that answer. This handoff builds the defaults of Q1 and Q3. If the record holds a different answer to Q1 or Q3 when you start, follow it where it is unambiguous. Otherwise return before commit A.
 
 **Chromium only,** with the container's Chrome as `.scripts/vitest-config.ts` configures it. **One set of tools:** don't run `npm install` or `npm ci`, and don't change `node_modules`, a lockfile or a browser. **No timing.**
 
@@ -64,15 +64,20 @@ Each item names its finding, its property and its witness. **You own the form,**
 - Restore `./.plan/probes/callback-list/allocation.ts` to `include`. `packages/drag/tsconfig.json` then equals its text at `5b581fbdf`.
 - **Check:** drag's `npx just lint` exits 0.
 
-### 4. Hoisted reads (`class-refactor-reviewer-4`, `DRD-63` property 5, Q2's default)
+### 4. Inline reads and true comments (`class-refactor-reviewer-4`, `DRD-63` property 5, the owner's answer to Q2)
 
-- **Each read below happens once per call, before its loop, as at `5b581fbdf`:**
-  - `YAxisGeometry.resolve`: the index's `first` and `end`, and `query.pointerY`;
-  - `XYAxisGeometry.resolve`: the index's `count`, and `query.pointerX` and `query.pointerY`;
-  - `XYAxisGeometry.moved`: `context.displacement`;
-  - `LinearShift.refresh`: the index's `count`, before the growth loops.
-- **The comments are true.** These are `linear-shift.ts`'s "Read once, outside the loops.", `y.ts`'s "Read once, outside the candidate loop." and `RectIndex`'s class comment.
-- **Check:** by reading, against `5b581fbdf`'s functions. The suite passes.
+- **The reads stay inline, as the snapshot has them.** Don't hoist any read in `YAxisGeometry.resolve`, `XYAxisGeometry.resolve`, `XYAxisGeometry.moved` or `LinearShift.refresh`.
+- **`RectIndex` keeps `first`, `end` and `count` as getters.** Don't convert them to methods. The owner withdrew that proposal.
+- **Remove the false "read once" comments, or correct them** to state what the code reads:
+  - in `linear-shift.ts`, "Read once, outside the loops.", which stands above no read;
+  - in `RectIndex`'s class comment, the claim that each axis rule reads its slot range once per resolution.
+- **Keep the true ones:**
+  - `y.ts`'s "Read once, outside the candidate loop.", above the anchor;
+  - `rect-index.ts`'s "Read once: each is used twice below.";
+  - `drop-targets.ts`'s "Read once, outside the hit-test loop.".
+- **Check:**
+  - `grep -rn -i 'read once\|once per' packages/drag/src` lists only comments that the code below them bears out. List each one in the report;
+  - the item changes comments only, so it needs no measurement of its own.
 
 ### 5. Dev-only state (`class-refactor-reviewer-5`, `DRD-63` property 4)
 
@@ -95,7 +100,7 @@ Each item names its finding, its property and its witness. **You own the form,**
 
 - `packages/drag/src/free-drag/bounds.ts` and `drop-targets.ts`;
 - `packages/drag/src/sortable.ts`;
-- `packages/drag/src/sortable/axis.ts`, `behavior.ts`, `invalidatable.ts`, `retirable.ts`, `linear-shift.ts`, `rect-index.ts` (its class comment only, if it needs a change), `y.ts` and `xy.ts`;
+- `packages/drag/src/sortable/axis.ts`, `behavior.ts`, `invalidatable.ts`, `retirable.ts`, `linear-shift.ts`, `rect-index.ts` (its class comment only), `y.ts` and `xy.ts`. In `y.ts` and `xy.ts`, change only what item 2 needs, and move no read;
 - `packages/drag/tsconfig.json`: item 3 only;
 - `packages/drag/tests/published-types.declaration.test.ts` and `tests/free-drag.browser.test.ts`: the new `drag:DRD-63` cases only;
 - **records:** `owner-class-refactor-report.md`, and files under `measurements/2026-11-<day>-class-refactor-remediation/`.

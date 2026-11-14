@@ -2759,7 +2759,7 @@ Decided on 2026-11-13 on the owner's acceptance of VX, on the condition that the
 - Every built-in method that `requestStep` or `use` receives with its receiver declares `this`, so passing it alone fails typecheck.
 - Behavior equals `5b581fbdf`'s on every path, including a fresh `bounds` constraint.
 - Dev-only state is typed, and is absent from the publication.
-- The scan reads that the record hoisted stay hoisted, unless the owner decides otherwise.
+- The scan reads stay inline, through `RectIndex`'s getters, on the owner's decision. No comment says that they are read once.
 
 **The refactor is accepted only after its remediation, an independent recheck and the owner's reading of the costs.**
 
@@ -2800,14 +2800,25 @@ The box-quad edit is box-quad's, and the proof found it equivalent. This registe
    - State that only `__DEV__` code reads or writes is typed, and isn't on the class's public surface (CONTRIBUTING §Class encapsulation).
    - The publication carries none of it, as at `5b581fbdf`. A class field ships whatever its initializer, so such state can't be a field of the class.
    - **Witness:** misspelling the development flag at one write fails typecheck, and `DRD-52`'s development check still fails under its witness.
-5. **The scan reads stay hoisted.**
-   - Each read that the [alias cleanup](alias-cleanup-report.md) kept outside a per-slot, per-candidate or hit-test loop is read once per call, before its loop, as at `5b581fbdf`:
+5. **The scan reads stay inline, and no comment says otherwise.** This is the owner's decision of 2026-11-14 on the assessment's Q2.
+   - The reads that the snapshot moved into their loops stay there, as the snapshot has them:
      - `y()`'s resolution: the index's `first` and `end`, and the pointer's y;
      - `xy()`'s resolution: the index's `count`, and the pointer's x and y;
      - `xy()`'s `moved`: the displacement;
      - `linearShift`'s refresh: the index's `count`.
-   - The comments that state those reads are true.
-   - This is the default of the assessment's Q2. **If the owner approves the per-candidate reads** under CONTRIBUTING Part II §14 instead, this property becomes: the comments state what the loops read.
+   - `RectIndex` keeps `first`, `end` and `count` as getters.
+   - **No comment says that a value is read once, or outside a loop, unless the code does that.** In the snapshot, two comments say so and are false:
+     - `linear-shift.ts`'s "Read once, outside the loops.", which no longer stands above any read;
+     - `RectIndex`'s class comment, which says that each axis rule reads its slot range once per resolution.
+
+     Each one is removed, or corrected to state what the code reads. The comments that are true stay: `y.ts`'s comment above the placeholder's anchor, `rect-index.ts`'s "Read once: each is used twice below." and `drop-targets.ts`'s comment above the drag's `x` and `y`.
+
+   - **The owner approves the per-candidate reads under CONTRIBUTING Part II §14,** on the existing readings:
+     - case C of the `xy()` harness: higher in 7 of 7 rounds, inside the A/A bound, so no difference shown;
+     - a temporary Godbolt (Compiler Explorer) probe, which gave identical optimized loop bodies for six variants. It is a diagnostic for that example and that engine, and not a timing result for drag ([`performance-plan.md`](performance-plan.md) §1).
+
+   _Revised in place on 2026-11-14 on the owner's answer:_ this property used to restore the hoisted reads by default, and left their approval to the owner.
+
 6. **The project includes the probe.** `tsconfig.json` equals its text at `5b581fbdf`, as `DRD-60` property 2 requires, and drag's lint exits 0.
 7. **Unchanged:**
    - `DRD-20`'s binding and lifetime rules;
@@ -2831,6 +2842,10 @@ The box-quad edit is box-quad's, and the proof found it equivalent. This registe
 
 **`DRO-13` is unchanged.** Property 1 applies it.
 
+**What this supersedes.** Property 5 supersedes the hoisted reads that the [feature-composition handoff](feature-composition-handoff.md) required ("each axis reads the getters once per resolution, outside the candidate loop") and that the [alias cleanup](alias-cleanup-report.md) kept. Both records stay as history.
+
+**Withdrawn by the owner on 2026-11-14:** the proposal to replace `RectIndex`'s getters with methods. The record never held it, and nothing replaces it.
+
 **Rejected:**
 
 - **Closing the two slots to third parties.** It would reverse `DRO-13`, `DRD-33` choice 4 and the contract's Capabilities paragraph. The class form doesn't need it, because one `implements` keeps it.
@@ -2850,7 +2865,8 @@ The box-quad edit is box-quad's, and the proof found it equivalent. This registe
 - **What the properties cost, by reading:**
   - properties 1 and 2 are types, so they cost no bytes;
   - property 3 is one initial value;
-  - properties 4 and 5 change bytes.
+  - property 4 changes bytes;
+  - property 5 changes comments only.
 - **The handoff measures size and allocation again at its end,** and the owner reads those figures before acceptance (the assessment's Q4).
 
 ## Disposition of the 2026-11-07 reviews
@@ -3702,7 +3718,7 @@ The reasoning is in the [assessment](owner-class-refactor-assessment.md).
 | `class-refactor-reviewer-1`, published slot types refuse third-party objects | B | Confirmed. `DRD-63` property 1 restores the interfaces under `DRO-13` |
 | `class-refactor-reviewer-2`, receiver declarations gone, the `DRD-35` declaration test fails | B | Confirmed. `DRD-63` property 2 declares `this` at all six sites |
 | `class-refactor-reviewer-3`, `tsconfig.json` drops the probe, and lint fails | B | Confirmed. `DRD-60` property 2 already requires the line |
-| `class-refactor-reviewer-4`, hoisted reads are back in the loops | C | Confirmed. `DRD-63` property 5 restores them by default, and Q2 is the owner's |
+| `class-refactor-reviewer-4`, hoisted reads are back in the loops | C | Confirmed. On the owner's answer to Q2, `DRD-63` property 5 keeps the reads inline and the getters, and removes the false "read once" comments |
 | `class-refactor-reviewer-5`, dev-only state is undeclared, or ships | C | Confirmed. `DRD-63` property 4 |
 | `class-refactor-reviewer-6`, a fresh `MotionConstraint` doesn't clamp | C | Confirmed. `DRD-63` property 3 |
 
@@ -3722,11 +3738,11 @@ The reasoning is in the [assessment](owner-class-refactor-assessment.md).
 **The owner decides** (assessment §4):
 
 - **Q1:** who commits the snapshot. By default, the implementer commits it verbatim as commit A;
-- **Q2:** the hoisted reads. By default, they are restored;
+- **Q2:** the hoisted reads. **Answered by the owner on 2026-11-14:** the reads stay inline, the getters stay, and the false "read once" comments go. The owner also withdrew a proposal to replace the getters with methods;
 - **Q3:** confirm that `DRO-13`, the receiver guard and the probe's coverage stand. That is the default;
 - **Q4,** after the recheck: the costs at the remediated end.
 
-Q1 to Q3 don't block the unit, which builds their defaults.
+Q1 and Q3 don't block the unit, which builds their defaults. Q2's answer is in the handoff.
 
 **Next:**
 
@@ -4637,4 +4653,4 @@ No timing was taken.
 | DRD-60 | active, decided on 2026-11-13 by the architect on the owner's decision to defer property mangling, because its measured savings don't justify its complexity. Supersedes `DRD-56` (apart from property 8's first sentence and the clarification of `DRD-51` property 3) and `DRD-57`, withdraws `DRD-59` (apart from property 8), amends `DRD-58`'s member names, and withdraws `DRO-16`. [`mangle-rollback-handoff.md`](mangle-rollback-handoff.md) implements it from `drag/size` at `f552e0ec9`, as merged into `drag/mangle-remediation`. Budgets are unchanged. **Implemented at `cc752cc1b` and `b8e37b37c`, reported at `8904947f6` and accepted on 2026-11-14** (§Disposition of the mangling rollback report). `DRF-24` to `DRF-37` and `DRF-39` are closed, and `DRF-38` is widened and stays open with `repo:RF-31`. The result is historical: later units changed `src`. **Independently proved at `b8e37b37c` on 2026-11-14** (§Disposition of the rollback and integration reviews) |
 | DRD-61 | active, decided on 2026-11-13 on the owner's approval of proposal P and its displacement-sink interface, in [`rect-index-access-proposal.md`](rect-index-access-proposal.md) at `a61b76e9c`. `RectIndex` owns its storage and every write to it, and the sink answers `displaced(element)`. Amends `DRD-52` properties 1, 4, 5 and 6, `DRD-58` properties 1, 3 to 7 and 9, `DRD-50` property 1 and W7, M7 and M8, and `DRD-33` choice 9. Measured at the restored names against `8904947f6`: −31, +22 and −92 B Brotli on the `sortable` rows, and no verdict changes. [`rect-index-access-handoff.md`](rect-index-access-handoff.md) implements it from `drag/size` at `8904947f6`, with a focused timing check under the owner's hold. Budgets are unchanged. **Implemented at `010a9ef39`, reported at `f788b2b80` and accepted** ([assessment](rect-index-access-assessment.md)). Timing reads "no difference shown" in all three cases, so speed is unmeasured. Property 11's reading of the A/A threshold is corrected in place. **Reviewed at `bdb2c73c8`:** properties 3 and 10 are corrected in place, the acceptance stands, and one `.scripts/vitest-config.ts` comment goes to a follow-up. **Amended on 2026-11-13 by `DRD-62`:** properties 1, 2, 3 and 8. `xy()`'s `before` goes into `RetainingRectIndex`, and the field and axis types are narrowed. **Amended on 2026-11-14 by `DRD-63`:** property 6's wording. The sink's `dx` and `dy` are private fields |
 | DRD-62 | active, decided on 2026-11-13 on the owner's acceptance of VX in [`xy-held-geometry-proposal.md`](xy-held-geometry-proposal.md) at `316003d76`, on the condition of narrowed field types. Adopts the provisional source at `f79f66fe2`. `xy()`'s previous geometry is held by `RetainingRectIndex`, and `at`, `retained` and the axis accept only their constants. Amends `DRD-61` properties 1, 2, 3 and 8, `DRD-58` property 7's table and §What this doesn't decide, and `DRD-52` property 1. [`xy-held-geometry-handoff.md`](xy-held-geometry-handoff.md) implements it. A fresh independent reviewer reads its report before the architect's final acceptance. Speed is unmeasured, and budgets are unchanged. **Implemented at `b4117dae2`, reported at `7184d069c`, reviewed at `c4d02d45c` and accepted on 2026-11-14** ([assessment](xy-held-geometry-assessment.md)). The 60 `.js` and `.d.ts` files are byte-identical to `f79f66fe2`'s, `sortable/rect-index.js.map` differs, and every size row reads 0/0/0. Property 2 is corrected in place to name the base's `held === 0` exit |
-| DRD-63 | active, decided on 2026-11-14 by the architect on the owner's uncommitted class refactor (diff `019cd456…c508` against `5b581fbdf`). It reads the [verification report](owner-refactor-verification-report.md) at `00fc1aa28` and the [feature proof](reviews/owner-class-refactor/proof-reviewer.md) at `b4bca69f7` ([assessment](owner-class-refactor-assessment.md)). Amends `DRD-34` property 8, `DRD-35` property 7, `DRD-37` property 4, `DRD-61` property 6 and two statements of `DRD-33`, and applies `DRO-13`. [`owner-class-refactor-handoff.md`](owner-class-refactor-handoff.md) implements it. **Not implemented, and the refactor isn't accepted.** The owner holds Q1 to Q4, and Q1 to Q3 have defaults |
+| DRD-63 | active, decided on 2026-11-14 by the architect on the owner's uncommitted class refactor (diff `019cd456…c508` against `5b581fbdf`). It reads the [verification report](owner-refactor-verification-report.md) at `00fc1aa28` and the [feature proof](reviews/owner-class-refactor/proof-reviewer.md) at `b4bca69f7` ([assessment](owner-class-refactor-assessment.md)). Amends `DRD-34` property 8, `DRD-35` property 7, `DRD-37` property 4, `DRD-61` property 6 and two statements of `DRD-33`, and applies `DRO-13`. [`owner-class-refactor-handoff.md`](owner-class-refactor-handoff.md) implements it. **Not implemented, and the refactor isn't accepted.** **Property 5 was revised on 2026-11-14 on the owner's answer to Q2:** the reads stay inline, the getters stay, and the false "read once" comments go. The owner holds Q1, Q3 and Q4, and Q1 and Q3 have defaults |

@@ -46,7 +46,7 @@
 | `class-refactor-reviewer-1`: the published `DropTargetTracker` and `MotionConstraint` refuse third-party objects | B | **Confirmed. Restore the interfaces** (handoff item 1) | `DRD-63` property 1, applying `DRO-13` |
 | `class-refactor-reviewer-2`: receiver declarations are gone, and the `DRD-35` declaration test fails | B | **Confirmed. Declare `this` at every built-in site that passes a receiver** (item 2) | `DRD-63` property 2, which amends `DRD-35` property 7 and `DRD-37` property 4 |
 | `class-refactor-reviewer-3`: the `tsconfig.json` edit fails drag's lint | B | **Confirmed. Restore the line** (item 3) | none. `DRD-60` property 2 already requires it |
-| `class-refactor-reviewer-4`: hoisted scan reads are back inside the loops | C | **Confirmed. Restore the hoists, unless the owner decides otherwise** (item 4) | `DRD-63` property 5, with Q2 |
+| `class-refactor-reviewer-4`: hoisted scan reads are back inside the loops | C | **Confirmed. On the owner's answer to Q2: keep the inline reads and the getters, and remove the false "read once" comments** (item 4) | `DRD-63` property 5, as revised |
 | `class-refactor-reviewer-5`: dev-only state is undeclared, or ships | C | **Confirmed. Type the state, and keep it out of the publication** (item 5) | `DRD-63` property 4 |
 | `class-refactor-reviewer-6`: a fresh `MotionConstraint` doesn't clamp before `invalidate()` | C | **Confirmed. Restore the initial staleness, and add a witness** (item 6) | `DRD-63` property 3 |
 
@@ -87,7 +87,22 @@ The [alias cleanup](alias-cleanup-report.md), which the owner requested, removed
 
 Two comments still say "Read once". CONTRIBUTING Part II §14 asks for measurement and owner approval before adding hot-path work. The only timing case on this path, case C, is higher in 7 of 7 rounds, but inside the A/A bound. That is inconclusive, and it doesn't show a slowdown.
 
-**The default restores the hoists.** It restores a settled record at no measured cost, and the class form doesn't need inline reads. In `linearShift`'s growth loop, reading `count` once is also the baseline's semantics. **The owner may instead approve the per-candidate reads** on the existing reading. If so, the property becomes "the comments state what the loops read" (Q2).
+**The owner answered Q2 on 2026-11-14:**
+
+- the inline reads stay;
+- `RectIndex`'s getters stay;
+- the "read once" comments that the code no longer bears out are removed.
+
+The owner also withdrew a proposal to replace the getters with methods, which the record never held. This answer is the §14 approval. It rests on case C's inconclusive reading, and on a temporary Godbolt (Compiler Explorer) probe that gave identical optimized loop bodies for six variants. That probe is evidence for its example and its engine. It doesn't show that drag performs the same, and [`performance-plan.md`](performance-plan.md) §1 records such inspection as an optional diagnostic.
+
+**Two comments are false in the snapshot:**
+
+- `linear-shift.ts`'s "Read once, outside the loops.", which stands above no read;
+- `RectIndex`'s class comment, which says that each axis rule reads its slot range once per resolution.
+
+The other "read once" comments are still true: `y.ts`'s comment above the anchor, `rect-index.ts`'s "Read once: each is used twice below." and `drop-targets.ts`'s comment above `x` and `y`.
+
+_Revised on 2026-11-14:_ this section used to recommend restoring the hoists by default.
 
 ### `class-refactor-reviewer-5`: dev-only state
 
@@ -111,14 +126,12 @@ The baseline kept this state in closure variables that folded away with `__DEV__
 
 ## 4. What the owner decides
 
-Q1 to Q3 have defaults that the handoff builds. The unit can start on those defaults. If an answer that differs is recorded before it starts, the unit follows that answer, and the architect amends the handoff. Q4 comes after the recheck.
+Q2 is answered. Q1 and Q3 have defaults that the handoff builds, and the unit can start on those defaults. If an answer that differs is recorded before it starts, the unit follows that answer, and the architect amends the handoff. Q4 comes after the recheck.
 
 - **Q1. Who commits the snapshot.**
   - **Default:** the implementer commits it verbatim as the unit's first commit, after checking the diff hash and the 16 file hashes. So the reviewed input gets a commit id, and the recheck reads the remediation as a diff from it.
   - **Alternative:** the owner commits it, and the unit starts from that commit.
-- **Q2. The hoisted reads (`-4`).**
-  - **Default:** restore them, so that every read is once per call, as at `5b581fbdf`.
-  - **Alternative:** approve the per-candidate reads under §14 on the existing inconclusive reading. The comments then change to state them.
+- **Q2. The hoisted reads (`-4`).** **Answered by the owner on 2026-11-14:** keep the inline reads and the getters, and remove the false "read once" comments. The proposal to replace the getters with methods is withdrawn. The default was to restore the hoists.
 - **Q3. Confirm the intent behind `-1`, `-2` and `-3`.**
   - **Default:** `DRO-13` stands, receivers stay guarded by types, and the probe stays in the project.
   - **If the owner meant** to close the slots, to drop the receiver guard or to retire the probe, each is a new decision, and it comes before the unit.
