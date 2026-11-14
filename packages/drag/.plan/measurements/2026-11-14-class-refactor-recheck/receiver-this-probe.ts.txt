@@ -1,0 +1,47 @@
+// Feasibility only: does a polymorphic `this` receiver on the supertypes
+// restore per-type refusal at the use/requestStep overloads?
+interface Outcome { x: number }
+interface Drag {
+  use(dispose: (this: undefined, outcome: Outcome | null) => void): void;
+  use<Receiver extends object>(dispose: (this: Receiver, outcome: Outcome | null) => void, receiver: Receiver): void;
+  requestStep(step: (this: undefined, op: object | null) => void): void;
+  requestStep<Receiver extends object>(step: (this: Receiver, op: object | null) => void, receiver: Receiver): void;
+}
+interface Retirable { retire(this: this): void }
+interface Invalidatable { /** doc */ invalidate(this: this): void }
+interface DisplacementSink extends Retirable { dx: number; dy: number; report(): void; displaced(): boolean }
+interface InsertionGeometry extends Invalidatable, Retirable { resolve(): number; confirm(): void; moved(): void }
+class YAxis implements InsertionGeometry {
+  #shift = 0;
+  resolve(): number { return this.#shift; }
+  confirm(): void {}
+  moved(): void {}
+  invalidate(): void { this.#shift = 1; }
+  retire(): void { this.#shift = 0; }
+}
+class RectIndex implements Invalidatable { #s = false; invalidate(): void { this.#s = true; } }
+declare const drag: Drag;
+declare const geometry: InsertionGeometry;
+declare const sink: DisplacementSink;
+// Correct sites: must typecheck.
+drag.use(geometry.retire, geometry);
+drag.requestStep(geometry.invalidate, geometry);
+drag.use(sink.retire, sink);
+// Missing receiver: must fail.
+// @ts-expect-error E1
+drag.use(geometry.retire);
+// @ts-expect-error E2
+drag.requestStep(geometry.invalidate);
+// @ts-expect-error E3
+drag.use(sink.retire);
+// Swapped receiver: must fail.
+// @ts-expect-error E4
+drag.use(geometry.retire, sink);
+// @ts-expect-error E5
+drag.use(sink.retire, geometry);
+// A RectIndex as the axis's invalidate receiver: must fail.
+// @ts-expect-error E6
+drag.requestStep(geometry.invalidate, new RectIndex());
+// Classes still satisfy the interfaces.
+const a: InsertionGeometry = new YAxis(); void a;
+const r: Invalidatable = new RectIndex(); void r;
