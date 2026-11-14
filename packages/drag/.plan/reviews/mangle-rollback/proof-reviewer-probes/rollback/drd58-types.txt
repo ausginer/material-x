@@ -1,0 +1,13 @@
+## emitted sortable/axis.d.ts at b8e37b37c
+22:  settle(values: number[] | Float64Array, items: readonly HTMLElement[], first: number, end: number): void;
+## DRD-58 types in src at b8e37b37c
+43:  target: number[] | Float64Array,
+100:  get values(): readonly number[] {
+217:  lend(
+220:    write: (values: number[], lo: number, hi: number) => void,
+23:  settle(
+24-    values: number[] | Float64Array,
+118:      settle(
+119-        values: number[] | Float64Array,
+## capacity in src
+none

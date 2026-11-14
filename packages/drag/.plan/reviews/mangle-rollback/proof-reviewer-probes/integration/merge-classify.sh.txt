@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Usage: merge-classify.sh <merge> — for every path changed on either side since the merge base, says
+# whether the merge's blob equals the side that changed it, and lists every path that matches neither rule.
+set -euo pipefail
+cd /workspaces/material-x
+M=$1; P1=$(git rev-parse "$M^1"); P2=$(git rev-parse "$M^2"); B=$(git merge-base "$P1" "$P2")
+blob() { git rev-parse -q --verify "$1:$2" 2>/dev/null || echo absent; }
+ok=0
+for f in $(git diff --name-only "$B" "$P1" "$P2" "$M" | sort -u; git diff --name-only "$B" "$M" | sort -u; ); do :; done
+paths=$( { git diff --name-only "$B" "$P1"; git diff --name-only "$B" "$P2"; git diff --name-only "$P1" "$M"; git diff --name-only "$P2" "$M"; } | sort -u)
+for f in $paths; do
+  b=$(blob "$B" "$f"); p1=$(blob "$P1" "$f"); p2=$(blob "$P2" "$f"); m=$(blob "$M" "$f")
+  c1=$([ "$b" != "$p1" ] && echo 1 || echo 0); c2=$([ "$b" != "$p2" ] && echo 1 || echo 0)
+  if [ $c1 = 1 ] && [ $c2 = 0 ] && [ "$m" = "$p1" ]; then ok=$((ok+1)); continue; fi
+  if [ $c1 = 0 ] && [ $c2 = 1 ] && [ "$m" = "$p2" ]; then ok=$((ok+1)); continue; fi
+  if [ $c1 = 1 ] && [ $c2 = 1 ] && [ "$p1" = "$p2" ] && [ "$m" = "$p1" ]; then ok=$((ok+1)); continue; fi
+  echo "NEEDS READING: $f  (drag side changed=$c1, main side changed=$c2, merge=p1:$([ "$m" = "$p1" ] && echo y || echo n) p2:$([ "$m" = "$p2" ] && echo y || echo n))"
+done
+echo "paths taken whole from the side that changed them: $ok"

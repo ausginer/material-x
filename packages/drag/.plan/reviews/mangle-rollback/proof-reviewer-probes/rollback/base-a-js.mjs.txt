@@ -1,0 +1,26 @@
+// Usage: node base-a-js.mjs <base drag dir> <A drag dir> <packlist>
+// Item 2.3: A's .d.ts equal the base's byte for byte, and A's .js differ from the base's only where
+// A writes a `_`-prefixed name in place of the base's output name, with one output name per prefixed name.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+const [base, a, list] = process.argv.slice(2);
+const files = readFileSync(list, 'utf8').split('\n').filter((f) => /\.(js|d\.ts)$/.test(f));
+const pairs = new Map(); let bad = 0, dts = 0, jsSame = 0, jsRenamed = 0;
+for (const f of files) {
+  const b = readFileSync(join(base, f), 'utf8'), x = readFileSync(join(a, f), 'utf8');
+  if (f.endsWith('.d.ts')) { if (b === x) dts++; else { bad++; console.log(`d.ts differs: ${f}`); } continue; }
+  if (b === x) { jsSame++; continue; }
+  jsRenamed++;
+  const bt = b.split(/([\w$]+)/), xt = x.split(/([\w$]+)/);
+  if (bt.length !== xt.length) { bad++; console.log(`token count differs: ${f}`); continue; }
+  for (let i = 0; i < bt.length; i++) {
+    if (bt[i] === xt[i]) continue;
+    if (i % 2 === 1 && /^_[A-Za-z]/.test(xt[i])) {
+      const seen = pairs.get(xt[i]);
+      if (seen && seen !== bt[i]) { bad++; console.log(`${xt[i]} has two output names: ${seen}, ${bt[i]}`); }
+      pairs.set(xt[i], bt[i]);
+    } else { bad++; console.log(`non-rename difference in ${f}: ${JSON.stringify(bt[i])} vs ${JSON.stringify(xt[i])}`); }
+  }
+}
+console.log(`d.ts byte-identical: ${dts}; js identical: ${jsSame}; js differing only by prefixed names: ${jsRenamed}; prefixed names seen: ${pairs.size}; problems: ${bad}`);
+console.log([...pairs].sort().map(([k, v]) => `${k}→${v}`).join(' '));

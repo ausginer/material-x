@@ -1,0 +1,24 @@
+## markers at b8e37b37c (git grep -nE "\b_[A-Za-z]")
+-- src
+(none)
+-- bench
+(none)
+-- tests
+b8e37b37c:packages/drag/tests/coordinates.browser.test.ts:89:    async (_name, css) => {
+b8e37b37c:packages/drag/tests/coordinates.browser.test.ts:146:    async (_name, css) => {
+b8e37b37c:packages/drag/tests/coordinates.browser.test.ts:284:    async (_name, css) => {
+b8e37b37c:packages/drag/tests/landing.browser.test.ts:162:  ])('should stay above %s for the whole flight', async (_name, css) => {
+b8e37b37c:packages/drag/tests/sortable.browser.test.ts:585:    async (_name, act) => {
+
+## git diff --stat f7b7b300b^ b8e37b37c -- packages/drag :!packages/drag/.plan
+ packages/drag/package.json                         |  4 +-
+ packages/drag/src/sortable/axis.ts                 |  2 +-
+ packages/drag/src/sortable/layout-animation.ts     |  2 +-
+ packages/drag/src/sortable/linear-shift.ts         |  4 +-
+ packages/drag/src/sortable/rect-index.ts           | 66 +++++++++-------------
+ .../drag/tests/displacement-sink.browser.test.ts   | 21 ++++---
+ 6 files changed, 43 insertions(+), 56 deletions(-)
+
+## allocation.ts against f7b7b300b^
+3fc8936ea406b02254a24e4766fe02d4808dc076
+3fc8936ea406b02254a24e4766fe02d4808dc076

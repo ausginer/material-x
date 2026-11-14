@@ -1,0 +1,30 @@
+=== wt-base vite-traits-plugin
+ℹ /index.js.map  67.15 kB │ gzip: 19.24 kB
+ℹ /index.d.ts     0.34 kB │ gzip:  0.24 kB
+ℹ 3 files, total: 100.67 kB
+✔ Build complete in 62ms
+=== wt-base box-quad
+ℹ /index.js.map  22.53 kB │ gzip: 7.08 kB
+ℹ /index.d.ts     6.30 kB │ gzip: 2.41 kB
+ℹ 3 files, total: 40.77 kB
+✔ Build complete in 48ms
+=== wt-base drag
+ℹ /sortable/operation.d.ts            0.06 kB │ gzip: 0.06 kB
+ℹ /free-drag/operation.d.ts           0.04 kB │ gzip: 0.05 kB
+ℹ 90 files, total: 307.43 kB
+✔ Build complete in 381ms
+=== wt-end vite-traits-plugin
+ℹ /index.js.map  67.15 kB │ gzip: 19.24 kB
+ℹ /index.d.ts     0.34 kB │ gzip:  0.24 kB
+ℹ 3 files, total: 100.67 kB
+✔ Build complete in 55ms
+=== wt-end box-quad
+ℹ /index.js.map  22.53 kB │ gzip: 7.08 kB
+ℹ /index.d.ts     6.30 kB │ gzip: 2.41 kB
+ℹ 3 files, total: 40.77 kB
+✔ Build complete in 45ms
+=== wt-end drag
+ℹ /sortable/operation.d.ts            0.06 kB │ gzip: 0.06 kB
+ℹ /free-drag/operation.d.ts           0.04 kB │ gzip: 0.05 kB
+ℹ 90 files, total: 307.87 kB
+✔ Build complete in 335ms

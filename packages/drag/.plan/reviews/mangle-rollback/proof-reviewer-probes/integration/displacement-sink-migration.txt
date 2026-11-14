@@ -1,0 +1,50 @@
+## p1..merge
+diff --git a/packages/drag/tests/displacement-sink.browser.test.ts b/packages/drag/tests/displacement-sink.browser.test.ts
+index 2f99cd3c6..c36e3464b 100644
+--- a/packages/drag/tests/displacement-sink.browser.test.ts
++++ b/packages/drag/tests/displacement-sink.browser.test.ts
+@@ -3,7 +3,7 @@
+  * which only the unpublished installer types declare. They run in the source
+  * projects only.
+  */
+-import { ancestry, space } from '@ydinjs/box-quad';
++import { ancestry, type Space } from '@ydinjs/box-quad';
+ import { describe, expect, it, vi } from 'vitest';
+ import type {
+   AxisContext,
+@@ -442,7 +442,7 @@ function driveCommittedMoves(
+ function installXy(inner: DisplacementSink | null) {
+   const setup = wrappingField(12);
+   const reports: Report[] = [];
+-  const itemSpace = space();
++  const itemSpace: Space = [];
+ 
+   ancestry(setup.list, itemSpace);
+ 
+## old factory (0a28f909a box-quad)
+47:export type Space = Float64Array;
+71:export const space = (): Space => new Float64Array(SPACE_LENGTH);
+## new storage (7d8d7a805 box-quad)
+ * Growable storage such as `[]` or a plain object may start empty. A fixed-size
+ * store such as a typed array needs at least five slots. The storage must hold
+ * each written number exactly, as `number[]`, `Float64Array` and a plain object
+ * do.
+ */
+export type Space = Record<number, number>;
+243:export function ancestry(element: HTMLElement, out: Space): boolean {
+## main's own Space migrations in drag (0a28f909a..7d8d7a805)
+-    const basis = space();
++    const basis: Space = [];
+-      const visualSpace = space();
+-      const itemSpace = drag.item === visual ? visualSpace : space();
++      const visualSpace: Space = [];
++      const itemSpace: Space = drag.item === visual ? visualSpace : [];
+-  const basis = space();
++  const basis: Space = [];
+-      expect(ancestry(makeList(1), space())).toBe(true);
+-          basis: space(),
+## routing: vitest config blobs
+f0b66c2ec packages/drag/vitest.config.ts=b3955f1af .scripts/vitest-config.ts=83810a05d
+7d8d7a805 packages/drag/vitest.config.ts=7abf07290 .scripts/vitest-config.ts=fa4c2aa23
+6296b741a packages/drag/vitest.config.ts=b3955f1af .scripts/vitest-config.ts=83810a05d
+6296b741a:.scripts/vitest-config.ts:622:  'tests/displacement-sink.browser.test.ts',

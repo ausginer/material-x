@@ -1,0 +1,101 @@
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:143 > drag:DRI-10 destruction > should admit no press after destruction 169ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:48 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged 175ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from admit 165ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:64 > drag:DRI-14 collection > should pull again at activation, so a change during the press is seen 216ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from activate 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:81 > drag:DRI-14 collection > should decline quietly when the item left the collection during the press 100ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from start 166ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:99 > drag:DRI-14 collection > should decline quietly when the item left the document during the press 266ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from move 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:115 > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array 182ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from drop 166ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate 133ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from verdict 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase 183ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed 53ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers 49ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from settle 166ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from dispose 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag 201ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from end 166ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed 115ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency 117ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from reaction 167ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:172 > drag:DRI-10 destruction > should tear down totally when requested from listener 168ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:199 > drag:DRI-10 destruction > should return one promise by identity on every call 14ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:373 > drag:DRI-14 collection > should carry item, from, to, previous and next, so insertBefore applies 167ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:211 > drag:DRI-10 destruction > should settle the promise after teardown 17ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:395 > drag:DRI-14 collection > should reach the end gap with a null next 166ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:225 > drag:DRI-10 destruction > should give disposers null and deliver no settle or end 133ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:411 > drag:DRI-14 collection > should move one slot on a keyboard command, inert at the edge 68ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:256 > drag:DRI-10 destruction > should do nothing for a later request 152ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:429 > drag:DRI-14 collection > should decline on altKey 166ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:276 > drag:DRI-10 destruction > should run a later use at once on the operation scope, with null 132ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws 150ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:303 > drag:DRI-10 destruction > should not restore focus on destruction 152ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:474 > drag:DRI-14 collection failures > should end activation with a fault and no start when the second pull throws 150ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:495 > drag:DRI-14 collection failures > should report a throwing visual, with no operation 150ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations 315ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart 167ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:531 > drag:DRI-14 collection failures > should pull nothing and report nothing for an invalidate after destruction 16ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:547 > drag:DRI-14 collection failures > should reach the first gap, moving a row to the start 172ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:555 > drag:DRI-14 collection failures > should resolve the release from the final sample, with no frame after it 145ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:345 > drag:DRI-10 destruction > should retain no drag view or state after a custom behavior is destroyed 248ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder removes itself 160ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves itself 190ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the list out 151ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder moves within the container 149ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:584 > drag:DRI-15 placeholder integrity > should end activation clean with a fault when a placeholder takes the item away from it 150ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container 251ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release 183ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:647 > drag:DRI-15 placeholder integrity > should still cancel on Escape when the home anchor left 166ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:667 > drag:DRI-15 placeholder integrity > should report a factory that returns the dragged item, whose disposer then removes it 155ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction 1802ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:680 > drag:DRI-15 placeholder integrity > should move a factory result that is already in the document 182ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:444 > drag:DRI-10 destruction > should not apply an Escape dispatched by the verdict abort during destruction 157ms
+ ✓ |browser (chromium)| tests/destruction.browser.test.ts:485 > drag:DRI-10 destruction > should not report a thenable rejected by the verdict abort during destruction 151ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:696 > drag:DRI-15 placeholder integrity > should clear a stale slot when the item has none 165ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:707 > drag:DRI-15 placeholder integrity > should hide the placeholder from assistive technology and mirror the slot 150ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:56 > drag:DRD-35 callback lists > should keep duplicate checking apart from insertion 6ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:82 > drag:DRD-35 callback lists > should run a queue first in first out, each entry on its receiver 2ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:102 > drag:DRD-35 callback lists > should run a stack last in first out, each entry on its receiver 1ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:126 > drag:DRD-35 callback lists > should be empty before the first add and after the last run of a queue 1ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:126 > drag:DRD-35 callback lists > should be empty before the first add and after the last run of a stack 1ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:143 > drag:DRD-35 callback lists > should remove an entry before calling it, so a throw leaves the rest 3ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:163 > drag:DRD-35 callback lists > should drop every entry on clear 2ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:175 > drag:DRI-8 steps with a receiver > should run one method once per receiver, in request order 172ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:726 > drag:DRI-15 placeholder integrity > should keep a custom placeholder element and apply the mechanics 138ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:201 > drag:DRI-8 steps with a receiver > should call a step requested while idle on its receiver at once 14ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:213 > drag:DRI-8 steps with a receiver > should keep a step requested with no receiver apart from the same step with one 150ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:742 > sortable options > should honor handle: a press elsewhere does not admit 265ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:238 > drag:DRI-8 steps with a receiver > should run a pair again when its running step requests it, and coalesce a waiting one 152ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:765 > sortable options > should refuse a press through data-drag-ignore 148ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:775 > sortable options > should honor visual: the named node is lifted and the item stays 134ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:285 > drag:DRI-8 steps with a receiver > should keep precedence: destruction before steps, steps before the decision 280ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:793 > sortable options > should honor box: a box around the visual keeps the rest of its footprint 131ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:813 > sortable options > should honor box: a box inside the visual sizes the whole footprint 134ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:321 > drag:DRI-8 steps with a receiver > should scope a receiver step to its operation 302ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:345 > drag:DRI-8 steps with a receiver > should report a throw from a receiver step as a fault 14ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:831 > sortable options > should resolve a grid with xy() 266ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:380 > drag:DRI-9 operation cleanup with a receiver > should run operation cleanup last in first out, on each receiver, once per call 152ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:403 > drag:DRI-9 operation cleanup with a receiver > should continue the walk past a throwing receiver disposer 149ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:854 > sortable options > should animate displaced rows with layoutAnimation, in xy() too 282ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:427 > drag:DRI-9 operation cleanup with a receiver > should run a late disposer at once, on its receiver, inside the walk that adds it 151ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:462 > drag:DRI-10 controller cleanup with a receiver > should run controller cleanup on each receiver at teardown, and a late one at once 15ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:488 > drag:DRI-10 controller cleanup with a receiver > should leave a step requested from a disposer during teardown unrun 17ms
+ ✓ |browser (chromium)| tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves 170ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction 270ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:95 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight 292ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included 533ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:951 > sortable options > drag:DRD-47 should drop under the release position after a scroll whose event has not arrived 216ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:138 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row 650ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:173 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 366ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:212 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 283ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:465 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel across committed moves that wrap 16ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:471 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel while displaced cells are still animating 17ms
+ ✓ |browser (chromium)| tests/displacement-sink.browser.test.ts:485 > xy() reported vectors > drag:DRD-62 should report each xy() cell's flow travel after the same installer retires and measures a larger collection 16ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:991 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up 6682ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:1073 > sortable options > should ignore a second pointer during a drag 100ms
+ ✓ |browser (chromium)| tests/sortable.browser.test.ts:1104 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect 134ms
+ Test Files  4 passed (4)
+      Tests  99 passed (99)

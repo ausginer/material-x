@@ -1,0 +1,30 @@
+js without published map: free-drag/landing.js (47 chars, sourceMappingURL none)
+js differs under the reading: lift.js (240 vs 240 lines)
+  193: base~ "\t\t\t\t\t\tlanding: landing"
+  193: end   "\t\t\t\t\t\tlanding"
+js without published map: lift/landing.js (47 chars, sourceMappingURL none)
+js differs under the reading: sortable/behavior.js (126 vs 126 lines)
+  117: base~ "\t\t\t\tvisual: visual,"
+  117: end   "\t\t\t\tvisual,"
+  119: base~ "\t\t\t\tdirection: direction"
+  119: end   "\t\t\t\tdirection"
+js without published map: sortable/landing.js (47 chars, sourceMappingURL none)
+js differs under the reading: sortable/layout-animation.js (101 vs 101 lines)
+  62: base~ "\t\t\t\tanimation: animation,"
+  62: end   "\t\t\t\tanimation,"
+  94: base~ "\t\t\tfor (const { animation: animation } of running.values()) animation.cancel();"
+  94: end   "\t\t\tfor (const { animation } of running.values()) animation.cancel();"
+js differs under the reading: sortable/linear-shift.js (98 vs 98 lines)
+  42: base~ "\t\t\tconst { values: values, count: count } = index;"
+  42: end   "\t\t\tconst { values, count } = index;"
+  74: base~ "\t\t\t\tconst { items: items } = index;"
+  74: end   "\t\t\t\tconst { items } = index;"
+js differs under the reading: sortable/xy.js (88 vs 88 lines)
+  30: base~ "\t\t\t\tconst { values: values, count: count, placeholderRect: placeholderRect, items: items } = index;"
+  30: end   "\t\t\t\tconst { values, count, placeholderRect, items } = index;"
+  70: base~ "\t\t\t\tconst { values: values, items: items, count: count } = index;"
+  70: end   "\t\t\t\tconst { values, items, count } = index;"
+js differs under the reading: sortable/y.js (52 vs 52 lines)
+  20: base~ "\t\t\t\tconst { values: values, first: first, end: end } = index;"
+  20: end   "\t\t\t\tconst { values, first, end } = index;"
+summary: 90 files; d.ts 27: 27 equal under the reading, 27 byte-identical; js 33: 27 equal under the reading, 14 byte-identical; js.map 30

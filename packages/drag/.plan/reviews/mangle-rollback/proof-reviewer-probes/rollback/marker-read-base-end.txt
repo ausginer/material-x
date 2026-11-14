@@ -1,0 +1,86 @@
+== packages/drag/.plan/probes/callback-list/allocation.ts: equal under the reading
+== packages/drag/bench/compare.ts: equal under the reading
+== packages/drag/src/free-drag.ts: equal under the reading
+== packages/drag/src/free-drag/behavior.ts: equal under the reading
+== packages/drag/src/free-drag/bounds.ts: equal under the reading
+== packages/drag/src/free-drag/drop-targets.ts: equal under the reading
+== packages/drag/src/free-drag/operation.ts: equal under the reading
+== packages/drag/src/kernel/callbacks.ts: equal under the reading
+== packages/drag/src/kernel/drag.ts: equal under the reading
+== packages/drag/src/kernel/gesture.ts: equal under the reading
+== packages/drag/src/kernel/session.ts: equal under the reading
+== packages/drag/src/lift.ts: differs
+308c308
+<             landing: landing,
+---
+>             landing,
+== packages/drag/src/shared/invalidation.ts: equal under the reading
+== packages/drag/src/sortable.ts: equal under the reading
+== packages/drag/src/sortable/behavior.ts: differs
+280c280
+<         visual: visual,
+---
+>         visual,
+282c282
+<         direction: direction,
+---
+>         direction,
+== packages/drag/src/sortable/layout-animation.ts: differs
+106,110c106
+<         const record: RowAnimation = {
+<           animation: animation,
+<           dx: sx,
+<           dy: sy,
+<         };
+---
+>         const record: RowAnimation = { animation, dx: sx, dy: sy };
+156c152
+<         for (const { animation: animation } of running.values()) {
+---
+>         for (const { animation } of running.values()) {
+== packages/drag/src/sortable/linear-shift.ts: differs
+169c169
+<       const { values: values, count: count } = index;
+---
+>       const { values, count } = index;
+244c244
+<         const { items: items } = index;
+---
+>         const { items } = index;
+== packages/drag/src/sortable/operation.ts: equal under the reading
+== packages/drag/src/sortable/rect-index.ts: differs
+315c315
+<   const { count: held, first: first, end: end } = index;
+---
+>   const { count: held, first, end } = index;
+334,339c334
+<   const {
+<     values: values,
+<     placeholderRect: placeholderRect,
+<     items: items,
+<     count: count,
+<   } = index;
+---
+>   const { values, placeholderRect, items, count } = index;
+== packages/drag/src/sortable/xy.ts: differs
+73,78c73
+<         const {
+<           values: values,
+<           count: count,
+<           placeholderRect: placeholderRect,
+<           items: items,
+<         } = index;
+---
+>         const { values, count, placeholderRect, items } = index;
+162c157
+<         const { values: values, items: items, count: count } = index;
+---
+>         const { values, items, count } = index;
+== packages/drag/src/sortable/y.ts: differs
+57c57
+<         const { values: values, first: first, end: end } = index;
+---
+>         const { values, first, end } = index;
+== packages/drag/tests/authoring.declaration.test.ts: equal under the reading
+== packages/drag/tests/callback-list.browser.test.ts: equal under the reading
+== packages/drag/tests/publication.node.test.ts: removed at b8e37b37c

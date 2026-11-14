@@ -1,0 +1,16 @@
+$ npx eslint ... src/sortable/layout-animation.ts tests/displacement-sink.browser.test.ts
+
+/workspaces/material-x/packages/drag/tests/displacement-sink.browser.test.ts
+  59:3  error  Function name `recorded` should match property name `getBoundingClientRect`  func-name-matching
+
+✖ 1 problem (1 error, 0 warnings)
+
+exit 1
+$ npx oxlint (same files)
+exit 0
+$ npx oxfmt --check (same files)
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 3ms on 2 files using 12 threads.
+exit 0

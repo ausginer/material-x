@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Usage: marker-read.sh <base> <end> <path>...  — for each path changed between base and end,
+# diffs base's text with each \b_([A-Za-z]) read as its letter against end's text.
+set -euo pipefail
+base=$1; end=$2; shift 2
+cd /workspaces/material-x
+for f in $(git diff --name-only "$base" "$end" -- "$@"); do
+  if ! git cat-file -e "$end:$f" 2>/dev/null; then echo "== $f: removed at $end"; continue; fi
+  if ! git cat-file -e "$base:$f" 2>/dev/null; then echo "== $f: added at $end"; continue; fi
+  out=$(diff <(git show "$base:$f" | perl -pe 's/\b_([A-Za-z])/$1/g') <(git show "$end:$f") || true)
+  if [ -z "$out" ]; then echo "== $f: equal under the reading"; else echo "== $f: differs"; echo "$out"; fi
+done
