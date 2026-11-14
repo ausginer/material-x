@@ -2,7 +2,7 @@
  * Free drag's pure geometry, derived from numbers the operation already holds:
  * nothing here reads the DOM.
  */
-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
+import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
 import type { Drag } from '../draggable.ts';
 import type { Lift } from '../lift.ts';
 import type { DragGeometry, FreeDragRequest, Point } from './domain.ts';
@@ -23,8 +23,8 @@ function currentRect(
 }
 
 /** A singular ancestor renders nothing, so the viewport delta stands in for it. */
-function toLocal(space: Space, dx: number, dy: number): Float64Array {
-  const local = delta();
+function toLocal(space: Space, dx: number, dy: number): Delta {
+  const local: Delta = [];
 
   if (!localDelta(space, dx, dy, local)) {
     local[0] = dx;

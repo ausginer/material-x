@@ -13,7 +13,7 @@ No subpath entrypoints are part of v1.
 ## 2. Public types
 
 ```ts
-export type Quad = Float64Array;
+export type Quad = Record<number, number>;
 ```
 
 A valid `Quad` has eight values:
@@ -44,7 +44,7 @@ p4 = (0, borderBoxHeight)
 
 Transforms, negative scale, rotation, writing mode and text direction never sort or relabel the points.
 
-The TypeScript alias cannot express a length of eight. The hot path does not validate the output constructor, length or writability.
+A `Quad` is caller-owned numeric storage of eight slots, such as `[]`, a `Float64Array` or a plain object. The TypeScript alias cannot express the capacity or the element precision. The hot path does not validate the storage's kind, capacity or writability.
 
 ## 3. Functions
 
@@ -129,7 +129,7 @@ When that same non-invertible space is used as `relativeTo`, conversion fails. T
 
 - If `DOMMatrix` or another DOM geometry primitive is constructed, it comes from `element.ownerDocument.defaultView`.
 - `readBoxQuad` uses the caller-supplied output and does not replace its realm or identity.
-- The public output is always a `Float64Array`, not `DOMPoint` or `DOMQuad`.
+- The public output is always caller-owned numeric storage, never `DOMPoint` or `DOMQuad`.
 - The core path transforms corner scalars directly into the output representation.
 - Native `Element.getBoxQuads()` is never delegated to, even if present.
 - A read wholly within one document is supported when that document is hosted in an iframe; its default output uses that document's own layout viewport.

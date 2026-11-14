@@ -1,0 +1,224 @@
+/**
+ * Parity probe for sharing the ancestor walk between `ancestry` and
+ * `coordinates`, Chromium only.
+ *
+ * It compares a candidate `src/index.ts` against the baseline module at
+ * `27c8f5495`. For every scenario it checks, against the baseline:
+ *
+ * - the return value and every written slot, `Object.is`-equal, of `ancestry`,
+ *   of `coordinates` without `above` and of `coordinates` with `above`;
+ * - that a `false` leaves a filled `number[]` exactly as it was;
+ * - the platform reads each call makes: the sequence of elements passed to
+ *   `getComputedStyle` and to `getClientRects`;
+ * - a consumer-overridden `getClientRects` that re-enters `coordinates` without
+ *   `above` on another element, as BQ-9 requires the fallback to survive.
+ *
+ * Run from the package with the candidate source in `src/`:
+ *
+ * ```sh
+ * cp .plan/probes/coordinates-walk/walk.browser.test.ts.txt tests/walk.browser.test.ts
+ * git show 27c8f5495:packages/box-quad/src/index.ts > tests/baseline.ts
+ * npx vitest run -c vitest.config.ts tests/walk.browser.test.ts
+ * ```
+ */
+import { afterEach, describe, expect, it } from 'vitest';
+import * as candidate from '../src/index.ts';
+import * as baseline from './baseline.ts';
+
+type Module = typeof candidate;
+type Storage = number[];
+
+const SENTINELS = [11, 22, 33, 44, 55, 66, 77, 88];
+
+function place(styles: string, parent: Node = document.body): HTMLElement {
+  const element = document.createElement('div');
+
+  element.style.cssText = `position:absolute;box-sizing:border-box;transform-origin:0 0;${styles}`;
+  parent.appendChild(element);
+  return element;
+}
+
+function nest(depth: number, styles: string): HTMLElement {
+  let parent: HTMLElement = document.body;
+
+  for (let level = 0; level < depth; level += 1) {
+    parent = place(`left:1px;top:1px;width:200px;height:200px;${styles}`, parent);
+  }
+
+  return parent;
+}
+
+/** Each scenario covers one path through the walk or the measurement. */
+function scenarios(): ReadonlyArray<readonly [string, HTMLElement]> {
+  const turned = place(
+    'left:40px;top:30px;width:120px;height:90px;transform:rotate(30deg) scale(1.5)',
+  );
+  const zoomed = place('left:60px;top:10px;width:80px;height:80px;zoom:1.5');
+  const flat = place('left:0;top:0;width:50px;height:50px;transform:rotateX(30deg)');
+  const host = place('left:20px;top:20px;width:40px;height:40px;transform:translate(3px, 4px) rotate(5deg)');
+  const root = host.attachShadow({ mode: 'open' });
+  const slotHost = place('left:5px;top:5px;width:60px;height:60px;scale:2');
+  const slotRoot = slotHost.attachShadow({ mode: 'open' });
+  const slotWrapper = place('left:3px;top:3px;width:30px;height:30px;rotate:12deg', slotRoot);
+  const slotted = place('left:2px;top:2px;width:8px;height:8px');
+  const wrap = document.createElement('span');
+
+  slotWrapper.append(document.createElement('slot'));
+  slotHost.append(slotted);
+  wrap.style.cssText = 'display:inline;font:16px/20px monospace';
+  document.body
+    .appendChild(place('left:0;top:300px;width:60px;height:200px'))
+    .append(wrap);
+  wrap.textContent = 'one two three four five six seven eight';
+
+  return [
+    ['plain', place('left:13.5px;top:7.25px;width:20px;height:10px')],
+    ['transformed ancestor and skew', place('left:5px;top:3px;width:33.3px;height:17px;transform:skewX(10deg)', turned)],
+    ['ancestor zoom with rotate and scale', place('left:2px;top:4px;width:10px;height:6px;rotate:15deg;scale:1.25 0.75', zoomed)],
+    ['two non-commuting ancestors', place('left:1px;top:1px;width:9px;height:7px', place('left:4px;top:6px;width:50px;height:40px;scale:1 0.5', place('left:3px;top:2px;width:70px;height:60px;transform:skewX(20deg)', turned)))],
+    ['own zoom under a transformed ancestor', place('left:2px;top:4px;width:10px;height:6px;zoom:2', turned)],
+    ['near-singular fallback size', place('left:9px;top:9px;width:30px;height:12px;padding:1px 2px;border:1.5px solid;box-sizing:content-box;transform:rotate(45deg) scale(1, 0.01)')],
+    ['collapsed', place('left:0;top:0;width:10px;height:10px;transform:scale(0)')],
+    ['depth 12 with rotations', place('width:5px;height:5px', nest(12, 'rotate:7deg;scale:1.01'))],
+    ['display: contents parent', place('left:1px;top:1px;width:9px;height:9px', place('display:contents;zoom:1.25', turned))],
+    ['shadow tree', place('left:1px;top:2px;width:7px;height:9px;rotate:-20deg', root)],
+    ['slotted', slotted],
+    ['display: contents element', place('display:contents', turned)],
+    ['fragmented', wrap],
+    ['3D ancestor', place('width:5px;height:5px', flat)],
+    ['own 3D transform', place('width:5px;height:5px;transform:rotateY(20deg)', turned)],
+    ['non-finite inherited matrix', place('width:5px;height:5px', nest(9, 'transform:scale(1e38)'))],
+    ['disconnected', document.createElement('div')],
+  ];
+}
+
+/** Records every element the module reads style or client rects from. */
+function trace<T>(run: () => T): readonly [T, readonly unknown[]] {
+  const reads: unknown[] = [];
+  const { getComputedStyle } = window;
+  const { getClientRects } = Element.prototype;
+
+  window.getComputedStyle = function (element, pseudo) {
+    reads.push(['style', element]);
+    return getComputedStyle.call(this, element, pseudo);
+  };
+  Element.prototype.getClientRects = function (this: Element) {
+    reads.push(['rects', this]);
+    return getClientRects.call(this);
+  };
+
+  try {
+    return [run(), reads];
+  } finally {
+    window.getComputedStyle = getComputedStyle;
+    Element.prototype.getClientRects = getClientRects;
+  }
+}
+
+function expectSlots(actual: Storage, expected: Storage, name: string): void {
+  expect(actual.length, name).toBe(expected.length);
+
+  for (let index = 0; index < expected.length; index += 1) {
+    expect(Object.is(actual[index], expected[index]), `${name} slot ${index}`).toBe(true);
+  }
+}
+
+function compare(
+  name: string,
+  call: (module: Module, out: Storage) => boolean,
+): void {
+  const expected = [...SENTINELS];
+  const actual = [...SENTINELS];
+  const [expectedResult, expectedReads] = trace(() =>
+    call(baseline as unknown as Module, expected),
+  );
+  const [actualResult, actualReads] = trace(() => call(candidate, actual));
+
+  expect(actualResult, name).toBe(expectedResult);
+  expectSlots(actual, expected, name);
+  expect(actualReads, `${name} reads`).toEqual(expectedReads);
+
+  if (!actualResult) {
+    expect(actual, name).toStrictEqual(SENTINELS);
+  }
+}
+
+afterEach(() => {
+  document.body.replaceChildren();
+});
+
+describe('shared ancestor walk', () => {
+  it('should match the baseline in results, slots and platform reads', () => {
+    const outcomes: Record<string, boolean> = {};
+
+    for (const [name, element] of scenarios()) {
+      const space: Storage = [];
+      const hasSpace = baseline.ancestry(element, space);
+
+      compare(`${name}: ancestry`, (module, out) => module.ancestry(element, out));
+      compare(`${name}: coordinates`, (module, out) => {
+        const result = module.coordinates(element, out);
+
+        outcomes[name] = result;
+        return result;
+      });
+
+      if (hasSpace) {
+        compare(`${name}: coordinates with above`, (module, out) =>
+          module.coordinates(element, out, space),
+        );
+      }
+    }
+
+    // Each refusal is reached, and every success scenario succeeds.
+    expect(outcomes).toEqual({
+      plain: true,
+      'transformed ancestor and skew': true,
+      'ancestor zoom with rotate and scale': true,
+      'two non-commuting ancestors': true,
+      'own zoom under a transformed ancestor': true,
+      'near-singular fallback size': true,
+      collapsed: true,
+      'depth 12 with rotations': true,
+      'display: contents parent': true,
+      'shadow tree': true,
+      slotted: true,
+      'display: contents element': false,
+      fragmented: false,
+      '3D ancestor': false,
+      'own 3D transform': false,
+      'non-finite inherited matrix': false,
+      disconnected: false,
+    });
+  });
+
+  it('should survive a getClientRects override that re-enters the fallback', () => {
+    const turned = place(
+      'left:40px;top:30px;width:120px;height:90px;transform:rotate(30deg) scale(1.5)',
+    );
+    const outer = place('left:5px;top:3px;width:33px;height:17px;transform:skewX(10deg);zoom:1.2', turned);
+    const inner = place('left:1px;top:2px;width:7px;height:9px;rotate:-20deg', outer);
+    const results = new Map<Module, Storage[]>();
+
+    for (const module of [baseline as unknown as Module, candidate]) {
+      const nested: Storage = [];
+      const out: Storage = [];
+      const { getClientRects } = Element.prototype;
+
+      outer.getClientRects = function (this: Element) {
+        module.coordinates(inner, nested);
+        return getClientRects.call(this);
+      };
+
+      expect(module.coordinates(outer, out)).toBe(true);
+      delete (outer as Partial<HTMLElement>).getClientRects;
+      results.set(module, [out, nested]);
+    }
+
+    const [expectedOut, expectedNested] = results.get(baseline as unknown as Module)!;
+    const [actualOut, actualNested] = results.get(candidate)!;
+
+    expectSlots(actualOut!, expectedOut!, 'outer');
+    expectSlots(actualNested!, expectedNested!, 'nested');
+  });
+});

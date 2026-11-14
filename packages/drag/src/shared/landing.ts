@@ -1,4 +1,4 @@
-import { delta, localDelta, type Space } from '@ydinjs/box-quad';
+import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
 import { DEFAULT_LANDING_DURATION, DEFAULT_LANDING_EASING } from './timing.ts';
 
 export type LandingTimingContext = Readonly<{
@@ -66,7 +66,7 @@ function startLandingAnimation(
   easing: string,
   window: Window,
 ): (() => void) | null {
-  const local = delta();
+  const local: Delta = [];
 
   if (
     !localDelta(visualSpace, dx, dy, local) ||

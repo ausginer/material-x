@@ -1,11 +1,11 @@
 /** `drag:DRI-16`: one coordinate model. */
 import {
   ancestry,
-  box,
   coordinates,
-  delta,
   localDelta,
-  space,
+  type Box,
+  type Delta,
+  type Space,
 } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
 import { Lifter } from '../src/lift.ts';
@@ -53,8 +53,8 @@ function makeNode(parent: HTMLElement, css = ''): HTMLElement {
 
 /** A behavior with no lift that moves an element by `left`/`top`, from its `Space`. */
 function mountMove(node: HTMLElement, ownZoom = 1) {
-  const basis = space();
-  const local = delta();
+  const basis: Space = [];
+  const local: Delta = [];
   const left = node.offsetLeft;
   const top = node.offsetTop;
 
@@ -153,11 +153,11 @@ describe('drag:DRI-16 no-lift move and resize', () => {
       target.append(handle);
 
       const controller = resizeHandle(handle, target, () => {});
-      const measured = box();
+      const measured: Box = [];
 
       coordinates(target, measured);
 
-      const local = delta();
+      const local: Delta = [];
 
       localDelta(measured, 15, 10, local);
 
@@ -381,7 +381,7 @@ describe('drag:DRI-16 required environments for a sortable', () => {
   it.runIf(isChromium)(
     'should read a Space for an ancestor it can represent',
     () => {
-      expect(ancestry(makeList(1), space())).toBe(true);
+      expect(ancestry(makeList(1), [])).toBe(true);
     },
   );
 });

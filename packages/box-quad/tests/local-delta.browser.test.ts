@@ -1,12 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  ancestry,
-  box,
-  coordinates,
-  delta,
-  localDelta,
-  space,
-} from '../src/index.ts';
+import { ancestry, coordinates, localDelta } from '../src/index.ts';
 import { resetDocument } from './support/fixtures.ts';
 
 afterEach(resetDocument);
@@ -44,8 +37,8 @@ describe('localDelta', () => {
     (_name, ancestorStyle) => {
       const element = createNested(ancestorStyle);
       const before = element.getBoundingClientRect();
-      const above = space();
-      const out = delta();
+      const above: number[] = [];
+      const out: number[] = [];
 
       expect(ancestry(element, above)).toBe(true);
       expect(localDelta(above, VIEWPORT_DX, VIEWPORT_DY, out)).toBe(true);
@@ -63,8 +56,8 @@ describe('localDelta', () => {
     'should produce a Box delta that resizes the element along the viewport delta under %s',
     (_name, ancestorStyle) => {
       const element = createNested(ancestorStyle, 'rotate: 10deg');
-      const measured = box();
-      const out = delta();
+      const measured: number[] = [];
+      const out: number[] = [];
 
       expect(coordinates(element, measured)).toBe(true);
       expect(localDelta(measured, VIEWPORT_DX, VIEWPORT_DY, out)).toBe(true);
@@ -84,7 +77,7 @@ describe('localDelta', () => {
   );
 
   it('should return the delta unchanged for the identity basis', () => {
-    const out = delta();
+    const out: number[] = [];
 
     expect(localDelta(Float64Array.of(1, 0, 0, 1, 1), 3, 4, out)).toBe(true);
     expect([...out]).toEqual([3, 4]);
@@ -93,8 +86,8 @@ describe('localDelta', () => {
   it('should exclude the element own zoom from a Space and leave that division to the caller', () => {
     const element = createNested('', 'zoom: 2');
     const before = element.getBoundingClientRect();
-    const above = space();
-    const out = delta();
+    const above: number[] = [];
+    const out: number[] = [];
 
     ancestry(element, above);
     localDelta(above, VIEWPORT_DX, VIEWPORT_DY, out);

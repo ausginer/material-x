@@ -1,0 +1,5 @@
+{
+  "extends": "../../../../../tsconfig.base.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": ["./candidate.ts", "./compare.ts", "../../../../../types.d.ts"]
+}

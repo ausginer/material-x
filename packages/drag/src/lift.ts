@@ -8,13 +8,7 @@
  * `cancelLanding` goes to the controller's `use`, and `acquire` as the first
  * statement of `activate`, with the `Lift` kept in the operation it returns.
  */
-import {
-  ancestry,
-  box as createBox,
-  coordinates,
-  space,
-  type Space,
-} from '@ydinjs/box-quad';
+import { ancestry, coordinates, type Box, type Space } from '@ydinjs/box-quad';
 import type { Drag } from './draggable.ts';
 import { deepActiveElement } from './shared/focus.ts';
 import type { Landing } from './shared/landing.ts';
@@ -256,9 +250,9 @@ export class Lifter {
       // Geometry is read before anything mutates, because a traversal taken
       // after the visual is repositioned reads a different ancestry.
       const rect = visual.getBoundingClientRect();
-      const visualSpace = space();
-      const itemSpace = drag.item === visual ? visualSpace : space();
-      const measured = createBox();
+      const visualSpace: Space = [];
+      const itemSpace: Space = drag.item === visual ? visualSpace : [];
+      const measured: Box = [];
 
       if (
         !ancestry(visual, visualSpace) ||

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { ancestry, box, coordinates, space, type Box } from '../src/index.ts';
+import { ancestry, coordinates } from '../src/index.ts';
 import {
   createBox,
   createFlowBox,
@@ -10,7 +10,6 @@ import {
 } from './support/fixtures.ts';
 
 const BOX_LENGTH = 8;
-const SPACE_LENGTH = 5;
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -30,7 +29,7 @@ afterEach(resetDocument);
 
 const TOLERANCE = 0.000001;
 
-function sentinels(): Box {
+function sentinels(): Float64Array {
   return new Float64Array(BOX_LENGTH).map((_value, index) => index + 1);
 }
 
@@ -40,6 +39,35 @@ function expectNear(
   tolerance: number = TOLERANCE,
 ): void {
   expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
+}
+
+/**
+ * A 20 × 10 box at (10, 20) inside a `scale(2, 1)` ancestor, inside a
+ * `rotate(90deg)` ancestor at (100, 0). Each transform origin is the top-left
+ * corner of its own element.
+ *
+ * The two ancestor transforms do not commute, so only the order CSS applies them
+ * gives the expected values: the inner scale acts first and the outer rotation
+ * last. Under the rotation a point (x, y) moves to (-y, x).
+ */
+function createNonCommutingAncestry(): HTMLElement {
+  const outer = createBox({
+    styles: {
+      left: '100px',
+      width: '400px',
+      height: '400px',
+      transform: 'rotate(90deg)',
+    },
+  });
+  const inner = createBox({
+    parent: outer,
+    styles: { width: '200px', height: '200px', transform: 'scale(2, 1)' },
+  });
+
+  return createBox({
+    parent: inner,
+    styles: { left: '10px', top: '20px' },
+  });
 }
 
 describe('coordinates', () => {
@@ -113,6 +141,28 @@ describe('coordinates', () => {
     });
 
     expectNear(measure(createBox({ parent }))[BOX_A]!, 3);
+  });
+
+  it('should compose non-commuting ancestor transforms in CSS order', () => {
+    // A local point (x, y) is at (x + 10, y + 20) in the scaled ancestor. The
+    // scale takes it to (2x + 20, y + 20). The rotation takes that to
+    // (-y - 20, 2x + 20), and the outer offset adds 100 to the first term. So
+    // the local x axis maps to (0, 2), the local y axis to (-1, 0), and the
+    // local origin to (80, 20).
+    //
+    // The size is asserted as well as the matrix. The projected corners alone
+    // can't detect the other order: at a multiple of 90 degrees, the wrong
+    // matrix and the size derived from it give the same rectangle.
+    const measured = measure(createNonCommutingAncestry());
+
+    expectNear(measured[BOX_A]!, 0);
+    expectNear(measured[BOX_B]!, 2);
+    expectNear(measured[BOX_C]!, -1);
+    expectNear(measured[BOX_D]!, 0);
+    expectNear(measured[BOX_E]!, 80);
+    expectNear(measured[BOX_F]!, 20);
+    expectNear(measured[BOX_WIDTH]!, 20);
+    expectNear(measured[BOX_HEIGHT]!, 10);
   });
 
   it('should honour the individual rotate property', () => {
@@ -328,6 +378,17 @@ describe('ancestry', () => {
     expectNear(inherited(createBox({ parent: inner }))[SPACE_A]!, 6);
   });
 
+  it('should compose non-commuting ancestor transforms in CSS order', () => {
+    // The local x axis (1, 0) is doubled to (2, 0), then rotated to (0, 2).
+    // The local y axis (0, 1) is unscaled, then rotated to (-1, 0).
+    const out = inherited(createNonCommutingAncestry());
+
+    expectNear(out[SPACE_A]!, 0);
+    expectNear(out[SPACE_B]!, 2);
+    expectNear(out[SPACE_C]!, -1);
+    expectNear(out[SPACE_D]!, 0);
+  });
+
   it('should include an ancestor zoom in the inherited basis', () => {
     const parent = createBox({
       styles: { width: '200px', height: '200px', zoom: '2' },
@@ -389,7 +450,7 @@ describe('ancestry without a principal box', () => {
     });
     const source = createBox({ parent, styles: { display: 'contents' } });
 
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
     expectNear(inherited(source)[SPACE_A]!, 2);
   });
 
@@ -405,12 +466,12 @@ describe('ancestry without a principal box', () => {
 
     source.textContent = 'aaaa bbbb cccc dddd eeee ffff';
     expect(source.getClientRects().length).toBeGreaterThan(1);
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
     expectNear(inherited(source)[SPACE_A]!, 2);
   });
 
   it('should answer for a disconnected element', () => {
-    const out = space();
+    const out: number[] = [];
 
     expect(ancestry(document.createElement('div'), out)).toBe(true);
     expectNear(out[SPACE_A]!, 1);
@@ -424,10 +485,10 @@ describe('ancestry without a principal box', () => {
         transform: 'rotateX(30deg)',
       },
     });
-    const out = space();
+    const out: number[] = [];
 
     expect(ancestry(createBox({ parent }), out)).toBe(false);
-    expect(Array.from(out)).toEqual([0, 0, 0, 0, 0]);
+    expect(out).toEqual([]);
   });
 });
 
@@ -440,7 +501,7 @@ describe('coordinates with a supplied ancestry', () => {
       parent,
       styles: { left: '10px', top: '20px', transform: 'rotate(30deg)' },
     });
-    const supplied = box();
+    const supplied: number[] = [];
 
     expect(coordinates(source, supplied, inherited(source))).toBe(true);
 
@@ -454,7 +515,7 @@ describe('coordinates with a supplied ancestry', () => {
   it('should measure an element whose own transform is not 2D as a failure', () => {
     const source = createBox({ styles: { transform: 'rotateX(30deg)' } });
 
-    expect(coordinates(source, box(), inherited(source))).toBe(false);
+    expect(coordinates(source, [], inherited(source))).toBe(false);
   });
 });
 
@@ -497,16 +558,43 @@ describe('coordinates recognized limits', () => {
     expect(Array.from(out)).toEqual(Array.from(sentinels()));
   });
 
+  it('should preserve every output value when the result is not finite', () => {
+    // Chromium clamps each transform component to about 3.4e38, so one
+    // ancestor cannot overflow. Nine nested scales of 1e38 compose to 1e342,
+    // which is beyond the Float64 range.
+    let parent: HTMLElement | undefined;
+
+    for (let depth = 0; depth < 9; depth += 1) {
+      parent = createBox({
+        parent,
+        styles: { width: '200px', height: '200px', transform: 'scale(1e38)' },
+      });
+    }
+
+    const source = createBox({ parent });
+    const space: number[] = [];
+    const out = [11, 22, 33, 44, 55, 66, 77, 88];
+
+    // Every check before the finiteness check passes, so `false` can come only
+    // from that check.
+    expect(source.getClientRects()).toHaveLength(1);
+    expect(ancestry(source, space)).toBe(true);
+    expect(Number.isFinite(space[SPACE_A])).toBe(false);
+
+    expect(coordinates(source, out)).toBe(false);
+    expect(out).toStrictEqual([11, 22, 33, 44, 55, 66, 77, 88]);
+  });
+
   it('should reject a disconnected element', () => {
     const source = createBox();
 
     source.remove();
 
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
   });
 
   it('should reject an element with no principal box', () => {
-    expect(coordinates(createBox({ styles: { display: 'none' } }), box())).toBe(
+    expect(coordinates(createBox({ styles: { display: 'none' } }), [])).toBe(
       false,
     );
   });
@@ -527,15 +615,12 @@ describe('coordinates recognized limits', () => {
     });
 
     expect(source.getClientRects().length).toBeGreaterThan(1);
-    expect(coordinates(source, box())).toBe(false);
+    expect(coordinates(source, [])).toBe(false);
   });
 
   it('should reject a 3D transform', () => {
     expect(
-      coordinates(
-        createBox({ styles: { transform: 'rotateY(30deg)' } }),
-        box(),
-      ),
+      coordinates(createBox({ styles: { transform: 'rotateY(30deg)' } }), []),
     ).toBe(false);
   });
 
@@ -544,7 +629,7 @@ describe('coordinates recognized limits', () => {
       styles: { width: '200px', height: '200px', perspective: '500px' },
     });
 
-    expect(coordinates(createBox({ parent }), box())).toBe(false);
+    expect(coordinates(createBox({ parent }), [])).toBe(false);
   });
 
   it('should reject an ancestor preserve-3d', () => {
@@ -556,12 +641,12 @@ describe('coordinates recognized limits', () => {
       },
     });
 
-    expect(coordinates(createBox({ parent }), box())).toBe(false);
+    expect(coordinates(createBox({ parent }), [])).toBe(false);
   });
 
   it('should reject a 3D individual translate', () => {
     expect(
-      coordinates(createBox({ styles: { translate: '0px 0px 10px' } }), box()),
+      coordinates(createBox({ styles: { translate: '0px 0px 10px' } }), []),
     ).toBe(false);
   });
 
@@ -575,18 +660,6 @@ describe('coordinates recognized limits', () => {
       },
     });
 
-    expect(() => coordinates(source, box())).toThrow('owner document failed');
-  });
-});
-
-describe('box', () => {
-  it('should allocate storage of the required length', () => {
-    expect(box()).toHaveLength(BOX_LENGTH);
-  });
-});
-
-describe('space', () => {
-  it('should allocate storage of the required length', () => {
-    expect(space()).toHaveLength(SPACE_LENGTH);
+    expect(() => coordinates(source, [])).toThrow('owner document failed');
   });
 });
