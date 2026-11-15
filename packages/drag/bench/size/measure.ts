@@ -16,7 +16,8 @@
  *
  * `node bench/size/measure.ts` measures the tree as it is, prints the table and
  * exits non-zero on a violation; `npx just size` builds first.
- * `--prototype` also measures the prototype at its revision, read with `git archive`.
+ * `--prototype` also measures the prototype at its revision, read with `git archive`,
+ * against box-quad at the same revision.
  */
 import { execFile as execFileCallback } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -175,6 +176,7 @@ export async function bundleSize(
   source: string,
   base: string,
   plugins: readonly Plugin[],
+  boxQuad: string = BOX_QUAD,
 ): Promise<
   Readonly<{
     minified: number;
@@ -193,7 +195,7 @@ export async function bundleSize(
     const bundle = await rolldown({
       input,
       platform: 'neutral',
-      resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+      resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
       transform: { define: { __DEV__: 'false' } },
       plugins: [...plugins],
       onLog(level, log, handler) {
@@ -302,6 +304,7 @@ async function measurePrototype(): Promise<Map<string, readonly number[]>> {
         archive,
         'packages/drag/prototype/src',
         'packages/drag/prototype/examples',
+        'packages/box-quad/src',
       ],
       { cwd: join(ROOT, '../..') },
     );
@@ -325,9 +328,14 @@ async function measurePrototype(): Promise<Map<string, readonly number[]>> {
           /@ydinjs\/drag\/([\w/-]+)\.js/gu,
           (_, path: string) => `${root}/src/${path}.ts`,
         );
-      const { minified, brotli } = await bundleSize(source, root, [
-        packageName,
-      ]);
+      // Box-quad at the prototype's revision, which still has the factories the
+      // prototype imports.
+      const { minified, brotli } = await bundleSize(
+        source,
+        root,
+        [packageName],
+        join(directory, 'packages/box-quad/src/index.ts'),
+      );
 
       readings.set(name, [minified, brotli]);
     }

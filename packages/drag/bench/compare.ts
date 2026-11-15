@@ -103,11 +103,15 @@ type Bundle = Readonly<{ code: string; modules: readonly ModuleStart[] }>;
  * module alike. Any other module is keyed by its path from the package, such as
  * `bench/lab.ts`.
  */
-async function bundle(lab: string, sourceRoot: string): Promise<Bundle> {
+async function bundle(
+  lab: string,
+  sourceRoot: string,
+  boxQuad: string = BOX_QUAD,
+): Promise<Bundle> {
   const built = await rolldown({
     input: lab,
     platform: 'browser',
-    resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+    resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
     transform: { define: { __DEV__: 'false' } },
     plugins: [
       {
@@ -1625,17 +1629,25 @@ async function archivedSource(
   return join(target, path);
 }
 
-/** The before arm without `--before`: the lab on the prototype's `src`. */
+/**
+ * The before arm without `--before`: the lab on the prototype's `src`, bundled
+ * against box-quad at the prototype's revision, which still has the factories the
+ * prototype imports.
+ */
 async function prototypeArm(scratch: string, lab: string): Promise<Arm> {
+  const source = await archivedSource(
+    scratch,
+    PROTOTYPE_REVISION,
+    'packages/drag/prototype/src',
+  );
+  const boxQuad = await archivedSource(
+    scratch,
+    PROTOTYPE_REVISION,
+    'packages/box-quad/src',
+  );
+
   return {
-    ...(await bundle(
-      lab,
-      await archivedSource(
-        scratch,
-        PROTOTYPE_REVISION,
-        'packages/drag/prototype/src',
-      ),
-    )),
+    ...(await bundle(lab, source, join(boxQuad, 'index.ts'))),
     restoresFocus: false,
   };
 }
