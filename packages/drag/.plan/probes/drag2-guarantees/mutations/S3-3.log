@@ -1,0 +1,4 @@
+Tests  1 failed | 17 passed (18)
+FAIL  |browser (chromium)| tests/input.browser.test.ts:472 > Admission.handle and data-drag-ignore > should admit a press inside an open shadow root with no mark
+AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+❯ tests/input.browser.test.ts:477:17

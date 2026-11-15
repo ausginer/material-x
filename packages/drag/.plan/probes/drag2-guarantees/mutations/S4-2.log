@@ -1,0 +1,7 @@
+Tests  2 failed | 11 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:108 > drag:DRI-14 commands > should not prevent ArrowUp on the first row
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:116:23
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:120 > drag:DRI-14 commands > should not prevent ArrowDown on the last row
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:128:23

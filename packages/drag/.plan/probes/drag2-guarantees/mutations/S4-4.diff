@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..c8023fb3a 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -260,7 +260,7 @@ export class SortableBehavior implements Behavior<
+     if (this.config.handle) {
+       const named = this.config.handle(item);
+ 
+-      if (!named || !path.includes(named)) {
++      if (!named || (direction === null && !path.includes(named))) {
+         return null;
+       }
+ 

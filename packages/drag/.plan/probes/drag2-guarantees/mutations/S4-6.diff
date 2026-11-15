@@ -1,0 +1,16 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..8b8009e8e 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -132,7 +132,10 @@ export class SortableBehavior implements Behavior<
+   }
+ 
+   command(event: KeyboardEvent): Admission<PressState> | null {
+-    const direction = event.isComposing ? null : directionOf(event.key);
++    const direction =
++      event.isComposing || event.target instanceof HTMLInputElement
++        ? null
++        : directionOf(event.key);
+ 
+     return direction === null ? null : this.#admission(event, direction);
+   }

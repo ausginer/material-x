@@ -1,0 +1,7 @@
+Tests  2 failed | 16 passed (18)
+FAIL  |browser (chromium)| tests/input.browser.test.ts:463 > Admission.handle and data-drag-ignore > should refuse the same press when no handle is named
+AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal []
+❯ tests/input.browser.test.ts:468:17
+FAIL  |browser (chromium)| tests/input.browser.test.ts:483 > Admission.handle and data-drag-ignore > should refuse a press on an element marked inside an open shadow root
+AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal []
+❯ tests/input.browser.test.ts:489:17

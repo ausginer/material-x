@@ -1,0 +1,4 @@
+Tests  1 failed | 12 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:170 > drag:DRI-14 commands with a handle > should not reorder from a focused row whose handle cannot take focus
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:177:23

@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index e35bdf8c3..14e6d55e5 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -71,7 +71,7 @@ const admitted = new WeakSet<Event>();
+  * owns that attribute, and the library infers nothing about element types.
+  */
+ function ownsInteraction(event: Event, subject: EventTarget): boolean {
+-  for (const hop of event.composedPath()) {
++  for (let hop = event.target as Node | null; hop; hop = hop.parentNode) {
+     if (hop === subject) {
+       return false;
+     }

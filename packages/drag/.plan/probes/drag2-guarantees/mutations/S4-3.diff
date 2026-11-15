@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/keyboard.ts b/packages/drag/src/sortable/keyboard.ts
+index 40f0e492e..857e057ba 100644
+--- a/packages/drag/src/sortable/keyboard.ts
++++ b/packages/drag/src/sortable/keyboard.ts
+@@ -31,7 +31,7 @@ export function directionOf(key: string): KeyboardDirection | null {
+     return DIRECTION_DOWN;
+   }
+ 
+-  return null;
++  return DIRECTION_DOWN;
+ }
+ 
+ /**

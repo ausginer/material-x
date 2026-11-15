@@ -1,0 +1,4 @@
+Tests  1 failed | 12 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:209 > drag:DRI-14 commands from a nested text input > should leave ArrowRight to an input marked data-drag-ignore
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:219:23

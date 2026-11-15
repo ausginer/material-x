@@ -1,0 +1,4 @@
+Tests  1 failed | 12 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:132 > drag:DRI-14 commands > should not prevent a key that names no command
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:140:23
