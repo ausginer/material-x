@@ -1,8 +1,8 @@
 /* oxlint-disable no-await-in-loop, no-console -- a measurement script: serial, and it prints */
 /* eslint-disable @typescript-eslint/strict-void-return -- `promisify` takes the callback form as it is */
 /**
- * Minified, gzip and Brotli size per composition, with Rolldown, as drag2's
- * harness does, from the tree that `just build` emits into the package root.
+ * Minified, gzip and Brotli size per composition, with Rolldown, from the tree
+ * that `just build` emits into the package root.
  *
  * Each row resolves as a consumer of the publication resolves it. An import of a
  * published entry's source, `src/<entry>.ts`, from a row or from a fixture,
