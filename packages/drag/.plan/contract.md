@@ -43,7 +43,7 @@ Each landing entry also exports the types `Landing`, `LandingOptions` and `Landi
 
 ### `draggable`
 
-Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **Call `DraggableController`'s methods on the controller:** they may depend on it as their receiver. The members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. **A step or a disposer passed alone is called with no receiver.** Passed with a receiver, which is an object, it is called on that receiver. **`Drag` and `Lift` are types of values the library creates and gives to a behavior.** A consumer uses them and doesn't implement or augment them (`DRD-38`).
+Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook when it calls it, and calls it as a method: `admit`, `command` and `activate` of the behavior, and the others of the operation `activate` returned**, so either may be a class instance. **A member of a controller, of a `Lifter` or of a `Drag` is called on its object.** The contract makes no statement about calling a member detached (`DRD-69`). **A step or a disposer passed alone is called with no receiver.** Passed with a receiver, which is an object, it is called on that receiver. **`Drag` and `Lift` are types of values the library creates and gives to a behavior.** A consumer uses them and doesn't implement or augment them (`DRD-38`).
 
 ```ts
 type Outcome<Verdict> =
@@ -123,7 +123,7 @@ type DraggableController<Operation> = {
 class Lifter {
   constructor(window: Window); // One per controller.
   acquire(drag: Drag<unknown>, visual?: HTMLElement, box?: HTMLElement): Lift; // First in `activate`. `visual` defaults to `drag.item`, `box` to `visual`.
-  readonly cancelLanding: () => void; // Pass it to the controller's `use`. Works when detached.
+  readonly cancelLanding: () => void; // Pass it to the controller's `use`, with the lifter as its receiver.
 }
 
 type Lift = Readonly<{
@@ -370,6 +370,7 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-15 | Public surface | **Changed:** a member of a controller, of a `Lifter` or of a `Drag` is called on its object, and the contract makes no statement about calling one detached. `cancelLanding` is passed to `use` with the lifter as its receiver. It used to say that `DraggableController`'s methods may depend on the controller as their receiver, and that the members of the `sortable` and `freeDrag` controllers and `Lifter.cancelLanding` work when detached. `DRD-69` |
 | 2026-11-15 | `DRI-6` | **Removed:** development builds no longer count refused events. The suite counts them from outside the library, against the source and the published build. It used to say that development builds count each event a running pass refuses once. `DRD-67` |
 | 2026-11-15 | `DRI-14` | **Added:** the term `y()` depends on, that moving the placeholder moves only the items it crosses, by one distance; that a block column whose margins collapse on both sides of an item doesn't meet it unless the placeholder has the items' margins; and the precision of `y()`'s geometry, 1/16 px, under which a pointer within 1/8 px of equidistant from two centers may give either gap. No behavior changes. The paragraph used to state no term that excluded collapsing margins, and no precision. `DRD-65`, `DRF-46`, `DRF-47` |
 | 2026-11-12 | `DRI-14` | **Changed:** with `y()`, a resolution measures the items between the placeholder and the pointer, and one beyond, and the items' centers increase along y in the collection's order. A reversed column, an item that isn't rendered, or an authored transform that carries an item's center past a neighbour's, is outside the contract. The pointer drop measures one measured item again. The paragraph used to say that `sortable` measures the items at the operation's first resolution, and that the drop measures every item when the one it checks moved. `DRD-49` |

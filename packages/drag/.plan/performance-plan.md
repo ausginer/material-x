@@ -214,8 +214,8 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Carried forward on 2026-11-12, when the runtime pass closed.** None is a runtime task in this pass.
 
-- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's. **Answered on 2026-11-15:** the owner accepted the current size, and `DRD-68` moves the five red rows' ceilings and the control to their readings at `3228d1f07`.
-- Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. **Answered on 2026-11-15,** as the architect reads the owner's acceptance of the size: accepted, with no part removed (`DRD-68`). It said: the record holds no answer.
+- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's. **Answered on 2026-11-15:** the owner accepted the current size. `DRD-68` moves every ceiling and the control to its reading at `988643dc9`, and until release each change the owner approves moves them again (`DRO-20`).
+- Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. **Answered on 2026-11-15** by the owner: accepted, with nothing removed (`DRD-68`, `DRO-10`). It said: the record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
 - **Added on 2026-11-13 by the owner:** Firefox and WebKit checks in a separate CI. Local development uses Chromium (§3); the CI is planned and not configured by this unit.
 - `DRF-21`, the bytes rows' module keys. **Routed on 2026-11-15** to [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) item 5. It said: repaired before the next bytes reading that a report or decision uses.
