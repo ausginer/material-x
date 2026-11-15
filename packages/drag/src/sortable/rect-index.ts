@@ -153,7 +153,6 @@ export class RectIndex implements Invalidatable, Retirable {
       return;
     }
 
-    // Locals, not repeated field reads inside the loops.
     let n = 0;
 
     for (const item of snapshot.items) {

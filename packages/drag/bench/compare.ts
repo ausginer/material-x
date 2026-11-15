@@ -1,14 +1,15 @@
 /* oxlint-disable no-await-in-loop, no-console, no-template-curly-in-string -- a measurement script: serial, printing, and its injections are source text */
 /* eslint-disable @typescript-eslint/strict-void-return -- a frame's promise and `promisify` take these callbacks as they are */
 /**
- * Before/after cost in one browser process: the prototype, production, and
- * production again as the noise floor. Arms are interleaved and every run has a
- * fresh page. CDP metrics, so Chromium only and headless, with no real compositing
- * cost.
+ * Before/after cost in one browser process: production's `src` at an earlier
+ * revision, production, and production again as the noise floor. Arms are
+ * interleaved and every run has a fresh page. CDP metrics, so Chromium only and
+ * headless, with no real compositing cost.
  *
- * `node bench/compare.ts [--rounds n] [--rows validation] [--only text] [--out file]`
- * runs the comparison. `--before <revision>` replaces the prototype with
- * production's `src` at that revision.
+ * `node bench/compare.ts --before <revision> [--rounds n] [--rows validation]
+ * [--only text] [--out file]` runs the comparison, with the before arm built from
+ * production's `src` at `revision`. A comparison, `--profile` and `--attribute`
+ * without `--before` end with an error.
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
  * copy of production, and exits non-zero unless the comparison flags each one
  * expected to flag and flags none expected to stay quiet, or if the control flags
@@ -29,8 +30,9 @@
  * nominal, and the reading's median script difference is the measured one.
  * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run,
  * against the before arms the recording holds.
- * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
- * and `--attribute` gives the retained row's growth per constructor per arm.
+ * `node bench/compare.ts --profile --before <revision> --only <row>` profiles one
+ * run of a row per arm, and `--attribute` gives the retained row's growth per
+ * constructor per arm.
  * `node bench/compare.ts --trace <revision> --out <directory> [--only text] [--dry]`
  * records Chrome traces of short forms of the move and press rows, with the set-up
  * outside each trace, on production's `src` at `revision`. It applies no injection
@@ -47,15 +49,14 @@
  * window, because the press, activation and drop are what it measures. The
  * driver-alone row dispatches the 20-item move row's events to a list with no
  * behavior, which measures the driver's own share. These rows are validation
- * rows, and run only with arms built from this package's source: `--before`,
- * `--prove` and `--floors`, never with the prototype.
+ * rows.
  *
  * The rules are stated before running, in `judge`'s comment.
  */
 import { execFile as execFileCallback } from 'node:child_process';
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { cpus, loadavg, tmpdir } from 'node:os';
-import { join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
 import { gzip as gzipCallback } from 'node:zlib';
@@ -67,7 +68,6 @@ const execFile = promisify(execFileCallback);
 const gzip = promisify(gzipCallback);
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const BOX_QUAD = join(ROOT, '../box-quad/src/index.ts');
-const PROTOTYPE_REVISION = '599684791';
 const MOVES = 300;
 const PRESSES = 100;
 const CYCLES = 50;
@@ -93,25 +93,72 @@ type Reading = Readonly<Record<string, number>>;
 
 /** The 0-based line at which a module's code starts in a bundle, and its key. */
 type ModuleStart = Readonly<{ line: number; key: string }>;
-type Bundle = Readonly<{ code: string; modules: readonly ModuleStart[] }>;
+
+/**
+ * A lab bundle, and the key of the module each of its 0-based lines comes from,
+ * or `null` for a line that the bundle's source map places in no single module.
+ */
+type Bundle = Readonly<{ code: string; lines: ReadonlyArray<string | null> }>;
+
+const BASE64 =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+/**
+ * The source index of each segment of a source map's `mappings`, per generated
+ * line. A segment's fields are Base64 VLQs, each relative to the previous
+ * segment's, and its second field, when present, is the source index. A VLQ digit
+ * carries 5 bits, low first, and 32 marks that another digit follows. The lowest
+ * bit of the value is its sign.
+ */
+function sourcesPerLine(mappings: string): number[][] {
+  let source = 0;
+
+  return mappings.split(';').map((line) => {
+    const sources: number[] = [];
+
+    for (const segment of line ? line.split(',') : []) {
+      const fields: number[] = [];
+      let value = 0;
+      let scale = 1;
+
+      for (const char of segment) {
+        const digit = BASE64.indexOf(char);
+
+        value += (digit % 32) * scale;
+        scale *= 32;
+
+        if (digit < 32) {
+          const magnitude = Math.floor(value / 2);
+
+          fields.push(value % 2 === 1 ? -magnitude : magnitude);
+          value = 0;
+          scale = 1;
+        }
+      }
+
+      if (fields.length > 1) {
+        source += fields[1]!;
+        sources.push(source);
+      }
+    }
+
+    return sources;
+  });
+}
 
 /**
  * Lab source bundled into an IIFE, unminified so that functions keep their names.
- * The bundler writes a line `// <path from the working directory>` where each
- * module starts. A module's key is its path under `sourceRoot`, such as
+ * Each line is placed by the bundle's source map in the module that holds its
+ * source. A module's key is its path under `sourceRoot`, such as
  * `kernel/session.ts`, so that every arm built from this package's source keys a
  * module alike. Any other module is keyed by its path from the package, such as
  * `bench/lab.ts`.
  */
-async function bundle(
-  lab: string,
-  sourceRoot: string,
-  boxQuad: string = BOX_QUAD,
-): Promise<Bundle> {
+async function bundle(lab: string, sourceRoot: string): Promise<Bundle> {
   const built = await rolldown({
     input: lab,
     platform: 'browser',
-    resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
+    resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
     // `--before` builds source from an earlier revision, and that source reads `__DEV__`.
     // The define reproduces that revision's own `tsdown` define. The current source
     // does not read it.
@@ -139,48 +186,58 @@ async function bundle(
     const { output } = await built.generate({
       format: 'iife',
       name: 'labExports',
+      sourcemap: true,
+      // Absolute, so that a source is matched with the module it names.
+      sourcemapPathTransform: (source, map) => resolve(dirname(map), source),
     });
 
     const [chunk] = output;
     const ids = new Set(chunk.moduleIds);
-    const modules: ModuleStart[] = [];
-
-    chunk.code.split('\n').forEach((text, line) => {
-      const marker = /^\t\/\/ (\S+)$/u.exec(text)?.[1];
-      const path = marker && resolve(marker);
-
-      if (path && ids.has(path)) {
-        const key = relative(sourceRoot, path);
-
-        modules.push({
-          line,
-          key: key.startsWith('..') ? relative(ROOT, path) : key,
-        });
+    const keys = chunk.map!.sources.map((path) => {
+      if (!ids.has(path)) {
+        throw new Error(`compare: the source map names ${path}, not a module`);
       }
+
+      const key = relative(sourceRoot, path);
+
+      return key.startsWith('..') ? relative(ROOT, path) : key;
+    });
+    const lines = sourcesPerLine(chunk.map!.mappings).map((sources) => {
+      const placed = new Set(sources);
+
+      return placed.size === 1 ? keys[sources[0]!]! : null;
     });
 
-    return { code: chunk.code, modules };
+    return { code: chunk.code, lines };
   } finally {
     await built.close();
   }
 }
 
-/** The key of the module whose code holds `line`, or `null` before the first one. */
-function moduleAt(
-  modules: readonly ModuleStart[],
-  line: number,
-): string | null {
-  let found: string | null = null;
+/** The key of the module whose code holds `line`. A line with none ends the run. */
+function moduleAt(lines: ReadonlyArray<string | null>, line: number): string {
+  const key = lines[line];
 
-  for (const start of modules) {
-    if (start.line > line) {
-      break;
-    }
-
-    found = start.key;
+  if (!key) {
+    throw new Error(
+      `compare: the source map places line ${line + 1} of the lab bundle in no single module`,
+    );
   }
 
-  return found;
+  return key;
+}
+
+/** Where each module's run of lines starts, for a record. */
+function moduleStarts(lines: ReadonlyArray<string | null>): ModuleStart[] {
+  const starts: ModuleStart[] = [];
+
+  lines.forEach((key, line) => {
+    if (key && key !== starts.at(-1)?.key) {
+      starts.push({ line, key });
+    }
+  });
+
+  return starts;
 }
 
 interface PageContext {
@@ -268,8 +325,6 @@ interface Scenario {
   /** The rule stated before running, in the handoff's terms. */
   readonly rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
   readonly arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
-  /** Runs only with arms built from this package's source, never the prototype's. */
-  readonly packageArmsOnly?: true;
   run(context: PageContext): Promise<Reading>;
 }
 
@@ -323,7 +378,6 @@ function inPageMovesScenario(count: number, mounted: boolean): Scenario {
       : `in the page: driver alone, 300 moves, ${count} items, no behavior`,
     rule: mounted ? 'exact-and-floor' : 'report',
     arms: 'sortable',
-    packageArmsOnly: true,
     async run({ page, metrics }) {
       if (mounted) {
         await mount(page, {
@@ -435,7 +489,7 @@ async function samplingProfile(
   const walk = (node: HeapNode, caller: string): void => {
     const { scriptId, lineNumber, functionName } = node.callFrame;
     const module =
-      scriptId === labScript ? moduleAt(arm.modules, lineNumber) : null;
+      scriptId === labScript ? moduleAt(arm.lines, lineNumber) : null;
     const name =
       scriptId === '0' && caller
         ? caller
@@ -731,7 +785,6 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'in the page: 50 activate-and-drop cycles, 20 items, no landing',
     rule: 'exact-and-floor',
     arms: 'sortable',
-    packageArmsOnly: true,
     async run({ page, metrics, arm }) {
       await mount(page, {
         count: 20,
@@ -898,7 +951,7 @@ export function judge(
   arms: ArmReadings,
   after = 'production',
   control = 'control',
-  against: readonly string[] = ['prototype'],
+  against: readonly string[] = ['before'],
 ): readonly Verdict[] {
   const verdicts: Verdict[] = [];
   const of = (arm: string, key: string): number[] =>
@@ -1586,8 +1639,7 @@ async function compareArms(
   const scenarios = SCENARIOS.filter(
     (each) =>
       (values.rows !== 'validation' || VALIDATION_ROWS.includes(each.id)) &&
-      (!values.only || each.id.includes(values.only)) &&
-      (values.before !== undefined || !each.packageArmsOnly),
+      (!values.only || each.id.includes(values.only)),
   );
   const raw = await runScenarios(
     browser,
@@ -1630,29 +1682,6 @@ async function archivedSource(
   await execFile('mkdir', ['-p', target]);
   await execFile('tar', ['-xf', archive, '-C', target]);
   return join(target, path);
-}
-
-/**
- * The before arm without `--before`: the lab on the prototype's `src`, bundled
- * against box-quad at the prototype's revision, which still has the factories the
- * prototype imports.
- */
-async function prototypeArm(scratch: string, lab: string): Promise<Arm> {
-  const source = await archivedSource(
-    scratch,
-    PROTOTYPE_REVISION,
-    'packages/drag/prototype/src',
-  );
-  const boxQuad = await archivedSource(
-    scratch,
-    PROTOTYPE_REVISION,
-    'packages/box-quad/src',
-  );
-
-  return {
-    ...(await bundle(lab, source, join(boxQuad, 'index.ts'))),
-    restoresFocus: false,
-  };
 }
 
 /** `--profile` or `--attribute`: one diagnostic reading per arm, printed and written. */
@@ -2066,7 +2095,7 @@ async function runTrace(revision: string): Promise<void> {
       process.exitCode = (await trace(browser, arm, scenarios, directory, {
         head,
         traced,
-        modules: arm.modules,
+        modules: moduleStarts(arm.lines),
       }))
         ? 0
         : 1;
@@ -2125,35 +2154,22 @@ async function run(
           Number(values.rounds),
           values.out,
         );
-      } else if (values.profile || values.attribute) {
-        await diagnose(browser, {
-          prototype: await prototypeArm(scratch, lab),
-          production,
-        });
-      } else if (values.before) {
+      } else {
         const before: Arm = {
           ...(await bundle(
             lab,
-            await archivedSource(scratch, values.before, 'packages/drag/src'),
+            await archivedSource(scratch, values.before!, 'packages/drag/src'),
           )),
           restoresFocus: true,
         };
 
-        await compareArms(
-          browser,
-          { before, production, control: production },
-          noLift,
-        );
-      } else {
-        await compareArms(
-          browser,
-          {
-            prototype: await prototypeArm(scratch, lab),
-            production,
-            control: production,
-          },
-          noLift,
-        );
+        await (values.profile || values.attribute
+          ? diagnose(browser, { before, production })
+          : compareArms(
+              browser,
+              { before, production, control: production },
+              noLift,
+            ));
       }
     } finally {
       await browser.close();
@@ -2217,6 +2233,12 @@ if (values.rejudge) {
   const floorEntries = values.floors
     ? await applyAll(select(FLOORS, values.only))
     : [];
+
+  if (!values.prove && !values.floors && values.before === undefined) {
+    throw new Error(
+      'compare: a comparison, --profile and --attribute need a before arm: pass --before <revision>',
+    );
+  }
 
   if (values.dry) {
     console.log(

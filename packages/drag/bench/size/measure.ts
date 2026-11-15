@@ -1,5 +1,4 @@
 /* oxlint-disable no-await-in-loop, no-console -- a measurement script: serial, and it prints */
-/* eslint-disable @typescript-eslint/strict-void-return -- `promisify` takes the callback form as it is */
 /**
  * Minified, gzip and Brotli size per composition, with Rolldown, from the tree
  * that `just build` emits into the package root.
@@ -16,24 +15,17 @@
  *
  * `node bench/size/measure.ts` measures the tree as it is, prints the table and
  * exits non-zero on a violation; `npx just size` builds first.
- * `--prototype` also measures the prototype at its revision, read with `git archive`,
- * against box-quad at the same revision.
  */
-import { execFile as execFileCallback } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
 import { type Plugin, rolldown } from 'rolldown';
 import { publishedEntries } from '../../tests/support/published-entries.ts';
 
-const execFile = promisify(execFileCallback);
-
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const BOX_QUAD = join(ROOT, '../box-quad/src/index.ts');
-const PROTOTYPE_REVISION = '599684791';
 
 type Exports = Readonly<Record<string, readonly string[]>>;
 
@@ -180,7 +172,6 @@ export async function bundleSize(
   source: string,
   base: string,
   plugins: readonly Plugin[],
-  boxQuad: string = BOX_QUAD,
 ): Promise<
   Readonly<{
     minified: number;
@@ -199,11 +190,7 @@ export async function bundleSize(
     const bundle = await rolldown({
       input,
       platform: 'neutral',
-      resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
-      // `--prototype` builds source from an earlier revision, and that source reads
-      // `__DEV__`. The define reproduces that revision's own `tsdown` define. The
-      // current source does not read it.
-      transform: { define: { __DEV__: 'false' } },
+      resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
       plugins: [...plugins],
       onLog(level, log, handler) {
         if (log.code === 'UNRESOLVED_IMPORT') {
@@ -283,93 +270,16 @@ export function violations(measurement: Measurement): readonly string[] {
   return found;
 }
 
-const PROTOTYPE_ROWS: Readonly<Record<string, string>> = {
-  'draggable alone': `import { draggable } from '@ydinjs/drag/draggable.js'; globalThis.a = [draggable];`,
-  'example: resize handle': `import { resizeHandle } from '<root>/examples/resize-handle.ts'; globalThis.a = [resizeHandle];`,
-  'example: drop zone': `import { dropZone } from '<root>/examples/drop-zone.ts'; globalThis.a = [dropZone];`,
-  'example: canvas group': `import { canvasGroup } from '<root>/examples/canvas-group.ts'; globalThis.a = [canvasGroup];`,
-  freeDrag: `import { freeDrag } from '@ydinjs/drag/free-drag.js'; globalThis.a = [freeDrag];`,
-  'freeDrag + bounds + landing': `import { freeDrag } from '@ydinjs/drag/free-drag.js'; import { bounds } from '@ydinjs/drag/free-drag/bounds.js'; import { landing } from '@ydinjs/drag/free-drag/landing.js'; globalThis.a = [freeDrag, bounds, landing];`,
-  'sortable + y': `import { sortable } from '@ydinjs/drag/sortable.js'; import { y } from '@ydinjs/drag/sortable/y.js'; globalThis.a = [sortable, y];`,
-  'sortable + xy': `import { sortable } from '@ydinjs/drag/sortable.js'; import { xy } from '@ydinjs/drag/sortable/xy.js'; globalThis.a = [sortable, xy];`,
-  complete: `import { sortable } from '@ydinjs/drag/sortable.js'; import { y } from '@ydinjs/drag/sortable/y.js'; import { landing } from '@ydinjs/drag/sortable/landing.js'; import { layoutAnimation } from '@ydinjs/drag/sortable/layout-animation.js'; globalThis.a = [sortable, y, landing, layoutAnimation];`,
-};
-
-async function measurePrototype(): Promise<Map<string, readonly number[]>> {
-  const directory = await mkdtemp(join(tmpdir(), 'drag-prototype-'));
-  const readings = new Map<string, number[]>();
-
-  try {
-    const archive = join(directory, 'tree.tar');
-
-    await execFile(
-      'git',
-      [
-        'archive',
-        PROTOTYPE_REVISION,
-        '--output',
-        archive,
-        'packages/drag/prototype/src',
-        'packages/drag/prototype/examples',
-        'packages/box-quad/src',
-      ],
-      { cwd: join(ROOT, '../..') },
-    );
-    await execFile('tar', ['-xf', archive, '-C', directory]);
-
-    const root = join(directory, 'packages/drag/prototype');
-    // The prototype's examples import the package by name, from its source.
-    const packageName: Plugin = {
-      name: 'package-name',
-      resolveId(id) {
-        const match = /^@ydinjs\/drag\/(.+)\.js$/u.exec(id);
-
-        return match ? `${root}/src/${match[1]}.ts` : null;
-      },
-    };
-
-    for (const [name, template] of Object.entries(PROTOTYPE_ROWS)) {
-      const source = template
-        .replaceAll('<root>', root)
-        .replaceAll(
-          /@ydinjs\/drag\/([\w/-]+)\.js/gu,
-          (_, path: string) => `${root}/src/${path}.ts`,
-        );
-      // Box-quad at the prototype's revision, which still has the factories the
-      // prototype imports.
-      const { minified, brotli } = await bundleSize(
-        source,
-        root,
-        [packageName],
-        join(directory, 'packages/box-quad/src/index.ts'),
-      );
-
-      readings.set(name, [minified, brotli]);
-    }
-  } finally {
-    await rm(directory, { force: true, recursive: true });
-  }
-
-  return readings;
-}
-
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const prototype = process.argv.includes('--prototype')
-    ? await measurePrototype()
-    : null;
   let failed = 0;
 
   for (const composition of COMPOSITIONS) {
     const measurement = await measure(composition);
     const found = violations(measurement);
-    const before = prototype?.get(composition.name);
-    const comparison = before
-      ? `  prototype ${String(before[0]).padStart(6)} ${String(before[1]).padStart(6)}  ${measurement.brotli - before[1]! > 0 ? '+' : ''}${measurement.brotli - before[1]!} B`
-      : '';
 
     failed += found.length;
     console.log(
-      `${composition.name.padEnd(30)} ${String(measurement.minified).padStart(6)} min ${String(measurement.gzip).padStart(6)} gz ${String(measurement.brotli).padStart(6)} br  ${measurement.modules.length} modules${comparison}`,
+      `${composition.name.padEnd(30)} ${String(measurement.minified).padStart(6)} min ${String(measurement.gzip).padStart(6)} gz ${String(measurement.brotli).padStart(6)} br  ${measurement.modules.length} modules`,
     );
 
     for (const line of found) {

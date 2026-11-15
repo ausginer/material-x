@@ -371,7 +371,7 @@ export class Lifter {
     }
   }
 
-  /** Cancels the running landing, if any. It works when detached. */
+  /** Cancels the running landing, if any. */
   readonly cancelLanding = (): void => {
     // Taken before it runs, so a landing is cancelled once.
     const cancel = this.#runningAnimationCanceller;

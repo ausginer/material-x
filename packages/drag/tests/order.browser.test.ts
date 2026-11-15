@@ -14,27 +14,14 @@ import {
   commands,
   dragAndDrop,
   faultMessages,
+  focusableList,
   frames,
   log,
-  makeList,
   managed,
   onCleanup,
   order,
-  rowsOf,
+  row,
 } from './support/harness.ts';
-
-function focusableList(count: number): HTMLElement {
-  const list = makeList(count);
-
-  for (const row of rowsOf(list)) {
-    row.tabIndex = 0;
-  }
-
-  return list;
-}
-
-const row = (id: string): HTMLElement =>
-  document.querySelector<HTMLElement>(`#${id}`)!;
 
 /**
  * A keyboard behavior with no lift that moves its item one slot down in `end`.

@@ -100,7 +100,7 @@ class ElementTargetTracker implements DropTargetTracker {
   }
 
   /** Reads layout only when stale, and allocates nothing otherwise. */
-  #resolve(this: ElementTargetTracker): void {
+  #resolve(): void {
     if (this.#stale) {
       this.#stale = false;
 
@@ -109,7 +109,6 @@ class ElementTargetTracker implements DropTargetTracker {
       }
     }
 
-    // Read once, outside the hit-test loop.
     const { x, y } = this.#drag;
     let hit: HTMLElement | null = null;
 
@@ -129,7 +128,7 @@ class ElementTargetTracker implements DropTargetTracker {
     this.#mark(hit);
   }
 
-  #release(this: ElementTargetTracker): void {
+  #release(): void {
     this.#frame.cancel();
     this.#mark(null);
   }
