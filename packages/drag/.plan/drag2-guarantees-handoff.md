@@ -50,6 +50,13 @@ S2 adapts drag2's conformance sweep as an instrument: one helper that compares `
 - `npx just test`, `npx just typecheck` and `npx just lint` in `packages/drag` exit 0.
 - The handoff's own Verify steps for every edited file.
 
+**Note, 2026-11-15, before the unit:** two corrections to the checks above.
+
+- **WebKit isn't owed locally** (`DRO-18`). Run the engine check in Chromium and Firefox: `npx just test-engines --project browser --project browser/firefox --project shipped --project shipped/firefox`. The report states that WebKit didn't run. A row limited by its drag2 test to WebKit alone goes to the report as not run.
+- **`npx just test` in `packages/drag` fails five tests at the input:** the `size.node.test.ts` ceiling rows (`DRO-4`). They don't count against this unit, which doesn't change `src`. Any other failure does.
+
+The input is the architect's commit that adds this note, on `drag2/removal`, after drag2's deletion. The text above is unchanged.
+
 ## Report
 
 `packages/drag/.plan/drag2-guarantees-report.md`:

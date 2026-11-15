@@ -107,6 +107,8 @@ Each document's own change record follows its rule, and no rule text keeps a dat
 
   Report any other match and stop.
 
+  **Note, 2026-11-15, after the unit:** this list is wrong. It leaves out the register sentences in `.agents/docs/agent-workflow.md` and `review-findings.md`, which item 2 requires to name drag2's retired bare series, so each leaves one match. Item 2 takes precedence, and those two matches are expected. Item 5 also landed as two commits, `63d56fd89` and `3a77addd8`. The owner accepted that, because pull requests are squash-merged ([`00-index.md`](00-index.md) §Disposition of the drag2 retirement review). The text above is unchanged.
+
 - Root `npx just typecheck`, `npx just lint` and `npx just test` exit 0, and the test summary counts the projects as the corrected comment does.
 - In `packages/drag`: `npx just test`, `npx just test-engines` and `npx just size`, the last with the same verdicts as at the input.
 
