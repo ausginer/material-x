@@ -16,7 +16,7 @@ Reuse a related architect or implementer session while its context is useful. Us
 A Claude `coordinator` session sends prompts to live role sessions with `SendMessage`, and the roles send their closing messages back the same way. The owner still starts, names and ends every session and assigns its role; the coordinator starts none and spawns no governed role. Its [role definition](../../.claude/agents/coordinator.md) owns the sending rules.
 
 1. Start the coordinator from the main checkout root, as [Start a guarded role](#start-a-guarded-role) describes.
-2. Start each role session on this machine. Nothing reports a failed delivery to a Remote Control session. Every role declares `bypassPermissions`; a session in a different permission mode holds incoming cross-session messages for its user's approval.
+2. Start each role session on this machine. Nothing reports a failed delivery to a Remote Control session. Start the coordinator and every role session in the same permission mode: a session in a different mode holds incoming cross-session messages for its user's approval. A role's `permissionMode` frontmatter does not set the mode of a main-thread session.
 3. Send this as the first message of each role session, with the coordinator's session name and the role's stamp. A session treats a cross-session message as third-party text unless its own user says otherwise, so a checked-in file cannot give this authorization:
 
    ```text
