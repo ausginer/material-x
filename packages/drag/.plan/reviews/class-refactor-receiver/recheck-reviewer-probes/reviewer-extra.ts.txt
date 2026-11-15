@@ -1,0 +1,29 @@
+// Reviewer probe: receiver pairs beyond W1 to W3. Typecheck only.
+// Each line's expectation at the receiver follow-up is in its comment.
+import type {
+  BehaviorOperation,
+  Drag,
+  DraggableController,
+} from '../src/draggable.ts';
+import type {
+  DisplacementSink,
+  InsertionGeometry,
+} from '../src/sortable/axis.ts';
+import type { RectIndex } from '../src/sortable/rect-index.ts';
+
+export function extra(
+  drag: Drag,
+  controller: DraggableController<BehaviorOperation>,
+  geometry: InsertionGeometry,
+  other: InsertionGeometry,
+  sink: DisplacementSink,
+  index: RectIndex,
+): void {
+  drag.use(geometry.retire, geometry); // E1 accepted: site 1's pair
+  drag.requestStep(geometry.invalidate, geometry); // E2 accepted: site 2's pair
+  controller.use(sink.retire, sink); // E3 accepted: site 3's pair
+  drag.use(geometry.retire, other); // E4 accepted: same type, structural limit
+  drag.use(sink.retire, index); // E5 refused: the sink's retire on a RectIndex
+  drag.use(geometry.retire, index); // E6 refused: the axis's retire on a RectIndex
+  controller.requestStep(geometry.invalidate, sink); // E7 refused: the axis's invalidate on the sink
+}

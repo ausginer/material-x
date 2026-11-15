@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Reviewer probe for the receiver follow-up. Usage: recheck.sh <head tree> <unused> <probe dir>; the probes run from probes.sh
+# Mutations are applied by content in the scratch trees and restored from copies.
+set -u
+head=$1; base=$2; probe=$3
+tc() { npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E 'error TS' | grep -v 'drag2/src/kernel/presentation.ts'; }
+# replace <file> <find> <replace>: exactly one match, or abort
+replace() {
+  node -e '
+    const fs = require("node:fs");
+    const [file, find, repl] = process.argv.slice(1);
+    const s = fs.readFileSync(file, "utf8");
+    const n = s.split(find).length - 1;
+    if (n !== 1) { console.error(`${file}: ${n} matches for ${find}`); process.exit(1); }
+    fs.writeFileSync(file, s.replace(find, repl));
+  ' "$@"
+}
+# strip every directive line in the given ranges of the test file, by content
+strip() {
+  node -e '
+    const fs = require("node:fs");
+    const file = process.argv[1];
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    const start = lines.findIndex((l) => l.startsWith("function passAlone("));
+    const out = lines.filter((l, i) => !(i > start && l.trim().startsWith("// @ts-expect-error")));
+    console.error(`stripped ${lines.length - out.length} directives after line ${start + 1}`);
+    fs.writeFileSync(file, out.join("\n"));
+  ' "$1"
+}
+
+T=tests/callbacks.declaration.test.ts
+R=src/sortable/retirable.ts
+I=src/sortable/invalidatable.ts
+
+cd "$head/packages/drag" || exit 1
+cp $T $probe/T.bak; cp $R $probe/R.bak; cp $I $probe/I.bak
+echo "# head tree: $head"
+echo "## control"; tc; echo "(errors outside drag2: $(tc | wc -l))"
+
+echo "## D1: directives after passAlone removed"
+strip $T; tc; cp $probe/T.bak $T
+
+echo "## M7: receivers as at 42f42a164"
+replace $R 'retire(this: this): void;' 'retire(this: Retirable): void;'
+replace $I 'invalidate(this: this): void;' 'invalidate(this: Invalidatable): void;'
+git diff --no-index $probe/R.bak $R; git diff --no-index $probe/I.bak $I
+tc
+echo "## M7 + D1: the same lines with no directive"
+strip $T; tc; echo "(errors outside drag2: $(tc | wc -l))"
+cp $probe/T.bak $T; cp $probe/R.bak $R; cp $probe/I.bak $I
+
+echo "## removals"
+for kind in axis-retire axis-invalidate sink-retire behavior-invalidate targets-release targets-resolve; do
+  case $kind in axis-*) f=src/sortable/behavior.ts;; sink-retire|behavior-invalidate) f=src/sortable.ts;; *) f=src/free-drag/drop-targets.ts;; esac
+  cp $f $probe/site.bak
+  node $probe/receiver-mutate.mjs $kind
+  echo "### $kind"; tc; echo "(errors outside drag2: $(tc | wc -l))"
+  cp $probe/site.bak $f
+done
+
+cd "$head/packages/drag"
+echo "## restored"
+for p in "$T:T" "$R:R" "$I:I"; do cmp "${p%%:*}" "$probe/${p##*:}.bak" && echo "${p%%:*} equals its copy"; done

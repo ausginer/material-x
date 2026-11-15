@@ -1,0 +1,10 @@
+## drag lint at f6b4bdf4c (main checkout)
+exit=0
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+## fmt-check of the three edited files
+All matched files use the correct format.
+Finished in 2ms on 3 files using 12 threads.
+exit=0
+## test file at c157dffb5 vs c9e728bad: removed lines
+0
