@@ -1,0 +1,20 @@
+diff --git a/packages/drag/src/sortable.ts b/packages/drag/src/sortable.ts
+index 106c8620e..e65a500cf 100644
+--- a/packages/drag/src/sortable.ts
++++ b/packages/drag/src/sortable.ts
+@@ -45,11 +45,15 @@ export interface SortableController {
+   requestDestroy(): Promise<void>;
+ }
+ 
++// Witness: keeps every consumer's options, and so its callbacks, after destruction.
++const kept: SortableConfig[] = [];
++
+ /** Makes `root` a sortable collection. */
+ export function sortable(
+   root: HTMLElement,
+   config: SortableConfig,
+ ): SortableController {
++  kept.push(config);
+   const displacement = config.displacement?.();
+   const lifter = new Lifter(root.ownerDocument.defaultView!);
+   const behavior = new SortableBehavior(root, config, displacement, lifter);

@@ -1,0 +1,7 @@
+Tree: a3423c793, unmodified.
+Command, from packages/drag: node bench/compare.ts --prove --dry --only "1 KB allocated per move|an array of four numbers per sample, in Gesture.enter|one entry on the step list per frame"
+applies: 1 KB allocated per move
+applies: one entry on the step list per frame, expected to stay quiet
+applies: an array of four numbers per sample, in Gesture.enter
+3 applied, no browser launched
+exit 0

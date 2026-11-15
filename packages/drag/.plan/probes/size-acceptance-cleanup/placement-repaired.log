@@ -1,0 +1,30 @@
+instrument: bench/compare.ts; source root: src
+table: lines (source map)
+
+RectIndex, from line 1661:
+   1661  sortable/rect-index.ts       var RectIndex = class {
+   1682  sortable/rect-index.ts       constructor(axis = 0) {
+   1685  sortable/rect-index.ts       get count() {
+   1688  sortable/rect-index.ts       get first() {
+   1691  sortable/rect-index.ts       get end() {
+   1698  sortable/rect-index.ts       at(slot, field) {
+   1702  sortable/rect-index.ts       item(slot) {
+   1706  sortable/rect-index.ts       insertion(gap) {
+   1714  sortable/rect-index.ts       collect(snapshot, dragged, placeholder, slot) {
+   1734  sortable/rect-index.ts       measure(lo, hi, getBox, displacement) {
+   1745  sortable/rect-index.ts       shift(lo, hi, delta) {
+   1760  sortable/rect-index.ts       travel(slot, getBox, displacement) {
+   1768  sortable/rect-index.ts       measurePlaceholder(placeholder) {
+   1783  sortable/rect-index.ts       holds(gap, snapshot, getBox, displacement) {
+   1792  sortable/rect-index.ts       invalidate() {
+   1799  sortable/rect-index.ts       retire() {
+   1809  sortable/rect-index.ts       #read(slot, element, getBox, displacement) {
+
+directionOf:
+   2006  sortable/keyboard.ts         function directionOf(key) {
+
+keyboardInsertion:
+   2017  sortable/keyboard.ts         function keyboardInsertion(snapshot, item, direction) {
+
+modules in the bundle: 28
+modules placed on no line: none

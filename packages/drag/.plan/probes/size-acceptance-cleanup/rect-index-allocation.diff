@@ -1,0 +1,18 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index 1177e0792..11038261b 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -113,6 +113,13 @@ export class RectIndex implements Invalidatable, Retirable {
+   }
+ 
+   get first(): number {
++    // Witness: one array per call, on the move path, kept where the bundler can't drop it.
++    (globalThis as Record<string, unknown>)['__rectIndexWitness'] = [
++      this.#first,
++      this.#end,
++      this.#first,
++      this.#end,
++    ];
+     return this.#first;
+   }
+ 

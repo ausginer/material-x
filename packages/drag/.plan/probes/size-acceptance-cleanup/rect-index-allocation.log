@@ -1,0 +1,19 @@
+Tree: a3423c793 with rect-index-allocation.diff applied, reverted after the run.
+Command, from packages/drag: node bench/compare.ts --before 91b13613f --only "bytes per move by function, 20 items" --rounds 3 --out .plan/probes/size-acceptance-cleanup/rect-index-allocation.json
+round 1/3: bytes per move by function, 20 items
+round 2/3: bytes per move by function, 20 items
+round 3/3: bytes per move by function, 20 items
+
+bytes per move by function, 20 items
+exit 0
+
+Keys under sortable/rect-index.ts, bytes per move, per round:
+  before round 1: {'sortable/rect-index.ts:at': 24, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:#read': 10, 'sortable/rect-index.ts:shift': 12}
+  before round 2: {'sortable/rect-index.ts:at': 16, 'sortable/rect-index.ts:insertion': 2, 'sortable/rect-index.ts:#read': 11, 'sortable/rect-index.ts:shift': 11}
+  before round 3: {'sortable/rect-index.ts:at': 20, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:measure': 1, 'sortable/rect-index.ts:#read': 10, 'sortable/rect-index.ts:shift': 13}
+  production round 1: {'sortable/rect-index.ts:get first': 147, 'sortable/rect-index.ts:at': 22, 'sortable/rect-index.ts:#read': 11, 'sortable/rect-index.ts:measurePlaceholder': 1, 'sortable/rect-index.ts:shift': 10}
+  production round 2: {'sortable/rect-index.ts:get first': 143, 'sortable/rect-index.ts:at': 22, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:#read': 12, 'sortable/rect-index.ts:measurePlaceholder': 1, 'sortable/rect-index.ts:shift': 11}
+  production round 3: {'sortable/rect-index.ts:get first': 137, 'sortable/rect-index.ts:at': 23, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:measure': 1, 'sortable/rect-index.ts:#read': 11, 'sortable/rect-index.ts:measurePlaceholder': 1, 'sortable/rect-index.ts:shift': 16}
+  control round 1: {'sortable/rect-index.ts:get first': 141, 'sortable/rect-index.ts:at': 19, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:#read': 12, 'sortable/rect-index.ts:shift': 12}
+  control round 2: {'sortable/rect-index.ts:get first': 142, 'sortable/rect-index.ts:at': 25, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:#read': 11, 'sortable/rect-index.ts:shift': 13}
+  control round 3: {'sortable/rect-index.ts:get first': 139, 'sortable/rect-index.ts:at': 24, 'sortable/rect-index.ts:insertion': 1, 'sortable/rect-index.ts:measure': 1, 'sortable/rect-index.ts:#read': 12, 'sortable/rect-index.ts:item': 1, 'sortable/rect-index.ts:shift': 9}
