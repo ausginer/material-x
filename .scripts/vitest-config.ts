@@ -35,8 +35,7 @@ const BROWSER_WORKERS = 2;
 // runs `npm pack` and `tsc`, and `size.node` bundles and compresses. At
 // `cores - 1` the group oversubscribed badly enough to time out three tests;
 // measured on all five node projects, 40 s with four failures against 45 s with
-// none. That measurement predates drag2's single build, when those files also
-// ran tsdown, and it has not been repeated.
+// none. It has not been repeated since.
 const NON_BROWSER_WORKERS = Math.max(Math.floor(availableParallelism() / 2), 1);
 
 /**
@@ -184,10 +183,8 @@ type WorkspaceTestConfigOptions = Readonly<{
   materialXRoot: URL;
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   dragCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
-  drag2Commands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
   dragRoot: URL;
-  drag2Root: URL;
   tprocRoot: URL;
   viteTraitsPluginRoot: URL;
 }>;
@@ -580,27 +577,6 @@ export function createCoreTestConfig(root: URL): UserConfig {
 }
 
 /**
- * drag2's files for the `shipped` project: the zero-read census counts the
- * geometry reads a consumer's build performs, and the development-only
- * equivalence instrument is itself such a read.
- */
-export const DRAG2_SHIPPED_BROWSER_TESTS: readonly string[] = [
-  'tests/sortable/zero-read.browser.test.ts',
-];
-
-/**
- * drag2's node project builds once, before any of its files starts. Its emit
- * writes the package root, and the tree is not valid until the emit's hook has
- * finished, so no file in the project may build that tree or read it during one.
- * A failed build goes to the setup file, which raises it in each of the project's
- * files.
- */
-export const DRAG2_NODE_BUILD: NodeProjectBuild = {
-  globalSetup: ['tests/support/build-package.node.ts'],
-  setupFiles: ['tests/support/require-build.node.ts'],
-};
-
-/**
  * `@ydinjs/drag`'s files for the `shipped` project: the hot-path census counts the
  * geometry reads and allocations a consumer's build performs, and the development
  * equivalence check is itself such a read.
@@ -785,14 +761,6 @@ export function createWorkspaceTestConfig(
       DRAG_NODE_BUILD,
       DRAG_CONSUMER,
     ) as [UserConfig, UserConfig, UserConfig, UserConfig, UserConfig];
-  const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
-    createDragTestProjects(
-      options.drag2Root,
-      'drag2',
-      options.drag2Commands,
-      DRAG2_SHIPPED_BROWSER_TESTS,
-      DRAG2_NODE_BUILD,
-    ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   // The repository's own tooling, such as the record resolver.
   const repoNode = createNodeTestProject({
@@ -820,10 +788,6 @@ export function createWorkspaceTestConfig(
         dragConsumer,
         dragNode,
         dragDeclaration,
-        drag2Browser,
-        drag2Shipped,
-        drag2Node,
-        drag2Declaration,
         tprocNode,
         viteTraitsPluginNode,
         repoNode,
