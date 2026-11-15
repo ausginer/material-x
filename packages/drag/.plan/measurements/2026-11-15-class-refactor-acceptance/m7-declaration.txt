@@ -1,0 +1,19 @@
+## head tree, control
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+Type Errors  no errors
+## head tree, M7
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/callbacks.declaration.test.ts:193:3
+ FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/callbacks.declaration.test.ts:195:3
+ FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/callbacks.declaration.test.ts:197:3
+ Test Files  1 failed | 3 passed (4)
+      Tests  27 passed (27)
+Type Errors  no errors
+restored: both files equal their copies

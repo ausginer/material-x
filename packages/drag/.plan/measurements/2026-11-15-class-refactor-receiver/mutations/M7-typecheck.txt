@@ -1,0 +1,3 @@
+tests/callbacks.declaration.test.ts(193,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/callbacks.declaration.test.ts(195,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/callbacks.declaration.test.ts(197,3): error TS2578: Unused '@ts-expect-error' directive.

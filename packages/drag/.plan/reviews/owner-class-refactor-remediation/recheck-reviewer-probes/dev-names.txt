@@ -1,0 +1,21 @@
+# reviewer: development-check names in the published JavaScript (42f42a164 build; 5b581fbdf build for comparison)
+## base: 33 published .js files
+  advanceUnchecked: none
+  heldLeft: none
+  heldRight: none
+  developmentChecks: none
+  DevelopmentCheck: none
+  WeakMap: none
+  NaN: none
+  __DEV__: none
+  verifyEquivalence: none
+## end: 33 published .js files
+  advanceUnchecked: none
+  heldLeft: none
+  heldRight: none
+  developmentChecks: none
+  DevelopmentCheck: none
+  WeakMap: none
+  NaN: none
+  __DEV__: none
+  verifyEquivalence: none

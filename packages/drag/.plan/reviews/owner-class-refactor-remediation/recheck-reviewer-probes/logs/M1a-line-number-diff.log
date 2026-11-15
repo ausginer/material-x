@@ -1,0 +1,30 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 <scratch>/end/packages/drag
+
+ ❯ |declaration|  TS  tests/published-types.declaration.test.ts (5 tests | 1 failed)
+   ❯ drag:DRD-63 the published slot types (3)
+     × should let a third party bounds installer return its own constraint
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/published-types.declaration.test.ts:83 > drag:DRD-63 the published slot types > should let a third party bounds installer return its own constraint
+TypeCheckError: Parameter 'motion' implicitly has an 'any' type.
+ ❯ tests/published-types.declaration.test.ts:86:15
+     84|     const installer: BoundsInstaller = () => {
+     85|       const constraint: MotionConstraint = {
+     86|         apply(motion) {
+       |               ^
+     87|           motion.x = Math.max(motion.x, 0);
+     88|         },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+Type Errors  no errors
+   Start at  23:24:39
+   Duration  351ms (typecheck 100%)
+

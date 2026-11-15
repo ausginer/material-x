@@ -1,0 +1,71 @@
+--- /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/base/packages/drag/./sortable/axis.d.ts	2026-11-14 22:46:47.136837918 +0000
++++ ./sortable/axis.d.ts	2026-11-14 22:54:17.221903010 +0000
+@@ -1,11 +1,13 @@
+ /** What an axis rule and a displacement sink are, for `y()`, `xy()` and sortable. */
+ import { CollectionSnapshot, Insertion } from "./domain.js";
++import { Invalidatable } from "./invalidatable.js";
++import { Retirable } from "./retirable.js";
+ import { Space } from "@ydinjs/box-quad";
+ /**
+  * Receives what committed moves displaced, and answers what each displaced element
+  * carries. Its members are always called on the sink, so they may read `this`.
+  */
+-export interface DisplacementSink {
++export interface DisplacementSink extends Retirable {
+   readonly dx: number;
+   readonly dy: number;
+   /**
+@@ -21,7 +23,6 @@
+    * rebuild, and a row never jumps back.
+    */
+   displaced(element: HTMLElement): boolean;
+-  retire(this: DisplacementSink): void;
+ }
+ export type DisplacementInstaller = () => DisplacementSink;
+ /** Operation state an axis rule reads. */
+@@ -43,11 +44,9 @@
+   /** The space a displaced element's vector is reported in. */
+   space: Space;
+ }>;
+-export interface InsertionGeometry {
++export interface InsertionGeometry extends Invalidatable, Retirable {
+   /** A new gap, or `null` when the committed one still wins. */
+   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
+-  /** Staleness only, because scroll calls it many times a second. */
+-  invalidate(this: InsertionGeometry): void;
+   /**
+    * Before a pointer drop's resolution: measures one cached slot again, and calls
+    * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
+@@ -56,6 +55,5 @@
+   confirm(query: AxisQuery, context: AxisContext): void;
+   /** The committed move landed: keep the cache true and report what moved. */
+   moved(query: AxisQuery, context: AxisContext): void;
+-  retire(this: InsertionGeometry): void;
+ }
+ export type AxisInstaller = () => InsertionGeometry;
+\ No newline at end of file
+--- /dev/null	2026-11-12 08:30:07.564170399 +0000
++++ ./sortable/invalidatable.d.ts	2026-11-14 22:54:17.222255250 +0000
+@@ -0,0 +1,4 @@
++export interface Invalidatable {
++  /** Staleness only, because scroll calls it many times a second. */
++  invalidate(this: Invalidatable): void;
++}
+\ No newline at end of file
+--- /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/base/packages/drag/./sortable/layout-animation.d.ts	2026-11-14 22:46:47.135689264 +0000
++++ ./sortable/layout-animation.d.ts	2026-11-14 22:54:17.220227759 +0000
+@@ -7,4 +7,4 @@
+  * Written `displacement: layoutAnimation()`. Row animations outlive the operation
+  * that started them, and the controller cancels what is running on destruction.
+  */
+-export declare const layoutAnimation: ({ duration, easing }?: LayoutAnimationOptions) => DisplacementInstaller;
+\ No newline at end of file
++export declare function layoutAnimation({ duration, easing }?: LayoutAnimationOptions): DisplacementInstaller;
+\ No newline at end of file
+--- /dev/null	2026-11-12 08:30:07.564170399 +0000
++++ ./sortable/retirable.d.ts	2026-11-14 22:54:17.222624320 +0000
+@@ -0,0 +1,3 @@
++export interface Retirable {
++  retire(this: Retirable): void;
++}
+\ No newline at end of file

@@ -1,0 +1,6 @@
+## base: sortable/linear-shift.js 2668 B
+## a: sortable/linear-shift.js 4030 B
+25:NaN
+28:#heldLeft = NaN
+29:#heldRight = NaN
+## end: sortable/linear-shift.js 3800 B

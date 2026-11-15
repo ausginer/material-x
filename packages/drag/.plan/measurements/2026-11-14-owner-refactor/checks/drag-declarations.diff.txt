@@ -1,0 +1,136 @@
+--- base/drag-dts/free-drag/bounds.d.ts	2026-11-14 19:16:07.000000000 +0000
++++ edited/drag-dts/free-drag/bounds.d.ts	2026-11-14 19:13:56.000000000 +0000
+@@ -4,7 +4,9 @@
+  * inside the viewport of the realm that owns the item.
+  */
+ export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
+-export interface MotionConstraint {
++declare class MotionConstraint {
++  #private;
++  constructor(window: Window, source?: BoundsSource);
+   /** Clamps the delta in place: one call per sample, allocating nothing. */
+   apply(motion: {
+     x: number;
+@@ -17,4 +19,5 @@
+   invalidate(): void;
+ }
+ export type BoundsInstaller = (window: Window) => MotionConstraint;
+-export declare function bounds(source?: BoundsSource): BoundsInstaller;
+\ No newline at end of file
++export declare function bounds(source?: BoundsSource): BoundsInstaller;
++export type { MotionConstraint };
+\ No newline at end of file
+--- base/drag-dts/free-drag/drop-targets.d.ts	2026-11-14 19:16:07.000000000 +0000
++++ edited/drag-dts/free-drag/drop-targets.d.ts	2026-11-14 19:13:56.000000000 +0000
+@@ -14,12 +14,22 @@
+ /** What a drop-target capability may use of the operation. Nothing enforces it at runtime. */
+ export type DropTargetDrag = Pick<Drag, "x" | "y" | "use" | "requestStep">;
+ /**
++ * The value a `freeDrag` config holds as `targets`. It holds no state, so one
++ * config serves every controller. `freeDrag` calls it once per operation, from
++ * `activate`, after the lift's acquisition. Whatever it acquires is released
++ * through `drag.use`, registered before it runs consumer code. A third party may
++ * supply its own.
++ */
++export type DropTargets = (drag: DropTargetDrag, window: Window) => DropTargetTracker;
++/**
+  * One operation's drop-target state. `freeDrag` creates it in `activate`, the
+  * operation holds it, and the operation's release ends it.
+  */
+-export interface DropTargetTracker {
++declare class DropTargetTracker {
++  #private;
++  constructor(drag: DropTargetDrag, window: Window, options: DropTargetsOptions);
+   /** The target under the pointer at the last resolution, or `null`. */
+-  readonly current: HTMLElement | null;
++  get current(): HTMLElement | null;
+   /** Called on each sample. It reads no layout, and resolves at the next frame, in a step. */
+   move(): void;
+   /** Called in the drop step. It resolves at the release position now. */
+@@ -31,14 +41,6 @@
+   invalidate(): void;
+ }
+ /**
+- * The value a `freeDrag` config holds as `targets`. It holds no state, so one
+- * config serves every controller. `freeDrag` calls it once per operation, from
+- * `activate`, after the lift's acquisition. Whatever it acquires is released
+- * through `drag.use`, registered before it runs consumer code. A third party may
+- * supply its own.
+- */
+-export type DropTargets = (drag: DropTargetDrag, window: Window) => DropTargetTracker;
+-/**
+  * Tracks the target under the pointer. The mark follows the pointer at most once
+  * per frame, and the targets are measured only when stale: at the first
+  * resolution of each operation, after a scroll, a resize or `invalidate()`, and
+@@ -46,4 +48,5 @@
+  * The operation's release removes the mark. An accepted drop stays where it was
+  * dropped, and the consumer commits it in `onEnd`.
+  */
+-export declare function dropTargets(options: DropTargetsOptions): DropTargets;
+\ No newline at end of file
++export declare function dropTargets(options: DropTargetsOptions): DropTargets;
++export type { DropTargetTracker };
+\ No newline at end of file
+--- base/drag-dts/sortable/axis.d.ts	2026-11-14 19:16:07.000000000 +0000
++++ edited/drag-dts/sortable/axis.d.ts	2026-11-14 19:13:56.000000000 +0000
+@@ -1,11 +1,13 @@
+ /** What an axis rule and a displacement sink are, for `y()`, `xy()` and sortable. */
+ import { CollectionSnapshot, Insertion } from "./domain.js";
++import { Invalidatable } from "./invalidatable.js";
++import { Retirable } from "./retirable.js";
+ import { Space } from "@ydinjs/box-quad";
+ /**
+  * Receives what committed moves displaced, and answers what each displaced element
+  * carries. Its members are always called on the sink, so they may read `this`.
+  */
+-export interface DisplacementSink {
++export interface DisplacementSink extends Retirable {
+   readonly dx: number;
+   readonly dy: number;
+   /**
+@@ -21,7 +23,6 @@
+    * rebuild, and a row never jumps back.
+    */
+   displaced(element: HTMLElement): boolean;
+-  retire(this: DisplacementSink): void;
+ }
+ export type DisplacementInstaller = () => DisplacementSink;
+ /** Operation state an axis rule reads. */
+@@ -43,11 +44,9 @@
+   /** The space a displaced element's vector is reported in. */
+   space: Space;
+ }>;
+-export interface InsertionGeometry {
++export interface InsertionGeometry extends Invalidatable, Retirable {
+   /** A new gap, or `null` when the committed one still wins. */
+   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
+-  /** Staleness only, because scroll calls it many times a second. */
+-  invalidate(this: InsertionGeometry): void;
+   /**
+    * Before a pointer drop's resolution: measures one cached slot again, and calls
+    * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
+@@ -56,6 +55,5 @@
+   confirm(query: AxisQuery, context: AxisContext): void;
+   /** The committed move landed: keep the cache true and report what moved. */
+   moved(query: AxisQuery, context: AxisContext): void;
+-  retire(this: InsertionGeometry): void;
+ }
+ export type AxisInstaller = () => InsertionGeometry;
+\ No newline at end of file
+--- base/drag-dts/sortable/layout-animation.d.ts	2026-11-14 19:16:07.000000000 +0000
++++ edited/drag-dts/sortable/layout-animation.d.ts	2026-11-14 19:13:56.000000000 +0000
+@@ -7,4 +7,4 @@
+  * Written `displacement: layoutAnimation()`. Row animations outlive the operation
+  * that started them, and the controller cancels what is running on destruction.
+  */
+-export declare const layoutAnimation: ({ duration, easing }?: LayoutAnimationOptions) => DisplacementInstaller;
+\ No newline at end of file
++export declare function layoutAnimation({ duration, easing }?: LayoutAnimationOptions): DisplacementInstaller;
+\ No newline at end of file
+--- new sortable/invalidatable.d.ts
+export interface Invalidatable {
+  invalidate(): void;
+}--- new sortable/retirable.d.ts
+export interface Retirable {
+  retire(): void;
+}

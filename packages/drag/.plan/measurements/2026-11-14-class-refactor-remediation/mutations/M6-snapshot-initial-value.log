@@ -1,0 +1,80 @@
+vitest run -c vitest.config.ts --project browser tests/free-drag.browser.test.ts -t DRD-63
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x/packages/drag
+
+10:51:13 PM [vite] (client) warning: 
+/workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=fe627f76
+ ❯ |browser (chromium)| tests/free-drag.browser.test.ts (12 tests | 2 failed | 10 skipped) 71ms
+   ❯ drag:DRD-63 a fresh bounds constraint (2)
+     × should clamp to an element source at its first apply, before any invalidate 63ms
+     × should clamp to the viewport at its first apply, before any invalidate 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:296 > drag:DRD-63 a fresh bounds constraint > should clamp to an element source at its first apply, before any invalidate
+AssertionError: expected { x: 200, y: 200 } to deeply equal { x: 30, y: 30 }
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "x": 30,[39m
+[32m-   "y": 30,[39m
+[31m+   "x": 200,[39m
+[31m+   "y": 200,[39m
+[2m  }[22m
+
+ ❯ tests/free-drag.browser.test.ts:307:20
+    305|     bounds(arena)(window).apply(motion, origin);
+    306|     // The arena's right and bottom, 50, less the visual's, 20.
+    307|     expect(motion).toEqual({ x: 30, y: 30 });
+       |                    ^
+    308|   });
+    309|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:310 > drag:DRD-63 a fresh bounds constraint > should clamp to the viewport at its first apply, before any invalidate
+AssertionError: expected { x: 100000, y: 100000 } to deeply equal { x: 1260, y: 700 }
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "x": 1260,[39m
+[32m-   "y": 700,[39m
+[31m+   "x": 100000,[39m
+[31m+   "y": 100000,[39m
+[2m  }[22m
+
+ ❯ tests/free-drag.browser.test.ts:314:20
+    312|
+    313|     bounds()(window).apply(motion, origin);
+    314|     expect(motion).toEqual({
+       |                    ^
+    315|       x: window.innerWidth - 20,
+    316|       y: window.innerHeight - 20,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 skipped (12)
+   Start at  22:51:13
+   Duration  773ms (worker 77%, tests 16%, import 7%)
+
+error: recipe `test` failed on line 29 with exit code 1
+M6exit=1

@@ -1,0 +1,9 @@
+### typo mutation: moved() writes this.advanceUncheked
+ src/sortable/{linear-shift.ts.reviewer-bak => linear-shift.ts} | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+typecheck errors outside drag2 and the two TS2578:
+(end)
+     × should report a placeholder that a committed move displaces along x 672ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+      Tests  1 failed | 49 passed (50)

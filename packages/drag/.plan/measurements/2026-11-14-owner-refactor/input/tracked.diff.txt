@@ -1,0 +1,1847 @@
+diff --git a/packages/box-quad/src/index.ts b/packages/box-quad/src/index.ts
+index d8e7e6bee..90206e1ac 100644
+--- a/packages/box-quad/src/index.ts
++++ b/packages/box-quad/src/index.ts
+@@ -76,6 +76,14 @@ const SPACE_ANCESTOR_ZOOM = 4;
+  */
+ export type Quad = Record<number, number>;
+ 
++const QUAD_X1 = 0;
++const QUAD_Y1 = 1;
++const QUAD_X2 = 2;
++const QUAD_Y2 = 3;
++const QUAD_X3 = 4;
++const QUAD_Y3 = 5;
++const QUAD_X4 = 6;
++const QUAD_Y4 = 7;
+ /**
+  * A caller-owned delta in two numeric slots, written by {@link localDelta}:
+  *
+@@ -88,11 +96,8 @@ export type Quad = Record<number, number>;
+  */
+ export type Delta = Record<number, number>;
+ 
+-// Hoisted so the minifier can mangle each call site down to one identifier.
+-// `finite` is deliberately not named `isFinite`: the global of that name
+-// coerces its argument, and these must not.
+-const { parseFloat: parse, isFinite: finite } = Number;
+-const { abs, min } = Math;
++const DELTA_X = 0;
++const DELTA_Y = 1;
+ 
+ /**
+  * The border-box extent along one axis, used only when the matrix is too
+@@ -107,20 +112,20 @@ function getBorderSize(
+   start: 'Left' | 'Top',
+   end: 'Right' | 'Bottom',
+ ): number {
+-  const value = parse(style[dimension]);
++  const value = Number.parseFloat(style[dimension]);
+ 
+   return style.boxSizing === 'border-box'
+     ? value
+     : value +
+-        parse(style[`padding${start}`]) +
+-        parse(style[`padding${end}`]) +
+-        parse(style[`border${start}Width`]) +
+-        parse(style[`border${end}Width`]);
++        Number.parseFloat(style[`padding${start}`]) +
++        Number.parseFloat(style[`padding${end}`]) +
++        Number.parseFloat(style[`border${start}Width`]) +
++        Number.parseFloat(style[`border${end}Width`]);
+ }
+ 
+ function get2DRotation(value: string): number | undefined {
+   const values = value.split(' ');
+-  const angle = parse(values.at(-1)!);
++  const angle = Number.parseFloat(values.at(-1)!);
+ 
+   // A single component is a bare z rotation. Anything else names an axis, and
+   // only a full turn about it is representable in 2D.
+@@ -181,10 +186,10 @@ function composeNode(
+ 
+   if (style.scale !== 'none') {
+     const values = style.scale.split(' ');
+-    const scaleX = parse(values[0]!);
+-    const scaleY = parse(values[1] ?? values[0]!);
++    const scaleX = Number.parseFloat(values[0]!);
++    const scaleY = Number.parseFloat(values[1] ?? values[0]!);
+ 
+-    if (values.length > 2 && parse(values[2]!) !== 1) {
++    if (values.length > 2 && Number.parseFloat(values[2]!) !== 1) {
+       return false;
+     }
+ 
+@@ -208,7 +213,7 @@ function composeNode(
+   if (style.translate !== 'none') {
+     const values = style.translate.split(' ');
+ 
+-    if (values.length > 2 && parse(values[2]!) !== 0) {
++    if (values.length > 2 && Number.parseFloat(values[2]!) !== 0) {
+       return false;
+     }
+   }
+@@ -221,7 +226,7 @@ function composeNode(
+  * unparsable value is not a zoom.
+  */
+ function zoomOf(style: CSSStyleDeclaration): number {
+-  const zoom = parse(style.zoom);
++  const zoom = Number.parseFloat(style.zoom);
+ 
+   return zoom > 0 ? zoom : 1;
+ }
+@@ -305,7 +310,6 @@ export function coordinates(
+   out: Box,
+   above?: Readonly<Space>,
+ ): boolean {
+-  const view = element.ownerDocument.defaultView!;
+   // A disconnected element has no principal box, so it is already covered by
+   // the rect count below and needs no separate `isConnected` probe.
+   const rects = element.getClientRects();
+@@ -326,8 +330,12 @@ export function coordinates(
+     inherited = read;
+   }
+ 
+-  const style = view.getComputedStyle(element);
+-  const node = composeNode(style, view.DOMMatrix, zoomOf(style));
++  const style = element.ownerDocument.defaultView!.getComputedStyle(element);
++  const node = composeNode(
++    style,
++    element.ownerDocument.defaultView!.DOMMatrix,
++    zoomOf(style),
++  );
+ 
+   if (node === false) {
+     return false;
+@@ -349,10 +357,10 @@ export function coordinates(
+   const c = ia * nc + ic * nd;
+   const d = ib * nc + id * nd;
+   const rect = rects[0]!;
+-  const absoluteA = abs(a);
+-  const absoluteB = abs(b);
+-  const absoluteC = abs(c);
+-  const absoluteD = abs(d);
++  const absoluteA = Math.abs(a);
++  const absoluteB = Math.abs(b);
++  const absoluteC = Math.abs(c);
++  const absoluteD = Math.abs(d);
+   const diagonal = absoluteA * absoluteD;
+   const antiDiagonal = absoluteB * absoluteC;
+   const determinant = diagonal - antiDiagonal;
+@@ -361,7 +369,7 @@ export function coordinates(
+   let height: number;
+ 
+   // Fall back before AABB inversion significantly amplifies input error.
+-  if (abs(determinant) > determinantScale * 0.05) {
++  if (Math.abs(determinant) > determinantScale * 0.05) {
+     width = (rect.width * absoluteD - rect.height * absoluteC) / determinant;
+     height = (rect.height * absoluteA - rect.width * absoluteB) / determinant;
+   } else {
+@@ -373,7 +381,7 @@ export function coordinates(
+   // is, since any NaN or infinity poisons it (and `Infinity - Infinity` is
+   // NaN). `e` and `f` are omitted — they are finite whenever the linear part
+   // and the size are, as a client rect is always finite.
+-  if (!finite(a + b + c + d + width + height)) {
++  if (!Number.isFinite(a + b + c + d + width + height)) {
+     return false;
+   }
+ 
+@@ -381,8 +389,8 @@ export function coordinates(
+   out[BOX_B] = b;
+   out[BOX_C] = c;
+   out[BOX_D] = d;
+-  out[BOX_E] = rect.left - min(0, a * width) - min(0, c * height);
+-  out[BOX_F] = rect.top - min(0, b * width) - min(0, d * height);
++  out[BOX_E] = rect.left - Math.min(0, a * width) - Math.min(0, c * height);
++  out[BOX_F] = rect.top - Math.min(0, b * width) - Math.min(0, d * height);
+   out[BOX_WIDTH] = width;
+   out[BOX_HEIGHT] = height;
+   return true;
+@@ -427,7 +435,7 @@ export function projection(
+     // turns into a non-finite reciprocal, so this one test also covers it.
+     const inverseDeterminant = 1 / (ta * td - tb * tc);
+ 
+-    if (!inverseDeterminant || !finite(inverseDeterminant)) {
++    if (!inverseDeterminant || !Number.isFinite(inverseDeterminant)) {
+       return false;
+     }
+ 
+@@ -469,18 +477,18 @@ export function projection(
+ 
+   // As in `coordinates`, one sum covers every corner. `x3`/`y3` are omitted:
+   // they are sums of terms already in the check.
+-  if (!finite(e + f + x2 + y2 + x4 + y4)) {
++  if (!Number.isFinite(e + f + x2 + y2 + x4 + y4)) {
+     return false;
+   }
+ 
+-  out[0] = e;
+-  out[1] = f;
+-  out[2] = x2;
+-  out[3] = y2;
+-  out[4] = x3;
+-  out[5] = y3;
+-  out[6] = x4;
+-  out[7] = y4;
++  out[QUAD_X1] = e;
++  out[QUAD_Y1] = f;
++  out[QUAD_X2] = x2;
++  out[QUAD_Y2] = y2;
++  out[QUAD_X3] = x3;
++  out[QUAD_Y3] = y3;
++  out[QUAD_X4] = x4;
++  out[QUAD_Y4] = y4;
+   return true;
+ }
+ 
+@@ -516,11 +524,11 @@ export function localDelta(
+ 
+   // One sum covers both results. A singular determinant gives an infinite
+   // reciprocal, so each product is infinite or `NaN` and the sum is not finite.
+-  if (!finite(x + y)) {
++  if (!Number.isFinite(x + y)) {
+     return false;
+   }
+ 
+-  out[0] = x;
+-  out[1] = y;
++  out[DELTA_X] = x;
++  out[DELTA_Y] = y;
+   return true;
+ }
+diff --git a/packages/drag/src/free-drag/behavior.ts b/packages/drag/src/free-drag/behavior.ts
+index 6b8e20dec..b78b13846 100644
+--- a/packages/drag/src/free-drag/behavior.ts
++++ b/packages/drag/src/free-drag/behavior.ts
+@@ -73,10 +73,10 @@ export class FreeDragBehavior implements Behavior<
+     this.root = root;
+     this.config = config;
+     this.window = root.ownerDocument.defaultView!;
+-    this.#lifter = lifter;
+     this.axis = config.axis ?? 'both';
+     this.bounds = config.bounds?.(this.window) ?? null;
+     this.landing = config.landing ?? null;
++    this.#lifter = lifter;
+   }
+ 
+   /** The admission's `state` is the visual: `config.visual`, or the root. */
+diff --git a/packages/drag/src/free-drag/bounds.ts b/packages/drag/src/free-drag/bounds.ts
+index b908e89a9..bb5846c38 100644
+--- a/packages/drag/src/free-drag/bounds.ts
++++ b/packages/drag/src/free-drag/bounds.ts
+@@ -6,80 +6,90 @@
+ 
+ export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
+ 
+-export interface MotionConstraint {
++type Box = {
++  left: number;
++  top: number;
++  right: number;
++  bottom: number;
++};
++
++class MotionConstraint {
++  readonly #window: Window;
++  readonly #source?: BoundsSource;
++  readonly #box = { left: 0, top: 0, right: 0, bottom: 0 };
++  #held: Box | null = null;
++  #stale = false;
++
++  constructor(window: Window, source?: BoundsSource) {
++    this.#window = window;
++    this.#source = source;
++  }
++
+   /** Clamps the delta in place: one call per sample, allocating nothing. */
+-  apply(motion: { x: number; y: number }, originRect: DOMRectReadOnly): void;
++  apply(motion: { x: number; y: number }, originRect: DOMRectReadOnly): void {
++    const rect = this.#resolve();
++
++    if (rect) {
++      // Lower clamp first, so a box smaller than the visual pins to the far
++      // edge and does not produce a `NaN`.
++      motion.x = Math.min(
++        Math.max(motion.x, rect.left - originRect.left),
++        rect.right - originRect.right,
++      );
++      motion.y = Math.min(
++        Math.max(motion.y, rect.top - originRect.top),
++        rect.bottom - originRect.bottom,
++      );
++    }
++  }
+   /**
+    * Staleness only, because scroll calls it many times a second. Also called on
+    * resize, at activation, by the controller's `invalidate()` and at the drop.
+    */
+-  invalidate(): void;
+-}
++  invalidate(): void {
++    this.#stale = true;
++  }
+ 
+-export type BoundsInstaller = (window: Window) => MotionConstraint;
++  /** Lazy: each resolve is a layout read or a consumer call. */
++  #resolve(): Box | null {
++    if (!this.#stale) {
++      return this.#held;
++    }
+ 
+-export function bounds(source?: BoundsSource): BoundsInstaller {
+-  return (window) => {
+-    const box = { left: 0, top: 0, right: 0, bottom: 0 };
+-    /** The last read: `box`, or `null` for unconstrained. */
+-    let held: typeof box | null = null;
+-    let stale = true;
+-
+-    /** Lazy: each resolve is a layout read or a consumer call. */
+-    const resolve = (): typeof box | null => {
+-      if (!stale) {
+-        return held;
+-      }
++    this.#stale = false;
++    this.#held = this.#box;
+ 
+-      stale = false;
+-      held = box;
++    if (!this.#source) {
++      this.#box.left = 0;
++      this.#box.top = 0;
++      this.#box.right = this.#window.innerWidth;
++      this.#box.bottom = this.#window.innerHeight;
++      return this.#held;
++    }
+ 
+-      if (source === undefined) {
+-        box.left = 0;
+-        box.top = 0;
+-        box.right = window.innerWidth;
+-        box.bottom = window.innerHeight;
+-        return held;
+-      }
++    const read =
++      typeof this.#source === 'function'
++        ? this.#source()
++        : this.#source.getBoundingClientRect();
+ 
+-      const read =
+-        typeof source === 'function'
+-          ? source()
+-          : source.getBoundingClientRect();
++    if (!read) {
++      this.#held = null;
++      return this.#held;
++    }
+ 
+-      if (!read) {
+-        held = null;
+-        return held;
+-      }
++    // Copied, because a function's rect is the consumer's object.
++    this.#box.left = read.left;
++    this.#box.top = read.top;
++    this.#box.right = read.right;
++    this.#box.bottom = read.bottom;
++    return this.#held;
++  }
++}
+ 
+-      // Copied, because a function's rect is the consumer's object.
+-      box.left = read.left;
+-      box.top = read.top;
+-      box.right = read.right;
+-      box.bottom = read.bottom;
+-      return held;
+-    };
++export type { MotionConstraint };
+ 
+-    return {
+-      apply(motion, originRect) {
+-        const rect = resolve();
++export type BoundsInstaller = (window: Window) => MotionConstraint;
+ 
+-        if (rect) {
+-          // Lower clamp first, so a box smaller than the visual pins to the far
+-          // edge and does not produce a `NaN`.
+-          motion.x = Math.min(
+-            Math.max(motion.x, rect.left - originRect.left),
+-            rect.right - originRect.right,
+-          );
+-          motion.y = Math.min(
+-            Math.max(motion.y, rect.top - originRect.top),
+-            rect.bottom - originRect.bottom,
+-          );
+-        }
+-      },
+-      invalidate() {
+-        stale = true;
+-      },
+-    };
+-  };
++export function bounds(source?: BoundsSource): BoundsInstaller {
++  return (window) => new MotionConstraint(window, source);
+ }
+diff --git a/packages/drag/src/free-drag/drop-targets.ts b/packages/drag/src/free-drag/drop-targets.ts
+index 9fd2bf9cb..2093247f1 100644
+--- a/packages/drag/src/free-drag/drop-targets.ts
++++ b/packages/drag/src/free-drag/drop-targets.ts
+@@ -4,7 +4,7 @@
+  * names it. A composition without it carries none of this code.
+  */
+ import type { Drag } from '../draggable.ts';
+-import { createFrameTask } from '../shared/invalidation.ts';
++import { FrameTask } from '../shared/invalidation.ts';
+ 
+ export type DropTargetsOptions = Readonly<{
+   /**
+@@ -17,24 +17,6 @@ export type DropTargetsOptions = Readonly<{
+ /** What a drop-target capability may use of the operation. Nothing enforces it at runtime. */
+ export type DropTargetDrag = Pick<Drag, 'x' | 'y' | 'use' | 'requestStep'>;
+ 
+-/**
+- * One operation's drop-target state. `freeDrag` creates it in `activate`, the
+- * operation holds it, and the operation's release ends it.
+- */
+-export interface DropTargetTracker {
+-  /** The target under the pointer at the last resolution, or `null`. */
+-  readonly current: HTMLElement | null;
+-  /** Called on each sample. It reads no layout, and resolves at the next frame, in a step. */
+-  move(): void;
+-  /** Called in the drop step. It resolves at the release position now. */
+-  drop(): void;
+-  /**
+-   * Called on scroll, resize and the controller's `invalidate()`, and at the drop
+-   * before `drop()`. It only marks the rects stale.
+-   */
+-  invalidate(): void;
+-}
+-
+ /**
+  * The value a `freeDrag` config holds as `targets`. It holds no state, so one
+  * config serves every controller. `freeDrag` calls it once per operation, from
+@@ -50,85 +32,114 @@ export type DropTargets = (
+ const OVER = 'data-drop-over';
+ 
+ /**
+- * Tracks the target under the pointer. The mark follows the pointer at most once
+- * per frame, and the targets are measured only when stale: at the first
+- * resolution of each operation, after a scroll, a resize or `invalidate()`, and
+- * at the drop.
+- * The operation's release removes the mark. An accepted drop stays where it was
+- * dropped, and the consumer commits it in `onEnd`.
++ * One operation's drop-target state. `freeDrag` creates it in `activate`, the
++ * operation holds it, and the operation's release ends it.
+  */
+-export function dropTargets(options: DropTargetsOptions): DropTargets {
+-  return (drag, window) => {
+-    const rects: DOMRectReadOnly[] = [];
+-    let elements: readonly HTMLElement[] = [];
+-    let stale = true;
+-    let current: HTMLElement | null = null;
+-
+-    const mark = (next: HTMLElement | null): void => {
+-      if (next !== current) {
+-        current?.removeAttribute(OVER);
+-        next?.setAttribute(OVER, '');
+-        current = next;
+-      }
+-    };
++class DropTargetTracker {
++  readonly #drag: DropTargetDrag;
++  readonly #frame: FrameTask;
++  readonly #rects: DOMRectReadOnly[] = [];
++  readonly #elements: readonly HTMLElement[];
++  #stale = true;
++  #current: HTMLElement | null = null;
++
++  constructor(
++    drag: DropTargetDrag,
++    window: Window,
++    options: DropTargetsOptions,
++  ) {
++    this.#drag = drag;
++    this.#frame = new FrameTask(window, () => {
++      // A frame is foreign code, so its write goes through a step.
++      drag.requestStep(this.#resolve, this);
++    });
++
++    // Registered before the consumer's `targets()` runs, so the release covers a
++    // throw from it as well as a terminal, a cancel or destruction.
++    drag.use(this.#release, this);
++    this.#elements = options.targets();
++  }
+ 
+-    /** Reads layout only when stale, and allocates nothing otherwise. */
+-    const resolve = (): void => {
+-      if (stale) {
+-        stale = false;
++  /** The target under the pointer at the last resolution, or `null`. */
++  get current(): HTMLElement | null {
++    return this.#current;
++  }
+ 
+-        for (let i = 0; i < elements.length; i += 1) {
+-          rects[i] = elements[i]!.getBoundingClientRect();
+-        }
+-      }
++  /** Called on each sample. It reads no layout, and resolves at the next frame, in a step. */
++  move(): void {
++    this.#frame.schedule();
++  }
+ 
+-      // Read once, outside the hit-test loop.
+-      const { x, y } = drag;
+-      let hit: HTMLElement | null = null;
+-
+-      for (let i = 0; i < elements.length && !hit; i += 1) {
+-        const rect = rects[i]!;
+-
+-        if (
+-          x >= rect.left &&
+-          x < rect.right &&
+-          y >= rect.top &&
+-          y < rect.bottom
+-        ) {
+-          hit = elements[i]!;
+-        }
++  /** Called in the drop step. It resolves at the release position now. */
++  drop(): void {
++    this.#frame.cancel();
++    this.#resolve();
++  }
++
++  /**
++   * Called on scroll, resize and the controller's `invalidate()`, and at the drop
++   * before `drop()`. It only marks the rects stale.
++   */
++  invalidate(): void {
++    this.#stale = true;
++  }
++
++  #mark(next: HTMLElement | null): void {
++    if (next !== this.#current) {
++      this.#current?.removeAttribute(OVER);
++      next?.setAttribute(OVER, '');
++      this.#current = next;
++    }
++  }
++
++  /** Reads layout only when stale, and allocates nothing otherwise. */
++  #resolve(): void {
++    const elements = this.#elements;
++
++    if (this.#stale) {
++      this.#stale = false;
++
++      for (let i = 0; i < elements.length; i += 1) {
++        this.#rects[i] = elements[i]!.getBoundingClientRect();
++      }
++    }
++
++    // Read once, outside the hit-test loop.
++    const { x, y } = this.#drag;
++    let hit: HTMLElement | null = null;
++
++    for (let i = 0; i < elements.length && !hit; i += 1) {
++      const rect = this.#rects[i]!;
++
++      if (
++        x >= rect.left &&
++        x < rect.right &&
++        y >= rect.top &&
++        y < rect.bottom
++      ) {
++        hit = elements[i]!;
+       }
++    }
+ 
+-      mark(hit);
+-    };
++    this.#mark(hit);
++  }
+ 
+-    const frame = createFrameTask(window, () => {
+-      // A frame is foreign code, so its write goes through a step.
+-      drag.requestStep(resolve);
+-    });
++  #release(): void {
++    this.#frame.cancel();
++    this.#mark(null);
++  }
++}
+ 
+-    // Registered before the consumer's `targets()` runs, so the release covers a
+-    // throw from it as well as a terminal, a cancel or destruction.
+-    drag.use(() => {
+-      frame.cancel();
+-      mark(null);
+-    });
+-    elements = options.targets();
+-
+-    return {
+-      get current() {
+-        return current;
+-      },
+-      move() {
+-        frame.schedule();
+-      },
+-      drop() {
+-        frame.cancel();
+-        resolve();
+-      },
+-      invalidate() {
+-        stale = true;
+-      },
+-    };
+-  };
++export type { DropTargetTracker };
++
++/**
++ * Tracks the target under the pointer. The mark follows the pointer at most once
++ * per frame, and the targets are measured only when stale: at the first
++ * resolution of each operation, after a scroll, a resize or `invalidate()`, and
++ * at the drop.
++ * The operation's release removes the mark. An accepted drop stays where it was
++ * dropped, and the consumer commits it in `onEnd`.
++ */
++export function dropTargets(options: DropTargetsOptions): DropTargets {
++  return (drag, window) => new DropTargetTracker(drag, window, options);
+ }
+diff --git a/packages/drag/src/shared/invalidation.ts b/packages/drag/src/shared/invalidation.ts
+index 5950c9efd..4ad0aba22 100644
+--- a/packages/drag/src/shared/invalidation.ts
++++ b/packages/drag/src/shared/invalidation.ts
+@@ -12,30 +12,31 @@ export function listenForInvalidation(
+   window.addEventListener('resize', listener, { signal, passive: true });
+ }
+ 
+-export interface FrameTask {
+-  schedule(): void;
+-  cancel(): void;
+-}
+-
+ /** One coalesced animation-frame callback. */
+-export function createFrameTask(window: Window, run: () => void): FrameTask {
+-  let handle = 0;
+-  const fire = (): void => {
+-    handle = 0;
+-    run();
+-  };
++export class FrameTask {
++  readonly #window: Window;
++  /** The one function every schedule passes to `requestAnimationFrame`. */
++  readonly #fire;
++  #handle = 0;
++
++  constructor(window: Window, run: () => void) {
++    this.#window = window;
++    this.#fire = (): void => {
++      this.#handle = 0;
++      run();
++    };
++  }
++
++  schedule(): void {
++    if (this.#handle === 0) {
++      this.#handle = this.#window.requestAnimationFrame(this.#fire);
++    }
++  }
+ 
+-  return {
+-    schedule() {
+-      if (handle === 0) {
+-        handle = window.requestAnimationFrame(fire);
+-      }
+-    },
+-    cancel() {
+-      if (handle !== 0) {
+-        window.cancelAnimationFrame(handle);
+-        handle = 0;
+-      }
+-    },
+-  };
++  cancel(): void {
++    if (this.#handle !== 0) {
++      this.#window.cancelAnimationFrame(this.#handle);
++      this.#handle = 0;
++    }
++  }
+ }
+diff --git a/packages/drag/src/sortable.ts b/packages/drag/src/sortable.ts
+index 9a7df093e..d6987b7d1 100644
+--- a/packages/drag/src/sortable.ts
++++ b/packages/drag/src/sortable.ts
+@@ -64,7 +64,7 @@ export function sortable(
+ 
+   return {
+     invalidate: () => {
+-      kernel.requestStep(behavior.invalidate);
++      kernel.requestStep(behavior.invalidate, behavior);
+     },
+     requestCancel: (reason) => {
+       kernel.requestCancel(reason);
+diff --git a/packages/drag/src/sortable/axis.ts b/packages/drag/src/sortable/axis.ts
+index 021a5dfad..f599c22bf 100644
+--- a/packages/drag/src/sortable/axis.ts
++++ b/packages/drag/src/sortable/axis.ts
+@@ -1,12 +1,14 @@
+ /** What an axis rule and a displacement sink are, for `y()`, `xy()` and sortable. */
+ import type { Space } from '@ydinjs/box-quad';
+ import type { CollectionSnapshot, Insertion } from './domain.ts';
++import type { Invalidatable } from './invalidatable.ts';
++import type { Retirable } from './retirable.ts';
+ 
+ /**
+  * Receives what committed moves displaced, and answers what each displaced element
+  * carries. Its members are always called on the sink, so they may read `this`.
+  */
+-export interface DisplacementSink {
++export interface DisplacementSink extends Retirable {
+   readonly dx: number;
+   readonly dy: number;
+   /**
+@@ -22,7 +24,6 @@ export interface DisplacementSink {
+    * rebuild, and a row never jumps back.
+    */
+   displaced(element: HTMLElement): boolean;
+-  retire(this: DisplacementSink): void;
+ }
+ 
+ export type DisplacementInstaller = () => DisplacementSink;
+@@ -48,11 +49,9 @@ export type AxisContext = Readonly<{
+   space: Space;
+ }>;
+ 
+-export interface InsertionGeometry {
++export interface InsertionGeometry extends Invalidatable, Retirable {
+   /** A new gap, or `null` when the committed one still wins. */
+   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
+-  /** Staleness only, because scroll calls it many times a second. */
+-  invalidate(this: InsertionGeometry): void;
+   /**
+    * Before a pointer drop's resolution: measures one cached slot again, and calls
+    * `invalidate` when it moved. A scroll whose event has not arrived yet moves every
+@@ -61,7 +60,6 @@ export interface InsertionGeometry {
+   confirm(query: AxisQuery, context: AxisContext): void;
+   /** The committed move landed: keep the cache true and report what moved. */
+   moved(query: AxisQuery, context: AxisContext): void;
+-  retire(this: InsertionGeometry): void;
+ }
+ 
+ export type AxisInstaller = () => InsertionGeometry;
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index 8a8f00ba8..b5398adb4 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -1,9 +1,6 @@
+ import type { Admission, Behavior, Drag } from '../draggable.ts';
+ import type { Lifter } from '../lift.ts';
+-import {
+-  createFrameTask,
+-  listenForInvalidation,
+-} from '../shared/invalidation.ts';
++import { FrameTask, listenForInvalidation } from '../shared/invalidation.ts';
+ import type {
+   AxisInstaller,
+   DisplacementInstaller,
+@@ -92,11 +89,11 @@ export class SortableBehavior implements Behavior<
+   declare readonly threshold?: number;
+ 
+   readonly config: SortableConfig;
+-  readonly #window: Window;
+-  readonly #lifter: Lifter;
+   readonly axis: InsertionGeometry;
+   readonly displacement: DisplacementSink | undefined;
+   readonly landing: Landing | null;
++  readonly #window: Window;
++  readonly #lifter: Lifter;
+   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
+   /** The version the next pulled snapshot carries. */
+   #version = 0;
+@@ -112,20 +109,20 @@ export class SortableBehavior implements Behavior<
+     }
+ 
+     this.config = config;
+-    this.#window = root.ownerDocument.defaultView!;
+-    this.#lifter = lifter;
+     this.axis = config.axis();
+     this.displacement = displacement;
++    this.#window = root.ownerDocument.defaultView!;
++    this.#lifter = lifter;
+     this.landing = config.landing ?? null;
+     this.#measuredBox = config.box ?? config.visual ?? null;
+   }
+ 
+   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
+-  readonly invalidate = (operation: SortableOperation | null): void => {
++  invalidate(operation: SortableOperation | null): void {
+     if (operation) {
+       operation.rebase(this.#pull());
+     }
+-  };
++  }
+ 
+   admit(event: PointerEvent): Admission<PressState> | null {
+     return event.altKey ? null : this.#admission(event, null);
+@@ -197,7 +194,7 @@ export class SortableBehavior implements Behavior<
+       throw new Error('sortable/insertion-placeholder-lost');
+     }
+ 
+-    const frame = createFrameTask(this.#window, () => {
++    const frame = new FrameTask(this.#window, () => {
+       drag.requestStep(updateInsertion);
+     });
+ 
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index aa8127170..90a10792e 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -48,92 +48,105 @@ function remainingOf(animation: Animation): number {
+ /** `finished` rejects when an animation is cancelled, and nothing waits for it. */
+ function ignoreRejection(): void {}
+ 
++/**
++ * One operation's displacement sink. Its animations are cancelled by `retire()`,
++ * or outlive the operation when the controller is destroyed.
++ */
++class LayoutAnimationSink implements DisplacementSink {
++  readonly #duration: number;
++  readonly #easing: string;
++  readonly #running = new Map<HTMLElement, RowAnimation>();
++  readonly #local: Delta = [];
++  // What the last `displaced` call answered with, read through the getters.
++  #carriedX = 0;
++  #carriedY = 0;
++
++  constructor(duration: number, easing: string) {
++    this.#duration = duration;
++    this.#easing = easing;
++  }
++
++  get dx(): number {
++    return this.#carriedX;
++  }
++
++  get dy(): number {
++    return this.#carriedY;
++  }
++
++  report(element: HTMLElement, dx: number, dy: number, space: Space): void {
++    const local = this.#local;
++    let sx = dx;
++    let sy = dy;
++    const previous = this.#running.get(element);
++
++    if (previous) {
++      const remaining = remainingOf(previous.animation);
++
++      sx += previous.dx * remaining;
++      sy += previous.dy * remaining;
++      previous.animation.cancel();
++      this.#running.delete(element);
++    }
++
++    // A singular ancestor renders nothing, so the vector's value is immaterial.
++    if (!localDelta(space, sx, sy, local)) {
++      local[0] = sx;
++      local[1] = sy;
++    }
++
++    // The individual `translate` property, added. `transform` would replace an
++    // authored transform, and an additive `transform` would land inside the
++    // element's own `scale()`. `translate` applies before `transform`, and only
++    // this keyframe is in local units: what the sink stores stays in viewport
++    // units, which is what a settled measurement assumes.
++    const animation = element.animate(
++      [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
++      { duration: this.#duration, easing: this.#easing, composite: 'add' },
++    );
++    const record: RowAnimation = { animation, dx: sx, dy: sy };
++
++    // The identity test keeps a fold's cancellation from evicting the record
++    // that replaced it. A cancel rejects `finished`, and each cancel has already
++    // dropped its own record.
++    animation.finished.then(() => {
++      if (this.#running.get(element) === record) {
++        this.#running.delete(element);
++      }
++    }, ignoreRejection);
++    this.#running.set(element, record);
++  }
++
++  displaced(element: HTMLElement): boolean {
++    const held = this.#running.get(element);
++
++    if (!held) {
++      return false;
++    }
++
++    const remaining = remainingOf(held.animation);
++
++    this.#carriedX = held.dx * remaining;
++    this.#carriedY = held.dy * remaining;
++    return true;
++  }
++
++  retire(): void {
++    for (const { animation } of this.#running.values()) {
++      animation.cancel();
++    }
++
++    this.#running.clear();
++  }
++}
++
+ /**
+  * Written `displacement: layoutAnimation()`. Row animations outlive the operation
+  * that started them, and the controller cancels what is running on destruction.
+  */
+-export const layoutAnimation =
+-  ({
+-    duration = DEFAULT_DURATION,
+-    easing = DEFAULT_EASING,
+-  }: LayoutAnimationOptions = {}): DisplacementInstaller =>
+-  () => {
+-    const running = new Map<HTMLElement, RowAnimation>();
+-    const local: Delta = [];
+-    // What the last `displaced` call answered with, read through the getters.
+-    let carriedX = 0;
+-    let carriedY = 0;
+-
+-    return {
+-      report(element: HTMLElement, dx: number, dy: number, space: Space): void {
+-        let sx = dx;
+-        let sy = dy;
+-        const previous = running.get(element);
+-
+-        if (previous) {
+-          const remaining = remainingOf(previous.animation);
+-
+-          sx += previous.dx * remaining;
+-          sy += previous.dy * remaining;
+-          previous.animation.cancel();
+-          running.delete(element);
+-        }
+-
+-        // A singular ancestor renders nothing, so the vector's value is immaterial.
+-        if (!localDelta(space, sx, sy, local)) {
+-          local[0] = sx;
+-          local[1] = sy;
+-        }
+-
+-        // The individual `translate` property, added. `transform` would replace an
+-        // authored transform, and an additive `transform` would land inside the
+-        // element's own `scale()`. `translate` applies before `transform`, and only
+-        // this keyframe is in local units: what the sink stores stays in viewport
+-        // units, which is what a settled measurement assumes.
+-        const animation = element.animate(
+-          [
+-            { translate: `${local[0]!}px ${local[1]!}px` },
+-            { translate: '0 0' },
+-          ],
+-          { duration, easing, composite: 'add' },
+-        );
+-        const record: RowAnimation = { animation, dx: sx, dy: sy };
+-
+-        // The identity test keeps a fold's cancellation from evicting the record
+-        // that replaced it. A cancel rejects `finished`, and each cancel has already
+-        // dropped its own record.
+-        animation.finished.then(() => {
+-          if (running.get(element) === record) {
+-            running.delete(element);
+-          }
+-        }, ignoreRejection);
+-        running.set(element, record);
+-      },
+-      get dx(): number {
+-        return carriedX;
+-      },
+-      get dy(): number {
+-        return carriedY;
+-      },
+-      displaced(element: HTMLElement): boolean {
+-        const held = running.get(element);
+-
+-        if (!held) {
+-          return false;
+-        }
+-
+-        const remaining = remainingOf(held.animation);
+-
+-        carriedX = held.dx * remaining;
+-        carriedY = held.dy * remaining;
+-        return true;
+-      },
+-      retire(): void {
+-        for (const { animation } of running.values()) {
+-          animation.cancel();
+-        }
+-
+-        running.clear();
+-      },
+-    } satisfies DisplacementSink;
+-  };
++export function layoutAnimation({
++  duration = DEFAULT_DURATION,
++  easing = DEFAULT_EASING,
++}: LayoutAnimationOptions = {}): DisplacementInstaller {
++  return () => new LayoutAnimationSink(duration, easing);
++}
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index bae0fe646..963c21a35 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -33,6 +33,7 @@
+  */
+ import type { AxisContext, DisplacementSink } from './axis.ts';
+ import type { CollectionSnapshot } from './domain.ts';
++import type { Invalidatable } from './invalidatable.ts';
+ import {
+   CENTER_Y,
+   LEFT,
+@@ -41,51 +42,23 @@ import {
+   RIGHT,
+   verifyEquivalence,
+ } from './rect-index.ts';
++import type { Retirable } from './retirable.ts';
+ 
+-/** One `RectIndex` under the linear shift rule, along y. */
+-export interface LinearShift {
+-  /**
+-   * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
+-   * is stale, and grows the window until it brackets the pointer. `gap` is the gap
+-   * the placeholder occupies at the moment of the scan, which only the caller
+-   * knows. The stale placeholder is read first, because the
+-   * development check compares it against the tree. That check runs here, one frame
+-   * after the move, because at the move's own instant the animations it started
+-   * have no resolved timing yet.
+-   */
+-  refresh(
+-    snapshot: CollectionSnapshot,
+-    dragged: HTMLElement,
+-    getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
+-    placeholder: HTMLElement,
+-    displacement: DisplacementSink | null | undefined,
+-    gap: number,
+-    pointerY: number,
+-  ): void;
+-
+-  /**
+-   * After a committed move: has the cache shift the crossed slots to the geometry
+-   * the DOM write just produced, marks the placeholder stale, and reports the span
+-   * when a sink is installed. Reads one crossed row when the constant is not
+-   * established.
+-   */
+-  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void;
+-
+-  invalidate(): void;
+-
+-  retire(): void;
+-}
++/**
++ * One `RectIndex` under the linear shift rule, along y. The index was constructed
++ * with `TOP` as its axis.
++ */
++export class LinearShift implements Invalidatable, Retirable {
++  readonly #index: RectIndex;
+ 
+-/** `index` was constructed with `TOP` as its axis. */
+-export function linearShift(index: RectIndex): LinearShift {
+   /** A prediction is valid only against a buffer that describes the DOM. */
+-  let dirty = true;
++  #dirty = true;
+ 
+   /** The destination gap the buffer reflects, or `-1` when nothing is known. */
+-  let lastGap = -1;
++  #lastGap = -1;
+ 
+   /** The collection version the buffer holds, or `-1` for nothing. */
+-  let snapshotVersion = -1;
++  #snapshotVersion = -1;
+ 
+   /**
+    * The distance one crossed row travels along the axis, or `-1` while unmeasured.
+@@ -93,156 +66,197 @@ export function linearShift(index: RectIndex): LinearShift {
+    * collection all change it, and the cache has one staleness flag with no reason
+    * attached. The cost is one row read on the next committed move.
+    */
+-  let rowDistance = -1;
++  #rowDistance = -1;
+ 
+   /** A committed move left the cached placeholder rect out of date. */
+-  let placeholderIsStale = false;
+-
+-  /** Written only inside `__DEV__` branches, so it folds away with them. */
+-  let advanceUnchecked = false;
++  #placeholderIsStale = false;
+ 
+   /**
+    * The placeholder's left and right as the cache held them before the re-read,
+    * or `NaN` when no re-read followed the last committed move. Written only inside
+    * `__DEV__` branches.
+    */
+-  let heldLeft = Number.NaN;
+-  let heldRight = Number.NaN;
+-
+-  return {
+-    refresh(
+-      snapshot,
+-      dragged,
+-      getBox,
+-      placeholder,
+-      displacement,
+-      gap,
+-      pointerY,
+-    ) {
+-      if (placeholderIsStale) {
+-        placeholderIsStale = false;
++  #heldLeft = Number.NaN;
++  #heldRight = Number.NaN;
+ 
+-        if (__DEV__ && advanceUnchecked) {
+-          // The rule predicts that a relocation leaves both x coordinates where
+-          // the rebuild measured them, and the check compares that prediction.
+-          heldLeft = index.at(PLACEHOLDER, LEFT);
+-          heldRight = index.at(PLACEHOLDER, RIGHT);
+-        }
++  constructor(index: RectIndex) {
++    this.#index = index;
+ 
+-        index.measurePlaceholder(placeholder);
+-      }
++    if (__DEV__) {
++      // @ts-expect-error: dev-only expression
++      this.advanceUnchecked = false;
++    }
++  }
++
++  /**
++   * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
++   * is stale, and grows the window until it brackets the pointer. `gap` is the gap
++   * the placeholder occupies at the moment of the scan, which only the caller
++   * knows. The stale placeholder is read first, because the
++   * development check compares it against the tree. That check runs here, one frame
++   * after the move, because at the move's own instant the animations it started
++   * have no resolved timing yet.
++   */
++  refresh(
++    snapshot: CollectionSnapshot,
++    dragged: HTMLElement,
++    getBox: ((item: HTMLElement) => HTMLElement) | null | undefined,
++    placeholder: HTMLElement,
++    displacement: DisplacementSink | null | undefined,
++    gap: number,
++    pointerY: number,
++  ): void {
++    if (this.#placeholderIsStale) {
++      this.#placeholderIsStale = false;
+ 
+       if (
+         __DEV__ &&
+-        advanceUnchecked &&
+-        !dirty &&
+-        snapshotVersion === snapshot.version
++        // @ts-expect-error: dev-only expression
++        this.advanceUnchecked
++      ) {
++        // The rule predicts that a relocation leaves both x coordinates where
++        // the rebuild measured them, and the check compares that prediction.
++        this.#heldLeft = this.#index.at(PLACEHOLDER, LEFT);
++        this.#heldRight = this.#index.at(PLACEHOLDER, RIGHT);
++      }
++
++      this.#index.measurePlaceholder(placeholder);
++    }
++
++    if (
++      __DEV__ &&
++      // @ts-expect-error: dev-only expression
++      this.advanceUnchecked &&
++      !this.#dirty &&
++      this.#snapshotVersion === snapshot.version
++    ) {
++      // @ts-expect-error: dev-only expression
++      this.advanceUnchecked = false;
++      verifyEquivalence(
++        this.#index,
++        snapshot,
++        dragged,
++        getBox,
++        placeholder,
++        displacement,
++        this.#heldLeft,
++        this.#heldRight,
++      );
++      this.#heldLeft = Number.NaN;
++      this.#heldRight = Number.NaN;
++    }
++
++    this.#index.collect(snapshot, dragged, placeholder, gap);
++
++    // Read once, outside the loops.
++
++    // Toward the pointer only: under the order term, a slot on the other side of
++    // the placeholder is never nearer than the placeholder's own center.
++    if (pointerY > this.#index.at(PLACEHOLDER, CENTER_Y)) {
++      while (
++        this.#index.end < this.#index.count &&
++        (this.#index.first === this.#index.end ||
++          this.#index.at(this.#index.end - 1, CENTER_Y) < pointerY)
+       ) {
+-        advanceUnchecked = false;
+-        verifyEquivalence(
+-          index,
+-          snapshot,
+-          dragged,
++        this.#index.measure(
++          this.#index.end,
++          this.#index.end + 1,
+           getBox,
+-          placeholder,
+           displacement,
+-          heldLeft,
+-          heldRight,
+         );
+-        heldLeft = Number.NaN;
+-        heldRight = Number.NaN;
+       }
+-
+-      index.collect(snapshot, dragged, placeholder, gap);
+-
+-      // Read once, outside the loops.
+-      const { count } = index;
+-
+-      // Toward the pointer only: under the order term, a slot on the other side of
+-      // the placeholder is never nearer than the placeholder's own center.
+-      if (pointerY > index.at(PLACEHOLDER, CENTER_Y)) {
+-        while (
+-          index.end < count &&
+-          (index.first === index.end ||
+-            index.at(index.end - 1, CENTER_Y) < pointerY)
+-        ) {
+-          index.measure(index.end, index.end + 1, getBox, displacement);
+-        }
+-      } else {
+-        while (
+-          index.first > 0 &&
+-          (index.first === index.end ||
+-            index.at(index.first, CENTER_Y) > pointerY)
+-        ) {
+-          index.measure(index.first - 1, index.first, getBox, displacement);
+-        }
++    } else {
++      while (
++        this.#index.first > 0 &&
++        (this.#index.first === this.#index.end ||
++          this.#index.at(this.#index.first, CENTER_Y) > pointerY)
++      ) {
++        this.#index.measure(
++          this.#index.first - 1,
++          this.#index.first,
++          getBox,
++          displacement,
++        );
+       }
++    }
+ 
+-      snapshotVersion = snapshot.version;
+-      dirty = false;
+-      lastGap = gap;
+-    },
++    this.#snapshotVersion = snapshot.version;
++    this.#dirty = false;
++    this.#lastGap = gap;
++  }
+ 
+-    moved(gap, snapshot, context) {
+-      // A dirty buffer describes a tree that has already changed under it, an empty
+-      // one is a single-item collection, and an unknown or unchanged gap proposes no
+-      // span at all.
+-      if (
+-        dirty ||
+-        snapshotVersion !== snapshot.version ||
+-        index.count === 0 ||
+-        lastGap < 0 ||
+-        lastGap === gap
+-      ) {
+-        dirty = true;
+-        lastGap = -1;
+-        placeholderIsStale = false;
+-        index.invalidate();
+-        return;
+-      }
++  /**
++   * After a committed move: has the cache shift the crossed slots to the geometry
++   * the DOM write just produced, marks the placeholder stale, and reports the span
++   * when a sink is installed. Reads one crossed row when the constant is not
++   * established.
++   */
++  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void {
++    // A dirty buffer describes a tree that has already changed under it, an empty
++    // one is a single-item collection, and an unknown or unchanged gap proposes no
++    // span at all.
++    if (
++      this.#dirty ||
++      this.#snapshotVersion !== snapshot.version ||
++      this.#index.count === 0 ||
++      this.#lastGap < 0 ||
++      this.#lastGap === gap
++    ) {
++      this.#dirty = true;
++      this.#lastGap = -1;
++      this.#placeholderIsStale = false;
++      this.#index.invalidate();
++      return;
++    }
+ 
+-      const lo = lastGap < gap ? lastGap : gap;
+-      const hi = lastGap < gap ? gap : lastGap;
++    const lastGap = this.#lastGap;
++    const lo = lastGap < gap ? lastGap : gap;
++    const hi = lastGap < gap ? gap : lastGap;
+ 
+-      let delta = lastGap < gap ? -rowDistance : rowDistance;
++    let delta = lastGap < gap ? -this.#rowDistance : this.#rowDistance;
+ 
+-      if (rowDistance < 0) {
+-        // Any crossed row works, because they all traveled the same constant. The
+-        // row may be mid-flight from an earlier move, so the cache settles it.
+-        delta = index.travel(lo, context.box, context.displacement);
+-        rowDistance = delta < 0 ? -delta : delta;
+-      }
++    if (this.#rowDistance < 0) {
++      // Any crossed row works, because they all traveled the same constant. The
++      // row may be mid-flight from an earlier move, so the cache settles it.
++      delta = this.#index.travel(lo, context.box, context.displacement);
++      this.#rowDistance = delta < 0 ? -delta : delta;
++    }
+ 
+-      index.shift(lo, hi, delta);
++    this.#index.shift(lo, hi, delta);
+ 
+-      if (context.displacement) {
+-        for (let i = lo; i < hi; i += 1) {
+-          context.displacement.report(index.item(i), 0, -delta, context.space);
+-        }
++    if (context.displacement) {
++      for (let i = lo; i < hi; i += 1) {
++        context.displacement.report(
++          this.#index.item(i),
++          0,
++          -delta,
++          context.space,
++        );
+       }
++    }
+ 
+-      lastGap = gap;
+-      placeholderIsStale = true;
++    this.#lastGap = gap;
++    this.#placeholderIsStale = true;
+ 
+-      if (__DEV__) {
+-        advanceUnchecked = true;
+-      }
+-    },
+-
+-    invalidate() {
+-      dirty = true;
+-      rowDistance = -1;
+-      placeholderIsStale = false;
+-      index.invalidate();
+-    },
+-
+-    retire() {
+-      dirty = true;
+-      lastGap = -1;
+-      snapshotVersion = -1;
+-      rowDistance = -1;
+-      placeholderIsStale = false;
+-      index.retire();
+-    },
+-  };
++    if (__DEV__) {
++      // @ts-expect-error: dev-only expression
++      this.advanceUnchecked = true;
++    }
++  }
++
++  invalidate(): void {
++    this.#dirty = true;
++    this.#rowDistance = -1;
++    this.#placeholderIsStale = false;
++    this.#index.invalidate();
++  }
++
++  retire(): void {
++    this.#dirty = true;
++    this.#lastGap = -1;
++    this.#snapshotVersion = -1;
++    this.#rowDistance = -1;
++    this.#placeholderIsStale = false;
++    this.#index.retire();
++  }
+ }
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index b9234028e..f681401b2 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -29,6 +29,8 @@ import {
+   type Insertion,
+   insertionAt,
+ } from './domain.ts';
++import type { Invalidatable } from './invalidatable.ts';
++import type { Retirable } from './retirable.ts';
+ 
+ /** Packed `[left, top, right, bottom, centerX, centerY]` per destination slot. */
+ export const STRIDE = 6;
+@@ -73,7 +75,7 @@ const EQUIVALENCE_SLACK = 1 / 16;
+  * The hot path: each axis rule reads the slot range it scans once per resolution,
+  * then one number per candidate through `at`.
+  */
+-export class RectIndex {
++export class RectIndex implements Invalidatable, Retirable {
+   /**
+    * The scratch slot, the placeholder, then the packed slots. It grows only by
+    * appending, so it never has a hole, and it never shrinks: it holds the largest
+diff --git a/packages/drag/src/sortable/xy.ts b/packages/drag/src/sortable/xy.ts
+index 319e5a0b3..32e139f8a 100644
+--- a/packages/drag/src/sortable/xy.ts
++++ b/packages/drag/src/sortable/xy.ts
+@@ -10,8 +10,14 @@
+  * one, it invalidates, and the next frame rebuilds against a laid-out tree. A
+  * resolution with nothing stale reads no layout.
+  */
+-import type { AxisInstaller, DisplacementSink } from './axis.ts';
+-import type { CollectionSnapshot } from './domain.ts';
++import type {
++  AxisContext,
++  AxisInstaller,
++  AxisQuery,
++  DisplacementSink,
++  InsertionGeometry,
++} from './axis.ts';
++import type { CollectionSnapshot, Insertion } from './domain.ts';
+ import {
+   CENTER_X,
+   CENTER_Y,
+@@ -42,123 +48,121 @@ function refresh(
+   }
+ }
+ 
++class XYAxisGeometry implements InsertionGeometry {
++  readonly #index = new RetainingRectIndex();
++  #last = -1;
++
++  resolve(query: AxisQuery, context: AxisContext): Insertion | null {
++    refresh(
++      this.#index,
++      query.snapshot,
++      query.item,
++      context.box,
++      context.placeholder,
++      context.displacement,
++    );
++    this.#last = query.insertion.index;
++
++    const dxAnchor = query.pointerX - this.#index.at(PLACEHOLDER, CENTER_X);
++    const dyAnchor = query.pointerY - this.#index.at(PLACEHOLDER, CENTER_Y);
++
++    let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
++    let nearest = -1;
++
++    for (let i = 0; i < this.#index.count; i += 1) {
++      const dx = query.pointerX - this.#index.at(i, CENTER_X);
++      const dy = query.pointerY - this.#index.at(i, CENTER_Y);
++      const distance = dx * dx + dy * dy;
++
++      if (distance < best) {
++        best = distance;
++        nearest = i;
++      }
++    }
++
++    if (nearest === -1) {
++      return null;
++    }
++
++    const position = context.placeholder.compareDocumentPosition(
++      this.#index.item(nearest),
++    );
++
++    return this.#index.insertion(
++      // oxlint-disable-next-line no-bitwise -- a documented bitfield
++      (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
++        ? nearest + 1
++        : nearest,
++    );
++  }
++
++  confirm(query: AxisQuery, context: AxisContext): void {
++    if (
++      !this.#index.holds(
++        query.insertion.index,
++        query.snapshot,
++        context.box,
++        context.displacement,
++      )
++    ) {
++      this.invalidate();
++    }
++  }
++
++  moved(query: AxisQuery, context: AxisContext): void {
++    const gap = query.insertion.index;
++    // Taken before the refresh below rewrites the count.
++    const held = this.#index.count;
++
++    if (
++      !context.displacement ||
++      this.#last < 0 ||
++      this.#last === gap ||
++      held === 0
++    ) {
++      this.invalidate();
++      return;
++    }
++
++    // Before the refresh rewrites the slots.
++    this.#index.retain();
++    this.#index.invalidate();
++    refresh(
++      this.#index,
++      query.snapshot,
++      query.item,
++      context.box,
++      context.placeholder,
++      context.displacement,
++    );
++    this.#last = gap;
++
++    // Moving the placeholder reorders nothing in the destination view, so
++    // slot `i` is the same element on both sides of the write.
++    const span = this.#index.count < held ? this.#index.count : held;
++
++    for (let i = 0; i < span; i += 1) {
++      const dx = this.#index.retained(i, LEFT) - this.#index.at(i, LEFT);
++      const dy = this.#index.retained(i, TOP) - this.#index.at(i, TOP);
++
++      if (dx !== 0 || dy !== 0) {
++        context.displacement.report(this.#index.item(i), dx, dy, context.space);
++      }
++    }
++  }
++
++  invalidate(): void {
++    this.#last = -1;
++    this.#index.invalidate();
++  }
++
++  retire(): void {
++    this.#last = -1;
++    this.#index.retire();
++  }
++}
++
+ /** The axis rule for a wrapping field of items. */
+ export function xy(): AxisInstaller {
+-  return () => {
+-    const index = new RetainingRectIndex();
+-    /** The gap the buffer reflects, or `-1` when nothing is known. */
+-    let last = -1;
+-    const invalidate = (): void => {
+-      last = -1;
+-      index.invalidate();
+-    };
+-
+-    return {
+-      resolve(query, context) {
+-        // Read once, outside the candidate loop.
+-        const { pointerX, pointerY } = query;
+-
+-        refresh(
+-          index,
+-          query.snapshot,
+-          query.item,
+-          context.box,
+-          context.placeholder,
+-          context.displacement,
+-        );
+-        last = query.insertion.index;
+-
+-        // Read once, outside the candidate loop.
+-        const { count } = index;
+-        const dxAnchor = pointerX - index.at(PLACEHOLDER, CENTER_X);
+-        const dyAnchor = pointerY - index.at(PLACEHOLDER, CENTER_Y);
+-        let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
+-        let nearest = -1;
+-
+-        for (let i = 0; i < count; i += 1) {
+-          const dx = pointerX - index.at(i, CENTER_X);
+-          const dy = pointerY - index.at(i, CENTER_Y);
+-          const distance = dx * dx + dy * dy;
+-
+-          if (distance < best) {
+-            best = distance;
+-            nearest = i;
+-          }
+-        }
+-
+-        if (nearest === -1) {
+-          return null;
+-        }
+-
+-        const position = context.placeholder.compareDocumentPosition(
+-          index.item(nearest),
+-        );
+-        // oxlint-disable-next-line no-bitwise -- a documented bitfield
+-        const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+-
+-        return index.insertion(follows ? nearest + 1 : nearest);
+-      },
+-
+-      invalidate,
+-
+-      confirm(query, context) {
+-        if (
+-          !index.holds(
+-            query.insertion.index,
+-            query.snapshot,
+-            context.box,
+-            context.displacement,
+-          )
+-        ) {
+-          invalidate();
+-        }
+-      },
+-
+-      moved(query, context) {
+-        // Read once: the per-row loop below calls into it.
+-        const { displacement } = context;
+-        const gap = query.insertion.index;
+-        // Taken before the refresh below rewrites the count.
+-        const held = index.count;
+-
+-        if (!displacement || last < 0 || last === gap || held === 0) {
+-          invalidate();
+-          return;
+-        }
+-
+-        // Before the refresh rewrites the slots.
+-        index.retain();
+-        index.invalidate();
+-        refresh(
+-          index,
+-          query.snapshot,
+-          query.item,
+-          context.box,
+-          context.placeholder,
+-          displacement,
+-        );
+-        last = gap;
+-
+-        // Moving the placeholder reorders nothing in the destination view, so
+-        // slot `i` is the same element on both sides of the write. Read once,
+-        // outside the loop.
+-        const { count } = index;
+-        const span = count < held ? count : held;
+-
+-        for (let i = 0; i < span; i += 1) {
+-          const dx = index.retained(i, LEFT) - index.at(i, LEFT);
+-          const dy = index.retained(i, TOP) - index.at(i, TOP);
+-
+-          if (dx !== 0 || dy !== 0) {
+-            displacement.report(index.item(i), dx, dy, context.space);
+-          }
+-        }
+-      },
+-
+-      retire() {
+-        last = -1;
+-        index.retire();
+-      },
+-    };
+-  };
++  return () => new XYAxisGeometry();
+ }
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 85dd4b822..9d57474ba 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -21,89 +21,91 @@
+  * layout. A committed move reads one row the first time, to establish the constant,
+  * and the placeholder on the next frame.
+  */
+-import type { AxisInstaller } from './axis.ts';
+-import { linearShift } from './linear-shift.ts';
++import type {
++  AxisContext,
++  AxisInstaller,
++  AxisQuery,
++  InsertionGeometry,
++} from './axis.ts';
++import type { Insertion } from './domain.ts';
++import { LinearShift } from './linear-shift.ts';
+ import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
+ 
+-/**
+- * The axis rule for a single column. The rows' centers must increase along y in
+- * the collection's order: a reversed column, a row that isn't rendered, or a
+- * transform that carries a row's center past a neighbor's is outside this rule. A
+- * resolution measures only rows it hasn't measured since the last scroll, resize or
+- * `invalidate()`: the rows between the placeholder and the pointer, and one beyond.
+- */
+-export function y(): AxisInstaller {
+-  return () => {
+-    const index = new RectIndex(TOP);
+-    const shift = linearShift(index);
++class YAxisGeometry implements InsertionGeometry {
++  readonly #index = new RectIndex(TOP);
++  readonly #shift = new LinearShift(this.#index);
+ 
+-    return {
+-      resolve(query, context) {
+-        // Read once, outside the candidate loop.
+-        const { pointerY } = query;
++  resolve(query: AxisQuery, context: AxisContext): Insertion | null {
++    this.#shift.refresh(
++      query.snapshot,
++      query.item,
++      context.box,
++      context.placeholder,
++      context.displacement,
++      query.insertion.index,
++      query.pointerY,
++    );
+ 
+-        shift.refresh(
+-          query.snapshot,
+-          query.item,
+-          context.box,
+-          context.placeholder,
+-          context.displacement,
+-          query.insertion.index,
+-          pointerY,
+-        );
++    // Read once, outside the candidate loop.
++    const anchor = this.#index.at(PLACEHOLDER, CENTER_Y);
++    let best = Math.abs(query.pointerY - anchor);
++    let nearest = -1;
+ 
+-        // Read once, outside the candidate loop.
+-        const { first, end } = index;
+-        const anchor = index.at(PLACEHOLDER, CENTER_Y);
+-        let best = Math.abs(pointerY - anchor);
+-        let nearest = -1;
++    // The window only: it holds the nearest center, and the first in order
++    // among equals.
++    for (let i = this.#index.first; i < this.#index.end; i += 1) {
++      const distance = Math.abs(query.pointerY - this.#index.at(i, CENTER_Y));
+ 
+-        // The window only: it holds the nearest center, and the first in order
+-        // among equals.
+-        for (let i = first; i < end; i += 1) {
+-          const distance = Math.abs(pointerY - index.at(i, CENTER_Y));
++      if (distance < best) {
++        best = distance;
++        nearest = i;
++      }
++    }
+ 
+-          if (distance < best) {
+-            best = distance;
+-            nearest = i;
+-          }
+-        }
++    if (nearest === -1) {
++      return null;
++    }
+ 
+-        if (nearest === -1) {
+-          return null;
+-        }
++    // On one axis, the side of `nearest` the placeholder is traveling from
++    // is a comparison of two centers the scan already holds.
++    return this.#index.insertion(
++      this.#index.at(nearest, CENTER_Y) > anchor ? nearest + 1 : nearest,
++    );
++  }
+ 
+-        // On one axis, the side of `nearest` the placeholder is traveling from
+-        // is a comparison of two centers the scan already holds.
+-        return index.insertion(
+-          index.at(nearest, CENTER_Y) > anchor ? nearest + 1 : nearest,
+-        );
+-      },
++  confirm(query: AxisQuery, context: AxisContext): void {
++    if (
++      !this.#index.holds(
++        query.insertion.index,
++        query.snapshot,
++        context.box,
++        context.displacement,
++      )
++    ) {
++      this.#shift.invalidate();
++    }
++  }
+ 
+-      invalidate() {
+-        shift.invalidate();
+-      },
++  moved(query: AxisQuery, context: AxisContext): void {
++    this.#shift.moved(query.insertion.index, query.snapshot, context);
++  }
+ 
+-      confirm(query, context) {
+-        if (
+-          !index.holds(
+-            query.insertion.index,
+-            query.snapshot,
+-            context.box,
+-            context.displacement,
+-          )
+-        ) {
+-          shift.invalidate();
+-        }
+-      },
++  invalidate(): void {
++    this.#shift.invalidate();
++  }
+ 
+-      moved(query, context) {
+-        shift.moved(query.insertion.index, query.snapshot, context);
+-      },
++  retire(): void {
++    this.#shift.retire();
++  }
++}
+ 
+-      retire() {
+-        shift.retire();
+-      },
+-    };
+-  };
++/**
++ * The axis rule for a single column. The rows' centers must increase along y in
++ * the collection's order: a reversed column, a row that isn't rendered, or a
++ * transform that carries a row's center past a neighbor's is outside this rule. A
++ * resolution measures only rows it hasn't measured since the last scroll, resize or
++ * `invalidate()`: the rows between the placeholder and the pointer, and one beyond.
++ */
++export function y(): AxisInstaller {
++  return () => new YAxisGeometry();
+ }
+diff --git a/packages/drag/tsconfig.json b/packages/drag/tsconfig.json
+index 745c8a8e0..ee21f0d76 100644
+--- a/packages/drag/tsconfig.json
++++ b/packages/drag/tsconfig.json
+@@ -4,7 +4,6 @@
+     "./src/**/*",
+     "./bench/**/*",
+     "./tests/**/*",
+-    "./.plan/probes/callback-list/allocation.ts",
+     "../../types.d.ts",
+     "./files.json",
+     "./tsdown.config.ts",

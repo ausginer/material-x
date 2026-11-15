@@ -1,0 +1,20 @@
+unmutated errors outside drag2: 0
+axis-retire: src/sortable/behavior.ts: drag.use(this.axis.retire, this.axis); -> drag.use(this.axis.retire);
+## axis-retire: errors outside drag2: 1
+  src/sortable/behavior.ts(204,14): error TS2345: Argument of type '(this: Retirable) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+axis-invalidate: src/sortable/behavior.ts: drag.requestStep(this.axis.invalidate, this.axis); -> drag.requestStep(this.axis.invalidate);
+## axis-invalidate: errors outside drag2: 1
+  src/sortable/behavior.ts(206,24): error TS2345: Argument of type '(this: Invalidatable) => void' is not assignable to parameter of type '(this: undefined, operation: SortableOperation | null) => void'.
+sink-retire: src/sortable.ts: kernel.use(displacement.retire, displacement); -> kernel.use(displacement.retire);
+## sink-retire: errors outside drag2: 1
+  src/sortable.ts(59,16): error TS2345: Argument of type '(this: Retirable) => void' is not assignable to parameter of type '(this: undefined) => void'.
+behavior-invalidate: src/sortable.ts: kernel.requestStep(behavior.invalidate, behavior); -> kernel.requestStep(behavior.invalidate);
+## behavior-invalidate: errors outside drag2: 1
+  src/sortable.ts(67,26): error TS2345: Argument of type '(this: SortableBehavior, operation: SortableOperation | null) => void' is not assignable to parameter of type '(this: undefined, operation: SortableOperation | null) => void'.
+targets-release: src/free-drag/drop-targets.ts: drag.use(this.#release, this); -> drag.use(this.#release);
+## targets-release: errors outside drag2: 1
+  src/free-drag/drop-targets.ts(73,14): error TS2345: Argument of type '(this: ElementTargetTracker) => void' is not assignable to parameter of type '(this: undefined, outcome: Outcome | null) => void'.
+targets-resolve: src/free-drag/drop-targets.ts: drag.requestStep(this.#resolve, this); -> drag.requestStep(this.#resolve);
+## targets-resolve: errors outside drag2: 1
+  src/free-drag/drop-targets.ts(68,24): error TS2345: Argument of type '(this: ElementTargetTracker) => void' is not assignable to parameter of type '(this: undefined, operation: unknown) => void'.
+tree restored

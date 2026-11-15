@@ -1,0 +1,77 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 <scratch>/a/packages/drag
+
+11:26:02 PM [vite] (client) warning: 
+<scratch>/a/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: <scratch>/a/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=85f41a2d
+ ❯ |browser (chromium)| tests/free-drag.browser.test.ts (12 tests | 2 failed | 10 skipped) 166ms
+   ❯ drag:DRD-63 a fresh bounds constraint (2)
+     × should clamp to an element source at its first apply, before any invalidate 106ms
+     × should clamp to the viewport at its first apply, before any invalidate 56ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:296 > drag:DRD-63 a fresh bounds constraint > should clamp to an element source at its first apply, before any invalidate
+AssertionError: expected { x: 200, y: 200 } to deeply equal { x: 30, y: 30 }
+
+- Expected
++ Received
+
+  {
+-   "x": 30,
+-   "y": 30,
++   "x": 200,
++   "y": 200,
+  }
+
+ ❯ tests/free-drag.browser.test.ts:307:20
+    305|     bounds(arena)(window).apply(motion, origin);
+    306|     // The arena's right and bottom, 50, less the visual's, 20.
+    307|     expect(motion).toEqual({ x: 30, y: 30 });
+       |                    ^
+    308|   });
+    309|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:310 > drag:DRD-63 a fresh bounds constraint > should clamp to the viewport at its first apply, before any invalidate
+AssertionError: expected { x: 100000, y: 100000 } to deeply equal { x: 1260, y: 700 }
+
+- Expected
++ Received
+
+  {
+-   "x": 1260,
+-   "y": 700,
++   "x": 100000,
++   "y": 100000,
+  }
+
+ ❯ tests/free-drag.browser.test.ts:314:20
+    312|
+    313|     bounds()(window).apply(motion, origin);
+    314|     expect(motion).toEqual({
+       |                    ^
+    315|       x: window.innerWidth - 20,
+    316|       y: window.innerHeight - 20,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 10 skipped (12)
+   Start at  23:26:01
+   Duration  1.88s (worker 81%, tests 14%, import 5%)
+

@@ -1,0 +1,18 @@
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+
+/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/base/packages/box-quad/tests/api.declaration.test.ts
+   34:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   35:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   36:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   37:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   38:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  104:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  105:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  106:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  107:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+
+✖ 9 problems (9 errors, 0 warnings)
+  9 errors and 0 warnings potentially fixable with the `--fix` option.
+
+error: recipe `lint` failed on line 49 with exit code 1

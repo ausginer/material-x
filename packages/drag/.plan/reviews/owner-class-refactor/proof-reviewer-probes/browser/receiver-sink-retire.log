@@ -1,0 +1,125 @@
+### sink-retire 21:49:46
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 edited/packages/drag
+
+9:49:48 PM [vite] (client) warning: 
+edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e80f26fe
+stderr | tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#running')]
+ ❯ |browser (chromium)| tests/callbacks.browser.test.ts (20 tests | 1 failed) 1829ms
+   ❯ drag:DRD-35 capabilities passed with their receivers (1)
+     × should call the axis and the sink on themselves 238ms
+stderr | tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#running')]
+stderr | tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#running')]
+stderr | tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#running')]
+ ❯ |browser (chromium)| tests/destruction.browser.test.ts (23 tests | 2 failed) 6766ms
+   ❯ drag:DRI-10 destruction (23)
+     × should cancel a running landing and the row animations 317ms
+     × should retain no item, behavior, view or behavior instance after 3 operations and destruction 3136ms
+ ❯ |browser (chromium)| tests/sortable.browser.test.ts (49 tests | 1 failed) 15450ms
+   ❯ sortable options (12)
+     × should keep a row animation past the terminal, until destruction 573ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Cannot read properties of undefined (reading '#running')",
++ ]
+
+ ❯ tests/callbacks.browser.test.ts:529:29
+    527|     await controller.requestDestroy();
+    528|
+    529|     expect(faultMessages()).toEqual([]);
+       |                             ^
+    530|     expect(
+    531|       invalidate.mock.contexts.every((context) => context === geometry…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:324 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+AssertionError: expected 2 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ tests/destruction.browser.test.ts:341:21
+    339|     expect(count()).toBeGreaterThan(0);
+    340|     await controller.requestDestroy();
+    341|     expect(count()).toBe(0);
+       |                     ^
+    342|   });
+    343|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/destruction.browser.test.ts:443:67
+    441|         undefined,
+    442|       ]);
+    443|       expect(await commands.countHeapObjects('SortableBehavior')).toBe(
+       |                                                                   ^
+    444|         instancesBefore,
+    445|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:885 > sortable options > should keep a row animation past the terminal, until destruction
+AssertionError: expected 2 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2
+
+ ❯ tests/sortable.browser.test.ts:904:21
+    902|     expect(count()).toBeGreaterThan(0);
+    903|     await controller.requestDestroy();
+    904|     expect(count()).toBe(0);
+       |                     ^
+    905|   });
+    906|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 23 passed (26)
+      Tests  4 failed | 353 passed (357)
+   Start at  21:49:47
+   Duration  40.39s (tests 96%, worker 3%, import 1%)
+
+exit=1

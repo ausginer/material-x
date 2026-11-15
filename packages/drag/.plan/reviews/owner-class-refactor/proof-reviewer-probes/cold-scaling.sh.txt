@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Reviewer probe: the cold committed-move block at 50, 200 and 800 sampled crossings,
+# each count launched alone, alternating the baseline and edited scratch trees, two
+# rounds. Usage: cold-scaling.sh <scratch dir> <block file> <out dir>
+set -u
+S=$1; block=$2; out=$3
+for t in base edited; do
+  f=$S/$t/packages/drag/tests/hot-path.browser.test.ts
+  cp "$f" "$f.reviewer-bak"; cat "$block" >> "$f"
+done
+for round in 1 2; do
+  for n in 50 200 800; do
+    for t in base edited; do
+      start=$(date -u +%H:%M:%S)
+      line=$(cd "$S/$t/packages/drag" && npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t "RV cold scaling $n :" 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee "$out/cold-$t-r$round-n$n.log" | grep -m1 'RV-COLD-SCALING')
+      echo "$t r$round $start load=$(cut -d' ' -f1 /proc/loadavg) $line"
+    done
+  done
+done
+for t in base edited; do f=$S/$t/packages/drag/tests/hot-path.browser.test.ts; mv "$f.reviewer-bak" "$f"; done
+echo done

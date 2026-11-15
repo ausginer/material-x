@@ -1,0 +1,72 @@
+### axis-invalidate 21:49:06
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 edited/packages/drag
+
+9:49:07 PM [vite] (client) warning: 
+edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e80f26fe
+stderr | tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/sortable.browser.test.ts (49 tests | 1 failed) 14736ms
+   ❯ sortable options (12)
+     × should re-measure on scroll during a drag, nested scrollers included 300ms
+stderr | tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/callbacks.browser.test.ts (20 tests | 1 failed) 1754ms
+   ❯ drag:DRD-35 capabilities passed with their receivers (1)
+     × should call the axis and the sink on themselves 179ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Cannot read properties of undefined (reading '#shift')",
++ ]
+
+ ❯ tests/callbacks.browser.test.ts:529:29
+    527|     await controller.requestDestroy();
+    528|
+    529|     expect(faultMessages()).toEqual([]);
+       |                             ^
+    530|     expect(
+    531|       invalidate.mock.contexts.every((context) => context === geometry…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:907 > sortable options > should re-measure on scroll during a drag, nested scrollers included
+AssertionError: expected 0 to be greater than 4
+ ❯ tests/sortable.browser.test.ts:933:7
+    931|     expect(
+    932|       rowsOf(list).indexOf(document.querySelector('#r0')!),
+    933|     ).toBeGreaterThan(4);
+       |       ^
+    934|
+    935|     log.length = 0;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 24 passed (26)
+      Tests  2 failed | 355 passed (357)
+   Start at  21:49:07
+   Duration  39.46s (tests 96%, worker 3%, import 1%)
+
+exit=1

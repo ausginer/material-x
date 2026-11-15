@@ -1,0 +1,16 @@
+draggable alone                  6728 min   2422 gz   2189 br  7 modules
+  VIOLATION: over its 2139 B ceiling by 50 B
+  VIOLATION: control moved by 165 B
+draggable + lift                11459 min   4369 gz   3927 br  9 modules
+example: resize handle           9264 min   3632 gz   3283 br  9 modules
+example: drop zone              13055 min   5061 gz   4562 br  13 modules
+  VIOLATION: over its 4431 B ceiling by 131 B
+example: canvas group            9434 min   3604 gz   3286 br  9 modules
+freeDrag                        15035 min   5531 gz   4987 br  15 modules
+  VIOLATION: over its 4967 B ceiling by 20 B
+freeDrag + bounds + landing     16199 min   6021 gz   5416 br  19 modules
+  VIOLATION: over its 5210 B ceiling by 206 B
+sortable + y                    20137 min   7261 gz   6555 br  20 modules
+sortable + xy                   20049 min   7254 gz   6544 br  19 modules
+complete                        21673 min   7915 gz   7132 br  24 modules
+  VIOLATION: over its 7065 B ceiling by 67 B

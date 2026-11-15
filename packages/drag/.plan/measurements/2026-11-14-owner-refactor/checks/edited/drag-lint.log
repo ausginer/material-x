@@ -1,0 +1,13 @@
+oxlint .
+.plan/probes/callback-list/allocation.ts:26:40: error typescript(no-unsafe-member-access): Unsafe member access .heapUsed on an `error` typed value.
+.plan/probes/callback-list/allocation.ts:26:18: error typescript(no-unsafe-call): Unsafe call of a(n) `error` type typed value.
+.plan/probes/callback-list/allocation.ts:26:26: error typescript(no-unsafe-member-access): Unsafe member access .memoryUsage on an `error` typed value.
+.plan/probes/callback-list/allocation.ts:33:39: error typescript(no-unsafe-member-access): Unsafe member access .heapUsed on an `error` typed value.
+.plan/probes/callback-list/allocation.ts:33:17: error typescript(no-unsafe-call): Unsafe call of a(n) `error` type typed value.
+.plan/probes/callback-list/allocation.ts:33:25: error typescript(no-unsafe-member-access): Unsafe member access .memoryUsage on an `error` typed value.
+.plan/probes/callback-list/allocation.ts:72:1: error typescript(no-unsafe-call): Unsafe call of a(n) `error` type typed value.
+.plan/probes/callback-list/allocation.ts:72:9: error typescript(no-unsafe-member-access): Unsafe member access .stdout on an `error` typed value.
+.plan/probes/callback-list/allocation.ts:72:38: error typescript(no-unsafe-member-access): Unsafe member access .version on an `error` typed value.
+.plan/probes/callback-list/allocation.ts:75:3: error typescript(no-unsafe-call): Unsafe call of a(n) `error` type typed value.
+.plan/probes/callback-list/allocation.ts:75:11: error typescript(no-unsafe-member-access): Unsafe member access .stdout on an `error` typed value.
+error: recipe `lint` failed on line 49 with exit code 1

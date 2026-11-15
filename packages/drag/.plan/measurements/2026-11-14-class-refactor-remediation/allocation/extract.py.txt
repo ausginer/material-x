@@ -1,0 +1,27 @@
+import json, re, sys, glob, os, statistics
+out = sys.argv[1]
+rows = []
+for d in sorted(glob.glob(os.path.join(out, 'campaigns', '*'))):
+    run = os.path.basename(d)
+    for log in sorted(glob.glob(os.path.join(d, '*.log')), key=lambda p: int(os.path.basename(p)[:-4])):
+        for line in open(log):
+            m = re.search(r'((?:C6-|VERIFY-)\S+(?: [a-z+]+ (?:idle|operated))?) .*?(per(?:Move|Lifetime))=([\d.]+) allSrc=(\d+) keys=(\{.*\})', line)
+            if m:
+                rows.append((run, m.group(1), float(m.group(3)), int(m.group(4)), json.loads(m.group(5)), line.strip()))
+with open(os.path.join(out, 'readings.txt'), 'w') as f:
+    for r in rows:
+        f.write(f'{r[0]} {r[5][r[5].index(r[1]):]}\n')
+probes = sorted({r[1] for r in rows})
+with open(os.path.join(out, 'table.txt'), 'w') as f:
+    for p in probes:
+        for arm in ('base', 'end'):
+            rs = [r for r in rows if r[1] == p and r[0].startswith(arm)]
+            moved = [r[4].get('sortable/linear-shift.ts:moved', 0) for r in rs]
+            ls = {}
+            for r in rs:
+                for k, v in r[4].items():
+                    if k.startswith('sortable/linear-shift.ts'):
+                        ls.setdefault(k, []).append(v)
+            f.write(f'{p:<34} {arm:<4} allSrc {" ".join(str(r[3]) for r in rs)} | linear-shift keys {json.dumps(ls)}\n')
+            f.write(f'{p:<34} {arm:<4} primary {" ".join(f"{r[2]:.1f}" for r in rs):<26} mean {statistics.mean(r[2] for r in rs):9.1f} | linear-shift.ts:moved {" ".join(map(str, moved))} | n={len(rs)}\n')
+print(open(os.path.join(out, 'table.txt')).read())

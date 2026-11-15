@@ -1,0 +1,12 @@
+tsdown --config tsdown.config.ts
+ℹ tsdown v0.23.7 powered by rolldown v1.3.2
+ℹ config file: /workspaces/material-x/packages/box-quad/tsdown.config.ts 
+ℹ entry: src/index.ts
+ℹ target: esnext
+ℹ tsconfig: tsconfig.json
+ℹ Build start
+ℹ /index.js      11.66 kB │ gzip: 4.11 kB
+ℹ /index.js.map  23.65 kB │ gzip: 7.13 kB
+ℹ /index.d.ts     7.50 kB │ gzip: 2.60 kB
+ℹ 3 files, total: 42.80 kB
+✔ Build complete in 68ms

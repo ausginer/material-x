@@ -1,0 +1,10 @@
+## probes in b-f6b4bdf4c
+probe files compiled: 2
+reviewer-probe-tmp/reviewer-extra.ts(26,25): error TS2739: Type 'RectIndex' is missing the following properties from type 'DisplacementSink': dx, dy, report, displaced
+reviewer-probe-tmp/reviewer-extra.ts(27,29): error TS2739: Type 'RectIndex' is missing the following properties from type 'InsertionGeometry': resolve, confirm, moved
+reviewer-probe-tmp/reviewer-extra.ts(28,47): error TS2739: Type 'DisplacementSink' is missing the following properties from type 'InsertionGeometry': resolve, confirm, moved, invalidate
+reviewer-probe-tmp/wrong-receiver.ts(12,29): error TS2739: Type 'DisplacementSink' is missing the following properties from type 'InsertionGeometry': resolve, confirm, moved, invalidate
+reviewer-probe-tmp/wrong-receiver.ts(13,31): error TS2739: Type 'InsertionGeometry' is missing the following properties from type 'DisplacementSink': dx, dy, report, displaced
+## probes in b-42f42a164
+probe files compiled: 2
+reviewer-probe-tmp/reviewer-extra.ts(28,47): error TS2741: Property 'invalidate' is missing in type 'DisplacementSink' but required in type 'Invalidatable'.

@@ -1,0 +1,13 @@
+== base
+======== Module name '@ydinjs/drag/free-drag/bounds.js' was successfully resolved to 'base/packages/drag/free-drag/bounds.d.ts' with Package ID '@ydinjs/drag/free-drag/bounds.d.ts@0.1.0'. ========
+======== Module name '@ydinjs/drag/free-drag/drop-targets.js' was successfully resolved to 'base/packages/drag/free-drag/drop-targets.d.ts' with Package ID '@ydinjs/drag/free-drag/drop-targets.d.ts@0.1.0'. ========
+errors: 0
+== edited
+======== Module name '@ydinjs/drag/free-drag/bounds.js' was successfully resolved to 'edited/packages/drag/free-drag/bounds.d.ts' with Package ID '@ydinjs/drag/free-drag/bounds.d.ts@0.1.0'. ========
+======== Module name '@ydinjs/drag/free-drag/drop-targets.js' was successfully resolved to 'edited/packages/drag/free-drag/drop-targets.d.ts' with Package ID '@ydinjs/drag/free-drag/drop-targets.d.ts@0.1.0'. ========
+rv-probe/third-party-slots.ts(15,14): error TS2322: Type '(drag: DropTargetDrag) => { readonly current: HTMLElement | null; move(): void; drop(): void; invalidate(): void; }' is not assignable to type 'DropTargets'.
+  Property '#private' is missing in type '{ readonly current: HTMLElement | null; move(): void; drop(): void; invalidate(): void; }' but required in type 'DropTargetTracker'.
+rv-probe/third-party-slots.ts(30,14): error TS2322: Type '(drag: DropTargetDrag, window: Window) => { readonly current: HTMLElement | null; move: () => void; drop: () => void; invalidate: () => void; }' is not assignable to type 'DropTargets'.
+  Property '#private' is missing in type '{ readonly current: HTMLElement | null; move: () => void; drop: () => void; invalidate: () => void; }' but required in type 'DropTargetTracker'.
+rv-probe/third-party-slots.ts(46,49): error TS2741: Property '#private' is missing in type '{ apply(motion: { x: number; y: number; }): void; invalidate(): void; }' but required in type 'MotionConstraint'.
+errors: 3

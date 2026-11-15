@@ -1,0 +1,21 @@
+## D1: 1	1	packages/drag/src/sortable/linear-shift.ts
+    -      developmentChecks!.get(this)!.advanceUnchecked = true;
+    +      void developmentChecks;
+  witness exit=1
+        1 FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+        1 Tests  1 failed (1)
+  browser project exit=1
+        1 FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+        1 Tests  1 failed | 358 passed (359)
+## D2: 2	2	packages/drag/src/sortable/linear-shift.ts
+    -          check.heldLeft = this.#index.at(PLACEHOLDER, LEFT);
+    -          check.heldRight = this.#index.at(PLACEHOLDER, RIGHT);
+    +          void LEFT;
+    +          void RIGHT;
+  witness exit=1
+        1 FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+        1 Tests  1 failed (1)
+  browser project exit=1
+        1 FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+        1 Tests  1 failed | 358 passed (359)
+status: 0 lines

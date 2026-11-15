@@ -288,3 +288,32 @@ describe('freeDrag', () => {
     await commands.keyPress('Escape');
   });
 });
+
+describe('drag:DRD-63 a fresh bounds constraint', () => {
+  // The visual's rect: 10 px square at (10, 10).
+  const origin = new DOMRectReadOnly(10, 10, 10, 10);
+
+  it('should clamp to an element source at its first apply, before any invalidate', () => {
+    const arena = document.createElement('div');
+
+    arena.style.cssText = 'position:fixed;left:0;top:0;width:50px;height:50px';
+    document.body.append(arena);
+    onCleanup(() => arena.remove());
+
+    const motion = { x: 200, y: 200 };
+
+    bounds(arena)(window).apply(motion, origin);
+    // The arena's right and bottom, 50, less the visual's, 20.
+    expect(motion).toEqual({ x: 30, y: 30 });
+  });
+
+  it('should clamp to the viewport at its first apply, before any invalidate', () => {
+    const motion = { x: 100_000, y: 100_000 };
+
+    bounds()(window).apply(motion, origin);
+    expect(motion).toEqual({
+      x: window.innerWidth - 20,
+      y: window.innerHeight - 20,
+    });
+  });
+});

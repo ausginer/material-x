@@ -1,0 +1,24 @@
+round 1/1: free drag + bounds + 10 drop targets, 300 moves, one frame each
+round 1/1: 50 free-drag activate-and-drop cycles, bounds + 10 drop targets
+round 1/1: free drag + bounds + 400 drop targets, 300 moves, one frame each
+round 1/1: 50 free-drag activate-and-drop cycles, bounds + 400 drop targets
+
+free drag + bounds + 10 drop targets, 300 moves, one frame each
+  before layouts: at or below: 0 against 0
+  before scriptUs: FLAG slower: higher in 1 of 1, median 14 µs, A/A bound 10 µs
+  before taskUs: FLAG slower: higher in 1 of 1, median 155 µs, A/A bound 121 µs
+
+50 free-drag activate-and-drop cycles, bounds + 10 drop targets
+  before layouts: at or below: 100 against 100
+  before scriptUs: faster: higher in 0 of 1, median -98 µs, A/A bound 24 µs
+  before taskUs: faster: higher in 0 of 1, median -1144 µs, A/A bound 514 µs
+
+free drag + bounds + 400 drop targets, 300 moves, one frame each
+  before layouts: at or below: 0 against 0
+  before scriptUs: no difference shown: higher in 1 of 1, median 6 µs, A/A bound 11 µs
+  before taskUs: no difference shown: higher in 1 of 1, median 115 µs, A/A bound 134 µs
+
+50 free-drag activate-and-drop cycles, bounds + 400 drop targets
+  before layouts: at or below: 100 against 100
+  before scriptUs: no difference shown: higher in 1 of 1, median 86 µs, A/A bound 231 µs
+  before taskUs: no difference shown: higher in 1 of 1, median 553 µs, A/A bound 862 µs

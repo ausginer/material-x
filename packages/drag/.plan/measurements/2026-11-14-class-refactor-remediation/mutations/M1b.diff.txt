@@ -1,0 +1,11 @@
+24c24
+< export interface DropTargetTracker {
+---
+> interface DropTargetTrackerShape {
+52c52
+< class ElementTargetTracker implements DropTargetTracker {
+---
+> class ElementTargetTracker implements DropTargetTrackerShape {
+150a151,152
+> 
+> export type DropTargetTracker = ElementTargetTracker;

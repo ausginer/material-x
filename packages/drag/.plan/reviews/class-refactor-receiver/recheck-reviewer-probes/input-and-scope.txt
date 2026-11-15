@@ -1,0 +1,24 @@
+# Input and scope, read at f6b4bdf4c on drag/class-refactor
+HEAD: f6b4bdf4cb7691b929ff2dcbaa7bfe08652a3ae2
+origin/drag/class-refactor: f6b4bdf4cb7691b929ff2dcbaa7bfe08652a3ae2
+working tree status, excluding this review's own directory (empty = clean):
+
+## files changed 42f42a164..c157dffb5 outside packages/drag/.plan (empty = code equal)
+
+## files changed c157dffb5..c9e728bad (the unit's code commit)
+packages/drag/src/sortable/invalidatable.ts
+packages/drag/src/sortable/retirable.ts
+packages/drag/tests/callbacks.declaration.test.ts
+
+## files changed c9e728bad..f6b4bdf4c outside the report and its measurements directory (empty = inside its boundary)
+
+## packages/drag2 changed 42f42a164..f6b4bdf4c (empty = unchanged)
+
+## lines removed from tests/callbacks.declaration.test.ts, c157dffb5..c9e728bad
+0
+
+## scratch trees
+Each tree is 'git archive <rev> packages/drag packages/box-quad .scripts tsconfig.base.json types.d.ts package.json' extracted into <scratch>/b-<rev>,
+with node_modules, packages/drag/node_modules and packages/drag2 linked to the main checkout. @ydinjs/box-quad therefore resolves to the main checkout's built box-quad in both trees.
+The head tree also has .oxlintrc.json, .oxfmtrc.json, eslint.config.ts and tsconfig.json from f6b4bdf4c, for the lint probe.
+Builds: 'npx tsdown --config tsdown.config.ts' in each tree's packages/drag. 'just build' runs 'clean-build' first, which calls git and fails outside a repository; a fresh extraction has nothing to clean.

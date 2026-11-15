@@ -29,6 +29,8 @@ import {
   type Insertion,
   insertionAt,
 } from './domain.ts';
+import type { Invalidatable } from './invalidatable.ts';
+import type { Retirable } from './retirable.ts';
 
 /** Packed `[left, top, right, bottom, centerX, centerY]` per destination slot. */
 export const STRIDE = 6;
@@ -70,10 +72,10 @@ const LEADING = 2;
 const EQUIVALENCE_SLACK = 1 / 16;
 
 /**
- * The hot path: each axis rule reads the slot range it scans once per resolution,
- * then one number per candidate through `at`.
+ * The hot path: an axis rule reads the slot range it scans through the `first`,
+ * `end` and `count` getters, and one number per candidate through `at`.
  */
-export class RectIndex {
+export class RectIndex implements Invalidatable, Retirable {
   /**
    * The scratch slot, the placeholder, then the packed slots. It grows only by
    * appending, so it never has a hole, and it never shrinks: it holds the largest

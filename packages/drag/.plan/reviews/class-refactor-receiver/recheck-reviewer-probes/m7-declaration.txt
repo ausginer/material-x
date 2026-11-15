@@ -1,0 +1,22 @@
+## control
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+Type Errors  no errors
+exit=0
+  retire(this: Retirable): void;
+  invalidate(this: Invalidatable): void;
+## M7
+exit=1
+ FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/callbacks.declaration.test.ts:193:3
+ FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/callbacks.declaration.test.ts:195:3
+ FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+TypeCheckError: Unused '@ts-expect-error' directive.
+ ❯ tests/callbacks.declaration.test.ts:197:3
+ Test Files  1 failed | 3 passed (4)
+      Tests  27 passed (27)
+Type Errors  no errors
+restored

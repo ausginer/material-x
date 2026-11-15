@@ -1,0 +1,72 @@
+# Reviewer builds in the scratch trees: npx just build in packages/box-quad, then packages/drag
+
+## base
+d0e87f22d0c3fad9641ac208410d61f1f9215cc3c8fdb0b4374c7de176a719e9  index.js
+016caea68e92ddc7d3284f41ab3f657ff7c6c33896676faaff9ba1f7c3491b4e  index.d.ts
+box-quad hashes equal to the report's checks/base/bq-build-hashes.txt: yes
+drag .d.ts hashes equal to the report's checks/base/drag-dts-hashes.txt: yes
+sortable/linear-shift.js: 70 lines; lines naming heldLeft, heldRight or advanceUnchecked:
+  (none)
+sortable/ files named invalidatable or retirable:
+  (none)
+
+## edited
+51dc4e4f83b8c38f3697400288e990fdaac3d2bdce132c3b7c6040b4c1103529  index.js
+016caea68e92ddc7d3284f41ab3f657ff7c6c33896676faaff9ba1f7c3491b4e  index.d.ts
+box-quad hashes equal to the report's checks/edited/bq-build-hashes.txt: yes
+drag .d.ts hashes equal to the report's checks/edited/drag-dts-hashes.txt: yes
+sortable/linear-shift.js: 97 lines; lines naming heldLeft, heldRight or advanceUnchecked:
+28:	#heldLeft = NaN;
+29:	#heldRight = NaN;
+sortable/ files named invalidatable or retirable:
+invalidatable.d.ts
+retirable.d.ts
+
+## edited sortable/linear-shift.js, the class's fields
+// src/sortable/linear-shift.ts
+/**
+* One `RectIndex` under the linear shift rule, along y. The index was constructed
+* with `TOP` as its axis.
+*/
+var LinearShift = class {
+	#index;
+	/** A prediction is valid only against a buffer that describes the DOM. */
+	#dirty = true;
+	/** The destination gap the buffer reflects, or `-1` when nothing is known. */
+	#lastGap = -1;
+	/** The collection version the buffer holds, or `-1` for nothing. */
+	#snapshotVersion = -1;
+	/**
+	* The distance one crossed row travels along the axis, or `-1` while unmeasured.
+	* Every invalidation discards it, because a zoom, a resize or a replaced
+	* collection all change it, and the cache has one staleness flag with no reason
+	* attached. The cost is one row read on the next committed move.
+	*/
+	#rowDistance = -1;
+	/** A committed move left the cached placeholder rect out of date. */
+	#placeholderIsStale = false;
+	/**
+	* The placeholder's left and right as the cache held them before the re-read,
+	* or `NaN` when no re-read followed the last committed move. Written only inside
+	* `__DEV__` branches.
+	*/
+	#heldLeft = NaN;
+	#heldRight = NaN;
+	constructor(index) {
+		this.#index = index;
+	}
+
+## base sortable/linear-shift.js, the factory's start
+3:function linearShift(index) {
+4-	/** A prediction is valid only against a buffer that describes the DOM. */
+5-	let dirty = true;
+6-	/** The destination gap the buffer reflects, or `-1` when nothing is known. */
+7-	let lastGap = -1;
+8-	/** The collection version the buffer holds, or `-1` for nothing. */
+9-	let snapshotVersion = -1;
+10-	/**
+11-	* The distance one crossed row travels along the axis, or `-1` while unmeasured.
+12-	* Every invalidation discards it, because a zoom, a resize or a replaced
+13-	* collection all change it, and the cache has one staleness flag with no reason
+14-	* attached. The cost is one row read on the next committed move.
+15-	*/

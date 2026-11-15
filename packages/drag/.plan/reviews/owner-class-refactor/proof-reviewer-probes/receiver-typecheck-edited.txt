@@ -1,0 +1,26 @@
+tree: edited
+unmutated: ../drag2/src/kernel/presentation.ts:13 TS2724 ../drag2/src/kernel/presentation.ts:15 TS2724 tests/callbacks.declaration.test.ts:172 TS2578 tests/callbacks.declaration.test.ts:174 TS2578
+## axis-retire
+  tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+  tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+  (errors outside drag2: 2)
+## axis-invalidate
+  tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+  tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+  (errors outside drag2: 2)
+## sink-retire
+  tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+  tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+  (errors outside drag2: 2)
+## behavior-invalidate
+  tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+  tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+  (errors outside drag2: 2)
+## targets-release
+  tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+  tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+  (errors outside drag2: 2)
+## targets-resolve
+  tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+  tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+  (errors outside drag2: 2)

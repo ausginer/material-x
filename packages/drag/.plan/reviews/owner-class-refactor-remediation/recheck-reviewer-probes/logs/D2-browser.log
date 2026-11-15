@@ -1,0 +1,42 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 <scratch>/end/packages/drag
+
+11:27:08 PM [vite] (client) warning: 
+<scratch>/end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: <scratch>/end/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e5a2b2c3
+ ❯ |browser (chromium)| tests/equivalence-check.browser.test.ts (1 test | 1 failed) 727ms
+   ❯ drag:DRD-52 development equivalence check (1)
+     × should report a placeholder that a committed move displaces along x 725ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:18 > drag:DRD-52 development equivalence check > should report a placeholder that a committed move displaces along x
+AssertionError: expected [] to include 'drag: the predicted insertion geometr…'
+ ❯ tests/equivalence-check.browser.test.ts:40:29
+     38|
+     39|     await commands.keyPress('Escape');
+     40|     expect(faultMessages()).toContain(
+       |                             ^
+     41|       'drag: the predicted insertion geometry disagreed with a fresh m…
+     42|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 25 passed (26)
+      Tests  1 failed | 358 passed (359)
+   Start at  23:27:07
+   Duration  39.85s (tests 96%, worker 3%, import 1%)
+

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# The architect's builds and hash lists. S is the scratch directory; t-<rev> is `git archive <rev>`,
+# with node_modules, packages/drag/node_modules and packages/drag2 linked to the main checkout,
+# so both trees read the main checkout's box-quad build.
+for r in 42f42a164 cb24e927e; do (cd $S/t-$r/packages/drag && npx tsdown --config tsdown.config.ts > $S/build-$r.log 2>&1); done
+for r in 42f42a164 cb24e927e; do (cd $S/t-$r/packages/drag && for ext in js js.map d.ts; do
+  find . -path ./node_modules -prune -o -path ./src -prune -o -path ./tests -prune -o -path ./bench -prune -o -path ./.plan -prune -o -type f -name "*.$ext" -print \
+    | grep -v -E '\.config\.|eslint' | sort | xargs sha256sum > $S/h-$r.$ext.txt; done); done
+cd $S && diff -r -u --exclude=node_modules --exclude=src --exclude=tests --exclude=bench --exclude=.plan t-42f42a164/packages/drag t-cb24e927e/packages/drag > $S/dts.diff
+# M7 through the declaration project (m7-declaration.txt): sed the two receivers to Retirable and Invalidatable in the
+# head tree, `npx vitest run -c vitest.config.ts --project declaration`, restore both files from copies, cmp.
+# In the main checkout (main-checks.txt): `npx just lint`, `npx just typecheck`, `npx just test --project declaration`.

@@ -1,0 +1,6 @@
+tsc -p tsconfig.json --noEmit
+tests/callbacks.declaration.test.ts(172,3): error TS2578: Unused '@ts-expect-error' directive.
+tests/callbacks.declaration.test.ts(174,3): error TS2578: Unused '@ts-expect-error' directive.
+../drag2/src/kernel/presentation.ts(13,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'. Did you mean 'Box'?
+../drag2/src/kernel/presentation.ts(15,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?
+error: recipe `typecheck` failed on line 37 with exit code 1

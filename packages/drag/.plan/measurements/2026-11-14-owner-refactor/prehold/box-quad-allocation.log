@@ -1,0 +1,13 @@
+{}
+fallback, depth 2 base 367.3 366.7 367.6
+fallback, depth 2 base2 367.4 366.9 367.8
+fallback, depth 2 edited 366.8 366.7 366.5
+fallback, depth 14 base 3026.8 3026.8 3028.9
+fallback, depth 14 base2 3028.5 3027.0 3027.8
+fallback, depth 14 edited 3027.8 3028.6 3027.5
+fallback, depth 32 base 6832.6 6830.6 6840.1
+fallback, depth 32 base2 6835.4 6836.4 6836.5
+fallback, depth 32 edited 6840.0 6843.2 6843.8
+above, depth 14 base 216.1 217.0 217.4
+above, depth 14 base2 217.3 217.2 216.8
+above, depth 14 edited 217.1 215.8 217.4

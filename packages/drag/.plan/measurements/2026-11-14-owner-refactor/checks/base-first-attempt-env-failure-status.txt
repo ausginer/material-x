@@ -1,0 +1,12 @@
+bq-build exit=1 start=2026-11-14T19:11:44+00:00 end=2026-11-14T19:11:44+00:00 cmd=(packages/box-quad) npx just build
+bq-typecheck exit=1 start=2026-11-14T19:11:44+00:00 end=2026-11-14T19:11:45+00:00 cmd=(packages/box-quad) npx just typecheck
+bq-lint exit=1 start=2026-11-14T19:11:45+00:00 end=2026-11-14T19:11:51+00:00 cmd=(packages/box-quad) npx just lint
+bq-fmt-check exit=1 start=2026-11-14T19:11:51+00:00 end=2026-11-14T19:11:51+00:00 cmd=(packages/box-quad) npx just fmt-check
+bq-test exit=1 start=2026-11-14T19:11:51+00:00 end=2026-11-14T19:11:52+00:00 cmd=(packages/box-quad) npx just test
+bq-size exit=1 start=2026-11-14T19:11:52+00:00 end=2026-11-14T19:11:53+00:00 cmd=(packages/box-quad) npx just size
+drag-typecheck exit=1 start=2026-11-14T19:11:53+00:00 end=2026-11-14T19:11:54+00:00 cmd=(packages/drag) npx just typecheck
+drag-lint exit=1 start=2026-11-14T19:11:54+00:00 end=2026-11-14T19:11:55+00:00 cmd=(packages/drag) npx just lint
+drag-fmt-check exit=1 start=2026-11-14T19:11:55+00:00 end=2026-11-14T19:11:55+00:00 cmd=(packages/drag) npx just fmt-check
+drag-test exit=1 start=2026-11-14T19:11:55+00:00 end=2026-11-14T19:11:56+00:00 cmd=(packages/drag) npx just test
+drag-size exit=1 start=2026-11-14T19:11:56+00:00 end=2026-11-14T19:11:57+00:00 cmd=(packages/drag) npx just size
+done
