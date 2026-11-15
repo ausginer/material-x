@@ -8,9 +8,13 @@
  *
  * The rule predicts from this geometry, and these terms are contract and not
  * runtime checks. Relocating the placeholder displaces the crossed slots by one
- * constant along the axis and changes nothing else: a wrapping list does not
- * satisfy it, and varying gaps and margins do. A row's flow size does not depend
- * on where it sits. The rows' centers increase along y in the collection's order,
+ * constant along the axis and changes nothing else. A wrapping list does not
+ * satisfy it. Nor does a block column whose vertical margins collapse into each
+ * other on both sides of a row: the space between two neighbours is then the
+ * larger of their two margins, so where the placeholder sits changes the spacing
+ * of rows it did not cross. Such a column satisfies it when the placeholder has
+ * the rows' margins. A flex column, a flow `gap` and margins on one side of each
+ * row satisfy it. A row's flow size does not depend on where it sits. The rows' centers increase along y in the collection's order,
  * so the nearest center is one of the two that bracket the pointer. The linear map
  * the collection inherits is stable for the operation. A flow axis that an ancestor
  * rotates or skews is outside the rule; scale and zoom are fine.
@@ -102,8 +106,12 @@ class YAxisGeometry implements InsertionGeometry {
 /**
  * The axis rule for a single column. The rows' centers must increase along y in
  * the collection's order: a reversed column, a row that isn't rendered, or a
- * transform that carries a row's center past a neighbor's is outside this rule. A
- * resolution measures only rows it hasn't measured since the last scroll, resize or
+ * transform that carries a row's center past a neighbor's is outside this rule.
+ * Moving the placeholder must move only the rows it crosses, all by one distance:
+ * a wrapping list is outside this rule, and so is a block column whose vertical
+ * margins collapse on both sides of a row, unless the placeholder has the rows'
+ * margins, for example from a `[data-drag-placeholder]` style rule. A resolution
+ * measures only rows it hasn't measured since the last scroll, resize or
  * `invalidate()`: the rows between the placeholder and the pointer, and one beyond.
  */
 export function y(): AxisInstaller {

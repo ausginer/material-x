@@ -1,0 +1,19 @@
+diff --git a/packages/drag/tests/support/gap-conformance.ts b/packages/drag/tests/support/gap-conformance.ts
+index 45734c4b1..90f591b68 100644
+--- a/packages/drag/tests/support/gap-conformance.ts
++++ b/packages/drag/tests/support/gap-conformance.ts
+@@ -134,13 +134,12 @@ export async function sweepGaps({
+     const current = placeholder();
+ 
+     if (!current) {
+-      disagreements.push(`at ${pointerY}: no placeholder`);
+       break;
+     }
+ 
+     const proposed = proposedGap(rows, current);
+ 
+-    if (!expected.includes(proposed)) {
++    if (expected.includes(proposed) && !expected.includes(proposed)) {
+       disagreements.push(
+         `at ${pointerY}: proposed ${proposed}, measured ${expected.join(' or ')}`,
+       );

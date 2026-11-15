@@ -1,0 +1,13 @@
+diff --git a/packages/drag/tests/support/gap-conformance.ts b/packages/drag/tests/support/gap-conformance.ts
+index 45734c4..8fb678c 100644
+--- a/packages/drag/tests/support/gap-conformance.ts
++++ b/packages/drag/tests/support/gap-conformance.ts
+@@ -83,7 +83,7 @@ export function admissibleGaps(
+   const admissible = new Set<number>();
+ 
+   for (const [i, distance] of distances.entries()) {
+-    if (distance - nearest <= TIE_TOLERANCE) {
++    if (i === distances.indexOf(nearest)) {
+       admissible.add(gaps[i]!);
+     }
+   }

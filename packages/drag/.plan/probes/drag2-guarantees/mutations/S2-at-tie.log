@@ -1,0 +1,7 @@
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:78 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+AssertionError: expected [ 'at 79: no placeholder' ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:84:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:245 > drag:DRI-14 the gap instrument > should agree on a block column whose margins collapse when the placeholder has the rows' margins
+AssertionError: expected [ 'at 85: no placeholder' ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:251:65
+Tests  2 failed | 11 passed (13)

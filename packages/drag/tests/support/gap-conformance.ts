@@ -47,37 +47,48 @@ export function proposedGap(
 }
 
 /**
- * `y()`'s rule over every row, measured now: the row center nearest `pointerY`,
- * the first in order among equals, with the placeholder's own center as the
- * incumbent. The gap is on the side of that row the placeholder travels toward.
+ * How far a candidate's distance to the pointer may exceed the smallest and still
+ * give an admissible gap. `y()` predicts each center it compares to within 1/16 px
+ * of a measurement, and each of the two centers compared may be off by that much,
+ * so where the pointer is within 1/8 px of equidistant from two of them, either
+ * gap is a correct placement.
  */
-export function measuredGap(
+const TIE_TOLERANCE = 1 / 8;
+
+/**
+ * `y()`'s rule over every row, measured now: the gaps given by every candidate
+ * whose center is within `TIE_TOLERANCE` of the nearest to `pointerY`. The
+ * candidates are the placeholder's own center, which keeps the gap it occupies,
+ * and each row's, whose gap is on the side of that row the placeholder travels
+ * toward. Without a tie it is the rule's one gap.
+ */
+export function admissibleGaps(
   rows: readonly HTMLElement[],
   placeholder: Element,
   pointerY: number,
   measured: MeasuredElement = measureRow,
-): number {
+): number[] {
   const anchor = centerOf(placeholder).y;
-  let best = Math.abs(pointerY - anchor);
-  let nearest = -1;
-  let nearestCenter = 0;
+  const distances = [Math.abs(pointerY - anchor)];
+  const gaps = [proposedGap(rows, placeholder)];
 
   for (const [i, row] of rows.entries()) {
     const center = settledCenterY(row, measured);
-    const distance = Math.abs(pointerY - center);
 
-    if (distance < best) {
-      best = distance;
-      nearest = i;
-      nearestCenter = center;
+    distances.push(Math.abs(pointerY - center));
+    gaps.push(center > anchor ? i + 1 : i);
+  }
+
+  const nearest = Math.min(...distances);
+  const admissible = new Set<number>();
+
+  for (const [i, distance] of distances.entries()) {
+    if (distance - nearest <= TIE_TOLERANCE) {
+      admissible.add(gaps[i]!);
     }
   }
 
-  if (nearest === -1) {
-    return proposedGap(rows, placeholder);
-  }
-
-  return nearestCenter > anchor ? nearest + 1 : nearest;
+  return [...admissible];
 }
 
 export type Sweep = Readonly<{
@@ -88,13 +99,15 @@ export type Sweep = Readonly<{
   /** The pointer's y at each step, in viewport coordinates. */
   path: readonly number[];
   measured?: MeasuredElement;
+  /** Called at each sample where more than one gap is admissible. */
+  onTie?: (pointerY: number) => void;
 }>;
 
 /**
- * Moves the held pointer along the path and returns each disagreement between
- * `y()`'s proposal and a full measurement. The frame after a move resolves against
- * the geometry measured before it, while nothing changes the tree. A drag that
- * ended, for a fault or otherwise, is a disagreement too.
+ * Moves the held pointer along the path and returns each sample where `y()`'s
+ * proposal is not a gap that a full measurement admits. The frame after a move
+ * resolves against the geometry measured before it, while nothing changes the
+ * tree. A drag that ended, for a fault or otherwise, is a disagreement too.
  */
 export async function sweepGaps({
   rows,
@@ -102,11 +115,16 @@ export async function sweepGaps({
   pointerX,
   path,
   measured = measureRow,
+  onTie,
 }: Sweep): Promise<string[]> {
   const disagreements: string[] = [];
 
   for (const pointerY of path) {
-    const expected = measuredGap(rows, placeholder()!, pointerY, measured);
+    const expected = admissibleGaps(rows, placeholder()!, pointerY, measured);
+
+    if (expected.length > 1) {
+      onTie?.(pointerY);
+    }
 
     // oxlint-disable-next-line no-await-in-loop -- one sample per step
     await commands.pointerMove(pointerX, pointerY);
@@ -122,9 +140,9 @@ export async function sweepGaps({
 
     const proposed = proposedGap(rows, current);
 
-    if (proposed !== expected) {
+    if (!expected.includes(proposed)) {
       disagreements.push(
-        `at ${pointerY}: proposed ${proposed}, measured ${expected}`,
+        `at ${pointerY}: proposed ${proposed}, measured ${expected.join(' or ')}`,
       );
     }
   }

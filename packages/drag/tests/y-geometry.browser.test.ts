@@ -116,6 +116,17 @@ describe('drag:DRI-14 y() proposes the gap a full measurement gives', () => {
     ).toEqual([]);
   });
 
+  it('should agree with an authored rotate on a row', async () => {
+    // A rotation enlarges the row's rect beyond its flow footprint, so a rule that
+    // summed rect extents over the crossed rows would drift.
+    const rows = heights([70, 55, 30, 90]);
+
+    rows[1] = { ...rows[1], rotate: '8deg' };
+    expect(await sweepList('display:flex;flex-direction:column', rows)).toEqual(
+      [],
+    );
+  });
+
   it('should agree with an authored scale on a row', async () => {
     const rows = heights([70, 55, 30, 90]);
 
@@ -174,6 +185,11 @@ describe('drag:DRI-14 y() proposes the gap a full measurement gives', () => {
   });
 });
 
+const collapsingMargins = heights([70, 55, 30, 90], {
+  marginTop: '6px',
+  marginBottom: '10px',
+});
+
 describe('drag:DRI-14 the gap instrument', () => {
   it('should report gap disagreements when the library measures another element than the instrument', async () => {
     // The library measures each row, and the instrument a mark 20 px lower: a
@@ -218,5 +234,20 @@ describe('drag:DRI-14 the gap instrument', () => {
         heights([40, 40, 40, 40, 40, 40]),
       ),
     ).not.toEqual([]);
+  });
+
+  it('should report a block column whose margins collapse on both sides of each row', async () => {
+    // The space between two neighbours is the larger of their two margins, so the
+    // margin-less placeholder changes the spacing of rows it does not cross.
+    expect(await sweepList('display:block', collapsingMargins)).not.toEqual([]);
+  });
+
+  it("should agree on a block column whose margins collapse when the placeholder has the rows' margins", async () => {
+    const style = document.createElement('style');
+
+    style.textContent = '[data-drag-placeholder] { margin: 6px 0 10px }';
+    document.head.append(style);
+    onCleanup(() => style.remove());
+    expect(await sweepList('display:block', collapsingMargins)).toEqual([]);
   });
 });

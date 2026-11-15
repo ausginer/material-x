@@ -1,0 +1,28 @@
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:69 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on rows of unequal heights
+AssertionError: expected [ …(22) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:75:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:78 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+AssertionError: expected [ …(24) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:84:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:87 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree when the gap varies from row to row
+AssertionError: expected [ …(21) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:97:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:100 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with item margins in a flex column
+AssertionError: expected [ …(26) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:106:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:109 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with item margins in a block column
+AssertionError: expected [ …(26) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:116:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:119 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored rotate on a row
+AssertionError: expected [ …(22) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:125:73
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:130 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored scale on a row
+AssertionError: expected [ …(22) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:134:73
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:139 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+AssertionError: expected [ …(22) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:184:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:245 > drag:DRI-14 the gap instrument > should agree on a block column whose margins collapse when the placeholder has the rows' margins
+AssertionError: expected [ …(23) ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:251:65
+Tests  9 failed | 4 passed (13)

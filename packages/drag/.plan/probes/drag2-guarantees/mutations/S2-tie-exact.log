@@ -1,0 +1,4 @@
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:119 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored rotate on a row
+AssertionError: expected [ 'at 95: proposed 1, measured 2' ] to deeply equal []
+❯ tests/y-geometry.browser.test.ts:125:73
+Tests  1 failed | 12 passed (13)
