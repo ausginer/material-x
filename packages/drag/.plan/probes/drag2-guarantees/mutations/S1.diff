@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 188e75220..b867e5bdf 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -249,7 +249,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+           this.#context.placeholder.parentElement &&
+         this.#context.placeholder.nextElementSibling !== this.#query.item
+       ) {
+-        this.#query.item.before(this.#context.placeholder);
++        // this.#query.item.before(this.#context.placeholder);
+       }
+     } else {
+       movePlaceholder(this.#context.placeholder, this.#home);

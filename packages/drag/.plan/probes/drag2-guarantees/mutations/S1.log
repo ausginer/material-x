@@ -1,0 +1,14 @@
+     × should land on the final rect when a morphdom-style patch strands the placeholder at the tail
+     × should land on the final rect when an append loop leaves the placeholder at the head
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:569 > drag:DRI-13 sortable landing after the commit > should land on the final rect when an append loop leaves the placeholder at the head
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:591 > drag:DRI-13 sortable landing after the commit > should land on the final rect when a morphdom-style patch strands the placeholder at the tail
+ ❯ tests/landing.browser.test.ts:588:8
+ ❯ tests/landing.browser.test.ts:615:8
++     0,
++     120,
++ Received
+-     80,
+- Expected
+AssertionError: expected { Object (left, targets, ...) } to deeply equal { Object (left, targets, ...) }
+AssertionError: expected { Object (left, targets, ...) } to deeply equal { left: 4, targets: [ 80 ], final: 80 }
+      Tests  2 failed | 23 passed (25)

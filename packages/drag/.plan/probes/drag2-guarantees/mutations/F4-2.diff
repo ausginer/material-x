@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/free-drag/bounds.ts b/packages/drag/src/free-drag/bounds.ts
+index adb929e34..95842fbfa 100644
+--- a/packages/drag/src/free-drag/bounds.ts
++++ b/packages/drag/src/free-drag/bounds.ts
+@@ -81,7 +81,6 @@ class BoundsConstraint implements MotionConstraint {
+         : this.#source.getBoundingClientRect();
+ 
+     if (!read) {
+-      this.#held = null;
+       return this.#held;
+     }
+ 

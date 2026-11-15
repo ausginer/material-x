@@ -8,6 +8,12 @@ import {
   type Space,
 } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
+import {
+  freeDrag,
+  FreeDragResolution,
+  type DragGeometry,
+  type FreeDragConfig,
+} from '../src/free-drag.ts';
 import { Lifter } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
@@ -21,6 +27,7 @@ import {
   makeList,
   managed,
   moveHeld,
+  onCleanup,
   order,
   release,
   frames,
@@ -382,6 +389,81 @@ describe('drag:DRI-16 required environments for a sortable', () => {
     'should read a Space for an ancestor it can represent',
     () => {
       expect(ancestry(makeList(1), [])).toBe(true);
+    },
+  );
+});
+
+const ANCESTOR_ENVIRONMENTS: ReadonlyArray<readonly [string, string]> = [
+  ['an ancestor transform', 'transform:scale(.5)'],
+  ['an ancestor zoom', 'zoom:2'],
+];
+
+function mountFree(node: HTMLElement, config: Partial<FreeDragConfig>): void {
+  const controller = freeDrag(node, {
+    onDrop: () => FreeDragResolution.accept(),
+    ...config,
+  });
+
+  onCleanup(() => controller.requestDestroy());
+}
+
+describe('drag:DRI-20 free drag under an ancestor transform or zoom', () => {
+  it.each(ANCESTOR_ENVIRONMENTS)(
+    'should commit the visual where it was dropped through the local delta under %s',
+    async (_name, css) => {
+      const node = makeNode(host(css));
+
+      mountFree(node, {
+        onEnd(result) {
+          if (result.type === 'accepted') {
+            const { localDeltaX, localDeltaY } = result.request;
+
+            node.style.translate = `${localDeltaX}px ${localDeltaY}px`;
+          }
+        },
+      });
+      await grab(node, 60, 40);
+
+      const dropped = node.getBoundingClientRect();
+
+      await release();
+
+      const committed = node.getBoundingClientRect();
+
+      expect(committed.left).toBeCloseTo(dropped.left, 0);
+      expect(committed.top).toBeCloseTo(dropped.top, 0);
+    },
+  );
+
+  it.each(ANCESTOR_ENVIRONMENTS)(
+    'should report onMove currentRect as originRect moved by the viewport delta under %s',
+    async (_name, css) => {
+      const node = makeNode(host(css));
+      const moves: DragGeometry[] = [];
+
+      mountFree(node, {
+        onMove(geometry) {
+          moves.push(geometry);
+        },
+      });
+      await grab(node, 60, 40);
+
+      const { currentRect, originRect, viewportDeltaX, viewportDeltaY } =
+        moves.at(-1)!;
+
+      // The pointer travelled 60 by 40 viewport pixels, unconstrained.
+      expect({
+        viewportDeltaX,
+        viewportDeltaY,
+        left: currentRect.left,
+        top: currentRect.top,
+      }).toEqual({
+        viewportDeltaX: 60,
+        viewportDeltaY: 40,
+        left: originRect.left + 60,
+        top: originRect.top + 40,
+      });
+      await commands.keyPress('Escape');
     },
   );
 });

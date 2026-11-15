@@ -13,6 +13,7 @@ import {
   commands,
   dragAndDrop,
   faultMessages,
+  faults,
   frames,
   grab,
   log,
@@ -315,5 +316,85 @@ describe('drag:DRD-63 a fresh bounds constraint', () => {
       x: window.innerWidth - 20,
       y: window.innerHeight - 20,
     });
+  });
+});
+
+describe('FreeDragController.moveTo', () => {
+  it('should keep following the pointer from the point it placed the visual at', async () => {
+    const box = makeBox();
+    const controller = mount(box);
+    const at = await grab(box, 60, 40);
+
+    controller.moveTo({ x: 200, y: 150 });
+    await moveHeld(at.x + 10, at.y + 20);
+
+    const { left, top } = box.getBoundingClientRect();
+
+    expect([left, top]).toEqual([210, 170]);
+    await commands.keyPress('Escape');
+  });
+});
+
+describe('bounds with a function source', () => {
+  it('should clamp to the rect the function returns', async () => {
+    const box = makeBox();
+
+    mount(box, { bounds: bounds(() => new DOMRectReadOnly(0, 0, 300, 200)) });
+    await grab(box, 800, 600);
+
+    const { right, bottom } = box.getBoundingClientRect();
+
+    expect([right, bottom]).toEqual([300, 200]);
+    await commands.keyPress('Escape');
+  });
+
+  it('should leave the drag unconstrained when the function returns null', async () => {
+    const box = makeBox();
+
+    mount(box, { bounds: bounds(() => null) });
+    await grab(box, 300, 200);
+
+    const { left, top } = box.getBoundingClientRect();
+
+    expect([left, top]).toEqual([340, 240]);
+    await commands.keyPress('Escape');
+  });
+
+  it('should report a throw at activation as one fault carrying the thrown value', async () => {
+    const box = makeBox();
+    const thrown = new Error('bounds');
+
+    mount(box, {
+      bounds: bounds(() => {
+        throw thrown;
+      }),
+    });
+    await grab(box, 60, 40);
+    await moveHeld(200, 200);
+    await release();
+    expect(faults.map((fault) => fault.cause)).toEqual([thrown]);
+  });
+
+  it('should report a throw during the drag as one fault carrying the thrown value', async () => {
+    const box = makeBox();
+    const thrown = new Error('bounds');
+    let armed = false;
+    const controller = mount(box, {
+      bounds: bounds(() => {
+        if (armed) {
+          throw thrown;
+        }
+
+        return null;
+      }),
+    });
+    const at = await grab(box, 60, 40);
+
+    armed = true;
+    controller.invalidate();
+    await moveHeld(at.x + 10, at.y);
+    await moveHeld(at.x + 20, at.y);
+    await release();
+    expect(faults.map((fault) => fault.cause)).toEqual([thrown]);
   });
 });

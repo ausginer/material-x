@@ -1,0 +1,7 @@
+     × should keep following the pointer from the point it placed the visual at
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:323 > FreeDragController.moveTo > should keep following the pointer from the point it placed the visual at
+ ❯ tests/free-drag.browser.test.ts:333:25
++ Received
+- Expected
+AssertionError: expected [ 110, 100 ] to deeply equal [ 210, 170 ]
+      Tests  1 failed | 16 passed (17)

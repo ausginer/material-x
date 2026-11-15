@@ -1,0 +1,13 @@
+     × should start the landing from the axis-locked position, not the pointer
+     × should start the landing from the clamped position, not the pointer
+     × should start the landing from the moveTo position, not the pointer
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:498 > drag:DRI-13 free-drag landing origin > should start the landing from the axis-locked position, not the pointer
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:509 > drag:DRI-13 free-drag landing origin > should start the landing from the clamped position, not the pointer
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:525 > drag:DRI-13 free-drag landing origin > should start the landing from the moveTo position, not the pointer
+ ❯ tests/landing.browser.test.ts:506:23
+ ❯ tests/landing.browser.test.ts:521:24
+ ❯ tests/landing.browser.test.ts:533:24
+AssertionError: expected 100 to be close to 200, received difference is 100, but expected 0.5
+AssertionError: expected 80 to be close to 40, received difference is 40, but expected 0.5
+AssertionError: expected 840 to be close to 250, received difference is 590, but expected 0.5
+      Tests  3 failed | 22 passed (25)

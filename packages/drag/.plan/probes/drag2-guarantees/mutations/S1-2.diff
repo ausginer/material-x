@@ -1,0 +1,16 @@
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 188e75220..99fb5d6c3 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -255,10 +255,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+       movePlaceholder(this.#context.placeholder, this.#home);
+     }
+ 
+-    if (
+-      !this.#context.placeholder.isConnected ||
+-      this.#context.placeholder.parentElement !== this.#query.item.parentElement
+-    ) {
++    if (!this.#context.placeholder.isConnected) {
+       throw new Error('sortable/landing-placeholder-lost');
+     }
+ 
