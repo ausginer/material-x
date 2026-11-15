@@ -422,10 +422,15 @@ describe('drag:DRI-20 free drag under an ancestor transform or zoom', () => {
           }
         },
       });
+      const origin = node.getBoundingClientRect();
+
       await grab(node, 60, 40);
 
       const dropped = node.getBoundingClientRect();
 
+      // The drag activated: the visual follows the pointer's 60 by 40 px.
+      expect(dropped.left - origin.left).toBeCloseTo(60, 0);
+      expect(dropped.top - origin.top).toBeCloseTo(40, 0);
       await release();
 
       const committed = node.getBoundingClientRect();

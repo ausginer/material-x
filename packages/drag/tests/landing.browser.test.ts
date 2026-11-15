@@ -26,6 +26,7 @@ import {
   release,
   rowsOf,
   targetOf,
+  wait,
 } from './support/harness.ts';
 
 const row = (id: string): HTMLElement =>
@@ -633,6 +634,9 @@ describe('drag:DRI-13 sortable landing after the commit', () => {
     });
     await grab('#r0', 0, 90);
     await commands.pointerUp();
+    // Past the 100 ms the landing would have taken.
+    await wait(150);
+    await frames();
     expect({
       outcomes,
       faults: faultMessages(),

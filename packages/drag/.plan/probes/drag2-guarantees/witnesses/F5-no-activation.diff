@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -57,7 +57,7 @@
+   ): void;
+ }
+ 
+-const DEFAULT_THRESHOLD = 8;
++const DEFAULT_THRESHOLD = Infinity;
+ 
+ /**
+  * Events a controller of this library copy has admitted. Bubbling reaches the

@@ -266,8 +266,9 @@ describe('layoutAnimation composition', () => {
   it('should leave a consumer animation on transform running', async () => {
     const items = build();
     const row = items[1]!;
+    // Held still: the contract needs `invalidate()` for a row that moves mid-drag.
     const consumer = row.animate(
-      [{ transform: 'translateX(0px)' }, { transform: 'translateX(50px)' }],
+      [{ transform: 'translateX(10px)' }, { transform: 'translateX(10px)' }],
       { duration: 10_000 },
     );
 

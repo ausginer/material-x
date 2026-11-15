@@ -8,13 +8,16 @@ import { describe, expect, it } from 'vitest';
 import { Lifter } from '../src/lift.ts';
 import {
   basicSortable,
+  commands,
   dragAndDrop,
   grab,
   isClean,
   log,
   makeList,
   managed,
+  moveHeld,
   noteOutcome,
+  onCleanup,
   ReactionProbe,
   refusals,
   release,
@@ -127,6 +130,45 @@ describe('drag:DRI-6 reentrant input', () => {
     await dragAndDrop('#r0', 30);
     expect(admissions).toBe(2);
     expect(log).toEqual(['end:skipped', 'end:skipped']);
+  });
+
+  it('should count a nested press from another realm', async () => {
+    const frame = document.createElement('iframe');
+
+    frame.style.cssText =
+      'width:300px;height:300px;border:0;position:absolute;left:0;top:0';
+    document.body.append(frame);
+    onCleanup(() => {
+      frame.remove();
+    });
+
+    const inner = frame.contentDocument!;
+
+    inner.body.style.margin = '0';
+
+    const list = makeList(3, inner.body);
+    const realm = frame.contentWindow as Window & typeof globalThis;
+    const nested = (): void => {
+      list.firstElementChild!.dispatchEvent(
+        new realm.PointerEvent('pointerdown', {
+          bubbles: true,
+          isPrimary: true,
+        }),
+      );
+    };
+
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
+      activate: () => ({
+        start: nested,
+        end: noteOutcome,
+      }),
+    });
+    await commands.pointerMove(50, 20);
+    await commands.pointerDown();
+    await moveHeld(50, 50);
+    await release();
+    expect(refusals()).toEqual({ trusted: 0, untrusted: 1 });
   });
 
   it('should refuse no trusted event during ordinary drags', async () => {

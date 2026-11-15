@@ -1,0 +1,15 @@
+diff --git a/packages/drag/src/free-drag/bounds.ts b/packages/drag/src/free-drag/bounds.ts
+--- a/packages/drag/src/free-drag/bounds.ts
++++ b/packages/drag/src/free-drag/bounds.ts
+@@ -81,7 +81,10 @@
+         : this.#source.getBoundingClientRect();
+ 
+     if (!read) {
+-      this.#held = null;
++      this.#box.left = 0;
++      this.#box.top = 0;
++      this.#box.right = this.#window.innerWidth;
++      this.#box.bottom = this.#window.innerHeight;
+       return this.#held;
+     }
+ 

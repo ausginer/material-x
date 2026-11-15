@@ -1189,6 +1189,25 @@ describe('drag:DRI-14 candidates measured through box', () => {
     expect(await sweepFirstRow(list, boxOf)).toEqual([]);
   });
 
+  it('should measure every y() candidate through box when visual is also given', async () => {
+    const list = makeBoxedList();
+
+    // A visual 20 px tall at the top of each row, so its center is 20 px above the
+    // box's.
+    for (const row of rowsOf(list)) {
+      row.insertAdjacentHTML(
+        'beforeend',
+        '<div class="card" style="position:absolute;left:0;right:0;top:0;height:20px"></div>',
+      );
+    }
+
+    basicSortable(list, {
+      box: boxOf,
+      visual: (row) => row.querySelector<HTMLElement>('.card')!,
+    });
+    expect(await sweepFirstRow(list, boxOf)).toEqual([]);
+  });
+
   it('should measure every xy() candidate through box, not through the item', async () => {
     const list = makeList(
       6,

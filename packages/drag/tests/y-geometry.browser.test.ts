@@ -29,13 +29,16 @@ type RowStyle = Readonly<Record<string, string>>;
  * A list styled by `container`, one row per entry of `rows`, under a sortable with
  * `extra`. It drags the first row past its threshold, sweeps the pointer to below
  * the last row and back, and returns every disagreement with the instrument, which
- * measures each row through `measured`.
+ * measures each row through `measured`. With `invalidating`, it calls the
+ * operation's `invalidate()` before each sample, so that `y()` measures the rows
+ * again, displaced ones included, instead of predicting them.
  */
 async function sweepList(
   container: string,
   rows: readonly RowStyle[],
   extra: Partial<SortableConfig> = {},
   measured?: MeasuredElement,
+  invalidating = false,
 ): Promise<string[]> {
   const list = makeList(rows.length, document.body, container);
 
@@ -43,7 +46,7 @@ async function sweepList(
     Object.assign(row.style, rows[i]);
   }
 
-  basicSortable(list, extra);
+  const controller = basicSortable(list, extra);
 
   const [dragged, ...destination] = rowsOf(list);
   const { bottom } = list.getBoundingClientRect();
@@ -51,13 +54,30 @@ async function sweepList(
 
   await commands.pointerMove(start.x, start.y + 8, 2);
 
-  const disagreements = await sweepGaps({
-    rows: destination,
-    placeholder: () => list.querySelector('[data-drag-placeholder]'),
-    pointerX: start.x,
-    path: roundTrip(Math.round(start.y + 8), Math.round(bottom + 10), 4),
-    measured,
-  });
+  const path = roundTrip(Math.round(start.y + 8), Math.round(bottom + 10), 4);
+  const sweep = (samples: readonly number[]): Promise<string[]> =>
+    sweepGaps({
+      rows: destination,
+      placeholder: () => list.querySelector('[data-drag-placeholder]'),
+      pointerX: start.x,
+      path: samples,
+      measured,
+    });
+  let disagreements: string[] = [];
+
+  if (invalidating) {
+    for (const pointerY of path) {
+      controller.invalidate();
+      // oxlint-disable-next-line no-await-in-loop -- one sample per invalidation
+      disagreements.push(...(await sweep([pointerY])));
+
+      if (!list.querySelector('[data-drag-placeholder]')) {
+        break;
+      }
+    }
+  } else {
+    disagreements = await sweep(path);
+  }
 
   await commands.keyPress('Escape');
   return disagreements;
@@ -141,7 +161,8 @@ describe('drag:DRI-14 y() proposes the gap a full measurement gives', () => {
     // Gecko reports rects in app units, 1/60 px, and that includes a row in the
     // middle of a displacement. That is reproduced in every engine: every rect is
     // rounded to app units, and every animation is held at 13 ms of a linear
-    // 160 ms, where the exact offset of a 43 px row is 39.50625 px.
+    // 160 ms, where the exact offset of a 43 px row is 39.50625 px. The sweep
+    // invalidates before each sample, so y() measures rows while they are displaced.
     const { getBoundingClientRect: nativeRect, animate: nativeAnimate } =
       Element.prototype;
     const appUnit = (value: number): number => Math.round(value * 60) / 60;
@@ -181,6 +202,8 @@ describe('drag:DRI-14 y() proposes the gap a full measurement gives', () => {
         {
           displacement: layoutAnimation({ duration: 160, easing: 'linear' }),
         },
+        undefined,
+        true,
       ),
     ).toEqual([]);
   });

@@ -352,11 +352,17 @@ describe('bounds with a function source', () => {
     const box = makeBox();
 
     mount(box, { bounds: bounds(() => null) });
-    await grab(box, 300, 200);
+
+    // The pointer stays 10 px inside the viewport's corner, so the box, grabbed by
+    // its center, crosses the edge by 15 px, where the viewport would clamp it.
+    const dx = window.innerWidth - 10 - 65;
+    const dy = window.innerHeight - 10 - 65;
+
+    await grab(box, dx, dy);
 
     const { left, top } = box.getBoundingClientRect();
 
-    expect([left, top]).toEqual([340, 240]);
+    expect([left, top]).toEqual([40 + dx, 40 + dy]);
     await commands.keyPress('Escape');
   });
 

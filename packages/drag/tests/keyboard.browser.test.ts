@@ -222,6 +222,30 @@ describe('drag:DRI-14 commands from a nested text input', () => {
     expect(input.selectionStart).toBe(6);
   });
 
+  it('should leave ArrowRight to an unmarked input inside a marked region', async () => {
+    const list = makeList(3);
+    const prevented = recordPrevented();
+
+    basicSortable(list);
+
+    // The mark is on an element between the row and the input.
+    const region = document.createElement('div');
+    const input = document.createElement('input');
+
+    region.setAttribute('data-drag-ignore', '');
+    input.value = 'hello world';
+    region.append(input);
+    row('r1').replaceChildren(region);
+    input.focus();
+    input.setSelectionRange(5, 5);
+    await commands.keyPress('ArrowRight');
+    await frames();
+    expect(prevented).toEqual([false]);
+    expect(log).toEqual([]);
+    expect(order(list)).toBe('r0,r1,r2');
+    expect(input.selectionStart).toBe(6);
+  });
+
   // An IME composition is driven through CDP, which only Chromium has.
   it.runIf(isChromium)(
     'should run no command during an IME composition',

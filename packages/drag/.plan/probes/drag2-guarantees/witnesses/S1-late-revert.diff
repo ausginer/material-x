@@ -1,0 +1,14 @@
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -259,6 +259,10 @@
+       !this.#context.placeholder.isConnected ||
+       this.#context.placeholder.parentElement !== this.#query.item.parentElement
+     ) {
++      const { item } = this.#query;
++      const home = this.#context.placeholder.parentElement;
++
++      setTimeout(() => home?.append(item), 50);
+       throw new Error('sortable/landing-placeholder-lost');
+     }
+ 

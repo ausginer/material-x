@@ -196,6 +196,9 @@ export async function bundleSize(
       input,
       platform: 'neutral',
       resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
+      // `--prototype` builds source from an earlier revision, and that source reads
+      // `__DEV__`. The define reproduces that revision's own `tsdown` define. The
+      // current source does not read it.
       transform: { define: { __DEV__: 'false' } },
       plugins: [...plugins],
       onLog(level, log, handler) {

@@ -229,6 +229,19 @@ function installEquivalence(Index: typeof RectIndex): void {
 }
 
 /**
+ * Whether `value` is an event of any realm. An event dispatched in a same-origin
+ * iframe is not `instanceof` this window's `Event`, and `isTrusted` is an own
+ * property of every event and of nothing else the gesture is given.
+ */
+function isEvent(value: unknown): value is Event {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.hasOwn(value, 'isTrusted')
+  );
+}
+
+/**
  * Wraps `enter`. Input reaches it as `enter(step, event, receiver)` through the
  * prototype, from the gesture's own listener and from the session's, and a
  * running pass refuses it. So a call with a step and an `Event` while another
@@ -249,12 +262,7 @@ function installRefusals(GestureClass: typeof Gesture): void {
   ): void {
     const depth = depths.get(this) ?? 0;
 
-    if (
-      depth > 0 &&
-      step &&
-      argument instanceof Event &&
-      !counted.has(argument)
-    ) {
+    if (depth > 0 && step && isEvent(argument) && !counted.has(argument)) {
       counted.add(argument);
 
       if (argument.isTrusted) {

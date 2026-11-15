@@ -14,10 +14,11 @@
  * larger of their two margins, so where the placeholder sits changes the spacing
  * of rows it did not cross. Such a column satisfies it when the placeholder has
  * the rows' margins. A flex column, a flow `gap` and margins on one side of each
- * row satisfy it. A row's flow size does not depend on where it sits. The rows' centers increase along y in the collection's order,
- * so the nearest center is one of the two that bracket the pointer. The linear map
- * the collection inherits is stable for the operation. A flow axis that an ancestor
- * rotates or skews is outside the rule; scale and zoom are fine.
+ * row satisfy it. A row's flow size does not depend on where it sits. The rows'
+ * centers increase along y in the collection's order, so the nearest center is one
+ * of the two that bracket the pointer. The linear map the collection inherits is
+ * stable for the operation. A flow axis that an ancestor rotates or skews is outside
+ * the rule; scale and zoom are fine.
  *
  * A resolution reads only rows it has not measured since the cache was last marked
  * stale: those from the placeholder toward the pointer, and one beyond. A

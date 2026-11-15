@@ -1,8 +1,8 @@
 /**
  * A consumer's typecheck against the build: one module outside the workspace
  * imports every entry of the exports map by its package specifier, and `tsc`
- * resolves each entry's `types` with no error. The package is linked, not packed,
- * because a link resolves the same specifiers through the same exports map.
+ * resolves each entry to its own `types` with no error. The package is linked, not
+ * packed, because a link resolves the same specifiers through the same exports map.
  */
 import { spawn } from 'node:child_process';
 import {
@@ -95,7 +95,7 @@ describe('the published entries in a consumer typecheck', () => {
         .map((_, at) => `entry${at}`)
         .join(', ')}];\n`,
     );
-    result = await run(['-p', '.', '--listFiles'], fixture);
+    result = await run(['-p', '.', '--traceResolution'], fixture);
   }, 120_000);
 
   afterAll(async () => {
@@ -111,10 +111,20 @@ describe('the published entries in a consumer typecheck', () => {
   });
 
   it('should resolve each entry to its published declaration', () => {
-    const files = new Set(result.output.split('\n').map((line) => line.trim()));
+    // From the module-resolution trace, because a declaration that another one
+    // imports is in the program whatever its own entry's `types` says.
+    const resolved: Record<string, string> = {};
 
-    expect(
-      entries.filter((entry) => !files.has(join(ROOT, `${entry}.d.ts`))),
-    ).toEqual([]);
+    for (const [, entry, file] of result.output.matchAll(
+      /^======== Module name '@ydinjs\/drag\/(.+)\.js' was successfully resolved to '(.+?)'/gmu,
+    )) {
+      resolved[entry!] ??= file!;
+    }
+
+    expect(resolved).toEqual(
+      Object.fromEntries(
+        entries.map((entry) => [entry, join(ROOT, `${entry}.d.ts`)]),
+      ),
+    );
   });
 });
