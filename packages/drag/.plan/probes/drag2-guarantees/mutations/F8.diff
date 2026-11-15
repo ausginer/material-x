@@ -1,0 +1,13 @@
+diff --git a/packages/drag/tsdown.config.ts b/packages/drag/tsdown.config.ts
+index 0c81e0f32..841db9e57 100644
+--- a/packages/drag/tsdown.config.ts
++++ b/packages/drag/tsdown.config.ts
+@@ -11,7 +11,7 @@ const config: UserConfig = defineConfig({
+   entry: packageFilesToTsdownEntries(files),
+   platform: 'neutral',
+   exports: packageFilesToCustomExports(files),
+-  dts: true,
++  dts: false,
+   format: 'esm',
+   sourcemap: true,
+   target: 'esnext',

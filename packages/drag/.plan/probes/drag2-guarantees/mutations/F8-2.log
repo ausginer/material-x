@@ -1,0 +1,4 @@
+      Tests  1 failed | 1 passed (2)
+ FAIL  |node| tests/consumer-types.node.test.ts:104 > the published entries in a consumer typecheck > should resolve each entry to its published declaration
+AssertionError: expected [ 'lift', 'lift/landing', …(10) ] to deeply equal []
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯

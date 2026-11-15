@@ -1,0 +1,6 @@
+      Tests  2 failed (2)
+ FAIL  |node| tests/consumer-types.node.test.ts:104 > the published entries in a consumer typecheck > should resolve each entry to its published declaration
+ FAIL  |node| tests/consumer-types.node.test.ts:98 > the published entries in a consumer typecheck > should typecheck every entry with no error
+AssertionError: expected [ 'draggable', 'lift', …(11) ] to deeply equal []
+AssertionError: expected [ …(13) ] to deeply equal []
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
