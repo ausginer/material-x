@@ -1,0 +1,7 @@
+#### D-210
+
+**Implemented 2026-11-06.** **Retire size baseline B.** Delete `bench/size/shipped.js` and its row, before any package named `@ydinjs/drag` exports `./sortable.js`. Amend M-3 §Specification to drop the migration-context baseline. Add a dated retirement entry to `budget-rebases.md`. No other row moves, and each stays byte-identical. Decided 2026-11-06 under the owner's completion scope for the new package (`drag:DRD-13`), with the reasoning in [`deferred-integration.md`](../../../drag/.plan/deferred-integration.md).
+
+**Why.** The row answered what migrating from the shipped package costs. Nothing is published, and the package is gone, so the question is void. Re-basing freezes a 51 B stub as truth, re-pointing asks a different question under an old name, and a vendored copy keeps removed sources alive.
+
+**Capability withdrawn, in the instrument's terms (CONTRIBUTING §18):** exact byte reproduction of a 26-module, 22.6 KB minified graph that no drag2 source reaches, which is detection of a bundler, minifier, compressor or dependency shift at that scale, separately from package edits. Last figure: 6,916 B Brotli, 22,618 B minified, 26 modules, ceiling 7,040 B, at `7723f3e8a`. That detection was real: the row caught a dependency update at `01d88645f`, from 6,889 B to 6,916 B.

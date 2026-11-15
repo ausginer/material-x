@@ -1,0 +1,3 @@
+#### DRI-1 — A request does not change the running step
+
+A request made from a hook, a custom-element reaction, a listener or an `error` listener during a step is applied after that step and before the next. A request made while no pass runs applies before the call returns.

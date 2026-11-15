@@ -1,0 +1,6 @@
+round 1/1: 300 moves, one frame each, 20 items
+
+300 moves, one frame each, 20 items
+  prototype layouts: at or below: 83 against 83
+  prototype scriptUs: no difference shown: higher in 0 of 1, median -24 µs, A/A bound 33 µs
+  prototype taskUs: faster: higher in 0 of 1, median -218 µs, A/A bound 146 µs
