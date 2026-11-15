@@ -24,6 +24,7 @@ A Claude `coordinator` session sends prompts to live role sessions with `SendMes
    ```
 
 4. Tell the coordinator which session holds which role.
+5. Clear a session when the coordinator asks, and confirm it. The coordinator cannot see or reset another session's context, so it asks before a task that needs a fresh one. A cleared session keeps accepting the coordinator's prompts; the owner has observed this across many clears, so step 3's message is not sent again.
 
 ## Start a guarded role
 

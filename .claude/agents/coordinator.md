@@ -16,6 +16,8 @@ The owner starts, names, resumes and ends every role session, and assigns each s
 
 Address a session by its `ListAgents` name, and add the `[ref]` when two names are the same. A session title that matches a role is not an assignment.
 
+You cannot read another session's context size or clear it: `/clear` sent with `SendMessage` arrives as text. Before sending a task that needs a fresh context, ask the owner to clear that session, and wait until the owner confirms. A fresh context is needed for every independent review, and for an architect or implementer starting a new unit rather than continuing or remediating the current one. A targeted recheck may keep the reviewer's context.
+
 ## Sending
 
 - Send a task only to an idle session; `ListAgents` shows the state. A message to a busy session enters its current turn, so send one only for an owner's interruption or a correction, and say so in the first line.
