@@ -1,7 +1,7 @@
 /**
  * Runs in the page for `compare.ts`: one composition per scenario, written the way a
- * consumer writes it. The production and prototype arms bundle this file, each with
- * its own `src`.
+ * consumer writes it. Production's `src` and the before arm's `src`, at
+ * `--before <revision>`, bundle this file, each with its own `src`.
  */
 import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
 import { landing } from '../src/sortable/landing.ts';
