@@ -20,7 +20,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Status, 2026-11-15, `drag/size-acceptance`:** from `3228d1f07`, the squash merge of #24. **The owner accepted drag's current size,** which answers `DRO-4`'s size re-base, and accepted `DRO-10`'s excess and the costs no approval covers, with nothing removed. **Until release, the size ceilings follow the code** (`DRO-20`): `DRD-68` moves every ceiling and the control to its reading at `988643dc9`, and each change the owner approves moves them again. `988643dc9` is the owner's source edit (`DRO-21`): fields read directly in the loops, the controllers' members declared as methods, and no guarantee about calling a member detached. `DRD-69` adopts it and drops the built-ins' receiver checks, and the contract is amended. The prototype arm retires (`DRO-5`). The owner also asked for a cleanup of `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42`, and each is repaired. [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) implements all of it (§Disposition of the size acceptance). `Landing`'s shape is the next question, for later. Release isn't in scope: it comes after documentation, examples and CI.
 
-**Status, 2026-11-15, `drag/size-acceptance` at `7f963e54a`:** the cleanup landed at `e9ca3732f` (item 1) and `a3423c793` (items 2 to 10), with no stop, and [reported](size-acceptance-cleanup-report.md) at `7f963e54a`. **The architect accepted it without an independent review** (§Disposition of the size acceptance cleanup report). `DRD-68` is implemented, and the final re-measure moved no row. `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42` are closed at `a3423c793`. `DRD-69` is implemented apart from one site its property 4 covers and its list left out: `SortableBehavior.invalidate`'s `this`. Property 4 now names it. [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) removes it and corrects `bench/lab.ts`'s comment on the arms. After that unit, the branch is ready for its pull request.
+**Status, 2026-11-15, `drag/size-acceptance` at `7f963e54a`:** the cleanup landed at `e9ca3732f` (item 1) and `a3423c793` (items 2 to 10), with no stop, and [reported](size-acceptance-cleanup-report.md) at `7f963e54a`. **The architect accepted it without an independent review** (§Disposition of the size acceptance cleanup report). `DRD-68` is implemented, and the final re-measure moved no row. `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42` are closed at `a3423c793`. `DRD-69` is implemented apart from one site its property 4 covers and its list left out: `SortableBehavior.invalidate`'s `this`. Property 4 now names it. [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) removes it and corrects `bench/lab.ts`'s comment on the arms. **2026-11-15:** that unit landed at `7763a67a1` and reported at `db76672a3`, and the architect accepted it (§Disposition of the size acceptance follow-up report). `DRD-69` is implemented in full. The branch is ready for its pull request (§`drag/size-acceptance` at its pull request).
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -3156,7 +3156,7 @@ Decided on 2026-11-15 by the architect, on the hypothesis and the [probe](probes
 
 **Amended on 2026-11-15 at `7f963e54a`, by the architect, on the cleanup report's first open item.** Property 4 names `SortableBehavior.invalidate`. Its rule already covered that member: `DRD-63` added its `this: SortableBehavior` as a receiver declaration, for "`sortable`'s `invalidate` step", and it is the sixth of the six sites in §Why. The list left it out, and so did the handoff. **What it said before:** "`Retirable.retire` and the drop-target tracker's `#resolve` and `#release` lose their `this` parameter".
 
-**Implemented by** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 7 to 9, at `a3423c793`, apart from `SortableBehavior.invalidate`, which [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) item 1 implements.
+**Implemented by** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 7 to 9, at `a3423c793`, apart from `SortableBehavior.invalidate`, which [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) item 1 implements at `7763a67a1`. Accepted at `db76672a3` (§Disposition of the size acceptance follow-up report).
 
 ## Disposition of the 2026-11-07 reviews
 
@@ -4351,6 +4351,63 @@ A review would re-derive the same witnesses. The residual risk is in `compare.ts
 
 **Next:** [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md), for the implementer. The architect reads its report, and no review is owed for it either. The branch is then ready for its pull request, which is the owner's. `Landing`'s shape (`DRO-20`), WebKit (`DRO-18`), `DRO-3`'s devices and `DRO-4`'s timing and retention readings stay open, as §Disposition of the size acceptance lists.
 
+## Disposition of the size acceptance follow-up report
+
+The [report](size-acceptance-follow-up-report.md) at `db76672a3`, on `7763a67a1` from the input `9c248f11f`. **Read by the architect on 2026-11-15 at `db76672a3`,** against [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md). No stop was hit. The architect's own checks:
+
+- `git diff 9c248f11f 7763a67a1` outside `.plan` changes only `src/sortable/behavior.ts`, where `invalidate` loses `this: SortableBehavior` and nothing else, and `bench/lab.ts`'s file comment;
+- `git grep -nE '\(this: ' -- packages/drag/src` at `db76672a3` finds only `kernel/callbacks.ts`, `kernel/drag.ts`, `kernel/gesture.ts` and `kernel/session.ts`;
+- `git grep -n prototype -- packages/drag/bench` finds nothing.
+
+| Item | Disposition |
+| --- | --- |
+| 1, `DRD-69` property 4 | Conforms. Typecheck exits 0, and `sortable.ts:67` still passes `behavior`. **`DRD-69` is implemented in full** |
+| 2, the lab comment | Conforms. It is true. "each with its own `src`" repeats what the sentence already says, and isn't worth a unit |
+| The re-measure, `DRD-68` property 3 | No row moves, and "draggable alone" reads 2189. Nothing is re-based |
+
+**Accepted, with no review owed,** for the reasons in §Disposition of the size acceptance cleanup report: the change is one erased type and one comment, and the size run reads the published build. **The unit is complete,** and the branch is ready for its pull request (§`drag/size-acceptance` at its pull request).
+
+## `drag/size-acceptance` at its pull request
+
+**Stated on 2026-11-15 by the architect, at `db76672a3` and this record's commit, before the merge of `main` at `a07739742`.** That merge brings only coordinator documentation. **The pull request is `drag/size-acceptance` into `main`.** Opening it is the owner's. The pull request can cite this section.
+
+### What the branch delivers
+
+1. **The size ceilings follow the code until release** (`DRO-20`, `DRD-68`). Every row's ceiling and the control equal their readings at `988643dc9`, with no slack. Until the first publication of `@ydinjs/drag`, each change the owner approves moves them again, and the `budget` docblock in `bench/size/measure.ts` says so. **`npx just size` exits 0, and `npx just test` has no failing size row,** for the first time since `a9c323f6a`.
+2. **The owner's source edit, `988643dc9`, is adopted** (`DRO-21`, `DRD-69`).
+   - The loops read their fields directly. The architect's probe of two of them shows no cost at about 1.5 ns per iteration, and speed is otherwise unmeasured.
+   - The `sortable` and `freeDrag` controllers declare their members as methods.
+   - **No member carries a guarantee about its receiver.** The contract, the README and the JSDoc say nothing about calling a member detached, and no test asserts it. No built-in declares `this` for a receiver check. Every library site still passes its receiver, and the public receiver overloads and their tests stay.
+   - `Invalidatable` and `Retirable` have TSDoc.
+3. **The prototype arm retires** (`DRO-5`). `measure.ts` and `compare.ts` no longer build `599684791`. A comparison, `--profile` and `--attribute` take their before arm from `--before <revision>`. `--rejudge` still reads recordings that hold a prototype arm.
+4. **Five findings are repaired** (§Disposition of the size acceptance cleanup report):
+   - `DRF-15`: `shared/timing.ts` is gone;
+   - `DRF-17`: the `tap` command is gone;
+   - `DRF-18`: each shared test helper and the heap snapshot reader have one definition;
+   - `DRF-21`: `compare.ts` places each bundle line from the bundle's source map;
+   - `DRF-42`: the destruction heap test's sentinel detects a retained callback.
+
+**Public surface and shipped code.**
+
+- **Public API:** the controllers' members are declared as methods instead of read-only arrow properties (`988643dc9`). The functions, their parameters and the receiver overloads are unchanged.
+- **Contract:** its public surface makes no statement about calling a member detached ([change record](contract.md#change-record), 2026-11-15).
+- **Library code:** `988643dc9`'s loop and controller edit, and two constants moved into `shared/landing.ts`. The units after `988643dc9` change no other emitted code. Every size row reads the same at `db76672a3` as at `988643dc9`.
+
+### What is accepted
+
+- `DRD-68` and `DRD-69`: implemented and accepted on the architect's reading at `7f963e54a` and `db76672a3`. `DRD-69` property 4 was amended at `7f963e54a` to name `SortableBehavior.invalidate`.
+- `DRF-15`, `DRF-17`, `DRF-18`, `DRF-21` and `DRF-42`: closed at `a3423c793`.
+- `DRO-4`'s size re-base, and decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: answered by the owner's acceptance, with nothing removed.
+
+### What stays open
+
+- **No independent review read this branch.** The architect waived it for both units. Their evidence is mechanical: mutation witnesses for `DRF-21` and `DRF-42`, the emitted-tree comparison, and the size gate. `988643dc9` is the owner's own edit, adopted by decision.
+- **Limits of the evidence:**
+  - The full suite (exit 0, 928 passed) and `npx just test-engines` for Chromium and Firefox (exit 0, 898 passed and 10 skipped) are the implementer's runs at `a3423c793`. `7763a67a1` changes one erased type and one bench comment after them, and only typecheck, lint and the size gate ran there.
+  - **WebKit didn't run** (`DRO-18`), and no CI job runs it yet.
+- **Owner questions:** `Landing`'s shape, the next change the owner approves after inspecting it (`DRO-20`). Deleting `drag/prototype`, which no instrument reads any more (`DRO-5`).
+- **Unchanged by the branch:** `DRO-3`'s real devices, `DRO-4`'s timing and retention readings, and the rest of [`performance-plan.md`](performance-plan.md) §4. Release comes after documentation, examples and CI.
+
 ## Findings
 
 Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-47`**.
@@ -5360,4 +5417,4 @@ No timing was taken.
 | DRD-66 | superseded on 2026-11-15 by `DRD-67`, before implementation. Was: active, decided on 2026-11-15 by the architect on the owner's hypothesis that drag drop `__DEV__`: declined, with the development equivalence check made to leave the cache unchanged. Amended `DRD-52` property 7 |
 | DRD-67 | active, decided on 2026-11-15 by the architect on the owner's follow-up hypothesis, relayed by the coordinator, from the [probe](probes/test-side-oracles/README.md) at `883836d96`. Supersedes `DRD-66`, and amends `DRD-52` property 7 and `DRD-65` property 4. It amends the contract's `DRI-6` in the implementing commit. **When decided, unimplemented:** [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) item 3 implements it. **Implemented** at `953a0fcc6`, reported at `1c1e93bd9`. Property 2 amended on 2026-11-15: the bench keeps the define for earlier revisions. Property 7's stop decided the same day: the fixture of `layout-animation.browser.test.ts:266` is wrong. Property 4 clarified the same day: an event of any realm counts. [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) repairs both. Its rationale is `DRO-19`. **Accepted on 2026-11-15:** repaired at `cc3b839f9` and rechecked at `349616213` |
 | DRD-68 | active, decided on 2026-11-15 by the architect on the owner's acceptance of drag's current size, at `3228d1f07` on `drag/size-acceptance`. **Amended the same day at `988643dc9`, before implementation,** on the owner's policy `DRO-20`: every row's ceiling and the control move to their readings at `988643dc9`, and until release each change the owner approves moves them again. Answers `DRO-4`'s size re-base, and records the owner's acceptance of decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) item 1 implements it. **Implemented at `e9ca3732f`,** and the unit's final re-measure at `a3423c793` moved no row. Read by the architect at `7f963e54a` (§Disposition of the size acceptance cleanup report) |
-| DRD-69 | active, decided on 2026-11-15 by the architect on the owner's commit `988643dc9` and direction `DRO-21`. Adopts the commit. No member carries a guarantee about its receiver, and no built-in declares `this` for a receiver check. Amended the contract's public surface in its record commit. Supersedes `DRD-20`'s bullet on controller methods and `this`, `DRD-35` property 7's `this` requirement, `DRD-37` property 4 and `DRD-63` property 2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 7 to 9 implement it. **Implemented at `a3423c793`** apart from `SortableBehavior.invalidate`'s `this`. **Property 4 amended on 2026-11-15 at `7f963e54a`** to name that member, which its rule covered and its list left out. [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) item 1 implements it |
+| DRD-69 | active, decided on 2026-11-15 by the architect on the owner's commit `988643dc9` and direction `DRO-21`. Adopts the commit. No member carries a guarantee about its receiver, and no built-in declares `this` for a receiver check. Amended the contract's public surface in its record commit. Supersedes `DRD-20`'s bullet on controller methods and `this`, `DRD-35` property 7's `this` requirement, `DRD-37` property 4 and `DRD-63` property 2. **When decided, unimplemented:** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 7 to 9 implement it. **Implemented at `a3423c793`** apart from `SortableBehavior.invalidate`'s `this`. **Property 4 amended on 2026-11-15 at `7f963e54a`** to name that member, which its rule covered and its list left out. [`size-acceptance-follow-up-handoff.md`](size-acceptance-follow-up-handoff.md) item 1 implements it. **Implemented in full at `7763a67a1`,** and accepted at `db76672a3` (§Disposition of the size acceptance follow-up report) |
