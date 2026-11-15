@@ -1,0 +1,87 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 <scratch>/w/packages/drag
+
+8:15:19 AM [vite] (client) warning:
+<scratch>/w/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: <scratch>/w/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=6e3154b0
+ ❯ |browser (chromium)| tests/stories.browser.test.ts (8 tests | 4 failed) 9633ms
+   ❯ Sortable stories (4)
+     × should reorder List twice in a row 1127ms
+     × should reorder CustomPlaceholder twice in a row 1082ms
+     × should reorder ZoomedContext twice in a row 1088ms
+     × should reorder Grid twice in a row 1081ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/stories.browser.test.ts:110 > Sortable stories > should reorder List twice in a row
+ FAIL  |browser (chromium)| tests/stories.browser.test.ts:110 > Sortable stories > should reorder CustomPlaceholder twice in a row
+ FAIL  |browser (chromium)| tests/stories.browser.test.ts:110 > Sortable stories > should reorder ZoomedContext twice in a row
+AssertionError: expected [ 'Inbox', 'Drafts', 'Sent', …(2) ] to deeply equal [ 'Drafts', 'Sent', 'Inbox', …(2) ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[31m+   "Inbox",[39m
+[2m    "Drafts",[22m
+[2m    "Sent",[22m
+[32m-   "Inbox",[39m
+[2m    "Archive",[22m
+[2m    "Spam",[22m
+[2m  ][22m
+
+ ❯ tests/stories.browser.test.ts:115:28
+    113|
+    114|       await reorderFirstToThird(host);
+    115|       expect(labels(host)).toEqual([b, c, a, ...rest]);
+       |                            ^
+    116|
+    117|       await reorderFirstToThird(host);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |browser (chromium)| tests/stories.browser.test.ts:110 > Sortable stories > should reorder Grid twice in a row
+AssertionError: expected [ '1', '2', '3', '4', '5', '6', …(2) ] to deeply equal [ '2', '3', '1', '4', '5', '6', …(2) ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -1,9 +1,9 @@[39m
+[2m  [[22m
+[31m+   "1",[39m
+[2m    "2",[22m
+[2m    "3",[22m
+[32m-   "1",[39m
+[2m    "4",[22m
+[2m    "5",[22m
+[2m    "6",[22m
+[2m    "7",[22m
+[2m    "8",[22m
+
+ ❯ tests/stories.browser.test.ts:115:28
+    113|
+    114|       await reorderFirstToThird(host);
+    115|       expect(labels(host)).toEqual([b, c, a, ...rest]);
+       |                            ^
+    116|
+    117|       await reorderFirstToThird(host);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 4 passed (8)
+   Start at  08:15:19
+   Duration  10.74s (tests 93%, worker 6%, import 1%)

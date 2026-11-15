@@ -1,0 +1,24 @@
+not judged, the recording cannot carry its rule: 200 operations, then destroy: retained JavaScript objects
+
+300 moves, one frame each, 20 items
+
+300 moves, one frame each, 2000 items
+
+press and release below the threshold, 20 items, [...root.children]
+
+press and release below the threshold, 20 items, cached array
+
+press and release below the threshold, 2000 items, [...root.children]
+
+press and release below the threshold, 2000 items, cached array
+
+50 activate-and-drop cycles, 20 items, no landing
+
+50 activate-and-drop cycles, 20 items, with landing
+
+50 activate-and-drop cycles, 2000 items, no landing
+
+50 activate-and-drop cycles, 2000 items, with landing
+
+50 keyboard reorders, 20 items, with focus restoration
+0

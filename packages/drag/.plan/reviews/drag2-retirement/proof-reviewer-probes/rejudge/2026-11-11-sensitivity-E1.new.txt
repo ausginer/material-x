@@ -1,0 +1,16 @@
+
+in the page: 300 moves, one frame each, 20 items
+  base layouts: at or below: 83 against 83
+  base scriptUs: FLAG slower: higher in 7 of 7, median 43 µs, A/A bound 34 µs
+  base taskUs: no difference shown: higher in 6 of 7, median 49 µs, A/A bound 199 µs
+
+in the page: 50 activate-and-drop cycles, 20 items, no landing
+  base layouts: at or below: 250 against 250
+  base scriptUs: no difference shown: higher in 6 of 7, median 269 µs, A/A bound 559 µs
+  base taskUs: no difference shown: higher in 3 of 7, median -34 µs, A/A bound 1665 µs
+
+300 moves, one frame each, 20 items
+  base layouts: at or below: 83 against 83
+  base scriptUs: no difference shown: higher in 2 of 7, median -4 µs, A/A bound 32 µs
+  base taskUs: no difference shown: higher in 2 of 7, median -93 µs, A/A bound 356 µs
+0

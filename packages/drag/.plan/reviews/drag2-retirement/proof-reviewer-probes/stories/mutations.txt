@@ -1,0 +1,19 @@
+## MS1 exit=1
+     × should reorder List twice in a row
+     × should reorder CustomPlaceholder twice in a row
+     × should reorder ZoomedContext twice in a row
+     × should reorder Grid twice in a row
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  4 failed | 4 passed (8)
+restored
+## MF1 exit=1
+     × should keep a bounded Interactive box where it was dropped
+     × should keep a TransformedStage box where it was dropped
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 6 passed (8)
+restored
+## MF2 exit=1
+     × should pass the AsyncDropConfirmation status through saving to accepted
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 7 passed (8)
+restored

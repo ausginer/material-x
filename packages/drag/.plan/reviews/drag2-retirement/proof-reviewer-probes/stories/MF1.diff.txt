@@ -1,0 +1,10 @@
+--- <scratch>/mut/MF1.bak	2026-11-15 08:15:30.031521881 +0000
++++ src/free-drag.stories.tsx	2026-11-15 08:15:30.053522508 +0000
+@@ -31,7 +31,7 @@
+   if (result.type === 'accepted') {
+     offset.x += result.request.localDeltaX;
+     offset.y += result.request.localDeltaY;
+-    box.style.translate = `${offset.x}px ${offset.y}px`;
++    void box;
+   }
+ }

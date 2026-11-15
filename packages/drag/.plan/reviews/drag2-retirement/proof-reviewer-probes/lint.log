@@ -1,0 +1,20 @@
+## oxlint (root files)
+exit=0
+## eslint (root files)
+
+/workspaces/material-x/.scripts/vite-config.ts
+  82:23  error  Use the 'u' flag  require-unicode-regexp
+
+✖ 1 problem (1 error, 0 warnings)
+
+exit=1
+## drag lint
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+exit=0
+## oxfmt --check on every added or changed file
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 8ms on 22 files using 12 threads.
+exit=0

@@ -1,0 +1,56 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 <scratch>/w/packages/drag
+
+8:15:31 AM [vite] (client) warning:
+<scratch>/w/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: <scratch>/w/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=6e3154b0
+ ❯ |browser (chromium)| tests/stories.browser.test.ts (8 tests | 2 failed) 13762ms
+   ❯ Free Drag stories (3)
+     × should keep a bounded Interactive box where it was dropped 1135ms
+     × should keep a TransformedStage box where it was dropped 1094ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/stories.browser.test.ts:143 > Free Drag stories > should keep a bounded Interactive box where it was dropped
+AssertionError: expected 120 to be less than or equal to 1
+ ❯ expectSameRect tests/stories.browser.test.ts:136:49
+    134|
+    135| function expectSameRect(actual: DOMRect, expected: DOMRect): void {
+    136|   expect(Math.abs(actual.left - expected.left)).toBeLessThanOrEqual(1);
+       |                                                 ^
+    137|   expect(Math.abs(actual.top - expected.top)).toBeLessThanOrEqual(1);
+    138|   expect(Math.abs(actual.width - expected.width)).toBeLessThanOrEqual(…
+ ❯ tests/stories.browser.test.ts:151:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  |browser (chromium)| tests/stories.browser.test.ts:154 > Free Drag stories > should keep a TransformedStage box where it was dropped
+AssertionError: expected 100.00000953674316 to be less than or equal to 1
+ ❯ expectSameRect tests/stories.browser.test.ts:136:49
+    134|
+    135| function expectSameRect(actual: DOMRect, expected: DOMRect): void {
+    136|   expect(Math.abs(actual.left - expected.left)).toBeLessThanOrEqual(1);
+       |                                                 ^
+    137|   expect(Math.abs(actual.top - expected.top)).toBeLessThanOrEqual(1);
+    138|   expect(Math.abs(actual.width - expected.width)).toBeLessThanOrEqual(…
+ ❯ tests/stories.browser.test.ts:162:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  08:15:30
+   Duration  14.76s (tests 95%, worker 4%, import 1%)
