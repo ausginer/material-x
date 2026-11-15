@@ -1,0 +1,34 @@
+# Reviewer input check, main checkout, 2026-11-14T22:04:47Z, at the end of the review
+At the start, before any file was written, the same three checks passed and the status equalled input/status-before.txt exactly.
+HEAD: 00fc1aa28376eb07013c9fe0fcab519f68320ca3 branch: drag/class-refactor
+
+## sha256sum -c input/hashes.txt
+packages/box-quad/src/index.ts: OK
+packages/drag/src/free-drag/behavior.ts: OK
+packages/drag/src/free-drag/bounds.ts: OK
+packages/drag/src/free-drag/drop-targets.ts: OK
+packages/drag/src/shared/invalidation.ts: OK
+packages/drag/src/sortable.ts: OK
+packages/drag/src/sortable/axis.ts: OK
+packages/drag/src/sortable/behavior.ts: OK
+packages/drag/src/sortable/layout-animation.ts: OK
+packages/drag/src/sortable/linear-shift.ts: OK
+packages/drag/src/sortable/rect-index.ts: OK
+packages/drag/src/sortable/xy.ts: OK
+packages/drag/src/sortable/y.ts: OK
+packages/drag/tsconfig.json: OK
+packages/drag/src/sortable/invalidatable.ts: OK
+packages/drag/src/sortable/retirable.ts: OK
+
+## tracked diff against HEAD
+sha256: 019cd4569ca6526d443bf354414e56c122a868f6cd242216bdc9f95a4149c508
+byte-identical to input/tracked.diff.txt
+
+## tracked diff against 5b581fbdf, outside packages/drag/.plan
+sha256: 019cd4569ca6526d443bf354414e56c122a868f6cd242216bdc9f95a4149c508
+
+## files 00fc1aa28 changes against 5b581fbdf outside packages/drag/.plan (none expected)
+(none)
+
+## git status --porcelain, without this review's directory, against input/status-before.txt
+equal

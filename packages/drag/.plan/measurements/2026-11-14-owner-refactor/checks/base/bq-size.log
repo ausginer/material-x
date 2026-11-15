@@ -1,0 +1,18 @@
+tsdown --config tsdown.config.ts
+ℹ tsdown v0.23.7 powered by rolldown v1.3.2
+ℹ config file: /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/base/packages/box-quad/tsdown.config.ts 
+ℹ entry: src/index.ts
+ℹ target: esnext
+ℹ tsconfig: tsconfig.json
+ℹ Build start
+ℹ /index.js      11.27 kB │ gzip: 4.04 kB
+ℹ /index.js.map  23.22 kB │ gzip: 7.13 kB
+ℹ /index.d.ts     7.50 kB │ gzip: 2.60 kB
+ℹ 3 files, total: 41.98 kB
+✔ Build complete in 54ms
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  Size: 1.2 kB brotlied
+  

@@ -1,0 +1,11 @@
+--- /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/recv/m.bak	2026-11-15 00:00:25.682505297 +0000
++++ src/free-drag/drop-targets.ts	2026-11-15 00:00:25.706944869 +0000
+@@ -70,7 +70,7 @@
+ 
+     // Registered before the consumer's `targets()` runs, so the release covers a
+     // throw from it as well as a terminal, a cancel or destruction.
+-    drag.use(this.#release, this);
++    drag.use(this.#release);
+     this.#elements = options.targets();
+   }
+ 

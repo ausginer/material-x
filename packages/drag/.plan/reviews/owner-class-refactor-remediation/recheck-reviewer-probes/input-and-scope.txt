@@ -1,0 +1,23 @@
+# reviewer: commit A against the saved input
+tracked diff 5b581fbdf..d1df32018 outside drag/.plan: 4bac08e889c6afb87e0bc1c48519c665cd769140e42b591f17ac6e78f4468185
+files changed: 16 (added: packages/drag/src/sortable/invalidatable.ts packages/drag/src/sortable/retirable.ts )
+input hashes at commit A: 16 OK of 16
+code at 6ec32ad06 vs 42f42a164 outside drag/.plan: 0 files
+tsconfig.json 5b581fbdf vs 42f42a164: 0 diff lines
+callbacks.declaration.test.ts 5b581fbdf vs 42f42a164: 0 diff lines
+y.ts, xy.ts d1df32018 vs 42f42a164: 0 diff lines
+files changed d1df32018..42f42a164:
+  packages/drag/src/free-drag/bounds.ts
+  packages/drag/src/free-drag/drop-targets.ts
+  packages/drag/src/sortable/behavior.ts
+  packages/drag/src/sortable/invalidatable.ts
+  packages/drag/src/sortable/linear-shift.ts
+  packages/drag/src/sortable/rect-index.ts
+  packages/drag/src/sortable/retirable.ts
+  packages/drag/tests/free-drag.browser.test.ts
+  packages/drag/tests/published-types.declaration.test.ts
+  packages/drag/tsconfig.json
+box-quad changed d1df32018..42f42a164: 0 files
+@ts-expect-error / @ts-ignore in drag/src at 42f42a164: 0 files
+tracked diff, modified files only (14): 019cd4569ca6526d443bf354414e56c122a868f6cd242216bdc9f95a4149c508
+byte-equal to the saved tracked.diff.txt

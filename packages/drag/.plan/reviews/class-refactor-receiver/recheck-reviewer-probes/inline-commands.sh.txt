@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# The reviewer's inline commands, as run, for the evidence that recheck.sh and probes.sh don't produce.
+# S is the scratch directory. Each mutation is restored from its own copy; `cmp` confirms it.
+S=<scratch>
+
+# Builds, hashes and the output-tree diff (hashes-*.txt, build-*.log, dts-diff.txt).
+for r in 42f42a164 f6b4bdf4c; do (cd $S/b-$r/packages/drag && npx tsdown --config tsdown.config.ts > $S/build-$r.log 2>&1); done
+for r in 42f42a164 f6b4bdf4c; do (cd $S/b-$r/packages/drag && for ext in js js.map d.ts; do
+  find . -path ./node_modules -prune -o -path ./src -prune -o -path ./tests -prune -o -path ./bench -prune -o -path ./.plan -prune -o -type f -name "*.$ext" -print \
+    | grep -v -E '\.config\.|eslint' | sort | xargs sha256sum > $S/h-$r.$ext.txt; done); done
+cd $S && diff -r -u --exclude=node_modules --exclude=src --exclude=tests --exclude=bench --exclude=.plan b-42f42a164/packages/drag b-f6b4bdf4c/packages/drag > $S/dts.diff
+
+# Typecheck and the declaration project at f6b4bdf4c, in the main checkout (typecheck-head.log, declaration-head.log).
+(cd packages/drag && npx just typecheck; npx just test --project declaration)
+
+# M7 through the declaration project, in the head tree (m7-declaration.txt, m7-declaration.log).
+cd $S/b-f6b4bdf4c/packages/drag
+R=src/sortable/retirable.ts; I=src/sortable/invalidatable.ts; cp $R $S/probe/R.m7; cp $I $S/probe/I.m7
+npx vitest run -c vitest.config.ts --project declaration
+sed -i 's/retire(this: this): void;/retire(this: Retirable): void;/' $R
+sed -i 's/invalidate(this: this): void;/invalidate(this: Invalidatable): void;/' $I
+npx vitest run -c vitest.config.ts --project declaration
+cp $S/probe/R.m7 $R; cp $S/probe/I.m7 $I; cmp $R $S/probe/R.bak && cmp $I $S/probe/I.bak
+
+# Lint and format at f6b4bdf4c, in the main checkout (lint-fmt.txt).
+(cd packages/drag && npx just lint; npx just fmt-check src/sortable/retirable.ts src/sortable/invalidatable.ts tests/callbacks.declaration.test.ts)
+
+# The import's placement, in the head tree (import-lint.txt):
+#   L1 moves the committed import line to just above the appended block's JSDoc;
+#   L2 removes it and types the parameter as import('../src/sortable/rect-index.ts').RectIndex.
+# Each runs `npx oxlint <file>` and drag's eslint on the test file, then restores it from T.lint.

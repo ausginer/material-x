@@ -1,0 +1,29 @@
+Input check before commit A (working tree vs HEAD 976d8b2bc, outside packages/drag/.plan):
+tracked diff sha256: 019cd4569ca6526d443bf354414e56c122a868f6cd242216bdc9f95a4149c508 (expected 019cd4569ca6526d443bf354414e56c122a868f6cd242216bdc9f95a4149c508)
+
+Commit A: d1df320180279fbf76efa191cc81309f3bdcac54
+git diff 5b581fbdf A -- . ':(exclude)packages/drag/.plan' over the 14 tracked files: 019cd4569ca6526d443bf354414e56c122a868f6cd242216bdc9f95a4149c508
+the same diff including the two new files: 4bac08e889c6afb87e0bc1c48519c665cd769140e42b591f17ac6e78f4468185
+files in A's diff: 16
+
+New files at A:
+4b9b041cc28c228e735de7b8aeb8835a386ff009fd80d4c399bffb10d8a7920a  packages/drag/src/sortable/invalidatable.ts
+0de523839e0f23856e773f817fb364c675612718c68544416e770b406cb3bb26  packages/drag/src/sortable/retirable.ts
+
+All 16 at A against input/hashes.txt:
+OK packages/box-quad/src/index.ts
+OK packages/drag/src/free-drag/behavior.ts
+OK packages/drag/src/free-drag/bounds.ts
+OK packages/drag/src/free-drag/drop-targets.ts
+OK packages/drag/src/shared/invalidation.ts
+OK packages/drag/src/sortable.ts
+OK packages/drag/src/sortable/axis.ts
+OK packages/drag/src/sortable/behavior.ts
+OK packages/drag/src/sortable/layout-animation.ts
+OK packages/drag/src/sortable/linear-shift.ts
+OK packages/drag/src/sortable/rect-index.ts
+OK packages/drag/src/sortable/xy.ts
+OK packages/drag/src/sortable/y.ts
+OK packages/drag/tsconfig.json
+OK packages/drag/src/sortable/invalidatable.ts
+OK packages/drag/src/sortable/retirable.ts

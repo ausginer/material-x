@@ -1,0 +1,27 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 base/packages/drag
+
+10:00:13 PM [vite] (client) warning: 
+base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: base/packages/drag/.vite/vitest/116ebf4d0492d37a8db45951524bf19ae2aa1619/deps/vitest_n_vite_module-runner.js?v=bc24fac7
+stdout | tests/hot-path.browser.test.ts:381 > RV cold scaling > RV cold scaling 800 : bytes in y()'s shift rule
+RV-COLD-SCALING sampled=800 moves=800 keys={"sortable/rect-index.ts:collect":736,"sortable/rect-index.ts:#read":23936,"sortable/linear-shift.ts:moved":2616,"sortable/rect-index.ts:shift":13416}
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 11 skipped (12)
+Type Errors  no errors
+   Start at  22:00:13
+   Duration  46.11s (tests 99%, worker 1%)
+

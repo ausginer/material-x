@@ -1,0 +1,14 @@
+commit 42f42a164
+## control: typecheck errors outside drag2: 0
+## control declaration:       Tests  5 passed (5) 
+## M1 bounds: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯  FAIL  |declaration| tests/published-types.declaration.test.ts:83 > drag:DRD-63 the published slot types > should let a third party bounds installer return its own constraint       Tests  1 failed | 4 passed (5) 
+## M1 drop-targets: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯  FAIL  |declaration| tests/published-types.declaration.test.ts:42 > drag:DRD-63 the published slot types > should let a third party return its own drop-target tracker  FAIL  |declaration| tests/published-types.declaration.test.ts:62 > drag:DRD-63 the published slot types > should let a third party return a tracker that wraps the built-in one       Tests  2 failed | 3 passed (5) 
+## receiver axis-retire: 1 error(s): src/sortable/behavior.ts(207,14) TS2345 
+## receiver axis-invalidate: 1 error(s): src/sortable/behavior.ts(209,24) TS2345 
+## receiver sink-retire: 1 error(s): src/sortable.ts(59,16) TS2345 
+## receiver behavior-invalidate: 1 error(s): src/sortable.ts(67,26) TS2345 
+## receiver targets-release: 1 error(s): src/free-drag/drop-targets.ts(73,14) TS2345 
+## receiver targets-resolve: 1 error(s): src/free-drag/drop-targets.ts(68,24) TS2345 
+## M5: 1 error(s): src/sortable/linear-shift.ts(256,37): error TS2551: Property 'advanceUnchecekd' does not exist on type 'DevelopmentCheck'. Did you mean 'advanceUnchecked'?
+## M6: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯ AssertionError: expected { x: 200, y: 200 } to deeply equal { x: 30, y: 30 } AssertionError: expected { x: 100000, y: 100000 } to deeply equal { x: 1260, y: 700 }       Tests  2 failed | 10 skipped (12) 
+tree restored, no diff against HEAD

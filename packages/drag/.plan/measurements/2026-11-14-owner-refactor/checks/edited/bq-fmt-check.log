@@ -1,0 +1,9 @@
+oxfmt --check .
+Checking formatting...
+
+.plan/probes/coordinates-walk/allocation.json (2ms)
+.plan/probes/fallback-storage/timing.json (8ms)
+
+Format issues found in above 2 files. Run without `--check` to fix.
+Finished in 24ms on 62 files using 12 threads.
+error: recipe `fmt-check` failed on line 44 with exit code 1

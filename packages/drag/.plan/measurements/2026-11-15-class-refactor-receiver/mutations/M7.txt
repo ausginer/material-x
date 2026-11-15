@@ -1,0 +1,5 @@
+M7 declaration exit=1
+      1       Tests  7 passed (7)
+      3  FAIL  |declaration| tests/callbacks.declaration.test.ts [ tests/callbacks.declaration.test.ts ]
+      3 TypeCheckError: Unused '@ts-expect-error' directive.
+tree restored

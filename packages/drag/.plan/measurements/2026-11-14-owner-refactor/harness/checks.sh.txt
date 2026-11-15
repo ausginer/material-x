@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Usage: checks.sh <checkout root> <out dir>
+# Runs box-quad then drag checks sequentially; every step's exit code goes to status.txt.
+set -uo pipefail
+ROOT=$1
+OUT=$2
+mkdir -p "$OUT"
+: > "$OUT/status.txt"
+
+step() {
+  local name=$1 dir=$2
+  shift 2
+  local start end code
+  start=$(date -Is)
+  (cd "$ROOT/$dir" && "$@") > "$OUT/$name.log" 2>&1
+  code=$?
+  end=$(date -Is)
+  echo "$name exit=$code start=$start end=$end cmd=($dir) $*" >> "$OUT/status.txt"
+}
+
+step bq-build packages/box-quad npx just build
+step bq-typecheck packages/box-quad npx just typecheck
+step bq-lint packages/box-quad npx just lint
+step bq-fmt-check packages/box-quad npx just fmt-check
+step bq-test packages/box-quad npx just test
+step bq-size packages/box-quad npx just size
+(cd "$ROOT/packages/box-quad" && sha256sum index.js index.d.ts) > "$OUT/bq-build-hashes.txt"
+cp "$ROOT/packages/box-quad/index.d.ts" "$OUT/bq-index.d.ts"
+
+step drag-typecheck packages/drag npx just typecheck
+step drag-lint packages/drag npx just lint
+step drag-fmt-check packages/drag npx just fmt-check
+step drag-test packages/drag npx just test
+step drag-size packages/drag npx just size
+(cd "$ROOT/packages/drag" && find . -name '*.d.ts' -not -path './node_modules/*' -not -path './src/*' -not -path './tests/*' -not -path './bench/*' -not -path './.plan/*' | sort | xargs sha256sum) > "$OUT/drag-dts-hashes.txt"
+mkdir -p "$OUT/drag-dts"
+(cd "$ROOT/packages/drag" && find . -name '*.d.ts' -not -path './node_modules/*' -not -path './src/*' -not -path './tests/*' -not -path './bench/*' -not -path './.plan/*' | tar cf - -T - | tar xf - -C "$OUT/drag-dts")
+echo done >> "$OUT/status.txt"

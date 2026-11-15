@@ -1,0 +1,150 @@
+### targets-release 21:51:11
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 edited/packages/drag
+
+9:51:12 PM [vite] (client) warning: 
+edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e80f26fe
+stderr | tests/drop-targets.browser.test.ts:50 > drag:DRI-21 freeDrag + dropTargets > should mark the target under the pointer, name it at the drop and clear the mark at release
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#frame')]
+stderr | tests/drop-targets.browser.test.ts:118 > drag:DRI-21 freeDrag + dropTargets > should clear the mark when the controller is destroyed mid-drag
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#frame')]
+stderr | tests/drop-targets.browser.test.ts:137 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets on invalidate
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#frame')]
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: Uncaught DragFault: drag: targets]
+stderr | tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#frame')]
+stderr | tests/drop-targets.browser.test.ts:330 > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#frame')]
+ ❯ |browser (chromium)| tests/drop-targets.browser.test.ts (9 tests | 5 failed) 2300ms
+   ❯ drag:DRI-21 freeDrag + dropTargets (8)
+     × should mark the target under the pointer, name it at the drop and clear the mark at release 490ms
+     × should clear the mark when the controller is destroyed mid-drag 219ms
+     × should re-read the targets on invalidate 221ms
+     × should release the operation and keep the controller when targets() throws 215ms
+   ❯ drag:DRD-33 C2 one config across controllers (1)
+     × should give each controller its own runtime 257ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/drop-targets.browser.test.ts:50 > drag:DRI-21 freeDrag + dropTargets > should mark the target under the pointer, name it at the drop and clear the mark at release
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/drop-targets.browser.test.ts:79:49
+     77|     await moveHeld(over.x, over.y);
+     78|     await release();
+     79|     expect(zone.hasAttribute('data-drop-over')).toBe(false);
+       |                                                 ^
+     80|     expect(results.map((result) => result.type)).toEqual(['accepted']);
+     81|     const [result] = results;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  |browser (chromium)| tests/drop-targets.browser.test.ts:118 > drag:DRI-21 freeDrag + dropTargets > should clear the mark when the controller is destroyed mid-drag
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/drop-targets.browser.test.ts:133:49
+    131|     expect(zone.hasAttribute('data-drop-over')).toBe(true);
+    132|     await controller.requestDestroy();
+    133|     expect(zone.hasAttribute('data-drop-over')).toBe(false);
+       |                                                 ^
+    134|     await commands.pointerUp();
+    135|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  |browser (chromium)| tests/drop-targets.browser.test.ts:137 > drag:DRI-21 freeDrag + dropTargets > should re-read the targets on invalidate
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/drop-targets.browser.test.ts:155:49
+    153|     expect(zone.hasAttribute('data-drop-over')).toBe(true);
+    154|     await commands.keyPress('Escape');
+    155|     expect(zone.hasAttribute('data-drop-over')).toBe(false);
+       |                                                 ^
+    156|   });
+    157|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  |browser (chromium)| tests/drop-targets.browser.test.ts:248 > drag:DRI-21 freeDrag + dropTargets > should release the operation and keep the controller when targets() throws
+AssertionError: expected [ Error: targets, …(1) ] to deeply equal [ Error: targets ]
+
+- Expected
++ Received
+
+  [
+    Error {
+      "message": "targets",
+    },
++   TypeError {
++     "message": "Cannot read properties of undefined (reading '#frame')",
++   },
+  ]
+
+ ❯ tests/drop-targets.browser.test.ts:284:48
+    282|     await grab(box, 0, 30);
+    283|     await moveHeld(over.x, over.y);
+    284|     expect(faults.map((fault) => fault.cause)).toEqual([thrown]);
+       |                                                ^
+    285|     expect(box.style.cssText).toBe(style);
+    286|     expect(box.matches(':popover-open')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  |browser (chromium)| tests/drop-targets.browser.test.ts:330 > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/drop-targets.browser.test.ts:368:49
+    366|     expect(zone.hasAttribute('data-drop-over')).toBe(true);
+    367|     await release();
+    368|     expect(zone.hasAttribute('data-drop-over')).toBe(false);
+       |                                                 ^
+    369|
+    370|     // Destroying the first leaves the second's bounds, targets and la…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed | 25 passed (26)
+      Tests  5 failed | 352 passed (357)
+   Start at  21:51:11
+   Duration  39.37s (tests 96%, worker 3%, import 1%)
+
+exit=1

@@ -1,0 +1,22 @@
+# reviewer: wrong receiver of a related type (typecheck only)
+    // Reviewer probe: a built-in receiver site given the wrong object of a related type.
+    // Each line passes a member with an object that is not its owner. Typecheck only.
+    import type { Drag, DraggableController, BehaviorOperation } from '../src/draggable.ts';
+    import type { DisplacementSink, InsertionGeometry } from '../src/sortable/axis.ts';
+
+    export function swapped(
+      drag: Drag,
+      controller: DraggableController<BehaviorOperation>,
+      geometry: InsertionGeometry,
+      sink: DisplacementSink,
+    ): void {
+      drag.use(geometry.retire, sink); // W1: the axis's retire, on the sink
+      controller.use(sink.retire, geometry); // W2: the sink's retire, on the axis
+    }
+
+## base (5b581fbdf): 2 errors outside drag2
+  tests/rv-wrong-receiver.ts(12,29): error TS2739: Type 'DisplacementSink' is missing the following properties from type 'InsertionGeometry': resolve, invalidate, confirm, moved
+  tests/rv-wrong-receiver.ts(13,31): error TS2739: Type 'InsertionGeometry' is missing the following properties from type 'DisplacementSink': dx, dy, report, displaced
+  status after: 0 lines
+## end (42f42a164): 0 errors outside drag2
+  status after: 0 lines

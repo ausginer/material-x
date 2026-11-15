@@ -1,0 +1,218 @@
+{
+  "id": "edited-r1",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/edited/packages/drag",
+  "runner": {
+    "pid": 1607870,
+    "start": "21829040"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-14T21:05:21.674Z",
+  "endedAt": "2026-11-14T21:09:03.397Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe y:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1607889,
+        "start": "21829047"
+      },
+      "startedAt": "2026-11-14T21:05:21.688Z",
+      "endedAt": "2026-11-14T21:05:35.097Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 probe xy:'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1608152,
+        "start": "21830389"
+      },
+      "startedAt": "2026-11-14T21:05:35.107Z",
+      "endedAt": "2026-11-14T21:05:48.551Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1608416,
+        "start": "21831735"
+      },
+      "startedAt": "2026-11-14T21:05:48.562Z",
+      "endedAt": "2026-11-14T21:06:05.498Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1608748,
+        "start": "21833429"
+      },
+      "startedAt": "2026-11-14T21:06:05.510Z",
+      "endedAt": "2026-11-14T21:07:57.319Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'XYH move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/5.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1609368,
+        "start": "21844611"
+      },
+      "startedAt": "2026-11-14T21:07:57.329Z",
+      "endedAt": "2026-11-14T21:08:14.288Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'XYH first move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/6.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1609650,
+        "start": "21846308"
+      },
+      "startedAt": "2026-11-14T21:08:14.299Z",
+      "endedAt": "2026-11-14T21:08:22.137Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe y idle'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/7.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1609916,
+        "start": "21847093"
+      },
+      "startedAt": "2026-11-14T21:08:22.151Z",
+      "endedAt": "2026-11-14T21:08:23.959Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe y operated'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/8.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1610156,
+        "start": "21847276"
+      },
+      "startedAt": "2026-11-14T21:08:23.974Z",
+      "endedAt": "2026-11-14T21:08:35.855Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe xy\\+animation idle'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/9.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1610423,
+        "start": "21848465"
+      },
+      "startedAt": "2026-11-14T21:08:35.872Z",
+      "endedAt": "2026-11-14T21:08:38.211Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe xy\\+animation operated'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/10.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1610631,
+        "start": "21848701"
+      },
+      "startedAt": "2026-11-14T21:08:38.224Z",
+      "endedAt": "2026-11-14T21:08:50.401Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe freeDrag\\+bounds\\+targets idle'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/11.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1610911,
+        "start": "21849920"
+      },
+      "startedAt": "2026-11-14T21:08:50.413Z",
+      "endedAt": "2026-11-14T21:08:51.978Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe freeDrag\\+bounds\\+targets operated'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/campaigns/edited-r1/12.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1611123,
+        "start": "21850077"
+      },
+      "startedAt": "2026-11-14T21:08:51.987Z",
+      "endedAt": "2026-11-14T21:09:03.397Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

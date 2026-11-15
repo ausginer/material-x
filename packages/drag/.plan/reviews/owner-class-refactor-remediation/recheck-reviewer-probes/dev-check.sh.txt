@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Reviewer probe: does DRD-52's witness read the development state that now lives in
+# the WeakMap? D1: `moved` never sets the flag. D2: the refresh never captures the held
+# x coordinates. Each runs the witness, then the whole browser project. Usage: dev-check.sh <tree> <log dir>
+set -u -o pipefail
+T=$1; L=$2; cd "$T/packages/drag"; f=src/sortable/linear-shift.ts
+vt() { npx vitest run -c vitest.config.ts "$@" 2>&1 | sed 's/\x1b\[[0-9;]*m//g'; }
+summary() { grep -E '^\s+Tests |FAIL ' | sed 's/^ *//' | sort | uniq -c | sed 's/^/  /'; }
+for id in D1 D2; do
+  cp "$f" "$f.rv-bak"
+  case $id in
+    D1) sed -i 's/^      developmentChecks!.get(this)!.advanceUnchecked = true;$/      void developmentChecks;/' "$f" ;;
+    D2) sed -i 's/^          check.heldLeft = this.#index.at(PLACEHOLDER, LEFT);$/          void LEFT;/; s/^          check.heldRight = this.#index.at(PLACEHOLDER, RIGHT);$/          void RIGHT;/' "$f" ;;
+  esac
+  echo "## $id: $(git diff --numstat -- "$f")"; git diff -U0 -- "$f" | grep -E '^[-+][^-+]' | sed 's/^/    /'
+  vt --project browser tests/equivalence-check.browser.test.ts > "$L/$id-witness.log"; echo "  witness exit=$?"; summary < "$L/$id-witness.log"
+  vt --project browser > "$L/$id-browser.log"; echo "  browser project exit=$?"; summary < "$L/$id-browser.log"
+  mv "$f.rv-bak" "$f"
+done
+echo "status: $(git -C "$T" status --porcelain | wc -l) lines"

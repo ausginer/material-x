@@ -1,0 +1,82 @@
+{
+  "id": "base-r3",
+  "cwd": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/base/packages/drag",
+  "runner": {
+    "pid": 1726283,
+    "start": "22544580"
+  },
+  "state": "succeeded",
+  "startedAt": "2026-11-14T23:04:37.072Z",
+  "endedAt": "2026-11-14T23:06:58.851Z",
+  "interruptedBy": null,
+  "steps": [
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/allocout/campaigns/base-r3/1.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1726301,
+        "start": "22544587"
+      },
+      "startedAt": "2026-11-14T23:04:37.086Z",
+      "endedAt": "2026-11-14T23:04:53.978Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'C6 warm move probe'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/allocout/campaigns/base-r3/2.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1726678,
+        "start": "22546278"
+      },
+      "startedAt": "2026-11-14T23:04:53.993Z",
+      "endedAt": "2026-11-14T23:06:45.706Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe y idle'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/allocout/campaigns/base-r3/3.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1727538,
+        "start": "22557450"
+      },
+      "startedAt": "2026-11-14T23:06:45.716Z",
+      "endedAt": "2026-11-14T23:06:47.293Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "command": "npx vitest run -c vitest.config.ts tests/hot-path.browser.test.ts --silent=false -t 'VERIFY lifetime probe y operated'",
+      "log": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/allocout/campaigns/base-r3/4.log",
+      "state": "succeeded",
+      "revision": {
+        "commit": "5b581fbdfcdd13735c2710a290a9cdfc693959a5",
+        "dirty": true
+      },
+      "process": {
+        "pid": 1727751,
+        "start": "22557609"
+      },
+      "startedAt": "2026-11-14T23:06:47.305Z",
+      "endedAt": "2026-11-14T23:06:58.851Z",
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

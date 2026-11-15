@@ -1,0 +1,383 @@
+{
+  "browser": "157.0.8103.38",
+  "calls": 4000,
+  "samples": 9,
+  "rounds": 0,
+  "arms": [
+    {
+      "name": "base",
+      "path": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/bq-arms/base.ts"
+    },
+    {
+      "name": "base2",
+      "path": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/bq-arms/base2.ts"
+    },
+    {
+      "name": "edited",
+      "path": "/tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/bq-arms/edited.ts"
+    }
+  ],
+  "timing": {},
+  "verdicts": {},
+  "allocation": {
+    "fallback, depth 2": {
+      "base": [
+        {
+          "bytesPerCall": 367.258,
+          "byFunctionPerCall": {
+            "coordinates": 197.814,
+            "composeNode": 13.8808,
+            "split": 28.5068,
+            "ancestry": 124.8866,
+            "abs": 1.2738
+          }
+        },
+        {
+          "bytesPerCall": 366.722,
+          "byFunctionPerCall": {
+            "coordinates": 197.801,
+            "composeNode": 13.5592,
+            "split": 28.3276,
+            "ancestry": 124.837,
+            "abs": 1.3188
+          }
+        },
+        {
+          "bytesPerCall": 367.5884,
+          "byFunctionPerCall": {
+            "coordinates": 198.7744,
+            "composeNode": 13.6224,
+            "split": 28.0882,
+            "ancestry": 124.8424,
+            "abs": 1.3512
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 367.3842,
+          "byFunctionPerCall": {
+            "coordinates": 198.063,
+            "composeNode": 13.7136,
+            "split": 28.2016,
+            "ancestry": 125.132,
+            "abs": 1.3212
+          }
+        },
+        {
+          "bytesPerCall": 366.871,
+          "byFunctionPerCall": {
+            "coordinates": 197.5314,
+            "composeNode": 13.7464,
+            "split": 27.8138,
+            "ancestry": 125.5062,
+            "abs": 1.341
+          }
+        },
+        {
+          "bytesPerCall": 367.7698,
+          "byFunctionPerCall": {
+            "coordinates": 198.537,
+            "composeNode": 13.7604,
+            "split": 28.1442,
+            "ancestry": 125.0892,
+            "abs": 1.3026
+          }
+        }
+      ],
+      "edited": [
+        {
+          "bytesPerCall": 366.8172,
+          "byFunctionPerCall": {
+            "coordinates": 197.3814,
+            "composeNode": 13.7764,
+            "split": 27.9468,
+            "ancestry": 125.5204,
+            "abs": 1.2972
+          }
+        },
+        {
+          "bytesPerCall": 366.716,
+          "byFunctionPerCall": {
+            "coordinates": 197.5926,
+            "composeNode": 13.7778,
+            "split": 28.5096,
+            "ancestry": 124.7018,
+            "abs": 1.2642
+          }
+        },
+        {
+          "bytesPerCall": 366.5202,
+          "byFunctionPerCall": {
+            "coordinates": 197.5364,
+            "composeNode": 13.602,
+            "split": 28.2674,
+            "ancestry": 124.7956,
+            "abs": 1.3704
+          }
+        }
+      ]
+    },
+    "fallback, depth 14": {
+      "base": [
+        {
+          "bytesPerCall": 3026.7774,
+          "byFunctionPerCall": {
+            "coordinates": 201.7764,
+            "composeNode": 10.1148,
+            "split": 706.9832,
+            "ancestry": 1810.7642,
+            "parseFloat": 296.5572
+          }
+        },
+        {
+          "bytesPerCall": 3026.7916,
+          "byFunctionPerCall": {
+            "coordinates": 200.452,
+            "composeNode": 10.3452,
+            "split": 707.1652,
+            "ancestry": 1810.9774,
+            "parseFloat": 297.3348
+          }
+        },
+        {
+          "bytesPerCall": 3028.885,
+          "byFunctionPerCall": {
+            "coordinates": 201.4016,
+            "composeNode": 10.038,
+            "split": 708.1984,
+            "ancestry": 1812.3144,
+            "parseFloat": 296.379
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 3028.5418,
+          "byFunctionPerCall": {
+            "coordinates": 201.8504,
+            "composeNode": 10.3364,
+            "split": 707.0014,
+            "ancestry": 1812.7646,
+            "parseFloat": 296.0544
+          }
+        },
+        {
+          "bytesPerCall": 3026.9964,
+          "byFunctionPerCall": {
+            "coordinates": 202.1858,
+            "composeNode": 10.1864,
+            "split": 705.3284,
+            "ancestry": 1811.3442,
+            "parseFloat": 297.3744
+          }
+        },
+        {
+          "bytesPerCall": 3027.769,
+          "byFunctionPerCall": {
+            "coordinates": 201.6446,
+            "composeNode": 10.2656,
+            "split": 706.2146,
+            "ancestry": 1812.4452,
+            "parseFloat": 296.6454
+          }
+        }
+      ],
+      "edited": [
+        {
+          "bytesPerCall": 3027.8262,
+          "byFunctionPerCall": {
+            "coordinates": 202.2078,
+            "composeNode": 10.1944,
+            "split": 706.1054,
+            "ancestry": 1812.2042,
+            "parseFloat": 296.544
+          }
+        },
+        {
+          "bytesPerCall": 3028.6022,
+          "byFunctionPerCall": {
+            "coordinates": 202.371,
+            "composeNode": 10.026,
+            "split": 706.489,
+            "ancestry": 1812.2684,
+            "parseFloat": 296.8932
+          }
+        },
+        {
+          "bytesPerCall": 3027.4612,
+          "byFunctionPerCall": {
+            "coordinates": 201.4276,
+            "composeNode": 10.3428,
+            "split": 705.8366,
+            "ancestry": 1812.1658,
+            "parseFloat": 297.1386
+          }
+        }
+      ]
+    },
+    "fallback, depth 32": {
+      "base": [
+        {
+          "bytesPerCall": 6832.6434,
+          "byFunctionPerCall": {
+            "coordinates": 204.8558,
+            "ancestry": 4163.5302,
+            "parseFloat": 741.8046,
+            "split": 1721.9216
+          }
+        },
+        {
+          "bytesPerCall": 6830.6238,
+          "byFunctionPerCall": {
+            "coordinates": 202.8598,
+            "ancestry": 4161.712,
+            "split": 1722.1498,
+            "parseFloat": 743.3298
+          }
+        },
+        {
+          "bytesPerCall": 6840.1468,
+          "byFunctionPerCall": {
+            "coordinates": 204.3466,
+            "ancestry": 4167.7006,
+            "parseFloat": 743.0112,
+            "split": 1724.534
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 6835.4258,
+          "byFunctionPerCall": {
+            "coordinates": 203.3172,
+            "ancestry": 4167.4614,
+            "split": 1722.3472,
+            "parseFloat": 741.741
+          }
+        },
+        {
+          "bytesPerCall": 6836.376,
+          "byFunctionPerCall": {
+            "coordinates": 204.0226,
+            "ancestry": 4163.996,
+            "split": 1723.5036,
+            "parseFloat": 744.3024
+          }
+        },
+        {
+          "bytesPerCall": 6836.5012,
+          "byFunctionPerCall": {
+            "coordinates": 204.2644,
+            "ancestry": 4164.5512,
+            "split": 1725.2732,
+            "parseFloat": 741.831
+          }
+        }
+      ],
+      "edited": [
+        {
+          "bytesPerCall": 6840.0228,
+          "byFunctionPerCall": {
+            "coordinates": 202.3624,
+            "composeNode": 10.1202,
+            "split": 1722.665,
+            "ancestry": 4162.7424,
+            "parseFloat": 741.5586
+          }
+        },
+        {
+          "bytesPerCall": 6843.221,
+          "byFunctionPerCall": {
+            "coordinates": 202.422,
+            "composeNode": 10.2572,
+            "split": 1723.1438,
+            "ancestry": 4165.4254,
+            "parseFloat": 741.417
+          }
+        },
+        {
+          "bytesPerCall": 6843.758,
+          "byFunctionPerCall": {
+            "coordinates": 201.6846,
+            "composeNode": 10.2008,
+            "split": 1725.122,
+            "ancestry": 4164.4882,
+            "parseFloat": 741.6798
+          }
+        }
+      ]
+    },
+    "above, depth 14": {
+      "base": [
+        {
+          "bytesPerCall": 216.1252,
+          "byFunctionPerCall": {
+            "coordinates": 187.3344,
+            "split": 28.238
+          }
+        },
+        {
+          "bytesPerCall": 216.9856,
+          "byFunctionPerCall": {
+            "coordinates": 188.0994,
+            "split": 28.322
+          }
+        },
+        {
+          "bytesPerCall": 217.4366,
+          "byFunctionPerCall": {
+            "coordinates": 188.4116,
+            "split": 28.469
+          }
+        }
+      ],
+      "base2": [
+        {
+          "bytesPerCall": 217.3154,
+          "byFunctionPerCall": {
+            "coordinates": 188.6304,
+            "split": 28.1134
+          }
+        },
+        {
+          "bytesPerCall": 217.1604,
+          "byFunctionPerCall": {
+            "coordinates": 188.254,
+            "split": 28.3388
+          }
+        },
+        {
+          "bytesPerCall": 216.7866,
+          "byFunctionPerCall": {
+            "coordinates": 188.0098,
+            "split": 28.2338
+          }
+        }
+      ],
+      "edited": [
+        {
+          "bytesPerCall": 217.093,
+          "byFunctionPerCall": {
+            "coordinates": 188.255,
+            "split": 28.2772
+          }
+        },
+        {
+          "bytesPerCall": 215.7982,
+          "byFunctionPerCall": {
+            "coordinates": 187.118,
+            "split": 28.1372
+          }
+        },
+        {
+          "bytesPerCall": 217.3836,
+          "byFunctionPerCall": {
+            "coordinates": 188.4484,
+            "split": 28.3794
+          }
+        }
+      ]
+    }
+  }
+}

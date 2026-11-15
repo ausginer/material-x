@@ -1,0 +1,14 @@
+# Architect feasibility probe, standalone, typecheck only (tsc 7.0.2, strict).
+# The overloads copy Drag.use and Drag.requestStep's shape from src/kernel/drag.ts at 42f42a164.
+# Each @ts-expect-error that has no error is reported as TS2578.
+
+## probe: Retirable.retire(this: this), Invalidatable.invalidate(this: this)
+exit 0
+
+## control: the receivers at 42f42a164, this: Retirable and this: Invalidatable
+control.ts(38,1): error TS2578: Unused '@ts-expect-error' directive.
+control.ts(40,1): error TS2578: Unused '@ts-expect-error' directive.
+control.ts(43,1): error TS2578: Unused '@ts-expect-error' directive.
+exit 1
+
+## control's lines 38, 40 and 43 are E4 (axis retire on the sink), E5 (sink retire on the axis) and E6 (axis invalidate on a RectIndex)

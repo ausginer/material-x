@@ -1,0 +1,712 @@
+### axis-retire 21:48:27
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 edited/packages/drag
+
+9:48:28 PM [vite] (client) warning: 
+edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e80f26fe
+stderr | tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: Uncaught DragFault: drag: items]
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/destruction.browser.test.ts (23 tests | 1 failed) 5099ms
+   ❯ drag:DRI-10 destruction (23)
+     × should retain no item, behavior, view or behavior instance after 3 operations and destruction 1650ms
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/landing.browser.test.ts (19 tests | 1 failed) 4097ms
+   ❯ drag:DRI-13 landing (19)
+     × should report and skip a landing when the consumer unmounted the item, and stay usable 186ms
+ ❯ |browser (chromium)| tests/sortable.browser.test.ts (49 tests | 8 failed) 14952ms
+   ❯ drag:DRI-14 collection (16)
+     × should land at home when a cancel comes between an in-place change and invalidate 188ms
+     × should land at the rebased home when a drag is canceled after a rebase 180ms
+     × should propose a command's reorder in the collection that onStart completed 61ms
+     × should propose a command's reorder from the retained array when onStart replaces it and defers 42ms
+   ❯ drag:DRI-14 collection failures (7)
+     × should cancel with a fault when a pull during a drag throws 153ms
+     × should apply an invalidate from inside onStart 169ms
+   ❯ drag:DRI-15 placeholder integrity (13)
+     × should cancel and report when an anchor leaves the container 284ms
+     × should cancel and report when an anchor leaves before the release 280ms
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: Uncaught DragFault: drag: after the work]
+stderr | tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/requests.browser.test.ts (26 tests | 1 failed) 3814ms
+   ❯ drag:DRI-2 one reader and fixed precedence (6)
+     × should report a fault raised after queued collection work once 170ms
+stderr | tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late resolve after destruction reach nothing
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late reject after destruction reach nothing
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: thrown]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: rejected]
+stderr | tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/verdict.browser.test.ts (11 tests | 5 failed) 2708ms
+   ❯ drag:DRI-5 verdict (11)
+     × should keep a late resolve after a cancel from reaching the next drag 444ms
+     × should keep a late reject after a cancel from reaching the next drag 416ms
+     × should let a late resolve after destruction reach nothing 250ms
+     × should let a late reject after destruction reach nothing 250ms
+     × should deliver a thrown and a rejected verdict as the reported fault 374ms
+stderr | tests/frameworks.browser.test.ts:255 > a React consumer > should see a list the framework rerendered during a press
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: Uncaught DragFault: drag: sortable/landing-placeholder-lost]
+stderr | tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/frameworks.browser.test.ts (9 tests | 3 failed) 1680ms
+   ❯ a React consumer (7)
+     × should see a list the framework rerendered during a press 155ms
+     × should finish, report and stay usable when the commit unmounts the dragged item 170ms
+   ❯ a keyed reconciler that rewrites the whole list (2)
+     × should survive a commit that removes the placeholder with everything else 372ms
+stderr | tests/displacement-sink.browser.test.ts:97 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/displacement-sink.browser.test.ts:140 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+stderr | tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/callbacks.browser.test.ts (20 tests | 1 failed) 1784ms
+   ❯ drag:DRD-35 capabilities passed with their receivers (1)
+     × should call the axis and the sink on themselves 175ms
+stderr | tests/displacement-sink.browser.test.ts:175 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+[Error: Uncaught DragFault: drag: Cannot set properties of undefined (setting '#last')]
+stderr | tests/displacement-sink.browser.test.ts:214 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/displacement-sink.browser.test.ts (7 tests | 4 failed) 1639ms
+   ❯ sortable options (4)
+     × should call the layoutAnimation sink with its receiver, with rows in flight 292ms
+     × drag:DRD-50 should settle each row y() measures by asking the sink about that row 649ms
+     × drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row 370ms
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 280ms
+stderr | tests/activation.browser.test.ts:188 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: Uncaught DragFault: drag: sortable/anchor-outside-container]
+stderr | tests/activation.browser.test.ts:188 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading '#shift')]
+ ❯ |browser (chromium)| tests/activation.browser.test.ts (9 tests | 1 failed) 1434ms
+   ❯ drag:DRI-15 placeholder faults (2)
+     × should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate 246ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/activation.browser.test.ts:188 > drag:DRI-15 placeholder faults > should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+AssertionError: expected [ …(2) ] to deeply equal [ 'sortable/anchor-outside-container' ]
+
+- Expected
++ Received
+
+  [
+    "sortable/anchor-outside-container",
++   "Cannot read properties of undefined (reading '#shift')",
+  ]
+
+ ❯ tests/activation.browser.test.ts:202:29
+    200|     await moveHeld(start.x, start.y + 70);
+    201|     await release();
+    202|     expect(faultMessages()).toEqual(['sortable/anchor-outside-containe…
+       |                             ^
+    203|     expect(log).toEqual(['start', 'end:canceled']);
+    204|     expect(list.querySelector('[data-drag-placeholder]')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/25]⎯
+
+ FAIL  |browser (chromium)| tests/callbacks.browser.test.ts:507 > drag:DRD-35 capabilities passed with their receivers > should call the axis and the sink on themselves
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Cannot read properties of undefined (reading '#shift')",
++ ]
+
+ ❯ tests/callbacks.browser.test.ts:529:29
+    527|     await controller.requestDestroy();
+    528|
+    529|     expect(faultMessages()).toEqual([]);
+       |                             ^
+    530|     expect(
+    531|       invalidate.mock.contexts.every((context) => context === geometry…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/25]⎯
+
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, behavior, view or behavior instance after 3 operations and destruction
+AssertionError: expected [ undefined, …(1) ] to deeply equal [ undefined, undefined ]
+
+- Expected
++ Received
+
+  [
+    undefined,
+-   undefined,
++   <div
++     class="row"
++     id="r0"
++     style="height: 40px; touch-action: none; user-select: none;"
++   >
++     Row 0
++   </div>,
+  ]
+
+ ❯ tests/destruction.browser.test.ts:439:58
+    437|       await wait(0);
+    438|       await commands.forceGarbageCollection();
+    439|       expect(refs.slice(0, 2).map((ref) => ref.deref())).toEqual([
+       |                                                          ^
+    440|         undefined,
+    441|         undefined,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/25]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:97 > sortable options > should call the layoutAnimation sink with its receiver, with rows in flight
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/displacement-sink.browser.test.ts:130:20
+    128|
+    129|     await release();
+    130|     expect(faults).toEqual([]);
+       |                    ^
+    131|     expect(running).toBeGreaterThan(0);
+    132|     expect(report.mock.contexts.length).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/25]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:140 > sortable options > drag:DRD-50 should settle each row y() measures by asking the sink about that row
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/displacement-sink.browser.test.ts:171:20
+    169|       new Set(calls.map((call) => call.element)).size,
+    170|     ).toBeGreaterThanOrEqual(4);
+    171|     expect(faults).toEqual([]);
+       |                    ^
+    172|     expect(log).toEqual(['start', 'end:accepted']);
+    173|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/25]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:175 > sortable options > drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot set properties of undefined (setting '#last')",
++     "cause": TypeError {
++       "message": "Cannot set properties of undefined (setting '#last')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/displacement-sink.browser.test.ts:210:20
+    208|     expect(new Set(calls.map((call) => call.element)).size).toBe(11);
+    209|     expect(calls.length).toBeGreaterThanOrEqual(22);
+    210|     expect(faults).toEqual([]);
+       |                    ^
+    211|     expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBe(…
+    212|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:214 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/displacement-sink.browser.test.ts:299:20
+    297|     expect(r3.getAnimations()).toHaveLength(1);
+    298|     await commands.keyPress('Escape');
+    299|     expect(faults).toEqual([]);
+       |                    ^
+    300|   });
+    301| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯
+
+ FAIL  |browser (chromium)| tests/frameworks.browser.test.ts:255 > a React consumer > should see a list the framework rerendered during a press
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Cannot read properties of undefined (reading '#shift')",
++ ]
+
+ ❯ tests/frameworks.browser.test.ts:266:29
+    264|     await release();
+    265|     expect(['accepted', 'noop']).toContain(fixture.results[0]?.type);
+    266|     expect(faultMessages()).toEqual([]);
+       |                             ^
+    267|   });
+    268|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/25]⎯
+
+ FAIL  |browser (chromium)| tests/frameworks.browser.test.ts:269 > a React consumer > should finish, report and stay usable when the commit unmounts the dragged item
+AssertionError: expected [ …(2) ] to deeply equal [ 'sortable/landing-placeholder-lost' ]
+
+- Expected
++ Received
+
+  [
+    "sortable/landing-placeholder-lost",
++   "Cannot read properties of undefined (reading '#shift')",
+  ]
+
+ ❯ tests/frameworks.browser.test.ts:286:29
+    284|     await release();
+    285|     expect(fixture.results[0]?.type).toBe('accepted');
+    286|     expect(faultMessages()).toEqual(['sortable/landing-placeholder-los…
+       |                             ^
+    287|     expect(fixture.list.querySelector('[data-drag-placeholder]')).toBe…
+    288|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/25]⎯
+
+ FAIL  |browser (chromium)| tests/frameworks.browser.test.ts:333 > a keyed reconciler that rewrites the whole list > should survive a commit that removes the placeholder with everything else
+AssertionError: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Cannot read properties of undefined (reading '#shift')",
++   "Cannot read properties of undefined (reading '#shift')",
++ ]
+
+ ❯ tests/frameworks.browser.test.ts:364:29
+    362|     await release();
+    363|     expect(results[1]?.type).toBe('accepted');
+    364|     expect(faultMessages()).toEqual([]);
+       |                             ^
+    365|   });
+    366|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/25]⎯
+
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:327 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+AssertionError: expected [ …(2) ] to deeply equal [ 'sortable/landing-placeholder-lost' ]
+
+- Expected
++ Received
+
+  [
+    "sortable/landing-placeholder-lost",
++   "Cannot read properties of undefined (reading '#shift')",
+  ]
+
+ ❯ tests/landing.browser.test.ts:344:29
+    342|     await release();
+    343|     expect(outcomes).toEqual(['accepted']);
+    344|     expect(faultMessages()).toEqual(['sortable/landing-placeholder-los…
+       |                             ^
+    345|     expect(list.querySelector('[data-drag-placeholder]')).toBeNull();
+    346|     await grab('#r1', 0, 45);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/25]⎯
+
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:330 > drag:DRI-2 one reader and fixed precedence > should report a fault raised after queued collection work once
+AssertionError: expected [ 'after the work', …(1) ] to deeply equal [ 'after the work' ]
+
+- Expected
++ Received
+
+  [
+    "after the work",
++   "Cannot read properties of undefined (reading '#shift')",
+  ]
+
+ ❯ tests/requests.browser.test.ts:344:29
+    342|     await dragAndDrop('#r0', 90);
+    343|     expect(log).toEqual(['start', 'canceled']);
+    344|     expect(faultMessages()).toEqual(['after the work']);
+       |                             ^
+    345|     expect(isClean(list)).toBe(true);
+    346|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:149 > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:171:20
+    169|     item.after(added);
+    170|     controller.invalidate();
+    171|     expect(faults).toEqual([]);
+       |                    ^
+    172|     expect(results).toEqual([
+    173|       { type: 'canceled', reason: undefined, origin: 'request', reques…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:213:20
+    211|
+    212|     await commands.keyPress('Escape');
+    213|     expect(faults).toEqual([]);
+       |                    ^
+    214|     expect(log).toEqual(['start', 'end:canceled']);
+    215|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:268:20
+    266|     ]);
+    267|     expect(results.map((result) => result.type)).toEqual(['accepted']);
+    268|     expect(faults).toEqual([]);
+       |                    ^
+    269|   });
+    270|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:271 > drag:DRI-14 collection > should propose a command's reorder from the retained array when onStart replaces it and defers
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:323:20
+    321|     expect(results.map((result) => result.type)).toEqual(['accepted']);
+    322|     expect(pulls).toBe(pullsBeforeLateInvalidate);
+    323|     expect(faults).toEqual([]);
+       |                    ^
+    324|   });
+    325|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+AssertionError: expected [ 'items', …(1) ] to deeply equal [ 'items' ]
+
+- Expected
++ Received
+
+  [
+    "items",
++   "Cannot read properties of undefined (reading '#shift')",
+  ]
+
+ ❯ tests/sortable.browser.test.ts:470:29
+    468|     await release();
+    469|     expect(results).toEqual(['canceled:fault']);
+    470|     expect(faultMessages()).toEqual(['items']);
+       |                             ^
+    471|     expect(isClean(list)).toBe(true);
+    472|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/sortable.browser.test.ts:528:20
+    526|     expect(log[0]).toBe('pulled:0');
+    527|     expect(log.at(-1)).toBe('end:accepted');
+    528|     expect(faults).toEqual([]);
+       |                    ^
+    529|   });
+    530|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:607 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves the container
+AssertionError: expected [ …(2) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/sortable.browser.test.ts:627:29
+    625|     await release();
+    626|     expect(results).toEqual(['canceled:fault']);
+    627|     expect(faultMessages()).toHaveLength(1);
+       |                             ^
+    628|   });
+    629|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/25]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:630 > drag:DRI-15 placeholder integrity > should cancel and report when an anchor leaves before the release
+AssertionError: expected [ …(2) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/sortable.browser.test.ts:643:29
+    641|     await release();
+    642|     expect(results).toEqual(['canceled']);
+    643|     expect(faultMessages()).toHaveLength(1);
+       |                             ^
+    644|     expect(isClean(list)).toBe(true);
+    645|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/25]⎯
+
+ FAIL  |browser (chromium)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late resolve after a cancel from reaching the next drag
+ FAIL  |browser (chromium)| tests/verdict.browser.test.ts:55 > drag:DRI-5 verdict > should keep a late reject after a cancel from reaching the next drag
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/verdict.browser.test.ts:69:22
+     67|       await wait(100);
+     68|       expect(log).toEqual(['start', 'end:canceled', 'start']);
+     69|       expect(faults).toEqual([]);
+       |                      ^
+     70|       expect(rejections).toEqual([]);
+     71|       await commands.keyPress('Escape');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/25]⎯
+
+ FAIL  |browser (chromium)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late resolve after destruction reach nothing
+ FAIL  |browser (chromium)| tests/verdict.browser.test.ts:76 > drag:DRI-5 verdict > should let a late reject after destruction reach nothing
+AssertionError: expected [ …(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   DragFault {
++     "message": "drag: Cannot read properties of undefined (reading '#shift')",
++     "cause": TypeError {
++       "message": "Cannot read properties of undefined (reading '#shift')",
++     },
++     "name": "DragFault",
++   },
++ ]
+
+ ❯ tests/verdict.browser.test.ts:86:22
+     84|       await wait(100);
+     85|       expect(log).toEqual(['start']);
+     86|       expect(faults).toEqual([]);
+       |                      ^
+     87|       expect(rejections).toEqual([]);
+     88|       expect(isClean(list)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/25]⎯
+
+ FAIL  |browser (chromium)| tests/verdict.browser.test.ts:197 > drag:DRI-5 verdict > should deliver a thrown and a rejected verdict as the reported fault
+AssertionError: expected [ 'canceled:fault:thrown:false', …(1) ] to deeply equal [ 'canceled:fault:thrown:true', …(1) ]
+
+- Expected
++ Received
+
+  [
+-   "canceled:fault:thrown:true",
+-   "canceled:fault:rejected:true",
++   "canceled:fault:thrown:false",
++   "canceled:fault:rejected:false",
+  ]
+
+ ❯ tests/verdict.browser.test.ts:226:21
+    224|     await dragAndDrop('#r0', 90);
+    225|     await frames();
+    226|     expect(results).toEqual([
+       |                     ^
+    227|       'canceled:fault:thrown:true',
+    228|       'canceled:fault:rejected:true',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/25]⎯
+
+
+ Test Files  9 failed | 17 passed (26)
+      Tests  25 failed | 332 passed (357)
+   Start at  21:48:27
+   Duration  38.66s (tests 96%, worker 3%, import 1%)
+
+exit=1

@@ -1,0 +1,13 @@
+base r1 21:59:20 load=1.68 RV-COLD-SCALING sampled=50 moves=50 keys={"sortable/rect-index.ts:#read":2032,"sortable/linear-shift.ts:moved":384,"sortable/rect-index.ts:shift":7368}
+edited r1 21:59:29 load=1.86 RV-COLD-SCALING sampled=50 moves=50 keys={"sortable/rect-index.ts:#read":2112,"sortable/linear-shift.ts:moved":1368,"sortable/rect-index.ts:shift":7524}
+base r1 21:59:38 load=2.11 RV-COLD-SCALING sampled=200 moves=200 keys={"sortable/rect-index.ts:collect":112,"sortable/rect-index.ts:#read":8620,"sortable/linear-shift.ts:moved":1296,"sortable/rect-index.ts:shift":13356}
+edited r1 21:59:55 load=2.40 RV-COLD-SCALING sampled=200 moves=200 keys={"sortable/rect-index.ts:collect":140,"sortable/rect-index.ts:#read":8356,"sortable/linear-shift.ts:moved":6000,"sortable/rect-index.ts:shift":13668}
+base r1 22:00:12 load=2.35 RV-COLD-SCALING sampled=800 moves=800 keys={"sortable/rect-index.ts:collect":736,"sortable/rect-index.ts:#read":23936,"sortable/linear-shift.ts:moved":2616,"sortable/rect-index.ts:shift":13416}
+edited r1 22:00:59 load=2.05 RV-COLD-SCALING sampled=800 moves=800 keys={"sortable/rect-index.ts:collect":516,"sortable/rect-index.ts:#read":24368,"sortable/linear-shift.ts:moved":12720,"sortable/rect-index.ts:shift":13164}
+base r2 22:01:46 load=2.69 RV-COLD-SCALING sampled=50 moves=50 keys={"sortable/rect-index.ts:#read":2080,"sortable/linear-shift.ts:moved":384,"sortable/rect-index.ts:shift":7704}
+edited r2 22:01:55 load=2.48 RV-COLD-SCALING sampled=50 moves=50 keys={"sortable/rect-index.ts:#read":1976,"sortable/linear-shift.ts:moved":1620,"sortable/rect-index.ts:shift":7296}
+base r2 22:02:04 load=2.65 RV-COLD-SCALING sampled=200 moves=200 keys={"sortable/rect-index.ts:collect":112,"sortable/rect-index.ts:#read":8020,"sortable/linear-shift.ts:moved":1140,"sortable/rect-index.ts:shift":13392}
+edited r2 22:02:21 load=3.07 RV-COLD-SCALING sampled=200 moves=200 keys={"sortable/rect-index.ts:collect":112,"sortable/rect-index.ts:#read":7844,"sortable/linear-shift.ts:moved":6024,"sortable/rect-index.ts:shift":14604}
+base r2 22:02:38 load=3.75 RV-COLD-SCALING sampled=800 moves=800 keys={"sortable/rect-index.ts:collect":1168,"sortable/rect-index.ts:#read":23624,"sortable/linear-shift.ts:moved":2520,"sortable/rect-index.ts:shift":13140}
+edited r2 22:03:26 load=3.87 RV-COLD-SCALING sampled=800 moves=800 keys={"sortable/rect-index.ts:collect":1368,"sortable/rect-index.ts:#read":23012,"sortable/linear-shift.ts:moved":13308,"sortable/rect-index.ts:shift":13692}
+done

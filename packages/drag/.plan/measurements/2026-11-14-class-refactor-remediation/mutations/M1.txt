@@ -1,0 +1,14 @@
+M1-control exit=0
+      1       Tests  5 passed (5)
+M1a-bounds exit=1
+      1       Tests  1 failed | 4 passed (5)
+      1  FAIL  |declaration| tests/published-types.declaration.test.ts:83 > drag:DRD-63 the published slot types > should let a third party bounds installer return its own constraint
+      1 TypeCheckError: Type '{ apply(motion { x number; y number; }) void; invalidate() void; }' is missing the following properties from type 'BoundsConstraint' #window, #box, #held, #stale, #resolve
+      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+M1b-drop-targets exit=1
+      1       Tests  2 failed | 3 passed (5)
+      1  FAIL  |declaration| tests/published-types.declaration.test.ts:42 > drag:DRD-63 the published slot types > should let a third party return its own drop-target tracker
+      1  FAIL  |declaration| tests/published-types.declaration.test.ts:62 > drag:DRD-63 the published slot types > should let a third party return a tracker that wraps the built-in one
+      1 TypeCheckError: Type '(drag DropTargetDrag, window Window) => { readonly current HTMLElement | null; move () => void; drop () => void; invalidate () => void; }' is not assignable to type 'DropTargets'.
+      1 TypeCheckError: Type '{ readonly current HTMLElement | null; move() void; drop() void; invalidate() void; }' is missing the following properties from type 'ElementTargetTracker' #drag, #frame, #rects, #elements, and 5 more.
+      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯

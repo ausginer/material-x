@@ -1,0 +1,627 @@
+{
+ "chrome": "157.0.8103.38",
+ "rounds": 1,
+ "moves": 300,
+ "arms": [
+  "before",
+  "production",
+  "control"
+ ],
+ "before": "5b581fbdf",
+ "summary": [
+  {
+   "scenario": "free drag + bounds + 10 drop targets, 300 moves, one frame each",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 126,
+      "min": 126,
+      "max": 126
+     },
+     "scriptUs": {
+      "median": 119,
+      "min": 119,
+      "max": 119
+     },
+     "taskUs": {
+      "median": 1461,
+      "min": 1461,
+      "max": 1461
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 138,
+      "min": 138,
+      "max": 138
+     },
+     "scriptUs": {
+      "median": 133,
+      "min": 133,
+      "max": 133
+     },
+     "taskUs": {
+      "median": 1617,
+      "min": 1617,
+      "max": 1617
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 153,
+      "min": 153,
+      "max": 153
+     },
+     "scriptUs": {
+      "median": 143,
+      "min": 143,
+      "max": 143
+     },
+     "taskUs": {
+      "median": 1738,
+      "min": 1738,
+      "max": 1738
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 0 against 0"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "FLAG slower: higher in 1 of 1, median 14 µs, A/A bound 10 µs",
+     "differences": [
+      14
+     ],
+     "aa": [
+      -10
+     ],
+     "higher": 1,
+     "lower": 0,
+     "median": 14,
+     "bound": 10
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "FLAG slower: higher in 1 of 1, median 155 µs, A/A bound 121 µs",
+     "differences": [
+      155
+     ],
+     "aa": [
+      -121
+     ],
+     "higher": 1,
+     "lower": 0,
+     "median": 155,
+     "bound": 121
+    }
+   ]
+  },
+  {
+   "scenario": "50 free-drag activate-and-drop cycles, bounds + 10 drop targets",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 100,
+      "min": 100,
+      "max": 100
+     },
+     "layoutUs": {
+      "median": 204,
+      "min": 204,
+      "max": 204
+     },
+     "styleUs": {
+      "median": 500,
+      "min": 500,
+      "max": 500
+     },
+     "scriptUs": {
+      "median": 1421,
+      "min": 1421,
+      "max": 1421
+     },
+     "taskUs": {
+      "median": 7597,
+      "min": 7597,
+      "max": 7597
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 100,
+      "min": 100,
+      "max": 100
+     },
+     "layoutUs": {
+      "median": 167,
+      "min": 167,
+      "max": 167
+     },
+     "styleUs": {
+      "median": 424,
+      "min": 424,
+      "max": 424
+     },
+     "scriptUs": {
+      "median": 1323,
+      "min": 1323,
+      "max": 1323
+     },
+     "taskUs": {
+      "median": 6454,
+      "min": 6454,
+      "max": 6454
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 100,
+      "min": 100,
+      "max": 100
+     },
+     "layoutUs": {
+      "median": 188,
+      "min": 188,
+      "max": 188
+     },
+     "styleUs": {
+      "median": 471,
+      "min": 471,
+      "max": 471
+     },
+     "scriptUs": {
+      "median": 1348,
+      "min": 1348,
+      "max": 1348
+     },
+     "taskUs": {
+      "median": 6968,
+      "min": 6968,
+      "max": 6968
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 100 against 100"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "faster: higher in 0 of 1, median -98 µs, A/A bound 24 µs",
+     "differences": [
+      -98
+     ],
+     "aa": [
+      -24
+     ],
+     "higher": 0,
+     "lower": 1,
+     "median": -98,
+     "bound": 24
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "faster: higher in 0 of 1, median -1144 µs, A/A bound 514 µs",
+     "differences": [
+      -1144
+     ],
+     "aa": [
+      -514
+     ],
+     "higher": 0,
+     "lower": 1,
+     "median": -1144,
+     "bound": 514
+    }
+   ]
+  },
+  {
+   "scenario": "free drag + bounds + 400 drop targets, 300 moves, one frame each",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 142,
+      "min": 142,
+      "max": 142
+     },
+     "scriptUs": {
+      "median": 144,
+      "min": 144,
+      "max": 144
+     },
+     "taskUs": {
+      "median": 1647,
+      "min": 1647,
+      "max": 1647
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 151,
+      "min": 151,
+      "max": 151
+     },
+     "scriptUs": {
+      "median": 150,
+      "min": 150,
+      "max": 150
+     },
+     "taskUs": {
+      "median": 1762,
+      "min": 1762,
+      "max": 1762
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "layoutUs": {
+      "median": 0,
+      "min": 0,
+      "max": 0
+     },
+     "styleUs": {
+      "median": 141,
+      "min": 141,
+      "max": 141
+     },
+     "scriptUs": {
+      "median": 139,
+      "min": 139,
+      "max": 139
+     },
+     "taskUs": {
+      "median": 1627,
+      "min": 1627,
+      "max": 1627
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 0 against 0"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 1 of 1, median 6 µs, A/A bound 11 µs",
+     "differences": [
+      6
+     ],
+     "aa": [
+      11
+     ],
+     "higher": 1,
+     "lower": 0,
+     "median": 6,
+     "bound": 11
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 1 of 1, median 115 µs, A/A bound 134 µs",
+     "differences": [
+      115
+     ],
+     "aa": [
+      134
+     ],
+     "higher": 1,
+     "lower": 0,
+     "median": 115,
+     "bound": 134
+    }
+   ]
+  },
+  {
+   "scenario": "50 free-drag activate-and-drop cycles, bounds + 400 drop targets",
+   "rule": "exact-and-floor",
+   "medians": {
+    "before": {
+     "layouts": {
+      "median": 100,
+      "min": 100,
+      "max": 100
+     },
+     "layoutUs": {
+      "median": 175,
+      "min": 175,
+      "max": 175
+     },
+     "styleUs": {
+      "median": 447,
+      "min": 447,
+      "max": 447
+     },
+     "scriptUs": {
+      "median": 2248,
+      "min": 2248,
+      "max": 2248
+     },
+     "taskUs": {
+      "median": 9247,
+      "min": 9247,
+      "max": 9247
+     }
+    },
+    "production": {
+     "layouts": {
+      "median": 100,
+      "min": 100,
+      "max": 100
+     },
+     "layoutUs": {
+      "median": 176,
+      "min": 176,
+      "max": 176
+     },
+     "styleUs": {
+      "median": 448,
+      "min": 448,
+      "max": 448
+     },
+     "scriptUs": {
+      "median": 2334,
+      "min": 2334,
+      "max": 2334
+     },
+     "taskUs": {
+      "median": 9801,
+      "min": 9801,
+      "max": 9801
+     }
+    },
+    "control": {
+     "layouts": {
+      "median": 100,
+      "min": 100,
+      "max": 100
+     },
+     "layoutUs": {
+      "median": 166,
+      "min": 166,
+      "max": 166
+     },
+     "styleUs": {
+      "median": 414,
+      "min": 414,
+      "max": 414
+     },
+     "scriptUs": {
+      "median": 2103,
+      "min": 2103,
+      "max": 2103
+     },
+     "taskUs": {
+      "median": 8939,
+      "min": 8939,
+      "max": 8939
+     }
+    }
+   },
+   "verdicts": [
+    {
+     "against": "before",
+     "measure": "layouts",
+     "result": "at or below: 100 against 100"
+    },
+    {
+     "against": "before",
+     "measure": "scriptUs",
+     "result": "no difference shown: higher in 1 of 1, median 86 µs, A/A bound 231 µs",
+     "differences": [
+      86
+     ],
+     "aa": [
+      231
+     ],
+     "higher": 1,
+     "lower": 0,
+     "median": 86,
+     "bound": 231
+    },
+    {
+     "against": "before",
+     "measure": "taskUs",
+     "result": "no difference shown: higher in 1 of 1, median 553 µs, A/A bound 862 µs",
+     "differences": [
+      553
+     ],
+     "aa": [
+      862
+     ],
+     "higher": 1,
+     "lower": 0,
+     "median": 553,
+     "bound": 862
+    }
+   ]
+  }
+ ],
+ "raw": {
+  "free drag + bounds + 10 drop targets, 300 moves, one frame each": {
+   "before": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 125.76666666666667,
+     "scriptUs": 119.44333333333336,
+     "taskUs": 1461.1799999999998
+    }
+   ],
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 138.28333333333333,
+     "scriptUs": 133.31333333333333,
+     "taskUs": 1616.5666666666666
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 153.21000000000004,
+     "scriptUs": 143.21,
+     "taskUs": 1737.6633333333332
+    }
+   ]
+  },
+  "50 free-drag activate-and-drop cycles, bounds + 10 drop targets": {
+   "before": [
+    {
+     "layouts": 100,
+     "layoutUs": 203.86,
+     "styleUs": 499.94,
+     "scriptUs": 1420.94,
+     "taskUs": 7597.16
+    }
+   ],
+   "production": [
+    {
+     "layouts": 100,
+     "layoutUs": 167.02,
+     "styleUs": 423.9000000000001,
+     "scriptUs": 1323.38,
+     "taskUs": 6453.5999999999985
+    }
+   ],
+   "control": [
+    {
+     "layouts": 100,
+     "layoutUs": 187.64,
+     "styleUs": 470.58,
+     "scriptUs": 1347.5,
+     "taskUs": 6967.74
+    }
+   ]
+  },
+  "free drag + bounds + 400 drop targets, 300 moves, one frame each": {
+   "before": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 142.40666666666667,
+     "scriptUs": 143.93666666666667,
+     "taskUs": 1646.9
+    }
+   ],
+   "production": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 151.24666666666667,
+     "scriptUs": 149.85333333333332,
+     "taskUs": 1761.5666666666666
+    }
+   ],
+   "control": [
+    {
+     "layouts": 0,
+     "layoutUs": 0,
+     "styleUs": 140.73666666666668,
+     "scriptUs": 138.6833333333333,
+     "taskUs": 1627.2733333333335
+    }
+   ]
+  },
+  "50 free-drag activate-and-drop cycles, bounds + 400 drop targets": {
+   "before": [
+    {
+     "layouts": 100,
+     "layoutUs": 174.60000000000002,
+     "styleUs": 447.3399999999999,
+     "scriptUs": 2248.26,
+     "taskUs": 9247.32
+    }
+   ],
+   "production": [
+    {
+     "layouts": 100,
+     "layoutUs": 175.78,
+     "styleUs": 447.86,
+     "scriptUs": 2334.24,
+     "taskUs": 9800.56
+    }
+   ],
+   "control": [
+    {
+     "layouts": 100,
+     "layoutUs": 166.04,
+     "styleUs": 413.64,
+     "scriptUs": 2103.1,
+     "taskUs": 8938.94
+    }
+   ]
+  }
+ }
+}

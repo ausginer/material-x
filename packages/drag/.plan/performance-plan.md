@@ -20,6 +20,15 @@
 
 **After P1, at `c279973a3`** ([assessment](performance-instrument-assessment.md) §4). Layout counts are exact. The bytes row flags one two-number object per sample, and the retained row flags one per operation. The kernel per-sample test fails alone and passes after other tests, and `DRD-42` repairs it. **No timing row resolves an optimization.** The 20-item move row flagged 50 µs measured and missed 147 µs and 5 µs, with A/A bounds of 20 to 221 µs per move. The 20-item cycle row missed 411 µs, with bounds of 334 to 3,283 µs per cycle. `DRD-43` adds rows driven from inside the page (P1b).
 
+**Optional diagnostic: generated-code inspection.** Added on 2026-11-14 on the owner's direction. A unit may inspect the optimized code that an engine generates, for example in Godbolt (Compiler Explorer). That can explain why two source forms read the same or differently.
+
+- **It is optional.** No unit owes one, and no handoff requires one unless it says so.
+- **It isn't an instrument in §1's sense.** It decides nothing under `DRD-40`, it doesn't replace a reading, and a decision that cites it also cites the reading it supports.
+- **Its result holds for what was inspected:** the example, the engine and its version, and the tiers and feedback that the example reached. It doesn't show equivalent performance in drag, where inlining, the feedback a site receives and polymorphism can differ.
+- **When a record cites one,** it names the example, the engine and its version, the variants and what was compared. It saves the inputs and the output under `measurements/` when they are kept, and says so when they weren't.
+
+**First use, 2026-11-14:** a temporary Godbolt probe for the owner's class refactor gave identical optimized loop bodies for all six variants it compared. The question was the scan loops' reads. That is evidence for that example and that engine, not proof that drag performs the same. The probe wasn't saved in this record. `DRD-63` property 5 cites it beside case C's inconclusive timing reading.
+
 ## 2. Phases
 
 ### P1. Instruments, then the baseline

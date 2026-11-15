@@ -10,8 +10,14 @@
  * one, it invalidates, and the next frame rebuilds against a laid-out tree. A
  * resolution with nothing stale reads no layout.
  */
-import type { AxisInstaller, DisplacementSink } from './axis.ts';
-import type { CollectionSnapshot } from './domain.ts';
+import type {
+  AxisContext,
+  AxisInstaller,
+  AxisQuery,
+  DisplacementSink,
+  InsertionGeometry,
+} from './axis.ts';
+import type { CollectionSnapshot, Insertion } from './domain.ts';
 import {
   CENTER_X,
   CENTER_Y,
@@ -42,123 +48,121 @@ function refresh(
   }
 }
 
+class XYAxisGeometry implements InsertionGeometry {
+  readonly #index = new RetainingRectIndex();
+  #last = -1;
+
+  resolve(query: AxisQuery, context: AxisContext): Insertion | null {
+    refresh(
+      this.#index,
+      query.snapshot,
+      query.item,
+      context.box,
+      context.placeholder,
+      context.displacement,
+    );
+    this.#last = query.insertion.index;
+
+    const dxAnchor = query.pointerX - this.#index.at(PLACEHOLDER, CENTER_X);
+    const dyAnchor = query.pointerY - this.#index.at(PLACEHOLDER, CENTER_Y);
+
+    let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
+    let nearest = -1;
+
+    for (let i = 0; i < this.#index.count; i += 1) {
+      const dx = query.pointerX - this.#index.at(i, CENTER_X);
+      const dy = query.pointerY - this.#index.at(i, CENTER_Y);
+      const distance = dx * dx + dy * dy;
+
+      if (distance < best) {
+        best = distance;
+        nearest = i;
+      }
+    }
+
+    if (nearest === -1) {
+      return null;
+    }
+
+    const position = context.placeholder.compareDocumentPosition(
+      this.#index.item(nearest),
+    );
+
+    return this.#index.insertion(
+      // oxlint-disable-next-line no-bitwise -- a documented bitfield
+      (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+        ? nearest + 1
+        : nearest,
+    );
+  }
+
+  confirm(query: AxisQuery, context: AxisContext): void {
+    if (
+      !this.#index.holds(
+        query.insertion.index,
+        query.snapshot,
+        context.box,
+        context.displacement,
+      )
+    ) {
+      this.invalidate();
+    }
+  }
+
+  moved(query: AxisQuery, context: AxisContext): void {
+    const gap = query.insertion.index;
+    // Taken before the refresh below rewrites the count.
+    const held = this.#index.count;
+
+    if (
+      !context.displacement ||
+      this.#last < 0 ||
+      this.#last === gap ||
+      held === 0
+    ) {
+      this.invalidate();
+      return;
+    }
+
+    // Before the refresh rewrites the slots.
+    this.#index.retain();
+    this.#index.invalidate();
+    refresh(
+      this.#index,
+      query.snapshot,
+      query.item,
+      context.box,
+      context.placeholder,
+      context.displacement,
+    );
+    this.#last = gap;
+
+    // Moving the placeholder reorders nothing in the destination view, so
+    // slot `i` is the same element on both sides of the write.
+    const span = this.#index.count < held ? this.#index.count : held;
+
+    for (let i = 0; i < span; i += 1) {
+      const dx = this.#index.retained(i, LEFT) - this.#index.at(i, LEFT);
+      const dy = this.#index.retained(i, TOP) - this.#index.at(i, TOP);
+
+      if (dx !== 0 || dy !== 0) {
+        context.displacement.report(this.#index.item(i), dx, dy, context.space);
+      }
+    }
+  }
+
+  invalidate(): void {
+    this.#last = -1;
+    this.#index.invalidate();
+  }
+
+  retire(): void {
+    this.#last = -1;
+    this.#index.retire();
+  }
+}
+
 /** The axis rule for a wrapping field of items. */
 export function xy(): AxisInstaller {
-  return () => {
-    const index = new RetainingRectIndex();
-    /** The gap the buffer reflects, or `-1` when nothing is known. */
-    let last = -1;
-    const invalidate = (): void => {
-      last = -1;
-      index.invalidate();
-    };
-
-    return {
-      resolve(query, context) {
-        // Read once, outside the candidate loop.
-        const { pointerX, pointerY } = query;
-
-        refresh(
-          index,
-          query.snapshot,
-          query.item,
-          context.box,
-          context.placeholder,
-          context.displacement,
-        );
-        last = query.insertion.index;
-
-        // Read once, outside the candidate loop.
-        const { count } = index;
-        const dxAnchor = pointerX - index.at(PLACEHOLDER, CENTER_X);
-        const dyAnchor = pointerY - index.at(PLACEHOLDER, CENTER_Y);
-        let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
-        let nearest = -1;
-
-        for (let i = 0; i < count; i += 1) {
-          const dx = pointerX - index.at(i, CENTER_X);
-          const dy = pointerY - index.at(i, CENTER_Y);
-          const distance = dx * dx + dy * dy;
-
-          if (distance < best) {
-            best = distance;
-            nearest = i;
-          }
-        }
-
-        if (nearest === -1) {
-          return null;
-        }
-
-        const position = context.placeholder.compareDocumentPosition(
-          index.item(nearest),
-        );
-        // oxlint-disable-next-line no-bitwise -- a documented bitfield
-        const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-
-        return index.insertion(follows ? nearest + 1 : nearest);
-      },
-
-      invalidate,
-
-      confirm(query, context) {
-        if (
-          !index.holds(
-            query.insertion.index,
-            query.snapshot,
-            context.box,
-            context.displacement,
-          )
-        ) {
-          invalidate();
-        }
-      },
-
-      moved(query, context) {
-        // Read once: the per-row loop below calls into it.
-        const { displacement } = context;
-        const gap = query.insertion.index;
-        // Taken before the refresh below rewrites the count.
-        const held = index.count;
-
-        if (!displacement || last < 0 || last === gap || held === 0) {
-          invalidate();
-          return;
-        }
-
-        // Before the refresh rewrites the slots.
-        index.retain();
-        index.invalidate();
-        refresh(
-          index,
-          query.snapshot,
-          query.item,
-          context.box,
-          context.placeholder,
-          displacement,
-        );
-        last = gap;
-
-        // Moving the placeholder reorders nothing in the destination view, so
-        // slot `i` is the same element on both sides of the write. Read once,
-        // outside the loop.
-        const { count } = index;
-        const span = count < held ? count : held;
-
-        for (let i = 0; i < span; i += 1) {
-          const dx = index.retained(i, LEFT) - index.at(i, LEFT);
-          const dy = index.retained(i, TOP) - index.at(i, TOP);
-
-          if (dx !== 0 || dy !== 0) {
-            displacement.report(index.item(i), dx, dy, context.space);
-          }
-        }
-      },
-
-      retire() {
-        last = -1;
-        index.retire();
-      },
-    };
-  };
+  return () => new XYAxisGeometry();
 }

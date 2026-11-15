@@ -1,0 +1,30 @@
+# before: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, affinity: pid 1595985's current affinity mask: fff (not pinned), uptime: 20:33:11 up 2 days, 12:06,  0 users,  load average: 1.23, 1.39, 1.50, loadavg 1.23, 1.39, 1.50
+surfaces: {"fieldCount":2000,"fieldRows":81,"columnCount":2000,"fieldPointer":[20,410],"columnPointer":[100,41630]}, 157.0.8103.38
+A: xy() rebuild, no sink: one operation per arm before timing: {"before":{"reads":2001,"result":500,"reports":[]},"production":{"reads":2001,"result":500,"reports":[]},"control":{"reads":2001,"result":500,"reports":[]}}
+A round 1 order before,production,control: before 1007.617 µs (515.9 ms), production 904.492 µs (463.1 ms), control 900.781 µs (461.2 ms)
+A round 2 order production,control,before: before 856.250 µs (438.4 ms), production 1028.516 µs (526.6 ms), control 925.195 µs (473.7 ms)
+A round 3 order control,before,production: before 858.789 µs (439.7 ms), production 915.430 µs (468.7 ms), control 1016.211 µs (520.3 ms)
+A round 4 order before,production,control: before 910.938 µs (466.4 ms), production 898.828 µs (460.2 ms), control 893.945 µs (457.7 ms)
+A round 5 order production,control,before: before 995.508 µs (509.7 ms), production 908.789 µs (465.3 ms), control 945.117 µs (483.9 ms)
+A round 6 order control,before,production: before 891.211 µs (456.3 ms), production 1141.992 µs (584.7 ms), control 944.727 µs (483.7 ms)
+A round 7 order before,production,control: before 895.117 µs (458.3 ms), production 960.938 µs (492.0 ms), control 972.852 µs (498.1 ms)
+A: xy() rebuild, no sink: no difference shown: higher in 4 of 7, lower in 3, median 56.641 µs (6.3 % of before), A/A bound 197.266 µs (22.0 % of before), before median 895.117 µs, batch 512 operations, shortest timed batch 438.4 ms
+M: xy() committed move forward and back, layoutAnimation(), one cell in flight: one operation per arm before timing: {"before":{"reads":4002,"result":1001,"reports":["1001 40 0","1001 -40 0"]},"production":{"reads":4002,"result":1001,"reports":["1001 40 0","1001 -40 0"]},"control":{"reads":4002,"result":1001,"reports":["1001 40 0","1001 -40 0"]}}
+M round 1 order before,production,control: before 4353.906 µs (557.3 ms), production 3935.937 µs (503.8 ms), control 4209.375 µs (538.8 ms)
+M round 2 order production,control,before: before 4212.500 µs (539.2 ms), production 3463.281 µs (443.3 ms), control 4045.313 µs (517.8 ms)
+M round 3 order control,before,production: before 4014.844 µs (513.9 ms), production 4246.875 µs (543.6 ms), control 3922.656 µs (502.1 ms)
+M round 4 order before,production,control: before 5321.094 µs (681.1 ms), production 4092.188 µs (523.8 ms), control 3971.875 µs (508.4 ms)
+M round 5 order production,control,before: before 4238.281 µs (542.5 ms), production 3652.344 µs (467.5 ms), control 3603.125 µs (461.2 ms)
+M round 6 order control,before,production: before 3678.906 µs (470.9 ms), production 4099.219 µs (524.7 ms), control 3573.438 µs (457.4 ms)
+M round 7 order before,production,control: before 3521.094 µs (450.7 ms), production 3610.937 µs (462.2 ms), control 4176.562 µs (534.6 ms)
+M: xy() committed move forward and back, layoutAnimation(), one cell in flight: no difference shown: higher in 3 of 7, lower in 4, median -417.969 µs (-9.9 % of before), A/A bound 582.031 µs (13.8 % of before), before median 4212.500 µs, batch 128 operations, shortest timed batch 443.3 ms
+C: y() scan of a grown window, no sink, after both xy() cases: one operation per arm before timing: {"before":{"reads":0,"result":2000,"reports":[]},"production":{"reads":0,"result":2000,"reports":[]},"control":{"reads":0,"result":2000,"reports":[]}}
+C round 1 order before,production,control: before 1.354 µs (355.0 ms), production 1.477 µs (387.3 ms), control 1.612 µs (422.5 ms)
+C round 2 order production,control,before: before 1.470 µs (385.4 ms), production 1.543 µs (404.5 ms), control 1.605 µs (420.8 ms)
+C round 3 order control,before,production: before 1.442 µs (377.9 ms), production 1.517 µs (397.7 ms), control 1.426 µs (373.9 ms)
+C round 4 order before,production,control: before 1.414 µs (370.8 ms), production 1.509 µs (395.6 ms), control 1.458 µs (382.3 ms)
+C round 5 order production,control,before: before 1.377 µs (360.9 ms), production 1.613 µs (422.9 ms), control 1.733 µs (454.2 ms)
+C round 6 order control,before,production: before 1.476 µs (386.9 ms), production 1.615 µs (423.3 ms), control 1.550 µs (406.2 ms)
+C round 7 order before,production,control: before 1.518 µs (398.0 ms), production 1.759 µs (461.2 ms), control 1.596 µs (418.5 ms)
+C: y() scan of a grown window, no sink, after both xy() cases: no difference shown: higher in 7 of 7, lower in 0, median 0.123 µs (8.5 % of before), A/A bound 0.163 µs (11.3 % of before), before median 1.442 µs, batch 262144 operations, shortest timed batch 355.0 ms
+# after: nproc 12, node v26.13.0, cpu 12th Gen Intel(R) Core(TM) i7-1255U, cpu_core 0-3, cpu_atom 4-11, affinity: pid 1595985's current affinity mask: fff (not pinned), uptime: 20:34:12 up 2 days, 12:07,  0 users,  load average: 1.93, 1.56, 1.55, loadavg 1.93, 1.56, 1.55

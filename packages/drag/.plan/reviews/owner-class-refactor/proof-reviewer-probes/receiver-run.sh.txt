@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Reviewer probe: Chromium `browser` project under each receiver mutation, edited tree.
+# Usage: receiver-run.sh <tree root> <mutate.mjs> <out dir> <kinds...> ("none" runs unmutated)
+set -u
+root=$1; mutate=$2; out=$3; shift 3
+cd "$root/packages/drag" || exit 1
+for kind in "$@"; do
+  file=
+  if [ "$kind" != none ]; then
+    file=$(grep -o "'$kind': \['[^']*'" "$mutate" | sed -E "s/.*\['//; s/'$//")
+    cp "$file" "$file.reviewer-bak"
+    node "$mutate" "$kind" || { mv "$file.reviewer-bak" "$file"; continue; }
+  fi
+  { echo "### $kind $(date -u +%H:%M:%S)"; npx vitest run -c vitest.config.ts --project browser 2>&1; echo "exit=$?"; } > "$out/run-$kind.log"
+  [ -n "$file" ] && mv "$file.reviewer-bak" "$file"
+  echo "$kind: $(grep -E '^ +Tests ' "$out/run-$kind.log")"
+done

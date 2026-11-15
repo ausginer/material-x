@@ -1,0 +1,30 @@
+## control at end: declaration project, published-types
+  exit=0
+        1 Tests  5 passed (5)
+## M5:  1 file changed, 1 insertion(+), 1 deletion(-)
+  src/sortable/linear-shift.ts(256,37): error TS2551: Property 'advanceUnchecekd' does not exist on type 'DevelopmentCheck'. Did you mean 'advanceUnchecked'?
+## M6:  1 file changed, 1 insertion(+), 1 deletion(-): browser project, DRD-63 cases
+  exit=1
+        1 AssertionError: expected { x: 100000, y: 100000 } to deeply equal { x: 1260, y: 700 }
+        1 AssertionError: expected { x: 200, y: 200 } to deeply equal { x: 30, y: 30 }
+        1 FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:296 > drag:DRD-63 a fresh bounds constraint > should clamp to an element source at its first apply, before any invalidate
+        1 FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:310 > drag:DRD-63 a fresh bounds constraint > should clamp to the viewport at its first apply, before any invalidate
+        1 Tests  2 failed | 10 skipped (12)
+## end, unmutated: browser and consumer projects, DRD-63 cases
+  exit=0
+        1 Tests  4 passed | 20 skipped (24)
+   Test Files  2 passed (2)
+        Tests  4 passed | 20 skipped (24)
+  end status: 0 lines
+## the DRD-63 cases appended at base (5b581fbdf): browser project
+  exit=0
+        1 Tests  2 passed | 10 skipped (12)
+  base status: 0 lines
+## the DRD-63 cases appended at a (d1df32018): browser project
+  exit=1
+        1 AssertionError: expected { x: 100000, y: 100000 } to deeply equal { x: 1260, y: 700 }
+        1 AssertionError: expected { x: 200, y: 200 } to deeply equal { x: 30, y: 30 }
+        1 FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:296 > drag:DRD-63 a fresh bounds constraint > should clamp to an element source at its first apply, before any invalidate
+        1 FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:310 > drag:DRD-63 a fresh bounds constraint > should clamp to the viewport at its first apply, before any invalidate
+        1 Tests  2 failed | 10 skipped (12)
+  a status: 0 lines

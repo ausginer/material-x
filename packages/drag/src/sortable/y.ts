@@ -21,9 +21,83 @@
  * layout. A committed move reads one row the first time, to establish the constant,
  * and the placeholder on the next frame.
  */
-import type { AxisInstaller } from './axis.ts';
-import { linearShift } from './linear-shift.ts';
+import type {
+  AxisContext,
+  AxisInstaller,
+  AxisQuery,
+  InsertionGeometry,
+} from './axis.ts';
+import type { Insertion } from './domain.ts';
+import { LinearShift } from './linear-shift.ts';
 import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
+
+class YAxisGeometry implements InsertionGeometry {
+  readonly #index = new RectIndex(TOP);
+  readonly #shift = new LinearShift(this.#index);
+
+  resolve(query: AxisQuery, context: AxisContext): Insertion | null {
+    this.#shift.refresh(
+      query.snapshot,
+      query.item,
+      context.box,
+      context.placeholder,
+      context.displacement,
+      query.insertion.index,
+      query.pointerY,
+    );
+
+    // Read once, outside the candidate loop.
+    const anchor = this.#index.at(PLACEHOLDER, CENTER_Y);
+    let best = Math.abs(query.pointerY - anchor);
+    let nearest = -1;
+
+    // The window only: it holds the nearest center, and the first in order
+    // among equals.
+    for (let i = this.#index.first; i < this.#index.end; i += 1) {
+      const distance = Math.abs(query.pointerY - this.#index.at(i, CENTER_Y));
+
+      if (distance < best) {
+        best = distance;
+        nearest = i;
+      }
+    }
+
+    if (nearest === -1) {
+      return null;
+    }
+
+    // On one axis, the side of `nearest` the placeholder is traveling from
+    // is a comparison of two centers the scan already holds.
+    return this.#index.insertion(
+      this.#index.at(nearest, CENTER_Y) > anchor ? nearest + 1 : nearest,
+    );
+  }
+
+  confirm(query: AxisQuery, context: AxisContext): void {
+    if (
+      !this.#index.holds(
+        query.insertion.index,
+        query.snapshot,
+        context.box,
+        context.displacement,
+      )
+    ) {
+      this.#shift.invalidate();
+    }
+  }
+
+  moved(query: AxisQuery, context: AxisContext): void {
+    this.#shift.moved(query.insertion.index, query.snapshot, context);
+  }
+
+  invalidate(): void {
+    this.#shift.invalidate();
+  }
+
+  retire(): void {
+    this.#shift.retire();
+  }
+}
 
 /**
  * The axis rule for a single column. The rows' centers must increase along y in
@@ -33,77 +107,5 @@ import { CENTER_Y, PLACEHOLDER, RectIndex, TOP } from './rect-index.ts';
  * `invalidate()`: the rows between the placeholder and the pointer, and one beyond.
  */
 export function y(): AxisInstaller {
-  return () => {
-    const index = new RectIndex(TOP);
-    const shift = linearShift(index);
-
-    return {
-      resolve(query, context) {
-        // Read once, outside the candidate loop.
-        const { pointerY } = query;
-
-        shift.refresh(
-          query.snapshot,
-          query.item,
-          context.box,
-          context.placeholder,
-          context.displacement,
-          query.insertion.index,
-          pointerY,
-        );
-
-        // Read once, outside the candidate loop.
-        const { first, end } = index;
-        const anchor = index.at(PLACEHOLDER, CENTER_Y);
-        let best = Math.abs(pointerY - anchor);
-        let nearest = -1;
-
-        // The window only: it holds the nearest center, and the first in order
-        // among equals.
-        for (let i = first; i < end; i += 1) {
-          const distance = Math.abs(pointerY - index.at(i, CENTER_Y));
-
-          if (distance < best) {
-            best = distance;
-            nearest = i;
-          }
-        }
-
-        if (nearest === -1) {
-          return null;
-        }
-
-        // On one axis, the side of `nearest` the placeholder is traveling from
-        // is a comparison of two centers the scan already holds.
-        return index.insertion(
-          index.at(nearest, CENTER_Y) > anchor ? nearest + 1 : nearest,
-        );
-      },
-
-      invalidate() {
-        shift.invalidate();
-      },
-
-      confirm(query, context) {
-        if (
-          !index.holds(
-            query.insertion.index,
-            query.snapshot,
-            context.box,
-            context.displacement,
-          )
-        ) {
-          shift.invalidate();
-        }
-      },
-
-      moved(query, context) {
-        shift.moved(query.insertion.index, query.snapshot, context);
-      },
-
-      retire() {
-        shift.retire();
-      },
-    };
-  };
+  return () => new YAxisGeometry();
 }

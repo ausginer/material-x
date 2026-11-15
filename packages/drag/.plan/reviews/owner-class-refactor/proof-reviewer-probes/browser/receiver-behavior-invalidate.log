@@ -1,0 +1,302 @@
+### behavior-invalidate 21:50:28
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 edited/packages/drag
+
+9:50:30 PM [vite] (client) warning: 
+edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: edited/packages/drag/.vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/vitest_n_vite_module-runner.js?v=e80f26fe
+stderr | tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+stderr | tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+stderr | tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+stderr | tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+stderr | tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+stderr | tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+stderr | tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+ ❯ |browser (chromium)| tests/sortable.browser.test.ts (49 tests | 7 failed) 15325ms
+   ❯ drag:DRI-14 collection (16)
+     × should land at the rebased home when a drag is canceled after a rebase 282ms
+     × should propose a command's reorder in the collection that onStart completed 63ms
+     × should rebase a surviving gap on invalidate during a drag 155ms
+     × should cancel when the dragged item was removed 136ms
+     × should cancel when the gap loses its adjacency 134ms
+   ❯ drag:DRI-14 collection failures (7)
+     × should cancel with a fault when a pull during a drag throws 158ms
+     × should apply an invalidate from inside onStart 158ms
+stderr | tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+ ❯ |browser (chromium)| tests/requests.browser.test.ts (26 tests | 1 failed) 3774ms
+   ❯ drag:DRI-8 deferred writes (14)
+     × should pull once for two invalidate calls in one callback 128ms
+stderr | tests/classes.browser.test.ts:72 > drag:DRD-20 detached controller methods > should run sortable controller methods detached
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+ ❯ |browser (chromium)| tests/classes.browser.test.ts (6 tests | 1 failed) 2726ms
+   ❯ drag:DRD-20 detached controller methods (3)
+     × should run sortable controller methods detached 332ms
+stderr | tests/displacement-sink.browser.test.ts:214 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+[Error: Uncaught DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')]
+ ❯ |browser (chromium)| tests/displacement-sink.browser.test.ts (7 tests | 1 failed) 1544ms
+   ❯ sortable options (4)
+     × drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives 189ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/classes.browser.test.ts:72 > drag:DRD-20 detached controller methods > should run sortable controller methods detached
+AssertionError: expected [ 'end:canceled', …(2) ] to deeply equal [ 'end:canceled', 'detached', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "end:canceled",
+-   "detached",
++   "DragFault: drag: Cannot read properties of undefined (reading 'SortableBehavior')",
+    "end:accepted",
+  ]
+
+ ❯ tests/classes.browser.test.ts:97:17
+     95|     expect(order(list)).toBe('r1,r0,r2');
+     96|     await requestDestroy();
+     97|     expect(log).toEqual(['end:canceled', 'detached', 'end:accepted']);
+       |                 ^
+     98|   });
+     99|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  |browser (chromium)| tests/displacement-sink.browser.test.ts:214 > sortable options > drag:DRD-50 should settle a row in flight when the window grows over it, and hold the gap its flow position gives
+TypeError: Cannot read properties of null (reading 'offsetTop')
+ ❯ flowTop tests/displacement-sink.browser.test.ts:230:46
+    228|     // Layout values that ignore transforms: where flow puts a row.
+    229|     const flowTop = (row: HTMLElement): number =>
+    230|       list.getBoundingClientRect().top + row.offsetTop - list.offsetTo…
+       |                                              ^
+    231|     const flowCenter = (row: HTMLElement): number =>
+    232|       flowTop(row) + row.offsetHeight / 2;
+ ❯ flowCenter tests/displacement-sink.browser.test.ts:232:7
+ ❯ gapFor tests/displacement-sink.browser.test.ts:247:22
+ ❯ tests/displacement-sink.browser.test.ts:286:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  |browser (chromium)| tests/requests.browser.test.ts:406 > drag:DRI-8 deferred writes > should pull once for two invalidate calls in one callback
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ tests/requests.browser.test.ts:422:19
+    420|
+    421|     await grab('#r0');
+    422|     expect(pulls).toBe(1);
+       |                   ^
+    423|     await release();
+    424|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:191 > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+AssertionError: expected [ 'start', 'end:canceled' ] to deeply equal [ 'start' ]
+
+- Expected
++ Received
+
+  [
+    "start",
++   "end:canceled",
+  ]
+
+ ❯ tests/sortable.browser.test.ts:208:17
+    206|     await frames();
+    207|     // The gap survived the rebase, so the drag is still running.
+    208|     expect(log).toEqual(['start']);
+       |                 ^
+    209|
+    210|     const held = item.getBoundingClientRect().top;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:226 > drag:DRI-14 collection > should propose a command's reorder in the collection that onStart completed
+AssertionError: expected [] to deeply equal [ { item: <div …(4)></div>, …(4) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "from": 2,
+-     "item": <div
+-       class="row"
+-       id="r1"
+-       style="height: 40px; touch-action: none; user-select: none;"
+-       tabindex="0"
+-     >
+-       Row 1
+-     </div>,
+-     "next": <div
+-       class="row"
+-       id="r3"
+-       style="height: 40px; touch-action: none; user-select: none;"
+-       tabindex="0"
+-     >
+-       Row 3
+-     </div>,
+-     "previous": <div
+-       class="row"
+-       id="r2"
+-       style="height: 40px; touch-action: none; user-select: none;"
+-       tabindex="0"
+-     >
+-       Row 2
+-     </div>,
+-     "to": 3,
+-   },
+- ]
++ []
+
+ ❯ tests/sortable.browser.test.ts:258:22
+    256|     await commands.keyPress('ArrowDown');
+    257|     await frames();
+    258|     expect(requests).toEqual([
+       |                      ^
+    259|       {
+    260|         item,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:326 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+AssertionError: expected [ 'start', 'end:canceled' ] to deeply equal [ 'start' ]
+
+- Expected
++ Received
+
+  [
+    "start",
++   "end:canceled",
+  ]
+
+ ❯ tests/sortable.browser.test.ts:334:17
+    332|     controller.invalidate();
+    333|     await frames();
+    334|     expect(log).toEqual(['start']);
+       |                 ^
+    335|     await release();
+    336|     expect(log).toEqual(['start', 'end:noop']);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:339 > drag:DRI-14 collection > should cancel when the dragged item was removed
+AssertionError: expected DragFault: drag: Cannot read properties o… to be 'sortable:item-removed' // Object.is equality
+
+- Expected:
+"sortable:item-removed"
+
++ Received:
+DragFault {
+  "message": "drag: Cannot read properties of undefined (reading 'SortableBehavior')",
+  "cause": TypeError {
+    "message": "Cannot read properties of undefined (reading 'SortableBehavior')",
+  },
+  "name": "DragFault",
+}
+
+ ❯ tests/sortable.browser.test.ts:351:56
+    349|     document.querySelector('#r0')!.remove();
+    350|     controller.invalidate();
+    351|     expect((results[0] as { reason: unknown }).reason).toBe(
+       |                                                        ^
+    352|       'sortable:item-removed',
+    353|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:356 > drag:DRI-14 collection > should cancel when the gap loses its adjacency
+AssertionError: expected DragFault: drag: Cannot read properties o… to be 'sortable:collection-invalidated' // Object.is equality
+
+- Expected:
+"sortable:collection-invalidated"
+
++ Received:
+DragFault {
+  "message": "drag: Cannot read properties of undefined (reading 'SortableBehavior')",
+  "cause": TypeError {
+    "message": "Cannot read properties of undefined (reading 'SortableBehavior')",
+  },
+  "name": "DragFault",
+}
+
+ ❯ tests/sortable.browser.test.ts:368:56
+    366|     document.querySelector('#r1')!.remove();
+    367|     controller.invalidate();
+    368|     expect((results[0] as { reason: unknown }).reason).toBe(
+       |                                                        ^
+    369|       'sortable:collection-invalidated',
+    370|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:446 > drag:DRI-14 collection failures > should cancel with a fault when a pull during a drag throws
+AssertionError: expected [ Array(1) ] to deeply equal [ 'items' ]
+
+- Expected
++ Received
+
+  [
+-   "items",
++   "Cannot read properties of undefined (reading 'SortableBehavior')",
+  ]
+
+ ❯ tests/sortable.browser.test.ts:470:29
+    468|     await release();
+    469|     expect(results).toEqual(['canceled:fault']);
+    470|     expect(faultMessages()).toEqual(['items']);
+       |                             ^
+    471|     expect(isClean(list)).toBe(true);
+    472|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:509 > drag:DRI-14 collection failures > should apply an invalidate from inside onStart
+AssertionError: expected 'end:canceled' to be 'end:accepted' // Object.is equality
+
+Expected: "end:accepted"
+Received: "end:canceled"
+
+ ❯ tests/sortable.browser.test.ts:527:24
+    525|     await dragAndDrop('#r0', 45);
+    526|     expect(log[0]).toBe('pulled:0');
+    527|     expect(log.at(-1)).toBe('end:accepted');
+       |                        ^
+    528|     expect(faults).toEqual([]);
+    529|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  4 failed | 22 passed (26)
+      Tests  10 failed | 347 passed (357)
+   Start at  21:50:29
+   Duration  40.87s (tests 95%, worker 4%, import 1%)
+
+exit=1

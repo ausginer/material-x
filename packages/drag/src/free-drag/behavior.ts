@@ -73,10 +73,10 @@ export class FreeDragBehavior implements Behavior<
     this.root = root;
     this.config = config;
     this.window = root.ownerDocument.defaultView!;
-    this.#lifter = lifter;
     this.axis = config.axis ?? 'both';
     this.bounds = config.bounds?.(this.window) ?? null;
     this.landing = config.landing ?? null;
+    this.#lifter = lifter;
   }
 
   /** The admission's `state` is the visual: `config.visual`, or the root. */

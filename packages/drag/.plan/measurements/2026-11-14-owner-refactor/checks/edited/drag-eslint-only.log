@@ -1,0 +1,7 @@
+
+/workspaces/material-x/packages/drag/.plan/probes/callback-list/allocation.ts
+  0:0  error  Parsing error: /workspaces/material-x/packages/drag/.plan/probes/callback-list/allocation.ts was not found by the project service. Consider either including it in the tsconfig.json or including it in allowDefaultProject
+
+✖ 1 problem (1 error, 0 warnings)
+
+eslint exit=1

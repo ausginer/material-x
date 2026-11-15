@@ -1,0 +1,10 @@
+## as committed
+## L1: the import moved into the appended block
+tests/callbacks.declaration.test.ts:184:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+  184:1  error  Import in body of module; reorder to top  import-x/first
+✖ 1 problem (1 error, 0 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+## L2: an import() type in the block, no import statement
+190:  index: import('../src/sortable/rect-index.ts').RectIndex,
+tests/callbacks.declaration.test.ts:190:10: error typescript(consistent-type-imports): `import()` type annotations are forbidden. help: Replace `import()` type annotations with a regular type import. For example, change `type T = import('module').Type` to `import type { Type } from 'module'; type T = Type`.
+restored

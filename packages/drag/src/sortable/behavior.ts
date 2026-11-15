@@ -1,9 +1,6 @@
 import type { Admission, Behavior, Drag } from '../draggable.ts';
 import type { Lifter } from '../lift.ts';
-import {
-  createFrameTask,
-  listenForInvalidation,
-} from '../shared/invalidation.ts';
+import { FrameTask, listenForInvalidation } from '../shared/invalidation.ts';
 import type {
   AxisInstaller,
   DisplacementInstaller,
@@ -92,11 +89,11 @@ export class SortableBehavior implements Behavior<
   declare readonly threshold?: number;
 
   readonly config: SortableConfig;
-  readonly #window: Window;
-  readonly #lifter: Lifter;
   readonly axis: InsertionGeometry;
   readonly displacement: DisplacementSink | undefined;
   readonly landing: Landing | null;
+  readonly #window: Window;
+  readonly #lifter: Lifter;
   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
   /** The version the next pulled snapshot carries. */
   #version = 0;
@@ -112,20 +109,23 @@ export class SortableBehavior implements Behavior<
     }
 
     this.config = config;
-    this.#window = root.ownerDocument.defaultView!;
-    this.#lifter = lifter;
     this.axis = config.axis();
     this.displacement = displacement;
+    this.#window = root.ownerDocument.defaultView!;
+    this.#lifter = lifter;
     this.landing = config.landing ?? null;
     this.#measuredBox = config.box ?? config.visual ?? null;
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly invalidate = (operation: SortableOperation | null): void => {
+  invalidate(
+    this: SortableBehavior,
+    operation: SortableOperation | null,
+  ): void {
     if (operation) {
       operation.rebase(this.#pull());
     }
-  };
+  }
 
   admit(event: PointerEvent): Admission<PressState> | null {
     return event.altKey ? null : this.#admission(event, null);
@@ -197,7 +197,7 @@ export class SortableBehavior implements Behavior<
       throw new Error('sortable/insertion-placeholder-lost');
     }
 
-    const frame = createFrameTask(this.#window, () => {
+    const frame = new FrameTask(this.#window, () => {
       drag.requestStep(updateInsertion);
     });
 

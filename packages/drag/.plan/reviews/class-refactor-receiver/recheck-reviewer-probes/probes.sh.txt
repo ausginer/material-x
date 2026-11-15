@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Typecheck the two probe files in each tree, through a tsconfig that extends drag's and lists them.
+set -u
+probe=$1; shift
+for tree in "$@"; do
+  cd "$tree/packages/drag" || exit 1
+  echo "## probes in $(basename $tree)"
+  mkdir reviewer-probe-tmp
+  cp $probe/wrong-receiver.ts $probe/reviewer-extra.ts reviewer-probe-tmp/
+  printf '{ "extends": "../tsconfig.json", "include": [], "files": ["./wrong-receiver.ts", "./reviewer-extra.ts", "../src/globals.d.ts", "../../../types.d.ts"] }\n' > reviewer-probe-tmp/tsconfig.json
+  (npx tsc -p "$PWD/reviewer-probe-tmp/tsconfig.json" --listFilesOnly | grep -c reviewer-probe-tmp | sed 's/^/probe files compiled: /'; npx tsc -p "$PWD/reviewer-probe-tmp/tsconfig.json" --noEmit 2>&1 | grep -E 'error TS' | grep -v 'drag2/src/kernel/presentation.ts')
+  rm -r reviewer-probe-tmp
+done

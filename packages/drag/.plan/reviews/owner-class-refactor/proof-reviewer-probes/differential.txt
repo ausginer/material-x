@@ -1,0 +1,20 @@
+
+## bounds: first apply with no invalidate, function source: DIFFERENT
+base:   first 30,30 | after invalidate 30,30
+edited: first 200,200 | after invalidate 30,30
+
+## bounds: first apply with no invalidate, viewport: DIFFERENT
+base:   first 80,60
+edited: first 500,500
+
+## bounds: invalidate then apply, function called once per staleness: equal
+base:   30,-10 calls=1 | 30,-10 calls=1 | 200,-200 calls=2 | 200,-200 calls=2
+
+## FrameTask: coalescing, cancellation, rescheduling from run: equal
+base:   raf#1 | fire#1 | run | raf#2 | fire#2 | run | raf#3 | caf#3 | raf#4 | fire#4 | run
+
+## dropTargets: hit trace, release, and a throwing targets(): DIFFERENT
+base:   use(alone) | raf#1 | fire#1 | step(alone) | read a | read b | mark a | current a | raf#2 | fire#2 | step(alone) | unmark a | mark b | current b | raf#3 | caf#3 | read a | read b | unmark b | current null | raf#4 | fire#4 | step(alone) | mark a | raf#5 | caf#5 | unmark a | current after release null | use(alone) | threw consumer; disposers 1 | released; disposers 0
+edited: use(receiver) | raf#1 | fire#1 | step(receiver) | read a | read b | mark a | current a | raf#2 | fire#2 | step(receiver) | unmark a | mark b | current b | raf#3 | caf#3 | read a | read b | unmark b | current null | raf#4 | fire#4 | step(receiver) | mark a | raf#5 | caf#5 | unmark a | current after release null | use(receiver) | threw consumer; disposers 1 | released; disposers 0
+
+cases: 5, different: 3
