@@ -1,0 +1,19 @@
+# F3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/terminals.browser.test.ts tests/verdict.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:401 > FreeDragRejectedResult > should carry the value given to reject as its reason
+  AssertionError: expected undefined to be { code: 'occupied' } // Object.is equality
+  - Expected:
+  {
+    "code": "occupied",
+  }
+  + Received:
+  undefined
+
+Test Files  1 failed | 1 passed (2)
+Tests  1 failed | 34 passed (35)

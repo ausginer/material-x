@@ -1,0 +1,29 @@
+# S9-3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S9-3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/faults.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:244 > drag:DRI-7 faults > should report one fault when the lift acquires a visual with no box, and keep the controller
+  AssertionError: expected [] to deeply equal [ 'start' ]
+  - Expected
+  + Received
+  - [
+  -   "start",
+  - ]
+  + []
+
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:386 > drag:DRI-7 a throwing placeholder factory > should let the next drag reorder
+  AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+  - Expected
+  + Received
+  - [
+  -   "start",
+  -   "end:accepted",
+  - ]
+  + []
+
+Test Files  1 failed (1)
+Tests  2 failed | 12 passed (14)

@@ -1,0 +1,20 @@
+# S4-7
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S4-7.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/keyboard.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:251 > drag:DRI-14 commands from a nested text input > should run no command during an IME composition
+  AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "start",
+  +   "end:accepted",
+  + ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 13 passed (14)

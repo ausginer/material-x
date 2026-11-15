@@ -1,0 +1,17 @@
+diff --git a/packages/drag/tests/support/oracles.ts b/packages/drag/tests/support/oracles.ts
+--- a/packages/drag/tests/support/oracles.ts
++++ b/packages/drag/tests/support/oracles.ts
+@@ -262,7 +262,12 @@
+   ): void {
+     const depth = depths.get(this) ?? 0;
+ 
+-    if (depth > 0 && step && isEvent(argument) && !counted.has(argument)) {
++    if (
++      depth > 0 &&
++      step &&
++      argument instanceof Event &&
++      !counted.has(argument)
++    ) {
+       counted.add(argument);
+ 
+       if (argument.isTrusted) {

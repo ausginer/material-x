@@ -1,0 +1,13 @@
+# S7-4
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S7-4.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:311 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+  AssertionError: expected +0 to be close to 12.614269256591797, received difference is 12.614269256591797, but expected 0.5
+
+Test Files  1 failed (1)
+Tests  1 failed | 15 passed (16)

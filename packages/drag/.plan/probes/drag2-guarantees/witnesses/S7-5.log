@@ -1,0 +1,22 @@
+# S7-5
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S7-5.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 3
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:331 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+  AssertionError: expected 160 to be close to 80, received difference is 80, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:331 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:351 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+  AssertionError: expected 160 to be close to 80, received difference is 80, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:372 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+  AssertionError: expected 160 to be close to 80, received difference is 80, but expected 0.05
+
+Test Files  1 failed (1)
+Tests  3 failed | 13 passed (16)

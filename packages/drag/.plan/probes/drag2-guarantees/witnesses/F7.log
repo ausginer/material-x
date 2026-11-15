@@ -1,0 +1,19 @@
+# F7
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F7.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/landing.browser.test.ts`
+Exit: 1
+
+Failed Tests 3
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:499 > drag:DRI-13 free-drag landing origin > should start the landing from the axis-locked position, not the pointer
+  AssertionError: expected 80 to be close to 40, received difference is 40, but expected 0.5
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:510 > drag:DRI-13 free-drag landing origin > should start the landing from the clamped position, not the pointer
+  AssertionError: expected 840 to be close to 250, received difference is 590, but expected 0.5
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:526 > drag:DRI-13 free-drag landing origin > should start the landing from the moveTo position, not the pointer
+  AssertionError: expected 100 to be close to 200, received difference is 100, but expected 0.5
+
+Test Files  1 failed (1)
+Tests  3 failed | 22 passed (25)

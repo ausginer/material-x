@@ -1,0 +1,36 @@
+# S1
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S1.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/landing.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:570 > drag:DRI-13 sortable landing after the commit > should land on the final rect when an append loop leaves the placeholder at the head
+  AssertionError: expected { Object (left, targets, ...) } to deeply equal { Object (left, targets, ...) }
+  - Expected
+  + Received
+    {
+      "final": 80,
+      "left": 0,
+      "targets": [
+  -     80,
+  +     0,
+      ],
+    }
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:592 > drag:DRI-13 sortable landing after the commit > should land on the final rect when a morphdom-style patch strands the placeholder at the tail
+  AssertionError: expected { Object (left, targets, ...) } to deeply equal { left: 4, targets: [ 80 ], final: 80 }
+  - Expected
+  + Received
+    {
+      "final": 80,
+      "left": 4,
+      "targets": [
+  -     80,
+  +     120,
+      ],
+    }
+
+Test Files  1 failed (1)
+Tests  2 failed | 23 passed (25)

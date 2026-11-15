@@ -1,0 +1,38 @@
+# S6-2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S6-2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 8
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:174 > layoutAnimation rows > should start each animation where the row stood before the move
+  AssertionError: expected -40 to be close to 40, received difference is 80, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:245 > layoutAnimation composition > should add the animation to an authored translate
+  AssertionError: expected '0px -33px' to be '0px 47px' // Object.is equality
+  Expected: "0px 47px"
+  Received: "0px -33px"
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:284 > layoutAnimation composition > should add the animation to a consumer animation on translate
+  AssertionError: expected '10px -40px' to be '10px 40px' // Object.is equality
+  Expected: "10px 40px"
+  Received: "10px -40px"
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:311 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+  AssertionError: expected 67.38572692871094 to be close to -12.614269256591797, received difference is 79.99999618530273, but expected 0.5
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:331 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+  AssertionError: expected -80 to be close to 80, received difference is 160, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:351 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+  AssertionError: expected -80 to be close to 80, received difference is 160, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:372 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+  AssertionError: expected -80 to be close to 80, received difference is 160, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:398 > layoutAnimation with a visual that is not the item > should ignore a transform authored on the dragged item itself
+  AssertionError: expected -40 to be close to 40, received difference is 80, but expected 0.05
+
+Test Files  1 failed (1)
+Tests  8 failed | 8 passed (16)

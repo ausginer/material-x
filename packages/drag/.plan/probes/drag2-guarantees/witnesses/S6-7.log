@@ -1,0 +1,8 @@
+# S6-7
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S6-7.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 0
+
+Test Files  1 passed (1)
+Tests  16 passed (16)

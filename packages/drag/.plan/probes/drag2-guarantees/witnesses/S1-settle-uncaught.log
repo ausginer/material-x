@@ -1,0 +1,39 @@
+# S1-settle-uncaught
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/S1-settle-uncaught.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/landing.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:334 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+  AssertionError: expected [] to deeply equal [ 'accepted' ]
+  - Expected
+  + Received
+  - [
+  -   "accepted",
+  - ]
+  + []
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:619 > drag:DRI-13 sortable landing after the commit > should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+  AssertionError: expected { outcomes: [], …(3) } to deeply equal { outcomes: [ 'accepted' ], …(3) }
+  - Expected
+  + Received
+  @@ -1,13 +1,11 @@
+    {
+      "animations": 0,
+      "faults": [
+        "sortable/landing-placeholder-lost",
+      ],
+  -   "outcomes": [
+  -     "accepted",
+  -   ],
+  +   "outcomes": [],
+      "parent": <div>
+        <div
+          class="row"
+          id="r0"
+          popover="manual"
+
+Test Files  1 failed (1)
+Tests  2 failed | 23 passed (25)

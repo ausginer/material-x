@@ -1,0 +1,23 @@
+diff --git a/.scripts/vitest-config.ts b/.scripts/vitest-config.ts
+--- a/.scripts/vitest-config.ts
++++ b/.scripts/vitest-config.ts
+@@ -394,9 +394,7 @@
+ }
+ 
+ /** `@ydinjs/drag`'s source projects install the oracles on `src`. */
+-const DRAG_SOURCE_SETUP_FILES: readonly string[] = [
+-  'tests/support/oracles.source.ts',
+-];
++const DRAG_SOURCE_SETUP_FILES: readonly string[] = [];
+ 
+ function createDragBrowserTestProject(
+   root: URL,
+@@ -612,7 +610,7 @@
+ export const DRAG_CONSUMER: ConsumerProject = {
+   sourceOnly: DRAG_SOURCE_ONLY_BROWSER_TESTS,
+   globalSetup: ['tests/support/build-package.node.ts'],
+-  setupFiles: [DRAG_REQUIRE_BUILD, 'tests/support/oracles.build.ts'],
++  setupFiles: [DRAG_REQUIRE_BUILD],
+ };
+ 
+ /**

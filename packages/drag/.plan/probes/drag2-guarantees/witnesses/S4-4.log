@@ -1,0 +1,19 @@
+# S4-4
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S4-4.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/keyboard.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:170 > drag:DRI-14 commands with a handle > should not reorder from a focused row whose handle cannot take focus
+  AssertionError: expected [ true ] to deeply equal [ false ]
+  - Expected
+  + Received
+    [
+  -   false,
+  +   true,
+    ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 13 passed (14)

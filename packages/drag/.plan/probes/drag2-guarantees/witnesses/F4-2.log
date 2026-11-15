@@ -1,0 +1,21 @@
+# F4-2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F4-2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/free-drag.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:351 > bounds with a function source > should leave the drag unconstrained when the function returns null
+  AssertionError: expected [ -50, -50 ] to deeply equal [ 1245, 685 ]
+  - Expected
+  + Received
+    [
+  -   1245,
+  -   685,
+  +   -50,
+  +   -50,
+    ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 16 passed (17)

@@ -1,0 +1,28 @@
+# F8-one-entry
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/F8-one-entry.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project node tests/consumer-types.node.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |node| tests/consumer-types.node.test.ts:113 > the published entries in a consumer typecheck > should resolve each entry to its published declaration
+  AssertionError: expected { …(13) } to deeply equal { …(13) }
+  - Expected
+  + Received
+  @@ -1,11 +1,11 @@
+    {
+      "draggable": "/workspaces/material-x/packages/drag/draggable.d.ts",
+      "fault": "/workspaces/material-x/packages/drag/fault.d.ts",
+      "free-drag": "/workspaces/material-x/packages/drag/free-drag.d.ts",
+      "free-drag/bounds": "/workspaces/material-x/packages/drag/free-drag/bounds.d.ts",
+  -   "free-drag/drop-targets": "/workspaces/material-x/packages/drag/free-drag/drop-targets.d.ts",
+  +   "free-drag/drop-targets": "/workspaces/material-x/packages/drag/free-drag/bounds.d.ts",
+      "free-drag/landing": "/workspaces/material-x/packages/drag/free-drag/landing.d.ts",
+      "lift": "/workspaces/material-x/packages/drag/lift.d.ts",
+      "lift/landing": "/workspaces/material-x/packages/drag/lift/landing.d.ts",
+      "sortable": "/workspaces/material-x/packages/drag/sortable.d.ts",
+      "sortable/landing": "/workspaces/material-x/packages/drag/sortable/landing.d.ts",
+
+Test Files  1 failed (1)
+Tests  1 failed | 1 passed (2)

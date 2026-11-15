@@ -1,0 +1,64 @@
+# F8
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F8.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project node tests/consumer-types.node.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |node| tests/consumer-types.node.test.ts:105 > the published entries in a consumer typecheck > should typecheck every entry with no error
+  AssertionError: expected [ …(13) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "consumer.ts(1,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/draggable.js'. '/workspaces/material-x/packages/drag/draggable.js' implicitly has an 'any' type.",
+  +   "consumer.ts(2,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/lift.js'. '/workspaces/material-x/packages/drag/lift.js' implicitly has an 'any' type.",
+  +   "consumer.ts(3,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/lift/landing.js'. '/workspaces/material-x/packages/drag/lift/landing.js' implicitly has an 'any' type.",
+  +   "consumer.ts(4,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/fault.js'. '/workspaces/material-x/packages/drag/fault.js' implicitly has an 'any' type.",
+  +   "consumer.ts(5,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/sortable.js'. '/workspaces/material-x/packages/drag/sortable.js' implicitly has an 'any' type.",
+  +   "consumer.ts(6,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/sortable/y.js'. '/workspaces/material-x/packages/drag/sortable/y.js' implicitly has an 'any' type.",
+  +   "consumer.ts(7,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/sortable/xy.js'. '/workspaces/material-x/packages/drag/sortable/xy.js' implicitly has an 'any' type.",
+  +   "consumer.ts(8,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/sortable/landing.js'. '/workspaces/material-x/packages/drag/sortable/landing.js' implicitly has an 'any' type.",
+  +   "consumer.ts(9,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/sortable/layout-animation.js'. '/workspaces/material-x/packages/drag/sortable/layout-animation.js' implicitly has an 'any' type.",
+  +   "consumer.ts(10,25): error TS7016: Could not find a declaration file for module '@ydinjs/drag/free-drag.js'. '/workspaces/material-x/packages/drag/free-drag.js' implicitly has an 'any' type.",
+  +   "consumer.ts(11,26): error TS7016: Could not find a declaration file for module '@ydinjs/drag/free-drag/bounds.js'. '/workspaces/material-x/packages/drag/free-drag/bounds.js' implicitly has an 'any' type.",
+  +   "consumer.ts(12,26): error TS7016: Could not find a declaration file for module '@ydinjs/drag/free-drag/drop-targets.js'. '/workspaces/material-x/packages/drag/free-drag/drop-targets.js' implicitly has an 'any' type.",
+  +   "consumer.ts(13,26): error TS7016: Could not find a declaration file for module '@ydinjs/drag/free-drag/landing.js'. '/workspaces/material-x/packages/drag/free-drag/landing.js' implicitly has an 'any' type.",
+  + ]
+
+FAIL  |node| tests/consumer-types.node.test.ts:113 > the published entries in a consumer typecheck > should resolve each entry to its published declaration
+  AssertionError: expected { …(13) } to deeply equal { …(13) }
+  - Expected
+  + Received
+    {
+  -   "draggable": "/workspaces/material-x/packages/drag/draggable.d.ts",
+  -   "fault": "/workspaces/material-x/packages/drag/fault.d.ts",
+  -   "free-drag": "/workspaces/material-x/packages/drag/free-drag.d.ts",
+  -   "free-drag/bounds": "/workspaces/material-x/packages/drag/free-drag/bounds.d.ts",
+  -   "free-drag/drop-targets": "/workspaces/material-x/packages/drag/free-drag/drop-targets.d.ts",
+  -   "free-drag/landing": "/workspaces/material-x/packages/drag/free-drag/landing.d.ts",
+  -   "lift": "/workspaces/material-x/packages/drag/lift.d.ts",
+  -   "lift/landing": "/workspaces/material-x/packages/drag/lift/landing.d.ts",
+  -   "sortable": "/workspaces/material-x/packages/drag/sortable.d.ts",
+  -   "sortable/landing": "/workspaces/material-x/packages/drag/sortable/landing.d.ts",
+  -   "sortable/layout-animation": "/workspaces/material-x/packages/drag/sortable/layout-animation.d.ts",
+  -   "sortable/xy": "/workspaces/material-x/packages/drag/sortable/xy.d.ts",
+  -   "sortable/y": "/workspaces/material-x/packages/drag/sortable/y.d.ts",
+  +   "draggable": "/workspaces/material-x/packages/drag/draggable.js",
+  +   "fault": "/workspaces/material-x/packages/drag/fault.js",
+  +   "free-drag": "/workspaces/material-x/packages/drag/free-drag.js",
+  +   "free-drag/bounds": "/workspaces/material-x/packages/drag/free-drag/bounds.js",
+  +   "free-drag/drop-targets": "/workspaces/material-x/packages/drag/free-drag/drop-targets.js",
+  +   "free-drag/landing": "/workspaces/material-x/packages/drag/free-drag/landing.js",
+  +   "lift": "/workspaces/material-x/packages/drag/lift.js",
+  +   "lift/landing": "/workspaces/material-x/packages/drag/lift/landing.js",
+  +   "sortable": "/workspaces/material-x/packages/drag/sortable.js",
+  +   "sortable/landing": "/workspaces/material-x/packages/drag/sortable/landing.js",
+  +   "sortable/layout-animation": "/workspaces/material-x/packages/drag/sortable/layout-animation.js",
+  +   "sortable/xy": "/workspaces/material-x/packages/drag/sortable/xy.js",
+  +   "sortable/y": "/workspaces/material-x/packages/drag/sortable/y.js",
+    }
+
+Test Files  1 failed (1)
+Tests  2 failed (2)

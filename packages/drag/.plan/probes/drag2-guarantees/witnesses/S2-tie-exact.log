@@ -1,0 +1,28 @@
+# S2-tie-exact
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S2-tie-exact.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser --project consumer tests/y-geometry.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:140 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored rotate on a row
+  AssertionError: expected [ 'at 95: proposed 1, measured 2' ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 95: proposed 1, measured 2",
+  + ]
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:140 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored rotate on a row
+  AssertionError: expected [ 'at 95: proposed 1, measured 2' ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 95: proposed 1, measured 2",
+  + ]
+
+Test Files  2 failed (2)
+Tests  2 failed | 24 passed (26)

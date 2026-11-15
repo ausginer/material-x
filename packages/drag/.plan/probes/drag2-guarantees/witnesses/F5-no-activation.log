@@ -1,0 +1,46 @@
+# F5-no-activation
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/F5-no-activation.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/coordinates.browser.test.ts`
+Exit: 1
+
+Failed Tests 10
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:290 > drag:DRI-16 required environments for a sortable > should reorder under ancestor scale(.5), following the pointer
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:290 > drag:DRI-16 required environments for a sortable > should reorder under ancestor zoom:2, following the pointer
+  AssertionError: expected 60 to be less than 1
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:314 > drag:DRI-16 required environments for a sortable > should reorder a list in a shadow root
+  AssertionError: expected 'r0,r1,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+  Expected: "r1,r2,r0,r3"
+  Received: "r0,r1,r2,r3"
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:333 > drag:DRI-16 required environments for a sortable > should reorder a list in a same-origin iframe the parent controls
+  AssertionError: expected 'r0,r1,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+  Expected: "r1,r2,r0,r3"
+  Received: "r0,r1,r2,r3"
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:356 > drag:DRI-16 required environments for a sortable > should stay visible when dragged out of an overflow:hidden list
+  AssertionError: expected '' to be 'r0' // Object.is equality
+  - Expected
+  + Received
+  - r0
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:367 > drag:DRI-16 required environments for a sortable > should stay above a later positioned panel
+  AssertionError: expected 'panel' to be 'r0' // Object.is equality
+  Expected: "r0"
+  Received: "panel"
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:412 > drag:DRI-20 free drag under an ancestor transform or zoom > should commit the visual where it was dropped through the local delta under an ancestor transform
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:412 > drag:DRI-20 free drag under an ancestor transform or zoom > should commit the visual where it was dropped through the local delta under an ancestor zoom
+  AssertionError: expected +0 to be close to 60, received difference is 60, but expected 0.5
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:444 > drag:DRI-20 free drag under an ancestor transform or zoom > should report onMove currentRect as originRect moved by the viewport delta under an ancestor transform
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:444 > drag:DRI-20 free drag under an ancestor transform or zoom > should report onMove currentRect as originRect moved by the viewport delta under an ancestor zoom
+  TypeError: Cannot destructure property 'currentRect' of 'moves.at(...)' as it is undefined.
+
+Test Files  1 failed (1)
+Tests  10 failed | 21 passed (31)

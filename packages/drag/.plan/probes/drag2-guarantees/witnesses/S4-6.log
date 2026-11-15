@@ -1,0 +1,19 @@
+# S4-6
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S4-6.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/keyboard.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:194 > drag:DRI-14 commands from a nested text input > should reorder on ArrowRight from an unmarked input and keep its caret
+  AssertionError: expected [ false ] to deeply equal [ true ]
+  - Expected
+  + Received
+    [
+  -   true,
+  +   false,
+    ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 13 passed (14)

@@ -1,0 +1,13 @@
+# S10
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S10.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/sortable.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1280 > drag:DRI-9 authored transitions > should keep the lifted visual under the pointer with a transition on the item
+  AssertionError: expected 18.98346519470215 to be close to 80, received difference is 61.01653480529785, but expected 0.5
+
+Test Files  1 failed (1)
+Tests  1 failed | 55 passed (56)

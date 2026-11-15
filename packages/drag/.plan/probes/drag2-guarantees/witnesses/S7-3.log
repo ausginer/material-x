@@ -1,0 +1,25 @@
+# S7-3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S7-3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:266 > layoutAnimation composition > should leave a consumer animation on transform running
+  AssertionError: expected 'idle' to be 'running' // Object.is equality
+  Expected: "running"
+  Received: "idle"
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:266 > layoutAnimation composition > should leave a consumer animation on transform running
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:284 > layoutAnimation composition > should add the animation to a consumer animation on translate
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:284 > layoutAnimation composition > should add the animation to a consumer animation on translate
+  AssertionError: expected 'idle' to be 'running' // Object.is equality
+  Expected: "running"
+  Received: "idle"
+
+Test Files  1 failed (1)
+Tests  2 failed | 14 passed (16)

@@ -1,0 +1,30 @@
+# S3-2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S3-2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/input.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/input.browser.test.ts:463 > Admission.handle and data-drag-ignore > should refuse the same press when no handle is named
+  AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "start",
+  +   "end:accepted",
+  + ]
+
+FAIL  |browser (chromium)| tests/input.browser.test.ts:483 > Admission.handle and data-drag-ignore > should refuse a press on an element marked inside an open shadow root
+  AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "start",
+  +   "end:accepted",
+  + ]
+
+Test Files  1 failed (1)
+Tests  2 failed | 16 passed (18)
