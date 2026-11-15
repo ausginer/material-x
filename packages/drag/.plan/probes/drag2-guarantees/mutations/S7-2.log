@@ -1,0 +1,17 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:174 > layoutAnimation rows > should start each animation where the row stood before the move
+AssertionError: expected 'none' to be '0px 40px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:227 > layoutAnimation composition > should leave an authored transform rendering while a row animates
+AssertionError: expected 'matrix(1, 0, 0, 1, 0, 12.6143)' to be 'matrix(0.997564, 0.0697565, -0.069756…' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:245 > layoutAnimation composition > should add the animation to an authored translate
+AssertionError: expected '0px 7px' to be '0px 47px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:283 > layoutAnimation composition > should add the animation to a consumer animation on translate
+AssertionError: expected '10px' to be '10px 40px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:330 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+AssertionError: expected 'none' to be '0px 40px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:350 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+AssertionError: expected 'none' to be '0px 40px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:371 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+AssertionError: expected 'none' to be '0px 40px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:397 > layoutAnimation with a visual that is not the item > should ignore a transform authored on the dragged item itself
+AssertionError: expected 'none' to be '0px 40px' // Object.is equality
+Tests  8 failed | 8 passed (16)

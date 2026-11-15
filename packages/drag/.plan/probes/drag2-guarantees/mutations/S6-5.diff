@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 9d57474ba..628f314b0 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -88,6 +88,7 @@ class YAxisGeometry implements InsertionGeometry {
+ 
+   moved(query: AxisQuery, context: AxisContext): void {
+     this.#shift.moved(query.insertion.index, query.snapshot, context);
++    context.displacement?.report(query.item, 0, 40, context.space);
+   }
+ 
+   invalidate(): void {

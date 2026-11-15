@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..5e7a91765 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -222,7 +222,7 @@ export class SortableBehavior implements Behavior<
+         placeholder,
+         box: this.#measuredBox,
+         displacement: this.displacement ?? null,
+-        space: lift.itemSpace,
++        space: lift.visualSpace,
+       },
+     );
+ 

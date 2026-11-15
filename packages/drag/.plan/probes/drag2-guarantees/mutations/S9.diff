@@ -1,0 +1,15 @@
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 11063f20f..4e6dcbd1e 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -547,6 +547,10 @@ export class Session<
+     this.#releasedWith = outcome;
+     this.#presentation.abort();
+ 
++    if (!this.#operation) {
++      return;
++    }
++
+     runDisposers(this.#disposers, outcome, this.#gesture);
+   }
+ 

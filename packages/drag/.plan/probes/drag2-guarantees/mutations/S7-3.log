@@ -1,0 +1,5 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:266 > layoutAnimation composition > should leave a consumer animation on transform running
+AssertionError: expected 'idle' to be 'running' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:283 > layoutAnimation composition > should add the animation to a consumer animation on translate
+AssertionError: expected 'idle' to be 'running' // Object.is equality
+Tests  2 failed | 14 passed (16)

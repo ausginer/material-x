@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 11063f20f..5b983dbcf 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -601,7 +601,6 @@ export class Session<
+       };
+     } else {
+       this.#phase = ENDED;
+-      this.#gesture.detach();
+       restoreFocus(this.#focused, this.#drag.pointerId);
+     }
+   }

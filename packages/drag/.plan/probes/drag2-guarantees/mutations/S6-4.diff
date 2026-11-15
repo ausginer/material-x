@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index 78932e811..46902a7ef 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -159,7 +159,7 @@ export class RectIndex implements Invalidatable, Retirable {
+     let n = 0;
+ 
+     for (const item of snapshot.items) {
+-      if (item !== dragged) {
++      if (item !== dragged || dragged) {
+         items[n] = item;
+         n += 1;
+       }

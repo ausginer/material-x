@@ -1,0 +1,3 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:310 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+AssertionError: expected +0 to be close to 12.614269256591797, received difference is 12.614269256591797, but expected 0.5
+Tests  1 failed | 15 passed (16)

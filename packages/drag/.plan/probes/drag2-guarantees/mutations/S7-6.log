@@ -1,0 +1,5 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:371 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+AssertionError: expected 53.33332824707031 to be close to 80, received difference is 26.666671752929688, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:397 > layoutAnimation with a visual that is not the item > should ignore a transform authored on the dragged item itself
+AssertionError: expected 26.666664123535156 to be close to 40, received difference is 13.333335876464844, but expected 0.05
+Tests  2 failed | 14 passed (16)
