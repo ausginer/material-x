@@ -1,5 +1,7 @@
 # Handoff: a still consumer transform, the bench's `__DEV__` define, and one comment line
 
+**Folded on 2026-11-15, before it was routed, into [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md),** whose items 1 to 3 are the items below, unchanged. Don't run this handoff on its own. The text below is unchanged.
+
 **Recipient:** the implementer. **Branch:** `drag2/removal`, or one the owner names. **Input:** the architect's record commit on `drag2/removal` that adds this handoff.
 
 **Governing records:** `drag:DRD-67` property 2 and its decided property 7 stop, and `drag:DRD-65` property 6, in [`00-index.md`](00-index.md), with §Disposition of the `y()` geometry terms report. The evidence is the architect's [probe](probes/y-geometry-terms-ruling/README.md).
