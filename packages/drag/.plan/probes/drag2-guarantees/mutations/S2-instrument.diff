@@ -1,0 +1,17 @@
+--- a/packages/drag/tests/support/gap-conformance.ts
++++ b/packages/drag/tests/support/gap-conformance.ts
+@@ -116,13 +116,12 @@
+     const current = placeholder();
+ 
+     if (!current) {
+-      disagreements.push(`at ${pointerY}: no placeholder`);
+       break;
+     }
+ 
+     const proposed = proposedGap(rows, current);
+ 
+-    if (proposed !== expected) {
++    if (proposed !== proposed) {
+       disagreements.push(
+         `at ${pointerY}: proposed ${proposed}, measured ${expected}`,
+       );

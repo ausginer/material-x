@@ -1,0 +1,4 @@
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1261 > drag:DRI-9 authored transitions > should keep the lifted visual under the pointer with a transition on the item
+AssertionError: expected 18.965551376342773 to be close to 80, received difference is 61.03444862365723, but expected 0.5
+❯ tests/sortable.browser.test.ts:1270:33
+Tests  1 failed | 1 passed | 53 skipped (55)

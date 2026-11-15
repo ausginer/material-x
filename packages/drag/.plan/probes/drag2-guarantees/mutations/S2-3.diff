@@ -1,0 +1,15 @@
+diff --git a/packages/drag/src/sortable/rect-index.ts b/packages/drag/src/sortable/rect-index.ts
+index 78932e811..1af005aac 100644
+--- a/packages/drag/src/sortable/rect-index.ts
++++ b/packages/drag/src/sortable/rect-index.ts
+@@ -334,10 +334,6 @@ export class RectIndex implements Invalidatable, Retirable {
+     let dx = 0;
+     let dy = 0;
+ 
+-    if (displacement?.displaced(element)) {
+-      ({ dx, dy } = displacement);
+-    }
+-
+     const left = rect.left - dx;
+     const top = rect.top - dy;
+     const right = rect.right - dx;

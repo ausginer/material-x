@@ -1,0 +1,45 @@
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1274 > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item
+AssertionError: expected [ …(36) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 32: proposed 1, measured 0",
++   "at 34: proposed 1, measured 0",
++   "at 36: proposed 1, measured 0",
++   "at 38: proposed 1, measured 0",
++   "at 72: proposed 2, measured 1",
++   "at 74: proposed 2, measured 1",
++   "at 76: proposed 2, measured 1",
++   "at 78: proposed 2, measured 1",
++   "at 112: proposed 3, measured 2",
++   "at 114: proposed 3, measured 2",
++   "at 116: proposed 3, measured 2",
++   "at 118: proposed 3, measured 2",
++   "at 152: proposed 4, measured 3",
++   "at 154: proposed 4, measured 3",
++   "at 156: proposed 4, measured 3",
++   "at 158: proposed 4, measured 3",
++   "at 158: proposed 4, measured 3",
++   "at 156: proposed 4, measured 3",
++   "at 154: proposed 4, measured 3",
++   "at 152: proposed 4, measured 3",
++   "at 150: proposed 4, measured 3",
++   "at 118: proposed 3, measured 2",
++   "at 116: proposed 3, measured 2",
++   "at 114: proposed 3, measured 2",
++   "at 112: proposed 3, measured 2",
++   "at 110: proposed 3, measured 2",
++   "at 78: proposed 2, measured 1",
++   "at 76: proposed 2, measured 1",
++   "at 74: proposed 2, measured 1",
++   "at 72: proposed 2, measured 1",
++   "at 70: proposed 2, measured 1",
++   "at 38: proposed 1, measured 0",
++   "at 36: proposed 1, measured 0",
++   "at 34: proposed 1, measured 0",
++   "at 32: proposed 1, measured 0",
++   "at 30: proposed 1, measured 0",
++ ]
+❯ tests/sortable.browser.test.ts:1278:53
+Tests  1 failed | 1 passed | 53 skipped (55)

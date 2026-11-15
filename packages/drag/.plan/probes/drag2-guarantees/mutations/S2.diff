@@ -1,0 +1,14 @@
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index 84a1b3bfa..9d986c5bb 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -232,7 +232,8 @@ export class LinearShift implements Invalidatable, Retirable {
+     if (this.#rowDistance < 0) {
+       // Any crossed row works, because they all traveled the same constant. The
+       // row may be mid-flight from an earlier move, so the cache settles it.
+-      delta = this.#index.travel(lo, context.box, context.displacement);
++      delta =
++        (lastGap < gap ? -1 : 1) * context.placeholder.offsetHeight;
+       this.#rowDistance = delta < 0 ? -delta : delta;
+     }
+ 

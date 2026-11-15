@@ -1,0 +1,37 @@
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1185 > drag:DRI-14 candidates measured through box > should measure every y() candidate through visual when there is no box
+AssertionError: expected [ …(28) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 66: proposed 1, measured 0",
++   "at 70: proposed 1, measured 0",
++   "at 76: proposed 1, measured 0",
++   "at 78: proposed 1, measured 0",
++   "at 106: proposed 2, measured 1",
++   "at 110: proposed 2, measured 1",
++   "at 116: proposed 2, measured 1",
++   "at 118: proposed 2, measured 1",
++   "at 146: proposed 3, measured 2",
++   "at 150: proposed 3, measured 2",
++   "at 156: proposed 3, measured 2",
++   "at 158: proposed 3, measured 2",
++   "at 186: proposed 4, measured 3",
++   "at 190: proposed 4, measured 3",
++   "at 196: proposed 4, measured 3",
++   "at 198: proposed 4, measured 3",
++   "at 198: proposed 4, measured 3",
++   "at 196: proposed 4, measured 3",
++   "at 188: proposed 4, measured 3",
++   "at 158: proposed 3, measured 2",
++   "at 156: proposed 3, measured 2",
++   "at 148: proposed 3, measured 2",
++   "at 118: proposed 2, measured 1",
++   "at 116: proposed 2, measured 1",
++   "at 108: proposed 2, measured 1",
++   "at 78: proposed 1, measured 0",
++   "at 76: proposed 1, measured 0",
++   "at 68: proposed 1, measured 0",
++ ]
+❯ tests/sortable.browser.test.ts:1189:46
+Tests  1 failed | 3 passed | 51 skipped (55)
