@@ -1,10 +1,12 @@
-# Handoff: `y()`'s stated terms in the gap instrument, and a development check that leaves the cache alone
+# Handoff: `y()`'s stated terms in the gap instrument, and drag's development checks as test-side oracles
+
+**Revised on 2026-11-15, before the unit:** `DRD-67` superseded `DRD-66`, so item 3 now moves both development instruments into test support and removes `__DEV__`. The title, the governing records, the scope and item 3 changed. Items 1 and 2 are unchanged.
 
 **Recipient:** the implementer. **Branch:** `drag2/removal`, or one the owner names. **Input:** the architect's record commit on `drag2/removal` that adds this handoff.
 
-**Governing records:** `drag:DRD-65` and `drag:DRD-66` in [`00-index.md`](00-index.md), on `DRF-46` and `DRF-47`. The evidence is the architect's [probe](probes/drag2-guarantees/ruling/README.md). The contract's `DRI-14` Geometry paragraph already states the terms. This unit makes the tests, the comments and the development check agree with it.
+**Governing records:** `drag:DRD-65` and `drag:DRD-67` in [`00-index.md`](00-index.md), on `DRF-46` and `DRF-47`. The evidence is the architect's probes: [the S2 ruling](probes/drag2-guarantees/ruling/README.md) and [the test-side oracles](probes/test-side-oracles/README.md). The contract's `DRI-14` Geometry paragraph already states the terms. This unit makes the tests and the comments agree with it, and replaces `__DEV__` with oracles that run against the source and the published build.
 
-**Scope:** `tests/support/gap-conformance.ts`, `tests/y-geometry.browser.test.ts`, the comments named in item 2, and `verifyEquivalence` with its call in `src/sortable/linear-shift.ts`. Nothing else in `src` changes, and nothing changes in the shipped build.
+**Scope:** `tests/support/gap-conformance.ts`, `tests/y-geometry.browser.test.ts`, the comments named in item 2. For item 3: the `__DEV__` sites in `src`, the defines in `tsdown.config.ts`, `.scripts/vite-config.ts` and `.scripts/vitest-config.ts`, test support and setup, the tests that read the development instruments, and the contract's `DRI-6` as `DRD-67` property 8 words it. The shipped build's code doesn't change.
 
 **Order:** items 1 and 2, then item 3. Item 3's witness reads item 1's instrument.
 
@@ -24,17 +26,18 @@
 - The public JSDoc of `y()`: add the shift term, the collapsing-margin exclusion and its remedy, in a sentence or two beside the existing exclusions.
 - Comments only. The emitted `.js` files are byte-identical to the input's. Show that with a build of the input and of the unit.
 
-## 3. The development check leaves the cache as it found it (`DRD-66`)
+## 3. drag drops `__DEV__`, and its instruments become test-side oracles (`DRD-67`)
 
-- **`verifyEquivalence` measures into storage of its own.** After the call, the operation's `RectIndex` holds what it held before the call: every slot's six fields, the window's `first` and `end`, the element array, the count, the staleness flag and the measured version. A development-only allocation for that storage is accepted.
-- **Unchanged:** when the check runs, which is one frame after the committed move, from `LinearShift.refresh`; what it compares, including `DRD-52`'s held x; its message; and that it writes nothing to the DOM.
-- **Its JSDoc** says that it doesn't change the cache, and drops "so a mismatch leaves the cache correct" and "forces the rebuild".
-- **The shipped build is byte-identical,** as in item 2, and `npx just size` shows the same rows as the input.
-- **Witnesses, in the report:**
-  - At the integer pointer path of the rotate fixture, the source project's proposals equal the consumer project's at every sample, including `proposed 1` at 95. Record both sequences, and the input's source-project sequence, which differs there. The probe's file shows one way to print them.
-  - `tests/equivalence-check.browser.test.ts` passes, and fails with the held x removed (`DRD-52`'s M1).
-  - The collapsing-margin case of item 1 still ends the drag in the source project.
-- **A source-project test that newly fails is a stop.** Report it with its assertion and don't adjust it. It relied on the re-measure, and that's the architect's decision.
+`DRD-67`'s required properties are the specification, and its [probe](probes/test-side-oracles/README.md) shows one working form of both oracles. In outline:
+
+- **Remove** every `__DEV__` site in `src`, with `verifyEquivalence`, `LinearShift`'s development state and `countRefused`, and the `__DEV__` declaration. Keep `EQUIVALENCE_SLACK`. Remove the define from every configuration. The `shipped` project stays, without the define, to run the hot-path census against `src` without the oracles, and its comment says so (properties 1 and 2).
+- **Install the oracles** from test support in every browser project except the census: on `src` in the source projects, and on the emitted `sortable/rect-index.js` and `kernel/gesture.js` in the consumer project. The project configuration chooses, and no test reads which build it runs against (property 3).
+- **Their semantics and reporting** are property 4's. A mismatch or a refusal is recorded, and the harness fails a test that ends with an unconsumed mismatch or a trusted refusal. The instrument's self-checks, item 1's collapsing-margin case and `DRD-52`'s test consume the mismatches they expect. A title that says the development check ends the drag is rewritten.
+- **The liveness tests** of property 5 run in the source and consumer projects. `tests/equivalence-check.browser.test.ts` and `tests/refusals.browser.test.ts` leave the source-only list.
+- **The witnesses** of property 6 go in the report. The rotate fixture's proposals, source against consumer, are recorded at every sample of the integer path, with the input's source sequence beside them.
+- **The contract's `DRI-6`** changes in the commit that removes `countRefused`, word for word as property 8 gives it.
+- **The emitted `.js` differs from the input's only in comments,** and `npx just size` shows the same rows as the input.
+- **A test that newly fails is a stop** (property 7). Report it with its assertion and don't adjust it, apart from the consumption above.
 
 ## Checks
 
@@ -50,7 +53,8 @@
 - each item's tests and comment edits, as `file:line`;
 - the witnesses and mutations, with their failures;
 - the tie counts for the rotate fixture in each project;
-- the byte comparison of the emitted `.js`;
+- the comparison of the emitted `.js`, for item 2 and for item 3;
+- the oracles' liveness results in each project;
 - any stop, with its assertion;
 - the commits.
 

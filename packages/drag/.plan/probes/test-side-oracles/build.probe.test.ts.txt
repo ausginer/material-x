@@ -1,0 +1,8 @@
+// @ts-expect-error -- the emitted module
+import { RectIndex } from '../sortable/rect-index.js';
+// @ts-expect-error -- the emitted module
+import { Gesture } from '../kernel/gesture.js';
+import { installGestureSpy, installRectIndexSpy } from './zz-spy.ts';
+import { cases } from './zz-spy-cases.ts';
+installRectIndexSpy(RectIndex); installGestureSpy(Gesture);
+cases('build');

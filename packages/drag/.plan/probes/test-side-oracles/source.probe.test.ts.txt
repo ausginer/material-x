@@ -1,0 +1,6 @@
+import { RectIndex } from '../src/sortable/rect-index.ts';
+import { Gesture } from '../src/kernel/gesture.ts';
+import { installGestureSpy, installRectIndexSpy } from './zz-spy.ts';
+import { cases } from './zz-spy-cases.ts';
+installRectIndexSpy(RectIndex); installGestureSpy(Gesture);
+cases(import.meta.env.MODE + ' src');

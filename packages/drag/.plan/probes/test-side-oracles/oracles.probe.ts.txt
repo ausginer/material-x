@@ -1,0 +1,70 @@
+// Probe: a test-side equivalence check and refusal count, installed on prototypes.
+type Idx = any;
+const SLACK = 1 / 16;
+export const spy = { checks: 0, mismatches: [] as string[], refused: { trusted: 0, untrusted: 0 } };
+type State = { pending: boolean; heldL: number; heldR: number; version: number; getBox: any; disp: any };
+const states = new WeakMap<object, State>();
+const st = (i: object): State => {
+  let s = states.get(i);
+  if (!s) states.set(i, (s = { pending: false, heldL: NaN, heldR: NaN, version: -1, getBox: undefined, disp: undefined }));
+  return s;
+};
+
+export function installRectIndexSpy(RectIndex: any): () => void {
+  const P = RectIndex.prototype;
+  const orig = { collect: P.collect, measure: P.measure, shift: P.shift, invalidate: P.invalidate, retire: P.retire, measurePlaceholder: P.measurePlaceholder };
+  P.measure = function (this: Idx, lo: number, hi: number, getBox: any, disp: any) {
+    const s = st(this); s.getBox = getBox; s.disp = disp;
+    return orig.measure.call(this, lo, hi, getBox, disp);
+  };
+  P.shift = function (this: Idx, ...a: any[]) {
+    orig.shift.apply(this, a);
+    const s = st(this); s.pending = true; s.heldL = NaN; s.heldR = NaN;
+  };
+  P.invalidate = function (this: Idx) { st(this).pending = false; return orig.invalidate.call(this); };
+  P.retire = function (this: Idx) { st(this).pending = false; return orig.retire.call(this); };
+  P.measurePlaceholder = function (this: Idx, ph: HTMLElement) {
+    const s = st(this);
+    if (s.pending && Number.isNaN(s.heldL)) { s.heldL = this.at(-1, 0); s.heldR = this.at(-1, 2); }
+    return orig.measurePlaceholder.call(this, ph);
+  };
+  P.collect = function (this: Idx, snapshot: any, dragged: HTMLElement, placeholder: HTMLElement, slot: number) {
+    const s = st(this);
+    if (s.pending && s.version === snapshot.version) {
+      s.pending = false;
+      spy.checks += 1;
+      // A separate real index: the measurement has one definition, and the live cache is untouched.
+      const fresh = new RectIndex(1);
+      const { first, end, count } = this;
+      orig.collect.call(fresh, snapshot, dragged, placeholder, first);
+      orig.measure.call(fresh, first, end, s.getBox, s.disp);
+      let m = fresh.count === count ? '' : `count ${count}, measured ${fresh.count}`;
+      for (let i = first; !m && i < end; i += 1)
+        for (let f = 0; !m && f < 6; f += 1)
+          if (Math.abs(this.at(i, f) - fresh.at(i, f)) > SLACK) m = `slot ${i}`;
+      const pl = [Number.isNaN(s.heldL) ? this.at(-1, 0) : s.heldL, this.at(-1, 1), Number.isNaN(s.heldR) ? this.at(-1, 2) : s.heldR, this.at(-1, 3)];
+      for (let f = 0; !m && f < 4; f += 1) if (Math.abs(pl[f]! - fresh.at(-1, f)) > SLACK) m = 'the placeholder';
+      if (m) spy.mismatches.push(m);
+    }
+    s.version = snapshot.version;
+    return orig.collect.call(this, snapshot, dragged, placeholder, slot);
+  };
+  return () => Object.assign(P, orig);
+}
+
+export function installGestureSpy(Gesture: any): () => void {
+  const P = Gesture.prototype;
+  const enter = P.enter;
+  const depth = new WeakMap<object, number>();
+  const seen = new WeakSet<Event>();
+  P.enter = function (this: object, step?: any, argument?: any, receiver?: any) {
+    const d = depth.get(this) ?? 0;
+    if (d > 0 && step && argument instanceof Event && !seen.has(argument)) {
+      seen.add(argument);
+      if (argument.isTrusted) spy.refused.trusted += 1; else spy.refused.untrusted += 1;
+    }
+    depth.set(this, d + 1);
+    try { return enter.call(this, step, argument, receiver); } finally { depth.set(this, d); }
+  };
+  return () => { P.enter = enter; };
+}
