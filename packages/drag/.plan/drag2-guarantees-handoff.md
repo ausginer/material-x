@@ -42,6 +42,8 @@ F8 is a node test against the built package, beside the `consumer` project of `D
 
 S2 adapts drag2's conformance sweep as an instrument: one helper that compares `y()`'s proposal with a full measurement over a fixture, and its self-checks, which show that the helper can fail. It isn't a second `y()`.
 
+**Note, 2026-11-15, after the unit:** `DRD-65` amends S2. `y()` proposes the gap a full measurement gives to the precision that `DRI-14` now states, so where the pointer is within 1/8 px of equidistant from two centers, either gap is admissible. [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) changes the instrument and returns the rotate case. The text above is unchanged.
+
 **Not owed:** drag2's option defaults, construction-time option reads, and the nested-control and modifier press tables (`options.node`, `features.browser.test.ts:242`, `input-policy.browser.test.ts:573-941`). The assessment §3 says why.
 
 ## Checks

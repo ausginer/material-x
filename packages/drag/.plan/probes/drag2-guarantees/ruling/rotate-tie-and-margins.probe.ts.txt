@@ -1,0 +1,104 @@
+import { it } from 'vitest';
+import { measuredGap, proposedGap, roundTrip, sweepGaps } from './support/gap-conformance.ts';
+import { basicSortable, commands, makeList, press, rowsOf } from './support/harness.ts';
+
+async function sweep(css: string, rows: Record<string, string>[], offset = 0, phStyle = '') {
+  const style = document.createElement('style');
+  style.textContent = phStyle;
+  document.head.append(style);
+  const list = makeList(rows.length, document.body, css);
+  for (const [i, row] of rowsOf(list).entries()) Object.assign(row.style, rows[i]);
+  basicSortable(list);
+  const [dragged, ...destination] = rowsOf(list);
+  const { bottom } = list.getBoundingClientRect();
+  const start = await press(dragged!);
+  await commands.pointerMove(start.x, start.y + 8, 2);
+  const d = await sweepGaps({
+    rows: destination,
+    placeholder: () => list.querySelector('[data-drag-placeholder]'),
+    pointerX: start.x,
+    path: roundTrip(Math.round(start.y + 8), Math.round(bottom + 10), 4).map((y) => y + offset),
+  });
+  await commands.keyPress('Escape');
+  list.remove(); style.remove();
+  return d;
+}
+const h = (v: number[], s: Record<string, string> = {}) => v.map((x) => ({ height: `${x}px`, width: '100px', ...s }));
+
+it('travel', async () => {
+  const out: string[] = [];
+  // 1. travel of a rotated row across one relocation of a 70px sibling
+  const list = makeList(4, document.body, 'display:flex;flex-direction:column');
+  const rs = rowsOf(list);
+  [70, 55, 30, 90].forEach((x, i) => Object.assign(rs[i]!.style, { height: `${x}px`, width: '100px' }));
+  rs[1]!.style.rotate = '8deg';
+  const t0 = rs[1]!.getBoundingClientRect(); const p0 = rs[2]!.getBoundingClientRect();
+  rs[1]!.after(rs[0]!);
+  const t1 = rs[1]!.getBoundingClientRect(); const p1 = rs[2]!.getBoundingClientRect();
+  out.push(`rotated top ${t0.top} -> ${t1.top}, travel ${t1.top - t0.top}, exact70=${t1.top - t0.top === -70}; plain travel ${p1.top - p0.top}`);
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c0', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('rotate, integer path: ' + JSON.stringify(await sweep('display:flex;flex-direction:column', rot)));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c1', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('rotate, path +0.5: ' + JSON.stringify(await sweep('display:flex;flex-direction:column', rot, 0.5)));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c2', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('rotate, path +0.01: ' + JSON.stringify(await sweep('display:flex;flex-direction:column', rot, 0.01)));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c3', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('collapsing margins: ' + JSON.stringify(await sweep('display:block', m)));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c4', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('collapsing margins, placeholder margins 6/10: ' + JSON.stringify(await sweep('display:block', m, 0, '[data-drag-placeholder]{margin:6px 0 10px}')));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c5', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('same margins in flex: ' + JSON.stringify(await sweep('display:flex;flex-direction:column', m)));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('c6', async () => {
+  const out: string[] = [];
+  const rot = h([70, 55, 30, 90]); rot[1] = { ...rot[1], rotate: '8deg' };
+  const m = h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' });
+  out.push('margin-top only block: ' + JSON.stringify(await sweep('display:block', h([70, 55, 30, 90], { marginTop: '6px' }))));
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
+it('collapse', async () => {
+  const out: string[] = [];
+  const l2 = makeList(4, document.body, 'display:block');
+  const r2 = rowsOf(l2);
+  r2.forEach((r, i) => Object.assign(r.style, { height: `${[70, 55, 30, 90][i]}px`, margin: '6px 0 10px' }));
+  const ph = document.createElement('div'); ph.style.height = '70px';
+  r2[0]!.replaceWith(ph);
+  const before = [ph, r2[1], r2[2], r2[3]].map((e) => e!.getBoundingClientRect().top);
+  ph.before(r2[1]!); // r1, ph, r2, r3
+  const after = [ph, r2[1], r2[2], r2[3]].map((e) => e!.getBoundingClientRect().top);
+  out.push(`collapse tops [ph,r1,r2,r3] before ${before} after ${after} delta ${after.map((a, i) => a - before[i]!)}`);
+  l2.remove();
+
+  throw new Error('\n' + out.join('\n'));
+}, 60000);
