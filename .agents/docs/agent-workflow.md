@@ -1,13 +1,13 @@
 # Agent workflow
 
-The owner coordinates material-x through a local Codex session and manually relayed standalone Claude role sessions. This is coordinator and human documentation. Each role's definition under [.claude/agents/](../../.claude/agents/) is the executable truth for its authority and the documents it reads; this file is not automatically loaded into those sessions. Include a needed shared section in a handoff by reference rather than assuming the role has read it.
+The owner coordinates material-x through a local coordinator — a Codex session or a Claude `coordinator` session — and standalone Claude role sessions. This is coordinator and human documentation. Each role's definition under [.claude/agents/](../../.claude/agents/) is the executable truth for its authority and the documents it reads; this file is not automatically loaded into those sessions. Include a needed shared section in a handoff by reference rather than assuming the role has read it.
 
 ## Roles
 
 | Role | Owns |
 | --- | --- |
 | Owner | Goals, scope, priorities and product tradeoffs; relays prompts and returns |
-| Local Codex coordinator | Recovers state, prepares bounded prompts, checks evidence and routes work; see [coordinator.md](coordinator.md) |
+| Local coordinator (Codex or `coordinator`) | Recovers state, prepares bounded prompts, checks evidence and routes work; see [coordinator.md](coordinator.md) |
 | `architect` | Architecture, contracts, parity and public-surface decisions |
 | `implementer` | Implementation within settled constraints, with its tests, docs and measurements |
 | `reviewer` | Feature proof against plans, contracts, tests and parity requirements |
@@ -27,7 +27,7 @@ Straightforward defects go to the implementer. A change to architecture, contrac
 
 For a new or substantially reworked architecture, use the [prototype checkpoint](#architecture-prototypes) before committing to the full design and production implementation.
 
-The owner transfers top-level prompts and closing messages, following [coordinator-setup.md](coordinator-setup.md). The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
+Top-level prompts and closing messages travel as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays them, or a `coordinator` session sends them directly. The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
 
 ## Architecture prototypes
 

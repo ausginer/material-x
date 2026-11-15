@@ -42,7 +42,7 @@ Startup itself cannot be refused — a `SessionStart` hook that returns `continu
 
 ## Starting a role session
 
-Work is driven by **direct role sessions**: the owner starts one session per role — `architect` when architectural work is needed, `implementer` for settled implementation, a fresh `consolidator` for a review round, or a fresh `reviewer`, `integrity`, `cleanup` or `der` for a single lens — and coordinates them personally. Nothing routes between the owner's prompt and the role.
+Work is driven by **direct role sessions**: the owner starts one session per role — `architect` when architectural work is needed, `implementer` for settled implementation, a fresh `consolidator` for a review round, or a fresh `reviewer`, `integrity`, `cleanup` or `der` for a single lens — and coordinates them personally or through a `coordinator` session. The coordinator sends prompts to sessions the owner started; it starts no session and spawns no governed role.
 
 **The role and the effort are two separate selections, and the runtime applies only the first.** `--agent <role>` applies the definition's `model:` and does **not** apply its `effort:`; the session runs at whatever effort was already in force. So the owner selects the effort explicitly, and a session started without it is denied at its first governed tool call rather than reasoning cheaper than the role requires. That is the operating contract, measured on 2.1.263 in [Direct role sessions](#direct-role-sessions) below, and the guard is the assertion rather than the repair.
 
@@ -124,6 +124,8 @@ This also **retires the earlier print-mode negative**: the defect was recorded a
 
 That session does not by itself separate _frontmatter honoured_ from _ambient level coincided_, because `implementer` declares `medium` and the ambient level is `medium`. The `architect` pair above is what separates them, and it separates them the other way: the level is the owner's selection, not the definition's.
 
+**A `coordinator` session matches its level, and direct send works.** _Observation log and session transcripts, 2.1.325, two background sessions started with `.scripts/claude-role.sh`._ `coordinator` matched `medium` at every `PreToolUse` and `Stop`. It sent one task to a `cleanup` session that had received the owner's bootstrap message. That session acted on the task and replied with `SendMessage` to the incoming `from` address. The reply started a new turn in the idle coordinator, and the `notify_when_idle` notice followed. Both sessions ran in `auto` permission mode although both roles declare `bypassPermissions`, so that frontmatter does not set a main-thread session's mode.
+
 ### Governed worker identity
 
 Taken on 2.1.263 with the plugin loaded from project settings, enforcement on, no `--plugin-dir`, in an interactive `implementer` session at ambient `medium`. The acceptance set for the role-contract repair. Each row names its instrument.
@@ -155,7 +157,7 @@ Taken on 2.1.263 with the plugin loaded from project settings, enforcement on, n
 - a contaminated session denies at its **first** tool call, with `poisoned-env` under `enforced: true`, and **no `SubagentStart` record at all** — no worker came into existence;
 - the three mutations that were previously invisible to the suite — dropping the mode condition, dropping the event condition, and deleting the `PreToolUse` hook block — each now fail tests.
 
-**Every project role is accounted for.** `architect`, `consolidator`, `implementer`, `reviewer`, `integrity`, `cleanup` and `der` declare an effort and have been observed reaching it. `Explore` declares `model: haiku` and resolves `exempt`.
+**Every project role is accounted for.** `architect`, `consolidator`, `implementer`, `reviewer`, `integrity`, `cleanup`, `der` and `coordinator` declare an effort and have been observed reaching it. `Explore` declares `model: haiku` and resolves `exempt`.
 
 The verdict, resolver, CLI, launcher, topology and installation paths carry `node:test` cases; run them from the plugin directory with `node --test 'tests/*.test.ts'`.
 
@@ -229,4 +231,5 @@ What this document used to say, and what changed it.
 | 2026-09-08 | Governed worker identity | **Added:** the acceptance set for the repair — a named child resolved from its record, deferred `SubagentStart` identity, an unnamed lens checked on the subagent path, a wrong model override refused before the child starts, and a named lens reproducing the `high`-declared-at-`medium` failure and denying |
 | 2026-09-08 | Governed worker identity | **Corrected against the architect artifact:** `name` alone does not select the teammate spawn path — a named print-mode spawn took the subagent path. The design keys on `agent_id` and the record's own shape, so it is unaffected; the trigger is recorded as measured rather than as described |
 | 2026-09-08 | Known limits of the exception | **Narrowed:** _an invocation that overrides a role's model is invisible._ It is refused at dispatch when explicit, and checked at the child's events wherever the per-agent record exposes an effective model. What remains invisible is a main-thread session's model and the subagent record shape, which carries none |
+| 2026-11-14 | Starting a role session, Enforcement is on | **Changed:** _nothing routes between the owner's prompt and the role._ The owner may coordinate through `coordinator`, an effort-bearing role that sends prompts to live role sessions with `SendMessage`. It starts no session and spawns no governed role, so the dispatch topology is unchanged. **Added** to §Direct role sessions: a live `coordinator` matching `medium`, and one direct-send round trip |
 | 2026-09-06 | Before enforcement | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |

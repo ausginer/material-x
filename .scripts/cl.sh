@@ -26,6 +26,7 @@ case "$profile" in
   integrity)    agent=integrity;    effort=high;   name='Mx Integrity' ;;
   cleanup)      agent=cleanup;      effort=medium; name='Mx Cleanup' ;;
   der)          agent=der;          effort=medium; name='Mx Der' ;;
+  coordinator)  agent=coordinator;  effort=medium; name='Mx Coordinator' ;;
   *)
     echo "Usage: cl [--init] <profile>" >&2
     exit 64

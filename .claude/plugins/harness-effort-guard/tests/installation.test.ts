@@ -273,6 +273,7 @@ describe('direct role resolution', () => {
     'integrity',
     'cleanup',
     'der',
+    'coordinator',
   ];
 
   it('should resolve every effort-bearing role to a declared level', async () => {
