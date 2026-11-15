@@ -1,0 +1,11 @@
+--- /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/recv/m.bak	2026-11-15 00:00:26.357363544 +0000
++++ src/free-drag/drop-targets.ts	2026-11-15 00:00:26.375964542 +0000
+@@ -65,7 +65,7 @@
+     this.#drag = drag;
+     this.#frame = new FrameTask(window, () => {
+       // A frame is foreign code, so its write goes through a step.
+-      drag.requestStep(this.#resolve, this);
++      drag.requestStep(this.#resolve);
+     });
+ 
+     // Registered before the consumer's `targets()` runs, so the release covers a

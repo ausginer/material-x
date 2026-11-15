@@ -1,0 +1,11 @@
+--- /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/recv/m.bak	2026-11-15 00:00:22.935745209 +0000
++++ src/sortable/behavior.ts	2026-11-15 00:00:22.953863911 +0000
+@@ -204,7 +204,7 @@
+     drag.use(() => {
+       frame.cancel();
+     });
+-    drag.use(this.axis.retire, this.axis);
++    drag.use(this.axis.retire);
+     listenForInvalidation(this.#window, drag.signal, () => {
+       drag.requestStep(this.axis.invalidate, this.axis);
+     });

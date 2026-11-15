@@ -1,0 +1,11 @@
+--- /tmp/claude-1000/-workspaces-material-x/4851917c-3fc3-4652-853c-37368bf1d84a/scratchpad/recv/m.bak	2026-11-15 00:00:24.376869468 +0000
++++ src/sortable.ts	2026-11-15 00:00:24.399906433 +0000
+@@ -56,7 +56,7 @@
+   const kernel = draggable(root, behavior);
+ 
+   if (displacement) {
+-    kernel.use(displacement.retire, displacement);
++    kernel.use(displacement.retire);
+   }
+ 
+   // Registered last, so a running landing is cancelled first at destruction.

@@ -1,0 +1,4 @@
+probe sha256 64d7f7b2509c78653b7a911b40b2937b6981377b55d85b9ac49ab7ed878ea1e5
+.recheck-probe-tmp/wrong-receiver.ts(12,29): error TS2739: Type 'DisplacementSink' is missing the following properties from type 'InsertionGeometry': resolve, confirm, moved, invalidate
+.recheck-probe-tmp/wrong-receiver.ts(13,31): error TS2739: Type 'InsertionGeometry' is missing the following properties from type 'DisplacementSink': dx, dy, report, displaced
+exit=1
