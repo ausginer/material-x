@@ -10,6 +10,7 @@ Resident in every agent's context, so it carries only what applies before a role
 - **Do not amend, squash, rebase, rewrite or delete an existing commit** unless asked.
 - **Push the current work branch to `origin` once a unit of work is finalized** — after the last commit of the unit, not after each one. **Do not open a PR, force-push, push `main`, or rename, delete or otherwise move any other shared ref** unless asked.
 - **The owner merges pull requests.** Agents may create a PR when asked, but must leave it open for the owner. Do not merge it or enable auto-merge.
+- **Commit messages and pull request descriptions carry no session link** — no `Claude-Session:` trailer and no `claude.ai/code/session_…` URL. A `Co-Authored-By:` trailer is fine.
 - **Never bypass branch protection, rulesets or repository policy.** If an operation is rejected, report the blocker rather than force-pushing or changing rules around it.
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
@@ -38,6 +39,8 @@ A guarded session says so. `Effort guard active` arrives as startup context in e
 Verify cheap mechanical claims yourself, in the agent that cites them. **Delegate discovery, never verification** — a sub-agent returns candidates; the citing agent confirms the ones it reports. Delegate only when the search justifies a separate context.
 
 Probes, diagnostics, fixtures and benchmarks are fine for any role that needs one to establish a fact. TypeScript runs directly — `node my-file.ts` — with no build or loader step.
+
+**In a destructive shell command, expand every variable in a path with `${VAR:?}`**: `rm -rf "${S:?}/probe"`, not `rm -rf $S/probe`. An unset or empty variable then stops the command instead of turning the path into `/probe`.
 
 ## Where things are
 
