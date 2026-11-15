@@ -51,7 +51,6 @@ class YAxisGeometry implements InsertionGeometry {
       query.pointerY,
     );
 
-    // Read once, outside the candidate loop.
     const anchor = this.#index.at(PLACEHOLDER, CENTER_Y);
     let best = Math.abs(query.pointerY - anchor);
     let nearest = -1;

@@ -154,27 +154,25 @@ export class RectIndex implements Invalidatable, Retirable {
     }
 
     // Locals, not repeated field reads inside the loops.
-    const items = this.#items;
-    const values = this.#values;
     let n = 0;
 
     for (const item of snapshot.items) {
       if (item !== dragged) {
-        items[n] = item;
+        this.#items[n] = item;
         n += 1;
       }
     }
 
     // Appended, because `measure` may first write a slot in the middle of the
     // collection, and a write past the length would leave a hole.
-    for (let i = values.length; i < (n + LEADING) * STRIDE; i += 1) {
-      values.push(0);
+    for (let i = this.#values.length; i < (n + LEADING) * STRIDE; i += 1) {
+      this.#values.push(0);
     }
 
     this.measurePlaceholder(placeholder);
     // Truncated, so that a shrinking collection does not retain elements, and so
     // that its length is the slot count.
-    items.length = n;
+    this.#items.length = n;
     this.#first = slot;
     this.#end = slot;
     this.#measured = snapshot.version;
@@ -192,11 +190,8 @@ export class RectIndex implements Invalidatable, Retirable {
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
     displacement?: DisplacementSink | null,
   ): void {
-    // A local, not repeated field reads inside the loop.
-    const items = this.#items;
-
     for (let i = lo; i < hi; i += 1) {
-      this.#read(i, items[i]!, getBox, displacement);
+      this.#read(i, this.#items[i]!, getBox, displacement);
     }
 
     // An empty window sits at the slot `collect` gave it, so a range next to it
@@ -217,20 +212,16 @@ export class RectIndex implements Invalidatable, Retirable {
    * the window.
    */
   shift(lo: number, hi: number, delta: number): void {
-    // Locals, not repeated field reads inside the loop.
-    const values = this.#values;
-    const axis = this.#axis;
-
     for (let i = lo; i < hi; i += 1) {
       // The near edge on the axis. The far edge and the center follow it at the
       // same distances as `RIGHT` and `CENTER_X` follow `LEFT`.
-      const offset = (i + LEADING) * STRIDE + axis;
-      const near = values[offset]! + delta;
-      const far = values[offset + RIGHT]! + delta;
+      const offset = (i + LEADING) * STRIDE + this.#axis;
+      const near = this.#values[offset]! + delta;
+      const far = this.#values[offset + RIGHT]! + delta;
 
-      values[offset] = near;
-      values[offset + RIGHT] = far;
-      values[offset + CENTER_X] = (near + far) * 0.5;
+      this.#values[offset] = near;
+      this.#values[offset + RIGHT] = far;
+      this.#values[offset + CENTER_X] = (near + far) * 0.5;
     }
   }
 
@@ -244,12 +235,11 @@ export class RectIndex implements Invalidatable, Retirable {
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
     displacement?: DisplacementSink | null,
   ): number {
-    const axis = this.#axis;
-
     this.#read(-LEADING, this.#items[slot]!, getBox, displacement);
 
     return (
-      this.#values[axis]! - this.#values[(slot + LEADING) * STRIDE + axis]!
+      this.#values[this.#axis]! -
+      this.#values[(slot + LEADING) * STRIDE + this.#axis]!
     );
   }
 
@@ -279,15 +269,16 @@ export class RectIndex implements Invalidatable, Retirable {
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
     displacement?: DisplacementSink | null,
   ): boolean {
-    // Read once: each is used twice below.
-    const first = this.#first;
-    const end = this.#end;
-
-    if (this.#dirty || this.#measured !== snapshot.version || first === end) {
+    if (
+      this.#dirty ||
+      this.#measured !== snapshot.version ||
+      this.#first === this.#end
+    ) {
       return true;
     }
 
-    const slot = end - gap > gap - first ? end - 1 : first;
+    const slot =
+      this.#end - gap > gap - this.#first ? this.#end - 1 : this.#first;
     const values = this.#values;
     const offset = (slot + LEADING) * STRIDE;
 
@@ -326,7 +317,6 @@ export class RectIndex implements Invalidatable, Retirable {
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
     displacement?: DisplacementSink | null,
   ): void {
-    const values = this.#values;
     const offset = (slot + LEADING) * STRIDE;
     // The box, because the placeholder is sized from the box's footprint, so both
     // sides of the comparison are the same kind of rect.
@@ -343,12 +333,12 @@ export class RectIndex implements Invalidatable, Retirable {
     const right = rect.right - dx;
     const bottom = rect.bottom - dy;
 
-    values[offset + LEFT] = left;
-    values[offset + TOP] = top;
-    values[offset + RIGHT] = right;
-    values[offset + BOTTOM] = bottom;
-    values[offset + CENTER_X] = (left + right) * 0.5;
-    values[offset + CENTER_Y] = (top + bottom) * 0.5;
+    this.#values[offset + LEFT] = left;
+    this.#values[offset + TOP] = top;
+    this.#values[offset + RIGHT] = right;
+    this.#values[offset + BOTTOM] = bottom;
+    this.#values[offset + CENTER_X] = (left + right) * 0.5;
+    this.#values[offset + CENTER_Y] = (top + bottom) * 0.5;
   }
 }
 
@@ -379,15 +369,11 @@ export class RetainingRectIndex extends RectIndex {
    * window.
    */
   retain(): void {
-    // Locals, not repeated reads inside the loop.
-    const retained = this.#retained;
-    const { count } = this;
-
     // From slot 0 up, so each write lands at or below the length: a write at the
     // length appends, and the array has no hole.
-    for (let i = 0; i < count; i += 1) {
-      retained[i * 2] = this.at(i, LEFT);
-      retained[i * 2 + 1] = this.at(i, TOP);
+    for (let i = 0; i < this.count; i += 1) {
+      this.#retained[i * 2] = this.at(i, LEFT);
+      this.#retained[i * 2 + 1] = this.at(i, TOP);
     }
   }
 }

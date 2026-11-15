@@ -75,7 +75,6 @@ class LayoutAnimationSink implements DisplacementSink {
   }
 
   report(element: HTMLElement, dx: number, dy: number, space: Space): void {
-    const local = this.#local;
     let sx = dx;
     let sy = dy;
     const previous = this.#running.get(element);
@@ -90,9 +89,9 @@ class LayoutAnimationSink implements DisplacementSink {
     }
 
     // A singular ancestor renders nothing, so the vector's value is immaterial.
-    if (!localDelta(space, sx, sy, local)) {
-      local[0] = sx;
-      local[1] = sy;
+    if (!localDelta(space, sx, sy, this.#local)) {
+      this.#local[0] = sx;
+      this.#local[1] = sy;
     }
 
     // The individual `translate` property, added. `transform` would replace an
@@ -101,7 +100,10 @@ class LayoutAnimationSink implements DisplacementSink {
     // this keyframe is in local units: what the sink stores stays in viewport
     // units, which is what a settled measurement assumes.
     const animation = element.animate(
-      [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
+      [
+        { translate: `${this.#local[0]!}px ${this.#local[1]!}px` },
+        { translate: '0 0' },
+      ],
       { duration: this.#duration, easing: this.#easing, composite: 'add' },
     );
     const record: RowAnimation = { animation, dx: sx, dy: sy };
