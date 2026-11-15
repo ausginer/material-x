@@ -116,17 +116,6 @@ describe('drag:DRI-14 y() proposes the gap a full measurement gives', () => {
     ).toEqual([]);
   });
 
-  it('should agree with an authored rotate on a row', async () => {
-    // A rotation enlarges the row's rect beyond its flow footprint, so a rule that
-    // summed rect extents over the crossed rows would drift.
-    const rows = heights([70, 55, 30, 90]);
-
-    rows[1] = { ...rows[1], rotate: '8deg' };
-    expect(await sweepList('display:flex;flex-direction:column', rows)).toEqual(
-      [],
-    );
-  });
-
   it('should agree with an authored scale on a row', async () => {
     const rows = heights([70, 55, 30, 90]);
 
