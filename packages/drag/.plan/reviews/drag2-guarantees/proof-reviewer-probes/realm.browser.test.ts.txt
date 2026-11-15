@@ -1,0 +1,10 @@
+import { expect, it } from 'vitest';
+
+it('probe: an iframe event is not an instance of the top Event', () => {
+  const frame = document.createElement('iframe');
+  document.body.append(frame);
+  const inner = frame.contentWindow! as unknown as typeof globalThis;
+  const event = new inner.PointerEvent('pointermove');
+  expect([event instanceof Event, event instanceof inner.Event]).toEqual([false, true]);
+  frame.remove();
+});
