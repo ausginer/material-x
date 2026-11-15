@@ -16,6 +16,7 @@ import {
 import './browser-commands.ts';
 
 export { commands };
+export { equivalenceChecks, refusals, takeMismatches } from './oracles.ts';
 
 export const engine: string = server.browser;
 export const isChromium: boolean = engine === 'chromium';
@@ -92,16 +93,6 @@ export function wait(milliseconds: number): Promise<void> {
   });
 }
 
-export type RefusalCounts = Readonly<{ trusted: number; untrusted: number }>;
-
-export function refusals(): RefusalCounts {
-  return (
-    ((globalThis as Record<string, unknown>)['__dragRefused'] as
-      | RefusalCounts
-      | undefined) ?? { trusted: 0, untrusted: 0 }
-  );
-}
-
 beforeEach(() => {
   log.length = 0;
   faults.length = 0;
@@ -110,7 +101,6 @@ beforeEach(() => {
   rawClicks.length = 0;
   deliveredClicks.length = 0;
   ReactionProbe.react = null;
-  delete (globalThis as Record<string, unknown>)['__dragRefused'];
   document.body.style.margin = '0';
   scrollTo(0, 0);
 });
@@ -124,11 +114,6 @@ afterEach(async () => {
   }
 
   document.body.replaceChildren();
-
-  // `drag:DRI-6`, across every test: no trusted event is ever refused.
-  if (refusals().trusted > 0) {
-    throw new Error(`refused ${refusals().trusted} trusted events`);
-  }
 
   // The guard expires in the task after a release. A later test's click is not
   // that one's.

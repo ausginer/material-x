@@ -19,8 +19,6 @@ const config: UserConfig = defineConfig({
   fixedExtension: false,
   clean: false,
   plugins: constructLibraryTsdownPlugins(),
-  // Folds the guarded development instruments to dead code.
-  define: { __DEV__: 'false' },
   unbundle: true,
 });
 

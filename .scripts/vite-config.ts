@@ -39,14 +39,6 @@ export function createViteConfig(root: URL): UserConfig {
       },
     },
     cacheDir: '.vite',
-    // `@ydinjs/drag` compiles its development-only checks against a bare
-    // `__DEV__`, declared in its `src/globals.d.ts`, so that a published build
-    // substitutes `false` and drops the branches. There is no
-    // `typeof __DEV__ === 'undefined'` fallback, so a missing define is a
-    // `ReferenceError` at import. That is why the define is on the base config
-    // every in-repo build derives from: Storybook builds drag's stories from
-    // source through `createMaterialXViteConfig`.
-    define: { __DEV__: 'true' },
   };
 }
 

@@ -1,7 +1,8 @@
 /**
- * `drag:DRI-1` and `drag:DRI-6`: the tests that read the refusal count, a
- * development instrument that a published build folds away. They run in the
- * source projects only.
+ * `drag:DRI-1` and `drag:DRI-6`: the tests that read the refusal oracle in
+ * `support/oracles.ts`. The nested presses are its liveness tests, so a refactor
+ * that disconnects it from the gesture's call protocol fails here. They run
+ * against the source and the published build.
  */
 import { describe, expect, it } from 'vitest';
 import { Lifter } from '../src/lift.ts';

@@ -1,6 +1,7 @@
 /**
- * `drag:DRI-17`: the hot path. This file runs in the `shipped` project, with
- * `__DEV__` false, so the development equivalence check is not in the census.
+ * `drag:DRI-17`: the hot path. This file runs in the `shipped` project, against
+ * `src` without the test-side oracles, so the equivalence oracle's measurement is
+ * not in the census.
  */
 import { describe, expect, it } from 'vitest';
 import { Lifter } from '../src/lift.ts';

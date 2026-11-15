@@ -193,7 +193,7 @@ The first completion wins. `then` is read once. A throwing `then` accessor or ca
 
 #### DRI-6 — Reentrant input
 
-Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. Development builds count each event a running pass refuses once, so that the suite can assert this. A press whose release the library missed is DRI-19's.
+Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. A press whose release the library missed is DRI-19's.
 
 #### DRI-7 — Faults
 
@@ -370,6 +370,7 @@ With `targets: dropTargets({ targets })`:
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-15 | `DRI-6` | **Removed:** development builds no longer count refused events. The suite counts them from outside the library, against the source and the published build. It used to say that development builds count each event a running pass refuses once. `DRD-67` |
 | 2026-11-15 | `DRI-14` | **Added:** the term `y()` depends on, that moving the placeholder moves only the items it crosses, by one distance; that a block column whose margins collapse on both sides of an item doesn't meet it unless the placeholder has the items' margins; and the precision of `y()`'s geometry, 1/16 px, under which a pointer within 1/8 px of equidistant from two centers may give either gap. No behavior changes. The paragraph used to state no term that excluded collapsing margins, and no precision. `DRD-65`, `DRF-46`, `DRF-47` |
 | 2026-11-12 | `DRI-14` | **Changed:** with `y()`, a resolution measures the items between the placeholder and the pointer, and one beyond, and the items' centers increase along y in the collection's order. A reversed column, an item that isn't rendered, or an authored transform that carries an item's center past a neighbour's, is outside the contract. The pointer drop measures one measured item again. The paragraph used to say that `sortable` measures the items at the operation's first resolution, and that the drop measures every item when the one it checks moved. `DRD-49` |
 | 2026-11-12 | `DRI-20`, `DRI-21` | **Changed:** the drop marks the bounds and the drop targets stale before it resolves, so it clamps against the box and names the target under the release position as the tree stands at the drop, including after a scroll whose event hasn't reached the library yet. `DRI-21`'s drop used to resolve against geometry measured after any invalidation, and `DRI-20` said nothing about when the drop reads the box. `DRD-48`, `DRF-22` |

@@ -19,6 +19,7 @@ import {
   onCleanup,
   press,
   rowsOf,
+  takeMismatches,
 } from './support/harness.ts';
 
 /** Camel-case style properties, assigned to a row's inline style. */
@@ -216,7 +217,7 @@ describe('drag:DRI-14 the gap instrument', () => {
     ).toEqual([]);
   });
 
-  it('should report a two-column grid driven by y(), whose drag the development check ends', async () => {
+  it('should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects', async () => {
     // Relocating the placeholder moves a crossed cell sideways as well as down,
     // which is outside y()'s rule.
     expect(
@@ -225,21 +226,24 @@ describe('drag:DRI-14 the gap instrument', () => {
         heights([40, 40, 40, 40, 40, 40]),
       ),
     ).not.toEqual([]);
+    expect(takeMismatches()).not.toEqual([]);
   });
 
-  it('should report a wrapping flex row driven by y(), whose drag the development check ends', async () => {
+  it('should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects', async () => {
     expect(
       await sweepList(
         'display:flex;flex-wrap:wrap;width:210px',
         heights([40, 40, 40, 40, 40, 40]),
       ),
     ).not.toEqual([]);
+    expect(takeMismatches()).not.toEqual([]);
   });
 
   it('should report a block column whose margins collapse on both sides of each row', async () => {
     // The space between two neighbours is the larger of their two margins, so the
     // margin-less placeholder changes the spacing of rows it does not cross.
     expect(await sweepList('display:block', collapsingMargins)).not.toEqual([]);
+    expect(takeMismatches()).not.toEqual([]);
   });
 
   it("should agree on a block column whose margins collapse when the placeholder has the rows' margins", async () => {

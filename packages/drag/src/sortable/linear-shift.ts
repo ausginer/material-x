@@ -34,35 +34,8 @@
 import type { AxisContext, DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import type { Invalidatable } from './invalidatable.ts';
-import {
-  CENTER_Y,
-  LEFT,
-  PLACEHOLDER,
-  type RectIndex,
-  RIGHT,
-  verifyEquivalence,
-} from './rect-index.ts';
+import { CENTER_Y, PLACEHOLDER, type RectIndex } from './rect-index.ts';
 import type { Retirable } from './retirable.ts';
-
-/** One `LinearShift`'s state for the development check. */
-type DevelopmentCheck = {
-  /** A committed move whose prediction the check has not compared yet. */
-  advanceUnchecked: boolean;
-  /**
-   * The placeholder's left and right as the cache held them before the re-read,
-   * or `NaN` when no re-read followed the last committed move.
-   */
-  heldLeft: number;
-  heldRight: number;
-};
-
-/**
- * Only development builds create it, so a production build carries no field or
- * initializer for the check.
- */
-const developmentChecks = __DEV__
-  ? new WeakMap<LinearShift, DevelopmentCheck>()
-  : null;
 
 /**
  * One `RectIndex` under the linear shift rule, along y. The index was constructed
@@ -93,24 +66,14 @@ export class LinearShift implements Invalidatable, Retirable {
 
   constructor(index: RectIndex) {
     this.#index = index;
-
-    if (__DEV__) {
-      developmentChecks!.set(this, {
-        advanceUnchecked: false,
-        heldLeft: Number.NaN,
-        heldRight: Number.NaN,
-      });
-    }
   }
 
   /**
    * Prepares the cache for a scan at `pointerY`: collects the slots when the cache
    * is stale, and grows the window until it brackets the pointer. `gap` is the gap
    * the placeholder occupies at the moment of the scan, which only the caller
-   * knows. The stale placeholder is read first, because the
-   * development check compares it against the tree. That check runs here, one frame
-   * after the move, because at the move's own instant the animations it started
-   * have no resolved timing yet.
+   * knows. The stale placeholder is read first, one frame after the move, from a
+   * tree already laid out.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -123,43 +86,7 @@ export class LinearShift implements Invalidatable, Retirable {
   ): void {
     if (this.#placeholderIsStale) {
       this.#placeholderIsStale = false;
-
-      if (__DEV__) {
-        const check = developmentChecks!.get(this)!;
-
-        if (check.advanceUnchecked) {
-          // The rule predicts that a relocation leaves both x coordinates where
-          // the rebuild measured them, and the check compares that prediction.
-          check.heldLeft = this.#index.at(PLACEHOLDER, LEFT);
-          check.heldRight = this.#index.at(PLACEHOLDER, RIGHT);
-        }
-      }
-
       this.#index.measurePlaceholder(placeholder);
-    }
-
-    if (__DEV__) {
-      const check = developmentChecks!.get(this)!;
-
-      if (
-        check.advanceUnchecked &&
-        !this.#dirty &&
-        this.#snapshotVersion === snapshot.version
-      ) {
-        check.advanceUnchecked = false;
-        verifyEquivalence(
-          this.#index,
-          snapshot,
-          dragged,
-          getBox,
-          placeholder,
-          displacement,
-          check.heldLeft,
-          check.heldRight,
-        );
-        check.heldLeft = Number.NaN;
-        check.heldRight = Number.NaN;
-      }
     }
 
     this.#index.collect(snapshot, dragged, placeholder, gap);
@@ -251,10 +178,6 @@ export class LinearShift implements Invalidatable, Retirable {
 
     this.#lastGap = gap;
     this.#placeholderIsStale = true;
-
-    if (__DEV__) {
-      developmentChecks!.get(this)!.advanceUnchecked = true;
-    }
   }
 
   invalidate(): void {
