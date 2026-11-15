@@ -41,7 +41,11 @@ export type Composition = Readonly<{
   name: string;
   /** Module path without extension, under `src` or `tests/fixtures`, to named exports. */
   imports: Exports;
-  /** The Brotli ceiling. Its slack over the reading is what the row can detect. */
+  /**
+   * The Brotli ceiling. Until the first release of `@ydinjs/drag`, each change the
+   * owner approves moves every ceiling, and the control, to its reading
+   * (`drag:DRD-68`). After release, a reading over its ceiling is a decision again.
+   */
   budget: number;
   /** The exact Brotli figure, for a row that no edit outside its graph may move. */
   control?: number;
@@ -59,8 +63,8 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'draggable alone',
     imports: { 'src/draggable': ['draggable'] },
-    budget: 2139,
-    control: 2024,
+    budget: 2189,
+    control: 2189,
     absent: [
       'lift',
       'box-quad',
@@ -75,35 +79,35 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'draggable + lift',
     imports: { 'src/draggable': ['draggable'], 'src/lift': ['Lifter'] },
-    budget: 4169,
+    budget: 3932,
     present: ['lift', 'box-quad'],
     absent: [...SORTABLE_ONLY, ...FREE_DRAG_ONLY, ...OPTIONAL],
   },
   {
     name: 'example: resize handle',
     imports: { 'tests/fixtures/resize-handle': ['resizeHandle'] },
-    budget: 3313,
+    budget: 3265,
     present: ['box-quad'],
     absent: ['lift', ...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'example: drop zone',
     imports: { 'tests/fixtures/drop-zone': ['dropZone'] },
-    budget: 4431,
+    budget: 4570,
     present: ['lift', 'shared/landing'],
     absent: [...SORTABLE_ONLY, 'layout-animation'],
   },
   {
     name: 'example: canvas group',
     imports: { 'tests/fixtures/canvas-group': ['canvasGroup'] },
-    budget: 3314,
+    budget: 3261,
     present: ['box-quad'],
     absent: ['lift', ...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'freeDrag',
     imports: { 'src/free-drag': ['freeDrag'] },
-    budget: 4967,
+    budget: 4984,
     present: ['lift'],
     absent: [
       ...SORTABLE_ONLY,
@@ -119,21 +123,21 @@ export const COMPOSITIONS: readonly Composition[] = [
       'src/free-drag/bounds': ['bounds'],
       'src/free-drag/landing': ['landing'],
     },
-    budget: 5210,
+    budget: 5465,
     present: ['free-drag/bounds', 'shared/landing'],
     absent: [...SORTABLE_ONLY, 'layout-animation', 'free-drag/drop-targets'],
   },
   {
     name: 'sortable + y',
     imports: { 'src/sortable': ['sortable'], 'src/sortable/y': ['y'] },
-    budget: 6733,
+    budget: 6533,
     present: ['linear-shift'],
     absent: [...OPTIONAL, 'sortable/xy', ...FREE_DRAG_ONLY],
   },
   {
     name: 'sortable + xy',
     imports: { 'src/sortable': ['sortable'], 'src/sortable/xy': ['xy'] },
-    budget: 6617,
+    budget: 6484,
     absent: [...OPTIONAL, 'linear-shift', 'sortable/y', ...FREE_DRAG_ONLY],
   },
   {
@@ -144,7 +148,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'src/sortable/landing': ['landing'],
       'src/sortable/layout-animation': ['layoutAnimation'],
     },
-    budget: 7065,
+    budget: 7143,
     present: [...OPTIONAL, 'linear-shift'],
     absent: FREE_DRAG_ONLY,
   },
