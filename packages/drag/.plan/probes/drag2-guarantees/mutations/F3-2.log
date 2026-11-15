@@ -1,0 +1,3 @@
+Tests  1 failed | 11 skipped (12)
+FAIL  |browser (chromium)| tests/verdict.browser.test.ts:252 > SortableRejectedResult > should carry the value given to reject as its reason
+AssertionError: expected undefined to be { code: 'locked' } // Object.is equality

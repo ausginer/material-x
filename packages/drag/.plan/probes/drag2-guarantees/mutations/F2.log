@@ -1,0 +1,17 @@
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:357 > drag:DRI-20 the release position > should build the request from the pointerup position
+AssertionError: expected [ { item: <div …(2)></div>, …(11) } ] to match object [ { pointerX: 155, …(3) } ]
+-     "pointerX": 155,
+-     "pointerY": 125,
+-     "viewportDeltaX": 90,
+-     "viewportDeltaY": 60,
++     "pointerX": 115,
++     "pointerY": 105,
++     "viewportDeltaX": 50,
++     "viewportDeltaY": 40,
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:381 > drag:DRI-20 the release position > should render the visual at the pointerup position while the drop is decided
+AssertionError: expected [ [ 90, 80 ] ] to deeply equal [ [ 130, 100 ] ]
+-     130,
+-     100,
++     90,
++     80,
+Tests  2 failed | 21 skipped (23)

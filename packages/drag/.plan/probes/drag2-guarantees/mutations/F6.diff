@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 11063f20f..bbadcc7a6 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -229,7 +229,6 @@ export class Session<
+         'pointerdown',
+         'pointermove',
+         'pointerup',
+-        'pointercancel',
+         'lostpointercapture',
+       ]) {
+         window.addEventListener(type, this, options);

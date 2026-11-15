@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/free-drag/operation.ts b/packages/drag/src/free-drag/operation.ts
+index 86fecf15f..0a962e0e4 100644
+--- a/packages/drag/src/free-drag/operation.ts
++++ b/packages/drag/src/free-drag/operation.ts
+@@ -127,7 +127,7 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+       this.#result = {
+         type: 'rejected',
+         request: this.#request!,
+-        reason: (outcome.value as RejectedResolution)[0],
++        reason: undefined,
+       };
+     } else {
+       this.#result = { type: 'accepted', request: this.#request! };

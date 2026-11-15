@@ -1,6 +1,22 @@
-/** `drag:DRI-3`, `drag:DRI-4` and `drag:DRI-6`: terminals, cancel and reentrant input. */
+/**
+ * `drag:DRI-3`, `drag:DRI-4` and `drag:DRI-6`: terminals, cancel and reentrant
+ * input. `drag:DRI-20`: the drop at the release position, and the rejected
+ * terminal's reason.
+ */
 import { describe, expect, it } from 'vitest';
 import type { Outcome } from '../src/draggable.ts';
+import {
+  FreeDragResolution,
+  type FreeDragRejectedResult,
+  type FreeDragRequest,
+  type FreeDragResult,
+} from '../src/free-drag.ts';
+import {
+  BOX_LEFT,
+  BOX_TOP,
+  dispatchPointer,
+  mountBox,
+} from './support/free-box.ts';
 import {
   basicSortable,
   centerOf,
@@ -331,5 +347,69 @@ describe('drag:DRI-6 reentrant input', () => {
     await dragAndDrop('#r2', -45);
     expect(log.filter((line) => line === 'start')).toHaveLength(2);
     expect(centerOf('#r0').y).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('drag:DRI-20 the release position', () => {
+  // `pointerup` need not carry the last processed `pointermove`'s coordinates,
+  // and the Playwright mouse always releases where it last moved. So the release
+  // is dispatched 40 px right of and 20 px below the last move.
+  it('should build the request from the pointerup position', async () => {
+    const requests: FreeDragRequest[] = [];
+
+    mountBox({
+      onDrop(request) {
+        requests.push(request);
+        return FreeDragResolution.accept();
+      },
+    });
+
+    const at = await grab('#free', 50, 40);
+
+    dispatchPointer('pointerup', at.x + 40, at.y + 20);
+    await frames();
+    expect(requests).toMatchObject([
+      {
+        pointerX: at.x + 40,
+        pointerY: at.y + 20,
+        viewportDeltaX: 90,
+        viewportDeltaY: 60,
+      },
+    ]);
+  });
+
+  it('should render the visual at the pointerup position while the drop is decided', async () => {
+    const positions: Array<readonly [number, number]> = [];
+    const { box } = mountBox({
+      onDrop() {
+        const { left, top } = box.getBoundingClientRect();
+
+        positions.push([left, top]);
+        return FreeDragResolution.accept();
+      },
+    });
+
+    const at = await grab(box, 50, 40);
+
+    dispatchPointer('pointerup', at.x + 40, at.y + 20);
+    await frames();
+    expect(positions).toEqual([[BOX_LEFT + 90, BOX_TOP + 60]]);
+  });
+});
+
+describe('FreeDragRejectedResult', () => {
+  it('should carry the value given to reject as its reason', async () => {
+    const reason = { code: 'occupied' };
+    const results: FreeDragResult[] = [];
+
+    mountBox({
+      onDrop: () => FreeDragResolution.reject(reason),
+      onEnd(result) {
+        results.push(result);
+      },
+    });
+    await dragAndDrop('#free', 40);
+    expect(results.map((result) => result.type)).toEqual(['rejected']);
+    expect((results[0] as FreeDragRejectedResult).reason).toBe(reason);
   });
 });

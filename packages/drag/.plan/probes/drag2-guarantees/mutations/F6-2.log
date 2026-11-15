@@ -1,0 +1,8 @@
+Tests  1 failed | 1 passed | 9 skipped (11)
+FAIL  |browser (chromium)| tests/activation.browser.test.ts:288 > drag:DRI-4 pointercancel during a pending press > should admit the next press
+AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+- [
+-   "start",
+-   "end:accepted",
+- ]
++ []
