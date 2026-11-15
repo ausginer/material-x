@@ -46,11 +46,11 @@ export interface FreeDragController {
    * The bounds, and during a drag the drop targets, are stale: re-read them at
    * their next read.
    */
-  readonly invalidate: () => void;
+  invalidate(): void;
   /** Places the visual at a viewport point and keeps following the pointer. */
-  readonly moveTo: (point: Point) => void;
-  readonly requestCancel: (reason?: unknown) => void;
-  readonly requestDestroy: () => Promise<void>;
+  moveTo(point: Point): void;
+  requestCancel(reason?: unknown): void;
+  requestDestroy(): Promise<void>;
 }
 
 /** Makes `root` draggable anywhere. */
@@ -71,7 +71,7 @@ export function freeDrag(
       kernel.requestStep((operation) => {
         operation?.moveTo(point);
       }),
-    requestCancel: (reason) => {
+    requestCancel(reason) {
       kernel.requestCancel(reason);
     },
     requestDestroy: () => kernel.requestDestroy(),

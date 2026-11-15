@@ -172,7 +172,7 @@ The step runs at once when no pass is running, and otherwise between steps, in r
 
 A step passed alone is called with no receiver. Pass an object after it, as in `controller.requestStep(this.refresh, this)`, and the step is called on that object. The same step requested twice before it runs runs once only when it comes with the same receiver, or with none both times. So a stable function coalesces, and one method requested for two objects runs once for each.
 
-Hooks also have `drag.requestStep` and `drag.requestCancel`. **They are scoped to their operation:** they act only while it is the controller's current one, and afterwards do nothing, so a `drag` kept in a timer never reaches a later drag. Cleanup after an operation belongs in `use`. Call `draggable`'s controller methods on the controller, as in `return () => controller.requestDestroy()`. The members of the `sortable` and `freeDrag` controllers also work when detached.
+Hooks also have `drag.requestStep` and `drag.requestCancel`. **They are scoped to their operation:** they act only while it is the controller's current one, and afterwards do nothing, so a `drag` kept in a timer never reaches a later drag. Cleanup after an operation belongs in `use`. Call a controller's methods on the controller, as in `return () => controller.requestDestroy()`.
 
 ### Cleanup with `use`
 
@@ -238,7 +238,7 @@ const controller = draggable(root, {
   },
 });
 
-controller.use(lifter.cancelLanding);
+controller.use(lifter.cancelLanding, lifter);
 ```
 
 `acquire(drag, visual?, box?)` returns a `Lift` with `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace` and `itemSpace`, all measured at the grab, and `translate(x, y)` and `land(x, y, landing)`. `visual` defaults to the item, and `box` to `visual`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `land` takes the viewport position of the visual's top-left, and a `Landing` such as `landing()` from `lift/landing.js`. Its `timing` is called once, at the call, with the delta last translated to and the delta to the landing, and when it throws nothing is recorded. Its `start` starts the animation right after the lift is released, from where the visual is then, and the last call wins. **Without a landing, nothing animates:** the lift has no default animation or timing, so a behavior that never calls `land` carries no animation code, and one that does not import `lift.js` carries no lift code. `landing()` takes the same options as `landing` from `sortable/landing.js` and `free-drag/landing.js`, and a custom timing is `{ ...landing(), timing }`.

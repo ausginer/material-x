@@ -6,6 +6,10 @@
  */
 import { defineBrowserCommand } from '@vitest/browser';
 import type { BrowserCommand } from 'vitest/node';
+import {
+  type SnapshotSession,
+  takeHeapSnapshot,
+} from './heap-snapshot.node.ts';
 
 interface CdpSession {
   send(method: string, params?: unknown): Promise<unknown>;
@@ -77,19 +81,6 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       });
     },
   ),
-  /** A tap the platform's gesture recognizer turns into a click. */
-  tap: defineBrowserCommand<[number, number]>(
-    async (context, x, y): Promise<void> => {
-      const cdp = await cdpOf(context);
-
-      await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true });
-      await cdp.send('Input.synthesizeTapGesture', {
-        x,
-        y,
-        gestureSourceType: 'touch',
-      });
-    },
-  ),
   forceGarbageCollection: defineBrowserCommand<[]>(
     async (context): Promise<void> => {
       const cdp = await cdpOf(context);
@@ -103,30 +94,11 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
    */
   countHeapObjects: defineBrowserCommand<[string]>(
     async (context, name): Promise<number> => {
-      const cdp = (await cdpOf(context)) as CdpSession &
-        Readonly<{
-          on(
-            event: string,
-            listener: (params: { chunk: string }) => void,
-          ): void;
-          off(
-            event: string,
-            listener: (params: { chunk: string }) => void,
-          ): void;
-        }>;
-      const chunks: string[] = [];
-      const collect = (params: { chunk: string }): void => {
-        chunks.push(params.chunk);
-      };
+      const cdp = (await cdpOf(context)) as SnapshotSession;
 
-      cdp.on('HeapProfiler.addHeapSnapshotChunk', collect);
       await cdp.send('HeapProfiler.collectGarbage');
-      await cdp.send('HeapProfiler.takeHeapSnapshot', {
-        reportProgress: false,
-      });
-      cdp.off('HeapProfiler.addHeapSnapshotChunk', collect);
 
-      const snapshot = JSON.parse(chunks.join('')) as HeapSnapshot;
+      const snapshot = await takeHeapSnapshot(cdp);
       const fields = snapshot.snapshot.meta.node_fields;
       const types = snapshot.snapshot.meta.node_types[0] as readonly string[];
       const typeField = fields.indexOf('type');
@@ -195,17 +167,6 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
     },
   ),
 };
-
-type HeapSnapshot = Readonly<{
-  snapshot: Readonly<{
-    meta: Readonly<{
-      node_fields: readonly string[];
-      node_types: readonly unknown[];
-    }>;
-  }>;
-  nodes: readonly number[];
-  strings: readonly string[];
-}>;
 
 type HeapNode = Readonly<{
   callFrame: Readonly<{ url: string; functionName: string }>;

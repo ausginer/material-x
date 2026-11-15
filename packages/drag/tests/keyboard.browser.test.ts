@@ -8,6 +8,7 @@ import { cdp } from 'vitest/browser';
 import {
   basicSortable,
   commands,
+  focusableList,
   frames,
   grab,
   isChromium,
@@ -17,22 +18,9 @@ import {
   order,
   press,
   release,
+  row,
   rowsOf,
 } from './support/harness.ts';
-
-/** A list of `count` rows that can take focus. */
-function focusableList(count: number): HTMLElement {
-  const list = makeList(count);
-
-  for (const row of rowsOf(list)) {
-    row.tabIndex = 0;
-  }
-
-  return list;
-}
-
-const row = (id: string): HTMLElement =>
-  document.querySelector<HTMLElement>(`#${id}`)!;
 
 /**
  * Whether each `keydown` was prevented, read at `document` after the root's

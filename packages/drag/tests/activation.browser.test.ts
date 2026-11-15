@@ -26,12 +26,10 @@ import {
   press,
   ReactionProbe,
   release,
+  row,
   rowsOf,
   targetOf,
 } from './support/harness.ts';
-
-const row = (id: string): HTMLElement =>
-  document.querySelector<HTMLElement>(`#${id}`)!;
 
 /** Runs `act` once, the first time `element`'s popover opens. */
 function onFirstOpen(element: HTMLElement, act: () => void): void {

@@ -1,0 +1,11 @@
+Tree: a3423c793 with options-kept applied, reverted after the run.
+Command, from packages/drag: npx just test --project browser tests/destruction.browser.test.ts -t "should retain no item, callback or behavior instance"
+     × should retain no item, callback or behavior instance after 3 operations and destruction 1485ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:381 > drag:DRI-10 destruction > should retain no item, callback or behavior instance after 3 operations and destruction
+AssertionError: expected [ {}, undefined ] to deeply equal [ undefined, undefined ]
+ ❯ tests/destruction.browser.test.ts:441:58
+    441|       expect(refs.slice(0, 2).map((ref) => ref.deref())).toEqual([
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 163 passed (164)
+exit 1

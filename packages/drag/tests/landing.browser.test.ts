@@ -24,13 +24,11 @@ import {
   managed,
   onCleanup,
   release,
+  row,
   rowsOf,
   targetOf,
   wait,
 } from './support/harness.ts';
-
-const row = (id: string): HTMLElement =>
-  document.querySelector<HTMLElement>(`#${id}`)!;
 
 const rejecting = {
   landing: landing({ duration: 1000, easing: 'linear' }),

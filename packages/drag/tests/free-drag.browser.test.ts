@@ -17,20 +17,11 @@ import {
   frames,
   grab,
   log,
+  makeBox,
   moveHeld,
   onCleanup,
   release,
 } from './support/harness.ts';
-
-function makeBox(parent: HTMLElement = document.body): HTMLElement {
-  const box = document.createElement('div');
-
-  box.id = 'free';
-  box.style.cssText =
-    'position:absolute;left:40px;top:40px;width:50px;height:50px;background:#ccd;touch-action:none;user-select:none';
-  parent.append(box);
-  return box;
-}
 
 function mount(
   box: HTMLElement,

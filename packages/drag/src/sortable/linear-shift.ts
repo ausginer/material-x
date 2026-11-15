@@ -150,11 +150,10 @@ export class LinearShift implements Invalidatable, Retirable {
       return;
     }
 
-    const lastGap = this.#lastGap;
-    const lo = lastGap < gap ? lastGap : gap;
-    const hi = lastGap < gap ? gap : lastGap;
+    const lo = this.#lastGap < gap ? this.#lastGap : gap;
+    const hi = this.#lastGap < gap ? gap : this.#lastGap;
 
-    let delta = lastGap < gap ? -this.#rowDistance : this.#rowDistance;
+    let delta = this.#lastGap < gap ? -this.#rowDistance : this.#rowDistance;
 
     if (this.#rowDistance < 0) {
       // Any crossed row works, because they all traveled the same constant. The

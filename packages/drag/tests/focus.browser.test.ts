@@ -6,6 +6,7 @@ import {
   basicSortable,
   commands,
   dragAndDrop,
+  focusableList,
   frames,
   grab,
   makeList,
@@ -13,21 +14,8 @@ import {
   order,
   press,
   release,
-  rowsOf,
+  row,
 } from './support/harness.ts';
-
-function focusableList(count: number, parent?: ParentNode & Node): HTMLElement {
-  const list = makeList(count, parent);
-
-  for (const row of rowsOf(list)) {
-    row.tabIndex = 0;
-  }
-
-  return list;
-}
-
-const row = (id: string): HTMLElement =>
-  document.querySelector<HTMLElement>(`#${id}`)!;
 
 describe('drag:DRI-12 focus', () => {
   it('should let two arrow presses in a row reorder twice', async () => {

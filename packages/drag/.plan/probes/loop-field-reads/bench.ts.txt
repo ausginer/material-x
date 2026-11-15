@@ -1,0 +1,65 @@
+// Models RectIndex.shift and the drop-target hit test, before (locals) and after (field reads).
+const STRIDE = 6, LEADING = 2, RIGHT = 2, CENTER_X = 4;
+class Local {
+  #values: number[]; #axis = 1;
+  constructor(n: number) { this.#values = Array.from({ length: (n + LEADING) * STRIDE }, (_, i) => i * 0.5); }
+  shift(lo: number, hi: number, delta: number): void {
+    const values = this.#values; const axis = this.#axis;
+    for (let i = lo; i < hi; i += 1) {
+      const offset = (i + LEADING) * STRIDE + axis;
+      const near = values[offset]! + delta; const far = values[offset + RIGHT]! + delta;
+      values[offset] = near; values[offset + RIGHT] = far; values[offset + CENTER_X] = (near + far) * 0.5;
+    }
+  }
+  sum(): number { return this.#values[20]!; }
+}
+class Field {
+  #values: number[]; #axis = 1;
+  constructor(n: number) { this.#values = Array.from({ length: (n + LEADING) * STRIDE }, (_, i) => i * 0.5); }
+  shift(lo: number, hi: number, delta: number): void {
+    for (let i = lo; i < hi; i += 1) {
+      const offset = (i + LEADING) * STRIDE + this.#axis;
+      const near = this.#values[offset]! + delta; const far = this.#values[offset + RIGHT]! + delta;
+      this.#values[offset] = near; this.#values[offset + RIGHT] = far; this.#values[offset + CENTER_X] = (near + far) * 0.5;
+    }
+  }
+  sum(): number { return this.#values[20]!; }
+}
+type R = { left: number; right: number; top: number; bottom: number };
+class HitLocal {
+  #elements: object[]; #rects: R[];
+  constructor(n: number) { this.#elements = Array.from({ length: n }, () => ({})); this.#rects = Array.from({ length: n }, (_, i) => ({ left: i * 50, right: i * 50 + 40, top: 0, bottom: 40 })); }
+  hit(x: number, y: number): object | null {
+    const elements = this.#elements; let hit: object | null = null;
+    for (let i = 0; i < elements.length && !hit; i += 1) { const r = this.#rects[i]!; if (x >= r.left && x < r.right && y >= r.top && y < r.bottom) hit = elements[i]!; }
+    return hit;
+  }
+}
+class HitField {
+  #elements: object[]; #rects: R[];
+  constructor(n: number) { this.#elements = Array.from({ length: n }, () => ({})); this.#rects = Array.from({ length: n }, (_, i) => ({ left: i * 50, right: i * 50 + 40, top: 0, bottom: 40 })); }
+  hit(x: number, y: number): object | null {
+    let hit: object | null = null;
+    for (let i = 0; i < this.#elements.length && !hit; i += 1) { const r = this.#rects[i]!; if (x >= r.left && x < r.right && y >= r.top && y < r.bottom) hit = this.#elements[i]!; }
+    return hit;
+  }
+}
+const N = 2000, REPS = 2000, ROUNDS = 15;
+const a = new Local(N), b = new Field(N), ha = new HitLocal(20), hb = new HitField(20);
+let sink = 0;
+function timeShift(o: Local | Field): number { const t = process.hrtime.bigint(); for (let r = 0; r < REPS; r += 1) o.shift(0, N, r & 1 ? 1 : -1); sink += o.sum(); return Number(process.hrtime.bigint() - t) / (REPS * N); }
+function timeHit(o: HitLocal | HitField): number { const t = process.hrtime.bigint(); for (let r = 0; r < 200_000; r += 1) { if (o.hit(10_000, 10)) sink += 1; } return Number(process.hrtime.bigint() - t) / (200_000 * 20); }
+for (let w = 0; w < 5; w += 1) { timeShift(a); timeShift(b); timeHit(ha); timeHit(hb); }
+const ds: number[] = [], dh: number[] = [], sl: number[] = [], hl: number[] = [];
+for (let r = 0; r < ROUNDS; r += 1) {
+  const [x, y] = r & 1 ? [timeShift(b), timeShift(a)].reverse() : [timeShift(a), timeShift(b)];
+  ds.push(y - x); sl.push(x);
+  const [p, q] = r & 1 ? [timeHit(hb), timeHit(ha)].reverse() : [timeHit(ha), timeHit(hb)];
+  dh.push(q - p); hl.push(p);
+}
+const med = (v: number[]) => [...v].sort((m, n) => m - n)[v.length >> 1]!;
+const pos = (v: number[]) => v.filter((d) => d > 0).length;
+console.log(`node ${process.version}`);
+console.log(`shift, ns per slot: locals ${med(sl).toFixed(3)}, field minus locals median ${med(ds).toFixed(3)}, positive in ${pos(ds)}/${ROUNDS}, range ${Math.min(...ds).toFixed(3)}..${Math.max(...ds).toFixed(3)}`);
+console.log(`hit test, ns per target: locals ${med(hl).toFixed(3)}, field minus locals median ${med(dh).toFixed(3)}, positive in ${pos(dh)}/${ROUNDS}, range ${Math.min(...dh).toFixed(3)}..${Math.max(...dh).toFixed(3)}`);
+if (sink === 42) console.log('');

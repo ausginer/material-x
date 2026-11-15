@@ -1,0 +1,18 @@
+diff --git a/packages/drag/tests/destruction.browser.test.ts b/packages/drag/tests/destruction.browser.test.ts
+index d6bdbe7b1..04698e930 100644
+--- a/packages/drag/tests/destruction.browser.test.ts
++++ b/packages/drag/tests/destruction.browser.test.ts
+@@ -438,10 +438,9 @@ describe('drag:DRI-10 destruction', () => {
+       await commands.forceGarbageCollection();
+       await wait(0);
+       await commands.forceGarbageCollection();
+-      expect(refs.slice(0, 2).map((ref) => ref.deref())).toEqual([
+-        undefined,
+-        undefined,
+-      ]);
++      expect
++        .soft(refs.slice(0, 2).map((ref) => ref.deref()))
++        .toEqual([undefined, undefined]);
+       expect(await commands.countHeapObjects('SortableBehavior')).toBe(
+         instancesBefore,
+       );

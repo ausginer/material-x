@@ -229,6 +229,35 @@ export const order = (list: HTMLElement): string =>
     .map((row) => row.id)
     .join();
 
+/** A list of `count` rows that can take focus. */
+export function focusableList(
+  count: number,
+  parent?: ParentNode & Node,
+): HTMLElement {
+  const list = makeList(count, parent);
+
+  for (const row of rowsOf(list)) {
+    row.tabIndex = 0;
+  }
+
+  return list;
+}
+
+/** The element of the document whose id is `id`. */
+export const row = (id: string): HTMLElement =>
+  document.querySelector<HTMLElement>(`#${id}`)!;
+
+/** A 50 px box at (40, 40), for `freeDrag`. */
+export function makeBox(parent: HTMLElement = document.body): HTMLElement {
+  const box = document.createElement('div');
+
+  box.id = 'free';
+  box.style.cssText =
+    'position:absolute;left:40px;top:40px;width:50px;height:50px;background:#ccd;touch-action:none;user-select:none';
+  parent.append(box);
+  return box;
+}
+
 /** A sortable over `list` that commits every reorder and logs what it hears. */
 export function basicSortable(
   list: HTMLElement,

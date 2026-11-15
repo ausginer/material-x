@@ -1,5 +1,8 @@
 import { localDelta, type Delta, type Space } from '@ydinjs/box-quad';
-import { DEFAULT_LANDING_DURATION, DEFAULT_LANDING_EASING } from './timing.ts';
+
+/** A landing's timing when `landing()` is given no options. */
+const DEFAULT_LANDING_DURATION = 200;
+const DEFAULT_LANDING_EASING = 'ease';
 
 export type LandingTimingContext = Readonly<{
   fromX: number;

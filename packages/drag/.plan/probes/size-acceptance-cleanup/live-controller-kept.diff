@@ -1,0 +1,22 @@
+diff --git a/packages/drag/tests/destruction.browser.test.ts b/packages/drag/tests/destruction.browser.test.ts
+index d6bdbe7b1..af7c30210 100644
+--- a/packages/drag/tests/destruction.browser.test.ts
++++ b/packages/drag/tests/destruction.browser.test.ts
+@@ -391,6 +391,8 @@ describe('drag:DRI-10 destruction', () => {
+       const items = (): HTMLElement[] => rowsOf(list);
+       // Only this function's frame holds the controller, so the controller is
+       // unreachable once the function returns.
++      // Witness: the test's frame keeps a live controller, never destroyed.
++      const kept: object[] = [];
+       const operateThenDestroy = async (): Promise<void> => {
+         // Held by `onStart` and by nothing else the test controls, so it outlives
+         // destruction only if something keeps the callbacks.
+@@ -425,7 +427,7 @@ describe('drag:DRI-10 destruction', () => {
+         expect(await commands.countHeapObjects('SortableBehavior')).toBe(
+           instancesBefore + 1,
+         );
+-        await controller.requestDestroy();
++        kept.push(controller);
+       };
+ 
+       await operateThenDestroy();

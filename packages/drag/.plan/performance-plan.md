@@ -214,13 +214,13 @@ Source tests stay for internal behavior and development instruments. The mangle 
 
 **Carried forward on 2026-11-12, when the runtime pass closed.** None is a runtime task in this pass.
 
-- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's.
-- Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. The record holds no answer.
+- `DRO-4`'s size re-base and the red rows: five at `bf9d1caed`, the same five after the window, and four after `DRD-56` (`DRO-4`). The owner's. **Answered on 2026-11-15:** the owner accepted the current size. `DRD-68` moves every ceiling and the control to its reading at `988643dc9`, and until release each change the owner approves moves them again (`DRO-20`).
+- Decisions 1 and 2 of [`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2: `DRO-10`'s excess and the costs no approval covers. **Answered on 2026-11-15** by the owner: accepted, with nothing removed (`DRD-68`, `DRO-10`). It said: the record holds no answer.
 - `DRO-3`, real touch and pen devices, before release.
 - **Added on 2026-11-13 by the owner:** Firefox and WebKit checks in a separate CI. Local development uses Chromium (§3); the CI is planned and not configured by this unit.
-- `DRF-21`, the bytes rows' module keys: repaired before the next bytes reading that a report or decision uses.
+- `DRF-21`, the bytes rows' module keys. **Routed on 2026-11-15** to [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) item 5. It said: repaired before the next bytes reading that a report or decision uses.
 - `DRD-45` property 9: the stale injection entries, repaired before any `--prove` or `--floors` on `566ebfc65`'s source or a descendant.
-- The optional findings `DRF-15`, `DRF-17` and `DRF-18`. An optimization unit that touches one of their sites may repair it, if the handoff says so. `DRF-13` and `DRF-14` were closed on 2026-11-12 by P4's first unit.
+- The optional findings `DRF-15`, `DRF-17` and `DRF-18`. **Routed on 2026-11-15** to [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) items 2 to 4, on the owner's request. It said: an optimization unit that touches one of their sites may repair it, if the handoff says so. `DRF-13` and `DRF-14` were closed on 2026-11-12 by P4's first unit.
 - Trace candidates 4 and 5: `DRO-1`'s pull at a press and the landing's computed position. Each is a decision first ([assessment](performance-window-correction-assessment.md) §4.1).
 - The retained plateau of about 4 KB in `DRO-4`, whose retainer isn't known.
 - The owner's DevTools check of the saved traces ([assessment](performance-trace-assessment.md)).

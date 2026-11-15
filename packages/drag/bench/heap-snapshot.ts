@@ -7,17 +7,7 @@
  * `compare.ts` calls `retainedObjects` after destruction and forced GC.
  */
 import type { CDPSession } from 'playwright';
-
-type HeapSnapshot = Readonly<{
-  snapshot: Readonly<{
-    meta: Readonly<{
-      node_fields: readonly string[];
-      node_types: readonly unknown[];
-    }>;
-  }>;
-  nodes: readonly number[];
-  strings: readonly string[];
-}>;
+import { takeHeapSnapshot } from '../tests/support/heap-snapshot.node.ts';
 
 /** The node types counted. Each is a JavaScript value a page can retain. */
 export const COUNTED_TYPES: readonly string[] = [
@@ -36,23 +26,6 @@ export type RetainedObjects = Readonly<{
   byName: Readonly<Record<string, number>>;
 }>;
 
-async function takeSnapshot(cdp: CDPSession): Promise<HeapSnapshot> {
-  const chunks: string[] = [];
-  const collect = (params: { chunk: string }): void => {
-    chunks.push(params.chunk);
-  };
-
-  cdp.on('HeapProfiler.addHeapSnapshotChunk', collect);
-
-  try {
-    await cdp.send('HeapProfiler.takeHeapSnapshot', { reportProgress: false });
-  } finally {
-    cdp.off('HeapProfiler.addHeapSnapshotChunk', collect);
-  }
-
-  return JSON.parse(chunks.join('')) as HeapSnapshot;
-}
-
 /** Forces GC twice, then sums the counted nodes of one snapshot. */
 export async function retainedObjects(
   cdp: CDPSession,
@@ -61,7 +34,7 @@ export async function retainedObjects(
   await cdp.send('HeapProfiler.collectGarbage');
   await cdp.send('HeapProfiler.collectGarbage');
 
-  const { snapshot, nodes, strings } = await takeSnapshot(cdp);
+  const { snapshot, nodes, strings } = await takeHeapSnapshot(cdp);
   const fields = snapshot.meta.node_fields;
   const types = snapshot.meta.node_types[0] as readonly string[];
   const typeField = fields.indexOf('type');

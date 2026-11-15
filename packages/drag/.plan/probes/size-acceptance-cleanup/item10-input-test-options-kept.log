@@ -1,0 +1,5 @@
+Tree: a3423c793 with tests/destruction.browser.test.ts as at 91b13613f and options-kept.diff applied, both restored after the run.
+Command, from packages/drag: npx just test --project browser tests/destruction.browser.test.ts -t "should retain no item, behavior, view or behavior instance"
+ Test Files  7 passed (7)
+      Tests  144 passed (144)
+exit 0

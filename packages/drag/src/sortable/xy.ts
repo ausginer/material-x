@@ -110,14 +110,13 @@ class XYAxisGeometry implements InsertionGeometry {
   }
 
   moved(query: AxisQuery, context: AxisContext): void {
-    const gap = query.insertion.index;
     // Taken before the refresh below rewrites the count.
     const held = this.#index.count;
 
     if (
       !context.displacement ||
       this.#last < 0 ||
-      this.#last === gap ||
+      this.#last === query.insertion.index ||
       held === 0
     ) {
       this.invalidate();
@@ -135,7 +134,7 @@ class XYAxisGeometry implements InsertionGeometry {
       context.placeholder,
       context.displacement,
     );
-    this.#last = gap;
+    this.#last = query.insertion.index;
 
     // Moving the placeholder reorders nothing in the destination view, so
     // slot `i` is the same element on both sides of the write.

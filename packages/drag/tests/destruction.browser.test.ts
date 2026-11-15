@@ -378,7 +378,7 @@ describe('drag:DRI-10 destruction', () => {
   );
 
   it.runIf(isChromium)(
-    'should retain no item, behavior, view or behavior instance after 3 operations and destruction',
+    'should retain no item, callback or behavior instance after 3 operations and destruction',
     async () => {
       const instancesBefore =
         await commands.countHeapObjects('SortableBehavior');
@@ -387,16 +387,21 @@ describe('drag:DRI-10 destruction', () => {
       document.body.append(holder);
 
       const list = makeList(4, holder);
-      let behavior: object | null = {};
-      const refs: Array<WeakRef<object>> = [
-        new WeakRef(behavior),
-        new WeakRef(list.firstElementChild!),
-        new WeakRef(list),
-      ];
+      const refs: Array<WeakRef<object>> = [];
       const items = (): HTMLElement[] => rowsOf(list);
       // Only this function's frame holds the controller, so the controller is
       // unreachable once the function returns.
       const operateThenDestroy = async (): Promise<void> => {
+        // Held by `onStart` and by nothing else the test controls, so it outlives
+        // destruction only if something keeps the callbacks.
+        const sentinel = {};
+
+        refs.push(
+          new WeakRef(sentinel),
+          new WeakRef(list.firstElementChild!),
+          new WeakRef(list),
+        );
+
         const controller = sortable(list, {
           items,
           axis: y(),
@@ -408,9 +413,7 @@ describe('drag:DRI-10 destruction', () => {
           },
           onStart(item) {
             refs.push(new WeakRef(item));
-            // The callback captures the variable, not its object, so clearing
-            // `behavior` below releases the object whether or not the controller is.
-            assertType(behavior);
+            assertType(sentinel);
           },
         });
 
@@ -426,7 +429,6 @@ describe('drag:DRI-10 destruction', () => {
       };
 
       await operateThenDestroy();
-      behavior = null;
       holder.remove();
       list.replaceChildren();
       await frames(3);

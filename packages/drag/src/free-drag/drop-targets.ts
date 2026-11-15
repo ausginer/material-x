@@ -100,22 +100,19 @@ class ElementTargetTracker implements DropTargetTracker {
   }
 
   /** Reads layout only when stale, and allocates nothing otherwise. */
-  #resolve(this: ElementTargetTracker): void {
-    const elements = this.#elements;
-
+  #resolve(): void {
     if (this.#stale) {
       this.#stale = false;
 
-      for (let i = 0; i < elements.length; i += 1) {
-        this.#rects[i] = elements[i]!.getBoundingClientRect();
+      for (let i = 0; i < this.#elements.length; i += 1) {
+        this.#rects[i] = this.#elements[i]!.getBoundingClientRect();
       }
     }
 
-    // Read once, outside the hit-test loop.
     const { x, y } = this.#drag;
     let hit: HTMLElement | null = null;
 
-    for (let i = 0; i < elements.length && !hit; i += 1) {
+    for (let i = 0; i < this.#elements.length && !hit; i += 1) {
       const rect = this.#rects[i]!;
 
       if (
@@ -124,14 +121,14 @@ class ElementTargetTracker implements DropTargetTracker {
         y >= rect.top &&
         y < rect.bottom
       ) {
-        hit = elements[i]!;
+        hit = this.#elements[i]!;
       }
     }
 
     this.#mark(hit);
   }
 
-  #release(this: ElementTargetTracker): void {
+  #release(): void {
     this.#frame.cancel();
     this.#mark(null);
   }

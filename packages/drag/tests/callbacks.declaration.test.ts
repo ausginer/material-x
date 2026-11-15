@@ -7,14 +7,8 @@ import {
   draggable,
   type BehaviorOperation,
   type Drag,
-  type DraggableController,
   type Outcome,
 } from '../src/draggable.ts';
-import type {
-  DisplacementSink,
-  InsertionGeometry,
-} from '../src/sortable/axis.ts';
-import type { RectIndex } from '../src/sortable/rect-index.ts';
 
 const root = document.createElement('div');
 
@@ -160,46 +154,5 @@ describe('drag:DRD-35 the receiver is an object', () => {
     panel.requestStep(step, 1);
     // @ts-expect-error A receiver is an object.
     panel.use(dispose, 'receiver');
-  });
-});
-
-/** Passes each capability's `retire` alone, as `sortable` must not. */
-function passAlone(
-  drag: Drag,
-  controller: DraggableController<BehaviorOperation>,
-  geometry: InsertionGeometry,
-  sink: DisplacementSink,
-): void {
-  // @ts-expect-error `retire` declares the axis as its receiver.
-  drag.use(geometry.retire);
-  // @ts-expect-error `retire` declares the sink as its receiver.
-  controller.use(sink.retire);
-}
-
-describe('drag:DRD-35 capabilities declare their receiver', () => {
-  it('should refuse the axis and the sink passed to use without their receiver', () => {
-    assertType(passAlone);
-  });
-});
-
-/** Passes each built-in's member with another built-in as its receiver. */
-function passSwapped(
-  drag: Drag,
-  controller: DraggableController<BehaviorOperation>,
-  geometry: InsertionGeometry,
-  sink: DisplacementSink,
-  index: RectIndex,
-): void {
-  // @ts-expect-error The axis's `retire` declares the axis, not the sink, as its receiver.
-  drag.use(geometry.retire, sink);
-  // @ts-expect-error The sink's `retire` declares the sink, not the axis, as its receiver.
-  controller.use(sink.retire, geometry);
-  // @ts-expect-error The axis's `invalidate` declares the axis, not a rect index, as its receiver.
-  drag.requestStep(geometry.invalidate, index);
-}
-
-describe('drag:DRD-63 each built-in receiver is its own type', () => {
-  it('should refuse a member of the axis or the sink passed with another built-in as its receiver', () => {
-    assertType(passSwapped);
   });
 });
