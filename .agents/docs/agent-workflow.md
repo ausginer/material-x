@@ -81,9 +81,9 @@ Record owner constraints that govern subsequent work in the owning document. Fol
 
 ### Durable references and revision metadata
 
-Use the repository's qualified addresses, such as `drag2:D-199` and `repo:RD-1`. The [record rules](../../CONTRIBUTING.md#reading-one-entry-of-a-record) require one canonical definition per identifier, claimed at `####`; headings that merely discuss an entry do not claim its ID. Link the owning document rather than inventing a heading fragment for a retitled entry.
+Use the repository's qualified addresses, such as `drag:DRD-13` and `repo:RD-1`. The [record rules](../../CONTRIBUTING.md#reading-one-entry-of-a-record) require one canonical definition per identifier, claimed at `####`; headings that merely discuss an entry do not claim its ID. Link the owning document rather than inventing a heading fragment for a retitled entry.
 
-Drag2's [contract index](../../packages/drag2/.plan/contract/00-index.md) owns its `D-`/`F-`/`Q-`/`I-` series. The [repository index](../../.plan/00-index.md) owns `RD-`/`RF-`/`RQ-`/`RI-`. Other packages retain their own registered vocabulary. Allocation and local-to-canonical proposals follow `review-findings.md`.
+The [repository index](../../.plan/00-index.md) owns `RD-`/`RF-`/`RQ-`/`RI-`. The bare `D-`/`F-`/`Q-`/`I-` series were drag2's and are retired with it: no other scope allocates them, so a `drag2:` citation stays unambiguous (`repo:RD-1`, `repo:RD-5`). Other packages retain their own registered vocabulary. Allocation and local-to-canonical proposals follow `review-findings.md`.
 
 Use SHAs and ranges to pin prompts and reviewed trees. Review artifacts record the commit actually read, as the review convention requires; an ID identifies an entry and does not replace that provenance. Preserve published evidence. Before authorized integration, ensure active handoffs remain understandable without relying solely on transient history. This grants no history-rewriting authority.
 

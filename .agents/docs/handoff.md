@@ -41,7 +41,7 @@ Source and tooling changes owe their applicable typechecks and tests. Use the co
 Every created or updated Markdown file owes these checks. A unit changing only Markdown does not also require TypeScript builds or tests.
 
 1. Format with `npx just fmt <changed files>` from the owning package, or `npx oxfmt <changed files>` for a repository-level file.
-2. Validate changed links and anchors. [`references.node.test.ts`](../../packages/drag2/tests/references.node.test.ts) covers citations in drag2's normative tree. No repository instrument covers other Markdown, so check those links manually or with a scratch script, and report the check as that.
+2. Validate changed links and anchors. No repository instrument checks Markdown links, so check them manually or with a scratch script, and report how you checked them.
 3. Run `git diff --check`.
 
 Lint a Markdown file only when a linter is configured for it, and keep it out of the file list otherwise. At present none is: `oxlint` finds no Markdown files, which makes `just lint` exit non-zero, and ESLint ignores them. Record that lint did not apply rather than claiming a code-lint pass.

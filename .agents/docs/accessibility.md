@@ -58,7 +58,7 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 ## Drag (`@ydinjs/drag` sortable)
 
-Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `order.browser.test.ts`, `input.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit. Updated 2026-11-07 for `drag:DRD-15` and `drag:DRD-17`, and 2026-11-10 for `drag:DRD-33`.
+Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `order.browser.test.ts`, `input.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit. Updated 2026-11-07 for `drag:DRD-15` and `drag:DRD-17`, 2026-11-10 for `drag:DRD-33`, and 2026-11-15 for `drag:DRD-64`, which carried the handle and multi-press conclusions into this section.
 
 ### Fulfilled requirements
 
@@ -77,37 +77,11 @@ Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/fo
 - **The library provides no roles and no live-region announcement.** It is headless and never owns the consumer's markup. A consumer must supply `tabindex`, the list and listitem semantics and an announcement of the new order. **A row that cannot take focus cannot be reordered from the keyboard.** `[Docs]`
 - **`layoutAnimation`'s row animations ignore `prefers-reduced-motion`.** A consumer who needs that omits `displacement` under the preference. `[Docs]`
 - **A custom `Landing` handles `prefers-reduced-motion` itself.** The library applies the preference only to the landings that `landing()` starts. `[Docs]`
-- **A multi-press drag is not supported,** for the reasons in `drag2:Q-13` below.
+- **A `handle()` removes keyboard reordering unless the consumer makes the handle focusable.** A command starts only from focus inside the handle, so a focused row whose handle cannot take focus does not reorder. `[Docs]`
+- **A multi-press keyboard mode is not supported:** picking up a row, moving it with several arrow presses and dropping it. Each press is one committed move, on two grounds:
+  - **Parity.** The packages drag replaced also move one slot per key press, so nothing regresses.
+  - **One press per move is a complete pattern.** It is a conventional accessible reordering pattern: each press commits one move the consumer can announce, and there is no carrying mode a user can get stuck in or forget to leave. Moving several slots without intermediate commits would need such a mode, with its own discoverability and escape problems.
 - **Physical touch and pen are unverified.** Touch runs through Chromium's emulated input only.
-
-## Drag (`@ydinjs/drag2` sortable)
-
-Reviewed 2026-08-07, at the Phase 16 keyboard-sorting gate.
-
-### Fulfilled requirements
-
-- **Reordering is operable from the keyboard**, not only by pointer. `ArrowUp`/`ArrowLeft` move the focused row one slot toward the start and `ArrowDown`/`ArrowRight` one slot toward the end, through the same proposal protocol the pointer path uses — asserted directly, not inferred (`packages/drag2/tests/sortable/keyboard.browser.test.ts`).
-- **A command is refused, not swallowed, when it cannot be performed.** An arrow key on a row already at the edge of the collection leaves the event untouched, so it keeps its native meaning (scrolling, or the page's own handler). Feasibility is decided synchronously inside the listener precisely so that `preventDefault()` is conditional (contract D-32, I-32).
-- **`Escape` cancels an in-flight drag** on both input paths, and the item returns to its grab slot.
-- **A `handle()` narrows both input modes identically**, so a row whose drag affordance is a grip does not become keyboard-reorderable through its whole box.
-- **The temporary placeholder is `aria-hidden`** and mirrors the dragged row's slot, so assistive technology does not see a duplicate row while a drag is in flight.
-
-### Missing requirements
-
-- **The library provides no roles, no focus management and no live-region announcement, and cannot.** It is headless and never owns the consumer's markup: `sortable()` binds `keydown` on the container, so the event must originate inside a row, which means **a row that cannot take focus cannot be reordered from the keyboard at all**. A consumer must supply `tabindex`, the list/listitem semantics, and any announcement of the resulting order. `packages/drag2/src/sortable.stories.tsx` now does all three and says why. `[Docs]` — this is the correct boundary for a headless library, but it must be stated in the documentation rather than left to be discovered.
-- **No `aria-live` announcement of a completed reorder ships with the library**, for the same reason. A consumer that omits one leaves a keyboard reorder silent to a screen-reader user. `[Docs]`
-- **A multi-press drag — pick up, move with several arrows, drop — is not supported**, deliberately. See Q-13 below.
-
-### Q-13 — is a multi-press keyboard mode required? **No.**
-
-Contract 02 records that a command is **one slot**, and that a multi-press mode would need an operation that stays `ACTIVE` across further discrete events — a producer of a release the kernel does not own. That would be a failing executable case and would reopen the re-frozen contract, so the question had to be answered here rather than worked around by having the behavior fake a release.
-
-It is not required, on either of the two grounds that would have forced it:
-
-- **Parity.** The legacy `@ydinjs/drag` that drag2 was planned to replace, recoverable at `7723f3e8a`, was one-slot per key press, and the ledger classifies keyboard reordering as _retain_. Nothing regresses.
-- **User need.** One-press-per-move is a complete and conventional accessible reordering pattern: each key press performs one committed move that the consumer can announce, and there is no modal "carrying" state a user can get stuck in or forget to exit. The grab-and-drop model's advantage is moving several slots without intermediate commits, which costs a mode with its own discoverability and escape problems. For a list, repeated single moves are the better trade.
-
-Recorded as answered rather than closed: if a real user need for multi-press appears, contract 00's admissible-change rule applies exactly as written, and the case reopens the SPI legitimately.
 
 ## Radio
 

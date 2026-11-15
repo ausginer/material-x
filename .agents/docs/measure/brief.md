@@ -1,6 +1,6 @@
 # A measurement tool for this repository
 
-**Status: brief.** Nothing here is built yet. `packages/drag2/bench/size/measure.ts` is a working prototype of the size half, written for M-3 (contract [05](../drag/contract/05-lifecycle-invariants.md) §Measurements) and confined to one package. This document records why Size Limit was not enough for it, what the prototype does, and what a repository-wide replacement would have to be.
+**Status: brief.** Nothing here is built yet. `packages/drag2/bench/size/measure.ts`, read at `0870abd75`, is a working prototype of the size half, written for M-3 (contract 05 (`packages/drag2/.plan/contract/05-lifecycle-invariants.md` at `0870abd75`) §Measurements) and confined to one package. This document records why Size Limit was not enough for it, what the prototype does, and what a repository-wide replacement would have to be.
 
 The repository publishes nothing and is pre-alpha throughout, so the replacement is free to be opinionated and to break its own interfaces.
 
@@ -8,7 +8,7 @@ The repository publishes nothing and is pre-alpha throughout, so the replacement
 
 ## What we needed, and why a byte count is only half of it
 
-M-3 asks whether four compositions of `@ydinjs/drag2` weigh what the tree-shaking design claims. The important word is _claims_: contract [03](../drag/contract/03-feature-composition.md) §Tree-shaking does not say "minimal is small", it says a minimal composition's import graph **physically cannot reach** the features it did not install. That is the property the export topology exists to create, and it is what a regression would break first.
+M-3 asks whether four compositions of `@ydinjs/drag2`, read at `0870abd75`, weigh what the tree-shaking design claims. The important word is _claims_: contract 03 (`packages/drag2/.plan/contract/03-feature-composition.md` at `0870abd75`) §Tree-shaking does not say "minimal is small", it says a minimal composition's import graph **physically cannot reach** the features it did not install. That is the property the export topology exists to create, and it is what a regression would break first.
 
 A byte count cannot express it. **A module can be pulled into a graph, shaken down to almost nothing, and show up as a delta small enough to read like success.** The budget would still pass; the design claim would already be dead. So a composition is really two declarations:
 
@@ -54,13 +54,13 @@ The check is on the loaded modules' `name` field. A third-party bundler plugin c
 
 ### 3. A documentation trap worth recording
 
-The multi-file form is documented as `{ "a.js": "{ a }", "b.js": "{ b }" }`. The keys are **file paths relative to the config**, not package specifiers. Only `peerDependencies` go through `require.resolve`; everything else is `join(cwd, key)` (`get-config.js`). So `"@ydinjs/drag2/sortable.js"` resolves to `<cwd>/@ydinjs/drag2/sortable.js` and fails, with an error that reads like the package is broken.
+The multi-file form is documented as `{ "a.js": "{ a }", "b.js": "{ b }" }`. The keys are **file paths relative to the config**, not package specifiers. Only `peerDependencies` go through `require.resolve`; everything else is `join(cwd, key)` (`get-config.js`). So `"@ydinjs/drag2/sortable.js"`, a specifier of drag2 at `0870abd75`, resolves to `<cwd>/@ydinjs/drag2/sortable.js` and fails, with an error that reads like the package is broken.
 
 That matters for us specifically: measuring through the **published `exports` map** is a property we want to assert, and this form cannot express it.
 
 ## What the prototype does
 
-`packages/drag2/bench/size/measure.ts`, ~230 lines, no dependency beyond `rolldown` and `node:zlib`.
+`packages/drag2/bench/size/measure.ts` at `0870abd75`, ~230 lines, no dependency beyond `rolldown` and `node:zlib`.
 
 **A composition is one declaration.**
 
@@ -98,8 +98,8 @@ Four decisions in that pipeline are load-bearing:
 The prototype is package-local by design. A shared tool needs:
 
 - **Multiple packages, one command**, with per-package declarations discovered the way `files.json` already is.
-- **Specifier resolution through the `exports` map**, so a composition measures what a consumer can actually import. The prototype resolves to built file paths, which cannot catch a subpath the export map does not expose. There is already a separate test for that in drag2 (`tests/consumer.node.test.ts`); folding it in would make one mechanism out of two.
-- **A place for the non-size measurements.** drag2 also has M-1 (move-path timing, allocation) and M-2 (heap per controller, frame-task policies) as opt-in browser suites under `tests/perf/`, with their own conventions — median of calibrated batches, `gc()` before every heap reading, minimum-of-N because heap noise is one-sided, and a hard requirement to run one file at a time because parallel test files inflate every absolute by ~2×. Those conventions should be a library, not a comment repeated in each suite.
+- **Specifier resolution through the `exports` map**, so a composition measures what a consumer can actually import. The prototype resolves to built file paths, which cannot catch a subpath the export map does not expose. There is already a separate test for that in drag2 (`packages/drag2/tests/consumer.node.test.ts` at `0870abd75`); folding it in would make one mechanism out of two.
+- **A place for the non-size measurements.** drag2 at `0870abd75` also has M-1 (move-path timing, allocation) and M-2 (heap per controller, frame-task policies) as opt-in browser suites under `packages/drag2/tests/perf/`, with their own conventions — median of calibrated batches, `gc()` before every heap reading, minimum-of-N because heap noise is one-sided, and a hard requirement to run one file at a time because parallel test files inflate every absolute by ~2×. Those conventions should be a library, not a comment repeated in each suite.
 - **Budgets that are easy to re-baseline.** They were set by hand from the first measurement here. A `--update` flag that rewrites them, with the diff visible in review, would remove the incentive to widen a budget quietly.
 - **A stable report format.** Currently a padded table for humans. CI wants something diffable, and the measurement write-ups (`.agents/docs/drag/measurements/`) want something quotable.
 
@@ -111,7 +111,7 @@ Two things the prototype got right that are worth keeping:
 ## Prior art in this repository
 
 - `packages/size-limit-preset-rolldown` — the Rolldown builder for Size Limit. Its `createImportEntry` is the same idea as the prototype's `importEntry`, and is unreachable for the reason in §2.
-- `packages/drag2/prune-declarations.ts` — walks emitted declarations from the declared entries and removes what nothing reaches. Same shape of question (what does this entry actually pull), different artifact.
-- `packages/drag2/tests/packaging.node.test.ts` — walks the source import graph to check the published `files` list covers it.
+- `packages/drag2/prune-declarations.ts` at `0870abd75` — walks emitted declarations from the declared entries and removes what nothing reaches. Same shape of question (what does this entry actually pull), different artifact.
+- `packages/drag2/tests/packaging.node.test.ts` at `0870abd75` — walks the source import graph to check the published `files` list covers it.
 
 Three separate reachability walks over the same package. That is the clearest signal that this belongs in one tool.
