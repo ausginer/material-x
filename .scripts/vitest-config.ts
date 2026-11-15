@@ -794,6 +794,12 @@ export function createWorkspaceTestConfig(
       DRAG2_NODE_BUILD,
     ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
+  // The repository's own tooling, such as the record resolver.
+  const repoNode = createNodeTestProject({
+    name: 'repo',
+    root: options.root,
+    include: ['.scripts/**/*.node.test.ts'],
+  });
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
     options.viteTraitsPluginRoot,
     'vite-traits-plugin',
@@ -820,6 +826,7 @@ export function createWorkspaceTestConfig(
         drag2Declaration,
         tprocNode,
         viteTraitsPluginNode,
+        repoNode,
       ]),
     },
   });
