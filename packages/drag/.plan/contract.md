@@ -364,6 +364,7 @@ With `targets: dropTargets({ targets })`:
 - A landing can be clipped by an ancestor (DRI-13).
 - A step's own platform throw is a fault, and the controller survives (DRI-7).
 - An `Escape` that cancels a started operation doesn't reach the platform's close request (DRI-4).
+- `moveTo` reads its point when the move applies, not at the call (DRI-8). A point changed between the two moves the visual to the changed value.
 
 ## Change record
 
@@ -393,3 +394,4 @@ With `targets: dropTargets({ targets })`:
 | 2026-11-07 | `DRI-9`, `DRI-12` | **Changed:** the landing starts before focus, and focus is restored after `end`. Focus used to be step 6, before the landing and before `end`. **Added:** the lift owns what it writes. `DRD-14`, `DRD-15` |
 | 2026-11-07 | `DRI-13` | **Added:** a grab during a landing keeps the visual under the pointer. `DRD-18` |
 | 2026-11-07 | `DRI-20` | **Added:** free drag's offset is measured against home at the drop. `DRD-19` |
+| 2026-11-15 | Accepted differences from drag2 | **Added:** `moveTo` reads its point when the move applies. `DRF-44` |
