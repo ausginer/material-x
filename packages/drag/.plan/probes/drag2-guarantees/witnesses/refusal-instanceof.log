@@ -1,0 +1,30 @@
+# refusal-instanceof
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/refusal-instanceof.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser --project consumer tests/refusals.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/refusals.browser.test.ts:135 > drag:DRI-6 reentrant input > should count a nested press from another realm
+  AssertionError: expected { trusted: +0, untrusted: +0 } to deeply equal { trusted: +0, untrusted: 1 }
+  - Expected
+  + Received
+    {
+      "trusted": 0,
+  -   "untrusted": 1,
+  +   "untrusted": 0,
+    }
+
+FAIL  |consumer (chromium)| tests/refusals.browser.test.ts:135 > drag:DRI-6 reentrant input > should count a nested press from another realm
+  AssertionError: expected { trusted: +0, untrusted: +0 } to deeply equal { trusted: +0, untrusted: 1 }
+  - Expected
+  + Received
+    {
+      "trusted": 0,
+  -   "untrusted": 1,
+  +   "untrusted": 0,
+    }
+
+Test Files  2 failed (2)
+Tests  2 failed | 6 passed (8)

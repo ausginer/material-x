@@ -1,13 +1,13 @@
 /* oxlint-disable no-await-in-loop, no-console, no-template-curly-in-string -- a measurement script: serial, printing, and its injections are source text */
 /* eslint-disable @typescript-eslint/strict-void-return -- a frame's promise and `promisify` take these callbacks as they are */
 /**
- * Before/after cost in one browser process: drag2, the prototype, production, and
+ * Before/after cost in one browser process: the prototype, production, and
  * production again as the noise floor. Arms are interleaved and every run has a
  * fresh page. CDP metrics, so Chromium only and headless, with no real compositing
  * cost.
  *
  * `node bench/compare.ts [--rounds n] [--rows validation] [--only text] [--out file]`
- * runs the comparison. `--before <revision>` replaces drag2 and the prototype with
+ * runs the comparison. `--before <revision>` replaces the prototype with
  * production's `src` at that revision.
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
  * copy of production, and exits non-zero unless the comparison flags each one
@@ -27,7 +27,8 @@
  * run them, and `--floors --dry` applies them with no browser. Their work is a
  * fixed number of loop iterations, calibrated once at 60 per µs; the size is
  * nominal, and the reading's median script difference is the measured one.
- * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
+ * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run,
+ * against the before arms the recording holds.
  * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
  * and `--attribute` gives the retained row's growth per constructor per arm.
  * `node bench/compare.ts --trace <revision> --out <directory> [--only text] [--dry]`
@@ -47,7 +48,7 @@
  * driver-alone row dispatches the 20-item move row's events to a list with no
  * behavior, which measures the driver's own share. These rows are validation
  * rows, and run only with arms built from this package's source: `--before`,
- * `--prove` and `--floors`, never with drag2 and the prototype.
+ * `--prove` and `--floors`, never with the prototype.
  *
  * The rules are stated before running, in `judge`'s comment.
  */
@@ -102,11 +103,18 @@ type Bundle = Readonly<{ code: string; modules: readonly ModuleStart[] }>;
  * module alike. Any other module is keyed by its path from the package, such as
  * `bench/lab.ts`.
  */
-async function bundle(lab: string, sourceRoot: string): Promise<Bundle> {
+async function bundle(
+  lab: string,
+  sourceRoot: string,
+  boxQuad: string = BOX_QUAD,
+): Promise<Bundle> {
   const built = await rolldown({
     input: lab,
     platform: 'browser',
-    resolve: { alias: { '@ydinjs/box-quad': BOX_QUAD } },
+    resolve: { alias: { '@ydinjs/box-quad': boxQuad } },
+    // `--before` builds source from an earlier revision, and that source reads `__DEV__`.
+    // The define reproduces that revision's own `tsdown` define. The current source
+    // does not read it.
     transform: { define: { __DEV__: 'false' } },
     plugins: [
       {
@@ -260,7 +268,7 @@ interface Scenario {
   /** The rule stated before running, in the handoff's terms. */
   readonly rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
   readonly arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
-  /** Runs only with arms built from this package's source, never drag2's or the prototype's. */
+  /** Runs only with arms built from this package's source, never the prototype's. */
   readonly packageArmsOnly?: true;
   run(context: PageContext): Promise<Reading>;
 }
@@ -566,8 +574,8 @@ const SCENARIOS: readonly Scenario[] = [
           await page.evaluate(() => new Promise(requestAnimationFrame));
           await page.mouse.up();
 
-          // A press during a row animation can hit the gap it is closing, and drag2
-          // refuses a press until its landing ends. Node's timer adds nothing to the
+          // A press during a row animation can hit the gap it is closing, so each
+          // cycle waits for the animation to end. Node's timer adds nothing to the
           // page's own metrics.
           await page.waitForTimeout(ANIMATION_WAIT);
         }
@@ -890,7 +898,7 @@ export function judge(
   arms: ArmReadings,
   after = 'production',
   control = 'control',
-  against: readonly string[] = ['drag2', 'prototype'],
+  against: readonly string[] = ['prototype'],
 ): readonly Verdict[] {
   const verdicts: Verdict[] = [];
   const of = (arm: string, key: string): number[] =>
@@ -1624,27 +1632,26 @@ async function archivedSource(
   return join(target, path);
 }
 
-/** The two before arms: drag2's lab, and the lab on the prototype's `src`. */
-async function beforeArms(
-  scratch: string,
-  lab: string,
-): Promise<Readonly<{ drag2: Arm; prototype: Arm }>> {
+/**
+ * The before arm without `--before`: the lab on the prototype's `src`, bundled
+ * against box-quad at the prototype's revision, which still has the factories the
+ * prototype imports.
+ */
+async function prototypeArm(scratch: string, lab: string): Promise<Arm> {
+  const source = await archivedSource(
+    scratch,
+    PROTOTYPE_REVISION,
+    'packages/drag/prototype/src',
+  );
+  const boxQuad = await archivedSource(
+    scratch,
+    PROTOTYPE_REVISION,
+    'packages/box-quad/src',
+  );
+
   return {
-    drag2: {
-      ...(await bundle(join(ROOT, 'bench/lab-drag2.ts'), join(ROOT, 'src'))),
-      restoresFocus: false,
-    },
-    prototype: {
-      ...(await bundle(
-        lab,
-        await archivedSource(
-          scratch,
-          PROTOTYPE_REVISION,
-          'packages/drag/prototype/src',
-        ),
-      )),
-      restoresFocus: false,
-    },
+    ...(await bundle(lab, source, join(boxQuad, 'index.ts'))),
+    restoresFocus: false,
   };
 }
 
@@ -2120,7 +2127,7 @@ async function run(
         );
       } else if (values.profile || values.attribute) {
         await diagnose(browser, {
-          ...(await beforeArms(scratch, lab)),
+          prototype: await prototypeArm(scratch, lab),
           production,
         });
       } else if (values.before) {
@@ -2138,11 +2145,13 @@ async function run(
           noLift,
         );
       } else {
-        const { drag2, prototype } = await beforeArms(scratch, lab);
-
         await compareArms(
           browser,
-          { drag2, prototype, production, control: production },
+          {
+            prototype: await prototypeArm(scratch, lab),
+            production,
+            control: production,
+          },
           noLift,
         );
       }
@@ -2185,7 +2194,14 @@ if (values.rejudge) {
       })
       .map((row) => [row.scenario, row.rule]),
   );
-  const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);
+  // Judged against the before arms the recording holds, so a recording with an arm
+  // this script no longer builds is judged as it was.
+  const before = [
+    ...new Set(
+      Object.values(recorded.raw).flatMap((arms) => Object.keys(arms)),
+    ),
+  ].filter((arm) => arm !== 'production' && arm !== 'control');
+  const summary = summarize(recorded.raw, rules, before);
 
   if (values.out) {
     await writeFile(values.out, `${JSON.stringify(summary, null, 1)}\n`);

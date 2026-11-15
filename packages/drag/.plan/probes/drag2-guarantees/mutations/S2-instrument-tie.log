@@ -1,0 +1,13 @@
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:194 > drag:DRI-14 the gap instrument > should report gap disagreements when the library measures another element than the instrument
+AssertionError: expected 0 to be greater than 0
+❯ tests/y-geometry.browser.test.ts:213:34
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:219 > drag:DRI-14 the gap instrument > should report a two-column grid driven by y(), whose drag the development check ends
+AssertionError: expected [] to not deeply equal []
+❯ tests/y-geometry.browser.test.ts:227:11
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:230 > drag:DRI-14 the gap instrument > should report a wrapping flex row driven by y(), whose drag the development check ends
+AssertionError: expected [] to not deeply equal []
+❯ tests/y-geometry.browser.test.ts:236:11
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:239 > drag:DRI-14 the gap instrument > should report a block column whose margins collapse on both sides of each row
+AssertionError: expected [] to not deeply equal []
+❯ tests/y-geometry.browser.test.ts:242:69
+Tests  4 failed | 9 passed (13)

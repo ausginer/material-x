@@ -1,0 +1,16 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index e35bdf8c3..781f82eb5 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -379,10 +379,7 @@ export class Gesture<
+ 
+     const admission = this.#behavior.command!(event);
+ 
+-    if (
+-      admission &&
+-      !ownsInteraction(event, admission.handle ?? admission.item)
+-    ) {
++    if (admission) {
+       admitted.add(event);
+       event.preventDefault();
+       this.#open(admission, 0, 0);

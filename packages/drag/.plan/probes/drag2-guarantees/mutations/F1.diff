@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/free-drag/operation.ts b/packages/drag/src/free-drag/operation.ts
+index 86fecf15f..c01eecb09 100644
+--- a/packages/drag/src/free-drag/operation.ts
++++ b/packages/drag/src/free-drag/operation.ts
+@@ -71,6 +71,8 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+     this.#offsetY =
+       point.y - this.#lift.rect.top - (this.#drag.y - this.#drag.originY);
+     this.translate();
++    this.#offsetX = 0;
++    this.#offsetY = 0;
+   }
+ 
+   start(): void {

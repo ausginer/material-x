@@ -100,8 +100,6 @@ async onReorder(request) {
 
 The placeholder and the lift hold until the verdict settles. A landing starts after presentation is released and outlives the operation, and no terminal waits for it. `packages/drag/.plan/contract.md` DRI-9 owns the order, and `drag:DRD-1` the single-pass control behind it.
 
-`@ydinjs/drag2`, kept as reference evidence, has the same serial commit.
-
 ## Extension points
 
 - **Core capability:** add an `@ydinjs/core` controller or trait and export it through that package's `files.json`.

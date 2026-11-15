@@ -1,0 +1,25 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:158 > layoutAnimation rows > should animate every row a move across two slots crossed
+AssertionError: expected [ 1 ] to deeply equal [ 1, 2 ]
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:166 > layoutAnimation rows > should animate nothing when the pointer moves without moving the gap
+AssertionError: expected [ 1 ] to deeply equal []
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:174 > layoutAnimation rows > should start each animation where the row stood before the move
+AssertionError: expected +0 to be close to -40, received difference is 40, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+AssertionError: expected [ 1, 3 ] to deeply equal [ +0, 1 ]
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:212 > layoutAnimation rows > should never animate the placeholder
+TypeError: Cannot read properties of null (reading 'getAnimations')
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:245 > layoutAnimation composition > should add the animation to an authored translate
+AssertionError: expected '0px 7px' to be '0px 47px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:283 > layoutAnimation composition > should add the animation to a consumer animation on translate
+AssertionError: expected '10px' to be '10px 40px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:310 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+AssertionError: expected 'paused' to be 'idle' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:330 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+AssertionError: expected +0 to be close to -80, received difference is 80, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:350 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+AssertionError: expected -222.62124633789062 to be close to -80, received difference is 142.62124633789062, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:371 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+AssertionError: expected -222.62225341796875 to be close to -80, received difference is 142.62225341796875, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:397 > layoutAnimation with a visual that is not the item > should ignore a transform authored on the dragged item itself
+AssertionError: expected -111.3272705078125 to be close to -40, received difference is 71.3272705078125, but expected 0.05
+Tests  12 failed | 4 passed (16)

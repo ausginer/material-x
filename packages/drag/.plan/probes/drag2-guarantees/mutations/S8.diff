@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..ae3a7dae0 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -114,7 +114,7 @@ export class SortableBehavior implements Behavior<
+     this.#window = root.ownerDocument.defaultView!;
+     this.#lifter = lifter;
+     this.landing = config.landing ?? null;
+-    this.#measuredBox = config.box ?? config.visual ?? null;
++    this.#measuredBox = null;
+   }
+ 
+   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */

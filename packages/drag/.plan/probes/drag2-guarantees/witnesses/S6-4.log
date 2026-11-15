@@ -1,0 +1,49 @@
+# S6-4
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S6-4.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 7
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:158 > layoutAnimation rows > should animate every row a move across two slots crossed
+  AssertionError: expected [ +0, 1 ] to deeply equal [ 1, 2 ]
+  - Expected
+  + Received
+    [
+  +   0,
+      1,
+  -   2,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:158 > layoutAnimation rows > should animate every row a move across two slots crossed
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 2
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+  AssertionError: expected [ +0, 1 ] to deeply equal [ 1 ]
+  - Expected
+  + Received
+    [
+  +   0,
+      1,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:311 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:351 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+  AssertionError: expected -75 to be close to 80, received difference is 155, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:372 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+  AssertionError: expected -95 to be close to 80, received difference is 175, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:398 > layoutAnimation with a visual that is not the item > should ignore a transform authored on the dragged item itself
+  AssertionError: expected -37.5 to be close to 40, received difference is 77.5, but expected 0.05
+
+Test Files  1 failed (1)
+Tests  7 failed | 9 passed (16)

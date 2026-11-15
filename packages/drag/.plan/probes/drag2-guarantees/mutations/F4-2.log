@@ -1,0 +1,7 @@
+     × should leave the drag unconstrained when the function returns null
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:351 > bounds with a function source > should leave the drag unconstrained when the function returns null
+ ❯ tests/free-drag.browser.test.ts:359:25
++ Received
+- Expected
+AssertionError: expected [ -50, -50 ] to deeply equal [ 340, 240 ]
+      Tests  1 failed | 16 passed (17)

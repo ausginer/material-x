@@ -1,0 +1,42 @@
+import { describe, expect, it } from 'vitest';
+import { basicSortable, commands, frames, makeList, order } from './support/harness.ts';
+
+function setup(handleFocusable: boolean): HTMLElement {
+  const list = makeList(3);
+  for (const row of list.children) {
+    (row as HTMLElement).tabIndex = 0;
+    const grip = document.createElement('span');
+    grip.className = 'grip';
+    grip.textContent = '⠿';
+    if (handleFocusable) grip.tabIndex = 0;
+    row.prepend(grip);
+  }
+  basicSortable(list, { handle: (item) => item.querySelector('.grip') });
+  return list;
+}
+
+describe('probe: handle and keyboard', () => {
+  it('should not reorder from a focused row whose handle is not focusable', async () => {
+    const list = setup(false);
+    (list.children[0] as HTMLElement).focus();
+    await commands.keyPress('ArrowDown');
+    await frames(10);
+    expect(order(list)).toBe('r0,r1,r2');
+  });
+  it('should reorder from a focused handle', async () => {
+    const list = setup(true);
+    (list.children[0]!.querySelector('.grip') as HTMLElement).focus();
+    await commands.keyPress('ArrowDown');
+    await frames(10);
+    expect(order(list)).toBe('r1,r0,r2');
+  });
+  it('control: should reorder from a focused row without a handle', async () => {
+    const list = makeList(3);
+    for (const row of list.children) (row as HTMLElement).tabIndex = 0;
+    basicSortable(list);
+    (list.children[0] as HTMLElement).focus();
+    await commands.keyPress('ArrowDown');
+    await frames(10);
+    expect(order(list)).toBe('r1,r0,r2');
+  });
+});

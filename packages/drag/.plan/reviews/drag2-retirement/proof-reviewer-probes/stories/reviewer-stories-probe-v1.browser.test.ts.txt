@@ -1,0 +1,250 @@
+/**
+ * Reviewer probe, not a repository test: the story behaviour that
+ * `stories.browser.test.ts` doesn't drive, against each story's hint. Removed after
+ * the run; a copy is kept with the review.
+ */
+import { createElement, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
+import { createRoot } from 'react-dom/client';
+import { describe, expect, it } from 'vitest';
+import {
+  Interactive,
+  TransformedStage,
+} from '../src/free-drag.stories.tsx';
+import {
+  CustomPlaceholder,
+  List,
+  ZoomedContext,
+} from '../src/sortable.stories.tsx';
+import { commands, frames, onCleanup, wait } from './support/harness.ts';
+
+const SETTLE = 700;
+
+type Story = Readonly<{ args?: object; render?: unknown }>;
+
+async function mount(story: Story, args?: object): Promise<HTMLElement> {
+  const host = document.createElement('div');
+  const root = createRoot(host);
+  const render = story.render as (args: object) => ReactNode;
+  const Rendered = (): ReactNode => render({ ...story.args, ...args });
+
+  document.body.append(host);
+  flushSync(() => {
+    root.render(createElement(Rendered));
+  });
+  onCleanup(() => {
+    root.unmount();
+    host.remove();
+  });
+  await frames();
+  return host;
+}
+
+const centerOf = (element: Element): { x: number; y: number } => {
+  const { left, top, width, height } = element.getBoundingClientRect();
+
+  return { x: left + width / 2, y: top + height / 2 };
+};
+
+async function carry(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): Promise<void> {
+  await commands.pointerMove(from.x, from.y);
+  await commands.pointerDown();
+
+  for (let step = 1; step <= 8; step += 1) {
+    // oxlint-disable-next-line no-await-in-loop -- one frame per sample
+    await commands.pointerMove(
+      from.x + ((to.x - from.x) * step) / 8,
+      from.y + ((to.y - from.y) * step) / 8,
+    );
+    // oxlint-disable-next-line no-await-in-loop -- one frame per sample
+    await frames(1);
+  }
+
+  await frames();
+}
+
+async function drop(): Promise<void> {
+  await commands.pointerUp();
+  await wait(SETTLE);
+}
+
+const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1;
+
+function sameRect(a: DOMRect, b: DOMRect): boolean {
+  return (
+    near(a.left, b.left) &&
+    near(a.top, b.top) &&
+    near(a.width, b.width) &&
+    near(a.height, b.height)
+  );
+}
+
+const boxOf = (host: HTMLElement): HTMLElement =>
+  host.querySelector<HTMLElement>('[class*="box"]')!;
+
+const labels = (host: HTMLElement): string[] =>
+  [...host.querySelectorAll<HTMLElement>('[data-label]')].map(
+    (item) => item.dataset['label']!,
+  );
+
+describe('reviewer probe: Free Drag stories', () => {
+  it('P1 Interactive: Escape sends the box home with a landing', async () => {
+    const host = await mount(Interactive);
+    const box = boxOf(host);
+    const home = box.getBoundingClientRect();
+    const start = centerOf(box);
+
+    await carry(start, { x: start.x + 120, y: start.y + 60 });
+    await commands.keyPress('Escape');
+    await frames(2);
+    const animating = document.getAnimations().length;
+
+    await commands.pointerUp();
+    await wait(SETTLE);
+    expect(animating).toBeGreaterThan(0);
+    expect(sameRect(box.getBoundingClientRect(), home)).toBe(true);
+  });
+
+  it('P2 Interactive, axis x and tilted: only x moves, and the drop stays', async () => {
+    const host = await mount(Interactive, { axis: 'x', tilted: true });
+    const box = boxOf(host);
+    const before = box.getBoundingClientRect();
+    const start = centerOf(box);
+
+    await carry(start, { x: start.x + 120, y: start.y + 60 });
+    const dropped = box.getBoundingClientRect();
+
+    await drop();
+    expect(dropped.left - before.left).toBeGreaterThan(100);
+    expect(near(dropped.top, before.top)).toBe(true);
+    expect(sameRect(box.getBoundingClientRect(), dropped)).toBe(true);
+    expect(getComputedStyle(box).transform).not.toBe('none');
+  });
+
+  it('P3 Interactive: a second drop starts where the first one stayed', async () => {
+    const host = await mount(Interactive);
+    const box = boxOf(host);
+    let start = centerOf(box);
+
+    await carry(start, { x: start.x + 80, y: start.y + 40 });
+    await drop();
+    const first = box.getBoundingClientRect();
+
+    start = centerOf(box);
+    await carry(start, { x: start.x + 60, y: start.y + 50 });
+    const dropped = box.getBoundingClientRect();
+
+    await drop();
+    expect(dropped.left - first.left).toBeGreaterThan(50);
+    expect(sameRect(box.getBoundingClientRect(), dropped)).toBe(true);
+  });
+
+  it('P4 Interactive, bounded: a drag past the area stays inside it', async () => {
+    const host = await mount(Interactive);
+    const box = boxOf(host);
+    const area = host.querySelector('[class*="area"]')!.getBoundingClientRect();
+    const start = centerOf(box);
+
+    await carry(start, { x: start.x + 1000, y: start.y + 1000 });
+    await drop();
+    const rect = box.getBoundingClientRect();
+
+    expect(rect.right).toBeLessThanOrEqual(area.right + 1);
+    expect(rect.bottom).toBeLessThanOrEqual(area.bottom + 1);
+    expect(rect.right).toBeGreaterThan(area.right - 3);
+  });
+
+  it('P5 TransformedStage: the lifted box keeps its size, the readout moves, and a second drop stays', async () => {
+    const host = await mount(TransformedStage);
+    const box = boxOf(host);
+    const before = box.getBoundingClientRect();
+    let start = centerOf(box);
+
+    await carry(start, { x: start.x + 100, y: start.y + 50 });
+    const lifted = box.getBoundingClientRect();
+    const readout = host.querySelector('[class*="hint"]')!.textContent;
+
+    await drop();
+    expect(near(lifted.width, before.width)).toBe(true);
+    expect(near(lifted.height, before.height)).toBe(true);
+    expect(readout).not.toContain('(0, 0)');
+
+    start = centerOf(box);
+    await carry(start, { x: start.x + 40, y: start.y + 60 });
+    const dropped = box.getBoundingClientRect();
+
+    await drop();
+    expect(sameRect(box.getBoundingClientRect(), dropped)).toBe(true);
+  });
+});
+
+describe('reviewer probe: Sortable stories', () => {
+  it('P6 List: Escape mid-drag leaves the order as it was', async () => {
+    const host = await mount(List);
+    const items = host.querySelectorAll('[data-label]');
+    const initial = labels(host);
+
+    await carry(centerOf(items[0]!), centerOf(items[2]!));
+    await commands.keyPress('Escape');
+    await drop();
+    expect(labels(host)).toEqual(initial);
+  });
+
+  it('P7 List: ArrowDown on a focused row moves it and keeps focus', async () => {
+    const host = await mount(List);
+    const row = host.querySelector<HTMLElement>('[data-label="Inbox"]')!;
+
+    row.focus();
+    await commands.keyPress('ArrowDown');
+    await wait(SETTLE);
+    await commands.keyPress('ArrowDown');
+    await wait(SETTLE);
+    expect(labels(host).slice(0, 3)).toEqual(['Drafts', 'Sent', 'Inbox']);
+    expect(document.activeElement?.getAttribute('data-label')).toBe('Inbox');
+  });
+
+  it('P8 CustomPlaceholder: the factory element is sized, marked and hidden', async () => {
+    const host = await mount(CustomPlaceholder);
+    const items = host.querySelectorAll<HTMLElement>('[data-label]');
+    const row = items[0]!.getBoundingClientRect();
+
+    await carry(centerOf(items[0]!), centerOf(items[2]!));
+    const placeholder = host.querySelector<HTMLElement>('[data-drag-placeholder]');
+    const seen = placeholder && {
+      text: placeholder.textContent,
+      hidden: placeholder.getAttribute('aria-hidden'),
+      slotClass: placeholder.className.includes('slot'),
+      width: placeholder.getBoundingClientRect().width,
+      height: placeholder.getBoundingClientRect().height,
+    };
+
+    await drop();
+    expect(seen?.text).toBe('Drop here');
+    expect(seen?.hidden).toBe('true');
+    expect(seen?.slotClass).toBe(true);
+    expect(near(seen!.width, row.width)).toBe(true);
+    expect(near(seen!.height, row.height)).toBe(true);
+    expect(host.querySelector('[data-drag-placeholder]')).toBeNull();
+  });
+
+  it('P9 ZoomedContext: the lifted row and the placeholder keep the zoomed size', async () => {
+    const host = await mount(ZoomedContext);
+    const items = host.querySelectorAll<HTMLElement>('[data-label]');
+    const row = items[0]!.getBoundingClientRect();
+
+    await carry(centerOf(items[0]!), centerOf(items[2]!));
+    const lifted = items[0]!.getBoundingClientRect();
+    const placeholder = host
+      .querySelector('[data-drag-placeholder]')!
+      .getBoundingClientRect();
+
+    await drop();
+    expect(near(lifted.width, row.width)).toBe(true);
+    expect(near(lifted.height, row.height)).toBe(true);
+    expect(near(placeholder.width, row.width)).toBe(true);
+    expect(near(placeholder.height, row.height)).toBe(true);
+  });
+});

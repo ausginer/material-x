@@ -16,6 +16,8 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Status, 2026-11-14, `drag/class-refactor`:** the owner's class refactor is an uncommitted snapshot from `5b581fbdf`. A [verification report](owner-refactor-verification-report.md) at `00fc1aa28` and an independent [feature proof](reviews/owner-class-refactor/proof-reviewer.md) at `b4bca69f7` read it. The proof's six findings are confirmed (§Disposition of the owner's class refactor review). `DRD-63` adopts the conversions in form, and states what they must meet. [`owner-class-refactor-handoff.md`](owner-class-refactor-handoff.md) remediates them. The refactor isn't accepted before that unit, its independent recheck and the owner's reading of the costs. Under Q1's default, the implementer committed the snapshot as `d1df32018` and remediated it to `42f42a164`, and reported at `6ec32ad06`. An independent [recheck](reviews/owner-class-refactor-remediation/recheck-reviewer.md) at `8a4548e96` found every item met, with one finding, `class-refactor-recheck-1`. The architect confirmed it and revised `DRD-63` property 2 (§Disposition of the class refactor remediation and its recheck). [`class-refactor-receiver-handoff.md`](class-refactor-receiver-handoff.md) is the last unit before acceptance, and the owner's answer to Q4 is still owed. **2026-11-15:** the follow-up implemented the revision at `c9e728bad` and reported at `f6b4bdf4c`, and an independent [recheck](reviews/class-refactor-receiver/recheck-reviewer.md) at `cb24e927e` found no finding. The owner accepted the costs at the end (Q4). **`DRD-63` is implemented and the refactor is accepted at `c9e728bad`** (§Disposition of the receiver follow-up, and acceptance of the class refactor). The pull request is the owner's.
 
+**Status, 2026-11-15, `drag2/removal`:** the owner retired drag2 (`DRO-17`). The architect compared it with drag at `0870abd75` in [`drag2-retirement-assessment.md`](drag2-retirement-assessment.md). `DRD-64` deletes drag2 and carries over its stories, the resolver (`repo:RD-5`) and two accessibility conclusions. [`drag2-retirement-handoff.md`](drag2-retirement-handoff.md) implements that, with the repair of `DRF-43`. The comparison also found 18 guarantees that drag implements and only drag2 tested (`DRF-45`), and [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) adds the drag tests for them. `DRF-44` is closed by decision. Neither unit has started. **2026-11-15:** the retirement unit landed at `aa68dae08` to `5c1ce7bfe` and reported at `a5f028959`. An independent [feature proof](reviews/drag2-retirement/proof-reviewer.md) at `b02f97d44` found that it meets `DRD-64`, `DRF-43` and `repo:RD-5`, with one tier-C finding. The owner answered that finding and the report's open items, and **the architect accepted the retirement** (§Disposition of the drag2 retirement review). `DRF-43` is closed. `DRO-18` records that WebKit runs in CI and not locally, and no CI job runs it yet. The guarantees unit (`DRF-45`) is next. **2026-11-15:** that unit stopped on S2's rotate case and a margin fixture. `DRD-65` states `y()`'s terms and precision, and `DRD-67` replaces `__DEV__` with test-side oracles. [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) implemented both and reported at `1c1e93bd9` with two stops, which the architect decided (§Disposition of the `y()` geometry terms report). `DRF-46` and `DRF-47` are closed. An independent [proof](reviews/drag2-guarantees/proof-reviewer.md) of both units at `1c1e93bd9` found `DRF-45` not yet proved (§Disposition of the guarantee tests proof). The owner stated `DRO-19`. [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) is next. It folds in the unrouted `y-geometry-terms-follow-up-handoff.md`. **2026-11-15:** the remediation landed at `cc3b839f9` and was rechecked at `349616213` with no finding. `DRF-45` is closed, and the branch is ready for its pull request (§`drag2/removal` at its pull request).
+
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
 ## Decisions
@@ -2891,6 +2893,160 @@ The box-quad edit is box-quad's, and the proof found it equivalent. This registe
 
   **Budgets are unchanged:** the acceptance re-bases nothing, and the red rows stay red until a re-base under `DRO-4`. **No speed claim is made,** and no timing campaign is owed.
 
+#### DRD-64 — drag2 is deleted, read at `0870abd75`, and drag takes its stories
+
+**`@ydinjs/drag2` is deleted from the tree, `.plan/` included. drag carries over its stories, rewritten on drag's API, and gets tests for the 18 guarantees that drag implements and only drag2's suite asserted. Nothing else is carried over: each capability that drag2 has and drag lacks was dropped by a decision.** The comparison is [`drag2-retirement-assessment.md`](drag2-retirement-assessment.md). [`drag2-retirement-handoff.md`](drag2-retirement-handoff.md) implements the retirement, and [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) the tests.
+
+Decided on 2026-11-15 by the architect, on the owner's decision `DRO-17`, at `0870abd75` on `drag2/removal`. **Supersedes `DRD-13`'s second sentence**, "drag2 stays in the tree as reference evidence and is the 'before' arm", and the rest of `DRD-13` stands. **Amends `DRD-23`'s** third, fifth and second bullets, as properties 2, 4 and 6 state.
+
+1. **Deleted whole:** every tracked file under `packages/drag2/`, with nothing archived or copied. The legacy package was removed the same way ([`rebuild-clean-slate.md`](rebuild-clean-slate.md)). What drag takes over is rewritten in drag's terms: the stories (property 5), the resolver (`repo:RD-5`), and two accessibility conclusions (handoff item 2).
+2. **drag2 is read at `0870abd75`.** `main` holds that commit, so it stays reachable. No commit on the branch changes a drag2 file apart from the deletion, so `0870abd75` is drag2's final tree. **`DRD-23`'s third bullet now covers drag2 too:** a dated record that cites a drag2 path resolves at `0870abd75`, and no dated record is rewritten. A `drag2:` address resolves through the resolver at that commit (`repo:RD-5`).
+3. **Current-state documents don't depend on drag2.** `CONTRIBUTING.md`, `.agents/docs/`, drag's README and contract have no link into `packages/drag2/`. They cite a drag2 entry by its `drag2:` address, and a drag2 file by its path at `0870abd75`. A change record keeps its rows, and a link in a row is re-pointed in place, which is a non-substantive edit (`documentation.md` §6).
+4. **The drag2 arm is withdrawn from `compare.ts`,** with `bench/lab-drag2.ts`. That carries out `DRD-23`'s fifth bullet, and drag's typecheck loses the two `TS2724` errors, which come only through that file. Without `--before`, the before arm is the prototype. `--rejudge` judges a recording against the before arms it holds, so recorded drag2 readings stay judgeable. **The capability withdrawn** (CONTRIBUTING §18): a same-session timing and heap comparison of drag against drag2's implementation. Its last full readings are the performance baseline of `DRO-4`. The arm hasn't bundled since `7d8d7a805` (`DRF-43`), so nothing was lost there.
+5. **The stories:** drag2's seven stories replace drag's `Sortable` List and Grid and `Free Drag` Bounded, with drag2's markup, labels and stylesheet. `Custom Behavior` / ResizeHandle stays. The lift-mode control leaves TransformedStage, because drag has only the faithful lift (architecture plan §5). Each story commits the way drag requires: a reorder inside `onReorder`, and an accepted free drop in `onEnd`. Each hint states only what drag does. A browser test drives every story. The handoff's item 1 states the properties.
+6. **The resolver leaves drag2,** and `DRD-23`'s second bullet is read through `repo:RD-5`: `.scripts/entry.ts` resolves `drag`.
+7. **The guarantees drag implements and only drag2 tested become drag tests** (`DRF-45`). There are 18 rows, F1 to F8 and S1 to S10 of the guarantees handoff. Each test asserts its guarantee through drag's public API and fails under a mutation of the code that implements it. The unit doesn't gate the deletion, because its sources are read at `0870abd75`. A row that fails on drag returns to the architect and isn't fixed in that unit.
+
+**Why delete and not keep.** `DRD-13` kept drag2 as evidence and as the "before" arm while drag had no result of its own. That reason no longer holds. drag's contract and suite are its acceptance, `DRD-40` moved optimization to a baseline commit of drag's own source, and the owner has retired drag2 (`DRO-17`). Kept, drag2 costs four test projects in every root run, a typecheck of drag that's red on drag2's code, and a second copy of everything a box-quad change touches. Deleted, it can still be read at one commit.
+
+**Why rewrite the stories and not copy them.** drag2's stories document drag2's protocol in their comments: fragments, `invalidate()` after every commit, and three lift modes. Copied, they would be false documentation on drag's surface. What the owner asked for is the stories' range and look, and that carries over in full.
+
+**Why the tests, and why nothing else.** The [assessment](drag2-retirement-assessment.md) compares the two at three levels.
+
+- **Capabilities.** drag2's extra ones are the lift modes, fragments and merge tiers, `onError` with its error classes and constants, and the public kernel SPI. Each was dropped by a decision, recorded in the [architecture plan](architecture-plan.md) §5 and `DRD-2`. No capability drag2 has is missing from drag without one.
+- **Tests.** drag2's two core files were classified row by row before drag was built ([`test-classification.tsv`](probes/architecture-plan/test-classification.tsv)). The other files were swept for guarantees on 2026-11-15. The sweep found 18 guarantees that drag's code implements and no drag test asserts. For example, `moveTo` keeps following the pointer, the drop delta is right under an ancestor transform, and `y()` is right under margins and gaps. They are drag's guarantees, so drag's suite owes them, and drag2's tests are the most direct source for them.
+- **Documents and tooling.** The only things left to carry over are the resolver and two accessibility conclusions.
+
+A guarantee that turns out to be missing later can still be ported from `0870abd75`, so deleting the package loses no source for one.
+
+**Clarified on 2026-11-15, on the owner's answer to `proof-reviewer-1`.** Property 5's "drag2's markup, labels and stylesheet" doesn't cover CustomPlaceholder's placeholder. That story's placeholder looks different from the default one: a solid border, a fill and the text "Drop here". drag2's dashed tint barely differed from its default. The text above is unchanged.
+
+#### DRD-65 — `y()`'s terms state the shift rule and the precision of its geometry, and the gap instrument admits a tie
+
+**`DRI-14`'s Geometry paragraph states the term `y()` depends on: moving the placeholder from one gap to another moves the items between them by one distance, and nothing else. It also states the precision: `y()`'s centers agree with a measurement to within 1/16 px, so a pointer within 1/8 px of equidistant from two of them may give either gap. The S2 instrument admits such a tie, S2's rotate case returns to the suite, and a block column with collapsing margins becomes one of the instrument's self-checks. No behavior changes, and `src` changes only in comments.**
+
+Decided on 2026-11-15 by the architect on `DRF-46` and `DRF-47`, from the [guarantees report](drag2-guarantees-report.md) at `1a6551563` on `drag2/removal` and the architect's [probe](probes/drag2-guarantees/ruling/README.md). **Amends the contract's `DRI-14`** in this record's commit, and **the S2 row** of [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) (`DRD-64` property 7): `y()` proposes the gap a full measurement gives, to the stated precision. [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) items 1 and 2 implement properties 2 to 6.
+
+1. **The contract** (done in this commit). `DRI-14`'s Geometry paragraph adds the shift term, names a wrapping list and collapsing margins as outside it, says that a placeholder with the items' margins meets it, and states the precision.
+2. **The instrument admits a tie.** At each sample, the admissible gaps are those given by every candidate (the placeholder's center and each row's) whose distance to the pointer is within 1/8 px of the smallest. A sample disagrees only when the proposal isn't admissible. The tolerance is the instrument's own constant, with its reason: each of the two centers compared may be off by drag's 1/16 px. It isn't imported from `src`, because the instrument holds nothing of `y()`.
+3. **S2's rotate case returns** to `tests/y-geometry.browser.test.ts`, with its fixture unchanged. It passes in the source and consumer projects.
+4. **Two self-checks for the new term**, in the instrument's block: a block column whose rows all carry `margin-top: 6px` and `margin-bottom: 10px` is reported; the same list with `[data-drag-placeholder] { margin: 6px 0 10px }` agrees. Each runs in the source and consumer projects. In the source project the first ends the drag through the development check, and in the consumer project it reports a gap.
+5. **The tolerance is witnessed from both sides.** With the tolerance at 0, the rotate case fails in the consumer project. At 1/8 px, the three existing self-checks still fail, and the saved mutations `S2`, `S2-2`, `S2-3` and `S2-instrument` still fail their tests.
+6. **The comments say what the contract says.** `src/sortable/y.ts`'s module comment drops "varying gaps and margins do" for the shift term and its exclusions. The public JSDoc of `y()` names the shift term, collapsing margins and the remedy. Comments only: the emitted `.js` files are byte-identical.
+
+**Why the instrument and the contract, and not `y()`.** The disagreement is a tie broken by 1.4 × 10⁻⁶ px. Chromium reports a transformed rect at single precision, so the distance constant that `y()` measures from a rotated row is 69.99999857 and not 70. Either gap is a correct placement of the placeholder at that pointer, and a real pointer sits exactly on a tie with probability zero. A tolerance in `y()`'s comparison, or a rounded constant, would be code on the hot path for no observable difference (CONTRIBUTING §0). And bit-exact agreement isn't what drag's design promises: `RectIndex` already states a 1/16 px equivalence. What was missing is that the contract and the instrument say so.
+
+**Why the term, and not margins on the placeholder.** Copying the item's margins onto the placeholder would cost a style read at activation and write styling the library has never written ("Beyond this the library writes no styling", `createPlaceholder`). It would cover uniform margins only, because varying margins that collapse on both sides break the term whatever the placeholder has. The consumer's remedy is one CSS rule on `[data-drag-placeholder]` or a placeholder factory, and the consumer knows its margins (CONTRIBUTING §1.1). The development check already refuses such a list in drag's own runs. A consumer runs the published build, which has no check, so the contract and `y()`'s JSDoc are where the term reaches them.
+
+**What this doesn't decide.** Whether `DRF-45` is met. That waits for the follow-up and for a proof of the guarantees unit. The other rows of the report aren't assessed here.
+
+**Amended on 2026-11-15 by the architect, after the unit's [report](y-geometry-terms-report.md) at `1c1e93bd9`, properties 5 and 6** (§Disposition of the `y()` geometry terms report).
+
+- **Property 5's lower witness is `S2-tie-exact`.** The rotate case fails in the consumer project when exact ties are broken as the rule breaks them, with the incumbent first among equals. The instrument keeps "within" as `≤`, and the tolerance stays 1/8 px. **No fixture that witnesses the 1/8 px width is owed.** The width is the precision that `DRI-14` states, so an instrument narrower than it could fail a conforming `y()`. No fixture in the suite produces a prediction error near that width, in Chromium or Firefox.
+- **Property 6:** the emitted `.js` files differ from the input's only in comments. The build keeps `y()`'s JSDoc in `sortable/y.js`.
+- **What they used to say:** property 5, "With the tolerance at 0, the rotate case fails in the consumer project"; property 6, "Comments only: the emitted `.js` files are byte-identical".
+- **Why property 5 was wrong.** The 1.4 × 10⁻⁶ px error is in `y()`'s prediction, not in the instrument's measurement. The instrument measures both distances at 95 as exactly 25 px, so a tolerance of 0 under `≤` still admits both gaps. What the case needs is that a measured tie admits both gaps, and `S2-tie-exact` removes exactly that. A strict "within" was not adopted: at tolerance 0 it admits no candidate, not even the nearest. Defining it would need a tie-break among equals, which is `S2-tie-exact` again.
+
+#### DRD-66 — `__DEV__` stays as drag's own test instrument, and the development equivalence check stops changing the cache it checks
+
+**Superseded on 2026-11-15 by `DRD-67`, before implementation.** Its table of what each site gives, and its account of the S2 difference, stand. Its claim that moving the check into tests needs an internal export or hook in `src` was wrong: both classes are exported between modules in `src` and in the emitted build, and `DRD-67` puts the check on their prototypes. The text below is unchanged.
+
+**The owner's hypothesis, relayed by the coordinator on 2026-11-15, is declined: drag keeps `__DEV__` and both of its sites. A narrower change is adopted: the development equivalence check measures the tree into storage of its own and leaves the operation's cache as it found it, so a source-project run carries the same predicted geometry as the published build.** The hypothesis was to remove `__DEV__` and rely only on black-box behavior, because S2's rotate case passes in the development build and fails in the published one.
+
+Decided on 2026-11-15 by the architect, on that hypothesis and the probe of `DRD-65`. **Amends `DRD-52` property 7:** the check also leaves the cache unchanged. [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) item 3 implements it. The owner may still choose removal, and its costs are below.
+
+**What each site gives, and to whom.** No consumer runs either site. `tsdown.config.ts` defines `__DEV__` `false`, and `package.json` has no `development` condition, so the published package has one build without them. `__DEV__` is `true` only where drag's own `src` runs: the source test projects and Storybook (`.scripts/vite-config.ts`, `.scripts/vitest-config.ts`). Both sites are test oracles that sit in `src`, not consumer diagnostics. CONTRIBUTING §1.3's provenance rule is about a diagnostic that a gate strips from someone who needs it, and no consumer build ever had these.
+
+| Site | What it does | Who reads it |
+| --- | --- | --- |
+| `src/kernel/gesture.ts:201`, `countRefused` | Counts each event that a running pass refused, trusted and untrusted, on `globalThis.__dragRefused` | The harness, after every source-project browser test: no trusted event was refused (`DRI-6`). `tests/refusals.browser.test.ts` |
+| `src/sortable/linear-shift.ts` (the `developmentChecks` map, the held x in `refresh`, `advanceUnchecked` in `moved`) and `verifyEquivalence` in `src/sortable/rect-index.ts` | One frame after each committed move through `y()`, measures the window and the placeholder again, and throws a fault when any field differs by more than 1/16 px | Every source-project test that commits a move through `y()`, and `DRD-52`'s test in `tests/equivalence-check.browser.test.ts`. Drag's stories in Storybook |
+
+**Whether it explains the S2 difference: yes, but no defect was hidden.** The check rebuilt the window from the tree after every committed move, so it replaced the predicted cache with a fresh one. A source-project run therefore tested one move's prediction at a time, and the published build tested the chain. What that hid was a 1.4 × 10⁻⁶ px error at a tie (`DRF-46`). An error above 1/16 px makes the check throw, so the source project is louder than the build there, not quieter: the collapsing-margin list of `DRF-47` faults in the source project and is silently wrong in the build. So the hypothesis is right that the development run checks a different cache. That is the narrow fault this decision repairs, and it doesn't need `__DEV__` removed.
+
+**What removal would save.** No shipped byte and no runtime, because the build already folds both sites. In `src`: `verifyEquivalence`, its state in `LinearShift` and `countRefused`. In the tooling: the define in two configurations. The `shipped` project exists to run the hot-path census without the check's reads, and it could merge into the source project.
+
+**What removal would cost.**
+
+- **`DRI-6`'s "no event with `isTrusted` true is refused" loses its only witness.** A refusal is silent by design. A black-box test sees a refused trusted event only when the loss changes an outcome, and an oracle in the harness would have to reproduce the gesture's definition of a running pass: input, frames, settled verdicts and idle requests.
+- **The cache stops being checked field by field in every `y()` drag.** The gap instrument is the black-box oracle, and it already runs in both projects. It sees a cache error only when the error changes a gap at a sampled pointer. `DRD-52`'s held-x check has no black-box equivalent, because nothing reads the placeholder's x (`DRD-52` property 8).
+- **Drag's stories lose the fault** that says a story's layout is outside `y()`'s rule.
+
+**Moving the check into tests doesn't help.** The gap-level oracle is in tests already (`tests/support/gap-conformance.ts`). The field-level one needs the operation's cache, which is private to `y()`'s geometry object. A test could reach it only through an internal export or hook in `src`. That is test surface in `src` again, with the same build split, in place of a branch that the build already removes.
+
+**Black-box coverage of the published build already exists.** The consumer project runs every public browser test against the build (`DRD-54`), and that is how the rotate case was found. `__DEV__` adds a white-box layer to the source runs and takes nothing away from it.
+
+**Required properties:**
+
+1. **Both sites stay.** `tsdown.config.ts` keeps `__DEV__` `false`, and the source projects keep it `true`.
+2. **The check leaves the cache as it found it:** every slot's six fields, the window's first and end slots, the element array, the count, the staleness flag and the measured version. It measures the window and the placeholder into storage of its own. An allocation there is development-only and accepted. On a mismatch it throws the same message as now.
+3. **Its reads stay where they are,** one frame after the committed move, and it writes nothing to the DOM.
+4. **The shipped build is unchanged:** the emitted `.js` files are byte-identical to the input's, and so are the size rows.
+5. **Witnesses, in the report.** At the integer pointer path of S2's rotate fixture, the source project's proposals equal the consumer project's at every sample, including `proposed 1` at 95. At the input they differ there. `DRD-52`'s test passes, and fails with the held x removed. The collapsing-margin self-check of `DRD-65` property 4 still ends the drag in the source project.
+6. **A source-project test that newly fails is reported and not adjusted.** It relied on the re-measure, and that's the architect's.
+7. **`verifyEquivalence`'s JSDoc** says that it doesn't change the cache, and drops "so a mismatch leaves the cache correct".
+
+**Why this and not removal.** The fault was that the oracle changed what it observed, and the repair is to make it observe only. Removing it would trade `DRI-6`'s only witness and every field-level check for one fewer configuration flag. No consumer would gain anything, because none of them runs either site.
+
+#### DRD-67 — drag drops `__DEV__`, and its two development instruments become test-side oracles that run against the source and the published build
+
+**The owner's follow-up hypothesis, relayed by the coordinator on 2026-11-15, is adopted in a simpler form. drag removes `__DEV__` and both of its sites. The equivalence check and the refusal count move to test support as oracles installed on the prototypes of `RectIndex` and `Gesture`, with no module mocking. The browser projects install them on the source and on the published build alike. A mismatch or a trusted refusal is recorded, and the test fails at its end. Nothing in the library's behavior changes.**
+
+Decided on 2026-11-15 by the architect, on the hypothesis and the [probe](probes/test-side-oracles/README.md) at `883836d96`. **Supersedes `DRD-66`** before its implementation. **Amends `DRD-52` property 7:** the check is the oracle's, and it compares what it compared. **Amends `DRD-65` property 4:** the collapsing-margin case is recorded by the oracle in both projects, and the drag doesn't end. **Amends the contract's `DRI-6`** in the commit that removes the counter (property 8). [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) item 3 implements it.
+
+**The hypothesis, and the form adopted.** The owner proposed that a test load a spy in place of the real `RectIndex` through module mocking. The spy doesn't need module mocking. `y.ts` constructs `new RectIndex(TOP)`, and `session.ts` and the root call `enter` through `this` or `this.#gesture`. So every call goes through the prototypes of two classes that their modules already export, in `src` and in the emitted build. A test-side oracle wraps those prototype methods and keeps the real modules. Vitest's `vi.mock` would add a hoisted, per-file substitution through browser mode's module interception. It would also replace a module that `xy.ts` and `linear-shift.ts` share, and it would still have to name the emitted file in the consumer project, so it gains nothing over the prototypes.
+
+**What the probe established.**
+
+- **The oracle observes what the check needs, at its moment.** It runs at the first `collect` after a `shift`, with no `invalidate` or `retire` between them and the same collection version. That is the frame after a committed move, where the development check runs from `LinearShift.refresh`. It keeps the placeholder's x from before the re-read, measures the window and the placeholder with a separate `RectIndex` of the same class, and compares the six fields of every window slot, the count and the placeholder. It caught the collapsing-margin list at a slot and `DRD-52`'s fixture at the placeholder.
+- **It leaves the predicted chain alone.** It writes nothing to the live index, so the rotate fixture gives `proposed 1` at 95 with the oracle installed, as the build gives it without one. That is `DRD-66`'s observation-neutral property, met outside `src`.
+- **It runs in both projects.** The consumer project imports `sortable/rect-index.js` and `kernel/gesture.js` from the emitted tree, which are the module instances that the published `y.js` and `session.js` import. The results were identical to the source's.
+- **The refusal oracle counts what `countRefused` counts.** A call to `enter` with a step and an `Event`, while another `enter` of the same gesture is on the stack, is exactly a call that a running pass refuses. An outer `enter` that is refused returns before it can nest one. The nested press counted 1 untrusted refusal, equal to the development counter, and it counted it in the build too, where the counter reads 0.
+
+**`DRD-66`'s objection was wrong.** It said that moving the check into tests needs an internal export or hook in `src`. The classes are already exported between modules, and the emitted build keeps the modules and the names. No hook is needed.
+
+**What this saves.**
+
+- **In `src`:** `verifyEquivalence`, `LinearShift`'s development state and its three `__DEV__` branches, `countRefused` and its set, and the `__DEV__` declaration. The source and the published build then have one semantics, so no instrument can make the source pass where the build fails.
+- **In the tooling:** the `__DEV__` define in `tsdown.config.ts`, `.scripts/vite-config.ts` and `.scripts/vitest-config.ts`.
+- **In coverage, a gain:** the field-level check and `DRI-6`'s witness now run against the published build. Until now the consumer project's refusal check read 0 and checked nothing (`DRD-54`'s record), and the build's prediction chain was checked only at the gap.
+- **No shipped bytes,** because the build already folded both sites.
+
+**What it costs.**
+
+- **Test machinery:** about a hundred lines of support, one setup per browser project, and a way to point the oracles at `src` or at the emitted modules per project.
+- **Coupling to internals.** The oracle depends on two module paths in two layouts, the export names `RectIndex` and `Gesture`, and a call protocol: `shift`, then `measurePlaceholder`, then `collect` in `LinearShift.refresh`; `invalidate` and `retire` between moves; `measure`'s `getBox` and sink; `at`, `first`, `end`, `count` and `item`; and `enter(step, event, receiver)` reached through the prototype. The development check was compiled beside that protocol. The oracle isn't, so a refactor can disconnect it silently. **Property 5's liveness tests make that loud.**
+- **A constraint on the publication.** The consumer project's oracles need the emitted tree to keep `sortable/rect-index.js` and `kernel/gesture.js` as modules exporting those classes, with the method names unchanged. A later publication that bundles, minifies names or mangles members decides again whether the consumer project keeps the oracles. Until then the liveness tests fail. That joins what `DRD-60` deferred.
+- **Storybook loses the development fault** for a story outside `y()`'s rule. The stories' browser test installs the oracles, so the suite still sees it.
+
+**Required properties:**
+
+1. **`src` has no `__DEV__`.** Every site goes, with `verifyEquivalence`, the development state in `LinearShift` and `countRefused`. `EQUIVALENCE_SLACK` stays, because `holds` uses it. No other `src` change is made, apart from comments that name the removed code.
+2. **No configuration defines `__DEV__`.** The `shipped` project stays only as a project that runs `hot-path.browser.test.ts` against `src` without the oracles, because the census counts layout reads. Its comment says so. The published build's emitted `.js` differs from the input's only in comments, and the size rows are unchanged.
+3. **The oracles live in test support** and are installed for every browser project that runs drag's tests, the source projects in every engine and the consumer project, except the census. In the source projects they wrap the classes from `src`. In the consumer project they wrap the emitted modules. The project configuration makes that choice, and no test reads which build it runs against.
+4. **The oracles' semantics.**
+   - **Equivalence:** as probed. The oracle runs at the first `collect` after a `shift`, with no `invalidate` or `retire` between them and the same collection version. It compares the window's six fields, the count, each slot's element, the placeholder's top and bottom, and the placeholder's left and right as held before the re-read, all within 1/16 px. The fresh measurement uses a separate instance of the live index's class. The oracle writes nothing to the live index or to the DOM.
+   - **Refusals:** as probed. A call to `enter` with a step and an `Event`, made while another `enter` of the same gesture is on the stack, counts once per event, trusted and untrusted apart.
+   - **Reporting:** a mismatch or a refusal is recorded, and the harness fails a test that ends with an unconsumed mismatch or a trusted refusal, as it checks refusals now. A test about a list outside the rule reads the mismatches it expects and consumes them: the instrument's self-checks, and `DRD-52`'s test. The titles that say "whose drag the development check ends" are rewritten to say what the oracle reports.
+5. **Liveness, as tests in the source and consumer projects.** A plain `y()` sweep runs at least one check and records no mismatch. `DRD-52`'s fixture records a mismatch at the placeholder. The collapsing-margin list records one at a slot. A nested synthetic press records one untrusted refusal. `tests/equivalence-check.browser.test.ts` and `tests/refusals.browser.test.ts` leave the source-only list and run in the consumer project too.
+6. **Witnesses, in the report.**
+   - With the held x removed from the oracle, `DRD-52`'s test fails.
+   - With the oracles not installed, every liveness test fails in both projects.
+   - At the integer pointer path of S2's rotate fixture, the source project's proposals equal the consumer project's at every sample, `proposed 1` at 95 included. At the input they differ there.
+7. **A test that newly fails is a stop.** Report it with its assertion and don't adjust it, apart from the consumption that property 4 names.
+8. **The contract's `DRI-6`,** in the commit that removes `countRefused`. Delete the sentence "Development builds count each event a running pass refuses once, so that the suite can assert this." Add a change-record row: "**Removed:** development builds no longer count refused events. The suite counts them from outside the library, against the source and the published build. It used to say that development builds count each event a running pass refuses once. `DRD-67`".
+
+**Why adopt it.** `DRD-66` repaired the oracle's fault inside `src`, but it kept a second semantics there, and it kept both oracles out of the published build. The test-side form keeps every check that `DRD-66` defended, `DRI-6`'s only witness included, and makes it observation-neutral by construction. It also checks the build that consumers install. What it costs, coupling to an internal protocol and a constraint on the emitted layout, is bounded and loud. The liveness tests fail the moment either is broken.
+
+**Amended on 2026-11-15 by the architect, after the unit's [report](y-geometry-terms-report.md) at `1c1e93bd9`, property 2.** It applies to drag's build and test configurations. The bench's two Rolldown builds, `bench/size/measure.ts` and `bench/compare.ts`, keep `__DEV__` defined as `false`. `compare.ts --before` and `measure.ts --prototype` build source from earlier revisions, and that source reads `__DEV__`. Each of those revisions' `tsdown.config.ts` defined it as `false`, so the define reproduces their published build. Against the current source it does nothing. Each site states that reason in a comment ([`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) item 2). **What it used to say:** "No configuration defines `__DEV__`," with no exception.
+
+**Property 7's stop is decided on 2026-11-15: the test's fixture is wrong, and the oracle and the contract stand.** `tests/layout-animation.browser.test.ts:266`, _should leave a consumer animation on transform running_, now fails in the source and consumer projects at slot 0. The architect reproduced the failure at `1c1e93bd9`. The consumer animation moves the row from `translateX(0px)` to `translateX(50px)` during the drag. `DRI-14` puts that change outside the contract: "A change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`." The oracle compares what the contract promises, the cache against a fresh measurement on every field. At the input, the development check also reported this list, and nothing asserted the fault. The test is about something else: drag's layout animation leaves a consumer animation on `transform` running. So its fixture keeps that animation and holds the row still, as the next test does with `translate`. With constant `translateX(10px)` keyframes, the file passes in both projects (probe in §Disposition of the `y()` geometry terms report). [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) item 1 makes the change.
+
+- **Not adopted: narrowing the oracle to the y fields of each slot.** `y()`'s choice of gap reads only centers on y. But a slot's x is in the contract's term, "moves nothing else", and the oracle's x comparison is what catches a list that relocates rows sideways. `holds` also reads a slot's left, so a row that moves on x causes a rebuild. Promising that `y()` tolerates rows moving on x would be a new public guarantee that no consumer has asked for. It would also drop checks that `DRD-52` and this decision keep. That choice belongs to the owner, and nothing here needs it.
+- **Not adopted: having the test consume its mismatch.** That would turn a test about how animations compose into a test about a list outside the rule. Its subject doesn't need such a list.
+
+**Clarified on 2026-11-15, on `proof-reviewer-4`, property 4's refusals:** "an `Event`" means an event of any realm. The removed counter counted every nested `enter` with a step, and an event dispatched in a same-origin iframe is not `instanceof` the top window's `Event`. `coordinates.browser.test.ts:333` drives a sortable in such an iframe with trusted input. The oracle is repaired in [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md), and a liveness test covers the iframe case.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -3822,9 +3978,194 @@ Read by the architect on 2026-11-15. The architect repeated the recheck assessme
 
 **Next:** the pull request, which is the owner's. It carries the failing checks that `5b581fbdf` already had: the five `drag:DRI-18` size rows and drag2's two `TS2724`. Firefox and WebKit didn't run on the refactor. Budgets are unchanged, and no timing campaign is owed.
 
+## Disposition of the drag2 retirement review
+
+**Inputs:**
+
+- the [retirement report](drag2-retirement-report.md) at `a5f028959`, on the unit's commits `aa68dae08` to `5c1ce7bfe`;
+- the independent [feature proof](reviews/drag2-retirement/proof-reviewer.md) at `b02f97d44`, which read `a5f028959`;
+- the owner's answers of 2026-11-15, relayed by the coordinator.
+
+Read by the architect on 2026-11-15. The architect checked the proof's evidence for its one finding (drag2's `makePlaceholder` at `0870abd75`, drag's `makePlaceholder` and the `.list .slot[data-drag-placeholder]` rule), the two `git grep` matches of open item 2, the commit order of `0870abd75..b02f97d44`, and that `.github/workflows/` holds only `docs.yml`.
+
+| Item | Disposition |
+| --- | --- |
+| `proof-reviewer-1`, CustomPlaceholder doesn't keep drag2's placeholder look | Tier C. **Closed by the owner's answer: the new look is intended and stays.** A custom placeholder should look different from the default one, and in drag2 it barely did. `DRD-64` property 5 is clarified in place. No source change is owed |
+| Report open item 1: item 5 is split over `63d56fd89` and `3a77addd8` | **Accepted as it is,** by the owner. Pull requests are squash-merged, so no commit on a work branch reaches `main`, and the merged commit deletes drag2 with its wiring. The handoff's one-commit property is met at the merge. The handoff carries a dated note |
+| Report open item 2: item 5's grep list leaves the register sentences at `agent-workflow.md:86` and `review-findings.md:31` | **The implementation's reading is accepted,** by the owner: item 2 wins. The two sentences are the ones item 2 requires. The grep list was the handoff's defect, and the handoff carries a dated note. No document changes |
+| Report open item 3: WebKit didn't run | **Not owed locally** (`DRO-18`). The unit's engine checks stand on Chromium and Firefox. No CI job runs WebKit yet (`DRO-18`) |
+| Report open item 4: `compare.ts --prove --dry` fails | **Already recorded.** These are `DRD-45` property 9's stale entries, which fail the same way at `0870abd75`. They are repaired before any campaign on the current source, and no campaign is owed |
+| Report open item 5: the five size rows and the moved control | **Already recorded** under `DRO-4`. Their inputs are unchanged by this range, and budgets are unchanged |
+| Report open item 6: lint fixes in the unit's own new code | **Accepted.** The proof's lint run is clean on them |
+| `DRF-43` | **Closed at `5c1ce7bfe`** (§Findings) |
+| Proof: `--rejudge` now prints verdicts for the 12 recordings whose before arm is `before` or `base` | **Accepted.** That follows `DRD-64` property 4, and no line is removed |
+
+**`DRD-64` properties 1 to 6 are implemented, and the retirement is accepted at `5c1ce7bfe`.** Its evidence limit is `DRO-18`'s: Chromium and Firefox only. No finding is raised.
+
+**Next:** [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) (`DRF-45`, `DRD-64` property 7), for the implementer, from this record's commit on `drag2/removal`. Its checks now follow `DRO-18`, and its handoff carries a dated note. The pull request is the owner's.
+
+## Disposition of the drag2 guarantees report
+
+**Inputs:** the [guarantees report](drag2-guarantees-report.md) at `1a6551563`, on the unit's commits `b22d148db` to `1a6551563`, its stopped case and its saved mutations. The implementer's claims had not been verified by anyone.
+
+Read by the architect on 2026-11-15, for the three items the coordinator asked about and the report's §For the architect. The architect reproduced the stopped case and the margin fixture in both builds ([probe](probes/drag2-guarantees/ruling/README.md)), and read `S6-7.diff`, `S6-8.diff` and `S10-2.diff` and the S10 tests at `tests/sortable.browser.test.ts:1250-1280`. The report's other rows are not assessed here.
+
+| Item | Disposition |
+| --- | --- |
+| §Stopped, S2 under an authored `rotate` | **A wrong expectation in the test, and a precision the contract didn't state** (`DRF-46`). Not a drag defect. `DRD-65` states the precision and makes the instrument admit a tie, and the case returns to the suite. The development check's part is `DRD-66`'s |
+| §For the architect, the block column with collapsing margins | **A contract gap** (`DRF-47`). The list is outside the rule, and the development check is right to refuse it. `DRD-65` states the term in `DRI-14` and adds the list and its remedy as self-checks. The `y.ts` comment is corrected in the handoff |
+| §Unproven, S6's no-op clause | **Accepted as reported.** Three guards each stop a no-op for a reason of its own: the rule's `null`, the operation's `placeholderAt`, and the cache's unchanged-gap check. No single removal can be witnessed, and `S6-8`, which removes all three, is a mutation of the implementing code and fails `:166`. That meets `DRF-45`'s required property |
+| §Unproven, S10's gap clause (`:1274`) | **Accepted as reported.** The clause holds because drag writes nothing on a row that a transition could animate and doesn't measure the dragged item, so there is no implementing code to remove. The test is a regression test, and `S10-2` shows that it can fail |
+| §For the architect, F5's activation-time transform change not ported | **Accepted.** The F5 row doesn't state drag2's single-snapshot rule, and nothing is owed under `DRF-45` |
+| §Notes, the session trailer in `b22d148db` and `302ba3bfc` | **Recorded, not rewritten.** No commit is rewritten without the owner's request |
+
+**Next:** [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md), for the implementer, from this record's commit on `drag2/removal`. `DRF-45` stays open until that unit reports, and until the guarantees unit has a proof.
+
+**Corrected on 2026-11-15, on `proof-reviewer-1`** (§Disposition of the guarantee tests proof). The S6 row above relied on an inaccurate account of `S6-8`. `S6-8` removes the three guards and also adds a report for an empty span, and only that added report fails `:166`. With the three guards removed and nothing added, `:166` passes. The no-op clause holds because the report loop iterates the crossed span, and a no-op's span is empty. It is accepted on the same basis as S10's gap clause: no implementing code can be removed to fail it, and `S6-8` shows only that `:166` can fail.
+
+## Disposition of the `y()` geometry terms report
+
+**Inputs:** the [report](y-geometry-terms-report.md) at `1c1e93bd9`, on the unit's commits `b6fef26c4` and `953a0fcc6`. The coordinator had confirmed that `__DEV__` is gone from drag's `src`, `.scripts` and `tsdown.config.ts`. No one had verified the implementer's other claims.
+
+Read by the architect on 2026-11-15, for the report's two stops and its open items. The architect checked the following ([probe](probes/y-geometry-terms-ruling/README.md)):
+
+- re-ran `S2-tie-0` and `S2-tie-exact` in the consumer project, and `S2-tie-0` in the Chromium and Firefox source projects;
+- reproduced the failure at `:266` in both projects, and ran the file with the consumer's keyframes held constant;
+- confirmed that the built `sortable/y.js` keeps `y()`'s JSDoc.
+
+The report's other claims, items 1 to 3 and their checks, are taken as reported and not proved here.
+
+| Item | Disposition |
+| --- | --- |
+| §Stops, `S2-tie-0` passes | **Confirmed, and `DRD-65` property 5 was wrong** (amended). `S2-tie-0` passes 13 of 13 in the consumer project and 26 of 26 in the Chromium and Firefox source projects. `S2-tie-exact` fails the rotate case at `at 95: proposed 1, measured 2`. The instrument keeps `≤` at 1/8 px. `S2-tie-exact` is the lower witness, and no width fixture is owed |
+| §Stops, `layout-animation.browser.test.ts:266` | **The fixture is wrong, and the oracle and the contract stand** (`DRD-67` §Property 7's stop). The consumer animation moves a row during the drag, which `DRI-14` puts outside the contract. The follow-up holds the row still and keeps the animation |
+| §Item 1, `S2-instrument-tie` in place of `S2-instrument` | **Accepted.** The saved diff no longer applies, and the rewrite is the same mutation against the new instrument. It fails 4 |
+| §Item 2, "byte-identical" | **Confirmed, and `DRD-65` property 6 was wrong** (amended). The emitted `.js` differs only in comments. Separately, the module comment of `src/sortable/y.ts` has one line of 132 characters (`:17`), which the follow-up rewraps |
+| Open 1, `__DEV__` in the bench | **The define stays** (`DRD-67` property 2, amended). The bench builds earlier revisions, whose source reads it. The follow-up adds a comment at each site |
+| Open 3, `DRF-46` and `DRF-47` | **Closed.** See each finding |
+| Open 4, `953a0fcc6` repeats `f8d07e1c9`'s subject | **Recorded, not rewritten** |
+| Open 5, the logs are filtered | **Accepted.** Each log keeps its failures and its summary line, which is what the witnesses cite |
+
+**Next:** [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md), for the implementer, from this record's commit on `drag2/removal`. `DRF-45` stays open until the guarantees unit has a proof.
+
+## Disposition of the guarantee tests proof
+
+**Inputs:** the independent [proof](reviews/drag2-guarantees/proof-reviewer.md) of the guarantees unit and the `y()` geometry terms unit, read at `1c1e93bd9` and committed at `02990b9f4`, with its [probes](reviews/drag2-guarantees/proof-reviewer-probes/README.md). It was read before the architect's rulings at `75611d3ae`.
+
+Read by the architect on 2026-11-15. The architect confirmed these by reading the cited lines at `02990b9f4`:
+
+- `S6-three-guards.diff` against `S6-8.diff`;
+- `S2-3.diff` against the instrument's settling in `gap-conformance.ts`;
+- `oracles.ts:255`'s `instanceof Event`, and the iframe test at `coordinates.browser.test.ts:333`;
+- the F4 test at `free-drag.browser.test.ts:351`;
+- `behavior.ts:117` and `:281`;
+- the S4 fixture at `keyboard.browser.test.ts:60-66` and the region walk at `gesture.ts:80`;
+- the F5 test at `coordinates.browser.test.ts:412`;
+- the S1 test at `landing.browser.test.ts:618`;
+- `consumer-types.node.test.ts:113`.
+
+The reviewer's runs were not repeated. Each finding that owes work owes a witness in the remediation, and that witness confirms the two PLAUSIBLE findings or stops the unit.
+
+**`DRF-45` stays open.** The remediation below owes the repairs. An independent recheck of them closes it.
+
+| Finding | Disposition |
+| --- | --- |
+| `proof-reviewer-1`, S6's no-op clause | **Confirmed, and the earlier disposition is corrected** (note under §Disposition of the drag2 guarantees report). The clause holds by structure: a no-op's crossed span is empty. It is accepted as a regression test, on S10's basis. No work is owed |
+| `proof-reviewer-2`, S2's displacement clause | **Confirmed.** Under `S2-3` the oracle fails only because its own fresh measurement is also unsettled. The live cache was predicted, so `y()` never measured a displaced row on that path, and the fixture doesn't exercise its clause. **Owed:** item 4 |
+| `proof-reviewer-3`, the saved logs | **Confirmed.** The proof rests on logs from per-row trees, and some record the removed development check. **Owed:** item 5, a re-run at the remediation's tree |
+| `proof-reviewer-4`, the refusal oracle and realms | **Confirmed, an implementation narrowing of `DRD-67` property 4** (clarified: an event of any realm counts). **Owed:** item 6 |
+| `proof-reviewer-5`, F4's `null` | **Confirmed.** **Owed:** item 7 |
+| `proof-reviewer-6`, S8's `box` over `visual` | **Plausible, and owed as a test with a witness:** item 8. The witness settles it |
+| `proof-reviewer-7`, F8's per-entry resolution | **Plausible, and owed as a check with a witness:** item 9. The witness settles it |
+| `proof-reviewer-8`, S4's marked region | **Confirmed.** **Owed:** item 10 |
+| `proof-reviewer-9`, F5 passes with no activation | **Confirmed.** Cheap to close. **Owed:** item 11 |
+| `proof-reviewer-10`, S1's outcome clause | **Confirmed.** The outcome is read before anything could change it, and no mutation fails the clause. **Owed:** item 12 |
+| `proof-reviewer-11`, `F6-3` fails both clauses | **Accepted, no work.** `DRF-45` asks that the test fail under a mutation of the implementing code, and it does. The re-run log of item 5 names both failing assertions |
+| `proof-reviewer-12`, a report line number | **Recorded.** Reports aren't rewritten. Item 5's logs carry the lines at the remediation's tree |
+| §Survivors and stops | **Consistent with the rulings at `75611d3ae`.** The reviewer's field reading of stop 2 (`LEFT`, the consumer's `translateX` progressing) is the mechanism that `DRD-67` §Property 7's stop names |
+| §Oracles against `DRD-67` | **Accepted.** Properties 3 to 5 hold, apart from `proof-reviewer-4` |
+
+**One unit.** The unrouted [`y-geometry-terms-follow-up-handoff.md`](y-geometry-terms-follow-up-handoff.md) is folded into [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) as items 1 to 3, unchanged. Item 5 re-runs every witness at the tree that includes items 1 to 3, so one unit and one recheck cover both.
+
+**Next:** [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md), for the implementer, from this record's commit on `drag2/removal`. After it, an independent recheck of items 1 to 12 against `proof-reviewer-1` to `proof-reviewer-12`.
+
+## Disposition of the guarantee tests remediation recheck
+
+**Inputs:**
+
+- the [remediation report](drag2-guarantees-remediation-report.md) at `349616213`, on `cc3b839f9`;
+- the independent [recheck](reviews/drag2-guarantees/remediation-recheck-reviewer.md) of it, read at `349616213` and committed at `8424857df`, with its [probes](reviews/drag2-guarantees/remediation-recheck-reviewer-probes/README.md).
+
+The recheck found all 12 of the proof's findings resolved and no new finding at any tier. It re-ran 10 witnesses, 2 unmutated baselines and 3 runs against the input's test files, in Chromium. The full suite, `test-engines`, typecheck, lint and the emitted-`.js` comparison come from the implementer's report alone.
+
+Read by the architect on 2026-11-15. The architect read the change to `tests/y-geometry.browser.test.ts` at `349616213`, and ran nothing.
+
+| Item | Disposition |
+| --- | --- |
+| The verdict | **Accepted. `DRF-45` is closed,** and with it `DRD-64` property 7 |
+| Item 10's reading | **Accepted. The handoff's wording was wrong.** In `gesture.ts`, `subject` is `admission.handle ?? admission.item`, and the handoff meant the event's target, the first hop of the path. `S4-target-only` checks that hop only, and it fails `:225` and passes `:209`. That meets `proof-reviewer-8`'s required property. The handoff isn't rewritten |
+| §Observation, the sub-pixel fixture runs only on the measured path | **Accepted as a recorded narrowing, and no work is owed.** Because the sweep invalidates before each sample, `:160` checks `y()`'s settling of displaced rows, which is the clause `proof-reviewer-2` found unwitnessed. It no longer checks the predicted chain under rounded rects. That chain is still checked with displacements running: in the `layout-animation` tests, under the oracle in the source and consumer projects (the recheck); and in `browser/firefox`, where every rect is in Gecko's own app units and the oracle runs on every `y()` drag (`DRD-67` property 3). Running the fixture both ways would be one more sweep, and it can be added if a later change touches the prediction's precision |
+
+**Next:** §`drag2/removal` at its pull request, below, states what the branch delivers. The coordinator merges current `main` and, with the owner's approval, opens the pull request.
+
+## `drag2/removal` at its pull request
+
+**Stated on 2026-11-15 by the architect, at `8424857df` and this record's commit, before the merge of `main` at `dbdfaf80f`.** That merge brings only coordinator and handoff documentation. The pull request can cite this section.
+
+### What the branch delivers
+
+1. **drag2 is deleted, and drag takes its stories** (`DRO-17`, `DRD-64` properties 1 to 6, [handoff](drag2-retirement-handoff.md)).
+   - drag2's stories, markup and stylesheet move into drag's stories (`src/sortable.stories.tsx`, `src/free-drag.stories.tsx`, `src/stories.module.css`). CustomPlaceholder's look differs, as the owner intends.
+   - The record resolver is `repo:RD-5`.
+   - Two accessibility conclusions are carried over.
+   - drag's bench runs without drag2.
+   - `DRF-43` is repaired.
+   - Accepted on 2026-11-15 (§Disposition of the drag2 retirement review).
+2. **drag's tests assert the 18 guarantees that only drag2's suite asserted** (`DRF-45`, `DRD-64` property 7). Each row's test fails under a mutation of the implementing code, logged at `cc3b839f9` under [`witnesses/`](probes/drag2-guarantees/witnesses/). Exceptions: S6's no-op clause and S10's gap clause hold by structure and are regression tests. Proved at `1c1e93bd9`, remediated, and rechecked at `349616213`.
+3. **`y()`'s terms and precision are in the contract** (`DRD-65`, `DRF-46`, `DRF-47`).
+   - `DRI-14` states that moving the placeholder moves only the items it crosses, by one distance.
+   - A block column with margins that collapse on both sides of an item is outside that term, unless the placeholder has the items' margins.
+   - `y()` predicts each center to within 1/16 px, so a pointer within 1/8 px of a tie may give either gap.
+   - The gap instrument admits such a tie, and `y()`'s comments say the same.
+   - No behavior changes.
+4. **drag has no `__DEV__`, and its two instruments are test-side oracles** (`DRD-67`, `DRO-19`).
+   - The equivalence check and the refusal count wrap `RectIndex` and `Gesture` from test support. They run against `src` in the source projects and against the emitted modules in the consumer project.
+   - So the field-level check and `DRI-6`'s witness now cover the published build.
+   - `src`, `tsdown.config.ts`, `.scripts/vite-config.ts` and `.scripts/vitest-config.ts` don't define `__DEV__`. The bench keeps the define only to build earlier revisions.
+   - `DRI-6` no longer says that development builds count refusals.
+
+**Public surface and shipped code.**
+
+- **Public API:** no change.
+- **Contract:** `DRI-14` gains the term and the precision, and `DRI-6` loses the development count ([change record](contract.md#change-record)).
+- **Library code:** the code that `src` ships is unchanged. Against each unit's input, the emitted `.js` differs only in comments, and at the last unit it is byte-identical. The size table is unchanged, and so are its five failing rows (below).
+
+### What is accepted
+
+- `DRD-64`: properties 1 to 6 accepted after an independent proof at `b02f97d44`, and property 7 accepted on the recheck at `349616213`.
+- `DRD-65` and `DRD-67`: implemented, proved at `1c1e93bd9` and accepted on the recheck. `DRD-67` property 4 is clarified (an event of any realm counts), and property 2 is amended (the bench's define), which the owner confirmed (`DRO-19`).
+- `DRF-43`, `DRF-45`, `DRF-46` and `DRF-47`: closed. `DRF-44`: closed by decision.
+- Every finding of the [retirement proof](reviews/drag2-retirement/proof-reviewer.md), the [guarantees proof](reviews/drag2-guarantees/proof-reviewer.md) and the [recheck](reviews/drag2-guarantees/remediation-recheck-reviewer.md): disposed of in the sections above.
+
+### What stays open
+
+- **The five `size.node.test.ts` ceiling rows fail:** complete, draggable alone, example drop zone, freeDrag, and freeDrag + bounds + landing. They failed before the branch, and the re-base is the owner's (`DRO-4`). `npx just test` therefore exits non-zero: 936 tests, 931 passed and 5 failed (the [remediation report](drag2-guarantees-remediation-report.md) §Checks).
+- **WebKit didn't run** (`DRO-18`). Local runs cover Chromium and Firefox. No CI job runs drag's WebKit projects yet, so no run on this branch covers WebKit.
+- **Findings open before the branch, unchanged by it:**
+  - `DRF-15`, `DRF-17`, `DRF-18` and `DRF-42`, tier C;
+  - `DRF-21`, tier B, in `bench/compare.ts`'s module attribution.
+- **Owner decisions open before the branch, unchanged by it:** `DRO-10`'s excess and the costs that no approval covers ([`combined-review-remediation-assessment.md`](combined-review-remediation-assessment.md) §5.2).
+- **Limits of the evidence:**
+  - The recheck re-ran a subset in Chromium only.
+  - The full suite, `npx just test-engines` (Chromium and Firefox: exit 0, 904 passed and 10 skipped), typecheck, lint and the emitted-`.js` comparison are the implementer's runs at `cc3b839f9`. They weren't repeated by a reviewer.
+  - The sub-pixel fixture's narrowing is recorded above.
+- **Couplings that `DRD-67` accepts:**
+  - The oracles depend on drag's internal call protocol and on the emitted layout keeping `sortable/rect-index.js` and `kernel/gesture.js` as modules. A later publication that bundles or renames them decides again whether the consumer project keeps the oracles. The liveness tests fail loudly if either breaks.
+  - Storybook no longer reports the development fault for a story outside `y()`'s rule.
+
 ## Findings
 
-Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-42`**.
+Findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-45`**.
 
 #### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
 
@@ -4297,6 +4638,48 @@ Tier C, open. Registered by the architect on 2026-11-14 from the [final cleanup 
   - the test's other assertions, its Chromium-only condition and its operations stay as they are. Its title states what its body checks.
 - **Routed** to a drag test unit for an `implementer`, which the owner starts. It doesn't gate the drag pull request. **Return to the architect** if the property needs a change under `src/`, or a change to another assertion.
 
+#### DRF-43 — Neither before arm of `compare.ts`, nor `measure.ts --prototype`, has bundled since `7d8d7a805`
+
+**Found on 2026-11-15 by the architect, at `0870abd75`,** reading drag2's references for its retirement. **Open,** repaired by [`drag2-retirement-handoff.md`](drag2-retirement-handoff.md) item 6.
+
+`compare.ts` and `measure.ts` alias `@ydinjs/box-quad` to the current `packages/box-quad/src` for every arm. `7d8d7a805` removed box-quad's `box()` and `space()` factories. drag2's `src/kernel/presentation.ts` and the prototype's `src/draggable/presentation.ts` at `599684791` both import them. Rolldown fails each bundle with `MISSING_EXPORT` for `box` and `space`. That was observed for `bench/lab-drag2.ts`, and for `bench/lab.ts` on the prototype's `src`. So `compare.ts` without `--before` can't run at all, and `measure.ts --prototype` can't run either. The same two imports are drag2's two `TS2724` errors in drag's typecheck.
+
+**Required property:** an arm built from another revision's source bundles against box-quad at that same revision. For the prototype that's `packages/box-quad/src/index.ts` at `599684791`, one module with no imports. Bundled that way, `bench/lab.ts` on the prototype's `src` builds (72,714 B unminified, at `0870abd75`). drag2's arm is withdrawn by `DRD-64` property 4, so only the prototype needs the repair. `--before <revision>` bundles drag's `src` at that revision against the current box-quad, which is correct only for revisions from `7d8d7a805` on. **That limit is recorded and not repaired here:** no `--before` run before that commit is owed.
+
+**Closed on 2026-11-15 at `5c1ce7bfe`** (§Disposition of the drag2 retirement review). The prototype arm and `measure.ts --prototype` alias `@ydinjs/box-quad` to `packages/box-quad/src/index.ts` at `599684791`, and every other arm keeps the current box-quad. The independent proof reproduced `measure.ts --prototype`'s column on all nine rows, and a one-row `compare.ts` run that reaches verdicts for the prototype, production and the control. The `--before` limit stays as recorded.
+
+#### DRF-44 — `moveTo` reads its point when the move applies, and drag2 read it at the call
+
+**Found on 2026-11-15 by the drag2 sweep** (drag2's `tests/free-drag/anchor.browser.test.ts:579-613` at `0870abd75`), and confirmed by the architect in `src/free-drag.ts`. There, the step closes over `point` and reads it when it runs. **Closed on 2026-11-15 by decision: drag's behavior stands.**
+
+From inside a pass, such as `onMove`, `moveTo` defers its step (DRI-8). A consumer that changes the same `point` object before the step runs moves the visual to the changed value. drag2 captured `x` and `y` at the call. **This is accepted:** the point is the caller's, the parameter is `Readonly`, and the library doesn't copy what a caller owns (CONTRIBUTING §1.1, §9). The final placement equals the last call's whenever the caller doesn't change the point. The difference is listed in [`contract.md`](contract.md) §Accepted differences from drag2. No test is owed for it.
+
+#### DRF-45 — drag's suite doesn't assert 18 guarantees that drag implements and only drag2's suite asserted
+
+**Found on 2026-11-15 by the drag2 sweep** ([assessment](drag2-retirement-assessment.md) §3), and confirmed by the architect: no drag test fails if the implementing code is removed. One example: no drag test moves the pointer after `moveTo`, although its JSDoc says that the visual keeps following the pointer. **Open,** under `DRD-64` property 7. [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) lists the 18 rows and closes them.
+
+**Required property:** each row is asserted by a drag test through the public API, and that test fails under a mutation of the code that implements the row.
+
+**Reported on 2026-11-15** at `1a6551563` ([report](drag2-guarantees-report.md)). S2's rotate case stopped, and the report raised a fixture outside S2. Both are decided by `DRD-65`, with `DRD-66` (§Disposition of the drag2 guarantees report). **Still open,** until [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) reports and the guarantees unit has a proof. **2026-11-15:** that unit reported at `1c1e93bd9`, and `DRF-46` and `DRF-47` are closed. The guarantees unit's proof is still owed. **2026-11-15:** an independent [proof](reviews/drag2-guarantees/proof-reviewer.md) at `1c1e93bd9` found it not yet proved, with eight tier-B findings (§Disposition of the guarantee tests proof). [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) owes the repairs, and an independent recheck of them closes this finding.
+
+**Closed on 2026-11-15.** The remediation landed at `cc3b839f9` and was reported at `349616213`. An independent [recheck](reviews/drag2-guarantees/remediation-recheck-reviewer.md) at `349616213` found all 12 of the proof's findings resolved, with no new finding (§Disposition of the guarantee tests remediation recheck). Each of the 18 rows is asserted by a drag test, and each cited mutation's log at `cc3b839f9` is under [`witnesses/`](probes/drag2-guarantees/witnesses/). Where no implementing code can be removed, the record says so: S6's no-op clause and S10's gap clause are regression tests.
+
+#### DRF-46 — The S2 instrument demands exact agreement at a tie, which `y()`'s geometry doesn't give in the published build
+
+**Found on 2026-11-15 by the guarantees unit** ([report](drag2-guarantees-report.md) §Stopped, at `1a6551563`), and **explained by the architect's [probe](probes/drag2-guarantees/ruling/README.md)**. With `__DEV__` false, S2's rotate fixture gives `at 95: proposed 1, measured 2`. At that sample the pointer is exactly 25 px from the placeholder's center and from a row's, and the rule keeps the incumbent on a tie. `y()`'s distance constant was measured from the rotated row, whose transformed rect Chromium reports at single precision, so the constant is 69.99999857 and not 70, and the predicted row center is nearer by 1.4 × 10⁻⁶ px. The development check re-measures the window after every committed move, which discards the error, so the source project passes. A pointer 0.01 px off the tie gives no disagreement in either build.
+
+**Not a drag defect.** The error is far inside the 1/16 px to which drag's cache is specified to agree with a measurement (`EQUIVALENCE_SLACK`), and no one can observe a tie decided by 10⁻⁶ px. **The test's expectation is wrong,** because the instrument asks for bit-exact agreement. **The contract stated no precision,** so nothing said what agreement is owed. Decided by `DRD-65`, and the development check's part by `DRD-66`. **Open** until [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) reports.
+
+**Closed on 2026-11-15** by `b6fef26c4`, reported at `1c1e93bd9`. The instrument admits a tie, and S2's rotate case passes in the source and consumer projects. `S2-tie-exact` witnesses the tie admission, as `DRD-65` property 5 now states (§Disposition of the `y()` geometry terms report).
+
+#### DRF-47 — Margins that collapse on both sides break the linear shift rule, and `y.ts` and the contract admitted them
+
+**Found on 2026-11-15 by the guarantees unit** ([report](drag2-guarantees-report.md) §For the architect), and **confirmed by the architect's probe**. Take a block column whose rows all carry `margin-top: 6px` and `margin-bottom: 10px`. The development check refuses the list, and the published build proposes a wrong gap (`at 203: proposed 2, measured 3`). Collapsed margins make the space between two neighbours the larger of their two margins. The default placeholder has no margins, so where it sits changes the spacing of rows it didn't cross: moved by one gap, it moved two uncrossed rows by 6 px. With the rows' margins on the placeholder, or in a flex column, both builds agree.
+
+**The code and the development check are right: this list is outside the rule.** The text is what's wrong. `src/sortable/y.ts` says that "varying gaps and margins" satisfy the rule, and `DRI-14`'s Geometry paragraph stated no term that excludes this list, whose centers do increase along y. **A contract gap,** closed by `DRD-65` in the contract, with the `y.ts` correction in its handoff. **Open** until that handoff reports.
+
+**Closed on 2026-11-15** by `b6fef26c4` and `953a0fcc6`, reported at `1c1e93bd9`. `y.ts`'s module comment and `y()`'s JSDoc state the term, and the instrument's two self-checks report the list and accept it with the rows' margins on the placeholder. The oracle records the list at a slot in both projects (§Disposition of the `y()` geometry terms report).
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
@@ -4657,6 +5040,28 @@ No timing was taken.
 
 **Recommendation: option 1,** if the owner accepts per-unit loading for consumers without a bundler. The mangling itself is then native, as the owner's requirements for the publication ask, where `DRD-59` needs a custom pass and two guards for it. The boundary check and the gate change are bounded and testable. Option 1 or 2 becomes a new decision that supersedes `DRD-59` properties 1 and 3 and changes `DRD-55`'s graph checks. Budgets stay unchanged in every option.
 
+#### DRO-17 — Retire and delete drag2, keeping its stories
+
+**Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `0870abd75`. drag2 is drag's ancestor and is no longer needed now that drag exists, so it is retired and deleted. **The one thing to carry over is drag2's stories:** there are more of them, and they look better than drag's. Before deletion, the owner asked for a short comparison establishing that everything worth keeping has been taken into drag.
+
+**Applied by `DRD-64`.** The comparison is [`drag2-retirement-assessment.md`](drag2-retirement-assessment.md). Beyond the stories, it carries over two accessibility conclusions, the record resolver (`repo:RD-5`), and tests for 18 guarantees drag implements (`DRF-45`). **What the owner gives up,** in `DRD-64` property 4's terms: a same-session timing and heap comparison against drag2's implementation, which hasn't bundled since `7d8d7a805` (`DRF-43`). TransformedStage's lift-mode control also goes, because drag has only the faithful lift.
+
+#### DRO-18 — WebKit runs in CI, not in local development
+
+**Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `b02f97d44`, in answer to the retirement report's open item 3. **WebKit isn't restored in the local environment.** Local development runs Chromium, and Firefox where it already works. WebKit is covered by CI.
+
+**What this changes for drag's units.** A check that names `npx just test-engines` is owed in Chromium and Firefox. A unit selects those projects with `--project`: `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. A WebKit project that fails to launch locally isn't a failure of the unit, and a report states that WebKit didn't run. A handoff written before this decision that asks for WebKit is read this way. The `test-engines` recipe keeps its WebKit projects for CI.
+
+**Not yet in force in CI.** The repository's only workflow is `docs.yml`. The pull-request workflow that `repo:RD-2` owes doesn't name WebKit, and `.agents/docs/test-architecture.md` lists Firefox and WebKit behavior checks among the jobs that scheduled or manual runs may add. **Until a CI job runs drag's WebKit projects, no run covers WebKit.** Whether that job is owed under `repo:RD-2` is a repository decision that this entry doesn't take.
+
+#### DRO-19 — The code the tests run is the code the user receives
+
+**Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `02990b9f4`. **The library code that drag's tests run must be the library code that consumers receive.** A `__DEV__` or similar define is acceptable in test tooling, and in a bench build of an earlier revision. A difference between the library code that is tested and the library code that is shipped is not acceptable.
+
+**This is the rationale of `DRD-67`.** That decision removed `__DEV__` from `src`, so the source projects and the published build run one semantics, and moved drag's instruments into test support. The owner confirmed that `DRD-67` property 2, as amended on 2026-11-15, fits this principle: drag's build and test configurations don't define `__DEV__`, and the bench keeps the define only to build earlier revisions.
+
+**What it applies to.** Any later proposal that would make `src` behave differently under test than in the published build, through a define, a condition, a test-only export or a hook, is declined under this entry. Test-side instruments that wrap the shipped classes from outside, as `DRD-67`'s oracles do, don't make such a difference.
+
 ## Decision status
 
 | Decision | Status |
@@ -4673,7 +5078,7 @@ No timing was taken.
 | DRD-10 | active, a grab during a landing amended by `DRD-18` |
 | DRD-11 | active. `DRD-18` applies the activation pull to commands. Under `DRD-30`, `activate` declines with `null` |
 | DRD-12 | active |
-| DRD-13 | active, its performance rules amended by `DRD-22`. `DRD-40` applies them to optimization against a baseline commit |
+| DRD-13 | active, its performance rules amended by `DRD-22`. `DRD-40` applies them to optimization against a baseline commit. **Its second sentence, on keeping drag2 as reference evidence and the "before" arm, is superseded on 2026-11-15 by `DRD-64`** |
 | DRD-14 | active, implemented at `b91db2818`. Under `DRD-27` the release is the lift's own disposer, in the same place |
 | DRD-15 | active, implemented at `b91db2818` |
 | DRD-16 | active, implemented at `b91db2818`. Under `DRD-35` the list holds steps with their receivers, untagged by operation |
@@ -4683,7 +5088,7 @@ No timing was taken.
 | DRD-20 | active, implemented at `b91db2818`. `DRD-24` amends its sentence on the class that holds a session. Under `DRD-30`, operation values live in the behavior's operation, the hooks after activation are its methods, and the operation may keep its `Drag`. `DRD-30`'s amendment of 2026-11-08 limits its "scratch buffers rewritten before every read" to the behavior's own work. A buffer that only an operation writes belongs to the operation. `DRD-34` limits "Controller methods don't depend on `this`" to the `sortable` and `freeDrag` controllers: `draggable` returns its `Gesture`, whose methods take it as their receiver |
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
-| DRD-23 | active. Its last bullet, on instrument selection, was added on 2026-11-07. [`instrument-repair-handoff.md`](instrument-repair-handoff.md) applies it. `DRF-1` is open under it. The bullet's dry injection check for `compare.ts --prove` isn't implemented: `DRF-7` is open under it, and is deferred with `DRF-1`. On 2026-11-10 `DRD-40` scheduled both in [`performance-instrument-handoff.md`](performance-instrument-handoff.md). `DRF-7` closed at `f50f4a35a`. `DRF-1` closed at `ab14380c1`, read on 2026-11-11 after that unit's `--prove` passed. The last bullet is applied in full. `DRD-43`'s in-page rows are an instrument change under it |
+| DRD-23 | active. Its last bullet, on instrument selection, was added on 2026-11-07. [`instrument-repair-handoff.md`](instrument-repair-handoff.md) applies it. `DRF-1` is open under it. The bullet's dry injection check for `compare.ts --prove` isn't implemented: `DRF-7` is open under it, and is deferred with `DRF-1`. On 2026-11-10 `DRD-40` scheduled both in [`performance-instrument-handoff.md`](performance-instrument-handoff.md). `DRF-7` closed at `f50f4a35a`. `DRF-1` closed at `ab14380c1`, read on 2026-11-11 after that unit's `--prove` passed. The last bullet is applied in full. `DRD-43`'s in-page rows are an instrument change under it. **Amended on 2026-11-15 by `DRD-64`:** the third bullet covers drag2 at `0870abd75`, the fifth is carried out by removing `bench/lab-drag2.ts`, and the second is read through `repo:RD-5` |
 | DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller. `DRD-32` changes the gate's row, adds `apply`, and removes the three per-operation gate steps that `DRO-6` accepted. `DRD-34`: `draggable()` returns the `Gesture`, so the controller's interface for the session is reachable at runtime and named by no exported type. The session stays unreachable |
 | DRD-25 | active, implemented at `2506dcbb6`. `DRD-31` supersedes its `items()` copy bullet |
 | DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2). `DRD-32` adds `apply` to the session's members on the controller |
@@ -4724,3 +5129,7 @@ No timing was taken.
 | DRD-61 | active, decided on 2026-11-13 on the owner's approval of proposal P and its displacement-sink interface, in [`rect-index-access-proposal.md`](rect-index-access-proposal.md) at `a61b76e9c`. `RectIndex` owns its storage and every write to it, and the sink answers `displaced(element)`. Amends `DRD-52` properties 1, 4, 5 and 6, `DRD-58` properties 1, 3 to 7 and 9, `DRD-50` property 1 and W7, M7 and M8, and `DRD-33` choice 9. Measured at the restored names against `8904947f6`: −31, +22 and −92 B Brotli on the `sortable` rows, and no verdict changes. [`rect-index-access-handoff.md`](rect-index-access-handoff.md) implements it from `drag/size` at `8904947f6`, with a focused timing check under the owner's hold. Budgets are unchanged. **Implemented at `010a9ef39`, reported at `f788b2b80` and accepted** ([assessment](rect-index-access-assessment.md)). Timing reads "no difference shown" in all three cases, so speed is unmeasured. Property 11's reading of the A/A threshold is corrected in place. **Reviewed at `bdb2c73c8`:** properties 3 and 10 are corrected in place, the acceptance stands, and one `.scripts/vitest-config.ts` comment goes to a follow-up. **Amended on 2026-11-13 by `DRD-62`:** properties 1, 2, 3 and 8. `xy()`'s `before` goes into `RetainingRectIndex`, and the field and axis types are narrowed. **Amended on 2026-11-14 by `DRD-63`:** property 6's wording. The sink's `dx` and `dy` are private fields |
 | DRD-62 | active, decided on 2026-11-13 on the owner's acceptance of VX in [`xy-held-geometry-proposal.md`](xy-held-geometry-proposal.md) at `316003d76`, on the condition of narrowed field types. Adopts the provisional source at `f79f66fe2`. `xy()`'s previous geometry is held by `RetainingRectIndex`, and `at`, `retained` and the axis accept only their constants. Amends `DRD-61` properties 1, 2, 3 and 8, `DRD-58` property 7's table and §What this doesn't decide, and `DRD-52` property 1. [`xy-held-geometry-handoff.md`](xy-held-geometry-handoff.md) implements it. A fresh independent reviewer reads its report before the architect's final acceptance. Speed is unmeasured, and budgets are unchanged. **Implemented at `b4117dae2`, reported at `7184d069c`, reviewed at `c4d02d45c` and accepted on 2026-11-14** ([assessment](xy-held-geometry-assessment.md)). The 60 `.js` and `.d.ts` files are byte-identical to `f79f66fe2`'s, `sortable/rect-index.js.map` differs, and every size row reads 0/0/0. Property 2 is corrected in place to name the base's `held === 0` exit |
 | DRD-63 | active, decided on 2026-11-14 by the architect on the owner's uncommitted class refactor (diff `019cd456…c508` against `5b581fbdf`). It reads the [verification report](owner-refactor-verification-report.md) at `00fc1aa28` and the [feature proof](reviews/owner-class-refactor/proof-reviewer.md) at `b4bca69f7` ([assessment](owner-class-refactor-assessment.md)). Amends `DRD-34` property 8, `DRD-35` property 7, `DRD-37` property 4, `DRD-61` property 6 and two statements of `DRD-33`, and applies `DRO-13`. [`owner-class-refactor-handoff.md`](owner-class-refactor-handoff.md) implements it. **When decided, not implemented, and the refactor not accepted.** **Property 5 was revised on 2026-11-14 on the owner's answer to Q2:** the reads stay inline, the getters stay, and the false "read once" comments go. The owner holds Q1, Q3 and Q4, and Q1 and Q3 have defaults. **Remediated at `42f42a164`** from the snapshot's commit `d1df32018` ([report](owner-class-refactor-report.md) at `6ec32ad06`), and **rechecked** at `8a4548e96` ([recheck](reviews/owner-class-refactor-remediation/recheck-reviewer.md)). **Property 2 was revised in place on 2026-11-14 on `class-refactor-recheck-1`:** the declared receiver is the type through which the site reads the member ([assessment](class-refactor-recheck-assessment.md)). [`class-refactor-receiver-handoff.md`](class-refactor-receiver-handoff.md) implements the revision. Q1 was built on its default. **Implemented at `c9e728bad`, reported at `f6b4bdf4c`, rechecked at `cb24e927e` and accepted on 2026-11-15** ([assessment](class-refactor-acceptance-assessment.md)). The owner accepted the end's costs (Q4), with budgets unchanged and no speed claim. Q3's defaults stand. `class-refactor-reviewer-1` to `-6` and `class-refactor-recheck-1` are closed |
+| DRD-64 | active, decided on 2026-11-15 by the architect on the owner's decision `DRO-17`, at `0870abd75`. Supersedes `DRD-13`'s second sentence, and amends `DRD-23`'s second, third and fifth bullets. **When decided, unimplemented:** [`drag2-retirement-handoff.md`](drag2-retirement-handoff.md) implements properties 1 to 6, with `DRF-43`'s repair, and [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) implements property 7 (`DRF-45`). **Properties 1 to 6 implemented** at `aa68dae08` to `5c1ce7bfe`, reported at `a5f028959`, proved at `b02f97d44` and **accepted on 2026-11-15** (§Disposition of the drag2 retirement review), in Chromium and Firefox under `DRO-18`. Property 5 is clarified in place on the owner's answer: CustomPlaceholder's look is not drag2's. `DRF-43` is closed. **Property 7 is open** (`DRF-45`). Property 7 reported at `1a6551563`. Its S2 stop and the collapsing-margin note are decided by `DRD-65`, and the development check by `DRD-66`. **Property 7 implemented and accepted on 2026-11-15:** remediated at `cc3b839f9`, re-witnessed at that tree, and rechecked at `349616213`. `DRF-45` is closed (§Disposition of the guarantee tests remediation recheck) |
+| DRD-65 | active, decided on 2026-11-15 by the architect on `DRF-46` and `DRF-47`, at `1a6551563`. Amended the contract's `DRI-14` in its own commit, and amends the S2 row of [`drag2-guarantees-handoff.md`](drag2-guarantees-handoff.md) (`DRD-64` property 7). **When decided, unimplemented:** [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) items 1 and 2 implement properties 2 to 6. Property 4 amended by `DRD-67`: the oracle records the collapsing-margin list in both projects. **Implemented** at `b6fef26c4`, reported at `1c1e93bd9`. Properties 5 and 6 amended on 2026-11-15 after the report: `S2-tie-exact` is the lower witness, and the emitted `.js` differs only in comments. **Accepted on 2026-11-15** with the remediation recheck at `349616213` |
+| DRD-66 | superseded on 2026-11-15 by `DRD-67`, before implementation. Was: active, decided on 2026-11-15 by the architect on the owner's hypothesis that drag drop `__DEV__`: declined, with the development equivalence check made to leave the cache unchanged. Amended `DRD-52` property 7 |
+| DRD-67 | active, decided on 2026-11-15 by the architect on the owner's follow-up hypothesis, relayed by the coordinator, from the [probe](probes/test-side-oracles/README.md) at `883836d96`. Supersedes `DRD-66`, and amends `DRD-52` property 7 and `DRD-65` property 4. It amends the contract's `DRI-6` in the implementing commit. **When decided, unimplemented:** [`y-geometry-terms-handoff.md`](y-geometry-terms-handoff.md) item 3 implements it. **Implemented** at `953a0fcc6`, reported at `1c1e93bd9`. Property 2 amended on 2026-11-15: the bench keeps the define for earlier revisions. Property 7's stop decided the same day: the fixture of `layout-animation.browser.test.ts:266` is wrong. Property 4 clarified the same day: an event of any realm counts. [`drag2-guarantees-remediation-handoff.md`](drag2-guarantees-remediation-handoff.md) repairs both. Its rationale is `DRO-19`. **Accepted on 2026-11-15:** repaired at `cc3b839f9` and rechecked at `349616213` |

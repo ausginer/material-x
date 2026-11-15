@@ -1,0 +1,113 @@
+## F4-null-viewport
+
+FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:351 > bounds with a function source > should leave the drag unconstrained when the function returns null
+AssertionError: expected [ 1230, 670 ] to deeply equal [ 1245, 685 ]
+Test Files  1 failed (1)
+Tests  1 failed | 16 passed (17)
+
+## F5-no-activation
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:290 > drag:DRI-16 required environments for a sortable > should reorder under ancestor scale(.5), following the pointer
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:290 > drag:DRI-16 required environments for a sortable > should reorder under ancestor zoom:2, following the pointer
+AssertionError: expected 60 to be less than 1
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:314 > drag:DRI-16 required environments for a sortable > should reorder a list in a shadow root
+AssertionError: expected 'r0,r1,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:333 > drag:DRI-16 required environments for a sortable > should reorder a list in a same-origin iframe the parent controls
+AssertionError: expected 'r0,r1,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:356 > drag:DRI-16 required environments for a sortable > should stay visible when dragged out of an overflow:hidden list
+AssertionError: expected '' to be 'r0' // Object.is equality
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:367 > drag:DRI-16 required environments for a sortable > should stay above a later positioned panel
+AssertionError: expected 'panel' to be 'r0' // Object.is equality
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:412 > drag:DRI-20 free drag under an ancestor transform or zoom > should commit the visual where it was dropped through the local delta under an ancestor transform
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:412 > drag:DRI-20 free drag under an ancestor transform or zoom > should commit the visual where it was dropped through the local delta under an ancestor zoom
+AssertionError: expected +0 to be close to 60, received difference is 60, but expected 0.5
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:444 > drag:DRI-20 free drag under an ancestor transform or zoom > should report onMove currentRect as originRect moved by the viewport delta under an ancestor transform
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:444 > drag:DRI-20 free drag under an ancestor transform or zoom > should report onMove currentRect as originRect moved by the viewport delta under an ancestor zoom
+TypeError: Cannot destructure property 'currentRect' of 'moves.at(...)' as it is undefined.
+Test Files  1 failed (1)
+Tests  10 failed | 21 passed (31)
+
+## F8-one-entry-input
+
+Test Files  1 passed (1)
+Tests  2 passed (2)
+
+## F8-one-entry
+
+FAIL  |node| tests/consumer-types.node.test.ts:113 > the published entries in a consumer typecheck > should resolve each entry to its published declaration
+AssertionError: expected { …(13) } to deeply equal { …(13) }
+Test Files  1 failed (1)
+Tests  1 failed | 1 passed (2)
+
+## S1-late-revert-input
+
+Test Files  1 passed (1)
+Tests  25 passed (25)
+
+## S1-late-revert
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:619 > drag:DRI-13 sortable landing after the commit > should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+AssertionError: expected { outcomes: [ 'accepted' ], …(3) } to deeply equal { outcomes: [ 'accepted' ], …(3) }
+Test Files  1 failed (1)
+Tests  1 failed | 24 passed (25)
+
+## S1-settle-uncaught
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:334 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+AssertionError: expected [] to deeply equal [ 'accepted' ]
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:619 > drag:DRI-13 sortable landing after the commit > should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+AssertionError: expected { outcomes: [], …(3) } to deeply equal { outcomes: [ 'accepted' ], …(3) }
+Test Files  1 failed (1)
+Tests  2 failed | 23 passed (25)
+
+## S2-3
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:160 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+AssertionError: expected [ …(20) ] to deeply equal []
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:160 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+AssertionError: expected [ …(20) ] to deeply equal []
+Test Files  2 failed (2)
+Tests  2 failed | 24 passed (26)
+
+## S4-target-only
+
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:225 > drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+AssertionError: expected [ true ] to deeply equal [ false ]
+Test Files  1 failed (1)
+Tests  1 failed | 13 passed (14)
+
+## S6-7
+
+Test Files  1 passed (1)
+Tests  16 passed (16)
+
+## S8-visual-first-input
+
+Test Files  1 passed (1)
+Tests  55 passed (55)
+
+## S8-visual-first
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1192 > drag:DRI-14 candidates measured through box > should measure every y() candidate through box when visual is also given
+AssertionError: expected [ …(69) ] to deeply equal []
+Test Files  1 failed (1)
+Tests  1 failed | 55 passed (56)
+
+## base-src
+
+Test Files  6 passed (6)
+Tests  159 passed (159)
+
+## base-ygeo
+
+Test Files  4 passed (4)
+Tests  34 passed (34)
+
+## refusal-instanceof
+
+FAIL  |browser (chromium)| tests/refusals.browser.test.ts:135 > drag:DRI-6 reentrant input > should count a nested press from another realm
+AssertionError: expected { trusted: +0, untrusted: +0 } to deeply equal { trusted: +0, untrusted: 1 }
+FAIL  |consumer (chromium)| tests/refusals.browser.test.ts:135 > drag:DRI-6 reentrant input > should count a nested press from another realm
+AssertionError: expected { trusted: +0, untrusted: +0 } to deeply equal { trusted: +0, untrusted: 1 }
+Test Files  2 failed (2)
+Tests  2 failed | 6 passed (8)

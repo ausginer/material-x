@@ -1,0 +1,21 @@
+# F4
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F4.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/free-drag.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:339 > bounds with a function source > should clamp to the rect the function returns
+  AssertionError: expected [ 890, 690 ] to deeply equal [ 300, 200 ]
+  - Expected
+  + Received
+    [
+  -   300,
+  -   200,
+  +   890,
+  +   690,
+    ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 16 passed (17)

@@ -1,0 +1,41 @@
+# F2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/terminals.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:357 > drag:DRI-20 the release position > should build the request from the pointerup position
+  AssertionError: expected [ { item: <div …(2)></div>, …(11) } ] to match object [ { pointerX: 155, …(3) } ]
+  (8 matching properties omitted from actual)
+  - Expected
+  + Received
+    [
+      {
+  -     "pointerX": 155,
+  -     "pointerY": 125,
+  -     "viewportDeltaX": 90,
+  -     "viewportDeltaY": 60,
+  +     "pointerX": 115,
+  +     "pointerY": 105,
+  +     "viewportDeltaX": 50,
+  +     "viewportDeltaY": 40,
+      },
+    ]
+
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:381 > drag:DRI-20 the release position > should render the visual at the pointerup position while the drop is decided
+  AssertionError: expected [ [ 90, 80 ] ] to deeply equal [ [ 130, 100 ] ]
+  - Expected
+  + Received
+    [
+      [
+  -     130,
+  -     100,
+  +     90,
+  +     80,
+      ],
+    ]
+
+Test Files  1 failed (1)
+Tests  2 failed | 21 passed (23)

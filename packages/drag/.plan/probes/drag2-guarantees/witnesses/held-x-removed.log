@@ -1,0 +1,16 @@
+# held-x-removed
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/held-x-removed.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser --project consumer tests/equivalence-check.browser.test.ts tests/refusals.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:49 > drag:DRD-52 equivalence oracle > should report a placeholder that a committed move displaces along x
+  AssertionError: expected [] to include 'the placeholder'
+
+FAIL  |consumer (chromium)| tests/equivalence-check.browser.test.ts:49 > drag:DRD-52 equivalence oracle > should report a placeholder that a committed move displaces along x
+  AssertionError: expected [] to include 'the placeholder'
+
+Test Files  2 failed | 2 passed (4)
+Tests  2 failed | 12 passed (14)

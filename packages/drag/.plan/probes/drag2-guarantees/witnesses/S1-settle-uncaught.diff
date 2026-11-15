@@ -1,0 +1,16 @@
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -577,11 +577,7 @@
+     const operation = this.#operation;
+ 
+     if (operation) {
+-      try {
+-        operation.settle?.(outcome);
+-      } catch (error) {
+-        this.#gesture.raise(error);
+-      }
++      operation.settle?.(outcome);
+     }
+ 
+     this.#release(outcome);

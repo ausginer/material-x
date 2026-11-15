@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/linear-shift.ts b/packages/drag/src/sortable/linear-shift.ts
+index 84a1b3bfa..35f3e7257 100644
+--- a/packages/drag/src/sortable/linear-shift.ts
++++ b/packages/drag/src/sortable/linear-shift.ts
+@@ -239,6 +239,8 @@ export class LinearShift implements Invalidatable, Retirable {
+     this.#index.shift(lo, hi, delta);
+ 
+     if (context.displacement) {
++      context.displacement.report(context.placeholder, 0, delta, context.space);
++
+       for (let i = lo; i < hi; i += 1) {
+         context.displacement.report(
+           this.#index.item(i),

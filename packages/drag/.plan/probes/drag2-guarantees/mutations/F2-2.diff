@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/free-drag/operation.ts b/packages/drag/src/free-drag/operation.ts
+index 86fecf15f..72c796432 100644
+--- a/packages/drag/src/free-drag/operation.ts
++++ b/packages/drag/src/free-drag/operation.ts
+@@ -106,7 +106,6 @@ export class FreeDragOperation implements BehaviorOperation<FreeDragResolution>
+     );
+ 
+     this.#request = request;
+-    this.#lift.translate(this.#motion.x, this.#motion.y);
+ 
+     return (signal: AbortSignal) =>
+       this.#behavior.config.onDrop(request, { signal });

@@ -1,0 +1,53 @@
+not judged, the recording cannot carry its rule: 200 operations, then destroy: retained JavaScript objects
+
+300 moves, one frame each, 20 items
+  before layouts: at or below: 83 against 83
+  before scriptUs: no difference shown: higher in 3 of 7, median -2 µs, A/A bound 35 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -47 µs, A/A bound 368 µs
+
+300 moves, one frame each, 2000 items
+  before layouts: at or below: 83 against 83
+  before scriptUs: no difference shown: higher in 4 of 7, median 1 µs, A/A bound 22 µs
+  before taskUs: no difference shown: higher in 4 of 7, median 107 µs, A/A bound 704 µs
+
+press and release below the threshold, 20 items, [...root.children]
+  before scriptUs: no difference shown: higher in 4 of 7, median 4 µs, A/A bound 53 µs
+  before taskUs: no difference shown: higher in 4 of 7, median 28 µs, A/A bound 161 µs
+
+press and release below the threshold, 20 items, cached array
+  before scriptUs: no difference shown: higher in 1 of 7, median -5 µs, A/A bound 56 µs
+  before taskUs: no difference shown: higher in 1 of 7, median -46 µs, A/A bound 183 µs
+
+press and release below the threshold, 2000 items, [...root.children]
+  before scriptUs: no difference shown: higher in 1 of 7, median -60 µs, A/A bound 355 µs
+  before taskUs: no difference shown: higher in 1 of 7, median -83 µs, A/A bound 798 µs
+
+press and release below the threshold, 2000 items, cached array
+  before scriptUs: no difference shown: higher in 4 of 7, median 14 µs, A/A bound 121 µs
+  before taskUs: no difference shown: higher in 4 of 7, median 10 µs, A/A bound 489 µs
+
+50 activate-and-drop cycles, 20 items, no landing
+  before layouts: at or below: 250 against 250
+  before scriptUs: no difference shown: higher in 3 of 7, median -62 µs, A/A bound 885 µs
+  before taskUs: no difference shown: higher in 2 of 7, median -994 µs, A/A bound 5240 µs
+
+50 activate-and-drop cycles, 20 items, with landing
+  before layouts: at or below: 350 against 350
+  before scriptUs: no difference shown: higher in 3 of 7, median -74 µs, A/A bound 543 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -1109 µs, A/A bound 4247 µs
+
+50 activate-and-drop cycles, 2000 items, no landing
+  before layouts: at or below: 250 against 250
+  before scriptUs: no difference shown: higher in 4 of 7, median 33 µs, A/A bound 1920 µs
+  before taskUs: no difference shown: higher in 4 of 7, median 28 µs, A/A bound 8931 µs
+
+50 activate-and-drop cycles, 2000 items, with landing
+  before layouts: at or below: 350 against 350
+  before scriptUs: no difference shown: higher in 3 of 7, median -195 µs, A/A bound 1337 µs
+  before taskUs: no difference shown: higher in 3 of 7, median -1320 µs, A/A bound 4991 µs
+
+50 keyboard reorders, 20 items, with focus restoration
+  before layouts: at or below: 50 against 50
+  before scriptUs: no difference shown: higher in 4 of 7, median 47 µs, A/A bound 325 µs
+  before taskUs: no difference shown: higher in 4 of 7, median 99 µs, A/A bound 685 µs
+0

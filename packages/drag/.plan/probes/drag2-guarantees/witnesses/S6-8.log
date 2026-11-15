@@ -1,0 +1,102 @@
+# S6-8
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S6-8.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 16
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:150 > layoutAnimation rows > should animate only the row the move crossed
+  AssertionError: expected [ 1, 2 ] to deeply equal [ 1 ]
+  - Expected
+  + Received
+    [
+      1,
+  +   2,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:150 > layoutAnimation rows > should animate only the row the move crossed
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:158 > layoutAnimation rows > should animate every row a move across two slots crossed
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:174 > layoutAnimation rows > should start each animation where the row stood before the move
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:212 > layoutAnimation rows > should never animate the placeholder
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:227 > layoutAnimation composition > should leave an authored transform rendering while a row animates
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:266 > layoutAnimation composition > should leave a consumer animation on transform running
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:284 > layoutAnimation composition > should add the animation to a consumer animation on translate
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:331 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:166 > layoutAnimation rows > should animate nothing when the pointer moves without moving the gap
+  AssertionError: expected [ 1 ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   1,
+  + ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:174 > layoutAnimation rows > should start each animation where the row stood before the move
+  AssertionError: expected +0 to be close to 40, received difference is 40, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+  AssertionError: expected [ +0, 1, 3 ] to deeply equal [ +0, 1 ]
+  - Expected
+  + Received
+    [
+      0,
+      1,
+  +   3,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 1, slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+  AssertionError: expected [ 1, 2 ] to deeply equal [ 1 ]
+  - Expected
+  + Received
+    [
+      1,
+  +   2,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:245 > layoutAnimation composition > should add the animation to an authored translate
+  AssertionError: expected '0px 7px' to be '0px 47px' // Object.is equality
+  Expected: "0px 47px"
+  Received: "0px 7px"
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:284 > layoutAnimation composition > should add the animation to a consumer animation on translate
+  AssertionError: expected '10px' to be '10px 40px' // Object.is equality
+  Expected: "10px 40px"
+  Received: "10px"
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:311 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+  AssertionError: expected 'paused' to be 'idle' // Object.is equality
+  Expected: "idle"
+  Received: "paused"
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:311 > layoutAnimation composition > should leave a row where it was drawn when a second move crosses it mid-flight
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:331 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+  AssertionError: expected +0 to be close to 80, received difference is 80, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:351 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+  AssertionError: expected -222.638427734375 to be close to -80, received difference is 142.638427734375, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:372 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+  AssertionError: expected -222.638427734375 to be close to -80, received difference is 142.638427734375, but expected 0.05
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:398 > layoutAnimation with a visual that is not the item > should ignore a transform authored on the dragged item itself
+  AssertionError: expected -111.32778930664062 to be close to -40, received difference is 71.32778930664062, but expected 0.05
+
+Test Files  1 failed (1)
+Tests  16 failed (16)

@@ -193,7 +193,7 @@ The first completion wins. `then` is read once. A throwing `then` accessor or ca
 
 #### DRI-6 — Reentrant input
 
-Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. Development builds count each event a running pass refuses once, so that the suite can assert this. A press whose release the library missed is DRI-19's.
+Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. A press whose release the library missed is DRI-19's.
 
 #### DRI-7 — Faults
 
@@ -294,7 +294,7 @@ The library's `landing()` is additive and has these properties. A third-party `L
 
 An in-place change that the library can read before `invalidate()` is outside this contract, and so is a change during a drag without `invalidate()`. The library doesn't detect either.
 
-**Geometry.** `sortable` measures an item when a resolution first needs it, and measures again after a scroll, a resize or `invalidate()`. With `xy()`, the operation's first resolution measures every item. With `y()`, a resolution measures the items between the placeholder and the pointer, and one beyond. Their centers increase along y in the collection's order. A reversed column, an item that isn't rendered, or an authored transform that carries an item's center past a neighbour's, is outside this contract. A pointer drop resolves at the release position. It first measures one measured item again, and measures again when that one moved, so the drop sees a scroll whose event hasn't reached the library yet. A change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`. Without it, the change is outside this contract.
+**Geometry.** `sortable` measures an item when a resolution first needs it, and measures again after a scroll, a resize or `invalidate()`. With `xy()`, the operation's first resolution measures every item. With `y()`, a resolution measures the items between the placeholder and the pointer, and one beyond. Their centers increase along y in the collection's order. A reversed column, an item that isn't rendered, or an authored transform that carries an item's center past a neighbour's, is outside this contract. **Moving the placeholder from one gap to another moves the items between them by one distance along y, and moves nothing else.** A list that wraps doesn't meet this term. Nor does a block column in which vertical margins collapse into each other on both sides of an item: the space between two neighbours is then the larger of their two margins, so where the placeholder sits changes the spacing of items it didn't cross. Such a list meets the term when the placeholder has the items' margins. A flex column, a flow `gap`, and margins on one side of each item meet it. `y()` predicts each center it compares to within 1/16 px of a measurement, so where the pointer is within 1/8 px of equidistant from two of them, the placeholder's own center included, either of their gaps may result. A pointer drop resolves at the release position. It first measures one measured item again, and measures again when that one moved, so the drop sees a scroll whose event hasn't reached the library yet. A change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`. Without it, the change is outside this contract.
 
 During a drag, `invalidate()` re-reads the collection. A surviving gap rebases. A lost adjacency or a removed item cancels. After the drop, a collection change no longer affects the operation. The request carries `item`, `from`, `to`, `previous` and `next`, so `insertBefore(item, next)` is correct.
 
@@ -364,11 +364,14 @@ With `targets: dropTargets({ targets })`:
 - A landing can be clipped by an ancestor (DRI-13).
 - A step's own platform throw is a fault, and the controller survives (DRI-7).
 - An `Escape` that cancels a started operation doesn't reach the platform's close request (DRI-4).
+- `moveTo` reads its point when the move applies, not at the call (DRI-8). A point changed between the two moves the visual to the changed value.
 
 ## Change record
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-15 | `DRI-6` | **Removed:** development builds no longer count refused events. The suite counts them from outside the library, against the source and the published build. It used to say that development builds count each event a running pass refuses once. `DRD-67` |
+| 2026-11-15 | `DRI-14` | **Added:** the term `y()` depends on, that moving the placeholder moves only the items it crosses, by one distance; that a block column whose margins collapse on both sides of an item doesn't meet it unless the placeholder has the items' margins; and the precision of `y()`'s geometry, 1/16 px, under which a pointer within 1/8 px of equidistant from two centers may give either gap. No behavior changes. The paragraph used to state no term that excluded collapsing margins, and no precision. `DRD-65`, `DRF-46`, `DRF-47` |
 | 2026-11-12 | `DRI-14` | **Changed:** with `y()`, a resolution measures the items between the placeholder and the pointer, and one beyond, and the items' centers increase along y in the collection's order. A reversed column, an item that isn't rendered, or an authored transform that carries an item's center past a neighbour's, is outside the contract. The pointer drop measures one measured item again. The paragraph used to say that `sortable` measures the items at the operation's first resolution, and that the drop measures every item when the one it checks moved. `DRD-49` |
 | 2026-11-12 | `DRI-20`, `DRI-21` | **Changed:** the drop marks the bounds and the drop targets stale before it resolves, so it clamps against the box and names the target under the release position as the tree stands at the drop, including after a scroll whose event hasn't reached the library yet. `DRI-21`'s drop used to resolve against geometry measured after any invalidation, and `DRI-20` said nothing about when the drop reads the box. `DRD-48`, `DRF-22` |
 | 2026-11-12 | `DRI-14` | **Added:** the **Geometry** paragraph. A pointer drop measures one item again and measures every item only when that item moved, and a change in the items' sizes or relative positions during a drag that no scroll or resize causes needs `invalidate()`. The contract used to state nothing about the sortable drop's geometry, and the drop measured every item. `DRD-47` |
@@ -393,3 +396,4 @@ With `targets: dropTargets({ targets })`:
 | 2026-11-07 | `DRI-9`, `DRI-12` | **Changed:** the landing starts before focus, and focus is restored after `end`. Focus used to be step 6, before the landing and before `end`. **Added:** the lift owns what it writes. `DRD-14`, `DRD-15` |
 | 2026-11-07 | `DRI-13` | **Added:** a grab during a landing keeps the visual under the pointer. `DRD-18` |
 | 2026-11-07 | `DRI-20` | **Added:** free drag's offset is measured against home at the drop. `DRD-19` |
+| 2026-11-15 | Accepted differences from drag2 | **Added:** `moveTo` reads its point when the move applies. `DRF-44` |

@@ -1,0 +1,20 @@
+# S3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/input.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/input.browser.test.ts:452 > Admission.handle and data-drag-ignore > should admit a press on a handle that is itself marked data-drag-ignore
+  AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+  - Expected
+  + Received
+  - [
+  -   "start",
+  -   "end:accepted",
+  - ]
+  + []
+
+Test Files  1 failed (1)
+Tests  1 failed | 17 passed (18)

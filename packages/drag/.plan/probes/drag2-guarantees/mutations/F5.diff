@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/free-drag/geometry.ts b/packages/drag/src/free-drag/geometry.ts
+index e3ae649fc..8f236cac6 100644
+--- a/packages/drag/src/free-drag/geometry.ts
++++ b/packages/drag/src/free-drag/geometry.ts
+@@ -74,7 +74,7 @@ export function buildRequest(
+   const visualRect = currentRect(lift.rect, motion.x, motion.y, window);
+   const dx = visualRect.left - home.x;
+   const dy = visualRect.top - home.y;
+-  const local = toLocal(lift.visualSpace, dx, dy);
++  const local = [dx, dy];
+ 
+   return {
+     item,

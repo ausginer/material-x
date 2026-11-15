@@ -58,6 +58,6 @@ lint-fix *FILES:
 size *FLAGS: build
     node bench/size/measure.ts {{ FLAGS }}
 
-# Compare per-operation cost with drag2 and the prototype, in one browser process
+# Compare per-operation cost with the prototype, in one browser process
 compare *FLAGS:
     node bench/compare.ts {{ FLAGS }}

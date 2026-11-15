@@ -1,0 +1,252 @@
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:69 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on rows of unequal heights
+AssertionError: expected [ …(22) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 51: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 99: proposed 2, measured 1",
++   "at 143: proposed 3, measured 2",
++   "at 151: proposed 3, measured 2",
++   "at 155: proposed 3, measured 2",
++   "at 159: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 167: proposed 3, measured 2",
++   "at 167: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 159: proposed 3, measured 2",
++   "at 155: proposed 3, measured 2",
++   "at 147: proposed 3, measured 2",
++   "at 91: proposed 2, measured 1",
++   "at 87: proposed 2, measured 1",
++   "at 83: proposed 2, measured 1",
++   "at 79: proposed 2, measured 1",
++   "at 55: proposed 1, measured 0",
++   "at 51: proposed 1, measured 0",
++   "at 47: proposed 1, measured 0",
++   "at 43: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:75:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:78 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+AssertionError: expected [ …(24) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 55: proposed 1, measured 0",
++   "at 59: proposed 1, measured 0",
++   "at 63: proposed 1, measured 0",
++   "at 119: proposed 2, measured 1",
++   "at 175: proposed 3, measured 2",
++   "at 183: proposed 3, measured 2",
++   "at 187: proposed 3, measured 2",
++   "at 191: proposed 3, measured 2",
++   "at 195: proposed 3, measured 2",
++   "at 199: proposed 3, measured 2",
++   "at 199: proposed 3, measured 2",
++   "at 195: proposed 3, measured 2",
++   "at 191: proposed 3, measured 2",
++   "at 187: proposed 3, measured 2",
++   "at 183: proposed 3, measured 2",
++   "at 175: proposed 3, measured 2",
++   "at 111: proposed 2, measured 1",
++   "at 107: proposed 2, measured 1",
++   "at 103: proposed 2, measured 1",
++   "at 99: proposed 2, measured 1",
++   "at 63: proposed 1, measured 0",
++   "at 59: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 51: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:84:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:87 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree when the gap varies from row to row
+AssertionError: expected [ …(23) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 32: proposed 1, measured 0",
++   "at 40: proposed 1, measured 0",
++   "at 52: proposed 1, measured 0",
++   "at 104: proposed 2, measured 1",
++   "at 108: proposed 2, measured 1",
++   "at 148: proposed 3, measured 2",
++   "at 168: proposed 3, measured 2",
++   "at 172: proposed 3, measured 2",
++   "at 228: proposed 4, measured 3",
++   "at 232: proposed 4, measured 3",
++   "at 232: proposed 4, measured 3",
++   "at 228: proposed 4, measured 3",
++   "at 224: proposed 4, measured 3",
++   "at 172: proposed 3, measured 2",
++   "at 168: proposed 3, measured 2",
++   "at 164: proposed 3, measured 2",
++   "at 148: proposed 3, measured 2",
++   "at 108: proposed 2, measured 1",
++   "at 104: proposed 2, measured 1",
++   "at 52: proposed 1, measured 0",
++   "at 48: proposed 1, measured 0",
++   "at 40: proposed 1, measured 0",
++   "at 32: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:97:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:100 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with item margins in a flex column
+AssertionError: expected [ …(26) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 51: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 59: proposed 1, measured 0",
++   "at 63: proposed 1, measured 0",
++   "at 111: proposed 2, measured 1",
++   "at 163: proposed 3, measured 2",
++   "at 171: proposed 3, measured 2",
++   "at 179: proposed 3, measured 2",
++   "at 183: proposed 3, measured 2",
++   "at 187: proposed 3, measured 2",
++   "at 191: proposed 3, measured 2",
++   "at 191: proposed 3, measured 2",
++   "at 187: proposed 3, measured 2",
++   "at 183: proposed 3, measured 2",
++   "at 179: proposed 3, measured 2",
++   "at 171: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 107: proposed 2, measured 1",
++   "at 103: proposed 2, measured 1",
++   "at 99: proposed 2, measured 1",
++   "at 95: proposed 2, measured 1",
++   "at 63: proposed 1, measured 0",
++   "at 59: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 51: proposed 1, measured 0",
++   "at 47: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:106:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:109 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with item margins in a block column
+AssertionError: expected [ …(26) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 51: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 59: proposed 1, measured 0",
++   "at 63: proposed 1, measured 0",
++   "at 111: proposed 2, measured 1",
++   "at 163: proposed 3, measured 2",
++   "at 171: proposed 3, measured 2",
++   "at 179: proposed 3, measured 2",
++   "at 183: proposed 3, measured 2",
++   "at 187: proposed 3, measured 2",
++   "at 191: proposed 3, measured 2",
++   "at 193: proposed 3, measured 2",
++   "at 189: proposed 3, measured 2",
++   "at 185: proposed 3, measured 2",
++   "at 181: proposed 3, measured 2",
++   "at 173: proposed 3, measured 2",
++   "at 165: proposed 3, measured 2",
++   "at 109: proposed 2, measured 1",
++   "at 105: proposed 2, measured 1",
++   "at 101: proposed 2, measured 1",
++   "at 97: proposed 2, measured 1",
++   "at 93: proposed 2, measured 1",
++   "at 61: proposed 1, measured 0",
++   "at 57: proposed 1, measured 0",
++   "at 53: proposed 1, measured 0",
++   "at 49: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:116:7
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:119 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored rotate on a row
+AssertionError: expected [ …(22) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 51: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 99: proposed 2, measured 1",
++   "at 143: proposed 3, measured 2",
++   "at 151: proposed 3, measured 2",
++   "at 155: proposed 3, measured 2",
++   "at 159: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 167: proposed 3, measured 2",
++   "at 167: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 159: proposed 3, measured 2",
++   "at 155: proposed 3, measured 2",
++   "at 147: proposed 3, measured 2",
++   "at 91: proposed 2, measured 1",
++   "at 87: proposed 2, measured 1",
++   "at 83: proposed 2, measured 1",
++   "at 79: proposed 2, measured 1",
++   "at 55: proposed 1, measured 0",
++   "at 51: proposed 1, measured 0",
++   "at 47: proposed 1, measured 0",
++   "at 43: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:125:73
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:130 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree with an authored scale on a row
+AssertionError: expected [ …(22) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 51: proposed 1, measured 0",
++   "at 55: proposed 1, measured 0",
++   "at 99: proposed 2, measured 1",
++   "at 143: proposed 3, measured 2",
++   "at 151: proposed 3, measured 2",
++   "at 155: proposed 3, measured 2",
++   "at 159: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 167: proposed 3, measured 2",
++   "at 167: proposed 3, measured 2",
++   "at 163: proposed 3, measured 2",
++   "at 159: proposed 3, measured 2",
++   "at 155: proposed 3, measured 2",
++   "at 147: proposed 3, measured 2",
++   "at 91: proposed 2, measured 1",
++   "at 87: proposed 2, measured 1",
++   "at 83: proposed 2, measured 1",
++   "at 79: proposed 2, measured 1",
++   "at 55: proposed 1, measured 0",
++   "at 51: proposed 1, measured 0",
++   "at 47: proposed 1, measured 0",
++   "at 43: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:134:73
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:139 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+AssertionError: expected [ …(22) ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 34: proposed 1, measured 0",
++   "at 38: proposed 1, measured 0",
++   "at 42: proposed 1, measured 0",
++   "at 78: proposed 2, measured 1",
++   "at 82: proposed 2, measured 1",
++   "at 86: proposed 2, measured 1",
++   "at 122: proposed 3, measured 2",
++   "at 126: proposed 3, measured 2",
++   "at 162: proposed 4, measured 3",
++   "at 166: proposed 4, measured 3",
++   "at 170: proposed 4, measured 3",
++   "at 169: proposed 4, measured 3",
++   "at 165: proposed 4, measured 3",
++   "at 129: proposed 3, measured 2",
++   "at 125: proposed 3, measured 2",
++   "at 121: proposed 3, measured 2",
++   "at 85: proposed 2, measured 1",
++   "at 81: proposed 2, measured 1",
++   "at 77: proposed 2, measured 1",
++   "at 41: proposed 1, measured 0",
++   "at 37: proposed 1, measured 0",
++   "at 33: proposed 1, measured 0",
++ ]
+❯ tests/y-geometry.browser.test.ts:184:7
+Tests  8 failed | 3 passed (11)

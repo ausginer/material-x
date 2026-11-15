@@ -1,0 +1,7 @@
+
+in the page: 300 moves, one frame each, 20 items
+
+in the page: 50 activate-and-drop cycles, 20 items, no landing
+
+300 moves, one frame each, 20 items
+0

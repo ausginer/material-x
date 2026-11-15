@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -80,6 +80,8 @@
+     if ((hop as Partial<Element>).matches?.('[data-drag-ignore]')) {
+       return true;
+     }
++
++    break;
+   }
+ 
+   return false;

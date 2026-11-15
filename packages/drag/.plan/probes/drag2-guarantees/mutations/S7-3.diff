@@ -1,0 +1,15 @@
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 90a10792e..d38792a9a 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -100,6 +100,10 @@ class LayoutAnimationSink implements DisplacementSink {
+     // element's own `scale()`. `translate` applies before `transform`, and only
+     // this keyframe is in local units: what the sink stores stays in viewport
+     // units, which is what a settled measurement assumes.
++    for (const running of element.getAnimations()) {
++      running.cancel();
++    }
++
+     const animation = element.animate(
+       [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
+       { duration: this.#duration, easing: this.#easing, composite: 'add' },

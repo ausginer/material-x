@@ -1,0 +1,66 @@
+# S2-3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S2-3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser --project consumer tests/y-geometry.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:160 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+  AssertionError: expected [ …(20) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 50: proposed 0, measured 1",
+  +   "at 58: proposed 0, measured 1",
+  +   "at 94: proposed 1, measured 2",
+  +   "at 102: proposed 1, measured 2",
+  +   "at 134: proposed 2, measured 3",
+  +   "at 142: proposed 2, measured 3",
+  +   "at 178: proposed 3, measured 4",
+  +   "at 186: proposed 3, measured 4",
+  +   "at 189: proposed 3, measured 4",
+  +   "at 181: proposed 3, measured 4",
+  +   "at 173: proposed 3, measured 4",
+  +   "at 169: proposed 4, measured 3",
+  +   "at 145: proposed 2, measured 3",
+  +   "at 137: proposed 2, measured 3",
+  +   "at 125: proposed 3, measured 2",
+  +   "at 101: proposed 1, measured 2",
+  +   "at 93: proposed 1, measured 2",
+  +   "at 81: proposed 2, measured 1",
+  +   "at 57: proposed 0, measured 1",
+  +   "at 49: proposed 0, measured 1",
+  + ]
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:160 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+  AssertionError: expected [ …(20) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 50: proposed 0, measured 1",
+  +   "at 58: proposed 0, measured 1",
+  +   "at 94: proposed 1, measured 2",
+  +   "at 102: proposed 1, measured 2",
+  +   "at 134: proposed 2, measured 3",
+  +   "at 142: proposed 2, measured 3",
+  +   "at 178: proposed 3, measured 4",
+  +   "at 186: proposed 3, measured 4",
+  +   "at 189: proposed 3, measured 4",
+  +   "at 181: proposed 3, measured 4",
+  +   "at 173: proposed 3, measured 4",
+  +   "at 169: proposed 4, measured 3",
+  +   "at 145: proposed 2, measured 3",
+  +   "at 137: proposed 2, measured 3",
+  +   "at 125: proposed 3, measured 2",
+  +   "at 101: proposed 1, measured 2",
+  +   "at 93: proposed 1, measured 2",
+  +   "at 81: proposed 2, measured 1",
+  +   "at 57: proposed 0, measured 1",
+  +   "at 49: proposed 0, measured 1",
+  + ]
+
+Test Files  2 failed (2)
+Tests  2 failed | 24 passed (26)

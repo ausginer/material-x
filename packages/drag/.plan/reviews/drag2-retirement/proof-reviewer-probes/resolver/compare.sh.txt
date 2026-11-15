@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Usage: compare.sh <old resolver tree> <address list> <out dir>
+# Runs the new resolver (main checkout) and the old one (scratch tree) on each address
+# and records whether stdout, stderr and exit code are byte-identical.
+old=$1; list=$2; out=$3; mkdir -p $out
+one() {
+  a=$1; f=$(echo "$a" | tr ':/' '__')
+  (cd /workspaces/material-x && .scripts/entry.sh "$a" > $out/$f.new.out 2> $out/$f.new.err; echo $? > $out/$f.new.code)
+  ("$old/packages/drag2/.scripts/entry.sh" "$a" > $out/$f.old.out 2> $out/$f.old.err; echo $? > $out/$f.old.code)
+  if cmp -s $out/$f.new.out $out/$f.old.out && cmp -s $out/$f.new.err $out/$f.old.err && cmp -s $out/$f.new.code $out/$f.old.code; then
+    echo "same $(cat $out/$f.new.code) $a"; rm $out/$f.*
+  else echo "DIFF new=$(cat $out/$f.new.code) old=$(cat $out/$f.old.code) $a"; fi
+}
+export -f one; export old out
+xargs -P 8 -I{} bash -c 'one "$@"' _ {} < $list | sort -k3

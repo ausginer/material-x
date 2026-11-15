@@ -1,0 +1,149 @@
+# S10-2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S10-2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/sortable.browser.test.ts`
+Exit: 1
+
+Failed Tests 7
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:53 > drag:DRI-14 collection > should pull at admission, so a row added with no invalidate can be dragged
+  AssertionError: expected 'r0,r1,late,r2' to be 'r0,late,r1,r2' // Object.is equality
+  Expected: "r0,late,r1,r2"
+  Received: "r0,r1,late,r2"
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:331 > drag:DRI-14 collection > should rebase a surviving gap on invalidate during a drag
+  AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal [ 'start', 'end:noop' ]
+  - Expected
+  + Received
+    [
+      "start",
+  -   "end:noop",
+  +   "end:accepted",
+    ]
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:996 > sortable options > drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up
+  AssertionError: at 65 px: expected 3 to be 2 // Object.is equality
+  - Expected
+  + Received
+  - 2
+  + 3
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1078 > sortable options > should ignore a second pointer during a drag
+  AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal [ 'start', 'end:noop' ]
+  - Expected
+  + Received
+    [
+      "start",
+  -   "end:noop",
+  +   "end:accepted",
+    ]
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1178 > drag:DRI-14 candidates measured through box > should measure every y() candidate through box, not through the item
+  AssertionError: expected [ …(23) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 28: proposed 1, measured 0",
+  +   "at 38: proposed 1, measured 0",
+  +   "at 66: proposed 2, measured 1",
+  +   "at 76: proposed 2, measured 1",
+  +   "at 78: proposed 2, measured 1",
+  +   "at 106: proposed 3, measured 2",
+  +   "at 116: proposed 3, measured 2",
+  +   "at 118: proposed 3, measured 2",
+  +   "at 146: proposed 4, measured 3",
+  +   "at 156: proposed 4, measured 3",
+  +   "at 158: proposed 4, measured 3",
+  +   "at 158: proposed 4, measured 3",
+  +   "at 156: proposed 4, measured 3",
+  +   "at 148: proposed 4, measured 3",
+  +   "at 118: proposed 3, measured 2",
+  +   "at 116: proposed 3, measured 2",
+  +   "at 108: proposed 3, measured 2",
+  +   "at 78: proposed 2, measured 1",
+  +   "at 76: proposed 2, measured 1",
+  +   "at 68: proposed 2, measured 1",
+  +   "at 38: proposed 1, measured 0",
+  +   "at 36: proposed 1, measured 0",
+  +   "at 28: proposed 1, measured 0",
+  + ]
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1185 > drag:DRI-14 candidates measured through box > should measure every y() candidate through visual when there is no box
+  AssertionError: expected [ …(24) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 66: proposed 1, measured 0",
+  +   "at 76: proposed 1, measured 0",
+  +   "at 78: proposed 1, measured 0",
+  +   "at 106: proposed 2, measured 1",
+  +   "at 116: proposed 2, measured 1",
+  +   "at 118: proposed 2, measured 1",
+  +   "at 146: proposed 3, measured 2",
+  +   "at 156: proposed 3, measured 2",
+  +   "at 158: proposed 3, measured 2",
+  +   "at 186: proposed 4, measured 3",
+  +   "at 196: proposed 4, measured 3",
+  +   "at 198: proposed 4, measured 3",
+  +   "at 198: proposed 4, measured 3",
+  +   "at 196: proposed 4, measured 3",
+  +   "at 188: proposed 4, measured 3",
+  +   "at 158: proposed 3, measured 2",
+  +   "at 156: proposed 3, measured 2",
+  +   "at 148: proposed 3, measured 2",
+  +   "at 118: proposed 2, measured 1",
+  +   "at 116: proposed 2, measured 1",
+  +   "at 108: proposed 2, measured 1",
+  +   "at 78: proposed 1, measured 0",
+  +   "at 76: proposed 1, measured 0",
+  +   "at 68: proposed 1, measured 0",
+  + ]
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1293 > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item
+  AssertionError: expected [ …(36) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 32: proposed 1, measured 0",
+  +   "at 34: proposed 1, measured 0",
+  +   "at 36: proposed 1, measured 0",
+  +   "at 38: proposed 1, measured 0",
+  +   "at 72: proposed 2, measured 1",
+  +   "at 74: proposed 2, measured 1",
+  +   "at 76: proposed 2, measured 1",
+  +   "at 78: proposed 2, measured 1",
+  +   "at 112: proposed 3, measured 2",
+  +   "at 114: proposed 3, measured 2",
+  +   "at 116: proposed 3, measured 2",
+  +   "at 118: proposed 3, measured 2",
+  +   "at 152: proposed 4, measured 3",
+  +   "at 154: proposed 4, measured 3",
+  +   "at 156: proposed 4, measured 3",
+  +   "at 158: proposed 4, measured 3",
+  +   "at 158: proposed 4, measured 3",
+  +   "at 156: proposed 4, measured 3",
+  +   "at 154: proposed 4, measured 3",
+  +   "at 152: proposed 4, measured 3",
+  +   "at 150: proposed 4, measured 3",
+  +   "at 118: proposed 3, measured 2",
+  +   "at 116: proposed 3, measured 2",
+  +   "at 114: proposed 3, measured 2",
+  +   "at 112: proposed 3, measured 2",
+  +   "at 110: proposed 3, measured 2",
+  +   "at 78: proposed 2, measured 1",
+  +   "at 76: proposed 2, measured 1",
+  +   "at 74: proposed 2, measured 1",
+  +   "at 72: proposed 2, measured 1",
+  +   "at 70: proposed 2, measured 1",
+  +   "at 38: proposed 1, measured 0",
+  +   "at 36: proposed 1, measured 0",
+  +   "at 34: proposed 1, measured 0",
+  +   "at 32: proposed 1, measured 0",
+  +   "at 30: proposed 1, measured 0",
+  + ]
+
+Test Files  1 failed (1)
+Tests  7 failed | 49 passed (56)

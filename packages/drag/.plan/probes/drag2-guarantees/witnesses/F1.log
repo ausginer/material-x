@@ -1,0 +1,21 @@
+# F1
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F1.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/free-drag.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:323 > FreeDragController.moveTo > should keep following the pointer from the point it placed the visual at
+  AssertionError: expected [ 110, 100 ] to deeply equal [ 210, 170 ]
+  - Expected
+  + Received
+    [
+  -   210,
+  -   170,
+  +   110,
+  +   100,
+    ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 16 passed (17)

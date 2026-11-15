@@ -1,0 +1,96 @@
+# S2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser --project consumer tests/y-geometry.browser.test.ts`
+Exit: 1
+
+Failed Tests 8
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:99 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+  AssertionError: expected [ …(4) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 203: proposed 2, measured 3",
+  +   "at 203: proposed 2, measured 3",
+  +   "at 115: proposed 1, measured 2",
+  +   "at 67: proposed 0, measured 1",
+  + ]
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:99 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:243 > drag:DRI-14 the gap instrument > should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects
+  AssertionError: expected [] to not deeply equal []
+  Compared values have no visual difference.
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:243 > drag:DRI-14 the gap instrument > should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:255 > drag:DRI-14 the gap instrument > should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0, slot 0
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:255 > drag:DRI-14 the gap instrument > should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects
+  AssertionError: expected [] to not deeply equal []
+  Compared values have no visual difference.
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:272 > drag:DRI-14 the gap instrument > should agree on a block column whose margins collapse when the placeholder has the rows' margins
+  AssertionError: expected [ …(4) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 205: proposed 2, measured 3",
+  +   "at 203: proposed 2, measured 3",
+  +   "at 119: proposed 1, measured 2",
+  +   "at 71: proposed 0, measured 1",
+  + ]
+
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:272 > drag:DRI-14 the gap instrument > should agree on a block column whose margins collapse when the placeholder has the rows' margins
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:99 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+  AssertionError: expected [ …(4) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 203: proposed 2, measured 3",
+  +   "at 203: proposed 2, measured 3",
+  +   "at 115: proposed 1, measured 2",
+  +   "at 67: proposed 0, measured 1",
+  + ]
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:99 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree under a flow gap between the rows
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:243 > drag:DRI-14 the gap instrument > should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects
+  AssertionError: expected [] to not deeply equal []
+  Compared values have no visual difference.
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:243 > drag:DRI-14 the gap instrument > should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:255 > drag:DRI-14 the gap instrument > should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0, slot 0
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:255 > drag:DRI-14 the gap instrument > should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects
+  AssertionError: expected [] to not deeply equal []
+  Compared values have no visual difference.
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:272 > drag:DRI-14 the gap instrument > should agree on a block column whose margins collapse when the placeholder has the rows' margins
+  AssertionError: expected [ …(4) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 205: proposed 2, measured 3",
+  +   "at 203: proposed 2, measured 3",
+  +   "at 119: proposed 1, measured 2",
+  +   "at 71: proposed 0, measured 1",
+  + ]
+
+FAIL  |consumer (chromium)| tests/y-geometry.browser.test.ts:272 > drag:DRI-14 the gap instrument > should agree on a block column whose margins collapse when the placeholder has the rows' margins
+  Error: the predicted insertion geometry disagreed with a fresh measurement at slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0, slot 0
+
+Test Files  2 failed (2)
+Tests  8 failed | 18 passed (26)

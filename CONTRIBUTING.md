@@ -8,25 +8,25 @@ The single source of truth for **how code is written here**: source conventions 
 
 ## Reading one entry of a record
 
-A record under `packages/*/.plan/` states each decision, finding, invariant, measurement, criterion, standing condition and obligation as a `####` entry (D-171, D-173). To read one back:
+A record under `packages/*/.plan/` states each decision, finding, invariant, measurement, criterion, standing condition and obligation as a `####` entry (`drag2:D-171`, `drag2:D-173`). To read one back:
 
 ```sh
-packages/drag2/.scripts/entry.sh drag2:D-171
+.scripts/entry.sh drag:DRD-13
 ```
 
-**The address is qualified** — `<scope>:<local-id>` — and a bare identifier is refused rather than resolved. A convenience form is what every caller ends up written against, and it cannot answer once a second scope exists, so it would break exactly when it was most used. The scope map in `packages/drag2/.scripts/entry.ts` lists the scopes this build resolves; a new scope such as `box-quad:BQ-9` is a row there and not a change to the syntax. Unknown scope, unknown local identifier and a local identifier the record defines twice are three **distinct** failures, because the repairs differ: an address for a package this build cannot see, a citation of something the record never states, and a defect in the record.
+**The address is qualified** — `<scope>:<local-id>` — and a bare identifier is refused rather than resolved. A convenience form is what every caller ends up written against, and it cannot answer once a second scope exists, so it would break exactly when it was most used. The scope map in `.scripts/entry.ts` lists the scopes this build resolves; a new scope such as `box-quad:BQ-9` is a row there and not a change to the syntax. A retired scope resolves at the commit that its scope row names. Unknown scope, unknown local identifier and a local identifier the record defines twice are three **distinct** failures, because the repairs differ: an address for a package this build cannot see, a citation of something the record never states, and a defect in the record.
 
 The headings themselves stay local, so with no toolchain to hand one entry of one known file extracts standalone:
 
 ```sh
-awk -v re="^#### D-171( —|$)" \
+awk -v re="^#### DRD-13( —|$)" \
   '$0 ~ re {f=1;print;next} f && /^#{1,4} /{exit} f' \
-  packages/drag2/.plan/contract/00-index.md
+  packages/drag/.plan/00-index.md
 ```
 
-Both guards carry weight. `( —|$)` stops `D-16` answering for `D-163`, and the `#{1,4}` terminator cannot match `#####`, so an entry's own sub-clauses stay inside the extraction. This is an idiom for one file you already know, not a second implementation behind the wrapper: `entry.sh` is what finds the file across the current-state documents and refuses an ambiguous answer.
+Both guards carry weight. `( —|$)` stops `DRD-1` answering for `DRD-13`, and the `#{1,4}` terminator cannot match `#####`, so an entry's own sub-clauses stay inside the extraction. This is an idiom for one file you already know, not a second implementation behind the wrapper: `entry.sh` is what finds the file across the current-state documents and refuses an ambiguous answer.
 
-**Writing one, and the three rules that keep it addressable** (D-174, D-175). A local identifier is `[A-Za-z][A-Za-z0-9]*-\d+` — no letter budget, so `SC-7` and a future `BQ-9` are the same kind of thing.
+**Writing one, and the three rules that keep it addressable** (`drag2:D-174`, `drag2:D-175`). A local identifier is `[A-Za-z][A-Za-z0-9]*-\d+` — no letter budget, so `SC-7` and a future `BQ-9` are the same kind of thing.
 
 - A heading **opening** with an identifier claims it: `#### F-2` or `#### F-2 — …`. It sits at `####`, and no identifier is claimed twice anywhere in the tree.
 - `##### F-2 §Specification` is a named **sub-clause** of that entry. It goes below `####` and under the entry claiming the same identifier.
@@ -171,7 +171,7 @@ In particular:
 
 **This section decides whether a check exists; §1.3 decides whether its message ships.** A check can survive here on (b) and still be gated under §1.3, because the party who can trigger it is outside the library. _Whose state breaks_ selects the check; _who can reach the condition_ selects the payload.
 
-If consumer misuse causes an operation to fail, prefer the package's normal failure path over a synchronous `throw`: `reportError` with a `DragFault` in `@ydinjs/drag`, `onError` in drag2. Ideally, public runtime code contains very few explicit `throw` statements.
+If consumer misuse causes an operation to fail, prefer the package's normal failure path over a synchronous `throw`: `reportError` with a `DragFault` in `@ydinjs/drag`. Ideally, public runtime code contains very few explicit `throw` statements.
 
 ### 1.2 Prefer types over runtime guards
 
@@ -220,7 +220,7 @@ A public type graph must not accidentally force an equivalent runtime graph.
 
 Do not export numbered implementation constants merely to give internal values names. Public runtime values should exist only when consumers genuinely need to use them.
 
-**The bundle is not the cost, and that was measured.** Thirteen public numeric failure-stage constants, exported from a package root, cost a bundling consumer **0 minified, 0 Brotli, 0 modules** — byte-identical across fourteen compositions and across a fixture naming all thirteen reachably. A bundler that folds cross-module constants inlines every small-integer `const` at its use site and drops the module: **the symbolic name _is_ the number by the time the minifier finishes.** Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md).
+**The bundle is not the cost, and that was measured.** Thirteen public numeric failure-stage constants, exported from a package root, cost a bundling consumer **0 minified, 0 Brotli, 0 modules** — byte-identical across fourteen compositions and across a fixture naming all thirteen reachably. A bundler that folds cross-module constants inlines every small-integer `const` at its use site and drops the module: **the symbolic name _is_ the number by the time the minifier finishes.** Record: `packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md` at `0870abd75`.
 
 So there is **no prohibition on exported numeric phase, state or failure constants, and there is a condition**: they must be _part of the supported consumer contract_. Three costs survive, and none is the bundle.
 
@@ -389,7 +389,7 @@ What this document used to say, and what changed it, so a measurement already ma
 | Date | Section | Change |
 | --- | --- | --- |
 | 2026-08-24 | §1.3 | **Withdrawn:** _development-only diagnostics are preferable when they can be removed from production output._ False whenever the trigger is outside the library. Replaced by gating on **provenance** rather than audience |
-| 2026-08-24 | §4 | **Withdrawn:** _avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract._ The rule was argued on bundle size and the premise was measured false; the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md) |
+| 2026-08-24 | §4 | **Withdrawn:** _avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract._ The rule was argued on bundle size and the premise was measured false; the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: `packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md` at `0870abd75` |
 | 2026-08-24 | §16 | **Added:** diagnostic payload as a removal class in its own right, ranked ahead of syntax work |
 | 2026-08-25 | §1.1 | **Withdrawn:** _runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere._ Ownership is the right second question and the wrong first one. Replaced by **reachability**, and then by reachability as a **gate**, because merely ordering the two lets ownership rescue a check reachability already rejected |
 | 2026-08-25 | §1.2 | **Added:** a constraint the compiler cannot state is still a constraint, and writing it down is what puts the input outside the contract |
@@ -397,15 +397,16 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-08-26 | §18 | **Removed** the live byte figures from the worked example; the rule they illustrated is unchanged |
 | 2026-08-26 | — | Amendment narrative, dates and struck wording moved into this section; section numbers declared permanent |
 | 2026-08-29 | — | `CODE_OF_SIZE.md` and `.agents/docs/code-style.md` merged here as Part II and Part I. Section numbers carried over unchanged; §1.1's worked audit narratives dropped to the records that already hold them |
-| 2026-09-08 | §18 | **Added:** a lifecycle boundary somebody performs satisfies the observer preference, tested by whether its abandonment is also an act; and a boundary may restore an instrument but never spend one, so a re-base is triggered by the reading. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-187 |
-| 2026-09-08 | §18 | **Added:** a suspended row states the capability it withdraws, never the coverage that remains. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-187 |
-| 2026-09-09 | §18 | **Added:** a restoration reads the new figure against the figure the suspension recorded and states the interval as attributable or not; the restoration rule leaves the re-base bullet, and _the last figure it produced_ means a figure rather than a delta. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-409 |
-| 2026-09-09 | §18 | **Added:** the boundary test carries a second limb — one identification of the boundary, stated where the obligation is administered. The abandonment limb is necessary and was shown insufficient. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-410 |
-| 2026-09-09 | §18 | **Added:** a withdrawal is stated against what the instrument **asserts** rather than a docblock's motivating case, and guarded in both directions — understated withdrawal is the same failure as overstated residue. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-411 |
-| 2026-11-06 | Part I, Naming and self-documentation; Comments and JSDoc | **Added:** the reusable naming and English guide from the owner-directed [terminology pass](packages/drag2/.plan/terminology-ste-brief.md), with comment reduction and preservation of factual meaning. Applies to new work; existing records are not rewritten |
+| 2026-09-08 | §18 | **Added:** a lifecycle boundary somebody performs satisfies the observer preference, tested by whether its abandonment is also an act; and a boundary may restore an instrument but never spend one, so a re-base is triggered by the reading. Record: `drag2:D-187` |
+| 2026-09-08 | §18 | **Added:** a suspended row states the capability it withdraws, never the coverage that remains. Record: `drag2:D-187` |
+| 2026-09-09 | §18 | **Added:** a restoration reads the new figure against the figure the suspension recorded and states the interval as attributable or not; the restoration rule leaves the re-base bullet, and _the last figure it produced_ means a figure rather than a delta. Record: `drag2:D-192`, `drag2:F-409` |
+| 2026-09-09 | §18 | **Added:** the boundary test carries a second limb — one identification of the boundary, stated where the obligation is administered. The abandonment limb is necessary and was shown insufficient. Record: `drag2:D-192`, `drag2:F-410` |
+| 2026-09-09 | §18 | **Added:** a withdrawal is stated against what the instrument **asserts** rather than a docblock's motivating case, and guarded in both directions — understated withdrawal is the same failure as overstated residue. Record: `drag2:D-192`, `drag2:F-411` |
+| 2026-11-06 | Part I, Naming and self-documentation; Comments and JSDoc | **Added:** the reusable naming and English guide from the owner-directed terminology pass (`packages/drag2/.plan/terminology-ste-brief.md` at `0870abd75`), with comment reduction and preservation of factual meaning. Applies to new work; existing records are not rewritten |
 | 2026-11-06 | §1.1 | **Changed:** the failure path is named per package, because `@ydinjs/drag` has no `onError`. It used to say _the normal `onError` path_. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-3 |
 | 2026-11-07 | Reading one entry | **Corrected:** the resolvable scopes are named by the script's scope map. The text said _`drag2` is the only scope this build resolves_, which was already false for `repo`. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-23 |
 | 2026-11-08 | Part I, TypeScript | **Added:** the preference for `type-fest`'s utilities over equivalent handwritten types, stated by the owner. It corrects a reading of `DRD-27` that took the removal of `type-fest` from `@ydinjs/drag` as a rule. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-29 |
 | 2026-11-08 | Part I, TypeScript | **Changed:** at the owner's direction, implementation contracts use interfaces, including contracts currently implemented by object literals. This replaces the preference for `type` except where a class already implements it. The blanket `Readonly<>` guidance now distinguishes data records from implementation interfaces; interface data properties remain `readonly` unless mutation is required |
 | 2026-11-08 | Part I, Class encapsulation | **Added:** at the owner's direction, mutable class state is private and public fields are read-only. Read-only interfaces and reference bindings do not permit exposing writable class-owned state |
 | 2026-11-09 | Part I, TypeScript | **Clarified:** interfaces describe intended implementation contracts. Library-created object values remain types even when they contain functions. Method presence and lint behavior do not determine the declaration kind |
+| 2026-11-15 | Reading one entry of a record; §1.1 | **Changed:** the resolver is `.scripts/entry.sh`, and a retired scope resolves at the commit its scope row names. The examples read drag's record. §1.1 names only drag's failure path. Links into drag2 name its paths at `0870abd75`, or its entries by `drag2:` address. Record: `repo:RD-5` |

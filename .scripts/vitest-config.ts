@@ -35,8 +35,7 @@ const BROWSER_WORKERS = 2;
 // runs `npm pack` and `tsc`, and `size.node` bundles and compresses. At
 // `cores - 1` the group oversubscribed badly enough to time out three tests;
 // measured on all five node projects, 40 s with four failures against 45 s with
-// none. That measurement predates drag2's single build, when those files also
-// ran tsdown, and it has not been repeated.
+// none. It has not been repeated since.
 const NON_BROWSER_WORKERS = Math.max(Math.floor(availableParallelism() / 2), 1);
 
 /**
@@ -184,10 +183,8 @@ type WorkspaceTestConfigOptions = Readonly<{
   materialXRoot: URL;
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   dragCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
-  drag2Commands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
   dragRoot: URL;
-  drag2Root: URL;
   tprocRoot: URL;
   viteTraitsPluginRoot: URL;
 }>;
@@ -259,9 +256,6 @@ function createBrowserTestConfig(
 function createTestBaseConfig(root: URL): UserConfig {
   return {
     root: fileURLToPath(root),
-    // See `createViteConfig`. Declared here as well so the node and
-    // declaration projects, which do not take a vite config, still resolve it.
-    define: { __DEV__: 'true' },
     // Every project derives from here, which is what puts the one-shot contract
     // into the node and declaration projects: they carry no other plugins, and
     // `configureVitest` hooks are gathered per project.
@@ -399,11 +393,17 @@ function createCoreTestProjects(
   ];
 }
 
+/** `@ydinjs/drag`'s source projects install the oracles on `src`. */
+const DRAG_SOURCE_SETUP_FILES: readonly string[] = [
+  'tests/support/oracles.source.ts',
+];
+
 function createDragBrowserTestProject(
   root: URL,
   name: string,
   include: readonly string[],
   exclude: readonly string[],
+  setupFiles: readonly string[],
   commands?: Record<string, BrowserCommand<any[]>>,
 ): UserConfig {
   return createBrowserTestProject({
@@ -411,6 +411,7 @@ function createDragBrowserTestProject(
     root,
     include,
     exclude,
+    setupFiles,
     // M-6's census drives Playwright's own input pipeline; a dispatched event
     // never reaches the coalescing decision the measurement is about.
     commands,
@@ -431,14 +432,14 @@ function createDragBrowserTestProject(
 }
 
 /**
- * `shipped` lists the browser files that measure the code a consumer installs.
- * They run in a `shipped` browser project of their own with `__DEV__` defined
- * `false`, so every development-only instrument is folded away exactly as in a
- * published build, and the ordinary browser project excludes them. A separate
- * project rather than a runtime switch: the instruments stay on for every other
- * file, and nothing in `src` holds state for a test to flip. The project
- * exists only for a package that names such files, because a project matching
- * no file fails the run.
+ * `shipped` lists the browser files that count what the code a consumer installs
+ * does at runtime. They run against `src` in a `shipped` browser project of their
+ * own, without the test-side oracles, because the equivalence oracle's fresh
+ * measurement is itself a layout read, and the ordinary browser project excludes
+ * them. Every other browser project installs the oracles from its setup: on `src`
+ * in the source projects, and on the emitted modules in the consumer project. The
+ * `shipped` project exists only for a package that names such files, because a
+ * project matching no file fails the run.
  */
 function createDragTestProjects(
   root: URL,
@@ -454,21 +455,18 @@ function createDragTestProjects(
       scopedName('browser', scope),
       ['tests/**/*.browser.test.ts'],
       shipped,
+      DRAG_SOURCE_SETUP_FILES,
       commands,
     ),
     ...(shipped.length > 0
       ? [
-          // Merged last, so the definition overrides the `true` every other
-          // project inherits from the base and the vite configuration.
-          mergeConfig(
-            createDragBrowserTestProject(
-              root,
-              scopedName('shipped', scope),
-              shipped,
-              [],
-              commands,
-            ),
-            { define: { __DEV__: 'false' } } satisfies UserConfig,
+          createDragBrowserTestProject(
+            root,
+            scopedName('shipped', scope),
+            shipped,
+            [],
+            [],
+            commands,
           ),
         ]
       : []),
@@ -480,13 +478,13 @@ function createDragTestProjects(
               scopedName('consumer', scope),
               ['tests/**/*.browser.test.ts'],
               [...shipped, ...consumer.sourceOnly],
+              consumer.setupFiles,
               commands,
             ),
             {
               plugins: [publishedEntries(fileURLToPath(root))],
               test: {
                 globalSetup: [...consumer.globalSetup],
-                setupFiles: [...consumer.setupFiles],
               },
             } satisfies UserConfig,
           ),
@@ -580,30 +578,9 @@ export function createCoreTestConfig(root: URL): UserConfig {
 }
 
 /**
- * drag2's files for the `shipped` project: the zero-read census counts the
- * geometry reads a consumer's build performs, and the development-only
- * equivalence instrument is itself such a read.
- */
-export const DRAG2_SHIPPED_BROWSER_TESTS: readonly string[] = [
-  'tests/sortable/zero-read.browser.test.ts',
-];
-
-/**
- * drag2's node project builds once, before any of its files starts. Its emit
- * writes the package root, and the tree is not valid until the emit's hook has
- * finished, so no file in the project may build that tree or read it during one.
- * A failed build goes to the setup file, which raises it in each of the project's
- * files.
- */
-export const DRAG2_NODE_BUILD: NodeProjectBuild = {
-  globalSetup: ['tests/support/build-package.node.ts'],
-  setupFiles: ['tests/support/require-build.node.ts'],
-};
-
-/**
  * `@ydinjs/drag`'s files for the `shipped` project: the hot-path census counts the
- * geometry reads and allocations a consumer's build performs, and the development
- * equivalence check is itself such a read.
+ * geometry reads and allocations a consumer's build performs, and the equivalence
+ * oracle is itself such a read.
  */
 export const DRAG_SHIPPED_BROWSER_TESTS: readonly string[] = [
   'tests/hot-path.browser.test.ts',
@@ -611,8 +588,8 @@ export const DRAG_SHIPPED_BROWSER_TESTS: readonly string[] = [
 
 /**
  * `@ydinjs/drag`'s browser files that run in the source projects only, because
- * each test in them reads a development instrument, which the build folds away,
- * or an internal member, which the package does not publish.
+ * each test in them reads an internal member, which the package does not publish,
+ * or the stories, which import `src`.
  */
 export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
   // `src/kernel/callbacks.ts`, which no entry publishes.
@@ -620,20 +597,22 @@ export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
   // The displacement sink's `report` and `displaced`, which only the unpublished
   // installer types declare.
   'tests/displacement-sink.browser.test.ts',
-  // The development equivalence check's report.
-  'tests/equivalence-check.browser.test.ts',
-  // The refusal count.
-  'tests/refusals.browser.test.ts',
+  // The stories, which import `src`.
+  'tests/stories.browser.test.ts',
 ];
+
+/** Raises a failed build before anything imports the emitted tree. */
+const DRAG_REQUIRE_BUILD = 'tests/support/require-build.ts';
 
 /**
  * `@ydinjs/drag`'s consumer project: the browser files apart from the `shipped`
- * and source-only ones, against the build that `just build` makes.
+ * and source-only ones, against the build that `just build` makes, with the
+ * oracles installed on the emitted modules.
  */
 export const DRAG_CONSUMER: ConsumerProject = {
   sourceOnly: DRAG_SOURCE_ONLY_BROWSER_TESTS,
   globalSetup: ['tests/support/build-package.node.ts'],
-  setupFiles: ['tests/support/require-build.ts'],
+  setupFiles: [DRAG_REQUIRE_BUILD, 'tests/support/oracles.build.ts'],
 };
 
 /**
@@ -643,7 +622,7 @@ export const DRAG_CONSUMER: ConsumerProject = {
  */
 export const DRAG_NODE_BUILD: NodeProjectBuild = {
   globalSetup: DRAG_CONSUMER.globalSetup,
-  setupFiles: DRAG_CONSUMER.setupFiles,
+  setupFiles: [DRAG_REQUIRE_BUILD],
 };
 
 /**
@@ -690,11 +669,16 @@ export function createDragAllEnginesTestConfig(
     'browser',
     ['tests/**/*.browser.test.ts'],
     shipped,
+    DRAG_SOURCE_SETUP_FILES,
     commands,
   );
-  const shippedProject = mergeConfig(
-    createDragBrowserTestProject(root, 'shipped', shipped, [], commands),
-    { define: { __DEV__: 'false' } } satisfies UserConfig,
+  const shippedProject = createDragBrowserTestProject(
+    root,
+    'shipped',
+    shipped,
+    [],
+    [],
+    commands,
   );
 
   return {
@@ -782,15 +766,13 @@ export function createWorkspaceTestConfig(
       DRAG_NODE_BUILD,
       DRAG_CONSUMER,
     ) as [UserConfig, UserConfig, UserConfig, UserConfig, UserConfig];
-  const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
-    createDragTestProjects(
-      options.drag2Root,
-      'drag2',
-      options.drag2Commands,
-      DRAG2_SHIPPED_BROWSER_TESTS,
-      DRAG2_NODE_BUILD,
-    ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
+  // The repository's own tooling, such as the record resolver.
+  const repoNode = createNodeTestProject({
+    name: 'repo',
+    root: options.root,
+    include: ['.scripts/**/*.node.test.ts'],
+  });
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
     options.viteTraitsPluginRoot,
     'vite-traits-plugin',
@@ -811,12 +793,9 @@ export function createWorkspaceTestConfig(
         dragConsumer,
         dragNode,
         dragDeclaration,
-        drag2Browser,
-        drag2Shipped,
-        drag2Node,
-        drag2Declaration,
         tprocNode,
         viteTraitsPluginNode,
+        repoNode,
       ]),
     },
   });

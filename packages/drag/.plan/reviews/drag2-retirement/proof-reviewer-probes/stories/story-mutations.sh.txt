@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Reviewer mutations of the stories, in the review worktree's packages/drag.
+# Each one is applied by content (exactly one match), runs tests/stories.browser.test.ts
+# in Chromium, and is restored from its own copy; `cmp` confirms the restore.
+set -u
+cd "$1/packages/drag" || exit 1
+out=$2
+mutate() { # <name> <file> <find> <replace>
+  local name=$1 file=$2
+  cp "$file" "$out/$name.bak"
+  node -e '
+    const fs = require("node:fs");
+    const [file, find, repl] = process.argv.slice(1);
+    const s = fs.readFileSync(file, "utf8");
+    const n = s.split(find).length - 1;
+    if (n !== 1) { console.error(`${file}: ${n} matches`); process.exit(1); }
+    fs.writeFileSync(file, s.replace(find, repl));
+  ' "$file" "$3" "$4" || { echo "## $name: not applied"; return; }
+  diff -u "$out/$name.bak" "$file" > "$out/$name.diff"
+  timeout 600 npx vitest run -c vitest.config.ts --project browser tests/stories.browser.test.ts > "$out/$name.log" 2>&1
+  echo "## $name exit=$?"
+  grep -E '^ +(×|✓)|Tests ' "$out/$name.log" | sed 's/ [0-9]*ms$//'
+  cp "$out/$name.bak" "$file"; cmp -s "$out/$name.bak" "$file" && echo "restored"
+}
+# MS1: the sortable stories accept without committing the order.
+mutate MS1 src/sortable.stories.tsx "        flushSync(() => {
+          setOrder((current) => {" "        void (() => {
+          setOrder((current) => {"
+# MF1: an accepted free drop is not written to the box.
+mutate MF1 src/free-drag.stories.tsx "    box.style.translate = \`\${offset.x}px \${offset.y}px\`;" "    void box;"
+# MF2: the asynchronous story skips the saving status.
+mutate MF2 src/free-drag.stories.tsx "        setStatus('saving…');" ""

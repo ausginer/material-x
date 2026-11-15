@@ -1,0 +1,7 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:330 > layoutAnimation composition > should render one slot of travel under an ancestor scale()
+AssertionError: expected +0 to be close to -80, received difference is 80, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:350 > layoutAnimation with a visual that is not the item > should render one slot of travel under an ancestor scale()
+AssertionError: expected 160 to be close to 80, received difference is 80, but expected 0.05
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:371 > layoutAnimation with a visual that is not the item > should ignore a transformed wrapper between the item and its visual
+AssertionError: expected 160 to be close to 80, received difference is 80, but expected 0.05
+Tests  3 failed | 13 passed (16)

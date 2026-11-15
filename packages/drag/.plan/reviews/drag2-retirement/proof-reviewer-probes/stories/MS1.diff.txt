@@ -1,0 +1,10 @@
+--- <scratch>/mut/MS1.bak	2026-11-15 08:15:18.180183999 +0000
++++ src/sortable.stories.tsx	2026-11-15 08:15:18.199184541 +0000
+@@ -58,7 +58,7 @@
+       landing: landing(),
+       displacement: layoutAnimation(),
+       onReorder({ from, to }) {
+-        flushSync(() => {
++        void (() => {
+           setOrder((current) => {
+             const moved = current[from]!;

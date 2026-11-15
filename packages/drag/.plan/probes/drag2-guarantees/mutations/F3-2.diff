@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/operation.ts b/packages/drag/src/sortable/operation.ts
+index 188e75220..c5a109234 100644
+--- a/packages/drag/src/sortable/operation.ts
++++ b/packages/drag/src/sortable/operation.ts
+@@ -230,7 +230,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
+ 
+     this.#result = {
+       type: 'rejected',
+-      reason: (outcome.value as RejectedResolution)[0],
++      reason: undefined,
+       request: this.#request!,
+     };
+ 

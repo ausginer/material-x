@@ -1,0 +1,21 @@
+# S9-2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S9-2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/faults.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:355 > drag:DRI-7 a throwing placeholder factory > should report the throw as one fault and start nothing
+  AssertionError: expected [] to deeply equal [ Error: placeholder ]
+  - Expected
+  + Received
+  - [
+  -   Error {
+  -     "message": "placeholder",
+  -   },
+  - ]
+  + []
+
+Test Files  1 failed (1)
+Tests  1 failed | 13 passed (14)

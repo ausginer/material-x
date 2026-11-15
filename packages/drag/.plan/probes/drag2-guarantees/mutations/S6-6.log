@@ -1,0 +1,5 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+AssertionError: expected [ +0, 1, 2, 3 ] to deeply equal [ +0, 1 ]
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+AssertionError: expected [ Animation{} ] to deeply equal []
+Tests  2 failed | 14 passed (16)

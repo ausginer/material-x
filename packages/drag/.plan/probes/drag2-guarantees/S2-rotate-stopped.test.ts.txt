@@ -1,0 +1,13 @@
+// Stopped S2 clause: passes with __DEV__ true, fails with __DEV__ false (consumer project,
+// and the source project with the define flipped): 'at 95: proposed 1, measured 2'.
+// Drop this `it` back into the describe in tests/y-geometry.browser.test.ts to run it.
+  it('should agree with an authored rotate on a row', async () => {
+    // A rotation enlarges the row's rect beyond its flow footprint, so a rule that
+    // summed rect extents over the crossed rows would drift.
+    const rows = heights([70, 55, 30, 90]);
+
+    rows[1] = { ...rows[1], rotate: '8deg' };
+    expect(await sweepList('display:flex;flex-direction:column', rows)).toEqual(
+      [],
+    );
+  });

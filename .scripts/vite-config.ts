@@ -39,15 +39,6 @@ export function createViteConfig(root: URL): UserConfig {
       },
     },
     cacheDir: '.vite',
-    // `@ydinjs/drag2` compiles its dev-only assertions against a bare
-    // `__DEV__`, so that a published build can substitute `false` and drop the
-    // branches entirely (drag2 `src/globals.d.ts`). There is deliberately no
-    // `typeof __DEV__ === 'undefined'` fallback there — a missing define is a
-    // `ReferenceError` at import rather than a silent ship of the assertions —
-    // so it belongs on the *base* config every in-repo build derives from, not
-    // on one of the specialized ones. Storybook builds drag2's stories from
-    // source through `createMaterialXViteConfig`, and found this the loud way.
-    define: { __DEV__: 'true' },
   };
 }
 

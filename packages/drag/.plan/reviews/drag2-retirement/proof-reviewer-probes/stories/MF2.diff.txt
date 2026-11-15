@@ -1,0 +1,11 @@
+--- <scratch>/mut/MF2.bak	2026-11-15 08:15:45.641966936 +0000
++++ src/free-drag.stories.tsx	2026-11-15 08:15:45.657967392 +0000
+@@ -125,7 +125,7 @@
+         setStatus('dragging…');
+       },
+       async onDrop() {
+-        setStatus('saving…');
++
+         await new Promise((resolve) => {
+           setTimeout(resolve, 600);
+         });

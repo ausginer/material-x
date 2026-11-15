@@ -4,6 +4,7 @@ import type { Outcome } from '../src/draggable.ts';
 import { DragFault } from '../src/fault.ts';
 import { Lifter } from '../src/lift.ts';
 import {
+  basicSortable,
   dragAndDrop,
   faults,
   faultMessages,
@@ -14,6 +15,7 @@ import {
   makeList,
   managed,
   onCleanup,
+  order,
   release,
   targetOf,
 } from './support/harness.ts';
@@ -346,5 +348,58 @@ describe('drag:DRI-7 a failed acquisition', () => {
     expect(outcomes).toEqual([
       { type: 'canceled', reason: faults[0], origin: 'fault' },
     ]);
+  });
+});
+
+describe('drag:DRI-7 a throwing placeholder factory', () => {
+  it('should report the throw as one fault and start nothing', async () => {
+    const list = makeList(3);
+    const failure = new Error('placeholder');
+
+    basicSortable(list, {
+      placeholder: () => {
+        throw failure;
+      },
+    });
+    await dragAndDrop('#r0', 50);
+    expect(faults.map((fault) => fault.cause)).toEqual([failure]);
+    expect(log).toEqual([]);
+  });
+
+  it('should leave the item and the list as they were', async () => {
+    const list = makeList(3);
+    const row = list.querySelector<HTMLElement>('#r0')!;
+    const style = row.getAttribute('style');
+
+    basicSortable(list, {
+      placeholder: () => {
+        throw new Error('placeholder');
+      },
+    });
+    await dragAndDrop(row, 50);
+    expect(row.getAttribute('style')).toBe(style);
+    expect(row.matches(':popover-open')).toBe(false);
+    expect(isClean(list)).toBe(true);
+    expect(order(list)).toBe('r0,r1,r2');
+  });
+
+  it('should let the next drag reorder', async () => {
+    const list = makeList(3);
+    let failing = true;
+
+    basicSortable(list, {
+      placeholder: () => {
+        if (failing) {
+          failing = false;
+          throw new Error('placeholder');
+        }
+
+        return document.createElement('div');
+      },
+    });
+    await dragAndDrop('#r0', 50);
+    await dragAndDrop('#r0', 50);
+    expect(log).toEqual(['start', 'end:accepted']);
+    expect(order(list)).toBe('r1,r0,r2');
   });
 });

@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 11063f20f..55dcd6fba 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -410,8 +410,6 @@ export class Session<
+       return;
+     }
+ 
+-    this.#drag.x = event.clientX;
+-    this.#drag.y = event.clientY;
+     this.#drop(this.#operation);
+   }
+ 

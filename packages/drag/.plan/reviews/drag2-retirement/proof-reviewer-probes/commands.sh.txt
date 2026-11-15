@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# The reviewer's inline commands, as run, for the evidence that the saved scripts don't produce.
+# S is the session's scratch directory. W is a detached worktree at a5f028959 under S, removed after the review.
+S=<scratch>; W=$S/w
+
+# Old resolver trees (resolver/): drag2 at 0870abd75 with its own records, and the old
+# resolver code beside a5f028959's drag and repo records. node_modules linked to the main checkout.
+git archive 0870abd75 packages/drag2/.scripts packages/drag2/tests/ledger.ts packages/drag2/.plan \
+  packages/drag/.plan/00-index.md packages/drag/.plan/contract.md .plan/00-index.md | tar -x -C $S/old
+git archive 0870abd75 packages/drag2/.scripts packages/drag2/tests/ledger.ts packages/drag2/.plan | tar -x -C $S/oldhead
+git archive HEAD packages/drag/.plan/00-index.md packages/drag/.plan/contract.md .plan/00-index.md | tar -x -C $S/oldhead
+
+# Address sets (resolver/set-*.txt, cited.txt): every #### heading id, loosely matched, and every cited address.
+git ls-tree -r --name-only 0870abd75 -- packages/drag2/.plan/contract packages/drag2/.plan/obligations.md | grep '\.md$' \
+  | while read p; do git show 0870abd75:$p; done | grep -oE '^####[[:space:]]+[A-Za-z][A-Za-z0-9]*-[0-9]+' | awk '{print "drag2:"$2}' | sort -u
+cat packages/drag/.plan/00-index.md packages/drag/.plan/contract.md | grep -oE '^####[[:space:]]+[A-Za-z][A-Za-z0-9]*-[0-9]+' | awk '{print "drag:"$2}' | sort -u
+grep -oE '^####[[:space:]]+[A-Za-z][A-Za-z0-9]*-[0-9]+' .plan/00-index.md | awk '{print "repo:"$2}' | sort -u
+git grep -ohE '\b(drag2|drag|repo):[A-Za-z][A-Za-z0-9]*-[0-9]+' HEAD -- . | sed 's/^HEAD://' | sort -u
+# then: compare.sh $S/old set-drag2.txt …; compare.sh $S/oldhead set-current.txt …
+npx vitest run --project repo
+
+# Rejudge (rejudge/): every tracked recording with a "raw" key, by the new script (main checkout)
+# and by compare.ts at b376b356c, extracted with git archive into $S/bench-old.
+for f in $(git ls-files '.plan/measurements/*.json' | xargs grep -l '"raw"'); do
+  node bench/compare.ts --rejudge $f
+  (cd $S/bench-old/packages/drag && node bench/compare.ts --rejudge /workspaces/material-x/packages/drag/$f)
+done
+
+# Worktree setup: node_modules entries linked to the main checkout, except @ydinjs/*, linked to W's own packages.
+git worktree add --detach $W a5f028959
+NX_DAEMON=false npx nx run-many -t build --projects=vite-traits-plugin,vite-custom-element-assets,box-quad,core,size-limit-preset-rolldown --skipNxCache
+(cd $W/packages/drag && npx just typecheck && npx just build)
+
+# Stories (stories/): the repository test and the reviewer probe, copied into $W/packages/drag/tests for the run.
+npx vitest run -c vitest.config.ts --project browser tests/stories.browser.test.ts tests/reviewer-stories-probe.browser.test.ts
+npx vitest run -c vitest.engines.config.ts --project '*/firefox' tests/stories.browser.test.ts tests/reviewer-stories-probe.browser.test.ts
+# P4 after the viewport correction, in each engine:
+npx vitest run -c vitest.config.ts --project browser tests/reviewer-stories-probe.browser.test.ts -t P4
+npx vitest run -c vitest.engines.config.ts --project '*/firefox' tests/reviewer-stories-probe.browser.test.ts -t P4
+
+# Bench, in $W/packages/drag (and --prove --dry also in $S/bench-old/packages/drag).
+node bench/size/measure.ts --prototype
+node bench/compare.ts --prove --dry
+node bench/compare.ts --rounds 1 --only "300 moves, one frame each, 20 items"
+
+# Lint and format, in the main checkout, on the code files the range added or changed.
+R=".scripts/call-graph.ts .scripts/entry.node.test.ts .scripts/entry.ts .scripts/vite-config.ts .scripts/vitest-config.ts vitest.config.ts"
+npx oxlint $R; npx eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts $R
+(cd packages/drag && npx just lint)
+npx oxfmt --check $(git diff --name-only --diff-filter=AM b376b356c a5f028959 | grep -vE '\.txt$|\.py$|^\.gitignore$|Justfile$|\.sh$')
+npx tsc -p tsconfig.json --noEmit

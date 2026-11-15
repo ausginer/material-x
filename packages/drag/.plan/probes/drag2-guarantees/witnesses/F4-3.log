@@ -1,0 +1,32 @@
+# F4-3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F4-3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/free-drag.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:369 > bounds with a function source > should report a throw at activation as one fault carrying the thrown value
+  AssertionError: expected [] to deeply equal [ Error: bounds ]
+  - Expected
+  + Received
+  - [
+  -   Error {
+  -     "message": "bounds",
+  -   },
+  - ]
+  + []
+
+FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:384 > bounds with a function source > should report a throw during the drag as one fault carrying the thrown value
+  AssertionError: expected [] to deeply equal [ Error: bounds ]
+  - Expected
+  + Received
+  - [
+  -   Error {
+  -     "message": "bounds",
+  -   },
+  - ]
+  + []
+
+Test Files  1 failed (1)
+Tests  2 failed | 15 passed (17)

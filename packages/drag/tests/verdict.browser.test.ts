@@ -1,7 +1,11 @@
 /** `drag:DRI-5`: the verdict. */
 import { describe, expect, it } from 'vitest';
 import type { Outcome } from '../src/draggable.ts';
-import { ReorderResolution } from '../src/sortable.ts';
+import {
+  ReorderResolution,
+  type SortableRejectedResult,
+  type SortableResult,
+} from '../src/sortable.ts';
 import {
   basicSortable,
   commands,
@@ -241,5 +245,24 @@ describe('drag:DRI-5 verdict', () => {
     pending[0]!.resolve(ReorderResolution.accept());
     await release();
     expect(list.querySelector('[data-drag-placeholder]')).toBeNull();
+  });
+});
+
+describe('SortableRejectedResult', () => {
+  it('should carry the value given to reject as its reason', async () => {
+    const list = makeList(4);
+    const reason = { code: 'locked' };
+    const results: SortableResult[] = [];
+
+    basicSortable(list, {
+      onReorder: () => ReorderResolution.reject(reason),
+      onEnd(result) {
+        results.push(result);
+      },
+    });
+    await dragAndDrop('#r0', 90);
+    await frames();
+    expect(results.map((result) => result.type)).toEqual(['rejected']);
+    expect((results[0] as SortableRejectedResult).reason).toBe(reason);
   });
 });

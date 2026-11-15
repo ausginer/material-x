@@ -1,0 +1,7 @@
+Tests  2 failed | 11 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:265 > drag:DRI-6 commands during an operation > should refuse a command while a press is pending
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:274:23
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:279 > drag:DRI-6 commands during an operation > should refuse a command while a drag is active
+AssertionError: expected [ true ] to deeply equal [ false ]
+❯ tests/keyboard.browser.test.ts:288:23

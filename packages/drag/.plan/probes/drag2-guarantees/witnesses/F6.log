@@ -1,0 +1,23 @@
+# F6
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F6.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/activation.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/activation.browser.test.ts:275 > drag:DRI-4 pointercancel during a pending press > should end the press with no start, no end and no fault
+  AssertionError: expected { …(2) } to deeply equal { log: [], faults: [] }
+  - Expected
+  + Received
+    {
+      "faults": [],
+  -   "log": [],
+  +   "log": [
+  +     "start",
+  +     "end:accepted",
+  +   ],
+    }
+
+Test Files  1 failed (1)
+Tests  1 failed | 10 passed (11)

@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/y.ts b/packages/drag/src/sortable/y.ts
+index 9d57474ba..0b81ce9fd 100644
+--- a/packages/drag/src/sortable/y.ts
++++ b/packages/drag/src/sortable/y.ts
+@@ -47,7 +47,7 @@ class YAxisGeometry implements InsertionGeometry {
+     );
+ 
+     // Read once, outside the candidate loop.
+-    const anchor = this.#index.at(PLACEHOLDER, CENTER_Y);
++    const anchor = this.#index.at(PLACEHOLDER, TOP);
+     let best = Math.abs(query.pointerY - anchor);
+     let nearest = -1;
+ 

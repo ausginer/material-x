@@ -2,7 +2,8 @@
  * `drag:DRI-19` and `drag:DRI-4`: an operation's input can't be hidden by the
  * page, a press never activates without its button, one event drives one
  * operation across nested roots, and `Escape` that decides a started operation
- * is consumed.
+ * is consumed. `data-drag-ignore` is read up to the handle, through shadow
+ * boundaries.
  */
 import { describe, expect, it } from 'vitest';
 import { y } from '../src/sortable/y.ts';
@@ -12,6 +13,8 @@ import {
   centerOf,
   commands,
   dragAndDrop,
+  faults,
+  foreignErrors,
   frames,
   grab,
   log,
@@ -416,5 +419,74 @@ describe('drag:DRI-4 Escape', () => {
     expect(prevented).toEqual([false]);
     expect(log).toEqual([]);
     expect(rowsOf(list)).toHaveLength(3);
+  });
+});
+
+/** A list whose rows each hold a grip marked `data-drag-ignore`. */
+function makeMarkedGrips(): HTMLElement {
+  const list = makeList(4);
+
+  for (const row of rowsOf(list)) {
+    row.innerHTML =
+      '<span class="grip" data-drag-ignore style="display:block;height:40px">grip</span>';
+  }
+
+  return list;
+}
+
+/** A list whose first row holds an open shadow root with one inner element. */
+function makeShadowRow(): Readonly<{ list: HTMLElement; inner: HTMLElement }> {
+  const list = makeList(4);
+  const host = document.createElement('div');
+  const inner = document.createElement('span');
+
+  host.style.cssText = 'height:40px';
+  inner.style.cssText = 'display:block;height:40px';
+  inner.textContent = 'inside';
+  host.attachShadow({ mode: 'open' }).append(inner);
+  list.querySelector('#r0')!.replaceChildren(host);
+  return { list, inner };
+}
+
+describe('Admission.handle and data-drag-ignore', () => {
+  it('should admit a press on a handle that is itself marked data-drag-ignore', async () => {
+    const list = makeMarkedGrips();
+
+    basicSortable(list, {
+      handle: (item) => item.querySelector<HTMLElement>('.grip'),
+    });
+    await dragAndDrop('#r0 .grip', 90);
+    expect(log).toEqual(['start', 'end:accepted']);
+    expect(order(list)).toBe('r1,r2,r0,r3');
+  });
+
+  it('should refuse the same press when no handle is named', async () => {
+    const list = makeMarkedGrips();
+
+    basicSortable(list);
+    await dragAndDrop('#r0 .grip', 90);
+    expect(log).toEqual([]);
+    expect(order(list)).toBe('r0,r1,r2,r3');
+  });
+
+  it('should admit a press inside an open shadow root with no mark', async () => {
+    const { list, inner } = makeShadowRow();
+
+    basicSortable(list);
+    await dragAndDrop(inner, 90);
+    expect(log).toEqual(['start', 'end:accepted']);
+    expect(order(list)).toBe('r1,r2,r0,r3');
+    expect(faults).toEqual([]);
+    expect(foreignErrors).toEqual([]);
+  });
+
+  it('should refuse a press on an element marked inside an open shadow root', async () => {
+    const { list, inner } = makeShadowRow();
+
+    inner.setAttribute('data-drag-ignore', '');
+    basicSortable(list);
+    await dragAndDrop(inner, 90);
+    expect(log).toEqual([]);
+    expect(order(list)).toBe('r0,r1,r2,r3');
   });
 });

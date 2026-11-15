@@ -1,0 +1,9 @@
+/* eslint-disable import-x/no-relative-packages */
+import { defineConfig } from 'vitest/config';
+import { createDragTestConfig, DRAG_CONSUMER } from '../../.scripts/vitest-config.ts';
+import { dragBrowserCommands } from './tests/support/commands.node.ts';
+const shipped = ['tests/zz-spy-src.browser.test.ts'];
+export default defineConfig(() =>
+  createDragTestConfig(new URL('./', import.meta.url), dragBrowserCommands, shipped, undefined,
+    { ...DRAG_CONSUMER, sourceOnly: [...DRAG_CONSUMER.sourceOnly, 'tests/zz-spy-src.browser.test.ts'] }),
+);

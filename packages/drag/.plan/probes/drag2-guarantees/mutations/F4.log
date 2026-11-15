@@ -1,0 +1,7 @@
+     × should clamp to the rect the function returns
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:339 > bounds with a function source > should clamp to the rect the function returns
+ ❯ tests/free-drag.browser.test.ts:347:29
++ Received
+- Expected
+AssertionError: expected [ 890, 690 ] to deeply equal [ 300, 200 ]
+      Tests  1 failed | 16 passed (17)

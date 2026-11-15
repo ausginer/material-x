@@ -1,0 +1,4 @@
+Tests  1 failed | 12 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:227 > drag:DRI-14 commands from a nested text input > should run no command during an IME composition
+AssertionError: expected [ 'start', 'end:accepted' ] to deeply equal []
+❯ tests/keyboard.browser.test.ts:258:19

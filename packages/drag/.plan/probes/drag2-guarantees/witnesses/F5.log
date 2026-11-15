@@ -1,0 +1,16 @@
+# F5
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F5.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/coordinates.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:412 > drag:DRI-20 free drag under an ancestor transform or zoom > should commit the visual where it was dropped through the local delta under an ancestor transform
+  AssertionError: expected 335 to be close to 365, received difference is 30, but expected 0.5
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:412 > drag:DRI-20 free drag under an ancestor transform or zoom > should commit the visual where it was dropped through the local delta under an ancestor zoom
+  AssertionError: expected 740 to be close to 680, received difference is 60, but expected 0.5
+
+Test Files  1 failed (1)
+Tests  2 failed | 29 passed (31)

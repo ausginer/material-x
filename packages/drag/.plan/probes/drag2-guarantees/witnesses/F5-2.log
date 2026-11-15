@@ -1,0 +1,36 @@
+# F5-2
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/F5-2.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/coordinates.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:444 > drag:DRI-20 free drag under an ancestor transform or zoom > should report onMove currentRect as originRect moved by the viewport delta under an ancestor transform
+  AssertionError: expected { viewportDeltaX: 60, …(3) } to deeply equal { viewportDeltaX: 60, …(3) }
+  - Expected
+  + Received
+    {
+  -   "left": 365,
+  -   "top": 245,
+  +   "left": 425,
+  +   "top": 285,
+      "viewportDeltaX": 60,
+      "viewportDeltaY": 40,
+    }
+
+FAIL  |browser (chromium)| tests/coordinates.browser.test.ts:444 > drag:DRI-20 free drag under an ancestor transform or zoom > should report onMove currentRect as originRect moved by the viewport delta under an ancestor zoom
+  AssertionError: expected { viewportDeltaX: 60, …(3) } to deeply equal { viewportDeltaX: 60, …(3) }
+  - Expected
+  + Received
+    {
+  -   "left": 680,
+  -   "top": 460,
+  +   "left": 650,
+  +   "top": 440,
+      "viewportDeltaX": 60,
+      "viewportDeltaY": 40,
+    }
+
+Test Files  1 failed (1)
+Tests  2 failed | 29 passed (31)

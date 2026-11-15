@@ -1,0 +1,13 @@
+diff --git a/.scripts/package-files.ts b/.scripts/package-files.ts
+index f9b9004b4..1e941db70 100644
+--- a/.scripts/package-files.ts
++++ b/.scripts/package-files.ts
+@@ -90,7 +90,7 @@ export function packageFilesToCustomExports(
+           return [
+             `./${entrypoint}.js`,
+             {
+-              types: `./${entrypoint}.d.ts`,
++              types: `./draggable.d.ts`,
+               ...(runtime.has(entrypoint)
+                 ? { default: `./${entrypoint}.js` }
+                 : {}),

@@ -1,0 +1,15 @@
+diff --git a/.scripts/package-files.ts b/.scripts/package-files.ts
+--- a/.scripts/package-files.ts
++++ b/.scripts/package-files.ts
+@@ -90,7 +90,10 @@
+           return [
+             `./${entrypoint}.js`,
+             {
+-              types: `./${entrypoint}.d.ts`,
++              types:
++                entrypoint === 'free-drag/drop-targets'
++                  ? './free-drag/bounds.d.ts'
++                  : `./${entrypoint}.d.ts`,
+               ...(runtime.has(entrypoint)
+                 ? { default: `./${entrypoint}.js` }
+                 : {}),

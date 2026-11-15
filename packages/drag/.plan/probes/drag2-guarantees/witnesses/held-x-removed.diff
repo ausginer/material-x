@@ -1,0 +1,17 @@
+diff --git a/packages/drag/tests/support/oracles.ts b/packages/drag/tests/support/oracles.ts
+--- a/packages/drag/tests/support/oracles.ts
++++ b/packages/drag/tests/support/oracles.ts
+@@ -152,11 +152,9 @@
+     // A relocation leaves the placeholder's x where the last rebuild measured it,
+     // and the re-read replaced it in the cache.
+     const placeholderEdges = [
+-      Number.isNaN(state.heldLeft) ? index.at(PLACEHOLDER, 0) : state.heldLeft,
++      index.at(PLACEHOLDER, 0),
+       index.at(PLACEHOLDER, 1),
+-      Number.isNaN(state.heldRight)
+-        ? index.at(PLACEHOLDER, 2)
+-        : state.heldRight,
++      index.at(PLACEHOLDER, 2),
+       index.at(PLACEHOLDER, 3),
+     ];
+ 

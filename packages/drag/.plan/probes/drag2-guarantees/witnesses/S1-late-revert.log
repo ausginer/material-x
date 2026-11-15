@@ -1,0 +1,56 @@
+# S1-late-revert
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/S1-late-revert.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/landing.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/landing.browser.test.ts:619 > drag:DRI-13 sortable landing after the commit > should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+  AssertionError: expected { outcomes: [ 'accepted' ], …(3) } to deeply equal { outcomes: [ 'accepted' ], …(3) }
+  - Expected
+  + Received
+  @@ -4,7 +4,39 @@
+        "sortable/landing-placeholder-lost",
+      ],
+      "outcomes": [
+        "accepted",
+      ],
+  -   "parent": <div />,
+  +   "parent": <div
+  +     id="list"
+  +     style="width: 200px;"
+  +   >
+  +     <div
+  +       class="row"
+  +       id="r1"
+  +       style="height: 40px; touch-action: none; user-select: none;"
+  +     >
+  +       Row 1
+  +     </div>
+  +     <div
+  +       class="row"
+  +       id="r2"
+  +       style="height: 40px; touch-action: none; user-select: none;"
+  +     >
+  +       Row 2
+  +     </div>
+  +     <div
+  +       class="row"
+  +       id="r3"
+  +       style="height: 40px; touch-action: none; user-select: none;"
+  +     >
+  +       Row 3
+  +     </div>
+  +     <div
+  +       class="row"
+  +       id="r0"
+  +       style="height: 40px; touch-action: none; user-select: none;"
+  +     >
+  +       Row 0
+  +     </div>
+  +   </div>,
+    }
+
+Test Files  1 failed (1)
+Tests  1 failed | 24 passed (25)

@@ -1,0 +1,7 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:150 > layoutAnimation rows > should animate only the row the move crossed
+AssertionError: expected [ 1, 2 ] to deeply equal [ 1 ]
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+AssertionError: expected [ +0, 1, 3 ] to deeply equal [ +0, 1 ]
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+AssertionError: expected [ 1, 2 ] to deeply equal [ 1 ]
+Tests  3 failed | 13 passed (16)

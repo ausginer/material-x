@@ -1,0 +1,5 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:245 > layoutAnimation composition > should add the animation to an authored translate
+AssertionError: expected '0px 40px' to be '0px 47px' // Object.is equality
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:283 > layoutAnimation composition > should add the animation to a consumer animation on translate
+AssertionError: expected '0px 40px' to be '10px 40px' // Object.is equality
+Tests  2 failed | 14 passed (16)

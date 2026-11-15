@@ -1,0 +1,10 @@
+FAIL  |browser (chromium)| tests/y-geometry.browser.test.ts:139 > drag:DRI-14 y() proposes the gap a full measurement gives > should agree on sub-pixel geometry with a displacement running
+AssertionError: expected [ 'at 50: no placeholder' ] to deeply equal []
+- Expected
++ Received
+- []
++ [
++   "at 50: no placeholder",
++ ]
+❯ tests/y-geometry.browser.test.ts:184:7
+Tests  1 failed | 10 passed (11)

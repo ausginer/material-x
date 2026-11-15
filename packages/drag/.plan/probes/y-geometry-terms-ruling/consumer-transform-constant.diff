@@ -1,0 +1,13 @@
+diff --git a/packages/drag/tests/layout-animation.browser.test.ts b/packages/drag/tests/layout-animation.browser.test.ts
+index b5379028e..912bb562d 100644
+--- a/packages/drag/tests/layout-animation.browser.test.ts
++++ b/packages/drag/tests/layout-animation.browser.test.ts
+@@ -267,7 +267,7 @@ describe('layoutAnimation composition', () => {
+     const items = build();
+     const row = items[1]!;
+     const consumer = row.animate(
+-      [{ transform: 'translateX(0px)' }, { transform: 'translateX(50px)' }],
++      [{ transform: 'translateX(10px)' }, { transform: 'translateX(10px)' }],
+       { duration: 10_000 },
+     );
+ 

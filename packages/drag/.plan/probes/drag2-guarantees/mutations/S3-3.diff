@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index e35bdf8c3..74d733299 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -77,7 +77,7 @@ function ownsInteraction(event: Event, subject: EventTarget): boolean {
+     }
+ 
+     // A path also holds the shadow roots, the document and the window.
+-    if ((hop as Partial<Element>).matches?.('[data-drag-ignore]')) {
++    if ((hop as Element).matches('[data-drag-ignore]')) {
+       return true;
+     }
+   }

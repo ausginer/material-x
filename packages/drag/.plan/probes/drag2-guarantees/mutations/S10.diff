@@ -1,0 +1,12 @@
+diff --git a/packages/drag/src/lift.ts b/packages/drag/src/lift.ts
+index 5bc85c718..02fce5d5b 100644
+--- a/packages/drag/src/lift.ts
++++ b/packages/drag/src/lift.ts
+@@ -339,7 +339,6 @@ export class Lifter {
+         visual.style.setProperty(UA_PROPS[i]!, values[i]!);
+       }
+ 
+-      visual.style.transition = 'none';
+       visual.style.position = 'fixed';
+       visual.style.inset = 'auto';
+       visual.style.width = `${measured[BOX_WIDTH]!}px`;

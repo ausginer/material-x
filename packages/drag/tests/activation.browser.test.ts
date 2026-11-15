@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
+import { dispatchPointer, mountBox } from './support/free-box.ts';
 import {
   basicSortable,
   centerOf,
@@ -267,5 +268,32 @@ describe('drag:DRI-17 coalescing', () => {
     expect(scheduled).toBe(1);
     await commands.keyPress('Escape');
     await commands.pointerUp();
+  });
+});
+
+describe('drag:DRI-4 pointercancel during a pending press', () => {
+  it('should end the press with no start, no end and no fault', async () => {
+    mountBox();
+
+    const { x, y } = await press('#free');
+
+    dispatchPointer('pointercancel', x, y);
+    // The real button is still held, so this motion would activate a press that
+    // the cancel had not ended.
+    await commands.pointerMove(x, y + 40, 3);
+    await release();
+    expect({ log, faults: faultMessages() }).toEqual({ log: [], faults: [] });
+  });
+
+  it('should admit the next press', async () => {
+    mountBox();
+
+    const { x, y } = await press('#free');
+
+    dispatchPointer('pointercancel', x, y);
+    await commands.pointerUp();
+    await grab('#free', 0, 40);
+    await release();
+    expect(log).toEqual(['start', 'end:accepted']);
   });
 });

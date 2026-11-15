@@ -1,0 +1,14 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..5687f6e85 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -267,9 +267,6 @@ export class SortableBehavior implements Behavior<
+       handle = named;
+     }
+ 
+-    if (direction !== null && !keyboardInsertion(snapshot, item, direction)) {
+-      return null;
+-    }
+ 
+     const visual = this.config.visual?.(item) ?? item;
+ 

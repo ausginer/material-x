@@ -1,0 +1,27 @@
+import re,sys,os,unicodedata
+def slug(h):
+    h=re.sub(r'[`*_]','',h.strip().lower())
+    h=re.sub(r'\[([^\]]*)\]\([^)]*\)',r'\1',h)
+    h=''.join(c for c in h if c.isalnum() or c in ' -' or unicodedata.category(c).startswith('L'))
+    return h.replace(' ','-')
+def anchors(p):
+    out=set()
+    for line in open(p):
+        m=re.match(r'^#{1,6} (.*)',line)
+        if m: out.add(slug(m.group(1)))
+    return out
+bad=0;n=0
+for f in sys.argv[1:]:
+    text=open(f).read()
+    text=re.sub(r'```.*?```','',text,flags=re.S)
+    for m in re.finditer(r'\]\(([^)\s]+)\)',text):
+        t=m.group(1)
+        if re.match(r'[a-z]+:',t): continue
+        n+=1
+        path,_,frag=t.partition('#')
+        target=os.path.normpath(os.path.join(os.path.dirname(f),path)) if path else f
+        if not os.path.exists(target):
+            print('MISSING',f,t); bad+=1; continue
+        if frag and target.endswith('.md') and frag not in anchors(target):
+            print('ANCHOR',f,t); bad+=1
+print(f'{n} links checked, {bad} bad')

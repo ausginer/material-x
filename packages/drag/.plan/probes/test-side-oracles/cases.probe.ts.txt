@@ -1,0 +1,54 @@
+import { expect, it } from 'vitest';
+import { roundTrip, sweepGaps } from './support/gap-conformance.ts';
+import { basicSortable, commands, faultMessages, frames, grab, makeList, moveHeld, press, rowsOf, refusals, dragAndDrop, onCleanup } from './support/harness.ts';
+import { spy } from './zz-spy.ts';
+
+async function sweep(css: string, rows: Record<string, string>[], phStyle = '') {
+  const style = document.createElement('style'); style.textContent = phStyle; document.head.append(style);
+  const list = makeList(rows.length, document.body, css);
+  for (const [i, row] of rowsOf(list).entries()) Object.assign(row.style, rows[i]);
+  basicSortable(list);
+  const [dragged, ...destination] = rowsOf(list);
+  const { bottom } = list.getBoundingClientRect();
+  const start = await press(dragged!);
+  await commands.pointerMove(start.x, start.y + 8, 2);
+  const d = await sweepGaps({ rows: destination, placeholder: () => list.querySelector('[data-drag-placeholder]'), pointerX: start.x, path: roundTrip(Math.round(start.y + 8), Math.round(bottom + 10), 4) });
+  await commands.keyPress('Escape'); list.remove(); style.remove();
+  return d;
+}
+const h = (v: number[], s: Record<string, string> = {}) => v.map((x) => ({ height: `${x}px`, width: '100px', ...s }));
+const reset = () => { spy.checks = 0; spy.mismatches.length = 0; spy.refused.trusted = 0; spy.refused.untrusted = 0; };
+const report = (name: string, extra: unknown) => `${name}: checks ${spy.checks}, mismatches ${JSON.stringify(spy.mismatches)}, ${JSON.stringify(extra)}`;
+const out: string[] = [];
+
+export function cases(label: string) {
+  it('plain', async () => { reset(); out.push(report('plain', await sweep('display:flex;flex-direction:column', h([70, 55, 30, 90])))); }, 60000);
+  it('rotate', async () => { reset(); const r = h([70, 55, 30, 90]); r[1] = { ...r[1], rotate: '8deg' }; out.push(report('rotate', await sweep('display:flex;flex-direction:column', r))); }, 60000);
+  it('margins', async () => { reset(); out.push(report('collapsing margins', await sweep('display:block', h([70, 55, 30, 90], { marginTop: '6px', marginBottom: '10px' })))); }, 60000);
+  it('placeholder x', async () => {
+    reset();
+    const style = document.createElement('style'); style.textContent = '[data-drag-placeholder]:nth-child(even) { margin-left: 9px; }'; document.head.append(style); onCleanup(() => style.remove());
+    basicSortable(makeList(8));
+    const { height } = document.querySelector('#r1')!.getBoundingClientRect();
+    const start = await grab('#r1', 0, 10);
+    for (let step = 1; step <= 4; step += 1) { await moveHeld(start.x, start.y + step * height); await frames(); }
+    await commands.keyPress('Escape');
+    out.push(report('DRD-52 placeholder x', { faults: faultMessages().length }));
+  }, 60000);
+  it('refusals', async () => {
+    reset();
+    const list = makeList(5); basicSortable(list);
+    await dragAndDrop('#r0', 90); await dragAndDrop('#r1', 90);
+    const l2 = makeList(3);
+    l2.addEventListener('pointerdown', () => {}, { once: true });
+    out.push(report('refusals, ordinary drags', { spy: { ...spy.refused }, dev: { ...refusals() } }));
+  }, 60000);
+  it('nested press', async () => {
+    reset();
+    const list = makeList(3);
+    basicSortable(list, { onStart() { list.firstElementChild!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, isPrimary: true })); } } as any);
+    await dragAndDrop('#r1', 30);
+    out.push(report('refusals, nested press', { spy: { ...spy.refused }, dev: { ...refusals() } }));
+  }, 60000);
+  it('zz-out', () => { throw new Error(`\n[${label}]\n` + out.join('\n')); });
+}

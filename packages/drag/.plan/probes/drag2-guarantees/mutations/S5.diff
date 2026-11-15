@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/kernel/gesture.ts b/packages/drag/src/kernel/gesture.ts
+index e35bdf8c3..3eafc1763 100644
+--- a/packages/drag/src/kernel/gesture.ts
++++ b/packages/drag/src/kernel/gesture.ts
+@@ -373,7 +373,7 @@ export class Gesture<
+   }
+ 
+   #command(event: KeyboardEvent): void {
+-    if (this.#session || admitted.has(event)) {
++    if (admitted.has(event)) {
+       return;
+     }
+ 

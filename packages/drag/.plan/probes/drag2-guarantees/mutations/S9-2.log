@@ -1,0 +1,3 @@
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:355 > drag:DRI-7 a throwing placeholder factory > should report the throw as one fault and start nothing
+AssertionError: expected [] to deeply equal [ Error: placeholder ]
+Tests  1 failed | 13 passed (14)

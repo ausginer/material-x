@@ -1,0 +1,47 @@
+# S9
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S9.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/faults.browser.test.ts`
+Exit: 1
+
+Failed Tests 3
+
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:310 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+  AssertionError: expected [] to deeply equal [ { type: 'canceled', …(2) } ]
+  - Expected
+  + Received
+  - [
+  -   {
+  -     "origin": "fault",
+  -     "reason": DragFault {
+  -       "message": "drag: show",
+  -       "cause": Error {
+  -         "message": "show",
+  -       },
+  -       "name": "DragFault",
+  -     },
+  -     "type": "canceled",
+  -   },
+  - ]
+  + []
+
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:328 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+  AssertionError: expected [ Error: show ] to deeply equal [ Error: show, Error: restore ]
+  - Expected
+  + Received
+    [
+      Error {
+        "message": "show",
+      },
+  -   Error {
+  -     "message": "restore",
+  -   },
+    ]
+
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:369 > drag:DRI-7 a throwing placeholder factory > should leave the item and the list as they were
+  AssertionError: expected 'height: 40px; touch-action: none; use…' to be 'height: 40px; touch-action: none; use…' // Object.is equality
+  Expected: "height: 40px; touch-action: none; user-select: none;"
+  Received: "height: 40px; touch-action: none; user-select: none; box-sizing: border-box; margin: 0px; padding: 0px; border-width: 0px; border-style: none; border-color: rgb(0, 0, 0); overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0); transition: none; position: fixed; inset: 0px auto auto 0px; width: 200px; zoom: 1; transform-origin: 0px 0px; translate: none; rotate: none; scale: none; transform: matrix(1, 0, 0, 1, 0, 0);"
+
+Test Files  1 failed (1)
+Tests  3 failed | 11 passed (14)

@@ -1,0 +1,19 @@
+# S6-3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S6-3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:212 > layoutAnimation rows > should never animate the placeholder
+  AssertionError: expected [ Animation{} ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   Animation {},
+  + ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 15 passed (16)

@@ -86,32 +86,6 @@ function ownsInteraction(event: Event, subject: EventTarget): boolean {
 }
 
 /**
- * Development only: how many events a running pass refused, for the suite. An
- * event refused by both the window's and the root's listener counts once.
- */
-const countedRefusals = new WeakSet<Event>();
-
-function countRefused(event: Event): void {
-  if (countedRefusals.has(event)) {
-    return;
-  }
-
-  countedRefusals.add(event);
-
-  const refused = ((globalThis as Record<string, unknown>)['__dragRefused'] ??=
-    { trusted: 0, untrusted: 0 }) as {
-    trusted: number;
-    untrusted: number;
-  };
-
-  if (event.isTrusted) {
-    refused.trusted += 1;
-  } else {
-    refused.untrusted += 1;
-  }
-}
-
-/**
  * What exists across operations or with no operation: the root's listeners,
  * admission, the pass, the deferred steps, destruction, the reader and the slot
  * that holds the current session. Its members without `#` are the public
@@ -196,12 +170,6 @@ export class Gesture<
     receiver?: object,
   ): void {
     if (this.#running || (this.#destroyed && !this.#resolveDestroyed)) {
-      // While a pass runs, only input arrives here with a step: a request has
-      // none, and a step or a fault requested in a pass does not enter.
-      if (__DEV__ && this.#running && step) {
-        countRefused(argument as Event);
-      }
-
       return;
     }
 

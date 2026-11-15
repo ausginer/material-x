@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/kernel/session.ts b/packages/drag/src/kernel/session.ts
+index 11063f20f..8d981f365 100644
+--- a/packages/drag/src/kernel/session.ts
++++ b/packages/drag/src/kernel/session.ts
+@@ -352,7 +352,7 @@ export class Session<
+       // this event, and it bubbles here. The root then holds the capture.
+       !this.#root.hasPointerCapture(pointer.pointerId)
+     ) {
+-      this.#cancel(undefined, 'interrupted');
++      this.#gesture.raise(new Error('interrupted'));
+     }
+   }
+ 

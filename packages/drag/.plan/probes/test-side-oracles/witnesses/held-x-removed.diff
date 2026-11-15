@@ -1,0 +1,16 @@
+diff --git a/packages/drag/tests/support/oracles.ts b/packages/drag/tests/support/oracles.ts
+index c870e9aed..8dfe50891 100644
+--- a/packages/drag/tests/support/oracles.ts
++++ b/packages/drag/tests/support/oracles.ts
+@@ -158,9 +158,9 @@ function installEquivalence(Index: typeof RectIndex): void {
+     // A relocation leaves the placeholder's x where the last rebuild measured it,
+     // and the re-read replaced it in the cache.
+     const placeholderEdges = [
+-      Number.isNaN(state.heldLeft) ? index.at(PLACEHOLDER, 0) : state.heldLeft,
++      index.at(PLACEHOLDER, 0),
+       index.at(PLACEHOLDER, 1),
+-      Number.isNaN(state.heldRight) ? index.at(PLACEHOLDER, 2) : state.heldRight,
++      index.at(PLACEHOLDER, 2),
+       index.at(PLACEHOLDER, 3),
+     ];
+ 

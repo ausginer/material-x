@@ -1,0 +1,13 @@
+diff --git a/packages/drag/tests/support/oracles.ts b/packages/drag/tests/support/oracles.ts
+index 85f640a..58b38f4 100644
+--- a/packages/drag/tests/support/oracles.ts
++++ b/packages/drag/tests/support/oracles.ts
+@@ -144,7 +144,7 @@ function installEquivalence(Index: typeof RectIndex): void {
+     for (let slot = first; slot < end; slot += 1) {
+       for (let field = 0; field < STRIDE; field += 1) {
+         if (differs(slot, field as Field, index.at(slot, field as Field))) {
+-          return `slot ${slot}`;
++          return `slot ${slot} field ${field} predicted ${index.at(slot, field as Field)} fresh ${fresh.at(slot, field as Field)}`;
+         }
+       }
+     }

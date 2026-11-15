@@ -1,0 +1,7 @@
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:310 > drag:DRI-7 a failed acquisition > should restore the visual and let the acquisition fault decide
+AssertionError: expected [] to deeply equal [ { type: 'canceled', …(2) } ]
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:328 > drag:DRI-7 a failed acquisition > should report a failed restoration after the acquisition fault, which decides
+AssertionError: expected [ Error: show ] to deeply equal [ Error: show, Error: restore ]
+FAIL  |browser (chromium)| tests/faults.browser.test.ts:369 > drag:DRI-7 a throwing placeholder factory > should leave the item and the list as they were
+AssertionError: expected 'height: 40px; touch-action: none; use…' to be 'height: 40px; touch-action: none; use…' // Object.is equality
+Tests  3 failed | 11 passed (14)

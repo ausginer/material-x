@@ -13,6 +13,11 @@ import {
   type SortableResult,
 } from '../src/sortable.ts';
 import {
+  type MeasuredElement,
+  roundTrip,
+  sweepGaps,
+} from './support/gap-conformance.ts';
+import {
   basicSortable,
   centerOf,
   commands,
@@ -1123,5 +1128,172 @@ describe('drag:DRD-25 option callbacks', () => {
     expect(context.item).toBe(document.querySelector('#r0'));
     expect('requestCancel' in context).toBe(false);
     expect('state' in context).toBe(false);
+  });
+});
+
+/** Sweeps a drag of the first row down `list` and back, through the gap instrument. */
+async function sweepFirstRow(
+  list: HTMLElement,
+  measured: MeasuredElement,
+): Promise<string[]> {
+  const [dragged, ...destination] = rowsOf(list);
+  const { bottom } = list.getBoundingClientRect();
+  const start = await press(dragged!);
+
+  await commands.pointerMove(start.x, start.y + 8, 2);
+
+  const disagreements = await sweepGaps({
+    rows: destination,
+    placeholder: () => list.querySelector('[data-drag-placeholder]'),
+    pointerX: start.x,
+    path: roundTrip(Math.round(start.y + 8), Math.round(bottom), 2),
+    measured,
+  });
+
+  await commands.keyPress('Escape');
+  return disagreements;
+}
+
+describe('drag:DRI-14 candidates measured through box', () => {
+  const boxOf = (row: HTMLElement): HTMLElement =>
+    row.querySelector<HTMLElement>('.box')!;
+
+  /**
+   * Rows with a box 20 px tall at the bottom of each 40 px row: the box's center
+   * is 10 px below the row's, so a gap measured through the rows and one measured
+   * through the boxes differ near every crossing.
+   */
+  const makeBoxedList = (): HTMLElement => {
+    const list = makeList(5);
+
+    for (const row of rowsOf(list)) {
+      row.style.position = 'relative';
+      row.innerHTML =
+        '<div class="box" style="position:absolute;left:0;right:0;top:20px;height:20px"></div>';
+    }
+
+    return list;
+  };
+
+  it('should measure every y() candidate through box, not through the item', async () => {
+    const list = makeBoxedList();
+
+    basicSortable(list, { box: boxOf });
+    expect(await sweepFirstRow(list, boxOf)).toEqual([]);
+  });
+
+  it('should measure every y() candidate through visual when there is no box', async () => {
+    const list = makeBoxedList();
+
+    basicSortable(list, { visual: boxOf });
+    expect(await sweepFirstRow(list, boxOf)).toEqual([]);
+  });
+
+  it('should measure every y() candidate through box when visual is also given', async () => {
+    const list = makeBoxedList();
+
+    // A visual 20 px tall at the top of each row, so its center is 20 px above the
+    // box's.
+    for (const row of rowsOf(list)) {
+      row.insertAdjacentHTML(
+        'beforeend',
+        '<div class="card" style="position:absolute;left:0;right:0;top:0;height:20px"></div>',
+      );
+    }
+
+    basicSortable(list, {
+      box: boxOf,
+      visual: (row) => row.querySelector<HTMLElement>('.card')!,
+    });
+    expect(await sweepFirstRow(list, boxOf)).toEqual([]);
+  });
+
+  it('should measure every xy() candidate through box, not through the item', async () => {
+    const list = makeList(
+      6,
+      document.body,
+      'display:flex;flex-wrap:wrap;width:300px',
+    );
+
+    for (const row of rowsOf(list)) {
+      row.style.cssText =
+        'position:relative;width:100px;height:60px;touch-action:none';
+      row.innerHTML =
+        '<div class="box" style="position:absolute;left:0;top:0;width:40px;height:60px"></div>';
+    }
+
+    basicSortable(list, { axis: xy(), box: boxOf });
+
+    // The placeholder is 40 px wide, so r1's box center is 60 px from the list's
+    // left and its item center 90 px. At 45 px the box is nearer than the
+    // placeholder's own center, at 20 px, and the item isn't.
+    const { left, top } = list.getBoundingClientRect();
+
+    await press('#r0');
+    await commands.pointerMove(left + 20, top + 30, 3);
+    await frames();
+    await moveHeld(left + 45, top + 30);
+    expect(
+      list.querySelector('[data-drag-placeholder]')!.previousElementSibling,
+    ).toBe(document.querySelector('#r1'));
+    await commands.keyPress('Escape');
+  });
+
+  it("should give the placeholder the box's width, visible under align-items: center", async () => {
+    const list = makeList(
+      3,
+      document.body,
+      'display:flex;flex-direction:column;align-items:center',
+    );
+    const row = document.querySelector<HTMLElement>('#r0')!;
+
+    // A 100 px item holding an 80 px box, which holds the 50 px visual.
+    row.style.cssText = 'width:100px;height:auto;touch-action:none';
+    row.innerHTML =
+      '<div class="box" style="display:flex;width:80px"><div class="card" style="width:50px;height:60px"></div><div style="width:20px;height:32px"></div></div>';
+
+    basicSortable(list, {
+      visual: (item) => item.querySelector<HTMLElement>('.card') ?? item,
+      box: (item) => item.querySelector<HTMLElement>('.box') ?? item,
+    });
+    await grab(row, 0, 15);
+
+    // Centered in the 200 px list: (200 - 80) / 2.
+    expect(centerOf('[data-drag-placeholder]').left).toBe(
+      list.getBoundingClientRect().left + 60,
+    );
+    await commands.keyPress('Escape');
+  });
+});
+
+describe('drag:DRI-9 authored transitions', () => {
+  /** A list whose rows, the dragged one included, transition every property. */
+  const makeTransitionedList = (): HTMLElement => {
+    const style = document.createElement('style');
+
+    style.textContent = '.row { transition: all 300ms linear; }';
+    document.head.append(style);
+    onCleanup(() => style.remove());
+    return makeList(5);
+  };
+
+  it('should keep the lifted visual under the pointer with a transition on the item', async () => {
+    const list = makeTransitionedList();
+
+    basicSortable(list);
+
+    const home = centerOf('#r0');
+    const at = await grab('#r0', 0, 30);
+
+    await moveHeld(at.x, at.y + 50);
+    expect(centerOf('#r0').top).toBeCloseTo(home.top + 80, 0);
+    await commands.keyPress('Escape');
+  });
+
+  it('should propose the gap a full measurement gives with transitions on the rows and the item', async () => {
+    const list = makeTransitionedList();
+
+    basicSortable(list);
+    expect(await sweepFirstRow(list, (row) => row)).toEqual([]);
   });
 });

@@ -1,0 +1,10 @@
+     × should report a throw at activation as one fault carrying the thrown value
+     × should report a throw during the drag as one fault carrying the thrown value
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:363 > bounds with a function source > should report a throw at activation as one fault carrying the thrown value
+ FAIL  |browser (chromium)| tests/free-drag.browser.test.ts:378 > bounds with a function source > should report a throw during the drag as one fault carrying the thrown value
+ ❯ tests/free-drag.browser.test.ts:375:48
+ ❯ tests/free-drag.browser.test.ts:398:48
++ Received
+- Expected
+AssertionError: expected [] to deeply equal [ Error: bounds ]
+      Tests  2 failed | 15 passed (17)

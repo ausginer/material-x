@@ -1,0 +1,3 @@
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:212 > layoutAnimation rows > should never animate the placeholder
+AssertionError: expected [ Animation{} ] to deeply equal []
+Tests  1 failed | 15 passed (16)

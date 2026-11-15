@@ -1,0 +1,13 @@
+diff --git a/packages/drag/tests/support/gap-conformance.ts b/packages/drag/tests/support/gap-conformance.ts
+index 45734c4b1..a5193a496 100644
+--- a/packages/drag/tests/support/gap-conformance.ts
++++ b/packages/drag/tests/support/gap-conformance.ts
+@@ -53,7 +53,7 @@ export function proposedGap(
+  * so where the pointer is within 1/8 px of equidistant from two of them, either
+  * gap is a correct placement.
+  */
+-const TIE_TOLERANCE = 1 / 8;
++const TIE_TOLERANCE = 0;
+ 
+ /**
+  * `y()`'s rule over every row, measured now: the gaps given by every candidate

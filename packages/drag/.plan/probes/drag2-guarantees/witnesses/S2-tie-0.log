@@ -1,0 +1,8 @@
+# S2-tie-0
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S2-tie-0.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser --project consumer tests/y-geometry.browser.test.ts`
+Exit: 0
+
+Test Files  2 passed (2)
+Tests  26 passed (26)

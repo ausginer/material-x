@@ -1,0 +1,26 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..16ed29908 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -165,7 +165,10 @@ export class SortableBehavior implements Behavior<
+       return null;
+     }
+ 
+-    const placeholder = createPlaceholder(
++    let placeholder: HTMLElement;
++
++    try {
++    placeholder = createPlaceholder(
+       this.#window.document,
+       // An object of its own: the factory may keep its argument, and must not
+       // keep the operation.
+@@ -183,6 +186,9 @@ export class SortableBehavior implements Behavior<
+         : lift.boxHeight - lift.box.offsetHeight,
+       this.config.placeholder ?? null,
+     );
++    } catch {
++      return null;
++    }
+ 
+     drag.use(() => {
+       placeholder.remove();

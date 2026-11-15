@@ -1,0 +1,48 @@
+# S6-5
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S6-5.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/layout-animation.browser.test.ts`
+Exit: 1
+
+Failed Tests 4
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:150 > layoutAnimation rows > should animate only the row the move crossed
+  AssertionError: expected [ +0, 1 ] to deeply equal [ 1 ]
+  - Expected
+  + Received
+    [
+  +   0,
+      1,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:158 > layoutAnimation rows > should animate every row a move across two slots crossed
+  AssertionError: expected [ +0, 1, 2 ] to deeply equal [ 1, 2 ]
+  - Expected
+  + Received
+    [
+  +   0,
+      1,
+      2,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:183 > layoutAnimation rows > should never animate the dragged item
+  AssertionError: expected [ +0, 1, 2 ] to deeply equal [ +0, 1 ]
+  - Expected
+  + Received
+    [
+      0,
+      1,
+  +   2,
+    ]
+
+FAIL  |browser (chromium)| tests/layout-animation.browser.test.ts:195 > layoutAnimation rows > should never animate a sibling that is not an item
+  AssertionError: expected [ +0, 1 ] to deeply equal [ 1 ]
+  - Expected
+  + Received
+    [
+  +   0,
+      1,
+    ]
+
+Test Files  1 failed (1)
+Tests  4 failed | 12 passed (16)

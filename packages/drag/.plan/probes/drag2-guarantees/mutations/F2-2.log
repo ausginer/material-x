@@ -1,0 +1,7 @@
+Tests  1 failed | 1 passed | 21 skipped (23)
+FAIL  |browser (chromium)| tests/terminals.browser.test.ts:381 > drag:DRI-20 the release position > should render the visual at the pointerup position while the drop is decided
+AssertionError: expected [ [ 90, 80 ] ] to deeply equal [ [ 130, 100 ] ]
+-     130,
+-     100,
++     90,
++     80,

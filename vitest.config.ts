@@ -6,8 +6,6 @@ import { createWorkspaceTestConfig } from './.scripts/vitest-config.ts';
 // eslint-disable-next-line import-x/no-relative-packages
 import { dragBrowserCommands } from './packages/drag/tests/support/commands.node.ts';
 // eslint-disable-next-line import-x/no-relative-packages
-import { dragBrowserCommands as drag2BrowserCommands } from './packages/drag2/tests/support/pointer-commands.node.ts';
-// eslint-disable-next-line import-x/no-relative-packages
 import { materialXBrowserCommands } from './packages/material-x/tests/support/visual-contracts.node.ts';
 
 const config: UserConfigFnObject = defineConfig((env) =>
@@ -19,8 +17,6 @@ const config: UserConfigFnObject = defineConfig((env) =>
     coreRoot: new URL('./packages/core/', import.meta.url),
     dragRoot: new URL('./packages/drag/', import.meta.url),
     dragCommands: dragBrowserCommands,
-    drag2Root: new URL('./packages/drag2/', import.meta.url),
-    drag2Commands: drag2BrowserCommands,
     tprocRoot: new URL('./packages/tproc/', import.meta.url),
     viteTraitsPluginRoot: new URL(
       './packages/vite-traits-plugin/',

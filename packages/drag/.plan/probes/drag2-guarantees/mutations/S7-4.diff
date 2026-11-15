@@ -1,0 +1,15 @@
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 90a10792e..943ae7e29 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -81,10 +81,6 @@ class LayoutAnimationSink implements DisplacementSink {
+     const previous = this.#running.get(element);
+ 
+     if (previous) {
+-      const remaining = remainingOf(previous.animation);
+-
+-      sx += previous.dx * remaining;
+-      sy += previous.dy * remaining;
+       previous.animation.cancel();
+       this.#running.delete(element);
+     }

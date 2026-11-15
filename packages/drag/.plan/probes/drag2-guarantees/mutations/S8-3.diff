@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/behavior.ts b/packages/drag/src/sortable/behavior.ts
+index f4f01497e..b2d5dccab 100644
+--- a/packages/drag/src/sortable/behavior.ts
++++ b/packages/drag/src/sortable/behavior.ts
+@@ -175,7 +175,7 @@ export class SortableBehavior implements Behavior<
+         box: lift.box,
+         rect: lift.rect,
+       },
+-      lift.boxWidth,
++      drag.item.offsetWidth,
+       // Across the lift: a box around the visual keeps the part of its height the
+       // visual did not take with it.
+       lift.visual.contains(lift.box)

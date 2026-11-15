@@ -14,40 +14,11 @@
   max-width: min(480px, 90vw);
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: min(320px, 90vw);
+.zoomed {
+  zoom: 1.25;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 96px);
-  gap: 8px;
-}
-
-.row {
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: #e8def8;
-  touch-action: none;
-  user-select: none;
-  cursor: grab;
-}
-
-.cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 96px;
-  border-radius: 12px;
-  background: #e8def8;
-  touch-action: none;
-  user-select: none;
-  cursor: grab;
-}
-
+/* A free-drag area, and the bounds of a bounded drag. */
 .area {
   position: relative;
   width: min(480px, 90vw);
@@ -68,10 +39,100 @@
   width: 96px;
   height: 96px;
   border-radius: 12px;
-  background: #d0bcff;
-  touch-action: none;
-  user-select: none;
+  background: #6750a4;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
   cursor: grab;
+  user-select: none;
+  touch-action: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.box:active {
+  cursor: grabbing;
+}
+
+/* The box's own transform, which composes with the drag. */
+.tilted {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+.warped {
+  transform: rotate(6deg) scale(1.15);
+  transform-origin: top left;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(360px, 90vw);
+  padding: 8px;
+  border-radius: 12px;
+  background: #f7f2fa;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.glyph {
+  color: #79747e;
+}
+
+/* A wrapping field of rectangles, the layout `xy()` measures. */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(440px, 90vw);
+  padding: 8px;
+  border-radius: 12px;
+  background: #f7f2fa;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.list [data-drag-placeholder],
+.grid [data-drag-placeholder] {
+  border: 2px dashed #6750a4;
+  border-radius: 8px;
+  background: rgb(103 80 164 / 8%);
+}
+
+/* A custom placeholder: more specific than the default rule. */
+.list .slot[data-drag-placeholder] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: solid;
+  background: #e8def8;
+  color: #4f378b;
+  font-size: 13px;
 }
 
 .resizable {

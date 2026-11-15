@@ -1,0 +1,35 @@
+# S8-3
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/mutations/S8-3.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/sortable.browser.test.ts`
+Exit: 1
+
+Failed Tests 2
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1211 > drag:DRI-14 candidates measured through box > should measure every xy() candidate through box, not through the item
+  AssertionError: expected <div class="row" id="r0" …(2)>…(1)</div> to be <div class="row" id="r1" …(1)>…(1)</div> // Object.is equality
+  - Expected
+  + Received
+  @@ -1,9 +1,10 @@
+    <div
+      class="row"
+  -   id="r1"
+  -   style="position: relative; width: 100px; height: 60px; touch-action: none;"
+  +   id="r0"
+  +   popover="manual"
+  +   style="position: fixed; width: 100px; height: 60px; touch-action: none; box-sizing: border-box; margin: 0px; padding: 0px; border-width: 0px; border-style: none; border-color: rgb(0, 0, 0); overflow: visible; color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0); transition: none; inset: 0px auto auto 0px; zoom: 1; transform-origin: 0px 0px; translate: none; rotate: none; scale: none; transform: translate(-5px, 0px) matrix(1, 0, 0, 1, 0, 0);"
+    >
+      <div
+        class="box"
+        style="position:absolute;left:0;top:0;width:40px;height:60px"
+      />
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1242 > drag:DRI-14 candidates measured through box > should give the placeholder the box's width, visible under align-items: center
+  AssertionError: expected 50 to be 60 // Object.is equality
+  - Expected
+  + Received
+  - 60
+  + 50
+
+Test Files  1 failed (1)
+Tests  2 failed | 54 passed (56)

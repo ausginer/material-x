@@ -1,0 +1,19 @@
+# S4-target-only
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/S4-target-only.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/keyboard.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:225 > drag:DRI-14 commands from a nested text input > should leave ArrowRight to an unmarked input inside a marked region
+  AssertionError: expected [ true ] to deeply equal [ false ]
+  - Expected
+  + Received
+    [
+  -   false,
+  +   true,
+    ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 13 passed (14)

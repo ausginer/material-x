@@ -1,6 +1,12 @@
 /** `drag:DRI-13`: landing and elevation. */
 import { afterEach, describe, expect, it } from 'vitest';
-import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
+import { bounds } from '../src/free-drag/bounds.ts';
+import {
+  freeDrag,
+  type FreeDragConfig,
+  type FreeDragController,
+  FreeDragResolution,
+} from '../src/free-drag.ts';
 import { Lifter } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
@@ -20,6 +26,7 @@ import {
   release,
   rowsOf,
   targetOf,
+  wait,
 } from './support/harness.ts';
 
 const row = (id: string): HTMLElement =>
@@ -453,5 +460,193 @@ describe('drag:DRI-13 landing', () => {
     await release();
     expect(faults.map((fault) => fault.cause)).toEqual([hidden]);
     expect(ended).toEqual([{ outcome: { type: 'skipped' }, animations: 2 }]);
+  });
+});
+
+/** A rejecting free drag whose landing barely moves before the assertion. */
+function mountRejectingFreeDrag(
+  parent: HTMLElement,
+  config: Partial<FreeDragConfig> = {},
+): { box: HTMLElement; controller: FreeDragController } {
+  const box = document.createElement('div');
+
+  box.style.cssText =
+    'position:absolute;left:40px;top:40px;width:50px;height:50px;background:#ccd;touch-action:none;user-select:none';
+  parent.append(box);
+
+  const controller = freeDrag(box, {
+    landing: landing({ duration: 100_000, easing: 'linear' }),
+    onDrop: () => FreeDragResolution.reject('no'),
+    ...config,
+  });
+
+  onCleanup(() => controller.requestDestroy());
+  return { box, controller };
+}
+
+/** The visual's top-left just before and just after the release. */
+async function aroundRelease(
+  box: HTMLElement,
+): Promise<{ before: DOMRect; after: DOMRect }> {
+  const before = box.getBoundingClientRect();
+
+  await commands.pointerUp();
+  expect(box.getAnimations().length).toBeGreaterThan(0);
+  return { before, after: box.getBoundingClientRect() };
+}
+
+describe('drag:DRI-13 free-drag landing origin', () => {
+  it('should start the landing from the axis-locked position, not the pointer', async () => {
+    const { box } = mountRejectingFreeDrag(document.body, { axis: 'x' });
+
+    await grab(box, 60, 40);
+
+    const { before, after } = await aroundRelease(box);
+
+    expect(after.left).toBeCloseTo(before.left, 0);
+    expect(after.top).toBeCloseTo(before.top, 0);
+  });
+
+  it('should start the landing from the clamped position, not the pointer', async () => {
+    const arena = document.createElement('div');
+
+    arena.style.cssText = 'position:relative;width:300px;height:200px';
+    document.body.append(arena);
+
+    const { box } = mountRejectingFreeDrag(arena, { bounds: bounds(arena) });
+
+    await grab(box, 800, 600);
+
+    const { before, after } = await aroundRelease(box);
+
+    expect(after.left).toBeCloseTo(before.left, 0);
+    expect(after.top).toBeCloseTo(before.top, 0);
+  });
+
+  it('should start the landing from the moveTo position, not the pointer', async () => {
+    const { box, controller } = mountRejectingFreeDrag(document.body);
+
+    await grab(box, 60, 40);
+    controller.moveTo({ x: 200, y: 150 });
+
+    const { after } = await aroundRelease(box);
+
+    expect(after.left).toBeCloseTo(200, 0);
+    expect(after.top).toBeCloseTo(150, 0);
+  });
+});
+
+describe('drag:DRI-13 sortable landing after the commit', () => {
+  /** A sortable whose landing records its target, committed by `commit`. */
+  function mountCommitting(
+    list: HTMLElement,
+    commit: (item: HTMLElement, desired: HTMLElement[]) => void,
+  ): number[] {
+    const targets: number[] = [];
+
+    basicSortable(list, {
+      landing: landing({
+        duration(context) {
+          targets.push(context.toY);
+          return 100;
+        },
+      }),
+      onReorder({ item, next }) {
+        const desired = rowsOf(list).filter((each) => each !== item);
+
+        desired.splice(next ? desired.indexOf(next) : desired.length, 0, item);
+        commit(item, desired);
+        return ReorderResolution.accept();
+      },
+    });
+    return targets;
+  }
+
+  const placeholderIndex = (list: HTMLElement): number =>
+    [...list.children].findIndex((each) =>
+      each.hasAttribute('data-drag-placeholder'),
+    );
+
+  it('should land on the final rect when an append loop leaves the placeholder at the head', async () => {
+    const list = makeList(4);
+    let left = -1;
+    const targets = mountCommitting(list, (_item, desired) => {
+      for (const each of desired) {
+        list.append(each);
+      }
+
+      left = placeholderIndex(list);
+    });
+
+    await grab('#r0', 0, 90);
+    await commands.pointerUp();
+    await finished(row('r0'));
+    // The grab rect's top is 0, so the target is the final top.
+    expect({
+      left,
+      targets,
+      final: row('r0').getBoundingClientRect().top,
+    }).toEqual({ left: 0, targets: [80], final: 80 });
+  });
+
+  it('should land on the final rect when a morphdom-style patch strands the placeholder at the tail', async () => {
+    const list = makeList(4);
+    let left = -1;
+    const targets = mountCommitting(list, (item, desired) => {
+      const at = desired.indexOf(item);
+
+      for (const each of desired) {
+        if (each !== item) {
+          each.remove();
+        }
+      }
+
+      item.before(...desired.slice(0, at));
+      item.after(...desired.slice(at + 1));
+      left = placeholderIndex(list);
+    });
+
+    await grab('#r0', 0, 90);
+    await commands.pointerUp();
+    await finished(row('r0'));
+    expect({
+      left,
+      targets,
+      final: row('r0').getBoundingClientRect().top,
+    }).toEqual({ left: 4, targets: [80], final: 80 });
+  });
+
+  it('should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand', async () => {
+    const list = makeList(4);
+    const other = document.createElement('div');
+    const outcomes: string[] = [];
+
+    document.body.append(other);
+    basicSortable(list, {
+      landing: landing({ duration: 100 }),
+      onReorder({ item }) {
+        other.append(item);
+        return ReorderResolution.accept();
+      },
+      onEnd(result) {
+        outcomes.push(result.type);
+      },
+    });
+    await grab('#r0', 0, 90);
+    await commands.pointerUp();
+    // Past the 100 ms the landing would have taken.
+    await wait(150);
+    await frames();
+    expect({
+      outcomes,
+      faults: faultMessages(),
+      animations: row('r0').getAnimations().length,
+      parent: row('r0').parentElement,
+    }).toEqual({
+      outcomes: ['accepted'],
+      faults: ['sortable/landing-placeholder-lost'],
+      animations: 0,
+      parent: other,
+    });
   });
 });

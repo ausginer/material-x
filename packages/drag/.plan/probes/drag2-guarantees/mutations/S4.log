@@ -1,0 +1,10 @@
+Tests  3 failed | 10 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:75 > drag:DRI-14 commands > should move the focused row one slot toward the start on ArrowLeft
+AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+❯ tests/keyboard.browser.test.ts:82:17
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:86 > drag:DRI-14 commands > should move the focused row one slot toward the end on ArrowRight
+AssertionError: expected [] to deeply equal [ 'start', 'end:accepted' ]
+❯ tests/keyboard.browser.test.ts:93:17
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:194 > drag:DRI-14 commands from a nested text input > should reorder on ArrowRight from an unmarked input and keep its caret
+AssertionError: expected 'r1,r0,r2' to be 'r0,r2,r1' // Object.is equality
+❯ tests/keyboard.browser.test.ts:205:25

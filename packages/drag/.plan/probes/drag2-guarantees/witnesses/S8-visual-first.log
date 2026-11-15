@@ -1,0 +1,87 @@
+# S8-visual-first
+
+Tree: `cc3b839f9` with `packages/drag/.plan/probes/drag2-guarantees/witnesses/S8-visual-first.diff` applied, restored after the run.
+Command, from `packages/drag`: `npx just test --project browser tests/sortable.browser.test.ts`
+Exit: 1
+
+Failed Tests 1
+
+FAIL  |browser (chromium)| tests/sortable.browser.test.ts:1192 > drag:DRI-14 candidates measured through box > should measure every y() candidate through box when visual is also given
+  AssertionError: expected [ …(69) ] to deeply equal []
+  - Expected
+  + Received
+  - []
+  + [
+  +   "at 46: proposed 1, measured 0",
+  +   "at 50: proposed 1, measured 0",
+  +   "at 54: proposed 1, measured 0",
+  +   "at 68: proposed 1, measured 0",
+  +   "at 70: proposed 1, measured 0",
+  +   "at 72: proposed 1, measured 0",
+  +   "at 74: proposed 1, measured 0",
+  +   "at 86: proposed 2, measured 1",
+  +   "at 88: proposed 1, measured 0",
+  +   "at 90: proposed 2, measured 1",
+  +   "at 94: proposed 2, measured 1",
+  +   "at 108: proposed 2, measured 1",
+  +   "at 110: proposed 2, measured 1",
+  +   "at 112: proposed 2, measured 1",
+  +   "at 114: proposed 2, measured 1",
+  +   "at 126: proposed 3, measured 2",
+  +   "at 128: proposed 2, measured 1",
+  +   "at 130: proposed 3, measured 2",
+  +   "at 134: proposed 3, measured 2",
+  +   "at 148: proposed 3, measured 2",
+  +   "at 150: proposed 3, measured 2",
+  +   "at 152: proposed 3, measured 2",
+  +   "at 154: proposed 3, measured 2",
+  +   "at 166: proposed 4, measured 3",
+  +   "at 168: proposed 3, measured 2",
+  +   "at 170: proposed 4, measured 3",
+  +   "at 174: proposed 4, measured 3",
+  +   "at 188: proposed 4, measured 3",
+  +   "at 190: proposed 4, measured 3",
+  +   "at 192: proposed 4, measured 3",
+  +   "at 194: proposed 4, measured 3",
+  +   "at 194: proposed 4, measured 3",
+  +   "at 192: proposed 4, measured 3",
+  +   "at 190: proposed 4, measured 3",
+  +   "at 188: proposed 4, measured 3",
+  +   "at 186: proposed 4, measured 3",
+  +   "at 174: proposed 4, measured 3",
+  +   "at 170: proposed 4, measured 3",
+  +   "at 168: proposed 3, measured 2",
+  +   "at 166: proposed 4, measured 3",
+  +   "at 164: proposed 3, measured 2",
+  +   "at 154: proposed 3, measured 2",
+  +   "at 152: proposed 3, measured 2",
+  +   "at 150: proposed 3, measured 2",
+  +   "at 148: proposed 3, measured 2",
+  +   "at 146: proposed 3, measured 2",
+  +   "at 134: proposed 3, measured 2",
+  +   "at 130: proposed 3, measured 2",
+  +   "at 128: proposed 2, measured 1",
+  +   "at 126: proposed 3, measured 2",
+  +   "at 124: proposed 2, measured 1",
+  +   "at 114: proposed 2, measured 1",
+  +   "at 112: proposed 2, measured 1",
+  +   "at 110: proposed 2, measured 1",
+  +   "at 108: proposed 2, measured 1",
+  +   "at 106: proposed 2, measured 1",
+  +   "at 94: proposed 2, measured 1",
+  +   "at 90: proposed 2, measured 1",
+  +   "at 88: proposed 1, measured 0",
+  +   "at 86: proposed 2, measured 1",
+  +   "at 84: proposed 1, measured 0",
+  +   "at 74: proposed 1, measured 0",
+  +   "at 72: proposed 1, measured 0",
+  +   "at 70: proposed 1, measured 0",
+  +   "at 68: proposed 1, measured 0",
+  +   "at 66: proposed 1, measured 0",
+  +   "at 54: proposed 1, measured 0",
+  +   "at 50: proposed 1, measured 0",
+  +   "at 46: proposed 1, measured 0",
+  + ]
+
+Test Files  1 failed (1)
+Tests  1 failed | 55 passed (56)

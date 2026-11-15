@@ -44,7 +44,7 @@
  * once and then passes only a root:
  *
  * ```
- * export CANTS_ANALYSIS=/tmp/drag2-cants/analysis.json
+ * export CANTS_ANALYSIS=/tmp/drag-cants/analysis.json
  * node .scripts/call-graph.ts src/sortable.ts/sortable
  * node .scripts/call-graph.ts --list sortable
  * node .scripts/call-graph.ts --callers movePlaceholder

@@ -1,0 +1,13 @@
+diff --git a/packages/drag/src/sortable/layout-animation.ts b/packages/drag/src/sortable/layout-animation.ts
+index 90a10792e..15390ef04 100644
+--- a/packages/drag/src/sortable/layout-animation.ts
++++ b/packages/drag/src/sortable/layout-animation.ts
+@@ -90,7 +90,7 @@ class LayoutAnimationSink implements DisplacementSink {
+     }
+ 
+     // A singular ancestor renders nothing, so the vector's value is immaterial.
+-    if (!localDelta(space, sx, sy, local)) {
++    if (space || !localDelta(space, sx, sy, local)) {
+       local[0] = sx;
+       local[1] = sy;
+     }

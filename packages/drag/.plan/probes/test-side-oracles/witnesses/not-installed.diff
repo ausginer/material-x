@@ -1,0 +1,24 @@
+diff --git a/.scripts/vitest-config.ts b/.scripts/vitest-config.ts
+index 5c8f34023..80ce953f0 100644
+--- a/.scripts/vitest-config.ts
++++ b/.scripts/vitest-config.ts
+@@ -597,9 +597,7 @@ export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
+ ];
+ 
+ /** `@ydinjs/drag`'s source projects install the oracles on `src`. */
+-const DRAG_SOURCE_SETUP_FILES: readonly string[] = [
+-  'tests/support/oracles.source.ts',
+-];
++const DRAG_SOURCE_SETUP_FILES: readonly string[] = [];
+ 
+ /** Raises a failed build before anything imports the emitted tree. */
+ const DRAG_REQUIRE_BUILD = 'tests/support/require-build.ts';
+@@ -612,7 +610,7 @@ const DRAG_REQUIRE_BUILD = 'tests/support/require-build.ts';
+ export const DRAG_CONSUMER: ConsumerProject = {
+   sourceOnly: DRAG_SOURCE_ONLY_BROWSER_TESTS,
+   globalSetup: ['tests/support/build-package.node.ts'],
+-  setupFiles: [DRAG_REQUIRE_BUILD, 'tests/support/oracles.build.ts'],
++  setupFiles: [DRAG_REQUIRE_BUILD],
+ };
+ 
+ /**

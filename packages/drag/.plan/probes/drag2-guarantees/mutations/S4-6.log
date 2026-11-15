@@ -1,0 +1,4 @@
+Tests  1 failed | 12 passed (13)
+FAIL  |browser (chromium)| tests/keyboard.browser.test.ts:194 > drag:DRI-14 commands from a nested text input > should reorder on ArrowRight from an unmarked input and keep its caret
+AssertionError: expected [ false ] to deeply equal [ true ]
+❯ tests/keyboard.browser.test.ts:204:23

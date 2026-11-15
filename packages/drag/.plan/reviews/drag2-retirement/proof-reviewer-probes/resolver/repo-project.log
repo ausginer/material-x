@@ -1,0 +1,10 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x
+
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  08:09:15
+   Duration  1.24s (tests 98%, import 1%)

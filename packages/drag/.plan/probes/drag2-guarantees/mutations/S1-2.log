@@ -1,0 +1,18 @@
+     × should report and skip a landing when the consumer unmounted the item, and stay usable
+     × should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:333 > drag:DRI-13 landing > should report and skip a landing when the consumer unmounted the item, and stay usable
+ FAIL  |browser (chromium)| tests/landing.browser.test.ts:618 > drag:DRI-13 sortable landing after the commit > should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+ ❯ tests/landing.browser.test.ts:350:29
+ ❯ tests/landing.browser.test.ts:641:8
++   "animations": 2,
++   "faults": [],
++ Received
+-     "sortable/landing-placeholder-lost",
+-   "animations": 0,
+-   "faults": [
+-   "sortable/landing-placeholder-lost",
+-   ],
+- Expected
+AssertionError: expected [] to deeply equal [ 'sortable/landing-placeholder-lost' ]
+AssertionError: expected { outcomes: [ 'accepted' ], …(3) } to deeply equal { outcomes: [ 'accepted' ], …(3) }
+      Tests  2 failed | 23 passed (25)

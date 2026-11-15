@@ -1,0 +1,31 @@
+FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:42 > drag:DRD-52 equivalence oracle > should check a plain column and record no mismatch
+AssertionError: expected 0 to be greater than 0
+❯ tests/equivalence-check.browser.test.ts:45:33
+FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:49 > drag:DRD-52 equivalence oracle > should report a placeholder that a committed move displaces along x
+AssertionError: expected [] to include 'the placeholder'
+❯ tests/equivalence-check.browser.test.ts:63:30
+FAIL  |browser (chromium)| tests/equivalence-check.browser.test.ts:66 > drag:DRD-52 equivalence oracle > should report a slot in a block column whose margins collapse on both sides of each row
+AssertionError: expected false to be true // Object.is equality
+❯ tests/equivalence-check.browser.test.ts:94:7
+FAIL  |browser (chromium)| tests/refusals.browser.test.ts:28 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate
+AssertionError: expected +0 to be 1 // Object.is equality
+❯ tests/refusals.browser.test.ts:90:38
+FAIL  |browser (chromium)| tests/refusals.browser.test.ts:105 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one
+AssertionError: expected { trusted: +0, untrusted: +0 } to deeply equal { trusted: +0, untrusted: 1 }
+❯ tests/refusals.browser.test.ts:126:24
+FAIL  |consumer (chromium)| tests/equivalence-check.browser.test.ts:42 > drag:DRD-52 equivalence oracle > should check a plain column and record no mismatch
+AssertionError: expected 0 to be greater than 0
+❯ tests/equivalence-check.browser.test.ts:45:33
+FAIL  |consumer (chromium)| tests/equivalence-check.browser.test.ts:49 > drag:DRD-52 equivalence oracle > should report a placeholder that a committed move displaces along x
+AssertionError: expected [] to include 'the placeholder'
+❯ tests/equivalence-check.browser.test.ts:63:30
+FAIL  |consumer (chromium)| tests/equivalence-check.browser.test.ts:66 > drag:DRD-52 equivalence oracle > should report a slot in a block column whose margins collapse on both sides of each row
+AssertionError: expected false to be true // Object.is equality
+❯ tests/equivalence-check.browser.test.ts:94:7
+FAIL  |consumer (chromium)| tests/refusals.browser.test.ts:28 > drag:DRI-1 a request does not change the running step > should finish the step when a custom element reaction asks to press during activate
+AssertionError: expected +0 to be 1 // Object.is equality
+❯ tests/refusals.browser.test.ts:90:38
+FAIL  |consumer (chromium)| tests/refusals.browser.test.ts:105 > drag:DRI-6 reentrant input > should refuse a nested press, and take the next real one
+AssertionError: expected { trusted: +0, untrusted: +0 } to deeply equal { trusted: +0, untrusted: 1 }
+❯ tests/refusals.browser.test.ts:126:24
+Tests  10 failed | 2 passed (12)

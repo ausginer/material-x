@@ -1,0 +1,8 @@
+Tests  1 failed | 1 passed | 9 skipped (11)
+FAIL  |browser (chromium)| tests/activation.browser.test.ts:275 > drag:DRI-4 pointercancel during a pending press > should end the press with no start, no end and no fault
+AssertionError: expected { …(2) } to deeply equal { log: [], faults: [] }
+-   "log": [],
++   "log": [
++     "start",
++     "end:accepted",
++   ],
