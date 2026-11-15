@@ -612,7 +612,8 @@ export const DRAG_SHIPPED_BROWSER_TESTS: readonly string[] = [
 /**
  * `@ydinjs/drag`'s browser files that run in the source projects only, because
  * each test in them reads a development instrument, which the build folds away,
- * or an internal member, which the package does not publish.
+ * an internal member, which the package does not publish, or the stories, which
+ * import `src`.
  */
 export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
   // `src/kernel/callbacks.ts`, which no entry publishes.
@@ -624,6 +625,8 @@ export const DRAG_SOURCE_ONLY_BROWSER_TESTS: readonly string[] = [
   'tests/equivalence-check.browser.test.ts',
   // The refusal count.
   'tests/refusals.browser.test.ts',
+  // The stories, which import `src`.
+  'tests/stories.browser.test.ts',
 ];
 
 /**
