@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# The architect's mechanical checks of the receiver follow-up. Usage: checks.sh <scratch dir>
+# Runs in the head tree's packages/drag. Every mutation is applied by content and restored from its own copy; cmp confirms it.
+set -u
+S=$1; P=$S/probe
+cd "$S/t-cb24e927e/packages/drag" || exit 1
+tc() { npx tsc -p tsconfig.json --noEmit 2>&1 | grep -E 'error TS' | grep -v 'drag2/src/kernel/presentation.ts'; }
+# replace <file> <find> <replace>: exactly one match, or abort
+replace() {
+  node -e '
+    const fs = require("node:fs");
+    const [file, find, repl] = process.argv.slice(1);
+    const s = fs.readFileSync(file, "utf8");
+    const n = s.split(find).length - 1;
+    if (n !== 1) { console.error(`${file}: ${n} matches for ${find}`); process.exit(1); }
+    fs.writeFileSync(file, s.replace(find, repl));
+  ' "$@"
+}
+# remove the @ts-expect-error lines inside passSwapped only
+strip() {
+  node -e '
+    const fs = require("node:fs");
+    const file = process.argv[1];
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    const start = lines.findIndex((l) => l.startsWith("function passSwapped("));
+    const end = lines.findIndex((l, i) => i > start && l === "}");
+    const out = lines.filter((l, i) => !(i > start && i < end && l.trim().startsWith("// @ts-expect-error")));
+    console.error(`removed ${lines.length - out.length} directives in passSwapped, lines ${start + 1} to ${end + 1}`);
+    fs.writeFileSync(file, out.join("\n"));
+  ' "$1"
+}
+T=tests/callbacks.declaration.test.ts; R=src/sortable/retirable.ts; I=src/sortable/invalidatable.ts
+cp $T $P/T.bak; cp $R $P/R.bak; cp $I $P/I.bak
+
+echo "## control: errors outside drag2"; tc; echo "(count: $(tc | wc -l))"
+
+echo "## A1: passSwapped's three directives removed"
+strip $T; tc; cp $P/T.bak $T
+
+echo "## M7: receivers declared as at 42f42a164"
+replace $R 'retire(this: this): void;' 'retire(this: Retirable): void;'
+replace $I 'invalidate(this: this): void;' 'invalidate(this: Invalidatable): void;'
+git diff --no-index $P/R.bak $R | sed -n '/^@@/,$p'; git diff --no-index $P/I.bak $I | sed -n '/^@@/,$p'
+tc
+echo "## M7 with passSwapped's directives removed: no error is expected on the three calls"
+strip $T; tc; echo "(count: $(tc | wc -l))"
+cp $P/T.bak $T; cp $P/R.bak $R; cp $P/I.bak $I
+
+echo "## the six receiver removals"
+for kind in axis-retire axis-invalidate sink-retire behavior-invalidate targets-release targets-resolve; do
+  case $kind in axis-*) f=src/sortable/behavior.ts;; sink-retire|behavior-invalidate) f=src/sortable.ts;; *) f=src/free-drag/drop-targets.ts;; esac
+  cp $f $P/site.bak
+  node $P/receiver-mutate.mjs $kind
+  tc | sed "s/^/  /"; echo "  (count: $(tc | wc -l))"
+  cp $P/site.bak $f; cmp $f $P/site.bak || echo "  RESTORE FAILED: $f"
+done
+
+echo "## the recheck's probe, wrong-receiver.ts"
+mkdir architect-probe-tmp
+cp $P/wrong-receiver.ts architect-probe-tmp/
+printf '{ "extends": "../tsconfig.json", "include": [], "files": ["./wrong-receiver.ts", "../src/globals.d.ts", "../../../types.d.ts"] }\n' > architect-probe-tmp/tsconfig.json
+echo "probe files compiled: $(npx tsc -p "$PWD/architect-probe-tmp/tsconfig.json" --listFilesOnly | grep -c architect-probe-tmp)"
+npx tsc -p "$PWD/architect-probe-tmp/tsconfig.json" --noEmit 2>&1 | grep -E 'error TS' | grep -v 'drag2/src/kernel/presentation.ts'
+rm -r architect-probe-tmp
+
+echo "## the import's placement"
+echo "### L0: as committed"
+npx oxlint $T 2>&1 | tail -2
+echo "### L1: the import moved to just above passSwapped's JSDoc"
+node -e '
+  const fs = require("node:fs"); const f = process.argv[1];
+  const imp = "import type { RectIndex } from \x27../src/sortable/rect-index.ts\x27;\n";
+  let s = fs.readFileSync(f, "utf8"); if (s.split(imp).length !== 2) process.exit(1);
+  s = s.replace(imp, "");
+  const anchor = "/** Passes each built-in\x27s member"; if (s.split(anchor).length !== 2) process.exit(1);
+  fs.writeFileSync(f, s.replace(anchor, imp + "\n" + anchor));
+' $T && npx oxlint $T 2>&1 | grep -E '\(first\)|import\(|Found|×' | head -4
+cp $P/T.bak $T
+echo "### L2: the import removed, and the parameter typed as an import() type"
+node -e '
+  const fs = require("node:fs"); const f = process.argv[1];
+  const imp = "import type { RectIndex } from \x27../src/sortable/rect-index.ts\x27;\n";
+  let s = fs.readFileSync(f, "utf8"); if (s.split(imp).length !== 2) process.exit(1);
+  s = s.replace(imp, "").replace("  index: RectIndex,", "  index: import(\x27../src/sortable/rect-index.ts\x27).RectIndex,");
+  fs.writeFileSync(f, s);
+' $T && npx oxlint $T 2>&1 | grep -E 'consistent-type-imports|Found|×' | head -4
+cp $P/T.bak $T
+
+echo "## restored"
+for p in "$T:T" "$R:R" "$I:I"; do cmp "${p%%:*}" "$P/${p##*:}.bak" && echo "${p%%:*} equals its copy"; done

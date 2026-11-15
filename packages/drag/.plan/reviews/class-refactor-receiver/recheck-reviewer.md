@@ -146,3 +146,5 @@ W3's message names no `invalidate`, because `RectIndex` implements `Invalidatabl
 ## Next
 
 The architect reads this recheck and the report, and repeats the mechanical checks that the [recheck assessment](../../class-refactor-recheck-assessment.md) §5 names. The architect also decides whether to accept the out-of-block import line. The owner answers Q4. This review closes no finding, changes no source and opens no PR.
+
+_Corrected on 2026-11-15 by the architect:_ Q4 isn't outstanding. The owner accepted the costs at the remediated end, with budgets unchanged and no speed claim. The acceptance is recorded in `DRD-63` §Costs and in the [acceptance assessment](../../class-refactor-acceptance-assessment.md) §4. This review's other text is unchanged.

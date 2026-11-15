@@ -1,0 +1,11 @@
+## main checkout at cb24e927e: npx just lint
+exit 0
+oxlint .
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .
+## npx just typecheck
+../drag2/src/kernel/presentation.ts(13,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'box'. Did you mean 'Box'?
+../drag2/src/kernel/presentation.ts(15,3): error TS2724: '"@ydinjs/box-quad"' has no exported member named 'space'. Did you mean 'Space'?
+## npx just test --project declaration
+ Test Files  4 passed (4)
+      Tests  27 passed (27)
+Type Errors  no errors
