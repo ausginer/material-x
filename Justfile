@@ -66,17 +66,18 @@ test-safari *ARGS: _test-builds
     set -uo pipefail
     export MX_TEST_ENGINES=safari
     listing="$(vitest list --filesOnly --json --project '*/safari')" || { echo "The Safari project listing failed"; exit 1; }
-    mapfile -t projects < <(node -e 'const s = require("fs").readFileSync(0, "utf8"); for (const name of new Set(JSON.parse(s).map((e) => e.projectName))) console.log(name);' <<< "$listing")
-    if [ "${#projects[@]}" -eq 0 ]; then echo "The listing found no Safari project"; exit 1; fi
+    # One name per line. macOS's bash is 3.2, which has no `mapfile`.
+    projects="$(node -e 'const s = require("fs").readFileSync(0, "utf8"); for (const name of new Set(JSON.parse(s).map((e) => e.projectName))) console.log(name);' <<< "$listing")" || { echo "The Safari project listing isn't readable"; exit 1; }
+    if [ -z "$projects" ]; then echo "The listing found no Safari project"; exit 1; fi
     failed=0
-    for project in "${projects[@]}"; do
+    while IFS= read -r project; do
         echo "::group::$project"
-        vitest run --project "$project" {{ ARGS }}
+        vitest run --project "$project" {{ ARGS }} < /dev/null
         status=$?
         echo "::endgroup::"
         echo "$project exited with $status"
         [ "$status" -eq 0 ] || failed=1
-    done
+    done <<< "$projects"
     exit "$failed"
 
 # The packages the tests import resolve to their builds, as a consumer's do, and
