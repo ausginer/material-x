@@ -9,8 +9,10 @@ import '../../src/button/link-button.ts';
 type ButtonTag = 'mx-button' | 'mx-icon-button';
 
 /**
- * In Firefox, focusing an `mx-button` host doesn't delegate focus to its native
- * button (`repo:RF-33`), so these rows are expected to fail there.
+ * Firefox doesn't delegate focus from a host whose box is `display: contents`,
+ * which every button host's is, so the host's `focus()` forwards to the native
+ * control instead (`repo:RF-33`). This row bypasses the forward, so it fails
+ * once Firefox delegates and the forward can go.
  */
 const itFailsInFirefox = server.browser === 'firefox' ? it.fails : it;
 
@@ -43,7 +45,7 @@ function getNativeAnchor(element: HTMLElement): HTMLAnchorElement {
 }
 
 describe.each<ButtonTag>(['mx-button', 'mx-icon-button'])('%s', (tag) => {
-  itFailsInFirefox('should delegate focus to the native button', () => {
+  it('should delegate focus to the native button', () => {
     const element = createElement(tag);
 
     element.focus();
@@ -72,6 +74,17 @@ describe.each<ButtonTag>(['mx-button', 'mx-icon-button'])('%s', (tag) => {
 });
 
 describe('mx-button', () => {
+  itFailsInFirefox(
+    'should delegate focus to the native button through the shadow root alone',
+    () => {
+      const element = createElement('mx-button');
+
+      HTMLElement.prototype.focus.call(element);
+
+      expect(element.shadowRoot?.activeElement).toBe(getNativeButton(element));
+    },
+  );
+
   it('should reflect the name property to the native button', () => {
     const element = createElement('mx-button');
 
@@ -197,6 +210,15 @@ describe('mx-button in a button group', () => {
 });
 
 describe('mx-link-button', () => {
+  it('should delegate focus to the native anchor', () => {
+    const element = createElement('mx-link-button');
+    element.setAttribute('href', '#target');
+
+    element.focus();
+
+    expect(element.shadowRoot?.activeElement).toBe(getNativeAnchor(element));
+  });
+
   it('should expose its destination on the native anchor', () => {
     const element = createElement('mx-link-button');
 

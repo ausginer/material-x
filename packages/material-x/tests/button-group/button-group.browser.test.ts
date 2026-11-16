@@ -1,6 +1,6 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
-import { server, userEvent } from 'vitest/browser';
+import { userEvent } from 'vitest/browser';
 import '../../src/button-group/button-group.ts';
 import '../../src/button-group/connected-button-group.ts';
 import '../../src/button/button.ts';
@@ -29,13 +29,6 @@ function createStandard(count = 3): HTMLElement {
   document.body.append(group);
   return group;
 }
-
-/**
- * In Firefox, focusing an `mx-button` host doesn't delegate focus to its native
- * button (`repo:RF-33`), so the roving tabindex rows that start from a
- * focused button are expected to fail there.
- */
-const itFailsInFirefox = server.browser === 'firefox' ? it.fails : it;
 
 function createConnected(values: readonly string[]): HTMLElement {
   const group = document.createElement('mx-connected-button-group');
@@ -207,34 +200,28 @@ describe('mx-connected-button-group roving tabindex', () => {
     expect(third!.tabIndex).toBe(-1);
   });
 
-  itFailsInFirefox(
-    'should move the tab stop to the next item on ArrowRight',
-    async () => {
-      const group = createConnected(['one', 'two', 'three']);
-      await nextFrame();
-      const [first, second] = [...group.children] as HTMLElement[];
+  it('should move the tab stop to the next item on ArrowRight', async () => {
+    const group = createConnected(['one', 'two', 'three']);
+    await nextFrame();
+    const [first, second] = [...group.children] as HTMLElement[];
 
-      first!.focus();
-      await userEvent.keyboard('{ArrowRight}');
+    first!.focus();
+    await userEvent.keyboard('{ArrowRight}');
 
-      expect(second!.tabIndex).toBe(0);
-      expect(first!.tabIndex).toBe(-1);
-    },
-  );
+    expect(second!.tabIndex).toBe(0);
+    expect(first!.tabIndex).toBe(-1);
+  });
 
-  itFailsInFirefox(
-    'should move the tab stop to the last item on End',
-    async () => {
-      const group = createConnected(['one', 'two', 'three']);
-      await nextFrame();
-      const [first, , third] = [...group.children] as HTMLElement[];
+  it('should move the tab stop to the last item on End', async () => {
+    const group = createConnected(['one', 'two', 'three']);
+    await nextFrame();
+    const [first, , third] = [...group.children] as HTMLElement[];
 
-      first!.focus();
-      await userEvent.keyboard('{End}');
+    first!.focus();
+    await userEvent.keyboard('{End}');
 
-      expect(third!.tabIndex).toBe(0);
-    },
-  );
+    expect(third!.tabIndex).toBe(0);
+  });
 });
 
 describe('mx-connected-button-group selection', () => {

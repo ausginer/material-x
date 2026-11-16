@@ -174,3 +174,13 @@ describe('mx-switch-button value', () => {
     expect([...new FormData(form).keys()]).not.toContain('toggle');
   });
 });
+
+describe.each(SWITCH_TAGS)('%s focus', (tag) => {
+  it('should delegate focus to the native control', () => {
+    const element = createSwitch(tag);
+
+    element.focus();
+
+    expect(element.shadowRoot?.activeElement).toBe(getControl(element));
+  });
+});
