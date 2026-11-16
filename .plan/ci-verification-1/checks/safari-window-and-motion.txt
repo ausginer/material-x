@@ -1,0 +1,14 @@
+# The safari job of run 43830536446 (https://github.com/ausginer/material-x/actions/runs/43830536446), at cd745e1fb (RD-12 properties 3 and 10).
+# A scratch test, safari-reading.browser.test.ts in browser/box-quad/safari, read the page; it was removed after this run.
+
+## The 'Turn off Reduce Motion' step, as the runner's user
+reduceMotion: 0
+
+## The window, grown by .scripts/safari-window.ts before the file's tests
+Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+
+## The reading from inside the test frame
+SAFARI READING {"topViewport":[1280,720],"frameInner":[1280,720],"frameRect":[0,0,1280,720],"devicePixelRatio":1,"transforms":[],"reducedMotion":false}
+
+The top-level viewport contains the whole 1280 x 720 frame at (0, 0), no element applies a transform, scale or zoom,
+and the page reports no reduced motion. The test asserted reducedMotion === false and passed.

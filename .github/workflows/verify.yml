@@ -127,7 +127,7 @@ jobs:
           sw_vers
           defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
       # Each Safari project in its own Vitest process (`repo:RD-12`).
-      - run: npx just test-safari safari-reading --passWithNoTests
+      - run: npx just test-safari --tags-filter '!measurement'
 
   # Succeeds only if every gate job succeeded. A skipped, cancelled or failed
   # job fails it.
