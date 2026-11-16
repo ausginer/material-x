@@ -1,0 +1,84 @@
+# The safari job of run 43830910625 (https://github.com/ausginer/material-x/actions/runs/43830910625) at ddf72ec4e, three attempts,
+# with Reduce Motion off and the window grown to contain the frame (RD-12 properties 3 and 10). macOS 26.7.2, Safari 27.2.
+
+## Attempt 1
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Tests  245 passed (245)
+browser/core/safari (safari) exited with 0
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Tests  1 failed | 434 passed | 10 skipped (445)
+browser/drag/safari (safari) exited with 1
+Tests  1 failed | 399 passed | 10 skipped (410)
+consumer/drag/safari (safari) exited with 1
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+Failing rows, with the first error line and the row's duration:
+- browser/drag/safari (safari)  tests/stories.browser.test.ts > Free Drag stories > should keep a TransformedStage box where it was dropped (1102ms)
+    AssertionError: expected 15.999969482421875 to be less than or equal to 1
+- consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item (15103ms)
+    Error: Test timed out in 15000ms.
+
+## Attempt 2
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Tests  1 failed | 244 passed (245)
+browser/core/safari (safari) exited with 1
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Tests  3 failed | 53 passed (56)
+browser/drag/safari (safari) exited with 1
+Tests  1 failed | 399 passed | 10 skipped (410)
+consumer/drag/safari (safari) exited with 1
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+Caused by: Error: [vitest] Browser connection was closed while running tests. Was the page closed unexpectedly?
+Failing rows, with the first error line and the row's duration:
+- browser/core/safari (safari)  tests/traits/reorderable.browser.test.ts > useReorderable > should take the visual out of the top layer once the drag lands (1026ms)
+    AssertionError: expected true to be falsy
+- browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 candidates measured through box > should measure every y() candidate through box when visual is also given (15206ms)
+    Error: Test timed out in 15000ms.
+- browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 candidates measured through box > should measure every xy() candidate through box, not through the item (394ms)
+    TypeError: null is not an object (evaluating 'list.querySelector("[data-drag-placeholder]").previousElementSibling')
+- browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item (15108ms, 15102ms)
+    Error: Test timed out in 15000ms.
+- consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item (15108ms, 15102ms)
+    Error: Test timed out in 15000ms.
+
+## Attempt 3
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Tests  245 passed (245)
+browser/core/safari (safari) exited with 0
+Tests  2 failed | 398 passed | 10 skipped (410)
+consumer/drag/safari (safari) exited with 1
+Tests  1 failed | 434 passed | 10 skipped (445)
+browser/drag/safari (safari) exited with 1
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+Failing rows, with the first error line and the row's duration:
+- consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 candidates measured through box > should measure every y() candidate through box when visual is also given (15194ms)
+    Error: Test timed out in 15000ms.
+- consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item (15153ms)
+    Error: Test timed out in 15000ms.
+- browser/drag/safari (safari)  tests/stories.browser.test.ts > Free Drag stories > should keep a TransformedStage box where it was dropped (1058ms)
+    AssertionError: expected 15.999969482421875 to be less than or equal to 1
+
+## Across the three attempts
+- Free Drag stories > TransformedStage: the box is 16 px lower after the drop, in browser/drag in attempts 1 and 3.
+  Inferred cause, not observed in Safari: the hint above the stage re-renders the drag's local delta, and one more 13 px line of
+  wrapping moves the stage. The test measures the box within its area from 2a? on; the next run confirms or refutes the inference.
+- drag:DRI-9 authored transitions > propose the gap ... transitions: times out at 15 s in 4 of 6 drag project runs; passes in about 8.8 s otherwise.
+- drag:DRI-14 candidates measured through box > y() ... when visual is also given: times out at 15 s in 2 of 6; passes in about 8.8 s otherwise.
+- drag:DRI-14 ... xy() ... through box: fails once, right after the y() row's timeout, on a missing placeholder.
+- core useReorderable > top layer once the drag lands: fails once (attempt 2).
+- Attempt 2: browser/drag/safari lost its browser connection after sortable.browser.test.ts, and its other 29 files didn't run.

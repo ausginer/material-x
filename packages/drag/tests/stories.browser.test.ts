@@ -120,7 +120,25 @@ describe('Sortable stories', () => {
   }
 });
 
-/** Drags the box by `(dx, dy)` and returns its rectangle just before the drop. */
+/**
+ * The box's rectangle relative to its area's. The story's hint above the area
+ * renders the drag's local delta, and its wrapping can move the area by a line
+ * between two reads, so a viewport rectangle would compare the hint's layout
+ * as well as the box's place in the area.
+ */
+function placed(box: HTMLElement): DOMRect {
+  const rect = box.getBoundingClientRect();
+  const area = box.parentElement!.getBoundingClientRect();
+
+  return new DOMRect(
+    rect.left - area.left,
+    rect.top - area.top,
+    rect.width,
+    rect.height,
+  );
+}
+
+/** Drags the box by `(dx, dy)` and returns where it is placed just before the drop. */
 async function dragBox(
   box: HTMLElement,
   dx: number,
@@ -129,7 +147,7 @@ async function dragBox(
   const start = centerOf(box);
 
   await carry(start, { x: start.x + dx, y: start.y + dy });
-  return box.getBoundingClientRect();
+  return placed(box);
 }
 
 function expectSameRect(actual: DOMRect, expected: DOMRect): void {
@@ -143,23 +161,23 @@ describe('Free Drag stories', () => {
   it('should keep a bounded Interactive box where it was dropped', async () => {
     const host = await mount(Interactive);
     const box = host.querySelector<HTMLElement>('[class*="box"]')!;
-    const before = box.getBoundingClientRect();
+    const before = placed(box);
     const dropped = await dragBox(box, 120, 60);
 
     await drop();
     expect(dropped.left - before.left).toBeGreaterThan(100);
-    expectSameRect(box.getBoundingClientRect(), dropped);
+    expectSameRect(placed(box), dropped);
   });
 
   it('should keep a TransformedStage box where it was dropped', async () => {
     const host = await mount(TransformedStage);
     const box = host.querySelector<HTMLElement>('[class*="box"]')!;
-    const before = box.getBoundingClientRect();
+    const before = placed(box);
     const dropped = await dragBox(box, 100, 50);
 
     await drop();
     expect(dropped.left - before.left).toBeGreaterThan(80);
-    expectSameRect(box.getBoundingClientRect(), dropped);
+    expectSameRect(placed(box), dropped);
   });
 
   it('should pass the AsyncDropConfirmation status through saving to accepted', async () => {
