@@ -21,9 +21,10 @@
 | `RF-34` | open, Firefox expects 1 row to fail | Item 5 |
 | `RF-37` | open, low priority | Item 6 |
 | `RF-35` | open, the owner's question | Item 7, after the owner's answer |
+| `RF-39` | registered during item 7 | Item 7, as amended again on 2026-11-16 |
 | `docs.yml` | fails on every push to `main` | Item 1, `RD-14` |
 
-Every other `RF-` row is closed. `drag:DRF-48` to `DRF-51` are drag's findings, not this unit's.
+Every other `RF-` row is closed, except `RF-40`, which was registered during this unit and routed to the owner to order. `drag:DRF-48` to `DRF-51` are drag's findings, not this unit's.
 
 ## Owner questions and preconditions
 
@@ -191,6 +192,24 @@ The owner answered yes. The architect ruled the hover-and-focus question in `RF-
 - keyboard focus with hover shows the same;
 - hover alone shows the hovered values;
 - after a mouse click with the pointer moved off the host, no focus layer shows.
+
+### Item 7, amended again 2026-11-16: one trigger that every engine matches
+
+In Firefox, `:host:has(.input:focus-visible)` doesn't match, so radio's and checkbox's keyboard focus indicator is already missing there (`RF-39`, registered for this item). Property 2 of the previous amendment changes for radio and checkbox, and `RF-39` is resolved here. The button's trigger, `.host:focus-visible`, stands.
+
+1. **One trigger per component, inside the shadow tree.** In radio and checkbox, the indicator and the focus layer both draw under `.input:focus-visible ~ …`, from the input to a later sibling, or a descendant of one. No selector in either component's focus rules uses `:host:has()` or a script-set state.
+2. **Radio:** the indicator stays on its current element (`.off`), and the layer stays on the ripple's `::before`.
+3. **Checkbox:** the indicator moves from the host to an element after the input. Use an existing element, or add one without a `part` attribute.
+   - In Chromium, the indicator's box, outline width, offset and radius equal today's on the host. Show it with a scratch reading of both, before and after.
+   - **Stop** if they can't be kept equal.
+4. **Rows.**
+   - The spec rows of the previous amendment run in every engine, Firefox included, with no engine marking.
+   - Add a row for each component asserting that keyboard focus draws the indicator, and that a mouse click doesn't, in every engine.
+   - Read both in Firefox in CI.
+5. **Baselines:** the proposal's only changes are still `radio-focused`, `checkbox-focused` and `button-focused`. A changed checkbox indicator position is a stop.
+6. **The report** gives `RF-39`'s readings for its closure.
+
+`RF-40`, the `:host:has()` fallback that no stylesheet reads, isn't in this unit. Don't change `polyfills.ts`.
 
 ## Checks for every item
 

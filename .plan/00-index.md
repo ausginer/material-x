@@ -799,6 +799,12 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - **Why the precedence fails today.** A focused value equal to the default is deduplicated away. So with only `--_ripple-opacity`, hover's 0.08 would show under focus, against that order. That outcome comes from the deduplication, and no one chose it, so it isn't an owner decision.
   - **Its own variables.** The focused state's tokens are emitted under `:focus-within`, which a mouse click also sets, and the layer's trigger is the keyboard one. So the focus layer takes the focused state's color and opacity through variables of its own. The existing state-layer variables keep their values under every state.
   - The handoff's item 7, as amended the same day, states the properties.
+- **Ruled 2026-11-16 by the architect: the trigger in radio and checkbox,** on the findings unit's second question under item 7, relayed by the coordinator.
+  - **The question:** the ruled trigger `:host:has(.input:focus-visible)` doesn't match in Firefox 159, read locally. So in Firefox, `mx-radio` and `mx-checkbox` draw neither the layer nor, already today, their keyboard focus indicator (`RF-39`).
+  - **The ruling:** in radio and checkbox, the indicator and the layer share one keyboard-focus trigger written inside the shadow tree, from the input to a later sibling: `.input:focus-visible ~ …`. That is option (iii) of the question, and the handoff's item 7, as amended again the same day, states it.
+  - **Not (i):** it would knowingly leave a missing focus indicator in a supported engine, when the fix is in the lines item 7 already changes.
+  - **Not (ii):** it would split the layer's trigger from the indicator's, against property 2 of item 7's amendment, and leave the indicator missing.
+  - **Not a custom state set by script:** CSS expresses the trigger in every engine without a per-instance listener. material-x's existing fallback of that kind has no stylesheet that reads it (`RF-40`).
 
 #### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
 
@@ -838,6 +844,30 @@ Tier B, **closed 2026-11-16** (below). Before closure: open, and it blocked the 
 - **Required property:** `RD-13` property 3's _What `propose` writes_.
 - **Routed** to the implementer on `ci/verification`, by the [handoff](ci-verification-1/ci-verification-handoff.md)'s _Remediating the feature-proof review_.
 - **Closed 2026-11-16 by the architect.** `propose` checks out nothing: it writes the proposal as git objects in a bare repository of its own and refuses a symbolic link in the artifact or in an accepted path of the recorded commit ([report](ci-verification-1/ci-verification-report.md) §Remediating the feature-proof review, with its witness). The reviewer's targeted recheck found `reviewer-1` to `reviewer-3` resolved ([review](reviews/ci-verification-1/feature-proof-claude.md)). It is on `main` through #27 (`275ad0f5c`). A proposal with a changed baseline hasn't run on GitHub yet, only in the witness.
+
+#### RF-39 — In Firefox, `mx-radio` and `mx-checkbox` show no keyboard focus indicator
+
+Tier B, **open**. Registered on 2026-11-16 by the architect, from the findings unit's reading under its item 7, relayed by the coordinator. It predates that unit.
+
+- **The rules:** `radio/styles/default/main.styles.css:55` and `checkbox/styles/default/main.styles.css:64` draw the indicator under `:host:has(.input:focus-visible)`.
+- **The reading,** local, in Firefox 159.0 and Chromium, not yet in CI. After `Tab` onto `mx-radio`, the input is focused and matches `:focus-visible` in both engines. `:host:has(.input:focus-visible)` matches in Chromium and not in Firefox. `:host(:has(…))` matches in neither, and `:host(:focus-within)` matches in both. Radio's indicator outline is drawn in Chromium and absent in Firefox.
+- **Why it is a problem:** a keyboard user in Firefox can't see which radio or checkbox has focus.
+- **Required property:** in every engine the gate runs, keyboard focus on `mx-radio` or `mx-checkbox` draws the indicator that its tokens define, and a mouse click doesn't. In Chromium, the indicator's position and size don't change.
+- **Routed** to the [findings unit](findings-1/findings-1-handoff.md)'s item 7, as amended on 2026-11-16, because the fix is the trigger that item 7's focus layer shares.
+
+#### RF-40 — material-x's `:host:has()` fallback sets custom states that no stylesheet reads
+
+Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF-39`.
+
+- **The code:** `useHasSlottedPolyfill` (`material-x/src/core/utils/polyfills.ts:22`) tests whether `:host:has(slot)` matches (`HOST_HAS_SUPPORTED`, `:10`). Where it doesn't, it sets the custom states `has-<slot>` on the host.
+- **Read by the architect at `5a0bba69b`:** no stylesheet or source under `packages/material-x/src/` or `packages/core/src/` reads `:state(has-`.
+- **Who relies on it:** text-field's lead, trail, prefix, suffix, support and counter rules (`text-field/styles/default/main.styles.css:141`–`:176`) and list items' support and overline rules (`list/styles/item/main.styles.css:35`–`:43`, `:184`) select on `:host:has(… :has-slotted)`.
+- **Not established:**
+  - whether Firefox renders those components differently;
+  - what `HOST_HAS_SUPPORTED` reads in Firefox;
+  - whether Firefox supports `:has-slotted`.
+- **Required property:** in every engine the gate runs, each `:host:has()` rule in material-x applies, or the component renders the same without it. A fallback that nothing reads is either completed or removed.
+- **Routed** to the owner to order. It isn't in the findings unit's scope as authorized. The architect recommends a reading first, in Firefox CI, of the two components with and without slotted content.
 
 ## Questions
 
