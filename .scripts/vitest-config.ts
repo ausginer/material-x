@@ -319,6 +319,9 @@ function createTestBaseConfig(root: URL): UserConfig {
       coverage: {
         enabled: false,
         provider: 'v8',
+        // The packages' source: `packages/*/src` from the root, `src` from a
+        // package. Not tests, fixtures, tooling, build output or dependencies.
+        include: ['packages/*/src/**', 'src/**'],
         reportsDirectory: '.coverage',
         clean: true,
         reporter: isCI ? ['lcov'] : ['html'],

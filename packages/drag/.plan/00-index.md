@@ -4937,6 +4937,16 @@ From inside a pass, such as `onMove`, `moveTo` defers its step (DRI-8). A consum
 
 **Closed on 2026-11-15** by `b6fef26c4` and `953a0fcc6`, reported at `1c1e93bd9`. `y.ts`'s module comment and `y()`'s JSDoc state the term, and the instrument's two self-checks report the list and accept it with the rows' margins on the placeholder. The oracle records the list at a slot in both projects (§Disposition of the `y()` geometry terms report).
 
+#### DRF-48 — In Playwright's Chromium 158, the kernel allocates more per sample than the hot-path allocation row's budget
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` and its handoff's item 6. **A measurement row** (`repo:RD-7`), so it is outside the gate and is not disabled.
+
+- **The row:** `tests/hot-path.browser.test.ts:261`, `drag:DRI-17 hot path` › "should allocate per sample only the CSS string a lifted write needs", in the `shipped` project. It carries the `measurement` tag.
+- **Current behavior:** in Chromium 158.0.8127.18, Playwright's build since `27e54e9ac` (`repo:RD-9`), the kernel's bytes per move exceed the row's bound of 16. Readings: 36.5 and 28.2 B in the CI unit's two drag runs. In both, the only kernel key the sampler reported was `kernel/session.ts:handleEvent`, at 10,940 and 8,464 B over 300 moves. The row passed at `a8726c57d` in the development image's Chrome 157.0.8103.38. **The cause is not established.** No `src/` file changed between the passing and failing runs, so the browser version or its heap sampling is the inferred difference.
+- **Why it is a problem:** the local `npx just test` in drag fails on this row until the owner of the budget decides (`RD-7` property 2), and CI reports it in the measurement job's comment and summary.
+- **Required property:** the row's budget states what the kernel allocates per sample in the pinned Chromium, and the row passes there. Whether the bound moves or the kernel's allocation is reduced is drag's decision, not the CI unit's.
+- **Routed** to the architect. The CI unit doesn't change the budget.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
