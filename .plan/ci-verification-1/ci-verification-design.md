@@ -108,4 +108,5 @@ In this order. Steps 1 to 3 come before the first unit starts or while it runs. 
 - **A speed check in CI,** if the owner wants one.
 - **Fork pull requests' size comment,** if forks start to matter.
 - **What happens if CI doesn't reproduce the baselines,** or the visual suite turns intermittent there: the owner's decision (O12). The architect can then offer a minimal Debian container for the `chromium` job, a repository fontconfig configuration, or a different comparison threshold.
+- **`packages/drag/bench/compare.ts` still launches `CHROME_EXECUTABLE` or `/usr/local/bin/chrome`.** It is a manual comparison and not part of a test run, so `RD-9` doesn't cover it. It breaks once the development image no longer contains that Chrome. A drag unit can move it to Playwright's Chromium.
 - **Firefox or WebKit visual baselines,** if the owner wants them. That is a decision about a new curated set, not an extension of this one.

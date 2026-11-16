@@ -189,7 +189,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 - **Root `vitest run`, Chromium:** 136 files and 1,833 tests. One row fails: `tproc`, `TokenPackageProcessor` _should apply inheritance and render declarations_, expected `container.color` and received only `state-layer.opacity`. That is `RF-29`'s first row, unchanged. `RF-29`'s `radio.visual` row passed in this run, and its `drag2` row left with drag2. Exit 1. Duration: 291 s on a loaded machine.
 - **Root `just typecheck`:** exit 0.
-- **Root `just fmt-check`:** exit 1. `box-quad`, 2 files; `drag`, 57 files; `material-x`, 5 files. The `box-quad` and `drag` files are tracked record files under `.plan/` (measurement JSON and probe sources). The `material-x` files are generated `main.styles.css` files, which a fresh checkout doesn't contain.
+- **Root `just fmt-check`:** exit 1. `box-quad`, 2 files; `drag`, 57 files; `material-x`, 5 files. The `box-quad` and `drag` files are tracked record files under `.plan/` (measurement JSON and probe sources). The `material-x` files are generated `main.styles.css` files, which a fresh checkout doesn't contain. **Corrected 2026-11-16 by the unit's report:** they are tracked, authored CSS under `src/`. The unit formatted them, and the build output didn't change.
 - **Root `just lint`:** exit 1 in all eight packages. Where oxlint fails, the recipe stops before ESLint, so the count is a lower bound. Examples: `core`, 3 ESLint errors; `tproc`, 3; `box-quad`, 9; `size-limit-preset-rolldown`, 2; `vite-custom-element-assets`, `RF-32`'s oxlint errors; `drag`, mostly `.plan/probes/size-acceptance-cleanup/placement.ts`.
 - **Firefox and WebKit outside drag:** never run. WebKit can't run locally (`DRO-18`).
 
@@ -212,13 +212,15 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **What this answers.** `RF-29`: the unit reads its rows again and handles each one under this decision. `RF-32`: the unit repairs it, as part of property 2's lint repairs, instead of the separate cleanup unit it was routed to.
 
+**Dated 2026-11-16:** the unit stopped under property 5 on 108 `camelcase` errors on names that another program reads ([report](ci-verification-1/ci-verification-report.md) §The stop). `RD-10` decides how those names pass lint. Property 2's _"runtime names kept where another library reads them"_ is met through `RD-10`, and property 5's stop still applies to every other name.
+
 #### RD-9 — The pinned visual environment is Playwright's locked Chromium and Roboto from a locked package, and it changes only in a pull request that re-records the baselines
 
 **Decided 2026-11-16 by the architect.** This is `RD-2` deliverables 1 and 4. **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. **Amended 2026-11-16, before implementation,** on the owner's direction relayed by the coordinator at `81d4c91b1` (O9 to O12 in the design). The owner settled each point: CI runs on a plain runner, Chromium is Playwright's, text renders in Roboto from a locked package, and nothing more is guarded in advance. The decision was rewritten. What it said before is at the end.
 
 **The readings,** taken by the architect on 2026-11-16 at `81d4c91b1`.
 
-- **The development image can't pin Chrome as it is built.** It is built in the public repository `ausginer/devimages` (`images/node/.devcontainer/devcontainer.json`) from `node:slim`, with the feature `ghcr.io/kreemer/features/chrometesting:1` at `version: "Stable"`. That feature's `install.sh` reads `VERSION` and never uses it: it always downloads the Stable channel's last known good build. The image's Chrome is whatever was Stable on the day of the build: 157.0.8103.38 in the current container, which recorded the 23 baselines.
+- **The development image can't pin Chrome as it is built.** It is built in the public repository `ausginer/devimages` (`images/node/.devcontainer/devcontainer.json`) from `node:slim`, with the feature `ghcr.io/kreemer/features/chrometesting:1` at `version: "Stable"`. That feature's `install.sh` reads `VERSION` and never uses it: it always downloads the Stable channel's last known good build. The image's Chrome is whatever was Stable on the day of the build: 157.0.8103.38 in the current container, which recorded the baselines. (**Corrected 2026-11-16 by the unit's report:** there are 19 baselines, not 23. The architect's count included directories.)
 - **Playwright 1.65.0** is an exact dependency in the root `package.json` and the lockfile. It pins Chromium 158.0.8127.18 (Chrome for Testing, revision 1254), Firefox 159.0 (1572) and WebKit 27.2 (2388).
 - **The visual fixtures' text** is set by `packages/material-x/tests/support/browser-setup.ts` to `Arial, "Liberation Sans", sans-serif`. Arial isn't installed, and the owner installed no fonts. Fontconfig resolves the stack to Debian's `fonts-liberation` 2.1.5, which is installed as one of Chrome's dependencies. So today's baselines depend on a system font. **The icon font is already vendored** (`tests/support/fonts/material-symbols-subset.ttf`).
 - **The devcontainer runs Debian 13. CI's runner runs Ubuntu 24.04.**
@@ -249,6 +251,40 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 **What this amends.** `test-architecture.md` §What screenshots prove, in the same commit. It said: _"Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate must use one pinned Chromium environment, and local runs must use the same pinned image so developer output matches CI — the image is owed rather than installed (`repo:RD-2`), so until it lands a baseline is only as reproducible as the container that wrote it."_ The operating system and the container image leave the pinned environment. `RD-2` deliverable 1's _"container image fixing OS, Chromium, fonts and icons"_ is read as this decision states it, and its acceptance's _"the same pinned image"_ becomes the same pinned Chromium and fonts.
 
 **What it said before the amendment.** Title: _"The pinned image changes only in a pull request that re-records its baselines and changes nothing else"_. It was `RD-2` deliverable 4 only. Its properties were: a pull request that changes the image digest changes it in `.devcontainer/devcontainer.json` and the workflow together, re-records inside the new image every baseline the image changes, and changes no other file; its CI run verifies them, and the owner reviews every changed baseline; a developer whose container predates the digest rebuilds it. **Why it changed:** the owner's direction and the image reading above.
+
+#### RD-10 — A name that another program defines passes `camelcase` through an exact allow list, and the rule stays on for every other name
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `c2dbf6292`, on the CI verification unit's stop under `RD-8` property 5 ([report](ci-verification-1/ci-verification-report.md) §The stop). It amends `RD-8` property 2 and `RF-32`'s required property for these names only. **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
+
+**The reading** (the report's `checks/lint-inventory.txt`, at `33fc22dce`). Of 142 lint errors, 108 are `camelcase` on snake_case object keys:
+
+- **Claude Code's hook payload**, 91 in `.claude/plugins/harness-effort-guard/tests/guard.test.ts` and some of the 12 in `scripts/guard.ts`: `hook_event_name`, `session_id`, `tool_name`, `tool_input`, `agent_type`, `agent_id`, `transcript_path` and `subagent_type`. Claude Code sends these names and reads them back.
+- **The guard's observation log**, the rest of the 12: `governed_role`, `identity_source`, `project_root`, `declared_model`, `runtime_model`, `model_check`, `dispatch_target`, `dispatch_name` and `dispatch_model`. The record copies the payload's fields under the payload's names and adds its own in the same style. Its fields are documented in the plugin's `README.md` and in `.agents/docs/harness-effort-guard.md`, and the observation logs that the record cites use them.
+- **`@minify-html/node`'s options**, 4 in `packages/vite-custom-element-assets/src/html.ts`: `minify_css`, `minify_js`, `keep_comments` and `allow_removing_spaces_between_attributes`. The native library reads exactly these names.
+- **The token database's field** `token_class`, 1 in `packages/tproc/tests/helpers.ts`. It builds a fixture in the shape that the upstream token data has.
+
+`eslint-config-vaadin` sets `camelcase: ['error', { properties: 'always' }]`. A quoted key escapes the rule, but oxfmt removes the quotes. A computed key survives oxfmt, but `no-useless-computed-key` reports it. So no form of the source passes both tools, as the report shows.
+
+**Properties.**
+
+1. **The root `eslint.config.ts` lists each such name in `camelcase`'s `allow` option, as an anchored exact pattern** (`'^session_id$'`). ESLint reads each `allow` entry as a regular expression, so an unanchored entry would also admit every name that contains it. The entries are grouped by the interface that fixes them, with one comment per group that names the interface. Every package's configuration imports this one, so the list exists once.
+2. **What qualifies:** a name fixed by an interface outside the TypeScript program. That is a protocol that another program sends or reads, an option set that a library reads by name, external data whose shape the code reproduces, or a persisted record format that this repository documents and that its readers already use. Today that means the four groups above.
+3. **What doesn't qualify:** a name this code chooses and only this code reads. It is renamed to camelCase. A new name joins the list only under property 2, in the change that introduces it.
+4. **Unchanged:** `camelcase` stays at `error` with `properties: 'always'`. No file-scoped override, no disable comment, no rename of a listed name, and no change to oxfmt's quoting.
+5. **`.claude/` stays linted** by the root recipe, as it is now. The plugin is TypeScript that the repository maintains and tests. This decision changes only the shared configuration and no file under `.claude/`.
+
+**Why.**
+
+- **The rule exists for names that this code chooses.** A name another program fixes can't follow it, and renaming it breaks the interface. An exact list keeps the rule's full force for every other name: a new snake_case key still fails unless someone adds it with the interface named.
+- **One list, not a scope.** A file-scoped `properties: 'never'` for the plugin would stop checking every other key in those files. Turning the rule off was the alternative `RD-8` property 5 sends back.
+- **The guard's log counts as an interface.** Renaming its fields would change a documented format that the record's observation logs and two documents use. That is a decision about the guard, not a lint repair.
+
+**Not adopted.**
+
+- **`properties: 'never'` everywhere,** which turns the rule off for every key in the repository.
+- **Building the objects so the linter can't see their keys,** for example with `Object.fromEntries` over pairs. That is machinery whose only purpose is to hide a name from a rule (CONTRIBUTING §2).
+- **Disable comments,** which `RF-32` and `RD-8` rule out. There would be 108 of them.
+- **Renaming the guard log's own fields to camelCase,** for the reason above.
 
 ## Findings
 
@@ -431,6 +467,7 @@ Tier C, open. Registered by the architect on 2026-11-14 from drag's [final clean
 - **Why it is a problem:** each package's lint exits 1 at every base, so a unit that touches either package can show only that it adds no error, as `drag:DRF-38` was.
 - **Required property:** both packages' lint exits 0, with no rule turned off and no disable comment, and the emitted JavaScript keeps its behavior. The `camelcase` sites are option keys passed to another library, so their runtime names stay.
 - **Routed** to a repository cleanup unit for an `implementer`, which the owner starts. It isn't drag's work and doesn't gate drag's pull request. **Return to the architect** if a fix needs a rule turned off, a disable comment, or a change to a runtime name.
+- **Dated 2026-11-16: names that another program reads** pass through `RD-10`'s exact allow list. That amends the required property for these names only: _"no rule turned off and no disable comment"_ still holds, and `camelcase` stays on. The four `html.ts` keys are such names.
 - **Dated 2026-11-16: re-routed** to the CI verification unit ([handoff](ci-verification-1/ci-verification-handoff.md)), because the gate's `static` job runs every package's lint (`RD-8` property 2). At `a8726c57d`, lint fails in all eight packages, not only these two. The required property and the return condition stand.
 
 ## Questions

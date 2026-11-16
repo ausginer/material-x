@@ -6,6 +6,7 @@
 
 - `repo:RD-6`: the workflow, the runner, the engine selection, coverage and the aggregate check;
 - `repo:RD-9`: the pinned visual environment, the one-time re-recording, and how the environment changes later;
+- `repo:RD-10`: names that another program defines, and how they pass `camelcase`;
 - `repo:RD-7`: measurement rows and the size comment;
 - `repo:RD-8`: the checks that fail today, the reading at `a8726c57d`, and the stops;
 - `repo:RD-2`: the order and acceptance this unit works toward, and its reporter rule (dated 2026-11-05);
@@ -15,6 +16,17 @@
 The [design](ci-verification-design.md) describes the workflow and the owner's setup. Where a decision and the design disagree, the decision is authoritative.
 
 **Scope:** `.github/workflows/`, `codecov.yml`, `.devcontainer/` (its post-create and on-start scripts), the root and material-x `package.json` and the lockfile (for the Roboto package only), `.scripts/`, the root and package `Justfile`s, lint and format configuration, `packages/*/tests/`, including material-x's baselines, `packages/drag/bench/size/measure.ts`, `packages/drag/vitest.engines.config.ts` (deleted), the `.plan/` files that `RD-8` property 3 formats, and new findings in the `repo` and `drag` registers. **No product source under `packages/*/src/` changes,** apart from lint repairs that change no emitted behavior. `docs.yml` doesn't change.
+
+## Resuming after the stop at item 5
+
+**Dated 2026-11-16.** The unit stopped under `RD-8` property 5 and reported at `c2dbf6292` ([report](ci-verification-report.md)). The architect decided the stop in `RD-10`. **Resume from item 5, from the architect's commit that adds this section.** Items 1 to 4 and item 5's first two bullets stand as reported. These points from the report are settled:
+
+- **The `camelcase` sites:** item 5 now carries `RD-10`. No file under `.claude/` changes.
+- **material-x's five `main.styles.css` files** are authored and tracked, so formatting them was the right repair. Item 5's last bullet no longer mentions them.
+- **`placement.ts`'s trailing commas** are not a data change. The program is the one that ran.
+- **Visual is declared only when the list names `chromium`** (report §2). That reading is accepted.
+- **19 baselines, not 23.** `RD-9`'s reading is corrected.
+- **`bench/compare.ts`'s `CHROME_EXECUTABLE`** stays out of this unit. It is a manual comparison, not a test run. It is carried in the design's §6.
 
 ## Owner preconditions
 
@@ -56,13 +68,18 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 
 - Lint stops reading `.plan/` directories. Use the lint configuration, not a disable comment in a file.
 - Format the tracked `.plan/` files that `fmt-check` reports. Check that the diff is whitespace only. If any file's data changes, stop.
-- Repair every lint error under `RF-32`'s required property. Rerun each package's lint after its oxlint errors are gone, because ESLint was never reached in some packages.
-- On a fresh checkout after `npm ci`, the root `just fmt-check`, `just lint` and `just typecheck` exit 0. Generated files, such as material-x's `main.styles.css`, are not checked there. If they are checked after a build, make the check skip generated output.
+- **Names that another program defines** (`RD-10`). Add each name the report lists to `camelcase`'s `allow` option in the root `eslint.config.ts`, as an anchored exact pattern, grouped by the interface that fixes it, with one comment per group that names the interface. Don't change the rule's level or its `properties` option, and add no file-scoped override. Before adding any name, check that it meets `RD-10` property 2. A name that doesn't qualify is renamed, or is a stop if another program reads it.
+- **Repair every other lint error** under `RF-32`'s required property: the report's 34. A repair under `src/` shows that the emitted JavaScript is unchanged. Where a `require-unicode-regexp` repair adds `u` or `v`, show that the pattern matches the same strings, for example by running both patterns over the inputs the code passes them. If a pattern can't take either flag without matching differently, stop.
+- Rerun each package's lint with oxlint and ESLint run separately, as the report's inventory did, so that ESLint is read even where oxlint fails.
+- On a fresh checkout after `npm ci`, the root `just fmt-check`, `just lint` and `just typecheck` exit 0.
+- **Check:** with one listed name changed to a near miss in a scratch edit (`session_idx`), ESLint reports it. Revert.
 
 ## 6. The local inventory and its dispositions (`RD-8`)
 
 - Run the root suite in Chromium, with coverage and without `measurement` rows, as CI will. Then run every browser project except visual in Firefox. List every failing row with its file, its engine, its first error line, and whether it failed in all five runs.
 - Handle each row under `RD-8` properties 2 and 4. `RF-29`'s `tproc` row is the first one. Register each disabled row as a finding: `drag:DRF-` for drag, and `repo:RF-` from `RF-33` for everything else. Each finding states the required property, and the marking cites the finding's address.
+- **A measurement row isn't disabled.** It is outside the gate, and CI reports it (`RD-7`). If one fails, register a finding in its owner's register, leave the row as it is, and note in the finding that the local `npx just test` fails on it until the owner of the budget decides. **`hot-path.browser.test.ts:261`**, which allocates 28 to 37 B per move against 16 in Chromium 158, becomes a `drag:DRF-` finding. The budget is drag's, and the CI unit doesn't change it.
+- **`radio.visual` _should match the selection state matrix_** is `RF-29`'s row, and it is intermittent (1 in 5). First look for a cause in the test, such as a state that hasn't settled before the screenshot, and repair it there if you find one. Otherwise skip it in Chromium under `RD-8` property 4, with the marking citing `repo:RF-29`, and add a dated note to `RF-29`. The owner then decides under `RD-9` property 4.
 - Stop under `RD-8` property 5. Report the inventory as it is at the stop.
 
 ## 7. The workflow (`RD-6`, `RD-7` property 4)
