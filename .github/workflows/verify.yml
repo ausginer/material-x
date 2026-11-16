@@ -113,12 +113,21 @@ jobs:
       - run: npm ci
       - name: Enable Safari's remote automation
         run: sudo safaridriver --enable
+      # A Safari page reports the preferences a Chromium or Firefox page reports
+      # by default, and the runner's user has Reduce Motion on
+      # (`repo:RD-12` property 10).
+      - name: Turn off Reduce Motion
+        run: |
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          value="$(defaults read com.apple.universalaccess reduceMotion)"
+          echo "reduceMotion: $value"
+          [ "$value" = 0 ]
       - name: macOS and Safari versions
         run: |
           sw_vers
           defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
       # Each Safari project in its own Vitest process (`repo:RD-12`).
-      - run: npx just test-safari --tags-filter '!measurement'
+      - run: npx just test-safari safari-reading --passWithNoTests
 
   # Succeeds only if every gate job succeeded. A skipped, cancelled or failed
   # job fails it.
