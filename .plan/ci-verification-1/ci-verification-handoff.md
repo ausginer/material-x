@@ -161,6 +161,56 @@ Report each with its output, and don't limit or disable rows to get past it.
 - a Safari project loses its browser connection, or leaves listed files unrun, after the skips (`RD-8` property 5: its files can't all run);
 - more than 15 Safari rows would be disabled (`RD-8` property 5).
 
+## After the report at `316d2e839`: one review before merge
+
+**Dated 2026-11-16.** The architect read the [report](ci-verification-report.md) from §Resumed after the policy block to §Not done, [`checks/draft-skips.txt`](checks/draft-skips.txt), and the tree at `316d2e839`, relayed by the coordinator.
+
+**The implementation is complete against this handoff.** Items 1 to 8, the steps of each Safari section and the Checks are done, and each check's output is saved and cited. The architect confirmed these claims in the tree and on GitHub:
+
+- **The temporary commits leave nothing.** Between `6fd774bc4~1` and `1ea922a4a`, drag's size bench and `size.node.test.ts` have no difference, and `.scripts/gate-check.node.test.ts` doesn't exist.
+- **The workflow.** Every job in `verify.yml` skips a draft. `verify` needs `static`, `chromium`, `firefox` and `safari`, and fails unless each result is `success`. The `timeout-minutes` are the report's. Only `measurements` has `pull-requests: write`.
+- **Pull request #27** is open and not a draft, at `316d2e839`. Run 43849321684 passed at `1ea922a4a`. `316d2e839` changes only the report and `checks/draft-skips.txt`. Run 43851095209 at `316d2e839` was in progress when read.
+
+**Every disabled row keeps its handling.** Each marking is in the tree and cites its finding: 5 rows in Safari, 5 in Firefox, none in Chromium, under the stop at 15 per engine.
+
+| Engine | Rows | Marking | Finding | Why the marking fits `RD-8` property 4 |
+| --- | --- | --- | --- | --- |
+| Safari | drag `DRI-14` _y()_ sweep | `it.skipIf(isSafari)` | `drag:DRF-49` | Intermittent: 2 of 6 project runs timed out |
+| Safari | drag `DRI-9` gap sweep with transitions | `it.skipIf(isSafari)` | `drag:DRF-50` | Intermittent: 4 of 6 |
+| Safari | drag TransformedStage drop | `it.fails` in Safari | `drag:DRF-51` | Always fails: in each of the 4 runs before its marking, and as an expected failure in each Safari run since |
+| Safari | core `useReorderable`: the visual leaves the top layer; no reorder for a no-op drop | `it.skipIf` in Safari | `repo:RF-36` | Intermittent: each failed once and passed in the other runs |
+| Firefox | material-x focus delegation, 4 rows | `it.fails` in Firefox | `repo:RF-33` | Always fails: 5 local runs and CI |
+| Firefox | box-quad rotated and scaled size | `it.fails` in Firefox | `repo:RF-34` | Always fails: 5 local runs and CI |
+
+- **No Firefox row is skipped.** Its five rows always fail, so they are expected failures.
+- **If the TransformedStage row passes once in Safari, `verify` fails on it.** That is the signal `RD-8` property 4 chose `it.fails` for. The row is then read again as intermittent under `DRF-51`.
+- **`RF-36`'s eight other rows** use the same 1,000 ms wait and aren't disabled in advance: `RD-8` disables a row only after it fails. If one of them fails on a later pull request, `RD-12` property 7 handles it under `RD-8`, and its marking cites `RF-36`.
+- **The `xy()` row stays enabled.** It hasn't failed since the `y()` row was skipped.
+
+**The owner doesn't merge #27 before one independent review.** The [normal handoff](../../.agents/docs/agent-workflow.md#normal-handoff) is decision, implementation, then independent review. No review has read the unit's diff since `a8726c57d`: 51 commits, and 76 files outside the records with 4,458 lines added and 646 removed. The unit changes the check that will gate every later merge, adds a workflow whose second job has a write token, and changes 14 files under `packages/*/src/`. The architect's reading above checks the report against the tree. It isn't that review.
+
+- **Who:** one `reviewer` session, feature proof. A full `consolidator` round isn't needed: the unit changes test infrastructure and CI, its product source changes are lint repairs, and CI runs show its behavior.
+- **Input:** `ci/verification` at the architect's commit that adds this section, against the base `a8726c57d`. The governing records are this handoff's.
+- **Artifact:** `.plan/reviews/ci-verification-1/feature-proof-claude.md`, under [review-findings.md](../../.agents/docs/review-findings.md).
+- **What must hold.** The review reads each property and reports where it doesn't hold. It repairs nothing.
+  1. **`verify` can fail.** It fails when a gate job fails, is cancelled, times out or is skipped, on a pull request that isn't a draft and on a push to `main`. GitHub counts a skipped required check as passed, so `verify` is skipped only for a draft, which can't merge.
+  2. **`baselines.yml` meets `RD-13` properties 1 to 6.** The job with the write token runs no repository code. No value that a pull request's author controls is expanded into a shell script. A fork's pull request gets no write token. A proposal holds only PNG files under `__screenshots__/`.
+  3. **Product source.** Each change under `packages/*/src/` is a lint repair whose emitted JavaScript is unchanged, or a `u` or `v` flag on a pattern that matches the same strings (item 5).
+  4. **The WebdriverIO commands meet `RD-12` property 4:** the same name, arguments, result and coordinate frame as each Playwright implementation; pointer state from `pointerDown` to `pointerUp`; the named error for a command with no WebDriver counterpart.
+  5. **Engine conditions and disabled rows.** Each one in the diff meets `RD-6` property 6, `RD-12` property 5 or `RD-8` property 4. The report and the registers list the same rows.
+  6. **Local runs meet `RD-13` property 7,** and `test-safari` meets `RD-12` property 6.
+  7. **The records agree with the tree:** `RD-6` to `RD-13`, the findings this unit registered, the [design](ci-verification-design.md) and the report.
+- **Routing.** The review's findings return to the architect. A finding that blocks merge goes back to the implementer on this branch. Other findings are registered and routed.
+
+**After the review:**
+
+1. The owner merges #27 when the review leaves no finding that blocks merge and `verify` passes at the pull request's head.
+2. `verify` passes on the push to `main`.
+3. The owner adds the branch rule (design §5, step 5).
+4. The architect marks `RD-6` to `RD-13` implemented, records `RF-29` as resolved, and records `RD-2`'s deliverable 2 and `RF-8` as met when the rule is on. `RF-29`'s two rows are repaired at `f0ec37881`. A local root `npx just test` still exits 1 on `DRF-48`'s measurement row, and `DRF-48` carries that.
+
+**Open after the unit, and not blocking merge:** `drag:DRF-48` to `DRF-51` (routed to the architect), `repo:RF-33` to `RF-36` (routed to their owners) and `RF-37` (after the unit). The architect recommends that the owner order `RF-36` first, because its eight other rows can block any pull request once `verify` is required, and then `RF-33`, because keyboard focus doesn't reach any `mx-button`'s native button in Firefox.
+
 ## Owner preconditions
 
 From the design §5. Ask through the coordinator for any that is missing when you reach the item that needs it. Don't guess.
