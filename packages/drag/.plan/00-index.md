@@ -3113,6 +3113,8 @@ Decided on 2026-11-15 by the architect, on the hypothesis and the [probe](probes
 
 **Implemented by** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) item 1, at `e9ca3732f`. The unit's final re-measure at `a3423c793` moved no row, so every ceiling and the control still equal their readings at `988643dc9` (§Disposition of the size acceptance cleanup report).
 
+**Dated 2026-11-16, by the architect:** `repo:RD-7` tags the ceiling and control verdicts of `tests/size.node.test.ts` as `measurement`. CI reports them and never fails on them. Each composition's row splits into a graph row, which stays in the CI gate (`DRI-18`), and a ceiling row. Locally `npx just test` runs both, so property 5 holds as written. The figures, the ceilings and the assertions don't change.
+
 #### DRD-69 — `988643dc9` is adopted: the loops read their fields directly, and no member carries a guarantee about its receiver
 
 **Decided on 2026-11-15 by the architect, on the owner's commit `988643dc9` and direction (`DRO-21`),** relayed by the coordinator on `drag/size-acceptance`.
@@ -5316,6 +5318,8 @@ No timing was taken.
 **What this changes for drag's units.** A check that names `npx just test-engines` is owed in Chromium and Firefox. A unit selects those projects with `--project`: `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. A WebKit project that fails to launch locally isn't a failure of the unit, and a report states that WebKit didn't run. A handoff written before this decision that asks for WebKit is read this way. The `test-engines` recipe keeps its WebKit projects for CI.
 
 **Not yet in force in CI.** The repository's only workflow is `docs.yml`. The pull-request workflow that `repo:RD-2` owes doesn't name WebKit, and `.agents/docs/test-architecture.md` lists Firefox and WebKit behavior checks among the jobs that scheduled or manual runs may add. **Until a CI job runs drag's WebKit projects, no run covers WebKit.** Whether that job is owed under `repo:RD-2` is a repository decision that this entry doesn't take.
+
+**Dated 2026-11-16, by the architect:** `repo:RD-6` takes that decision. The job is owed, and it runs every package's browser projects in Firefox and WebKit. The shared engine selection replaces `vitest.engines.config.ts`. `test-engines` keeps its name and its project names, so the `--project` selection above is unchanged. Unimplemented: until the CI unit lands, no run covers WebKit.
 
 #### DRO-19 — The code the tests run is the code the user receives
 

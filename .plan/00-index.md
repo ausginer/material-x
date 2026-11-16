@@ -1,6 +1,6 @@
 # Repository record — index
 
-The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `reviews/` — are its material.
+The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `ci-verification-1/`, `reviews/` — are its material.
 
 **Scope `repo`.** Addresses are qualified as everywhere else (`CONTRIBUTING.md` §Reading one entry of a record): `repo:RD-1`. Entries are `####` headings that open with their identifier, so one extracts standalone:
 
@@ -51,6 +51,8 @@ awk -v re="^#### RD-1( —|$)" \
 **Acceptance.** A pull request that fails any enumerated check cannot merge; the same pinned image runs locally and in CI and produces matching screenshots; no baseline is written by CI. Until all four deliverables hold, this entry is the statement of record that the gate does not exist.
 
 **Home when the work is taken:** a `.plan/` work directory of its own beside the others, holding the design for the image and the workflow. It is not created here, and nothing about the mechanism is designed here — this entry classifies the work and fixes its contract, and the unit that builds it is separate.
+
+**Dated 2026-11-16: the work is taken.** Its home is [`ci-verification-1/`](ci-verification-1/ci-verification-design.md). `RD-6` meets deliverables 1 and 2 by pinning the existing development image and adding the workflow, and adds Firefox, WebKit and Codecov to deliverable 2's list on the owner's requirements. `RD-7` takes size, allocation and speed checks out of the gate. `RD-8` handles the checks that fail today. `RD-9` is deliverable 4. Deliverable 3 is the owner's. This entry's order, acceptance and statement of record stand: the gate does not exist until all four deliverables hold.
 
 #### RD-3 — Every project the shared factory declares sets `extends: false`
 
@@ -105,6 +107,112 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Consequences carried elsewhere,** all in the handoff's item 2: `CONTRIBUTING.md` §Reading one entry of a record, `documentation.md` §7 and §9, `handoff.md` §Markdown, `agent-workflow.md`, `review-findings.md` and `coordinator.md`. `RD-4` holds through drag's `DRAG_NODE_BUILD`, the same mechanism with drag's build. Its text, which names drag2's setup as the only one, isn't rewritten.
 
+#### RD-6 — One workflow verifies every push to `main` and every ready pull request, in the pinned image and three engines, and one aggregate check gates merge
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `a8726c57d`, on the owner's requirements relayed by the coordinator the same day ([design](ci-verification-1/ci-verification-design.md) §1, O1 to O8). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. It is `RD-2`'s deliverables 1 and 2, and it prepares deliverable 3, which the owner performs.
+
+**Properties.**
+
+1. **Triggers (O1).** A push to `main`; a `pull_request` event of type `opened`, `reopened`, `synchronize` or `ready_for_review`; and `workflow_dispatch`. Every job skips a draft pull request. No other trigger, and no `pull_request_target`. A newer run for the same pull request cancels the older one. A run for a push to `main` is never cancelled.
+2. **The pinned environment (`RD-2` deliverable 1, O7).** Every job runs in `ghcr.io/ausginer/devimages/node@sha256:<digest>`, the image the devcontainer runs at this decision, which recorded the committed baselines. `.devcontainer/devcontainer.json` names the same digest, so local and CI runs use one image. **A `repo` node test asserts that the two files name the same digest.** The image changes only under `RD-9`.
+3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `webkit` run every browser project except visual in their engine. **The three test jobs exclude `measurement` rows (`RD-7`).** Every job runs the repository's own recipes on a fresh checkout after `npm ci`. If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
+4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox` and `webkit`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project uses Playwright's own build of its engine, without the Chromium executable or Chromium launch arguments, with `fileParallelism: false` and one worker, because a background page gets no input in those engines. **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and its project names (`browser`, `browser/firefox`, `shipped/webkit`…), so `drag:DRO-18`'s commands still select the same projects. A local `just test` without the variable runs Chromium only, as it does today.
+5. **Visual runs in Chromium only.** Its baselines are per engine and platform, and only Chromium baselines exist. CI never writes, updates or approves a baseline. When `chromium` fails, the actual and diff images are uploaded as a workflow artifact.
+6. **A row that needs a Chromium-only instrument** (the DevTools Protocol, heap snapshots, `--expose-gc`) runs only in Chromium, by an engine condition, as drag's `isChromium` rows do. That limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it.
+7. **Coverage (O4).** `chromium` runs with V8 coverage and uploads it to Codecov on every run. A failed upload fails the job. Codecov's project and patch statuses are `informational`, so a percentage never blocks a merge. Firefox and WebKit contribute no coverage, because the V8 provider cannot instrument them.
+8. **The aggregate check.** `verify` needs `static`, `chromium`, `firefox` and `webkit`, and succeeds only if each succeeded. **It is the one check the branch rule requires,** so adding or splitting a job changes `verify`'s list and not the rule. A job not in `verify`'s list cannot block a merge.
+9. **Permissions.** The workflow's token is `contents: read`. Only the measurement job adds `pull-requests: write` (`RD-7`). A third-party action is pinned to a full commit hash.
+
+**Why.**
+
+- **One aggregate check** keeps the branch rule stable while jobs change, and it makes a skipped or missing job a failure of `verify` instead of a check nobody required.
+- **Every job in the pinned image** gives one operating system, one Node version and one dependency tree per run, so the only difference between engine jobs is the engine. Playwright 1.65.0 supports Debian 13, the image's distribution. Its installer adds WebKit's system libraries in the `webkit` job, so `DRO-18`'s local decision is unchanged.
+- **Pinning the existing image, not building a new one:** the 23 committed baselines were recorded in it. A new image would need every baseline re-recorded and reviewed before the gate could pass, which is `RD-9`'s work and not this decision's.
+- **One engine selection, not a second mechanism.** drag's engines configuration is the same property for one package. Generalized, it serves every package, and drag's names survive (CONTRIBUTING §6).
+- **Coverage from Chromium only** is a limit of V8 coverage, not a choice.
+
+**Not adopted.**
+
+- **Running Firefox and WebKit on a plain runner with `playwright install --with-deps`.** It works, but each job would have its own operating system and Node version.
+- **Playwright's own container image for Firefox and WebKit.** Its version would have to follow the lockfile in a second place.
+- **Istanbul coverage in every engine.** It runs instrumented code instead of the code under test in every engine, and O4 needs only one coverage source, which Chromium already provides.
+- **Firefox and WebKit visual baselines.** That is a new curated set with its own maintenance cost, which the owner hasn't asked for.
+
+**What this amends.**
+
+- **`.agents/docs/test-architecture.md` §CI policy,** in place in the same commit. Before: _"Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, Firefox/WebKit behavior checks, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation."_ Firefox and WebKit behavior and spec-contract checks move into the pull-request gate. The other scheduled or manual items stay where they were. §What screenshots prove keeps its rule: broader visual runs stay scheduled or manual.
+- **`RD-2` deliverable 2's list** gains Firefox and WebKit behavior and spec-contract tests and the Codecov upload. Its order, its acceptance and its other deliverables stand.
+- **`drag:DRO-18`'s open question** ("whether that job is owed under `repo:RD-2`") is answered: it is.
+
+#### RD-7 — Size, allocation and speed checks notify and never fail the build
+
+**Decided 2026-11-16 by the architect,** on O5 and O6 ([design](ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it.
+
+**Properties.**
+
+1. **What a measurement row is.** A row whose verdict compares a quantity with a budget, a ceiling or a control figure: bytes of a bundle, bytes allocated, or time elapsed. **A row that asserts behavior is not a measurement,** even if it counts. Examples are a retention check (_should not retain …_) and a deterministic work count that a contract invariant states, such as `drag:DRI-17`'s layout reads and spatial searches. Those rows stay in the gate.
+2. **Marking.** Each measurement row carries the Vitest tag `measurement`, which the shared factory declares. The gate's test jobs run with that tag filtered out. The measurement job runs only that tag. **A local `just test` runs every row, as it does today,** so `drag:DRD-68` property 5 stays true where it is stated: an over-ceiling row fails `npx just test` until the unit re-bases.
+3. **The rows at this decision.** In `packages/drag/tests/size.node.test.ts`, each composition's ceiling and control verdict. Its graph verdict (`present`, `absent`) is `drag:DRI-18`'s and stays in the gate, so each composition's row splits into a graph row and a ceiling row. The assertions themselves don't change. In `packages/drag/tests/hot-path.browser.test.ts`, the two rows that bound bytes allocated per sample. **No speed row exists.** The implementer confirms there are no others.
+4. **The measurement job is outside the gate.** `verify` doesn't need it. It concludes successfully whenever it ran to its report. An exceeded ceiling or a failing measurement row becomes a warning annotation and a line in the report, never a failed step. `continue-on-error` covers a crash, so even a broken measurement can't fail the workflow.
+5. **The size comment (O5).** It reports every row that the root `just size` measures (`box-quad` and `core` through size-limit, `drag` through `bench/size/measure.ts`): the reading at the head, the reading at the merge base of the head and the pull request's base branch, the difference, and the row's limit at the head. Brotli for every row, and gzip where the instrument reports it. Rows that exist at one side only are marked added or removed. **Both sides are measured in the same job, in the same image, each tree with its own instruments.** A base tree whose instruments cannot produce the machine-readable reading gives "no base reading", and the head is still reported. The comment is one per pull request, identified by a hidden marker and updated on each run. It is posted only when the pull request comes from this repository. Otherwise, and on a push or a manual run, the report goes to the job summary only.
+6. **The allocation result** is reported in the same comment and summary as each row's pass or fail, with its message.
+
+**Why.**
+
+- **A tag separates the rows without moving files,** and drag's size file holds graph rows that must keep gating. A separate project or file suffix would split `size.node.test.ts` across two files for the same compositions.
+- **Locally nothing changes.** `DRD-68` makes an over-ceiling row stop a drag unit before release. That is a rule about drag's units, which run locally. CI notifies, as O6 asks.
+- **The merge base, not the base branch's tip,** because the comment reports what this pull request changes, not what landed on `main` meanwhile.
+- **Measuring both sides in one job** depends on no artifact from an earlier run, which can be missing or expired.
+
+**Not adopted.**
+
+- **Speed checks on shared runners.** None exists, and a timing reading on a shared runner tells little. A later speed check enters CI as a measurement row or a step of the measurement job, under this decision.
+- **`pull_request_target` for fork comments.** It runs with write access next to the fork's code.
+
+**What this doesn't decide.** What governs drag's ceilings after release (`drag:DRD-68` property 6). If that rule makes a ceiling gate in CI, it amends this decision.
+
+#### RD-8 — A check that fails today is repaired or disabled before the branch rule is on, and each disabled row is a registered finding
+
+**Decided 2026-11-16 by the architect,** on O3 and O8 ([design](ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it.
+
+**The reading at `a8726c57d`,** taken by the architect on 2026-11-16 in the devcontainer. The output is not committed: each item below has to be read again at the unit's base anyway.
+
+- **Root `vitest run`, Chromium:** 136 files and 1,833 tests. One row fails: `tproc`, `TokenPackageProcessor` _should apply inheritance and render declarations_, expected `container.color` and received only `state-layer.opacity`. That is `RF-29`'s first row, unchanged. `RF-29`'s `radio.visual` row passed in this run, and its `drag2` row left with drag2. Exit 1. Duration: 291 s on a loaded machine.
+- **Root `just typecheck`:** exit 0.
+- **Root `just fmt-check`:** exit 1. `box-quad`, 2 files; `drag`, 57 files; `material-x`, 5 files. The `box-quad` and `drag` files are tracked record files under `.plan/` (measurement JSON and probe sources). The `material-x` files are generated `main.styles.css` files, which a fresh checkout doesn't contain.
+- **Root `just lint`:** exit 1 in all eight packages. Where oxlint fails, the recipe stops before ESLint, so the count is a lower bound. Examples: `core`, 3 ESLint errors; `tproc`, 3; `box-quad`, 9; `size-limit-preset-rolldown`, 2; `vite-custom-element-assets`, `RF-32`'s oxlint errors; `drag`, mostly `.plan/probes/size-acceptance-cleanup/placement.ts`.
+- **Firefox and WebKit outside drag:** never run. WebKit can't run locally (`DRO-18`).
+
+**Properties.**
+
+1. **The inventory comes first.** The unit reads every failing row and check in each gate job, at its own base: Chromium and Firefox locally, WebKit and the pinned image's visual result in CI. A row counts as intermittent if it both fails and passes in five runs of its file.
+2. **Repair** when the cause is in the test, the test infrastructure or repository tooling, and the repair changes no product behavior, no public surface and no decided contract. Lint repairs follow `RF-32`'s required property: no rule turned off, no disable comment, and runtime names kept where another library reads them.
+3. **The record is not source.** A file under a `.plan/` directory is evidence: a probe's source is what ran, and a tool's output is what the tool wrote. **Lint doesn't read `.plan/`,** because a lint repair would change what ran. **Formatting does read it,** because formatting changes no data. Each unit already owes `fmt` for each file it adds, so the record's unformatted files are repaired by formatting them.
+4. **Disable** in every other case, and only in the engine where the row fails. A row that always fails is marked as an expected failure (Vitest `fails`), so a later repair shows up as a failure. An intermittent row is skipped. **Each disabled row is a finding** in the register of the scope that owns it (`drag` for drag, `repo` for everything else), with the row, the engine, the failure, the cause if it was established, and the required property. The marking cites that finding's address. A product cause is routed as its own unit, which the owner orders. The CI unit doesn't change product source.
+5. **Stops.** The unit returns to the architect with its inventory if: a file or a whole project cannot load in an engine; more than 15 rows would be disabled in one engine; a row fails only with coverage enabled; the visual suite does not reproduce the committed baselines in the pinned image in CI; or a repair would need a rule turned off, a disable comment or a changed runtime name. **A baseline is never rewritten to make CI pass.**
+6. **The branch rule is turned on after this decision's repairs and disabled rows are on `main`,** and `verify` has passed there (O8).
+
+**Why.**
+
+- **Repair inside the unit only when the cause is the tests or the tooling.** That is the repair the owner prefers, and it fits a verification unit. A product defect in one engine is the product's change, with its own review.
+- **An expected failure, not a skip, for a row that always fails:** a skip stays silent when the defect is repaired, and an expected failure doesn't.
+- **A finding for each disabled row,** because a disabled row with no registered owner is a gap that nobody tracks.
+- **The stops** are where the inventory stops being a list of small repairs and becomes a question about the design.
+
+**What this answers.** `RF-29`: the unit reads its rows again and handles each one under this decision. `RF-32`: the unit repairs it, as part of property 2's lint repairs, instead of the separate cleanup unit it was routed to.
+
+#### RD-9 — The pinned image changes only in a pull request that re-records its baselines and changes nothing else
+
+**Decided 2026-11-16 by the architect.** This is `RD-2` deliverable 4. It takes effect when `RD-6` lands.
+
+**Properties.**
+
+1. A pull request that changes the image digest changes it in `.devcontainer/devcontainer.json` and in the workflow together. It re-records, inside the new image and with the explicit update command, every baseline that the new image changes. It changes no other file.
+2. Its CI run verifies the re-recorded baselines in the new image. **The owner reviews every changed baseline image before merging,** as `test-architecture.md` §What screenshots prove requires.
+3. A developer whose container predates the digest rebuilds it before running the visual suite. A visual failure in an old container is not evidence about the code.
+
+**Why.** The image is the environment that makes the baselines valid. Changing the image and the baselines in one dedicated pull request keeps each visual difference attributable to the image, and keeps the image's change out of feature work.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -143,7 +251,7 @@ Tier B. `reviewer-3` + `der-2`, Review Swarm, found independently and blind to e
 
 #### RF-8 — The repository documents a pull-request gate that does not exist
 
-Tier B. `der-5`, Review Swarm; carried as `TE-F40`. `test-architecture.md` §CI policy states that every pull request gates on the verification suite; `.github/workflows/` contains `docs.yml` alone, on `push` to `main` and `workflow_dispatch`. **Open**, and dispositioned by RD-2: the policy is accepted and the mechanism is owed. Nothing about the repository's actual enforcement has changed, so this row closes when RD-2's four deliverables land and not before.
+Tier B. `der-5`, Review Swarm; carried as `TE-F40`. `test-architecture.md` §CI policy states that every pull request gates on the verification suite; `.github/workflows/` contains `docs.yml` alone, on `push` to `main` and `workflow_dispatch`. **Open**, and dispositioned by RD-2: the policy is accepted and the mechanism is owed. Nothing about the repository's actual enforcement has changed, so this row closes when RD-2's four deliverables land and not before. **Dated 2026-11-16:** the mechanism is designed (`RD-6` to `RD-9`) and unimplemented. The row stays open until the owner's branch rule is on.
 
 #### RF-9 — D-198 states the scoping its own correction retracts, and the register's projection reports both
 
@@ -245,6 +353,8 @@ Tier B: `just test` cannot exit 0, so a clean root run is not something the repo
 
 None has been looked into. **Open.** Required property: a root run on a clean tree can exit 0. **Whether these block that branch's merge is the owner's** (§35.8). `F-412` keeps its own row.
 
+**Dated 2026-11-16:** at `a8726c57d` the `tproc` row still fails, the `radio.visual` row passed once, and the `drag2` row left with drag2 (`RD-8`'s reading). `RD-8` handles each remaining row before the branch rule is on.
+
 #### RF-30 — The one-shot refusal says every `--sequence.*` flag erases the configured order
 
 Tier C: a message overstates what a flag does, and nothing goes wrong because of it. `reviewer-2`, [`verification-regressions-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §36.5. `.scripts/vitest-one-shot.ts`'s group refusal ends: _A --sequence.\* flag on the command line replaces the configured sequence object wholesale and erases it._ That has been untrue since Vitest 5, at `01d88645f`: CLI options merge deeply, so `--sequence.shuffle`, `.concurrent`, `.seed` and `.hooks` leave each project's order alone, and `--sequence.groupOrder` gives every project the same value. The refusal still fires where it should. **Open, and not a merge gate.** Required property: the refusal states what a command-line flag does at the Vitest version in use. It is one sentence in one file, and it can land on either side of the merge.
@@ -284,6 +394,7 @@ Tier C, open. Registered by the architect on 2026-11-14 from drag's [final clean
 - **Why it is a problem:** each package's lint exits 1 at every base, so a unit that touches either package can show only that it adds no error, as `drag:DRF-38` was.
 - **Required property:** both packages' lint exits 0, with no rule turned off and no disable comment, and the emitted JavaScript keeps its behavior. The `camelcase` sites are option keys passed to another library, so their runtime names stay.
 - **Routed** to a repository cleanup unit for an `implementer`, which the owner starts. It isn't drag's work and doesn't gate drag's pull request. **Return to the architect** if a fix needs a rule turned off, a disable comment, or a change to a runtime name.
+- **Dated 2026-11-16: re-routed** to the CI verification unit ([handoff](ci-verification-1/ci-verification-handoff.md)), because the gate's `static` job runs every package's lint (`RD-8` property 2). At `a8726c57d`, lint fails in all eight packages, not only these two. The required property and the return condition stand.
 
 ## Questions
 
