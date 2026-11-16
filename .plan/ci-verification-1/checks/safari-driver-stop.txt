@@ -1,0 +1,54 @@
+# RD-12 stop: after the first Safari project, every later one fails to open Safari
+
+Run https://github.com/ausginer/material-x/actions/runs/43821740209 at cf9905dad, job safari (macos-26, macOS 26.7.2, Safari 27.2), 'npx just test --project "*/safari" --tags-filter "!measurement"' with MX_TEST_ENGINES=safari.
+
+## The first project, browser/material-x/safari, ran
+ ✓  browser/material-x/safari (safari)  tests/core/elements/CheckableCore.browser.test.ts (44 tests) 8400ms
+ ✓  browser/material-x/safari (safari)  tests/button-group/button-group.browser.test.ts (20 tests) 2934ms
+ ✓  browser/material-x/safari (safari)  tests/button/button.browser.test.ts (22 tests) 2738ms
+ ✓  browser/material-x/safari (safari)  tests/checkbox/checkbox.browser.test.ts (14 tests) 1678ms
+ ✓  browser/material-x/safari (safari)  tests/text-field/text-field.browser.test.ts (14 tests) 1917ms
+ ✓  browser/material-x/safari (safari)  tests/button/SwitchCore.browser.test.ts (21 tests) 2665ms
+ ✓  browser/material-x/safari (safari)  tests/radio/radio.browser.test.ts (4 tests) 552ms
+ ✓  browser/material-x/safari (safari)  tests/button/split-button.browser.test.ts (2 tests) 472ms
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+ Test Files  8 passed (101)
+      Tests  141 passed (141)
+     Errors  6 errors
+
+## Every later project failed to open the browser (6 unhandled errors)
+90Z Error: There is already a Safaridriver instance running on port 49190!
+80Z  Test Files  8 passed (101)
+40Z  ❯ start node_modules/safaridriver/dist/index.js:26:15
+00Z       Tests  141 passed (141)
+30Z  ❯ startWebDriver node_modules/@wdio/utils/build/node.js:1091:21
+50Z      Errors  6 errors
+70Z  ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+00Z    Start at  07:11:09
+00Z  ❯ _WebDriver.newSession node_modules/webdriver/build/node.js:2094:27
+90Z  ❯ remote node_modules/webdriverio/build/node.js:17886:20
+50Z  ❯ WebdriverBrowserProvider.openBrowser node_modules/@vitest/browser-webdriverio/dist/index.js:450:18
+60Z  ❯ WebdriverBrowserProvider.openPage node_modules/@vitest/browser-webdriverio/dist/index.js:501:27
+10Z  ❯ TestProject._openBrowserPage node_modules/vitest/dist/chunks/index.Di8au7q4.js:6748:3
+
+
+## Why, in the installed packages
+node_modules/safaridriver/dist/index.js keeps one driver per Node process:
+let instance;
+let instancePort;
+export const start = (options = {}) => {
+        throw new Error(`There is already a Safaridriver instance running on port ${instancePort}!`);
+    }
+    // spawn, not execFile: execFile buffers the output and kills the driver after 1 MB of it
+
+node_modules/@vitest/browser-webdriverio/dist/index.js, the provider's close(): it deletes the WebDriver session and doesn't stop the driver process that webdriverio started:
+	async close() {
+		debug?.("[%s] closing provider", this.browserName);
+		this.closing = true;
+		const browser = this.browser;
+		const sessionId = browser?.sessionId;
+		if (!browser || !sessionId) return;
+		await browser.deleteSession();
+		browser.sessionId = void 0;
+		this.browser = null;
+	}

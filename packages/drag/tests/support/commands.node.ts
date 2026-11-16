@@ -1,11 +1,17 @@
 /**
- * Playwright's real input, exposed to the browser suite as commands. Node side:
+ * Real input, exposed to the browser suite as commands. Node side:
  * `tests/support/browser-commands.ts` declares these for the browser.
  *
- * The CDP commands are Chromium only, and a test that uses them runs only there.
+ * Each command runs on the provider that runs the test: Playwright's page for
+ * Chromium and Firefox, and WebDriver actions for Safari, with the same
+ * arguments, result and coordinates. A command that WebDriver can't perform,
+ * which is every CDP command and the reduced-motion emulation, throws there and
+ * names itself. The CDP commands are Chromium only, and a test that uses them
+ * runs only there.
  */
 import { defineBrowserCommand } from '@vitest/browser';
 import type { BrowserCommand } from 'vitest/node';
+import { Key } from 'webdriverio';
 import {
   type SnapshotSession,
   takeHeapSnapshot,
@@ -29,6 +35,83 @@ interface Page {
 const pageOf = (context: unknown): Page =>
   (context as Readonly<{ page: Page }>).page;
 
+/** The part of a WebdriverIO browser that the commands use. */
+interface ActionChain {
+  move(
+    params: Readonly<{
+      x: number;
+      y: number;
+      origin: 'viewport';
+      duration: number;
+    }>,
+  ): ActionChain;
+  down(params: Readonly<{ button: 0 }>): ActionChain;
+  up(params: Readonly<{ button: 0 }>): ActionChain;
+  perform(skipRelease?: boolean): Promise<void>;
+}
+
+interface KeyChain {
+  down(value: string): KeyChain;
+  up(value: string): KeyChain;
+  perform(skipRelease?: boolean): Promise<void>;
+}
+
+interface WebdriverBrowser {
+  action(
+    type: 'pointer',
+    params: Readonly<{
+      id: string;
+      parameters: Readonly<{ pointerType: 'mouse' }>;
+    }>,
+  ): ActionChain;
+  action(type: 'key', params: Readonly<{ id: string }>): KeyChain;
+}
+
+const providerOf = (context: unknown): string =>
+  (context as Readonly<{ provider: Readonly<{ name: string }> }>).provider.name;
+
+const browserOf = (context: unknown): WebdriverBrowser =>
+  (context as Readonly<{ browser: WebdriverBrowser }>).browser;
+
+/*
+ * One pointer and one keyboard per WebDriver session, under fixed ids, and no
+ * command releases them: a press lasts from `pointerDown` to `pointerUp`, as
+ * Playwright's mouse does. The pointer's position is kept here, because a move
+ * with steps interpolates from it, and Playwright's pointer starts at the
+ * origin.
+ */
+const POINTER = {
+  id: 'drag-pointer',
+  parameters: { pointerType: 'mouse' },
+} as const;
+const KEYBOARD = { id: 'drag-keyboard' } as const;
+const positions = new WeakMap<
+  WebdriverBrowser,
+  Readonly<{ x: number; y: number }>
+>();
+
+function pointer(context: unknown): ActionChain {
+  return browserOf(context).action('pointer', POINTER);
+}
+
+/** A command that only the Playwright provider can perform. */
+function playwrightOnly<A extends unknown[], R = void>(
+  name: string,
+  run: (context: unknown, ...args: A) => Promise<R>,
+): BrowserCommand<A> {
+  return defineBrowserCommand<A>(async (context, ...args): Promise<R> => {
+    const provider = providerOf(context);
+
+    if (provider !== 'playwright') {
+      throw new Error(
+        `${name} has no implementation for the ${provider} provider`,
+      );
+    }
+
+    return await run(context, ...args);
+  });
+}
+
 const sessions = new WeakMap<Page, CdpSession>();
 
 async function cdpOf(context: unknown): Promise<CdpSession> {
@@ -48,21 +131,66 @@ type TouchPoint = Readonly<{ id: number; x: number; y: number }>;
 export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
   pointerMove: defineBrowserCommand<[number, number, number?]>(
     async (context, x, y, steps): Promise<void> => {
-      await pageOf(context).mouse.move(x, y, steps ? { steps } : undefined);
+      if (providerOf(context) === 'playwright') {
+        await pageOf(context).mouse.move(x, y, steps ? { steps } : undefined);
+        return;
+      }
+
+      // As Playwright's `steps`: that many moves, evenly spaced from the
+      // pointer's position, each its own event.
+      const browser = browserOf(context);
+      const from = positions.get(browser) ?? { x: 0, y: 0 };
+      const count = Math.max(steps ?? 1, 1);
+      let chain = pointer(context);
+
+      for (let step = 1; step <= count; step += 1) {
+        chain = chain.move({
+          x: Math.round(from.x + ((x - from.x) * step) / count),
+          y: Math.round(from.y + ((y - from.y) * step) / count),
+          origin: 'viewport',
+          duration: 0,
+        });
+      }
+
+      await chain.perform(true);
+      positions.set(browser, { x, y });
     },
   ),
   pointerDown: defineBrowserCommand<[]>(async (context): Promise<void> => {
-    await pageOf(context).mouse.down();
+    if (providerOf(context) === 'playwright') {
+      await pageOf(context).mouse.down();
+      return;
+    }
+
+    await pointer(context).down({ button: 0 }).perform(true);
   }),
   pointerUp: defineBrowserCommand<[]>(async (context): Promise<void> => {
-    await pageOf(context).mouse.up();
+    if (providerOf(context) === 'playwright') {
+      await pageOf(context).mouse.up();
+      return;
+    }
+
+    await pointer(context).up({ button: 0 }).perform(true);
   }),
   keyPress: defineBrowserCommand<[string]>(
     async (context, key): Promise<void> => {
-      await pageOf(context).keyboard.press(key);
+      if (providerOf(context) === 'playwright') {
+        await pageOf(context).keyboard.press(key);
+        return;
+      }
+
+      // Playwright's key names, as WebDriver's key codes.
+      const value = (Key as Readonly<Record<string, string>>)[key] ?? key;
+
+      await browserOf(context)
+        .action('key', KEYBOARD)
+        .down(value)
+        .up(value)
+        .perform(true);
     },
   ),
-  emulateReducedMotion: defineBrowserCommand<[boolean]>(
+  emulateReducedMotion: playwrightOnly<[boolean]>(
+    'emulateReducedMotion',
     async (context, reduced): Promise<void> => {
       await pageOf(context).emulateMedia({
         // Explicit, because `null` leaves the emulation in place in WebKit.
@@ -71,7 +199,8 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
     },
   ),
   /** One touch event with CDP, which reaches the platform's own pipeline. */
-  touch: defineBrowserCommand<[string, readonly TouchPoint[]]>(
+  touch: playwrightOnly<[string, readonly TouchPoint[]]>(
+    'touch',
     async (context, type, points): Promise<void> => {
       const cdp = await cdpOf(context);
 
@@ -81,7 +210,8 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       });
     },
   ),
-  forceGarbageCollection: defineBrowserCommand<[]>(
+  forceGarbageCollection: playwrightOnly<[]>(
+    'forceGarbageCollection',
     async (context): Promise<void> => {
       const cdp = await cdpOf(context);
 
@@ -92,7 +222,8 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
    * How many live objects a heap snapshot holds whose constructor is `name`. A
    * module-private class is reachable this way and no other.
    */
-  countHeapObjects: defineBrowserCommand<[string]>(
+  countHeapObjects: playwrightOnly<[string], number>(
+    'countHeapObjects',
     async (context, name): Promise<number> => {
       const cdp = (await cdpOf(context)) as SnapshotSession;
 
@@ -119,7 +250,8 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       return count;
     },
   ),
-  startHeapSampling: defineBrowserCommand<[number]>(
+  startHeapSampling: playwrightOnly<[number]>(
+    'startHeapSampling',
     async (context, interval): Promise<void> => {
       const cdp = await cdpOf(context);
 
@@ -136,7 +268,8 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
    * `urlPart`. The key's path is the rest of the url's path, so a frame is keyed
    * by where its module is, not by its file's base name.
    */
-  stopHeapSampling: defineBrowserCommand<[string]>(
+  stopHeapSampling: playwrightOnly<[string], Record<string, number>>(
+    'stopHeapSampling',
     async (context, urlPart): Promise<Record<string, number>> => {
       const cdp = await cdpOf(context);
       const { profile } = (await cdp.send('HeapProfiler.stopSampling')) as {
