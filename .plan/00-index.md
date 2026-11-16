@@ -341,6 +341,13 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Amended 2026-11-16 by the architect** on `ci/verification` at `83ff45024`, on the Safari inventory of run 43827320614 and the probe of run 43829273272, relayed by the coordinator. Safari on the `macos-26` runner reports `prefers-reduced-motion: reduce`, and the window clips the test frame. Property 3's last item is amended in place, with what it said before. Property 10 and the readings at `83ff45024` are added. **Unimplemented:** the handoff's section _Resuming after the Safari inventory_ implements it.
 
+**Dated 2026-11-16 by the architect** on `ci/verification` at `bee058e8a`, on the three-run Safari inventory of run 43830910625 ([evidence](ci-verification-1/checks/safari-inventory-three-runs.txt)), relayed by the coordinator. **A Safari row that sometimes doesn't finish is an intermittent row under `RD-8` properties 1 and 4, not a command stop.** The handoff's stop _"a command whose Playwright behavior WebDriver actions can't reproduce"_ covers a command whose result in Safari differs from Playwright's, such as wrong coordinates or a missing state. Such a difference would make every row that calls the command unreliable. Here the same pointer command serves the rest of drag's rows in every attempt. Two `sortable.browser.test.ts` rows either pass in about 8.8 s or time out at 15 s:
+
+- _"should propose the gap a full measurement gives with transitions on the rows and the item"_, in 4 of 6 drag project runs;
+- _"should measure every y() candidate through box when visual is also given"_, in 2 of 6.
+
+The two outcomes, with nothing between them, read as a stall, not as slowness, so **no timeout is raised:** a longer budget would only make the stall longer. Their cause isn't established. Each row is skipped in Safari only, with its own `drag` finding. **A lost browser connection that recurs after those skips** is `RD-8` property 5's stop, because the project's files can't all run. The handoff's section _Resuming after the three Safari runs_ implements this. No property changes.
+
 **The readings,** taken by the architect on 2026-11-16.
 
 - **Only WebDriver drives Safari.** Playwright's `webkit` is Playwright's own WebKit build, on macOS too, and not Safari. Vitest's `preview` provider opens a browser with no automation. Safari ships its own WebDriver server, `safaridriver`, with macOS.

@@ -59,7 +59,7 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 8. **Item 8 in Safari:** the inventory, the dispositions under `RD-8` properties 2 and 4 and three CI runs for intermittent failures. Findings use the same registers as item 6.
 9. `.devcontainer/post-create/playwright-browsers.sh`'s comment says why the devcontainer installs no WebKit: CI runs Safari, and nothing runs Playwright's WebKit.
 
-**Stops added by `RD-12`:** an incompatibility between the provider and Vitest 5.1.0 other than the trace view; a test frame that can't be made unscaled at 1280 × 720; and a command whose Playwright behavior WebDriver actions can't reproduce, such as a coordinate frame that differs. Report each with its output.
+**Stops added by `RD-12`:** (clarified at `bee058e8a`: the command stop covers a command whose result differs from Playwright's, not a row that sometimes doesn't finish; see _Resuming after the three Safari runs_) an incompatibility between the provider and Vitest 5.1.0 other than the trace view; a test frame that can't be made unscaled at 1280 × 720; and a command whose Playwright behavior WebDriver actions can't reproduce, such as a coordinate frame that differs. Report each with its output.
 
 ## Recording baselines on GitHub's runner
 
@@ -131,6 +131,35 @@ Report each with its output.
 - the window can't be made large enough for the top-level viewport to contain the frame.
 
 Report each with its output, and don't limit or disable rows to get past it.
+
+## Resuming after the three Safari runs
+
+**Dated 2026-11-16.** Over three attempts of run 43830910625 at `ddf72ec4e` ([evidence](checks/safari-inventory-three-runs.txt)), `RD-12` properties 3 and 10 hold, and no stop of _Resuming after the Safari inventory_ occurred. The architect decided the remaining rows in a dated note on `RD-12`. **No stop has been reached.** **Continue from the architect's commit that adds this section.**
+
+1. **The two stalling rows** in `packages/drag/tests/sortable.browser.test.ts`. Each passes in about 8.8 s or times out at 15 s, with nothing between:
+   - _"should propose the gap a full measurement gives with transitions on the rows and the item"_;
+   - _"should measure every y() candidate through box when visual is also given"_.
+
+   Each is an intermittent row under `RD-8` properties 1 and 4:
+   - skip it in Safari only, so the skip covers both `browser/drag` and `consumer/drag`;
+   - register a `drag` finding for each row, with the row, the engine, the two durations and how often each occurred, attempt 2's aftermath (the next row's missing placeholder and the lost browser connection), the statement that the cause isn't established, and the required property _"the row finishes in Safari in every run"_. The skip cites the finding's address;
+   - don't raise a timeout.
+
+   The `xy()` row that failed right after the `y()` timeout isn't disabled. If it fails again in step 4, it's its own row.
+
+2. **core's `useReorderable` row** _"should take the visual out of the top layer once the drag lands"_ failed in 1 of 3 attempts, so it's intermittent. Repair it under `RD-8` property 2 only if you establish a cause in the test, and show the repair with step 4. Otherwise, skip it in Safari with a `repo` finding, as in step 1.
+3. **The TransformedStage row.** `0ee0f9d84`'s repair stands if the row passes in all three attempts of step 4. If it fails again, it's an `RD-8` row like the others: always failing or intermittent, with its finding.
+4. **Three attempts of the `safari` job** at the head that carries steps 1 to 3. In each attempt:
+   - every Safari project runs every listed file, 101 at `bee058e8a`, which the listing gives;
+   - no project loses its browser connection;
+   - every failing row is handled under `RD-8` property 4, with its finding.
+
+   Save the inventory as `checks/` evidence, and continue with item 8.
+
+**Stops added at `bee058e8a`:**
+
+- a Safari project loses its browser connection, or leaves listed files unrun, after the skips (`RD-8` property 5: its files can't all run);
+- more than 15 Safari rows would be disabled (`RD-8` property 5).
 
 ## Owner preconditions
 
@@ -218,7 +247,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 
 ## Stops
 
-`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_, _Resuming after the Safari driver stop_ and _Resuming after the Safari inventory_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
+`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_, _Resuming after the Safari driver stop_, _Resuming after the Safari inventory_ and _Resuming after the three Safari runs_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
 
 ## Report
 
