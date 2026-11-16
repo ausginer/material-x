@@ -764,6 +764,7 @@ Tier B, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - **The required property is widened** to every material-x element whose host has `display: contents` and whose shadow root delegates focus: in Firefox, `focus()` on the host focuses the element that delegation focuses in Chromium.
   - **What the forward doesn't cover:** a path that the browser takes without calling `focus()` on the host, such as the host's `autofocus`. The report reads each such path, and the architect decides what stays open here.
   - **A report to Mozilla** is the owner's to file, with the unit's smallest reproduction. When one exists, this entry links it.
+- **Dated 2026-11-16: confirmed in CI,** relayed by the coordinator. In the `firefox` job, a host with `display: contents` doesn't delegate, and the same host delegates without the rule and with `display: inline`. Chromium delegates in all three. `Tab` reaches the native button in both engines. The ruling's condition is met.
 
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 
@@ -775,6 +776,11 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** box-quad states the precision its recovered size has in each engine it supports, and the row asserts that precision in each engine and passes there. Whether the tolerance becomes per engine or the measurement changes is box-quad's decision.
 - **Routed** to the owner of box-quad. The CI unit doesn't change product source.
 - **Decided 2026-11-16 by the architect, for box-quad:** the measurement stays, because box-quad's contract keeps the browser's fractional border edges (`01-public-api.md`, _Fractional used border-box extents_). The tolerance rule in `contract/02-behavior-scenarios.md` is amended to admit an engine's measured client-rect precision. **Routed** to the [findings unit](findings-1/findings-1-handoff.md), which first confirms the inferred cause.
+- **Ruled 2026-11-16 by the architect: the cause is confirmed,** on the findings unit's reading of run 43872551455, relayed by the coordinator. The architect recomputed the reading's arithmetic.
+  - **The reading,** in the `firefox` job, Firefox 159.0, from the row's own fixture (20 × 10, `rotate(30deg) scale(1.5)`). Each non-integer edge is k/60 rounded to a multiple of 2^-14: right = 1559/60 + 4.07e-6 = 425711/16384. So Firefox quantizes to its 1/60 px layout unit, then reports at a resolution of 2^-14 px. In Chromium, the same edges are multiples of neither 1/60 nor 1/64.
+  - **The bound.** The recovery inverts the matrix of absolute values, whose determinant is 1.125. A rounding of ±(q/2 + r/2) on each edge, with q = 1/60 and r = 2^-14, bounds each recovered dimension to 1.821 (q + r) = 0.0305 px for this fixture. The observed errors are +0.0077 in width and −0.0099 in height.
+  - **The handoff's test of _"a multiple of 1/60 to within 1e-9"_ was too narrow.** It didn't allow for a reporting resolution coarser than 1e-9. The reading meets its purpose, which was to show 1/60 quantization, so item 5's stop isn't reached.
+  - The handoff's item 5, as amended the same day, counts both q and r. The contract's tolerance rule names the reporting resolution.
 
 #### RF-35 — `mx-radio` and `mx-checkbox` draw no focus state layer, which Material's tokens define
 
