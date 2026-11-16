@@ -20,7 +20,13 @@ import {
   List,
   ZoomedContext,
 } from '../src/sortable.stories.tsx';
-import { commands, frames, onCleanup, wait } from './support/harness.ts';
+import {
+  commands,
+  frames,
+  isSafari,
+  onCleanup,
+  wait,
+} from './support/harness.ts';
 
 /** Longer than any landing or displacement animation the stories run. */
 const SETTLE = 700;
@@ -151,16 +157,21 @@ describe('Free Drag stories', () => {
     expectSameRect(box.getBoundingClientRect(), dropped);
   });
 
-  it('should keep a TransformedStage box where it was dropped', async () => {
-    const host = await mount(TransformedStage);
-    const box = host.querySelector<HTMLElement>('[class*="box"]')!;
-    const before = box.getBoundingClientRect();
-    const dropped = await dragBox(box, 100, 50);
+  // In Safari the box ends 16 px lower than where it was dropped
+  // (`drag:DRF-51`), so the row is expected to fail there.
+  (isSafari ? it.fails : it)(
+    'should keep a TransformedStage box where it was dropped',
+    async () => {
+      const host = await mount(TransformedStage);
+      const box = host.querySelector<HTMLElement>('[class*="box"]')!;
+      const before = box.getBoundingClientRect();
+      const dropped = await dragBox(box, 100, 50);
 
-    await drop();
-    expect(dropped.left - before.left).toBeGreaterThan(80);
-    expectSameRect(box.getBoundingClientRect(), dropped);
-  });
+      await drop();
+      expect(dropped.left - before.left).toBeGreaterThan(80);
+      expectSameRect(box.getBoundingClientRect(), dropped);
+    },
+  );
 
   it('should pass the AsyncDropConfirmation status through saving to accepted', async () => {
     const host = await mount(AsyncDropConfirmation);

@@ -1,0 +1,53 @@
+# reviewer-2 (RD-13 property 6) and reviewer-3 (RD-13 property 2): the workflow lines that meet each property
+# at 2e5617cf0, and the GitHub rules they rely on. Each quote was read on docs.github.com on 2026-11-16.
+
+## reviewer-2: only a newer recording of the same target in this repository cancels a recording
+
+baselines.yml:22-25, workflow-level `concurrency`:
+  group: (admitted) && format('baselines-{0}', <head_ref or ref_name>) || format('baselines-unadmitted-{0}', github.run_id)
+  cancel-in-progress: true
+  "admitted" is `record`'s condition (baselines.yml:33-34): a workflow_dispatch, or a `record-baselines` label on a
+  pull request whose head repository is this repository.
+
+- A run that the condition doesn't admit (another label, two labels added at once, or any label on a fork's pull
+  request, whatever its head branch is called) gets a group named by its own run id. No other run is in that
+  group, so it cancels nothing and nothing cancels it.
+- An admitted run's group is `baselines-<target>`, so only another admitted run for the same target shares it.
+- The expression uses only the github context, which is all a workflow-level group may use:
+    workflow-syntax#concurrency: "The expression can only use github, inputs and vars contexts."
+- The group is read when the run is queued, before any job's `if`, which is why the condition is repeated in it:
+    control-workflow-concurrency, "Using concurrency in different scenarios": "if another job or workflow using the
+    same concurrency group in the repository is in progress, the queued job or workflow will be pending."
+    Same section: "To also cancel any currently running job or workflow in the same concurrency group, specify
+    cancel-in-progress: true."
+  The docs state groups by "the same concurrency group in the repository"; a run in another repository, a fork's
+  included, is a run of that repository's workflow.
+- A fork's pull request gets no write token in any case:
+    events-that-trigger-workflows#pull_request, "Workflows in forked repositories": "The GITHUB_TOKEN has read-only
+    permissions in pull requests from forked repositories."
+
+Not run: no second label and no fork pull request were used to show it on GitHub (the handoff asks for the lines
+and the rules, and runs on #27 only as authorized).
+
+## reviewer-3: every admitted pull_request run ends with the label removed, whatever record's and propose's results
+
+baselines.yml:205-218, job `unlabel`:
+  needs: [record, propose]
+  if: always() && github.event_name == 'pull_request' && <admitted>
+  permissions: pull-requests: write
+  run: gh pr edit "$NUMBER" --remove-label record-baselines   (NUMBER from the event, in env; no checkout, no code
+  from the repository)
+The removal step moved out of `propose`, which `record`'s failure skips.
+
+- workflow-syntax#jobsjob_idneeds: "If a job fails or is skipped, all jobs that need it are skipped unless the jobs
+  use a conditional expression that causes the job to continue."
+- expressions#status-check-functions, `always`: "Causes the step to always execute, and returns true, even when
+  canceled."
+- workflow-cancellation, step 1: "the server re-evaluates if conditions for all currently running jobs." and "For
+  example, the condition if: always() would evaluate to true and the job continues to run."
+  The docs speak of running jobs only. For a job still waiting on `needs` at the cancellation, run 43856731899
+  shows it: `record` and `propose` cancelled, `unlabel` success, the label removed
+  (baselines-remediation-runs.txt).
+- The token's permission: workflow-syntax#jobsjob_idpermissions, `pull-requests`: "pull-requests: write permits an
+  action to add a label to a pull request." The docs name no permission for removal; both runs in
+  baselines-remediation-runs.txt removed the label with only `pull-requests: write`.

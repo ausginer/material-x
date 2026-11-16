@@ -1,0 +1,41 @@
+# Measurement tag checks, in packages/drag, on the working tree after 27e54e9ac with item 3's edits
+
+## Selection: tests/size.node.test.ts and the shipped project, three filters
+size.node, no filter: 21 passed (10 ceiling rows); --tags-filter measurement: 10 passed, 11 skipped; --tags-filter !measurement: 11 passed, 10 skipped.
+shipped, --tags-filter measurement: the two allocation rows ran, 7 skipped; --tags-filter !measurement: 7 passed, the two allocation rows skipped.
+
+## A. 'draggable + lift' budget 3932 -> 3931 (reverted after the runs)
+
+### npx just test
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:261 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"sortable/operation.ts:updateInsertion":8004,"sortable/y.ts:resolve":7656,"kernel/session.ts:handleEvent":10940,"sortable/operation.ts:move":23988,"lift.ts:translate":17704}: expected 36.46666666666667 to be less than 16
+ FAIL  |node| tests/size.node.test.ts:28 > drag:DRI-18 module graphs and size > should satisfy the ceiling and control of draggable + lift
+AssertionError: expected [ 'over its 3931 B ceiling by 1 B' ] to deeply equal []
+ Test Files  2 failed | 64 passed (66)
+      Tests  2 failed | 936 passed (938)
+
+### npx just test --tags-filter measurement
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |shipped (chromium)| tests/hot-path.browser.test.ts:261 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+AssertionError: {"kernel/session.ts:handleEvent":8464,"sortable/operation.ts:move":9168,"lift.ts:translate":22524}: expected 28.213333333333335 to be less than 16
+ FAIL  |node| tests/size.node.test.ts:28 > drag:DRI-18 module graphs and size > should satisfy the ceiling and control of draggable + lift
+AssertionError: expected [ 'over its 3931 B ceiling by 1 B' ] to deeply equal []
+ Test Files  2 failed | 4 passed | 60 skipped (66)
+      Tests  2 failed | 35 passed | 901 skipped (938)
+
+### npx just test --tags-filter '!measurement'
+ Test Files  66 passed (66)
+      Tests  926 passed | 12 skipped (938)
+
+The hot-path allocation row at :261 failed in both runs that include it, independently of this mutation: see the inventory.
+
+## B. tests/fixtures/resize-handle.ts imports src/lift.ts and stores Lifter on globalThis ('example: resize handle' forbids 'lift'; reverted after the run)
+
+### npx just test --tags-filter '!measurement'
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:24 > drag:DRI-18 module graphs and size > should satisfy the declared graph of example: resize handle
+AssertionError: expected [ 'must not contain lift.js' ] to deeply equal []
++   "must not contain lift.js",
+ Test Files  1 failed | 65 passed (66)
+      Tests  1 failed | 925 passed | 12 skipped (938)

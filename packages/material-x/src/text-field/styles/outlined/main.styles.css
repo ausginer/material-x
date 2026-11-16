@@ -119,7 +119,9 @@
       )
       calc(
         -1 *
-          (var(--md-text-field-container-height, var(--_container-height)) / 2) -
+          (
+            var(--md-text-field-container-height, var(--_container-height)) / 2
+          ) -
           var(--_outline-width-max)
       );
   }

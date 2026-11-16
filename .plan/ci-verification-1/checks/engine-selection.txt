@@ -1,0 +1,37 @@
+# Project lists, from list-projects.ts, which resolves the configuration and starts no browser. Working tree after 6e5484670, with RD-12's engines (Vitest 5.1.0).
+
+## Root, default
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x (chromium)","spec/material-x (chromium)","visual/material-x (chromium)","browser/core (chromium)","browser/box-quad (chromium)","browser/drag (chromium)","shipped/drag (chromium)","consumer/drag (chromium)"]
+
+## Root, MX_TEST_ENGINES=firefox
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x/firefox (firefox)","spec/material-x/firefox (firefox)","browser/core/firefox (firefox)","browser/box-quad/firefox (firefox)","browser/drag/firefox (firefox)","shipped/drag/firefox (firefox)","consumer/drag/firefox (firefox)"]
+
+## Root, MX_TEST_ENGINES=safari
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x/safari (safari)","spec/material-x/safari (safari)","browser/core/safari (safari)","browser/box-quad/safari (safari)","browser/drag/safari (safari)","shipped/drag/safari (safari)","consumer/drag/safari (safari)"]
+
+## Root, MX_TEST_ENGINES=chromium,firefox,safari
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x (chromium)","browser/material-x/firefox (firefox)","browser/material-x/safari (safari)","spec/material-x (chromium)","spec/material-x/firefox (firefox)","spec/material-x/safari (safari)","visual/material-x (chromium)","browser/core (chromium)","browser/core/firefox (firefox)","browser/core/safari (safari)","browser/box-quad (chromium)","browser/box-quad/firefox (firefox)","browser/box-quad/safari (safari)","browser/drag (chromium)","browser/drag/firefox (firefox)","browser/drag/safari (safari)","shipped/drag (chromium)","shipped/drag/firefox (firefox)","shipped/drag/safari (safari)","consumer/drag (chromium)","consumer/drag/firefox (firefox)","consumer/drag/safari (safari)"]
+
+## Root, MX_TEST_ENGINES=firefox, --project '*/firefox' (the firefox job)
+["browser/material-x/firefox (firefox)","spec/material-x/firefox (firefox)","browser/core/firefox (firefox)","browser/box-quad/firefox (firefox)","browser/drag/firefox (firefox)","shipped/drag/firefox (firefox)","consumer/drag/firefox (firefox)"]
+
+## Root, MX_TEST_ENGINES=safari, --project '*/safari' (the safari job)
+["browser/material-x/safari (safari)","spec/material-x/safari (safari)","browser/core/safari (safari)","browser/box-quad/safari (safari)","browser/drag/safari (safari)","shipped/drag/safari (safari)","consumer/drag/safari (safari)"]
+
+## drag, default
+["declaration","node","browser (chromium)","shipped (chromium)","consumer (chromium)"]
+
+## drag, MX_TEST_ENGINES=firefox
+["declaration","node","browser/firefox (firefox)","shipped/firefox (firefox)","consumer/firefox (firefox)"]
+
+## drag, MX_TEST_ENGINES=safari
+["declaration","node","browser/safari (safari)","shipped/safari (safari)","consumer/safari (safari)"]
+
+## drag, MX_TEST_ENGINES=chromium,firefox,safari
+["declaration","node","browser (chromium)","browser/firefox (firefox)","browser/safari (safari)","shipped (chromium)","shipped/firefox (firefox)","shipped/safari (safari)","consumer (chromium)","consumer/firefox (firefox)","consumer/safari (safari)"]
+
+## drag, test-engines (MX_TEST_ENGINES=chromium,firefox, --project 'browser*' --project 'shipped*')
+["browser (chromium)","browser/firefox (firefox)","shipped (chromium)","shipped/firefox (firefox)"]
+
+## MX_TEST_ENGINES=webkit (refused)
+Error: MX_TEST_ENGINES lists an unknown engine: webkit. Known engines: chromium, firefox, safari

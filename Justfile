@@ -49,8 +49,45 @@ debug FILE:
 # per-package configurations do, so coverage is unchanged, and `repo`, which runs
 # the repository's own `.scripts` tests. Per-package runs stay available:
 # `cd packages/<name> && just test`.
-test *ARGS:
+#
+# The packages the tests import are built first: `_test-builds` says why.
+test *ARGS: _test-builds
     vitest run {{ ARGS }}
+
+# Run the Safari projects, each in its own Vitest process (`repo:RD-12`).
+#
+# Safari allows one automation session, and `safaridriver` one driver per Node
+# process, while Vitest opens the next project's browser before it releases the
+# previous one. So the recipe lists the Safari projects, which opens no
+# browser, and runs them one after another. It continues after a failing
+# project and fails if any did, or if the listing fails or finds none.
+test-safari *ARGS: _test-builds
+    #!/usr/bin/env bash
+    set -uo pipefail
+    export MX_TEST_ENGINES=safari
+    listing="$(vitest list --filesOnly --json --project '*/safari')" || { echo "The Safari project listing failed"; exit 1; }
+    # One name per line. macOS's bash is 3.2, which has no `mapfile`.
+    projects="$(node -e 'const s = require("fs").readFileSync(0, "utf8"); for (const name of new Set(JSON.parse(s).map((e) => e.projectName))) console.log(name);' <<< "$listing")" || { echo "The Safari project listing isn't readable"; exit 1; }
+    if [ -z "$projects" ]; then echo "The listing found no Safari project"; exit 1; fi
+    failed=0
+    while IFS= read -r project; do
+        echo "::group::$project"
+        vitest run --project "$project" {{ ARGS }} < /dev/null
+        status=$?
+        echo "::endgroup::"
+        echo "$project exited with $status"
+        [ "$status" -eq 0 ] || failed=1
+    done <<< "$projects"
+    exit "$failed"
+
+# The packages the tests import resolve to their builds, as a consumer's do, and
+# the CSS plugin reads the custom property list that material-x's
+# `build:prepare` collects. drag's own build is the consumer project's global
+# setup.
+[private]
+_test-builds:
+    nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+    nx run @ydinjs/material-x:build:prepare --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Bundle size
@@ -59,6 +96,15 @@ test *ARGS:
 # Check bundle-size budgets for all measured packages
 size:
     nx run-many -t size --projects=box-quad,core,drag --skipNxCache
+
+# Write the rows that `size` measures, as JSON, to FILE (builds first)
+size-reading FILE:
+    node .scripts/size-reading.ts {{ FILE }}
+
+# Write the size report's Markdown from a head reading, and optionally a base
+# reading and Vitest's JSON report of the measurement rows
+size-report *ARGS:
+    node .scripts/size-report.ts {{ ARGS }}
 
 # ---------------------------------------------------------------------------
 # Type checking
@@ -88,15 +134,19 @@ fmt-check:
 # Linting
 # ---------------------------------------------------------------------------
 
-# Lint every package, then the repository-level files no package owns
+# Lint every package, then the repository-level files no package owns. Each
+# package's lint builds what its imports resolve to first, and the Storybook
+# sources read material-x's custom elements manifest.
 lint:
     nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run @ydinjs/material-x:build:cem --skipNxCache
     oxlint --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' .
 
 # Lint and auto-fix everywhere
 lint-fix:
     nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run @ydinjs/material-x:build:cem --skipNxCache
     oxlint --fix --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' --fix .
 

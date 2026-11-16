@@ -91,9 +91,9 @@ If only the final screenshot exists, failures are hard to diagnose. If only tpro
 
 ## What screenshots prove — and don't
 
-A reviewed baseline says "this approved rendering must not change without review." It does **not** say "this rendering is correct because it matches a file the same implementation produced." So initial and updated baselines are reviewed against passing behavior + spec contracts, the relevant Material/Figma reference, the intended `@ydinjs/material-x` theme, and expected environment changes. Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review.
+A reviewed baseline says "this approved rendering must not change without review." It does **not** say "this rendering is correct because it matches a file the same implementation produced." So initial and updated baselines are reviewed against passing behavior + spec contracts, the relevant Material/Figma reference, the intended `@ydinjs/material-x` theme, and expected environment changes. Baselines are committed artifacts. They are recorded only by the recording workflow on GitHub's runner, which proposes changed baselines in a pull request; the owner reviews every changed baseline and merges the proposal. The gate never writes, updates or approves a baseline (`repo:RD-13`).
 
-Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate must use one pinned Chromium environment, and local runs must use the same pinned image so developer output matches CI — the image is owed rather than installed (`repo:RD-2`), so until it lands a baseline is only as reproducible as the container that wrote it. Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
+Screenshots are valid only for a pinned environment: the Chromium build that the locked `playwright` package pins, text in Roboto from a locked package with no system font fallback, the vendored icon font, headless mode, device scale/viewport, and color scheme/theme. Baselines are recorded and compared on GitHub's `ubuntu-24.04` runner only, because a screenshot recorded elsewhere does not reproduce there. Visual tests don't run locally. Changing the Chromium build or the fonts re-records the baselines in a pull request of its own (`repo:RD-9`, `repo:RD-13`). Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
 
 ## Avoiding false confidence
 
@@ -151,11 +151,13 @@ When token sources intentionally change: review tag/profile selection and proven
 
 ## CI policy
 
-Every pull request must be gated on: formatting, linting, typechecking; tproc node tests; behavior and accessibility browser tests; spec-contract browser tests; the curated Chromium visual suite. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
+Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and Safari; the curated Chromium visual suite. CI runs on plain GitHub-hosted runners. Chromium and Firefox are the builds the locked `playwright` package pins; Safari is the one a named macOS runner ships, and it isn't pinned. Local runs are Chromium only, without the visual suite; Firefox, Safari and visual results are read in CI. The gate uploads screenshot actual/diff artifacts on failure and never writes, updates or approves a baseline; a separate recording workflow proposes baselines in a pull request (`repo:RD-13`).
 
-**The gate is not installed yet.** This section states the requirement, not a mechanism that runs today: there is no pull-request workflow and no pinned verification image, so nothing here currently blocks a merge and local verification is what stands behind every change. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md).
+Size, allocation and speed checks are outside the gate: CI reports them, and a pull request gets a comment showing how sizes changed, but they never fail the build. Coverage from the Chromium run is uploaded to Codecov. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
-Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, Firefox/WebKit behavior checks, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
+**The gate runs but doesn't block a merge yet.** `.github/workflows/verify.yml` runs on every push to `main` and every pull request that is not a draft, in the pinned visual environment. Its `verify` check is not yet required by a branch rule, so nothing here blocks a merge until the owner adds that rule. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9`, `repo:RD-12` and `repo:RD-13`.
+
+Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation.
 
 ## Implementation roadmap
 
@@ -164,6 +166,6 @@ The architecture is being adopted incrementally. Status is tracked in the tests 
 1. Finish moving `@ydinjs/material-x` tests from `src` into their mirrored `test` directories without behavior changes, then remove the old `src/**` includes.
 2. Grow the Node-side visual-contract registry and normalization adapters as components adopt the spec layer.
 3. Pilot findings from `button/spec-consistency.md` into executable tproc-backed assertions.
-4. Extend the curated visual matrix, and build the pull-request gate and its pinned environment (`repo:RD-2`) — neither exists yet, so this is new work rather than an extension.
+4. Extend the curated visual matrix. The pull-request gate and its pinned environment exist (`repo:RD-6`, `repo:RD-9`); the branch rule that requires the gate is owed (`repo:RD-2`).
 5. Apply the shared convention to checkbox and radio, then migrate other components by family.
 6. Retire exploratory consistency documents once their evidence is captured by executable tests or retained as historical design context.

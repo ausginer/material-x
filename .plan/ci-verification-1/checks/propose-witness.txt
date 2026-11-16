@@ -1,0 +1,70 @@
+# RF-38 witness: baselines.yml's `propose` steps, read from the workflow file by propose-witness.ts
+# and run with `bash -e`, as GitHub runs them, against the handoff's five cases (case 1 twice: with and
+# without a PNG signature). The job checks out nothing; its git directory is its own bare repository.
+
+git 2.47.3
+reference bare config sha256: dd548269913b6adb
+
+## 1a. symbolic link at an accepted path to .git/config; the payload as reviewer-1 sent it
+step "Accept only baseline PNG files": exit 1
+  | ::error::Not a regular PNG file: packages/x/tests/__screenshots__/a.png
+job git directory exists: false
+payload marker exists: false
+gh calls: none
+origin refs changed: false
+
+## 1b. symbolic link at an accepted path to .git/config; the payload behind a PNG signature
+step "Accept only baseline PNG files": exit 0
+step "Propose": exit 1
+  | ::error::packages/x/tests/__screenshots__/a.png is a symbolic link at d54a2aa5c0d34d34f2c87a9a885b80964dce0319
+job git directory exists: true
+  config sha256: dd548269913b6adb (reference dd548269913b6adb)
+  hooks directory: absent
+payload marker exists: false
+gh calls: none
+origin refs changed: false
+
+## 2. symbolic link at a directory component of an accepted path
+step "Accept only baseline PNG files": exit 0
+step "Propose": exit 1
+  | ::error::packages/x/tests/__screenshots__ is a symbolic link at 396905af581d37efdaa26dc12dcb58d99659e078
+job git directory exists: true
+  config sha256: dd548269913b6adb (reference dd548269913b6adb)
+  hooks directory: absent
+payload marker exists: false
+gh calls: none
+origin refs changed: false
+
+## 3. an artifact file that isn't a PNG
+step "Accept only baseline PNG files": exit 1
+  | ::error::Not a regular PNG file: packages/x/tests/__screenshots__/a.png
+job git directory exists: false
+payload marker exists: false
+gh calls: none
+origin refs changed: false
+
+## 4. an artifact entry that is itself a symbolic link, to a PNG outside the artifact
+step "Accept only baseline PNG files": exit 1
+  | ::error::Symbolic links in the artifact:
+  | /tmp/propose-witness-PM120R/case-4/runner/proposal/tree/packages/x/tests/__screenshots__/a.png
+job git directory exists: false
+payload marker exists: false
+gh calls: none
+origin refs changed: false
+
+## 5. one ordinary changed baseline
+step "Accept only baseline PNG files": exit 0
+step "Propose": exit 0
+job git directory exists: true
+  config sha256: dd548269913b6adb (reference dd548269913b6adb)
+  hooks directory: absent
+payload marker exists: false
+gh calls: gh pr list --head baselines/ci/x --base ci/x --state open --json number --jq .[0].number | gh pr create --head baselines/ci/x --base ci/x --title baselines: record ci/x's visual baselines on GitHub's runner --body-file /tmp/propose-witness-PM120R/case-5/runner/body.md
+origin refs changed: true
+  baselines/ci/x parents: 842a3a6824c86dfb6c4c1c689c5e472a8e52824e (recorded 842a3a6824c86dfb6c4c1c689c5e472a8e52824e)
+  commit: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com> baselines: record on GitHub's runner at 842a3a682
+  entries changed:
+    :100644 100644 489ce0f857e7634a0eb9f328265a3e91fad49f61 81afbec5e6b63669072b6a062ba7ae7a0dc066d7 M	packages/x/tests/__screenshots__/a.png
+  blob equals the artifact file: true
+
+scratch directory removed: true

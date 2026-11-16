@@ -52,7 +52,7 @@ const AXIS_VALUE_SECTION = [
 ] as const;
 
 function isAxisValue(
-  value: ProcessedTokenValue,
+  value: ProcessedTokenValue | null,
 ): value is Partial<TokenTypeVariationAxes> {
   return (
     typeof value === 'object' &&

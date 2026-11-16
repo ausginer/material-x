@@ -10,7 +10,6 @@
     "./tsdown.config.ts",
     "./eslint.config.ts",
     "./vite.config.ts",
-    "./vitest.config.ts",
-    "./vitest.engines.config.ts"
+    "./vitest.config.ts"
   ]
 }

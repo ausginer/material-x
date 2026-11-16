@@ -1,0 +1,31 @@
+# The remediated baselines.yml on pull request #27 at 2e5617cf0: two labeled runs, each started by adding
+# `record-baselines` (authorized by the owner's prompt). Read with `gh run view` and `gh pr view`.
+
+## Run 43856118386 (https://github.com/ausginer/material-x/actions/runs/43856118386): the nothing-changed path
+conclusion: success
+
+record: success, 11:15:23 to 11:17:48 (145 s)
+  image=ubuntu24 20261111.370.1
+  processor=AMD EPYC 7763 64-Core Processor
+  chromium=158.0.8127.18
+  visual/material-x with --update: Test Files 4 passed (4), Tests 19 passed (19)
+  Collect the added and changed baselines: printed nothing, so files.txt is empty
+
+propose: success, 11:17:51 to 11:17:59 (8 s)
+  steps: download-artifact, Accept only baseline PNG files, Propose. No checkout step.
+  Propose: printed nothing after its environment block. files.txt is empty, so the step takes its first branch:
+    the summary line "Every baseline matches on the runner at $SHA. Nothing was pushed or opened." and exit 0.
+  git ls-remote origin 'refs/heads/baselines/*': nothing. No open pull request has a head under baselines/.
+
+unlabel: success, 11:18:02 to 11:18:09
+  gh pr edit "$NUMBER" --remove-label record-baselines, NUMBER: 27; printed https://github.com/ausginer/material-x/pull/27
+  gh pr view 27 --json labels afterwards: []
+
+## Run 43856731899 (https://github.com/ausginer/material-x/actions/runs/43856731899): cancelled during `record`
+The label was added again; `gh run cancel` was sent about 25 s after the run started, while `record` was in_progress.
+status: completed, conclusion: cancelled
+  record: cancelled
+  propose: cancelled (it was waiting on `record`)
+  unlabel: success
+  gh pr view 27 --json labels afterwards: []
+So a run whose `record` is cancelled still ends with the label removed, through `unlabel`'s `always()`.

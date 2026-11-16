@@ -1,4 +1,8 @@
+import robotoLatin500Url from '@fontsource/roboto/files/roboto-latin-500-normal.woff2?url';
+import robotoLatin700Url from '@fontsource/roboto/files/roboto-latin-700-normal.woff2?url';
+import robotoRanges from '@fontsource/roboto/unicode.json';
 import { afterEach, beforeAll, beforeEach } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import iconFontUrl from './fonts/material-symbols-subset.ttf?url';
 
 /*
@@ -25,6 +29,55 @@ beforeAll(async () => {
   document.fonts.add(await font.load());
 });
 
+/*
+ * Text renders in Roboto, from the `@fontsource/roboto` package that the
+ * lockfile pins, and in no system font: the stacks below name Roboto alone. The
+ * faces are the ones the fixtures render, the latin subset at weights 500 and
+ * 700, each with the subset's character range as the package's own CSS
+ * declares it. A character outside that range still falls back to a system
+ * font, so a fixture's text keeps to it. Each face is awaited before the first
+ * fixture, so a face that fails to load fails the file rather than a later
+ * screenshot comparison.
+ */
+beforeAll(async () => {
+  const faces = await Promise.all(
+    (
+      [
+        [robotoLatin500Url, '500', robotoRanges.latin],
+        [robotoLatin700Url, '700', robotoRanges.latin],
+      ] as const
+    ).map(
+      async ([url, weight, unicodeRange]) =>
+        await new FontFace('Roboto', `url(${url})`, {
+          weight,
+          unicodeRange,
+          display: 'block',
+        }).load(),
+    ),
+  );
+
+  for (const face of faces) {
+    document.fonts.add(face);
+  }
+});
+
+/*
+ * The pointer stays where the previous test left it, and that test may be in
+ * another file in the same page. Over a fixture's control it would render the
+ * control hovered, so each test starts with the pointer on a 1px element at the
+ * page's top-left corner, inside the body's padding, where no fixture is. A
+ * real element, because WebDriver can't move the pointer to the root element.
+ */
+beforeEach(async () => {
+  const corner = document.createElement('div');
+
+  corner.style.cssText =
+    'position: fixed; top: 0; left: 0; width: 1px; height: 1px;';
+  document.body.append(corner);
+  await userEvent.hover(corner);
+  corner.remove();
+});
+
 beforeEach(() => {
   document.documentElement.style.colorScheme = 'light';
   document.body.className = 'mx-test-body';
@@ -33,17 +86,17 @@ beforeEach(() => {
   style.dataset['mxTest'] = '';
   style.textContent = `
     /*
-     * Pin the Material reference typefaces to a locally installed, deterministic
-     * stack. The button's shadow CSS resolves its font family through
+     * Pin the Material reference typefaces to the Roboto faces loaded above.
+     * The button's shadow CSS resolves its font family through
      * \`var(--md-ref-typeface-plain, "Google Sans Text")\`; "Google Sans Text" is
      * not vendored, so without this override the browser silently falls back to
-     * its default serif, which renders differently across machines and pollutes
+     * a system font, which renders differently across machines and pollutes
      * the visual baselines. These custom properties inherit through the shadow
      * boundary, so declaring them on the root pins every component's typography.
      */
     :root {
-      --md-ref-typeface-plain: Arial, "Liberation Sans", sans-serif;
-      --md-ref-typeface-brand: Arial, "Liberation Sans", sans-serif;
+      --md-ref-typeface-plain: Roboto;
+      --md-ref-typeface-brand: Roboto;
     }
 
     .mx-test-body {
@@ -51,7 +104,7 @@ beforeEach(() => {
       padding: 24px;
       background: white;
       color: black;
-      font-family: Arial, "Liberation Sans", sans-serif;
+      font-family: Roboto;
     }
 
     .mx-test-fixture {

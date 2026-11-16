@@ -1,0 +1,207 @@
+# Lint at 33fc22dce, after .plan/ left lint (item 5). oxlint and ESLint run separately in each package, so ESLint is read even where oxlint fails.
+
+## box-quad
+### oxlint
+### ESLint
+packages/box-quad/tests/api.declaration.test.ts
+   34:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   35:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   36:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   37:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+   38:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  104:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  105:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  106:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+  107:1  error  void operator is useless here; it should only discard a call's return value  @typescript-eslint/no-meaningless-void-operator
+
+## core
+### oxlint
+### ESLint
+packages/core/src/traits/primitives.ts
+  51:21  error  This type resolves to `{}`, the empty object type. This was likely not intentional  @typescript-eslint/no-generated-empty-object-type
+packages/core/src/utils/DOM.ts
+  37:19  error  Type parameter E is used only once in the function signature  @typescript-eslint/no-unnecessary-type-parameters
+packages/core/tests/traits/reorderable.browser.test.ts
+  648:27  error  Unexpected function expression  prefer-arrow-callback
+
+## tproc
+### oxlint
+### ESLint
+packages/tproc/src/processToken.ts
+  153:9  error  Unnecessary conditional, comparison is always false, since `"TEXT_TRANSFORM_NONE" !== "TEXT_TRANSFORM_NONE"` is false  @typescript-eslint/no-unnecessary-condition
+packages/tproc/src/resolve.ts
+  59:5  error  Unnecessary conditional, the types have no overlap  @typescript-eslint/no-unnecessary-condition
+packages/tproc/tests/helpers.ts
+  44:13  error  Identifier 'token_class' is not in camel case  camelcase
+
+## drag
+### oxlint
+### ESLint
+
+## vite-custom-element-assets
+### oxlint
+src/css/generation.ts:256:23: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+src/css/generation.ts:257:15: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+### ESLint
+packages/vite-custom-element-assets/src/css/css.ts
+  31:32  error  Use the 'u' flag  require-unicode-regexp
+packages/vite-custom-element-assets/src/html.ts
+  20:3  error  Identifier 'minify_css' is not in camel case                                camelcase
+  21:3  error  Identifier 'minify_js' is not in camel case                                 camelcase
+  22:3  error  Identifier 'keep_comments' is not in camel case                             camelcase
+  23:3  error  Identifier 'allow_removing_spaces_between_attributes' is not in camel case  camelcase
+packages/vite-custom-element-assets/src/index.ts
+  237:26  error  Use the 'u' flag  require-unicode-regexp
+  238:26  error  Use the 'u' flag  require-unicode-regexp
+
+## vite-traits-plugin
+### oxlint
+### ESLint
+packages/vite-traits-plugin/src/analyze.ts
+  85:5  error  for..in loops are slower than Object.{keys,values,entries} and have their caveats  no-restricted-syntax
+
+## size-limit-preset-rolldown
+### oxlint
+### ESLint
+packages/size-limit-preset-rolldown/tsdown.config.ts
+  16:19  error  Use the 'u' flag  require-unicode-regexp
+  16:32  error  Use the 'u' flag  require-unicode-regexp
+
+## material-x
+### oxlint
+src/core/animations/ripple/ripple.ts:173:44: error typescript(no-unnecessary-type-assertion): This assertion is unnecessary since it does not change the type of the expression.
+### ESLint
+packages/material-x/src/button-group/ButtonGroupCore.ts
+  37:36  error  This type resolves to `{}`, the empty object type. This was likely not intentional  @typescript-eslint/no-generated-empty-object-type
+packages/material-x/src/core/animations/ripple/ripple.ts
+   77:16  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   92:16  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  106:16  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+packages/material-x/src/list/ListItemCore.ts
+  19:38  error  This type resolves to `{}`, the empty object type. This was likely not intentional  @typescript-eslint/no-generated-empty-object-type
+packages/material-x/src/text-field/styles/utils.ts
+  111:7  error  It's not necessary to initialize 'error: string | undefined' to undefined  no-undef-init
+packages/material-x/tsdown.config.ts
+  12:19  error  Use the 'u' flag  require-unicode-regexp
+
+## repository level (outside packages/)
+### oxlint: no error
+### ESLint
+.claude/plugins/harness-effort-guard/scripts/guard.ts
+  272:5   error  Identifier 'session_id' is not in camel case       camelcase
+  273:30  error  Identifier 'agent_id' is not in camel case         camelcase
+  279:31  error  Identifier 'agent_type' is not in camel case       camelcase
+  280:27  error  Identifier 'governed_role' is not in camel case    camelcase
+  281:5   error  Identifier 'identity_source' is not in camel case  camelcase
+  288:5   error  Identifier 'project_root' is not in camel case     camelcase
+  329:35  error  Identifier 'dispatch_target' is not in camel case  camelcase
+  330:41  error  Identifier 'dispatch_name' is not in camel case    camelcase
+  332:7   error  Identifier 'dispatch_model' is not in camel case   camelcase
+  334:5   error  Identifier 'declared_model' is not in camel case   camelcase
+  335:35  error  Identifier 'runtime_model' is not in camel case    camelcase
+  340:5   error  Identifier 'model_check' is not in camel case      camelcase
+.claude/plugins/harness-effort-guard/tests/guard.test.ts
+   112:5   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   113:5   error  Identifier 'session_id' is not in camel case       camelcase
+   115:5   error  Identifier 'agent_type' is not in camel case       camelcase
+   131:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   132:7   error  Identifier 'session_id' is not in camel case       camelcase
+   142:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   143:7   error  Identifier 'session_id' is not in camel case       camelcase
+   145:7   error  Identifier 'agent_type' is not in camel case       camelcase
+   157:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   158:7   error  Identifier 'session_id' is not in camel case       camelcase
+   160:7   error  Identifier 'agent_type' is not in camel case       camelcase
+   170:9   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   170:42  error  Identifier 'session_id' is not in camel case       camelcase
+   226:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   227:7   error  Identifier 'session_id' is not in camel case       camelcase
+   314:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   315:7   error  Identifier 'session_id' is not in camel case       camelcase
+   317:7   error  Identifier 'agent_type' is not in camel case       camelcase
+   362:24  error  Identifier 'hook_event_name' is not in camel case  camelcase
+   374:24  error  Identifier 'hook_event_name' is not in camel case  camelcase
+   434:24  error  Identifier 'hook_event_name' is not in camel case  camelcase
+   453:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   463:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   473:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   483:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   493:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   503:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   536:5   error  Identifier 'tool_input' is not in camel case       camelcase
+   538:37  error  Identifier 'tool_name' is not in camel case        camelcase
+   538:57  error  Identifier 'tool_input' is not in camel case       camelcase
+   544:41  error  Identifier 'subagent_type' is not in camel case    camelcase
+   554:9   error  Identifier 'subagent_type' is not in camel case    camelcase
+   566:41  error  Identifier 'subagent_type' is not in camel case    camelcase
+   576:9   error  Identifier 'subagent_type' is not in camel case    camelcase
+   588:9   error  Identifier 'subagent_type' is not in camel case    camelcase
+   611:41  error  Identifier 'subagent_type' is not in camel case    camelcase
+   620:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+   631:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   632:7   error  Identifier 'tool_input' is not in camel case       camelcase
+   641:7   error  Identifier 'tool_name' is not in camel case        camelcase
+   715:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   716:7   error  Identifier 'session_id' is not in camel case       camelcase
+   718:7   error  Identifier 'transcript_path' is not in camel case  camelcase
+   719:7   error  Identifier 'agent_id' is not in camel case         camelcase
+   720:7   error  Identifier 'agent_type' is not in camel case       camelcase
+   866:9   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   867:9   error  Identifier 'session_id' is not in camel case       camelcase
+   869:30  error  Identifier 'transcript_path' is not in camel case  camelcase
+   870:9   error  Identifier 'agent_id' is not in camel case         camelcase
+   871:9   error  Identifier 'agent_type' is not in camel case       camelcase
+   957:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+   958:7   error  Identifier 'session_id' is not in camel case       camelcase
+   960:7   error  Identifier 'transcript_path' is not in camel case  camelcase
+   961:7   error  Identifier 'agent_id' is not in camel case         camelcase
+   962:7   error  Identifier 'agent_type' is not in camel case       camelcase
+  1015:5   error  Identifier 'tool_input' is not in camel case       camelcase
+  1028:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+  1029:7   error  Identifier 'session_id' is not in camel case       camelcase
+  1031:7   error  Identifier 'transcript_path' is not in camel case  camelcase
+  1032:7   error  Identifier 'agent_id' is not in camel case         camelcase
+  1033:7   error  Identifier 'agent_type' is not in camel case       camelcase
+  1035:7   error  Identifier 'tool_name' is not in camel case        camelcase
+  1036:7   error  Identifier 'tool_input' is not in camel case       camelcase
+  1043:39  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1049:39  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1055:39  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1086:5   error  Identifier 'tool_input' is not in camel case       camelcase
+  1090:7   error  Identifier 'tool_name' is not in camel case        camelcase
+  1091:7   error  Identifier 'tool_input' is not in camel case       camelcase
+  1099:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1113:11  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1126:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1134:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1145:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1154:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1163:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1178:5   error  Identifier 'tool_input' is not in camel case       camelcase
+  1193:7   error  Identifier 'tool_name' is not in camel case        camelcase
+  1194:7   error  Identifier 'tool_input' is not in camel case       camelcase
+  1201:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1208:7   error  Identifier 'subagent_type' is not in camel case    camelcase
+  1216:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1222:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1228:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1234:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1240:36  error  Identifier 'subagent_type' is not in camel case    camelcase
+  1264:7   error  Identifier 'hook_event_name' is not in camel case  camelcase
+  1265:7   error  Identifier 'session_id' is not in camel case       camelcase
+  1267:7   error  Identifier 'transcript_path' is not in camel case  camelcase
+  1268:7   error  Identifier 'agent_id' is not in camel case         camelcase
+  1269:7   error  Identifier 'agent_type' is not in camel case       camelcase
+.scripts/css/debug.ts
+  39:22  error  Use the 'u' flag  require-unicode-regexp
+.scripts/docs-api.ts
+  17:47  error  Use the 'u' flag  require-unicode-regexp
+.scripts/vite-config.ts
+  74:23  error  Use the 'u' flag  require-unicode-regexp
+.storybook/docs/paths.ts
+  6:39  error  Use the 'u' flag  require-unicode-regexp
+
+## The two forms that would keep a snake_case key without a disable comment, tested
+A quoted key, { 'session_id': 1 }: oxfmt (quoteProps as-needed) rewrites it to { session_id: 1 }, which camelcase reports again.
+A computed key, { ['minify_css']: true }: oxfmt keeps it, and eslint-config-vaadin sets no-useless-computed-key to error.
+eslint-config-vaadin/rules/eslint/suggestions.js:6 sets camelcase: ['error', { properties: 'always' }].

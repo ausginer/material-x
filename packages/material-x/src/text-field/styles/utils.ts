@@ -108,7 +108,7 @@ export function createTextFieldExtensions(
 }
 export const groupTextFieldTokens: Grouper = (tokenName) => {
   const parts = tokenName.split('.');
-  let error: string | undefined = undefined;
+  let error: string | undefined;
   let state = 'default';
   const nameParts: string[] = [];
 

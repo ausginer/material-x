@@ -1,0 +1,75 @@
+# The safari job of run 43838143582 (https://github.com/ausginer/material-x/actions/runs/43838143582) at e2eb61d1c, three attempts;
+# attempts 2 and 3 rerun only that job. Skipped in Safari: drag:DRF-49, drag:DRF-50, repo:RF-36. Expected to fail in Safari: drag:DRF-51.
+# The listing gives 101 files: 1 + 22 + 7 + 30 + 27 + 8 + 6.
+
+## Attempt 1 (749s, success)
+Test Files  1 passed (1)
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Test Files  22 passed (22)
+Tests  244 passed | 1 skipped (245)
+browser/core/safari (safari) exited with 0
+Test Files  7 passed (7)
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Test Files  30 passed (30)
+Tests  432 passed | 1 expected fail | 12 skipped (445)
+browser/drag/safari (safari) exited with 0
+Test Files  27 passed (27)
+Tests  398 passed | 12 skipped (410)
+consumer/drag/safari (safari) exited with 0
+Test Files  8 passed (8)
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Test Files  6 passed (6)
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+Lost browser connections: 0
+
+## Attempt 2 (675s, success)
+Test Files  1 passed (1)
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Test Files  22 passed (22)
+Tests  244 passed | 1 skipped (245)
+browser/core/safari (safari) exited with 0
+Test Files  7 passed (7)
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Test Files  30 passed (30)
+Tests  432 passed | 1 expected fail | 12 skipped (445)
+browser/drag/safari (safari) exited with 0
+Test Files  27 passed (27)
+Tests  398 passed | 12 skipped (410)
+consumer/drag/safari (safari) exited with 0
+Test Files  8 passed (8)
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Test Files  6 passed (6)
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+Lost browser connections: 0
+
+## Attempt 3 (661s, success)
+Test Files  1 passed (1)
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Test Files  22 passed (22)
+Tests  244 passed | 1 skipped (245)
+browser/core/safari (safari) exited with 0
+Test Files  7 passed (7)
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Test Files  30 passed (30)
+Tests  432 passed | 1 expected fail | 12 skipped (445)
+browser/drag/safari (safari) exited with 0
+Test Files  27 passed (27)
+Tests  398 passed | 12 skipped (410)
+consumer/drag/safari (safari) exited with 0
+Test Files  8 passed (8)
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Test Files  6 passed (6)
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+Lost browser connections: 0

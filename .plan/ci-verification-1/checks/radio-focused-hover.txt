@@ -1,0 +1,7 @@
+# radio.visual 'should match the keyboard-focused radio': is the radio hovered when its screenshot is taken? Scratch edit, reverted: the row writes radio.matches(':hover') after its Tab. The file runs in its order: states, disabled, hovered, focused.
+
+## Without the pointer reset in browser-setup.ts (as when the old baseline was recorded)
+hover: true, focus-visible inside: false
+
+## With the reset (f0ec37881 onward, which the runner recorded)
+hover: false, focus-visible inside: false

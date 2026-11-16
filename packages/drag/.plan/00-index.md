@@ -3113,6 +3113,8 @@ Decided on 2026-11-15 by the architect, on the hypothesis and the [probe](probes
 
 **Implemented by** [`size-acceptance-cleanup-handoff.md`](size-acceptance-cleanup-handoff.md) item 1, at `e9ca3732f`. The unit's final re-measure at `a3423c793` moved no row, so every ceiling and the control still equal their readings at `988643dc9` (§Disposition of the size acceptance cleanup report).
 
+**Dated 2026-11-16, by the architect:** `repo:RD-7` tags the ceiling and control verdicts of `tests/size.node.test.ts` as `measurement`. CI reports them and never fails on them. Each composition's row splits into a graph row, which stays in the CI gate (`DRI-18`), and a ceiling row. Locally `npx just test` runs both, so property 5 holds as written. The figures, the ceilings and the assertions don't change.
+
 #### DRD-69 — `988643dc9` is adopted: the loops read their fields directly, and no member carries a guarantee about its receiver
 
 **Decided on 2026-11-15 by the architect, on the owner's commit `988643dc9` and direction (`DRO-21`),** relayed by the coordinator on `drag/size-acceptance`.
@@ -4935,6 +4937,52 @@ From inside a pass, such as `onMove`, `moveTo` defers its step (DRI-8). A consum
 
 **Closed on 2026-11-15** by `b6fef26c4` and `953a0fcc6`, reported at `1c1e93bd9`. `y.ts`'s module comment and `y()`'s JSDoc state the term, and the instrument's two self-checks report the list and accept it with the rows' margins on the placeholder. The oracle records the list at a slot in both projects (§Disposition of the `y()` geometry terms report).
 
+#### DRF-48 — In Playwright's Chromium 158, the kernel allocates more per sample than the hot-path allocation row's budget
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` and its handoff's item 6. **A measurement row** (`repo:RD-7`), so it is outside the gate and is not disabled.
+
+- **The row:** `tests/hot-path.browser.test.ts:261`, `drag:DRI-17 hot path` › "should allocate per sample only the CSS string a lifted write needs", in the `shipped` project. It carries the `measurement` tag.
+- **Current behavior:** in Chromium 158.0.8127.18, Playwright's build since `27e54e9ac` (`repo:RD-9`), the kernel's bytes per move exceed the row's bound of 16. Readings: 36.5 and 28.2 B in the CI unit's two drag runs. In both, the only kernel key the sampler reported was `kernel/session.ts:handleEvent`, at 10,940 and 8,464 B over 300 moves. The row passed at `a8726c57d` in the development image's Chrome 157.0.8103.38. **The cause is not established.** No `src/` file changed between the passing and failing runs, so the browser version or its heap sampling is the inferred difference.
+- **Why it is a problem:** the local `npx just test` in drag fails on this row until the owner of the budget decides (`RD-7` property 2), and CI reports it in the measurement job's comment and summary.
+- **Required property:** the row's budget states what the kernel allocates per sample in the pinned Chromium, and the row passes there. Whether the bound moves or the kernel's allocation is reduced is drag's decision, not the CI unit's.
+- **Routed** to the architect. The CI unit doesn't change the budget.
+
+#### DRF-49 — In Safari, the `y()` sweep through `box` with a `visual` intermittently stalls until its timeout
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` properties 1 and 4 and its handoff's _Resuming after the three Safari runs_. **Skipped in Safari only** (`it.skipIf(isSafari)`), in both `browser/drag` and `consumer/drag`, and the marking cites this address.
+
+- **The row:** `tests/sortable.browser.test.ts`, `drag:DRI-14 candidates measured through box` › "should measure every y() candidate through box when visual is also given".
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** in three attempts of run 43830910625 at `ddf72ec4e`, the row passed in about 8.8 s in 4 of its 6 project runs and timed out at 15 s (`Test timed out in 15000ms`, at 15,206 and 15,194 ms) in 2: `browser/drag` in attempt 2 and `consumer/drag` in attempt 3. No run ended in between.
+- **Attempt 2's aftermath** (run 43830910625): in `browser/drag`, the row after a timed-out sweep, _"should measure every xy() candidate through box, not through the item"_, failed on a missing placeholder (`null is not an object (evaluating 'list.querySelector("[data-drag-placeholder]")…')`), and the project then lost its browser connection (_"Browser connection was closed while running tests"_), so its other 29 files didn't run.
+- **What is established:** the row's only waits are the WebDriver `pointerMove` command and `requestAnimationFrame` (`tests/support/gap-conformance.ts`'s `sweepGaps`), and Safari's pointer command delivers every interpolated move before it returns (`repo` CI unit's probe, run 43829273272). **The cause is not established.** No timeout was raised.
+- **Required property:** the row finishes in Safari in every run.
+- **Routed** to the architect. The CI unit doesn't change the row's instrument.
+
+#### DRF-50 — In Safari, the gap sweep with transitions on the rows and the item intermittently stalls until its timeout
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` properties 1 and 4 and its handoff's _Resuming after the three Safari runs_. **Skipped in Safari only** (`it.skipIf(isSafari)`), in both `browser/drag` and `consumer/drag`, and the marking cites this address.
+
+- **The row:** `tests/sortable.browser.test.ts`, `drag:DRI-9 authored transitions` › "should propose the gap a full measurement gives with transitions on the rows and the item".
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** in three attempts of run 43830910625 at `ddf72ec4e`, the row timed out at 15 s (`Test timed out in 15000ms`, 15,102 to 15,153 ms) in 4 of its 6 project runs: `consumer/drag` in attempts 1 and 3, and both projects in attempt 2. It passed in about 8.8 s in the other 2. No run ended in between. It also timed out in `browser/drag` in run 43827320614, before Reduce Motion was off.
+- **Attempt 2's aftermath** (run 43830910625): in `browser/drag`, the row after the `y()` sweep's timeout (`DRF-49`), _"should measure every xy() candidate through box, not through the item"_, failed on a missing placeholder (`null is not an object (evaluating 'list.querySelector("[data-drag-placeholder]")…')`), and the project then lost its browser connection (_"Browser connection was closed while running tests"_), so its other 29 files didn't run.
+- **What is established:** the row's only waits are the WebDriver `pointerMove` command and `requestAnimationFrame` (`tests/support/gap-conformance.ts`'s `sweepGaps`), and Safari's pointer command delivers every interpolated move before it returns (`repo` CI unit's probe, run 43829273272). **The cause is not established.** No timeout was raised.
+- **Required property:** the row finishes in Safari in every run.
+- **Routed** to the architect. The CI unit doesn't change the row's instrument.
+
+#### DRF-51 — In Safari, a TransformedStage box ends 16 px lower than where it was dropped
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` property 4 and its handoff's _Resuming after the three Safari runs_, step 3. **Expected to fail in Safari only** (`it.fails`), and the marking cites this address.
+
+- **The row:** `tests/stories.browser.test.ts`, `Free Drag stories` › "should keep a TransformedStage box where it was dropped". The file runs only in `browser/drag`.
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** after the drop, the box's top is 15.99997 px below its top just before the drop (`expected 15.999969482421875 to be less than or equal to 1`). Its left, width and height agree. It failed in every Safari run where it ran: run 43827320614, attempts 1 and 3 of run 43830910625 (attempt 2 lost the browser before the file) and run 43836389515. It passes in Chromium and Firefox. The `Interactive` story's row, which drags an untransformed box the same way, passes in Safari.
+- **What is ruled out:** the hint above the stage rewrapping. `0ee0f9d84` measured the box within its area, and the row still failed by the same 16 px in run 43836389515, so the box moves within its stage. That repair is reverted.
+- **The cause is not established.** The stage is rotated 6° and scaled 1.15 (`src/stories.module.css`, `.warped`), and the story commits the drop through the local delta.
+- **Required property:** a TransformedStage box stays where it was dropped in Safari, as in Chromium and Firefox, and the row passes there without its marking.
+- **Routed** to the architect. The CI unit doesn't change drag's source.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
@@ -5316,6 +5364,12 @@ No timing was taken.
 **What this changes for drag's units.** A check that names `npx just test-engines` is owed in Chromium and Firefox. A unit selects those projects with `--project`: `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. A WebKit project that fails to launch locally isn't a failure of the unit, and a report states that WebKit didn't run. A handoff written before this decision that asks for WebKit is read this way. The `test-engines` recipe keeps its WebKit projects for CI.
 
 **Not yet in force in CI.** The repository's only workflow is `docs.yml`. The pull-request workflow that `repo:RD-2` owes doesn't name WebKit, and `.agents/docs/test-architecture.md` lists Firefox and WebKit behavior checks among the jobs that scheduled or manual runs may add. **Until a CI job runs drag's WebKit projects, no run covers WebKit.** Whether that job is owed under `repo:RD-2` is a repository decision that this entry doesn't take.
+
+**Dated 2026-11-16, by the architect:** `repo:RD-6` takes that decision. The job is owed, and it runs every package's browser projects in Firefox and WebKit. The shared engine selection replaces `vitest.engines.config.ts`. `test-engines` keeps its name and its project names, so the `--project` selection above is unchanged. Unimplemented: until the CI unit lands, no run covers WebKit.
+
+**Dated 2026-11-16, by the architect:** `repo:RD-12` makes CI's third engine **Safari on a macOS runner**, on the owner's correction, instead of Playwright's WebKit. No Playwright WebKit build runs anywhere, locally or in CI. `test-engines` runs Chromium and Firefox, so its projects are exactly the selection above: `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. `browser/webkit` and `shipped/webkit` no longer exist, and CI's Safari projects are `browser/safari` and `shipped/safari`. A report states that Safari didn't run locally, as it stated for WebKit. Unimplemented: until the CI unit lands, no run covers Safari.
+
+**Dated 2026-11-16, by the architect, on the owner's direction:** `repo:RD-13` makes local runs **Chromium only**. A check that names `npx just test-engines` is owed locally in Chromium, through `browser` and `shipped`. Firefox and Safari are read in CI on the unit's pull request (`repo:RD-13` property 8). `test-engines` sets no engine list, so it runs the engines that `MX_TEST_ENGINES` lists, Chromium by default. This replaces the local Firefox selection above. The project names in each engine don't change.
 
 #### DRO-19 — The code the tests run is the code the user receives
 

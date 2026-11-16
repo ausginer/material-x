@@ -48,7 +48,7 @@ export interface Trait<
  */
 type ConstructorStatics<T extends Constructor<object>> = Omit<
   T,
-  keyof Constructor<Record<never, never>>
+  keyof Constructor<object>
 >;
 
 /**

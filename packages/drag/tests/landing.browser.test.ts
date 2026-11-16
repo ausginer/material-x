@@ -12,6 +12,7 @@ import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
   basicSortable,
+  canEmulateReducedMotion,
   centerOf,
   commands,
   dragAndDrop,
@@ -49,7 +50,9 @@ function topAtCenter(element: HTMLElement): Element | null {
 
 describe('drag:DRI-13 landing', () => {
   afterEach(async () => {
-    await commands.emulateReducedMotion(false);
+    if (canEmulateReducedMotion) {
+      await commands.emulateReducedMotion(false);
+    }
   });
 
   it('should land additively from where it was dropped', async () => {
@@ -247,67 +250,73 @@ describe('drag:DRI-13 landing', () => {
     expect(centerOf(box).x).toBeCloseTo(40, 0);
   });
 
-  it('should give a landing that `landing()` starts zero duration with reduced motion', async () => {
-    await commands.emulateReducedMotion(true);
+  it.runIf(canEmulateReducedMotion)(
+    'should give a landing that `landing()` starts zero duration with reduced motion',
+    async () => {
+      await commands.emulateReducedMotion(true);
 
-    const list = makeList(3);
-    const durations: unknown[] = [];
+      const list = makeList(3);
+      const durations: unknown[] = [];
 
-    const lifter = new Lifter(window);
+      const lifter = new Lifter(window);
 
-    managed(list, {
-      admit: (event) => ({ item: targetOf(event) }),
-      activate(drag) {
-        const lift = lifter.acquire(drag);
+      managed(list, {
+        admit: (event) => ({ item: targetOf(event) }),
+        activate(drag) {
+          const lift = lifter.acquire(drag);
 
-        return {
-          move: () => {
-            lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+          return {
+            move: () => {
+              lift.translate(drag.x - drag.originX, drag.y - drag.originY);
+            },
+            settle() {
+              lift.land(lift.rect.x, lift.rect.y, landing());
+            },
+          };
+        },
+      }).use(lifter.cancelLanding);
+
+      const { animate: nativeAnimate } = Element.prototype;
+
+      Element.prototype.animate = function animate(keyframes, options) {
+        durations.push((options as KeyframeAnimationOptions).duration);
+        return nativeAnimate.call(this, keyframes, options);
+      };
+
+      try {
+        await grab('#r0', 0, 45);
+        await release();
+      } finally {
+        Element.prototype.animate = nativeAnimate;
+      }
+
+      expect(durations).toEqual([0]);
+    },
+  );
+
+  it.runIf(canEmulateReducedMotion)(
+    'should call a duration function with reduced motion, and still land at once',
+    async () => {
+      await commands.emulateReducedMotion(true);
+
+      const list = makeList(3);
+      let calls = 0;
+
+      basicSortable(list, {
+        landing: landing({
+          duration() {
+            calls += 1;
+            return 400;
           },
-          settle() {
-            lift.land(lift.rect.x, lift.rect.y, landing());
-          },
-        };
-      },
-    }).use(lifter.cancelLanding);
-
-    const { animate: nativeAnimate } = Element.prototype;
-
-    Element.prototype.animate = function animate(keyframes, options) {
-      durations.push((options as KeyframeAnimationOptions).duration);
-      return nativeAnimate.call(this, keyframes, options);
-    };
-
-    try {
+        }),
+        onReorder: () => ReorderResolution.reject('no'),
+      });
       await grab('#r0', 0, 45);
       await release();
-    } finally {
-      Element.prototype.animate = nativeAnimate;
-    }
-
-    expect(durations).toEqual([0]);
-  });
-
-  it('should call a duration function with reduced motion, and still land at once', async () => {
-    await commands.emulateReducedMotion(true);
-
-    const list = makeList(3);
-    let calls = 0;
-
-    basicSortable(list, {
-      landing: landing({
-        duration() {
-          calls += 1;
-          return 400;
-        },
-      }),
-      onReorder: () => ReorderResolution.reject('no'),
-    });
-    await grab('#r0', 0, 45);
-    await release();
-    expect(calls).toBe(1);
-    expect(row('r0').getAnimations()).toEqual([]);
-  });
+      expect(calls).toBe(1);
+      expect(row('r0').getAnimations()).toEqual([]);
+    },
+  );
 
   it('should land an accepted drop at its new slot', async () => {
     const list = makeList(4);

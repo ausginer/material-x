@@ -150,8 +150,11 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
   }
 
   if (textTransform != null) {
-    if (textTransform !== TextTransform.NONE) {
-      throw new Error(`Unknown text transform: ${String(textTransform)}`);
+    // The token data is upstream's, and its type names only the value seen so
+    // far. Read as `unknown`, the value can be any other upstream one, which is
+    // what this check is for.
+    if ((textTransform as unknown) !== TextTransform.NONE) {
+      throw new Error(`Unknown text transform: ${textTransform}`);
     }
 
     return 'none';

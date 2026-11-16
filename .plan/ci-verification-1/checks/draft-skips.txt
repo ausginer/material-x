@@ -1,0 +1,12 @@
+# Item 8's draft check: pull request #27 marked as a draft (gh pr ready 27 --undo), then 1ea922a4a pushed.
+# Run 43849181291 (https://github.com/ausginer/material-x/actions/runs/43849181291), event pull_request:
+
+conclusion: skipped
+static        skipped
+chromium      skipped
+firefox       skipped
+safari        skipped
+measurements  skipped
+verify        skipped
+
+Every job is skipped. The pull request was then marked ready for review (gh pr ready 27), which starts verify again.

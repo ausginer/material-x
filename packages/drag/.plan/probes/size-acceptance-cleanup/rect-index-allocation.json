@@ -1,855 +1,851 @@
 {
- "chrome": "157.0.8103.38",
- "rounds": 3,
- "moves": 300,
- "arms": [
-  "before",
-  "production",
-  "control"
- ],
- "before": "91b13613f",
- "summary": [
-  {
-   "scenario": "bytes per move by function, 20 items",
-   "rule": "bytes",
-   "medians": {
-    "before": {
-     "(root)": {
-      "median": 2862,
-      "min": 2739,
-      "max": 2879
-     },
-     "(anonymous)": {
-      "median": 581,
-      "min": 573,
-      "max": 588
-     },
-     "evaluate": {
-      "median": 632,
-      "min": 629,
-      "max": 644
-     },
-     "parseEvaluationResultValue": {
-      "median": 184,
-      "min": 182,
-      "max": 187
-     },
-     "setupDragListeners": {
-      "median": 210,
-      "min": 210,
-      "max": 219
-     },
-     "window.__cleanupDrag": {
-      "median": 235,
-      "min": 231,
-      "max": 237
-     },
-     "kernel/session.ts:handleEvent": {
-      "median": 8,
-      "min": 7,
-      "max": 8
-     },
-     "kernel/gesture.ts:enter": {
-      "median": 2,
-      "min": 1,
-      "max": 2
-     },
-     "kernel/session.ts:#move": {
-      "median": 3,
-      "min": 2,
-      "max": 3
-     },
-     "sortable/operation.ts:move": {
-      "median": 2,
-      "min": 1,
-      "max": 2
-     },
-     "shared/invalidation.ts:schedule": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     },
-     "lift.ts:translate": {
-      "median": 107,
-      "min": 102,
-      "max": 110
-     },
-     "kernel/gesture.ts:#applyRequests": {
-      "median": 3,
-      "min": 1,
-      "max": 3
-     },
-     "kernel/gesture.ts:requestStep": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     },
-     "sortable/operation.ts:updateInsertion": {
-      "median": 4,
-      "min": 3,
-      "max": 4
-     },
-     "sortable/y.ts:resolve": {
-      "median": 23,
-      "min": 22,
-      "max": 23
-     },
-     "sortable/domain.ts:insertionAt": {
-      "median": 5,
-      "min": 5,
-      "max": 6
-     },
-     "sortable/rect-index.ts:at": {
-      "median": 20,
-      "min": 16,
-      "max": 24
-     },
-     "sortable/rect-index.ts:insertion": {
-      "median": 1,
-      "min": 1,
-      "max": 2
-     },
-     "sortable/linear-shift.ts:refresh": {
-      "median": 3,
-      "min": 3,
-      "max": 3
-     },
-     "sortable/rect-index.ts:#read": {
-      "median": 10,
-      "min": 10,
-      "max": 11
-     },
-     "sortable/y.ts:moved": {
-      "median": 2,
-      "min": 1,
-      "max": 2
-     },
-     "sortable/linear-shift.ts:moved": {
-      "median": 14,
-      "min": 14,
-      "max": 15
-     },
-     "sortable/layout-animation.ts:report": {
-      "median": 416,
-      "min": 408,
-      "max": 418
-     },
-     "../box-quad/src/index.ts:localDelta": {
-      "median": 15,
-      "min": 14,
-      "max": 18
-     },
-     "sortable/rect-index.ts:shift": {
-      "median": 12,
-      "min": 11,
-      "max": 13
-     },
-     "sortable/layout-animation.ts:(anonymous)": {
-      "median": 15,
-      "min": 14,
-      "max": 15
-     },
-     "mouseListener": {
-      "median": 127,
-      "min": 127,
-      "max": 132
-     },
-     "jsonValue": {
-      "median": 30,
-      "min": 27,
-      "max": 30
-     },
-     "serializeAsCallArgument": {
-      "median": 152,
-      "min": 148,
-      "max": 158
-     },
-     "innerSerialize": {
-      "median": 19,
-      "min": 15,
-      "max": 20
-     },
-     "sortable/layout-animation.ts:displaced": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     }
-    },
-    "production": {
-     "(root)": {
-      "median": 2759,
-      "min": 2757,
-      "max": 2864
-     },
-     "(anonymous)": {
-      "median": 588,
-      "min": 583,
-      "max": 590
-     },
-     "evaluate": {
-      "median": 642,
-      "min": 642,
-      "max": 648
-     },
-     "parseEvaluationResultValue": {
-      "median": 191,
-      "min": 178,
-      "max": 195
-     },
-     "setupDragListeners": {
-      "median": 216,
-      "min": 213,
-      "max": 219
-     },
-     "window.__cleanupDrag": {
-      "median": 234,
-      "min": 234,
-      "max": 240
-     },
-     "kernel/session.ts:handleEvent": {
-      "median": 8,
-      "min": 7,
-      "max": 8
-     },
-     "kernel/gesture.ts:enter": {
-      "median": 2,
-      "min": 1,
-      "max": 2
-     },
-     "kernel/session.ts:#move": {
-      "median": 3,
-      "min": 3,
-      "max": 3
-     },
-     "sortable/operation.ts:move": {
-      "median": 1,
-      "min": 1,
-      "max": 1
-     },
-     "shared/invalidation.ts:schedule": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     },
-     "lift.ts:translate": {
-      "median": 115,
-      "min": 106,
-      "max": 117
-     },
-     "kernel/gesture.ts:#applyRequests": {
-      "median": 2,
-      "min": 2,
-      "max": 3
-     },
-     "kernel/gesture.ts:requestStep": {
-      "median": 1,
-      "min": 1,
-      "max": 1
-     },
-     "kernel/session.ts:stepTarget": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     },
-     "sortable/operation.ts:updateInsertion": {
-      "median": 3,
-      "min": 3,
-      "max": 3
-     },
-     "sortable/y.ts:resolve": {
-      "median": 21,
-      "min": 19,
-      "max": 22
-     },
-     "sortable/domain.ts:insertionAt": {
-      "median": 4,
-      "min": 4,
-      "max": 5
-     },
-     "sortable/rect-index.ts:get first": {
-      "median": 143,
-      "min": 137,
-      "max": 147
-     },
-     "sortable/rect-index.ts:at": {
-      "median": 22,
-      "min": 22,
-      "max": 23
-     },
-     "sortable/linear-shift.ts:refresh": {
-      "median": 3,
-      "min": 3,
-      "max": 3
-     },
-     "sortable/rect-index.ts:#read": {
-      "median": 11,
-      "min": 11,
-      "max": 12
-     },
-     "sortable/rect-index.ts:measurePlaceholder": {
-      "median": 1,
-      "min": 1,
-      "max": 1
-     },
-     "sortable/y.ts:moved": {
-      "median": 2,
-      "min": 2,
-      "max": 2
-     },
-     "sortable/linear-shift.ts:moved": {
-      "median": 15,
-      "min": 11,
-      "max": 16
-     },
-     "sortable/layout-animation.ts:report": {
-      "median": 414,
-      "min": 411,
-      "max": 419
-     },
-     "../box-quad/src/index.ts:localDelta": {
-      "median": 14,
-      "min": 13,
-      "max": 15
-     },
-     "sortable/rect-index.ts:shift": {
-      "median": 11,
-      "min": 10,
-      "max": 16
-     },
-     "sortable/layout-animation.ts:(anonymous)": {
-      "median": 14,
-      "min": 13,
-      "max": 15
-     },
-     "mouseListener": {
-      "median": 126,
-      "min": 124,
-      "max": 127
-     },
-     "jsonValue": {
-      "median": 28,
-      "min": 27,
-      "max": 31
-     },
-     "serializeAsCallArgument": {
-      "median": 153,
-      "min": 144,
-      "max": 158
-     },
-     "innerSerialize": {
-      "median": 15,
-      "min": 15,
-      "max": 19
-     },
-     "sortable/rect-index.ts:insertion": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     }
-    },
-    "control": {
-     "(root)": {
-      "median": 2874,
-      "min": 2863,
-      "max": 2875
-     },
-     "(anonymous)": {
-      "median": 583,
-      "min": 581,
-      "max": 584
-     },
-     "evaluate": {
-      "median": 639,
-      "min": 630,
-      "max": 647
-     },
-     "parseEvaluationResultValue": {
-      "median": 184,
-      "min": 183,
-      "max": 186
-     },
-     "isThenable": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     },
-     "setupDragListeners": {
-      "median": 214,
-      "min": 210,
-      "max": 225
-     },
-     "window.__cleanupDrag": {
-      "median": 239,
-      "min": 222,
-      "max": 242
-     },
-     "kernel/session.ts:handleEvent": {
-      "median": 7,
-      "min": 7,
-      "max": 7
-     },
-     "kernel/gesture.ts:enter": {
-      "median": 2,
-      "min": 1,
-      "max": 2
-     },
-     "kernel/session.ts:#move": {
-      "median": 3,
-      "min": 3,
-      "max": 3
-     },
-     "sortable/operation.ts:move": {
-      "median": 1,
-      "min": 1,
-      "max": 2
-     },
-     "shared/invalidation.ts:schedule": {
-      "median": 1,
-      "min": 0,
-      "max": 1
-     },
-     "lift.ts:translate": {
-      "median": 112,
-      "min": 103,
-      "max": 114
-     },
-     "kernel/gesture.ts:#applyRequests": {
-      "median": 3,
-      "min": 2,
-      "max": 3
-     },
-     "kernel/gesture.ts:requestStep": {
-      "median": 1,
-      "min": 1,
-      "max": 1
-     },
-     "sortable/operation.ts:updateInsertion": {
-      "median": 4,
-      "min": 3,
-      "max": 5
-     },
-     "sortable/y.ts:resolve": {
-      "median": 22,
-      "min": 22,
-      "max": 25
-     },
-     "sortable/domain.ts:insertionAt": {
-      "median": 4,
-      "min": 4,
-      "max": 5
-     },
-     "sortable/rect-index.ts:get first": {
-      "median": 141,
-      "min": 139,
-      "max": 142
-     },
-     "sortable/rect-index.ts:at": {
-      "median": 24,
-      "min": 19,
-      "max": 25
-     },
-     "sortable/rect-index.ts:insertion": {
-      "median": 1,
-      "min": 1,
-      "max": 1
-     },
-     "sortable/linear-shift.ts:refresh": {
-      "median": 3,
-      "min": 2,
-      "max": 4
-     },
-     "sortable/rect-index.ts:#read": {
-      "median": 12,
-      "min": 11,
-      "max": 12
-     },
-     "sortable/y.ts:moved": {
-      "median": 2,
-      "min": 2,
-      "max": 3
-     },
-     "sortable/linear-shift.ts:moved": {
-      "median": 13,
-      "min": 13,
-      "max": 16
-     },
-     "sortable/layout-animation.ts:report": {
-      "median": 411,
-      "min": 406,
-      "max": 413
-     },
-     "../box-quad/src/index.ts:localDelta": {
-      "median": 13,
-      "min": 12,
-      "max": 15
-     },
-     "sortable/rect-index.ts:shift": {
-      "median": 12,
-      "min": 9,
-      "max": 13
-     },
-     "sortable/layout-animation.ts:(anonymous)": {
-      "median": 13,
-      "min": 13,
-      "max": 14
-     },
-     "mouseListener": {
-      "median": 131,
-      "min": 125,
-      "max": 137
-     },
-     "jsonValue": {
-      "median": 26,
-      "min": 26,
-      "max": 35
-     },
-     "serializeAsCallArgument": {
-      "median": 153,
-      "min": 149,
-      "max": 157
-     },
-     "innerSerialize": {
-      "median": 17,
-      "min": 17,
-      "max": 17
-     }
+  "chrome": "157.0.8103.38",
+  "rounds": 3,
+  "moves": 300,
+  "arms": ["before", "production", "control"],
+  "before": "91b13613f",
+  "summary": [
+    {
+      "scenario": "bytes per move by function, 20 items",
+      "rule": "bytes",
+      "medians": {
+        "before": {
+          "(root)": {
+            "median": 2862,
+            "min": 2739,
+            "max": 2879
+          },
+          "(anonymous)": {
+            "median": 581,
+            "min": 573,
+            "max": 588
+          },
+          "evaluate": {
+            "median": 632,
+            "min": 629,
+            "max": 644
+          },
+          "parseEvaluationResultValue": {
+            "median": 184,
+            "min": 182,
+            "max": 187
+          },
+          "setupDragListeners": {
+            "median": 210,
+            "min": 210,
+            "max": 219
+          },
+          "window.__cleanupDrag": {
+            "median": 235,
+            "min": 231,
+            "max": 237
+          },
+          "kernel/session.ts:handleEvent": {
+            "median": 8,
+            "min": 7,
+            "max": 8
+          },
+          "kernel/gesture.ts:enter": {
+            "median": 2,
+            "min": 1,
+            "max": 2
+          },
+          "kernel/session.ts:#move": {
+            "median": 3,
+            "min": 2,
+            "max": 3
+          },
+          "sortable/operation.ts:move": {
+            "median": 2,
+            "min": 1,
+            "max": 2
+          },
+          "shared/invalidation.ts:schedule": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          },
+          "lift.ts:translate": {
+            "median": 107,
+            "min": 102,
+            "max": 110
+          },
+          "kernel/gesture.ts:#applyRequests": {
+            "median": 3,
+            "min": 1,
+            "max": 3
+          },
+          "kernel/gesture.ts:requestStep": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          },
+          "sortable/operation.ts:updateInsertion": {
+            "median": 4,
+            "min": 3,
+            "max": 4
+          },
+          "sortable/y.ts:resolve": {
+            "median": 23,
+            "min": 22,
+            "max": 23
+          },
+          "sortable/domain.ts:insertionAt": {
+            "median": 5,
+            "min": 5,
+            "max": 6
+          },
+          "sortable/rect-index.ts:at": {
+            "median": 20,
+            "min": 16,
+            "max": 24
+          },
+          "sortable/rect-index.ts:insertion": {
+            "median": 1,
+            "min": 1,
+            "max": 2
+          },
+          "sortable/linear-shift.ts:refresh": {
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "sortable/rect-index.ts:#read": {
+            "median": 10,
+            "min": 10,
+            "max": 11
+          },
+          "sortable/y.ts:moved": {
+            "median": 2,
+            "min": 1,
+            "max": 2
+          },
+          "sortable/linear-shift.ts:moved": {
+            "median": 14,
+            "min": 14,
+            "max": 15
+          },
+          "sortable/layout-animation.ts:report": {
+            "median": 416,
+            "min": 408,
+            "max": 418
+          },
+          "../box-quad/src/index.ts:localDelta": {
+            "median": 15,
+            "min": 14,
+            "max": 18
+          },
+          "sortable/rect-index.ts:shift": {
+            "median": 12,
+            "min": 11,
+            "max": 13
+          },
+          "sortable/layout-animation.ts:(anonymous)": {
+            "median": 15,
+            "min": 14,
+            "max": 15
+          },
+          "mouseListener": {
+            "median": 127,
+            "min": 127,
+            "max": 132
+          },
+          "jsonValue": {
+            "median": 30,
+            "min": 27,
+            "max": 30
+          },
+          "serializeAsCallArgument": {
+            "median": 152,
+            "min": 148,
+            "max": 158
+          },
+          "innerSerialize": {
+            "median": 19,
+            "min": 15,
+            "max": 20
+          },
+          "sortable/layout-animation.ts:displaced": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          }
+        },
+        "production": {
+          "(root)": {
+            "median": 2759,
+            "min": 2757,
+            "max": 2864
+          },
+          "(anonymous)": {
+            "median": 588,
+            "min": 583,
+            "max": 590
+          },
+          "evaluate": {
+            "median": 642,
+            "min": 642,
+            "max": 648
+          },
+          "parseEvaluationResultValue": {
+            "median": 191,
+            "min": 178,
+            "max": 195
+          },
+          "setupDragListeners": {
+            "median": 216,
+            "min": 213,
+            "max": 219
+          },
+          "window.__cleanupDrag": {
+            "median": 234,
+            "min": 234,
+            "max": 240
+          },
+          "kernel/session.ts:handleEvent": {
+            "median": 8,
+            "min": 7,
+            "max": 8
+          },
+          "kernel/gesture.ts:enter": {
+            "median": 2,
+            "min": 1,
+            "max": 2
+          },
+          "kernel/session.ts:#move": {
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "sortable/operation.ts:move": {
+            "median": 1,
+            "min": 1,
+            "max": 1
+          },
+          "shared/invalidation.ts:schedule": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          },
+          "lift.ts:translate": {
+            "median": 115,
+            "min": 106,
+            "max": 117
+          },
+          "kernel/gesture.ts:#applyRequests": {
+            "median": 2,
+            "min": 2,
+            "max": 3
+          },
+          "kernel/gesture.ts:requestStep": {
+            "median": 1,
+            "min": 1,
+            "max": 1
+          },
+          "kernel/session.ts:stepTarget": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          },
+          "sortable/operation.ts:updateInsertion": {
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "sortable/y.ts:resolve": {
+            "median": 21,
+            "min": 19,
+            "max": 22
+          },
+          "sortable/domain.ts:insertionAt": {
+            "median": 4,
+            "min": 4,
+            "max": 5
+          },
+          "sortable/rect-index.ts:get first": {
+            "median": 143,
+            "min": 137,
+            "max": 147
+          },
+          "sortable/rect-index.ts:at": {
+            "median": 22,
+            "min": 22,
+            "max": 23
+          },
+          "sortable/linear-shift.ts:refresh": {
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "sortable/rect-index.ts:#read": {
+            "median": 11,
+            "min": 11,
+            "max": 12
+          },
+          "sortable/rect-index.ts:measurePlaceholder": {
+            "median": 1,
+            "min": 1,
+            "max": 1
+          },
+          "sortable/y.ts:moved": {
+            "median": 2,
+            "min": 2,
+            "max": 2
+          },
+          "sortable/linear-shift.ts:moved": {
+            "median": 15,
+            "min": 11,
+            "max": 16
+          },
+          "sortable/layout-animation.ts:report": {
+            "median": 414,
+            "min": 411,
+            "max": 419
+          },
+          "../box-quad/src/index.ts:localDelta": {
+            "median": 14,
+            "min": 13,
+            "max": 15
+          },
+          "sortable/rect-index.ts:shift": {
+            "median": 11,
+            "min": 10,
+            "max": 16
+          },
+          "sortable/layout-animation.ts:(anonymous)": {
+            "median": 14,
+            "min": 13,
+            "max": 15
+          },
+          "mouseListener": {
+            "median": 126,
+            "min": 124,
+            "max": 127
+          },
+          "jsonValue": {
+            "median": 28,
+            "min": 27,
+            "max": 31
+          },
+          "serializeAsCallArgument": {
+            "median": 153,
+            "min": 144,
+            "max": 158
+          },
+          "innerSerialize": {
+            "median": 15,
+            "min": 15,
+            "max": 19
+          },
+          "sortable/rect-index.ts:insertion": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          }
+        },
+        "control": {
+          "(root)": {
+            "median": 2874,
+            "min": 2863,
+            "max": 2875
+          },
+          "(anonymous)": {
+            "median": 583,
+            "min": 581,
+            "max": 584
+          },
+          "evaluate": {
+            "median": 639,
+            "min": 630,
+            "max": 647
+          },
+          "parseEvaluationResultValue": {
+            "median": 184,
+            "min": 183,
+            "max": 186
+          },
+          "isThenable": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          },
+          "setupDragListeners": {
+            "median": 214,
+            "min": 210,
+            "max": 225
+          },
+          "window.__cleanupDrag": {
+            "median": 239,
+            "min": 222,
+            "max": 242
+          },
+          "kernel/session.ts:handleEvent": {
+            "median": 7,
+            "min": 7,
+            "max": 7
+          },
+          "kernel/gesture.ts:enter": {
+            "median": 2,
+            "min": 1,
+            "max": 2
+          },
+          "kernel/session.ts:#move": {
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "sortable/operation.ts:move": {
+            "median": 1,
+            "min": 1,
+            "max": 2
+          },
+          "shared/invalidation.ts:schedule": {
+            "median": 1,
+            "min": 0,
+            "max": 1
+          },
+          "lift.ts:translate": {
+            "median": 112,
+            "min": 103,
+            "max": 114
+          },
+          "kernel/gesture.ts:#applyRequests": {
+            "median": 3,
+            "min": 2,
+            "max": 3
+          },
+          "kernel/gesture.ts:requestStep": {
+            "median": 1,
+            "min": 1,
+            "max": 1
+          },
+          "sortable/operation.ts:updateInsertion": {
+            "median": 4,
+            "min": 3,
+            "max": 5
+          },
+          "sortable/y.ts:resolve": {
+            "median": 22,
+            "min": 22,
+            "max": 25
+          },
+          "sortable/domain.ts:insertionAt": {
+            "median": 4,
+            "min": 4,
+            "max": 5
+          },
+          "sortable/rect-index.ts:get first": {
+            "median": 141,
+            "min": 139,
+            "max": 142
+          },
+          "sortable/rect-index.ts:at": {
+            "median": 24,
+            "min": 19,
+            "max": 25
+          },
+          "sortable/rect-index.ts:insertion": {
+            "median": 1,
+            "min": 1,
+            "max": 1
+          },
+          "sortable/linear-shift.ts:refresh": {
+            "median": 3,
+            "min": 2,
+            "max": 4
+          },
+          "sortable/rect-index.ts:#read": {
+            "median": 12,
+            "min": 11,
+            "max": 12
+          },
+          "sortable/y.ts:moved": {
+            "median": 2,
+            "min": 2,
+            "max": 3
+          },
+          "sortable/linear-shift.ts:moved": {
+            "median": 13,
+            "min": 13,
+            "max": 16
+          },
+          "sortable/layout-animation.ts:report": {
+            "median": 411,
+            "min": 406,
+            "max": 413
+          },
+          "../box-quad/src/index.ts:localDelta": {
+            "median": 13,
+            "min": 12,
+            "max": 15
+          },
+          "sortable/rect-index.ts:shift": {
+            "median": 12,
+            "min": 9,
+            "max": 13
+          },
+          "sortable/layout-animation.ts:(anonymous)": {
+            "median": 13,
+            "min": 13,
+            "max": 14
+          },
+          "mouseListener": {
+            "median": 131,
+            "min": 125,
+            "max": 137
+          },
+          "jsonValue": {
+            "median": 26,
+            "min": 26,
+            "max": 35
+          },
+          "serializeAsCallArgument": {
+            "median": 153,
+            "min": 149,
+            "max": 157
+          },
+          "innerSerialize": {
+            "median": 17,
+            "min": 17,
+            "max": 17
+          }
+        }
+      },
+      "verdicts": []
     }
-   },
-   "verdicts": []
+  ],
+  "raw": {
+    "bytes per move by function, 20 items": {
+      "before": [
+        {
+          "(root)": 2862,
+          "(anonymous)": 588,
+          "evaluate": 629,
+          "parseEvaluationResultValue": 184,
+          "setupDragListeners": 219,
+          "window.__cleanupDrag": 231,
+          "kernel/session.ts:handleEvent": 7,
+          "kernel/gesture.ts:enter": 1,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 1,
+          "shared/invalidation.ts:schedule": 1,
+          "lift.ts:translate": 110,
+          "kernel/gesture.ts:#applyRequests": 3,
+          "kernel/gesture.ts:requestStep": 1,
+          "kernel/session.ts:stepTarget": 1,
+          "sortable/operation.ts:updateInsertion": 4,
+          "sortable/y.ts:resolve": 22,
+          "sortable/domain.ts:insertionAt": 5,
+          "sortable/rect-index.ts:at": 24,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:#read": 10,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 15,
+          "sortable/layout-animation.ts:report": 416,
+          "../box-quad/src/index.ts:localDelta": 15,
+          "sortable/rect-index.ts:shift": 12,
+          "sortable/layout-animation.ts:(anonymous)": 14,
+          "mouseListener": 127,
+          "jsonValue": 30,
+          "serializeAsCallArgument": 158,
+          "innerSerialize": 20
+        },
+        {
+          "(root)": 2739,
+          "(anonymous)": 573,
+          "evaluate": 632,
+          "parseEvaluationResultValue": 187,
+          "setupDragListeners": 210,
+          "window.__cleanupDrag": 237,
+          "kernel/session.ts:handleEvent": 8,
+          "kernel/gesture.ts:enter": 2,
+          "kernel/session.ts:#move": 2,
+          "sortable/operation.ts:move": 2,
+          "shared/invalidation.ts:schedule": 1,
+          "lift.ts:translate": 107,
+          "kernel/gesture.ts:#applyRequests": 1,
+          "kernel/session.ts:requestStep": 1,
+          "kernel/gesture.ts:requestStep": 1,
+          "sortable/operation.ts:updateInsertion": 4,
+          "sortable/y.ts:resolve": 23,
+          "sortable/domain.ts:insertionAt": 6,
+          "sortable/rect-index.ts:at": 16,
+          "sortable/rect-index.ts:insertion": 2,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:#read": 11,
+          "sortable/layout-animation.ts:displaced": 1,
+          "sortable/y.ts:moved": 1,
+          "sortable/linear-shift.ts:moved": 14,
+          "sortable/layout-animation.ts:report": 408,
+          "../box-quad/src/index.ts:localDelta": 18,
+          "sortable/rect-index.ts:shift": 11,
+          "sortable/layout-animation.ts:(anonymous)": 15,
+          "mouseListener": 132,
+          "jsonValue": 30,
+          "serializeAsCallArgument": 148,
+          "innerSerialize": 19
+        },
+        {
+          "(root)": 2879,
+          "(anonymous)": 581,
+          "evaluate": 644,
+          "parseEvaluationResultValue": 182,
+          "setupDragListeners": 210,
+          "window.__cleanupDrag": 235,
+          "kernel/session.ts:handleEvent": 8,
+          "kernel/gesture.ts:enter": 2,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 2,
+          "lift.ts:translate": 102,
+          "kernel/gesture.ts:#applyRequests": 3,
+          "sortable/operation.ts:updateInsertion": 3,
+          "sortable/y.ts:resolve": 23,
+          "sortable/domain.ts:insertionAt": 5,
+          "sortable/rect-index.ts:at": 20,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:measure": 1,
+          "sortable/rect-index.ts:#read": 10,
+          "sortable/layout-animation.ts:displaced": 1,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 14,
+          "sortable/layout-animation.ts:report": 418,
+          "../box-quad/src/index.ts:localDelta": 14,
+          "sortable/rect-index.ts:shift": 13,
+          "sortable/layout-animation.ts:(anonymous)": 15,
+          "mouseListener": 127,
+          "jsonValue": 27,
+          "serializeAsCallArgument": 152,
+          "innerSerialize": 15
+        }
+      ],
+      "production": [
+        {
+          "(root)": 2757,
+          "(anonymous)": 583,
+          "evaluate": 648,
+          "parseEvaluationResultValue": 178,
+          "setupDragListeners": 219,
+          "window.__cleanupDrag": 234,
+          "kernel/session.ts:handleEvent": 8,
+          "kernel/gesture.ts:enter": 1,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 1,
+          "shared/invalidation.ts:schedule": 1,
+          "lift.ts:translate": 115,
+          "kernel/gesture.ts:#applyRequests": 2,
+          "kernel/gesture.ts:requestStep": 1,
+          "kernel/session.ts:stepTarget": 1,
+          "sortable/operation.ts:updateInsertion": 3,
+          "sortable/y.ts:resolve": 19,
+          "sortable/domain.ts:insertionAt": 4,
+          "sortable/rect-index.ts:get first": 147,
+          "sortable/rect-index.ts:at": 22,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:#read": 11,
+          "sortable/rect-index.ts:measurePlaceholder": 1,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 15,
+          "sortable/layout-animation.ts:report": 414,
+          "../box-quad/src/index.ts:localDelta": 14,
+          "sortable/rect-index.ts:shift": 10,
+          "sortable/placement.ts:movePlaceholder": 1,
+          "sortable/layout-animation.ts:(anonymous)": 13,
+          "mouseListener": 127,
+          "jsonValue": 31,
+          "serializeAsCallArgument": 153,
+          "innerSerialize": 15
+        },
+        {
+          "(root)": 2759,
+          "(anonymous)": 588,
+          "evaluate": 642,
+          "parseEvaluationResultValue": 195,
+          "setupDragListeners": 216,
+          "window.__cleanupDrag": 240,
+          "kernel/session.ts:handleEvent": 8,
+          "kernel/gesture.ts:enter": 2,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 1,
+          "lift.ts:translate": 117,
+          "kernel/gesture.ts:#applyRequests": 3,
+          "kernel/session.ts:advance": 1,
+          "shared/invalidation.ts:FrameTask.#fire": 1,
+          "kernel/gesture.ts:requestStep": 1,
+          "sortable/operation.ts:updateInsertion": 3,
+          "sortable/y.ts:resolve": 21,
+          "sortable/domain.ts:insertionAt": 5,
+          "sortable/rect-index.ts:get first": 143,
+          "sortable/rect-index.ts:at": 22,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:#read": 12,
+          "sortable/layout-animation.ts:displaced": 1,
+          "sortable/rect-index.ts:measurePlaceholder": 1,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 11,
+          "sortable/layout-animation.ts:report": 411,
+          "../box-quad/src/index.ts:localDelta": 15,
+          "sortable/rect-index.ts:shift": 11,
+          "sortable/layout-animation.ts:(anonymous)": 15,
+          "mouseListener": 126,
+          "jsonValue": 27,
+          "serializeAsCallArgument": 158,
+          "innerSerialize": 15
+        },
+        {
+          "(root)": 2864,
+          "(anonymous)": 590,
+          "evaluate": 642,
+          "parseEvaluationResultValue": 191,
+          "setupDragListeners": 213,
+          "window.__cleanupDrag": 234,
+          "kernel/session.ts:handleEvent": 7,
+          "kernel/gesture.ts:enter": 2,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 1,
+          "shared/invalidation.ts:schedule": 1,
+          "lift.ts:translate": 106,
+          "kernel/gesture.ts:#applyRequests": 2,
+          "kernel/gesture.ts:requestStep": 1,
+          "kernel/session.ts:stepTarget": 1,
+          "sortable/operation.ts:updateInsertion": 3,
+          "sortable/y.ts:resolve": 22,
+          "sortable/domain.ts:insertionAt": 4,
+          "sortable/rect-index.ts:get first": 137,
+          "sortable/rect-index.ts:at": 23,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:measure": 1,
+          "sortable/rect-index.ts:#read": 11,
+          "sortable/rect-index.ts:measurePlaceholder": 1,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 16,
+          "sortable/layout-animation.ts:report": 419,
+          "../box-quad/src/index.ts:localDelta": 13,
+          "sortable/rect-index.ts:shift": 16,
+          "sortable/layout-animation.ts:(anonymous)": 14,
+          "mouseListener": 124,
+          "jsonValue": 28,
+          "serializeAsCallArgument": 144,
+          "innerSerialize": 19
+        }
+      ],
+      "control": [
+        {
+          "(root)": 2863,
+          "(anonymous)": 581,
+          "evaluate": 647,
+          "parseEvaluationResultValue": 183,
+          "isThenable": 1,
+          "setupDragListeners": 225,
+          "window.__cleanupDrag": 239,
+          "kernel/session.ts:handleEvent": 7,
+          "kernel/gesture.ts:enter": 1,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 2,
+          "shared/invalidation.ts:schedule": 1,
+          "lift.ts:translate": 114,
+          "kernel/gesture.ts:#applyRequests": 2,
+          "kernel/session.ts:requestStep": 1,
+          "kernel/gesture.ts:requestStep": 1,
+          "sortable/operation.ts:updateInsertion": 3,
+          "sortable/y.ts:resolve": 25,
+          "sortable/domain.ts:insertionAt": 5,
+          "sortable/rect-index.ts:get first": 141,
+          "sortable/rect-index.ts:at": 19,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 4,
+          "sortable/rect-index.ts:#read": 12,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 13,
+          "sortable/layout-animation.ts:report": 411,
+          "../box-quad/src/index.ts:localDelta": 15,
+          "sortable/rect-index.ts:shift": 12,
+          "sortable/placement.ts:movePlaceholder": 1,
+          "sortable/layout-animation.ts:(anonymous)": 14,
+          "mouseListener": 131,
+          "jsonValue": 26,
+          "serializeAsCallArgument": 157,
+          "innerSerialize": 17
+        },
+        {
+          "(root)": 2875,
+          "(anonymous)": 583,
+          "evaluate": 630,
+          "parseEvaluationResultValue": 186,
+          "setupDragListeners": 210,
+          "window.__cleanupDrag": 242,
+          "kernel/session.ts:handleEvent": 7,
+          "kernel/gesture.ts:enter": 2,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 1,
+          "lift.ts:translate": 112,
+          "kernel/gesture.ts:#applyRequests": 3,
+          "kernel/gesture.ts:requestStep": 1,
+          "kernel/session.ts:stepTarget": 1,
+          "sortable/operation.ts:updateInsertion": 4,
+          "sortable/y.ts:resolve": 22,
+          "sortable/domain.ts:insertionAt": 4,
+          "sortable/rect-index.ts:get first": 142,
+          "sortable/rect-index.ts:at": 25,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 3,
+          "sortable/rect-index.ts:#read": 11,
+          "sortable/y.ts:moved": 3,
+          "sortable/linear-shift.ts:moved": 16,
+          "sortable/layout-animation.ts:report": 406,
+          "../box-quad/src/index.ts:localDelta": 13,
+          "sortable/rect-index.ts:shift": 13,
+          "sortable/placement.ts:placeholderAt": 1,
+          "sortable/layout-animation.ts:(anonymous)": 13,
+          "mouseListener": 137,
+          "jsonValue": 26,
+          "serializeAsCallArgument": 149,
+          "innerSerialize": 17
+        },
+        {
+          "(root)": 2874,
+          "(anonymous)": 584,
+          "evaluate": 639,
+          "parseEvaluationResultValue": 184,
+          "_jsonValueNoThrow": 1,
+          "isThenable": 1,
+          "setupDragListeners": 214,
+          "window.__cleanupDrag": 222,
+          "kernel/session.ts:handleEvent": 7,
+          "kernel/gesture.ts:enter": 2,
+          "kernel/session.ts:#move": 3,
+          "sortable/operation.ts:move": 1,
+          "shared/invalidation.ts:schedule": 1,
+          "lift.ts:translate": 103,
+          "kernel/gesture.ts:#applyRequests": 3,
+          "kernel/gesture.ts:requestStep": 1,
+          "sortable/operation.ts:updateInsertion": 5,
+          "sortable/y.ts:resolve": 22,
+          "sortable/domain.ts:insertionAt": 4,
+          "sortable/rect-index.ts:get first": 139,
+          "sortable/rect-index.ts:at": 24,
+          "sortable/rect-index.ts:insertion": 1,
+          "sortable/linear-shift.ts:refresh": 2,
+          "sortable/rect-index.ts:measure": 1,
+          "sortable/rect-index.ts:#read": 12,
+          "sortable/layout-animation.ts:displaced": 1,
+          "sortable/y.ts:moved": 2,
+          "sortable/linear-shift.ts:moved": 13,
+          "sortable/layout-animation.ts:report": 413,
+          "../box-quad/src/index.ts:localDelta": 12,
+          "sortable/rect-index.ts:item": 1,
+          "sortable/rect-index.ts:shift": 9,
+          "sortable/layout-animation.ts:(anonymous)": 13,
+          "listener": 1,
+          "mouseListener": 125,
+          "jsonValue": 35,
+          "serializeAsCallArgument": 153,
+          "innerSerialize": 17
+        }
+      ]
+    }
   }
- ],
- "raw": {
-  "bytes per move by function, 20 items": {
-   "before": [
-    {
-     "(root)": 2862,
-     "(anonymous)": 588,
-     "evaluate": 629,
-     "parseEvaluationResultValue": 184,
-     "setupDragListeners": 219,
-     "window.__cleanupDrag": 231,
-     "kernel/session.ts:handleEvent": 7,
-     "kernel/gesture.ts:enter": 1,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 1,
-     "shared/invalidation.ts:schedule": 1,
-     "lift.ts:translate": 110,
-     "kernel/gesture.ts:#applyRequests": 3,
-     "kernel/gesture.ts:requestStep": 1,
-     "kernel/session.ts:stepTarget": 1,
-     "sortable/operation.ts:updateInsertion": 4,
-     "sortable/y.ts:resolve": 22,
-     "sortable/domain.ts:insertionAt": 5,
-     "sortable/rect-index.ts:at": 24,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:#read": 10,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 15,
-     "sortable/layout-animation.ts:report": 416,
-     "../box-quad/src/index.ts:localDelta": 15,
-     "sortable/rect-index.ts:shift": 12,
-     "sortable/layout-animation.ts:(anonymous)": 14,
-     "mouseListener": 127,
-     "jsonValue": 30,
-     "serializeAsCallArgument": 158,
-     "innerSerialize": 20
-    },
-    {
-     "(root)": 2739,
-     "(anonymous)": 573,
-     "evaluate": 632,
-     "parseEvaluationResultValue": 187,
-     "setupDragListeners": 210,
-     "window.__cleanupDrag": 237,
-     "kernel/session.ts:handleEvent": 8,
-     "kernel/gesture.ts:enter": 2,
-     "kernel/session.ts:#move": 2,
-     "sortable/operation.ts:move": 2,
-     "shared/invalidation.ts:schedule": 1,
-     "lift.ts:translate": 107,
-     "kernel/gesture.ts:#applyRequests": 1,
-     "kernel/session.ts:requestStep": 1,
-     "kernel/gesture.ts:requestStep": 1,
-     "sortable/operation.ts:updateInsertion": 4,
-     "sortable/y.ts:resolve": 23,
-     "sortable/domain.ts:insertionAt": 6,
-     "sortable/rect-index.ts:at": 16,
-     "sortable/rect-index.ts:insertion": 2,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:#read": 11,
-     "sortable/layout-animation.ts:displaced": 1,
-     "sortable/y.ts:moved": 1,
-     "sortable/linear-shift.ts:moved": 14,
-     "sortable/layout-animation.ts:report": 408,
-     "../box-quad/src/index.ts:localDelta": 18,
-     "sortable/rect-index.ts:shift": 11,
-     "sortable/layout-animation.ts:(anonymous)": 15,
-     "mouseListener": 132,
-     "jsonValue": 30,
-     "serializeAsCallArgument": 148,
-     "innerSerialize": 19
-    },
-    {
-     "(root)": 2879,
-     "(anonymous)": 581,
-     "evaluate": 644,
-     "parseEvaluationResultValue": 182,
-     "setupDragListeners": 210,
-     "window.__cleanupDrag": 235,
-     "kernel/session.ts:handleEvent": 8,
-     "kernel/gesture.ts:enter": 2,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 2,
-     "lift.ts:translate": 102,
-     "kernel/gesture.ts:#applyRequests": 3,
-     "sortable/operation.ts:updateInsertion": 3,
-     "sortable/y.ts:resolve": 23,
-     "sortable/domain.ts:insertionAt": 5,
-     "sortable/rect-index.ts:at": 20,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:measure": 1,
-     "sortable/rect-index.ts:#read": 10,
-     "sortable/layout-animation.ts:displaced": 1,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 14,
-     "sortable/layout-animation.ts:report": 418,
-     "../box-quad/src/index.ts:localDelta": 14,
-     "sortable/rect-index.ts:shift": 13,
-     "sortable/layout-animation.ts:(anonymous)": 15,
-     "mouseListener": 127,
-     "jsonValue": 27,
-     "serializeAsCallArgument": 152,
-     "innerSerialize": 15
-    }
-   ],
-   "production": [
-    {
-     "(root)": 2757,
-     "(anonymous)": 583,
-     "evaluate": 648,
-     "parseEvaluationResultValue": 178,
-     "setupDragListeners": 219,
-     "window.__cleanupDrag": 234,
-     "kernel/session.ts:handleEvent": 8,
-     "kernel/gesture.ts:enter": 1,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 1,
-     "shared/invalidation.ts:schedule": 1,
-     "lift.ts:translate": 115,
-     "kernel/gesture.ts:#applyRequests": 2,
-     "kernel/gesture.ts:requestStep": 1,
-     "kernel/session.ts:stepTarget": 1,
-     "sortable/operation.ts:updateInsertion": 3,
-     "sortable/y.ts:resolve": 19,
-     "sortable/domain.ts:insertionAt": 4,
-     "sortable/rect-index.ts:get first": 147,
-     "sortable/rect-index.ts:at": 22,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:#read": 11,
-     "sortable/rect-index.ts:measurePlaceholder": 1,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 15,
-     "sortable/layout-animation.ts:report": 414,
-     "../box-quad/src/index.ts:localDelta": 14,
-     "sortable/rect-index.ts:shift": 10,
-     "sortable/placement.ts:movePlaceholder": 1,
-     "sortable/layout-animation.ts:(anonymous)": 13,
-     "mouseListener": 127,
-     "jsonValue": 31,
-     "serializeAsCallArgument": 153,
-     "innerSerialize": 15
-    },
-    {
-     "(root)": 2759,
-     "(anonymous)": 588,
-     "evaluate": 642,
-     "parseEvaluationResultValue": 195,
-     "setupDragListeners": 216,
-     "window.__cleanupDrag": 240,
-     "kernel/session.ts:handleEvent": 8,
-     "kernel/gesture.ts:enter": 2,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 1,
-     "lift.ts:translate": 117,
-     "kernel/gesture.ts:#applyRequests": 3,
-     "kernel/session.ts:advance": 1,
-     "shared/invalidation.ts:FrameTask.#fire": 1,
-     "kernel/gesture.ts:requestStep": 1,
-     "sortable/operation.ts:updateInsertion": 3,
-     "sortable/y.ts:resolve": 21,
-     "sortable/domain.ts:insertionAt": 5,
-     "sortable/rect-index.ts:get first": 143,
-     "sortable/rect-index.ts:at": 22,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:#read": 12,
-     "sortable/layout-animation.ts:displaced": 1,
-     "sortable/rect-index.ts:measurePlaceholder": 1,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 11,
-     "sortable/layout-animation.ts:report": 411,
-     "../box-quad/src/index.ts:localDelta": 15,
-     "sortable/rect-index.ts:shift": 11,
-     "sortable/layout-animation.ts:(anonymous)": 15,
-     "mouseListener": 126,
-     "jsonValue": 27,
-     "serializeAsCallArgument": 158,
-     "innerSerialize": 15
-    },
-    {
-     "(root)": 2864,
-     "(anonymous)": 590,
-     "evaluate": 642,
-     "parseEvaluationResultValue": 191,
-     "setupDragListeners": 213,
-     "window.__cleanupDrag": 234,
-     "kernel/session.ts:handleEvent": 7,
-     "kernel/gesture.ts:enter": 2,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 1,
-     "shared/invalidation.ts:schedule": 1,
-     "lift.ts:translate": 106,
-     "kernel/gesture.ts:#applyRequests": 2,
-     "kernel/gesture.ts:requestStep": 1,
-     "kernel/session.ts:stepTarget": 1,
-     "sortable/operation.ts:updateInsertion": 3,
-     "sortable/y.ts:resolve": 22,
-     "sortable/domain.ts:insertionAt": 4,
-     "sortable/rect-index.ts:get first": 137,
-     "sortable/rect-index.ts:at": 23,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:measure": 1,
-     "sortable/rect-index.ts:#read": 11,
-     "sortable/rect-index.ts:measurePlaceholder": 1,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 16,
-     "sortable/layout-animation.ts:report": 419,
-     "../box-quad/src/index.ts:localDelta": 13,
-     "sortable/rect-index.ts:shift": 16,
-     "sortable/layout-animation.ts:(anonymous)": 14,
-     "mouseListener": 124,
-     "jsonValue": 28,
-     "serializeAsCallArgument": 144,
-     "innerSerialize": 19
-    }
-   ],
-   "control": [
-    {
-     "(root)": 2863,
-     "(anonymous)": 581,
-     "evaluate": 647,
-     "parseEvaluationResultValue": 183,
-     "isThenable": 1,
-     "setupDragListeners": 225,
-     "window.__cleanupDrag": 239,
-     "kernel/session.ts:handleEvent": 7,
-     "kernel/gesture.ts:enter": 1,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 2,
-     "shared/invalidation.ts:schedule": 1,
-     "lift.ts:translate": 114,
-     "kernel/gesture.ts:#applyRequests": 2,
-     "kernel/session.ts:requestStep": 1,
-     "kernel/gesture.ts:requestStep": 1,
-     "sortable/operation.ts:updateInsertion": 3,
-     "sortable/y.ts:resolve": 25,
-     "sortable/domain.ts:insertionAt": 5,
-     "sortable/rect-index.ts:get first": 141,
-     "sortable/rect-index.ts:at": 19,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 4,
-     "sortable/rect-index.ts:#read": 12,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 13,
-     "sortable/layout-animation.ts:report": 411,
-     "../box-quad/src/index.ts:localDelta": 15,
-     "sortable/rect-index.ts:shift": 12,
-     "sortable/placement.ts:movePlaceholder": 1,
-     "sortable/layout-animation.ts:(anonymous)": 14,
-     "mouseListener": 131,
-     "jsonValue": 26,
-     "serializeAsCallArgument": 157,
-     "innerSerialize": 17
-    },
-    {
-     "(root)": 2875,
-     "(anonymous)": 583,
-     "evaluate": 630,
-     "parseEvaluationResultValue": 186,
-     "setupDragListeners": 210,
-     "window.__cleanupDrag": 242,
-     "kernel/session.ts:handleEvent": 7,
-     "kernel/gesture.ts:enter": 2,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 1,
-     "lift.ts:translate": 112,
-     "kernel/gesture.ts:#applyRequests": 3,
-     "kernel/gesture.ts:requestStep": 1,
-     "kernel/session.ts:stepTarget": 1,
-     "sortable/operation.ts:updateInsertion": 4,
-     "sortable/y.ts:resolve": 22,
-     "sortable/domain.ts:insertionAt": 4,
-     "sortable/rect-index.ts:get first": 142,
-     "sortable/rect-index.ts:at": 25,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 3,
-     "sortable/rect-index.ts:#read": 11,
-     "sortable/y.ts:moved": 3,
-     "sortable/linear-shift.ts:moved": 16,
-     "sortable/layout-animation.ts:report": 406,
-     "../box-quad/src/index.ts:localDelta": 13,
-     "sortable/rect-index.ts:shift": 13,
-     "sortable/placement.ts:placeholderAt": 1,
-     "sortable/layout-animation.ts:(anonymous)": 13,
-     "mouseListener": 137,
-     "jsonValue": 26,
-     "serializeAsCallArgument": 149,
-     "innerSerialize": 17
-    },
-    {
-     "(root)": 2874,
-     "(anonymous)": 584,
-     "evaluate": 639,
-     "parseEvaluationResultValue": 184,
-     "_jsonValueNoThrow": 1,
-     "isThenable": 1,
-     "setupDragListeners": 214,
-     "window.__cleanupDrag": 222,
-     "kernel/session.ts:handleEvent": 7,
-     "kernel/gesture.ts:enter": 2,
-     "kernel/session.ts:#move": 3,
-     "sortable/operation.ts:move": 1,
-     "shared/invalidation.ts:schedule": 1,
-     "lift.ts:translate": 103,
-     "kernel/gesture.ts:#applyRequests": 3,
-     "kernel/gesture.ts:requestStep": 1,
-     "sortable/operation.ts:updateInsertion": 5,
-     "sortable/y.ts:resolve": 22,
-     "sortable/domain.ts:insertionAt": 4,
-     "sortable/rect-index.ts:get first": 139,
-     "sortable/rect-index.ts:at": 24,
-     "sortable/rect-index.ts:insertion": 1,
-     "sortable/linear-shift.ts:refresh": 2,
-     "sortable/rect-index.ts:measure": 1,
-     "sortable/rect-index.ts:#read": 12,
-     "sortable/layout-animation.ts:displaced": 1,
-     "sortable/y.ts:moved": 2,
-     "sortable/linear-shift.ts:moved": 13,
-     "sortable/layout-animation.ts:report": 413,
-     "../box-quad/src/index.ts:localDelta": 12,
-     "sortable/rect-index.ts:item": 1,
-     "sortable/rect-index.ts:shift": 9,
-     "sortable/layout-animation.ts:(anonymous)": 13,
-     "listener": 1,
-     "mouseListener": 125,
-     "jsonValue": 35,
-     "serializeAsCallArgument": 153,
-     "innerSerialize": 17
-    }
-   ]
-  }
- }
 }

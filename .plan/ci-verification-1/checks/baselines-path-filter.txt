@@ -1,0 +1,24 @@
+# The propose job's path filter (baselines.yml 'Accept only baseline paths'), run on two lists
+
+## Every committed baseline (19 paths): refused
+(none)
+
+## Paths that must be refused (8):
+packages/material-x/src/button/button.ts
+packages/material-x/tests/button/button.visual.browser.test.ts
+packages/material-x/tests/button/__screenshots__/notes.txt
+packages/material-x/tests/button/__screenshots__/x.png.sh
+.github/workflows/verify.yml
+packages/material-x/tests/../../../.github/__screenshots__/x.png
+packages/material-x/tests/__screenshots__/../../src/x.png
+other/material-x/tests/__screenshots__/x.png
+
+## Refused
+.github/workflows/verify.yml
+other/material-x/tests/__screenshots__/x.png
+packages/material-x/src/button/button.ts
+packages/material-x/tests/../../../.github/__screenshots__/x.png
+packages/material-x/tests/__screenshots__/../../src/x.png
+packages/material-x/tests/button/__screenshots__/notes.txt
+packages/material-x/tests/button/__screenshots__/x.png.sh
+packages/material-x/tests/button/button.visual.browser.test.ts

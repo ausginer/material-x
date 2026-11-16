@@ -1,0 +1,395 @@
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/material-x
+
+4:36:44 AM [vite] (client) warning: 
+/workspaces/material-x/packages/material-x/.vite/vitest/6699d8e242bf4707dc55a478b9bcea1f6bf65a1f/deps/vitest_n_vite_module-runner.js
+827 |  	}
+828 |  	runExternalModule(filepath) {
+829 |  		return import(filepath);
+    |                  ^^^^^^^^
+830 |  	}
+831 |  };
+The above dynamic import cannot be analyzed by Vite.
+See https://vite.dev/guide/features#dynamic-import for supported dynamic import formats. If this is intended to be left as-is, you can use the /* @vite-ignore */ comment inside the import() call to suppress this warning.
+
+  Plugin: vite:import-analysis
+  File: /workspaces/material-x/packages/material-x/.vite/vitest/6699d8e242bf4707dc55a478b9bcea1f6bf65a1f/deps/vitest_n_vite_module-runner.js?v=5ad0bb4e
+ ❯ |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts (4 tests | 4 failed) 1410ms
+   ❯ button-group visual regression (4)
+     × should match the standard size matrix 550ms
+     × should match the connected size matrix 411ms
+     × should match a connected group with a selected button 213ms
+     × should match a disabled standard group 218ms
+ ❯ |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts (7 tests | 7 failed) 1976ms
+   ❯ mx-button visual regression (7)
+     × should match the color variant matrix 529ms
+     × should match the size and shape matrix 304ms
+     × should match buttons composed with a leading icon 212ms
+     × should match the switch variant matrix 205ms
+     × should match enabled and disabled buttons 194ms
+     × should match the hovered elevated button 289ms
+     × should match the keyboard-focused button 223ms
+ ❯ |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts (4 tests | 1 failed) 555ms
+   ❯ radio visual regression (4)
+     × should match the selection state matrix 214ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:56 > mx-button visual regression > should match the color variant matrix
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 484×72px, but received 468×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-color-variants-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-color-variants-actual-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:66:8
+     64|     await expect
+     65|       .element(page.getByTestId('color-variants'))
+     66|       .toMatchScreenshot('button-color-variants.png');
+       |        ^
+     67|   });
+     68|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                        start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('color-variants')  +10ms     394ms  packages/material-x/tests/button/button.visual.browser.test.ts:65:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:69 > mx-button visual regression > should match the size and shape matrix
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+18396 pixels (ratio 0.05) differ.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-sizes-and-shapes-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-sizes-and-shapes-actual-chromium-linux.png
+
+Diff image:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-sizes-and-shapes-diff-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:83:8
+     81|     await expect
+     82|       .element(page.getByTestId('sizes-and-shapes'))
+     83|       .toMatchScreenshot('button-sizes-and-shapes.png');
+       |        ^
+     84|   });
+     85|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                          start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('sizes-and-shapes')   +6ms     284ms  packages/material-x/tests/button/button.visual.browser.test.ts:82:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:86 > mx-button visual regression > should match buttons composed with a leading icon
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 624×72px, but received 608×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-icon-composition-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-icon-composition-actual-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:96:8
+     94|     await expect
+     95|       .element(page.getByTestId('icon-composition'))
+     96|       .toMatchScreenshot('button-icon-composition.png');
+       |        ^
+     97|   });
+     98|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                          start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('icon-composition')   +2ms     200ms  packages/material-x/tests/button/button.visual.browser.test.ts:95:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:99 > mx-button visual regression > should match the switch variant matrix
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 765×72px, but received 744×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-switch-variants-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-switch-variants-actual-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:110:8
+    108|     await expect
+    109|       .element(page.getByTestId('switch-variants'))
+    110|       .toMatchScreenshot('button-switch-variants.png');
+       |        ^
+    111|   });
+    112|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                         start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('switch-variants')   +6ms     186ms  packages/material-x/tests/button/button.visual.browser.test.ts:109:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:113 > mx-button visual regression > should match enabled and disabled buttons
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 203×72px, but received 196×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-enabled-and-disabled-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-enabled-and-disabled-actual-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:121:8
+    119|     await expect
+    120|       .element(page.getByTestId('enabled-and-disabled'))
+    121|       .toMatchScreenshot('button-enabled-and-disabled.png');
+       |        ^
+    122|   });
+    123|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                              start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('enabled-and-disabled')   +3ms     174ms  packages/material-x/tests/button/button.visual.browser.test.ts:120:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:124 > mx-button visual regression > should match the hovered elevated button
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 110×72px, but received 106×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-hovered-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-hovered-actual-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:133:8
+    131|     await expect
+    132|       .element(page.getByTestId('hovered'))
+    133|       .toMatchScreenshot('button-hovered.png');
+       |        ^
+    134|   });
+    135|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                                 start  duration  location
+  hover                      getByText('Button', { exact: false })    +8ms      97ms  packages/material-x/tests/button/button.visual.browser.test.ts:129:21
+  toMatchScreenshot [ERROR]  getByTestId('hovered')                 +106ms     173ms  packages/material-x/tests/button/button.visual.browser.test.ts:132:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts:136 > mx-button visual regression > should match the keyboard-focused button
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 110×72px, but received 106×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button/__screenshots__/button.visual.browser.test.ts/button-focused-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button/button.visual.browser.test.ts/button-focused-actual-chromium-linux.png
+
+ ❯ tests/button/button.visual.browser.test.ts:145:8
+    143|     await expect
+    144|       .element(page.getByTestId('focused'))
+    145|       .toMatchScreenshot('button-focused.png');
+       |        ^
+    146|   });
+    147| });
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                 start  duration  location
+  tab                        -                        +2ms      23ms  packages/material-x/tests/button/button.visual.browser.test.ts:141:21
+  toMatchScreenshot [ERROR]  getByTestId('focused')  +26ms     186ms  packages/material-x/tests/button/button.visual.browser.test.ts:144:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts:61 > button-group visual regression > should match the standard size matrix
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+14781 pixels (ratio 0.05) differ.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button-group/__screenshots__/button-group.visual.browser.test.ts/button-group-standard-sizes-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button-group/button-group.visual.browser.test.ts/button-group-standard-sizes-actual-chromium-linux.png
+
+Diff image:
+  /workspaces/material-x/.vitest/attachments/tests/button-group/button-group.visual.browser.test.ts/button-group-standard-sizes-diff-chromium-linux.png
+
+ ❯ tests/button-group/button-group.visual.browser.test.ts:72:8
+     70|     await expect
+     71|       .element(page.getByTestId('standard-sizes'))
+     72|       .toMatchScreenshot('button-group-standard-sizes.png');
+       |        ^
+     73|   });
+     74|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                        start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('standard-sizes')  +28ms     459ms  packages/material-x/tests/button-group/button-group.visual.browser.test.ts:71:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts:75 > button-group visual regression > should match the connected size matrix
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+2854 pixels (ratio 0.01) differ.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button-group/__screenshots__/button-group.visual.browser.test.ts/button-group-connected-sizes-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button-group/button-group.visual.browser.test.ts/button-group-connected-sizes-actual-chromium-linux.png
+
+Diff image:
+  /workspaces/material-x/.vitest/attachments/tests/button-group/button-group.visual.browser.test.ts/button-group-connected-sizes-diff-chromium-linux.png
+
+ ❯ tests/button-group/button-group.visual.browser.test.ts:86:8
+     84|     await expect
+     85|       .element(page.getByTestId('connected-sizes'))
+     86|       .toMatchScreenshot('button-group-connected-sizes.png');
+       |        ^
+     87|   });
+     88|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                         start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('connected-sizes')  +17ms     381ms  packages/material-x/tests/button-group/button-group.visual.browser.test.ts:85:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts:89 > button-group visual regression > should match a connected group with a selected button
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 225×72px, but received 221×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button-group/__screenshots__/button-group.visual.browser.test.ts/button-group-connected-selected-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button-group/button-group.visual.browser.test.ts/button-group-connected-selected-actual-chromium-linux.png
+
+ ❯ tests/button-group/button-group.visual.browser.test.ts:97:8
+     95|     await expect
+     96|       .element(page.getByTestId('connected-selected'))
+     97|       .toMatchScreenshot('button-group-connected-selected.png');
+       |        ^
+     98|   });
+     99|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                            start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('connected-selected')   +4ms     196ms  packages/material-x/tests/button-group/button-group.visual.browser.test.ts:96:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts:100 > button-group visual regression > should match a disabled standard group
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+Expected image dimensions to be 245×72px, but received 241×72px.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/button-group/__screenshots__/button-group.visual.browser.test.ts/button-group-standard-disabled-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/button-group/button-group.visual.browser.test.ts/button-group-standard-disabled-actual-chromium-linux.png
+
+ ❯ tests/button-group/button-group.visual.browser.test.ts:108:8
+    106|     await expect
+    107|       .element(page.getByTestId('standard-disabled'))
+    108|       .toMatchScreenshot('button-group-standard-disabled.png');
+       |        ^
+    109|   });
+    110| });
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                           start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('standard-disabled')   +5ms     199ms  packages/material-x/tests/button-group/button-group.visual.browser.test.ts:107:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the selection state matrix
+Error: expect(element).toMatchScreenshot()
+
+Screenshot does not match the stored reference.
+29 pixels (ratio 0.01) differ.
+
+Reference screenshot:
+  /workspaces/material-x/packages/material-x/tests/radio/__screenshots__/radio.visual.browser.test.ts/radio-states-chromium-linux.png
+
+Actual screenshot:
+  /workspaces/material-x/.vitest/attachments/tests/radio/radio.visual.browser.test.ts/radio-states-actual-chromium-linux.png
+
+Diff image:
+  /workspaces/material-x/.vitest/attachments/tests/radio/radio.visual.browser.test.ts/radio-states-diff-chromium-linux.png
+
+ ❯ tests/radio/radio.visual.browser.test.ts:53:8
+     51|     await expect
+     52|       .element(page.getByTestId('radio-states'))
+     53|       .toMatchScreenshot('radio-states.png');
+       |        ^
+     54|   });
+     55|
+
+Caused by: Error: Matcher did not succeed in time.
+
+Trace:
+  step                       locator                      start  duration  location
+  toMatchScreenshot [ERROR]  getByTestId('radio-states')  +11ms     195ms  packages/material-x/tests/radio/radio.visual.browser.test.ts:52:8
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  3 failed | 1 passed (4)
+      Tests  12 failed | 7 passed (19)
+   Start at  04:36:43
+   Duration  5.17s (tests 53%, import 27%, worker 16%, setup 3%)
+

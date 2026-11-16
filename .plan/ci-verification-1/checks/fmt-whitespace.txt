@@ -1,0 +1,85 @@
+# Item 5 formatting checks, against e45f5665f
+
+## Files that fmt-check reported, and that 'just fmt' then rewrote
+packages/material-x/src/button-group/styles/standard/main.styles.css
+packages/material-x/src/button/styles/default/main.styles.css
+packages/material-x/src/fab/styles/default/main.styles.css
+packages/material-x/src/text-field/styles/default/main.styles.css
+packages/material-x/src/text-field/styles/outlined/main.styles.css
+
+## git diff -w --ignore-blank-lines: changed lines other than whitespace
+0
+(the CSS files reflow lines, so -w still lists them; the check below compares them with all whitespace removed)
+
+## JSON files parsed before and after, and other files compared with all whitespace removed
+same data packages/box-quad/.plan/probes/coordinates-walk/allocation.json
+same data packages/box-quad/.plan/probes/fallback-storage/timing.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-b1.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-b2.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-b3.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-floors.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-keys-before.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-keys-discarded.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-keys.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-n3-prove.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-profile-press-2000-children.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-prove.json
+same data packages/drag/.plan/measurements/2026-11-10-performance-q1-mutation.json
+same data packages/drag/.plan/measurements/2026-11-11-resolution-attribute-scale.json
+same data packages/drag/.plan/measurements/2026-11-11-resolution-attribute.json
+same data packages/drag/.plan/measurements/2026-11-11-resolution-f1.json
+same data packages/drag/.plan/measurements/2026-11-11-resolution-f2.json
+same data packages/drag/.plan/measurements/2026-11-11-resolution-inpage-precheck-discarded.json
+same data packages/drag/.plan/measurements/2026-11-11-resolution-prove.json
+same data packages/drag/.plan/measurements/2026-11-11-sensitivity-E1.json
+same data packages/drag/.plan/measurements/2026-11-11-sensitivity-E2.json
+same data packages/drag/.plan/measurements/2026-11-11-sensitivity-U1.json
+same data packages/drag/.plan/measurements/2026-11-11-sensitivity-U2.json
+same data packages/drag/.plan/measurements/2026-11-12-animation-end-probe.json
+same data packages/drag/.plan/measurements/2026-11-12-consumer-base-suite.json
+same data packages/drag/.plan/measurements/2026-11-12-consumer-final-suite.json
+same data packages/drag/.plan/measurements/2026-11-12-consumer-w3-discarded.json
+same data packages/drag/.plan/measurements/2026-11-12-consumer-w3.json
+same data packages/drag/.plan/measurements/2026-11-12-drop-cycles.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/ownership-without-installers.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/ownership.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/published-without-installers.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/published.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/suite-control.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/suite-tier1-with-zindex.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/suite-tier1.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/tier1-names.json
+same data packages/drag/.plan/measurements/2026-11-12-property-mangling-json/tier2-names.json
+same data packages/drag/.plan/measurements/2026-11-12-size-unit-cycles.json
+same data packages/drag/.plan/measurements/2026-11-12-size-unit-moves.json
+same data packages/drag/.plan/measurements/2026-11-12-window-correction-probe-attempt-1.json
+same data packages/drag/.plan/measurements/2026-11-12-window-correction-probe.json
+same data packages/drag/.plan/measurements/2026-11-12-window-cycles.json
+same data packages/drag/.plan/measurements/2026-11-12-window-moves.json
+same data packages/drag/.plan/measurements/2026-11-13-gate-base-suite.json
+same data packages/drag/.plan/measurements/2026-11-13-gate-final-suite.json
+same data packages/drag/.plan/measurements/2026-11-13-mangle-a-suite.json
+same data packages/drag/.plan/measurements/2026-11-13-mangle-base-suite.json
+same data packages/drag/.plan/measurements/2026-11-13-mangle-end-suite.json
+same data packages/drag/.plan/measurements/2026-11-13-rect-index-access-unit-timing.json
+same data packages/drag/.plan/measurements/2026-11-13-selection-base-suite.json
+same data packages/drag/.plan/measurements/2026-11-13-selection-end-suite.json
+same data packages/drag/.plan/measurements/traces/2026-11-11/discarded-trial/record.json
+same data packages/drag/.plan/measurements/traces/2026-11-11/probe-no-stack-no-profiler/record.json
+same data packages/drag/.plan/measurements/traces/2026-11-11/probe-no-stack/record.json
+same data packages/drag/.plan/measurements/traces/2026-11-11/record.json
+DATA CHANGED packages/drag/.plan/probes/size-acceptance-cleanup/placement.ts
+same data packages/drag/.plan/probes/size-acceptance-cleanup/prove.json
+same data packages/drag/.plan/probes/size-acceptance-cleanup/rect-index-allocation.json
+same data packages/material-x/src/button-group/styles/standard/main.styles.css
+same data packages/material-x/src/button/styles/default/main.styles.css
+same data packages/material-x/src/fab/styles/default/main.styles.css
+same data packages/material-x/src/text-field/styles/default/main.styles.css
+same data packages/material-x/src/text-field/styles/outlined/main.styles.css
+
+## material-x's build before and after formatting its five CSS files: diff -rq of button, button-group, checkbox, core, fab, icon, list, radio and text-field
+(no output: identical)
+
+## placement.ts, the one file not equal with whitespace removed
+With whitespace removed and every comma before a closing ), ] or } removed, the two versions are equal.
+oxfmt added trailing commas to multi-line argument lists. A trailing comma has no runtime meaning, so the program is the one that ran; no string or template text changed.

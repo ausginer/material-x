@@ -1,0 +1,6 @@
+# RD-10 near-miss check, at e5d7260aa plus the allow list in eslint.config.ts
+
+Scratch edit, reverted: .claude/plugins/harness-effort-guard/scripts/guard.ts:272 'session_id:' -> 'session_idx:'
+
+  272:5  error  Identifier 'session_idx' is not in camel case  camelcase
+✖ 1 problem (1 error, 0 warnings)

@@ -1,10 +1,11 @@
 /** `drag:DRI-18`: what importing an entry brings, and the size ceilings. */
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
+  ceilingViolations,
   COMPOSITIONS,
+  graphViolations,
   measure,
   type Measurement,
-  violations,
 } from '../bench/size/measure.ts';
 
 describe('drag:DRI-18 module graphs and size', () => {
@@ -18,10 +19,17 @@ describe('drag:DRI-18 module graphs and size', () => {
     );
   });
 
-  it.each(COMPOSITIONS.map((composition) => composition.name))(
-    'should satisfy the declared graph and ceiling of %s',
+  const names = COMPOSITIONS.map((composition) => composition.name);
+
+  it.each(names)('should satisfy the declared graph of %s', (name) => {
+    expect(graphViolations(measured.get(name)!)).toEqual([]);
+  });
+
+  it.each(names)(
+    'should satisfy the ceiling and control of %s',
+    { tags: ['measurement'] },
     (name) => {
-      expect(violations(measured.get(name)!)).toEqual([]);
+      expect(ceilingViolations(measured.get(name)!)).toEqual([]);
     },
   );
 

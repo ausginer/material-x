@@ -1,0 +1,20 @@
+# Roboto load failure, two mutations of the working tree at 51fa04c9d, each reverted
+
+## A. node_modules/@fontsource/roboto/files moved away (the package's faces gone)
+ FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts [ packages/material-x/tests/button/button.visual.browser.test.ts ]
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts [ packages/material-x/tests/radio/radio.visual.browser.test.ts ]
+ FAIL  |visual/material-x (chromium)| tests/checkbox/checkbox.visual.browser.test.ts [ packages/material-x/tests/checkbox/checkbox.visual.browser.test.ts ]
+ FAIL  |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts [ packages/material-x/tests/button-group/button-group.visual.browser.test.ts ]
+Error: Failed to import test file /workspaces/material-x/packages/material-x/tests/support/browser-setup.ts
+Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:23322/workspaces/material-x/packages/material-x/tests/support/browser-setup.ts?import&browserv=1794803923820
+ Test Files  4 failed (4)
+      Tests  no tests
+
+## B. each face's URL in browser-setup.ts given a .missing suffix (the face fails to load)
+      1       Tests  19 skipped (19)
+      1  FAIL  |visual/material-x (chromium)| tests/button-group/button-group.visual.browser.test.ts [ packages/material-x/tests/button-group/button-group.visual.browser.test.ts ]
+      1  FAIL  |visual/material-x (chromium)| tests/button/button.visual.browser.test.ts [ packages/material-x/tests/button/button.visual.browser.test.ts ]
+      1  FAIL  |visual/material-x (chromium)| tests/checkbox/checkbox.visual.browser.test.ts [ packages/material-x/tests/checkbox/checkbox.visual.browser.test.ts ]
+      1  FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts [ packages/material-x/tests/radio/radio.visual.browser.test.ts ]
+      1  Test Files  4 failed (4)
+      4 NetworkError: A network error occurred.

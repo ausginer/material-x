@@ -1,6 +1,6 @@
 # Repository record — index
 
-The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `reviews/` — are its material.
+The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `ci-verification-1/`, `reviews/` — are its material.
 
 **Scope `repo`.** Addresses are qualified as everywhere else (`CONTRIBUTING.md` §Reading one entry of a record): `repo:RD-1`. Entries are `####` headings that open with their identifier, so one extracts standalone:
 
@@ -50,7 +50,11 @@ awk -v re="^#### RD-1( —|$)" \
 
 **Acceptance.** A pull request that fails any enumerated check cannot merge; the same pinned image runs locally and in CI and produces matching screenshots; no baseline is written by CI. Until all four deliverables hold, this entry is the statement of record that the gate does not exist.
 
+**Amended 2026-11-16 by `RD-13`, on the owner's decision:** one pinned visual environment on GitHub's runner records and compares the screenshots, and no visual run is local. No baseline reaches a branch except through the owner's merge of a recording workflow's proposal, and the gate writes none. Deliverable 1's _"the same image must be runnable locally"_ no longer applies. The rest of the acceptance stands.
+
 **Home when the work is taken:** a `.plan/` work directory of its own beside the others, holding the design for the image and the workflow. It is not created here, and nothing about the mechanism is designed here — this entry classifies the work and fixes its contract, and the unit that builds it is separate.
+
+**Dated 2026-11-16: the work is taken.** Its home is [`ci-verification-1/`](ci-verification-1/ci-verification-design.md). `RD-6` is deliverable 2, and adds Firefox, Safari and Codecov to its list on the owner's requirements. `RD-7` takes size, allocation and speed checks out of the gate. `RD-8` handles the checks that fail today. `RD-9` is deliverables 1 and 4: the pinned environment is Playwright's locked Chromium and Roboto from a locked package, not a container image, so deliverable 1's _"container image fixing OS, …"_ is read as `RD-9` states. (Amended the same day. At `81d4c91b1`, this note said that `RD-6` met deliverable 1 by pinning the existing development image.) (Amended the same day by `RD-12`: the third engine is Safari on a macOS runner. This note said _"adds Firefox, WebKit and Codecov"_.) Deliverable 3 is the owner's. This entry's order, acceptance and statement of record stand: the gate does not exist until all four deliverables hold.
 
 #### RD-3 — Every project the shared factory declares sets `extends: false`
 
@@ -105,6 +109,396 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Consequences carried elsewhere,** all in the handoff's item 2: `CONTRIBUTING.md` §Reading one entry of a record, `documentation.md` §7 and §9, `handoff.md` §Markdown, `agent-workflow.md`, `review-findings.md` and `coordinator.md`. `RD-4` holds through drag's `DRAG_NODE_BUILD`, the same mechanism with drag's build. Its text, which names drag2's setup as the only one, isn't rewritten.
 
+#### RD-6 — One workflow verifies every push to `main` and every ready pull request, in Chromium, Firefox and Safari on named runners, and one aggregate check gates merge
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `a8726c57d`, on the owner's requirements relayed by the coordinator the same day ([design](ci-verification-1/ci-verification-design.md) §1, O1 to O8). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. It is `RD-2`'s deliverable 2, and it prepares deliverable 3, which the owner performs. Deliverable 1 is `RD-9`.
+
+**Amended 2026-11-16, before implementation,** on the owner's direction relayed by the coordinator at `81d4c91b1` (O9 and O10 in the design): CI runs on a plain runner and doesn't pull the development image, and Chromium is Playwright's build. The title, property 2, property 4's third sentence, and the reasons about the image changed. What it said before is at the end.
+
+**Amended 2026-11-16 by `RD-12`,** on the owner's correction (O13): the third engine is Safari on a macOS runner, not Playwright's WebKit. The title, properties 2, 3, 4, 6, 7 and 8, and two reasons changed. `RD-12` holds the readings, the provider and the reasons. What they said before is at the end.
+
+**Properties.**
+
+1. **Triggers (O1).** A push to `main`; a `pull_request` event of type `opened`, `reopened`, `synchronize` or `ready_for_review`; and `workflow_dispatch`. Every job skips a draft pull request. No other trigger, and no `pull_request_target`. A newer run for the same pull request cancels the older one. A run for a push to `main` is never cancelled.
+2. **The environment (O9, O13).** Every job except `safari` runs on a GitHub-hosted runner named `ubuntu-24.04`, and `safari` runs on `macos-26` (`RD-12` property 6). Each label is named, not `*-latest`, so an operating system changes only by an edit. Each job uses the Node major version that the workflow names. **CI doesn't pull the development image, and no job runs in a container.** Chromium and Firefox are the builds that the exact `playwright` dependency pins (`RD-9`), and a job installs its engine with `npx playwright install --with-deps <engine>`. Safari is the runner image's own and isn't pinned (`RD-12` property 7). Screenshots are reproducible because of `RD-9`'s pinned visual environment, not because of the runner's operating system.
+3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `safari` run every browser project except visual in their engine. **The three test jobs exclude `measurement` rows (`RD-7`).** Every job runs the repository's own recipes on a fresh checkout after `npm ci`. If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
+4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox` and `safari`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project takes no Chromium launch arguments, and runs with `fileParallelism: false` and one worker, because a background page gets no input in those engines. A Safari project uses the WebdriverIO provider (`RD-12` properties 2 and 3). **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and runs drag's browser and shipped projects in the engines that the variable lists. A local run is Chromium only (`RD-13` property 7).
+5. **Visual runs in Chromium only.** Its baselines are per engine and platform, and only Chromium baselines exist. **The gate never writes, updates or approves a baseline.** The recording workflow proposes baselines in a pull request that the owner merges (`RD-13`). When `chromium` fails, the actual and diff images are uploaded as a workflow artifact.
+6. **A row that needs an instrument that an engine's driver doesn't provide** runs only in the engines that provide it, by an engine condition, as drag's `isChromium` rows do. Chromium-only instruments are the DevTools Protocol, heap snapshots and `--expose-gc`. Safari's driver also lacks media emulation (`RD-12` properties 4 and 5). That limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it.
+7. **Coverage (O4).** `chromium` runs with V8 coverage and uploads it to Codecov on every run. A failed upload fails the job. Codecov's project and patch statuses are `informational`, so a percentage never blocks a merge. Firefox and Safari contribute no coverage, because the V8 provider cannot instrument them.
+8. **The aggregate check.** `verify` needs `static`, `chromium`, `firefox` and `safari`, and succeeds only if each succeeded. **It is the one check the branch rule requires,** so adding or splitting a job changes `verify`'s list and not the rule. A job not in `verify`'s list cannot block a merge.
+9. **Permissions.** The workflow's token is `contents: read`. Only the measurement job adds `pull-requests: write` (`RD-7`). A third-party action is pinned to a full commit hash.
+
+**Why.**
+
+- **One aggregate check** keeps the branch rule stable while jobs change, and it makes a skipped or missing job a failure of `verify` instead of a check nobody required.
+- **Plain runners, not a container,** on the owner's direction. The Linux jobs share one operating system, one Node version and one lockfile per run, so the only difference between `chromium` and `firefox` is the engine. `safari` also differs in operating system, because Safari exists only on macOS (`RD-12`). Playwright's installer adds each Linux engine's system libraries on the runner.
+- **Playwright's build for Chromium and Firefox:** one exact dependency pins both, in the devcontainer and in CI (`RD-9`). Safari can't be pinned (`RD-12` property 7).
+- **One engine selection, not a second mechanism.** drag's engines configuration is the same property for one package. Generalized, it serves every package, and drag's names survive (CONTRIBUTING §6).
+- **Coverage from Chromium only** is a limit of V8 coverage, not a choice.
+
+**Not adopted.**
+
+- **Running the jobs in the development image,** which this decision first adopted. The owner's direction rules it out. `RD-9`'s reading also shows that the image cannot pin Chrome.
+- **Playwright's own container image.** Its version would have to follow the lockfile in a second place.
+- **Istanbul coverage in every engine.** It runs instrumented code instead of the code under test in every engine, and O4 needs only one coverage source, which Chromium already provides.
+- **Firefox and Safari visual baselines.** That is a new curated set with its own maintenance cost, which the owner hasn't asked for.
+
+**What this amends.**
+
+- **`.agents/docs/test-architecture.md` §CI policy,** in place in the same commit. Before: _"Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, Firefox/WebKit behavior checks, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation."_ Firefox and WebKit behavior and spec-contract checks move into the pull-request gate. The other scheduled or manual items stay where they were. §What screenshots prove keeps its rule: broader visual runs stay scheduled or manual.
+- **`RD-2` deliverable 2's list** gains Firefox and WebKit behavior and spec-contract tests and the Codecov upload. Its order, its acceptance and its other deliverables stand.
+- **`drag:DRO-18`'s open question** ("whether that job is owed under `repo:RD-2`") is answered: it is.
+
+**What it said before the amendment.**
+
+- The title said _"in the pinned image and three engines"_.
+- Property 2 said: _"**The pinned environment (`RD-2` deliverable 1, O7).** Every job runs in `ghcr.io/ausginer/devimages/node@sha256:<digest>`, the image the devcontainer runs at this decision, which recorded the committed baselines. `.devcontainer/devcontainer.json` names the same digest, so local and CI runs use one image. A `repo` node test asserts that the two files name the same digest. The image changes only under `RD-9`."_
+- Property 4 said: _"A non-Chromium project uses Playwright's own build of its engine, without the Chromium executable or Chromium launch arguments"_.
+- The reasons said that every job in the pinned image shares one operating system, and that the existing image is pinned because it recorded the 23 baselines. Not adopted said that running Firefox and WebKit on a plain runner with `playwright install --with-deps` would give each job its own operating system and Node version.
+- **Why it changed:** the owner's direction, and `RD-9`'s reading that the image's Chrome feature ignores its version option.
+
+**What it said before `RD-12`.**
+
+- The title said _"in three engines on a pinned runner"_.
+- Property 2 said that every job runs on `ubuntu-24.04`, and that _"Every engine is the build that the exact `playwright` dependency pins, Chromium included (`RD-9`)."_
+- Property 3 named the jobs `firefox` and `webkit`. Property 7 said _"Firefox and WebKit contribute no coverage"_. Property 8 named `webkit` in `verify`'s list.
+- Property 4 listed `chromium`, `firefox` and `webkit`, and said: _"drag's `test-engines` recipe keeps its name and its project names (`browser`, `browser/firefox`, `shipped/webkit`…), so `drag:DRO-18`'s commands still select the same projects."_
+- Property 6 said: _"**A row that needs a Chromium-only instrument** (the DevTools Protocol, heap snapshots, `--expose-gc`) runs only in Chromium, by an engine condition, as drag's `isChromium` rows do."_
+- The reasons said: _"The jobs still share one operating system, one Node version and one lockfile per run, so the only difference between engine jobs is the engine. Playwright's installer adds each engine's system libraries on the runner, so `DRO-18`'s local decision is unchanged."_ and _"**Playwright's build for every engine:** one exact dependency pins all three browsers, in the devcontainer and in CI (`RD-9`)."_
+- **Why it changed:** the owner's correction (O13), which `RD-12` decides.
+
+**What it said before `RD-13`.** Property 4 said: _"drag's `test-engines` recipe keeps its name and runs `chromium,firefox`, so its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are `drag:DRO-18`'s selection. A local `just test` without the variable runs Chromium only, as it does today."_ Property 5 said: _"CI never writes, updates or approves a baseline."_ **Why it changed:** the owner's decisions (O14, O15), which `RD-13` decides.
+
+#### RD-7 — Size, allocation and speed checks notify and never fail the build
+
+**Decided 2026-11-16 by the architect,** on O5 and O6 ([design](ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it.
+
+**Properties.**
+
+1. **What a measurement row is.** A row whose verdict compares a quantity with a budget, a ceiling or a control figure: bytes of a bundle, bytes allocated, or time elapsed. **A row that asserts behavior is not a measurement,** even if it counts. Examples are a retention check (_should not retain …_) and a deterministic work count that a contract invariant states, such as `drag:DRI-17`'s layout reads and spatial searches. Those rows stay in the gate.
+2. **Marking.** Each measurement row carries the Vitest tag `measurement`, which the shared factory declares. The gate's test jobs run with that tag filtered out. The measurement job runs only that tag. **A local `just test` runs every row, as it does today,** so `drag:DRD-68` property 5 stays true where it is stated: an over-ceiling row fails `npx just test` until the unit re-bases.
+3. **The rows at this decision.** In `packages/drag/tests/size.node.test.ts`, each composition's ceiling and control verdict. Its graph verdict (`present`, `absent`) is `drag:DRI-18`'s and stays in the gate, so each composition's row splits into a graph row and a ceiling row. The assertions themselves don't change. In `packages/drag/tests/hot-path.browser.test.ts`, the two rows that bound bytes allocated per sample. **No speed row exists.** The implementer confirms there are no others.
+4. **The measurement job is outside the gate.** `verify` doesn't need it. It concludes successfully whenever it ran to its report. An exceeded ceiling or a failing measurement row becomes a warning annotation and a line in the report, never a failed step. `continue-on-error` covers a crash, so even a broken measurement can't fail the workflow.
+5. **The size comment (O5).** It reports every row that the root `just size` measures (`box-quad` and `core` through size-limit, `drag` through `bench/size/measure.ts`): the reading at the head, the reading at the merge base of the head and the pull request's base branch, the difference, and the row's limit at the head. Brotli for every row, and gzip where the instrument reports it. Rows that exist at one side only are marked added or removed. **Both sides are measured in the same job, on the same runner, each tree with its own instruments.** (Before the amendment of 2026-11-16, which changed only these words: _"in the same image"_.) A base tree whose instruments cannot produce the machine-readable reading gives "no base reading", and the head is still reported. The comment is one per pull request, identified by a hidden marker and updated on each run. It is posted only when the pull request comes from this repository. Otherwise, and on a push or a manual run, the report goes to the job summary only.
+6. **The allocation result** is reported in the same comment and summary as each row's pass or fail, with its message.
+
+**Why.**
+
+- **A tag separates the rows without moving files,** and drag's size file holds graph rows that must keep gating. A separate project or file suffix would split `size.node.test.ts` across two files for the same compositions.
+- **Locally nothing changes.** `DRD-68` makes an over-ceiling row stop a drag unit before release. That is a rule about drag's units, which run locally. CI notifies, as O6 asks.
+- **The merge base, not the base branch's tip,** because the comment reports what this pull request changes, not what landed on `main` meanwhile.
+- **Measuring both sides in one job** depends on no artifact from an earlier run, which can be missing or expired.
+
+**Not adopted.**
+
+- **Speed checks on shared runners.** None exists, and a timing reading on a shared runner tells little. A later speed check enters CI as a measurement row or a step of the measurement job, under this decision.
+- **`pull_request_target` for fork comments.** It runs with write access next to the fork's code.
+
+**What this doesn't decide.** What governs drag's ceilings after release (`drag:DRD-68` property 6). If that rule makes a ceiling gate in CI, it amends this decision.
+
+#### RD-8 — A check that fails today is repaired or disabled before the branch rule is on, and each disabled row is a registered finding
+
+**Decided 2026-11-16 by the architect,** on O3 and O8 ([design](ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it.
+
+**The reading at `a8726c57d`,** taken by the architect on 2026-11-16 in the devcontainer. The output is not committed: each item below has to be read again at the unit's base anyway.
+
+- **Root `vitest run`, Chromium:** 136 files and 1,833 tests. One row fails: `tproc`, `TokenPackageProcessor` _should apply inheritance and render declarations_, expected `container.color` and received only `state-layer.opacity`. That is `RF-29`'s first row, unchanged. `RF-29`'s `radio.visual` row passed in this run, and its `drag2` row left with drag2. Exit 1. Duration: 291 s on a loaded machine.
+- **Root `just typecheck`:** exit 0.
+- **Root `just fmt-check`:** exit 1. `box-quad`, 2 files; `drag`, 57 files; `material-x`, 5 files. The `box-quad` and `drag` files are tracked record files under `.plan/` (measurement JSON and probe sources). The `material-x` files are generated `main.styles.css` files, which a fresh checkout doesn't contain. **Corrected 2026-11-16 by the unit's report:** they are tracked, authored CSS under `src/`. The unit formatted them, and the build output didn't change.
+- **Root `just lint`:** exit 1 in all eight packages. Where oxlint fails, the recipe stops before ESLint, so the count is a lower bound. Examples: `core`, 3 ESLint errors; `tproc`, 3; `box-quad`, 9; `size-limit-preset-rolldown`, 2; `vite-custom-element-assets`, `RF-32`'s oxlint errors; `drag`, mostly `.plan/probes/size-acceptance-cleanup/placement.ts`.
+- **Firefox and WebKit outside drag:** never run. WebKit can't run locally (`DRO-18`).
+
+**Properties.**
+
+1. **The inventory comes first.** The unit reads every failing row and check in each gate job, at its own base: Chromium and Firefox locally; Safari, and the visual result on CI's operating system, in CI. A row counts as intermittent if it both fails and passes in five runs of its file.
+2. **Repair** when the cause is in the test, the test infrastructure or repository tooling, and the repair changes no product behavior, no public surface and no decided contract. Lint repairs follow `RF-32`'s required property: no rule turned off, no disable comment, and runtime names kept where another library reads them.
+3. **The record is not source.** A file under a `.plan/` directory is evidence: a probe's source is what ran, and a tool's output is what the tool wrote. **Lint doesn't read `.plan/`,** because a lint repair would change what ran. **Formatting does read it,** because formatting changes no data. Each unit already owes `fmt` for each file it adds, so the record's unformatted files are repaired by formatting them.
+4. **Disable** in every other case, and only in the engine where the row fails. A row that always fails is marked as an expected failure (Vitest `fails`), so a later repair shows up as a failure. An intermittent row is skipped. **Each disabled row is a finding** in the register of the scope that owns it (`drag` for drag, `repo` for everything else), with the row, the engine, the failure, the cause if it was established, and the required property. The marking cites that finding's address. A product cause is routed as its own unit, which the owner orders. The CI unit doesn't change product source.
+5. **Stops.** The unit returns to the architect with its inventory if: a file or a whole project cannot load in an engine; more than 15 rows would be disabled in one engine; a row fails only with coverage enabled; CI does not reproduce the baselines that `RD-9` property 5 re-records, or the visual suite turns intermittent in CI, which the owner decides (`RD-9` property 4); or a repair would need a rule turned off, a disable comment or a changed runtime name. **A baseline is never rewritten to make CI pass.**
+
+**Amended 2026-11-16, before implementation,** with `RD-6`. Two phrases changed. Property 1 said _"WebKit and the pinned image's visual result in CI"_, and property 5 said _"the visual suite does not reproduce the committed baselines in the pinned image in CI"_. 6. **The branch rule is turned on after this decision's repairs and disabled rows are on `main`,** and `verify` has passed there (O8).
+
+**Why.**
+
+- **Repair inside the unit only when the cause is the tests or the tooling.** That is the repair the owner prefers, and it fits a verification unit. A product defect in one engine is the product's change, with its own review.
+- **An expected failure, not a skip, for a row that always fails:** a skip stays silent when the defect is repaired, and an expected failure doesn't.
+- **A finding for each disabled row,** because a disabled row with no registered owner is a gap that nobody tracks.
+- **The stops** are where the inventory stops being a list of small repairs and becomes a question about the design.
+
+**What this answers.** `RF-29`: the unit reads its rows again and handles each one under this decision. `RF-32`: the unit repairs it, as part of property 2's lint repairs, instead of the separate cleanup unit it was routed to.
+
+**Dated 2026-11-16:** the unit stopped under property 5 on 108 `camelcase` errors on names that another program reads ([report](ci-verification-1/ci-verification-report.md) §The stop). `RD-10` decides how those names pass lint. Property 2's _"runtime names kept where another library reads them"_ is met through `RD-10`, and property 5's stop still applies to every other name. **Dated 2026-11-16:** the unit stopped again on three ESLint errors on public types, and `RD-11` decides them. **Amended 2026-11-16 by `RD-12`:** property 1 said _"WebKit, and the visual result on CI's operating system, in CI"_. The third engine is Safari, read in CI.
+
+#### RD-9 — The pinned visual environment is Playwright's locked Chromium and Roboto from a locked package, and it changes only in a pull request that re-records the baselines
+
+**Decided 2026-11-16 by the architect.** This is `RD-2` deliverables 1 and 4. **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. **Amended 2026-11-16, before implementation,** on the owner's direction relayed by the coordinator at `81d4c91b1` (O9 to O12 in the design). The owner settled each point: CI runs on a plain runner, Chromium is Playwright's, text renders in Roboto from a locked package, and nothing more is guarded in advance. The decision was rewritten. What it said before is at the end.
+
+**The readings,** taken by the architect on 2026-11-16 at `81d4c91b1`.
+
+- **The development image can't pin Chrome as it is built.** It is built in the public repository `ausginer/devimages` (`images/node/.devcontainer/devcontainer.json`) from `node:slim`, with the feature `ghcr.io/kreemer/features/chrometesting:1` at `version: "Stable"`. That feature's `install.sh` reads `VERSION` and never uses it: it always downloads the Stable channel's last known good build. The image's Chrome is whatever was Stable on the day of the build: 157.0.8103.38 in the current container, which recorded the baselines. (**Corrected 2026-11-16 by the unit's report:** there are 19 baselines, not 23. The architect's count included directories.)
+- **Playwright 1.65.0** is an exact dependency in the root `package.json` and the lockfile. It pins Chromium 158.0.8127.18 (Chrome for Testing, revision 1254), Firefox 159.0 (1572) and WebKit 27.2 (2388).
+- **The visual fixtures' text** is set by `packages/material-x/tests/support/browser-setup.ts` to `Arial, "Liberation Sans", sans-serif`. Arial isn't installed, and the owner installed no fonts. Fontconfig resolves the stack to Debian's `fonts-liberation` 2.1.5, which is installed as one of Chrome's dependencies. So today's baselines depend on a system font. **The icon font is already vendored** (`tests/support/fonts/material-symbols-subset.ttf`).
+- **The devcontainer runs Debian 13. CI's runner runs Ubuntu 24.04.**
+
+**Properties.**
+
+1. **Chromium is Playwright's build** at the version that the exact `playwright` dependency pins, in the devcontainer and in CI, as Firefox already is (O10). It runs as the full Chromium build in Chrome's new headless mode, not as `chromium-headless-shell`. `CHROME_EXECUTABLE` and the `/usr/local/bin/chrome` default are removed, so the image's Chrome takes no part in a test run. The devcontainer installs the locked Chromium build when the container is created and each time it starts, and no other browser (`RD-13` property 7). CI installs Chromium and Firefox. No Playwright WebKit build is installed anywhere, and Safari runs only in CI (`RD-12`).
+2. **Visual tests render text in Roboto only (O11).** Roboto's faces come from an npm package that ships the font files, added as an exact dependency so the lockfile pins it. The faces the fixtures use are loaded as web fonts and awaited before the first fixture renders, so a face that fails to load fails the run. The font stacks in `browser-setup.ts` name Roboto and no other text family, and no system font is named as a fallback. The icon font stays as it is.
+3. **Fixed in the test configuration, as now:** headless mode, device scale, viewport, and colour scheme.
+4. **The runner records and compares (O14).** Baselines are recorded and compared on GitHub's `ubuntu-24.04` runner only (`RD-13`). The runner image's version, its system libraries and fontconfig settings, the processor, and the Node patch version are not pinned, and nothing checks in advance that they stay out of a screenshot (O12). **If the visual suite fails or turns intermittent in CI, the unit stops and the owner decides** (`RD-8` property 5).
+5. **The baselines are re-recorded in the first unit,** after properties 1 and 2 land. Chromium moves from 157.0.8103.38 to 158.0.8127.18 and the text font becomes Roboto, so every baseline with text changes. The devcontainer's recording at that point didn't reproduce on the runner (`RD-13`'s reading). **The recording workflow records them again on the runner,** and proposes them into `ci/verification`. **The owner reviews every changed baseline and merges the proposal before the unit's pull request merges.** The gate then has to reproduce them.
+6. **Changing the environment.** A change to the `playwright` version or to the Roboto package's version is made in its own pull request. Its baselines are recorded by the recording workflow on that pull request, and the owner merges the proposal into it. That pull request changes nothing else apart from `package.json` and the lockfile. Its CI run verifies the re-recorded baselines. A runner image update that changes a rendering is recorded the same way, through a proposal into `main`. A dependency update leaves `playwright` and the Roboto package where they are.
+
+**Why.**
+
+- **Playwright's Chromium** (the owner's hypothesis, then direction): one exact dependency pins all three engines, one command installs them in both places, and they move only with a visible edit to `package.json`. The image cannot pin Chrome as it is built. A Chrome for Testing version downloaded by a repository script would be a second pin mechanism beside the lockfile.
+- **The cost is accepted.** Updating Playwright updates Chromium, so a Playwright update means re-recording the baselines. Property 6 makes the update deliberate.
+- **Roboto from a locked package** takes the text font out of the operating system, which was the open point about fonts. The lockfile pins it as it pins Chromium.
+- **No advance guard on rendering settings or the operating system,** on the owner's direction. CI reproducing baselines recorded in the Debian devcontainer is the evidence, and a failure there is the owner's to decide.
+- **The full build in new headless mode,** because that is how the current baselines were recorded and it is the browser that users run. The headless shell is a separate implementation.
+
+**Not adopted.**
+
+- **The development image pinned by digest,** which this decision first relied on. The owner's direction rules it out, and the image's Chrome is whatever was Stable on the day it was built.
+- **A Chrome for Testing version pinned in a repository file.** It works, but it is a second pin mechanism.
+- **Vendoring Liberation Sans, a repository fontconfig configuration, a check that every glyph comes from a web font, and a check of the Chromium version that recorded the baselines.** The architect proposed these during the amendment. The owner chose Roboto and no advance guards.
+
+**What this amends.** `test-architecture.md` §What screenshots prove, in the same commit. It said: _"Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate must use one pinned Chromium environment, and local runs must use the same pinned image so developer output matches CI — the image is owed rather than installed (`repo:RD-2`), so until it lands a baseline is only as reproducible as the container that wrote it."_ The operating system and the container image leave the pinned environment. `RD-2` deliverable 1's _"container image fixing OS, Chromium, fonts and icons"_ is read as this decision states it, and its acceptance's _"the same pinned image"_ becomes the same pinned Chromium and fonts.
+
+**Amended 2026-11-16 by `RD-12`:** property 1 said _"as Firefox and WebKit already are (O10)"_ and _"WebKit stays out of local development (`drag:DRO-18`)"_.
+
+**Amended 2026-11-16 by `RD-13`,** on the owner's decisions (O14, O15). Property 1 said: _"The devcontainer installs the locked Chromium and Firefox builds when the container is created and each time it starts."_ Property 4 said: _"**Not pinned and not guarded (O12):** the operating system, its system libraries and fontconfig settings, the Node version, and the development image."_ Property 5 said: _"The re-recording happens in the devcontainer with the explicit update command, in a commit that changes only the baselines. **The owner reviews every changed baseline before the pull request merges.** CI then has to reproduce them."_ Property 6 said: _"That pull request re-records every baseline the change affects … Its CI run verifies the re-recorded baselines, and the owner reviews every changed baseline before merging."_ The reason _"CI reproducing baselines recorded in the Debian devcontainer is the evidence"_ no longer holds: CI didn't reproduce them.
+
+**What it said before the amendment.** Title: _"The pinned image changes only in a pull request that re-records its baselines and changes nothing else"_. It was `RD-2` deliverable 4 only. Its properties were: a pull request that changes the image digest changes it in `.devcontainer/devcontainer.json` and the workflow together, re-records inside the new image every baseline the image changes, and changes no other file; its CI run verifies them, and the owner reviews every changed baseline; a developer whose container predates the digest rebuilds it. **Why it changed:** the owner's direction and the image reading above.
+
+#### RD-10 — A name that another program defines passes `camelcase` through an exact allow list, and the rule stays on for every other name
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `c2dbf6292`, on the CI verification unit's stop under `RD-8` property 5 ([report](ci-verification-1/ci-verification-report.md) §The stop). It amends `RD-8` property 2 and `RF-32`'s required property for these names only. **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
+
+**The reading** (the report's `checks/lint-inventory.txt`, at `33fc22dce`). Of 142 lint errors, 108 are `camelcase` on snake_case object keys:
+
+- **Claude Code's hook payload**, 91 in `.claude/plugins/harness-effort-guard/tests/guard.test.ts` and some of the 12 in `scripts/guard.ts`: `hook_event_name`, `session_id`, `tool_name`, `tool_input`, `agent_type`, `agent_id`, `transcript_path` and `subagent_type`. Claude Code sends these names and reads them back.
+- **The guard's observation log**, the rest of the 12: `governed_role`, `identity_source`, `project_root`, `declared_model`, `runtime_model`, `model_check`, `dispatch_target`, `dispatch_name` and `dispatch_model`. The record copies the payload's fields under the payload's names and adds its own in the same style. Its fields are documented in the plugin's `README.md` and in `.agents/docs/harness-effort-guard.md`, and the observation logs that the record cites use them.
+- **`@minify-html/node`'s options**, 4 in `packages/vite-custom-element-assets/src/html.ts`: `minify_css`, `minify_js`, `keep_comments` and `allow_removing_spaces_between_attributes`. The native library reads exactly these names.
+- **The token database's field** `token_class`, 1 in `packages/tproc/tests/helpers.ts`. It builds a fixture in the shape that the upstream token data has.
+
+`eslint-config-vaadin` sets `camelcase: ['error', { properties: 'always' }]`. A quoted key escapes the rule, but oxfmt removes the quotes. A computed key survives oxfmt, but `no-useless-computed-key` reports it. So no form of the source passes both tools, as the report shows.
+
+**Properties.**
+
+1. **The root `eslint.config.ts` lists each such name in `camelcase`'s `allow` option, as an anchored exact pattern** (`'^session_id$'`). ESLint reads each `allow` entry as a regular expression, so an unanchored entry would also admit every name that contains it. The entries are grouped by the interface that fixes them, with one comment per group that names the interface. Every package's configuration imports this one, so the list exists once.
+2. **What qualifies:** a name fixed by an interface outside the TypeScript program. That is a protocol that another program sends or reads, an option set that a library reads by name, external data whose shape the code reproduces, or a persisted record format that this repository documents and that its readers already use. Today that means the four groups above.
+3. **What doesn't qualify:** a name this code chooses and only this code reads. It is renamed to camelCase. A new name joins the list only under property 2, in the change that introduces it.
+4. **Unchanged:** `camelcase` stays at `error` with `properties: 'always'`. No file-scoped override, no disable comment, no rename of a listed name, and no change to oxfmt's quoting.
+5. **`.claude/` stays linted** by the root recipe, as it is now. The plugin is TypeScript that the repository maintains and tests. This decision changes only the shared configuration and no file under `.claude/`.
+
+**Why.**
+
+- **The rule exists for names that this code chooses.** A name another program fixes can't follow it, and renaming it breaks the interface. An exact list keeps the rule's full force for every other name: a new snake_case key still fails unless someone adds it with the interface named.
+- **One list, not a scope.** A file-scoped `properties: 'never'` for the plugin would stop checking every other key in those files. Turning the rule off was the alternative `RD-8` property 5 sends back.
+- **The guard's log counts as an interface.** Renaming its fields would change a documented format that the record's observation logs and two documents use. That is a decision about the guard, not a lint repair.
+
+**Not adopted.**
+
+- **`properties: 'never'` everywhere,** which turns the rule off for every key in the repository.
+- **Building the objects so the linter can't see their keys,** for example with `Object.fromEntries` over pairs. That is machinery whose only purpose is to hide a name from a rule (CONTRIBUTING §2).
+- **Disable comments,** which `RF-32` and `RD-8` rule out. There would be 108 of them.
+- **Renaming the guard log's own fields to camelCase,** for the reason above.
+
+#### RD-11 — ESLint doesn't re-decide what the oxlint configuration decides: an empty object type is allowed, and a rule oxlint enforces is checked once
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `a2a4c5488`, on the CI verification unit's second stop under `RD-8` property 5 ([report](ci-verification-1/ci-verification-report.md) §The second stop). It amends `RD-8` property 2 and `RF-32`'s required property for these two rules only. **No public type changes, so the owner has nothing to approve.** **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
+
+**The reading.** After `e9da25c08`, ESLint reports three errors and oxlint none:
+
+- **`@typescript-eslint/no-generated-empty-object-type`** at `packages/material-x/src/button-group/ButtonGroupCore.ts:37` (`ButtonGroupLikeProps`, the props of a trait that has none) and `packages/material-x/src/list/ListItemCore.ts:19` (`ListItemCoreProperties = Record<never, never>`, intersected in `ListInteractiveItemCore.ts:25` and re-exported as `ListItemProperties`). Both are exported, and both mean "no properties". **The repository allows empty object types on purpose:** `.oxlintrc.json`'s "Custom rules" block sets `typescript/no-empty-object-type` to `allow`, since `457991661`, and the trait system spells "no props" as `{}` (`Trait<{}, …>` on the line above the first site). ESLint's own `no-empty-object-type` is among the rules that `buildFromOxlintConfigFile` disables. `no-generated-empty-object-type` is the type-aware form of the same rule: it reports a type that resolves to `{}` instead of one that is written as `{}`. oxlint doesn't implement it, so nothing disables it.
+- **`@typescript-eslint/no-unnecessary-type-parameters`** at `packages/core/src/utils/DOM.ts:37`, `$`'s public `querySelector`-style overload `$<E extends Element = Element>`. oxlint enforces the same rule as `error` (`.oxlintrc.json:131`, which every package's configuration extends). The overload carries `// oxlint-disable-next-line typescript/no-unnecessary-type-parameters`, so the repository has already exempted it. `buildFromOxlintConfigFile` doesn't disable ESLint's copy, so ESLint reports what oxlint was told to accept.
+
+**Properties.**
+
+1. **`@typescript-eslint/no-generated-empty-object-type` is `off`** in the root `eslint.config.ts`, with a comment that ties it to the `allow` of `typescript/no-empty-object-type` in `.oxlintrc.json`. The two exported types don't change.
+2. **`@typescript-eslint/no-unnecessary-type-parameters` is `off` in ESLint** and stays `error` in oxlint. It joins the block after `buildFromOxlintConfigFile` that already turns off five rules that oxlint duplicates and that the function doesn't handle. The overload and its oxlint disable comment don't change.
+3. **The general rule:** the oxlint configuration states the repository's lint policy for every rule that oxlint implements. ESLint checks only what oxlint can't. A rule that both tools implement is checked once, by oxlint. An ESLint rule that re-states a rule which `.oxlintrc.json` allows follows that allow. Adding either kind of rule to the ESLint configuration is a configuration repair, with a comment that names the oxlint rule.
+
+**Why.**
+
+- **The repository decided this already.** `no-empty-object-type` is allowed, and the overload is exempted. ESLint reporting either one is a second checker re-deciding a settled rule, not a defect in the source.
+- **Changing the public types is the wrong repair.** `{}` means "no properties", and the intersection at `ListInteractiveItemCore.ts:25` depends on that. `Readonly<Record<string, never>>` would turn every intersected property into `never`. Any other non-empty type changes what the export means.
+- **For the overload, the rule isn't turned off.** oxlint still enforces it everywhere, and the exemption stays where the repository put it.
+
+**Not adopted.**
+
+- **Changing `ButtonGroupLikeProps` and `ListItemCoreProperties`,** which would be a public type change for the owner to approve, and for no gain.
+- **An ESLint disable comment beside the oxlint one,** which `RD-8` and `RF-32` rule out, and which would state one exemption twice.
+- **Removing the overload,** which `useSlot.ts:44` uses.
+
+#### RD-12 — The third engine is Safari on a macOS runner, driven through Vitest's WebdriverIO provider, and Playwright's WebKit runs nowhere
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `9c96be2d8`, on the owner's correction relayed by the coordinator the same day (O13 in the [design](ci-verification-1/ci-verification-design.md)): _"Chromium, Firefox and WebKit"_ in O2 means real Safari, run on a macOS runner. At `9c96be2d8` the `webkit` job runs Playwright's WebKit build on `ubuntu-24.04`, and pull request #27's first run is in progress with it. **It amends `RD-6`** (title, properties 2, 3, 4, 6, 7 and 8), **`RD-8` property 1** and **`RD-9` property 1**, in place, each with what it said before. **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s section _Resuming with Safari as the third engine_ implements it.
+
+**Amended 2026-11-16 by the architect** on `ci/verification` at `347d4e499`, on the Safari driver stop ([evidence](ci-verification-1/checks/safari-driver-stop.txt), run 43821740209), relayed by the coordinator. **Property 3's second item was false:** it said that `RD-3`'s release closes one Safari session before the next project opens one. Vitest opens a project's browser before that project's first test file starts, and the release happens when that file starts. Property 3's second item, property 6 and property 8 are amended in place, each with what it said before. The readings at `347d4e499`, one reason and four rejected remedies are added. **Unimplemented:** the handoff's section _Resuming after the Safari driver stop_ implements it.
+
+**Amended 2026-11-16 by the architect** on `ci/verification` at `83ff45024`, on the Safari inventory of run 43827320614 and the probe of run 43829273272, relayed by the coordinator. Safari on the `macos-26` runner reports `prefers-reduced-motion: reduce`, and the window clips the test frame. Property 3's last item is amended in place, with what it said before. Property 10 and the readings at `83ff45024` are added. **Unimplemented:** the handoff's section _Resuming after the Safari inventory_ implements it.
+
+**Dated 2026-11-16 by the architect** on `ci/verification` at `bee058e8a`, on the three-run Safari inventory of run 43830910625 ([evidence](ci-verification-1/checks/safari-inventory-three-runs.txt)), relayed by the coordinator. **A Safari row that sometimes doesn't finish is an intermittent row under `RD-8` properties 1 and 4, not a command stop.** The handoff's stop _"a command whose Playwright behavior WebDriver actions can't reproduce"_ covers a command whose result in Safari differs from Playwright's, such as wrong coordinates or a missing state. Such a difference would make every row that calls the command unreliable. Here the same pointer command serves the rest of drag's rows in every attempt. Two `sortable.browser.test.ts` rows either pass in about 8.8 s or time out at 15 s:
+
+- _"should propose the gap a full measurement gives with transitions on the rows and the item"_, in 4 of 6 drag project runs;
+- _"should measure every y() candidate through box when visual is also given"_, in 2 of 6.
+
+The two outcomes, with nothing between them, read as a stall, not as slowness, so **no timeout is raised:** a longer budget would only make the stall longer. Their cause isn't established. Each row is skipped in Safari only, with its own `drag` finding. **A lost browser connection that recurs after those skips** is `RD-8` property 5's stop, because the project's files can't all run. The handoff's section _Resuming after the three Safari runs_ implements this. No property changes.
+
+**The readings,** taken by the architect on 2026-11-16.
+
+- **Only WebDriver drives Safari.** Playwright's `webkit` is Playwright's own WebKit build, on macOS too, and not Safari. Vitest's `preview` provider opens a browser with no automation. Safari ships its own WebDriver server, `safaridriver`, with macOS.
+- **Vitest's WebdriverIO provider is community-maintained since Vitest 5.** `@vitest/browser-webdriverio` lives in `vitest-community/vitest-webdriverio` and is released apart from Vitest. Its latest version is 5.0.0, of 2026-09-08. Its peer range is `vitest: ^5.0.0`, and it depends on `@vitest/browser: ^5.0.0`, so it resolves to the repository's 5.1.0 without a second copy. Its own CI runs on `macos-latest` and `windows-latest` and doesn't name Safari, so nothing upstream shows that Safari works with it.
+- **The provider under Safari,** read in its `src/webdriverio.ts`: it refuses `headless: true` for Safari, because Safari has no headless mode; it declares `supportsParallelism: false`; it sets the viewport with `setWindowSize` when the session isn't WebDriver BiDi, and that is the window's outer size; its command context is `{ browser }`, a WebdriverIO browser, not a Playwright page.
+- **Safari allows one WebDriver session per machine:** _"Only one Safari browser instance can be active at any given time, and only one WebDriver session at a time can be attached to the browser instance"_ (Apple, _About WebDriver for Safari_). `safaridriver` answers nothing until remote automation is enabled, with `safaridriver --enable` as an administrator.
+- **Vitest 5.1.0 records the trace view by default (`failure-only`),** and recording an `expect.element` step serializes its locator. The WebdriverIO provider's locator throws when no element matches, so every `expect.element(…).not.toBeInTheDocument()` fails under it. An independent project read this at 5.1.0 and turned the trace view off for its WebdriverIO projects (`migrationsverket/midas#1476`, merged 2026-11-09).
+- **GitHub's `macos-26` label** is a standard arm64 runner (M1, 3 vCPU, 7 GB), generally available since 2026-02-26, and free for a public repository. `macos-latest` moves from macOS 15 to macOS 26 in a migration that GitHub announced. Safari's version is whatever the runner image ships, and an image update changes it.
+- **The repository's commands assume Playwright.** drag's `tests/support/commands.node.ts` calls `context.page.mouse`, `context.page.keyboard` and `context.page.emulateMedia`, and the Chrome DevTools Protocol for `touch`, garbage collection and heap readings. material-x's `resolveTokenContract` doesn't read its context. drag's tests call `emulateReducedMotion` in `landing.browser.test.ts`, at two rows and in a `beforeEach`. Every CDP command is already called from Chromium-only rows.
+
+**Read at `347d4e499`,** after run 43821740209 (`macos-26`, macOS 26.7.2, Safari 27.2), in the installed packages: Vitest 5.1.0, `@vitest/browser-webdriverio` 5.0.0, `webdriverio`, `webdriver` and `@wdio/utils` 10.2.0, and `safaridriver` 3.0.0.
+
+- **Observed in CI:** `browser/material-x/safari` ran 8 files and 141 tests, and all passed. Each of the 6 later Safari projects failed to open its browser with _"There is already a Safaridriver instance running on port 49190!"_. The error comes from `safaridriver`'s `start`, called through `webdriverio`'s `remote` from the provider's `openBrowser`.
+- **Vitest's order:** the browser pool opens a session's page, and only then runs test files on it (`openPage(…).then(() => this.runNextTest(…))` in `vitest/dist/chunks/index.Di8au7q4.js`). The one-shot reporter releases an earlier group's provider in `onTestModuleStart` for the first module of the next group (`.scripts/vitest-one-shot.ts`). So in one Vitest process, the next browser project opens its browser while the previous project's provider still holds its session. For Chromium and Firefox, this costs only memory. Safari allows one session.
+- **The driver:** `safaridriver` 3.0.0 keeps one driver process per Node process. It forgets that driver only when the driver process emits `exit`, and a second `start` before that throws the error above. `webdriver`'s `deleteSession` kills the driver by its PID, with `SIGKILL`, unless it is given `shutdownDriver: false`. So a release would stop the driver, but in this run no release came before the next project opened.
+- **A listing opens no browser:** in the devcontainer, where Safari can't run, `MX_TEST_ENGINES=safari npx vitest list --filesOnly --json --project '*/safari'` exits 0. It lists 7 Safari projects with 101 files: `browser/material-x` 8, `spec/material-x` 6, `browser/core` 22, `browser/box-quad` 7, `browser/drag` 30, `consumer/drag` 27 and `shipped/drag` 1, each name ending in `/safari (safari)`.
+
+**Read at `83ff45024`,** in the `safari` job (macOS 26.7.2, Safari 27.2).
+
+- **Run 43827320614 at `2b540c639`:** every Safari project opened Safari and ran. Five projects passed. `browser/drag` failed 29 rows and `consumer/drag` failed 27 ([inventory](ci-verification-1/checks/safari-inventory-run-43827320614.txt)). Among them are rows that expect a landing animation and find none, for example _"expected 0 to be greater than 0"_ in free-drag's landing rows.
+- **Run 43829273272, from a probe inside a `browser/drag` Safari test:** `matchMedia('(prefers-reduced-motion: reduce)').matches` is `true`. The frame's inner size is 1280 × 720. drag's landing honors the preference by giving the landing zero duration, which is the product's specified behavior, not a defect. Chromium and Firefox report no preference by default, and drag's landing rows also reset the preference with media emulation, which Safari's driver lacks.
+- **The implementer's reading:** the top-level viewport is 1280 × 668, smaller than the frame, so a pointer move below y 668 never arrives.
+- **Not established:** how the runner image sets Reduce Motion, and whether the runner's user can change it. A `defaults write` to `com.apple.universalaccess` is reported to fail on some macOS versions with _"Could not write domain com.apple.universalaccess"_.
+
+**Properties.**
+
+1. **The engines are `chromium`, `firefox` and `safari`.** `MX_TEST_ENGINES` lists those names. `webkit` is no longer an engine, and naming it is the unknown-engine error. A Safari project is named `<name>/safari`. Chromium and Firefox projects don't change.
+2. **Safari projects use the WebdriverIO provider; Chromium and Firefox stay on Playwright's.** `@vitest/browser-webdriverio` and `webdriverio` are exact `devDependencies` at the root. The driver is the `safaridriver` that ships with macOS, and nothing installs a browser or a driver for Safari. A Safari project's instance is `{ browser: 'safari' }`.
+3. **A Safari project runs:**
+   - **not headless,** because Safari has no headless mode;
+   - **with one worker and without file parallelism,** as every non-Chromium project already does (`RD-6` property 4), and **as the only Safari project in its Vitest process** (property 6). Safari allows one session. In one process, the next project opens its browser before `RD-3`'s release closes the previous one. (**Amended 2026-11-16 at `347d4e499`.** This item said: _"Safari also allows only one session, and `assignGroupOrder` gives each browser project its own group, so `RD-3`'s release closes one Safari session before the next project opens one"_. That was false; see the readings at `347d4e499`.);
+   - **with Vitest's trace view off.** CI keeps no trace, so this loses nothing. Chromium and Firefox keep Vitest's default;
+   - **in a test frame that the orchestrator doesn't scale,** at the configured 1280 × 720, **inside a top-level viewport that contains the whole frame,** so that pointer input reaches every point of the frame. If the provider's window size leaves the frame or the top-level viewport smaller, the Safari configuration makes the window large enough. From inside a Safari test, the implementer shows the frame's inner size, the top-level viewport's size and that no scale transform applies. (**Amended 2026-11-16 at `83ff45024`.** This item didn't name the top-level viewport. It said: _"If the provider's window size leaves the frame smaller, the Safari configuration makes the window large enough. The implementer shows the frame's inner size and that no scale transform applies, from inside a Safari test."_)
+4. **Every repository browser command that a Safari row calls has a WebdriverIO implementation** with the same name, arguments, result and coordinate frame as its Playwright implementation. The command selects its implementation from the provider that runs it. Pointer movement, presses and key presses use WebDriver actions. **The pointer's state lasts from `pointerDown` to `pointerUp`:** a command doesn't release the input state between them, because Playwright's mouse doesn't. A command that has no WebDriver counterpart, which is each CDP command and `emulateReducedMotion`, **throws an error that names the command and the provider.** It never does nothing. (**Dated 2026-11-16,** on the feature-proof review's `reviewer-5`, [review](reviews/ci-verification-1/feature-proof-claude.md): the frame is the same, and the precision differs. `pointerMove` sends each interpolated point to WebDriver rounded to a whole CSS pixel, because WebDriver drivers disagree about fractional pointer coordinates and some refuse them, while Playwright sends them unrounded. Each point is within 0.5 px of Playwright's, and the kept position is the unrounded target, so the interpolation is Playwright's. A sub-pixel difference in a Safari row isn't a product difference until it is shown to exceed that bound.)
+5. **A row that needs an instrument that an engine's driver doesn't provide runs only in the engines that provide it,** by an engine condition, as drag's `isChromium` rows do. This generalizes `RD-6` property 6 from Chromium-only instruments to every driver's instruments. It limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it. **A row limited for any other reason is a disabled row under `RD-8`,** with its finding. The report lists every row that is newly limited for Safari, with the command it needs.
+6. **The Safari job runs on GitHub's `macos-26` runner,** named by that label and not by `macos-latest`, so the operating system changes only by an edit. It uses the Node major version that the workflow names, like every other job. Before the tests, it enables remote automation with `sudo safaridriver --enable`. **Its log names the macOS version and Safari's version** before the tests run. Every other job stays on `ubuntu-24.04`. **The job runs each Safari project in its own Vitest process, one after another,** through the root recipe `test-safari`, which the job calls with `--tags-filter '!measurement'`. The recipe:
+   - sets `MX_TEST_ENGINES=safari` itself;
+   - builds what the root `test` recipe builds, once for all projects, and shares those build steps with `test` instead of copying them;
+   - takes the list of Safari projects from the configuration when it runs, with a listing that opens no browser. Nothing writes the list out, so a new Safari project runs with no edit to the recipe or the workflow;
+   - passes its arguments to every project's run, and runs every listed project even after one fails;
+   - logs each project's name and exit status;
+   - exits non-zero if the listing fails or lists no project, or if any project's run fails.
+
+   (**Amended 2026-11-16 at `347d4e499`.** The job ran every Safari project in one Vitest process, with `npx just test --project '*/safari'`.)
+
+7. **Safari isn't pinned.** Its version is the runner image's. A Safari failure is handled under `RD-8`, like any engine's, whether it comes from a repository change or from an image update, and the job log's Safari version tells which. `RD-9` pins only the visual environment, and visual runs in Chromium only.
+8. **Locally, nothing runs Safari or WebKit.** The devcontainer runs Linux, so Safari can't run there, and no Playwright WebKit build is installed or started anywhere. Local runs are Chromium only (`RD-13` property 7). A developer on macOS with remote automation enabled can run `just test-safari`, and the repository promises nothing more there. (**Amended 2026-11-16 at `347d4e499`:** this sentence named _"`MX_TEST_ENGINES=safari`"_, and a single Vitest process run with it opens only its first Safari project.) (**Amended 2026-11-16 by `RD-13`.** This property said: _"drag's `test-engines` runs `chromium,firefox`. Its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are exactly `drag:DRO-18`'s selection."_)
+9. **A Vitest or provider upgrade re-reads the Safari job,** because the provider is released apart from Vitest. The reading is the Safari job's result on the upgrade's pull request. No row watches it.
+10. **A Safari page reports the same user preferences as a Chromium or Firefox page reports by default:** `prefers-reduced-motion: no-preference` (added at `83ff45024`).
+    - **How each engine gets it:** Chromium and Firefox have it from Playwright's default, and drag's landing rows also reset it by emulation. Safari's driver can't emulate the preference, so **the `safari` job sets the runner's macOS preference before the tests.** It turns Reduce Motion off as the runner's user, reads the value back, and logs it. The step fails if the value read back isn't off.
+    - **This is the job's environment, like remote automation in property 6, not a limit on rows.** A row that needs the default preference isn't an instrument row under property 5. It gets no engine condition and isn't disabled. A row that needs a non-default preference, such as drag's two reduced-motion rows and their reset, needs emulation, so it stays limited under property 5.
+    - **If the job can't set the preference, or Safari still reports `reduce` after the job has set it, the unit stops** under `RD-8` property 5. The rows that need motion are then neither limited nor disabled, and the owner decides.
+    - **Any other macOS preference** that the runner image sets differently from Chromium's and Firefox's default, and that a row depends on, is named here by an amendment before the job sets it.
+
+**Why.**
+
+- **Real Safari runs only on macOS, and only WebDriver drives it.** WebdriverIO is the one Vitest provider that speaks WebDriver. So the third job needs a macOS runner, a second provider, and its own command implementations. Each of these follows from the owner's correction, and nothing smaller meets it.
+- **Two providers, not one.** `RD-9` pins Chromium through the `playwright` dependency, and Chromium's rows need the DevTools Protocol, so Chromium stays on Playwright. Moving Firefox to WebdriverIO would make its build unpinned and gain nothing. So the second provider serves Safari only. The shared factory stays the one engine selection, and the provider is its point of variation (CONTRIBUTING §6).
+- **Commands keep their names and select by provider,** so a test file is the same in every engine, and an engine condition in a test states a missing instrument and nothing else.
+- **A missing command throws.** A reduced-motion emulation that silently did nothing would let a row pass in Safari without testing what it states.
+- **The community provider's risk is accepted** because nothing else drives Safari from Vitest. Its one known incompatibility with 5.1.0, the trace view, is property 3. Any other incompatibility is a stop under `RD-8` property 5, which the unit reports.
+- **`macos-26`, not `macos-15`:** the newest Safari that a standard runner ships is the one users get, and the label is named so that the move to the next one is an edit.
+- **The job sets the preference, rather than the rows giving way** (added at `83ff45024`). The landing rows test drag's motion, which is behavior that users of Safari get. An engine condition or an `RD-8` disable would leave those rows untested in Safari, for a reason that lies in the runner and not in Safari or drag. Setting the preference keeps the comparison between engines meaningful. Like remote automation, it is a single job step that the log shows.
+- **One Vitest process per Safari project** (added at `347d4e499`). In one process, Vitest's order conflicts with Safari's single session: the release that `RD-3` and TE-D12 put at the next group's first module comes after that group's browser opens. A process's run ends with its pool closing its only provider, so the next process starts with no session and no driver. The shared factory, the provider and the one-shot release don't change, and Chromium and Firefox keep one process. The cost is one Vitest start per Safari project, 7 today, in a job that runs only browser projects.
+
+**Not adopted.**
+
+- **Playwright's WebKit, on Ubuntu or on macOS.** That is the build that `9c96be2d8` runs, and the owner's correction rules it out: it isn't Safari.
+- **Keeping Playwright's WebKit as a fourth engine.** No requirement names it, it can't run locally (`drag:DRO-18`), and an engine that no job runs is machinery with no use.
+- **A cloud browser service,** such as BrowserStack or Sauce Labs. It needs an account and a secret, and a fork's pull request can't use the secret.
+- **Safari Technology Preview.** It isn't the Safari that users run.
+- **A no-op `emulateReducedMotion` in Safari,** for the reason above.
+- **One `safaridriver` that the job starts, with the provider pointed at its port** (the implementer's first option, at `347d4e499`). It removes the driver error but not the order. The second project would request a session while the first one is still attached, which Safari refuses. This is inferred from Apple's rule above and wasn't run.
+- **Closing the previous Safari provider before the next one opens,** in a wrapper around the provider or in an earlier hook. Vitest has no reporter hook between a group's end and the opening of the next group's page. TE-D12 refuses closing in `onTestModuleEnd`. A wrapper would depend on the community provider's internals. It would also race `safaridriver`'s `exit` event, which is when the package forgets its driver.
+- **One CI job per Safari project, as a matrix.** Each job would repeat checkout, `npm ci` and the build on a macOS runner. The project list would also have to be written in the workflow or computed by another job.
+- **Patching `safaridriver` or the provider** to remove the one-driver limit. That fixes the error and leaves the order.
+- **An engine condition on the rows that need motion** (at `83ff45024`). Property 5 covers a missing instrument, and these rows need none: they need the default preference.
+- **Treating those rows as `RD-8` rows.** They don't fail because of drag or Safari, and disabling them would hide the runner's preference behind findings.
+- **Conditioning those rows on the page's preference, read at run time.** If the image ever turned Reduce Motion on again, the landing rows would skip, and the job would stay green.
+
+**What this amends.**
+
+- **`RD-6`:** the title; property 2's runner; property 3's job names; property 4's engine list and drag's `test-engines`; property 6, which property 5 here generalizes; property 7's coverage sentence; property 8's list; and two reasons. Amended in place, with what each said before.
+- **`RD-8` property 1:** _"WebKit, and the visual result on CI's operating system, in CI"_ becomes Safari. Property 5's stops apply to Safari as to any engine.
+- **`RD-9` property 1:** _"as Firefox and WebKit already are"_ and _"WebKit stays out of local development (`drag:DRO-18`)"_.
+- **`drag:DRO-18`** gets a dated note: the job that covers the WebKit family is Safari on macOS, and its local selection is unchanged.
+- **`.agents/docs/test-architecture.md` §CI policy,** in the same commit. It said: _"each in Chromium, Firefox and WebKit … CI runs on plain GitHub-hosted runners, and its browsers are the builds the locked `playwright` package pins."_
+
+#### RD-13 — Baselines are recorded on GitHub's runner by a separate workflow that proposes them in a pull request, and local runs are Chromium only, without visual
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `26453da9c`, on the owner's decisions relayed by the coordinator the same day (O14 and O15 in the [design](ci-verification-1/ci-verification-design.md)). The unit stopped under `RD-8` property 5 and `RD-9` property 4. The owner considered hosted screenshot services and declined them, and decided: baselines are recorded on GitHub's runner, not in the devcontainer; a workflow apart from the gate records them and proposes changed images in a pull request, which the owner reviews and merges; the gate never writes a baseline. Local visual runs are off, and local runs are Chromium only, with Firefox and Safari covered by CI. **It amends `RD-2`'s acceptance and deliverable 1, `RD-6` properties 4 and 5, `RD-9` properties 1, 4, 5 and 6, `RD-12` property 8 and `drag:DRO-18`.** **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s section _Recording baselines on GitHub's runner_ implements it.
+
+**Amended 2026-11-16 by the architect** on `ci/verification` at `b750bd8ef`, on the feature-proof review's `reviewer-1` (`RF-38`). Property 3 gains _What `propose` writes_. The reason for two jobs said that a branch can't use the token for anything except the proposal, which was false for the branch's author, and now states whom the split protects against. What it said before is beside the reason. The handoff's section _Remediating the feature-proof review_ implements it.
+
+**The reading,** from the unit's stop at pull request #27's run 43813617164, relayed by the coordinator. The images are under [`ci-verification-1/visual/ci-run-43813617164/`](ci-verification-1/visual/ci-run-43813617164/). The `chromium` job on `ubuntu-24.04` doesn't reproduce 16 of the 19 baselines that the devcontainer (Debian 13) recorded with the same Chromium 158.0.8127.18 and Roboto. Each differs by 2 to 1,014 pixels, on anti-aliased edges, and rows with no text differ too. So the difference isn't only fonts. **Its cause isn't established.** Rasterization that differs by operating system libraries or by processor would both produce it. If GitHub's runners differ among themselves in the same way, the gate can turn intermittent on visual rows. Property 9's log lines exist to show that.
+
+**Properties.**
+
+1. **Where a baseline comes from.** Every committed baseline is recorded by the recording workflow, `.github/workflows/baselines.yml`, on GitHub's `ubuntu-24.04` runner, the label that the gate's `chromium` job uses, in `RD-9`'s pinned visual environment. A baseline recorded anywhere else is never committed. **The gate never writes, updates or approves a baseline.** The recording workflow writes baselines only to its proposal branch, and only the owner's merge brings them into another branch.
+2. **Triggers.** Only these two:
+   - `workflow_dispatch`, on the branch that the run is started for;
+   - `pull_request` of type `labeled`, when the label is `record-baselines` and the pull request's head branch is in this repository. This trigger works before the workflow is on `main`, which `workflow_dispatch` doesn't.
+
+   **The target branch** is the dispatched branch, or the pull request's head branch. **The recorded commit** is that branch's head when the run starts: for a pull request, its head commit, never the merge commit. A target under `baselines/` is refused. After a labeled run, the workflow removes the label, so adding it again records again.
+
+3. **Two jobs, so that the write permission never runs repository code.**
+   - `record` has `contents: read`. It checks out the recorded commit, runs `npm ci`, installs Playwright's Chromium, and runs the visual project with Vitest's update flag. It uploads, as an artifact, each baseline file that the run added or changed.
+   - `propose` needs `record`, and has `contents: write` and `pull-requests: write`, plus `actions: write` only for property 5. **It runs no code from the repository:** no `npm ci`, no recipe and no script from the tree. It uses only `git`, `gh` and pinned actions. It accepts from the artifact only paths that match `packages/*/tests/**/__screenshots__/**/*.png`, and fails on any other path.
+   - **What `propose` writes** (added 2026-11-16, `RF-38`). It writes only the proposal's baseline files, each as a regular file. Nothing in the recorded commit or the artifact can redirect a write: the job fails if a component of an accepted path is a symbolic link in the recorded commit, or if an artifact file isn't a regular file that starts with PNG's signature. No `git` command that it runs reads configuration or hooks that the recorded commit or the artifact can write.
+4. **The proposal branch and its pull request.**
+   - **Branch:** `baselines/<target>`, made from the recorded commit plus one commit that changes only baseline files. The workflow is the only writer of `baselines/*`, so it pushes the branch with force on each run.
+   - **Pull request:** it opens a pull request from that branch into the target, or updates the open one. Its body names the recorded commit, the run, the runner image's version, the Chromium version, the processor model, and each added and changed file.
+   - **When nothing changed,** it pushes nothing and opens nothing, and the job summary says so.
+   - **A baseline file changes only where its comparison failed or it didn't exist.** A file that still matches stays byte for byte as it is.
+   - **Obsolete baselines are not removed.** That stays a manual change.
+5. **How the gate runs on the proposal.** A pull request that the default `GITHUB_TOKEN` creates or updates triggers no workflow.
+   - **Into a branch other than `main`:** nothing is dispatched. The owner's merge of the proposal into the target is the owner's own push. It runs the target's pull request's `verify`, which reads the new baselines on the runner, and that run is the reproduction check.
+   - **Into `main`:** the workflow starts `verify` on `baselines/main` with `workflow_dispatch`, the one kind of event that `GITHUB_TOKEN` can trigger. The run's checks land on the proposal's head commit, so the branch rule's `verify` is satisfied by them. If that dispatch fails, the owner closes and reopens the pull request, which runs `verify` as the owner's event.
+6. **Concurrency and forks.** One recording per target runs at a time, and a newer one cancels the older one. A pull request from a fork never gets a write token, so the labeled trigger skips it. Its baselines are recorded on a branch in this repository.
+7. **Local runs are Chromium only, without visual (O15).**
+   - **Visual:** the shared factory declares the visual project only when `MX_TEST_VISUAL=1`. The gate's `chromium` job and the `record` job set the variable. No recipe sets it, and material-x's `test-visual` and `test-visual-update` recipes are removed.
+   - **Engines:** `MX_TEST_ENGINES` still defaults to `chromium`. The devcontainer installs only Playwright's Chromium. drag's `test-engines` sets no engine list: it runs drag's browser and shipped projects in the engines that `MX_TEST_ENGINES` lists, which is Chromium by default.
+   - **Other engines** run in CI. A developer who sets either variable locally gets an unchecked run, and its result is not evidence.
+8. **What a unit owes locally.** A local check covers Chromium, without visual. Firefox, Safari and visual results are read in CI on the unit's pull request. A unit that changes something they can see pushes and reads them there before it reports. A visual change is recorded through property 2, and the owner reviews the proposal.
+9. **Diagnostics, not guards.** The gate's `chromium` job and the `record` job log the runner image's version (`ImageOS`, `ImageVersion`) and the processor model before the tests. Nothing compares them. If the visual rows turn intermittent in CI, the unit stops, and the owner decides (`RD-9` property 4).
+
+**Why.**
+
+- **The baselines must come from where they are compared.** The gate compares on GitHub's runner, and the devcontainer's images don't reproduce there. Recording in a second place would need an environment that matches the runner pixel for pixel. Nothing pins the runner that closely, and the owner declined a hosted service.
+- **A pull request, not a commit pushed to the target,** because every changed baseline gets a person's review (`test-architecture.md` §What screenshots prove). The owner's merge is the approval.
+- **Two jobs,** because the labeled trigger runs code that the person who adds the label hasn't read in full: the branch's dependencies, its tests and the tools they start. The job that holds the write token runs none of it, and takes from it only image files at baseline paths. **This doesn't protect against the branch's author.** A pull request's run uses the workflow file of the branch's own merge commit, so an author with write access can change the workflow itself. Before adding the label, the person who adds it reads the branch's changes under `.github/`. Property 3's _What `propose` writes_ keeps that reading sufficient: without it, a symbolic link at a baseline path also reached the token (`RF-38`). (**Amended 2026-11-16, `RF-38`.** This reason said: _"because the labeled trigger runs a branch's code. The job that holds a write token runs none of it, so a branch can't use the token for anything except the proposal."_)
+- **One force-pushed branch per target,** so there is one open proposal per target, and the latest recording replaces the earlier one.
+- **`workflow_dispatch` for `main` only.** Only `main` has a rule that needs a check on the proposal. Into any other branch, the owner's merge already runs the target's own gate on the merged result, which is the run that matters.
+- **Local runs without visual or other engines,** on the owner's direction. CI is the authority for them, and a local result that can't match CI would only be noise.
+
+**Not adopted.**
+
+- **A hosted screenshot service:** declined by the owner.
+- **A token from a GitHub App or a personal access token,** so that the proposal triggers workflows. It needs a secret and its rotation. Only `main` needs a check on the proposal, and `workflow_dispatch` provides it.
+- **Recording in the gate's `chromium` job,** which `RD-2` and the owner rule out.
+- **A comparison tolerance wide enough to accept the devcontainer's images.** It would hide real changes of the same size, up to 1,014 pixels.
+- **A local visual preview,** off on the owner's direction.
+
+**What this amends.**
+
+- **`RD-2`:** the acceptance's _"the same pinned image runs locally and in CI and produces matching screenshots; no baseline is written by CI"_ becomes this: one pinned visual environment on GitHub's runner records and compares; no baseline reaches a branch except through the owner's merge of a proposal; and the gate writes none. Deliverable 1's _"the same image must be runnable locally"_ no longer applies, because no visual run is local. **This is the owner's decision, and it changes the acceptance's substance.**
+- **`RD-6`:** property 4's drag `test-engines` sentence and property 5's _"CI never writes, updates or approves a baseline"_. Amended in place.
+- **`RD-9`:** property 1's devcontainer install; property 4, which now names the runner; properties 5 and 6, which now record through the workflow. Amended in place.
+- **`RD-12` property 8** and **`drag:DRO-18`:** the local engine is Chromium.
+- **`.agents/docs/test-architecture.md`** §What screenshots prove and §CI policy, in the same commit. §What screenshots prove said: _"Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review."_ and _"Local runs and CI use the same pinned Chromium and fonts so developer output matches CI, and changing either re-records the baselines in a pull request of its own. The environment is owed rather than installed (`repo:RD-2`, `repo:RD-9`), so until it lands a baseline is only as reproducible as the container that wrote it."_ §CI policy said: _"Local runs cover Chromium and Firefox, and Safari runs in CI. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines."_
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -143,7 +537,7 @@ Tier B. `reviewer-3` + `der-2`, Review Swarm, found independently and blind to e
 
 #### RF-8 — The repository documents a pull-request gate that does not exist
 
-Tier B. `der-5`, Review Swarm; carried as `TE-F40`. `test-architecture.md` §CI policy states that every pull request gates on the verification suite; `.github/workflows/` contains `docs.yml` alone, on `push` to `main` and `workflow_dispatch`. **Open**, and dispositioned by RD-2: the policy is accepted and the mechanism is owed. Nothing about the repository's actual enforcement has changed, so this row closes when RD-2's four deliverables land and not before.
+Tier B. `der-5`, Review Swarm; carried as `TE-F40`. `test-architecture.md` §CI policy states that every pull request gates on the verification suite; `.github/workflows/` contains `docs.yml` alone, on `push` to `main` and `workflow_dispatch`. **Open**, and dispositioned by RD-2: the policy is accepted and the mechanism is owed. Nothing about the repository's actual enforcement has changed, so this row closes when RD-2's four deliverables land and not before. **Dated 2026-11-16:** the mechanism is designed (`RD-6` to `RD-9`) and unimplemented. The row stays open until the owner's branch rule is on.
 
 #### RF-9 — D-198 states the scoping its own correction retracts, and the register's projection reports both
 
@@ -245,6 +639,14 @@ Tier B: `just test` cannot exit 0, so a clean root run is not something the repo
 
 None has been looked into. **Open.** Required property: a root run on a clean tree can exit 0. **Whether these block that branch's merge is the owner's** (§35.8). `F-412` keeps its own row.
 
+**Dated 2026-11-16:** at `a8726c57d` the `tproc` row still fails, the `radio.visual` row passed once, and the `drag2` row left with drag2 (`RD-8`'s reading). `RD-8` handles each remaining row before the branch rule is on.
+
+**Dated 2026-11-16, by the CI verification unit** ([report](ci-verification-1/ci-verification-report.md) §6): both remaining rows are **repaired in the tests, at `f0ec37881`**, under `RD-8` property 2. Neither is disabled.
+
+- **`tproc`:** the row expected `state('hovered')` to keep `container.color`. `TokenPackage.state` is documented as deduped against what the state inherits (`TokenPackage.ts:61`, `ExtensionManager.ts:161`), and `hovered` inherits `container.color: red` from `default`. The expectation now holds only `state-layer.opacity`. A regression in the deduping still fails the row.
+- **`radio.visual`:** the pointer stayed where an earlier test, possibly in another file in the same page, had left it. When that spot was over the unchecked radio, the screenshot showed it hovered. The failing capture is pixel-identical to one taken with that radio hovered on purpose. `packages/material-x/tests/support/browser-setup.ts` now moves the pointer to the page's top-left corner before each test. A scratch test that leaves the pointer there fails the row without the reset and passes with it.
+- The required property, a root run on a clean tree that exits 0, held in five Chromium runs of the root suite with coverage and without `measurement` rows, on a fresh clone of `f0ec37881`.
+
 #### RF-30 — The one-shot refusal says every `--sequence.*` flag erases the configured order
 
 Tier C: a message overstates what a flag does, and nothing goes wrong because of it. `reviewer-2`, [`verification-regressions-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §36.5. `.scripts/vitest-one-shot.ts`'s group refusal ends: _A --sequence.\* flag on the command line replaces the configured sequence object wholesale and erases it._ That has been untrue since Vitest 5, at `01d88645f`: CLI options merge deeply, so `--sequence.shuffle`, `.concurrent`, `.seed` and `.hooks` leave each project's order alone, and `--sequence.groupOrder` gives every project the same value. The refusal still fires where it should. **Open, and not a merge gate.** Required property: the refusal states what a command-line flag does at the Vitest version in use. It is one sentence in one file, and it can land on either side of the merge.
@@ -284,6 +686,77 @@ Tier C, open. Registered by the architect on 2026-11-14 from drag's [final clean
 - **Why it is a problem:** each package's lint exits 1 at every base, so a unit that touches either package can show only that it adds no error, as `drag:DRF-38` was.
 - **Required property:** both packages' lint exits 0, with no rule turned off and no disable comment, and the emitted JavaScript keeps its behavior. The `camelcase` sites are option keys passed to another library, so their runtime names stay.
 - **Routed** to a repository cleanup unit for an `implementer`, which the owner starts. It isn't drag's work and doesn't gate drag's pull request. **Return to the architect** if a fix needs a rule turned off, a disable comment, or a change to a runtime name.
+- **Dated 2026-11-16: two ESLint rules that re-decide the oxlint configuration** are turned off by `RD-11`. Each one is either allowed in `.oxlintrc.json` or enforced by oxlint. That amends the required property for those two rules only.
+- **Dated 2026-11-16: names that another program reads** pass through `RD-10`'s exact allow list. That amends the required property for these names only: _"no rule turned off and no disable comment"_ still holds, and `camelcase` stays on. The four `html.ts` keys are such names.
+- **Dated 2026-11-16: re-routed** to the CI verification unit ([handoff](ci-verification-1/ci-verification-handoff.md)), because the gate's `static` job runs every package's lint (`RD-8` property 2). At `a8726c57d`, lint fails in all eight packages, not only these two. The required property and the return condition stand.
+
+#### RF-33 — In Firefox, focusing an `mx-button` doesn't delegate focus to its native button
+
+Tier B, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. **Disabled in Firefox only,** as expected failures (`it.fails`), and the marking cites this address.
+
+- **The rows,** in `packages/material-x/tests/`:
+  - `button/button.browser.test.ts`: `mx-button` › "should delegate focus to the native button" and `mx-icon-button` › the same title;
+  - `button-group/button-group.browser.test.ts`: `mx-connected-button-group roving tabindex` › "should move the tab stop to the next item on ArrowRight" and "should move the tab stop to the last item on End".
+- **The failure:** in Playwright's Firefox 159.0, `element.focus()` on an `mx-button` host, whose shadow root has `delegatesFocus: true`, leaves `document.activeElement` on `body` and `shadowRoot.activeElement` `null`. The button-group rows focus a button and then press a key, so the key never reaches the group and the tab stop stays where it was. All four fail in every one of five local runs and in CI.
+- **What is established:** a plain host with `delegatesFocus: true` and a `<button>` in its shadow root delegates focus in the same Firefox. Calling `focus()` on the native button directly focuses it. Neither a frame of layout before `focus()` nor a click that gives the document focus changes the result. So the cause is in what `mx-button` renders or sets, and isn't the test's. **The exact cause is not established.**
+- **Required property:** in Firefox, `focus()` on an `mx-button` or `mx-icon-button` host focuses its native button, as in Chromium, and the four rows pass there without their marking.
+- **Routed** as a material-x product unit, which the owner orders. The CI unit doesn't change product source.
+
+#### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. **Disabled in Firefox only,** as an expected failure, and the marking cites this address.
+
+- **The row:** `packages/box-quad/tests/coordinates.browser.test.ts`, `coordinates numeric precision` › "should derive a rotated and scaled size to within a ten-thousandth".
+- **The failure:** in Firefox 159.0 the size recovered from `getClientRects()` through the matrix determinant is off by 0.0076 px, against the row's tolerance of 0.0001. Chromium's residual is about 3e-5, as the row's comment says. It fails in every one of five local runs and in CI.
+- **The inferred cause:** Firefox reports client rects in its layout unit of 1/60 px, so the un-projected size carries up to that rounding. Not confirmed by a probe.
+- **Required property:** box-quad states the precision its recovered size has in each engine it supports, and the row asserts that precision in each engine and passes there. Whether the tolerance becomes per engine or the measurement changes is box-quad's decision.
+- **Routed** to the owner of box-quad. The CI unit doesn't change product source.
+
+#### RF-35 — `mx-radio` and `mx-checkbox` draw no focus state layer, which Material's tokens define
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §The `radio-focused` review), from the owner's review of baseline proposal #28. **No row is disabled:** the visual rows show what the components draw.
+
+- **What the owner saw:** #28's `radio-focused` shows the focus outline only. The baseline it replaces also showed the grey state-layer circle.
+- **Why the circle was there:** the circle is the ripple's `::before`, which only `:host(:hover)` shows (`src/core/animations/ripple/styles/main.styles.css`). Nothing in `src/radio/styles/default/main.styles.css` draws a state layer on focus. Before `f0ec37881` the pointer stayed where the previous row left it, and the hovered row before `radio-focused` left it over the same spot. A scratch witness shows `radio.matches(':hover')` true at the focused row's screenshot without the pointer reset and false with it ([output](ci-verification-1/checks/radio-focused-hover.txt)). Across the visual suite, the same reset removes an unintended hover from `radio-focused`, `checkbox-focused`, `button-focused` and, depending on file order, `checkbox-states` ([output](ci-verification-1/checks/visual-rows-hover.txt)).
+- **The gap:** Material's token tables define `md.comp.radio-button.selected.focus.state-layer.color` and `.opacity`, the same for `unselected`, and `md.comp.checkbox.{selected,error,…}.focus.state-layer.*`. The components render no focus state layer, so a keyboard-focused radio or checkbox shows the outline alone. The old baselines hid that.
+- **Required property:** each of `mx-radio`, `mx-checkbox` and `mx-button` either draws the focus state layer its tokens define, or the record states why it doesn't. Its focused visual row is recorded again through `repo:RD-13` when that changes.
+- **Routed** as a material-x product question for the owner. The CI unit doesn't change product source.
+
+#### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §Safari's inventory over three runs), under `RD-8` properties 1 and 4. **Skipped in Safari only** (`it.skipIf`), and the marking cites this address.
+
+- **The rows,** in `packages/core/tests/traits/reorderable.browser.test.ts`, `useReorderable`:
+  - "should take the visual out of the top layer once the drag lands";
+  - "should not dispatch a reorder for a no-op drop", added on 2026-11-16 after run 43843800063.
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failures:** each row drags the list's sole item and waits up to 1,000 ms for `item.matches(':popover-open')` to be false. In attempt 2 of run 43830910625 at `ddf72ec4e`, the first row's wait gave up (`expected true to be falsy`, 1,026 ms); it passed in attempts 1 and 3 and in run 43827320614. In run 43843800063 at `6fd774bc4`, the second row's wait gave up the same way (1,015 ms); it had passed in the five Safari runs before. Eight more rows in the file use the same 1,000 ms wait.
+- **What is known:** the row registers no reorder listener, so after the 200 ms landing the session waits core's 500 ms `COMMIT_TIMEOUT` (`src/traits/reorderable.ts`) before returning the visual: at least 700 ms against the row's 1,000 ms. A late timer or frame in Safari would cross it. **The cause is not established:** that is an inference, not a reading.
+- **Required property:** the rows pass in Safari in every run, with a wait that states the landing and the commit grace it covers.
+- **Routed** to core's owner. The CI unit doesn't change the row's wait or core's source.
+
+#### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
+
+Tier C, **open**, low priority. Registered on 2026-11-16 by the architect, on the owner's observation relayed by the coordinator. **It doesn't affect results.** On the owner's direction, it is handled after the CI unit, not inside it. Nothing for the CI unit to do.
+
+- **What the owner saw:** in the `safari` job's log, at the start of a Vitest 5.1.0 run, Vite warns _"The above dynamic import cannot be analyzed by Vite"_. The warning is for `import(filepath)` in `runExternalModule`, inside `packages/material-x/.vite/vitest/<hash>/deps/vitest_n_vite_module-runner.js`, the pre-bundled `vite/module-runner`.
+- **Read by the architect in the devcontainer:** five of material-x's local Vitest pre-bundle directories list `"vitest > vite/module-runner"` in `deps/_metadata.json`. One of them is dated 2026-11-04, before `RD-12` added the WebdriverIO provider. So the pre-bundling doesn't need that provider, and the provider, the first suspect, is less likely to be the cause. This reads the pre-bundle, not the warning.
+- **Not established:**
+  - whether the `chromium` and `firefox` jobs, or a local Chromium run, print the warning;
+  - what puts `vite/module-runner` into the browser's dependency pre-bundle: Vitest itself, a project's `optimizeDeps`, or a provider.
+- **Required property:** a browser test run starts without this warning, or the record states the warning's source and why it stays. Silencing the warning without naming its source doesn't meet this property.
+- **Routed** after the CI unit, for the owner to order.
+
+#### RF-38 — The recording workflow's write-token job writes through a symbolic link that the recorded commit places at a baseline path
+
+Tier B, **open; blocks merge of pull request #27.** Registered on 2026-11-16 by the architect from the feature-proof review's `reviewer-1` ([review](reviews/ci-verification-1/feature-proof-claude.md)), read at `397e4ec14`.
+
+- **The contract it breaks:** `RD-13` property 3. `propose` holds `contents: write`, `pull-requests: write` and `actions: write`, and must run no code from the repository.
+- **The behavior:** `propose` checks out the recorded commit, then copies each accepted artifact file over that working tree with `cp` and runs `git add` (`baselines.yml:99`–`:130`). The path filter reads only the path's text. A branch that commits a symbolic link at `packages/x/tests/__screenshots__/a.png` that points to `.git/config` has `cp` write the artifact's content into `.git/config`. A `core.fsmonitor` key there then runs a command at `git add`, with `GH_TOKEN` in its environment.
+- **What is established:** the reviewer reproduced it with the job's own commands in a scratch repository (git 2.47.3): the path passed the filter, and `git add` ran the command. The architect confirmed that GNU `cp` 9.7 writes through a destination symbolic link.
+- **Reach:** only a branch in this repository, run through the label or `workflow_dispatch`, so the author has write access. That author could already change the workflow file in the branch (`RD-13`'s amended reason). The link makes the same access reachable through a change that doesn't touch `.github/`, which is the change the person adding the label reads.
+- **Required property:** `RD-13` property 3's _What `propose` writes_.
+- **Routed** to the implementer on `ci/verification`, by the [handoff](ci-verification-1/ci-verification-handoff.md)'s _Remediating the feature-proof review_.
 
 ## Questions
 

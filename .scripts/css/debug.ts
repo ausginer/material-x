@@ -36,7 +36,7 @@ if (file) {
   const result = await format(
     transform(imported ?? '', fileName).code,
     // Remove TS extension to avoid oxfmt hiccup
-    fileName.replace(/\.ts$/, ''),
+    fileName.replace(/\.ts$/u, ''),
   );
   console.log(result);
 } else if (set) {

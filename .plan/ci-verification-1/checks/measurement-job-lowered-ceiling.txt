@@ -1,0 +1,25 @@
+# Item 8's measurement-job check: run 43843800063 (https://github.com/ausginer/material-x/actions/runs/43843800063)
+# at 6fd774bc4, which lowers drag's 'draggable + lift' ceiling from 3932 to 3931 B in bench/size/measure.ts.
+# 41cefdc93 restores it.
+
+## Jobs
+static        success  134 s
+chromium      success  407 s   (the gate's rows, with --tags-filter '!measurement': the ceiling row isn't among them)
+firefox       success  558 s
+measurements  success  158 s   (continue-on-error: its own steps succeeded)
+safari        failure  674 s   (core useReorderable "should not dispatch a reorder for a no-op drop", a top-layer wait, unrelated to the ceiling; now under repo:RF-36)
+verify        failure    3 s   (because of safari only)
+run conclusion: failure        (because of safari only)
+
+## The size comment on pull request #27, after the run
+**No base reading:** the merge base gave no machine-readable reading, so only the head is reported.
+| drag | draggable + lift | 3932 | — |  | 3931 **over by 1 B** | 4362 |
+| drag:DRI-18 module graphs and size should satisfy the ceiling and control of draggable + lift | **failed:** AssertionError: expected [ 'over its 3931 B ceiling by 1 B' ] to deeply equal [] |
+
+## Attempt 2: only the safari job rerun, at the same commit, with the ceiling still lowered
+safari        success  (all 7 projects exited with 0)
+verify        success
+run conclusion: success, attempt 2
+
+The comment and the job summary report the excess, the measurement job and verify succeed, and the run's conclusion is
+success. Attempt 1 failed only on Safari's intermittent top-layer row, which repo:RF-36 now covers.

@@ -29,7 +29,10 @@ describe('useShadowDOM', () => {
       useShadowDOM(h, [template], [sheet]);
     });
 
-    expect(el.shadowRoot?.adoptedStyleSheets).toEqual([sheet]);
+    // A copy, because Firefox's `adoptedStyleSheets` is an observable array
+    // that deep equality doesn't match against an array, though it holds the
+    // same sheet.
+    expect([...(el.shadowRoot?.adoptedStyleSheets ?? [])]).toEqual([sheet]);
   });
 
   it('should apply provided shadow root init options', () => {

@@ -27,12 +27,12 @@ Migration is in progress: some tests are still colocated under `src` and the Vit
 | --- | --- | --- | --- |
 | `*.browser.test.ts` | public behavior + platform/a11y semantics | `browser` | `just test-behavior` |
 | `*.spec.browser.test.ts` | tproc-backed visual contracts | `spec` | `just test-spec` |
-| `*.visual.browser.test.ts` | reviewed screenshots | `visual` | `just test-visual` |
+| `*.visual.browser.test.ts` | reviewed screenshots | `visual` | CI only: the gate's `chromium` job, with `MX_TEST_VISUAL=1` |
 | `*.node.test.ts` | tproc/compiler + Node-only | `node` | `just test` |
 
 **One Vitest process runs one test run.** Every recipe here starts a process, runs once, releases its browser providers and ends; test watch and VS Code Continuous Run are retired, and a second run in one process raises before any module executes. Re-run by invoking the recipe again. Reasoning: [`test-architecture.md`](../../../.agents/docs/test-architecture.md) §Run lifecycle.
 
-The `browser` project **excludes** the `.spec.browser` and `.visual.browser` patterns, so a misnamed file lands in the wrong suffix bucket silently — name it precisely. Project globs live in `.scripts/vitest-config.ts`; that config is the source of truth, not this table. Every workflow selects a named project (`--project browser|spec|visual|node`), never a shell glob. Update baselines only via `just test-visual-update` — never automatically, never in CI.
+The `browser` project **excludes** the `.spec.browser` and `.visual.browser` patterns, so a misnamed file lands in the wrong suffix bucket silently — name it precisely. Project globs live in `.scripts/vitest-config.ts`; that config is the source of truth, not this table. Every workflow selects a named project (`--project browser|spec|visual|node`), never a shell glob. Visual runs only in CI, and baselines are recorded only by the recording workflow on GitHub's runner, which proposes them in a pull request for review (`repo:RD-13`) — never locally, never in the gate.
 
 ## Behavior tests (`*.browser.test.ts`)
 

@@ -259,6 +259,7 @@ describe('drag:DRI-17 hot path', () => {
 
   it.runIf(isChromium)(
     'should allocate per sample only the CSS string a lifted write needs',
+    { tags: ['measurement'] },
     async () => {
       const list = makeList(20);
 
@@ -315,6 +316,7 @@ describe('drag:DRI-17 hot path', () => {
 
   it.runIf(isChromium)(
     'drag:DRF-2 should allocate per sample in the lift only its CSS string, at a non-integer displacement',
+    { tags: ['measurement'] },
     async () => {
       const list = makeList(20);
       const lifter = new Lifter(window);

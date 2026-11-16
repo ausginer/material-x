@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { server } from 'vitest/browser';
 import { ancestry, coordinates } from '../src/index.ts';
 import {
   createBox,
@@ -212,26 +213,31 @@ describe('coordinates numeric precision', () => {
     expect(measured[BOX_HEIGHT]).toBe(40);
   });
 
-  it('should derive a rotated and scaled size to within a ten-thousandth', () => {
-    // The size is recovered by un-projecting `getClientRects()` through the
-    // matrix determinant, so a rotation with a non-integer scale leaves a small
-    // residual — around 3e-5 here. This is where that error lives: `projection`
-    // itself is exact to Float64 precision, which the DOM-free self-inverse
-    // suite pins separately.
-    const measured = measure(
-      createBox({
-        styles: {
-          width: '20px',
-          height: '10px',
-          transform: 'rotate(30deg) scale(1.5)',
-        },
-      }),
-    );
+  // Firefox reports client rects in 1/60 px layout units, which leaves a larger
+  // residual than this row allows (`repo:RF-34`).
+  (server.browser === 'firefox' ? it.fails : it)(
+    'should derive a rotated and scaled size to within a ten-thousandth',
+    () => {
+      // The size is recovered by un-projecting `getClientRects()` through the
+      // matrix determinant, so a rotation with a non-integer scale leaves a small
+      // residual — around 3e-5 here. This is where that error lives: `projection`
+      // itself is exact to Float64 precision, which the DOM-free self-inverse
+      // suite pins separately.
+      const measured = measure(
+        createBox({
+          styles: {
+            width: '20px',
+            height: '10px',
+            transform: 'rotate(30deg) scale(1.5)',
+          },
+        }),
+      );
 
-    expect(measured[BOX_WIDTH]).not.toBe(20);
-    expectNear(measured[BOX_WIDTH]!, 20, 0.0001);
-    expectNear(measured[BOX_HEIGHT]!, 10, 0.0001);
-  });
+      expect(measured[BOX_WIDTH]).not.toBe(20);
+      expectNear(measured[BOX_WIDTH]!, 20, 0.0001);
+      expectNear(measured[BOX_HEIGHT]!, 10, 0.0001);
+    },
+  );
 
   it('should fall back to the computed size for a near-degenerate matrix', () => {
     // A heavy shear leaves the determinant tiny next to its scale, where

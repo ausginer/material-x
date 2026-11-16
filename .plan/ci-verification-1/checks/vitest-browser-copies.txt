@@ -1,0 +1,9 @@
+@ydinjs/material-x-workspace@ /workspaces/material-x
+├─┬ @vitest/browser-playwright@5.1.0
+│ └── @vitest/browser@5.1.0 deduped
+├─┬ @vitest/browser-webdriverio@5.0.0
+│ └── @vitest/browser@5.1.0 deduped
+├── @vitest/browser@5.1.0
+└─┬ @vitest/coverage-v8@5.1.0
+  └── @vitest/browser@5.1.0 deduped
+

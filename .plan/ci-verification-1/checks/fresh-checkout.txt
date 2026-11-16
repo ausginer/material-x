@@ -1,0 +1,13 @@
+# Item 5: the root static recipes, each on its own fresh clone of 234ade127 after npm ci
+
+## just fmt-check: exit 0, 6 s
+ NX   8 tasks: 8 succeeded
+All matched files use the correct format.
+Finished in 20ms on 144 files using 12 threads.
+
+## just lint: exit 0, 38 s
+ NX   15 tasks: 15 succeeded
+ NX   1 task: 1 succeeded
+
+## just typecheck: exit 0, 6 s
+ NX   14 tasks: 14 succeeded

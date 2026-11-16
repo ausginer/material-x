@@ -96,8 +96,9 @@ describe('TokenPackageProcessor', () => {
 
     const pkg = processor.build();
 
+    // `state` is deduped against what the state inherits, and `hovered`
+    // inherits `container.color: red` from `default`.
     expect(pkg.state('hovered')).toEqual({
-      'container.color': 'red',
       'state-layer.opacity': 0.08,
     });
     expect(pkg.effective('hovered')).toEqual({

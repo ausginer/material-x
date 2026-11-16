@@ -1,0 +1,132 @@
+# The safari job of run 43827320614 (https://github.com/ausginer/material-x/actions/runs/43827320614), at 2b540c639: npx just test-safari --tags-filter '!measurement'.
+# macOS 26.7.2 (25G332), Safari 27.2. Every listed project opened Safari and ran.
+
+## Each project's totals and exit status
+Tests  7 passed | 2 skipped (9)
+shipped/drag/safari (safari) exited with 0
+Tests  245 passed (245)
+browser/core/safari (safari) exited with 0
+Tests  242 passed (242)
+browser/box-quad/safari (safari) exited with 0
+Tests  29 failed | 406 passed | 10 skipped (445)
+browser/drag/safari (safari) exited with 1
+Tests  27 failed | 373 passed | 10 skipped (410)
+consumer/drag/safari (safari) exited with 1
+Tests  141 passed (141)
+browser/material-x/safari (safari) exited with 0
+Tests  98 passed (98)
+spec/material-x/safari (safari) exited with 0
+
+## Failing rows, with the first error line (29 in browser/drag, 27 in consumer/drag)
+browser/drag/safari (safari)  tests/activation.browser.test.ts > drag:DRI-14 command activation > should land a keyboard command from the old slot
+    TypeError: undefined is not an object (evaluating 'flight.effect')
+browser/drag/safari (safari)  tests/activation.browser.test.ts > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+    AssertionError: expected [] to not have a length of +0
+browser/drag/safari (safari)  tests/activation.browser.test.ts > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+    AssertionError: expected [] to not have a length of +0
+browser/drag/safari (safari)  tests/commit.browser.test.ts > drag:DRI-9 README examples > should keep the scrolling-container example where it was dropped, and land it home
+    AssertionError: expected [ 40, 130 ] to deeply equal [ 40, 120 ]
+browser/drag/safari (safari)  tests/drop-targets.browser.test.ts > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/free-drag.browser.test.ts > freeDrag > should land home on a rejection, only with a landing
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/free-drag.browser.test.ts > freeDrag > should land at a custom home
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/free-drag.browser.test.ts > bounds with a function source > should leave the drag unconstrained when the function returns null
+    AssertionError: expected [ 944, 524 ] to deeply equal [ 1245, 685 ]
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should land additively from where it was dropped
+    AssertionError: expected [] to include 'add'
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+    AssertionError: expected [] to have a length of 1 but got +0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should stay above static siblings for the whole flight
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should stay above relative siblings for the whole flight
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should stay above z-index siblings for the whole flight
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should land an accepted drop at its new slot
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should keep timing a custom landing named
+    TypeError: undefined is not an object (evaluating 'flight.effect')
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object
+    TypeError: undefined is not an object (evaluating 'flight.effect')
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+    AssertionError: expected [ { …(2) } ] to deeply equal [ { …(2) } ]
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 free-drag landing origin > should start the landing from the axis-locked position, not the pointer
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 free-drag landing origin > should start the landing from the clamped position, not the pointer
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 free-drag landing origin > should start the landing from the moveTo position, not the pointer
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/order.browser.test.ts > drag:DRI-9 and drag:DRI-12 release order > should start the landing before the focus call
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/release.browser.test.ts > drag:DRI-9 release order > should release in the fixed order
+    AssertionError: expected [ 'settle:signal=false', …(3) ] to deeply equal [ 'settle:signal=false', …(4) ]
+browser/drag/safari (safari)  tests/release.browser.test.ts > drag:DRI-9 release order > should run the terminal in the task of the decision, before the landing ends
+    AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+    AssertionError: expected 90 to be less than 1
+browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+    AssertionError: expected 0 to be greater than 0
+browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+    AssertionError: expected 90 to be less than 1
+browser/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-9 authored transitions > should propose the gap a full measurement gives with transitions on the rows and the item
+    Error: Test timed out in 15000ms.
+browser/drag/safari (safari)  tests/stories.browser.test.ts > Free Drag stories > should keep a TransformedStage box where it was dropped
+    AssertionError: expected 15.999969482421875 to be less than or equal to 1
+consumer/drag/safari (safari)  tests/activation.browser.test.ts > drag:DRI-14 command activation > should land a keyboard command from the old slot
+    TypeError: undefined is not an object (evaluating 'flight.effect')
+consumer/drag/safari (safari)  tests/activation.browser.test.ts > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a accepted landing
+    AssertionError: expected [] to not have a length of +0
+consumer/drag/safari (safari)  tests/activation.browser.test.ts > drag:DRI-13 a grab during a landing > should keep the visual under the pointer during a rejected landing
+    AssertionError: expected [] to not have a length of +0
+consumer/drag/safari (safari)  tests/commit.browser.test.ts > drag:DRI-9 README examples > should keep the scrolling-container example where it was dropped, and land it home
+    AssertionError: expected [ 40, 130 ] to deeply equal [ 40, 120 ]
+consumer/drag/safari (safari)  tests/drop-targets.browser.test.ts > drag:DRD-33 C2 one config across controllers > should give each controller its own runtime
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/free-drag.browser.test.ts > freeDrag > should land home on a rejection, only with a landing
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/free-drag.browser.test.ts > freeDrag > should land at a custom home
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/free-drag.browser.test.ts > bounds with a function source > should leave the drag unconstrained when the function returns null
+    AssertionError: expected [ 944, 524 ] to deeply equal [ 1245, 685 ]
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should land additively from where it was dropped
+    AssertionError: expected [] to include 'add'
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should report a landing that cannot run, and let the outcome stand
+    AssertionError: expected [] to have a length of 1 but got +0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should keep the landing through a press that never activates, and cancel at the next activation
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should stay above static siblings for the whole flight
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should stay above relative siblings for the whole flight
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should stay above z-index siblings for the whole flight
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should land an accepted drop at its new slot
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should keep timing a custom landing named
+    TypeError: undefined is not an object (evaluating 'flight.effect')
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should keep the timing values returned at the land call when the timing reuses its object
+    TypeError: undefined is not an object (evaluating 'flight.effect')
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 landing > should start a named landing when releasing the top layer throws, and let the outcome stand
+    AssertionError: expected [ { …(2) } ] to deeply equal [ { …(2) } ]
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 free-drag landing origin > should start the landing from the axis-locked position, not the pointer
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 free-drag landing origin > should start the landing from the clamped position, not the pointer
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/landing.browser.test.ts > drag:DRI-13 free-drag landing origin > should start the landing from the moveTo position, not the pointer
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/order.browser.test.ts > drag:DRI-9 and drag:DRI-12 release order > should start the landing before the focus call
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/release.browser.test.ts > drag:DRI-9 release order > should release in the fixed order
+    AssertionError: expected [ 'settle:signal=false', …(3) ] to deeply equal [ 'settle:signal=false', …(4) ]
+consumer/drag/safari (safari)  tests/release.browser.test.ts > drag:DRI-9 release order > should run the terminal in the task of the decision, before the landing ends
+    AssertionError: expected [ Array(1) ] to deeply equal [ Array(1) ]
+consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array
+    AssertionError: expected 90 to be less than 1
+consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 collection > should land at home when a cancel comes between an in-place change and invalidate
+    AssertionError: expected 0 to be greater than 0
+consumer/drag/safari (safari)  tests/sortable.browser.test.ts > drag:DRI-14 collection > should land at the rebased home when a drag is canceled after a rebase
+    AssertionError: expected 90 to be less than 1

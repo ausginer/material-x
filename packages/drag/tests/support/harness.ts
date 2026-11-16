@@ -20,6 +20,12 @@ export { equivalenceChecks, refusals, takeMismatches } from './oracles.ts';
 
 export const engine: string = server.browser;
 export const isChromium: boolean = engine === 'chromium';
+export const isSafari: boolean = engine === 'safari';
+/**
+ * Safari's driver has no counterpart to Playwright's media emulation, so it
+ * can't set `prefers-reduced-motion` (`repo:RD-12` property 5).
+ */
+export const canEmulateReducedMotion: boolean = engine !== 'safari';
 
 /** Runs its `react` synchronously inside the DOM write that triggers it. */
 export class ReactionProbe extends HTMLElement {

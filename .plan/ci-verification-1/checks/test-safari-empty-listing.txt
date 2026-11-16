@@ -1,0 +1,31 @@
+# Run on the recipe after its bash 3.2 rewrite (macOS's bash has no mapfile; run 43826200410's safari job).
+# Scratch edit 1: the listing selects --project 'no-such-project'. Reverted after.
+$ npx just test-safari
+The Safari project listing failed
+error: recipe `test-safari` failed with exit code 1
+exit status: 1
+
+# Scratch edit 2: the listing's output is an empty JSON array. Reverted after.
+$ npx just test-safari
+The listing found no Safari project
+error: recipe `test-safari` failed with exit code 1
+exit status: 1
+
+# Scratch edit 3: each `vitest run` is replaced with an echo, and `browser/drag/safari (safari)` is made to fail. Reverted after.
+$ npx just test-safari --tags-filter '!measurement'
+vitest run --project shipped/drag/safari (safari) --tags-filter !measurement
+shipped/drag/safari (safari) exited with 0
+vitest run --project browser/core/safari (safari) --tags-filter !measurement
+browser/core/safari (safari) exited with 0
+vitest run --project browser/box-quad/safari (safari) --tags-filter !measurement
+browser/box-quad/safari (safari) exited with 0
+vitest run --project browser/drag/safari (safari) --tags-filter !measurement
+browser/drag/safari (safari) exited with 1
+vitest run --project consumer/drag/safari (safari) --tags-filter !measurement
+consumer/drag/safari (safari) exited with 0
+vitest run --project browser/material-x/safari (safari) --tags-filter !measurement
+browser/material-x/safari (safari) exited with 0
+vitest run --project spec/material-x/safari (safari) --tags-filter !measurement
+spec/material-x/safari (safari) exited with 0
+error: recipe `test-safari` failed with exit code 1
+exit: 1

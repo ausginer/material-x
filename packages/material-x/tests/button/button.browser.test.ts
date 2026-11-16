@@ -1,11 +1,18 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it, vi, type Mock } from 'vitest';
+import { server } from 'vitest/browser';
 import '../../src/button-group/button-group.ts';
 import '../../src/button/button.ts';
 import '../../src/button/icon-button.ts';
 import '../../src/button/link-button.ts';
 
 type ButtonTag = 'mx-button' | 'mx-icon-button';
+
+/**
+ * In Firefox, focusing an `mx-button` host doesn't delegate focus to its native
+ * button (`repo:RF-33`), so these rows are expected to fail there.
+ */
+const itFailsInFirefox = server.browser === 'firefox' ? it.fails : it;
 
 function createElement<Tag extends keyof HTMLElementTagNameMap>(
   tag: Tag,
@@ -36,7 +43,7 @@ function getNativeAnchor(element: HTMLElement): HTMLAnchorElement {
 }
 
 describe.each<ButtonTag>(['mx-button', 'mx-icon-button'])('%s', (tag) => {
-  it('should delegate focus to the native button', () => {
+  itFailsInFirefox('should delegate focus to the native button', () => {
     const element = createElement(tag);
 
     element.focus();

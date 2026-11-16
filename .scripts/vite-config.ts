@@ -71,7 +71,7 @@ export function createMaterialXViteConfig(
       react(),
       inspectEnabled
         ? inspect({
-            include: [/\.css\.ts/],
+            include: [/\.css\.ts/u],
             build: true,
           })
         : null,

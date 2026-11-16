@@ -1,0 +1,9 @@
+# Each drag command with no WebDriver counterpart, called with a WebdriverIO provider context.
+# Scratch script packages/drag/tests/support/zz-scratch-named-error.ts, removed after this run; at e2eb61d1c.
+
+emulateReducedMotion: emulateReducedMotion has no implementation for the webdriverio provider
+touch: touch has no implementation for the webdriverio provider
+forceGarbageCollection: forceGarbageCollection has no implementation for the webdriverio provider
+countHeapObjects: countHeapObjects has no implementation for the webdriverio provider
+startHeapSampling: startHeapSampling has no implementation for the webdriverio provider
+stopHeapSampling: stopHeapSampling has no implementation for the webdriverio provider

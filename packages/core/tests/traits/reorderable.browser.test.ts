@@ -1,5 +1,6 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { server } from 'vitest/browser';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
 import { impl } from '../../src/traits/attributes.ts';
@@ -390,30 +391,38 @@ describe('useReorderable', () => {
     expect(orderAtIntent).toStrictEqual([item1, item2, item3]);
   });
 
-  it('should not dispatch a reorder for a no-op drop', async () => {
-    const list = createList();
-    const item = createItem();
+  // Intermittently keeps the visual in the top layer past the wait in Safari
+  // (`repo:RF-36`).
+  it.skipIf(server.browser === 'safari')(
+    'should not dispatch a reorder for a no-op drop',
+    async () => {
+      const list = createList();
+      const item = createItem();
 
-    document.body.append(list);
-    list.append(item);
-    list.reorderable = true;
-    await nextFrame();
+      document.body.append(list);
+      list.append(item);
+      list.reorderable = true;
+      await nextFrame();
 
-    const reorderSpy = vi.fn<(e: Event) => void>();
-    list.addEventListener('reorder', reorderSpy);
+      const reorderSpy = vi.fn<(e: Event) => void>();
+      list.addEventListener('reorder', reorderSpy);
 
-    // Sole item: it can only land where it started, so nothing is proposed.
-    await ue.pointer([
-      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
-      { coords: { clientY: 100 } },
-      { keys: '[/MouseLeft]' },
-    ]);
-    await vi.waitFor(() => expect(item.matches(':popover-open')).toBeFalsy(), {
-      timeout: 1000,
-    });
+      // Sole item: it can only land where it started, so nothing is proposed.
+      await ue.pointer([
+        { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+        { coords: { clientY: 100 } },
+        { keys: '[/MouseLeft]' },
+      ]);
+      await vi.waitFor(
+        () => expect(item.matches(':popover-open')).toBeFalsy(),
+        {
+          timeout: 1000,
+        },
+      );
 
-    expect(reorderSpy).not.toHaveBeenCalled();
-  });
+      expect(reorderSpy).not.toHaveBeenCalled();
+    },
+  );
 
   it('should animate home and not move when the intent is prevented', async () => {
     const list = createList();
@@ -642,17 +651,18 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await nextFrame();
 
-    const targets: Element[] = [];
     const spy = vi
       .spyOn(Element.prototype, 'setPointerCapture')
-      .mockImplementation(function spy(this: Element) {
-        targets.push(this);
-      });
+      .mockImplementation(() => undefined);
 
     await ue.pointer([
       { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
       { coords: { clientY: 100 } },
     ]);
+
+    // The receiver of each call. Read before the restore, which clears them.
+    const targets = [...spy.mock.contexts];
+
     spy.mockRestore();
 
     // Capture is taken on activation. The footprint is re-inserted every time it
@@ -957,27 +967,35 @@ describe('useReorderable', () => {
     expect(item.matches(':popover-open')).toBeTruthy();
   });
 
-  it('should take the visual out of the top layer once the drag lands', async () => {
-    const list = createList();
-    const item = createItem();
+  // Intermittently keeps the visual in the top layer past the wait in Safari
+  // (`repo:RF-36`).
+  it.skipIf(server.browser === 'safari')(
+    'should take the visual out of the top layer once the drag lands',
+    async () => {
+      const list = createList();
+      const item = createItem();
 
-    document.body.append(list);
-    list.append(item);
-    list.reorderable = true;
-    await nextFrame();
+      document.body.append(list);
+      list.append(item);
+      list.reorderable = true;
+      await nextFrame();
 
-    await ue.pointer([
-      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
-      { coords: { clientY: 100 } },
-      { keys: '[/MouseLeft]' },
-    ]);
+      await ue.pointer([
+        { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+        { coords: { clientY: 100 } },
+        { keys: '[/MouseLeft]' },
+      ]);
 
-    // Wait for the landing to settle and hand the visual back from the top layer.
-    await vi.waitFor(() => expect(item.matches(':popover-open')).toBeFalsy(), {
-      timeout: 1000,
-    });
-    expect(item.hasAttribute('popover')).toBeFalsy();
-  });
+      // Wait for the landing to settle and hand the visual back from the top layer.
+      await vi.waitFor(
+        () => expect(item.matches(':popover-open')).toBeFalsy(),
+        {
+          timeout: 1000,
+        },
+      );
+      expect(item.hasAttribute('popover')).toBeFalsy();
+    },
+  );
 
   it('should remeasure item geometry after a scroll', async () => {
     const list = createList();

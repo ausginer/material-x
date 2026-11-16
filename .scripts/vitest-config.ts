@@ -2,6 +2,7 @@ import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { playwright } from '@vitest/browser-playwright';
+import { webdriverio } from '@vitest/browser-webdriverio';
 import type { ConfigEnv, UserConfig } from 'vite';
 import {
   mergeConfig,
@@ -12,6 +13,7 @@ import type { BrowserCommand } from 'vitest/node';
 // its tests.
 // eslint-disable-next-line import-x/no-relative-packages
 import { publishedEntries } from '../packages/drag/tests/support/published-entries.ts';
+import { fitSafariWindow } from './safari-window.ts';
 import {
   createViteConfig,
   createMaterialXViteConfig,
@@ -189,9 +191,41 @@ type WorkspaceTestConfigOptions = Readonly<{
   viteTraitsPluginRoot: URL;
 }>;
 
-function resolveChromeExecutable(): string {
-  return process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome';
+type Engine = 'chromium' | 'firefox' | 'safari';
+
+const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'safari'];
+
+function isEngine(name: string): name is Engine {
+  return (ENGINES as readonly string[]).includes(name);
 }
+
+/**
+ * `MX_TEST_ENGINES`, a comma-separated list of engines, `chromium` by default.
+ * Each browser project except visual is declared once per listed engine, and
+ * visual is declared once, in Chromium, when the list names it.
+ */
+function resolveEngines(): readonly Engine[] {
+  const names = (process.env['MX_TEST_ENGINES'] ?? 'chromium')
+    .split(',')
+    .map((name) => name.trim())
+    .filter((name) => name !== '');
+
+  if (names.length === 0) {
+    throw new Error('MX_TEST_ENGINES lists no engine');
+  }
+
+  return names.map((name) => {
+    if (!isEngine(name)) {
+      throw new Error(
+        `MX_TEST_ENGINES lists an unknown engine: ${name}. Known engines: ${ENGINES.join(', ')}`,
+      );
+    }
+
+    return name;
+  });
+}
+
+const engines = resolveEngines();
 
 // Vitest project names must be unique. In per-package mode `scope` is undefined
 // and the bare base name (e.g. 'browser') is fine; in the combined workspace
@@ -201,54 +235,106 @@ function scopedName(base: string, scope?: string): string {
   return scope ? `${base}/${scope}` : base;
 }
 
+/**
+ * Chromium is Playwright's full build, in Chrome's new headless mode, which the
+ * `chromium` channel selects. The `chromium-headless-shell` build that
+ * Playwright starts otherwise is a separate implementation. Chromium and Firefox
+ * are the builds that the exact `playwright` dependency pins; Safari isn't
+ * pinned.
+ */
+function createChromiumProvider(
+  launchArgs: readonly string[] = [],
+): ReturnType<typeof playwright> {
+  return playwright({
+    contextOptions: { deviceScaleFactor: 1 },
+    launchOptions: {
+      channel: 'chromium',
+      args: [
+        ...(isDebug
+          ? [
+              '--remote-debugging-port=9222',
+              '--remote-allow-origins=*',
+              '--no-sandbox',
+            ]
+          : []),
+        ...launchArgs,
+      ],
+    },
+  });
+}
+
+/**
+ * Each engine's provider. Chromium and Firefox are Playwright's builds, which the
+ * exact `playwright` dependency pins. Safari is the browser on the macOS that
+ * runs it, driven through its own `safaridriver`, because only WebDriver drives
+ * Safari.
+ */
+function createEngineProvider(
+  engine: Engine,
+  launchArgs?: readonly string[],
+): ReturnType<typeof playwright> | ReturnType<typeof webdriverio> {
+  if (engine === 'chromium') {
+    return createChromiumProvider(launchArgs);
+  }
+
+  if (engine === 'safari') {
+    return webdriverio();
+  }
+
+  return playwright({ contextOptions: { deviceScaleFactor: 1 } });
+}
+
 function createBrowserTestConfig(
+  engine: Engine,
   commands?: Record<string, BrowserCommand<any[]>>,
   options?: Readonly<{ launchArgs?: readonly string[] }>,
 ): UserConfig {
+  const isChromium = engine === 'chromium';
+  const isSafari = engine === 'safari';
+
   return {
     test: {
-      fileParallelism: !isDebug,
-      maxWorkers: requestedWorkers ?? BROWSER_WORKERS,
+      // A page in the background gets no input in Firefox and Safari, and
+      // Safari allows one WebDriver session at a time.
+      fileParallelism: isChromium && !isDebug,
+      maxWorkers: isChromium ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {
         enabled: true,
-        headless: true,
+        // Safari has no headless mode.
+        headless: !isSafari,
+        // Recording a trace step serializes its locator, and the WebdriverIO
+        // provider's locator throws when nothing matches, so every
+        // `not.toBeInTheDocument()` would fail in Safari. CI keeps no trace.
+        ...(isSafari ? { traceView: 'off' as const } : {}),
         // Curated baselines are the only screenshots we keep; don't auto-capture
         // rasters for failed/expected-fail assertions in the behavior/spec
         // projects, which would otherwise litter __screenshots__.
         screenshotFailures: false,
-        provider: playwright({
-          contextOptions: { deviceScaleFactor: 1 },
-          launchOptions: {
-            executablePath: resolveChromeExecutable(),
-            args: [
-              ...(isDebug
-                ? [
-                    '--remote-debugging-port=9222',
-                    '--remote-allow-origins=*',
-                    '--no-sandbox',
-                  ]
-                : []),
-              ...(options?.launchArgs ?? []),
-            ],
-          },
-        }),
+        provider: createEngineProvider(engine, options?.launchArgs),
         // Pin the viewport and device scale so raster output is reproducible
         // across machines and CI. Screenshots are only valid for a fixed
         // environment (see .agents/docs/test-architecture.md). The pin is also
         // why the browser UI stays off under `DEBUG`: the UI nulls the
         // viewport, and Playwright rejects a device scale against a null one,
         // so the context is never created and the debug run executes nothing.
-        // The UI is unreachable behind the unconditional headless mode in any
-        // case; debugging attaches to the CDP port opened by the launch
-        // arguments above.
+        // The UI is unreachable behind headless mode in Chromium and Firefox in
+        // any case; debugging attaches to the CDP port opened by Chromium's
+        // launch arguments.
         instances: [
-          {
-            browser: 'chromium',
-            viewport: { width: 1280, height: 720 },
-          },
+          { browser: engine, viewport: { width: 1280, height: 720 } },
         ],
-        commands,
+        commands: isSafari ? { ...commands, fitSafariWindow } : commands,
       },
+      // Runs before the project's own setup files.
+      ...(isSafari
+        ? {
+            setupFiles: [
+              fileURLToPath(
+                new URL('safari-window.browser.ts', import.meta.url),
+              ),
+            ],
+          }
+        : {}),
     },
   } satisfies UserConfig;
 }
@@ -262,10 +348,22 @@ function createTestBaseConfig(root: URL): UserConfig {
     plugins: [oneShotTestExecution()],
     test: {
       maxWorkers: requestedWorkers ?? NON_BROWSER_WORKERS,
+      tags: [
+        {
+          name: 'measurement',
+          description:
+            'Compares a size, an allocation or a time with a budget. CI reports it and never fails on it.',
+        },
+      ],
       coverage: {
         enabled: false,
         provider: 'v8',
+        // The packages' source: `packages/*/src` from the root, `src` from a
+        // package. Not tests, fixtures, tooling, build output or dependencies.
+        include: ['packages/*/src/**', 'src/**'],
         reportsDirectory: '.coverage',
+        // CI uploads coverage on every run, including one whose tests failed.
+        reportOnFailure: true,
         clean: true,
         reporter: isCI ? ['lcov'] : ['html'],
       },
@@ -274,8 +372,14 @@ function createTestBaseConfig(root: URL): UserConfig {
   } satisfies UserConfig;
 }
 
+/**
+ * One browser project in one engine. A Chromium project keeps its name, and
+ * another engine's project is named `<name>/<engine>`. Only Chromium takes the
+ * launch arguments, which are Chromium flags.
+ */
 function createBrowserTestProject(
   options: BrowserTestProjectOptions,
+  engine: Engine,
 ): UserConfig {
   const baseConfig = mergeConfig(
     options.viteConfig ?? {},
@@ -285,19 +389,46 @@ function createBrowserTestProject(
   return mergeConfig(
     mergeConfig(
       baseConfig,
-      createBrowserTestConfig(options.commands, {
+      createBrowserTestConfig(engine, options.commands, {
         launchArgs: options.launchArgs,
       }),
     ),
     {
       test: {
-        name: options.name,
+        name:
+          engine === 'chromium' ? options.name : `${options.name}/${engine}`,
         include: [...options.include],
         exclude: options.exclude ? [...options.exclude] : [],
         setupFiles: options.setupFiles ? [...options.setupFiles] : [],
       },
     },
   );
+}
+
+/** The browser project once per engine that `MX_TEST_ENGINES` lists. */
+function createEngineTestProjects(
+  options: BrowserTestProjectOptions,
+): UserConfig[] {
+  return engines.map((engine) => createBrowserTestProject(options, engine));
+}
+
+/**
+ * `MX_TEST_VISUAL=1` declares the visual project. Its baselines are recorded and
+ * compared on GitHub's runner only, so the gate's `chromium` job and the
+ * recording workflow set it, and no local run does.
+ */
+const isVisual = process.env['MX_TEST_VISUAL'] === '1';
+
+/**
+ * The visual project, in Chromium only, because only Chromium baselines exist.
+ * It is declared when `MX_TEST_VISUAL=1` and `MX_TEST_ENGINES` lists Chromium.
+ */
+function createVisualTestProjects(
+  options: BrowserTestProjectOptions,
+): UserConfig[] {
+  return isVisual && engines.includes('chromium')
+    ? [createBrowserTestProject(options, 'chromium')]
+    : [];
 }
 
 function createNodeTestProject(options: NodeTestProjectOptions): UserConfig {
@@ -334,9 +465,9 @@ function createMaterialXTestProjects(
   root: URL,
   commands: Record<string, BrowserCommand<any[]>>,
   scope?: string,
-): [UserConfig, UserConfig, UserConfig, UserConfig] {
+): UserConfig[] {
   return [
-    createBrowserTestProject({
+    ...createEngineTestProjects({
       name: scopedName('browser', scope),
       root,
       include: ['tests/**/*.browser.test.ts'],
@@ -348,7 +479,7 @@ function createMaterialXTestProjects(
       commands,
       viteConfig: createMaterialXViteConfig(env, root),
     }),
-    createBrowserTestProject({
+    ...createEngineTestProjects({
       name: scopedName('spec', scope),
       root,
       include: ['tests/**/*.spec.browser.test.ts'],
@@ -356,7 +487,7 @@ function createMaterialXTestProjects(
       commands,
       viteConfig: createMaterialXViteConfig(env, root),
     }),
-    createBrowserTestProject({
+    ...createVisualTestProjects({
       name: scopedName('visual', scope),
       root,
       include: ['tests/**/*.visual.browser.test.ts'],
@@ -372,12 +503,9 @@ function createMaterialXTestProjects(
   ];
 }
 
-function createCoreTestProjects(
-  root: URL,
-  scope?: string,
-): [UserConfig, UserConfig] {
+function createCoreTestProjects(root: URL, scope?: string): UserConfig[] {
   return [
-    createBrowserTestProject({
+    ...createEngineTestProjects({
       name: scopedName('browser', scope),
       root,
       include: ['tests/**/*.browser.test.ts'],
@@ -398,15 +526,15 @@ const DRAG_SOURCE_SETUP_FILES: readonly string[] = [
   'tests/support/oracles.source.ts',
 ];
 
-function createDragBrowserTestProject(
+function createDragBrowserTestProjects(
   root: URL,
   name: string,
   include: readonly string[],
   exclude: readonly string[],
   setupFiles: readonly string[],
   commands?: Record<string, BrowserCommand<any[]>>,
-): UserConfig {
-  return createBrowserTestProject({
+): UserConfig[] {
+  return createEngineTestProjects({
     name,
     root,
     include,
@@ -450,7 +578,7 @@ function createDragTestProjects(
   consumer?: ConsumerProject,
 ): UserConfig[] {
   return [
-    createDragBrowserTestProject(
+    ...createDragBrowserTestProjects(
       root,
       scopedName('browser', scope),
       ['tests/**/*.browser.test.ts'],
@@ -459,36 +587,31 @@ function createDragTestProjects(
       commands,
     ),
     ...(shipped.length > 0
-      ? [
-          createDragBrowserTestProject(
-            root,
-            scopedName('shipped', scope),
-            shipped,
-            [],
-            [],
-            commands,
-          ),
-        ]
+      ? createDragBrowserTestProjects(
+          root,
+          scopedName('shipped', scope),
+          shipped,
+          [],
+          [],
+          commands,
+        )
       : []),
     ...(consumer
-      ? [
-          mergeConfig(
-            createDragBrowserTestProject(
-              root,
-              scopedName('consumer', scope),
-              ['tests/**/*.browser.test.ts'],
-              [...shipped, ...consumer.sourceOnly],
-              consumer.setupFiles,
-              commands,
-            ),
-            {
-              plugins: [publishedEntries(fileURLToPath(root))],
-              test: {
-                globalSetup: [...consumer.globalSetup],
-              },
-            } satisfies UserConfig,
-          ),
-        ]
+      ? createDragBrowserTestProjects(
+          root,
+          scopedName('consumer', scope),
+          ['tests/**/*.browser.test.ts'],
+          [...shipped, ...consumer.sourceOnly],
+          consumer.setupFiles,
+          commands,
+        ).map((project) =>
+          mergeConfig(project, {
+            plugins: [publishedEntries(fileURLToPath(root))],
+            test: {
+              globalSetup: [...consumer.globalSetup],
+            },
+          } satisfies UserConfig),
+        )
       : []),
     createDeclarationTestProject({
       name: scopedName('declaration', scope),
@@ -505,30 +628,21 @@ function createDragTestProjects(
   ];
 }
 
+function createBoxQuadTestProjects(root: URL, scope?: string): UserConfig[] {
+  return createEngineTestProjects({
+    name: scopedName('browser', scope),
+    root,
+    include: ['tests/**/*.browser.test.ts'],
+    viteConfig: createViteConfig(root),
+  });
+}
+
 export function createBoxQuadTestConfig(root: URL): UserConfig {
   return {
     test: {
-      projects: assignGroupOrder([
-        createBrowserTestProject({
-          name: 'browser',
-          root,
-          include: ['tests/**/*.browser.test.ts'],
-          viteConfig: createViteConfig(root),
-        }),
-      ]),
+      projects: assignGroupOrder(createBoxQuadTestProjects(root)),
     },
   };
-}
-
-function createBoxQuadTestProjects(root: URL, scope?: string): [UserConfig] {
-  return [
-    createBrowserTestProject({
-      name: scopedName('browser', scope),
-      root,
-      include: ['tests/**/*.browser.test.ts'],
-      viteConfig: createViteConfig(root),
-    }),
-  ];
 }
 
 function createTprocTestProjects(root: URL, scope?: string): [UserConfig] {
@@ -625,80 +739,6 @@ export const DRAG_NODE_BUILD: NodeProjectBuild = {
   setupFiles: [DRAG_REQUIRE_BUILD],
 };
 
-/**
- * `@ydinjs/drag`'s browser suite in Chromium, Firefox and WebKit, as one project per
- * engine because browser projects are serialized one per group. The repository's
- * own Chrome runs the Chromium projects and Playwright's browsers run the others,
- * since that executable cannot start them. The instance list is replaced rather
- * than merged, because a merge would append to the Chromium-only list.
- */
-export function createDragAllEnginesTestConfig(
-  root: URL,
-  commands: Record<string, BrowserCommand<any[]>>,
-  shipped: readonly string[],
-): UserConfig {
-  const forEngine = (
-    project: UserConfig,
-    name: string,
-    engine: 'firefox' | 'webkit',
-  ): UserConfig => {
-    const { test } = project;
-
-    return {
-      ...project,
-      test: {
-        ...test,
-        name: `${name}/${engine}`,
-        // A page in the background gets no input in these engines.
-        fileParallelism: false,
-        maxWorkers: 1,
-        browser: {
-          ...test?.browser,
-          provider: playwright({
-            contextOptions: { deviceScaleFactor: 1 },
-          }),
-          instances: [
-            { browser: engine, viewport: { width: 1280, height: 720 } },
-          ],
-        },
-      },
-    };
-  };
-  const browserProject = createDragBrowserTestProject(
-    root,
-    'browser',
-    ['tests/**/*.browser.test.ts'],
-    shipped,
-    DRAG_SOURCE_SETUP_FILES,
-    commands,
-  );
-  const shippedProject = createDragBrowserTestProject(
-    root,
-    'shipped',
-    shipped,
-    [],
-    [],
-    commands,
-  );
-
-  return {
-    test: {
-      projects: assignGroupOrder(
-        (
-          [
-            ['browser', browserProject],
-            ['shipped', shippedProject],
-          ] as const
-        ).flatMap(([name, project]) => [
-          project,
-          forEngine(project, name, 'firefox'),
-          forEngine(project, name, 'webkit'),
-        ]),
-      ),
-    },
-  };
-}
-
 export function createDragTestConfig(
   root: URL,
   commands?: Record<string, BrowserCommand<any[]>>,
@@ -742,59 +782,37 @@ export function createWorkspaceTestConfig(
   env: ConfigEnv,
   options: WorkspaceTestConfigOptions,
 ): UserConfig {
-  const [boxQuadBrowser] = createBoxQuadTestProjects(
-    options.boxQuadRoot,
-    'box-quad',
-  );
-  const [materialXBrowser, materialXSpec, materialXVisual, materialXNode] =
-    createMaterialXTestProjects(
-      env,
-      options.materialXRoot,
-      options.materialXCommands,
-      'material-x',
-    );
-  const [coreBrowser, coreDeclaration] = createCoreTestProjects(
-    options.coreRoot,
-    'core',
-  );
-  const [dragBrowser, dragShipped, dragConsumer, dragDeclaration, dragNode] =
-    createDragTestProjects(
-      options.dragRoot,
-      'drag',
-      options.dragCommands,
-      DRAG_SHIPPED_BROWSER_TESTS,
-      DRAG_NODE_BUILD,
-      DRAG_CONSUMER,
-    ) as [UserConfig, UserConfig, UserConfig, UserConfig, UserConfig];
-  const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   // The repository's own tooling, such as the record resolver.
   const repoNode = createNodeTestProject({
     name: 'repo',
     root: options.root,
     include: ['.scripts/**/*.node.test.ts'],
   });
-  const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
-    options.viteTraitsPluginRoot,
-    'vite-traits-plugin',
-  );
 
   return mergeConfig(createTestBaseConfig(options.root), {
     test: {
       projects: assignGroupOrder([
-        materialXBrowser,
-        materialXSpec,
-        materialXVisual,
-        coreBrowser,
-        materialXNode,
-        coreDeclaration,
-        boxQuadBrowser,
-        dragBrowser,
-        dragShipped,
-        dragConsumer,
-        dragNode,
-        dragDeclaration,
-        tprocNode,
-        viteTraitsPluginNode,
+        ...createMaterialXTestProjects(
+          env,
+          options.materialXRoot,
+          options.materialXCommands,
+          'material-x',
+        ),
+        ...createCoreTestProjects(options.coreRoot, 'core'),
+        ...createBoxQuadTestProjects(options.boxQuadRoot, 'box-quad'),
+        ...createDragTestProjects(
+          options.dragRoot,
+          'drag',
+          options.dragCommands,
+          DRAG_SHIPPED_BROWSER_TESTS,
+          DRAG_NODE_BUILD,
+          DRAG_CONSUMER,
+        ),
+        ...createTprocTestProjects(options.tprocRoot, 'tproc'),
+        ...createViteTraitsPluginTestProjects(
+          options.viteTraitsPluginRoot,
+          'vite-traits-plugin',
+        ),
         repoNode,
       ]),
     },

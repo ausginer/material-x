@@ -1,0 +1,21 @@
+# RD-13 item 8: a second labeled run on pull request #27 after #28's merge, run 43836517326
+# (https://github.com/ausginer/material-x/actions/runs/43836517326), recording bee058e8a.
+
+record: success, 135 s
+  image=ubuntu24 20261111.370.1
+  processor=AMD EPYC 7763 64-Core Processor
+  chromium=158.0.8127.18
+  visual/material-x with --update: Test Files 4 passed (4), Tests 19 passed (19)
+  the added and changed baselines (files.txt): empty
+
+propose: success, 16 s
+  Accept only baseline paths: success
+  Propose: success. files.txt is empty, so the step takes its first branch, which writes
+    "Every baseline matches on the runner at $SHA. Nothing was pushed or opened." to the step summary and exits 0.
+    The log has no checkout of a proposal branch, no push and no pull request command's output.
+  Remove the label: success (gh printed https://github.com/ausginer/material-x/pull/27)
+
+After the run:
+  git ls-remote origin 'refs/heads/baselines/*'  -> nothing
+  pull requests from baselines/ci/verification   -> #28, MERGED; no new one
+  #27's labels                                    -> []
