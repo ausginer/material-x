@@ -64,13 +64,18 @@ beforeAll(async () => {
 /*
  * The pointer stays where the previous test left it, and that test may be in
  * another file in the same page. Over a fixture's control it would render the
- * control hovered, so each test starts with the pointer at the page's top-left
- * corner, inside the body's padding, where no fixture is.
+ * control hovered, so each test starts with the pointer on a 1px element at the
+ * page's top-left corner, inside the body's padding, where no fixture is. A
+ * real element, because WebDriver can't move the pointer to the root element.
  */
 beforeEach(async () => {
-  await userEvent.hover(document.documentElement, {
-    position: { x: 0, y: 0 },
-  });
+  const corner = document.createElement('div');
+
+  corner.style.cssText =
+    'position: fixed; top: 0; left: 0; width: 1px; height: 1px;';
+  document.body.append(corner);
+  await userEvent.hover(corner);
+  corner.remove();
 });
 
 beforeEach(() => {

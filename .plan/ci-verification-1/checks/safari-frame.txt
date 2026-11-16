@@ -1,0 +1,11 @@
+# Safari's test frame (RD-12 property 3), read in CI by safari-frame.probe.browser.test.ts in browser/box-quad/safari
+
+Run 43820840633 at de1152fe9, macos-26 runner, macOS 26.7.2, Safari 27.2:
+frame reading: {"engine":"safari","inner":[1280,720],"devicePixelRatio":1,"frameRect":[1280,720],"parentInner":[1280,668],"transforms":[],"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15"}
+
+The frame's inner size is 1280 x 720 at device pixel ratio 1, and no element from the frame up applies a transform, scale or zoom. The parent document's viewport is 1280 x 668, so the frame is taller than the visible window and is not scaled to fit it. One reading was enough: the configuration needed no change.
+
+## The same run's CheckableCore reading
+##[error]Error: Hook timed out in 30000ms.
+Error: Hook timed out in 30000ms.
+VitestBrowserElementError: Cannot find element with locator: locator('html')
