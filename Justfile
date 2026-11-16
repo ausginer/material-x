@@ -60,6 +60,15 @@ test *ARGS:
 size:
     nx run-many -t size --projects=box-quad,core,drag --skipNxCache
 
+# Write the rows that `size` measures, as JSON, to FILE (builds first)
+size-reading FILE:
+    node .scripts/size-reading.ts {{ FILE }}
+
+# Write the size report's Markdown from a head reading, and optionally a base
+# reading and Vitest's JSON report of the measurement rows
+size-report *ARGS:
+    node .scripts/size-report.ts {{ ARGS }}
+
 # ---------------------------------------------------------------------------
 # Type checking
 # ---------------------------------------------------------------------------

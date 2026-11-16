@@ -14,7 +14,9 @@
  * other defaults, and is printed for the record only.
  *
  * `node bench/size/measure.ts` measures the tree as it is, prints the table and
- * exits non-zero on a violation; `npx just size` builds first.
+ * exits non-zero on a violation; `npx just size` builds first. With `--json` it
+ * prints, instead of the table, one JSON array of readings: each row's name, its
+ * Brotli and gzip bytes, and its ceiling.
  */
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -238,9 +240,9 @@ export async function measure(composition: Composition): Promise<Measurement> {
   return { composition, ...result };
 }
 
-/** What a reading breaks: a ceiling, a control or a declared graph. */
-export function violations(measurement: Measurement): readonly string[] {
-  const { composition, brotli, modules } = measurement;
+/** What a reading breaks of its ceiling and its control. */
+export function ceilingViolations(measurement: Measurement): readonly string[] {
+  const { composition, brotli } = measurement;
   const found: string[] = [];
 
   if (brotli > composition.budget) {
@@ -252,6 +254,14 @@ export function violations(measurement: Measurement): readonly string[] {
   if (composition.control !== undefined && brotli !== composition.control) {
     found.push(`control moved by ${brotli - composition.control} B`);
   }
+
+  return found;
+}
+
+/** What a reading breaks of its declared graph. */
+export function graphViolations(measurement: Measurement): readonly string[] {
+  const { composition, modules } = measurement;
+  const found: string[] = [];
 
   for (const fragment of composition.absent ?? []) {
     const leaked = modules.filter((module) => module.includes(fragment));
@@ -270,7 +280,14 @@ export function violations(measurement: Measurement): readonly string[] {
   return found;
 }
 
+/** What a reading breaks: a ceiling, a control or a declared graph. */
+export function violations(measurement: Measurement): readonly string[] {
+  return [...ceilingViolations(measurement), ...graphViolations(measurement)];
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const json = process.argv.includes('--json');
+  const rows: unknown[] = [];
   let failed = 0;
 
   for (const composition of COMPOSITIONS) {
@@ -278,6 +295,17 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const found = violations(measurement);
 
     failed += found.length;
+
+    if (json) {
+      rows.push({
+        row: composition.name,
+        brotli: measurement.brotli,
+        gzip: measurement.gzip,
+        limit: composition.budget,
+      });
+      continue;
+    }
+
     console.log(
       `${composition.name.padEnd(30)} ${String(measurement.minified).padStart(6)} min ${String(measurement.gzip).padStart(6)} gz ${String(measurement.brotli).padStart(6)} br  ${measurement.modules.length} modules`,
     );
@@ -285,6 +313,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     for (const line of found) {
       console.log(`  VIOLATION: ${line}`);
     }
+  }
+
+  if (json) {
+    console.log(JSON.stringify(rows));
   }
 
   process.exitCode = failed === 0 ? 0 : 1;

@@ -309,6 +309,13 @@ function createTestBaseConfig(root: URL): UserConfig {
     plugins: [oneShotTestExecution()],
     test: {
       maxWorkers: requestedWorkers ?? NON_BROWSER_WORKERS,
+      tags: [
+        {
+          name: 'measurement',
+          description:
+            'Compares a size, an allocation or a time with a budget. CI reports it and never fails on it.',
+        },
+      ],
       coverage: {
         enabled: false,
         provider: 'v8',
