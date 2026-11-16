@@ -1,5 +1,6 @@
 import userEvent, { type UserEvent } from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { server } from 'vitest/browser';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
 import { impl } from '../../src/traits/attributes.ts';
@@ -958,27 +959,35 @@ describe('useReorderable', () => {
     expect(item.matches(':popover-open')).toBeTruthy();
   });
 
-  it('should take the visual out of the top layer once the drag lands', async () => {
-    const list = createList();
-    const item = createItem();
+  // Intermittently keeps the visual in the top layer past the wait in Safari
+  // (`repo:RF-36`).
+  it.skipIf(server.browser === 'safari')(
+    'should take the visual out of the top layer once the drag lands',
+    async () => {
+      const list = createList();
+      const item = createItem();
 
-    document.body.append(list);
-    list.append(item);
-    list.reorderable = true;
-    await nextFrame();
+      document.body.append(list);
+      list.append(item);
+      list.reorderable = true;
+      await nextFrame();
 
-    await ue.pointer([
-      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
-      { coords: { clientY: 100 } },
-      { keys: '[/MouseLeft]' },
-    ]);
+      await ue.pointer([
+        { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+        { coords: { clientY: 100 } },
+        { keys: '[/MouseLeft]' },
+      ]);
 
-    // Wait for the landing to settle and hand the visual back from the top layer.
-    await vi.waitFor(() => expect(item.matches(':popover-open')).toBeFalsy(), {
-      timeout: 1000,
-    });
-    expect(item.hasAttribute('popover')).toBeFalsy();
-  });
+      // Wait for the landing to settle and hand the visual back from the top layer.
+      await vi.waitFor(
+        () => expect(item.matches(':popover-open')).toBeFalsy(),
+        {
+          timeout: 1000,
+        },
+      );
+      expect(item.hasAttribute('popover')).toBeFalsy();
+    },
+  );
 
   it('should remeasure item geometry after a scroll', async () => {
     const list = createList();

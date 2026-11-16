@@ -719,6 +719,17 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** each of `mx-radio`, `mx-checkbox` and `mx-button` either draws the focus state layer its tokens define, or the record states why it doesn't. Its focused visual row is recorded again through `repo:RD-13` when that changes.
 - **Routed** as a material-x product question for the owner. The CI unit doesn't change product source.
 
+#### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its row's wait
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §Safari's inventory over three runs), under `RD-8` properties 1 and 4. **Skipped in Safari only** (`it.skipIf`), and the marking cites this address.
+
+- **The row:** `packages/core/tests/traits/reorderable.browser.test.ts`, `useReorderable` › "should take the visual out of the top layer once the drag lands".
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** in attempt 2 of run 43830910625 at `ddf72ec4e`, `item.matches(':popover-open')` was still true when the row's `vi.waitFor` gave up at 1,000 ms (`expected true to be falsy`, the row took 1,026 ms). It passed in attempts 1 and 3, and in run 43827320614.
+- **What is known:** the row registers no reorder listener, so after the 200 ms landing the session waits core's 500 ms `COMMIT_TIMEOUT` (`src/traits/reorderable.ts`) before returning the visual: at least 700 ms against the row's 1,000 ms. A late timer or frame in Safari would cross it. **The cause is not established:** that is an inference, not a reading.
+- **Required property:** the row passes in Safari in every run, with a wait that states the landing and the commit grace it covers.
+- **Routed** to core's owner. The CI unit doesn't change the row's wait or core's source.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment

@@ -4947,6 +4947,30 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** the row's budget states what the kernel allocates per sample in the pinned Chromium, and the row passes there. Whether the bound moves or the kernel's allocation is reduced is drag's decision, not the CI unit's.
 - **Routed** to the architect. The CI unit doesn't change the budget.
 
+#### DRF-49 — In Safari, the `y()` sweep through `box` with a `visual` intermittently stalls until its timeout
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` properties 1 and 4 and its handoff's _Resuming after the three Safari runs_. **Skipped in Safari only** (`it.skipIf(isSafari)`), in both `browser/drag` and `consumer/drag`, and the marking cites this address.
+
+- **The row:** `tests/sortable.browser.test.ts`, `drag:DRI-14 candidates measured through box` › "should measure every y() candidate through box when visual is also given".
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** in three attempts of run 43830910625 at `ddf72ec4e`, the row passed in about 8.8 s in 4 of its 6 project runs and timed out at 15 s (`Test timed out in 15000ms`, at 15,206 and 15,194 ms) in 2: `browser/drag` in attempt 2 and `consumer/drag` in attempt 3. No run ended in between.
+- **Attempt 2's aftermath** (run 43830910625): in `browser/drag`, the row after a timed-out sweep, _"should measure every xy() candidate through box, not through the item"_, failed on a missing placeholder (`null is not an object (evaluating 'list.querySelector("[data-drag-placeholder]")…')`), and the project then lost its browser connection (_"Browser connection was closed while running tests"_), so its other 29 files didn't run.
+- **What is established:** the row's only waits are the WebDriver `pointerMove` command and `requestAnimationFrame` (`tests/support/gap-conformance.ts`'s `sweepGaps`), and Safari's pointer command delivers every interpolated move before it returns (`repo` CI unit's probe, run 43829273272). **The cause is not established.** No timeout was raised.
+- **Required property:** the row finishes in Safari in every run.
+- **Routed** to the architect. The CI unit doesn't change the row's instrument.
+
+#### DRF-50 — In Safari, the gap sweep with transitions on the rows and the item intermittently stalls until its timeout
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` properties 1 and 4 and its handoff's _Resuming after the three Safari runs_. **Skipped in Safari only** (`it.skipIf(isSafari)`), in both `browser/drag` and `consumer/drag`, and the marking cites this address.
+
+- **The row:** `tests/sortable.browser.test.ts`, `drag:DRI-9 authored transitions` › "should propose the gap a full measurement gives with transitions on the rows and the item".
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** in three attempts of run 43830910625 at `ddf72ec4e`, the row timed out at 15 s (`Test timed out in 15000ms`, 15,102 to 15,153 ms) in 4 of its 6 project runs: `consumer/drag` in attempts 1 and 3, and both projects in attempt 2. It passed in about 8.8 s in the other 2. No run ended in between. It also timed out in `browser/drag` in run 43827320614, before Reduce Motion was off.
+- **Attempt 2's aftermath** (run 43830910625): in `browser/drag`, the row after the `y()` sweep's timeout (`DRF-49`), _"should measure every xy() candidate through box, not through the item"_, failed on a missing placeholder (`null is not an object (evaluating 'list.querySelector("[data-drag-placeholder]")…')`), and the project then lost its browser connection (_"Browser connection was closed while running tests"_), so its other 29 files didn't run.
+- **What is established:** the row's only waits are the WebDriver `pointerMove` command and `requestAnimationFrame` (`tests/support/gap-conformance.ts`'s `sweepGaps`), and Safari's pointer command delivers every interpolated move before it returns (`repo` CI unit's probe, run 43829273272). **The cause is not established.** No timeout was raised.
+- **Required property:** the row finishes in Safari in every run.
+- **Routed** to the architect. The CI unit doesn't change the row's instrument.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
