@@ -38,7 +38,6 @@ export function createViteConfig(root: URL): UserConfig {
         },
       },
     },
-    cacheDir: '.vite',
   };
 }
 

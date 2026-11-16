@@ -1,0 +1,26 @@
+# RD-14 item 1.2: `npx just docs-build` on a fresh clone of 4768f9ce4 after `npm ci` (devcontainer, v26.13.0). Exit status 0.
+# The recipe's lines and nx summaries, then the top of .docs and .docs/api.
+
+npm ci rc=0
+docs-build rc=0
+nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+ NX   6 tasks: 6 succeeded
+nx run @ydinjs/material-x:docs:build --skipNxCache --tui=false
+ NX   6 tasks: 6 succeeded
+nx run @ydinjs/core:docs:api:build --skipNxCache --tui=false
+ NX   3 tasks: 3 succeeded
+node .scripts/docs-api.ts --out .docs/api
+api
+assets
+favicon-wrapper.svg
+favicon.svg
+iframe.html
+index.html
+index.json
+nunito-sans-bold-italic.woff2
+nunito-sans-bold.woff2
+nunito-sans-italic.woff2
+core
+index.html
+material-x
+
