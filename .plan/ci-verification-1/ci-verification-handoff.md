@@ -110,10 +110,10 @@ Report each with its output.
 
 ## Resuming after the Safari inventory
 
-**Dated 2026-11-16.** In run 43827320614, every Safari project ran. `browser/drag` failed 29 rows and `consumer/drag` failed 27. The probe of run 43829273272 found two causes: Safari on the runner reports `prefers-reduced-motion: reduce`, and the top-level viewport is 1280 × 668, which clips the 1280 × 720 frame. The architect amended `RD-12` property 3's last item and added property 10. **Continue from the architect's commit that adds this section.**
+**Dated 2026-11-16.** In run 43827320614, every Safari project ran. `browser/drag` failed 29 rows and `consumer/drag` failed 27. The probe of run 43829273272 found two causes: Safari on the runner reports `prefers-reduced-motion: reduce`, and the top-level viewport is 1280 × 668, which clips the 1280 × 720 frame. The architect amended `RD-12` property 3's last item and added property 10. **Continue from the architect's commit that adds this section.** `2497189df` committed the inventory, grew the Safari window and removed the probe.
 
-1. **Evidence.** Commit `checks/safari-inventory-run-43827320614.txt`, and save the probe's output from run 43829273272: the `PROBE env` line, and the pointer readings you use. Keep the probe until steps 2 and 3 have their readings, then remove it, and remove its project change in `packages/drag/vitest.config.ts` too.
-2. **The window** (`RD-12` property 3). Make the Safari window large enough for the top-level viewport to contain the whole frame. From inside a Safari test in CI, read the top-level viewport's size, the frame's inner size and whether a scale transform applies. Save the reading. The Safari section's step 5 already allows this change.
+1. **Evidence.** Save the probe's output from run 43829273272's log under `checks/`: the `PROBE env` line, and the pointer readings you use. The readings in steps 2 and 3 come from a scratch test run in CI, which you remove after it gives them.
+2. **The window** (`RD-12` property 3). `2497189df` grows the window until the frame fits. From inside a Safari test in CI, read the top-level viewport's size, the frame's inner size and whether a scale transform applies. Save the reading. The Safari section's step 5 already allows this change.
 3. **Reduce Motion** (`RD-12` property 10). In the `safari` job, add a step after `sudo safaridriver --enable` and before the tests. The step:
    - turns Reduce Motion off as the runner's user, not with `sudo`, for example with `defaults write com.apple.universalaccess reduceMotion -bool false`;
    - reads the value back and logs it;
