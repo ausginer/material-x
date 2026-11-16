@@ -1,0 +1,61 @@
+# Item 6: the local inventory, on a fresh clone after npm ci
+
+## Chromium: CI=true npx just test --coverage --tags-filter '!measurement'
+
+First run, at 234ade127 plus the test recipe's builds:
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts > radio visual regression > should match the selection state matrix
+ Test Files  2 failed | 135 passed (137)
+      Tests  2 failed | 1842 passed | 12 skipped (1856)
+
+Five runs at f0ec37881, after the tproc and radio repairs:
+run 1: exit 0, 267 s;       Tests  1844 passed | 12 skipped (1856)
+run 2: exit 0, 262 s;       Tests  1844 passed | 12 skipped (1856)
+run 3: exit 0, 263 s;       Tests  1844 passed | 12 skipped (1856)
+run 4: exit 0, 265 s;       Tests  1844 passed | 12 skipped (1856)
+run 5: exit 0, 261 s;       Tests  1844 passed | 12 skipped (1856)
+
+## Firefox: CI=true MX_TEST_ENGINES=firefox npx just test --project '*/firefox' --tags-filter '!measurement', five runs at f0ec37881
+run 1: exit 1, 432 s;       Tests  18 failed | 1554 passed | 18 skipped (1590)
+run 2: exit 1, 435 s;       Tests  18 failed | 1554 passed | 18 skipped (1590)
+run 3: exit 1, 447 s;       Tests  18 failed | 1554 passed | 18 skipped (1590)
+run 4: exit 1, 432 s;       Tests  18 failed | 1554 passed | 18 skipped (1590)
+run 5: exit 1, 432 s;       Tests  18 failed | 1554 passed | 18 skipped (1590)
+
+The same 18 rows failed in each of the five runs (identical sorted FAIL lists). With each row's first error line:
+ FAIL  |browser/core/firefox (firefox)| tests/controllers/useShadowDOM.browser.test.ts > useShadowDOM > should adopt the provided stylesheets
+    AssertionError: expected [ CSSStyleSheet{} ] to deeply equal [ CSSStyleSheet{} ]
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should set dragged state once the drag activates
+    AssertionError: expected false to be truthy
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should move footprint on pointermove when sibling midpoint is crossed
+    AssertionError: expected <test-12 …(1)></test-12> to be <div data-footprint …(2)></div> // Object.is equality
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should reorder a horizontal row
+    AssertionError: expected <test-16 …(1)></test-16> to be <div data-footprint …(2)></div> // Object.is equality
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should reorder within a 2D grid by nearest cell
+    AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should dispatch ReorderEvent with correct indices on pointerup
+    AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should propose a move without reordering the DOM itself
+    AssertionError: expected null not to be null
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should animate home and not move when the intent is prevented
+    AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should settle once the consumer commits the proposed move
+    AssertionError: expected [ <test-37 …(1)></test-37>, …(2) ] to strictly equal [ <test-38 …(1)></test-38>, …(2) ]
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should re-hit-test after activation when the pointer returns near the origin
+    AssertionError: expected <test-48 …(1)></test-48> to be <div data-footprint …(2)></div> // Object.is equality
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should allow a new drag after disconnecting mid-drag and reconnecting
+    AssertionError: expected false to be truthy
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should start a drag when the press lands on the item handle
+    AssertionError: expected false to be truthy
+ FAIL  |browser/core/firefox (firefox)| tests/traits/reorderable.browser.test.ts > useReorderable > should not finish the drag when a different pointer is released
+    AssertionError: expected false to be truthy
+ FAIL  |browser/box-quad/firefox (firefox)| tests/coordinates.browser.test.ts > coordinates numeric precision > should derive a rotated and scaled size to within a ten-thousandth
+    AssertionError: expected 0.007638968374838129 to be less than or equal to 0.0001
+ FAIL  |browser/material-x/firefox (firefox)| tests/button-group/button-group.browser.test.ts > mx-connected-button-group roving tabindex > should move the tab stop to the next item on ArrowRight
+    AssertionError: expected -1 to be +0 // Object.is equality
+ FAIL  |browser/material-x/firefox (firefox)| tests/button-group/button-group.browser.test.ts > mx-connected-button-group roving tabindex > should move the tab stop to the last item on End
+    AssertionError: expected -1 to be +0 // Object.is equality
+ FAIL  |browser/material-x/firefox (firefox)| tests/button/button.browser.test.ts > mx-button > should delegate focus to the native button
+    AssertionError: expected null to be <button class="host" …(2)>…(3)</button> // Object.is equality
+ FAIL  |browser/material-x/firefox (firefox)| tests/button/button.browser.test.ts > mx-icon-button > should delegate focus to the native button
+    AssertionError: expected null to be <button class="host" …(2)>…(2)</button> // Object.is equality

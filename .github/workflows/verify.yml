@@ -57,7 +57,9 @@ jobs:
       # Every project, visual included, without measurement rows, with coverage.
       # Vitest's default reporters under GitHub Actions, and its exit status.
       - run: npx just test --coverage --tags-filter '!measurement'
-      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+      # Every run uploads, including one whose tests failed.
+      - if: '!cancelled()'
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: .coverage/lcov.info
