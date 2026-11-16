@@ -44,7 +44,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
+      # The record resolver's `repo` tests read retired scopes from history.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -135,10 +138,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # A failing row is reported, not a failed step.
+      # A failing row is reported, not a failed step. A declaration project
+      # type-checks its files and has no tags, so it is not selected.
       - name: Measurement rows
         run: >-
-          npx just test --tags-filter measurement --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
+          npx just test --tags-filter measurement --project '!declaration*' --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
       - name: Sizes at the head
         run: npx just size-reading "$RUNNER_TEMP/head-size.json"
       # The merge base's tree, with its own instruments. A tree that can't give
