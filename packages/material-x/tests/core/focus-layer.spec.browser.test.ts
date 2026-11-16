@@ -21,6 +21,8 @@ type Case = Readonly<{
   target: (element: HTMLElement) => HTMLElement;
   /** The element that draws the keyboard focus indicator. */
   indicator: (element: HTMLElement) => HTMLElement;
+  /** The native control that keyboard focus reaches. */
+  control: string;
 }>;
 
 const CASES: readonly Case[] = [
@@ -31,6 +33,7 @@ const CASES: readonly Case[] = [
     hovered: 'hovered',
     target: (element) => $<HTMLElement>(element, '.host')!,
     indicator: (element) => $<HTMLElement>(element, '.host')!,
+    control: '.host',
   },
   {
     tag: 'mx-checkbox',
@@ -39,6 +42,7 @@ const CASES: readonly Case[] = [
     hovered: 'unselected.hover',
     target: (element) => element,
     indicator: (element) => $<HTMLElement>(element, '.indicator')!,
+    control: '.input',
   },
   {
     tag: 'mx-radio',
@@ -47,6 +51,7 @@ const CASES: readonly Case[] = [
     hovered: 'unselected.hover',
     target: (element) => element,
     indicator: (element) => $<HTMLElement>(element, '.off')!,
+    control: '.input',
   },
 ];
 
@@ -55,6 +60,17 @@ function create(tag: Case['tag']): HTMLElement {
   element.textContent = 'Label';
   document.body.append(element);
   return element;
+}
+
+/**
+ * Presses Tab and asserts that it reached the host's native control, so a
+ * failed reach doesn't read as a missing layer or indicator.
+ */
+async function tabTo(element: HTMLElement, control: string): Promise<void> {
+  await userEvent.keyboard('{Tab}');
+
+  expect(document.activeElement).toBe(element);
+  expect(element.shadowRoot?.activeElement).toBe($(element, control));
 }
 
 function layer(element: HTMLElement): CSSStyleDeclaration {
@@ -86,7 +102,7 @@ describe.each(CASES)('$tag focus layer visual contract', (testCase) => {
   it('should draw the focused state layer on keyboard focus', async () => {
     const element = create(testCase.tag);
 
-    await userEvent.keyboard('{Tab}');
+    await tabTo(element, testCase.control);
 
     expect(await observed(element)).toStrictEqual(
       await expected(testCase.contract, testCase.focused),
@@ -96,7 +112,7 @@ describe.each(CASES)('$tag focus layer visual contract', (testCase) => {
   it('should draw the focused state layer on keyboard focus with hover', async () => {
     const element = create(testCase.tag);
 
-    await userEvent.keyboard('{Tab}');
+    await tabTo(element, testCase.control);
     await userEvent.hover(testCase.target(element));
 
     expect(await observed(element)).toStrictEqual(
@@ -131,7 +147,7 @@ describe.each(CASES)('$tag focus indicator', (testCase) => {
   it('should draw the focus indicator on keyboard focus', async () => {
     const element = create(testCase.tag);
 
-    await userEvent.keyboard('{Tab}');
+    await tabTo(element, testCase.control);
 
     expect(getComputedStyle(testCase.indicator(element)).outlineStyle).toBe(
       'solid',
