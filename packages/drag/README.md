@@ -258,7 +258,7 @@ controller.use(lifter.cancelLanding, lifter);
 
 ```sh
 npx just test           # Chromium: browser, shipped, declaration and node projects
-npx just test-engines   # the browser suite in Chromium, Firefox and WebKit
+npx just test-engines   # the browser suite in Chromium and Firefox (Safari runs in CI)
 npx just size           # sizes and module graphs
 npx just compare        # before/after cost, about half an hour
 ```

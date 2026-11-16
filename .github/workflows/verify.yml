@@ -1,5 +1,5 @@
 # The repository's verification: formatting, lint and types, and the test suite
-# in Chromium, Firefox and WebKit. `verify` is the one check the branch rule
+# in Chromium, Firefox and Safari. `verify` is the one check the branch rule
 # requires (`repo:RD-6`). `measurements` reports sizes and allocations and never
 # fails the run (`repo:RD-7`).
 name: verify
@@ -88,9 +88,11 @@ jobs:
         env:
           MX_TEST_ENGINES: firefox
 
-  webkit:
+  # Real Safari, which runs only on macOS and only through WebDriver. Nothing
+  # installs it: the runner image's Safari and its `safaridriver` run.
+  safari:
     if: github.event.pull_request.draft != true
-    runs-on: ubuntu-24.04
+    runs-on: macos-26
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -99,16 +101,21 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps webkit
-      - run: npx just test --project '*/webkit' --tags-filter '!measurement'
+      - name: Enable Safari's remote automation
+        run: sudo safaridriver --enable
+      - name: macOS and Safari versions
+        run: |
+          sw_vers
+          defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
+      - run: npx just test --project '*/safari' --tags-filter '!measurement'
         env:
-          MX_TEST_ENGINES: webkit
+          MX_TEST_ENGINES: safari
 
   # Succeeds only if every gate job succeeded. A skipped, cancelled or failed
   # job fails it.
   verify:
     if: always() && github.event.pull_request.draft != true
-    needs: [static, chromium, firefox, webkit]
+    needs: [static, chromium, firefox, safari]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

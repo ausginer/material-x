@@ -7,8 +7,8 @@ if [ -z "$WORKSPACE_DIR" ]; then
 fi
 
 # Installs the Chromium and Firefox builds that the locked `playwright` package
-# pins. The tests start these builds and no other browser. WebKit isn't
-# installed locally. `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` keeps `npm ci` from
+# pins. The tests start these builds and no other browser. No WebKit is
+# installed: CI runs real Safari on macOS, and nothing runs Playwright's WebKit. `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` keeps `npm ci` from
 # downloading browsers, so this is where they come from. Installing is a no-op
 # when the builds are already in Playwright's cache.
 

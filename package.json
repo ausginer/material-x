@@ -43,6 +43,7 @@
     "@vitejs/plugin-react": "6.3.0",
     "@vitest/browser": "5.1.0",
     "@vitest/browser-playwright": "5.1.0",
+    "@vitest/browser-webdriverio": "5.0.0",
     "@vitest/coverage-v8": "5.1.0",
     "@vitest/ui": "5.1.0",
     "concurrently": "10.0.7",
@@ -79,7 +80,8 @@
     "typescript-eslint": "8.72.2",
     "vite": "8.3.8",
     "vite-plugin-inspect": "12.1.0",
-    "vitest": "5.1.0"
+    "vitest": "5.1.0",
+    "webdriverio": "10.2.0"
   },
   "overrides": {
     "@mdx-js/react": "$@mdx-js/react",

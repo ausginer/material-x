@@ -2,6 +2,7 @@ import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { playwright } from '@vitest/browser-playwright';
+import { webdriverio } from '@vitest/browser-webdriverio';
 import type { ConfigEnv, UserConfig } from 'vite';
 import {
   mergeConfig,
@@ -189,9 +190,9 @@ type WorkspaceTestConfigOptions = Readonly<{
   viteTraitsPluginRoot: URL;
 }>;
 
-type Engine = 'chromium' | 'firefox' | 'webkit';
+type Engine = 'chromium' | 'firefox' | 'safari';
 
-const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'webkit'];
+const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'safari'];
 
 function isEngine(name: string): name is Engine {
   return (ENGINES as readonly string[]).includes(name);
@@ -260,37 +261,63 @@ function createChromiumProvider(
   });
 }
 
+/**
+ * Each engine's provider. Chromium and Firefox are Playwright's builds, which the
+ * exact `playwright` dependency pins. Safari is the browser on the macOS that
+ * runs it, driven through its own `safaridriver`, because only WebDriver drives
+ * Safari.
+ */
+function createEngineProvider(
+  engine: Engine,
+  launchArgs?: readonly string[],
+): ReturnType<typeof playwright> | ReturnType<typeof webdriverio> {
+  if (engine === 'chromium') {
+    return createChromiumProvider(launchArgs);
+  }
+
+  if (engine === 'safari') {
+    return webdriverio();
+  }
+
+  return playwright({ contextOptions: { deviceScaleFactor: 1 } });
+}
+
 function createBrowserTestConfig(
   engine: Engine,
   commands?: Record<string, BrowserCommand<any[]>>,
   options?: Readonly<{ launchArgs?: readonly string[] }>,
 ): UserConfig {
   const isChromium = engine === 'chromium';
+  const isSafari = engine === 'safari';
 
   return {
     test: {
-      // A page in the background gets no input in Firefox and WebKit.
+      // A page in the background gets no input in Firefox and Safari, and
+      // Safari allows one WebDriver session at a time.
       fileParallelism: isChromium && !isDebug,
       maxWorkers: isChromium ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {
         enabled: true,
-        headless: true,
+        // Safari has no headless mode.
+        headless: !isSafari,
+        // Recording a trace step serializes its locator, and the WebdriverIO
+        // provider's locator throws when nothing matches, so every
+        // `not.toBeInTheDocument()` would fail in Safari. CI keeps no trace.
+        ...(isSafari ? { traceView: 'off' as const } : {}),
         // Curated baselines are the only screenshots we keep; don't auto-capture
         // rasters for failed/expected-fail assertions in the behavior/spec
         // projects, which would otherwise litter __screenshots__.
         screenshotFailures: false,
-        provider: isChromium
-          ? createChromiumProvider(options?.launchArgs)
-          : playwright({ contextOptions: { deviceScaleFactor: 1 } }),
+        provider: createEngineProvider(engine, options?.launchArgs),
         // Pin the viewport and device scale so raster output is reproducible
         // across machines and CI. Screenshots are only valid for a fixed
         // environment (see .agents/docs/test-architecture.md). The pin is also
         // why the browser UI stays off under `DEBUG`: the UI nulls the
         // viewport, and Playwright rejects a device scale against a null one,
         // so the context is never created and the debug run executes nothing.
-        // The UI is unreachable behind the unconditional headless mode in any
-        // case; debugging attaches to the CDP port opened by Chromium's launch
-        // arguments.
+        // The UI is unreachable behind headless mode in Chromium and Firefox in
+        // any case; debugging attaches to the CDP port opened by Chromium's
+        // launch arguments.
         instances: [
           { browser: engine, viewport: { width: 1280, height: 720 } },
         ],

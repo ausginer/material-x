@@ -369,6 +369,6 @@ describe('drag:DRI-11 the click guard', () => {
     await commands.pointerDown();
     await commands.pointerUp();
     expect(prevented).toBe(false);
-    expect(engine).toMatch(/chromium|firefox|webkit/u);
+    expect(engine).toMatch(/chromium|firefox|safari/u);
   });
 });
