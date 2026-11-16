@@ -50,14 +50,43 @@ debug FILE:
 # the repository's own `.scripts` tests. Per-package runs stay available:
 # `cd packages/<name> && just test`.
 #
-# The packages the tests import resolve to their builds, as a consumer's do, so
-# they are built first, and the CSS plugin reads the custom property list that
-# material-x's `build:prepare` collects. drag's own build is the consumer
-# project's global setup.
-test *ARGS:
+# The packages the tests import are built first: `_test-builds` says why.
+test *ARGS: _test-builds
+    vitest run {{ ARGS }}
+
+# Run the Safari projects, each in its own Vitest process (`repo:RD-12`).
+#
+# Safari allows one automation session, and `safaridriver` one driver per Node
+# process, while Vitest opens the next project's browser before it releases the
+# previous one. So the recipe lists the Safari projects, which opens no
+# browser, and runs them one after another. It continues after a failing
+# project and fails if any did, or if the listing fails or finds none.
+test-safari *ARGS: _test-builds
+    #!/usr/bin/env bash
+    set -uo pipefail
+    export MX_TEST_ENGINES=safari
+    listing="$(vitest list --filesOnly --json --project '*/safari')" || { echo "The Safari project listing failed"; exit 1; }
+    mapfile -t projects < <(node -e 'const s = require("fs").readFileSync(0, "utf8"); for (const name of new Set(JSON.parse(s).map((e) => e.projectName))) console.log(name);' <<< "$listing")
+    if [ "${#projects[@]}" -eq 0 ]; then echo "The listing found no Safari project"; exit 1; fi
+    failed=0
+    for project in "${projects[@]}"; do
+        echo "::group::$project"
+        vitest run --project "$project" {{ ARGS }}
+        status=$?
+        echo "::endgroup::"
+        echo "$project exited with $status"
+        [ "$status" -eq 0 ] || failed=1
+    done
+    exit "$failed"
+
+# The packages the tests import resolve to their builds, as a consumer's do, and
+# the CSS plugin reads the custom property list that material-x's
+# `build:prepare` collects. drag's own build is the consumer project's global
+# setup.
+[private]
+_test-builds:
     nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
     nx run @ydinjs/material-x:build:prepare --skipNxCache
-    vitest run {{ ARGS }}
 
 # ---------------------------------------------------------------------------
 # Bundle size

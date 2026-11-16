@@ -1,0 +1,8 @@
+# For each listed Safari project, `vitest list --filesOnly --json --project <name>` against the full listing (MX_TEST_ENGINES=safari, 8afa0ab5f + working tree).
+shipped/drag/safari (safari): 1 files, projects in selection: ["shipped/drag/safari (safari)"], matches the full listing: true
+browser/core/safari (safari): 22 files, projects in selection: ["browser/core/safari (safari)"], matches the full listing: true
+browser/box-quad/safari (safari): 7 files, projects in selection: ["browser/box-quad/safari (safari)"], matches the full listing: true
+browser/drag/safari (safari): 30 files, projects in selection: ["browser/drag/safari (safari)"], matches the full listing: true
+consumer/drag/safari (safari): 27 files, projects in selection: ["consumer/drag/safari (safari)"], matches the full listing: true
+browser/material-x/safari (safari): 8 files, projects in selection: ["browser/material-x/safari (safari)"], matches the full listing: true
+spec/material-x/safari (safari): 6 files, projects in selection: ["spec/material-x/safari (safari)"], matches the full listing: true

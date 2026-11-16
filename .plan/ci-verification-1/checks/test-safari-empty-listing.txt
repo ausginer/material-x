@@ -1,0 +1,20 @@
+# Scratch edit: the listing selects --project 'no-such-project'. Reverted after.
+68:    listing="$(vitest list --filesOnly --json --project 'no-such-project')" || { echo "The Safari project listing failed"; exit 1; }
+$ npx just test-safari
+].
+    at resolveProjectEntries (file:///workspaces/material-x/node_modules/vitest/dist/chunks/index.Di8au7q4.js:6968:59)
+    at async resolveConfig (file:///workspaces/material-x/node_modules/vitest/dist/chunks/index.Di8au7q4.js:9349:32)
+    at async createVitest (file:///workspaces/material-x/node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:13938:17)
+    at async prepareVitest (file:///workspaces/material-x/node_modules/vitest/dist/chunks/cli-api.COfZo8lK.js:14625:14)
+    at async collect (file:///workspaces/material-x/node_modules/vitest/dist/chunks/cac.BYbt0aJp.js:2418:15)
+The Safari project listing failed
+error: recipe `test-safari` failed with exit code 1
+exit status: 1
+
+# Scratch edit 2: the listing's output is replaced with an empty JSON array. Reverted after.
+68:    listing="$(echo '[]')" || { echo "The Safari project listing failed"; exit 1; }
+$ npx just test-safari
+  Recoverable time:  <1ms
+The listing found no Safari project
+error: recipe `test-safari` failed with exit code 1
+exit status: 1
