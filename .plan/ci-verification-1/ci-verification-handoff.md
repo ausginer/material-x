@@ -53,7 +53,7 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 2. **Engine selection** (`RD-12` properties 1 and 3). `safari` replaces `webkit` in the shared factory. A Safari project uses the WebdriverIO provider with `{ browser: 'safari' }`, isn't headless, has one worker and no file parallelism, and has Vitest's trace view off. Chromium and Firefox projects don't change. drag's `test-engines` sets no engine list (`RD-13` property 7; this step said `MX_TEST_ENGINES=chromium,firefox`).
 3. **The workflow** (`RD-12` property 6). Rename the job `webkit` to `safari`, on `macos-26`. It installs no Playwright browser. Before the tests, it runs `sudo safaridriver --enable` and logs the macOS version (`sw_vers`) and Safari's version. It runs `npx just test --project '*/safari' --tags-filter '!measurement'` with `MX_TEST_ENGINES=safari`. (Amended at `347d4e499`: it runs `npx just test-safari --tags-filter '!measurement'`; see _Resuming after the Safari driver stop_.) `verify` needs `safari` in place of `webkit`. Nothing else in the workflow changes for Safari.
 4. **A first CI reading, before the commands.** Push and read whether `npm ci` succeeds on macOS and whether each Safari project loads. A project that can't load is a stop (`RD-8` property 5). So is an `npm ci` failure on macOS: report it with its output, and don't edit the lockfile to get past it.
-5. **The test frame** (`RD-12` property 3). From inside a Safari test in CI, read the frame's inner size and whether a scale transform applies to it. It must be 1280 × 720, unscaled. If it isn't, make the Safari window large enough in the Safari configuration, and read again. Save both readings.
+5. **The test frame** (`RD-12` property 3). From inside a Safari test in CI, read the frame's inner size and whether a scale transform applies to it. It must be 1280 × 720, unscaled. If it isn't, make the Safari window large enough in the Safari configuration, and read again. Save both readings. (Amended at `83ff45024`: also read the top-level viewport, which must contain the whole frame; see _Resuming after the Safari inventory_.)
 6. **Commands** (`RD-12` property 4). Give each repository browser command that a Safari row calls a WebdriverIO implementation, with the same name, arguments, result and coordinate frame. Pointer state lasts from `pointerDown` to `pointerUp`. A command with no WebDriver counterpart throws an error that names the command and the provider. Rows that compare `server.browser` with engine names, such as `click-guard.browser.test.ts:372`, name `safari`.
 7. **Rows limited for Safari** (`RD-12` property 5). Give each row that needs a command Safari's driver lacks an engine condition, including the reduced-motion reset in `landing.browser.test.ts`'s `beforeEach`. List each row and the command it needs. A row that fails in Safari for any other reason is an `RD-8` row, not a limited one.
 8. **Item 8 in Safari:** the inventory, the dispositions under `RD-8` properties 2 and 4 and three CI runs for intermittent failures. Findings use the same registers as item 6.
@@ -97,7 +97,7 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
    - it runs `vitest run --project <name>` with the recipe's arguments, once per listed name and one after another. It continues after a project fails, logs each name and exit status, and exits non-zero if the listing fails or is empty, or if any project's run fails.
    - **Check:** for each listed name, `vitest list --filesOnly --json --project <name>` lists exactly that project's files and no other project's. Names end in `(safari)`, so quote them. Save the output.
    - **Check:** the recipe exits non-zero when its listing finds no project. Show this with a scratch edit that makes the listing empty, and revert it. Save the output.
-3. **The workflow.** The `safari` job's test step runs `npx just test-safari --tags-filter '!measurement'`. The step no longer needs `MX_TEST_ENGINES`. Nothing else in the job changes.
+3. **The workflow.** The `safari` job's test step runs `npx just test-safari --tags-filter '!measurement'`. The step no longer needs `MX_TEST_ENGINES`. Nothing else in the job changes. (Amended at `83ff45024`: the job also turns off Reduce Motion before the tests; see _Resuming after the Safari inventory_.)
 4. **The CI reading.** Push, observing step 1. In the `safari` job, every listed Safari project opens Safari and runs, and the log names each project and its exit status. Then continue with the Safari section's steps 6 to 8. A project's test failure is an `RD-8` row, not this stop.
 
 **Stops added at `347d4e499`:**
@@ -107,6 +107,30 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 - a listed name whose `--project` selection isn't exactly that one project.
 
 Report each with its output.
+
+## Resuming after the Safari inventory
+
+**Dated 2026-11-16.** In run 43827320614, every Safari project ran. `browser/drag` failed 29 rows and `consumer/drag` failed 27. The probe of run 43829273272 found two causes: Safari on the runner reports `prefers-reduced-motion: reduce`, and the top-level viewport is 1280 × 668, which clips the 1280 × 720 frame. The architect amended `RD-12` property 3's last item and added property 10. **Continue from the architect's commit that adds this section.**
+
+1. **Evidence.** Commit `checks/safari-inventory-run-43827320614.txt`, and save the probe's output from run 43829273272: the `PROBE env` line, and the pointer readings you use. Keep the probe until steps 2 and 3 have their readings, then remove it, and remove its project change in `packages/drag/vitest.config.ts` too.
+2. **The window** (`RD-12` property 3). Make the Safari window large enough for the top-level viewport to contain the whole frame. From inside a Safari test in CI, read the top-level viewport's size, the frame's inner size and whether a scale transform applies. Save the reading. The Safari section's step 5 already allows this change.
+3. **Reduce Motion** (`RD-12` property 10). In the `safari` job, add a step after `sudo safaridriver --enable` and before the tests. The step:
+   - turns Reduce Motion off as the runner's user, not with `sudo`, for example with `defaults write com.apple.universalaccess reduceMotion -bool false`;
+   - reads the value back and logs it;
+   - fails if the value isn't off.
+
+   **Check:** from inside a Safari test in that run, `matchMedia('(prefers-reduced-motion: reduce)').matches` is `false`. Save the reading.
+   - drag's two reduced-motion rows and the reset in `landing.browser.test.ts`'s `beforeEach` stay limited to `canEmulateReducedMotion` (`bacc42841`). Give no other row an engine condition for motion.
+
+4. **A new inventory.** Run the job again with the probe removed, and save its inventory. Rows that failed only because of the preference or the clipped viewport must now pass. Each row that still fails in Safari goes through the Safari section's step 8 under `RD-8`, as item 6 describes. Examples are the `commit` scroll example's offset and `flight.effect` in the keyboard-command row; they aren't disabled as part of this section.
+
+**Stops added at `83ff45024`:**
+
+- the runner's user can't turn Reduce Motion off, or the value read back isn't off;
+- Safari still reports `reduce` after the step;
+- the window can't be made large enough for the top-level viewport to contain the frame.
+
+Report each with its output, and don't limit or disable rows to get past it.
 
 ## Owner preconditions
 
@@ -185,7 +209,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 - **Roboto:** with the package's faces removed from the load list, the visual run fails at the load, not at a comparison. Revert.
 - **Engine selection:** the project list (`vitest list --json` or an equivalent that only lists) for the default, for `MX_TEST_ENGINES=firefox`, for `MX_TEST_ENGINES=safari`, and for all three engines, at the root and for drag. Read the Safari lists locally with a listing that starts no browser, such as `--filesOnly`. If every listing starts one, read them in CI. drag's `test-engines` lists `browser` and `shipped` by default, and `browser/firefox` and `shipped/firefox` beside them with `MX_TEST_ENGINES=chromium,firefox`. `MX_TEST_ENGINES=webkit` gives the unknown-engine error.
 - **Visual selection:** the default project list at the root and in material-x has no visual project. With `MX_TEST_VISUAL=1` it has one, in Chromium.
-- **Safari:** the job log names the macOS and Safari versions, and each Safari project with its exit status; the frame reading of the Safari section's step 5; a Safari project's resolved configuration shows `headless: false`, one worker and the trace view off, and a Chromium project's shows Vitest's default trace view; calling a command that has no WebDriver counterpart with a WebdriverIO context throws the named error. Show the last one with a scratch call, and revert it.
+- **Safari:** the job log names the macOS and Safari versions, each Safari project with its exit status, and the Reduce Motion value read back; Safari reports no reduced-motion preference; the top-level viewport contains the frame; the frame reading of the Safari section's step 5; a Safari project's resolved configuration shows `headless: false`, one worker and the trace view off, and a Chromium project's shows Vitest's default trace view; calling a command that has no WebDriver counterpart with a WebdriverIO context throws the named error. Show the last one with a scratch call, and revert it.
 - **Measurement tag, with mutations:** lowering one drag ceiling by 1 B fails only that ceiling row, under both `npx just test` and `--tags-filter measurement`. The run with `!measurement` passes. Adding to a composition's fixture an import of a module that its `absent` list forbids fails that composition's graph row under `!measurement`. Revert both.
 - **Measurement job:** on the pull request, with one ceiling lowered by 1 B in a pushed commit, the comment and the summary report the excess, the job and `verify` succeed, and the run's conclusion is success. Revert the commit and push again.
 - **The gate:** on the pull request, with one intentionally failing gate row in a pushed commit, `verify` fails. Revert and push again.
@@ -194,7 +218,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 
 ## Stops
 
-`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_ and _Resuming after the Safari driver stop_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
+`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_, _Resuming after the Safari driver stop_ and _Resuming after the Safari inventory_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
 
 ## Report
 
