@@ -1,0 +1,15 @@
+# Item 8's gate check: run 43845754860 (https://github.com/ausginer/material-x/actions/runs/43845754860) at 41cefdc93,
+# which adds .scripts/gate-check.node.test.ts with one row that fails on purpose. The next commit removes it.
+
+chromium      failure  373 s
+   FAIL   repo  .scripts/gate-check.node.test.ts > fails on purpose to check the gate
+   Test Files  1 failed | 137 passed (138)
+        Tests  1 failed | 1844 passed | 12 skipped (1857)
+firefox       success  504 s
+safari        success  674 s   (all 7 projects exited with 0)
+static        success  124 s
+measurements  success  203 s
+verify        failure    5 s
+run conclusion: failure
+
+One failing gate row fails the chromium job, and verify fails.
