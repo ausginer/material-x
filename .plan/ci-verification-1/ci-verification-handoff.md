@@ -51,7 +51,7 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 
 1. **Dependencies** (`RD-12` property 2). Add `@vitest/browser-webdriverio` and `webdriverio` as exact root `devDependencies`. Show with `npm ls @vitest/browser` that one copy, 5.1.0, resolves.
 2. **Engine selection** (`RD-12` properties 1 and 3). `safari` replaces `webkit` in the shared factory. A Safari project uses the WebdriverIO provider with `{ browser: 'safari' }`, isn't headless, has one worker and no file parallelism, and has Vitest's trace view off. Chromium and Firefox projects don't change. drag's `test-engines` sets no engine list (`RD-13` property 7; this step said `MX_TEST_ENGINES=chromium,firefox`).
-3. **The workflow** (`RD-12` property 6). Rename the job `webkit` to `safari`, on `macos-26`. It installs no Playwright browser. Before the tests, it runs `sudo safaridriver --enable` and logs the macOS version (`sw_vers`) and Safari's version. It runs `npx just test --project '*/safari' --tags-filter '!measurement'` with `MX_TEST_ENGINES=safari`. `verify` needs `safari` in place of `webkit`. Nothing else in the workflow changes for Safari.
+3. **The workflow** (`RD-12` property 6). Rename the job `webkit` to `safari`, on `macos-26`. It installs no Playwright browser. Before the tests, it runs `sudo safaridriver --enable` and logs the macOS version (`sw_vers`) and Safari's version. It runs `npx just test --project '*/safari' --tags-filter '!measurement'` with `MX_TEST_ENGINES=safari`. (Amended at `347d4e499`: it runs `npx just test-safari --tags-filter '!measurement'`; see _Resuming after the Safari driver stop_.) `verify` needs `safari` in place of `webkit`. Nothing else in the workflow changes for Safari.
 4. **A first CI reading, before the commands.** Push and read whether `npm ci` succeeds on macOS and whether each Safari project loads. A project that can't load is a stop (`RD-8` property 5). So is an `npm ci` failure on macOS: report it with its output, and don't edit the lockfile to get past it.
 5. **The test frame** (`RD-12` property 3). From inside a Safari test in CI, read the frame's inner size and whether a scale transform applies to it. It must be 1280 × 720, unscaled. If it isn't, make the Safari window large enough in the Safari configuration, and read again. Save both readings.
 6. **Commands** (`RD-12` property 4). Give each repository browser command that a Safari row calls a WebdriverIO implementation, with the same name, arguments, result and coordinate frame. Pointer state lasts from `pointerDown` to `pointerUp`. A command with no WebDriver counterpart throws an error that names the command and the provider. Rows that compare `server.browser` with engine names, such as `click-guard.browser.test.ts:372`, name `safari`.
@@ -84,6 +84,29 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 8. **A second labeled run** on pull request #27, after the merge, pushes nothing and opens nothing, and its summary says so. This is the check that property 4's _"when nothing changed"_ holds.
 
 **Stops added by `RD-13`:** the runner doesn't reproduce a recording made on the runner; a visual row is intermittent in CI; and the token can't push `baselines/*`, open the proposal or dispatch `verify`. A repository rule that refuses these is reported, not worked around.
+
+## Resuming after the Safari driver stop
+
+**Dated 2026-11-16.** The `safari` job stopped at run 43821740209 ([evidence](checks/safari-driver-stop.txt), committed at `347d4e499`). `browser/material-x/safari` ran all 141 tests, and each later Safari project failed to open Safari. The architect amended `RD-12` properties 3, 6 and 8. Within one Vitest process, Vitest opens the next project's browser before `RD-3`'s release closes the previous project's session. Safari allows one session, and `safaridriver` allows one driver per Node process. **So each Safari project runs in its own Vitest process.** **Continue from the architect's commit that adds this section.** The Safari section's steps 1 to 5 and the input commands of `347d4e499` stand.
+
+1. **Push timing.** Push `347d4e499`, and the architect's commit on top of it, only after pull request #27's `chromium` reproduction runs have finished. `verify` cancels a pull request's run that is in progress when a new commit arrives.
+2. **The recipe `test-safari`** in the root `Justfile` (`RD-12` property 6):
+   - it sets `MX_TEST_ENGINES=safari`;
+   - it builds what `test` builds, once. Share those build steps with `test`, for example through a private recipe that both depend on, instead of copying them;
+   - it lists the Safari projects with `vitest list --filesOnly --json` and takes the distinct project names. The listing opens no browser (`RD-12`'s readings at `347d4e499`);
+   - it runs `vitest run --project <name>` with the recipe's arguments, once per listed name and one after another. It continues after a project fails, logs each name and exit status, and exits non-zero if the listing fails or is empty, or if any project's run fails.
+   - **Check:** for each listed name, `vitest list --filesOnly --json --project <name>` lists exactly that project's files and no other project's. Names end in `(safari)`, so quote them. Save the output.
+   - **Check:** the recipe exits non-zero when its listing finds no project. Show this with a scratch edit that makes the listing empty, and revert it. Save the output.
+3. **The workflow.** The `safari` job's test step runs `npx just test-safari --tags-filter '!measurement'`. The step no longer needs `MX_TEST_ENGINES`. Nothing else in the job changes.
+4. **The CI reading.** Push, observing step 1. In the `safari` job, every listed Safari project opens Safari and runs, and the log names each project and its exit status. Then continue with the Safari section's steps 6 to 8. A project's test failure is an `RD-8` row, not this stop.
+
+**Stops added at `347d4e499`:**
+
+- a Safari project that can't open Safari when it is the only project in its Vitest process;
+- a listing that opens a browser;
+- a listed name whose `--project` selection isn't exactly that one project.
+
+Report each with its output.
 
 ## Owner preconditions
 
@@ -162,7 +185,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 - **Roboto:** with the package's faces removed from the load list, the visual run fails at the load, not at a comparison. Revert.
 - **Engine selection:** the project list (`vitest list --json` or an equivalent that only lists) for the default, for `MX_TEST_ENGINES=firefox`, for `MX_TEST_ENGINES=safari`, and for all three engines, at the root and for drag. Read the Safari lists locally with a listing that starts no browser, such as `--filesOnly`. If every listing starts one, read them in CI. drag's `test-engines` lists `browser` and `shipped` by default, and `browser/firefox` and `shipped/firefox` beside them with `MX_TEST_ENGINES=chromium,firefox`. `MX_TEST_ENGINES=webkit` gives the unknown-engine error.
 - **Visual selection:** the default project list at the root and in material-x has no visual project. With `MX_TEST_VISUAL=1` it has one, in Chromium.
-- **Safari:** the job log names the macOS and Safari versions; the frame reading of the Safari section's step 5; a Safari project's resolved configuration shows `headless: false`, one worker and the trace view off, and a Chromium project's shows Vitest's default trace view; calling a command that has no WebDriver counterpart with a WebdriverIO context throws the named error. Show the last one with a scratch call, and revert it.
+- **Safari:** the job log names the macOS and Safari versions, and each Safari project with its exit status; the frame reading of the Safari section's step 5; a Safari project's resolved configuration shows `headless: false`, one worker and the trace view off, and a Chromium project's shows Vitest's default trace view; calling a command that has no WebDriver counterpart with a WebdriverIO context throws the named error. Show the last one with a scratch call, and revert it.
 - **Measurement tag, with mutations:** lowering one drag ceiling by 1 B fails only that ceiling row, under both `npx just test` and `--tags-filter measurement`. The run with `!measurement` passes. Adding to a composition's fixture an import of a module that its `absent` list forbids fails that composition's graph row under `!measurement`. Revert both.
 - **Measurement job:** on the pull request, with one ceiling lowered by 1 B in a pushed commit, the comment and the summary report the excess, the job and `verify` succeed, and the run's conclusion is success. Revert the commit and push again.
 - **The gate:** on the pull request, with one intentionally failing gate row in a pushed commit, `verify` fails. Revert and push again.
@@ -171,7 +194,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 
 ## Stops
 
-`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
+`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_ and _Resuming after the Safari driver stop_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
 
 ## Report
 
