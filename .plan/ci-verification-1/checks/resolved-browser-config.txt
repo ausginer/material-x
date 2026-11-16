@@ -1,0 +1,17 @@
+# Resolved browser project configurations at e2eb61d1c, read with resolved-browser-config.ts, which starts no browser.
+
+## MX_TEST_ENGINES=safari --project '*/safari'
+{"name":"browser/material-x/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+{"name":"spec/material-x/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+{"name":"browser/core/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+{"name":"browser/box-quad/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+{"name":"browser/drag/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+{"name":"shipped/drag/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+{"name":"consumer/drag/safari (safari)","headless":false,"maxWorkers":1,"fileParallelism":false,"traceView":{"enabled":false,"mode":"off","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"webdriverio","fitSafariWindow":true,"safariWindowSetup":true}
+
+## Default engines (Chromium), --project 'browser/*' --project 'shipped/*'
+{"name":"browser/material-x (chromium)","headless":true,"maxWorkers":2,"fileParallelism":true,"traceView":{"enabled":true,"mode":"failure-only","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"playwright","fitSafariWindow":false,"safariWindowSetup":false}
+{"name":"browser/core (chromium)","headless":true,"maxWorkers":2,"fileParallelism":true,"traceView":{"enabled":true,"mode":"failure-only","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"playwright","fitSafariWindow":false,"safariWindowSetup":false}
+{"name":"browser/box-quad (chromium)","headless":true,"maxWorkers":2,"fileParallelism":true,"traceView":{"enabled":true,"mode":"failure-only","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"playwright","fitSafariWindow":false,"safariWindowSetup":false}
+{"name":"browser/drag (chromium)","headless":true,"maxWorkers":2,"fileParallelism":true,"traceView":{"enabled":true,"mode":"failure-only","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"playwright","fitSafariWindow":false,"safariWindowSetup":false}
+{"name":"shipped/drag (chromium)","headless":true,"maxWorkers":2,"fileParallelism":true,"traceView":{"enabled":true,"mode":"failure-only","recordCanvas":false,"inlineImages":false,"ariaSnapshot":true},"provider":"playwright","fitSafariWindow":false,"safariWindowSetup":false}
