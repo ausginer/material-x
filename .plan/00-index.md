@@ -719,15 +719,17 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** each of `mx-radio`, `mx-checkbox` and `mx-button` either draws the focus state layer its tokens define, or the record states why it doesn't. Its focused visual row is recorded again through `repo:RD-13` when that changes.
 - **Routed** as a material-x product question for the owner. The CI unit doesn't change product source.
 
-#### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its row's wait
+#### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
 
 Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §Safari's inventory over three runs), under `RD-8` properties 1 and 4. **Skipped in Safari only** (`it.skipIf`), and the marking cites this address.
 
-- **The row:** `packages/core/tests/traits/reorderable.browser.test.ts`, `useReorderable` › "should take the visual out of the top layer once the drag lands".
+- **The rows,** in `packages/core/tests/traits/reorderable.browser.test.ts`, `useReorderable`:
+  - "should take the visual out of the top layer once the drag lands";
+  - "should not dispatch a reorder for a no-op drop", added on 2026-11-16 after run 43843800063.
 - **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
-- **The failure:** in attempt 2 of run 43830910625 at `ddf72ec4e`, `item.matches(':popover-open')` was still true when the row's `vi.waitFor` gave up at 1,000 ms (`expected true to be falsy`, the row took 1,026 ms). It passed in attempts 1 and 3, and in run 43827320614.
+- **The failures:** each row drags the list's sole item and waits up to 1,000 ms for `item.matches(':popover-open')` to be false. In attempt 2 of run 43830910625 at `ddf72ec4e`, the first row's wait gave up (`expected true to be falsy`, 1,026 ms); it passed in attempts 1 and 3 and in run 43827320614. In run 43843800063 at `6fd774bc4`, the second row's wait gave up the same way (1,015 ms); it had passed in the five Safari runs before. Eight more rows in the file use the same 1,000 ms wait.
 - **What is known:** the row registers no reorder listener, so after the 200 ms landing the session waits core's 500 ms `COMMIT_TIMEOUT` (`src/traits/reorderable.ts`) before returning the visual: at least 700 ms against the row's 1,000 ms. A late timer or frame in Safari would cross it. **The cause is not established:** that is an inference, not a reading.
-- **Required property:** the row passes in Safari in every run, with a wait that states the landing and the commit grace it covers.
+- **Required property:** the rows pass in Safari in every run, with a wait that states the landing and the commit grace it covers.
 - **Routed** to core's owner. The CI unit doesn't change the row's wait or core's source.
 
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`

@@ -391,30 +391,38 @@ describe('useReorderable', () => {
     expect(orderAtIntent).toStrictEqual([item1, item2, item3]);
   });
 
-  it('should not dispatch a reorder for a no-op drop', async () => {
-    const list = createList();
-    const item = createItem();
+  // Intermittently keeps the visual in the top layer past the wait in Safari
+  // (`repo:RF-36`).
+  it.skipIf(server.browser === 'safari')(
+    'should not dispatch a reorder for a no-op drop',
+    async () => {
+      const list = createList();
+      const item = createItem();
 
-    document.body.append(list);
-    list.append(item);
-    list.reorderable = true;
-    await nextFrame();
+      document.body.append(list);
+      list.append(item);
+      list.reorderable = true;
+      await nextFrame();
 
-    const reorderSpy = vi.fn<(e: Event) => void>();
-    list.addEventListener('reorder', reorderSpy);
+      const reorderSpy = vi.fn<(e: Event) => void>();
+      list.addEventListener('reorder', reorderSpy);
 
-    // Sole item: it can only land where it started, so nothing is proposed.
-    await ue.pointer([
-      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
-      { coords: { clientY: 100 } },
-      { keys: '[/MouseLeft]' },
-    ]);
-    await vi.waitFor(() => expect(item.matches(':popover-open')).toBeFalsy(), {
-      timeout: 1000,
-    });
+      // Sole item: it can only land where it started, so nothing is proposed.
+      await ue.pointer([
+        { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+        { coords: { clientY: 100 } },
+        { keys: '[/MouseLeft]' },
+      ]);
+      await vi.waitFor(
+        () => expect(item.matches(':popover-open')).toBeFalsy(),
+        {
+          timeout: 1000,
+        },
+      );
 
-    expect(reorderSpy).not.toHaveBeenCalled();
-  });
+      expect(reorderSpy).not.toHaveBeenCalled();
+    },
+  );
 
   it('should animate home and not move when the intent is prevented', async () => {
     const list = createList();
