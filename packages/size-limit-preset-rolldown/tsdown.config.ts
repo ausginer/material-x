@@ -13,7 +13,7 @@ const config: UserConfig = defineConfig({
   // Keep Rolldown (and its native bindings) external — bundling its napi
   // loader inlines relative `.node` paths that break at runtime.
   deps: {
-    neverBundle: [/^rolldown/, /^@rolldown/, '@size-limit/file'],
+    neverBundle: [/^rolldown/u, /^@rolldown/u, '@size-limit/file'],
   },
 });
 

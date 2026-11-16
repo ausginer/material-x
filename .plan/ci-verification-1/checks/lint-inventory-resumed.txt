@@ -1,0 +1,17 @@
+# Lint after item 5's repairs, on the working tree after e5d7260aa. oxlint and ESLint run separately in each package.
+
+## box-quad: oxlint exit 0, ESLint exit 0
+## core: oxlint exit 0, ESLint exit 1
+packages/core/src/utils/DOM.ts
+  37:19  error  Type parameter E is used only once in the function signature  @typescript-eslint/no-unnecessary-type-parameters
+## tproc: oxlint exit 0, ESLint exit 0
+## drag: oxlint exit 0, ESLint exit 0
+## vite-custom-element-assets: oxlint exit 0, ESLint exit 0
+## vite-traits-plugin: oxlint exit 0, ESLint exit 0
+## size-limit-preset-rolldown: oxlint exit 0, ESLint exit 0
+## material-x: oxlint exit 0, ESLint exit 1
+packages/material-x/src/button-group/ButtonGroupCore.ts
+  37:36  error  This type resolves to `{}`, the empty object type. This was likely not intentional  @typescript-eslint/no-generated-empty-object-type
+packages/material-x/src/list/ListItemCore.ts
+  19:38  error  This type resolves to `{}`, the empty object type. This was likely not intentional  @typescript-eslint/no-generated-empty-object-type
+## repository level: oxlint exit 0, ESLint exit 0

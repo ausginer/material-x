@@ -1,0 +1,58 @@
+# Emitted output of item 5's lint repairs
+
+Built in the main tree, with 'npx just build' in each package below: once with the repairs reverted (e5d7260aa's sources) and once with them applied (git apply of the saved diff, which reapplied exactly). Every file the build writes was compared.
+
+core: 81 files, 2 differ
+tproc: 43 files, 3 differ
+vite-custom-element-assets: 42 files, 3 differ
+vite-traits-plugin: 3 files, 2 differ
+size-limit-preset-rolldown: 5 files, 0 differ
+material-x: 256 files, 1 differ
+
+## Every difference in emitted JavaScript and declarations (source maps omitted; the generation chunk's hashed name also changed)
+
+### core/traits/primitives.d.ts
+35c35
+< type ConstructorStatics<T extends Constructor<object>> = Omit<T, keyof Constructor<Record<never, never>>>;
+---
+> type ConstructorStatics<T extends Constructor<object>> = Omit<T, keyof Constructor<object>>;
+
+### tproc/processToken.js
+49c49
+< 		if (textTransform !== TextTransform.NONE) throw new Error(`Unknown text transform: ${String(textTransform)}`);
+---
+> 		if (textTransform !== TextTransform.NONE) throw new Error(`Unknown text transform: ${textTransform}`);
+
+### vite-custom-element-assets/index.js
+4c4
+---
+15c15
+< 	const cssPath = fileURLToPath(url).replace(/\.ts$/, "");
+---
+> 	const cssPath = fileURLToPath(url).replace(/\.ts$/u, "");
+227,228c227,228
+< 				include: /\.(?:ts|tsx)/,
+< 				exclude: /\.css\.ts/
+---
+> 				include: /\.(?:ts|tsx)/u,
+> 				exclude: /\.css\.ts/u
+
+### vite-traits-plugin/index.js
+323c323
+< 		for (const key in current) {
+---
+> 		for (const key of Object.keys(current)) {
+
+### vite-custom-element-assets/generation-<hash>.js
+157,158c157,160
+< 	const generation = current ??= create();
+< 	const id = generation.requests += 1;
+---
+> 	current ??= create();
+> 	const generation = current;
+> 	generation.requests += 1;
+> 	const id = generation.requests;
+265c267
+\ No newline at end of file
+---
+\ No newline at end of file

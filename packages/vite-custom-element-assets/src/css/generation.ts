@@ -253,8 +253,13 @@ function create(): Generation {
 
 /** Attaches a request to the accepting generation, creating one if there is none. */
 function attach(request: Pending): void {
-  const generation = (current ??= create());
-  const id = (generation.requests += 1);
+  current ??= create();
+
+  const generation = current;
+
+  generation.requests += 1;
+
+  const id = generation.requests;
 
   generation.pending.set(id, request);
   generation.worker.postMessage({ id, path: request.path });

@@ -82,7 +82,7 @@ function walk(root: Node, visit: (node: Node) => void): void {
       visit(current as Node);
     }
 
-    for (const key in current) {
+    for (const key of Object.keys(current)) {
       if (key === 'type' || key === 'start' || key === 'end') {
         continue;
       }

@@ -64,6 +64,52 @@ const config: readonly Config[] = defineConfig(
       'import-x/prefer-default-export': 'off',
     },
   },
+  {
+    // Names that another program defines, so this code can't choose them. The
+    // rule keeps its level and `properties: 'always'` for every other name.
+    // ESLint reads each entry as a regular expression, so each is anchored to
+    // admit that one name and no name containing it.
+    rules: {
+      camelcase: [
+        'error',
+        {
+          properties: 'always',
+          allow: [
+            // Claude Code's hook payload, which Claude Code sends and reads.
+            '^hook_event_name$',
+            '^session_id$',
+            '^tool_name$',
+            '^tool_input$',
+            '^agent_type$',
+            '^agent_id$',
+            '^transcript_path$',
+            '^subagent_type$',
+            // The harness effort guard's observation log, which copies the
+            // payload's fields under their names, adds its own in that style,
+            // and is read by the plugin's `observe.ts` and its documentation.
+            '^governed_role$',
+            '^identity_source$',
+            '^project_root$',
+            '^declared_model$',
+            '^runtime_model$',
+            '^model_check$',
+            '^dispatch_target$',
+            '^dispatch_name$',
+            '^dispatch_model$',
+            // `@minify-html/node`'s options, which the native library reads
+            // by name.
+            '^minify_css$',
+            '^minify_js$',
+            '^keep_comments$',
+            '^allow_removing_spaces_between_attributes$',
+            // The Material token data's custom field, whose shape the token
+            // tables reproduce.
+            '^token_class$',
+          ],
+        },
+      ],
+    },
+  },
   ...oxlint.buildFromOxlintConfigFile('./.oxlintrc.json'),
   {
     // disable rules duplicated in Oxlint but not handled by

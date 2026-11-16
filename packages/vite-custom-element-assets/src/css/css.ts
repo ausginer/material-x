@@ -28,7 +28,7 @@ export async function compileCSS(
   options?: CompileCSSOptions,
 ): Promise<CSSCompilationResult> {
   const path = fileURLToPath(url);
-  const cssPath = path.replace(/\.ts$/, '');
+  const cssPath = path.replace(/\.ts$/u, '');
 
   const css = options?.isProd
     ? code.replace(CSS_VARIABLE_NAME_REGEXP, (propName) => {

@@ -67,8 +67,14 @@ function shouldIgnoreForForcedColors(): boolean {
   return FORCED_COLORS.matches;
 }
 
+/**
+ * The zoom an element reads. `currentCSSZoom` is missing where the browser
+ * predates it, which the DOM types don't state.
+ */
+type Zoomed = Readonly<{ currentCSSZoom?: number }>;
+
 function determineRippleSize(
-  { currentCSSZoom }: HTMLElement,
+  { currentCSSZoom }: Zoomed,
   { height, width }: DOMRect,
 ): readonly [size: number, scale: number] {
   const minDim = Math.min(height, width);
@@ -83,7 +89,7 @@ function determineRippleSize(
 }
 
 function getNormalizedPointerEventCoords(
-  element: HTMLElement,
+  element: Zoomed,
   rect: DOMRect,
   pointerEvent: PointerEvent,
 ): Point {
@@ -97,7 +103,7 @@ function getNormalizedPointerEventCoords(
 }
 
 function getTranslationCoordinates(
-  element: HTMLElement,
+  element: Zoomed,
   rect: DOMRect,
   rippleSize: number,
   positionEvent: MouseEvent | null,
@@ -170,7 +176,7 @@ export function useRipple(
   rippleHost: HTMLElement = host,
 ): void {
   // @ts-expect-error: Import not correctly typed
-  host.shadowRoot!.adoptedStyleSheets.push(css as CSSStyleSheet);
+  host.shadowRoot!.adoptedStyleSheets.push(css);
 
   const rippleElement = document.createElement('div');
   rippleElement.classList.add('ripple');

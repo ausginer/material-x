@@ -234,8 +234,8 @@ export function constructCSSTokens(
           transform: {
             filter: {
               id: {
-                include: /\.(?:ts|tsx)/,
-                exclude: /\.css\.ts/,
+                include: /\.(?:ts|tsx)/u,
+                exclude: /\.css\.ts/u,
               },
             },
             handler(code) {

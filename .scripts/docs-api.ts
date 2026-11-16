@@ -14,7 +14,7 @@ if (!values.out) {
   throw new Error('Expected --out <path> for API docs output.');
 }
 
-const outputRoot = new URL(values.out.replace(/\/?$/, '/'), root);
+const outputRoot = new URL(values.out.replace(/\/?$/u, '/'), root);
 const materialXRoot = new URL('material-x/', outputRoot);
 
 const renderPage = ({

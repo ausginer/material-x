@@ -31,12 +31,6 @@ coordinates(measured, measured);
 // @ts-expect-error An ancestry is read for an element, never for a box.
 ancestry(measured, above);
 
-void element;
-void measured;
-void target;
-void above;
-void corners;
-
 const local: number[] = [];
 
 localDelta(above, 1, 2, local);
@@ -90,18 +84,13 @@ projection(measured, [] as Array<number | string>);
 type Export = keyof typeof boxQuad;
 
 // @ts-expect-error The package allocates no `Box` storage.
-const noBox: Export = 'box';
+export const noBox: Export = 'box';
 
 // @ts-expect-error The package allocates no `Space` storage.
-const noSpace: Export = 'space';
+export const noSpace: Export = 'space';
 
 // @ts-expect-error The package allocates no `Quad` storage.
-const noQuad: Export = 'quad';
+export const noQuad: Export = 'quad';
 
 // @ts-expect-error The package allocates no `Delta` storage.
-const noDelta: Export = 'delta';
-
-void noBox;
-void noSpace;
-void noQuad;
-void noDelta;
+export const noDelta: Export = 'delta';

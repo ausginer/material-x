@@ -9,7 +9,7 @@ import files from './files.json' with { type: 'json' };
 
 const config: UserConfig = defineConfig({
   deps: {
-    neverBundle: [/node_modules/],
+    neverBundle: [/node_modules/u],
   },
   entry: packageFilesToTsdownEntries(files),
   platform: 'neutral',

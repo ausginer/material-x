@@ -642,17 +642,18 @@ describe('useReorderable', () => {
     list.reorderable = true;
     await nextFrame();
 
-    const targets: Element[] = [];
     const spy = vi
       .spyOn(Element.prototype, 'setPointerCapture')
-      .mockImplementation(function spy(this: Element) {
-        targets.push(this);
-      });
+      .mockImplementation(() => undefined);
 
     await ue.pointer([
       { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
       { coords: { clientY: 100 } },
     ]);
+
+    // The receiver of each call. Read before the restore, which clears them.
+    const targets = [...spy.mock.contexts];
+
     spy.mockRestore();
 
     // Capture is taken on activation. The footprint is re-inserted every time it

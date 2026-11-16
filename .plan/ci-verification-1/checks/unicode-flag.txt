@@ -1,0 +1,10 @@
+vite-custom-element-assets css.ts:31: 0 of 149165 inputs differ
+vite-custom-element-assets index.ts:237: 0 of 149165 inputs differ
+vite-custom-element-assets index.ts:238: 0 of 149165 inputs differ
+size-limit-preset-rolldown tsdown.config.ts:16: 0 of 149165 inputs differ
+size-limit-preset-rolldown tsdown.config.ts:16: 0 of 149165 inputs differ
+material-x tsdown.config.ts:12: 0 of 149165 inputs differ
+.storybook/docs/paths.ts:6: 0 of 149165 inputs differ
+.scripts/docs-api.ts:17: 0 of 149165 inputs differ
+.scripts/css/debug.ts:39: 0 of 149165 inputs differ
+.scripts/vite-config.ts:74: 0 of 149165 inputs differ
