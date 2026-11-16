@@ -76,7 +76,7 @@ Failing rows, with the first error line and the row's duration:
 ## Across the three attempts
 - Free Drag stories > TransformedStage: the box is 16 px lower after the drop, in browser/drag in attempts 1 and 3.
   Inferred cause, not observed in Safari: the hint above the stage re-renders the drag's local delta, and one more 13 px line of
-  wrapping moves the stage. The test measures the box within its area from 2a? on; the next run confirms or refutes the inference.
+  wrapping moves the stage. The test measures the box within its area from 0ee0f9d84 on; the next run confirms or refutes the inference.
 - drag:DRI-9 authored transitions > propose the gap ... transitions: times out at 15 s in 4 of 6 drag project runs; passes in about 8.8 s otherwise.
 - drag:DRI-14 candidates measured through box > y() ... when visual is also given: times out at 15 s in 2 of 6; passes in about 8.8 s otherwise.
 - drag:DRI-14 ... xy() ... through box: fails once, right after the y() row's timeout, on a missing placeholder.
