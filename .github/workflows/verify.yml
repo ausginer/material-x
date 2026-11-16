@@ -130,20 +130,29 @@ jobs:
           npx just _test-builds
           A=WebKitTabToLinksPreferenceKey
           B=com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks
-          for keys in none A B AB; do
-            defaults delete com.apple.Safari "$A" 2>/dev/null || true
-            defaults delete com.apple.Safari "$B" 2>/dev/null || true
-            case "$keys" in
-              A) defaults write com.apple.Safari "$A" -bool true ;;
-              B) defaults write com.apple.Safari "$B" -bool true ;;
-              AB) defaults write com.apple.Safari "$A" -bool true; defaults write com.apple.Safari "$B" -bool true ;;
-            esac
-            echo "TABKEYS $keys: A=$(defaults read com.apple.Safari "$A" 2>&1) B=$(defaults read com.apple.Safari "$B" 2>&1)"
-            MX_TEST_ENGINES=safari npx vitest run --project 'spec/material-x/safari (safari)' packages/material-x/tests/core/zz-tab-probe.spec.browser.test.ts 2>&1 \
-              | grep -E 'TABPROBE|Tests ' | sed "s/^/TABRESULT $keys: /" || true
+          C="$HOME/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari"
+          ls -ld "$HOME/Library/Containers/com.apple.Safari" 2>&1 | sed 's/^/TABCONTAINER /'
+          for domain in "$C" com.apple.Safari; do
+            for keys in A B AB; do
+              for d in "$C" com.apple.Safari; do
+                defaults delete "$d" "$A" 2>/dev/null || true
+                defaults delete "$d" "$B" 2>/dev/null || true
+              done
+              case "$keys" in
+                A) defaults write "$domain" "$A" -bool true 2>&1 | sed 's/^/TABWRITE /' ;;
+                B) defaults write "$domain" "$B" -bool true 2>&1 | sed 's/^/TABWRITE /' ;;
+                AB) defaults write "$domain" "$A" -bool true 2>&1 | sed 's/^/TABWRITE /'; defaults write "$domain" "$B" -bool true 2>&1 | sed 's/^/TABWRITE /' ;;
+              esac
+              label="$(basename "$domain") $keys"
+              echo "TABKEYS $label: A=$(defaults read "$domain" "$A" 2>/dev/null || echo unset) B=$(defaults read "$domain" "$B" 2>/dev/null || echo unset)"
+              MX_TEST_ENGINES=safari npx vitest run --project 'spec/material-x/safari (safari)' packages/material-x/tests/core/zz-tab-probe.spec.browser.test.ts 2>&1 \
+                | grep -E 'TABPROBE' | sed "s/^/TABRESULT $label: /" || true
+            done
           done
-          defaults delete com.apple.Safari "$A" 2>/dev/null || true
-          defaults delete com.apple.Safari "$B" 2>/dev/null || true
+          for d in "$C" com.apple.Safari; do
+            defaults delete "$d" "$A" 2>/dev/null || true
+            defaults delete "$d" "$B" 2>/dev/null || true
+          done
       - name: macOS and Safari versions
         run: |
           sw_vers
