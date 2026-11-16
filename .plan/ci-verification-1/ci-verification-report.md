@@ -2,7 +2,9 @@
 
 **Handoff:** [`ci-verification-handoff.md`](ci-verification-handoff.md). **Input:** `6d1c80162` on `ci/verification`. **Governing records:** `repo:RD-2`, `repo:RD-6` to `repo:RD-9`, `repo:RF-29` and `repo:RF-32` in [`../00-index.md`](../00-index.md), the [design](ci-verification-design.md), and `.agents/docs/test-architecture.md` §CI policy.
 
-**Current state, after the three Safari runs (input `5f1c392c3`): done.** `verify` passes on #27 at `1ea922a4a`, run [43849321684](https://github.com/ausginer/material-x/actions/runs/43849321684). [§Resumed after the policy block](#resumed-after-the-policy-block).
+**Current state, after the feature-proof remediation (input `bda0e91bc`): done.** `RF-38` and the review's `reviewer-2`, `-3`, `-5` and `-6` are repaired at `2e5617cf0`. [§Remediating the feature-proof review](#remediating-the-feature-proof-review).
+
+**Earlier state, after the three Safari runs (input `5f1c392c3`): done.** `verify` passes on #27 at `1ea922a4a`, run [43849321684](https://github.com/ausginer/material-x/actions/runs/43849321684). [§Resumed after the policy block](#resumed-after-the-policy-block).
 
 - `RD-13`'s reproduction holds: three `chromium` runs match every baseline, on two runner images and three processors, and a second labeled run proposed nothing. #28 is merged. Coverage uploads to Codecov.
 - Safari runs each of its 7 projects in its own Vitest process, with Reduce Motion off and a window that contains the whole frame. Three attempts at `e2eb61d1c` ran all 101 files with no lost connection and passed.
@@ -65,6 +67,8 @@
 | `41cefdc93` | **Check only, removed next:** the ceiling restored and one failing gate row |
 | `1ea922a4a` | The gate row removed; `timeout-minutes` from the observed durations; the measurement and gate checks |
 | this report's commit | This report |
+| `2e5617cf0` | The feature-proof remediation: `baselines.yml`'s `propose` without a working tree, its concurrency and `unlabel`; the two comments; the `RF-38` witness |
+| this section's commit | The remediation's runs and citations; this report |
 
 ## 1. The pinned visual environment
 
@@ -489,6 +493,7 @@ Run [43830910625](https://github.com/ausginer/material-x/actions/runs/4383091062
   | core `useReorderable` › _should not dispatch a reorder for a no-op drop_ | `it.skipIf` in Safari, after it failed once in run 43843800063 with the same 1,000 ms top-layer wait | `repo:RF-36`, extended |
 
   5 rows in Safari, under the stop at 15. No timeout was raised. `RF-36`'s inferred cause: with no reorder listener, the session holds the visual for the 200 ms landing and core's 500 ms `COMMIT_TIMEOUT`, against the rows' 1,000 ms wait. Eight more rows in that file use the same wait.
+
 - **Three attempts** of the `safari` job at `e2eb61d1c`, run [43838143582](https://github.com/ausginer/material-x/actions/runs/43838143582), attempts 2 and 3 rerunning only that job: 749, 675 and 661 s. In each, all 7 projects ran all 101 listed files and exited 0, with 1 expected failure, the skips above and no lost browser connection ([`checks/safari-inventory-after-dispositions.txt`](checks/safari-inventory-after-dispositions.txt)). `verify` passed in all three.
 - **The remaining Safari checks** ([`checks/resolved-browser-config.txt`](checks/resolved-browser-config.txt), read with [`resolved-browser-config.ts`](checks/resolved-browser-config.ts), which starts no browser):
   - every Safari project resolves to `headless: false`, `maxWorkers: 1`, no file parallelism, the trace view off, the WebdriverIO provider, and the window command and setup file;
@@ -520,10 +525,63 @@ Run [43830910625](https://github.com/ausginer/material-x/actions/runs/4383091062
 | [43849181291](https://github.com/ausginer/material-x/actions/runs/43849181291) | `1ea922a4a`, draft | skipped | skipped | skipped | skipped | skipped |
 | [43849321684](https://github.com/ausginer/material-x/actions/runs/43849321684) | `1ea922a4a`, ready | pass, 87 s | pass, 366 s; Codecov uploads | pass, 524 s | pass, 653 s: all 101 files | pass, 164 s |
 
+## Remediating the feature-proof review
+
+**Input:** `bda0e91bc`, the handoff's [§Remediating the feature-proof review](ci-verification-handoff.md#remediating-the-feature-proof-review). **Governing records:** `repo:RF-38`, `RD-13` properties 2, 3 and 6, `RD-12` properties 4 and 7, and the [review](../reviews/ci-verification-1/feature-proof-claude.md)'s `reviewer-1` to `-3`, `-5` and `-6`. **Changed:** `.github/workflows/baselines.yml`, `packages/drag/tests/support/commands.node.ts`, `.scripts/vitest-config.ts`, and `checks/`.
+
+### `RF-38`: what `propose` writes
+
+`propose` checks out nothing. It writes the proposal as git objects in a bare repository of its own, so the recorded commit's tree is never a working tree that a write could go through.
+
+- **The artifact** (step _Accept only baseline PNG files_): the job fails if any entry in the artifact is a symbolic link (`find -type l`), if a listed path is outside `packages/*/tests/**/__screenshots__/**/*.png` or has a `.` or `..` component, or if a listed file isn't a regular file starting with PNG's eight bytes `89 50 4e 47 0d 0a 1a 0a`. The refused paths print indented, so none of them is read as a workflow command.
+- **The recorded commit** (step _Propose_): `git init --bare --template=` makes a repository with no hooks directory, and `git fetch --depth=1` fetches only the recorded commit. For each accepted path, `git ls-tree` reads every component's mode in the recorded commit, and the job fails on `120000` before anything is written. `GIT_LITERAL_PATHSPECS=1` keeps a path from being read as a pathspec pattern.
+- **The write:** `git read-tree` of the recorded commit into a private index, then for each file `git hash-object -w --no-filters` and `git update-index --add --cacheinfo 100644,…`, which refuses a path that is a file or a directory in the commit. Then `git commit-tree` on the recorded commit and `git push --force` of that commit to `baselines/<target>`. No command reads `.gitattributes`, runs a hook, or reads a configuration file the tree or artifact can write. The configuration comes from the runner, the job's own bare repository, and `GIT_CONFIG_*` variables that carry the author and the token's header. The token isn't in any command's arguments.
+- **Properties 1, 2, 4 and 5 are unchanged:** the same branch and commit message, the same pull request body, the same _nothing changed_ summary, and the `verify` dispatch for `main`. `gh` runs outside a checkout, so `GH_REPO` names the repository.
+
+**The witness** ([`checks/propose-witness.ts`](checks/propose-witness.ts), [`checks/propose-witness.txt`](checks/propose-witness.txt)) reads both steps out of the workflow file and runs them with `bash -e`, the shell GitHub's log shows, in a scratch directory. `gh` is a stub, and the remote is a local bare repository. The scratch directory is removed afterwards.
+
+| Case | Fails at | Job git directory | Payload ran | Pushed |
+| --- | --- | --- | --- | --- |
+| 1a. Link at the accepted path to `.git/config`, `reviewer-1`'s payload | the PNG check | not made | no | no |
+| 1b. The same, the payload behind a PNG signature | the link check, `…/a.png is a symbolic link` | config equal to a fresh `git init --bare --template=`; no hooks | no | no |
+| 2. Link at the `__screenshots__` directory | the link check, `…/__screenshots__ is a symbolic link` | as 1b | no | no |
+| 3. Artifact file that isn't a PNG | the PNG check | not made | no | no |
+| 4. Artifact entry that is a link to a PNG outside the artifact | the artifact's links | not made | no | no |
+| 5. One changed baseline | passes | as 1b | no | `baselines/ci/x`: one commit, parent the recorded commit, the one entry `M` with mode `100644`, blob equal to the artifact file; `gh pr list` then `gh pr create` |
+
+The job no longer has a `.git/config` or `.git/hooks` of the recorded tree to protect. In each case the git directory it makes is byte for byte a fresh one, or isn't made.
+
+### `reviewer-2` and `reviewer-3`
+
+[`checks/baselines-concurrency-and-label.txt`](checks/baselines-concurrency-and-label.txt) gives the lines and the GitHub documentation for each.
+
+- **Concurrency:** the group is `baselines-<target>` only for a run that `record`'s condition admits. Any other run's group is named by its run id, so it cancels nothing. GitHub evaluates the group when it queues the run, and a workflow-level group can read only `github`, `inputs` and `vars`, so the condition is repeated there.
+- **The label:** the removal moved from `propose` to a job `unlabel` with `needs: [record, propose]` and `if: always()` plus the admitted condition, `pull-requests: write`, and one `gh` command with the number from the environment.
+
+### `reviewer-5` and `reviewer-6`
+
+- **`commands.node.ts`:** at the rounding in `pointerMove`'s WebdriverIO branch, the comment states that WebDriver drivers disagree about fractional coordinates and some refuse them, that each point is within 0.5 px of Playwright's, and that the kept position is the unrounded target. No code changed.
+- **`vitest-config.ts`:** `createChromiumProvider`'s comment now says that Chromium and Firefox are the builds that `playwright` pins and Safari isn't pinned.
+
+### Runs
+
+[`checks/baselines-remediation-runs.txt`](checks/baselines-remediation-runs.txt). I added the label myself, as the owner's prompt authorized.
+
+- **Run [43856118386](https://github.com/ausginer/material-x/actions/runs/43856118386), nothing changed:** `record` passed all 19 visual rows with an empty `files.txt`, on ubuntu24 20261111.370.1, AMD EPYC 7763, Chromium 158.0.8127.18. `propose` took the _nothing changed_ branch. No `baselines/*` branch or pull request exists. `unlabel` removed the label.
+- **Run [43856731899](https://github.com/ausginer/material-x/actions/runs/43856731899), cancelled during `record`:** `record` and `propose` were cancelled and `unlabel` succeeded, so the label was removed. The documentation covers `always()` only for jobs that are running at a cancellation, and this run shows the case of a job that is still waiting.
+- **`verify` on #27:** listed in the closing message to the coordinator for the head this section is committed at.
+
+### Not verified
+
+- **The proposal path on GitHub:** the fetch of one commit, the push from a shallow repository and `gh pr create` without a checkout ran only in the witness, against a local remote and a `gh` stub. No labeled run had a changed baseline to propose.
+- **The `verify` dispatch for `main`** isn't reachable before the workflow is on `main`.
+- **Concurrency** is shown from the lines and the documentation, not by a run with a second label or from a fork.
+- **Typecheck:** drag's `typecheck` passes. `.scripts/vitest-config.ts` changed only in a comment and wasn't typechecked separately. The workflow file has no linter configured, and `oxfmt` formatted it.
+
 ## Not done
 
 - Nothing in the handoff remains. The findings this unit registered are routed to their owners: `repo:RF-33` to `RF-36` and `drag:DRF-48` to `DRF-51`.
 
 ## Next
 
-The architect reads this report. The owner merges #27 and then turns on the branch rule (design §5, step 5).
+The reviewer rechecks `RF-38` and the review's `reviewer-2` and `-3` at the remediation's head, as one targeted recheck (the handoff's _After the remediation_). Then the handoff's _After the review_ applies from its step 1: the owner merges #27, and turns on the branch rule.

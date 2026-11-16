@@ -188,19 +188,15 @@ for (const [index, testCase] of cases.entries()) {
   };
 
   console.log(`\n## ${testCase.name}`);
-  // GitHub's default shell on Linux.
+  // The shell GitHub's log shows for a `run` step with no `shell`: `bash -e {0}`.
   for (const [name, script] of [
     ['Accept only baseline PNG files', accept],
     ['Propose', propose],
   ]) {
-    const result = await run(
-      'bash',
-      ['--noprofile', '--norc', '-eo', 'pipefail', '-c', script],
-      {
-        cwd: join(dir, 'workspace'),
-        env,
-      },
-    ).then(
+    const result = await run('bash', ['-e', '-c', script], {
+      cwd: join(dir, 'workspace'),
+      env,
+    }).then(
       ({ stdout, stderr }) => ({ code: 0, output: stdout + stderr }),
       (error: { code: number; stdout: string; stderr: string }) => ({
         code: error.code,
