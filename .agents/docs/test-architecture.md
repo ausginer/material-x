@@ -155,7 +155,7 @@ Every push to `main` and every pull request that is not a draft must be gated on
 
 Size, allocation and speed checks are outside the gate: CI reports them, and a pull request gets a comment showing how sizes changed, but they never fail the build. Coverage from the Chromium run is uploaded to Codecov. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
-**The gate is not installed yet.** This section states the requirement, not a mechanism that runs today: there is no pull-request workflow and no pinned verification image, so nothing here currently blocks a merge and local verification is what stands behind every change. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9`, `repo:RD-12` and `repo:RD-13`.
+**The gate runs but doesn't block a merge yet.** `.github/workflows/verify.yml` runs on every push to `main` and every pull request that is not a draft, in the pinned visual environment. Its `verify` check is not yet required by a branch rule, so nothing here blocks a merge until the owner adds that rule. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9`, `repo:RD-12` and `repo:RD-13`.
 
 Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation.
 
@@ -166,6 +166,6 @@ The architecture is being adopted incrementally. Status is tracked in the tests 
 1. Finish moving `@ydinjs/material-x` tests from `src` into their mirrored `test` directories without behavior changes, then remove the old `src/**` includes.
 2. Grow the Node-side visual-contract registry and normalization adapters as components adopt the spec layer.
 3. Pilot findings from `button/spec-consistency.md` into executable tproc-backed assertions.
-4. Extend the curated visual matrix, and build the pull-request gate and its pinned environment (`repo:RD-2`) — neither exists yet, so this is new work rather than an extension.
+4. Extend the curated visual matrix. The pull-request gate and its pinned environment exist (`repo:RD-6`, `repo:RD-9`); the branch rule that requires the gate is owed (`repo:RD-2`).
 5. Apply the shared convention to checkbox and radio, then migrate other components by family.
 6. Retire exploratory consistency documents once their evidence is captured by executable tests or retained as historical design context.

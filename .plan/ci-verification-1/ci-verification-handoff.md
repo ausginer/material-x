@@ -211,6 +211,59 @@ Report each with its output, and don't limit or disable rows to get past it.
 
 **Open after the unit, and not blocking merge:** `drag:DRF-48` to `DRF-51` (routed to the architect), `repo:RF-33` to `RF-36` (routed to their owners) and `RF-37` (after the unit). The architect recommends that the owner order `RF-36` first, because its eight other rows can block any pull request once `verify` is required, and then `RF-33`, because keyboard focus doesn't reach any `mx-button`'s native button in Firefox.
 
+## Remediating the feature-proof review
+
+**Dated 2026-11-16.** The [feature-proof review](../reviews/ci-verification-1/feature-proof-claude.md) read `397e4ec14` and was committed at `b750bd8ef`. Properties 1, 5 and 6 hold. The architect checked each finding against the tree and decided it. **Recipient:** the implementer. **Input:** the architect's commit that adds this section. **Continue from that commit.**
+
+| Finding | Decision | Before merge |
+| --- | --- | --- |
+| `reviewer-1`, Tier B | **Accepted**, registered as `repo:RF-38`. `RD-13` property 3 is amended | **Yes, blocking** |
+| `reviewer-2`, Tier C | **Accepted.** `RD-13` property 6 doesn't hold | Yes: same file as `RF-38` |
+| `reviewer-3`, Tier C | **Accepted.** `RD-13` property 2 doesn't hold | Yes: same file as `RF-38` |
+| `reviewer-4`, Tier C | **Rejected as a defect.** Property 3 holds, as ruled below | No change |
+| `reviewer-5`, Tier C | **Accepted** as a record gap. The rounding stays, and `RD-12` property 4 carries a dated note | A comment |
+| `reviewer-6`, Tier C | **Accepted.** The architect corrected `test-architecture.md` §CI policy and the roadmap, and the design's §4 | One source comment |
+
+**`test-architecture.md`, before this correction.** §CI policy said: _"**The gate is not installed yet.** This section states the requirement, not a mechanism that runs today: there is no pull-request workflow and no pinned verification image, so nothing here currently blocks a merge and local verification is what stands behind every change."_ The roadmap's item 4 said: _"Extend the curated visual matrix, and build the pull-request gate and its pinned environment (`repo:RD-2`) — neither exists yet, so this is new work rather than an extension."_ When the owner adds the branch rule, the architect updates both again.
+
+**The ruling on property 3 (`reviewer-4`).** Property 3 of _After the report at `316d2e839`_ is met by a behavior equivalence demonstrated over the values the code can receive. It doesn't require byte-identical output. The governing rule is `RD-8` property 2: a repair _"changes no product behavior"_. Item 5's _"shows that the emitted JavaScript is unchanged"_ names the default witness, and property 3 copied that witness into the rule too strictly. Where the output differs, the witness is a stated equivalence for each site, with its evidence saved. The report's item 5 table and [`lint-repairs-emitted.txt`](checks/lint-repairs-emitted.txt) give one for each of the three sites:
+
+- **`processToken.ts:157`:** both forms differ only for a `Symbol`, which token JSON can't hold.
+- **`generation.ts:256`:** the same reads and writes, in the same order.
+- **`analyze.ts:85`:** the two loops differ only for inherited enumerable keys, which `oxc-parser`'s objects don't have ([`for-in-keys.txt`](checks/for-in-keys.txt)). The loop body doesn't add or delete keys, so a snapshot of the keys and live enumeration visit the same keys.
+
+**Work, in this order.** Change only `.github/workflows/baselines.yml`, `packages/drag/tests/support/commands.node.ts`, `.scripts/vitest-config.ts`, this unit's `checks/` and the report.
+
+1. **`RF-38`, the write-token job** (`RD-13` property 3, _What `propose` writes_). Meet each part of the property; how is your choice. Writing nothing into a working tree of the recorded commit is one way.
+   - Each proposal file is a regular file at an accepted path, and the proposal commit changes no other path. Its entries have mode `100644`.
+   - The job fails before it writes anything if a component of an accepted path is a symbolic link in the recorded commit.
+   - It accepts an artifact file only if the file is a regular file and starts with PNG's eight-byte signature.
+   - No `git` command in the job reads configuration or hooks that the recorded commit or the artifact can write.
+   - `RD-13` properties 1, 2, 4 and 5 still hold: the branch, the pull request and its body, the _nothing changed_ summary, and the dispatch of `verify` for `main`.
+2. **`reviewer-2`, concurrency** (`RD-13` property 6). A run that `record`'s condition doesn't admit cancels nothing. That covers a run started by any other label, and a fork's pull request whose head branch has the same name as a branch here. Only a newer recording of the same target in this repository cancels a recording.
+3. **`reviewer-3`, the label** (`RD-13` property 2). Every `pull_request` run that `record`'s condition admits ends with the label removed, whatever `record`'s and `propose`'s results. A token with `pull-requests: write` removes it. The step that removes it runs no repository code.
+4. **`reviewer-5`, the comment.** At the rounding in `pointerMove`'s WebdriverIO branch, state why the coordinates are rounded and how far each point can be from Playwright's. `RD-12` property 4's dated note has both. Change no code.
+5. **`reviewer-6`, the comment.** `createChromiumProvider`'s comment in `.scripts/vitest-config.ts` says that _every engine_ is the build `playwright` pins. Make it say what `RD-12` property 7 says: Chromium and Firefox are, and Safari isn't pinned.
+
+**Checks.** Save each output under `checks/` and cite it in the report.
+
+- **The `RF-38` witness.** In a scratch repository, run the job's new commands, as the workflow file states them, against each of these cases:
+  - `reviewer-1`'s case, a symbolic link at an accepted path that points to `.git/config`;
+  - a symbolic link at a directory component of an accepted path;
+  - an artifact file that isn't a PNG;
+  - an artifact entry that is itself a symbolic link;
+  - one ordinary changed baseline.
+
+  Each of the first four fails before any write, and `.git/config` and `.git/hooks` stay byte for byte as they were. The fifth gives one commit whose only entry is the baseline, with mode `100644`. Remove the scratch repository afterwards.
+
+- **`reviewer-2` and `reviewer-3`:** for each, state which workflow lines meet the property and which GitHub rule they rely on, cited from GitHub's documentation. Don't add or remove labels on #27 to show this unless the owner's prompt authorizes it.
+- **One labeled run on #27**, added by the owner, or by you if the owner's prompt authorizes it. It takes the _nothing changed_ path, and the label is removed afterwards.
+- The Verify steps of [`handoff.md`](../../.agents/docs/handoff.md) for each changed file. `verify` passes on #27 at your last commit.
+
+**Stops:** a property of item 1 that `git`, `gh` and pinned actions can't meet without running repository code; a repository setting or rule that refuses the labeled run. Report each with its output.
+
+**After the remediation:** the reviewer rechecks `RF-38` and items 2 and 3 at the remediation's head, as a targeted recheck of `reviewer-1` to `reviewer-3` named as one. Then _After the review_ in the previous section applies, from its step 1.
+
 ## Owner preconditions
 
 From the design §5. Ask through the coordinator for any that is missing when you reach the item that needs it. Don't guess.
