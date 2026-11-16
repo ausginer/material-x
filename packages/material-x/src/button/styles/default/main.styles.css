@@ -101,3 +101,14 @@
   outline: var(--_focus-indicator-thickness) solid var(--_focus-indicator-color);
   outline-offset: var(--_focus-indicator-outline-offset);
 }
+
+/*
+ * The focus layer: the focused state's state layer, on the focus indicator's
+ * trigger. It is more specific than the ripple's hover rule, so it shows over
+ * hover; the press wave is the ripple's ::after and stays as it is. A host
+ * whose tokens define no focus layer keeps the opacity at 0.
+ */
+:host .host:focus-visible > .ripple::before {
+  background-color: var(--_focus-layer-color);
+  opacity: var(--_focus-layer-opacity, 0);
+}

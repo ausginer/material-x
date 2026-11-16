@@ -29,6 +29,14 @@ export const defaultTokens: ReadonlySignal<TokenPackage> = computed(() =>
     .group(groupTokens)
     .select(allowedTokensSelector)
     .append('default', specialTokens)
+    .append('unselected.default', {
+      'focus-layer.color': `${SET_NAME}.unselected.focus.state-layer.color`,
+      'focus-layer.opacity': `${SET_NAME}.unselected.focus.state-layer.opacity`,
+    })
+    .append('selected.default', {
+      'focus-layer.color': `${SET_NAME}.selected.focus.state-layer.color`,
+      'focus-layer.opacity': `${SET_NAME}.selected.focus.state-layer.opacity`,
+    })
     .extend(createExtensions())
     .renderDeclarations(renderer)
     .build(),

@@ -26,6 +26,8 @@ const SET_NAME = 'md.comp.button.tonal';
 const specialTokens = {
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
   'state-layer.opacity': `${SET_NAME}.pressed.state-layer.opacity`,
+  'focus-layer.color': `${SET_NAME}.focused.state-layer.color`,
+  'focus-layer.opacity': `${SET_NAME}.focused.state-layer.opacity`,
 };
 
 const specialSelectedTokens = {
