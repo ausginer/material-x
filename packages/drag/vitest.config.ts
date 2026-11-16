@@ -8,12 +8,11 @@ import {
   DRAG_SHIPPED_BROWSER_TESTS,
 } from '../../.scripts/vitest-config.ts';
 import { dragBrowserCommands } from './tests/support/commands.node.ts';
-import { probeCommands } from './tests/support/probe.node.ts';
 
 const config: UserConfigFnObject = defineConfig(() =>
   createDragTestConfig(
     new URL('./', import.meta.url),
-    { ...dragBrowserCommands, ...probeCommands },
+    dragBrowserCommands,
     DRAG_SHIPPED_BROWSER_TESTS,
     DRAG_NODE_BUILD,
     DRAG_CONSUMER,

@@ -13,6 +13,7 @@ import type { BrowserCommand } from 'vitest/node';
 // its tests.
 // eslint-disable-next-line import-x/no-relative-packages
 import { publishedEntries } from '../packages/drag/tests/support/published-entries.ts';
+import { fitSafariWindow } from './safari-window.ts';
 import {
   createViteConfig,
   createMaterialXViteConfig,
@@ -321,8 +322,18 @@ function createBrowserTestConfig(
         instances: [
           { browser: engine, viewport: { width: 1280, height: 720 } },
         ],
-        commands,
+        commands: isSafari ? { ...commands, fitSafariWindow } : commands,
       },
+      // Runs before the project's own setup files.
+      ...(isSafari
+        ? {
+            setupFiles: [
+              fileURLToPath(
+                new URL('safari-window.browser.ts', import.meta.url),
+              ),
+            ],
+          }
+        : {}),
     },
   } satisfies UserConfig;
 }
