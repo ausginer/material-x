@@ -1,0 +1,154 @@
+# Handoff: the open repository findings and the docs workflow, first unit
+
+**Recipient:** the implementer. **Branch:** `repo/findings-1`, from `main` at `275ad0f5c`. **Input:** the architect's commit that adds this file. **Authorized** by the owner, relayed by the coordinator on 2026-11-16: resolve every open `repo:RF-` finding in one unit, and repair `.github/workflows/docs.yml`.
+
+**Governing records,** in [`../00-index.md`](../00-index.md):
+
+- `repo:RD-14`: the docs workflow;
+- `repo:RF-23`, `RF-30`, `RF-33`, `RF-34`, `RF-35`, `RF-36` and `RF-37`, each with its required property and its dated notes;
+- `repo:RD-6`, `RD-8`, `RD-12` and `RD-13`: the gate, how a row is disabled, Safari's provider and commands, and how baselines are recorded;
+- box-quad's [contract](../../packages/box-quad/.plan/contract/00-index.md), whose tolerance rule in `02-behavior-scenarios.md` is amended for `RF-34`.
+
+## What this unit covers
+
+| Finding | State before this unit | Here |
+| --- | --- | --- |
+| `RF-8` | open until the branch rule | **Closed** by the architect's record commit: the rule is on, and `RD-2` is met |
+| `RF-29`, `RF-32`, `RF-38` | repaired by the CI unit | **Closed** by the same commit |
+| `RF-23`, `RF-30` | open, one comment and one sentence | Item 2 |
+| `RF-36` | open, Safari skips 2 rows | Item 3 |
+| `RF-33` | open, Firefox expects 4 rows to fail | Item 4 |
+| `RF-34` | open, Firefox expects 1 row to fail | Item 5 |
+| `RF-37` | open, low priority | Item 6 |
+| `RF-35` | open, the owner's question | Item 7, after the owner's answer |
+| `docs.yml` | fails on every push to `main` | Item 1, `RD-14` |
+
+Every other `RF-` row is closed. `drag:DRF-48` to `DRF-51` are drag's findings, not this unit's.
+
+## Owner questions and preconditions
+
+Ask through the coordinator when you reach the item that needs one. Don't guess.
+
+1. **`RF-35`: do `mx-radio`, `mx-checkbox` and `mx-button` draw the focus state layer that their tokens define?** **The architect recommends yes:** the components already draw their hover layer from the same token family (`ripple.color` and `ripple.opacity` from `state-layer.*`), and the focused baselines hid the gap. The alternative is that the record states why they don't, and nothing changes. **If yes,** three visual baselines change (`radio-focused`, `checkbox-focused`, `button-focused`), and the owner reviews the recording workflow's proposal. Item 7 waits for this answer, and the unit can report without it.
+2. **Does `verify` require the docs build?** `RD-14` property 5 keeps the docs build outside the gate. **The architect recommends adding it once item 1 has passed on `main`,** because it was broken for three months unseen. Yes would amend `RD-6` and `RD-14`, in a later unit. Nothing in this unit waits for the answer.
+3. **A pull request from `repo/findings-1` to `main` that is not a draft,** for the Firefox, Safari and docs readings. Open it yourself only if the owner's prompt authorizes it. Adding the label `record-baselines` (item 7) and rerunning jobs need the same authorization. **The ruleset requires the branch to be up to date with `main` before merge.** Bring `main` in with a merge, not a rebase. Never merge the pull request.
+
+## How the unit works
+
+- **Each item stands alone.** A stop in one item stops that item only. Report it with its output, and continue with the next item.
+- **Product source changes only where an item's required property needs it.** No public export, public type, attribute or event changes. A change to a decided contract, such as core's landing or `COMMIT_TIMEOUT`, is a stop.
+- **Evidence:** Firefox and Safari results are read in CI on the pull request (`RD-13` property 8). A local Firefox run, after `npx playwright install firefox` in the devcontainer, may be used to find a cause, but it isn't evidence. A scratch probe is removed after it gives its reading. Save every reading under `.plan/findings-1/checks/` and cite it.
+- **Removing a marking:** a row loses its `it.fails` or `skipIf` only when it passes in the engine where it was disabled, in the number of CI runs that its item names.
+- **Conventions:** [`CONTRIBUTING.md`](../../CONTRIBUTING.md) for source, the `test-component` and `test-visual-contract` skills for material-x tests, and `use-tokens-db` for token queries.
+
+## 1. The docs workflow (`RD-14`)
+
+1. **Reproduce.** On a fresh clone of `275ad0f5c` after `npm ci`, `npx just docs-build` fails with the box-quad import error. Save the output.
+2. **The recipe** (`RD-14` property 4). `just docs-build` succeeds on a fresh clone after `npm ci`. It builds every workspace package that the Storybook or the API documentation resolves to a build. Choose how, for example an `nx` dependency or a shared private recipe like `_test-builds`, and say why. No package's exports or build output change.
+3. **The workflow** (`RD-14` properties 1 to 3). For an action that `verify.yml` also uses, use the same commit hash. For `configure-pages`, `upload-pages-artifact` and `deploy-pages`, use the commit of a released tag, and name the tag in a comment, as `verify.yml` does.
+4. **Read the `github-pages` environment's deployment branch policy** through the API, and report it. Don't change it.
+
+**Checks:**
+
+- the fresh-clone build passes;
+- on the pull request, `build` passes, its artifact holds the site, and `deploy` is skipped;
+- `actionlint`, run in the devcontainer or another container, reports nothing for `docs.yml`.
+
+The deployment after merge is read by the coordinator, not by this unit.
+
+**Stop:** the docs build needs a change to a package's exports or build output.
+
+## 2. `RF-23` and `RF-30`
+
+- **`RF-23`:** the root `Justfile`'s comment on `test` states no project count that the configuration doesn't keep. The count now depends on `MX_TEST_ENGINES` and `MX_TEST_VISUAL`. Describe what the root configuration contributes without a number, or give the number for the default variables and say that it is for the defaults.
+- **`RF-30`:** the refusal in `.scripts/vitest-one-shot.ts` states what a `--sequence.*` flag does in the installed Vitest, as the finding describes. The refusal still fires where it fires now. Run the repository's node tests that cover it.
+
+## 3. `RF-36`: the Safari top-layer wait
+
+`RF-36`'s dated note says that the inferred cause covers only the first row. Read before changing anything.
+
+1. **Timing probe.** Add a scratch test, run only in the `safari` job, that repeats both rows' gestures several times and records `performance.now()` at each of these points:
+   - the end of `ue.pointer`;
+   - the host's `pointerup`;
+   - the visual's animation start and `finished`;
+   - the item's `toggle` to closed;
+   - the start of the wait.
+
+   Record `document.visibilityState`, `document.hasFocus()` and the interval between two animation frames as well. Also run the probe once in Chromium for comparison. Run up to five attempts of the `safari` job, or until a slow landing is caught. Save the readings, then remove the probe.
+
+2. **Decide by the reading:**
+   - **The cause is in the test or the test environment,** such as a release that arrives after `ue.pointer` returns, or a throttled or unfocused Safari window. Repair it there, under `RD-8` property 2. A Safari window change belongs with `.scripts/safari-window.ts`'s setup.
+   - **Then the waits.** Every row in `reorderable.browser.test.ts` with a fixed wait states what it covers: the landing, from the duration that the test's own `timing()` gives, plus `COMMIT_TIMEOUT` where the row takes the commit path, plus a stated allowance for frames. `COMMIT_TIMEOUT` stays private to core. The test may name the value in a constant whose comment cites `src/traits/reorderable.ts`.
+   - **Remove the two Safari skips** and their citations.
+3. **Check:** five attempts of the `safari` job at the item's head, in which both rows and the eight other rows with a fixed wait pass. Chromium and Firefox are unchanged.
+
+**Stop:** the reading puts the delay in core's landing or teardown, which is a core contract question; or no attempt catches a slow landing and the timings don't explain the two failures. Report the readings either way.
+
+## 4. `RF-33`: focus delegation in Firefox
+
+1. **Find the cause by elimination.** Start from the plain host that delegates focus in Firefox (`RF-33`'s _What is established_). Add one of `mx-button`'s ingredients at a time until `focus()` stops delegating:
+   - `attachInternals()`;
+   - `static formAssociated = true`;
+   - `mx-button`'s stylesheet;
+   - its template, including the slots;
+   - the ripple;
+   - the remaining controllers.
+
+   `RF-33`'s note names the first candidate. Then remove the ingredient from a real `mx-button` in a scratch copy and confirm that delegation returns. Read the result in Firefox in CI. Save the matrix.
+
+2. **Repair** where the cause is, in material-x or core. `mx-button` stays form-associated, keeps `delegatesFocus`, and behaves as it does now in Chromium and Safari. Remove the four `it.fails` markings and the comments that cite `RF-33`.
+3. **Checks:**
+   - the four rows pass in three runs of the `firefox` job, and every other material-x row still passes in every engine;
+   - in a scratch row, `Tab` from the page moves focus to an `mx-button`'s native button in each engine. Report the result whatever it is.
+
+**Stop:** the cause is in Firefox and no repair inside material-x or core keeps the public surface. Report the smallest reproduction. The markings stay, and the report proposes the text of `RF-33`'s cause.
+
+## 5. `RF-34`: box-quad's precision in Firefox
+
+The decision is in `RF-34`'s dated note: the measurement stays, and the contract's tolerance rule admits an engine's measured client-rect quantization.
+
+1. **Confirm the cause.** From inside the row's fixture, in CI, read `getClientRects()` and `getBoundingClientRect()` in each engine. For each edge, report whether it is a multiple of 1/60 px to within 1e-9. Save the reading.
+2. **Derive the bound.** Next to the fixture, derive the largest error in the recovered width and height that a rounding of ±q/2 on each rect edge causes through box-quad's recovery, where q is the engine's quantum. Derive it from the formula the code uses, not from the observed 0.0076.
+3. **The row** asserts 1e-4 in an engine with no measured quantization, and 1e-4 plus the derived bound in an engine with one. Remove the `it.fails` marking.
+4. **The contract.** In box-quad's `contract/04-support-matrix.md`, add one row: _the recovered size of a transformed box is exact to 1e-4 px where the engine's client rects are unquantized, and to the derived bound where they are quantized_. Name each engine's reading and cite the evidence.
+5. **Check:** the row passes in three runs of the `firefox` job and in Chromium and Safari, with every other box-quad row unchanged.
+
+**Stop:** the edges aren't multiples of 1/60 px, or the derived bound is smaller than the observed error. In either case the inferred cause is refuted, and the decision in `RF-34`'s note doesn't apply.
+
+## 6. `RF-37`: the Vite warning
+
+1. **Read:**
+   - whether a local Chromium root run and the CI `chromium` and `firefox` jobs print the warning;
+   - what puts `vite/module-runner` into the browser's dependency pre-bundle, from Vitest's source and the repository's `optimizeDeps` configuration.
+
+   Save both.
+
+2. **If the repository's configuration causes it,** change the configuration so that the warning doesn't appear and no other pre-bundle entry changes. Show the pre-bundle metadata before and after.
+3. **If Vitest or Vite causes it,** change nothing, and don't filter the warning by its text. The report gives the source with file and line in the installed package, and links an upstream issue if one exists. Don't open an upstream issue without the owner. `RF-37`'s required property allows the record to state why the warning stays.
+
+## 7. `RF-35`: the focus state layer, after the owner's answer
+
+**If the owner answers no,** do nothing. The architect records why in `RF-35`.
+
+**If yes:**
+
+- On keyboard focus (`:focus-visible`, the trigger of each component's existing focus indicator), each of `mx-radio`, `mx-checkbox` and `mx-button` draws its state layer with the color and opacity that tproc selects for the focus state.
+- Find the tokens with `use-tokens-db`. The layer uses the same element as the hover layer (`core/animations/ripple`).
+- **Hover together with focus:** apply the precedence that the component's existing states already follow. If the component's styles and the tokens don't decide it, stop and ask.
+- Add spec-contract rows (`test-visual-contract`) that read the focused layer's color and opacity from the rendered element against the tokens.
+- Record the three changed baselines through `RD-13`'s labeled run on the pull request. Ask the owner, through the coordinator, to review and merge the proposal.
+- **Check:** the gate's `chromium` job then matches every baseline. No other baseline changes in the proposal. If another one does, stop.
+
+## Checks for every item
+
+- The Verify steps of [`handoff.md`](../../.agents/docs/handoff.md) for each changed file.
+- `verify` passes on the pull request at the unit's last commit.
+
+## Report
+
+`.plan/findings-1/findings-1-report.md`:
+
+- for each item: its changes as `file:line`, its readings and checks, the CI run links and any stop;
+- for each finding: the text that the architect needs to close it, or the stop.
+
+The unit stops at the pushed report. **Next:** the architect reads the report, and a feature-proof review follows before the owner merges.
