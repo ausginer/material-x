@@ -142,6 +142,15 @@ The decision is in `RF-34`'s dated note: the measurement stays, and the contract
 
 **Stop:** the edges aren't multiples of 1/60 px, or the derived bound is smaller than the observed error. In either case the inferred cause is refuted, and the decision in `RF-34`'s note doesn't apply.
 
+### Item 5, amended 2026-11-16: the reporting resolution
+
+Run 43872551455 confirmed the cause (`RF-34`'s ruling). Firefox's edges are k/60 rounded to a multiple of 2^-14, so they meet the test of _"a multiple of 1/60 to within 1e-9"_ only to within 4.1e-6. **The stop isn't reached.** Steps 1 to 4 change as follows:
+
+1. **Step 1's test:** an edge is quantized at q when it equals a multiple of q rounded to the engine's reporting resolution r. Report q and r for each engine. Firefox's reading gives q = 1/60 and r = 2^-14. Read Safari too. An engine whose edges fit no q coarser than 1e-4 is unquantized.
+2. **Step 2's rounding per edge** is ±(q/2 + r/2). Derive the bound from box-quad's formula, as before. For this fixture it is 1.821 (q + r) ≈ 0.0305 px.
+3. **Step 3's tolerance:** 1e-4 plus that bound, in an engine with a measured q.
+4. **Step 4's row** names each engine's q and r.
+
 ## 6. `RF-37`: the Vite warning
 
 1. **Read:**
