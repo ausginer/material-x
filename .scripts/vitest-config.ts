@@ -350,6 +350,8 @@ function createTestBaseConfig(root: URL): UserConfig {
         // package. Not tests, fixtures, tooling, build output or dependencies.
         include: ['packages/*/src/**', 'src/**'],
         reportsDirectory: '.coverage',
+        // CI uploads coverage on every run, including one whose tests failed.
+        reportOnFailure: true,
         clean: true,
         reporter: isCI ? ['lcov'] : ['html'],
       },

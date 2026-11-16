@@ -19,8 +19,14 @@ it('should report the test frame', async ({ annotate }) => {
   ) {
     const { transform, scale, zoom } = parentView.getComputedStyle(element);
 
-    if (transform !== 'none' || (scale !== 'none' && scale !== '') || (zoom !== '1' && zoom !== '')) {
-      transforms.push(`${element.localName}: transform ${transform}, scale ${scale}, zoom ${zoom}`);
+    if (
+      transform !== 'none' ||
+      (scale !== 'none' && scale !== '') ||
+      (zoom !== '1' && zoom !== '')
+    ) {
+      transforms.push(
+        `${element.localName}: transform ${transform}, scale ${scale}, zoom ${zoom}`,
+      );
     }
   }
 
@@ -28,8 +34,15 @@ it('should report the test frame', async ({ annotate }) => {
     engine: server.browser,
     inner: [window.innerWidth, window.innerHeight],
     devicePixelRatio: window.devicePixelRatio,
-    frameRect: frame ? [frame.getBoundingClientRect().width, frame.getBoundingClientRect().height] : null,
-    parentInner: parentView ? [parentView.innerWidth, parentView.innerHeight] : null,
+    frameRect: frame
+      ? [
+          frame.getBoundingClientRect().width,
+          frame.getBoundingClientRect().height,
+        ]
+      : null,
+    parentInner: parentView
+      ? [parentView.innerWidth, parentView.innerHeight]
+      : null,
     transforms,
     userAgent: navigator.userAgent,
   };
