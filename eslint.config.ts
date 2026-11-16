@@ -120,6 +120,12 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/promise-function-async': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/max-params': 'off',
+      '@typescript-eslint/no-unnecessary-type-parameters': 'off',
+      // The type-aware form of `typescript/no-empty-object-type`, which
+      // `.oxlintrc.json` sets to `allow`: it reports a type that resolves to
+      // `{}` rather than one written as `{}`. Oxlint doesn't implement it, so
+      // the allow can't reach it through `buildFromOxlintConfigFile`.
+      '@typescript-eslint/no-generated-empty-object-type': 'off',
     },
   },
   {

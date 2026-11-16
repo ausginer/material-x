@@ -1,0 +1,10 @@
+# Lint after RD-11, at 53927298b plus eslint.config.ts. oxlint and ESLint run separately.
+box-quad: oxlint exit 0, ESLint exit 0
+core: oxlint exit 0, ESLint exit 0
+tproc: oxlint exit 0, ESLint exit 0
+drag: oxlint exit 0, ESLint exit 0
+vite-custom-element-assets: oxlint exit 0, ESLint exit 0
+vite-traits-plugin: oxlint exit 0, ESLint exit 0
+size-limit-preset-rolldown: oxlint exit 0, ESLint exit 0
+material-x: oxlint exit 0, ESLint exit 0
+repository level: oxlint exit 0, ESLint exit 0

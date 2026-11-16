@@ -1,0 +1,9 @@
+# RD-11: oxlint still enforces no-unnecessary-type-parameters. Scratch edit, reverted: the oxlint-disable-next-line comment above DOM.ts's $<E> overload removed.
+
+## oxlint, from packages/core
+src/utils/DOM.ts:39:4: error typescript(no-unnecessary-type-parameters): Type parameter E is used only once in the function signature.
+exit 1
+
+## oxlint, from the root
+packages/core/src/utils/DOM.ts:39:4: error typescript(no-unnecessary-type-parameters): Type parameter E is used only once in the function signature.
+exit 1
