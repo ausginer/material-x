@@ -151,11 +151,11 @@ When token sources intentionally change: review tag/profile selection and proven
 
 ## CI policy
 
-Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and WebKit; the curated Chromium visual suite. CI runs on plain GitHub-hosted runners, and its browsers are the builds the locked `playwright` package pins. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
+Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and Safari; the curated Chromium visual suite. CI runs on plain GitHub-hosted runners. Chromium and Firefox are the builds the locked `playwright` package pins; Safari is the one a named macOS runner ships, and it isn't pinned. Local runs cover Chromium and Firefox, and Safari runs in CI. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
 
 Size, allocation and speed checks are outside the gate: CI reports them, and a pull request gets a comment showing how sizes changed, but they never fail the build. Coverage from the Chromium run is uploaded to Codecov. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
-**The gate is not installed yet.** This section states the requirement, not a mechanism that runs today: there is no pull-request workflow and no pinned verification image, so nothing here currently blocks a merge and local verification is what stands behind every change. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9`.
+**The gate is not installed yet.** This section states the requirement, not a mechanism that runs today: there is no pull-request workflow and no pinned verification image, so nothing here currently blocks a merge and local verification is what stands behind every change. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md); the design: `repo:RD-6` to `repo:RD-9` and `repo:RD-12`.
 
 Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation.
 

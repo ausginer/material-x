@@ -5331,6 +5331,8 @@ No timing was taken.
 
 **Dated 2026-11-16, by the architect:** `repo:RD-6` takes that decision. The job is owed, and it runs every package's browser projects in Firefox and WebKit. The shared engine selection replaces `vitest.engines.config.ts`. `test-engines` keeps its name and its project names, so the `--project` selection above is unchanged. Unimplemented: until the CI unit lands, no run covers WebKit.
 
+**Dated 2026-11-16, by the architect:** `repo:RD-12` makes CI's third engine **Safari on a macOS runner**, on the owner's correction, instead of Playwright's WebKit. No Playwright WebKit build runs anywhere, locally or in CI. `test-engines` runs Chromium and Firefox, so its projects are exactly the selection above: `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. `browser/webkit` and `shipped/webkit` no longer exist, and CI's Safari projects are `browser/safari` and `shipped/safari`. A report states that Safari didn't run locally, as it stated for WebKit. Unimplemented: until the CI unit lands, no run covers Safari.
+
 #### DRO-19 — The code the tests run is the code the user receives
 
 **Decided by the owner on 2026-11-15,** relayed by the coordinator to the architect on `drag2/removal` at `02990b9f4`. **The library code that drag's tests run must be the library code that consumers receive.** A `__DEV__` or similar define is acceptable in test tooling, and in a bench build of an earlier revision. A difference between the library code that is tested and the library code that is shipped is not acceptable.
