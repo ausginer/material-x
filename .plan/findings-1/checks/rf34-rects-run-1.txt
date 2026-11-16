@@ -1,0 +1,11 @@
+# RF-34: the row's fixture (20×10 px, rotate(30deg) scale(1.5)), read in CI. Run 43872551455 (https://github.com/ausginer/material-x/actions/runs/43872551455) at 506512c9b.
+# '(1/60)' here is the 1e-9 test the handoff first named; the second run's file classifies each edge by q and r.
+RF34 firefox clientRects=1 [0] left=-7.5 (1/60) top=0 (1/60) right=25.98333740234375 (not 1/60) bottom=27.98333740234375 (not 1/60) width=33.48333740234375 (not 1/60) height=27.98333740234375 (not 1/60)
+RF34 firefox bounding left=-7.5 (1/60) top=0 (1/60) right=25.98333740234375 (not 1/60) bottom=27.98333740234375 (not 1/60) width=33.48333740234375 (not 1/60) height=27.98333740234375 (not 1/60)
+RF34 firefox recovered width=20.007638968374838 (error 0.007638968374838129) height=9.990153172028975 (error -0.009846827971024652)
+RF34 chromium clientRects=1 [0] left=-7.5 (1/60) top=0 (1/60) right=25.980762481689453 (not 1/60) bottom=27.990381240844727 (not 1/60) width=33.48076248168945 (not 1/60) height=27.990381240844727 (not 1/60)
+RF34 chromium bounding left=-7.5 (1/60) top=0 (1/60) right=25.980762481689453 (not 1/60) bottom=27.990381240844727 (not 1/60) width=33.48076248168945 (not 1/60) height=27.990381240844727 (not 1/60)
+RF34 chromium recovered width=19.999969183761767 (error -0.00003081623823320001) height=10.00000335095409 (error 0.000003350954090208802)
+RF34 safari clientRects=1 [0] left=-7.5 (1/60) top=0 (1/60) right=25.980762481689453 (not 1/60) bottom=27.990381240844727 (not 1/60) width=33.48076248168945 (not 1/60) height=27.990381240844727 (not 1/60)
+RF34 safari bounding left=-7.5 (1/60) top=0 (1/60) right=25.980762481689453 (not 1/60) bottom=27.990381240844727 (not 1/60) width=33.48076248168945 (not 1/60) height=27.990381240844727 (not 1/60)
+RF34 safari recovered width=20.000002038378597 (error 0.0000020383785965805146) height=9.999999778344268 (error -2.2165573199117716e-7)
