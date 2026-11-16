@@ -234,3 +234,86 @@ In run 43886020747 at `c34cb01d7`, Safari fails 9 rows: _keyboard focus_, _keybo
 - for each finding: the text that the architect needs to close it, or the stop.
 
 The unit stops at the pushed report. **Next:** the architect reads the report, and a feature-proof review follows before the owner merges.
+
+## Disposition of the report at `fc3b89680`
+
+**Decided 2026-11-16 by the architect,** on the [report](findings-1-report.md) and the coordinator's reading of pull request #29: `verify` run 43895450645 fails only in Safari's `focus-layer.spec.browser.test.ts`, and _Publish Docs_ run 43895450612 built and skipped `deploy`. The register entries named below hold each decision's reasons.
+
+| Item | Finding | Disposition |
+| --- | --- | --- |
+| 1 | `RD-14` | **Accepted.** The actionlint check is waived, with reasons in `RD-14`. The coordinator reads `deploy`'s first run after the merge |
+| 2 | `RF-23`, `RF-30` | **Accepted.** Both are closed |
+| 3 | `RF-36` | **The stop is accepted.** The skips stay. The probe refutes the commit-grace inference. The required property is amended. The next reading is routed to core's owner as its own unit |
+| 4 | `RF-33` | **Accepted.** It stays open as Tier C for Firefox's own delegation (the watching row) and `autofocus` |
+| 5 | `RF-34` | **Accepted.** Closed |
+| 6 | `RF-37` | **Accepted.** Closed |
+| 7 | `RF-35`, `RF-39` | **Accepted in Chromium and Firefox.** The 9 Safari keyboard rows are registered as `RF-42`, for the owner. The screenshot result is registered as `RF-41` and doesn't block. Both findings close when `RF-42` is resolved |
+
+`RD-12` property 10's _Tab_ bullet is amended: the preference changed nothing, and the job sets none. The unit's report is complete. Nothing is owed except what follows.
+
+### Owner decision: Safari's 9 keyboard-focus rows (`RF-42`)
+
+`verify` stays red on #29 until this is decided and implemented. These are the options:
+
+- **(a) Option-Tab in Safari.** In Safari only, the rows press Option-Tab (`{Alt>}{Tab}{/Alt}`). Chromium and Firefox keep Tab.
+  - **For:** it is real keyboard input, and with Safari's default settings it is the key that moves focus to every control. So the row reads what a Safari keyboard user sees.
+  - **Against:** one engine condition on the input. **Unread:** whether WebDriver's Option modifier reaches WebKit's Tab handling. The rows' reach assertion would show it.
+- **(b) Disable the 9 rows in Safari** under `RD-8`, as `it.fails`, because they fail in every run, citing `RF-42`.
+  - **For:** no new input path, and the marking watches for Safari's behaviour to change.
+  - **Against:** Safari loses keyboard coverage of the layer and the indicator.
+- **(c) Limit them under `RD-12` property 5.** **Not recommended:** property 5 covers instruments that a driver lacks, and Tab exists here.
+- **(d) Focus by script in Safari.** **Not recommended:** that isn't keyboard input, and `:focus-visible` depends on how focus arrived.
+
+**The architect recommends (a), with (b) as its fallback without a second question.** If one CI reading shows that Option-Tab doesn't reach the control, the implementer takes (b). (a) is the one option that keeps Safari's keyboard coverage, and its only cost is a different key in one engine, which is that engine's real keyboard behaviour.
+
+### If the owner answers (a): item 7, amended a fourth time
+
+1. **The key.** In Safari only, the 9 rows reach focus with Option-Tab. Chromium and Firefox keep Tab. One helper in the spec file chooses the key by engine. Its comment cites `RF-42`, and says that Safari's default Tab skips these controls.
+2. **The reach assertion stays,** before the layer or the indicator is read.
+3. **The reading:** the full Safari job in CI, with the 9 rows passing. Report every other Safari row whose result changes.
+4. **Fallback.** If the reach assertion fails in Safari with Option-Tab, mark the 9 rows `it.fails` in Safari only, citing `RF-42`, and keep the reading. Then the full Safari job must pass with the 9 expected failures.
+5. **The report** adds a section for this amendment, with the run links.
+
+**If the owner answers (b),** take step 4 alone, with no Option-Tab reading. For any other answer, the architect amends this section first.
+
+### Feature-proof review before merge: required
+
+The unit changes product source in material-x, the shared build recipe, the Vite configuration, and a workflow that holds a Pages token. As with the CI unit, a feature-proof review reads it before the owner merges.
+
+- **When:** it starts now, at `fc3b89680`, in parallel with the owner's decision. The Safari change for `RF-42` touches only the spec file's input, and a targeted recheck covers it.
+- **The diff:** `275ad0f5c..fc3b89680`, excluding `.plan/`. The report's claims are checked against the code and the cited readings.
+- **Against:** this handoff with its amendments, `RD-14`, `RD-12` property 10, and the register entries above.
+- **Its focus:**
+  1. `docs.yml` against `RD-14` properties 1 to 5:
+     - the token scopes, and that a pull request's run can't publish;
+     - each pin resolves to the tag it names;
+     - the concurrency, including `queue: max`;
+     - the expressions, in place of the waived actionlint check.
+  2. `_package-builds`: it builds exactly what the tests and the docs need, and `test` behaves as before.
+  3. `forwardFocus`:
+     - it focuses what delegation focuses, for every caller;
+     - no public surface changes;
+     - the behaviour when the control can't take focus.
+  4. The focus layer and indicator, against item 7's amendments:
+     - the values come only from material-x's own token selection;
+     - the existing variables are unchanged;
+     - focus wins over hover, and a disabled host draws nothing;
+     - no `:host:has()` remains in the focus rules;
+     - the checkbox's new `.indicator` span: no `part`, `aria-hidden`, geometry unchanged;
+     - the icon button's mapping.
+  5. The spec rows:
+     - their expectations come from the components' states, not from the `focus-layer.*` mapping;
+     - the reach assertion;
+     - the mutation reading.
+  6. `RF-34`'s bound derivation, the row and the support-matrix row.
+  7. The `cacheDir` removal: nothing else reads `.vite`.
+- **The record:** `.plan/reviews/findings-1/feature-proof-claude.md`.
+- **Who decides:** the architect decides the findings, and the owner merges.
+
+### Still open, outside this unit
+
+- The owner's question 2, whether `verify` requires the docs build.
+- `RF-36`'s next reading.
+- `RF-40`, which the coordinator will send as its own task.
+- `RF-41`.
+- `RF-33`'s report to Mozilla.
