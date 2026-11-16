@@ -4971,6 +4971,18 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** the row finishes in Safari in every run.
 - **Routed** to the architect. The CI unit doesn't change the row's instrument.
 
+#### DRF-51 — In Safari, a TransformedStage box ends 16 px lower than where it was dropped
+
+Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` property 4 and its handoff's _Resuming after the three Safari runs_, step 3. **Expected to fail in Safari only** (`it.fails`), and the marking cites this address.
+
+- **The row:** `tests/stories.browser.test.ts`, `Free Drag stories` › "should keep a TransformedStage box where it was dropped". The file runs only in `browser/drag`.
+- **The engine:** Safari 27.2 on macOS 26.7.2, the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** after the drop, the box's top is 15.99997 px below its top just before the drop (`expected 15.999969482421875 to be less than or equal to 1`). Its left, width and height agree. It failed in every Safari run where it ran: run 43827320614, attempts 1 and 3 of run 43830910625 (attempt 2 lost the browser before the file) and run 43836389515. It passes in Chromium and Firefox. The `Interactive` story's row, which drags an untransformed box the same way, passes in Safari.
+- **What is ruled out:** the hint above the stage rewrapping. `0ee0f9d84` measured the box within its area, and the row still failed by the same 16 px in run 43836389515, so the box moves within its stage. That repair is reverted.
+- **The cause is not established.** The stage is rotated 6° and scaled 1.15 (`src/stories.module.css`, `.warped`), and the story commits the drop through the local delta.
+- **Required property:** a TransformedStage box stays where it was dropped in Safari, as in Chromium and Firefox, and the row passes there without its marking.
+- **Routed** to the architect. The CI unit doesn't change drag's source.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.
