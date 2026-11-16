@@ -61,6 +61,7 @@ Support is based on the one-unfragmented-principal-2D-border-box model. It is no
 | 2D-equivalent computed matrices | **Supported** | Classified by computed geometry, not authored syntax |
 | Integer/fractional/nested CSS `zoom` | **Supported** | Includes source, target and ancestor zoom |
 | Zoom combined with transforms and scrolling | **Supported** | — |
+| Recovered size of a transformed box | **Supported** | Exact to 1e-4 px where the engine's client rects are unquantized: Chromium and Safari. Where they are quantized, exact to 1e-4 px plus the error that the quantization carries through the recovery, derived next to the fixture: Firefox reports each edge at its layout unit q = 1/60 px, rounded to r = 2^-14 px, which for the `rotate(30deg) scale(1.5)` fixture is 1.821 (q + r) ≈ 0.0305 px. Readings: [`rf34-quantum-per-engine.txt`](../../../../.plan/findings-1/checks/rf34-quantum-per-engine.txt) (`repo:RF-34`) |
 
 ### 2.4 API
 

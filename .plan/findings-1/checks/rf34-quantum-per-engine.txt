@@ -1,0 +1,14 @@
+# RF-34: each engine's client-rect quantum q and reporting resolution r, from the row's fixture. Run 43875177436 (https://github.com/ausginer/material-x/actions/runs/43875177436) at 5a0bba69b.
+# An edge is quantized at q, reported at r, when it equals a multiple of q rounded to a multiple of r (checked for q in 1/60, 1/64 and r in 2^-14, 2^-16, exact).
+# 'no q' means the edge fits none. left = -7.5 and top = 0 fit any q trivially.
+RF34 chromium bounding left=-7.5 (q=1/60 r=2^-14) top=0 (integer) right=25.980762481689453 (no q) bottom=27.990381240844727 (no q) width=33.48076248168945 (no q) height=27.990381240844727 (no q)
+RF34 chromium clientRects=1 [0] left=-7.5 (q=1/60 r=2^-14) top=0 (integer) right=25.980762481689453 (no q) bottom=27.990381240844727 (no q) width=33.48076248168945 (no q) height=27.990381240844727 (no q)
+RF34 chromium recovered width=19.999969183761767 (error -0.00003081623823320001) height=10.00000335095409 (error 0.000003350954090208802)
+RF34 firefox bounding left=-7.5 (q=1/60 r=2^-14) top=0 (integer) right=25.98333740234375 (q=1/60 r=2^-14) bottom=27.98333740234375 (q=1/60 r=2^-14) width=33.48333740234375 (q=1/60 r=2^-14) height=27.98333740234375 (q=1/60 r=2^-14)
+RF34 firefox clientRects=1 [0] left=-7.5 (q=1/60 r=2^-14) top=0 (integer) right=25.98333740234375 (q=1/60 r=2^-14) bottom=27.98333740234375 (q=1/60 r=2^-14) width=33.48333740234375 (q=1/60 r=2^-14) height=27.98333740234375 (q=1/60 r=2^-14)
+RF34 firefox recovered width=20.007638968374838 (error 0.007638968374838129) height=9.990153172028975 (error -0.009846827971024652)
+RF34 safari bounding left=-7.5 (q=1/60 r=2^-14) top=0 (integer) right=25.980762481689453 (no q) bottom=27.990381240844727 (no q) width=33.48076248168945 (no q) height=27.990381240844727 (no q)
+RF34 safari clientRects=1 [0] left=-7.5 (q=1/60 r=2^-14) top=0 (integer) right=25.980762481689453 (no q) bottom=27.990381240844727 (no q) width=33.48076248168945 (no q) height=27.990381240844727 (no q)
+RF34 safari recovered width=20.000002038378597 (error 0.0000020383785965805146) height=9.999999778344268 (error -2.2165573199117716e-7)
+
+# Result: Firefox q = 1/60 px, r = 2^-14 px on every non-integer edge. Chromium and Safari: no q (unquantized), identical edges.

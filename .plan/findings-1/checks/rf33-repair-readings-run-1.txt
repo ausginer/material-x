@@ -1,0 +1,76 @@
+# RF-33: the repair's readings in CI, run 43875177436 (https://github.com/ausginer/material-x/actions/runs/43875177436) at 5a0bba69b (repair fa464af52 and probes 79411463a).
+# RF33F: focus target of delegation (HTMLElement.prototype.focus) against the forward (host.focus()).
+# RF33A: autofocus. In the test page, autofocus is spent (the control <button autofocus> doesn't focus either), so those rows can't observe it;
+#   the 'fresh' rows open one same-origin popup per variant from a real click and read a plain host there.
+# RF33T: Tab from the page onto an mx-button.
+RF33A chromium control <button autofocus>: activeElement=body
+RF33A chromium fresh button: hasFocus=true activeElement=button
+RF33A chromium fresh host-contents: hasFocus=true activeElement=x-host shadow=button
+RF33A chromium fresh host-inline: hasFocus=true activeElement=x-host shadow=button
+RF33A chromium mx-button autofocus: activeElement=body, shadow=null
+RF33A chromium mx-icon-button autofocus: activeElement=body, shadow=null
+RF33A chromium mx-link-button autofocus: activeElement=body, shadow=null
+RF33A chromium mx-list-button-item autofocus: activeElement=body, shadow=null
+RF33A chromium mx-list-link-item autofocus: activeElement=body, shadow=null
+RF33A chromium mx-switch-button autofocus: activeElement=body, shadow=null
+RF33A chromium mx-switch-icon-button autofocus: activeElement=body, shadow=null
+RF33A firefox control <button autofocus>: activeElement=body
+RF33A firefox fresh button: hasFocus=true activeElement=button
+RF33A firefox fresh host-contents: hasFocus=true activeElement=body
+RF33A firefox fresh host-inline: hasFocus=true activeElement=x-host shadow=button
+RF33A firefox mx-button autofocus: activeElement=body, shadow=null
+RF33A firefox mx-icon-button autofocus: activeElement=body, shadow=null
+RF33A firefox mx-link-button autofocus: activeElement=body, shadow=null
+RF33A firefox mx-list-button-item autofocus: activeElement=body, shadow=null
+RF33A firefox mx-list-link-item autofocus: activeElement=body, shadow=null
+RF33A firefox mx-switch-button autofocus: activeElement=body, shadow=null
+RF33A firefox mx-switch-icon-button autofocus: activeElement=body, shadow=null
+RF33A safari control <button autofocus>: activeElement=body
+RF33A safari fresh button: hasFocus=true activeElement=button
+RF33A safari fresh host-contents: hasFocus=true activeElement=x-host shadow=button
+RF33A safari fresh host-inline: hasFocus=true activeElement=x-host shadow=button
+RF33A safari mx-button autofocus: activeElement=mx-button, shadow=control
+RF33A safari mx-icon-button autofocus: activeElement=body, shadow=null
+RF33A safari mx-link-button autofocus: activeElement=body, shadow=null
+RF33A safari mx-list-button-item autofocus: activeElement=body, shadow=null
+RF33A safari mx-list-link-item autofocus: activeElement=body, shadow=null
+RF33A safari mx-switch-button autofocus: activeElement=body, shadow=null
+RF33A safari mx-switch-icon-button autofocus: activeElement=body, shadow=null
+RF33F chromium mx-button: delegation=button.host forward=button.host same=true
+RF33F chromium mx-icon-button: delegation=button.host forward=button.host same=true
+RF33F chromium mx-link-button: delegation=a.host forward=a.host same=true
+RF33F chromium mx-list-button-item: delegation=button.host forward=button.host same=true
+RF33F chromium mx-list-link-item: delegation=a.host forward=a.host same=true
+RF33F chromium mx-switch-button: delegation=input.control forward=input.control same=true
+RF33F chromium mx-switch-icon-button: delegation=input.control forward=input.control same=true
+RF33F firefox mx-button: delegation=null forward=button.host same=false
+RF33F firefox mx-icon-button: delegation=null forward=button.host same=false
+RF33F firefox mx-link-button: delegation=null forward=a.host same=false
+RF33F firefox mx-list-button-item: delegation=null forward=button.host same=false
+RF33F firefox mx-list-link-item: delegation=null forward=a.host same=false
+RF33F firefox mx-switch-button: delegation=null forward=input.control same=false
+RF33F firefox mx-switch-icon-button: delegation=null forward=input.control same=false
+RF33F safari mx-button: delegation=button.host forward=button.host same=true
+RF33F safari mx-icon-button: delegation=button.host forward=button.host same=true
+RF33F safari mx-link-button: delegation=a.host forward=a.host same=true
+RF33F safari mx-list-button-item: delegation=button.host forward=button.host same=true
+RF33F safari mx-list-link-item: delegation=a.host forward=a.host same=true
+RF33F safari mx-switch-button: delegation=input.control forward=input.control same=true
+RF33F safari mx-switch-icon-button: delegation=input.control forward=input.control same=true
+RF33M chromium "": delegates
+RF33M chromium ":host { display: contents }": delegates
+RF33M chromium ":host { display: inline }": delegates
+RF33M chromium mx-button with focus() forwarded: activeElement=mx-button, shadow=native button
+RF33M firefox "": delegates
+RF33M firefox ":host { display: contents }": does not delegate
+RF33M firefox ":host { display: inline }": delegates
+RF33M firefox mx-button with focus() forwarded: activeElement=mx-button, shadow=native button
+RF33M safari "": delegates
+RF33M safari ":host { display: contents }": delegates
+RF33M safari ":host { display: inline }": delegates
+RF33M safari mx-button with focus() forwarded: activeElement=mx-button, shadow=native button
+RF33T chromium Tab: activeElement=mx-button, shadow=native button
+RF33T firefox Tab: activeElement=mx-button, shadow=native button
+RF33T safari Tab: activeElement=body, shadow=null
+
+# Firefox job: Tests 1610 passed | 1 expected fail (the row that bypasses the forward) | 33 skipped.
