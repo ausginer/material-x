@@ -49,7 +49,14 @@ debug FILE:
 # per-package configurations do, so coverage is unchanged, and `repo`, which runs
 # the repository's own `.scripts` tests. Per-package runs stay available:
 # `cd packages/<name> && just test`.
+#
+# The packages the tests import resolve to their builds, as a consumer's do, so
+# they are built first, and the CSS plugin reads the custom property list that
+# material-x's `build:prepare` collects. drag's own build is the consumer
+# project's global setup.
 test *ARGS:
+    nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+    nx run @ydinjs/material-x:build:prepare --skipNxCache
     vitest run {{ ARGS }}
 
 # ---------------------------------------------------------------------------

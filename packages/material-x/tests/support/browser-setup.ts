@@ -2,6 +2,7 @@ import robotoLatin500Url from '@fontsource/roboto/files/roboto-latin-500-normal.
 import robotoLatin700Url from '@fontsource/roboto/files/roboto-latin-700-normal.woff2?url';
 import robotoRanges from '@fontsource/roboto/unicode.json';
 import { afterEach, beforeAll, beforeEach } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import iconFontUrl from './fonts/material-symbols-subset.ttf?url';
 
 /*
@@ -58,6 +59,18 @@ beforeAll(async () => {
   for (const face of faces) {
     document.fonts.add(face);
   }
+});
+
+/*
+ * The pointer stays where the previous test left it, and that test may be in
+ * another file in the same page. Over a fixture's control it would render the
+ * control hovered, so each test starts with the pointer at the page's top-left
+ * corner, inside the body's padding, where no fixture is.
+ */
+beforeEach(async () => {
+  await userEvent.hover(document.documentElement, {
+    position: { x: 0, y: 0 },
+  });
 });
 
 beforeEach(() => {

@@ -1,0 +1,19 @@
+# radio.visual 'should match the selection state matrix': the pointer left by an earlier test
+
+Scratch edit, reverted: a first test in radio.visual.browser.test.ts mounts the same fixture, hovers its unchecked radio and ends, leaving the pointer there. The states row runs next.
+
+## Without the pointer reset in browser-setup.ts
+ ✓ |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should leave the pointer over the unchecked radio of the next fixture 144ms
+ × |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:53 > radio visual regression > should match the selection state matrix 280ms
+29 pixels (ratio 0.01) differ.
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+29 pixels (ratio 0.01) differ.
+      Tests  1 failed | 1 passed | 3 skipped (5)
+
+## With the reset
+ ✓ |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should leave the pointer over the unchecked radio of the next fixture 226ms
+ ✓ |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:53 > radio visual regression > should match the selection state matrix 185ms
+      Tests  2 passed | 3 skipped (5)
+
+## The failing capture of the root run on the fresh clone, against a capture with the unchecked radio hovered on purpose
+128x72 ct2/2 il0/0: 0 pixels differ, max channel delta 0
