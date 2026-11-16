@@ -2,13 +2,16 @@
 
 **Handoff:** [`ci-verification-handoff.md`](ci-verification-handoff.md). **Input:** `6d1c80162` on `ci/verification`. **Governing records:** `repo:RD-2`, `repo:RD-6` to `repo:RD-9`, `repo:RF-29` and `repo:RF-32` in [`../00-index.md`](../00-index.md), the [design](ci-verification-design.md), and `.agents/docs/test-architecture.md` §CI policy.
 
-**Current state, after the third resumption (at `53927298b`, then `e93e490ea` for `RD-12` and `1fdef08ae` for `RD-13`): blocked by a repository rule.** [§Resumed after `RD-11`](#resumed-after-rd-11).
+**Current state, after the three Safari runs (input `5f1c392c3`): done.** `verify` passes on #27 at `1ea922a4a`, run [43849321684](https://github.com/ausginer/material-x/actions/runs/43849321684). [§Resumed after the policy block](#resumed-after-the-policy-block).
 
-- Items 5 to 7 are done, and item 6's local inventory is handled: 3 rows repaired, 12 repaired through core's test setup, and 5 Firefox rows disabled with `repo:RF-33` and `repo:RF-34`.
-- Pull request #27 is open. The baseline proposal, #28, is open for the owner's review.
-- **The blocker:** `verify` can't start. The repository's Actions policy now allows only actions owned by `ausginer`, and refuses the pinned `actions/*` and `codecov/codecov-action` (run 43819462065, `startup_failure`). `RD-13`'s stops say a repository rule that refuses the workflow is reported, not worked around. The owner decides.
-- **Not finished:** Safari, `RD-12` items 5 to 8; the reproduction after #28 merges and its three runs; the Codecov upload; the measurement-job and gate checks; and the draft check.
-- **The branch head is a reading state:** `e0a4173a9`'s `safari` job runs only the frame probe and one row, and `packages/box-quad/tests/zz-frame.probe.browser.test.ts` exists for it. Both are reverted after the reading.
+- `RD-13`'s reproduction holds: three `chromium` runs match every baseline, on two runner images and three processors, and a second labeled run proposed nothing. #28 is merged. Coverage uploads to Codecov.
+- Safari runs each of its 7 projects in its own Vitest process, with Reduce Motion off and a window that contains the whole frame. Three attempts at `e2eb61d1c` ran all 101 files with no lost connection and passed.
+- **Disabled in Safari:** 5 rows, with `drag:DRF-49`, `DRF-50` and `DRF-51` and `repo:RF-36`. In Firefox, 5 rows with `RF-33` and `RF-34`. None in Chromium.
+- Item 8's checks pass: the lowered ceiling, the failing gate row and the draft. `timeout-minutes` follow the observed durations.
+
+**Earlier state, after the Safari inventory (input `6b8b3f70d`):** I asked whether Safari's stalling sweeps were `RD-12`'s command stop. The architect decided they were `RD-8` rows.
+
+**Earlier state, after the third resumption (at `53927298b`, then `e93e490ea` for `RD-12` and `1fdef08ae` for `RD-13`): blocked by the repository's Actions policy,** which the owner restored. [§Resumed after `RD-11`](#resumed-after-rd-11).
 
 **Outcome, second stop (resumed at `e5d7260aa`): stopped again under `RD-8` property 5,** in item 5's lint repairs ([§Resumed at item 5](#resumed-at-item-5-and-the-second-stop)).
 
@@ -40,6 +43,27 @@
 | `16e0185b0` | Item 6: core's stylesheet assertion; five Firefox rows disabled with `RF-33` and `RF-34`; coverage uploads on every run. **It also holds the architect's then-uncommitted `.plan/00-index.md` text** (`RD-13`'s draft), staged by mistake with the whole file. The architect's `1fdef08ae` followed it, and neither was rewritten |
 | `e0a4173a9` | **Reading only, to be reverted:** the Safari frame probe and one row |
 | `ba3c4019e` | `RD-13`: `baselines.yml`, visual only with `MX_TEST_VISUAL=1`, Chromium-only local runs, diagnostics |
+| `90c6be3b5` | The report at the policy block |
+| `de1152fe9` | The replaced focused baselines carried a hover; `RF-35` registered |
+| `cf9905dad` | The pointer reset through a corner element WebDriver can find; the full `safari` job restored |
+| `347d4e499` | `RD-12` property 4: drag's input commands through WebDriver actions; the driver-singleton stop's evidence |
+| `31a9afcf2` | `test-safari`, the `safari` job's step, and the selection and empty-listing checks |
+| `bacc42841` | `RD-12` property 5: drag's reduced-motion rows and reset limited to engines that can emulate it |
+| `2b540c639` | `test-safari` without `mapfile`, for macOS's bash 3.2 |
+| `83ff45024` | **Reading only, removed in `2497189df`:** the Safari pointer and environment probe |
+| `2497189df` | The Safari window grows until the frame fits; the first Safari inventory |
+| `cd745e1fb` | `RD-12` property 10: the job turns Reduce Motion off; a scratch reading, removed in `ddf72ec4e` |
+| `ddf72ec4e` | The window and motion readings; the full Safari step restored; the devcontainer's WebKit comment |
+| `0ee0f9d84`, `bee058e8a` | The story box measured in its area; the three-run Safari inventory |
+| `5f1c392c3` | The architect's decision: the stalling rows are intermittent `RD-8` rows |
+| `9b98b7044` | The two sweeps and core's top-layer row skipped in Safari, `DRF-49`, `DRF-50` and `RF-36`; the second labeled run's check |
+| `e2eb61d1c` | TransformedStage expected to fail in Safari, `DRF-51`; `0ee0f9d84`'s repair reverted |
+| `0379f9a83` | Not this unit's commit: `repo:RF-37`, Vite's unanalyzable dynamic import warning in the pre-bundled module runner |
+| `138295108` | The Safari inventory after the dispositions; the resolved configurations; the named errors |
+| `6fd774bc4` | **Check only, reverted:** drag's `draggable + lift` ceiling lowered by 1 B |
+| `39240ed9d` | core's no-op drop row skipped in Safari under `RF-36` |
+| `41cefdc93` | **Check only, removed next:** the ceiling restored and one failing gate row |
+| `1ea922a4a` | The gate row removed; `timeout-minutes` from the observed durations; the measurement and gate checks |
 | this report's commit | This report |
 
 ## 1. The pinned visual environment
@@ -385,13 +409,121 @@ Run [43813617164](https://github.com/ausginer/material-x/actions/runs/4381361716
 
 Run 43819462065's message: _"The actions actions/checkout@3d3c42e5…, actions/setup-node@949feb24…, codecov/codecov-action@303a32d7…, and actions/upload-artifact@cf430e03… are not allowed in ausginer/material-x because all actions must be from a repository owned by ausginer."_ The recording run just before it used the same `actions/*` and succeeded, so the policy changed between them. I reported it through the coordinator and changed nothing.
 
+## Resumed after the policy block
+
+**Input:** the owner restored the Actions policy; then `c7216c4d6` (#28 merged), `8afa0ab5f` (`RD-12`, after the driver stop) and `6b8b3f70d` (`RD-12` property 10), as the coordinator relayed each.
+
+### `radio-focused` and the pointer reset
+
+- **The owner's review of #28** found that `radio-focused` had lost its state-layer circle. The old baseline carried a hover: without the pointer reset, the radio is hovered when its screenshot is taken, and with it, it isn't ([`checks/radio-focused-hover.txt`](checks/radio-focused-hover.txt)). No other visual row ends with a hovered element that changes the capture ([`checks/visual-rows-hover.txt`](checks/visual-rows-hover.txt)). The missing focus state layer is registered as **`repo:RF-35`** (`de1152fe9`). The owner merged #28 as `c7216c4d6`, accepting all 16.
+- **The reset** hovered `<html>`, which WebDriver can't locate, so every Safari row waited 30 s. It now hovers a 1 px element at the page's corner (`cf9905dad`).
+
+### `RD-13`: the reproduction
+
+Pull request #27's `verify` at `c7216c4d6`, run [43822132060](https://github.com/ausginer/material-x/actions/runs/43822132060), `chromium` job three times:
+
+| Attempt | Runner image | Processor | Tests | Visual rows |
+| --- | --- | --- | --- | --- |
+| 1 | ubuntu24 20261111.127.1 | Intel Xeon 6975P-C | 137 files pass, 420 s | all 19 match |
+| 2 | ubuntu24 20261111.127.1 | Intel Xeon 6975P-C | 137 files pass, 370 s | all 19 match |
+| 3 | ubuntu24 20261111.370.1 | AMD EPYC 7763 | 137 files pass, 438 s | all 19 match |
+
+The recording ran on 20261111.370.1 with an AMD EPYC 9V74. No visual row failed or was intermittent. Each attempt's job failed only on the Codecov upload, _"Repository not found"_. The cause was on Codecov's side: the owner activated the repository, and from run 43826200410 the upload reports _"Upload queued for processing complete"_.
+
+**The second labeled run** on #27 (run [43836517326](https://github.com/ausginer/material-x/actions/runs/43836517326), recording `bee058e8a`, `RD-13` item 8): `record` ran the 19 visual rows with the update flag and found no added or changed baseline, on ubuntu24 20261111.370.1, AMD EPYC 7763, Chromium 158.0.8127.18. `propose` took its _nothing changed_ branch: no proposal branch was pushed, no pull request opened, and the label was removed ([`checks/baselines-nothing-changed.txt`](checks/baselines-nothing-changed.txt)).
+
+### `RD-12`: one Vitest process per Safari project
+
+- **The driver stop** ([`checks/safari-driver-stop.txt`](checks/safari-driver-stop.txt)): in one process, Vitest opens the next project's browser before the previous Safari session is released. The architect amended `RD-12` (`8afa0ab5f`).
+- **`test-safari`** in the root `Justfile` (`31a9afcf2`, `2b540c639`):
+  - it shares `test`'s builds through the private `_test-builds`;
+  - it lists the Safari projects with `vitest list --filesOnly --json`;
+  - it runs `vitest run --project <name>` once per listed name, logs each name and exit status, continues past a failure, and exits non-zero if any project or the listing fails, or the listing is empty.
+- **Checks:** each listed name selects exactly its own files ([`checks/safari-project-selection.txt`](checks/safari-project-selection.txt)). The recipe exits 1 for a failing listing and an empty one, and a stubbed run shows it runs all 7 past a failing project ([`checks/test-safari-empty-listing.txt`](checks/test-safari-empty-listing.txt)).
+- **The first CI run** (43826200410) failed before any project: macOS's `bash` is 3.2 and has no `mapfile`. `2b540c639` reads the list with a `while read` loop.
+- **The CI reading** (run [43827320614](https://github.com/ausginer/material-x/actions/runs/43827320614), `2b540c639`): every one of the 7 projects opened Safari and ran.
+
+### `RD-12`: commands and rows limited for Safari
+
+- **Commands** (`347d4e499`): `pointerMove`, `pointerDown`, `pointerUp` and `keyPress` use WebDriver actions with one pointer and one keyboard under fixed ids. A press lasts from `pointerDown` to `pointerUp`, and `steps` interpolates from the kept position as Playwright does. `emulateReducedMotion`, `touch`, `forceGarbageCollection`, `countHeapObjects`, `startHeapSampling` and `stopHeapSampling` throw `<name> has no implementation for the webdriverio provider`.
+- **Rows limited for Safari** (`bacc42841`), each with the command it needs:
+  - `landing.browser.test.ts`'s reduced-motion reset in its `afterEach`, and the two rows _should give a landing that `landing()` starts zero duration with reduced motion_ and _should call a duration function with reduced motion, and still land at once_: `emulateReducedMotion`. They run where `canEmulateReducedMotion` holds.
+  - Already Chromium only, through `isChromium`: `destruction.browser.test.ts`'s two heap rows and `classes.browser.test.ts`'s instance row (`forceGarbageCollection`, `countHeapObjects`), `hot-path.browser.test.ts`'s two allocation rows (`startHeapSampling`, `stopHeapSampling`), and `click-guard.browser.test.ts`'s three touch rows (`touch`).
+
+### `RD-12` properties 3 and 10: the window and Reduce Motion
+
+- **The first inventory** (run 43827320614): `browser/drag` failed 29 rows and `consumer/drag` 27, and the other 5 projects passed ([`checks/safari-inventory-run-43827320614.txt`](checks/safari-inventory-run-43827320614.txt)).
+- **A probe** (run 43829273272, `83ff45024`, removed in `2497189df`) found the two causes ([`checks/safari-probe-run-43829273272.txt`](checks/safari-probe-run-43829273272.txt)):
+  - the page reports `prefers-reduced-motion: reduce`, so `landing()` gives each landing zero duration;
+  - every interpolated move arrives before `pointerMove` returns, but the top-level viewport is 1280 × 668, so a move below y = 668 in the 1280 × 720 frame is never delivered. Free-drag's corner row stopped at 0.75 of its travel, the third of four moves.
+- **The window** (`2497189df`): a Safari-only setup file, `.scripts/safari-window.browser.ts`, calls the node command in `.scripts/safari-window.ts` before each file's tests. It grows the window by the frame's overhang, reads again, and throws if the viewport still doesn't contain the frame.
+- **Reduce Motion** (`cd745e1fb`): the `safari` job runs `defaults write com.apple.universalaccess reduceMotion -bool false` as the runner's user after `safaridriver --enable`, logs the value it reads back, and fails unless it is `0`.
+- **The reading** (run [43830536446](https://github.com/ausginer/material-x/actions/runs/43830536446), a scratch test removed in `ddf72ec4e`): `reduceMotion: 0`; the window grew from a 1280 × 668 viewport to 1280 × 720; the frame is at (0, 0), 1280 × 720, device pixel ratio 1, no transform; `prefers-reduced-motion: reduce` doesn't match ([`checks/safari-window-and-motion.txt`](checks/safari-window-and-motion.txt)). None of the section's stops occurred.
+- **Safari step 9:** the devcontainer's post-create script says that it installs no WebKit because CI runs Safari and nothing runs Playwright's WebKit (`ddf72ec4e`).
+
+### Safari's inventory over three runs
+
+Run [43830910625](https://github.com/ausginer/material-x/actions/runs/43830910625) at `ddf72ec4e`, `safari` job three times, 770, 597 and 785 s ([`checks/safari-inventory-three-runs.txt`](checks/safari-inventory-three-runs.txt)). 54 of the 56 rows of the first inventory pass. `shipped/drag`, `browser/box-quad`, `browser/material-x` and `spec/material-x` pass every row in all three, and `browser/core` in two.
+
+| Row | Project runs failed | First error | Handling |
+| --- | --- | --- | --- |
+| drag Free Drag stories › _should keep a TransformedStage box where it was dropped_ | 2 of 6 (`browser/drag`, attempts 1 and 3) | `expected 15.999969482421875 to be less than or equal to 1` (the box's top) | Repaired in the test (`0ee0f9d84`) on an inferred cause, the hint above the stage rewrapping. **Refuted** by run 43836389515, where the box moved the same 16 px within its area. Reverted, and **expected to fail in Safari with `drag:DRF-51`** |
+| drag `DRI-9` authored transitions › _should propose the gap a full measurement gives with transitions on the rows and the item_ | 4 of 6 | `Test timed out in 15000ms`; otherwise passes in about 8.8 s | **Skipped in Safari with `drag:DRF-50`** |
+| drag `DRI-14` candidates measured through box › _should measure every y() candidate through box when visual is also given_ | 2 of 6 | `Test timed out in 15000ms`; otherwise about 8.8 s | **Skipped in Safari with `drag:DRF-49`** |
+| drag `DRI-14` › _should measure every xy() candidate through box, not through the item_ | 1 of 6, right after the y() row's timeout | `null is not an object (evaluating 'list.querySelector("[data-drag-placeholder]")…')` | Follows the hang; not disabled, and it passed in every later run |
+| core `useReorderable` › _should take the visual out of the top layer once the drag lands_ | 1 of 3 | `expected true to be falsy` | **Skipped in Safari with `repo:RF-36`** |
+| Attempt 2: `browser/drag/safari` lost its browser connection after `sortable.browser.test.ts` | 1 of 3 | `Browser connection was closed while running tests` | Didn't recur after the skips |
+
+**The question of a stop.** A gap sweep is about 200 steps of one `pointerMove` and two animation frames. It either completed in about 8.8 s or didn't return before the 15 s timeout, and once the browser connection closed after one. I asked whether that was `RD-12`'s stop for a command WebDriver actions can't reproduce, and disabled nothing meanwhile. **The architect decided that no stop was reached** (`5f1c392c3`, a dated note on `RD-12`): the two sweeps are intermittent `RD-8` rows, and the handoff's _Resuming after the three Safari runs_ added a stop on a lost browser connection or unrun files.
+
+### The Safari dispositions and three more runs
+
+- **Dispositions** (`9b98b7044`, `e2eb61d1c`, then `41cefdc93`), each marking citing its finding:
+
+  | Row | Marking | Finding |
+  | --- | --- | --- |
+  | drag `DRI-14` › _should measure every y() candidate through box when visual is also given_ | `it.skipIf(isSafari)` | `drag:DRF-49` |
+  | drag `DRI-9` › _should propose the gap a full measurement gives with transitions on the rows and the item_ | `it.skipIf(isSafari)` | `drag:DRF-50` |
+  | drag Free Drag stories › _should keep a TransformedStage box where it was dropped_ | `it.fails` in Safari: it failed in all 4 Safari runs where it ran | `drag:DRF-51` |
+  | core `useReorderable` › _should take the visual out of the top layer once the drag lands_ | `it.skipIf` in Safari | `repo:RF-36` |
+  | core `useReorderable` › _should not dispatch a reorder for a no-op drop_ | `it.skipIf` in Safari, after it failed once in run 43843800063 with the same 1,000 ms top-layer wait | `repo:RF-36`, extended |
+
+  5 rows in Safari, under the stop at 15. No timeout was raised. `RF-36`'s inferred cause: with no reorder listener, the session holds the visual for the 200 ms landing and core's 500 ms `COMMIT_TIMEOUT`, against the rows' 1,000 ms wait. Eight more rows in that file use the same wait.
+- **Three attempts** of the `safari` job at `e2eb61d1c`, run [43838143582](https://github.com/ausginer/material-x/actions/runs/43838143582), attempts 2 and 3 rerunning only that job: 749, 675 and 661 s. In each, all 7 projects ran all 101 listed files and exited 0, with 1 expected failure, the skips above and no lost browser connection ([`checks/safari-inventory-after-dispositions.txt`](checks/safari-inventory-after-dispositions.txt)). `verify` passed in all three.
+- **The remaining Safari checks** ([`checks/resolved-browser-config.txt`](checks/resolved-browser-config.txt), read with [`resolved-browser-config.ts`](checks/resolved-browser-config.ts), which starts no browser):
+  - every Safari project resolves to `headless: false`, `maxWorkers: 1`, no file parallelism, the trace view off, the WebdriverIO provider, and the window command and setup file;
+  - a Chromium project keeps Vitest's default trace view, `failure-only`;
+  - each of drag's six Playwright-only commands, called with a WebdriverIO context in a scratch script, throws `<name> has no implementation for the webdriverio provider` ([`checks/webdriver-named-errors.txt`](checks/webdriver-named-errors.txt)).
+
+### Item 8: the CI checks
+
+- **The visual suite in CI** (run 43838143582's `chromium` job): Chrome for Testing 158.0.8127.18, image ubuntu24 20261111.370.1, AMD EPYC 9V45; all 19 visual rows match; 137 files and 1,844 tests pass. Codecov reports _"Upload queued for processing complete"_.
+- **The measurement job** ([`checks/measurement-job-lowered-ceiling.txt`](checks/measurement-job-lowered-ceiling.txt)): `6fd774bc4` lowered drag's `draggable + lift` ceiling by 1 B. In run [43843800063](https://github.com/ausginer/material-x/actions/runs/43843800063) the comment and the summary showed _"3931 **over by 1 B**"_ and the ceiling row's failure, and `measurements` and `chromium` succeeded. Attempt 1's `safari` failed on the no-op drop row, now under `RF-36`. With only `safari` rerun at the same commit, `verify` succeeded and the run concluded success. `41cefdc93` restored the ceiling.
+- **The gate** ([`checks/gate-failing-row.txt`](checks/gate-failing-row.txt)): `41cefdc93` added one row that fails on purpose, in `.scripts/gate-check.node.test.ts`. In run [43845754860](https://github.com/ausginer/material-x/actions/runs/43845754860), `chromium` failed on it and `verify` failed. `1ea922a4a` removed it.
+- **The draft** ([`checks/draft-skips.txt`](checks/draft-skips.txt)): I marked #27 as a draft and pushed `1ea922a4a`. Run [43849181291](https://github.com/ausginer/material-x/actions/runs/43849181291) skipped every job, `verify` included. Marking #27 ready started run [43849321684](https://github.com/ausginer/material-x/actions/runs/43849321684), which passed.
+- **The size comment** says _"No base reading"_, because `main` has no machine-readable reading yet. Its allocation row for `drag:DRF-48` fails in CI too, at 45.4 B per sample against 16.
+- **`timeout-minutes`** (`1ea922a4a`), about twice each job's longest observed run: `static` 10 (167 s), `chromium` 15 (438 s), `firefox` 20 (558 s), `safari` 30 (785 s), `measurements` 10 (214 s), `verify` 5.
+
+### CI runs since the policy block
+
+| Run | Head | static | chromium | firefox | safari | measurements |
+| --- | --- | --- | --- | --- | --- | --- |
+| [43822132060](https://github.com/ausginer/material-x/actions/runs/43822132060) | `c7216c4d6` | pass, 119 s | tests pass ×3, 420, 370 and 438 s; Codecov _"Repository not found"_ | pass, 535 s | fail, 148 s: the driver stop | pass, 140 s |
+| [43826200410](https://github.com/ausginer/material-x/actions/runs/43826200410) | `31a9afcf2` | pass, 119 s | pass, 406 s; Codecov uploads | pass, 503 s | fail, 101 s: `mapfile` | pass, 162 s |
+| [43827320614](https://github.com/ausginer/material-x/actions/runs/43827320614) | `2b540c639` | pass, 155 s | pass, 371 s | pass, 540 s | fail, 778 s: 29 + 27 drag rows | pass, 156 s |
+| [43830536446](https://github.com/ausginer/material-x/actions/runs/43830536446) | `cd745e1fb` | cancelled | cancelled | cancelled | reading, pass, 104 s | cancelled |
+| [43830910625](https://github.com/ausginer/material-x/actions/runs/43830910625) | `ddf72ec4e` | pass, 120 s | pass, 366 s | pass, 504 s | fail ×3, 770, 597 and 785 s | pass, 214 s |
+| [43836389515](https://github.com/ausginer/material-x/actions/runs/43836389515) | `bee058e8a` | pass, 90 s | pass, 408 s | pass, 533 s | fail, 595 s: TransformedStage, which refuted its repair | pass, 140 s |
+| [43838143582](https://github.com/ausginer/material-x/actions/runs/43838143582) | `e2eb61d1c` | pass, 167 s | pass, 392 s | pass, 482 s | **pass ×3**, 749, 675 and 661 s | pass, 168 s |
+| [43843800063](https://github.com/ausginer/material-x/actions/runs/43843800063) | `6fd774bc4`, ceiling lowered | pass, 134 s | pass, 407 s | pass, 558 s | fail, 674 s: no-op drop row; then pass on its rerun | pass, 158 s, excess reported |
+| [43845754860](https://github.com/ausginer/material-x/actions/runs/43845754860) | `41cefdc93`, failing gate row | pass, 124 s | fail, 373 s: the gate row | pass, 504 s | pass, 674 s | pass, 203 s |
+| [43849181291](https://github.com/ausginer/material-x/actions/runs/43849181291) | `1ea922a4a`, draft | skipped | skipped | skipped | skipped | skipped |
+| [43849321684](https://github.com/ausginer/material-x/actions/runs/43849321684) | `1ea922a4a`, ready | pass, 87 s | pass, 366 s; Codecov uploads | pass, 524 s | pass, 653 s: all 101 files | pass, 164 s |
+
 ## Not done
 
-- **The blocker** above, which is the owner's.
-- **After the owner's merge of #28:** `RD-13` items 7 and 8. That means the reproduction in three `chromium` runs, with each run's image version and processor, and a second labeled run that proposes nothing.
-- **Safari:** `RD-12` items 5 to 8. After the reading, revert `e0a4173a9`'s probe and its job steps.
-- **Item 8's checks:** the Codecov upload succeeding; the measurement job with a lowered ceiling; the gate with a failing row; the draft check; and the jobs' `timeout-minutes` from observed durations.
+- Nothing in the handoff remains. The findings this unit registered are routed to their owners: `repo:RF-33` to `RF-36` and `drag:DRF-48` to `DRF-51`.
 
 ## Next
 
-The owner resolves the Actions policy and reviews and merges #28. Then the unit resumes with the Safari reading and `RD-13`'s reproduction.
+The architect reads this report. The owner merges #27 and then turns on the branch rule (design §5, step 5).
