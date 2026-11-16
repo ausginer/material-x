@@ -730,6 +730,18 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** the row passes in Safari in every run, with a wait that states the landing and the commit grace it covers.
 - **Routed** to core's owner. The CI unit doesn't change the row's wait or core's source.
 
+#### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
+
+Tier C, **open**, low priority. Registered on 2026-11-16 by the architect, on the owner's observation relayed by the coordinator. **It doesn't affect results.** On the owner's direction, it is handled after the CI unit, not inside it. Nothing for the CI unit to do.
+
+- **What the owner saw:** in the `safari` job's log, at the start of a Vitest 5.1.0 run, Vite warns _"The above dynamic import cannot be analyzed by Vite"_. The warning is for `import(filepath)` in `runExternalModule`, inside `packages/material-x/.vite/vitest/<hash>/deps/vitest_n_vite_module-runner.js`, the pre-bundled `vite/module-runner`.
+- **Read by the architect in the devcontainer:** five of material-x's local Vitest pre-bundle directories list `"vitest > vite/module-runner"` in `deps/_metadata.json`. One of them is dated 2026-11-04, before `RD-12` added the WebdriverIO provider. So the pre-bundling doesn't need that provider, and the provider, the first suspect, is less likely to be the cause. This reads the pre-bundle, not the warning.
+- **Not established:**
+  - whether the `chromium` and `firefox` jobs, or a local Chromium run, print the warning;
+  - what puts `vite/module-runner` into the browser's dependency pre-bundle: Vitest itself, a project's `optimizeDeps`, or a provider.
+- **Required property:** a browser test run starts without this warning, or the record states the warning's source and why it stays. Silencing the warning without naming its source doesn't meet this property.
+- **Routed** after the CI unit, for the owner to order.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
