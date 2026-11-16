@@ -79,3 +79,7 @@ same data packages/material-x/src/text-field/styles/outlined/main.styles.css
 
 ## material-x's build before and after formatting its five CSS files: diff -rq of button, button-group, checkbox, core, fab, icon, list, radio and text-field
 (no output: identical)
+
+## placement.ts, the one file not equal with whitespace removed
+With whitespace removed and every comma before a closing ), ] or } removed, the two versions are equal.
+oxfmt added trailing commas to multi-line argument lists. A trailing comma has no runtime meaning, so the program is the one that ran; no string or template text changed.
