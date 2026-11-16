@@ -11,6 +11,7 @@
     "builtin": true
   },
   "ignorePatterns": [
+    "**/.plan/**/*",
     ".nx/**/*",
     ".vite/**/*",
     ".vite-inspect/**/*",

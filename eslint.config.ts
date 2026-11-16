@@ -18,6 +18,9 @@ const config: readonly Config[] = defineConfig(
     // it, so every source file under here is a duplicate of one already linted
     // at its own path. Git ignores the directory; ESLint's file walk does not.
     '.claude/worktrees/**/*',
+    // A record is evidence: a probe's source is what ran, and a tool's output
+    // is what the tool wrote, so a lint repair would change what it records.
+    '**/.plan/**/*',
     '.nx/**/*',
     '.vite/**/*',
     '.vite-inspect/**/*',

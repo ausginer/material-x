@@ -12,20 +12,22 @@ import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import { rolldown } from 'rolldown';
 
-const [compareCopy, sourceRoot] = process.argv.slice(2).map((path) => resolve(path!));
+const [compareCopy, sourceRoot] = process.argv
+  .slice(2)
+  .map((path) => resolve(path!));
 const ROOT = resolve('.');
 const compare = await readFile(compareCopy!, 'utf8');
 const cut = compare.slice(0, compare.indexOf('interface PageContext {'));
 const probe = join(ROOT, 'bench/placement-probe.scratch.ts');
 
-await writeFile(
-  probe,
-  `${cut}\nexport { bundle, moduleAt };\n`,
-);
+await writeFile(probe, `${cut}\nexport { bundle, moduleAt };\n`);
 
 try {
   const { bundle, moduleAt } = (await import(probe)) as {
-    bundle: (lab: string, root: string) => Promise<Record<string, unknown> & { code: string }>;
+    bundle: (
+      lab: string,
+      root: string,
+    ) => Promise<Record<string, unknown> & { code: string }>;
     moduleAt: (table: unknown, line: number) => string | null;
   };
   const lab = join(ROOT, 'bench/lab.ts');
@@ -39,10 +41,16 @@ try {
       return `ERROR: ${(error as Error).message}`;
     }
   };
-  const start = code.findIndex((text) => /^\tvar RectIndex = class|^\tclass RectIndex\b/u.test(text));
+  const start = code.findIndex((text) =>
+    /^\tvar RectIndex = class|^\tclass RectIndex\b/u.test(text),
+  );
 
-  console.log(`instrument: ${relative(ROOT, compareCopy!)}; source root: ${relative(ROOT, sourceRoot!)}`);
-  console.log(`table: ${'lines' in built ? 'lines (source map)' : 'modules (comment markers)'}`);
+  console.log(
+    `instrument: ${relative(ROOT, compareCopy!)}; source root: ${relative(ROOT, sourceRoot!)}`,
+  );
+  console.log(
+    `table: ${'lines' in built ? 'lines (source map)' : 'modules (comment markers)'}`,
+  );
   console.log(`\nRectIndex, from line ${start + 1}:`);
 
   for (let line = start; line < code.length; line += 1) {
@@ -52,31 +60,45 @@ try {
       break;
     }
 
-    if (line === start || /^\t\t(?:static |get |set |async )?#?\w+\(.*\{$/u.test(text)) {
-      console.log(`  ${String(line + 1).padStart(5)}  ${place(line).padEnd(28)} ${text.trim()}`);
+    if (
+      line === start ||
+      /^\t\t(?:static |get |set |async )?#?\w+\(.*\{$/u.test(text)
+    ) {
+      console.log(
+        `  ${String(line + 1).padStart(5)}  ${place(line).padEnd(28)} ${text.trim()}`,
+      );
     }
   }
 
   for (const name of ['directionOf', 'keyboardInsertion']) {
-    const line = code.findIndex((text) => text.startsWith(`\tfunction ${name}(`));
+    const line = code.findIndex((text) =>
+      text.startsWith(`\tfunction ${name}(`),
+    );
 
-    console.log(`\n${name}:\n  ${String(line + 1).padStart(5)}  ${place(line).padEnd(28)} ${code[line]!.trim()}`);
+    console.log(
+      `\n${name}:\n  ${String(line + 1).padStart(5)}  ${place(line).padEnd(28)} ${code[line]!.trim()}`,
+    );
   }
 
   // The modules the bundle holds, keyed as the instrument keys them.
   const again = await rolldown({
     input: lab,
     platform: 'browser',
-    resolve: { alias: { '@ydinjs/box-quad': join(ROOT, '../box-quad/src/index.ts') } },
+    resolve: {
+      alias: { '@ydinjs/box-quad': join(ROOT, '../box-quad/src/index.ts') },
+    },
     plugins: [
       {
         name: 'arm-source',
         resolveId: (id) =>
-          id.startsWith('../src/') ? join(sourceRoot!, id.slice('../src/'.length)) : null,
+          id.startsWith('../src/')
+            ? join(sourceRoot!, id.slice('../src/'.length))
+            : null,
       },
     ],
   });
-  const [chunk] = (await again.generate({ format: 'iife', name: 'labExports' })).output;
+  const [chunk] = (await again.generate({ format: 'iife', name: 'labExports' }))
+    .output;
 
   await again.close();
 
@@ -93,7 +115,12 @@ try {
 
   console.log(`\nmodules in the bundle: ${chunk.moduleIds.length}`);
   console.log(
-    `modules placed on no line: ${chunk.moduleIds.map(keyOf).filter((key) => !placed.has(key)).join(', ') || 'none'}`,
+    `modules placed on no line: ${
+      chunk.moduleIds
+        .map(keyOf)
+        .filter((key) => !placed.has(key))
+        .join(', ') || 'none'
+    }`,
   );
 } finally {
   await rm(probe, { force: true });

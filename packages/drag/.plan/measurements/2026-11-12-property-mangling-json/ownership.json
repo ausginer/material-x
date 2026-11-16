@@ -17,10 +17,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:199",
-      "kernel/session.ts:543"
-    ],
+    "sites": ["kernel/session.ts:199", "kernel/session.ts:543"],
     "eligible": false
   },
   {
@@ -119,10 +116,7 @@
     "library": 13,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "sortable/placement.ts:92",
-      "sortable/behavior.ts:191"
-    ],
+    "sites": ["sortable/placement.ts:92", "sortable/behavior.ts:191"],
     "eligible": false
   },
   {
@@ -130,10 +124,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "free-drag/behavior.ts:83",
-      "sortable/behavior.ts:131"
-    ],
+    "sites": ["free-drag/behavior.ts:83", "sortable/behavior.ts:131"],
     "eligible": false
   },
   {
@@ -169,9 +160,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/collection.ts:36"
-    ],
+    "sites": ["sortable/collection.ts:36"],
     "eligible": false
   },
   {
@@ -187,10 +176,7 @@
     "library": 11,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "sortable/placement.ts:90",
-      "sortable/operation.ts:252"
-    ],
+    "sites": ["sortable/placement.ts:90", "sortable/operation.ts:252"],
     "eligible": false
   },
   {
@@ -198,9 +184,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:187"
-    ],
+    "sites": ["lift.ts:187"],
     "eligible": false
   },
   {
@@ -208,10 +192,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:48",
-      "lift.ts:184"
-    ],
+    "sites": ["kernel/session.ts:48", "lift.ts:184"],
     "eligible": false
   },
   {
@@ -256,10 +237,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:341",
-      "sortable/placement.ts:48"
-    ],
+    "sites": ["lift.ts:341", "sortable/placement.ts:48"],
     "eligible": false
   },
   {
@@ -287,9 +265,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:368"
-    ],
+    "sites": ["kernel/session.ts:368"],
     "eligible": false
   },
   {
@@ -323,9 +299,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "shared/invalidation.ts:36"
-    ],
+    "sites": ["shared/invalidation.ts:36"],
     "eligible": false
   },
   {
@@ -341,10 +315,7 @@
     "library": 2,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:245",
-      "shared/invalidation.ts:9"
-    ],
+    "sites": ["kernel/session.ts:245", "shared/invalidation.ts:9"],
     "eligible": false
   },
   {
@@ -352,9 +323,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "fault.ts:22"
-    ],
+    "sites": ["fault.ts:22"],
     "eligible": false
   },
   {
@@ -362,9 +331,7 @@
     "library": 2,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:156"
-    ],
+    "sites": ["sortable/layout-animation.ts:156"],
     "eligible": false
   },
   {
@@ -412,9 +379,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/xy.ts:95"
-    ],
+    "sites": ["sortable/xy.ts:95"],
     "eligible": false
   },
   {
@@ -434,10 +399,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "shared/landing.ts:85",
-      "sortable/layout-animation.ts:104"
-    ],
+    "sites": ["shared/landing.ts:85", "sortable/layout-animation.ts:104"],
     "eligible": false
   },
   {
@@ -461,9 +423,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/behavior.ts:181"
-    ],
+    "sites": ["sortable/behavior.ts:181"],
     "eligible": false
   },
   {
@@ -479,9 +439,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/placement.ts:35"
-    ],
+    "sites": ["sortable/placement.ts:35"],
     "eligible": false
   },
   {
@@ -569,9 +527,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/behavior.ts:169"
-    ],
+    "sites": ["sortable/behavior.ts:169"],
     "eligible": false
   },
   {
@@ -579,9 +535,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/xy.ts:99"
-    ],
+    "sites": ["sortable/xy.ts:99"],
     "eligible": false
   },
   {
@@ -589,9 +543,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "free-drag/geometry.ts:17"
-    ],
+    "sites": ["free-drag/geometry.ts:17"],
     "eligible": false
   },
   {
@@ -635,10 +587,7 @@
     "library": 10,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "shared/landing.ts:85",
-      "sortable/layout-animation.ts:104"
-    ],
+    "sites": ["shared/landing.ts:85", "sortable/layout-animation.ts:104"],
     "eligible": false
   },
   {
@@ -646,9 +595,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:52"
-    ],
+    "sites": ["sortable/layout-animation.ts:52"],
     "eligible": false
   },
   {
@@ -680,10 +627,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "sortable/collection.ts:25",
-      "sortable/keyboard.ts:55"
-    ],
+    "sites": ["sortable/collection.ts:25", "sortable/keyboard.ts:55"],
     "eligible": false
   },
   {
@@ -691,9 +635,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/behavior.ts:250"
-    ],
+    "sites": ["sortable/behavior.ts:250"],
     "eligible": false
   },
   {
@@ -701,9 +643,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:111"
-    ],
+    "sites": ["sortable/layout-animation.ts:111"],
     "eligible": false
   },
   {
@@ -719,9 +659,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/rect-index.ts:357"
-    ],
+    "sites": ["sortable/rect-index.ts:357"],
     "eligible": false
   },
   {
@@ -729,10 +667,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:50",
-      "lift.ts:185"
-    ],
+    "sites": ["kernel/session.ts:50", "lift.ts:185"],
     "eligible": false
   },
   {
@@ -777,11 +712,7 @@
     "library": 0,
     "platform": 3,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:166",
-      "lift.ts:197",
-      "sortable/placement.ts:36"
-    ],
+    "sites": ["lift.ts:166", "lift.ts:197", "sortable/placement.ts:36"],
     "eligible": false
   },
   {
@@ -802,10 +733,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "shared/landing.ts:95",
-      "lift.ts:271"
-    ],
+    "sites": ["shared/landing.ts:95", "lift.ts:271"],
     "eligible": false
   },
   {
@@ -813,9 +741,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:52"
-    ],
+    "sites": ["sortable/layout-animation.ts:52"],
     "eligible": false
   },
   {
@@ -823,9 +749,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:148"
-    ],
+    "sites": ["lift.ts:148"],
     "eligible": false
   },
   {
@@ -833,10 +757,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:145",
-      "lift.ts:274"
-    ],
+    "sites": ["lift.ts:145", "lift.ts:274"],
     "eligible": false
   },
   {
@@ -844,9 +765,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:391"
-    ],
+    "sites": ["kernel/session.ts:391"],
     "eligible": false
   },
   {
@@ -882,9 +801,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:141"
-    ],
+    "sites": ["lift.ts:141"],
     "eligible": false
   },
   {
@@ -892,10 +809,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:353",
-      "kernel/session.ts:533"
-    ],
+    "sites": ["kernel/session.ts:353", "kernel/session.ts:533"],
     "eligible": false
   },
   {
@@ -915,9 +829,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:202"
-    ],
+    "sites": ["lift.ts:202"],
     "eligible": false
   },
   {
@@ -941,9 +853,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:33"
-    ],
+    "sites": ["kernel/session.ts:33"],
     "eligible": false
   },
   {
@@ -951,9 +861,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "shared/landing.ts:131"
-    ],
+    "sites": ["shared/landing.ts:131"],
     "eligible": false
   },
   {
@@ -995,9 +903,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "free-drag/bounds.ts:41"
-    ],
+    "sites": ["free-drag/bounds.ts:41"],
     "eligible": false
   },
   {
@@ -1005,9 +911,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "free-drag/bounds.ts:40"
-    ],
+    "sites": ["free-drag/bounds.ts:40"],
     "eligible": false
   },
   {
@@ -1023,9 +927,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:350"
-    ],
+    "sites": ["lift.ts:350"],
     "eligible": false
   },
   {
@@ -1041,9 +943,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/behavior.ts:135"
-    ],
+    "sites": ["sortable/behavior.ts:135"],
     "eligible": false
   },
   {
@@ -1076,9 +976,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/gesture.ts:107"
-    ],
+    "sites": ["kernel/gesture.ts:107"],
     "eligible": false
   },
   {
@@ -1110,10 +1008,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:314",
-      "sortable/behavior.ts:135"
-    ],
+    "sites": ["kernel/session.ts:314", "sortable/behavior.ts:135"],
     "eligible": false
   },
   {
@@ -1187,9 +1082,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:274"
-    ],
+    "sites": ["lift.ts:274"],
     "eligible": false
   },
   {
@@ -1197,9 +1090,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:342"
-    ],
+    "sites": ["lift.ts:342"],
     "eligible": false
   },
   {
@@ -1220,9 +1111,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "shared/landing.ts:78"
-    ],
+    "sites": ["shared/landing.ts:78"],
     "eligible": false
   },
   {
@@ -1230,10 +1119,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "free-drag/bounds.ts:71",
-      "free-drag/bounds.ts:75"
-    ],
+    "sites": ["free-drag/bounds.ts:71", "free-drag/bounds.ts:75"],
     "eligible": false
   },
   {
@@ -1257,9 +1143,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "fault.ts:7"
-    ],
+    "sites": ["fault.ts:7"],
     "eligible": false
   },
   {
@@ -1267,10 +1151,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "free-drag/bounds.ts:70",
-      "free-drag/bounds.ts:74"
-    ],
+    "sites": ["free-drag/bounds.ts:70", "free-drag/bounds.ts:74"],
     "eligible": false
   },
   {
@@ -1330,10 +1211,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:287",
-      "sortable/behavior.ts:183"
-    ],
+    "sites": ["lift.ts:287", "sortable/behavior.ts:183"],
     "eligible": false
   },
   {
@@ -1341,9 +1219,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:286"
-    ],
+    "sites": ["lift.ts:286"],
     "eligible": false
   },
   {
@@ -1477,10 +1353,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "shared/invalidation.ts:10",
-      "shared/invalidation.ts:12"
-    ],
+    "sites": ["shared/invalidation.ts:10", "shared/invalidation.ts:12"],
     "eligible": false
   },
   {
@@ -1533,10 +1406,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/callbacks.ts:72",
-      "kernel/callbacks.ts:73"
-    ],
+    "sites": ["kernel/callbacks.ts:72", "kernel/callbacks.ts:73"],
     "eligible": false
   },
   {
@@ -1544,9 +1414,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:368"
-    ],
+    "sites": ["lift.ts:368"],
     "eligible": false
   },
   {
@@ -1554,10 +1422,7 @@
     "library": 1,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "shared/landing.ts:95",
-      "lift.ts:349"
-    ],
+    "sites": ["shared/landing.ts:95", "lift.ts:349"],
     "eligible": false
   },
   {
@@ -1594,10 +1459,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:50",
-      "lift.ts:185"
-    ],
+    "sites": ["kernel/session.ts:50", "lift.ts:185"],
     "eligible": false
   },
   {
@@ -1613,9 +1475,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/placement.ts:60"
-    ],
+    "sites": ["sortable/placement.ts:60"],
     "eligible": false
   },
   {
@@ -1623,9 +1483,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:52"
-    ],
+    "sites": ["sortable/layout-animation.ts:52"],
     "eligible": false
   },
   {
@@ -1633,9 +1491,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/callbacks.ts:10"
-    ],
+    "sites": ["kernel/callbacks.ts:10"],
     "eligible": false
   },
   {
@@ -1707,9 +1563,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:534"
-    ],
+    "sites": ["kernel/session.ts:534"],
     "eligible": false
   },
   {
@@ -1717,9 +1571,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/behavior.ts:188"
-    ],
+    "sites": ["sortable/behavior.ts:188"],
     "eligible": false
   },
   {
@@ -1727,9 +1579,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:391"
-    ],
+    "sites": ["kernel/session.ts:391"],
     "eligible": false
   },
   {
@@ -1750,9 +1600,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:159"
-    ],
+    "sites": ["lift.ts:159"],
     "eligible": false
   },
   {
@@ -1776,9 +1624,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "shared/invalidation.ts:31"
-    ],
+    "sites": ["shared/invalidation.ts:31"],
     "eligible": false
   },
   {
@@ -1847,9 +1693,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:360"
-    ],
+    "sites": ["lift.ts:360"],
     "eligible": false
   },
   {
@@ -1865,9 +1709,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:361"
-    ],
+    "sites": ["lift.ts:361"],
     "eligible": false
   },
   {
@@ -1883,10 +1725,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:148",
-      "sortable/layout-animation.ts:116"
-    ],
+    "sites": ["lift.ts:148", "sortable/layout-animation.ts:116"],
     "eligible": false
   },
   {
@@ -1907,9 +1746,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:427"
-    ],
+    "sites": ["kernel/session.ts:427"],
     "eligible": false
   },
   {
@@ -1917,10 +1754,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:157",
-      "lift.ts:345"
-    ],
+    "sites": ["lift.ts:157", "lift.ts:345"],
     "eligible": false
   },
   {
@@ -1936,10 +1770,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "shared/focus.ts:5",
-      "shared/focus.ts:6"
-    ],
+    "sites": ["shared/focus.ts:5", "shared/focus.ts:6"],
     "eligible": false
   },
   {
@@ -1947,9 +1778,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:179"
-    ],
+    "sites": ["lift.ts:179"],
     "eligible": false
   },
   {
@@ -1970,9 +1799,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:125"
-    ],
+    "sites": ["sortable/layout-animation.ts:125"],
     "eligible": false
   },
   {
@@ -2036,9 +1863,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:109"
-    ],
+    "sites": ["kernel/session.ts:109"],
     "eligible": false
   },
   {
@@ -2046,12 +1871,7 @@
     "library": 0,
     "platform": 25,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:145",
-      "lift.ts:148",
-      "lift.ts:157",
-      "lift.ts:159"
-    ],
+    "sites": ["lift.ts:145", "lift.ts:148", "lift.ts:157", "lift.ts:159"],
     "eligible": false
   },
   {
@@ -2083,10 +1903,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "kernel/session.ts:503",
-      "sortable/layout-animation.ts:111"
-    ],
+    "sites": ["kernel/session.ts:503", "sortable/layout-animation.ts:111"],
     "eligible": false
   },
   {
@@ -2147,10 +1964,7 @@
     "library": 0,
     "platform": 2,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:291",
-      "lift.ts:365"
-    ],
+    "sites": ["lift.ts:291", "lift.ts:365"],
     "eligible": false
   },
   {
@@ -2158,9 +1972,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:358"
-    ],
+    "sites": ["lift.ts:358"],
     "eligible": false
   },
   {
@@ -2168,9 +1980,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:348"
-    ],
+    "sites": ["lift.ts:348"],
     "eligible": false
   },
   {
@@ -2178,9 +1988,7 @@
     "library": 14,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:359"
-    ],
+    "sites": ["lift.ts:359"],
     "eligible": false
   },
   {
@@ -2209,9 +2017,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "kernel/callbacks.ts:10"
-    ],
+    "sites": ["kernel/callbacks.ts:10"],
     "eligible": false
   },
   {
@@ -2251,9 +2057,7 @@
     "library": 9,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "sortable/layout-animation.ts:152"
-    ],
+    "sites": ["sortable/layout-animation.ts:152"],
     "eligible": false
   },
   {
@@ -2329,11 +2133,7 @@
     "library": 39,
     "platform": 3,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:299",
-      "lift.ts:322",
-      "free-drag/geometry.ts:18"
-    ],
+    "sites": ["lift.ts:299", "lift.ts:322", "free-drag/geometry.ts:18"],
     "eligible": false
   },
   {
@@ -2341,11 +2141,7 @@
     "library": 39,
     "platform": 3,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:300",
-      "lift.ts:323",
-      "free-drag/geometry.ts:19"
-    ],
+    "sites": ["lift.ts:300", "lift.ts:323", "free-drag/geometry.ts:19"],
     "eligible": false
   },
   {
@@ -2361,9 +2157,7 @@
     "library": 0,
     "platform": 1,
     "unresolved": 0,
-    "sites": [
-      "lift.ts:355"
-    ],
+    "sites": ["lift.ts:355"],
     "eligible": false
   }
 ]

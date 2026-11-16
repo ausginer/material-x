@@ -1,55 +1,24 @@
 {
-  "accept": [
-    "sortable.ts:ReorderResolution"
-  ],
-  "acquire": [
-    "lift.ts:Lifter()"
-  ],
-  "activate": [
-    "draggable.ts:draggable(behavior)"
-  ],
-  "admit": [
-    "draggable.ts:draggable(behavior)"
-  ],
-  "apply": [
-    "free-drag.ts:freeDrag(config).bounds()"
-  ],
-  "axis": [
-    "sortable.ts:sortable(config)",
-    "free-drag.ts:freeDrag(config)"
-  ],
-  "bounds": [
-    "free-drag.ts:freeDrag(config)"
-  ],
+  "accept": ["sortable.ts:ReorderResolution"],
+  "acquire": ["lift.ts:Lifter()"],
+  "activate": ["draggable.ts:draggable(behavior)"],
+  "admit": ["draggable.ts:draggable(behavior)"],
+  "apply": ["free-drag.ts:freeDrag(config).bounds()"],
+  "axis": ["sortable.ts:sortable(config)", "free-drag.ts:freeDrag(config)"],
+  "bounds": ["free-drag.ts:freeDrag(config)"],
   "box": [
     "lift.ts:Lift",
     "sortable.ts:sortable(config)",
     "sortable.ts:sortable(config).placeholder(context)"
   ],
-  "boxHeight": [
-    "lift.ts:Lift"
-  ],
-  "boxWidth": [
-    "lift.ts:Lift"
-  ],
-  "cancelLanding": [
-    "lift.ts:Lifter()"
-  ],
-  "command": [
-    "draggable.ts:draggable(behavior)"
-  ],
-  "current": [
-    "free-drag.ts:freeDrag(config).targets()"
-  ],
-  "currentRect": [
-    "free-drag.ts:freeDrag(config).onStart(geometry)"
-  ],
-  "displacement": [
-    "sortable.ts:sortable(config)"
-  ],
-  "distance": [
-    "lift/landing.ts:landing(options).duration(context)"
-  ],
+  "boxHeight": ["lift.ts:Lift"],
+  "boxWidth": ["lift.ts:Lift"],
+  "cancelLanding": ["lift.ts:Lifter()"],
+  "command": ["draggable.ts:draggable(behavior)"],
+  "current": ["free-drag.ts:freeDrag(config).targets()"],
+  "currentRect": ["free-drag.ts:freeDrag(config).onStart(geometry)"],
+  "displacement": ["sortable.ts:sortable(config)"],
+  "distance": ["lift/landing.ts:landing(options).duration(context)"],
   "drop": [
     "draggable.ts:draggable(behavior)",
     "free-drag.ts:freeDrag(config).targets()"
@@ -64,26 +33,16 @@
     "lift/landing.ts:landing(options)",
     "sortable/layout-animation.ts:LayoutAnimationOptions"
   ],
-  "end": [
-    "draggable.ts:draggable(behavior)"
-  ],
-  "from": [
-    "sortable.ts:sortable(config).onReorder(request)"
-  ],
-  "fromX": [
-    "lift/landing.ts:landing(options).duration(context)"
-  ],
-  "fromY": [
-    "lift/landing.ts:landing(options).duration(context)"
-  ],
+  "end": ["draggable.ts:draggable(behavior)"],
+  "from": ["sortable.ts:sortable(config).onReorder(request)"],
+  "fromX": ["lift/landing.ts:landing(options).duration(context)"],
+  "fromY": ["lift/landing.ts:landing(options).duration(context)"],
   "handle": [
     "draggable.ts:draggable(behavior).admit()",
     "sortable.ts:sortable(config)",
     "free-drag.ts:freeDrag(config)"
   ],
-  "home": [
-    "free-drag.ts:freeDrag(config)"
-  ],
+  "home": ["free-drag.ts:freeDrag(config)"],
   "invalidate": [
     "sortable.ts:sortable()",
     "free-drag.ts:freeDrag(config).bounds()",
@@ -94,19 +53,10 @@
     "draggable.ts:draggable(behavior).activate(drag)",
     "lift.ts:Lifter().acquire(drag)"
   ],
-  "items": [
-    "sortable.ts:sortable(config)"
-  ],
-  "itemSpace": [
-    "lift.ts:Lift"
-  ],
-  "land": [
-    "lift.ts:Lift"
-  ],
-  "landing": [
-    "sortable.ts:sortable(config)",
-    "free-drag.ts:freeDrag(config)"
-  ],
+  "items": ["sortable.ts:sortable(config)"],
+  "itemSpace": ["lift.ts:Lift"],
+  "land": ["lift.ts:Lift"],
+  "landing": ["sortable.ts:sortable(config)", "free-drag.ts:freeDrag(config)"],
   "localDeltaX": [
     "free-drag.ts:freeDrag(config).onDrop(request)",
     "free-drag.ts:freeDrag(config).onStart(geometry)"
@@ -119,46 +69,22 @@
     "draggable.ts:draggable(behavior)",
     "free-drag.ts:freeDrag(config).targets()"
   ],
-  "moveTo": [
-    "free-drag.ts:freeDrag()"
-  ],
-  "name": [
-    "fault.ts:DragFault()"
-  ],
-  "next": [
-    "sortable.ts:sortable(config).onReorder(request)"
-  ],
-  "onDrop": [
-    "free-drag.ts:freeDrag(config)"
-  ],
-  "onEnd": [
-    "sortable.ts:sortable(config)",
-    "free-drag.ts:freeDrag(config)"
-  ],
-  "onMove": [
-    "free-drag.ts:freeDrag(config)"
-  ],
-  "onReorder": [
-    "sortable.ts:sortable(config)"
-  ],
-  "onStart": [
-    "sortable.ts:sortable(config)",
-    "free-drag.ts:freeDrag(config)"
-  ],
+  "moveTo": ["free-drag.ts:freeDrag()"],
+  "name": ["fault.ts:DragFault()"],
+  "next": ["sortable.ts:sortable(config).onReorder(request)"],
+  "onDrop": ["free-drag.ts:freeDrag(config)"],
+  "onEnd": ["sortable.ts:sortable(config)", "free-drag.ts:freeDrag(config)"],
+  "onMove": ["free-drag.ts:freeDrag(config)"],
+  "onReorder": ["sortable.ts:sortable(config)"],
+  "onStart": ["sortable.ts:sortable(config)", "free-drag.ts:freeDrag(config)"],
   "origin": [
     "draggable.ts:draggable(behavior).settle(outcome)",
     "sortable.ts:sortable(config).onEnd(result)",
     "free-drag.ts:freeDrag(config).onEnd(result)"
   ],
-  "originPointerX": [
-    "free-drag.ts:freeDrag(config).onStart(geometry)"
-  ],
-  "originPointerY": [
-    "free-drag.ts:freeDrag(config).onStart(geometry)"
-  ],
-  "originRect": [
-    "free-drag.ts:freeDrag(config).onStart(geometry)"
-  ],
+  "originPointerX": ["free-drag.ts:freeDrag(config).onStart(geometry)"],
+  "originPointerY": ["free-drag.ts:freeDrag(config).onStart(geometry)"],
+  "originRect": ["free-drag.ts:freeDrag(config).onStart(geometry)"],
   "originX": [
     "draggable.ts:draggable(behavior).activate(drag)",
     "lift.ts:Lifter().acquire(drag)"
@@ -167,9 +93,7 @@
     "draggable.ts:draggable(behavior).activate(drag)",
     "lift.ts:Lifter().acquire(drag)"
   ],
-  "placeholder": [
-    "sortable.ts:sortable(config)"
-  ],
+  "placeholder": ["sortable.ts:sortable(config)"],
   "pointerId": [
     "draggable.ts:draggable(behavior).activate(drag)",
     "lift.ts:Lifter().acquire(drag)"
@@ -182,31 +106,17 @@
     "free-drag.ts:freeDrag(config).onDrop(request)",
     "free-drag.ts:freeDrag(config).onStart(geometry)"
   ],
-  "positionX": [
-    "free-drag.ts:freeDrag(config).onDrop(request)"
-  ],
-  "positionY": [
-    "free-drag.ts:freeDrag(config).onDrop(request)"
-  ],
-  "previous": [
-    "sortable.ts:sortable(config).onReorder(request)"
-  ],
-  "prototype": [
-    "lift.ts:Lifter",
-    "fault.ts:DragFault"
-  ],
+  "positionX": ["free-drag.ts:freeDrag(config).onDrop(request)"],
+  "positionY": ["free-drag.ts:freeDrag(config).onDrop(request)"],
+  "previous": ["sortable.ts:sortable(config).onReorder(request)"],
+  "prototype": ["lift.ts:Lifter", "fault.ts:DragFault"],
   "reason": [
     "draggable.ts:draggable(behavior).settle(outcome)",
     "sortable.ts:sortable(config).onEnd(result)",
     "free-drag.ts:freeDrag(config).onEnd(result)"
   ],
-  "rect": [
-    "lift.ts:Lift",
-    "sortable.ts:sortable(config).placeholder(context)"
-  ],
-  "reject": [
-    "sortable.ts:ReorderResolution"
-  ],
+  "rect": ["lift.ts:Lift", "sortable.ts:sortable(config).placeholder(context)"],
+  "reject": ["sortable.ts:ReorderResolution"],
   "request": [
     "sortable.ts:sortable(config).onEnd(result)",
     "free-drag.ts:freeDrag(config).onEnd(result)"
@@ -226,24 +136,15 @@
     "draggable.ts:draggable()",
     "lift.ts:Lifter().acquire(drag)"
   ],
-  "settle": [
-    "draggable.ts:draggable(behavior)"
-  ],
+  "settle": ["draggable.ts:draggable(behavior)"],
   "signal": [
     "draggable.ts:draggable(behavior).activate(drag)",
     "lift.ts:Lifter().acquire(drag)",
     "sortable.ts:sortable(config).onReorder(context)"
   ],
-  "start": [
-    "draggable.ts:draggable(behavior)",
-    "lift.ts:Landing"
-  ],
-  "state": [
-    "draggable.ts:draggable(behavior).admit()"
-  ],
-  "target": [
-    "free-drag.ts:freeDrag(config).onDrop(request)"
-  ],
+  "start": ["draggable.ts:draggable(behavior)", "lift.ts:Landing"],
+  "state": ["draggable.ts:draggable(behavior).admit()"],
+  "target": ["free-drag.ts:freeDrag(config).onDrop(request)"],
   "targets": [
     "free-drag.ts:freeDrag(config)",
     "free-drag/drop-targets.ts:dropTargets(options)"
@@ -253,21 +154,11 @@
     "sortable.ts:sortable(config)",
     "free-drag.ts:freeDrag(config)"
   ],
-  "timing": [
-    "lift.ts:Landing"
-  ],
-  "to": [
-    "sortable.ts:sortable(config).onReorder(request)"
-  ],
-  "toX": [
-    "lift/landing.ts:landing(options).duration(context)"
-  ],
-  "toY": [
-    "lift/landing.ts:landing(options).duration(context)"
-  ],
-  "translate": [
-    "lift.ts:Lift"
-  ],
+  "timing": ["lift.ts:Landing"],
+  "to": ["sortable.ts:sortable(config).onReorder(request)"],
+  "toX": ["lift/landing.ts:landing(options).duration(context)"],
+  "toY": ["lift/landing.ts:landing(options).duration(context)"],
+  "translate": ["lift.ts:Lift"],
   "type": [
     "draggable.ts:draggable(behavior).settle(outcome)",
     "draggable.ts:draggable(behavior).activate(drag).use(dispose)(outcome)",
@@ -295,12 +186,8 @@
     "sortable.ts:sortable(config)",
     "sortable.ts:sortable(config).placeholder(context)"
   ],
-  "visualRect": [
-    "free-drag.ts:freeDrag(config).onDrop(request)"
-  ],
-  "visualSpace": [
-    "lift.ts:Lift"
-  ],
+  "visualRect": ["free-drag.ts:freeDrag(config).onDrop(request)"],
+  "visualSpace": ["lift.ts:Lift"],
   "x": [
     "draggable.ts:draggable(behavior).activate(drag)",
     "lift.ts:Lifter().acquire(drag)",
