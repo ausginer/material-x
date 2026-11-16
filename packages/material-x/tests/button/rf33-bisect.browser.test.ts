@@ -2,6 +2,35 @@
 import { describe, expect, it } from 'vitest';
 import { server, userEvent } from 'vitest/browser';
 import '../../src/button/button.ts';
+import '../../src/button/icon-button.ts';
+import '../../src/button/link-button.ts';
+import '../../src/button/switch-button.ts';
+import '../../src/button/switch-icon-button.ts';
+import '../../src/list/list-button-item.ts';
+import '../../src/list/list-link-item.ts';
+
+const LISTED = [
+  'mx-button',
+  'mx-icon-button',
+  'mx-link-button',
+  'mx-switch-button',
+  'mx-switch-icon-button',
+  'mx-list-button-item',
+  'mx-list-link-item',
+] as const;
+
+function listed(tag: string): HTMLElement {
+  const el = document.createElement(tag);
+  el.textContent = 'label';
+  if (tag.includes('link')) el.setAttribute('href', '#target');
+  return el;
+}
+
+function frames(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  });
+}
 
 let count = 0;
 function host(css: string): HTMLElement {
@@ -64,4 +93,90 @@ describe('RF-33 minimal', () => {
     el.remove();
     expect(true).toBe(true);
   });
+  for (const tag of LISTED) {
+    it(`should compare delegation and the forward for ${tag}`, () => {
+      const el = listed(tag);
+      document.body.append(el);
+      HTMLElement.prototype.focus.call(el);
+      const delegated = el.shadowRoot!.activeElement;
+      (document.activeElement as HTMLElement | null)?.blur();
+      el.focus();
+      const forwarded = el.shadowRoot!.activeElement;
+      const name = (node: Element | null) =>
+        node ? `${node.localName}.${node.className}` : 'null';
+      console.log(
+        `RF33F ${server.browser} ${tag}: delegation=${name(delegated)} forward=${name(forwarded)} same=${delegated === forwarded}`,
+      );
+      el.remove();
+      expect(true).toBe(true);
+    });
+
+    it(`should report autofocus for ${tag}`, async () => {
+      const el = listed(tag);
+      el.setAttribute('autofocus', '');
+      document.body.append(el);
+      await frames();
+      await frames();
+      const control =
+        el.shadowRoot!.querySelector('.control') ??
+        el.shadowRoot!.querySelector('.host');
+      console.log(
+        `RF33A ${server.browser} ${tag} autofocus: activeElement=${document.activeElement?.localName}, shadow=${el.shadowRoot!.activeElement === control ? 'control' : (el.shadowRoot!.activeElement?.localName ?? 'null')}`,
+      );
+      el.remove();
+      expect(true).toBe(true);
+    });
+  }
+  it('should report autofocus on a plain native button, as a control', async () => {
+    const button = document.createElement('button');
+    button.textContent = 'plain';
+    button.setAttribute('autofocus', '');
+    document.body.append(button);
+    await frames();
+    await frames();
+    console.log(
+      `RF33A ${server.browser} control <button autofocus>: activeElement=${document.activeElement?.localName}`,
+    );
+    button.remove();
+    expect(true).toBe(true);
+  });
+  for (const variant of ['button', 'host-contents', 'host-inline']) {
+    it(`should report autofocus in a fresh top-level document: ${variant}`, async () => {
+      const opener = document.createElement('button');
+      opener.textContent = 'open';
+      let popup: Window | null = null;
+      opener.addEventListener('click', () => {
+        popup = window.open('about:blank', '_blank', 'width=400,height=300');
+      });
+      document.body.append(opener);
+      await userEvent.click(opener);
+      opener.remove();
+      if (!popup) {
+        console.log(
+          `RF33A ${server.browser} fresh ${variant}: popup not opened`,
+        );
+        expect(true).toBe(true);
+        return;
+      }
+      const win = popup as Window;
+      win.document.write(`<!doctype html><body><script>
+        customElements.define('x-host', class extends HTMLElement {
+          constructor() {
+            super();
+            const root = this.attachShadow({ mode: 'open', delegatesFocus: true });
+            root.innerHTML = '<style>:host { display: ${variant === 'host-contents' ? 'contents' : 'inline'} }</style><button>x</button>';
+          }
+        });
+      <\/script>${variant === 'button' ? '<button autofocus>b</button>' : '<x-host autofocus></x-host>'}</body>`);
+      win.document.close();
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const active = win.document.activeElement;
+      const shadow = active?.shadowRoot?.activeElement;
+      console.log(
+        `RF33A ${server.browser} fresh ${variant}: hasFocus=${win.document.hasFocus()} activeElement=${active?.localName ?? 'null'}${active?.shadowRoot ? ` shadow=${shadow?.localName ?? 'null'}` : ''}`,
+      );
+      win.close();
+      expect(true).toBe(true);
+    });
+  }
 });

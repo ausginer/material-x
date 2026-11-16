@@ -7,16 +7,43 @@ import { createBox, measure } from './support/fixtures.ts';
 const BOX_WIDTH = 6;
 const BOX_HEIGHT = 7;
 
-function onSixtieth(value: number): boolean {
-  return Math.abs(value - Math.round(value * 60) / 60) <= 1e-9;
+// An edge is quantized at q, reported at r, when it equals a multiple of q
+// rounded to a multiple of r.
+function quantizedAt(value: number, q: number, r: number): boolean {
+  return Math.round((Math.round(value / q) * q) / r) * r === value;
+}
+
+const QUANTA = [
+  ['1/60', 1 / 60],
+  ['1/64', 1 / 64],
+] as const;
+const RESOLUTIONS = [
+  ['2^-14', 2 ** -14],
+  ['2^-16', 2 ** -16],
+  ['exact', 0],
+] as const;
+
+function classify(value: number): string {
+  if (Number.isInteger(value)) {
+    return 'integer';
+  }
+  for (const [qName, q] of QUANTA) {
+    for (const [rName, r] of RESOLUTIONS) {
+      if (
+        r === 0
+          ? Math.abs(value - Math.round(value / q) * q) <= 1e-9
+          : quantizedAt(value, q, r)
+      ) {
+        return `q=${qName} r=${rName}`;
+      }
+    }
+  }
+  return 'no q';
 }
 
 function edges(rect: DOMRect): string {
   return (['left', 'top', 'right', 'bottom', 'width', 'height'] as const)
-    .map(
-      (key) =>
-        `${key}=${rect[key]} (${onSixtieth(rect[key]) ? '1/60' : 'not 1/60'})`,
-    )
+    .map((key) => `${key}=${rect[key]} (${classify(rect[key])})`)
     .join(' ');
 }
 
