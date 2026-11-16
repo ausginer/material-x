@@ -1,6 +1,14 @@
-# Report: CI verification, first unit — stopped twice at item 5
+# Report: CI verification, first unit
 
 **Handoff:** [`ci-verification-handoff.md`](ci-verification-handoff.md). **Input:** `6d1c80162` on `ci/verification`. **Governing records:** `repo:RD-2`, `repo:RD-6` to `repo:RD-9`, `repo:RF-29` and `repo:RF-32` in [`../00-index.md`](../00-index.md), the [design](ci-verification-design.md), and `.agents/docs/test-architecture.md` §CI policy.
+
+**Current state, after the third resumption (at `53927298b`, then `e93e490ea` for `RD-12` and `1fdef08ae` for `RD-13`): blocked by a repository rule.** [§Resumed after `RD-11`](#resumed-after-rd-11).
+
+- Items 5 to 7 are done, and item 6's local inventory is handled: 3 rows repaired, 12 repaired through core's test setup, and 5 Firefox rows disabled with `repo:RF-33` and `repo:RF-34`.
+- Pull request #27 is open. The baseline proposal, #28, is open for the owner's review.
+- **The blocker:** `verify` can't start. The repository's Actions policy now allows only actions owned by `ausginer`, and refuses the pinned `actions/*` and `codecov/codecov-action` (run 43819462065, `startup_failure`). `RD-13`'s stops say a repository rule that refuses the workflow is reported, not worked around. The owner decides.
+- **Not finished:** Safari, `RD-12` items 5 to 8; the reproduction after #28 merges and its three runs; the Codecov upload; the measurement-job and gate checks; and the draft check.
+- **The branch head is a reading state:** `e0a4173a9`'s `safari` job runs only the frame probe and one row, and `packages/box-quad/tests/zz-frame.probe.browser.test.ts` exists for it. Both are reverted after the reading.
 
 **Outcome, second stop (resumed at `e5d7260aa`): stopped again under `RD-8` property 5,** in item 5's lint repairs ([§Resumed at item 5](#resumed-at-item-5-and-the-second-stop)).
 
@@ -22,7 +30,17 @@
 | `33fc22dce` | Item 5: lint stops reading `.plan/`; the record and five authored CSS files are formatted |
 | `c2dbf6292` | The first stop's report and the lint inventory |
 | `e9da25c08` | Item 5, resumed: `RD-10`'s allow list, 31 lint repairs, and their checks |
-| this report's commit | The second stop's report |
+| `a2a4c5488` | The second stop's report |
+| `4e8eaf9d2` | Item 5: `RD-11`'s ESLint configuration |
+| `234ade127` | Item 5: lint builds what it resolves; the static checks pass on a fresh checkout |
+| `f0ec37881` | Item 6: `just test` builds its prerequisites; tproc's and radio's rows repaired |
+| `9c96be2d8` | Item 7: `verify.yml`, `codecov.yml`, coverage of package source; `drag:DRF-48` and `RF-29`'s note |
+| `6e5484670` | Item 6: core's setup ignores Firefox's capture error for a synthetic pointer; the `chromium` job's history; the measurement job's project selection; the CI screenshots of the visual stop |
+| `26453da9c` | `RD-12`: Safari through the WebdriverIO provider, the `safari` job, `test-engines` |
+| `16e0185b0` | Item 6: core's stylesheet assertion; five Firefox rows disabled with `RF-33` and `RF-34`; coverage uploads on every run. **It also holds the architect's then-uncommitted `.plan/00-index.md` text** (`RD-13`'s draft), staged by mistake with the whole file. The architect's `1fdef08ae` followed it, and neither was rewritten |
+| `e0a4173a9` | **Reading only, to be reverted:** the Safari frame probe and one row |
+| `ba3c4019e` | `RD-13`: `baselines.yml`, visual only with `MX_TEST_VISUAL=1`, Chromium-only local runs, diagnostics |
+| this report's commit | This report |
 
 ## 1. The pinned visual environment
 
@@ -255,12 +273,125 @@ A repair under `src/` has to show that the emitted JavaScript is unchanged. A `u
 - whether these two exported types and this overload change, which is a public surface decision for material-x and core;
 - or whether the lint configuration treats them otherwise. For the third, that could mean disabling ESLint's duplicate of a rule that oxlint enforces, as the configuration's block after `buildFromOxlintConfigFile` already does for five rules.
 
+## Resumed after `RD-11`
+
+**Input:** `53927298b` (`RD-11`), then `e93e490ea` (`RD-12`, Safari) and `1fdef08ae` (`RD-13`, baselines on GitHub's runner), as the coordinator relayed each.
+
+### Item 5, completed
+
+- **`RD-11`** (`4e8eaf9d2`): `eslint.config.ts` turns off `@typescript-eslint/no-unnecessary-type-parameters`, in the block after `buildFromOxlintConfigFile` that turns off rules oxlint duplicates. It also turns off `@typescript-eslint/no-generated-empty-object-type`, with a comment that names the `allow` of `typescript/no-empty-object-type`. No source file changed.
+  - With `DOM.ts`'s `oxlint-disable-next-line` comment removed in a scratch edit, oxlint reports `no-unnecessary-type-parameters` at `src/utils/DOM.ts:39`, from core's directory and from the root. Reverted ([`checks/rd11-oxlint-still-enforces.txt`](checks/rd11-oxlint-still-enforces.txt)).
+  - oxlint and ESLint, run separately, exit 0 in all eight packages and at the repository level ([`checks/lint-after-rd11.txt`](checks/lint-after-rd11.txt)).
+- **On a fresh checkout,** `just lint` failed: type-aware lint resolves workspace packages through their builds, which a fresh tree lacks, and the root ESLint run reads material-x's generated `custom-elements.json`. `RD-6` property 3 repairs the recipe (`234ade127`):
+  - `nx.json` gives `lint` and `lint:fix` `dependsOn: ["^build"]`, as `typecheck` has.
+  - drag's `project.json` adds its own `build`, because `tests/support/oracles.build.ts` imports its emitted modules.
+  - vite-traits-plugin's `project.json` adds core's `build` as a task dependency. Its fixtures import `@ydinjs/core`, and a project dependency would form a cycle, because core's build uses the plugin.
+  - The root `lint` and `lint-fix` run material-x's `build:cem` before the repository-level files.
+- **Each recipe on its own fresh clone of `234ade127`** after `npm ci`: `just fmt-check` exits 0 in 6 s, `just lint` in 38 s, and `just typecheck` in 6 s ([`checks/fresh-checkout.txt`](checks/fresh-checkout.txt)).
+- A probe comment I had edited contained `**/*`, which ends a block comment. It is reworded, and the probe's result is unchanged.
+
+### Item 6, the local inventory and its dispositions
+
+**`just test` on a fresh checkout** couldn't load Vitest's configuration: `.scripts/vite-config.ts` imports `@ydinjs/vite-custom-element-assets`'s build, and that plugin reads the property list that material-x's `build:prepare` writes. The root `test` recipe now builds `box-quad`, `core`, `tproc` and the two Vite plugins, then runs material-x's `build:prepare` (`f0ec37881`). drag's own build stays the consumer project's global setup.
+
+**Chromium,** `CI=true npx just test --coverage --tags-filter '!measurement'` on a fresh clone ([`checks/inventory-local.txt`](checks/inventory-local.txt)):
+
+- **The first run** failed 2 rows: `RF-29`'s `tproc` row and `radio.visual` _should match the selection state matrix_.
+- **After the repairs below,** five runs at `f0ec37881` passed: 1,844 tests, 12 skipped, exit 0, 261 to 267 s each.
+
+**Firefox,** `MX_TEST_ENGINES=firefox npx just test --project '*/firefox' --tags-filter '!measurement'`, five runs at `f0ec37881`: the same 18 rows failed in each, about 432 s each.
+
+| Row | Engine | First error | Handling |
+| --- | --- | --- | --- |
+| `tproc` `TokenPackageProcessor` › _should apply inheritance and render declarations_ (`RF-29`) | node | `expected { 'state-layer.opacity': 0.08 } to deeply equal { 'container.color': 'red', …(1) }` | **Repaired in the test.** `state()` is documented as deduped against what a state inherits (`TokenPackage.ts:61`, `ExtensionManager.ts:161`), and `hovered` inherits `container.color: red` |
+| `radio.visual` › _should match the selection state matrix_ (`RF-29`) | Chromium | 29 pixels differ, 1 run in 5 | **Repaired in the test setup.** The pointer stayed where an earlier test had left it, and over the unchecked radio it rendered hovered. The failing capture is pixel-identical to one taken with that radio hovered on purpose. `browser-setup.ts` moves the pointer to the page's corner before each test. A scratch test that leaves the pointer there fails the row without the reset and passes with it ([`checks/radio-pointer.txt`](checks/radio-pointer.txt)). A first probe ruled out animations ([probe](checks/radio-animations.probe.browser.test.ts)) |
+| core `useReorderable`, 12 rows | Firefox | `expected false to be truthy` and others; the drag never activated | **Repaired in core's test setup** (`6e5484670`). `user-event`'s untrusted pointer is unknown to the browser, and Firefox throws `NotFoundError: Element.setPointerCapture: Invalid pointer id` where Chromium does nothing. The setup ignores that one error, and every other one still throws. With it, all 47 rows of the file pass in Firefox |
+| core `useShadowDOM` › _should adopt the provided stylesheets_ | Firefox | `expected [ CSSStyleSheet{} ] to deeply equal [ CSSStyleSheet{} ]` | **Repaired in the test.** In Firefox the adopted sheet is the same object, but deep equality doesn't match the observable array against an array. The assertion compares a copy |
+| material-x `mx-button` and `mx-icon-button` › _should delegate focus to the native button_; `mx-connected-button-group roving tabindex` › _ArrowRight_ and _End_ | Firefox | `expected null to be <button …>`; `expected -1 to be +0` | **Disabled in Firefox,** `it.fails`, with **`repo:RF-33`**. A plain `delegatesFocus` host delegates in the same Firefox and `mx-button` doesn't; the group rows depend on that focus |
+| box-quad `coordinates numeric precision` › _should derive a rotated and scaled size to within a ten-thousandth_ | Firefox | `expected 0.007638968374838129 to be less than or equal to 0.0001` | **Disabled in Firefox,** `it.fails`, with **`repo:RF-34`**. Firefox's 1/60 px layout unit is the inferred cause |
+
+- **Disabled rows:** 5 in Firefox, and none in Chromium. **`RF-29`'s note** (dated 2026-11-16) records both repairs.
+- **The measurement row** `hot-path.browser.test.ts:261` is registered as **`drag:DRF-48`** and left as it is. It failed locally in Chromium 158 and passed in the CI measurement job.
+- **No finding was registered for Playwright's WebKit,** as the Safari section directs.
+
+### Item 7, the workflow
+
+`.github/workflows/verify.yml` (`9c96be2d8`, then `6e5484670`, `16e0185b0`, `26453da9c` and `ba3c4019e`) and `codecov.yml`:
+
+- **Jobs:**
+  - `static`, `chromium`, `firefox` and `safari`;
+  - `verify`, which needs the four and fails unless each succeeded;
+  - `measurements`, which has `continue-on-error`.
+- **Triggers and runners:** RD-6's triggers, with cancellation for pull requests only, and drafts skipped in every job. `contents: read`, and `pull-requests: write` for `measurements` only. `ubuntu-24.04`, `macos-26` for `safari`, and Node 26. Every action is pinned to a full commit hash.
+- **Test jobs** run Vitest's default reporters and fail on its exit status.
+- **`chromium`:**
+  - checks out the full history, because the record resolver's `repo` tests read retired scopes from it;
+  - sets `MX_TEST_VISUAL=1` and logs the runner image and the processor;
+  - uploads coverage whenever the run isn't cancelled, and the screenshots when it fails.
+- **Coverage:** Vitest's `coverage.include` is `packages/*/src/**` and `src/**`, and `reportOnFailure` is on (`76f8cac47`), because the first upload found no report after failing tests. `codecov.yml` sets both statuses to informational and ignores tests, tooling and dependencies.
+- **`measurements`:**
+  - runs the measurement rows with the declaration projects excluded, because a declaration project has no tags and its rows appeared in the first report;
+  - reads the size reading at the head and at the merge base, writes the report to the job summary, and posts or updates the comment.
+- **`timeout-minutes`** are provisional: 10 for `static`, 20 for `chromium`, and 30 for the others. They are re-set from item 8's readings once a full run completes.
+
+### `RD-12`: Safari
+
+- **Dependencies:** `@vitest/browser-webdriverio` 5.0.0 and `webdriverio` 10.2.0, exact root `devDependencies`. `npm ls @vitest/browser` shows one copy, 5.1.0 ([`checks/vitest-browser-copies.txt`](checks/vitest-browser-copies.txt)). npm blocked `geckodriver`'s install script, which Safari doesn't use.
+- **The factory:**
+  - The engines are `chromium`, `firefox` and `safari`, and `webkit` is the unknown-engine error.
+  - A Safari project uses the WebdriverIO provider, isn't headless, has one worker and no file parallelism, and has `traceView: 'off'`.
+- **drag's `test-engines`** runs the engines `MX_TEST_ENGINES` lists, after `RD-13`. `click-guard.browser.test.ts:372` names `safari`.
+- **The project lists,** including Safari's, are read with a listing that starts no browser ([`checks/engine-selection.txt`](checks/engine-selection.txt)).
+- **The `safari` job** enables remote automation with `sudo safaridriver --enable` and logs the macOS and Safari versions.
+- **First reading** (run 43815220593, `26453da9c`):
+  - macOS 26.7.2 (25G332), Safari 27.2. `npm ci` succeeded on macOS, and the projects loaded.
+  - Every row of `browser/material-x/safari`'s `CheckableCore.browser.test.ts`, 44 of 44, failed at about 30 s each, including rows that send no input. The job reached its 30-minute timeout before Vitest printed any error.
+- **A narrowed reading** (`e0a4173a9`) runs the frame probe ([probe](checks/safari-frame.probe.browser.test.ts)) and one `CheckableCore` row. Its first run broke on my own quoting: `just` re-split a `-t` pattern containing `|`, and the shell ran it as a pipe. Its second run, at `ba3c4019e`, couldn't start (see the blocker).
+- **Not done:** the frame reading, the commands (`RD-12` property 4), the rows limited for Safari (property 5), and Safari's inventory and three runs.
+
+### `RD-13`: baselines on GitHub's runner
+
+- **Implemented** in `ba3c4019e`:
+  - `.github/workflows/baselines.yml`, with its two jobs. `record` has a read-only token, checks out the pull request's head commit, records with the update flag, and uploads only the added or changed files. `propose` runs no repository code and accepts only baseline paths.
+  - The visual project is declared only with `MX_TEST_VISUAL=1`. material-x's `test-visual` and `test-visual-update` recipes are removed, and the `test-component` skill's two mentions say that visual runs only in CI and the recording workflow records baselines.
+  - The devcontainer installs only Chromium.
+- **The update flag** rewrites a baseline only where its comparison failed or it didn't exist, from Vitest 5.1.0's matcher code and item 1's run ([`checks/update-flag-writes.txt`](checks/update-flag-writes.txt)).
+- **The path filter** accepts all 19 committed baselines and refuses all 8 bad paths, including `..` segments and a non-PNG under `__screenshots__/` ([`checks/baselines-path-filter.txt`](checks/baselines-path-filter.txt)).
+- **This unit's recording,** run [43819875527](https://github.com/ausginer/material-x/actions/runs/43819875527):
+  - The label was added under the owner's authorization, and the run recorded at `ba3c4019e`.
+  - Runner image ubuntu24 20261111.370.1, AMD EPYC 9V74 80-Core processor, Chromium 158.0.8127.18. `record` took 88 s and `propose` 22 s.
+  - It opened [#28](https://github.com/ausginer/material-x/pull/28) from `baselines/ci/verification` into `ci/verification`, with exactly the 16 baselines that CI failed, and removed the label.
+  - **The owner reviews and merges #28. I didn't merge it.**
+
+### The visual stop, for the record
+
+Run [43813617164](https://github.com/ausginer/material-x/actions/runs/43813617164) at `9c96be2d8`, Chrome for Testing 158.0.8127.18 on `ubuntu-24.04` image 20261111.370.1:
+
+- 16 of the 19 baselines recorded in the devcontainer failed, by 2 to 1,014 pixels, on anti-aliased edges, with matching dimensions.
+- The next run, 43815220593, failed the same 16 rows by the same counts.
+- Every actual and diff image is under [`visual/ci-run-43813617164/`](visual/ci-run-43813617164/).
+- `RD-13` decided it.
+
+### CI runs
+
+| Run | Head | static | chromium | firefox | third engine | measurements |
+| --- | --- | --- | --- | --- | --- | --- |
+| [43813617164](https://github.com/ausginer/material-x/actions/runs/43813617164) | `9c96be2d8` | pass, 111 s | fail, 358 s: 16 visual rows and 5 `repo` rows (shallow clone) | fail, 514 s: 18 rows | `webkit`, fail, 391 s: 2 drag rows (recorded only) | pass, 184 s. Comment posted with "no base reading" |
+| [43815220593](https://github.com/ausginer/material-x/actions/runs/43815220593) | `26453da9c` | pass, 104 s | fail, 393 s: the same 16 visual rows | fail, 510 s: the 6 rows the next commit handles | `safari`, timed out at 30 min | pass, 170 s |
+| [43819003831](https://github.com/ausginer/material-x/actions/runs/43819003831) | `e0a4173a9` | fail, 39 s: the temporary probe unformatted | fail, 435 s: the 16 visual rows; Codecov found no report | **pass, 476 s** | `safari` reading, fail, 162 s: my quoting | pass, 168 s |
+| [43819462065](https://github.com/ausginer/material-x/actions/runs/43819462065) | `ba3c4019e` | startup failure: the Actions policy |  |  |  |  |
+
+### The blocker
+
+Run 43819462065's message: _"The actions actions/checkout@3d3c42e5…, actions/setup-node@949feb24…, codecov/codecov-action@303a32d7…, and actions/upload-artifact@cf430e03… are not allowed in ausginer/material-x because all actions must be from a repository owned by ausginer."_ The recording run just before it used the same `actions/*` and succeeded, so the policy changed between them. I reported it through the coordinator and changed nothing.
+
 ## Not done
 
-- **Item 5:** the three sites above; `just fmt-check`, `just lint` and `just typecheck` on a fresh checkout.
-- **Item 6:** the Chromium root run with coverage and without `measurement` rows, and the Firefox runs, five times each. Its known rows are untouched: `radio.visual` _should match the selection state matrix_, intermittent (1 of 5); `hot-path.browser.test.ts:261`, a measurement row that becomes a `drag:DRF-` finding; and `RF-29`'s `tproc` row, which still fails as before.
-- **Items 7 and 8:** `verify.yml`, `codecov.yml`, the pull request and every CI reading. No CI run exists.
+- **The blocker** above, which is the owner's.
+- **After the owner's merge of #28:** `RD-13` items 7 and 8. That means the reproduction in three `chromium` runs, with each run's image version and processor, and a second labeled run that proposes nothing.
+- **Safari:** `RD-12` items 5 to 8. After the reading, revert `e0a4173a9`'s probe and its job steps.
+- **Item 8's checks:** the Codecov upload succeeding; the measurement job with a lowered ceiling; the gate with a failing row; the draft check; and the jobs' `timeout-minutes` from observed durations.
 
 ## Next
 
-The architect reads this report and decides the three sites in §The second stop. The unit then resumes at item 5's fresh-checkout checks.
+The owner resolves the Actions policy and reviews and merges #28. Then the unit resumes with the Safari reading and `RD-13`'s reproduction.
