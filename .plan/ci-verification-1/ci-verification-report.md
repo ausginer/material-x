@@ -1,8 +1,15 @@
-# Report: CI verification, first unit — stopped at item 5
+# Report: CI verification, first unit — stopped twice at item 5
 
 **Handoff:** [`ci-verification-handoff.md`](ci-verification-handoff.md). **Input:** `6d1c80162` on `ci/verification`. **Governing records:** `repo:RD-2`, `repo:RD-6` to `repo:RD-9`, `repo:RF-29` and `repo:RF-32` in [`../00-index.md`](../00-index.md), the [design](ci-verification-design.md), and `.agents/docs/test-architecture.md` §CI policy.
 
-**Outcome: stopped under `RD-8` property 5,** in item 5's lint repairs. 108 `camelcase` errors are on snake_case keys that another program reads by name. The repository's formatter and lint rules leave no way to repair them without turning a rule off, adding a disable comment or renaming a runtime key ([§The stop](#the-stop)). **Items 1 to 4 are done,** with their checks. Item 5's lint exclusion and formatting are done. Item 5's other lint repairs and items 6 to 8 are not started. **No pull request was opened,** and no CI run exists.
+**Outcome, second stop (resumed at `e5d7260aa`): stopped again under `RD-8` property 5,** in item 5's lint repairs ([§Resumed at item 5](#resumed-at-item-5-and-the-second-stop)).
+
+- `RD-10`'s allow list cleared the 108 `camelcase` errors.
+- 31 of the other 34 errors are repaired.
+- **3 remain, and each needs a public type changed, a disable comment or a rule change:** two published material-x types that resolve to `{}`, and core's public generic `$` overload, which oxlint already exempts with a disable comment and ESLint reports again.
+- Items 6 to 8 are not started. No pull request was opened.
+
+**Outcome, first stop (at `c2dbf6292`):** stopped under `RD-8` property 5 on the `camelcase` sites ([§The stop](#the-stop)), which `RD-10` decided. Items 1 to 4 are done with their checks, and the owner approved the re-recorded baselines.
 
 ## Commits
 
@@ -13,7 +20,9 @@
 | `e53069636` | Item 1: the replaced baselines and the Roboto check, kept for review |
 | `e45f5665f` | Items 3 and 4: the `measurement` tag, the split size rows, the JSON readings, the size report and its tests |
 | `33fc22dce` | Item 5: lint stops reading `.plan/`; the record and five authored CSS files are formatted |
-| this report's commit | This report and the lint inventory |
+| `c2dbf6292` | The first stop's report and the lint inventory |
+| `e9da25c08` | Item 5, resumed: `RD-10`'s allow list, 31 lint repairs, and their checks |
+| this report's commit | The second stop's report |
 
 ## 1. The pinned visual environment
 
@@ -186,18 +195,72 @@ A repair under `src/` has to show that the emitted JavaScript is unchanged. A `u
 
 **What the architect decides:** how these keys satisfy `RF-32`'s required property, or whether that property changes for keys that another program reads. For example, a `camelcase` `allow` list or `properties: 'never'` in the lint configuration counts as a rule change under `RD-8` property 5. Whether `.claude/` is linted by the root recipe at all is another such decision.
 
+## Resumed at item 5, and the second stop
+
+**Input:** `e5d7260aa` (`RD-10`, and the handoff's §Resuming after the stop at item 5).
+
+**`RD-10`'s allow list** is at `eslint.config.ts`, in the block before `buildFromOxlintConfigFile`:
+
+- 22 anchored names in four commented groups: Claude Code's hook payload, the guard's observation log, `@minify-html/node`'s options, and the token data's `token_class`.
+- The rule stays at `error` with `properties: 'always'`, and no file under `.claude/` changed.
+- Each name was checked against `RD-10` property 2:
+  - The payload names are read from the hook input in `guard.ts`.
+  - The log fields are documented in the plugin's `README.md` or `.agents/docs/harness-effort-guard.md`, except `project_root` and `session_id`. The plugin's `observe.ts` reads both from the log, so they qualify as fields that the record's reader uses.
+  - `@minify-html/node`'s `index.d.ts` declares its options.
+  - `TokenTable.ts:108` declares `token_class`.
+- **The near-miss check:** with `guard.ts:272` changed to `session_idx`, ESLint reports `Identifier 'session_idx' is not in camel case`. Reverted ([`checks/camelcase-near-miss.txt`](checks/camelcase-near-miss.txt)).
+
+**The repairs**, all in `e9da25c08`:
+
+| Site | Rule | Repair | Emitted JavaScript |
+| --- | --- | --- | --- |
+| `packages/box-quad/tests/api.declaration.test.ts`, 9 sites | `no-meaningless-void-operator` | The five `void`s of variables that calls already use are deleted. The four `@ts-expect-error` constants are exported instead of voided | test only. Typecheck still requires every `@ts-expect-error` |
+| `packages/core/src/traits/primitives.ts:51` | `no-generated-empty-object-type` | `keyof Constructor<object>`, the same keys as `Constructor<Record<never, never>>` | unchanged. Only the internal type in `primitives.d.ts` changes |
+| `packages/core/tests/traits/reorderable.browser.test.ts:648` | `prefer-arrow-callback` | The receivers come from `spy.mock.contexts`, read before the restore, not from a `this` callback | test only. The row passes |
+| `packages/tproc/src/resolve.ts:55` | `no-unnecessary-condition` | `isAxisValue` takes `ProcessedTokenValue \| null`, so its own `!= null` is needed by its type | unchanged |
+| `packages/tproc/src/processToken.ts:153` | `no-unnecessary-condition` | The upstream value is compared as `unknown`. The message uses `${textTransform}`, because any string type makes `String()` an unnecessary conversion, and an `as unknown` inside it an unnecessary assertion | `String(x)` becomes `${x}` in a template. Equal for every JSON value; 12 checked, including strings, numbers, booleans, objects, arrays and `NaN` |
+| `packages/vite-custom-element-assets/src/css/generation.ts:256` and `:257` | `no-multi-assign` | Each assignment is its own statement | the same four operations, in the same order |
+| `vite-custom-element-assets` `css.ts:31`, `index.ts:237`, `:238`; `size-limit-preset-rolldown/tsdown.config.ts:16` (2); `material-x/tsdown.config.ts:12`; `.scripts/css/debug.ts:39`, `.scripts/docs-api.ts:17`, `.scripts/vite-config.ts:74`, `.storybook/docs/paths.ts:6` | `require-unicode-regexp` | `u` flag | the flag only. Each pattern matches identically over 149,165 inputs ([`checks/unicode-flag.txt`](checks/unicode-flag.txt), [probe](checks/unicode-flag.probe.ts)) |
+| `packages/vite-traits-plugin/src/analyze.ts:85` | `no-restricted-syntax` (`for..in`) | `for (const key of Object.keys(current))` | the loop only. Across 206 source files and 102,733 AST objects from `oxc-parser`, `for..in` and `Object.keys` give the same keys ([`checks/for-in-keys.txt`](checks/for-in-keys.txt), [probe](checks/for-in-keys.probe.ts)). The plugin's 52 tests pass |
+| `packages/material-x/src/core/animations/ripple/ripple.ts:77`, `:92`, `:106` | `no-unnecessary-condition` | The three parameters read only `currentCSSZoom`, so they take `Zoomed`, `Readonly<{ currentCSSZoom?: number }>`, which states that older browsers lack it. The `?? 1` stays | unchanged |
+| `ripple.ts:173` | `no-unnecessary-type-assertion` | `css` is already a `CSSStyleSheet`, so the `as` is removed | unchanged |
+| `packages/material-x/src/text-field/styles/utils.ts:111` | `no-undef-init` | `let error: string \| undefined;` | unchanged: no built file differs in material-x |
+
+**How emitted output was compared** ([`checks/lint-repairs-emitted.txt`](checks/lint-repairs-emitted.txt)):
+
+- Each package was built in the main tree twice, with every file its build writes compared. The first build had the repairs reverted, which is `e5d7260aa`'s source. The second had them reapplied from the saved diff, which applied exactly.
+- **Results:**
+  - material-x: 1 of 256 files differs, a source map.
+  - size-limit-preset-rolldown: 0 of 5 differ.
+  - core: `primitives.d.ts`'s internal type and a source map.
+  - The other JavaScript differences are exactly the rows above that change code.
+- **A first attempt was discarded:** builds in a detached worktree resolved the workspace packages through the main tree's `node_modules`, so they mixed the two trees.
+
+**The tests run on the repaired packages:** box-quad 242, core 263 and vite-traits-plugin 52 pass. tproc fails only `RF-29`'s row, with the same message as before.
+
+**Lint now** ([`checks/lint-inventory-resumed.txt`](checks/lint-inventory-resumed.txt)): oxlint exits 0 in every package and at the repository level. ESLint exits 0 everywhere except at these three sites.
+
+### The second stop
+
+`RD-8` property 2 repairs only where _"the repair changes no product behavior, no public surface and no decided contract,"_ and property 5 stops where a repair would need _"a rule turned off, a disable comment or a changed runtime name."_ These three need one or the other:
+
+| Site | Rule | Why no repair keeps the surface |
+| --- | --- | --- |
+| `packages/material-x/src/button-group/ButtonGroupCore.ts:37` | `no-generated-empty-object-type` | `ButtonGroupLikeProps = Props<typeof ButtonGroupLike>` is exported, and resolves to `{}` because the trait has no props. Any spelling of `{}` is reported by this rule or by `no-empty-object-type`, and any non-empty type changes what the export means |
+| `packages/material-x/src/list/ListItemCore.ts:19` | `no-generated-empty-object-type` | `ListItemCoreProperties = Record<never, never>` is exported from the published `list` entries and intersected in `ListInteractiveItemCore.ts:25` and re-exported as `ListItemProperties` (`list-item.ts:19`). `Readonly<Record<string, never>>` would make every intersected property `never` |
+| `packages/core/src/utils/DOM.ts:37` | `no-unnecessary-type-parameters` | The public overload `$<E extends Element = Element>(host, selectors: string): E \| null \| undefined` mirrors `querySelector`'s generic, and `useSlot.ts:44` calls `$<HTMLSlotElement>`. **oxlint runs the same rule** (`.oxlintrc.json:131`) and the line already carries `// oxlint-disable-next-line typescript/no-unnecessary-type-parameters`. `buildFromOxlintConfigFile` doesn't disable ESLint's copy, so ESLint reports what the repository already exempted |
+
+**What the architect decides:**
+
+- whether these two exported types and this overload change, which is a public surface decision for material-x and core;
+- or whether the lint configuration treats them otherwise. For the third, that could mean disabling ESLint's duplicate of a rule that oxlint enforces, as the configuration's block after `buildFromOxlintConfigFile` already does for five rules.
+
 ## Not done
 
-- **Item 5:** the 34 repairable lint errors; `just fmt-check`, `just lint` and `just typecheck` on a fresh checkout.
-- **Item 6:** the Chromium root run with coverage and without `measurement` rows, and the Firefox runs, five times each. Two rows are already seen, and neither is handled yet:
-  - `radio.visual` _should match the selection state matrix_, intermittent (1 of 5);
-  - `hot-path` :261, the allocation row, failing in Chromium 158.
-
-  `RF-29`'s `tproc` row was not re-read.
-
-- **Items 7 and 8:** `verify.yml`, `codecov.yml`, the pull request and every CI reading. No CI run exists. Chromium in CI is unread.
-- `packages/drag/bench/compare.ts:2090` and `:2132` still launch `CHROME_EXECUTABLE` or `/usr/local/bin/chrome`. It is a manual comparison, not a test run, and it is outside the handoff's file scope.
+- **Item 5:** the three sites above; `just fmt-check`, `just lint` and `just typecheck` on a fresh checkout.
+- **Item 6:** the Chromium root run with coverage and without `measurement` rows, and the Firefox runs, five times each. Its known rows are untouched: `radio.visual` _should match the selection state matrix_, intermittent (1 of 5); `hot-path.browser.test.ts:261`, a measurement row that becomes a `drag:DRF-` finding; and `RF-29`'s `tproc` row, which still fails as before.
+- **Items 7 and 8:** `verify.yml`, `codecov.yml`, the pull request and every CI reading. No CI run exists.
 
 ## Next
 
-The architect reads this report and decides the `camelcase` sites. The unit resumes from item 5's repairable errors.
+The architect reads this report and decides the three sites in §The second stop. The unit then resumes at item 5's fresh-checkout checks.
