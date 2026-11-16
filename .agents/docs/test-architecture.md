@@ -93,7 +93,7 @@ If only the final screenshot exists, failures are hard to diagnose. If only tpro
 
 A reviewed baseline says "this approved rendering must not change without review." It does **not** say "this rendering is correct because it matches a file the same implementation produced." So initial and updated baselines are reviewed against passing behavior + spec contracts, the relevant Material/Figma reference, the intended `@ydinjs/material-x` theme, and expected environment changes. Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review.
 
-Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate must use one pinned Chromium environment, and local runs must use the same pinned image so developer output matches CI — the image is owed rather than installed (`repo:RD-2`), so until it lands a baseline is only as reproducible as the container that wrote it. Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
+Screenshots are valid only for a pinned environment: the Chromium build that the locked `playwright` package pins, text in Roboto from a locked package with no system font fallback, the vendored icon font, headless mode, device scale/viewport, and color scheme/theme. The operating system is not part of it. Local runs and CI use the same pinned Chromium and fonts so developer output matches CI, and changing either re-records the baselines in a pull request of its own. The environment is owed rather than installed (`repo:RD-2`, `repo:RD-9`), so until it lands a baseline is only as reproducible as the container that wrote it. Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
 
 ## Avoiding false confidence
 
@@ -151,7 +151,7 @@ When token sources intentionally change: review tag/profile selection and proven
 
 ## CI policy
 
-Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and WebKit; the curated Chromium visual suite. The gate runs in the pinned verification image. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
+Every push to `main` and every pull request that is not a draft must be gated on: formatting, linting, typechecking; every package's node and declaration tests, tproc's included; behavior and accessibility browser tests and spec-contract browser tests, each in Chromium, Firefox and WebKit; the curated Chromium visual suite. CI runs on plain GitHub-hosted runners, and its browsers are the builds the locked `playwright` package pins. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
 
 Size, allocation and speed checks are outside the gate: CI reports them, and a pull request gets a comment showing how sizes changed, but they never fail the build. Coverage from the Chromium run is uploaded to Codecov. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
