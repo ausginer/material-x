@@ -1,0 +1,20 @@
+# RF-35 item 7: the labeled recording on pull request #29. baselines run 43886019999 (https://github.com/ausginer/material-x/actions/runs/43886019999), recording c34cb01d7.
+# Label added by the implementer (authorized by the owner's prompt); removed by the run's unlabel job.
+conclusion: success
+record: success, 2026-11-16T14:28:09Z to 2026-11-16T14:29:42Z
+propose: success, 2026-11-16T14:29:46Z to 2026-11-16T14:30:02Z
+unlabel: success, 2026-11-16T14:30:05Z to 2026-11-16T14:30:12Z
+  image=ubuntu24 20261111.127.1
+  processor=Intel(R) Xeon(R) 6975P-C
+  chromium=158.0.8127.18
+  visual/material-x with --update:
+   Test Files  4 passed (4)
+        Tests  19 passed (19)
+  Collect the added and changed baselines: printed nothing, so files.txt is empty
+  propose: the nothing-changed branch. git ls-remote origin 'refs/heads/baselines/*': nothing; no proposal pull request.
+  labels on #29 afterwards: 0 labels
+
+# Why nothing changed: Vitest's screenshot comparator is pixelmatch with threshold 0.1 per pixel and no mismatched pixels allowed
+# (node_modules/@vitest/browser/dist/index.js:1617-1635, @vitest/browser 5.1.0); the repository sets no comparator options.
+# The --update flag rewrites a baseline only where its comparison fails. The focus layer, at the tokens' 0.1 opacity over the
+# fixtures' light surface, stays under that per-pixel threshold, so button-focused, radio-focused and checkbox-focused still match.

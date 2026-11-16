@@ -124,35 +124,6 @@ jobs:
           value="$(defaults read com.apple.universalaccess reduceMotion)"
           echo "reduceMotion: $value"
           [ "$value" = 0 ]
-      # Scratch reading for RD-12 property 10's Tab preference, removed after it.
-      - name: Tab preference reading
-        run: |
-          npx just _test-builds
-          A=WebKitTabToLinksPreferenceKey
-          B=com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks
-          C="$HOME/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari"
-          ls -ld "$HOME/Library/Containers/com.apple.Safari" 2>&1 | sed 's/^/TABCONTAINER /'
-          for domain in "$C" com.apple.Safari; do
-            for keys in A B AB; do
-              for d in "$C" com.apple.Safari; do
-                defaults delete "$d" "$A" 2>/dev/null || true
-                defaults delete "$d" "$B" 2>/dev/null || true
-              done
-              case "$keys" in
-                A) defaults write "$domain" "$A" -bool true 2>&1 | sed 's/^/TABWRITE /' ;;
-                B) defaults write "$domain" "$B" -bool true 2>&1 | sed 's/^/TABWRITE /' ;;
-                AB) defaults write "$domain" "$A" -bool true 2>&1 | sed 's/^/TABWRITE /'; defaults write "$domain" "$B" -bool true 2>&1 | sed 's/^/TABWRITE /' ;;
-              esac
-              label="$(basename "$domain") $keys"
-              echo "TABKEYS $label: A=$(defaults read "$domain" "$A" 2>/dev/null || echo unset) B=$(defaults read "$domain" "$B" 2>/dev/null || echo unset)"
-              MX_TEST_ENGINES=safari npx vitest run --project 'spec/material-x/safari (safari)' packages/material-x/tests/core/zz-tab-probe.spec.browser.test.ts 2>&1 \
-                | grep -E 'TABPROBE' | sed "s/^/TABRESULT $label: /" || true
-            done
-          done
-          for d in "$C" com.apple.Safari; do
-            defaults delete "$d" "$A" 2>/dev/null || true
-            defaults delete "$d" "$B" 2>/dev/null || true
-          done
       - name: macOS and Safari versions
         run: |
           sw_vers

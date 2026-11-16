@@ -1,0 +1,6 @@
+# RF-33 and RF-34: three runs of the firefox job with the repairs. Each counts the whole Firefox job; the one expected failure is
+# the row that bypasses RF-33's forward, the only it.fails left in Firefox. The four RF-33 rows, the five new focus rows and RF-34's row pass.
+run 1: verify 43886020747 at c34cb01d7, firefox job 133364253511: success. Tests 1595 passed | 1 expected fail | 18 skipped (1614)
+run 2: the same run, firefox job rerun 133372427804: success. Tests 1595 passed | 1 expected fail | 18 skipped (1614)
+run 3: verify 43889993969 at bba157cf3 (adds only the scratch Tab probe and a test assertion), firefox job 133378281897: success. Tests 1596 passed | 1 expected fail | 18 skipped (1615)
+Earlier, run 43875177436 at 5a0bba69b (the repair with the probes): firefox success, 1610 passed | 1 expected fail.
