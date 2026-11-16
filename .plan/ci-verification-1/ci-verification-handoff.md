@@ -6,6 +6,7 @@
 
 - `repo:RD-6`: the workflow, the runner, the engine selection, coverage and the aggregate check;
 - `repo:RD-12`: Safari as the third engine, its provider, its runner and its commands;
+- `repo:RD-13`: the recording workflow, the proposal pull request, and local runs in Chromium only, without visual;
 - `repo:RD-9`: the pinned visual environment, the one-time re-recording, and how the environment changes later;
 - `repo:RD-10`: names that another program defines, and how they pass `camelcase`;
 - `repo:RD-11`: two ESLint rules that the oxlint configuration already decides;
@@ -13,11 +14,11 @@
 - `repo:RD-8`: the checks that fail today, the reading at `a8726c57d`, and the stops;
 - `repo:RD-2`: the order and acceptance this unit works toward, and its reporter rule (dated 2026-11-05);
 - `repo:RF-29` and `repo:RF-32`, which `RD-8` takes into this unit;
-- `drag:DRO-18`: neither Safari nor Playwright's WebKit runs locally.
+- `drag:DRO-18`: local runs are Chromium only, and neither Safari nor Playwright's WebKit runs locally.
 
 The [design](ci-verification-design.md) describes the workflow and the owner's setup. Where a decision and the design disagree, the decision is authoritative.
 
-**Scope:** `.github/workflows/`, `codecov.yml`, `.devcontainer/` (its post-create and on-start scripts), the root and material-x `package.json` and the lockfile (for the Roboto package, `@vitest/browser-webdriverio` and `webdriverio` only), `.scripts/`, the root and package `Justfile`s, lint and format configuration, `packages/*/tests/`, including material-x's baselines, `packages/drag/bench/size/measure.ts`, `packages/drag/vitest.engines.config.ts` (deleted), the `.plan/` files that `RD-8` property 3 formats, and new findings in the `repo` and `drag` registers. **No product source under `packages/*/src/` changes,** apart from lint repairs that change no emitted behavior. `docs.yml` doesn't change.
+**Scope:** `.github/workflows/`, `codecov.yml`, `.devcontainer/` (its post-create and on-start scripts), the root and material-x `package.json` and the lockfile (for the Roboto package, `@vitest/browser-webdriverio` and `webdriverio` only), `.scripts/`, the root and package `Justfile`s, lint and format configuration, `.claude/skills/test-component/SKILL.md` (the two places that name the visual recipes), `packages/*/tests/`, including material-x's baselines, `packages/drag/bench/size/measure.ts`, `packages/drag/vitest.engines.config.ts` (deleted), the `.plan/` files that `RD-8` property 3 formats, and new findings in the `repo` and `drag` registers. **No product source under `packages/*/src/` changes,** apart from lint repairs that change no emitted behavior. `docs.yml` doesn't change.
 
 ## Resuming after the stop at item 5
 
@@ -49,7 +50,7 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 - Items 2, 7 and 8 and the checks below now say Safari. Do this work in this order:
 
 1. **Dependencies** (`RD-12` property 2). Add `@vitest/browser-webdriverio` and `webdriverio` as exact root `devDependencies`. Show with `npm ls @vitest/browser` that one copy, 5.1.0, resolves.
-2. **Engine selection** (`RD-12` properties 1 and 3). `safari` replaces `webkit` in the shared factory. A Safari project uses the WebdriverIO provider with `{ browser: 'safari' }`, isn't headless, has one worker and no file parallelism, and has Vitest's trace view off. Chromium and Firefox projects don't change. drag's `test-engines` sets `MX_TEST_ENGINES=chromium,firefox`.
+2. **Engine selection** (`RD-12` properties 1 and 3). `safari` replaces `webkit` in the shared factory. A Safari project uses the WebdriverIO provider with `{ browser: 'safari' }`, isn't headless, has one worker and no file parallelism, and has Vitest's trace view off. Chromium and Firefox projects don't change. drag's `test-engines` sets no engine list (`RD-13` property 7; this step said `MX_TEST_ENGINES=chromium,firefox`).
 3. **The workflow** (`RD-12` property 6). Rename the job `webkit` to `safari`, on `macos-26`. It installs no Playwright browser. Before the tests, it runs `sudo safaridriver --enable` and logs the macOS version (`sw_vers`) and Safari's version. It runs `npx just test --project '*/safari' --tags-filter '!measurement'` with `MX_TEST_ENGINES=safari`. `verify` needs `safari` in place of `webkit`. Nothing else in the workflow changes for Safari.
 4. **A first CI reading, before the commands.** Push and read whether `npm ci` succeeds on macOS and whether each Safari project loads. A project that can't load is a stop (`RD-8` property 5). So is an `npm ci` failure on macOS: report it with its output, and don't edit the lockfile to get past it.
 5. **The test frame** (`RD-12` property 3). From inside a Safari test in CI, read the frame's inner size and whether a scale transform applies to it. It must be 1280 × 720, unscaled. If it isn't, make the Safari window large enough in the Safari configuration, and read again. Save both readings.
@@ -60,27 +61,52 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 
 **Stops added by `RD-12`:** an incompatibility between the provider and Vitest 5.1.0 other than the trace view; a test frame that can't be made unscaled at 1280 × 720; and a command whose Playwright behavior WebDriver actions can't reproduce, such as a coordinate frame that differs. Report each with its output.
 
+## Recording baselines on GitHub's runner
+
+**Dated 2026-11-16.** The unit stopped on the visual result at run 43813617164 (`RD-8` property 5, `RD-9` property 4): the `chromium` job doesn't reproduce 16 of the 19 baselines recorded in the devcontainer. The owner decided that baselines are recorded on GitHub's runner by a separate workflow that proposes them in a pull request, and that local runs are Chromium only, without visual. The architect decided it in `RD-13`, which amends `RD-2`, `RD-6`, `RD-9`, `RD-12` and `drag:DRO-18`. **Continue from the architect's commit that adds this section.** The Safari work above continues in parallel. Where this section and the Safari section disagree about local engines, this section governs.
+
+1. **The stop's evidence.** Commit the images under `visual/ci-run-43813617164/` and the report's account of the stop, with the run's link, if they aren't committed yet.
+2. **Local runs** (`RD-13` property 7):
+   - the shared factory declares the visual project only when `MX_TEST_VISUAL=1`, and the gate's `chromium` job sets the variable;
+   - remove material-x's `test-visual` and `test-visual-update` recipes, and change the two places in `.claude/skills/test-component/SKILL.md` that name them: the table row's command, and _"Update baselines only via `just test-visual-update`"_. Both now say that the recording workflow records baselines (`repo:RD-13`) and that visual runs only in CI;
+   - the devcontainer's post-create and on-start scripts install only Playwright's Chromium, and their comment says why;
+   - drag's `test-engines` sets no `MX_TEST_ENGINES`, so it runs the engines the variable lists, Chromium by default.
+3. **Diagnostics** (`RD-13` property 9). Before the tests, the gate's `chromium` job logs `ImageOS`, `ImageVersion` and the processor model.
+4. **The recording workflow** (`RD-13` properties 1 to 6), `.github/workflows/baselines.yml`, with the triggers, the two jobs and their permissions, the proposal branch and pull request, the dispatch of `verify` for a proposal into `main`, and concurrency. The `record` job runs the visual project with Vitest's update flag through the root `just test`, with `MX_TEST_VISUAL=1`, and logs what property 9 names. Third-party actions are pinned to a full commit hash.
+   - **Before relying on it,** show what Vitest 5.1.0's update flag writes for a baseline that still matches. If it rewrites the file, `record` uploads only the files whose comparison failed or that didn't exist (`RD-13` property 4).
+   - **Check:** the path filter of `propose` accepts every current baseline path and refuses a path outside `__screenshots__/` and a file that isn't PNG. Run the filter on a list of paths, and save the output.
+5. **Owner setup**, through the coordinator: the label `record-baselines` exists, and the repository setting _Allow GitHub Actions to create and approve pull requests_ is on. Without it, `gh pr create` fails with `GITHUB_TOKEN`.
+6. **This unit's recording.** Push. Then the label goes on pull request #27, added by the owner, or by you if the owner's prompt authorizes it. The workflow records all 19 baselines on the runner and opens a proposal from `baselines/ci/verification` into `ci/verification`. In the report, give the run's link, the files that it added or changed (16 are expected), and the runner image's version and processor model. **Ask the owner, through the coordinator, to review and merge the proposal. Don't merge it.** The owner's review of this proposal is design §5's step 1. Item 1's old, new and diff images remain the evidence of the change from Liberation Sans to Roboto.
+7. **Reproduction.** After the owner merges, pull request #27's `verify` runs.
+   - Confirm that every baseline matches in the `chromium` job.
+   - Rerun the job twice more, so that there are three runs. Note the runner image's version and the processor model of each run.
+   - **Stop** (`RD-8` property 5, `RD-9` property 4) if the runner doesn't reproduce the workflow's own recording, or a visual row is intermittent over the three runs. Save the diff images. Don't record again to make CI pass.
+8. **A second labeled run** on pull request #27, after the merge, pushes nothing and opens nothing, and its summary says so. This is the check that property 4's _"when nothing changed"_ holds.
+
+**Stops added by `RD-13`:** the runner doesn't reproduce a recording made on the runner; a visual row is intermittent in CI; and the token can't push `baselines/*`, open the proposal or dispatch `verify`. A repository rule that refuses these is reported, not worked around.
+
 ## Owner preconditions
 
 From the design §5. Ask through the coordinator for any that is missing when you reach the item that needs it. Don't guess.
 
-- **The owner's review of the re-recorded baselines** (step 1), before the pull request merges. Item 1 asks for it.
+- **The owner's review and merge of the baseline proposal** (step 1), before the pull request merges. _Recording baselines on GitHub's runner_ asks for it.
+- **The label `record-baselines` and the setting that lets GitHub Actions create pull requests** (step 1), needed by that section's step 6.
 - **`CODECOV_TOKEN`** (step 2), needed in item 8 for the upload to succeed.
 - **A pull request that is not a draft,** from `ci/verification` to `main` (step 3), needed by item 8. Open it yourself only if the owner's prompt authorizes it. Never merge it.
 
 ## 1. The pinned visual environment (`RD-9`)
 
 - **Chromium is Playwright's build** (`RD-9` property 1). Remove `CHROME_EXECUTABLE`, the `/usr/local/bin/chrome` default and `executablePath`. Launch the full Chromium build in new headless mode. Before relying on the configuration, show which binary Playwright starts and its version, from `browser.version()` and the process's executable path: Chromium 158.0.8127.18, not `chromium-headless-shell`. Keep the launch arguments that `RD-6` property 6's rows need.
-- **The devcontainer** installs the locked Chromium and Firefox builds with `npx playwright install chromium firefox` when it is created and each time it starts, through `.devcontainer/post-create/` and `.devcontainer/on-start/`. Leave `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` as it is, so `npm ci` downloads nothing. A missing build fails with Playwright's own message, which names the install command.
+- **The devcontainer** installs the locked Chromium build with `npx playwright install chromium` when it is created and each time it starts (`RD-13` property 7; this bullet said _"Chromium and Firefox builds"_), through `.devcontainer/post-create/` and `.devcontainer/on-start/`. Leave `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` as it is, so `npm ci` downloads nothing. A missing build fails with Playwright's own message, which names the install command.
 - **Roboto** (`RD-9` property 2). Add an npm package that ships Roboto's font files, such as `@fontsource/roboto`, as an exact `devDependency` of `@ydinjs/material-x`. Load the faces the fixtures use as web fonts in `tests/support/browser-setup.ts`, as the icon font is loaded, and await them before the first fixture. Set the text stacks there to Roboto alone. The icon font doesn't change.
-- **Re-record the baselines once** (`RD-9` property 5), in the devcontainer, with the explicit update command, in a commit that changes only files under `__screenshots__/`. Before re-recording, run the visual suite once against the old baselines and save its diff images. In the report, list each baseline as changed or unchanged, and attach the old image, the new image and the diff for each changed one. **Ask the owner, through the coordinator, to review them.** The unit can continue meanwhile, but the pull request doesn't merge until the owner has reviewed them.
+- **Superseded by `RD-13`:** the baselines are recorded on the runner by the recording workflow. This bullet's work is done and stays as evidence. It said: **Re-record the baselines once** (`RD-9` property 5), in the devcontainer, with the explicit update command, in a commit that changes only files under `__screenshots__/`. Before re-recording, run the visual suite once against the old baselines and save its diff images. In the report, list each baseline as changed or unchanged, and attach the old image, the new image and the diff for each changed one. **Ask the owner, through the coordinator, to review them.** The unit can continue meanwhile, but the pull request doesn't merge until the owner has reviewed them.
 - Nothing else is guarded in advance (`RD-9` property 4). Add no fontconfig configuration, no font-usage check and no version check.
 
 ## 2. One engine selection (`RD-6` property 4)
 
 - `MX_TEST_ENGINES` in `.scripts/vitest-config.ts`, with the behavior and names `RD-6` property 4 states. Visual projects, node projects and declaration projects are declared once, whatever the variable says.
 - In a run whose list doesn't include `chromium`, no Chromium browser project is declared, so the Firefox and Safari jobs run only their engine's projects together with the node and declaration projects. A CI job selects only the browser projects with `--project`.
-- Delete `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`. drag's `test-engines` sets `MX_TEST_ENGINES=chromium,firefox` against `vitest.config.ts` (`RD-12` property 8). It runs `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, the projects of `a8726c57d` without the WebKit ones. Whether it also runs drag's node projects is your choice. Say which in the report.
+- Delete `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`. drag's `test-engines` sets no engine list against `vitest.config.ts` (`RD-13` property 7). It runs `browser` and `shipped` locally, and their Firefox projects when the list names Firefox (`RD-13` property 7). Whether it also runs drag's node projects is your choice. Say which in the report.
 - `assignGroupOrder` still gives each browser project its own group, so `RD-3` and the one-shot release hold with three engines in one process.
 - Each browser project's non-Chromium variants take over the existing `isChromium`-style conditions. Add an engine condition to a row only where the row needs an instrument that an engine's driver lacks (`RD-6` property 6, `RD-12` property 5). A row that fails for any other reason falls under `RD-8`.
 
@@ -126,7 +152,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 
 - Push `ci/verification`. On the pull request, read the four gate jobs and the measurement job. **Pushing intermediate states of this branch for CI readings is part of this unit.**
 - Handle Safari failures under `RD-8`, as in item 6. The local five-run test for intermittent failures becomes three CI runs of the job.
-- **The visual suite in CI:** confirm from the job's log that Chromium is 158.0.8127.18, and that every baseline re-recorded in item 1 matches. If one doesn't, or a visual row is intermittent over three runs, stop (`RD-8` property 5, `RD-9` property 4). Save the diff images. Don't re-record anything to make CI pass. The owner decides.
+- **The visual suite in CI:** confirm from the job's log that Chromium is 158.0.8127.18, and that every baseline the recording workflow recorded matches (_Recording baselines on GitHub's runner_, step 7). If one doesn't, or a visual row is intermittent over three runs, stop (`RD-8` property 5, `RD-9` property 4). Save the diff images. Don't re-record anything to make CI pass. The owner decides.
 - Iterate until `verify` passes, the Codecov upload succeeds, and the measurement job posts the comment with "no base reading", since `main` has no machine-readable reading yet.
 
 ## Checks
@@ -134,7 +160,8 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 - Every check in items 1 to 8, with its output saved under `.plan/ci-verification-1/` and cited.
 - **Chromium:** the binary and version read in item 1, locally and in CI.
 - **Roboto:** with the package's faces removed from the load list, the visual run fails at the load, not at a comparison. Revert.
-- **Engine selection:** the project list (`vitest list --json` or an equivalent that only lists) for the default, for `MX_TEST_ENGINES=firefox`, for `MX_TEST_ENGINES=safari`, and for all three engines, at the root and for drag. Read the Safari lists locally with a listing that starts no browser, such as `--filesOnly`. If every listing starts one, read them in CI. drag's `test-engines` names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. `MX_TEST_ENGINES=webkit` gives the unknown-engine error.
+- **Engine selection:** the project list (`vitest list --json` or an equivalent that only lists) for the default, for `MX_TEST_ENGINES=firefox`, for `MX_TEST_ENGINES=safari`, and for all three engines, at the root and for drag. Read the Safari lists locally with a listing that starts no browser, such as `--filesOnly`. If every listing starts one, read them in CI. drag's `test-engines` lists `browser` and `shipped` by default, and `browser/firefox` and `shipped/firefox` beside them with `MX_TEST_ENGINES=chromium,firefox`. `MX_TEST_ENGINES=webkit` gives the unknown-engine error.
+- **Visual selection:** the default project list at the root and in material-x has no visual project. With `MX_TEST_VISUAL=1` it has one, in Chromium.
 - **Safari:** the job log names the macOS and Safari versions; the frame reading of the Safari section's step 5; a Safari project's resolved configuration shows `headless: false`, one worker and the trace view off, and a Chromium project's shows Vitest's default trace view; calling a command that has no WebDriver counterpart with a WebdriverIO context throws the named error. Show the last one with a scratch call, and revert it.
 - **Measurement tag, with mutations:** lowering one drag ceiling by 1 B fails only that ceiling row, under both `npx just test` and `--tags-filter measurement`. The run with `!measurement` passes. Adding to a composition's fixture an import of a module that its `absent` list forbids fails that composition's graph row under `!measurement`. Revert both.
 - **Measurement job:** on the pull request, with one ceiling lowered by 1 B in a pushed commit, the comment and the summary report the excess, the job and `verify` succeed, and the run's conclusion is success. Revert the commit and push again.
@@ -144,7 +171,7 @@ From the design §5. Ask through the coordinator for any that is missing when yo
 
 ## Stops
 
-`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_, and any requirement in `RD-6`, `RD-7` or `RD-12` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
+`RD-8` property 5, a formatted `.plan/` file whose data changes (item 5), the Safari stops in _Resuming with Safari as the third engine_, the stops in _Recording baselines on GitHub's runner_, and any requirement in `RD-6`, `RD-7`, `RD-12` or `RD-13` that the tools can't meet as written. Report each stop with its output. Don't change a decision's requirement to get past it.
 
 ## Report
 

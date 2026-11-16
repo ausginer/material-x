@@ -402,6 +402,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
    - `pull_request` of type `labeled`, when the label is `record-baselines` and the pull request's head branch is in this repository. This trigger works before the workflow is on `main`, which `workflow_dispatch` doesn't.
 
    **The target branch** is the dispatched branch, or the pull request's head branch. **The recorded commit** is that branch's head when the run starts: for a pull request, its head commit, never the merge commit. A target under `baselines/` is refused. After a labeled run, the workflow removes the label, so adding it again records again.
+
 3. **Two jobs, so that the write permission never runs repository code.**
    - `record` has `contents: read`. It checks out the recorded commit, runs `npm ci`, installs Playwright's Chromium, and runs the visual project with Vitest's update flag. It uploads, as an artifact, each baseline file that the run added or changed.
    - `propose` needs `record`, and has `contents: write` and `pull-requests: write`, plus `actions: write` only for property 5. **It runs no code from the repository:** no `npm ci`, no recipe and no script from the tree. It uses only `git`, `gh` and pinned actions. It accepts from the artifact only paths that match `packages/*/tests/**/__screenshots__/**/*.png`, and fails on any other path.
