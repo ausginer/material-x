@@ -1,4 +1,12 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "@ydinjs/drag"
+  "name": "@ydinjs/drag",
+  "targets": {
+    "lint": {
+      "dependsOn": ["^build", "build"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^build", "build"]
+    }
+  }
 }

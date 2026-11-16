@@ -97,15 +97,19 @@ fmt-check:
 # Linting
 # ---------------------------------------------------------------------------
 
-# Lint every package, then the repository-level files no package owns
+# Lint every package, then the repository-level files no package owns. Each
+# package's lint builds what its imports resolve to first, and the Storybook
+# sources read material-x's custom elements manifest.
 lint:
     nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run @ydinjs/material-x:build:cem --skipNxCache
     oxlint --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' .
 
 # Lint and auto-fix everywhere
 lint-fix:
     nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run @ydinjs/material-x:build:cem --skipNxCache
     oxlint --fix --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' --fix .
 

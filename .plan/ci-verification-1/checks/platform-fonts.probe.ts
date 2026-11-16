@@ -68,10 +68,17 @@ probeAfterEach(async () => {
     const { fonts } = (await session.send('CSS.getPlatformFontsForNode', {
       nodeId: element.nodeId,
     })) as {
-      fonts: { familyName: string; postScriptName: string; isCustomFont: boolean; glyphCount: number }[];
+      fonts: {
+        familyName: string;
+        postScriptName: string;
+        isCustomFont: boolean;
+        glyphCount: number;
+      }[];
     };
 
-    for (const font of fonts.filter(() => element.nodeName !== 'HTML' && element.nodeName !== 'BODY')) {
+    for (const font of fonts.filter(
+      () => element.nodeName !== 'HTML' && element.nodeName !== 'BODY',
+    )) {
       probeFonts.add(
         `${element.nodeName} ${JSON.stringify(text.slice(0, 12))}: ${font.familyName} (${font.postScriptName}, custom: ${font.isCustomFont})`,
       );

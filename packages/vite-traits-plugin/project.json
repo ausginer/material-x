@@ -1,4 +1,24 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "@ydinjs/vite-traits-plugin"
+  "name": "@ydinjs/vite-traits-plugin",
+  "targets": {
+    "lint": {
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["@ydinjs/core"],
+          "target": "build"
+        }
+      ]
+    },
+    "lint:fix": {
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["@ydinjs/core"],
+          "target": "build"
+        }
+      ]
+    }
+  }
 }

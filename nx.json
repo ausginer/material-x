@@ -7,6 +7,12 @@
     "typecheck": {
       "dependsOn": ["^build"]
     },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "lint:fix": {
+      "dependsOn": ["^build"]
+    },
     "docs:build": {
       "dependsOn": ["^build"]
     },

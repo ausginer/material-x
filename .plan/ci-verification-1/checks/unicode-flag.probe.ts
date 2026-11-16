@@ -1,8 +1,7 @@
 /**
  * Each pattern that item 5 gave a `u` flag, before and after, over every path
- * that `glob("**/*")` returns from the repository root (relative, absolute, with
- * a leading and with a trailing slash) and
- * the edge strings below. A pattern matches the same strings if `test`,
+ * that the `glob` below returns from the repository root (relative, absolute,
+ * with a leading and with a trailing slash) and the edge strings below. A pattern matches the same strings if `test`,
  * `replace` and every match index agree on every input.
  */
 import { glob } from 'node:fs/promises';
@@ -13,7 +12,11 @@ const PATTERNS: readonly (readonly [string, RegExp, RegExp])[] = [
   ['vite-custom-element-assets index.ts:237', /\.(?:ts|tsx)/, /\.(?:ts|tsx)/u],
   ['vite-custom-element-assets index.ts:238', /\.css\.ts/, /\.css\.ts/u],
   ['size-limit-preset-rolldown tsdown.config.ts:16', /^rolldown/, /^rolldown/u],
-  ['size-limit-preset-rolldown tsdown.config.ts:16', /^@rolldown/, /^@rolldown/u],
+  [
+    'size-limit-preset-rolldown tsdown.config.ts:16',
+    /^@rolldown/,
+    /^@rolldown/u,
+  ],
   ['material-x tsdown.config.ts:12', /node_modules/, /node_modules/u],
   ['.storybook/docs/paths.ts:6', /^\/+/, /^\/+/u],
   ['.scripts/docs-api.ts:17', /\/?$/, /\/?$/u],
