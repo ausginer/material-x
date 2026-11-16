@@ -399,13 +399,20 @@ function createEngineTestProjects(
 }
 
 /**
+ * `MX_TEST_VISUAL=1` declares the visual project. Its baselines are recorded and
+ * compared on GitHub's runner only, so the gate's `chromium` job and the
+ * recording workflow set it, and no local run does.
+ */
+const isVisual = process.env['MX_TEST_VISUAL'] === '1';
+
+/**
  * The visual project, in Chromium only, because only Chromium baselines exist.
- * It is declared when `MX_TEST_ENGINES` lists Chromium.
+ * It is declared when `MX_TEST_VISUAL=1` and `MX_TEST_ENGINES` lists Chromium.
  */
 function createVisualTestProjects(
   options: BrowserTestProjectOptions,
 ): UserConfig[] {
-  return engines.includes('chromium')
+  return isVisual && engines.includes('chromium')
     ? [createBrowserTestProject(options, 'chromium')]
     : [];
 }

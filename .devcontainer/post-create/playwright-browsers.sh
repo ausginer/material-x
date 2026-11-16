@@ -6,17 +6,18 @@ if [ -z "$WORKSPACE_DIR" ]; then
   exit 0
 fi
 
-# Installs the Chromium and Firefox builds that the locked `playwright` package
-# pins. The tests start these builds and no other browser. No WebKit is
-# installed: CI runs real Safari on macOS, and nothing runs Playwright's WebKit. `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` keeps `npm ci` from
-# downloading browsers, so this is where they come from. Installing is a no-op
-# when the builds are already in Playwright's cache.
+# Installs the Chromium build that the locked `playwright` package pins, which
+# is the one engine local runs use. Firefox and Safari run in CI, and visual runs
+# only there, where its baselines are recorded (`repo:RD-13`).
+# `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` keeps `npm ci` from downloading browsers,
+# so this is where Chromium comes from. Installing is a no-op when the build is
+# already in Playwright's cache.
 
 PLAYWRIGHT="$WORKSPACE_DIR/node_modules/.bin/playwright"
 
 if [ ! -x "$PLAYWRIGHT" ]; then
-  echo "playwright is not installed yet: run npm ci, then npx playwright install chromium firefox"
+  echo "playwright is not installed yet: run npm ci, then npx playwright install chromium"
   exit 0
 fi
 
-"$PLAYWRIGHT" install chromium firefox
+"$PLAYWRIGHT" install chromium

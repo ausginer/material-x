@@ -1,0 +1,164 @@
+# Records the visual baselines on GitHub's runner, where the gate compares them,
+# and proposes each added or changed one in a pull request for the owner's
+# review (`repo:RD-13`). The gate never writes a baseline, and this workflow
+# writes them only to its `baselines/<target>` branch.
+name: baselines
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+env:
+  NODE_VERSION: 26
+  # The branch whose head is recorded: the dispatched branch, or the pull
+  # request's head branch.
+  TARGET: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+
+# One recording per target, and a newer one cancels the older one.
+concurrency:
+  group: baselines-${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs the repository's code, with a read-only token.
+  record:
+    if: >-
+      github.event_name == 'workflow_dispatch' || (github.event.label.name == 'record-baselines' && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Refuse a proposal branch as the target
+        run: |
+          case "$TARGET" in
+            baselines/*) echo "::error::$TARGET is a proposal branch"; exit 1 ;;
+          esac
+      # A pull request's head commit, never its merge commit.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Runner image, processor and Chromium
+        run: |
+          {
+            echo "image=$ImageOS $ImageVersion"
+            echo "processor=$(lscpu | sed -n 's/^Model name: *//p')"
+            echo "chromium=$(node -e "require('playwright').chromium.launch({ channel: 'chromium' }).then(async (b) => { console.log(b.version()); await b.close(); })")"
+          } | tee "$RUNNER_TEMP/environment.txt"
+      # The update flag rewrites a baseline only where its comparison failed or
+      # it didn't exist; one that still matches stays as it is.
+      - run: npx just test --project visual/material-x --update
+        env:
+          MX_TEST_VISUAL: '1'
+      - name: Collect the added and changed baselines
+        run: |
+          mkdir -p "$RUNNER_TEMP/proposal"
+          git status --porcelain --untracked-files=all -- 'packages/*/tests/**/__screenshots__/**' \
+            | sed 's/^...//' > "$RUNNER_TEMP/proposal/files.txt"
+          cat "$RUNNER_TEMP/proposal/files.txt"
+          while IFS= read -r path; do
+            mkdir -p "$RUNNER_TEMP/proposal/tree/$(dirname "$path")"
+            cp "$path" "$RUNNER_TEMP/proposal/tree/$path"
+          done < "$RUNNER_TEMP/proposal/files.txt"
+          cp "$RUNNER_TEMP/environment.txt" "$RUNNER_TEMP/proposal/"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: baselines
+          path: ${{ runner.temp }}/proposal
+          include-hidden-files: true
+
+  # Holds the write token and runs no code from the repository: only git, gh
+  # and pinned actions.
+  propose:
+    needs: record
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SHA: ${{ needs.record.outputs.sha }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.record.outputs.sha }}
+          persist-credentials: true
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: baselines
+          path: ${{ runner.temp }}/proposal
+      # Only baseline images, under a package's tests, enter the proposal.
+      - name: Accept only baseline paths
+        run: |
+          refused="$(grep -vxE 'packages/[^/]+/tests/([^/]+/)*__screenshots__/([^/]+/)*[^/]+\.png' \
+            "$RUNNER_TEMP/proposal/files.txt" || true)"
+          dots="$(grep -E '(^|/)\.\.?(/|$)' "$RUNNER_TEMP/proposal/files.txt" || true)"
+          if [ -n "$refused$dots" ]; then
+            printf '::error::Refused paths:\n%s\n%s\n' "$refused" "$dots"
+            exit 1
+          fi
+      - name: Propose
+        run: |
+          files="$RUNNER_TEMP/proposal/files.txt"
+          if [ ! -s "$files" ]; then
+            echo "Every baseline matches on the runner at $SHA. Nothing was pushed or opened." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="baselines/$TARGET"
+          git checkout -B "$branch" "$SHA"
+          while IFS= read -r path; do
+            mkdir -p "$(dirname "$path")"
+            cp "$RUNNER_TEMP/proposal/tree/$path" "$path"
+            git add -- "$path"
+          done < "$files"
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -q -m "baselines: record on GitHub's runner at ${SHA:0:9}"
+          git push --force origin "$branch"
+          {
+            echo "Baselines recorded on GitHub's runner (\`repo:RD-13\`). Review every image before merging."
+            echo
+            echo "- Recorded commit: $SHA"
+            echo "- Run: $RUN_URL"
+            sed 's/^image=/- Runner image: /; s/^processor=/- Processor: /; s/^chromium=/- Chromium: /' \
+              "$RUNNER_TEMP/proposal/environment.txt"
+            echo
+            echo "Added or changed:"
+            echo
+            sed 's/^/- `/; s/$/`/' "$files"
+          } > "$RUNNER_TEMP/body.md"
+          number="$(gh pr list --head "$branch" --base "$TARGET" --state open --json number --jq '.[0].number')"
+          if [ -n "$number" ]; then
+            gh pr edit "$number" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --head "$branch" --base "$TARGET" \
+              --title "baselines: record ${TARGET}'s visual baselines on GitHub's runner" \
+              --body-file "$RUNNER_TEMP/body.md"
+          fi
+          # A pull request that this token opens or updates triggers no workflow,
+          # so the gate is started on the proposal for `main`'s branch rule.
+          if [ "$TARGET" = main ]; then
+            gh workflow run verify.yml --ref "$branch"
+          fi
+          cat "$RUNNER_TEMP/body.md" >> "$GITHUB_STEP_SUMMARY"
+      # Adding the label again records again.
+      - name: Remove the label
+        if: always() && github.event_name == 'pull_request'
+        run: gh pr edit "${{ github.event.pull_request.number }}" --remove-label record-baselines

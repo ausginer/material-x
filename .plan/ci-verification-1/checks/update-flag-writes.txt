@@ -1,0 +1,29 @@
+# What Vitest 5.1.0's update flag writes for a baseline that still matches (RD-13 handoff item 4)
+
+## The matcher, node_modules/@vitest/browser/dist/index.js (@vitest/browser 5.1.0)
+
+The byte fast path returns before any write when the first capture equals the reference:
+1879:		if (comparatorName === "pixelmatch" && Buffer.compare(referenceFile, initialScreenshotBuffer) === 0) {
+1880-			return buildOutput({ type: "matched-immediately" }, timeout);
+1881-		}
+
+determineOutcome: a stable capture that matches after comparison is 'matched-after-comparison'; only a failed comparison under update becomes 'update-reference':
+	if (comparisonResult.pass) {
+		return { type: "matched-after-comparison" };
+	}
+	if (updateSnapshot === "all") {
+		return {
+			type: "update-reference",
+			reference: {
+				image: screenshot,
+				path: paths.reference,
+				buffer: screenshotBuffer
+			}
+		};
+	}
+
+performSideEffects writes files only for missing-reference, update-reference and mismatch:
+1999:* Only `missing-reference`, `update-reference`, and `mismatch` write files. Successful matches produce no side effects.
+
+## Observed
+Item 1's re-recording ('npx vitest run --project visual/material-x --update', commit 51fa04c9d) rewrote the 11 baselines whose comparison failed and left the other 8 byte for byte as they were: git listed only the 11 as modified.

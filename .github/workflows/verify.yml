@@ -54,9 +54,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      # Diagnostics for the visual rows (`repo:RD-13` property 9). Nothing
+      # compares them.
+      - name: Runner image and processor
+        run: |
+          echo "ImageOS: $ImageOS, ImageVersion: $ImageVersion"
+          lscpu | grep 'Model name'
       # Every project, visual included, without measurement rows, with coverage.
       # Vitest's default reporters under GitHub Actions, and its exit status.
       - run: npx just test --coverage --tags-filter '!measurement'
+        env:
+          MX_TEST_VISUAL: '1'
       # Every run uploads, including one whose tests failed.
       - if: '!cancelled()'
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
@@ -110,7 +118,11 @@ jobs:
           sw_vers
           defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
       # READING ONLY, reverted after the reading: the frame probe and one row.
-      - run: npx just test --project 'browser/box-quad/safari' --project 'browser/material-x/safari' zz-frame CheckableCore -t 'report the test frame|synchronize the checked property to the control'
+      - run: npx just test --project 'browser/box-quad/safari' zz-frame
+        env:
+          MX_TEST_ENGINES: safari
+      - if: always()
+        run: npx just test --project 'browser/material-x/safari' CheckableCore -t 'should.synchronize.the.checked.property.to.the.control'
         env:
           MX_TEST_ENGINES: safari
 
