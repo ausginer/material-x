@@ -143,6 +143,11 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       const count = Math.max(steps ?? 1, 1);
       let chain = pointer(context);
 
+      // Each point is rounded to a whole CSS pixel, because WebDriver drivers
+      // disagree about fractional pointer coordinates and some refuse them.
+      // Playwright sends them unrounded, so each point is within 0.5 px of
+      // Playwright's. The kept position is the unrounded target, so the
+      // interpolation stays Playwright's.
       for (let step = 1; step <= count; step += 1) {
         chain = chain.move({
           x: Math.round(from.x + ((x - from.x) * step) / count),

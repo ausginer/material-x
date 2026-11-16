@@ -238,8 +238,9 @@ function scopedName(base: string, scope?: string): string {
 /**
  * Chromium is Playwright's full build, in Chrome's new headless mode, which the
  * `chromium` channel selects. The `chromium-headless-shell` build that
- * Playwright starts otherwise is a separate implementation. Every engine is the
- * build that the exact `playwright` dependency pins.
+ * Playwright starts otherwise is a separate implementation. Chromium and Firefox
+ * are the builds that the exact `playwright` dependency pins; Safari isn't
+ * pinned.
  */
 function createChromiumProvider(
   launchArgs: readonly string[] = [],
