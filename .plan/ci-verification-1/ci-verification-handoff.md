@@ -7,6 +7,7 @@
 - `repo:RD-6`: the workflow, the runner, the engine selection, coverage and the aggregate check;
 - `repo:RD-9`: the pinned visual environment, the one-time re-recording, and how the environment changes later;
 - `repo:RD-10`: names that another program defines, and how they pass `camelcase`;
+- `repo:RD-11`: two ESLint rules that the oxlint configuration already decides;
 - `repo:RD-7`: measurement rows and the size comment;
 - `repo:RD-8`: the checks that fail today, the reading at `a8726c57d`, and the stops;
 - `repo:RD-2`: the order and acceptance this unit works toward, and its reporter rule (dated 2026-11-05);
@@ -27,6 +28,17 @@ The [design](ci-verification-design.md) describes the workflow and the owner's s
 - **Visual is declared only when the list names `chromium`** (report §2). That reading is accepted.
 - **19 baselines, not 23.** `RD-9`'s reading is corrected.
 - **`bench/compare.ts`'s `CHROME_EXECUTABLE`** stays out of this unit. It is a manual comparison, not a test run. It is carried in the design's §6.
+
+## Resuming after the second stop
+
+**Dated 2026-11-16.** The unit stopped again under `RD-8` property 5 and reported at `a2a4c5488` (report §Resumed at item 5, and the second stop). The architect decided it in `RD-11`. **Resume at item 5, from the architect's commit that adds this section.** `e9da25c08`'s allow list and its 31 repairs stand as reported.
+
+- In the root `eslint.config.ts`, set `@typescript-eslint/no-generated-empty-object-type` to `off`. Its comment names the `allow` of `typescript/no-empty-object-type` in `.oxlintrc.json`.
+- Add `@typescript-eslint/no-unnecessary-type-parameters` to the block after `buildFromOxlintConfigFile` that turns off rules oxlint duplicates.
+- Change no source file. `ButtonGroupCore.ts`, `ListItemCore.ts` and `DOM.ts` stay as they are.
+- **Check:** with `DOM.ts`'s `oxlint-disable-next-line` comment removed in a scratch edit, oxlint reports `no-unnecessary-type-parameters` there, from core's directory and from the root. Revert. Save the output.
+- **Check:** ESLint, run from each package's directory and from the root, reports no error, and oxlint reports none either.
+- Then item 5's last bullets: `just fmt-check`, `just lint` and `just typecheck` on a fresh checkout after `npm ci`. Then continue with item 6.
 
 ## Owner preconditions
 

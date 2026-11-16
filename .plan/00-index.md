@@ -212,7 +212,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **What this answers.** `RF-29`: the unit reads its rows again and handles each one under this decision. `RF-32`: the unit repairs it, as part of property 2's lint repairs, instead of the separate cleanup unit it was routed to.
 
-**Dated 2026-11-16:** the unit stopped under property 5 on 108 `camelcase` errors on names that another program reads ([report](ci-verification-1/ci-verification-report.md) §The stop). `RD-10` decides how those names pass lint. Property 2's _"runtime names kept where another library reads them"_ is met through `RD-10`, and property 5's stop still applies to every other name.
+**Dated 2026-11-16:** the unit stopped under property 5 on 108 `camelcase` errors on names that another program reads ([report](ci-verification-1/ci-verification-report.md) §The stop). `RD-10` decides how those names pass lint. Property 2's _"runtime names kept where another library reads them"_ is met through `RD-10`, and property 5's stop still applies to every other name. **Dated 2026-11-16:** the unit stopped again on three ESLint errors on public types, and `RD-11` decides them.
 
 #### RD-9 — The pinned visual environment is Playwright's locked Chromium and Roboto from a locked package, and it changes only in a pull request that re-records the baselines
 
@@ -285,6 +285,33 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 - **Building the objects so the linter can't see their keys,** for example with `Object.fromEntries` over pairs. That is machinery whose only purpose is to hide a name from a rule (CONTRIBUTING §2).
 - **Disable comments,** which `RF-32` and `RD-8` rule out. There would be 108 of them.
 - **Renaming the guard log's own fields to camelCase,** for the reason above.
+
+#### RD-11 — ESLint doesn't re-decide what the oxlint configuration decides: an empty object type is allowed, and a rule oxlint enforces is checked once
+
+**Decided 2026-11-16 by the architect** on `ci/verification` at `a2a4c5488`, on the CI verification unit's second stop under `RD-8` property 5 ([report](ci-verification-1/ci-verification-report.md) §The second stop). It amends `RD-8` property 2 and `RF-32`'s required property for these two rules only. **No public type changes, so the owner has nothing to approve.** **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
+
+**The reading.** After `e9da25c08`, ESLint reports three errors and oxlint none:
+
+- **`@typescript-eslint/no-generated-empty-object-type`** at `packages/material-x/src/button-group/ButtonGroupCore.ts:37` (`ButtonGroupLikeProps`, the props of a trait that has none) and `packages/material-x/src/list/ListItemCore.ts:19` (`ListItemCoreProperties = Record<never, never>`, intersected in `ListInteractiveItemCore.ts:25` and re-exported as `ListItemProperties`). Both are exported, and both mean "no properties". **The repository allows empty object types on purpose:** `.oxlintrc.json`'s "Custom rules" block sets `typescript/no-empty-object-type` to `allow`, since `457991661`, and the trait system spells "no props" as `{}` (`Trait<{}, …>` on the line above the first site). ESLint's own `no-empty-object-type` is among the rules that `buildFromOxlintConfigFile` disables. `no-generated-empty-object-type` is the type-aware form of the same rule: it reports a type that resolves to `{}` instead of one that is written as `{}`. oxlint doesn't implement it, so nothing disables it.
+- **`@typescript-eslint/no-unnecessary-type-parameters`** at `packages/core/src/utils/DOM.ts:37`, `$`'s public `querySelector`-style overload `$<E extends Element = Element>`. oxlint enforces the same rule as `error` (`.oxlintrc.json:131`, which every package's configuration extends). The overload carries `// oxlint-disable-next-line typescript/no-unnecessary-type-parameters`, so the repository has already exempted it. `buildFromOxlintConfigFile` doesn't disable ESLint's copy, so ESLint reports what oxlint was told to accept.
+
+**Properties.**
+
+1. **`@typescript-eslint/no-generated-empty-object-type` is `off`** in the root `eslint.config.ts`, with a comment that ties it to the `allow` of `typescript/no-empty-object-type` in `.oxlintrc.json`. The two exported types don't change.
+2. **`@typescript-eslint/no-unnecessary-type-parameters` is `off` in ESLint** and stays `error` in oxlint. It joins the block after `buildFromOxlintConfigFile` that already turns off five rules that oxlint duplicates and that the function doesn't handle. The overload and its oxlint disable comment don't change.
+3. **The general rule:** the oxlint configuration states the repository's lint policy for every rule that oxlint implements. ESLint checks only what oxlint can't. A rule that both tools implement is checked once, by oxlint. An ESLint rule that re-states a rule which `.oxlintrc.json` allows follows that allow. Adding either kind of rule to the ESLint configuration is a configuration repair, with a comment that names the oxlint rule.
+
+**Why.**
+
+- **The repository decided this already.** `no-empty-object-type` is allowed, and the overload is exempted. ESLint reporting either one is a second checker re-deciding a settled rule, not a defect in the source.
+- **Changing the public types is the wrong repair.** `{}` means "no properties", and the intersection at `ListInteractiveItemCore.ts:25` depends on that. `Readonly<Record<string, never>>` would turn every intersected property into `never`. Any other non-empty type changes what the export means.
+- **For the overload, the rule isn't turned off.** oxlint still enforces it everywhere, and the exemption stays where the repository put it.
+
+**Not adopted.**
+
+- **Changing `ButtonGroupLikeProps` and `ListItemCoreProperties`,** which would be a public type change for the owner to approve, and for no gain.
+- **An ESLint disable comment beside the oxlint one,** which `RD-8` and `RF-32` rule out, and which would state one exemption twice.
+- **Removing the overload,** which `useSlot.ts:44` uses.
 
 ## Findings
 
@@ -467,6 +494,7 @@ Tier C, open. Registered by the architect on 2026-11-14 from drag's [final clean
 - **Why it is a problem:** each package's lint exits 1 at every base, so a unit that touches either package can show only that it adds no error, as `drag:DRF-38` was.
 - **Required property:** both packages' lint exits 0, with no rule turned off and no disable comment, and the emitted JavaScript keeps its behavior. The `camelcase` sites are option keys passed to another library, so their runtime names stay.
 - **Routed** to a repository cleanup unit for an `implementer`, which the owner starts. It isn't drag's work and doesn't gate drag's pull request. **Return to the architect** if a fix needs a rule turned off, a disable comment, or a change to a runtime name.
+- **Dated 2026-11-16: two ESLint rules that re-decide the oxlint configuration** are turned off by `RD-11`. Each one is either allowed in `.oxlintrc.json` or enforced by oxlint. That amends the required property for those two rules only.
 - **Dated 2026-11-16: names that another program reads** pass through `RD-10`'s exact allow list. That amends the required property for these names only: _"no rule turned off and no disable comment"_ still holds, and `camelcase` stays on. The four `html.ts` keys are such names.
 - **Dated 2026-11-16: re-routed** to the CI verification unit ([handoff](ci-verification-1/ci-verification-handoff.md)), because the gate's `static` job runs every package's lint (`RD-8` property 2). At `a8726c57d`, lint fails in all eight packages, not only these two. The required property and the return condition stand.
 
