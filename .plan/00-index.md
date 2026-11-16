@@ -753,6 +753,17 @@ Tier B, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** in Firefox, `focus()` on an `mx-button` or `mx-icon-button` host focuses its native button, as in Chromium, and the four rows pass there without their marking.
 - **Routed** as a material-x product unit, which the owner orders. The CI unit doesn't change product source.
 - **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md), which the owner authorized. Read by the architect at `275ad0f5c`: every `mx-button` and `mx-icon-button` host is form-associated and calls `attachInternals()` (`material-x/src/button/button.ts:73`, `core/src/element.ts:205`), and the plain host that delegates focus in the same Firefox does neither. That is the first candidate, not a cause.
+- **Ruled 2026-11-16 by the architect,** on the findings unit's elimination, relayed by the coordinator. It was read locally in Firefox 159, and the CI reading is pending.
+  - **The cause, as read:** `:host { display: contents }` (`button/styles/default/main.styles.css:51`, `split/main.styles.css:2`). The attached internals, form association, the template and the slots each still delegate. The smallest reproduction is a plain host with `delegatesFocus: true`, a `<button>` and that one rule: `focus()` leaves focus on `body` in Firefox, and delegates in Chromium.
+  - **Why it's Firefox's deviation:** HTML's focusing steps take a delegating host to its focus delegate, and they put no _being rendered_ condition on the host.
+  - **Wider reach:** the same host rule is on FAB (`fab/styles/default/main.styles.css:5`) and list items (`list/styles/item/main.styles.css:22`), and interactive list items delegate focus (`ListInteractiveItemCore.ts:50`).
+  - **The repair is accepted.** Forward `focus()` from the host to its native control, under the handoff's item 4 as amended the same day. The other ways are worse:
+    - changing the host's `display` changes layout in every engine;
+    - leaving the rows disabled leaves keyboard roving in a connected button group broken in Firefox.
+  - **The forward adds no public type.** Its signature is `HTMLElement.prototype.focus`'s, so the declared member restates an inherited one, and no assignment changes.
+  - **The required property is widened** to every material-x element whose host has `display: contents` and whose shadow root delegates focus: in Firefox, `focus()` on the host focuses the element that delegation focuses in Chromium.
+  - **What the forward doesn't cover:** a path that the browser takes without calling `focus()` on the host, such as the host's `autofocus`. The report reads each such path, and the architect decides what stays open here.
+  - **A report to Mozilla** is the owner's to file, with the unit's smallest reproduction. When one exists, this entry links it.
 
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 

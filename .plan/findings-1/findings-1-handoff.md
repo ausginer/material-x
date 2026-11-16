@@ -103,6 +103,33 @@ The deployment after merge is read by the coordinator, not by this unit.
 
 **Stop:** the cause is in Firefox and no repair inside material-x or core keeps the public surface. Report the smallest reproduction. The markings stay, and the report proposes the text of `RF-33`'s cause.
 
+### Item 4, amended 2026-11-16: forward `focus()`
+
+The elimination found `:host { display: contents }` to be the cause, in local Firefox (`RF-33`'s ruling). **The stop isn't reached:** a `focus()` forward keeps the public surface. Step 2 becomes:
+
+1. **Confirm in CI.** Run the smallest reproduction in the `firefox` job, and the same file in Chromium and Safari: with `display: contents`, without the rule, and with `display: inline`. Save the reading. If CI doesn't reproduce the local reading, stop.
+2. **Which elements.** List every material-x element whose host has `display: contents` and whose shadow root delegates focus. The button family through `useButtonCore`, FAB if it delegates, and interactive list items are the known candidates. The list is the repair's scope.
+3. **The forward**, one mechanism for every listed element, in the shared code that builds their shadow roots. No copy per class (CONTRIBUTING §6).
+   - **Signature:** `focus(options?: FocusOptions): void`, as `HTMLElement.prototype.focus` declares it. No other member or type changes.
+   - **Target:** the element that delegation focuses in Chromium today, such as `useButtonCore`'s target. Show that it is the same element for each listed element, in Chromium.
+   - **Options:** passed through unchanged.
+   - **A control that can't be focused:** for example a disabled one. The forward focuses nothing, and focus stays where it was, as delegation does.
+   - **Every engine:** the forward detects no engine and runs everywhere. The shadow roots keep `delegatesFocus: true`.
+   - **Its comment** says what the forward works around, cites `RF-33`, and says when it can be removed: when Firefox delegates through a `display: contents` host.
+4. **The markings.** Remove the four `it.fails` markings and their `RF-33` comments. Add one row per listed element that doesn't have one, asserting that `focus()` on the host focuses its control in every engine.
+5. **A row that watches Firefox.** Add one row that calls `HTMLElement.prototype.focus.call(host)` on a listed host, which bypasses the forward, and asserts that focus reaches the control. Mark it `it.fails` in Firefox, with a comment citing `RF-33`. When Firefox conforms, the row fails, and the forward can go.
+
+**Checks,** in place of step 3's first bullet:
+
+- the four rows and the new rows pass in three runs of the `firefox` job;
+- the watching row is an expected failure there;
+- every other row passes in every engine;
+- no visual baseline changes.
+
+Step 3's `Tab` check stands. In the same scratch file, also read whether the host's `autofocus` attribute moves focus to the control in each engine. Report each result, whatever it is. The architect decides what stays in `RF-33`.
+
+**For the owner:** the report gives the smallest reproduction in a form that can be filed to Mozilla. Filing it is the owner's decision.
+
 ## 5. `RF-34`: box-quad's precision in Firefox
 
 The decision is in `RF-34`'s dated note: the measurement stays, and the contract's tolerance rule admits an engine's measured client-rect quantization.
