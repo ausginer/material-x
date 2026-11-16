@@ -792,6 +792,13 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** each of `mx-radio`, `mx-checkbox` and `mx-button` either draws the focus state layer its tokens define, or the record states why it doesn't. Its focused visual row is recorded again through `repo:RD-13` when that changes.
 - **Routed** as a material-x product question for the owner. The CI unit doesn't change product source.
 - **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md). Its item for this finding waits for the owner's answer, which the handoff asks for.
+- **Dated 2026-11-16: the owner answered yes,** relayed by the coordinator. `mx-radio`, `mx-checkbox` and `mx-button` draw the focus state layer that their tokens define.
+- **Ruled 2026-11-16 by the architect: under hover and keyboard focus together, the focus layer shows,** on the findings unit's question under the handoff's item 7, relayed by the coordinator.
+  - **The tokens:** the focused state-layer opacity is 0.1, the hovered one 0.08, and colors are per state and per selection.
+  - **Why focus shows.** material-x already states the precedence: its states are ordered `default`, `hovered`, `focused`, `pressed`, `disabled` (`button/styles/utils.ts:20`, and radio's and checkbox's `utils.ts`). The compiled CSS emits focused after hovered.
+  - **Why the precedence fails today.** A focused value equal to the default is deduplicated away. So with only `--_ripple-opacity`, hover's 0.08 would show under focus, against that order. That outcome comes from the deduplication, and no one chose it, so it isn't an owner decision.
+  - **Its own variables.** The focused state's tokens are emitted under `:focus-within`, which a mouse click also sets, and the layer's trigger is the keyboard one. So the focus layer takes the focused state's color and opacity through variables of its own. The existing state-layer variables keep their values under every state.
+  - The handoff's item 7, as amended the same day, states the properties.
 
 #### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
 

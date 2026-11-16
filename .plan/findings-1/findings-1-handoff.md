@@ -175,6 +175,23 @@ Run 43872551455 confirmed the cause (`RF-34`'s ruling). Firefox's edges are k/60
 - Record the three changed baselines through `RD-13`'s labeled run on the pull request. Ask the owner, through the coordinator, to review and merge the proposal.
 - **Check:** the gate's `chromium` job then matches every baseline. No other baseline changes in the proposal. If another one does, stop.
 
+### Item 7, amended 2026-11-16: hover and focus together
+
+The owner answered yes. The architect ruled the hover-and-focus question in `RF-35`: **the focus layer shows, through variables of its own.** The _hover together with focus_ bullet is replaced by these properties:
+
+1. **The values.** Each component reads the focused state's state-layer color and opacity, for each selection state the tokens define, into variables that only the focus layer reads. The variables are available whatever state the host is in. The implementer names them.
+2. **The trigger.** The layer draws on the trigger of the component's existing focus indicator: `.host:focus-visible` for the button, and `:host:has(.input:focus-visible)` for radio and checkbox. It doesn't draw on `:focus-within` alone.
+3. **The precedence.** Under keyboard focus and hover together, the focus layer's color and opacity show. A press keeps its ripple wave. A disabled host draws none.
+4. **Nothing else changes.** The existing state-layer and ripple variables keep their values under every state, so hover, press and mouse focus look as they do now.
+5. **Where the values come from.** They come from the components' own token selection and style utilities in material-x. **Stop** if this needs a change to tproc's processing, which is a tproc decision.
+
+**Spec-contract rows**, in place of the bullet that asks for them. Each reads the rendered element in each component against the tokens:
+
+- keyboard focus shows the focused color and opacity;
+- keyboard focus with hover shows the same;
+- hover alone shows the hovered values;
+- after a mouse click with the pointer moved off the host, no focus layer shows.
+
 ## Checks for every item
 
 - The Verify steps of [`handoff.md`](../../.agents/docs/handoff.md) for each changed file.
