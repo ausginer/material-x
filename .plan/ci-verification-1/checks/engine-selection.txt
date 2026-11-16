@@ -1,0 +1,31 @@
+# Project lists, from .plan/ci-verification-1/checks/list-projects.ts at the working tree (Vitest 5.1.0)
+
+## Root, default
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x (chromium)","spec/material-x (chromium)","visual/material-x (chromium)","browser/core (chromium)","browser/box-quad (chromium)","browser/drag (chromium)","shipped/drag (chromium)","consumer/drag (chromium)"]
+
+## Root, MX_TEST_ENGINES=firefox
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x/firefox (firefox)","spec/material-x/firefox (firefox)","browser/core/firefox (firefox)","browser/box-quad/firefox (firefox)","browser/drag/firefox (firefox)","shipped/drag/firefox (firefox)","consumer/drag/firefox (firefox)"]
+
+## Root, MX_TEST_ENGINES=chromium,firefox,webkit
+["node/material-x","declaration/core","declaration/drag","node/drag","node/tproc","node/vite-traits-plugin","repo","browser/material-x (chromium)","browser/material-x/firefox (firefox)","browser/material-x/webkit (webkit)","spec/material-x (chromium)","spec/material-x/firefox (firefox)","spec/material-x/webkit (webkit)","visual/material-x (chromium)","browser/core (chromium)","browser/core/firefox (firefox)","browser/core/webkit (webkit)","browser/box-quad (chromium)","browser/box-quad/firefox (firefox)","browser/box-quad/webkit (webkit)","browser/drag (chromium)","browser/drag/firefox (firefox)","browser/drag/webkit (webkit)","shipped/drag (chromium)","shipped/drag/firefox (firefox)","shipped/drag/webkit (webkit)","consumer/drag (chromium)","consumer/drag/firefox (firefox)","consumer/drag/webkit (webkit)"]
+
+## Root, MX_TEST_ENGINES=firefox, --project '*/firefox' (the firefox job's selection)
+["browser/material-x/firefox (firefox)","spec/material-x/firefox (firefox)","browser/core/firefox (firefox)","browser/box-quad/firefox (firefox)","browser/drag/firefox (firefox)","shipped/drag/firefox (firefox)","consumer/drag/firefox (firefox)"]
+
+## drag, default
+["declaration","node","browser (chromium)","shipped (chromium)","consumer (chromium)"]
+
+## drag, MX_TEST_ENGINES=firefox
+["declaration","node","browser/firefox (firefox)","shipped/firefox (firefox)","consumer/firefox (firefox)"]
+
+## drag, MX_TEST_ENGINES=chromium,firefox,webkit
+["declaration","node","browser (chromium)","browser/firefox (firefox)","browser/webkit (webkit)","shipped (chromium)","shipped/firefox (firefox)","shipped/webkit (webkit)","consumer (chromium)","consumer/firefox (firefox)","consumer/webkit (webkit)"]
+
+## drag, test-engines selection (MX_TEST_ENGINES=chromium,firefox,webkit, --project 'browser*' --project 'shipped*')
+["browser (chromium)","browser/firefox (firefox)","browser/webkit (webkit)","shipped (chromium)","shipped/firefox (firefox)","shipped/webkit (webkit)"]
+
+## drag at a8726c57d, test-engines (vitest.engines.config.ts, listed in a detached worktree at that commit)
+["browser (chromium)","browser/firefox (firefox)","browser/webkit (webkit)","shipped (chromium)","shipped/firefox (firefox)","shipped/webkit (webkit)"]
+
+## MX_TEST_ENGINES=safari (refused)
+Error: MX_TEST_ENGINES lists an unknown engine: safari. Known engines: chromium, firefox, webkit

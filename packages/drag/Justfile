@@ -28,9 +28,10 @@ docs-api-build:
 test *ARGS:
     vitest run -c vitest.config.ts {{ ARGS }}
 
-# Run the browser suite in Chromium, Firefox and WebKit
+# Run the browser and shipped projects in Chromium, Firefox and WebKit. A
+# `--project` argument replaces that selection.
 test-engines *ARGS:
-    vitest run -c vitest.engines.config.ts {{ ARGS }}
+    MX_TEST_ENGINES=chromium,firefox,webkit vitest run -c vitest.config.ts {{ if ARGS =~ '--project' { ARGS } else { "--project 'browser*' --project 'shipped*' " + ARGS } }}
 
 # Type-check
 typecheck:

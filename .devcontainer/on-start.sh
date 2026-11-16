@@ -8,3 +8,4 @@ fi
 
 bash "$WORKSPACE_DIR/.devcontainer/on-start/dura.sh"
 bash "$WORKSPACE_DIR/.devcontainer/on-start/fix-zed-timeout.sh"
+bash "$WORKSPACE_DIR/.devcontainer/on-start/playwright-browsers.sh"

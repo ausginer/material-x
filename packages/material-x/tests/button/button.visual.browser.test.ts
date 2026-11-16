@@ -20,9 +20,11 @@ function appendButton(
   const button = document.createElement('mx-button');
 
   if (icon) {
+    // A character that the loaded Roboto faces hold, so that no system font
+    // renders part of the fixture.
     const glyph = document.createElement('span');
     glyph.slot = 'icon';
-    glyph.textContent = '★';
+    glyph.textContent = '+';
     button.append(glyph);
   }
 

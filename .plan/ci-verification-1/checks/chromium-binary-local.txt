@@ -1,0 +1,19 @@
+# Chromium in the devcontainer, read with chromium-binary.probe.browser.test.ts in packages/box-quad's browser project, 2026-11-16
+
+## The browser's own report (CDP Browser.getVersion, navigator.userAgent)
+{
+  "version": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/158.0.8127.18",
+    "revision": "@6449d9f9a6a906edff724b7b220199b3fde4615c",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "jsVersion": "15.8.62.9"
+  },
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36"
+}
+
+## The browser process, from ps during the run: its executable and its headless flag
+/home/node/.cache/ms-playwright/chromium-1254/chrome-linux64/chrome
+--headless
+
+chrome-linux64/chrome is the full Chrome for Testing build. Playwright's headless shell is chromium_headless_shell-1254/chrome-headless-shell-linux64/chrome-headless-shell, which this run did not start. Since Chrome 132 the full build's --headless is the new headless mode.

@@ -1,0 +1,24 @@
+# Platform fonts that rendered the visual fixtures' text, from platform-fonts.probe.ts (CSS.getPlatformFontsForNode), after item 1's font change, before the re-recording
+
+## button-group.visual.browser.test.ts.json
+"BUTTON \"\": Roboto (Roboto-Bold, custom: true)"
+"BUTTON \"\": Roboto Medium (Roboto-Medium, custom: true)"
+"SPAN \"\": Roboto (Roboto-Bold, custom: true)"
+"SPAN \"\": Roboto Medium (Roboto-Medium, custom: true)"
+
+## button.visual.browser.test.ts.json
+"BUTTON \"\": Roboto (Roboto-Bold, custom: true)"
+"BUTTON \"\": Roboto Medium (Roboto-Medium, custom: true)"
+"SPAN \"\": Roboto (Roboto-Bold, custom: true)"
+"SPAN \"+\": Roboto (Roboto-Bold, custom: true)"
+
+## checkbox.visual.browser.test.ts.json
+"MX-CHECKBOX \"\": Material Symbols Outlined (MaterialSymbolsOutlined-Regular, custom: true)"
+"MX-ICON \"check\": Material Symbols Outlined (MaterialSymbolsOutlined-Regular, custom: true)"
+"MX-ICON \"check_indete\": Material Symbols Outlined (MaterialSymbolsOutlined-Regular, custom: true)"
+"MX-ICON \"check_small\": Material Symbols Outlined (MaterialSymbolsOutlined-Regular, custom: true)"
+
+## radio.visual.browser.test.ts.json
+"MX-ICON \"radio_button\": Material Symbols Outlined (MaterialSymbolsOutlined-Regular, custom: true)"
+"MX-RADIO \"\": Material Symbols Outlined (MaterialSymbolsOutlined-Regular, custom: true)"
+
