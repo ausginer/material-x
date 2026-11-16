@@ -158,3 +158,65 @@ The frame is the same, the top-level viewport in both. Only the precision differ
 | `reviewer-6` | C | 7 | No |
 
 Properties 1, 5 and 6 hold. These ids are local to this pass, and no canonical id is minted here.
+
+## Recheck of `reviewer-1` to `reviewer-3` after the remediation
+
+**Commit files were read at:** `e8d2e734732a7509904a486e81a3dfad031fc035` (`ci/verification`, in a detached worktree; the tree was clean). The remediation is `2e5617cf0` and `e8d2e7347`, on top of the architect's decision at `bda0e91bc`.
+
+**Governing records:** the handoff's [§Remediating the feature-proof review](../../ci-verification-1/ci-verification-handoff.md#remediating-the-feature-proof-review), `repo:RF-38` and `RD-13` property 3's _What `propose` writes_, in [`00-index.md`](../../00-index.md).
+
+**Scope.** This is a targeted recheck of three findings, not a new review.
+
+- **Read:** `.github/workflows/baselines.yml` at the reviewed commit, line by line.
+- **Rerun:** the implementer's witness, [`propose-witness.ts`](../../ci-verification-1/checks/propose-witness.ts). Its results match the saved [`propose-witness.txt`](../../ci-verification-1/checks/propose-witness.txt) in every case, apart from scratch paths, hashes and the file's header comment.
+- **Read, not rerun:** the implementer's [run evidence](../../ci-verification-1/checks/baselines-remediation-runs.txt) and [concurrency and label evidence](../../ci-verification-1/checks/baselines-concurrency-and-label.txt).
+- **Two probes of my own, neither of which writes to GitHub,** for the steps that the witness ran only against a local remote and a `gh` stub:
+  - **`git fetch -q --no-tags --depth=1 https://github.com/ausginer/material-x e8d2e7347…`** into a fresh bare repository, made with `git init --bare --template=` and run under the job's `GIT_DIR`, `GIT_INDEX_FILE` and `GIT_LITERAL_PATHSPECS`. It exits 0. `git ls-tree --format='%(objectmode)'` gives `040000` for a directory and nothing for an absent path, and `git read-tree` loads 2,772 entries. The repository has no `hooks` directory.
+  - **`gh pr create --dry-run --head agents/shell-guards --base main`** and **`gh pr list --head … --base … --json number --jq '.[0].number'`**, both with `GH_REPO` set, from an empty directory, under that bare `GIT_DIR`. gh is 2.103.3. Both exit 0, and the dry run prints the pull request it would create. So `gh` needs neither a checkout nor a remote.
+  - Both probes' scratch directories are removed.
+- The changes to `.scripts/vitest-config.ts` and `commands.node.ts` in `2e5617cf0` are comments only.
+
+### `reviewer-1` / `repo:RF-38`: resolved
+
+`propose` checks out nothing (`baselines.yml:93`–`:200`), so no file of the recorded commit is on disk. Each part of _What `propose` writes_ holds:
+
+- **No redirected write.** Every write is a git object in a bare repository that the job creates with `--template=` (`:144`), so it has no hooks. The blobs come from `git hash-object -w --no-filters`, and the index entries from `update-index --cacheinfo 100644,…` (`:167`–`:171`). No working tree exists for a symbolic link to redirect a write in.
+- **Symbolic links in the recorded commit.** Every component of every accepted path is checked with `git ls-tree` against mode `120000` before `read-tree` (`:155`–`:165`). The witness's cases 1b and 2 fail there, and `.git/config` and the hooks stay as they were.
+- **Artifact files.** Any symbolic link anywhere in the artifact, `files.txt` and `environment.txt` included, fails the job (`:116`–`:120`). So does a listed file that isn't a regular file starting with PNG's eight-byte signature (`:129`–`:135`). Cases 1a, 3 and 4 fail there, before the job creates a git directory.
+- **Configuration and hooks.** The job's git commands read only the runner's system and global configuration, the new repository's own `config`, and `GIT_CONFIG_COUNT`, which carries the token's header. The recorded commit can write none of these, and nothing it contains reaches a git directory. `GIT_DIR` is exported, so git doesn't discover a repository from the empty workspace.
+- **The proposal.** Case 5 gives one commit whose parent is the recorded commit, whose only changed entry is the baseline at `100644`, and whose blob equals the artifact file.
+- **`RD-13` properties 1, 2, 4 and 5:** the branch name, the body, the _nothing changed_ summary and the `main` dispatch are the same lines as before. The _nothing changed_ path ran on GitHub in run 43856118386.
+
+**What remains unverified on GitHub:**
+
+- **The push.** `git push --force` of the proposal commit from a shallow bare repository, authenticated by the `http.<server>/.extraheader` header from `GIT_CONFIG_*`.
+- **`gh pr create` and `gh pr edit` for real,** and **`gh workflow run` for `main`.**
+
+**These leave no gap for `RF-38`.** Each step comes after every check that `RF-38` requires, and each writes only through the API or the git protocol. If one fails, the job fails visibly with no proposal, and nothing else is written. They are `RD-13` properties 4 and 5's function, not its safety.
+
+The fetch by SHA and the `gh` calls without a checkout now have the readings above. Pushing a commit whose parent exists on the server from a depth-1 fetch is ordinary for git, and `actions/checkout` uses the same header mechanism. **Not blocking.**
+
+The first real proposal is the reading of the push and of `gh pr create`. Its run should be read when it comes, and a failure there is a function defect in `RD-13` property 4, not an `RF-38` regression.
+
+### `reviewer-2`: resolved
+
+The workflow-level group repeats `record`'s condition (`:22`–`:25`, against `:33`–`:34`).
+
+- **An admitted run** is grouped as `baselines-<target>`: a `workflow_dispatch`, or the `record-baselines` label on a pull request whose head repository is this one.
+- **Every other run** gets `baselines-unadmitted-<run_id>`, a group no other run shares, so it cancels nothing. That covers another label, two labels added at once, and a fork's pull request with any head branch name.
+- The expression uses only the `github` context, which a workflow-level group allows. The cited documentation is in [`baselines-concurrency-and-label.txt`](../../ci-verification-1/checks/baselines-concurrency-and-label.txt).
+- The `cond && format(…) || format(…)` form is safe, because the first `format` is never empty.
+
+**Not shown on GitHub:** a second label or a fork's pull request. The property follows from the group expression and the documented rule that groups are compared within one repository, and I see no path the expression misses. **Not blocking.**
+
+### `reviewer-3`: resolved
+
+`unlabel` (`:205`–`:218`) needs `record` and `propose`. Its condition is `always()` together with the admitted `pull_request` condition, so it runs whatever their results were.
+
+- It holds only `pull-requests: write`, checks out nothing, and takes the pull request's number from the event through `env`.
+- Run 43856731899 shows the hardest case on GitHub: `record` cancelled, `propose` cancelled while it waited, `unlabel` succeeded, and the label was removed. A cancellation by a newer admitted run for the same target goes through the same mechanism.
+- `workflow_dispatch` and runs that aren't admitted, a fork's included, don't run it, as the amended property 2 requires. **Not blocking.**
+
+### What still blocks merge
+
+**Of these three findings, nothing.** `RF-38` can be recorded as resolved at `e8d2e7347`, with its residual on GitHub stated above. The push and `gh pr create` on the first real proposal are a function check of `RD-13` property 4 to read when it happens.
