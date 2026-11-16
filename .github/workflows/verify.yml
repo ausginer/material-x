@@ -109,7 +109,8 @@ jobs:
         run: |
           sw_vers
           defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
-      - run: npx just test --project '*/safari' --tags-filter '!measurement'
+      # READING ONLY, reverted after the reading: the frame probe and one row.
+      - run: npx just test --project 'browser/box-quad/safari' --project 'browser/material-x/safari' zz-frame CheckableCore -t 'report the test frame|synchronize the checked property to the control'
         env:
           MX_TEST_ENGINES: safari
 
