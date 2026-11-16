@@ -211,6 +211,16 @@ In Firefox, `:host:has(.input:focus-visible)` doesn't match, so radio's and chec
 
 `RF-40`, the `:host:has()` fallback that no stylesheet reads, isn't in this unit. Don't change `polyfills.ts`.
 
+### Item 7, amended a third time 2026-11-16: Tab in Safari
+
+In run 43886020747 at `c34cb01d7`, Safari fails 9 rows: _keyboard focus_, _keyboard focus with hover_ and _draw the focus indicator on keyboard focus_, for each of the three components. In Safari, Tab doesn't move focus to buttons, checkboxes or radios by default. `RD-12` property 10 gains the bullet _Tab_, and this amendment implements it.
+
+1. **The job.** Before the tests, the `safari` job turns on Safari's _"Press Tab to highlight each item"_ as the runner's user. Add it beside the Reduce Motion step, or in that step. The step reads the value back, logs it, and fails if it isn't on. Choose the keys with a reading. The candidates are `WebKitTabToLinksPreferenceKey` and `com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks` in `com.apple.Safari`. Use only what the reading shows is needed. Don't turn on the system's keyboard navigation.
+2. **The rows stay as they are:** the same `{Tab}` in every engine, with no engine condition, no `focus()` and no other key.
+3. **Reaching focus is asserted on its own.** Before it reads the layer or the indicator, each keyboard-focus row asserts that Tab focused the component's control. That means the host is `document.activeElement`, and its shadow root's `activeElement` is the native control. A failed reach then can't be read as a missing layer.
+4. **The reading:** the whole Safari job in CI, with the 9 rows passing. Report every other Safari row whose result changes from run 43886020747. No other row presses Tab, so a change elsewhere is a finding, not something this item absorbs.
+5. **Stop** under `RD-8` property 5 if the step can't write or read back the setting, or if after it is set the assertion of property 3 fails in Safari. Don't limit or disable the rows. Report what the step and the rows read. Option-Tab in Safari is the owner's to weigh, not this item's.
+
 ## Checks for every item
 
 - The Verify steps of [`handoff.md`](../../.agents/docs/handoff.md) for each changed file.
