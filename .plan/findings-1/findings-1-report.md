@@ -228,6 +228,14 @@ Locally, 18 of 18 pass in three Firefox runs and two Chromium runs. Renaming eve
 
 **For the architect:** in Chromium and Firefox, `RF-35`'s and `RF-39`'s properties hold through the spec rows. Safari's keyboard rows are the owner's decision (above). The focused baselines don't show the layer.
 
+## 8. `RF-42`: Option-Tab in Safari
+
+The owner chose (a), the handoff's _If the owner answers (a)_.
+
+- **The key:** `tests/core/focus-layer.spec.browser.test.ts` presses Option-Tab (`{Alt>}{Tab}{/Alt}`) in Safari and Tab in Chromium and Firefox. One constant, `TAB`, chooses the key by `server.browser`, and its comment cites `RF-42` (`964af56ab`).
+- **The reach assertion is unchanged.** It still runs before the layer or the indicator is read.
+- **The reading:** `verify` [44003141576](https://github.com/ausginer/material-x/actions/runs/44003141576) at `964af56ab` passes in every job. In `spec/material-x/safari`, the 9 rows went from failing at the reach assertion to passing (116 of 116). Every other Safari project's counts are identical to run 43895450645's. So the fallback, `it.fails` under `RF-42`, wasn't taken ([`checks/rf42-option-tab-safari.txt`](checks/rf42-option-tab-safari.txt)).
+
 ## Checks for every item
 
 - **Format, lint, typecheck:** every changed `.ts`, `.css` and `.html` file went through `fmt`, `lint-fix`, `fmt` and `lint` from its package, or through the repository-level tools for `.scripts/` and `Justfile`; lint reported nothing. `just typecheck` passes in material-x, box-quad and drag, and `tsc -p tsconfig.json` passes for `.scripts/`. The workflow files were formatted by `oxfmt`, and no linter is configured for them (actionlint: see §1). The Markdown files were formatted by `oxfmt`, their links checked by a scratch script, and `git diff --check` is clean.
