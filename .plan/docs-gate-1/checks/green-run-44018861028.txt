@@ -1,0 +1,14 @@
+# verify run 44018861028, pull_request #30 at 3b38426cf (items 1 to 3). https://github.com/ausginer/material-x/actions/runs/44018861028
+run: success
+firefox: success (2026-11-17T04:41:04Z to 2026-11-17T04:49:44Z)
+safari: success (2026-11-17T04:41:05Z to 2026-11-17T04:52:57Z)
+chromium: success (2026-11-17T04:41:04Z to 2026-11-17T04:47:42Z)
+measurements: success (2026-11-17T04:41:04Z to 2026-11-17T04:44:15Z)
+docs: success (2026-11-17T04:41:04Z to 2026-11-17T04:43:11Z)
+static: success (2026-11-17T04:41:05Z to 2026-11-17T04:42:52Z)
+deploy: skipped (2026-11-17T04:43:12Z to 2026-11-17T04:43:11Z)
+verify: success (2026-11-17T04:52:59Z to 2026-11-17T04:53:03Z)
+
+## docs
+102 of 102 pages passed at http://127.0.0.1:33827/material-x/ in 21.0 s
+Step times: npm ci 43 s, playwright install 31 s, docs-build 17 s, docs-smoke 21 s; job 2 min 7 s.

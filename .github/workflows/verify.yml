@@ -26,7 +26,8 @@ env:
   NODE_VERSION: 26
 
 # Each job's timeout-minutes is about twice its longest run observed on pull
-# request #27 (`.plan/ci-verification-1/ci-verification-report.md`).
+# request #27 (`.plan/ci-verification-1/ci-verification-report.md`), and
+# `docs`'s on its first runs (`.plan/docs-gate-1/docs-gate-report.md`).
 jobs:
   static:
     if: github.event.pull_request.draft != true
@@ -138,7 +139,7 @@ jobs:
   docs:
     if: github.event.pull_request.draft != true
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
