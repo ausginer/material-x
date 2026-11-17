@@ -1,0 +1,78 @@
+# Item 8 step 3 (reviewer-3): the new keyboard-focus mapping rows under mutation. Local devcontainer, Chromium (spec/material-x),
+# on the step 3 rows just before a941ed888, whose one difference is that the default mx-icon-button case set an inert
+# data-default attribute where a941ed888 sets none. Each mutation reverted afterwards (git checkout -- src).
+
+## Mutation A: every focus-layer mapping dropped
+# sed -i "/'focus-layer\.\(color\|opacity\)'/d" on button/styles/{default,elevated,outlined,text,tonal,icon}/tokens.ts,
+# checkbox/styles/default/tokens.ts and radio/styles/default/tokens.ts (16 lines).
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:164 > mx-button focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:174 > mx-button focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:185 > mx-button focus layer visual contract > should draw the hovered state layer on hover alone
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:195 > mx-button focus layer visual contract > should draw no layer after a mouse click with the pointer moved off
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:164 > mx-checkbox focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:174 > mx-checkbox focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:185 > mx-checkbox focus layer visual contract > should draw the hovered state layer on hover alone
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:195 > mx-checkbox focus layer visual contract > should draw no layer after a mouse click with the pointer moved off
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:164 > mx-radio focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:174 > mx-radio focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:185 > mx-radio focus layer visual contract > should draw the hovered state layer on hover alone
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:195 > mx-radio focus layer visual contract > should draw no layer after a mouse click with the pointer moved off
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:209 > mx-button focus indicator > should draw the focus indicator on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:219 > mx-button focus indicator > should draw no focus indicator after a mouse click
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:209 > mx-checkbox focus indicator > should draw the focus indicator on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:219 > mx-checkbox focus indicator > should draw no focus indicator after a mouse click
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:209 > mx-radio focus indicator > should draw the focus indicator on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:219 > mx-radio focus indicator > should draw no focus indicator after a mouse click
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button elevated focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button outlined focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button text focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button tonal focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-icon-button filled focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-icon-button tonal focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-icon-button standard focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-checkbox checked focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-checkbox indeterminate focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-radio checked focus layer visual contract > should draw the focused state layer on keyboard focus
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed (1)
+      Tests  16 failed | 12 passed (28)
+
+## Mutation B: only each new row's own mapping dropped
+# The focus-layer lines of button/styles/{elevated,outlined,text,tonal,icon}/tokens.ts, and the selected.focus lines of
+# checkbox/ and radio/styles/default/tokens.ts (10 lines). The button default's and the unselected mappings stay.
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:164 > mx-button focus layer visual contract > should draw the focused state layer on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:174 > mx-button focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:185 > mx-button focus layer visual contract > should draw the hovered state layer on hover alone
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:195 > mx-button focus layer visual contract > should draw no layer after a mouse click with the pointer moved off
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:164 > mx-checkbox focus layer visual contract > should draw the focused state layer on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:174 > mx-checkbox focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:185 > mx-checkbox focus layer visual contract > should draw the hovered state layer on hover alone
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:195 > mx-checkbox focus layer visual contract > should draw no layer after a mouse click with the pointer moved off
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:164 > mx-radio focus layer visual contract > should draw the focused state layer on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:174 > mx-radio focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:185 > mx-radio focus layer visual contract > should draw the hovered state layer on hover alone
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:195 > mx-radio focus layer visual contract > should draw no layer after a mouse click with the pointer moved off
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:209 > mx-button focus indicator > should draw the focus indicator on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:219 > mx-button focus indicator > should draw no focus indicator after a mouse click
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:209 > mx-checkbox focus indicator > should draw the focus indicator on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:219 > mx-checkbox focus indicator > should draw no focus indicator after a mouse click
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:209 > mx-radio focus indicator > should draw the focus indicator on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:219 > mx-radio focus indicator > should draw no focus indicator after a mouse click
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button elevated focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button outlined focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button text focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-button tonal focus layer visual contract > should draw the focused state layer on keyboard focus
+ ✓ |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-icon-button filled focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-icon-button tonal focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-icon-button standard focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-checkbox checked focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-checkbox indeterminate focus layer visual contract > should draw the focused state layer on keyboard focus
+ × |spec/material-x (chromium)| tests/core/focus-layer.spec.browser.test.ts:231 > mx-radio checked focus layer visual contract > should draw the focused state layer on keyboard focus
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed (1)
+      Tests  9 failed | 19 passed (28)
+
+# Result: all 10 new rows (line 231) fail under A. Under B, 9 fail. mx-icon-button filled passes, because tproc deduplicates
+# the icon-button filled mapping into the button default's: its focused colour equals the default's, so the compiled icon sheet
+# declares no --_focus-layer-* on :host, and the button default's mapping draws it. Ruled 2026-11-17 (handoff, step 4's
+# mutation check): the row stands, and the default's mapping is what the mutation must drop, which is A.

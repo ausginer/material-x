@@ -236,6 +236,39 @@ The owner chose (a), the handoff's _If the owner answers (a)_.
 - **The reach assertion is unchanged.** It still runs before the layer or the indicator is read.
 - **The reading:** `verify` [44003141576](https://github.com/ausginer/material-x/actions/runs/44003141576) at `964af56ab` passes in every job. In `spec/material-x/safari`, the 9 rows went from failing at the reach assertion to passing (116 of 116). Every other Safari project's counts are identical to run 43895450645's. So the fallback, `it.fails` under `RF-42`, wasn't taken ([`checks/rf42-option-tab-safari.txt`](checks/rf42-option-tab-safari.txt)).
 
+## 9. Item 8: the feature-proof findings
+
+The review's `reviewer-2`, `reviewer-3` and `reviewer-4`, as the handoff disposes of them. `reviewer-1` is `RF-43`'s and isn't in this item. Head `a81841cb0`: `verify` [44008539924](https://github.com/ausginer/material-x/actions/runs/44008539924) passes in every job, and _Publish Docs_ [44008539891](https://github.com/ausginer/material-x/actions/runs/44008539891) builds and skips `deploy` ([`checks/item8-ci.txt`](checks/item8-ci.txt)). The only marking is `RF-33`'s watching row in Firefox. `RF-42` holds none, because it ended in option (a). No baseline changed.
+
+**Step 1, the forward on the prototype chain** (`reviewer-2`, `7c09927f0`), in the per-class form that the owner chose after the trait stopped:
+
+- **The trait stopped.** As a trait (`implementer/item8-step1-trait-wip`, `92e13f9d6`, unpushed), `npx just build-lib` warned seven times that the flattener retained each adopter's composition, because `vite-traits-plugin` normalizes only descriptor traits. That gap is `RF-44`'s.
+- **The form:** `forwardFocus(host, control)` records the control in a module `WeakMap` (`core/utils/useCore.ts`), and `focusControl(host, options)` focuses it. The seven classes (`Button`, `IconButton`, `LinkButton`, `SwitchButton`, `SwitchIconButton`, `ListButtonItem`, `ListLinkItem`) each declare `override focus(options?: FocusOptions)`, which only calls `focusControl`.
+- **Unchanged:** the forward's comment, its target from `useButtonCore` and `useInteractiveListItemCore`, and `delegatesFocus: true`. No other member or type changes.
+- **Rows:** `tests/core/utils/useCore.browser.test.ts` has 9 rows, passing in every engine:
+  - `Object.hasOwn(host, 'focus')` is false and the class prototype declares `focus`, for each of the seven;
+  - a subclass of `mx-button`'s class and one of `mx-list-button-item`'s, each with its own `focus()` that counts calls and calls `super.focus()`: one call, no own property, and the control has focus.
+
+  The watching row is unchanged and still fails as expected in Firefox.
+
+- **The build** prints no flattener warning.
+- **Size:** the `measurements` job has no material-x row or budget, so no budget covers these entries. A local reading of each entry, bundled and minified, at `a941ed888` and at `7c09927f0`: +63 minified bytes, +2 to +23 brotli and +17 to +26 gzip per entry ([`checks/item8-step1-size.txt`](checks/item8-step1-size.txt)).
+
+**Step 2, a disabled host** (`reviewer-4`, `a941ed888`): `button.browser.test.ts` and `list-item.browser.test.ts` each gain a row that focuses an `<input>`, then calls `focus()` on a disabled `mx-button` or `mx-list-button-item`. `document.activeElement` stays on the input in Chromium, Firefox and Safari, so there's no stop.
+
+**Step 3, the focus-layer mappings** (`reviewer-3`, `a941ed888`): 10 _keyboard focus_ rows in `focus-layer.spec.browser.test.ts`, each asserting the reach first, and pressing Option-Tab in Safari:
+
+- `mx-button` `elevated`, `outlined`, `text` and `tonal`, against `button.color.*`'s `focused` state;
+- `mx-icon-button` filled (the default, with no attribute), `tonal` and `standard`, against icon-button's own colour packages, now registered in the bridge as `icon-button.color.*`. Those are the colours whose packages declare a focus-layer variable. An icon button's `outlined` and `elevated` take the button's packages, which the `mx-button` rows read;
+- `mx-checkbox` checked and indeterminate, and `mx-radio` checked, against `selected.focus`.
+
+No mapping stands without a row. All 28 rows pass in each engine.
+
+**The mutation reading** (local Chromium, [`checks/item8-focus-layer-mutation.txt`](checks/item8-focus-layer-mutation.txt)):
+
+- With every focus-layer mapping dropped, all 10 new rows fail.
+- With only each row's own mapping dropped, 9 fail. **`mx-icon-button` filled** passes. tproc deduplicates its mapping into the button default's, because its focused colour equals the default's. As ruled, the row stands, and the default's mapping is what the mutation must drop. It is the only such row.
+
 ## Checks for every item
 
 - **Format, lint, typecheck:** every changed `.ts`, `.css` and `.html` file went through `fmt`, `lint-fix`, `fmt` and `lint` from its package, or through the repository-level tools for `.scripts/` and `Justfile`; lint reported nothing. `just typecheck` passes in material-x, box-quad and drag, and `tsc -p tsconfig.json` passes for `.scripts/`. The workflow files were formatted by `oxfmt`, and no linter is configured for them (actionlint: see §1). The Markdown files were formatted by `oxfmt`, their links checked by a scratch script, and `git diff --check` is clean.

@@ -1,0 +1,19 @@
+# Item 8 step 1 (reviewer-2): size of the per-class focus forward. Local devcontainer.
+# The `measurements` job has no material-x row and no material-x budget (its report on #29 lists box-quad, core and drag
+# only), so no budget covers these entries and none can fail. This reading stands in for the job's material-x delta.
+# Method: `npx just build-lib` in packages/material-x with src at a941ed888 (before step 1), then at 7c09927f0 (after);
+# each entry bundled with its dependencies by esbuild 0.28.1 (`--bundle --minify --format=esm`), then brotli (quality 11)
+# and gzip (level 9) through node:zlib. Bytes.
+
+entry                          minified        brotli              gzip
+button_button.js               17355 -> 17418   4942 -> 4964 (+22)   5535 -> 5559 (+24)
+button_icon-button.js          21573 -> 21636   5594 -> 5596 ( +2)   6233 -> 6259 (+26)
+button_link-button.js          17121 -> 17184   4830 -> 4853 (+23)   5438 -> 5463 (+25)
+button_switch-button.js        21279 -> 21342   5612 -> 5622 (+10)   6289 -> 6313 (+24)
+button_switch-icon-button.js   26544 -> 26607   6014 -> 6028 (+14)   6744 -> 6767 (+23)
+list_list-button-item.js       14995 -> 15058   4711 -> 4731 (+20)   5319 -> 5338 (+19)
+list_list-link-item.js         15726 -> 15789   4900 -> 4916 (+16)   5544 -> 5561 (+17)
+
+# Every entry grows by 63 minified bytes: the WeakMap, focusControl, and the class's focus() declaration, less the removed
+# own-property assignment. Brotli +2 to +23, gzip +17 to +26.
+# Build: `npx just build-lib` at 7c09927f0 prints no trait-flattener warning (the trait form at 92e13f9d6 printed seven).
