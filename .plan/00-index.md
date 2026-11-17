@@ -803,6 +803,10 @@ Tier C since 2026-11-16 (below), before that Tier B; **open**. Registered on 202
   - **In material-x, not in core.** The trait works around one engine for material-x's `display: contents` hosts, and it is meant to go. A core trait is published vocabulary, and under CONTRIBUTING §4 an exported value is a promise that can't be withdrawn.
   - **Its adopters** are exactly the seven hosts that register a control, through their own trait lists. It isn't in `BUTTON_CORE_TRAITS`, which the split button and the button groups share and which register no control.
   - **The required property above stands.** Each adopting class's type gains only the trait's brand, which isn't exported. The [findings handoff](findings-1/findings-1-handoff.md)'s _Item 8, step 1, amended 2026-11-17_ implements it.
+- **Dated 2026-11-17 on the owner's decision: the per-class form ships, and the trait waits for `RF-44`,** relayed by the coordinator.
+  - **The stop:** `vite-traits-plugin` doesn't flatten the trait, and it keeps each adopter's whole composition at runtime (`RF-44`). The owner rejected accepting that.
+  - **What ships:** the parked attempt's form at `891d672ec`. A module `WeakMap` holds each host's control, one `focusControl` focuses it, and each of the seven classes declares `override focus()`, which only calls `focusControl`. That meets the required property above. The seven declarations repeat one call, and the body exists once.
+  - **The trait note above is superseded.** Its reasons for material-x over core still hold for the later move. The trait is parked at `92e13f9d6`. When the plugin flattens class-based traits, the forward moves to it under `RF-44`, unless Firefox's delegation has removed the forward first.
 
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 
@@ -990,6 +994,19 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
     - there is no `.host` in `mx-checkbox` and `mx-radio` (the root is `.input`), in the text fields (`.input`, and the shared `text-field-core.tpl.html`), or in the button groups, `mx-icon` and `mx-list` (a `<slot>`);
     - [`accessibility.md`](../.agents/docs/accessibility.md) §Button says that the switch variants use a native `<button>`. Their templates use `<input type="checkbox">`.
   - **Routed** to the owner as the next material-x product unit, not pull request #29. It doesn't block the findings unit.
+
+#### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's item 8 stop, relayed by the coordinator. **No row is disabled.**
+
+- **The documentation:** [`trait-flattener-plugin.md`](../.agents/docs/trait-flattener-plugin.md) §Eligibility says that _"the supported generic subset accepts a direct pure transformer whose result is a class extending its parameter. It accepts public fields, constructors, methods, accessors…"_. §Trait IR says that normalization resolves _"descriptor-based and supported class-based traits"_.
+- **The code:** `packages/vite-traits-plugin/src/analyze.ts` passes every trait in a composition to `normalizeDescriptorTrait` (`src/normalize.ts:340`). When that returns `null`, it bails with `unsupported-trait` (`analyze.ts:583`–`:598`). No path normalizes a class-based trait.
+- **What it cost:** the findings unit's `FocusForwarding` trait (`implementer/item8-step1-trait-wip` at `92e13f9d6`) was a module-scoped `trait(base => class extends base { override focus(…) {…} }, brand)`, inside the documented subset. `npx just build-lib` in material-x warned seven times, and each adopter's whole composition was kept at runtime, not only that trait. So the forward ships in a per-class form (`RF-33`).
+- **Required property:** one of these holds:
+  - the plugin flattens the generic subset that §Eligibility describes, with the compatibility contract that the document states;
+  - or the document states only what the plugin implements, and names class-based traits as retained.
+- **Follow-up:** once the plugin flattens class-based traits, the `RF-33` forward moves to the trait parked at `92e13f9d6`, if the forward still ships.
+- **Routed** to `vite-traits-plugin`'s owner. **It doesn't block** the findings unit or pull request #29.
 
 ## Questions
 
