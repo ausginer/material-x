@@ -4,7 +4,7 @@
 
 **Branch:** `repo/harness-1`, from `main` at `21392e738`. **Input:** the architect's commit that adds this file.
 
-**When it starts.** Start after `repo/ci-speed-1` merges, and begin with `git merge origin/main`. That unit rewrites some of the same text, which is why: `AGENTS.md` §Evidence, `README.md`, `.claude/agents/implementer.md` and `der.md`, `.agents/docs/handoff.md`, and the devcontainer scripts. It is still changing them. Owner decision 2 is the alternative.
+**When it starts.** Start after `repo/ci-speed-1` merges, and begin with `git merge origin/main`. That unit rewrites some of the same text, which is why: `AGENTS.md` §Evidence, `README.md`, `.claude/agents/implementer.md` and `der.md`, `.agents/docs/handoff.md`, and the devcontainer scripts. It is still changing them. The owner chose this timing (owner decision 2).
 
 **Decided** by the owner, relayed by the coordinator on 2026-11-17:
 
@@ -145,10 +145,12 @@ Write `.plan/harness-1/harness-report.md`. It covers:
 
 ## Owner decisions
 
-1. **After the merge, on the owner's machine:** `claude plugin marketplace remove material-x`, and, optionally, removing the plugin's data directory. The repository can't do either. Until then, a session may report the missing marketplace.
-2. **Timing.** The default is above: start after `repo/ci-speed-1` merges. The alternative is to stack this unit on `repo/ci-speed-1` now, with its pull request's base set to that branch. It would be `RD-17`'s first stack, at the cost of the squash conflicts `RD-17` property 5 describes, in exactly the files both units change. I recommend the default: the procedure gets its first use with two units that don't overlap.
-3. **The slot letters** `b` to `z`, with no letter for the main slot. Replace them if another scheme suits the owner better.
-4. **What removing the guard leaves unchecked,** which the owner accepted in deciding the removal: the consolidator's no-`name`, no-`model` lens rule and its lens set (`RD-18` property 3).
+Answered by the owner on 2026-11-17, relayed by the coordinator:
+
+1. **Accepted.** After the merge, the owner runs `claude plugin marketplace remove material-x` on the owner's machine, and may remove the plugin's data directory. The repository can't do either. Until then, a session may report the missing marketplace.
+2. **Accepted: the unit starts after `repo/ci-speed-1` merges,** not stacked on it. The procedure gets its first use with two units that don't overlap.
+3. **Accepted: slots `b` to `z`,** with no letter for the main slot.
+4. **Accepted, as corrected.** What removing the guard leaves unchecked is the consolidator's lens set and its no-`model`, no-`name` lens rule (`RD-18` property 3). It is not a subagent's effort: the harness starts a subagent at its definition's effort, and the default-effort problem was top-level only, which `cl` handles. **One reading is kept and flagged for the owner** (`RD-18`): on 2.1.263, a named spawn in an interactive session took the teammate path and ran at its parent's effort. Nobody has read it since, and the devcontainer enables agent teams. The no-`name` rule keeps lenses off that path regardless.
 
 ## Review before merge
 

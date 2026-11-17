@@ -675,13 +675,21 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 **What still depended on the guard,** read at `21392e738`:
 
 - **Top-level sessions:** nothing. `cl` passes `--effort` and refuses `CLAUDE_CODE_EFFORT_LEVEL`, which is what the guard checked on a main thread. Its levels equal every role definition's `effort:`.
-- **Subagents.** The guard checked them at `SubagentStart` and `PreToolUse`. Its record (`.agents/docs/harness-effort-guard.md`, Claude Code 2.1.263) shows what that covered:
-  - an unnamed subagent runs at its definition's effort, from any parent;
-  - a **named** spawn takes the teammate path and ran at its parent's effort, which the guard refused;
-  - an explicit `model` override was refused before the child started;
-  - the guard also held the consolidator to its lens set.
+- **Subagents: not effort.** The harness starts a subagent on its ordinary path at its definition's effort, whatever the parent's level.
+  - **The guard's record:** a `consolidator` at `medium` spawned `reviewer` and `integrity` at `high` (2.1.260), and an unnamed `cleanup` lens matched its `medium` under enforcement (2.1.263). Both are in `.agents/docs/harness-effort-guard.md` §Measurements and §Governed worker identity, at `21392e738`.
+  - **The owner's correction says the same:** _"Агенты харнессом запускаются сразу с заданным effort, а вот для top-level сессий он это не умеет (точнее, там в принципе катавасия с effort происходит, из-за \"дефолта\"; субагенты от этого избавлены). Мы это раскопали когда гард делали."_
+  - **The default-effort problem the guard was built for is a top-level one:** `--agent` doesn't apply the definition's effort (2.1.260 and 2.1.263), and `cl` handles it.
+- **What the guard checked beyond that,** each in the dispatching call:
+  - **the consolidator's lens set,** its dispatch topology;
+  - **an explicit `model` argument** on a lens launch, refused before the child started. That argument is the dispatcher's own choice, not a harness default;
+  - **a named spawn in an interactive session.** On 2.1.263 it took the in-process teammate path, and a named `integrity` lens ran at its parent's `medium`, not its declared `high`. The guard refused it (`harness-effort-guard.md` §Governed worker identity, _"A named lens reproduces the original failure"_, at `21392e738`). The same record shows that a name alone isn't the trigger, because print mode took the subagent path with one.
 
-  `consolidator.md` already requires lens launches with no `name` and no `model`. **Without the guard, that rule and the lens set are unchecked.**
+  `consolidator.md` requires lens launches with no `name` and no `model`. **Without the guard, that rule and the lens set are unchecked.** A subagent's effort on the ordinary path is not among them.
+
+- **Flagged for the owner:** the teammate-path reading is the one recorded exception to _"subagents start at their definition's effort"_, and it is kept here with its source.
+  - Nobody has read it since 2.1.263. The CLI is now 2.1.326.
+  - The devcontainer enables agent teams (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`), whose teammates may take the same path.
+  - The no-`name` rule keeps the consolidator's lenses off it, at the cost of a UI label. It stays whatever a later reading finds.
 
 - **Tests, CI and lint.**
   - No workflow, recipe or Vitest project runs the plugin's tests.
@@ -705,13 +713,13 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - the lint entries that only the guard used: `.oxlintrc.json`'s override, and each name on ESLint's camelcase allow list that no remaining source uses (`RD-10`'s exact list);
    - **the text that names any of these,** in the documents listed above.
 2. **`cl` reads the effort from the role definition,** the `effort:` field of the session root's `.claude/agents/<agent>.md` frontmatter, and refuses to start if the field is missing or empty. Its profile table keeps the profile, the agent and the session name. It still refuses a set `CLAUDE_CODE_EFFORT_LEVEL`, which overrides every subagent's declared level, guard or no guard.
-3. **The consolidator's dispatch rules stay written and become unchecked:** no `name` and no `model` on a lens launch, and its lens set. `consolidator.md` states why: a named spawn was observed to ignore the declared effort.
+3. **The consolidator's dispatch rules stay written and become unchecked:** its lens set, no `model` on a lens launch, and no `name`. A subagent's effort on the ordinary path needs no check, because the harness applies it. The no-`name` rule keeps lenses off the teammate path, which on 2.1.263 didn't apply the declared effort (the flag above). (**Corrected 2026-11-17 at `3ec67162c`,** on the owner's correction: this property said _"`consolidator.md` states why: a named spawn was observed to ignore the declared effort"_, and the reading above it said _"for subagents"_ as if the guard were the only check on their effort.)
 4. **The owner's own configuration** isn't the repository's. After the merge, the owner removes the registered marketplace (`claude plugin marketplace remove material-x`) and may delete the plugin's data directory.
 
 **Why.**
 
 - **The owner's decision,** and `cl` covers every session the owner starts.
-- **The subagent path honours its frontmatter,** so only a broken written rule could have been caught, and the consolidator is the one role the rule binds.
+- **The harness starts subagents at their declared effort,** so the guard added no effort check there. What it added was enforcement of the consolidator's own dispatch rules, which bind one role and stay written.
 - **Reading the level in `cl`** replaces `claude-role.sh`'s one remaining property, that the launcher and the definition can't drift. `coordinator-setup.md`'s manual _"check them against role frontmatter"_ goes with it.
 
 **Not adopted.**
