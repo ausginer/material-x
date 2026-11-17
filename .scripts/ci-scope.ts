@@ -321,3 +321,5 @@ if (import.meta.main) {
     );
   }
 }
+
+// TEMPORARY witness (CI-speed item 3 witness 2): a source change under [noci].
