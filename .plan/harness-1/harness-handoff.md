@@ -2,9 +2,11 @@
 
 **Recipient:** the implementer.
 
-**Branch:** `repo/harness-1`, from `main` at `21392e738`. **Input:** the architect's commit that adds this file.
+**Branch:** `repo/harness-1`, from `main` at `21392e738`, with `main` merged in at `d6838d0f1`. **Input:** the architect's commit that adds this file, and the architect's commit after that merge, which adds item 4 and the `RF-48` reading.
 
 **When it starts.** Start after `repo/ci-speed-1` merges, and begin with `git merge origin/main`. That unit rewrites some of the same text, which is why: `AGENTS.md` §Evidence, `README.md`, `.claude/agents/implementer.md` and `der.md`, `.agents/docs/handoff.md`, and the devcontainer scripts. It is still changing them. The owner chose this timing (owner decision 2).
+
+**Started 2026-11-17.** `repo/ci-speed-1` merged as #31 at `8cf9781fa`, and the architect merged `origin/main` into this branch at `d6838d0f1`. The only conflict was in `.plan/00-index.md`. So the unit starts at this branch's head, and its first step is item 4's `aube install`.
 
 **Decided** by the owner, relayed by the coordinator on 2026-11-17:
 
@@ -12,11 +14,16 @@
 2. **`.scripts/claude-role.sh` is removed.** The owner uses only `cl`.
 3. **The effort guard is removed.**
 4. **The `${VAR:?}` rule in `AGENTS.md` gets a counter-example.**
+5. **`implementer.md` says to run `aube install` after a merge that changes `package.json` or `package-lock.json`** (relayed 2026-11-17, after #31 merged).
 
 **Governing records,** in [`../00-index.md`](../00-index.md):
 
 - `repo:RD-17`: slots, worktrees, stacks, and the index kept as one file;
-- `repo:RD-18`: the guard and the launcher removed, and `cl` reading the effort.
+- `repo:RD-18`: the guard and the launcher removed, and `cl` reading the effort;
+- `repo:RD-16` property 12: only an install command installs;
+- `repo:RF-48`: the reading added to item 2's witness 2.
+
+**Decided the same day and not part of this unit:** `RD-16` property 1's exception for nx's `npm run` is permanent, and `RF-49`'s repair is a split of both lint configurations, in its own unit after this one.
 
 The records hold the readings, the reasons and the alternatives weighed.
 
@@ -90,6 +97,14 @@ The records hold the readings, the reasons and the alternatives weighed.
 
    Each lists or reads nothing from `.claude/worktrees/`. Compare the counts with and without the slot.
 
+   **Then, in slot `b`, the `RF-48` reading** (added 2026-11-17 at `d6838d0f1`). Run it after the counts, with no other command using the slot:
+   1. list `node_modules/@ydinjs`;
+   2. `aube add -D -W <name>@<exact version>` of a package that is at least 7 days old, has no install script, and isn't a dependency today;
+   3. list `node_modules/@ydinjs` again, and if a link is gone, run `aube install` and save its output;
+   4. revert `package.json` and `package-lock.json` in the slot and run `aube install`, then `aube install --frozen-lockfile --force` if a link is still gone.
+
+   Save the commands and their output as `checks/rf48-reading.txt`. The result is a reading, not a stop: the architect decides `RF-48` from it. Nothing from it is committed outside `checks/`.
+
 3. **The stack procedure,** in a scratch repository: `main`, then branch `a` from `main`, then branch `b` from `a`.
    - Squash-merge `a` into `main`, then `git merge main` in `b`.
    - Record which hunks conflicted: one line that `a` changed and `b` changed again, and one line that only `a` changed.
@@ -111,19 +126,30 @@ The records hold the readings, the reasons and the alternatives weighed.
 
 That is the whole change. The old wording is quoted above, as the record of what it said.
 
+## Item 4. `aube install` after a merge (`RD-16` property 12)
+
+`.npmrc` sets `aubeNoAutoInstall=true`, so `aube run` and `aube exec` don't install, and `node_modules` stays as it was after a merge that changes the dependencies.
+
+**Add** to `.claude/agents/implementer.md`, beside the `aube add -D -W` rule:
+
+> - **After a merge that changes `package.json` or `package-lock.json`, run `aube install`.** `aubeNoAutoInstall` is on, so nothing else updates `node_modules`, and a stale tree shows up as a tool's failure (`repo:RD-16` property 12).
+
+A pull is a merge, so the rule covers it. This unit's merge at `d6838d0f1` is the first case: run `aube install` in the main checkout before anything else.
+
 ## Order
 
-1. `git merge origin/main`, once `repo/ci-speed-1` has merged.
-2. Item 3.
-3. Item 1, with its witnesses.
-4. Item 2, with its witnesses.
-5. **The handoff's checks** on every changed file ([`handoff.md`](../../.agents/docs/handoff.md)):
+1. `git merge origin/main`, once `repo/ci-speed-1` has merged. (Done by the architect at `d6838d0f1`.)
+2. Item 4.
+3. Item 3.
+4. Item 1, with its witnesses.
+5. Item 2, with its witnesses and the `RF-48` reading.
+6. **The handoff's checks** on every changed file ([`handoff.md`](../../.agents/docs/handoff.md)):
    - format Markdown, YAML and JSON;
    - the TypeScript checks on `.scripts/cl.node.test.ts`;
    - shell-check `cl.sh` by reading it;
    - `git diff --check`;
    - the links in every changed document.
-6. **The pull request** to `main`, non-draft, which the implementer may open. Its `verify` passes. Never merge it.
+7. **The pull request** to `main`, non-draft, which the implementer may open. Its `verify` passes. Never merge it.
 
 ## Stops
 
@@ -141,6 +167,7 @@ Write `.plan/harness-1/harness-report.md`. It covers:
 - per item, what changed, and the witnesses with their saved outputs;
 - the search's output;
 - the session-name reading;
+- the `RF-48` reading: whether the links survived the `aube add`, and what `aube install` reported;
 - what wasn't verified.
 
 ## Owner decisions

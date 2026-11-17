@@ -742,7 +742,9 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
    - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
    - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
-   - **Revisited** when nx knows aube, or when npm stops running a script beside these keys. npm says the keys "will stop working in the next major version". If that breaks the runs, a gate job fails, because every nx target runs through npm. The alternative is to replace nx's inferred script targets with explicit ones that run `aube run`. That costs a target definition for each script in each package, 78 today, or a local nx plugin, and it changes nothing about what runs.
+   - **The exception is permanent** (amended 2026-11-17 at `d6838d0f1`, on the owner's decision relayed by the coordinator the same day). nx keeps running scripts with `npm run`. The owner's reason: speed beyond installs doesn't matter here, and more toolchain work would delay Landing. Replacing the runner was considered and declined (see _Not adopted_).
+   - **What returns it to the architect.** npm says the keys "will stop working in the next major version". If an npm release stops running a script beside them, every nx target fails, so a gate job fails. That is property 11's stop on nx's commands.
+   - (This bullet said: _"**Revisited** when nx knows aube, or when npm stops running a script beside these keys. npm says the keys "will stop working in the next major version". If that breaks the runs, a gate job fails, because every nx target runs through npm. The alternative is to replace nx's inferred script targets with explicit ones that run `aube run`. That costs a target definition for each script in each package, 78 today, or a local nx plugin, and it changes nothing about what runs."_)
    - (This property said: _"npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9)."_ The feature proof's `reviewer-2` read `npm run` in the final run's `docs` job.)
 
    `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
@@ -820,6 +822,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **aube's built-in trusted list,** and `strictDepBuilds` without `useDefaultTrustedDependencies=false`.
 - **`managePackageManagerVersions` at its default,** which downloads the pinned aube.
 - **The isolated layout.** That is a separate change to how modules resolve.
+- **Explicit `aube run` targets, or a local nx plugin, in place of nx's `npm run`** (considered 2026-11-17, declined by the owner). Explicit targets cost a definition for each script in each package, 78 today. A plugin is new toolchain to maintain. Either would change only which program starts the script line, and property 1 reads that npm there installs nothing and leaves aube's policy intact.
 
 **What it said before the amendment of 2026-11-17.**
 
@@ -831,9 +834,10 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - Property 6 said that if A won, the workflows wouldn't change.
 - The reasons said: _"B adds a second tool, a second allow list kept equal to the first, and a deprecation warning, so a gain in the noise of five runs doesn't pay for that."_ They also said that a catalog wasn't adopted, because npm doesn't read catalogs.
 - **Why it changed:** the owner's decision of 2026-11-17 for a full move without a speed condition, and the probes at `0706f41f5`, which showed `strictDepBuilds` leaving the built-in list in force.
+
 #### RD-17 — Units run in parallel in long-lived session slots, each slot a worktree under `.claude/worktrees/`, and a stacked pull request is brought up to date by merging `main` into it
 
-**Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's request relayed by the coordinator the same day: _"можем попробовать распараллелить именно разработку - создавать stack prs, и работать в разных worktree"_, and on session names, _"надо мне только понять, как правильно переименовывать готовые сессии … Возможно, стоит добавить какое-то правило в `cl`-скрипт"_. The process may change. `RD-15` and `RD-16` are decided on `repo/ci-speed-1` and aren't on this branch yet, so this entry is numbered after them. **Unimplemented:** the [harness handoff](harness-1/harness-handoff.md) implements it.
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's request relayed by the coordinator the same day: _"можем попробовать распараллелить именно разработку - создавать stack prs, и работать в разных worktree"_, and on session names, _"надо мне только понять, как правильно переименовывать готовые сессии … Возможно, стоит добавить какое-то правило в `cl`-скрипт"_. The process may change. `RD-15` and `RD-16` were decided on `repo/ci-speed-1` and weren't on this branch then, so this entry is numbered after them. **Unimplemented:** the [harness handoff](harness-1/harness-handoff.md) implements it.
 
 **Read at `21392e738`** by the architect, in the devcontainer:
 
@@ -1493,10 +1497,11 @@ Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 - **Why it matters:** `implementer.md` teaches `aube add -D -W <name>`. If the cause is aube's, every dependency change can leave a tree that fails to typecheck, and aube's state check doesn't notice.
 - **Required property:** after `aube add` or `aube remove`, `node_modules` links every workspace package, or the install command fails.
 - **Next:** a reading. In a scratch worktree that no other session uses, run `aube install`, then one `aube add -D -W` of a mature package with no install script, and list `node_modules/@ydinjs`. If the links are gone, it is aube's defect: the owner may report it upstream, and `implementer.md` gains the repair command beside the add rule. If they are not, this finding closes as not reproduced. **Not part of the CI-speed unit.** Its handoff doesn't depend on it.
+- **Scheduled 2026-11-17** by the architect at `d6838d0f1`, in the [harness handoff](harness-1/harness-handoff.md)'s item 2, witness 2. That witness already installs dependencies in slot `b`, a worktree under `.claude/worktrees/` that no other session uses, so the reading adds one `aube add`, two listings and a revert there. It is not a stop for that unit. The architect closes or keeps this finding from what the harness report records.
 
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
-Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
+Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
 
 - **What:** the recipe runs `@oxlint/migrate` 1.93.0 on `eslint.config.ts` and writes `.oxlintrc.json`. Its output differs from the committed file in these ways:
   - it drops every comment;
@@ -1510,6 +1515,33 @@ Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 - **Why it matters:** a developer who runs the recipe to pick up an eslint change silently discards those hand edits, unless they read the whole diff.
 - **Required property:** the record says which file is the source of the oxlint rules. Either the recipe's output is the file, so the hand edits move into `eslint.config.ts` or into the script's post-processing, or the file is hand-maintained, so the recipe is a diff aid that doesn't write it, or it is deleted.
 - **Not part of the CI-speed unit,** which only moved the recipe from `npx` to `aube exec`. The choice is the owner's, since the oxlint configuration is outside that unit's decisions. Until it is made, the recipe stays as it is.
+
+**Decision.** Recorded 2026-11-17 by the architect on `repo/harness-1` at `d6838d0f1`, on the owner's choice relayed by the coordinator the same day: **each side is split into a file that a tool writes and a file that a person writes.** That answers the required property above: the recipe's output is one file, and `.oxlintrc.json` is maintained by hand on top of it.
+
+- **Why the recipe can't write `.oxlintrc.json` today.** It reads `eslint.config.ts`. That file includes the configs that `buildFromOxlintConfigFile('./.oxlintrc.json')` derives, and a block that turns off ESLint rules oxlint already runs. So the recipe reads rules that the previous `.oxlintrc.json` turned off, and its output depends on its own last output.
+- **Read at `d6838d0f1`** by the architect, in `node_modules`:
+  - `@oxlint/migrate` 1.93.0's CLI takes the ESLint config as a positional argument (`.argument("[eslint-config]", …)`) and the output path as `--output-file <file>`, default `.oxlintrc.json` (`dist/bin/oxlint-migrate.mjs`).
+  - oxlint 1.93.0's schema defines `extends` as a list of paths relative to the file that holds it, merged first to last.
+  - `eslint-plugin-oxlint`'s `buildFromOxlintConfigFile` follows `extends`, recursively.
+  - Each package's `.oxlintrc.json` already `extends` `../../.oxlintrc.json`, and each package's `eslint.config.ts` re-exports the root's.
+
+**Required properties.**
+
+1. **The ESLint side.** `eslint.base.config.ts` holds the repository's own ESLint configuration: today's `eslint.config.ts` above the `buildFromOxlintConfigFile` spread. `eslint.config.ts` is the base, then the spread, then the block that turns off what oxlint covers, then the `unbound-method` block. The `unbound-method` block stays last, because its comment's reason still holds. What a package's `eslint.config.ts` imports doesn't change.
+2. **The oxlint side.**
+   - `just oxlint-migrate` passes `eslint.base.config.ts` to `@oxlint/migrate` and writes `.oxlintrc.migrated.json`. The script's post-processing reads and writes that file. Nothing in the recipe writes `.oxlintrc.json`.
+   - `.oxlintrc.migrated.json` is exactly what the recipe writes at that commit, formatted as `just fmt` leaves it. Nobody edits it by hand.
+   - `.oxlintrc.json` is hand-written JSONC. It `extends` `.oxlintrc.migrated.json`, and carries `options`, `ignorePatterns`, the custom overrides, and their comments. A key that oxlint or `buildFromOxlintConfigFile` doesn't take from an extended file stays in `.oxlintrc.json`.
+   - A change to a rule goes in `eslint.base.config.ts`, then through the recipe, or in `.oxlintrc.json` as an override with its reason. It never goes in `.oxlintrc.migrated.json`.
+3. **Two commits, in RF-49's own unit.**
+   1. **The split, with no rule change.** `.oxlintrc.migrated.json` holds today's rules, moved. Witness: `oxlint --print-config` and ESLint's `--print-config` give the same output before and after, for a TypeScript file at the root and in each package, run from the root and from the package's directory. oxlint's and ESLint's lint results over the tree are also the same.
+   2. **One regeneration.** `just oxlint-migrate` writes `.oxlintrc.migrated.json`. The lint fallout is repaired in the same unit, in source, in `eslint.base.config.ts`, or as an override in `.oxlintrc.json`. The unit's record lists each rule the regeneration changed and what was done about it.
+4. **Placement.** After the harness unit and the isolated aube layout, beside `RF-43` to `RF-45`. Not part of the harness unit.
+
+**Not adopted.**
+
+- **Filtering by config name.** `buildFromOxlintConfigFile`'s configs are named `oxlint/from-oxlint-config`, `oxlint/from-oxlint-config-override-<n>` and `oxlint/oxlint-config-ignore-patterns`, so a wrapper could give the recipe `eslint.config.ts` without them. That isn't better than the split: it depends on a naming convention that the plugin doesn't document as a contract, it also needs a name on the hand-written block, and it adds code that the positional argument makes unnecessary. The split is the owner's choice.
+- **One hand-maintained `.oxlintrc.json`,** with the recipe as a diff aid or deleted. A rule change in ESLint would then reach oxlint only through a hand copy.
 
 ## Questions
 
