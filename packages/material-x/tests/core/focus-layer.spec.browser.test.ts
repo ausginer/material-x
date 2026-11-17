@@ -2,6 +2,7 @@ import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/button/button.ts';
+import '../../src/button/icon-button.ts';
 import '../../src/checkbox/checkbox.ts';
 import '../../src/radio/radio.ts';
 import { nextFrame, resolveComputed, settleAnimations } from '../browser.ts';
@@ -55,7 +56,58 @@ const CASES: readonly Case[] = [
   },
 ];
 
-function create(tag: Case['tag']): HTMLElement {
+/**
+ * A focus-layer mapping that a component declares beyond the default state of
+ * {@link CASES}: a colour, or a selection state.
+ */
+type MappingCase = Readonly<{
+  name: string;
+  tag: 'mx-button' | 'mx-icon-button' | 'mx-checkbox' | 'mx-radio';
+  /** The attribute that selects the mapping; none for the default colour. */
+  attribute?: readonly [name: string, value: string];
+  contract: string;
+  focused: string;
+  control: string;
+}>;
+
+const MAPPING_CASES: readonly MappingCase[] = [
+  ...(['elevated', 'outlined', 'text', 'tonal'] as const).map(
+    (color): MappingCase => ({
+      name: `mx-button ${color}`,
+      tag: 'mx-button',
+      attribute: ['color', color],
+      contract: `button.color.${color}`,
+      focused: 'focused',
+      control: '.host',
+    }),
+  ),
+  ...(['filled', 'tonal', 'standard'] as const).map((color): MappingCase => ({
+    name: `mx-icon-button ${color}`,
+    tag: 'mx-icon-button',
+    ...(color === 'filled' ? {} : { attribute: ['color', color] as const }),
+    contract: `icon-button.color.${color}`,
+    focused: 'focused',
+    control: '.host',
+  })),
+  ...(['checked', 'indeterminate'] as const).map((state): MappingCase => ({
+    name: `mx-checkbox ${state}`,
+    tag: 'mx-checkbox',
+    attribute: [state, ''],
+    contract: 'checkbox.default',
+    focused: 'selected.focus',
+    control: '.input',
+  })),
+  {
+    name: 'mx-radio checked',
+    tag: 'mx-radio',
+    attribute: ['checked', ''],
+    contract: 'radio.default',
+    focused: 'selected.focus',
+    control: '.input',
+  },
+];
+
+function create(tag: Case['tag'] | MappingCase['tag']): HTMLElement {
   const element = document.createElement(tag);
   element.textContent = 'Label';
   document.body.append(element);
@@ -170,3 +222,21 @@ describe.each(CASES)('$tag focus indicator', (testCase) => {
     );
   });
 });
+
+describe.each(MAPPING_CASES)(
+  '$name focus layer visual contract',
+  (testCase) => {
+    it('should draw the focused state layer on keyboard focus', async () => {
+      const element = create(testCase.tag);
+      if (testCase.attribute) {
+        element.setAttribute(...testCase.attribute);
+      }
+
+      await tabTo(element, testCase.control);
+
+      expect(await observed(element)).toStrictEqual(
+        await expected(testCase.contract, testCase.focused),
+      );
+    });
+  },
+);

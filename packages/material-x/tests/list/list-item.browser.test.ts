@@ -30,6 +30,18 @@ describe('mx-list-button-item', () => {
 
     expect(element.shadowRoot?.activeElement).toBe(getControl(element));
   });
+
+  it('should leave focus where it was when the host is disabled', () => {
+    const other = document.createElement('input');
+    document.body.append(other);
+    other.focus();
+    const element = createItem('mx-list-button-item');
+    element.toggleAttribute('disabled', true);
+
+    element.focus();
+
+    expect(document.activeElement).toBe(other);
+  });
 });
 
 describe('mx-list-link-item', () => {
