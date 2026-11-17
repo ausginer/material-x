@@ -1,0 +1,79 @@
+# Temporary: the WebKit inventory that the CI-speed handoff's item 1 stop owes
+# (five runs of each failing row's file, `repo:RD-8` property 1), and per-row
+# results for the keyboard and reduced-motion witnesses. Removed before review.
+name: webkit-inventory
+
+on:
+  push:
+    branches: [repo/ci-speed-1]
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 26
+  AUBE_VERSION: 2.10.0
+  MX_TEST_ENGINES: webkit
+
+jobs:
+  inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec playwright install --with-deps webkit
+      - run: aube exec just _test-builds
+      - name: Five runs of each failing row's file
+        run: |
+          mkdir -p "$RUNNER_TEMP/inventory"
+          for project in browser consumer; do
+            for file in click-guard sortable; do
+              for run in 1 2 3 4 5; do
+                out="$RUNNER_TEMP/inventory/$project-$file-$run"
+                aube exec vitest run --project "$project/drag/webkit" --tags-filter '!measurement' \
+                  "packages/drag/tests/$file.browser.test.ts" \
+                  --reporter=dot --reporter=json --outputFile.json="$out.json" > "$out.log" 2>&1 || true
+                echo "$project $file $run: $(grep -E 'Tests +[0-9]' "$out.log" | tail -n 1)"
+              done
+            done
+          done
+      - name: The keyboard and reduced-motion files, once
+        run: |
+          aube exec vitest run --project 'spec/material-x/webkit' --tags-filter '!measurement' \
+            packages/material-x/tests/core/focus-layer.spec.browser.test.ts \
+            --reporter=dot --reporter=json --outputFile.json="$RUNNER_TEMP/inventory/focus-layer.json" || true
+          aube exec vitest run --project 'browser/drag/webkit' --tags-filter '!measurement' \
+            packages/drag/tests/landing.browser.test.ts \
+            --reporter=dot --reporter=json --outputFile.json="$RUNNER_TEMP/inventory/landing.json" || true
+      - name: Per-row results
+        run: |
+          node -e '
+          const fs = require("fs");
+          const dir = process.argv[1];
+          for (const name of fs.readdirSync(dir).filter((n) => n.endsWith(".json")).sort()) {
+            const report = JSON.parse(fs.readFileSync(`${dir}/${name}`, "utf8"));
+            for (const file of report.testResults) {
+              for (const row of file.assertionResults) {
+                console.log([name, row.status, row.fullName, row.failureMessages?.[0]?.split("\n")[0] ?? ""].join("\t"));
+              }
+            }
+          }' "$RUNNER_TEMP/inventory" | tee "$RUNNER_TEMP/inventory/rows.tsv"
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: webkit-inventory
+          path: ${{ runner.temp }}/inventory
