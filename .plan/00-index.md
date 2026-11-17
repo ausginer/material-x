@@ -372,6 +372,8 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 
 **Amended again 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680`, on the findings unit's [report](findings-1/findings-1-report.md) §7, relayed by the coordinator. **The _Tab_ bullet's premise was false.** The `safari` job wrote both keys, to the global domain and to Safari's container domain. Each read back as set, and Tab still left focus on `<body>` in all six configurations ([reading 1](findings-1/checks/rd12-tab-reading-1.txt), run 43889993969; [reading 2](findings-1/checks/rd12-tab-reading-2.txt), run 43892383154). The preference doesn't reach Safari's Tab under `safaridriver`. Why it doesn't hasn't been read. The bullet is amended in place: the job sets no Tab preference, and `RF-42` holds the rows. How they reach their controls is the owner's decision (the [findings handoff](findings-1/findings-1-handoff.md)'s _Disposition of the report at `fc3b89680`_). No other property changes.
 
+**Amended a third time 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f`, on the findings unit's [report](findings-1/findings-1-report.md) §8, relayed by the coordinator. The owner chose `RF-42`'s option (a): in Safari, the keyboard rows press Option-Tab, which with Safari's default settings moves focus to every control. In run 44003141576 at `964af56ab`, the 9 rows pass, and no other Safari row changes ([reading](findings-1/checks/rf42-option-tab-safari.txt)). The _Tab_ bullet records the key. No other property changes.
+
 **The readings,** taken by the architect on 2026-11-16.
 
 - **Only WebDriver drives Safari.** Playwright's `webkit` is Playwright's own WebKit build, on macOS too, and not Safari. Vitest's `preview` provider opens a browser with no automation. Safari ships its own WebDriver server, `safaridriver`, with macOS.
@@ -425,7 +427,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
     - **This is the job's environment, like remote automation in property 6, not a limit on rows.** A row that needs the default preference isn't an instrument row under property 5. It gets no engine condition and isn't disabled. A row that needs a non-default preference, such as drag's two reduced-motion rows and their reset, needs emulation, so it stays limited under property 5.
     - **If the job can't set the preference, or Safari still reports `reduce` after the job has set it, the unit stops** under `RD-8` property 5. The rows that need motion are then neither limited nor disabled, and the owner decides.
     - **Any other macOS preference** that the runner image sets differently from Chromium's and Firefox's default, and that a row depends on, is named here by an amendment before the job sets it.
-    - **Tab** (added at `c34cb01d7`, amended at `fc3b89680`). Safari's default Tab doesn't move focus to buttons, checkboxes or radios. **The job sets no preference for it,** because setting Safari's _"Press Tab to highlight each item"_ changed nothing under `safaridriver`. How a Safari row reaches such a control by keyboard is `RF-42`'s, and is recorded here once the owner decides. (**Amended at `fc3b89680`.** This bullet said: _"In a Safari page, Tab moves focus to every element that Chromium's and Firefox's default Tab reaches: links, buttons and every form control. The setting is Safari's 'Press Tab to highlight each item', not the system's keyboard navigation, which changes more than Safari. As with Reduce Motion, the `safari` job turns it on as the runner's user before the tests, reads it back and logs it, and the step fails if the value read back isn't on. The implementer picks the keys with a reading. It is the job's environment, not a limit on rows. The unit stops under `RD-8` property 5 if the job can't set it, or if Tab still doesn't reach a button in a Safari row after it is set. The keyboard-focus rows are then neither limited nor disabled, and the owner decides."_)
+    - **Tab** (added at `c34cb01d7`, amended at `fc3b89680`). Safari's default Tab doesn't move focus to buttons, checkboxes or radios. **The job sets no preference for it,** because setting Safari's _"Press Tab to highlight each item"_ changed nothing under `safaridriver`. **A Safari row reaches such a control with Option-Tab** (`{Alt>}{Tab}{/Alt}`), the key that moves focus to every control under Safari's default settings. Chromium and Firefox keep Tab. The owner chose this under `RF-42`, and it is real keyboard input, not a limit on rows. (**Amended at `d756e4f4f`.** The previous sentence said: _"How a Safari row reaches such a control by keyboard is `RF-42`'s, and is recorded here once the owner decides."_) (**Amended at `fc3b89680`.** This bullet said: _"In a Safari page, Tab moves focus to every element that Chromium's and Firefox's default Tab reaches: links, buttons and every form control. The setting is Safari's 'Press Tab to highlight each item', not the system's keyboard navigation, which changes more than Safari. As with Reduce Motion, the `safari` job turns it on as the runner's user before the tests, reads it back and logs it, and the step fails if the value read back isn't on. The implementer picks the keys with a reading. It is the job's environment, not a limit on rows. The unit stops under `RD-8` property 5 if the job can't set it, or if Tab still doesn't reach a button in a Safari row after it is set. The keyboard-focus rows are then neither limited nor disabled, and the owner decides."_)
 
 **Why.**
 
@@ -808,6 +810,12 @@ Tier C since 2026-11-16 (below), before that Tier B; **open**. Registered on 202
   - **What ships:** the parked attempt's form at `891d672ec`. A module `WeakMap` holds each host's control, one `focusControl` focuses it, and each of the seven classes declares `override focus()`, which only calls `focusControl`. That meets the required property above. The seven declarations repeat one call, and the body exists once.
   - **The trait note above is superseded.** Its reasons for material-x over core still hold for the later move. The trait is parked at `92e13f9d6`. When the plugin flattens class-based traits, the forward moves to it under `RF-44`, unless Firefox's delegation has removed the forward first.
 
+- **Dated 2026-11-17 by the architect: the per-class form is in,** on the [findings report](findings-1/findings-1-report.md) §9 at `d756e4f4f`, relayed by the coordinator.
+  - **Met:** the seven classes declare `focus()`, and each one only calls `focusControl` (`7c09927f0`). `Object.hasOwn(host, 'focus')` is false for each of them. Subclass rows for `mx-button` and `mx-list-button-item` pass in every engine. The build prints no flattener warning.
+  - **A control that can't take focus is now read:** `focus()` on a disabled `mx-button` or `mx-list-button-item` leaves focus on the element that had it, in Chromium, Firefox and Safari (`a941ed888`).
+  - **The registering function keeps the name `forwardFocus`.** It is accepted: the call states which control the host forwards to, and `focusControl` does the focusing.
+  - **What stays open is unchanged:** the watching row, which still fails as expected in Firefox, and `autofocus` in Firefox.
+
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 
 Tier C, **closed 2026-11-16** (below). Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. Until it closed, the row was **disabled in Firefox only,** as an expected failure, and the marking cited this address.
@@ -830,7 +838,7 @@ Tier C, **closed 2026-11-16** (below). Registered on 2026-11-16 by the CI verifi
 
 #### RF-35 — `mx-radio` and `mx-checkbox` draw no focus state layer, which Material's tokens define
 
-Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §The `radio-focused` review), from the owner's review of baseline proposal #28. **No row is disabled:** the visual rows show what the components draw.
+Tier C, **closed 2026-11-17** (below). Before closure: open. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §The `radio-focused` review), from the owner's review of baseline proposal #28. **No row is disabled:** the visual rows show what the components draw.
 
 - **What the owner saw:** #28's `radio-focused` shows the focus outline only. The baseline it replaces also showed the grey state-layer circle.
 - **Why the circle was there:** the circle is the ripple's `::before`, which only `:host(:hover)` shows (`src/core/animations/ripple/styles/main.styles.css`). Nothing in `src/radio/styles/default/main.styles.css` draws a state layer on focus. Before `f0ec37881` the pointer stayed where the previous row left it, and the hovered row before `radio-focused` left it over the same spot. A scratch witness shows `radio.matches(':hover')` true at the focused row's screenshot without the pointer reset and false with it ([output](ci-verification-1/checks/radio-focused-hover.txt)). Across the visual suite, the same reset removes an unintended hover from `radio-focused`, `checkbox-focused`, `button-focused` and, depending on file order, `checkbox-states` ([output](ci-verification-1/checks/visual-rows-hover.txt)).
@@ -862,6 +870,12 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - **Scope.** The note above covers `mx-button`, `mx-checkbox` and `mx-radio`, the elements this entry's property names. The report's §7 says that the button's focus rule is in the sheet that every button adopts. That is true of the stylesheet, not of what is drawn: in `mx-switch-button` and `mx-switch-icon-button`, `.host` is a `<span>` and never matches `:focus-visible`, so they draw no focus layer. That is `RF-43`, outside this entry.
   - **Rows.** The rows read only `mx-button`'s filled colour and the unchecked checkbox and radio. The selected states, the other button colours and the icon button's mappings were correct at `fc3b89680` by the reviewer's rendering, but no row fails if one of them is dropped, and the visual layer can't see them (`RF-41`). The [findings handoff](findings-1/findings-1-handoff.md)'s item 8, step 3, adds a row for each.
   - **It closes** when `RF-42`'s rows are resolved and item 8's rows pass. This replaces the closing condition above.
+
+- **Closed 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f` (#29, not yet merged), on the [findings report](findings-1/findings-1-report.md) §8 and §9, relayed by the coordinator. Both closing conditions hold.
+  - **`RF-42`'s rows are resolved:** in Safari, the 9 keyboard rows reach their controls with Option-Tab and pass (`RF-42`).
+  - **Item 8's rows pass:** 10 _keyboard focus_ rows read the selected states and each other button and icon-button colour against their own focused tokens. All 28 rows pass in every engine (`verify` 44008539924 at `a81841cb0`, and 44010115020 at `d756e4f4f`). With every mapping dropped, all 10 fail. With only its own mapping dropped, 9 fail ([reading](findings-1/checks/item8-focus-layer-mutation.txt)). The tenth, `mx-icon-button` filled, reads the button default's mapping, which tproc's deduplication leaves in its place, as ruled in the handoff.
+  - **The mutation reading's fixture** set an inert `data-default` attribute on that row's element, which `a941ed888` dropped. No material-x source reads that attribute, so the reading holds for the rows as merged.
+  - **Not covered here:** the switch buttons (`RF-43`), and what the screenshots can't see (`RF-41`).
 
 #### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
 
@@ -915,7 +929,7 @@ Tier B, **closed 2026-11-16** (below). Before closure: open, and it blocked the 
 
 #### RF-39 — In Firefox, `mx-radio` and `mx-checkbox` show no keyboard focus indicator
 
-Tier B, **open**. Registered on 2026-11-16 by the architect, from the findings unit's reading under its item 7, relayed by the coordinator. It predates that unit.
+Tier B, **closed 2026-11-17** (below). Before closure: open. Registered on 2026-11-16 by the architect, from the findings unit's reading under its item 7, relayed by the coordinator. It predates that unit.
 
 - **The rules:** `radio/styles/default/main.styles.css:55` and `checkbox/styles/default/main.styles.css:64` draw the indicator under `:host:has(.input:focus-visible)`.
 - **The reading,** local, in Firefox 159.0 and Chromium, not yet in CI. After `Tab` onto `mx-radio`, the input is focused and matches `:focus-visible` in both engines. `:host:has(.input:focus-visible)` matches in Chromium and not in Firefox. `:host(:has(…))` matches in neither, and `:host(:focus-within)` matches in both. Radio's indicator outline is drawn in Chromium and absent in Firefox.
@@ -927,6 +941,8 @@ Tier B, **open**. Registered on 2026-11-16 by the architect, from the findings u
   - **Chromium is unchanged:** the box, outline, offset and radius match ([reading](findings-1/checks/rf39-indicator-before-after.txt)).
   - **In Firefox:** the indicator rows pass in the `firefox` job.
   - **It closes** with `RF-35`, when the Safari keyboard rows are resolved under `RF-42`.
+
+- **Closed 2026-11-17 by the architect,** with `RF-35`, at `d756e4f4f`. In Safari, the indicator rows now reach their controls with Option-Tab and pass, so the indicator is read in every engine.
 
 #### RF-40 — material-x's `:host:has()` fallback sets custom states that no stylesheet reads
 
@@ -960,7 +976,7 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings 
 
 #### RF-42 — Under `safaridriver`, Tab doesn't reach buttons, checkboxes or radios, and Safari's Tab preference doesn't change that
 
-Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings report](findings-1/findings-1-report.md) §7, relayed by the coordinator. **The 9 rows fail in Safari, unmarked,** until the owner decides. `verify` is red on #29 until then.
+Tier C, **closed 2026-11-17** (below). Before closure: open, and the 9 rows failed in Safari, unmarked, which kept `verify` red on #29. Registered on 2026-11-16 by the architect, from the [findings report](findings-1/findings-1-report.md) §7, relayed by the coordinator.
 
 - **The rows:** in `packages/material-x/tests/core/focus-layer.spec.browser.test.ts`, for each of `mx-button`, `mx-checkbox` and `mx-radio`:
   - _"keyboard focus"_;
@@ -974,6 +990,11 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings 
 - **Why the product isn't implicated:** the trigger is the same CSS in every engine. Safari's hover and click rows pass. The rows fail at the reach assertion, before the layer is read.
 - **Required property:** each of the 9 rows either reads keyboard focus in Safari through real keyboard input, or is disabled there under `RD-8` with this entry as its finding.
 - **Routed** to the owner. The options and the architect's recommendation are in the [findings handoff](findings-1/findings-1-handoff.md)'s _Disposition of the report at `fc3b89680`_.
+
+- **Closed 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f`, on the [findings report](findings-1/findings-1-report.md) §8, relayed by the coordinator.
+  - **The owner chose option (a).** In Safari only, the rows press Option-Tab. One constant in `focus-layer.spec.browser.test.ts` chooses the key by engine, and its comment cites this entry (`964af56ab`).
+  - **The reading:** in `verify` 44003141576 the 9 rows pass at the unchanged reach assertion, and every other Safari project's counts equal run 43895450645's ([reading](findings-1/checks/rf42-option-tab-safari.txt)). The fallback, `it.fails` in Safari, wasn't taken. The rows that item 8 added use the same key and pass in Safari.
+  - **What stays unread:** why Safari's Tab preference has no effect under `safaridriver`. Nothing depends on it now. `RD-12` property 10 records the key.
 
 #### RF-43 — `mx-switch-button` and `mx-switch-icon-button` break the `.host` invariant, so they draw no focus state layer on keyboard focus
 
@@ -1007,6 +1028,18 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - or the document states only what the plugin implements, and names class-based traits as retained.
 - **Follow-up:** once the plugin flattens class-based traits, the `RF-33` forward moves to the trait parked at `92e13f9d6`, if the forward still ships.
 - **Routed** to `vite-traits-plugin`'s owner. **It doesn't block** the findings unit or pull request #29.
+
+#### RF-45 — material-x has no size measurement, so no budget covers its entries
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**
+
+- **The gap:** the `measurements` job (`.github/workflows/verify.yml:149`) runs the rows tagged `measurement`, and material-x has none. Its report on #29 lists box-quad, core and drag only. So no material-x entry has a size reading in CI, or a budget.
+- **What it cost:** item 8, step 1's _"a budget that fails is a stop"_ had nothing to read. The architect wrote that clause on the assumption that a budget existed. The implementer measured each entry locally instead: +63 minified bytes, and +2 to +23 brotli bytes, per entry ([reading](findings-1/checks/item8-step1-size.txt)). That reading stands in for the clause, and it is accepted. The growth is the cost of the form the owner chose.
+- **Why it matters:** CONTRIBUTING §15 asks that every meaningful change be measured by composition, and §18 treats a budget as the instrument that makes a change visible. material-x's changes are measured only when a unit does it by hand.
+- **Required property:** one of these holds:
+  - material-x's public entries have rows in the `measurements` job, each with a budget;
+  - or the record states that material-x is measured by hand for each change, and how.
+- **Routed** to the owner. The repository's measurement tool is still a [brief](../.agents/docs/measure/brief.md), so it may supply the instrument. **It doesn't block** the findings unit.
 
 ## Questions
 

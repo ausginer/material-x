@@ -316,6 +316,7 @@ The unit changes product source in material-x, the shared build recipe, the Vite
 - `RF-36`'s next reading.
 - `RF-40`, which the coordinator will send as its own task.
 - `RF-41`.
+- `RF-45`: material-x has no size measurement or budget.
 - `RF-44`: the trait-flattener plugin doesn't flatten class-based traits, which its documentation says it does. The forward moves to a trait once it does.
 - `RF-43`: the switch buttons break the `.host` invariant, and every other template is audited against it, in the next material-x unit.
 - `RF-33`'s report to Mozilla.
@@ -407,3 +408,24 @@ The owner directed that while the forward ships, it is a trait, relayed by the c
 5. The reviewer's `a22c109b7` and this disposition are merged into `repo/findings-1`.
 
 The owner's question 2 and the entries under _Still open, outside this unit_ don't block the merge.
+
+## Close-out at `d756e4f4f`
+
+**Decided 2026-11-17 by the architect,** on the [report](findings-1-report.md) §8 and §9, relayed by the coordinator. `verify` 44010115020 and _Publish Docs_ 44010115229 passed at `d756e4f4f`.
+
+- **Item 1 of _Before the owner merges #29_:** done. `RD-12` property 10 records Option-Tab in Safari, and `RF-42` is closed.
+- **Item 2:** done. `RF-35`, `RF-39` and `RF-42` are closed. `RF-33` stays open for what the forward can't cover.
+- **Item 5:** done. `a22c109b7` and `c1ebb0b6c` are in the head.
+- **The implementer's _not verified_ items. None needs action before the merge:**
+  - **No material-x budget:** registered as `RF-45`. The local size reading stands in for step 1's budget clause.
+  - **The mutation fixture's inert `data-default`:** no material-x source reads it, so the reading holds. See `RF-35`.
+  - **The registering function's name `forwardFocus`:** accepted. See `RF-33`.
+  - **Icon-button `outlined` and `elevated` have no row of their own:** accepted. They take the button's colour packages, which the `mx-button` rows read, and they declare no mapping of their own.
+- **The report's older sections** (_Checks for every item_, _Not done_ and _Next_) still describe the state at `fc3b89680`: Safari red, item 7 stopped. §8 and §9 supersede them where the two disagree. That doesn't block the merge.
+
+**What remains before the owner merges #29:**
+
+1. **The targeted recheck** (item 3). Its record is at `.plan/reviews/findings-1/feature-proof-recheck-claude.md`. The architect decides its findings.
+2. **`verify` and _Publish Docs_** pass on the final head (item 4). They passed at `d756e4f4f`, and they must pass again after any later push.
+
+Nothing else blocks the merge. The owner's question 2, `RF-33`'s open part, `RF-36`, `RF-40`, `RF-41`, `RF-43`, `RF-44`, `RF-45` and the Mozilla report all stay outside this unit.
