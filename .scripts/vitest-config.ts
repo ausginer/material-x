@@ -289,19 +289,16 @@ function createBrowserTestConfig(
   commands?: Record<string, BrowserCommand<any[]>>,
   options?: Readonly<{ launchArgs?: readonly string[] }>,
 ): UserConfig {
-  // TEMPORARY witness (CI-speed item 1 witness 5): WebKit with Chromium's
-  // parallelism, only under `.github/workflows/webkit-parallel.yml`.
-  const isParallel =
-    engine === 'chromium' ||
-    (engine === 'webkit' && process.env.MX_WITNESS_WEBKIT_PARALLEL === '1');
+  const isParallel = engine === 'chromium' || engine === 'webkit';
   const isSafari = engine === 'safari';
 
   return {
     test: {
       // A page in the background gets no input in Firefox and Safari, and
-      // Safari allows one WebDriver session at a time. WebKit runs serially as
-      // Firefox does until a reading shows its background pages get input
-      // (`repo:RD-12` property 11).
+      // Safari allows one WebDriver session at a time, so both run serially.
+      // WebKit runs in parallel at Chromium's worker count: in three CI runs
+      // beside serial ones, no row failed and its test step was 41 to 49 %
+      // faster (`repo:RD-12` property 11).
       fileParallelism: isParallel && !isDebug,
       maxWorkers: isParallel ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {

@@ -6,11 +6,6 @@
 name: safari
 
 on:
-  # TEMPORARY witness (CI-speed item 2 witness 2): the issue path on this branch.
-  # Second run: comments on the issue the first one opened.
-  push:
-    branches: [repo/ci-speed-1]
-    paths: [.github/workflows/safari.yml]
   schedule:
     - cron: '0 5 * * 1'
   workflow_dispatch:
@@ -94,9 +89,6 @@ jobs:
         run: |
           set -o pipefail
           aube exec -- just test-safari --tags-filter '!measurement' 2>&1 | tee "$RUNNER_TEMP/safari.log"
-      # TEMPORARY witness (CI-speed item 2 witness 2): fail after the tests.
-      - name: Fail on purpose
-        run: exit 1
       - name: Failed projects
         id: failed
         if: failure()
@@ -108,7 +100,7 @@ jobs:
   # permission and runs no repository code: no checkout, no install.
   issue:
     needs: safari
-    if: always() && needs.safari.result == 'failure' && (github.event_name == 'schedule' || github.event_name == 'push') # TEMPORARY witness: push
+    if: always() && needs.safari.result == 'failure' && github.event_name == 'schedule'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
