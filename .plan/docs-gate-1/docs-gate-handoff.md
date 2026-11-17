@@ -45,26 +45,59 @@ This decision answers the [findings unit](../findings-1/findings-1-handoff.md)'s
 - **Storybook's test runner.** It is a new dependency with its own runner, for one property that Playwright, already pinned, gives directly.
 - **One story only.** `RF-46` would show in one story. A story whose own chunk breaks wouldn't, and each story is its own chunk.
 
-## 1. Repair `RF-46`
+## 1. Repair `RF-46`: adopt `vite@8.4.0-beta.1`
 
-**Required property:** Vite builds with a `rolldown` inside its declared range (`~1.2.18` for 8.3.8), and every other consumer keeps the version it declares. `tsdown`, `rolldown-plugin-dts`, `@ydinjs/vite-traits-plugin` and `@ydinjs/vite-custom-element-assets` declare 1.3.
+**Amended 2026-11-17 on the owner's decision,** relayed by the coordinator: the repository adopts the Vite beta, which declares `rolldown` `~1.3.2`, so the whole tree stays on one `rolldown`. The nested override that this item first preferred is now only the fallback, under _Stops_.
 
-- **The preferred form:** a nested npm override that pins `vite`'s `rolldown` to Vite's range. The root `overrides` and `rolldown: "$rolldown"` stay. Its form, as npm documents nested overrides, is `"vite": { ".": "$vite", "rolldown": "~1.2.18" }`. A short comment can't go in `package.json`, so the report states why the override exists and when it goes: when the `vite` in use declares the `rolldown` the rest of the repository uses (`vite@8.4.0-beta.1` declares `~1.3.2`).
-- **Alternative:** removing `rolldown` from `overrides`, if npm then nests a copy inside Vite's range under `vite` and dedupes the rest. Choose the form that gives the tree above with the smaller lockfile change, and report `npm ls rolldown` for it.
-- **Not adopted:** moving the whole repository back to `rolldown` 1.2, because `tsdown` 0.23.7 needs 1.3, and the drag measurements were read at 1.3.2. Not `vite@8.4.0-beta.1` either, because the repository doesn't adopt a prerelease without the owner.
-- **Checks:**
-  - `npm ls rolldown` shows Vite's copy inside Vite's range, and every other consumer on 1.3.2;
-  - `npx just typecheck` passes. `RF-31`'s cause was a type mismatch between Vite's `Plugin` and Rolldown's types, so two copies may reopen it;
-  - `npx just build-lib` in each package that has the recipe passes. Report any size change in a published build;
-  - after `npx just docs-build`, `.docs` holds no `__vitePreload` call with a 32-hex token after its dependency array. Report the `grep -rE` used, and its count before and after;
-  - `just docs-smoke` (item 2) fails before the repair and passes after. This is the discriminating witness.
-- **Stops:**
-  - if typecheck, a library build, or a test fails because of the two copies, stop and report it. Don't repair a plugin's types here;
-  - if npm can't give the tree above, stop.
+**Required property:**
 
-  The fallback then is the owner's choice: wait for Vite 8.4, or adopt its prerelease.
+- Vite declares a `rolldown` range that contains the one version the tree installs, 1.3.2;
+- the built docs carry no malformed `__vitePreload` call;
+- nothing else in the gate regresses.
 
-- **No upstream report is owed.** The repository ran Vite outside its declared range. If item 1 finds a defect that the range doesn't explain, stop and report it with a minimal reproduction for the owner.
+**What the architect read** ([reading](checks/rf46-rolldown-probe.txt) D and E):
+
+- a separate install of `vite@8.4.0-beta.1` resolves `rolldown` 1.3.2 and writes correct preload calls;
+- on this branch, changing only the root pin, `npm install --package-lock-only` resolves with no conflict. The lockfile changes `vite`, `postcss` (8.5.32 to 8.5.33), and adds `napi-windows-process-start-time`, which is optional and Windows-only;
+- `vite@8.4.0-beta.1` was published on 2026-11-16, and its `engines` (`^20.19.0 || >=22.12.0`) admit Node 26.
+
+**The change:**
+
+- **Root `package.json`:** the `devDependencies` entry `"vite": "8.4.0-beta.1"`, exact, as `.npmrc`'s `save-exact` writes it.
+- **The root `overrides`:** unchanged. `"vite": "$vite"` takes the new pin, and it is what carries the beta to the `^8.0.0` peer ranges of `vitest` 5.1.0 and Storybook 10.6.7, which a prerelease doesn't satisfy by itself. `"rolldown": "$rolldown"` stays at 1.3.2.
+- **The lockfile:** regenerated with `npm install`, and nothing else changes in it. If any other package moves, report it.
+- **Not changed:** the `peerDependencies` of `@ydinjs/vite-traits-plugin` and `@ydinjs/vite-custom-element-assets` (`"vite": "^8.1.4"`). A published range doesn't name a prerelease, and the override covers the workspace.
+
+**Checks.** The beta changes Vite under everything that runs on it, not only the docs.
+
+- **Before the change,** read Vite's changelog from 8.3.8 to 8.4.0-beta.1. Report each breaking change, deprecation, or change to the `Plugin` types or to the build's defaults that this repository could reach.
+- **The tree:** `npm ci` passes on a fresh clone, and `npm ls vite rolldown` shows one `vite`, 8.4.0-beta.1, and one `rolldown`, 1.3.2. Report any `invalid` or `overridden` mark.
+- **Types:** `npx just typecheck` passes. `RF-31`'s cause was a clash between Vite's `Plugin` types and Rolldown's, so a change in the beta's `Plugin` can reopen it.
+- **Libraries:** `npx just build-lib` passes in each package that has the recipe, with no new warning. Report any size change in a published build. The libraries build with `tsdown`, so none is expected.
+- **Tests:**
+  - locally, `npx just test` (Chromium, every project), with the same result as at `4e85ac046`;
+  - in CI, the green run covers Firefox, Safari and visual. Vitest's server, its dependency optimizer and the browser providers all run on Vite.
+  - **No visual baseline may change.**
+- **Storybook:**
+  - `npx just docs-build` passes;
+  - `.docs` holds no `__vitePreload` call with a 32-hex token after its dependency array. Report the `grep -rE` used, and its count before and after;
+  - `just docs-smoke` (item 2) fails before the change and passes after it. This is the discriminating witness;
+  - `just docs-dev` starts, and a story renders in its iframe with no console error;
+  - report any new warning in the Storybook build's output.
+- **Measurements:** report the `measurements` job's rows that move between `4e85ac046` and the head. It never fails the run (`RD-7`).
+
+**Stops.** Report the output, and don't work around it:
+
+- `npm install` or `npm ci` refuses the tree, or `npm ls` shows a second `vite` or `rolldown`;
+- typecheck, a library build, or a test fails because of the beta, where it passes at `4e85ac046`. Don't repair a plugin's types or a test here;
+- a visual baseline differs;
+- the Storybook build fails, or the smoke check fails for a reason other than `RF-46`'s.
+
+**The fallback** after a stop is the owner's choice. **The architect recommends keeping one ready:** stay on `vite@8.3.8`, and pin `vite`'s own `rolldown` to its range with a nested override, `"vite": { ".": "$vite", "rolldown": "~1.2.18" }`. That gives Vite a second, older `rolldown` (`RF-31`'s risk), but it doesn't depend on a prerelease.
+
+**After the unit:** move to the stable `vite@8.4.0` when it ships, as an ordinary dependency update. The report states this. It isn't owed in this unit.
+
+**No upstream report is owed.** The repository ran Vite outside its declared range. If item 1 finds a defect that the range doesn't explain, stop and report it with a minimal reproduction for the owner.
 
 ## 2. The smoke check: `just docs-smoke`
 
@@ -161,9 +194,9 @@ Write `.plan/docs-gate-1/docs-gate-report.md`. It covers:
 ## Owner decisions and authorizations
 
 1. **No ruleset change.** The required check stays `verify`.
-2. **The witness run and the pull request need the owner's authorization.** The witness is the manual `verify` run on the branch. The pull request is a non-draft one from `repo/docs-gate-1` to `main`, for the green run. **The architect recommends authorizing both.** Open them only if the owner's prompt authorizes it, and never merge the pull request. The ruleset requires the branch to be up to date with `main`, so bring `main` in with a merge, not a rebase.
-3. **Visible change:** the _Publish Docs_ workflow is removed, and Pages deployments show in `verify`'s runs. If the owner wants a separate docs workflow, the fallback is the first _Not adopted_ alternative, at a second build per push to `main`.
-4. **Only if item 1 stops:** wait for Vite 8.4, or adopt `vite@8.4.0-beta.1`. Until a repair merges, the deployed site stays broken.
+2. **Authorized 2026-11-17 by the owner:** the manual `verify` run on the branch (the witness) and a non-draft pull request from `repo/docs-gate-1` to `main`, for the green run. Never merge the pull request. The ruleset requires the branch to be up to date with `main`, so bring `main` in with a merge, not a rebase.
+3. **Decided 2026-11-17 by the owner:** `deploy` moves into `verify.yml`, and `docs.yml` is deleted. The _Publish Docs_ workflow goes, and Pages deployments show in `verify`'s runs.
+4. **Decided 2026-11-17 by the owner:** the repair adopts `vite@8.4.0-beta.1` (item 1). **Only if item 1 stops:** the owner chooses the fallback, and the architect recommends the nested override. Until a repair merges, the deployed site stays broken.
 
 ## Review before merge
 
@@ -172,7 +205,7 @@ A targeted feature-proof review reads the diff from `4e85ac046` to the head. It 
 - `deploy`'s condition and permissions, and that no job a pull request runs holds `pages: write` or `id-token: write`;
 - `verify`'s `needs`, and the witness run;
 - the smoke check against `RD-14` property 6, including that it can't pass vacuously: an empty `index.json` or a page that never reports must fail;
-- the dependency tree against item 1's property.
+- the dependency tree against item 1's property, and the changelog reading.
 
 It records at `.plan/reviews/docs-gate-1/feature-proof-claude.md`, and the architect decides its findings.
 
