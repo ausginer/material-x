@@ -24,6 +24,10 @@ permissions:
 
 env:
   NODE_VERSION: 26
+  # The aube that `package.json`'s `packageManager` names. Each job installs it
+  # with npm's one command, outside the checkout, so that npm doesn't read the
+  # repository's `.npmrc` (`repo:RD-16` property 9).
+  AUBE_VERSION: 2.10.0
 
 # Each job's timeout-minutes is about twice its longest run observed on pull
 # request #27 (`.plan/ci-verification-1/ci-verification-report.md`), and
@@ -38,11 +42,20 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx just fmt-check
-      - run: npx just lint
-      - run: npx just typecheck
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec just fmt-check
+      - run: aube exec just lint
+      - run: aube exec just typecheck
 
   chromium:
     if: github.event.pull_request.draft != true
@@ -56,9 +69,18 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec playwright install --with-deps chromium
       # Diagnostics for the visual rows (`repo:RD-13` property 9). Nothing
       # compares them.
       - name: Runner image and processor
@@ -67,7 +89,7 @@ jobs:
           lscpu | grep 'Model name'
       # Every project, visual included, without measurement rows, with coverage.
       # Vitest's default reporters under GitHub Actions, and its exit status.
-      - run: npx just test --coverage --tags-filter '!measurement'
+      - run: aube exec just test --coverage --tags-filter '!measurement'
         env:
           MX_TEST_VISUAL: '1'
       # Every run uploads, including one whose tests failed.
@@ -96,10 +118,19 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps firefox
-      - run: npx just test --project '*/firefox' --tags-filter '!measurement'
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec playwright install --with-deps firefox
+      - run: aube exec just test --project '*/firefox' --tags-filter '!measurement'
         env:
           MX_TEST_ENGINES: firefox
 
@@ -114,8 +145,17 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
       - name: Enable Safari's remote automation
         run: sudo safaridriver --enable
       # A Safari page reports the preferences a Chromium or Firefox page reports
@@ -132,7 +172,7 @@ jobs:
           sw_vers
           defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
       # Each Safari project in its own Vitest process (`repo:RD-12`).
-      - run: npx just test-safari --tags-filter '!measurement'
+      - run: aube exec just test-safari --tags-filter '!measurement'
 
   # Builds the docs site and loads every page of it (`repo:RD-14`). On `main`,
   # its artifact is what `deploy` publishes.
@@ -145,11 +185,20 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npx just docs-build
-      - run: npx just docs-smoke
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec playwright install --with-deps chromium
+      - run: aube exec just docs-build
+      - run: aube exec just docs-smoke
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: .docs
@@ -208,16 +257,25 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec playwright install --with-deps chromium
       # A failing row is reported, not a failed step. A declaration project
       # type-checks its files and has no tags, so it is not selected.
       - name: Measurement rows
         run: >-
-          npx just test --tags-filter measurement --project '!declaration*' --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
+          aube exec just test --tags-filter measurement --project '!declaration*' --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
       - name: Sizes at the head
-        run: npx just size-reading "$RUNNER_TEMP/head-size.json"
+        run: aube exec just size-reading "$RUNNER_TEMP/head-size.json"
       # The merge base's tree, with its own instruments. A tree that can't give
       # a machine-readable reading leaves no file, which the report states.
       - name: Sizes at the merge base
@@ -230,12 +288,12 @@ jobs:
           git worktree add "$RUNNER_TEMP/base" "$base"
           (
             cd "$RUNNER_TEMP/base" &&
-            npm ci &&
-            npx just size-reading "$RUNNER_TEMP/base-size.json"
+            aube ci &&
+            aube exec just size-reading "$RUNNER_TEMP/base-size.json"
           ) || echo "::notice title=Measurement::The merge base gave no machine-readable size reading"
       - name: Report
         run: |
-          npx just size-report --head "$RUNNER_TEMP/head-size.json" \
+          aube exec just size-report --head "$RUNNER_TEMP/head-size.json" \
             --base "$RUNNER_TEMP/base-size.json" \
             --tests "$RUNNER_TEMP/measurements.json" \
             --out "$RUNNER_TEMP/size-report.md"

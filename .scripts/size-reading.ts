@@ -74,10 +74,10 @@ function parseLastJSON(stdout: string, instrument: string): unknown {
 async function readSizeLimit(name: string): Promise<SizeRow[]> {
   const cwd = join(ROOT, 'packages', name);
 
-  await run('npx', ['just', 'build'], cwd);
+  await run('aube', ['exec', 'just', 'build'], cwd);
 
   // size-limit exits non-zero when a row is over its limit, and still prints it.
-  const { stdout } = await run('npx', ['size-limit', '--json'], cwd, {
+  const { stdout } = await run('aube', ['exec', 'size-limit', '--json'], cwd, {
     allowFailure: true,
   });
   const rows = parseLastJSON(stdout, `${name}: size-limit`) as SizeLimitRow[];
@@ -94,7 +94,7 @@ async function readSizeLimit(name: string): Promise<SizeRow[]> {
 async function readDrag(): Promise<SizeRow[]> {
   const cwd = join(ROOT, 'packages/drag');
 
-  await run('npx', ['just', 'build'], cwd);
+  await run('aube', ['exec', 'just', 'build'], cwd);
 
   // The gate exits non-zero on a violation, and still prints the reading.
   const { stdout } = await run(

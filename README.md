@@ -23,11 +23,11 @@ claude plugin marketplace add ./
 Without it the first session in a fresh clone runs before the effort guard is loadable. See [`AGENTS.md`](AGENTS.md) §Before running a governed role.
 
 ```bash
-npm install
-npm run build       # build all packages
-npm run typecheck   # type-check all packages
-npm run test        # run all tests
-npm run docs:dev    # start Storybook locally
+aube install
+aube run build       # build all packages
+aube run typecheck   # type-check all packages
+aube run test        # run all tests
+aube run docs:dev    # start Storybook locally
 ```
 
 ## License

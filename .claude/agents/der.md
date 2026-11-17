@@ -14,8 +14,8 @@ Your subject is the **current system**: code, constraints, compatibility paths, 
 **Start** with the decision projection, which is your primary input. From the package directory:
 
 ```
-npx just decisions            # id, status, live statement
-npx just decisions --retired  # normative content no longer in force
+aube exec just decisions            # id, status, live statement
+aube exec just decisions --retired  # normative content no longer in force
 ```
 
 Both print TSV to stdout and write nothing.

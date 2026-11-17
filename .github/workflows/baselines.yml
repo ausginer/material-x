@@ -11,6 +11,10 @@ on:
 
 env:
   NODE_VERSION: 26
+  # The aube that `package.json`'s `packageManager` names. Each job installs it
+  # with npm's one command, outside the checkout, so that npm doesn't read the
+  # repository's `.npmrc` (`repo:RD-16` property 9).
+  AUBE_VERSION: 2.10.0
   # The branch whose head is recorded: the dispatched branch, or the pull
   # request's head branch.
   TARGET: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
@@ -53,9 +57,18 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec playwright install --with-deps chromium
       - name: Runner image, processor and Chromium
         run: |
           {
@@ -65,7 +78,7 @@ jobs:
           } | tee "$RUNNER_TEMP/environment.txt"
       # The update flag rewrites a baseline only where its comparison failed or
       # it didn't exist; one that still matches stays as it is.
-      - run: npx just test --project visual/material-x --update
+      - run: aube exec just test --project visual/material-x --update
         env:
           MX_TEST_VISUAL: '1'
       - name: Collect the added and changed baselines

@@ -31,7 +31,7 @@ const BUILD = Symbol.for('@ydinjs/drag: the build of this run');
 
 const STEPS: ReadonlyArray<readonly [string, ...string[]]> = [
   ['node', '../../.scripts/package-files.ts', 'clean', '--package', '.'],
-  ['npx', 'tsdown', '--config', 'tsdown.config.ts'],
+  ['aube', 'exec', 'tsdown', '--config', 'tsdown.config.ts'],
 ];
 
 /** Runs one step, and resolves with its failure, or `null` when it exits 0. */

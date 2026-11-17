@@ -33,8 +33,8 @@ const BROWSER_WORKERS = 2;
 // Files at once across the whole non-browser group, which shares one
 // `groupOrder` and therefore one resolved bound. Half the cores rather than
 // Vitest's `cores - 1`, because several files in this group spawn work that uses
-// more than the one core the worker holding it is counted as: `consumer.node`
-// runs `npm pack` and `tsc`, and `size.node` bundles and compresses. At
+// more than the one core the worker holding it is counted as:
+// `consumer-types.node` spawns `tsc`, and `size.node` bundles and compresses. At
 // `cores - 1` the group oversubscribed badly enough to time out three tests;
 // measured on all five node projects, 40 s with four failures against 45 s with
 // none. It has not been repeated since.

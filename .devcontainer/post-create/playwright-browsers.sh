@@ -11,14 +11,14 @@ fi
 # only there, where its baselines are recorded (`repo:RD-13`). No WebKit is
 # installed: CI runs Safari itself, and nothing runs Playwright's WebKit
 # (`repo:RD-12`).
-# `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` keeps `npm ci` from downloading browsers,
-# so this is where Chromium comes from. Installing is a no-op when the build is
-# already in Playwright's cache.
+# `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` keeps `aube install` from downloading
+# browsers, so this is where Chromium comes from. Installing is a no-op when the
+# build is already in Playwright's cache.
 
 PLAYWRIGHT="$WORKSPACE_DIR/node_modules/.bin/playwright"
 
 if [ ! -x "$PLAYWRIGHT" ]; then
-  echo "playwright is not installed yet: run npm ci, then npx playwright install chromium"
+  echo "playwright is not installed yet: run aube install, then aube exec playwright install chromium"
   exit 0
 fi
 

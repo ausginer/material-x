@@ -65,8 +65,8 @@ export function App() {
 ## Local Demo
 
 ```bash
-npm run docs:dev   # start Storybook locally
-npm run docs:build # build the demo
+aube run docs:dev   # start Storybook locally
+aube run docs:build # build the demo
 ```
 
 ## Usage Notes

@@ -54,8 +54,14 @@ function retargetJsOnlyOverrides(config: JSONRecord): number {
 async function runMigrate(): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const child = spawn(
-      'npx',
-      ['@oxlint/migrate', '--type-aware', '--details', '--with-nursery'],
+      'aube',
+      [
+        'exec',
+        '@oxlint/migrate',
+        '--type-aware',
+        '--details',
+        '--with-nursery',
+      ],
       {
         stdio: 'inherit',
       },

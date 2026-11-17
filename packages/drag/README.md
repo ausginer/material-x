@@ -257,10 +257,10 @@ controller.use(lifter.cancelLanding, lifter);
 ## Development
 
 ```sh
-npx just test           # Chromium: browser, shipped, declaration and node projects
-npx just test-engines   # the browser suite in the engines MX_TEST_ENGINES lists, Chromium by default
-npx just size           # sizes and module graphs
-npx just compare        # before/after cost, about half an hour
+aube exec just test           # Chromium: browser, shipped, declaration and node projects
+aube exec just test-engines   # the browser suite in the engines MX_TEST_ENGINES lists, Chromium by default
+aube exec just size           # sizes and module graphs
+aube exec just compare        # before/after cost, about half an hour
 ```
 
 The record is in [`.plan/00-index.md`](.plan/00-index.md), and the owed behavior in [`.plan/contract.md`](.plan/contract.md).
