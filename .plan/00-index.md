@@ -793,6 +793,12 @@ Tier C since 2026-11-16 (below), before that Tier B; **open**. Registered on 202
   - **Required property, from here:** the watching row passes in Firefox, and the forward is then removed. Until then, this entry names `autofocus` in Firefox as a known gap.
   - **The report to Mozilla** is the owner's to file, with the findings report §4's reproduction. This entry links it once it is filed.
 
+- **Dated 2026-11-17 by the architect: the forward's shape changes before merge,** on the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-2` and `reviewer-4`, relayed by the coordinator.
+  - **The deviation:** `forwardFocus` assigns `host.focus` in each constructor (`material-x/src/core/utils/useCore.ts:25`), so each of the seven hosts has an own, writable `focus`. The ruling above assumed a declared member: _"the declared member restates an inherited one, and no assignment changes."_ The own property shadows a subclass's `focus()`, and `super.focus()` in such a subclass skips the forward, which in Firefox focuses nothing.
+  - **Subclassing is valid use, so no owner decision is needed.** Each component class is its entry's default export, its type lets a subclass override `focus()`, and nothing published excludes that. Under CONTRIBUTING §1.1, a precondition written now to exclude it would be the change wearing a contract term. A library-wide rule on subclassing would be a contract decision of its own, and it wouldn't change this ruling, because the declared member is the ruling's own premise.
+  - **The required property gains:** `focus` is a method of material-x's classes, not an own property of an instance. A subclass's own `focus()` is called, and `super.focus()` in it reaches the control. The [findings handoff](findings-1/findings-1-handoff.md)'s item 8, step 1, implements it.
+  - **A control that can't take focus:** the report says that focus stays where it was. That holds by HTML's focusing steps, but it was derived, not read. Item 8, step 2, adds the rows.
+
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 
 Tier C, **closed 2026-11-16** (below). Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. Until it closed, the row was **disabled in Firefox only,** as an expected failure, and the marking cited this address.
@@ -842,6 +848,11 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - **In Safari:** the hover and click rows pass. The keyboard rows are `RF-42`'s.
   - **The focused visual rows were recorded again** (run 43886019999), and no baseline changed. The comparator's per-pixel threshold absorbs a layer at 0.1 opacity (`RF-41`). That meets this entry's _recorded again_ clause: the recording ran, and each baseline matches the rendering within the comparator's threshold.
   - **It closes** when the Safari keyboard rows are resolved under `RF-42`, on the owner's decision.
+
+- **Dated 2026-11-17 by the architect: the scope of _met_, and the rows,** on the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` and `reviewer-3`, relayed by the coordinator.
+  - **Scope.** The note above covers `mx-button`, `mx-checkbox` and `mx-radio`, the elements this entry's property names. The report's §7 says that the button's focus rule is in the sheet that every button adopts. That is true of the stylesheet, not of what is drawn: in `mx-switch-button` and `mx-switch-icon-button`, `.host` is a `<span>` and never matches `:focus-visible`, so they draw no focus layer. That is `RF-43`, outside this entry.
+  - **Rows.** The rows read only `mx-button`'s filled colour and the unchecked checkbox and radio. The selected states, the other button colours and the icon button's mappings were correct at `fc3b89680` by the reviewer's rendering, but no row fails if one of them is dropped, and the visual layer can't see them (`RF-41`). The [findings handoff](findings-1/findings-1-handoff.md)'s item 8, step 3, adds a row for each.
+  - **It closes** when `RF-42`'s rows are resolved and item 8's rows pass. This replaces the closing condition above.
 
 #### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
 
@@ -954,6 +965,26 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings 
 - **Why the product isn't implicated:** the trigger is the same CSS in every engine. Safari's hover and click rows pass. The rows fail at the reach assertion, before the layer is read.
 - **Required property:** each of the 9 rows either reads keyboard focus in Safari through real keyboard input, or is disabled there under `RD-8` with this entry as its finding.
 - **Routed** to the owner. The options and the architect's recommendation are in the [findings handoff](findings-1/findings-1-handoff.md)'s _Disposition of the report at `fc3b89680`_.
+
+#### RF-43 — `mx-switch-button` and `mx-switch-icon-button` break the `.host` invariant, so they draw no focus state layer on keyboard focus
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` (code at `fc3b89680`), relayed by the coordinator. **No row is disabled:** no row reads a switch button's focus layer.
+
+- **What is drawn:** both elements build through `useButtonCore`, so they adopt `button/styles/default/main.styles.css` and its focus-layer rule `:host .host:focus-visible > .ripple::before` (`:111`). In their templates, `.host` is a `<span>`, and the focusable element is the `<input class="control">` before it (`switch-button.tpl.html`, `switch-icon-button.tpl.html`). So the rule never matches. Their keyboard focus indicator draws on `.control:focus-visible + .host` (`button/styles/default/switch-control.styles.css:19`).
+- **The tokens:** Material's tables define `md.comp.button.filled.selected.focused.state-layer.color` and its `unselected` counterpart (tproc's cached tables). No switch token package (`defaultSwitchTokens`, `elevatedSwitchTokens`, `tonalSwitchTokens`, `outlinedSwitchTokens`, `variantSwitchTokens`) declares a focus-layer variable.
+- **Not a regression:** before the findings unit, no button drew a focus layer. That unit's scope, `RF-35`'s property, names `mx-button`, `mx-checkbox` and `mx-radio`.
+- **Required property:** each switch button draws the focus state layer its tokens define, checked and unchecked, on its focus indicator's trigger, with the variables and the precedence that `RF-35`'s rulings set. Or the record states why it doesn't.
+- **Routed** to the owner, as a material-x product unit. The architect recommends taking it with the next material-x unit: it reuses `RF-35`'s mechanism, and the rows of `focus-layer.spec.browser.test.ts` extend to it. **It doesn't block the findings unit.**
+- **Widened 2026-11-17 on the owner's direction,** relayed by the coordinator. Until then, this entry's title was _"`mx-switch-button` and `mx-switch-icon-button` draw no focus state layer on keyboard focus"_.
+  - **The invariant, as the owner stated it:** in every material-x component, `.host` is the shadow root's root element, and it is the element that takes focus. Shared rules and helpers depend on this, such as the focus layer and the focus forward. It wasn't written down before. It is now in [`architecture.md`](../.agents/docs/architecture.md) §Components.
+  - **The violation:** in `switch-button.tpl.html` and `switch-icon-button.tpl.html`, the root is `<span class="interaction">`. It holds `<input class="control" part="control" type="checkbox" role="switch">` and, beside it, `<span class="host" part="impl">`. Both templates were added at `1bf5c7cf9` (2026-07-11) and haven't changed since. The missing focus layer is one consequence. Others are `useButtonCore`'s target `.control ?? .host` (`button/ButtonCore.ts:106`–`:108`), whose fallback exists for the switches, and the switches' own focus-indicator trigger, `.control:focus-visible + .host`.
+  - **Required property,** in place of the one above. Each switch button's `.host` is its shadow root's root element and takes focus. It carries the switch's role and checked state. It draws the focus indicator and the focus state layer through the button family's shared rules, checked and unchecked, with the variables and the precedence of `RF-35`'s rulings. `part="impl"` and `part="control"` are public styling surface, so the unit states what each part names afterwards. The package is unreleased (`0.1.0`), so under CONTRIBUTING §8 no compatibility shape is kept.
+  - **The audit, in the same unit.** It reads every other material-x template against the invariant. It also reads every rule and helper that keys on `.host` for what it assumes: that `.host` is the root, that it takes focus, and that it carries `impl`. For each divergence, the unit proposes a restructure or a stated exception. Exceptions amend the owner's invariant, so the owner decides them, on the architect's recommendation. The architect's starting facts, from the first element of each template at `964af56ab`, are not yet judged:
+    - `.host` is the root and takes focus in `mx-button`, `mx-icon-button`, `mx-link-button`, `mx-fab`, `mx-list-button-item` and `mx-list-link-item`;
+    - `.host` is the root but doesn't take focus in `mx-list-item` (a `<div>`) and the split button (an `<mx-connected-button-group>`);
+    - there is no `.host` in `mx-checkbox` and `mx-radio` (the root is `.input`), in the text fields (`.input`, and the shared `text-field-core.tpl.html`), or in the button groups, `mx-icon` and `mx-list` (a `<slot>`);
+    - [`accessibility.md`](../.agents/docs/accessibility.md) §Button says that the switch variants use a native `<button>`. Their templates use `<input type="checkbox">`.
+  - **Routed** to the owner as the next material-x product unit, not pull request #29. It doesn't block the findings unit.
 
 ## Questions
 
