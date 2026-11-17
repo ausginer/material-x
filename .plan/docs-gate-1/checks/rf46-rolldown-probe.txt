@@ -1,0 +1,30 @@
+# RF-46: Vite 8.3.8's build under rolldown 1.3.2 leaves a 32-hex token in each __vitePreload call. Read 2026-11-17 by the
+# architect in the devcontainer. A minimal Vite app, unminified: two dynamic imports, one with @vite-ignore, one nested.
+
+## src/main.js
+window.load = (p) => import(/* @vite-ignore */ `${p}?x=1`);
+window.lazy = () => import('./other.js').then((m) => import('./third.js').then(() => m));
+
+## A. The repository's install (main at 4e85ac046): vite 8.3.8, rolldown forced to 1.3.2 by the root overrides
+# vite's own range: ~1.2.18; installed: 1.3.2
+132:window.load = (p) => __vitePreload(() => import(
+136:window.lazy = () => __vitePreload(() => import("./other-BwFGG1_6.js").then((m) => __vitePreload(() => import("./third-BvRk9kiK.js").then(() => m), []8f2dd90ee34061531d605f5d750d9f81)), []64368a46fdb6610992d7718d0be00fa0);
+
+## B. A separate install of vite@8.3.8 alone, before C: npm resolved rolldown 1.2.19 (vite's range). The build's line 136:
+window.lazy = () => __vitePreload(() => import("./other-BwFGG1_6.js").then((m) => __vitePreload(() => import("./third-BvRk9kiK.js").then(() => m), [])), []);
+# lines matching [\])][0-9a-f]{32}: 0
+
+## C. The same separate install with overrides { rolldown: 1.3.2 }
+# lines matching [\])][0-9a-f]{32}: 2
+132:window.load = (p) => __vitePreload(() => import(
+136:window.lazy = () => __vitePreload(() => import("./other-BwFGG1_6.js").then((m) => __vitePreload(() => import("./third-BvRk9kiK.js").then(() => m), []8f2dd90ee34061531d605f5d750d9f81)), []64368a46fdb6610992d7718d0be00fa0);
+
+## The deployed site and a local docs build carry the same shape
+# .docs/vite-inject-mocker-entry.js (local build of 2026-11-15, rolldown 1.3.2):
+ort(`${e.pathname}${t}&mock=${s.type}${e.hash}`),[]2d7e7e1a443a24f2869c40dcb56dd1a2);return th
+# Deployed (coordinator's download, Publish Docs 44013920978): vite-inject-mocker-entry.js:2 `[]2d7e7e1a443a24f2869c40dcb56dd1a2)` and
+# iframe-DyV7uOsB.js:1026 `__vite__mapDeps([0,1,2,3,4,5])2658f4b9db9ad6bc0ae41c8f1ddbdb67)`
+
+## Context
+# rolldown 1.3.2 and vite 8.3.8 came in together at 31bac1381 (repo: update dependencies, 2026-11-13); before it, vite 8.3.5 and rolldown 1.2.15.
+# tsdown 0.23.7 needs rolldown ~1.3.0. vite@8.4.0-beta.1 needs rolldown ~1.3.2; vite latest is 8.3.8.

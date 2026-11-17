@@ -121,17 +121,19 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Amended 2026-11-16 by `RD-12`,** on the owner's correction (O13): the third engine is Safari on a macOS runner, not Playwright's WebKit. The title, properties 2, 3, 4, 6, 7 and 8, and two reasons changed. `RD-12` holds the readings, the provider and the reasons. What they said before is at the end.
 
+**Amended 2026-11-17 by `RD-14`,** on the owner's answer to the findings unit's question 2, relayed by the coordinator: the docs build is a gate job. Properties 3, 8 and 9 changed. `RD-14` holds the reasons, and the [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) implements it. What they said before is at the end. **Unimplemented** until that handoff's pull request merges.
+
 **Properties.**
 
 1. **Triggers (O1).** A push to `main`; a `pull_request` event of type `opened`, `reopened`, `synchronize` or `ready_for_review`; and `workflow_dispatch`. Every job skips a draft pull request. No other trigger, and no `pull_request_target`. A newer run for the same pull request cancels the older one. A run for a push to `main` is never cancelled.
 2. **The environment (O9, O13).** Every job except `safari` runs on a GitHub-hosted runner named `ubuntu-24.04`, and `safari` runs on `macos-26` (`RD-12` property 6). Each label is named, not `*-latest`, so an operating system changes only by an edit. Each job uses the Node major version that the workflow names. **CI doesn't pull the development image, and no job runs in a container.** Chromium and Firefox are the builds that the exact `playwright` dependency pins (`RD-9`), and a job installs its engine with `npx playwright install --with-deps <engine>`. Safari is the runner image's own and isn't pinned (`RD-12` property 7). Screenshots are reproducible because of `RD-9`'s pinned visual environment, not because of the runner's operating system.
-3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `safari` run every browser project except visual in their engine. **The three test jobs exclude `measurement` rows (`RD-7`).** Every job runs the repository's own recipes on a fresh checkout after `npm ci`. If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
+3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `safari` run every browser project except visual in their engine. `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** Every job runs the repository's own recipes on a fresh checkout after `npm ci`. If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
 4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox` and `safari`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project takes no Chromium launch arguments, and runs with `fileParallelism: false` and one worker, because a background page gets no input in those engines. A Safari project uses the WebdriverIO provider (`RD-12` properties 2 and 3). **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and runs drag's browser and shipped projects in the engines that the variable lists. A local run is Chromium only (`RD-13` property 7).
 5. **Visual runs in Chromium only.** Its baselines are per engine and platform, and only Chromium baselines exist. **The gate never writes, updates or approves a baseline.** The recording workflow proposes baselines in a pull request that the owner merges (`RD-13`). When `chromium` fails, the actual and diff images are uploaded as a workflow artifact.
 6. **A row that needs an instrument that an engine's driver doesn't provide** runs only in the engines that provide it, by an engine condition, as drag's `isChromium` rows do. Chromium-only instruments are the DevTools Protocol, heap snapshots and `--expose-gc`. Safari's driver also lacks media emulation (`RD-12` properties 4 and 5). That limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it.
 7. **Coverage (O4).** `chromium` runs with V8 coverage and uploads it to Codecov on every run. A failed upload fails the job. Codecov's project and patch statuses are `informational`, so a percentage never blocks a merge. Firefox and Safari contribute no coverage, because the V8 provider cannot instrument them.
-8. **The aggregate check.** `verify` needs `static`, `chromium`, `firefox` and `safari`, and succeeds only if each succeeded. **It is the one check the branch rule requires,** so adding or splitting a job changes `verify`'s list and not the rule. A job not in `verify`'s list cannot block a merge.
-9. **Permissions.** The workflow's token is `contents: read`. Only the measurement job adds `pull-requests: write` (`RD-7`). A third-party action is pinned to a full commit hash.
+8. **The aggregate check.** `verify` needs `static`, `chromium`, `firefox`, `safari` and `docs`, and succeeds only if each succeeded. **It is the one check the branch rule requires,** so adding or splitting a job changes `verify`'s list and not the rule. A job not in `verify`'s list cannot block a merge.
+9. **Permissions.** The workflow's token is `contents: read`. Only the measurement job adds `pull-requests: write` (`RD-7`), and only `deploy`, which runs for `main` alone, adds `pages: write` and `id-token: write` (`RD-14`). A third-party action is pinned to a full commit hash.
 
 **Why.**
 
@@ -171,6 +173,13 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 - Property 6 said: _"**A row that needs a Chromium-only instrument** (the DevTools Protocol, heap snapshots, `--expose-gc`) runs only in Chromium, by an engine condition, as drag's `isChromium` rows do."_
 - The reasons said: _"The jobs still share one operating system, one Node version and one lockfile per run, so the only difference between engine jobs is the engine. Playwright's installer adds each engine's system libraries on the runner, so `DRO-18`'s local decision is unchanged."_ and _"**Playwright's build for every engine:** one exact dependency pins all three browsers, in the devcontainer and in CI (`RD-9`)."_
 - **Why it changed:** the owner's correction (O13), which `RD-12` decides.
+
+**What it said before `RD-14`'s amendment of 2026-11-17.**
+
+- Property 3 named no `docs` job.
+- Property 8 said: _"`verify` needs `static`, `chromium`, `firefox` and `safari`"_.
+- Property 9 said: _"Only the measurement job adds `pull-requests: write` (`RD-7`)."_
+- **Why it changed:** the owner's answer to the findings unit's question 2, which `RD-14` decides.
 
 **What it said before `RD-13`.** Property 4 said: _"drag's `test-engines` recipe keeps its name and runs `chromium,firefox`, so its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are `drag:DRO-18`'s selection. A local `just test` without the variable runs Chromium only, as it does today."_ Property 5 said: _"CI never writes, updates or approves a baseline."_ **Why it changed:** the owner's decisions (O14, O15), which `RD-13` decides.
 
@@ -528,9 +537,11 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **`RD-12` property 8** and **`drag:DRO-18`:** the local engine is Chromium.
 - **`.agents/docs/test-architecture.md`** §What screenshots prove and §CI policy, in the same commit. §What screenshots prove said: _"Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review."_ and _"Local runs and CI use the same pinned Chromium and fonts so developer output matches CI, and changing either re-records the baselines in a pull request of its own. The environment is owed rather than installed (`repo:RD-2`, `repo:RD-9`), so until it lands a baseline is only as reproducible as the container that wrote it."_ §CI policy said: _"Local runs cover Chromium and Firefox, and Safari runs in CI. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines."_
 
-#### RD-14 — The docs workflow builds on every ready pull request and deploys only from `main`, in `RD-6`'s environment
+#### RD-14 — The docs build is a gate job of `verify`, and only `main` deploys it
 
-**Decided 2026-11-16 by the architect** on `repo/findings-1` at `275ad0f5c`, on the coordinator's reading of `.github/workflows/docs.yml` (_Publish Docs_), relayed with the owner's authorization of the [findings unit](findings-1/findings-1-handoff.md). **Unimplemented:** that handoff implements it.
+**Decided 2026-11-16 by the architect** on `repo/findings-1` at `275ad0f5c`, on the coordinator's reading of `.github/workflows/docs.yml` (_Publish Docs_), relayed with the owner's authorization of the [findings unit](findings-1/findings-1-handoff.md). **Implemented** by #29, merged as `4e85ac046` (dated note below).
+
+**Amended 2026-11-17 by the architect** on `repo/docs-gate-1` from `main` at `4e85ac046`, on the owner's answer to the findings unit's question 2, relayed by the coordinator: `verify` requires the docs build. A pull request that breaks the Storybook or API build must not merge. There is no preview deployment, which the owner declined. The build and `deploy` move into `verify.yml`, and `docs.yml` is removed. The title and properties 1, 2, 3 and 5 changed, property 6 is new (`RF-46`), and so are two reasons. The first _Not adopted_ item changed. What they said before is at the end. **Unimplemented:** the [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) implements it, and it holds the alternatives weighed.
 
 **The reading at `275ad0f5c`.** _Publish Docs_ has failed on every push to `main` since 2026-08-14. Its last success was on 2026-08-01.
 
@@ -540,11 +551,15 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 
 **Properties.**
 
-1. **Triggers.** A push to `main`; a `pull_request` of type `opened`, `reopened`, `synchronize` or `ready_for_review`, skipped for a draft; and `workflow_dispatch`. A newer run for a pull request cancels the older one.
-2. **Two jobs.** `build` has `contents: read` and runs the root `just docs-build` after `npm ci`, then uploads the Pages artifact. `deploy` needs `build`, holds `pages: write` and `id-token: write`, uses the `github-pages` environment, and runs only for a push to `main` or a manual run on `main`. **Nothing deploys from another branch.** Deployments run one at a time and are never cancelled.
-3. **`RD-6`'s environment.** The runner is named `ubuntu-24.04`. The Node major is named in the workflow and is the one `verify.yml` names, so changing one means changing both. Every action is pinned to a full commit hash, the same hash `verify.yml` uses for the same action where both use it.
+1. **Triggers.** `verify.yml`'s (`RD-6` property 1): a draft pull request skips the build, and a newer run for a pull request cancels the older one.
+2. **Two jobs in `verify.yml`.** `docs` has the workflow's `contents: read`. After `npm ci` it runs the root `just docs-build`, then `just docs-smoke` (property 6), then uploads the Pages artifact. `deploy` needs `docs`, holds `pages: write` and `id-token: write`, uses the `github-pages` environment, and runs only for a push to `main` or a manual run on `main`. **Nothing deploys from another branch.** Deployments run one at a time and are never cancelled.
+3. **`RD-6`'s environment.** `docs` and `deploy` run on `ubuntu-24.04` with the workflow's Node major, and every action is pinned to a full commit hash, as in every other job of `verify.yml`.
 4. **The recipe builds what the docs import.** `just docs-build` succeeds on a fresh checkout after `npm ci`. It builds every workspace package that the Storybook or the API documentation resolves to a build. The workflow adds no private build step (`RD-6` property 3's rule, applied here).
-5. **Outside the gate.** `verify` doesn't need the docs build. A failing docs build shows on the pull request and doesn't block its merge, until the owner decides otherwise (the findings unit's owner question 2).
+5. **In the gate.** `verify` needs `docs` (`RD-6` property 8), so a pull request whose docs build fails can't merge. `deploy` isn't in `verify`'s list, and it doesn't wait for the other gate jobs. On `main`, what deploys is the artifact that the gate's `docs` job built.
+6. **The gate loads the built site.** A build that exits 0 isn't enough (`RF-46`). `just docs-smoke` serves `.docs` at the base path the build was made for, and opens it in Playwright's pinned Chromium. It fails on any uncaught exception, any console error, any failed request for one of the site's own resources, or a render error or timeout that Storybook reports. It loads:
+   - the manager's `index.html`;
+   - `iframe.html` for every story and docs entry in `.docs/index.json`;
+   - `api/index.html`.
 
 **Why.**
 
@@ -552,10 +567,12 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **Deploy apart from build,** so the job that holds the Pages token runs only for `main`, and a pull request's build can never publish.
 - **The same environment as the gate,** so a docs failure that the gate doesn't show comes from the docs build, not from a different runner or Node.
 - **The recipe, not the workflow,** builds the prerequisites, so a developer's `just docs-build` on a fresh checkout behaves as CI's does.
+- **A loaded site, not only an exit status:** `RF-46`'s build exited 0, deployed, and couldn't run. Every entry, not one story: the defect class is a broken lazily loaded chunk, and each story is its own chunk.
+- **In the gate,** because the build was broken for three months unseen, and the owner wants a pull request that breaks it to be refused. **In `verify.yml`, not beside it:** the required check stays `verify`, each event builds once, and no second file has to keep the same Node and pins.
 
 **Not adopted.**
 
-- **A docs job in `verify`,** without the owner's decision. The gate's scope is the owner's (O1 to O8 in the [CI design](ci-verification-1/ci-verification-design.md)).
+- **`docs.yml` kept for `deploy`** beside a `docs` job in `verify.yml`, **a second required check** for `docs.yml`'s build, **a reusable-workflow call**, and **`deploy` needing `verify`**: the [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) §The decision gives the reasons.
 - **Pinning by tag,** which the repository's settings refuse.
 
 **Dated 2026-11-16 by the architect: implemented on pull request #29** at `fc3b89680`, not yet merged ([report](findings-1/findings-1-report.md) §1). A fresh clone's `docs-build` failed before and passes after. On #29, `build` passed and `deploy` was skipped (runs 43875177531, and 43895450612 at the head). The `github-pages` environment allows only `main`.
@@ -565,6 +582,17 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
   - the two `run:` steps hold no shell logic;
   - the architect read the file's four expressions.
 - **Not yet read:** `deploy`'s first run, after the merge. The coordinator reads it.
+
+**Dated 2026-11-17: merged** as `4e85ac046` (#29). On that push, _Publish Docs_ 44013920978 built and deployed: the first deployment since the repair.
+
+**What it said before the amendment of 2026-11-17.**
+
+- The title said _"The docs workflow builds on every ready pull request and deploys only from `main`, in `RD-6`'s environment"_.
+- Property 1 listed the triggers itself, which were the same as `verify.yml`'s. Property 2 named the jobs `build` and `deploy`.
+- Property 3 said: _"The runner is named `ubuntu-24.04`. The Node major is named in the workflow and is the one `verify.yml` names, so changing one means changing both. Every action is pinned to a full commit hash, the same hash `verify.yml` uses for the same action where both use it."_
+- Property 5 said: _"**Outside the gate.** `verify` doesn't need the docs build. A failing docs build shows on the pull request and doesn't block its merge, until the owner decides otherwise (the findings unit's owner question 2)."_
+- _Not adopted_ said: _"**A docs job in `verify`,** without the owner's decision. The gate's scope is the owner's (O1 to O8 in the [CI design](ci-verification-1/ci-verification-design.md))."_
+- **Why it changed:** the owner's answer, after the docs build passed and deployed on `main`.
 
 ## Findings
 
@@ -1040,6 +1068,21 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings 
   - material-x's public entries have rows in the `measurements` job, each with a budget;
   - or the record states that material-x is measured by hand for each change, and how.
 - **Routed** to the owner. The repository's measurement tool is still a [brief](../.agents/docs/measure/brief.md), so it may supply the instrument. **It doesn't block** the findings unit.
+
+#### RF-46 — The deployed docs site doesn't load: Vite's build under the forced `rolldown` 1.3.2 writes a malformed `__vitePreload` call
+
+Tier B, **open**. Registered on 2026-11-17 by the architect, on the owner's report relayed by the coordinator. **It blocks nothing already merged, and the [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) repairs it.**
+
+- **What the owner saw.** _Publish Docs_ 44013920978 built and deployed `4e85ac046` green, but <https://ausginer.github.io/material-x/> doesn't load its preview iframe. The console reports _"Uncaught SyntaxError: identifier starts immediately after numeric literal"_ at `vite-inject-mocker-entry.js:2:9198` and `iframe-DyV7uOsB.js:1026:649`. At each position, a 32-hex-digit token follows the preload call's dependency array: `[]2d7e7e1a443a24f2869c40dcb56dd1a2)` and `__vite__mapDeps([0,1,2,3,4,5])2658f4b9db9ad6bc0ae41c8f1ddbdb67)`.
+- **The cause, read by the architect** ([reading](docs-gate-1/checks/rf46-rolldown-probe.txt)). A Vite app of two lines reproduces it outside Storybook. Every `__vitePreload` call comes out as `[]<32 hex>)`.
+  - Vite 8.3.8 declares `rolldown` `~1.2.18`, and the root `overrides` forces `rolldown` to 1.3.2, the version `tsdown` 0.23.7 needs (`~1.3.0`).
+  - A separate install of `vite@8.3.8` resolves `rolldown` 1.2.19 and writes correct calls. The same install with `rolldown` overridden to 1.3.2 writes the malformed ones.
+  - So the defect is ours: a dependency was run outside its declared range. No upstream defect is established, and no upstream report is owed. `vite@8.4.0-beta.1` declares `~1.3.2`.
+- **Since when:** `31bac1381` (2026-11-13) updated `vite` to 8.3.8 and `rolldown` to 1.3.2 together. The docs build was already failing for other reasons (`RD-14`'s reading), so nothing showed it. A local build of 2026-11-15 has the same token.
+- **The reach:** every Vite application build in the repository with a dynamic import. That is the docs site, and any `vite build` a test or measurement runs. The libraries build with `tsdown`, which wants 1.3, so no published package is affected. The Vitest dev server doesn't write the preload call. **Why the gate didn't see it:** the docs build exits 0, and nothing loaded the built site.
+- **Required property:**
+  - Vite builds with a `rolldown` inside its own declared range, and every other consumer keeps the one it declares;
+  - the built docs site loads every story and docs entry with no uncaught error, and a gate check proves it (`RD-14` property 6).
 
 ## Questions
 
