@@ -106,7 +106,7 @@ No entry names the malformed preload call itself.
 - `verify` is `failure`;
 - `deploy` is skipped.
 
-**Run 44018861028**, the pull request at `3b38426cf` with item 1, is green, as above.
+**Run 44018861028**, the pull request at `3b38426cf` with item 1, is green, as above. **Run 44020422663**, at `948390aa5`, which set `docs`'s `timeout-minutes` and added this report, is green.
 
 ## Remediation of the feature proof
 
@@ -130,7 +130,7 @@ No entry names the malformed preload call itself.
 - **Witness** ([`checks/remediation-r2-witness.txt`](checks/remediation-r2-witness.txt)): `)` appended to that chunk, as the review's M2 did to `radio`'s.
   - Before R2: only `story drag-custom-behavior--resize-handle` fails. `index.html` passes. 101 of 102, exit 1.
   - After R2: `index.html` fails beside that entry, on the same `SyntaxError: Unexpected token ')'` and `storyMissing`. 100 of 102, exit 1.
-  - The manager's failure lists each message twice. The preview's `storyMissing` reaches both the preview's and the manager's channel, and the console error appears twice in the page. The cause of the second console error wasn't read.
+  - The manager's failure lists `console error: SyntaxError…` and `storyMissing` twice each. The [recheck](../reviews/docs-gate-1/feature-proof-recheck-claude.md) read both `storyMissing` reports from the same `iframe.html` document, 1 ms apart, and neither from the manager's window. The console error is also logged twice. So the embedded preview reports the missing entry twice. Why wasn't read. A duplicate only adds a line to a page that is already failing, so it changes no verdict.
 - **The review's M8 still fails:** `FAIL index.html`, `uncaught: Error: probe-M8`, exit 1.
 - **M7, not a criterion:** a `throw` 1 s after `load` in `index.html` now fails, `uncaught: Error: probe-M7`, exit 1. The manager's preview rendered more than 1 s after `load` in this run. Under R3, a slower or faster render can change that result.
 
@@ -163,8 +163,7 @@ The run of the commit that adds this reading changes only Markdown and a text fi
 ## Not verified
 
 - **After the merge** (the coordinator's reading): `docs`, `verify` and `deploy` on the first push to `main`, and that the deployed site loads a story with no console error.
-- **The run of this report's commit**, which changes only `docs`'s `timeout-minutes` and Markdown. The pull request's checks show it.
 - **A separate fresh clone** wasn't made locally. `npm ci` from an emptied `node_modules`, and CI's fresh checkouts, stand in for it.
 - **The measurements comparison** has no base reading on #30. It is read against `main`'s run instead.
 
-**Next:** the targeted feature-proof review that the handoff names, recorded at `.plan/reviews/docs-gate-1/feature-proof-claude.md`.
+**Next:** the [feature proof](../reviews/docs-gate-1/feature-proof-claude.md) is `81c9fe47e`, its disposition `c97b671be`, and its [recheck](../reviews/docs-gate-1/feature-proof-recheck-claude.md) of R1 and R2 `0cf610e94`. The owner merges #30, and the coordinator then reads `deploy` on the first push to `main`.
