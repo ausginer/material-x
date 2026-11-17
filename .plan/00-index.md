@@ -715,7 +715,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 - **`savePrefix=`** (empty) replaces `save-exact`, which aube doesn't read. It is accepted as property 7's equivalent.
 - **`aube add` at the workspace root needs `-W`.** Accepted. `implementer.md` says `aube add -D -W <name>`.
-- **`aube exec` installs first when `package.json` changed** (_"Auto-installing: package.json has changed"_). Accepted. That install is the same `aube install`, under the same script policy, version pin and release age, from the lockfile. It is not a fetch of an unlocked package, which is what property 8's _"never `aubx` or `aube dlx`"_ excludes. In CI, `aube ci` runs first, so nothing changed and nothing installs.
+- **`aube exec` installs first when `package.json` changed** (_"Auto-installing: package.json has changed"_). **Superseded the same day by property 12:** the owner turned the auto-install off. (This reading said: _"Accepted. That install is the same `aube install`, under the same script policy, version pin and release age, from the lockfile. It is not a fetch of an unlocked package, which is what property 8's "never `aubx` or `aube dlx`" excludes. In CI, `aube ci` runs first, so nothing changed and nothing installs."_)
 - **`just oxlint-migrate` needs `@oxlint/migrate`,** which `npx` used to fetch unpinned at each run. It becomes an exact devDependency at 1.93.0, `oxlint`'s version, published 2026-11-09. The recipe then runs from the lockfile.
 - **`aube add` rewrites the hoisted layout,** and drops nested entries that the workspace manifests no longer name. That staleness predates this unit and is `RF-47`. It is repaired in its own commit, before `@oxlint/migrate` is added.
 - **The merge base's size reading fails** until this pull request merges, because `main` has no aube settings. Accepted: `measurements` reports it and never fails the run (`RD-7`).
@@ -769,6 +769,13 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
     A speed figure, a warning, documentation churn, or a `package-lock.json` diff that aube writes once and then keeps stable is not a capital problem.
 
+12. **Only an install command installs** (added 2026-11-17, on the owner's decision).
+    - **The setting.** `.npmrc` sets `aubeNoAutoInstall=true`. `aube run` and `aube exec` then skip their check of `node_modules/.aube-state` against `package.json` and the lockfile, and install nothing.
+    - **What installs.** Only `aube install`, `aube ci`, `aube add` and `aube remove` change `node_modules`. After a pull or a merge that changes `package.json` or `package-lock.json`, the developer runs `aube install`.
+    - **The value is exactly `true`.** aube reads the key as a strict boolean: `true` and `1` turn the check off, and any other value leaves the auto-install on without notice. The witness reads it at the pinned version.
+    - **Nothing overrides it.** An environment value (`AUBE_NO_AUTO_INSTALL`, or its `npm_config_` form) would. CI sets none. The development image sets neither form today (read 2026-11-17), and its handoff already forbids `AUBE_*` variables and any aube configuration, so it needs no change.
+    - **CI is unaffected:** `aube ci` installs before any `aube run` or `aube exec`.
+
 **Why.**
 
 - **`package-lock.json`, not `aube-lock.yaml`.** GitHub's dependency graph reads `package-lock.json` for the transitive dependencies that its security alerts cover. nx 24 reads it and knows no aube lockfile. A frozen install from it keeps every resolved version, while `aube import` re-deduplicates them. aube reads and writes the file, so keeping it costs nothing in the move.
@@ -777,6 +784,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **No download of a package manager,** and a 7-day release age: both close a path by which a freshly published release runs without review.
 - **Strict release age, with exact-version exceptions.** Without strict mode, a young exact pin installs without notice, so the gate would cover only ranges. An exact-version exception lets one reviewed release through and nothing published after it.
 - **`aube exec`, not `aubx`:** `npx` and `aubx` both fetch a missing binary from the registry, and `aube exec` runs only what the lockfile installed.
+- **No auto-install,** on the owner's word of 2026-11-17: _"да, ставим, чтобы не шалил"_ ("yes, set it, so that it doesn't act up"). A command that runs a tool doesn't also install. A stale tree then shows up as the tool's own failure, which `aube install` repairs, rather than as an install in the middle of another command.
 - **npm as CI's bootstrap, not `jdx/aube-action`.** The action would add a third party to the supply chain, for a step that the npm registry, already trusted, serves.
 
 **Not adopted.**

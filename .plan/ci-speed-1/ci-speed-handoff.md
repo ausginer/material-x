@@ -263,7 +263,7 @@ A targeted feature-proof review reads the diff from `229829ef7` to the head. It 
   - only the Safari issue job holds `issues: write`, and it runs no repository code;
   - the measurement, deploy and recording workflows are otherwise unchanged.
 - **The WebKit inventory** and the parallelism reading against `RD-12` property 11.
-- **aube:** the tree readings, the script policy's witnesses, including the CI failure, and `.npmrc` and `package.json` against `RD-16` properties 2 to 7, including that every `minimumReleaseAgeExclude` entry is an exact version that the report justifies. Also that no `npx`, `npm ci`, `aubx` or `aube dlx` remains in a recipe, script, workflow, editor task, agent definition or current document, except consumer instructions and `RD-16` property 9's bootstrap.
+- **aube:** the tree readings, the script policy's witnesses, including the CI failure, and `.npmrc` and `package.json` against `RD-16` properties 2 to 7 and 12, including that every `minimumReleaseAgeExclude` entry is an exact version that the report justifies. Also that no `npx`, `npm ci`, `aubx` or `aube dlx` remains in a recipe, script, workflow, editor task, agent definition or current document, except consumer instructions and `RD-16` property 9's bootstrap.
 
 It records at `.plan/reviews/ci-speed-1/feature-proof-claude.md`, and the architect decides its findings.
 
@@ -307,7 +307,13 @@ For the implementer, on `repo/ci-speed-1`, after merging the architect's commit 
    - **Witness:** the lockfile diff touches only the three entries and their platform or child packages. Afterwards, `aube why lightningcss` under `packages/vite-custom-element-assets` reads 1.33.0. `aube ci` then leaves the lockfile unchanged.
    - **Stop** if the re-resolution touches anything else, or if the release age blocks it.
 4. **`@oxlint/migrate`:** `aube add -D -W @oxlint/migrate@1.93.0`, in a later commit than item 3. **Witness:** `just oxlint-migrate` runs and leaves `.oxlintrc.json` unchanged, or the report shows its diff. If the package has an install script, its `allowBuilds` entry is pinned to 1.93.0.
-5. **Then the unit resumes** where the report's _Next_ says:
+5. **No auto-install** (`RD-16` property 12, added after this section): `.npmrc` gains `aubeNoAutoInstall=true`, in its own commit, under a comment saying that `aube run` and `aube exec` then install nothing.
+   - **Witness,** locally, on a tree that `aube install` has just brought up to date. Afterwards, restore every changed file with `git checkout`, run `aube install`, and `git status` is clean.
+     1. Add a script `"witness-no-install": "node -e 0"` to the root `package.json`, and create a marker file `m` in the scratchpad.
+     2. `aube exec tsc --version` and `aube run witness-no-install` both run, neither prints _Auto-installing_, and `find node_modules/.aube-state -newer "${m:?}"` prints nothing.
+     3. **The control,** after step 2 and never before it, because its install brings the state up to date and step 2 would then pass under any setting: with the `.npmrc` line removed and `package.json` still changed, `aube exec tsc --version` prints _Auto-installing_. If it doesn't, the edit is one the check ignores: use another, such as `^` before one exact devDependency version, repeat from step 1, and report which edit served.
+   - **Stop** if step 2 installs: aube 2.10.0 then doesn't read the key. Don't substitute `--no-install`, an environment variable or another key. The architect decides.
+6. **Then the unit resumes** where the report's _Next_ says:
    - item 1 witness 5 (parallelism);
    - item 2 witness 2 (the issue path, which the owner authorized);
    - item 3's witnesses on the pull request;
