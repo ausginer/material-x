@@ -297,8 +297,8 @@ function createBrowserTestConfig(
       // A page in the background gets no input in Firefox and Safari, and
       // Safari allows one WebDriver session at a time, so both run serially.
       // WebKit runs in parallel at Chromium's worker count: in three CI runs
-      // beside serial ones, no row failed and its test step was 41 to 49 %
-      // faster (`repo:RD-12` property 11).
+      // beside serial ones, no row failed and its test step was 39 to 48 %
+      // shorter by the jobs API's step times (`repo:RD-12` property 11).
       fileParallelism: isParallel && !isDebug,
       maxWorkers: isParallel ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {
