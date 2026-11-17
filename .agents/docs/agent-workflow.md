@@ -27,7 +27,7 @@ Straightforward defects go to the implementer. A change to architecture, contrac
 
 For a new or substantially reworked architecture, use the [prototype checkpoint](#architecture-prototypes) before committing to the full design and production implementation.
 
-Top-level prompts and closing messages travel as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays them, or a `coordinator` session sends them directly. The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
+Top-level prompts and closing messages travel as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays them, or a `coordinator` session sends them directly. The consolidator's review-local dispatch is governed by its [role definition](../../.claude/agents/consolidator.md).
 
 ## Architecture prototypes
 
@@ -91,7 +91,7 @@ Use SHAs and ranges to pin prompts and reviewed trees. Review artifacts record t
 
 Respect role write boundaries. In a shared checkout, serialize source and contract changes and keep a round's reviewed tree fixed. If another writer changes it, state which review claims need rechecking.
 
-[handoff.md](handoff.md) owns staging, saved evidence and scratch cleanup. [AGENTS.md](../../AGENTS.md#before-running-a-governed-role) owns dispatch from a worktree.
+[handoff.md](handoff.md) owns staging, saved evidence and scratch cleanup.
 
 ## Prompt format
 
@@ -131,6 +131,6 @@ When preparing a round, keep shared context to the revision, scope and canonical
 
 ## Agent configuration
 
-Model and effort are declared in `.claude/agents/*.md`; do not override or silently downgrade them. Use the launch and bootstrap procedure in [coordinator-setup.md](coordinator-setup.md). The guard governs Claude roles; it does not attest the owner-side Codex coordinator's work.
+Model and effort are declared in `.claude/agents/*.md`; do not override or silently downgrade them. Use the launch and bootstrap procedure in [coordinator-setup.md](coordinator-setup.md).
 
 A changed role or resident instruction may remain stale in an existing session. Use a fresh process when verifying such a change. Role write restrictions are not proof of an unchanged production tree; establish that from the diff against the reviewed baseline. A bare `@path` in a role file is not a resident import: dependencies must be explicit read instructions.

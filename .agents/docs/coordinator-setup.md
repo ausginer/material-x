@@ -13,9 +13,9 @@ Reuse a related architect or implementer session while its context is useful. Us
 
 ## Direct send
 
-A Claude `coordinator` session sends prompts to live role sessions with `SendMessage`, and the roles send their closing messages back the same way. The owner still starts, names and ends every session and assigns its role; the coordinator starts none and spawns no governed role. Its [role definition](../../.claude/agents/coordinator.md) owns the sending rules.
+A Claude `coordinator` session sends prompts to live role sessions with `SendMessage`, and the roles send their closing messages back the same way. The owner still starts, names and ends every session and assigns its role; the coordinator starts none and spawns no role as a subagent. Its [role definition](../../.claude/agents/coordinator.md) owns the sending rules.
 
-1. Start the coordinator from the main checkout root, as [Start a guarded role](#start-a-guarded-role) describes.
+1. Start the coordinator from the main checkout root, as [Start a role session](#start-a-role-session) describes.
 2. Start each role session on this machine. Nothing reports a failed delivery to a Remote Control session. Start the coordinator and every role session in the same permission mode: a session in a different mode holds incoming cross-session messages for its user's approval. A role's `permissionMode` frontmatter does not set the mode of a main-thread session.
 3. Send this as the first message of each role session, with the coordinator's session name and the role's stamp. A session treats a cross-session message as third-party text unless its own user says otherwise, so a checked-in file cannot give this authorization:
 
@@ -26,30 +26,19 @@ A Claude `coordinator` session sends prompts to live role sessions with `SendMes
 4. Tell the coordinator which session holds which role.
 5. Clear a session whenever you choose. The coordinator cannot see or reset another session's context and does not wait for a clear. A cleared session keeps accepting the coordinator's prompts, so step 3's message is not sent again.
 
-## Start a guarded role
+## Start a role session
 
-Start from the main checkout root. Follow [AGENTS.md](../../AGENTS.md) §Before running a governed role and [harness-effort-guard.md](harness-effort-guard.md) §Starting a role session. If startup context lacks `Effort guard active`, register the local marketplace and start a new Claude session before governed work:
-
-```sh
-claude plugin marketplace add ./
-```
-
-Select both role and effort. The launcher reads the declared level from the role definition and starts at the resolved checkout root:
+Start every role session with [`cl`](../../.scripts/cl.sh), the owner's link to `.scripts/cl.sh`:
 
 ```sh
-.scripts/claude-role.sh architect
-.scripts/claude-role.sh implementer
-.scripts/claude-role.sh reviewer
-.scripts/claude-role.sh consolidator
-.scripts/claude-role.sh coordinator
+cl --init architect   # creates the session `Mx Architect`
+cl architect          # resumes it
 ```
 
-The equivalent manual command is `claude --agent <role> --effort <declared-level>`. The frontmatter in [.claude/agents/](../../.claude/agents/) is authoritative; `--agent` alone does not select its effort. Remove `CLAUDE_CODE_EFFORT_LEVEL` before starting. Do not disable enforcement or pass a second plugin-loading mechanism to work around a refusal.
+`cl` maps each profile to an agent and a session name, and starts `claude --agent <agent> --effort <level> --name|--resume <name>` at the checkout root. It reads the level from the `effort:` field of `.claude/agents/<agent>.md`, because `--agent` alone applies the definition's model and not its effort. It refuses to start when that field is missing or empty, and when `CLAUDE_CODE_EFFORT_LEVEL` is set, which would override every subagent's declared level. Its profiles are reviewer, architect, challenger, implementer, consolidator, integrity, cleanup, der and coordinator.
 
-[.scripts/cl.sh](../../.scripts/cl.sh) is an optional named-session convenience: `bash .scripts/cl.sh --init architect` creates a session and `bash .scripts/cl.sh architect` resumes it. Its supported profiles are reviewer, architect, implementer, consolidator, integrity, cleanup, der and coordinator. It hardcodes their levels; check them against role frontmatter when configuration changes. Prefer the definition-reading launcher for fresh sessions.
+An independent architecture challenge uses a fresh `architect` session with an explicit challenge prompt. `cl challenger` starts it as `Mx Architect Challenger`. Limit the task to evidence probes and a review report; the authoring architect keeps decision authority. See [Architecture challenges](agent-workflow.md#architecture-challenges).
 
-An independent architecture challenge uses a fresh `architect` session with an explicit challenge prompt. There is no `challenger` launcher profile here. Limit the task to evidence probes and a review report; the authoring architect keeps decision authority. See [Architecture challenges](agent-workflow.md#architecture-challenges).
+Review lenses use the consolidator's unnamed subagent path, without model overrides, as its role definition requires. Nothing checks that rule at dispatch.
 
-Dispatch nested workers only from the main checkout, with the guard active. Review lenses use the consolidator's unnamed subagent path, without model overrides, as its role definition requires. A linked worktree can host one worker but cannot dispatch.
-
-This procedure describes local coordination. It does not install a Codex role or establish that a live role session has passed the guard. That evidence comes from the session being used.
+This procedure describes local coordination. It does not install a Codex role.

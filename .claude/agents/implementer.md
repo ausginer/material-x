@@ -19,6 +19,7 @@ For a prototype task, read [Architecture prototypes](../../.agents/docs/agent-wo
 **Operational rules:**
 
 - **Install dependencies with `aube add -D -W <name>` rather than editing `package.json`**, so the latest compatible version is resolved. aube resolves only versions at least 7 days old, and a dependency with an install script fails the install until `package.json`'s `aube.allowBuilds` lists it at that exact version (`repo:RD-16`).
+- **After a merge that changes `package.json` or `package-lock.json`, run `aube install`.** `aubeNoAutoInstall` is on, so nothing else updates `node_modules`, and a stale tree shows up as a tool's failure (`repo:RD-16` property 12).
 - `packages/material-x/src/button` is the closest thing to the intended Material X component layout; follow it when migrating others.
 - **Adding or removing a Material X runtime component means updating `packages/material-x/files.json`**, which lists the runtime entrypoints. A component absent from that list exists in the tree and not in the package.
 - To see what a `.css.ts` file compiles to, run `aube exec just debug <path relative to the package>`; the CSS is printed to stdout.

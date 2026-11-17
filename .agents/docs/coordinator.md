@@ -6,7 +6,7 @@ Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.m
 
 ## Find the owning record
 
-- [AGENTS.md](../../AGENTS.md) governs branch safety, publication, evidence and guarded role sessions. [CONTRIBUTING.md](../../CONTRIBUTING.md) owns source conventions and the size and ownership policy.
+- [AGENTS.md](../../AGENTS.md) governs branch safety, publication, evidence and role sessions. [CONTRIBUTING.md](../../CONTRIBUTING.md) owns source conventions and the size and ownership policy.
 - [architecture.md](architecture.md) maps the Web Components system. Package manifests, `files.json` and source establish the current shipped surface.
 - `packages/<package>/.plan/` owns package decisions, reviews and measurements.
 - [.plan/00-index.md](../../.plan/00-index.md) owns repository-level records and obligations, including verification infrastructure. Do not book that work to a package's register.
