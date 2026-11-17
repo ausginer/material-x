@@ -5,7 +5,9 @@
 # `verify` is the one check the branch rule requires (`repo:RD-6`). `deploy`
 # publishes the docs build to GitHub Pages from `main` only (`repo:RD-14`).
 # `measurements` reports sizes and allocations and never fails the run
-# (`repo:RD-7`).
+# (`repo:RD-7`). `scope` makes a run whose head commit carries `[noci]`, and
+# whose changes since the last fully verified commit are records or Markdown,
+# a reduced one, in which only `records` runs (`repo:RD-15`).
 name: verify
 
 on:
@@ -35,8 +37,67 @@ env:
 # request #27 (`.plan/ci-verification-1/ci-verification-report.md`), and
 # `docs`'s on its first runs (`.plan/docs-gate-1/docs-gate-report.md`).
 jobs:
-  static:
+  # Decides the run's mode (`repo:RD-15`). `reduced` only if the head commit
+  # carries `[noci]` and every change since the last fully verified commit is a
+  # record or Markdown; otherwise `full`. It installs nothing: the decision
+  # script uses Node's built-in modules, `git` and `gh`.
+  scope:
     if: github.event.pull_request.draft != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      mode: ${{ steps.scope.outputs.mode }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node .scripts/ci-scope.ts
+
+  # A reduced run's checks: the gate's checks that read records and Markdown.
+  # `oxfmt` formats both, the record resolver's tests resolve entries in the
+  # real records, and drag's `tsconfig.json` includes a probe under its `.plan/`.
+  records:
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'reduced'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # The record resolver's `repo` tests read retired scopes from history.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec just fmt-check
+      - run: aube exec just typecheck
+      - run: aube exec vitest run --project repo .scripts/entry.node.test.ts
+
+  static:
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -60,7 +121,8 @@ jobs:
       - run: aube exec just typecheck
 
   chromium:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -112,7 +174,8 @@ jobs:
           if-no-files-found: ignore
 
   firefox:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -139,7 +202,8 @@ jobs:
   # Playwright's WebKit build, headless on Linux, through the provider and the
   # commands Chromium and Firefox use (`repo:RD-12` property 11).
   webkit:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -166,7 +230,8 @@ jobs:
   # Builds the docs site and loads every page of it (`repo:RD-14`). On `main`,
   # its artifact is what `deploy` publishes.
   docs:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -192,19 +257,41 @@ jobs:
         with:
           path: .docs
 
-  # Succeeds only if every gate job succeeded. A skipped, cancelled or failed
-  # job fails it.
+  # Succeeds only if `scope` succeeded, every job of its mode succeeded, and
+  # every job outside the mode was skipped (`repo:RD-15` property 5). A
+  # cancelled or failed job fails it in either mode.
   verify:
     if: always() && github.event.pull_request.draft != true
-    needs: [static, chromium, firefox, webkit, docs]
+    needs: [scope, records, static, chromium, firefox, webkit, docs]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - env:
-          RESULTS: ${{ toJSON(needs.*.result) }}
+          NEEDS: ${{ toJSON(needs) }}
+          MODE: ${{ needs.scope.outputs.mode }}
         run: |
-          echo "$RESULTS"
-          test "$(echo "$RESULTS" | jq -r 'map(select(. != "success")) | length')" = 0
+          failed=0
+          expect() {
+            result="$(jq -r --arg job "$1" '.[$job].result' <<< "$NEEDS")"
+            echo "$1: $result, expected $2"
+            [ "$result" = "$2" ] || failed=1
+          }
+          expect scope success
+          case "$MODE" in
+            full)
+              for job in static chromium firefox webkit docs; do expect "$job" success; done
+              expect records skipped
+              ;;
+            reduced)
+              expect records success
+              for job in static chromium firefox webkit docs; do expect "$job" skipped; done
+              ;;
+            *)
+              echo "scope named no mode: '$MODE'"
+              failed=1
+              ;;
+          esac
+          exit "$failed"
 
   # Holds the Pages token, and runs only for `main`. Outside the gate: it needs
   # only `docs`, so a failure elsewhere doesn't hold the docs back. Deployments
@@ -231,7 +318,8 @@ jobs:
 
   # Outside the gate: `verify` doesn't need it, and nothing in it fails the run.
   measurements:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true
