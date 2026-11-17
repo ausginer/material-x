@@ -1,8 +1,8 @@
 # Harness unit report
 
-**Status: done, with no stop.** Items 1 to 4 are implemented and witnessed. The `RF-48` reading reproduced the finding in isolation, and the architect decides it from [the reading](checks/rf48-reading.txt). Two readings are for the architect: [session names](#witness-4-session-names) and [`RF-48`](#the-rf-48-reading).
+**Status: done, with no stop.** Items 1 to 6 are implemented and witnessed. The `RF-48` reading reproduced the finding in isolation, and the architect decides it from [the reading](checks/rf48-reading.txt). Two readings are for the architect: [session names](#witness-4-session-names) and [`RF-48`](#the-rf-48-reading).
 
-**Branch** `repo/harness-1`. The input was the [handoff](harness-handoff.md) at `2643f2d7d`, amended at `c4df9cc0d`. **Commits:** `4c489e745` (items 4, 3 and 1), `0b6eba25a` (item 2 before the rebuild), and the commit that adds this report. **Governing records:** `repo:RD-17` as amended, `repo:RD-18`, `repo:RD-16` property 12 and `repo:RF-48`, in [`../00-index.md`](../00-index.md).
+**Branch** `repo/harness-1`. The input was the [handoff](harness-handoff.md) at `2643f2d7d`, amended at `c4df9cc0d`. **Commits:** `4c489e745` (items 4, 3 and 1), `0b6eba25a` (item 2 before the rebuild), `51a992b49` (this report), and, after the architect's `1d6cbb5c2`, the commit that adds items 5 and 6. **Governing records:** `repo:RD-17` as amended, `repo:RD-18`, `repo:RD-16` property 12 and `repo:RF-48`, in [`../00-index.md`](../00-index.md).
 
 ## Item 4: `aube install` after a merge
 
@@ -108,6 +108,24 @@ In slot `b` after witness 2's readings, with no other command using it ([reading
 
 **So the links were lost in a worktree that no other session used,** on aube 2.10.0 with the hoisted linker. The cause is aube's `add`, not a concurrent operation. The architect decides `RF-48`. Nothing from the reading is committed outside `checks/`, and slot `b` is clean at `0b6eba25a`.
 
+## Item 5: the repair after `aube add` (`RF-48`)
+
+Added by the architect at `1d6cbb5c2`, from `RF-48`'s decision. **The witness came first,** in slot `c`, clean and detached at `0b6eba25a`, with no other command using it ([reading](checks/rf48-repair.txt)):
+
+1. `aube install` answered _"Already up to date"_, and `node_modules/@ydinjs` held all seven workspace packages, with `size-limit-preset-rolldown` beside them.
+2. **`aube add -D -W left-pad@1.3.0`** exited 0. Then neither `node_modules/@ydinjs` nor `node_modules/size-limit-preset-rolldown` existed.
+3. **`aube install --frozen-lockfile --force`** installed 980 packages in 1 s. All seven links and `size-limit-preset-rolldown` were back, and `left-pad` was installed. `aube store status`: _"Store is consistent: 912 packages verified"_. `tsserver.js` has 1 link.
+4. **`aube remove`:** `aube remove -W left-pad` fails with _"package '-W' is not a dependency"_, because `remove` has no `-W`. At the checkout root, `aube remove left-pad` is the root's. It exited 0, and then **neither `node_modules/@ydinjs` nor `size-limit-preset-rolldown` existed again.** Step 3's command restored both.
+5. After reverting `package.json` and `package-lock.json`, `aube install` answered _"Already up to date"_, every link was present, and `git status --short` was empty.
+
+**So `remove` has the same defect as `add`, and the same command repairs both.** No stop applies: step 3 restored every link, the store check passed, and `tsserver.js` has one link.
+
+**Then the rule:** `.claude/agents/implementer.md` has it beside the `aube add -D -W` rule. It says that 2.10.0's `add` and `remove` drop the links, which step 4 shows, where the handoff's wording named only `add`.
+
+## Item 6: the picker's order (`RD-17` property 2)
+
+`coordinator-setup.md` §Session names says that the picker lists the matches newest first, and that the newest is the session `cl` means, in place of _"the owner chooses"_. The ordering is the architect's reading in `RD-17` property 2, not a new one.
+
 ## What wasn't verified
 
 - `cl` against the real `claude`: every case uses the stub, and the owner's own `cl` starts are the live evidence.
@@ -121,4 +139,4 @@ Slots `b` and `c` stay, with their `node_modules`: `RD-17` property 3 gives thei
 
 ## Next
 
-The stopping boundary: this report committed and pushed, and the pull request open with `verify` green. The targeted feature-proof review follows (handoff §Review before merge). **For the architect:** `RF-48` from its reading, and the session-name reading against `RD-17` property 2. After the merge, the owner runs `claude plugin marketplace remove material-x` (owner decision 1).
+The stopping boundary: this report committed and pushed, and the pull request open with `verify` green. The targeted feature-proof review follows (handoff §Review before merge). (_Dated 2026-11-17:_ the architect decided both readings at `1d6cbb5c2`, and items 5 and 6 implement them.) After the merge, the owner runs `claude plugin marketplace remove material-x` (owner decision 1).

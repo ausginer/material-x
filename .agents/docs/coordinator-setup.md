@@ -51,7 +51,7 @@ A slot is a lowercase letter from `b` to `z`. No letter is the main slot, which 
 
 - **A session is named by its slot, never by its task:** `Mx <Role>` in the main slot and `Mx <Role> <S>` in slot _s_. Each live session's name is unique, so `SendMessage` reaches it.
 - **When a unit ends, clear the session with `/clear`,** and the slot takes the next unit. No session is renamed.
-- **Run `--init` once per slot and profile.** `--resume <name>` resumes the one session whose title is exactly that name, case-insensitively, among the sessions of every worktree of the repository. When more than one session has the title, it opens the resume picker with the name as its search text, and the owner chooses. A second `--init` with the same name makes that choice necessary, and `/clear` gives the new session the cleared one's title. `cl` can't tell in advance, because the CLI offers no query for session titles. The reading is [`session-names.txt`](../../.plan/harness-1/checks/session-names.txt).
+- **Run `--init` once per slot and profile.** `--resume <name>` resumes the one session whose title is exactly that name, case-insensitively, among the sessions of every worktree of the repository. When more than one session has the title, it opens the resume picker with the name as its search text. The picker lists the matches newest first, and the newest is the session `cl` means. A second `--init` with the same name makes that choice necessary, and `/clear` gives the new session the cleared one's title. `cl` can't tell in advance, because the CLI offers no query for session titles. The reading is [`session-names.txt`](../../.plan/harness-1/checks/session-names.txt).
 
 ### Slot limits
 
