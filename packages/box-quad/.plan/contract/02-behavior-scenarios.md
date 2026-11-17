@@ -35,7 +35,7 @@ With `transform-origin: 0 0` and an effective border-box reference:
 | `scale(-1, 1)`        | `(0,0) (-20,0) (-20,10) (0,10)`                      |
 | `skewX(45deg)`        | `(0,0) (20,0) (30,10) (10,10)`                       |
 
-Iteration B must derive complex nested expectations independently of production code and document the derivation next to the fixture. Browser assertions may use one explicit absolute tolerance selected in iteration B for floating-point rounding; tolerance must not excuse layout-pixel or composition-order errors.
+Iteration B must derive complex nested expectations independently of production code and document the derivation next to the fixture. Browser assertions may use one explicit absolute tolerance selected in iteration B for floating-point rounding. In an engine whose client rects are quantized coarser than that tolerance, an assertion on a value recovered from those rects may add the error that the engine's measured quantization carries through the recovery, derived next to the fixture from a saved reading of that engine. That quantization includes the resolution at which the engine reports a rect, as well as the layout unit. Neither tolerance may excuse layout-pixel or composition-order errors. (**Amended 2026-11-16** for `repo:RF-34`. This sentence said: _"Browser assertions may use one explicit absolute tolerance selected in iteration B for floating-point rounding; tolerance must not excuse layout-pixel or composition-order errors."_)
 
 ## 3. API and output
 

@@ -1,0 +1,6 @@
+# RD-14 item 1.4: the github-pages environment's deployment branch policy, read through the API on 2026-11-16. Not changed.
+$ gh api repos/ausginer/material-x/environments/github-pages --jq '{name, deployment_branch_policy, protection_rules}'
+{"deployment_branch_policy":{"custom_branch_policies":true,"protected_branches":false},"name":"github-pages","protection_rules":[{"id":43231032,"node_id":"GA_kwDOPK872s4Ck6c4","type":"branch_policy"}]}
+$ gh api repos/ausginer/material-x/environments/github-pages/deployment-branch-policies
+{"total_count":1,"branch_policies":[{"id":38654943,"node_id":"MDE2OkdhdGVCcmFuY2hQb2xpY3kzODY1NDk0Mw==","name":"main","type":"branch"}]}
+# Custom branch policies are on, protected branches off, and the only policy is the branch named main.

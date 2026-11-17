@@ -1,0 +1,22 @@
+# RF-42 option (a): Safari's 9 keyboard-focus rows press Option-Tab ({Alt>}{Tab}{/Alt}); Chromium and Firefox keep {Tab}.
+# verify run 44003141576 (https://github.com/ausginer/material-x/actions/runs/44003141576) at 964af56ab; safari job 133771894335.
+# Compared with verify run 43895450645 at fc3b89680 (safari job 133397648070), the last Safari reading before the change.
+conclusion: success (measurements, static, chromium, firefox, safari, verify all success)
+image: macos-26-arm64 20261102.0473 (before: 20261112.0504); macOS 26.7.2 (25G332); Safari 27.2 in both
+
+project                          before (fc3b89680)                        after (964af56ab)
+shipped/drag/safari              7 passed | 2 skipped (9)                  7 passed | 2 skipped (9)
+browser/core/safari              243 passed | 2 skipped (245)              243 passed | 2 skipped (245)
+browser/box-quad/safari          242 passed (242)                          242 passed (242)
+browser/drag/safari              432 passed | 1 expected fail | 12 skipped (445)   the same
+consumer/drag/safari             398 passed | 12 skipped (410)             398 passed | 12 skipped (410)
+browser/material-x/safari        147 passed (147)                          147 passed (147)
+spec/material-x/safari           9 failed | 107 passed (116)               116 passed (116)
+
+after:  ✓ spec/material-x/safari (safari) tests/core/focus-layer.spec.browser.test.ts (18 tests) 5221ms
+before: ❯ spec/material-x/safari (safari) tests/core/focus-layer.spec.browser.test.ts (18 tests | 9 failed) 4355ms
+        each failure at tabTo (focus-layer.spec.browser.test.ts:72): the reach assertion, focus still on <body>
+
+# The reach assertion ran unchanged in every one of the 9 rows: document.activeElement is the host, and the host's
+# shadowRoot.activeElement is its native control. Option-Tab reached it in each, so the fallback (it.fails under RF-42) was not taken.
+# No other Safari row changed result.

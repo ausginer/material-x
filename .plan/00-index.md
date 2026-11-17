@@ -1,6 +1,6 @@
 # Repository record — index
 
-The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `ci-verification-1/`, `reviews/` — are its material.
+The register for records whose subject is **the repository** rather than one package. `packages/*/.plan/` holds a package's record; this holds the repository's, and the work directories beside it — `test-execution-1/`, `harness-guard-2/`, `ci-verification-1/`, `findings-1/`, `reviews/` — are its material.
 
 **Scope `repo`.** Addresses are qualified as everywhere else (`CONTRIBUTING.md` §Reading one entry of a record): `repo:RD-1`. Entries are `####` headings that open with their identifier, so one extracts standalone:
 
@@ -55,6 +55,8 @@ awk -v re="^#### RD-1( —|$)" \
 **Home when the work is taken:** a `.plan/` work directory of its own beside the others, holding the design for the image and the workflow. It is not created here, and nothing about the mechanism is designed here — this entry classifies the work and fixes its contract, and the unit that builds it is separate.
 
 **Dated 2026-11-16: the work is taken.** Its home is [`ci-verification-1/`](ci-verification-1/ci-verification-design.md). `RD-6` is deliverable 2, and adds Firefox, Safari and Codecov to its list on the owner's requirements. `RD-7` takes size, allocation and speed checks out of the gate. `RD-8` handles the checks that fail today. `RD-9` is deliverables 1 and 4: the pinned environment is Playwright's locked Chromium and Roboto from a locked package, not a container image, so deliverable 1's _"container image fixing OS, …"_ is read as `RD-9` states. (Amended the same day. At `81d4c91b1`, this note said that `RD-6` met deliverable 1 by pinning the existing development image.) (Amended the same day by `RD-12`: the third engine is Safari on a macOS runner. This note said _"adds Firefox, WebKit and Codecov"_.) Deliverable 3 is the owner's. This entry's order, acceptance and statement of record stand: the gate does not exist until all four deliverables hold.
+
+**Met 2026-11-16, recorded by the architect.** All four deliverables hold. Deliverables 1 and 4 are `RD-9`, and deliverable 2 is `RD-6`, both implemented by #27 (`275ad0f5c`), where `verify` passed on the push to `main` (run 43865448668). Deliverable 3: the owner added `verify` to the ruleset _Main protection_ as a required status check, read back through the API (see `RD-6`'s status). The acceptance as `RD-13` amended it holds: a pull request whose `verify` fails can't merge, the runner records and compares the screenshots, and no baseline reaches a branch except through the owner's merge of a proposal. **The gate exists,** and this entry's statement of record ends.
 
 #### RD-3 — Every project the shared factory declares sets `extends: false`
 
@@ -112,6 +114,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 #### RD-6 — One workflow verifies every push to `main` and every ready pull request, in Chromium, Firefox and Safari on named runners, and one aggregate check gates merge
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `a8726c57d`, on the owner's requirements relayed by the coordinator the same day ([design](ci-verification-1/ci-verification-design.md) §1, O1 to O8). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. It is `RD-2`'s deliverable 2, and it prepares deliverable 3, which the owner performs. Deliverable 1 is `RD-9`.
+
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668. **The branch rule is on:** on 2026-11-16 the owner added `verify` from GitHub Actions as a required status check to the ruleset _Main protection_ (20963220), active on the default branch with no bypass actor, read back by the architect through the API. The ruleset also requires the branch to be up to date with `main`, which the [design](ci-verification-1/ci-verification-design.md) §5 step 5 called unnecessary; that is the owner's choice.
 
 **Amended 2026-11-16, before implementation,** on the owner's direction relayed by the coordinator at `81d4c91b1` (O9 and O10 in the design): CI runs on a plain runner and doesn't pull the development image, and Chromium is Playwright's build. The title, property 2, property 4's third sentence, and the reasons about the image changed. What it said before is at the end.
 
@@ -174,6 +178,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Decided 2026-11-16 by the architect,** on O5 and O6 ([design](ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it.
 
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668.
+
 **Properties.**
 
 1. **What a measurement row is.** A row whose verdict compares a quantity with a budget, a ceiling or a control figure: bytes of a bundle, bytes allocated, or time elapsed. **A row that asserts behavior is not a measurement,** even if it counts. Examples are a retention check (_should not retain …_) and a deterministic work count that a contract invariant states, such as `drag:DRI-17`'s layout reads and spatial searches. Those rows stay in the gate.
@@ -200,6 +206,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 #### RD-8 — A check that fails today is repaired or disabled before the branch rule is on, and each disabled row is a registered finding
 
 **Decided 2026-11-16 by the architect,** on O3 and O8 ([design](ci-verification-1/ci-verification-design.md) §1). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it.
+
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668. **The branch rule is on:** on 2026-11-16 the owner added `verify` from GitHub Actions as a required status check to the ruleset _Main protection_ (20963220), active on the default branch with no bypass actor, read back by the architect through the API. The ruleset also requires the branch to be up to date with `main`, which the [design](ci-verification-1/ci-verification-design.md) §5 step 5 called unnecessary; that is the owner's choice.
 
 **The reading at `a8726c57d`,** taken by the architect on 2026-11-16 in the devcontainer. The output is not committed: each item below has to be read again at the unit's base anyway.
 
@@ -233,6 +241,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 #### RD-9 — The pinned visual environment is Playwright's locked Chromium and Roboto from a locked package, and it changes only in a pull request that re-records the baselines
 
 **Decided 2026-11-16 by the architect.** This is `RD-2` deliverables 1 and 4. **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. **Amended 2026-11-16, before implementation,** on the owner's direction relayed by the coordinator at `81d4c91b1` (O9 to O12 in the design). The owner settled each point: CI runs on a plain runner, Chromium is Playwright's, text renders in Roboto from a locked package, and nothing more is guarded in advance. The decision was rewritten. What it said before is at the end.
+
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668.
 
 **The readings,** taken by the architect on 2026-11-16 at `81d4c91b1`.
 
@@ -276,6 +286,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `c2dbf6292`, on the CI verification unit's stop under `RD-8` property 5 ([report](ci-verification-1/ci-verification-report.md) §The stop). It amends `RD-8` property 2 and `RF-32`'s required property for these names only. **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
 
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668.
+
 **The reading** (the report's `checks/lint-inventory.txt`, at `33fc22dce`). Of 142 lint errors, 108 are `camelcase` on snake_case object keys:
 
 - **Claude Code's hook payload**, 91 in `.claude/plugins/harness-effort-guard/tests/guard.test.ts` and some of the 12 in `scripts/guard.ts`: `hook_event_name`, `session_id`, `tool_name`, `tool_input`, `agent_type`, `agent_id`, `transcript_path` and `subagent_type`. Claude Code sends these names and reads them back.
@@ -310,6 +322,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `a2a4c5488`, on the CI verification unit's second stop under `RD-8` property 5 ([report](ci-verification-1/ci-verification-report.md) §The second stop). It amends `RD-8` property 2 and `RF-32`'s required property for these two rules only. **No public type changes, so the owner has nothing to approve.** **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s item 5 implements it.
 
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668.
+
 **The reading.** After `e9da25c08`, ESLint reports three errors and oxlint none:
 
 - **`@typescript-eslint/no-generated-empty-object-type`** at `packages/material-x/src/button-group/ButtonGroupCore.ts:37` (`ButtonGroupLikeProps`, the props of a trait that has none) and `packages/material-x/src/list/ListItemCore.ts:19` (`ListItemCoreProperties = Record<never, never>`, intersected in `ListInteractiveItemCore.ts:25` and re-exported as `ListItemProperties`). Both are exported, and both mean "no properties". **The repository allows empty object types on purpose:** `.oxlintrc.json`'s "Custom rules" block sets `typescript/no-empty-object-type` to `allow`, since `457991661`, and the trait system spells "no props" as `{}` (`Trait<{}, …>` on the line above the first site). ESLint's own `no-empty-object-type` is among the rules that `buildFromOxlintConfigFile` disables. `no-generated-empty-object-type` is the type-aware form of the same rule: it reports a type that resolves to `{}` instead of one that is written as `{}`. oxlint doesn't implement it, so nothing disables it.
@@ -337,6 +351,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `9c96be2d8`, on the owner's correction relayed by the coordinator the same day (O13 in the [design](ci-verification-1/ci-verification-design.md)): _"Chromium, Firefox and WebKit"_ in O2 means real Safari, run on a macOS runner. At `9c96be2d8` the `webkit` job runs Playwright's WebKit build on `ubuntu-24.04`, and pull request #27's first run is in progress with it. **It amends `RD-6`** (title, properties 2, 3, 4, 6, 7 and 8), **`RD-8` property 1** and **`RD-9` property 1**, in place, each with what it said before. **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s section _Resuming with Safari as the third engine_ implements it.
 
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668.
+
 **Amended 2026-11-16 by the architect** on `ci/verification` at `347d4e499`, on the Safari driver stop ([evidence](ci-verification-1/checks/safari-driver-stop.txt), run 43821740209), relayed by the coordinator. **Property 3's second item was false:** it said that `RD-3`'s release closes one Safari session before the next project opens one. Vitest opens a project's browser before that project's first test file starts, and the release happens when that file starts. Property 3's second item, property 6 and property 8 are amended in place, each with what it said before. The readings at `347d4e499`, one reason and four rejected remedies are added. **Unimplemented:** the handoff's section _Resuming after the Safari driver stop_ implements it.
 
 **Amended 2026-11-16 by the architect** on `ci/verification` at `83ff45024`, on the Safari inventory of run 43827320614 and the probe of run 43829273272, relayed by the coordinator. Safari on the `macos-26` runner reports `prefers-reduced-motion: reduce`, and the window clips the test frame. Property 3's last item is amended in place, with what it said before. Property 10 and the readings at `83ff45024` are added. **Unimplemented:** the handoff's section _Resuming after the Safari inventory_ implements it.
@@ -347,6 +363,16 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 - _"should measure every y() candidate through box when visual is also given"_, in 2 of 6.
 
 The two outcomes, with nothing between them, read as a stall, not as slowness, so **no timeout is raised:** a longer budget would only make the stall longer. Their cause isn't established. Each row is skipped in Safari only, with its own `drag` finding. **A lost browser connection that recurs after those skips** is `RD-8` property 5's stop, because the project's files can't all run. The handoff's section _Resuming after the three Safari runs_ implements this. No property changes.
+
+**Amended 2026-11-16 by the architect** on `repo/findings-1` at `c34cb01d7`, on verify run 43886020747, relayed by the coordinator. Safari's Tab doesn't move focus to buttons, checkboxes or radios, so the 9 keyboard-focus rows of `focus-layer.spec.browser.test.ts` find no focus in `spec/material-x/safari`. `RF-33`'s earlier CI reading shows the same thing: after Tab, `document.activeElement` is `<body>` in Safari, and the `mx-button`'s native button in Chromium and Firefox ([reading](findings-1/checks/rf33-repair-readings-run-1.txt), `RF33T`). Property 10 gains the bullet _Tab_, which names Safari's _"Press Tab to highlight each item"_ as the property's last bullet requires. The other bullets are unchanged. **Unimplemented:** the [findings-1 handoff](findings-1/findings-1-handoff.md)'s section _Item 7, amended a third time 2026-11-16: Tab in Safari_ implements it.
+
+- **Rejected: reaching focus another way in Safari,** for example with `focus()` or a driver command that focuses an element. That isn't keyboard input. Those rows exist to show that keyboard focus draws the layer and the indicator, and `:focus-visible` depends on how focus arrived. Option-Tab is real keyboard input, but it is a different key in one engine, and nothing has shown that WebDriver's modifier reaches WebKit's Tab handling. It is named below only as something for the owner to weigh if the unit stops.
+- **Rejected: limiting the rows under property 5.** Property 5 covers instruments that a driver lacks. Tab focus is a browser preference that the job can set, as it sets Reduce Motion. A row limited for that reason would be an `RD-8` disabled row with its own finding, and Safari would lose the `RF-35` and `RF-39` rows that item 7 requires in every engine.
+- **The reading, by the architect on 2026-11-16, not yet read in CI:** WebKit's Tab skips buttons, checkboxes and radios unless a user setting is on (WebKit bug 199671). On macOS, either Safari's tab-to-links setting or the system's full keyboard access includes them. Only tab-to-links also includes links, which Chromium's and Firefox's default Tab reaches. The Safari defaults keys are `WebKitTabToLinksPreferenceKey` and `com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks`. Nothing read here shows whether a `safaridriver` session honours them. The web-platform-tests CI setup writes other `com.apple.Safari` keys with `defaults write`.
+
+**Amended again 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680`, on the findings unit's [report](findings-1/findings-1-report.md) §7, relayed by the coordinator. **The _Tab_ bullet's premise was false.** The `safari` job wrote both keys, to the global domain and to Safari's container domain. Each read back as set, and Tab still left focus on `<body>` in all six configurations ([reading 1](findings-1/checks/rd12-tab-reading-1.txt), run 43889993969; [reading 2](findings-1/checks/rd12-tab-reading-2.txt), run 43892383154). The preference doesn't reach Safari's Tab under `safaridriver`. Why it doesn't hasn't been read. The bullet is amended in place: the job sets no Tab preference, and `RF-42` holds the rows. How they reach their controls is the owner's decision (the [findings handoff](findings-1/findings-1-handoff.md)'s _Disposition of the report at `fc3b89680`_). No other property changes.
+
+**Amended a third time 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f`, on the findings unit's [report](findings-1/findings-1-report.md) §8, relayed by the coordinator. The owner chose `RF-42`'s option (a): in Safari, the keyboard rows press Option-Tab, which with Safari's default settings moves focus to every control. In run 44003141576 at `964af56ab`, the 9 rows pass, and no other Safari row changes ([reading](findings-1/checks/rf42-option-tab-safari.txt)). The _Tab_ bullet records the key. No other property changes.
 
 **The readings,** taken by the architect on 2026-11-16.
 
@@ -401,6 +427,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
     - **This is the job's environment, like remote automation in property 6, not a limit on rows.** A row that needs the default preference isn't an instrument row under property 5. It gets no engine condition and isn't disabled. A row that needs a non-default preference, such as drag's two reduced-motion rows and their reset, needs emulation, so it stays limited under property 5.
     - **If the job can't set the preference, or Safari still reports `reduce` after the job has set it, the unit stops** under `RD-8` property 5. The rows that need motion are then neither limited nor disabled, and the owner decides.
     - **Any other macOS preference** that the runner image sets differently from Chromium's and Firefox's default, and that a row depends on, is named here by an amendment before the job sets it.
+    - **Tab** (added at `c34cb01d7`, amended at `fc3b89680`). Safari's default Tab doesn't move focus to buttons, checkboxes or radios. **The job sets no preference for it,** because setting Safari's _"Press Tab to highlight each item"_ changed nothing under `safaridriver`. **A Safari row reaches such a control with Option-Tab** (`{Alt>}{Tab}{/Alt}`), the key that moves focus to every control under Safari's default settings. Chromium and Firefox keep Tab. The owner chose this under `RF-42`, and it is real keyboard input, not a limit on rows. (**Amended at `d756e4f4f`.** The previous sentence said: _"How a Safari row reaches such a control by keyboard is `RF-42`'s, and is recorded here once the owner decides."_) (**Amended at `fc3b89680`.** This bullet said: _"In a Safari page, Tab moves focus to every element that Chromium's and Firefox's default Tab reaches: links, buttons and every form control. The setting is Safari's 'Press Tab to highlight each item', not the system's keyboard navigation, which changes more than Safari. As with Reduce Motion, the `safari` job turns it on as the runner's user before the tests, reads it back and logs it, and the step fails if the value read back isn't on. The implementer picks the keys with a reading. It is the job's environment, not a limit on rows. The unit stops under `RD-8` property 5 if the job can't set it, or if Tab still doesn't reach a button in a Safari row after it is set. The keyboard-focus rows are then neither limited nor disabled, and the owner decides."_)
 
 **Why.**
 
@@ -439,6 +466,8 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 #### RD-13 — Baselines are recorded on GitHub's runner by a separate workflow that proposes them in a pull request, and local runs are Chromium only, without visual
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `26453da9c`, on the owner's decisions relayed by the coordinator the same day (O14 and O15 in the [design](ci-verification-1/ci-verification-design.md)). The unit stopped under `RD-8` property 5 and `RD-9` property 4. The owner considered hosted screenshot services and declined them, and decided: baselines are recorded on GitHub's runner, not in the devcontainer; a workflow apart from the gate records them and proposes changed images in a pull request, which the owner reviews and merges; the gate never writes a baseline. Local visual runs are off, and local runs are Chromium only, with Firefox and Safari covered by CI. **It amends `RD-2`'s acceptance and deliverable 1, `RD-6` properties 4 and 5, `RD-9` properties 1, 4, 5 and 6, `RD-12` property 8 and `drag:DRO-18`.** **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s section _Recording baselines on GitHub's runner_ implements it.
+
+**Implemented 2026-11-16** by pull request #27, squash-merged to `main` as `275ad0f5c`. `verify` passed on that push, run 43865448668. A proposal with a changed baseline and property 5's dispatch for `main` haven't run on GitHub yet ([report](ci-verification-1/ci-verification-report.md) §Remediating the feature-proof review, _Not verified_).
 
 **Amended 2026-11-16 by the architect** on `ci/verification` at `b750bd8ef`, on the feature-proof review's `reviewer-1` (`RF-38`). Property 3 gains _What `propose` writes_. The reason for two jobs said that a branch can't use the token for anything except the proposal, which was false for the branch's author, and now states whom the split protects against. What it said before is beside the reason. The handoff's section _Remediating the feature-proof review_ implements it.
 
@@ -499,6 +528,44 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **`RD-12` property 8** and **`drag:DRO-18`:** the local engine is Chromium.
 - **`.agents/docs/test-architecture.md`** §What screenshots prove and §CI policy, in the same commit. §What screenshots prove said: _"Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review."_ and _"Local runs and CI use the same pinned Chromium and fonts so developer output matches CI, and changing either re-records the baselines in a pull request of its own. The environment is owed rather than installed (`repo:RD-2`, `repo:RD-9`), so until it lands a baseline is only as reproducible as the container that wrote it."_ §CI policy said: _"Local runs cover Chromium and Firefox, and Safari runs in CI. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines."_
 
+#### RD-14 — The docs workflow builds on every ready pull request and deploys only from `main`, in `RD-6`'s environment
+
+**Decided 2026-11-16 by the architect** on `repo/findings-1` at `275ad0f5c`, on the coordinator's reading of `.github/workflows/docs.yml` (_Publish Docs_), relayed with the owner's authorization of the [findings unit](findings-1/findings-1-handoff.md). **Unimplemented:** that handoff implements it.
+
+**The reading at `275ad0f5c`.** _Publish Docs_ has failed on every push to `main` since 2026-08-14. Its last success was on 2026-08-01.
+
+- **Since #27** (run 43865448617): GitHub refuses the run before any step, because the repository requires every action to be pinned to a full commit hash, and the workflow names `actions/checkout@v4`, `configure-pages@v5`, `setup-node@v4`, `upload-pages-artifact@v3` and `deploy-pages@v4`.
+- **Before that** (for example run 43744304728 at `a8726c57d`): Storybook's build fails with _Rolldown failed to resolve import "@ydinjs/box-quad"_ from `packages/drag/src/draggable.stories.tsx`. material-x's Storybook also collects drag's and box-quad's stories, and `@ydinjs/box-quad` resolves to its build. `docs:build`'s `^build` builds only material-x's dependencies, which don't include box-quad, so a fresh checkout has no box-quad build when Storybook runs. A developer's tree that has built box-quad passes.
+- The workflow runs on `ubuntu-latest` with `lts/*` Node, and builds and deploys in one job with `pages: write` and `id-token: write`.
+
+**Properties.**
+
+1. **Triggers.** A push to `main`; a `pull_request` of type `opened`, `reopened`, `synchronize` or `ready_for_review`, skipped for a draft; and `workflow_dispatch`. A newer run for a pull request cancels the older one.
+2. **Two jobs.** `build` has `contents: read` and runs the root `just docs-build` after `npm ci`, then uploads the Pages artifact. `deploy` needs `build`, holds `pages: write` and `id-token: write`, uses the `github-pages` environment, and runs only for a push to `main` or a manual run on `main`. **Nothing deploys from another branch.** Deployments run one at a time and are never cancelled.
+3. **`RD-6`'s environment.** The runner is named `ubuntu-24.04`. The Node major is named in the workflow and is the one `verify.yml` names, so changing one means changing both. Every action is pinned to a full commit hash, the same hash `verify.yml` uses for the same action where both use it.
+4. **The recipe builds what the docs import.** `just docs-build` succeeds on a fresh checkout after `npm ci`. It builds every workspace package that the Storybook or the API documentation resolves to a build. The workflow adds no private build step (`RD-6` property 3's rule, applied here).
+5. **Outside the gate.** `verify` doesn't need the docs build. A failing docs build shows on the pull request and doesn't block its merge, until the owner decides otherwise (the findings unit's owner question 2).
+
+**Why.**
+
+- **A build on pull requests,** because the build was broken for three months and only a push to `main` could show it.
+- **Deploy apart from build,** so the job that holds the Pages token runs only for `main`, and a pull request's build can never publish.
+- **The same environment as the gate,** so a docs failure that the gate doesn't show comes from the docs build, not from a different runner or Node.
+- **The recipe, not the workflow,** builds the prerequisites, so a developer's `just docs-build` on a fresh checkout behaves as CI's does.
+
+**Not adopted.**
+
+- **A docs job in `verify`,** without the owner's decision. The gate's scope is the owner's (O1 to O8 in the [CI design](ci-verification-1/ci-verification-design.md)).
+- **Pinning by tag,** which the repository's settings refuse.
+
+**Dated 2026-11-16 by the architect: implemented on pull request #29** at `fc3b89680`, not yet merged ([report](findings-1/findings-1-report.md) §1). A fresh clone's `docs-build` failed before and passes after. On #29, `build` passed and `deploy` was skipped (runs 43875177531, and 43895450612 at the head). The `github-pages` environment allows only `main`.
+
+- **The handoff's actionlint check is waived for this unit.** The unit had no container runtime and no actionlint binary, and the session's policy refused a download. The check would add little:
+  - GitHub refuses a workflow file with an unknown key or a malformed expression before any job starts, and #29's runs got past that check;
+  - the two `run:` steps hold no shell logic;
+  - the architect read the file's four expressions.
+- **Not yet read:** `deploy`'s first run, after the merge. The coordinator reads it.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -537,7 +604,7 @@ Tier B. `reviewer-3` + `der-2`, Review Swarm, found independently and blind to e
 
 #### RF-8 — The repository documents a pull-request gate that does not exist
 
-Tier B. `der-5`, Review Swarm; carried as `TE-F40`. `test-architecture.md` §CI policy states that every pull request gates on the verification suite; `.github/workflows/` contains `docs.yml` alone, on `push` to `main` and `workflow_dispatch`. **Open**, and dispositioned by RD-2: the policy is accepted and the mechanism is owed. Nothing about the repository's actual enforcement has changed, so this row closes when RD-2's four deliverables land and not before. **Dated 2026-11-16:** the mechanism is designed (`RD-6` to `RD-9`) and unimplemented. The row stays open until the owner's branch rule is on.
+Tier B. `der-5`, Review Swarm; carried as `TE-F40`. `test-architecture.md` §CI policy states that every pull request gates on the verification suite; `.github/workflows/` contains `docs.yml` alone, on `push` to `main` and `workflow_dispatch`. **Open**, and dispositioned by RD-2: the policy is accepted and the mechanism is owed. Nothing about the repository's actual enforcement has changed, so this row closes when RD-2's four deliverables land and not before. **Dated 2026-11-16:** the mechanism is designed (`RD-6` to `RD-9`) and unimplemented. The row stays open until the owner's branch rule is on. **Closed 2026-11-16 by the architect:** `RD-2` is met. The workflow runs on every push to `main` and every ready pull request, and the branch rule requires its `verify` check (`RD-6`'s status). `test-architecture.md` §CI policy states the gate as it runs.
 
 #### RF-9 — D-198 states the scoping its own correction retracts, and the register's projection reports both
 
@@ -597,7 +664,9 @@ Tier B. Consolidator-derived at closure. The demonstration item reads **"Not dis
 
 #### RF-23 — The root `Justfile` still counts 15 test projects
 
-Tier C. `integrity-3`, drag2's `d208-final` round, refused by that package's register as the wrong family. `Justfile:48` says the root configuration contributes _the same 15 projects_ the per-package configurations do, and `createWorkspaceTestConfig` now lists 16, since drag2 gained `shipped`. The claim it supports, that coverage is unchanged, still holds. **Open.** Required property: a counted statement about the test projects matches `createWorkspaceTestConfig`. It is a repository-level edit and no package's decision waits for it.
+Tier C. `integrity-3`, drag2's `d208-final` round, refused by that package's register as the wrong family. `Justfile:48` says the root configuration contributes _the same 15 projects_ the per-package configurations do, and `createWorkspaceTestConfig` now lists 16, since drag2 gained `shipped`. The claim it supports, that coverage is unchanged, still holds. **Open.** Required property: a counted statement about the test projects matches `createWorkspaceTestConfig`. It is a repository-level edit and no package's decision waits for it. **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md). At `275ad0f5c` the comment says _"15 projects"_, and the count also depends on `MX_TEST_ENGINES` and `MX_TEST_VISUAL` now.
+
+- **Closed 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680` (#29, not yet merged). `Justfile:46`–`:53` describes what the root configuration contributes, with no count ([findings report](findings-1/findings-1-report.md) §2).
 
 #### RF-24 — Two `.scripts/` compiler errors abort TypeDoc, so drag2's four `docs.node` rows see nothing
 
@@ -647,9 +716,13 @@ None has been looked into. **Open.** Required property: a root run on a clean tr
 - **`radio.visual`:** the pointer stayed where an earlier test, possibly in another file in the same page, had left it. When that spot was over the unchecked radio, the screenshot showed it hovered. The failing capture is pixel-identical to one taken with that radio hovered on purpose. `packages/material-x/tests/support/browser-setup.ts` now moves the pointer to the page's top-left corner before each test. A scratch test that leaves the pointer there fails the row without the reset and passes with it.
 - The required property, a root run on a clean tree that exits 0, held in five Chromium runs of the root suite with coverage and without `measurement` rows, on a fresh clone of `f0ec37881`.
 
+**Closed 2026-11-16 by the architect.** Its rows are repaired at `f0ec37881` and are on `main` through #27 (`275ad0f5c`), and `verify` passed there in every engine (run 43865448668). A local root `npx just test` still exits 1, on `drag:DRF-48`'s measurement row, which runs locally under `RD-7` property 2. That row isn't one of this finding's, and `DRF-48` carries it.
+
 #### RF-30 — The one-shot refusal says every `--sequence.*` flag erases the configured order
 
-Tier C: a message overstates what a flag does, and nothing goes wrong because of it. `reviewer-2`, [`verification-regressions-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §36.5. `.scripts/vitest-one-shot.ts`'s group refusal ends: _A --sequence.\* flag on the command line replaces the configured sequence object wholesale and erases it._ That has been untrue since Vitest 5, at `01d88645f`: CLI options merge deeply, so `--sequence.shuffle`, `.concurrent`, `.seed` and `.hooks` leave each project's order alone, and `--sequence.groupOrder` gives every project the same value. The refusal still fires where it should. **Open, and not a merge gate.** Required property: the refusal states what a command-line flag does at the Vitest version in use. It is one sentence in one file, and it can land on either side of the merge.
+Tier C: a message overstates what a flag does, and nothing goes wrong because of it. `reviewer-2`, [`verification-regressions-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §36.5. `.scripts/vitest-one-shot.ts`'s group refusal ends: _A --sequence.\* flag on the command line replaces the configured sequence object wholesale and erases it._ That has been untrue since Vitest 5, at `01d88645f`: CLI options merge deeply, so `--sequence.shuffle`, `.concurrent`, `.seed` and `.hooks` leave each project's order alone, and `--sequence.groupOrder` gives every project the same value. The refusal still fires where it should. **Open, and not a merge gate.** Required property: the refusal states what a command-line flag does at the Vitest version in use. It is one sentence in one file, and it can land on either side of the merge. **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md). The sentence is unchanged at `275ad0f5c` (`.scripts/vitest-one-shot.ts:110`).
+
+- **Closed 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680` (#29, not yet merged). The refusal (`.scripts/vitest-one-shot.ts:109`–`:111`) says that a `--sequence.groupOrder` flag gives every project that value, and that other `--sequence.*` flags leave a project's order alone. Both were read against Vitest 5.1.0 ([reading](findings-1/checks/rf30-one-shot-refusal.txt), [findings report](findings-1/findings-1-report.md) §2).
 
 #### RF-31 — After the dependency update, `.scripts/tsdown-library.ts` fails to typecheck
 
@@ -677,7 +750,7 @@ Tier C, **closed at `27c60a9ac`** on `drag/size`. Read by the architect on 2026-
 
 #### RF-32 — The two Vite plugin packages' lint exits non-zero
 
-Tier C, open. Registered by the architect on 2026-11-14 from drag's [final cleanup report](../packages/drag/.plan/final-cleanup-report.md) §`repo:RF-31` and its [proof](../packages/drag/.plan/reviews/final-cleanup/proof-reviewer.md) §The report's claims (drag's §Disposition of the final cleanup).
+Tier C, **closed 2026-11-16** (below). Before closure: open. Registered by the architect on 2026-11-14 from drag's [final cleanup report](../packages/drag/.plan/final-cleanup-report.md) §`repo:RF-31` and its [proof](../packages/drag/.plan/reviews/final-cleanup/proof-reviewer.md) §The report's claims (drag's §Disposition of the final cleanup).
 
 - **Current behavior** at `ea706c49d`, whose code is `27c60a9ac`'s ([output](../packages/drag/.plan/measurements/2026-11-14-final-cleanup-disposition-plugin-lint.txt)):
   - **`@ydinjs/vite-custom-element-assets`:** oxlint reports two `no-multi-assign` errors, at `src/css/generation.ts:256` and `:257`, so `npx just lint` stops there and exits 1. ESLint, which the recipe doesn't reach, reports seven more: `require-unicode-regexp` at `src/css/css.ts:31` and `src/index.ts:237` and `:238`, and `camelcase` at `src/html.ts:20` to `:23`;
@@ -689,10 +762,11 @@ Tier C, open. Registered by the architect on 2026-11-14 from drag's [final clean
 - **Dated 2026-11-16: two ESLint rules that re-decide the oxlint configuration** are turned off by `RD-11`. Each one is either allowed in `.oxlintrc.json` or enforced by oxlint. That amends the required property for those two rules only.
 - **Dated 2026-11-16: names that another program reads** pass through `RD-10`'s exact allow list. That amends the required property for these names only: _"no rule turned off and no disable comment"_ still holds, and `camelcase` stays on. The four `html.ts` keys are such names.
 - **Dated 2026-11-16: re-routed** to the CI verification unit ([handoff](ci-verification-1/ci-verification-handoff.md)), because the gate's `static` job runs every package's lint (`RD-8` property 2). At `a8726c57d`, lint fails in all eight packages, not only these two. The required property and the return condition stand.
+- **Closed 2026-11-16 by the architect.** The CI unit repaired both packages' errors under `RD-8` property 2 ([report](ci-verification-1/ci-verification-report.md) §5), with `RD-10` and `RD-11`, and no disable comment. The `static` job runs every package's lint, and it passed on `main` at `275ad0f5c` (run 43865448668). Three repairs change the emitted JavaScript with no change in behavior, which the handoff's ruling on `reviewer-4` accepts ([handoff](ci-verification-1/ci-verification-handoff.md) §Remediating the feature-proof review).
 
 #### RF-33 — In Firefox, focusing an `mx-button` doesn't delegate focus to its native button
 
-Tier B, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. **Disabled in Firefox only,** as expected failures (`it.fails`), and the marking cites this address.
+Tier C since 2026-11-16 (below), before that Tier B; **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. **Disabled in Firefox only,** as expected failures (`it.fails`), and the marking cites this address.
 
 - **The rows,** in `packages/material-x/tests/`:
   - `button/button.browser.test.ts`: `mx-button` › "should delegate focus to the native button" and `mx-icon-button` › the same title;
@@ -701,26 +775,107 @@ Tier B, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **What is established:** a plain host with `delegatesFocus: true` and a `<button>` in its shadow root delegates focus in the same Firefox. Calling `focus()` on the native button directly focuses it. Neither a frame of layout before `focus()` nor a click that gives the document focus changes the result. So the cause is in what `mx-button` renders or sets, and isn't the test's. **The exact cause is not established.**
 - **Required property:** in Firefox, `focus()` on an `mx-button` or `mx-icon-button` host focuses its native button, as in Chromium, and the four rows pass there without their marking.
 - **Routed** as a material-x product unit, which the owner orders. The CI unit doesn't change product source.
+- **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md), which the owner authorized. Read by the architect at `275ad0f5c`: every `mx-button` and `mx-icon-button` host is form-associated and calls `attachInternals()` (`material-x/src/button/button.ts:73`, `core/src/element.ts:205`), and the plain host that delegates focus in the same Firefox does neither. That is the first candidate, not a cause.
+- **Ruled 2026-11-16 by the architect,** on the findings unit's elimination, relayed by the coordinator. It was read locally in Firefox 159, and the CI reading is pending.
+  - **The cause, as read:** `:host { display: contents }` (`button/styles/default/main.styles.css:51`, `split/main.styles.css:2`). The attached internals, form association, the template and the slots each still delegate. The smallest reproduction is a plain host with `delegatesFocus: true`, a `<button>` and that one rule: `focus()` leaves focus on `body` in Firefox, and delegates in Chromium.
+  - **Why it's Firefox's deviation:** HTML's focusing steps take a delegating host to its focus delegate, and they put no _being rendered_ condition on the host.
+  - **Wider reach:** the same host rule is on FAB (`fab/styles/default/main.styles.css:5`) and list items (`list/styles/item/main.styles.css:22`), and interactive list items delegate focus (`ListInteractiveItemCore.ts:50`).
+  - **The repair is accepted.** Forward `focus()` from the host to its native control, under the handoff's item 4 as amended the same day. The other ways are worse:
+    - changing the host's `display` changes layout in every engine;
+    - leaving the rows disabled leaves keyboard roving in a connected button group broken in Firefox.
+  - **The forward adds no public type.** Its signature is `HTMLElement.prototype.focus`'s, so the declared member restates an inherited one, and no assignment changes.
+  - **The required property is widened** to every material-x element whose host has `display: contents` and whose shadow root delegates focus: in Firefox, `focus()` on the host focuses the element that delegation focuses in Chromium.
+  - **What the forward doesn't cover:** a path that the browser takes without calling `focus()` on the host, such as the host's `autofocus`. The report reads each such path, and the architect decides what stays open here.
+  - **A report to Mozilla** is the owner's to file, with the unit's smallest reproduction. When one exists, this entry links it.
+- **Dated 2026-11-16: confirmed in CI,** relayed by the coordinator. In the `firefox` job, a host with `display: contents` doesn't delegate, and the same host delegates without the rule and with `display: inline`. Chromium delegates in all three. `Tab` reaches the native button in both engines. The ruling's condition is met.
+- **Dated 2026-11-16 by the architect: the forward meets the widened property, and the entry stays open for what the forward doesn't cover,** on the [findings report](findings-1/findings-1-report.md) §4 at `fc3b89680`, relayed by the coordinator. It is Tier C from here, because keyboard roving in a connected button group works in Firefox.
+  - **Met:** `forwardFocus` (`material-x/src/core/utils/useCore.ts:17`–`:28`) is called by `ButtonCore` and `ListInteractiveItemCore`, which covers the seven elements whose host is `display: contents` and delegates focus. The four markings are removed. The new rows pass in three `firefox` runs ([reading](findings-1/checks/firefox-three-runs.txt)).
+  - **Open: Firefox's own delegation.** One row, `mx-button` › _"should delegate focus to the native button through the shadow root alone"_, bypasses the forward. It is marked `it.fails` in Firefox and cites this entry. When it passes there, the forward and the marking are removed.
+  - **Open: `autofocus` on these hosts doesn't focus in Firefox** (the report's fresh-document reading, `RF33A`). The forward can't cover it, because `autofocus` doesn't call `focus()`. There is no product workaround: a component that focused itself would duplicate the browser's `autofocus` algorithm, which has conditions of its own.
+  - **Required property, from here:** the watching row passes in Firefox, and the forward is then removed. Until then, this entry names `autofocus` in Firefox as a known gap.
+  - **The report to Mozilla** is the owner's to file, with the findings report §4's reproduction. This entry links it once it is filed.
+
+- **Dated 2026-11-17 by the architect: the forward's shape changes before merge,** on the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-2` and `reviewer-4`, relayed by the coordinator.
+  - **The deviation:** `forwardFocus` assigns `host.focus` in each constructor (`material-x/src/core/utils/useCore.ts:25`), so each of the seven hosts has an own, writable `focus`. The ruling above assumed a declared member: _"the declared member restates an inherited one, and no assignment changes."_ The own property shadows a subclass's `focus()`, and `super.focus()` in such a subclass skips the forward, which in Firefox focuses nothing.
+  - **Subclassing is valid use, so no owner decision is needed.** Each component class is its entry's default export, its type lets a subclass override `focus()`, and nothing published excludes that. Under CONTRIBUTING §1.1, a precondition written now to exclude it would be the change wearing a contract term. A library-wide rule on subclassing would be a contract decision of its own, and it wouldn't change this ruling, because the declared member is the ruling's own premise.
+  - **The required property gains:** `focus` is a method of material-x's classes, not an own property of an instance. A subclass's own `focus()` is called, and `super.focus()` in it reaches the control. The [findings handoff](findings-1/findings-1-handoff.md)'s item 8, step 1, implements it.
+  - **A control that can't take focus:** the report says that focus stays where it was. That holds by HTML's focusing steps, but it was derived, not read. Item 8, step 2, adds the rows.
+- **Dated 2026-11-17 on the owner's direction: the forward is a trait while it ships,** relayed by the coordinator. The owner knows that it is a Firefox workaround, which goes when the watching row passes.
+  - **How:** one trait made with core's generic `trait` (`@ydinjs/core/traits/primitives.js`), which declares `focus()`, and a `use*` function in its module, which registers the control. That is core's existing pattern of a trait and its `use*` function. It needs no change to `@ydinjs/core`, and the trait-flattener plugin's generic subset covers a trait like this one.
+  - **In material-x, not in core.** The trait works around one engine for material-x's `display: contents` hosts, and it is meant to go. A core trait is published vocabulary, and under CONTRIBUTING §4 an exported value is a promise that can't be withdrawn.
+  - **Its adopters** are exactly the seven hosts that register a control, through their own trait lists. It isn't in `BUTTON_CORE_TRAITS`, which the split button and the button groups share and which register no control.
+  - **The required property above stands.** Each adopting class's type gains only the trait's brand, which isn't exported. The [findings handoff](findings-1/findings-1-handoff.md)'s _Item 8, step 1, amended 2026-11-17_ implements it.
+- **Dated 2026-11-17 on the owner's decision: the per-class form ships, and the trait waits for `RF-44`,** relayed by the coordinator.
+  - **The stop:** `vite-traits-plugin` doesn't flatten the trait, and it keeps each adopter's whole composition at runtime (`RF-44`). The owner rejected accepting that.
+  - **What ships:** the parked attempt's form at `891d672ec`. A module `WeakMap` holds each host's control, one `focusControl` focuses it, and each of the seven classes declares `override focus()`, which only calls `focusControl`. That meets the required property above. The seven declarations repeat one call, and the body exists once.
+  - **The trait note above is superseded.** Its reasons for material-x over core still hold for the later move. The trait is parked at `92e13f9d6`. When the plugin flattens class-based traits, the forward moves to it under `RF-44`, unless Firefox's delegation has removed the forward first.
+
+- **Dated 2026-11-17 by the architect: the per-class form is in,** on the [findings report](findings-1/findings-1-report.md) §9 at `d756e4f4f`, relayed by the coordinator.
+  - **Met:** the seven classes declare `focus()`, and each one only calls `focusControl` (`7c09927f0`). `Object.hasOwn(host, 'focus')` is false for each of them. Subclass rows for `mx-button` and `mx-list-button-item` pass in every engine. The build prints no flattener warning.
+  - **A control that can't take focus is now read:** `focus()` on a disabled `mx-button` or `mx-list-button-item` leaves focus on the element that had it, in Chromium, Firefox and Safari (`a941ed888`).
+  - **The registering function keeps the name `forwardFocus`.** It is accepted: the call states which control the host forwards to, and `focusControl` does the focusing.
+  - **What stays open is unchanged:** the watching row, which still fails as expected in Firefox, and `autofocus` in Firefox.
 
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 
-Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. **Disabled in Firefox only,** as an expected failure, and the marking cites this address.
+Tier C, **closed 2026-11-16** (below). Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §6), under `RD-8` property 4. Until it closed, the row was **disabled in Firefox only,** as an expected failure, and the marking cited this address.
 
 - **The row:** `packages/box-quad/tests/coordinates.browser.test.ts`, `coordinates numeric precision` › "should derive a rotated and scaled size to within a ten-thousandth".
 - **The failure:** in Firefox 159.0 the size recovered from `getClientRects()` through the matrix determinant is off by 0.0076 px, against the row's tolerance of 0.0001. Chromium's residual is about 3e-5, as the row's comment says. It fails in every one of five local runs and in CI.
 - **The inferred cause:** Firefox reports client rects in its layout unit of 1/60 px, so the un-projected size carries up to that rounding. Not confirmed by a probe.
 - **Required property:** box-quad states the precision its recovered size has in each engine it supports, and the row asserts that precision in each engine and passes there. Whether the tolerance becomes per engine or the measurement changes is box-quad's decision.
 - **Routed** to the owner of box-quad. The CI unit doesn't change product source.
+- **Decided 2026-11-16 by the architect, for box-quad:** the measurement stays, because box-quad's contract keeps the browser's fractional border edges (`01-public-api.md`, _Fractional used border-box extents_). The tolerance rule in `contract/02-behavior-scenarios.md` is amended to admit an engine's measured client-rect precision. **Routed** to the [findings unit](findings-1/findings-1-handoff.md), which first confirms the inferred cause.
+- **Ruled 2026-11-16 by the architect: the cause is confirmed,** on the findings unit's reading of run 43872551455, relayed by the coordinator. The architect recomputed the reading's arithmetic.
+  - **The reading,** in the `firefox` job, Firefox 159.0, from the row's own fixture (20 × 10, `rotate(30deg) scale(1.5)`). Each non-integer edge is k/60 rounded to a multiple of 2^-14: right = 1559/60 + 4.07e-6 = 425711/16384. So Firefox quantizes to its 1/60 px layout unit, then reports at a resolution of 2^-14 px. In Chromium, the same edges are multiples of neither 1/60 nor 1/64.
+  - **The bound.** The recovery inverts the matrix of absolute values, whose determinant is 1.125. A rounding of ±(q/2 + r/2) on each edge, with q = 1/60 and r = 2^-14, bounds each recovered dimension to 1.821 (q + r) = 0.0305 px for this fixture. The observed errors are +0.0077 in width and −0.0099 in height.
+  - **The handoff's test of _"a multiple of 1/60 to within 1e-9"_ was too narrow.** It didn't allow for a reporting resolution coarser than 1e-9. The reading meets its purpose, which was to show 1/60 quantization, so item 5's stop isn't reached.
+  - The handoff's item 5, as amended the same day, counts both q and r. The contract's tolerance rule names the reporting resolution.
+- **Closed 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680` (#29, not yet merged), on the [findings report](findings-1/findings-1-report.md) §5. The row is now titled _"should derive a rotated and scaled size to within the engine precision"_ (`coordinates.browser.test.ts:246`) and has no marking.
+  - **What it asserts:** 1e-4 in Chromium and Safari. In Firefox, 1e-4 plus the bound derived next to the fixture, which is 0.0305 px for this fixture.
+  - **Where it passes:** in three `firefox` runs, and in Chromium and Safari.
+  - **The contract:** box-quad's support matrix §2.3 names each engine's quantum and reporting resolution.
 
 #### RF-35 — `mx-radio` and `mx-checkbox` draw no focus state layer, which Material's tokens define
 
-Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §The `radio-focused` review), from the owner's review of baseline proposal #28. **No row is disabled:** the visual rows show what the components draw.
+Tier C, **closed 2026-11-17** (below). Before closure: open. Registered on 2026-11-16 by the CI verification unit ([report](ci-verification-1/ci-verification-report.md) §The `radio-focused` review), from the owner's review of baseline proposal #28. **No row is disabled:** the visual rows show what the components draw.
 
 - **What the owner saw:** #28's `radio-focused` shows the focus outline only. The baseline it replaces also showed the grey state-layer circle.
 - **Why the circle was there:** the circle is the ripple's `::before`, which only `:host(:hover)` shows (`src/core/animations/ripple/styles/main.styles.css`). Nothing in `src/radio/styles/default/main.styles.css` draws a state layer on focus. Before `f0ec37881` the pointer stayed where the previous row left it, and the hovered row before `radio-focused` left it over the same spot. A scratch witness shows `radio.matches(':hover')` true at the focused row's screenshot without the pointer reset and false with it ([output](ci-verification-1/checks/radio-focused-hover.txt)). Across the visual suite, the same reset removes an unintended hover from `radio-focused`, `checkbox-focused`, `button-focused` and, depending on file order, `checkbox-states` ([output](ci-verification-1/checks/visual-rows-hover.txt)).
 - **The gap:** Material's token tables define `md.comp.radio-button.selected.focus.state-layer.color` and `.opacity`, the same for `unselected`, and `md.comp.checkbox.{selected,error,…}.focus.state-layer.*`. The components render no focus state layer, so a keyboard-focused radio or checkbox shows the outline alone. The old baselines hid that.
 - **Required property:** each of `mx-radio`, `mx-checkbox` and `mx-button` either draws the focus state layer its tokens define, or the record states why it doesn't. Its focused visual row is recorded again through `repo:RD-13` when that changes.
 - **Routed** as a material-x product question for the owner. The CI unit doesn't change product source.
+- **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md). Its item for this finding waits for the owner's answer, which the handoff asks for.
+- **Dated 2026-11-16: the owner answered yes,** relayed by the coordinator. `mx-radio`, `mx-checkbox` and `mx-button` draw the focus state layer that their tokens define.
+- **Ruled 2026-11-16 by the architect: under hover and keyboard focus together, the focus layer shows,** on the findings unit's question under the handoff's item 7, relayed by the coordinator.
+  - **The tokens:** the focused state-layer opacity is 0.1, the hovered one 0.08, and colors are per state and per selection.
+  - **Why focus shows.** material-x already states the precedence: its states are ordered `default`, `hovered`, `focused`, `pressed`, `disabled` (`button/styles/utils.ts:20`, and radio's and checkbox's `utils.ts`). The compiled CSS emits focused after hovered.
+  - **Why the precedence fails today.** A focused value equal to the default is deduplicated away. So with only `--_ripple-opacity`, hover's 0.08 would show under focus, against that order. That outcome comes from the deduplication, and no one chose it, so it isn't an owner decision.
+  - **Its own variables.** The focused state's tokens are emitted under `:focus-within`, which a mouse click also sets, and the layer's trigger is the keyboard one. So the focus layer takes the focused state's color and opacity through variables of its own. The existing state-layer variables keep their values under every state.
+  - The handoff's item 7, as amended the same day, states the properties.
+- **Ruled 2026-11-16 by the architect: the trigger in radio and checkbox,** on the findings unit's second question under item 7, relayed by the coordinator.
+  - **The question:** the ruled trigger `:host:has(.input:focus-visible)` doesn't match in Firefox 159, read locally. So in Firefox, `mx-radio` and `mx-checkbox` draw neither the layer nor, already today, their keyboard focus indicator (`RF-39`).
+  - **The ruling:** in radio and checkbox, the indicator and the layer share one keyboard-focus trigger written inside the shadow tree, from the input to a later sibling: `.input:focus-visible ~ …`. That is option (iii) of the question, and the handoff's item 7, as amended again the same day, states it.
+  - **Not (i):** it would knowingly leave a missing focus indicator in a supported engine, when the fix is in the lines item 7 already changes.
+  - **Not (ii):** it would split the layer's trigger from the indicator's, against property 2 of item 7's amendment, and leave the indicator missing.
+  - **Not a custom state set by script:** CSS expresses the trigger in every engine without a per-instance listener. material-x's existing fallback of that kind has no stylesheet that reads it (`RF-40`).
+- **Dated 2026-11-16: Safari's Tab doesn't reach these controls.** In run 43886020747 at `c34cb01d7`, the 9 keyboard-focus rows fail in Safari only. The product isn't the cause: Safari's default Tab skips buttons, checkboxes and radios. `RD-12` property 10, amended the same day, has the `safari` job turn on _"Press Tab to highlight each item"_. The handoff's item 7, amended a third time, implements it.
+- **Dated 2026-11-16 by the architect: met in Chromium and Firefox,** on the [findings report](findings-1/findings-1-report.md) §7 at `fc3b89680`, relayed by the coordinator.
+  - **What holds:** each component draws the focus layer from its own token selection, on the keyboard-focus trigger and over hover. The spec rows read the layer against the tokens. A mutation that renames the selectors fails the 8 rows that depend on them.
+  - **In Safari:** the hover and click rows pass. The keyboard rows are `RF-42`'s.
+  - **The focused visual rows were recorded again** (run 43886019999), and no baseline changed. The comparator's per-pixel threshold absorbs a layer at 0.1 opacity (`RF-41`). That meets this entry's _recorded again_ clause: the recording ran, and each baseline matches the rendering within the comparator's threshold.
+  - **It closes** when the Safari keyboard rows are resolved under `RF-42`, on the owner's decision.
+
+- **Dated 2026-11-17 by the architect: the scope of _met_, and the rows,** on the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` and `reviewer-3`, relayed by the coordinator.
+  - **Scope.** The note above covers `mx-button`, `mx-checkbox` and `mx-radio`, the elements this entry's property names. The report's §7 says that the button's focus rule is in the sheet that every button adopts. That is true of the stylesheet, not of what is drawn: in `mx-switch-button` and `mx-switch-icon-button`, `.host` is a `<span>` and never matches `:focus-visible`, so they draw no focus layer. That is `RF-43`, outside this entry.
+  - **Rows.** The rows read only `mx-button`'s filled colour and the unchecked checkbox and radio. The selected states, the other button colours and the icon button's mappings were correct at `fc3b89680` by the reviewer's rendering, but no row fails if one of them is dropped, and the visual layer can't see them (`RF-41`). The [findings handoff](findings-1/findings-1-handoff.md)'s item 8, step 3, adds a row for each.
+  - **It closes** when `RF-42`'s rows are resolved and item 8's rows pass. This replaces the closing condition above.
+
+- **Closed 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f` (#29, not yet merged), on the [findings report](findings-1/findings-1-report.md) §8 and §9, relayed by the coordinator. Both closing conditions hold.
+  - **`RF-42`'s rows are resolved:** in Safari, the 9 keyboard rows reach their controls with Option-Tab and pass (`RF-42`).
+  - **Item 8's rows pass:** 10 _keyboard focus_ rows read the selected states and each other button and icon-button colour against their own focused tokens. All 28 rows pass in every engine (`verify` 44008539924 at `a81841cb0`, and 44010115020 at `d756e4f4f`). With every mapping dropped, all 10 fail. With only its own mapping dropped, 9 fail ([reading](findings-1/checks/item8-focus-layer-mutation.txt)). Two rows pass with only their own mapping dropped, because another declaration the host adopts writes the same value, as ruled in the handoff. `mx-icon-button` filled reads the button default's mapping, which tproc's deduplication leaves in its place. `mx-icon-button` tonal reads the button's tonal mapping, which `mx-icon-button` also adopts. Mutation B dropped that mapping as well, so the tonal row failed there. _Corrected 2026-11-17 on the targeted recheck's `recheck-1` ([disposition](findings-1/findings-1-handoff.md#disposition-of-the-targeted-recheck-at-14d342778)); the closure stands._
+  - **The mutation reading's fixture** set an inert `data-default` attribute on that row's element, which `a941ed888` dropped. No material-x source reads that attribute, so the reading holds for the rows as merged.
+  - **Not covered here:** the switch buttons (`RF-43`), and what the screenshots can't see (`RF-41`).
 
 #### RF-36 — In Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait
 
@@ -734,10 +889,18 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **What is known:** the row registers no reorder listener, so after the 200 ms landing the session waits core's 500 ms `COMMIT_TIMEOUT` (`src/traits/reorderable.ts`) before returning the visual: at least 700 ms against the row's 1,000 ms. A late timer or frame in Safari would cross it. **The cause is not established:** that is an inference, not a reading.
 - **Required property:** the rows pass in Safari in every run, with a wait that states the landing and the commit grace it covers.
 - **Routed** to core's owner. The CI unit doesn't change the row's wait or core's source.
+- **Dated 2026-11-16, read by the architect at `275ad0f5c`: the inference covers only the first row.** A no-op drop proposes nothing, so `land()` animates the item home and tears down with no commit grace (`src/traits/reorderable.ts:630`–`:650`). The second row's wait gave up at about 1,000 ms against a 200 ms landing, so something else held the visual: a late `animation.finished`, a late pointer release or a throttled window are candidates, and none is read. **Routed** to the [findings unit](findings-1/findings-1-handoff.md), which reads the timings first.
+- **Dated 2026-11-16 by the architect: the probe caught no slow landing, and it refutes the commit-grace inference,** on the [findings report](findings-1/findings-1-report.md) §3, relayed by the coordinator.
+  - **The reading:** the probe repeated both rows' gesture: the sole item, moved 90 px and released, with no reorder listener. In 75 Safari landings over five attempts, the visual left the top layer 216 to 256 ms after the gesture began. The window was visible and focused, and frames came 14 to 19 ms apart ([attempt 1](findings-1/checks/rf36-safari-timings-attempt-1.txt) to [5](findings-1/checks/rf36-safari-timings-attempt-5.txt)).
+  - **What it refutes:** a sole item proposes nothing, so neither row waits the 500 ms commit grace. The _"at least 700 ms"_ above is false for both rows.
+  - **What the failures were:** each held the visual about four times as long as the slowest landing the probe read. That is a stall, as with drag's two Safari rows under `RD-12`, not a narrow margin crossed.
+  - **The skips stay,** and the waits don't change.
+  - **Required property, amended:** the rows pass in Safari in every run, with a wait that states the landing it covers. (It said: _"…with a wait that states the landing and the commit grace it covers."_)
+  - **The next reading** needs the failing condition itself. It runs the two rows unskipped, logging the probe's timestamps, in the full `browser/core` Safari project. It needs enough full Safari runs to catch a failure: about one run in six failed. It runs outside the gate, so that `verify` doesn't become intermittent. **Routed** to core's owner as its own unit, which the owner orders.
 
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 
-Tier C, **open**, low priority. Registered on 2026-11-16 by the architect, on the owner's observation relayed by the coordinator. **It doesn't affect results.** On the owner's direction, it is handled after the CI unit, not inside it. Nothing for the CI unit to do.
+Tier C, **closed 2026-11-16** (below), low priority. Registered on 2026-11-16 by the architect, on the owner's observation relayed by the coordinator. **It doesn't affect results.** On the owner's direction, it is handled after the CI unit, not inside it. Nothing for the CI unit to do.
 
 - **What the owner saw:** in the `safari` job's log, at the start of a Vitest 5.1.0 run, Vite warns _"The above dynamic import cannot be analyzed by Vite"_. The warning is for `import(filepath)` in `runExternalModule`, inside `packages/material-x/.vite/vitest/<hash>/deps/vitest_n_vite_module-runner.js`, the pre-bundled `vite/module-runner`.
 - **Read by the architect in the devcontainer:** five of material-x's local Vitest pre-bundle directories list `"vitest > vite/module-runner"` in `deps/_metadata.json`. One of them is dated 2026-11-04, before `RD-12` added the WebdriverIO provider. So the pre-bundling doesn't need that provider, and the provider, the first suspect, is less likely to be the cause. This reads the pre-bundle, not the warning.
@@ -746,10 +909,15 @@ Tier C, **open**, low priority. Registered on 2026-11-16 by the architect, on th
   - what puts `vite/module-runner` into the browser's dependency pre-bundle: Vitest itself, a project's `optimizeDeps`, or a provider.
 - **Required property:** a browser test run starts without this warning, or the record states the warning's source and why it stays. Silencing the warning without naming its source doesn't meet this property.
 - **Routed** after the CI unit, for the owner to order.
+- **Routed 2026-11-16** to the [findings unit](findings-1/findings-1-handoff.md), which the owner authorized.
+- **Closed 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680` (#29, not yet merged), on the [findings report](findings-1/findings-1-report.md) §6.
+  - **The source:** `@vitest/browser` 5.1.0 adds `vite/module-runner` to the browser's pre-bundle. Vite warns about a dynamic import it can't analyze only when the importer is outside `node_modules`. The repository's `cacheDir: '.vite'` put the pre-bundle there.
+  - **The change:** with that line removed, Vite uses `node_modules/.vite`. The pre-bundle's entries are unchanged. CI printed the warning 0 times in each engine ([counts](findings-1/checks/rf37-ci-warning-counts.txt)).
+  - **What stays:** `.gitignore`'s `.vite` lines and `package-files.ts`'s `-e .vite` stay while existing checkouts still hold old `.vite` directories. Removing them later needs no decision.
 
 #### RF-38 — The recording workflow's write-token job writes through a symbolic link that the recorded commit places at a baseline path
 
-Tier B, **open; blocks merge of pull request #27.** Registered on 2026-11-16 by the architect from the feature-proof review's `reviewer-1` ([review](reviews/ci-verification-1/feature-proof-claude.md)), read at `397e4ec14`.
+Tier B, **closed 2026-11-16** (below). Before closure: open, and it blocked the merge of pull request #27. Registered on 2026-11-16 by the architect from the feature-proof review's `reviewer-1` ([review](reviews/ci-verification-1/feature-proof-claude.md)), read at `397e4ec14`.
 
 - **The contract it breaks:** `RD-13` property 3. `propose` holds `contents: write`, `pull-requests: write` and `actions: write`, and must run no code from the repository.
 - **The behavior:** `propose` checks out the recorded commit, then copies each accepted artifact file over that working tree with `cp` and runs `git add` (`baselines.yml:99`–`:130`). The path filter reads only the path's text. A branch that commits a symbolic link at `packages/x/tests/__screenshots__/a.png` that points to `.git/config` has `cp` write the artifact's content into `.git/config`. A `core.fsmonitor` key there then runs a command at `git add`, with `GH_TOKEN` in its environment.
@@ -757,6 +925,121 @@ Tier B, **open; blocks merge of pull request #27.** Registered on 2026-11-16 by 
 - **Reach:** only a branch in this repository, run through the label or `workflow_dispatch`, so the author has write access. That author could already change the workflow file in the branch (`RD-13`'s amended reason). The link makes the same access reachable through a change that doesn't touch `.github/`, which is the change the person adding the label reads.
 - **Required property:** `RD-13` property 3's _What `propose` writes_.
 - **Routed** to the implementer on `ci/verification`, by the [handoff](ci-verification-1/ci-verification-handoff.md)'s _Remediating the feature-proof review_.
+- **Closed 2026-11-16 by the architect.** `propose` checks out nothing: it writes the proposal as git objects in a bare repository of its own and refuses a symbolic link in the artifact or in an accepted path of the recorded commit ([report](ci-verification-1/ci-verification-report.md) §Remediating the feature-proof review, with its witness). The reviewer's targeted recheck found `reviewer-1` to `reviewer-3` resolved ([review](reviews/ci-verification-1/feature-proof-claude.md)). It is on `main` through #27 (`275ad0f5c`). A proposal with a changed baseline hasn't run on GitHub yet, only in the witness.
+
+#### RF-39 — In Firefox, `mx-radio` and `mx-checkbox` show no keyboard focus indicator
+
+Tier B, **closed 2026-11-17** (below). Before closure: open. Registered on 2026-11-16 by the architect, from the findings unit's reading under its item 7, relayed by the coordinator. It predates that unit.
+
+- **The rules:** `radio/styles/default/main.styles.css:55` and `checkbox/styles/default/main.styles.css:64` draw the indicator under `:host:has(.input:focus-visible)`.
+- **The reading,** local, in Firefox 159.0 and Chromium, not yet in CI. After `Tab` onto `mx-radio`, the input is focused and matches `:focus-visible` in both engines. `:host:has(.input:focus-visible)` matches in Chromium and not in Firefox. `:host(:has(…))` matches in neither, and `:host(:focus-within)` matches in both. Radio's indicator outline is drawn in Chromium and absent in Firefox.
+- **Why it is a problem:** a keyboard user in Firefox can't see which radio or checkbox has focus.
+- **Required property:** in every engine the gate runs, keyboard focus on `mx-radio` or `mx-checkbox` draws the indicator that its tokens define, and a mouse click doesn't. In Chromium, the indicator's position and size don't change.
+- **Routed** to the [findings unit](findings-1/findings-1-handoff.md)'s item 7, as amended on 2026-11-16, because the fix is the trigger that item 7's focus layer shares.
+- **Dated 2026-11-16 by the architect: met in Chromium and Firefox,** on the [findings report](findings-1/findings-1-report.md) §7 at `fc3b89680`.
+  - **Where the indicator draws now:** radio's under `.input:focus-visible ~ .off`. Checkbox's on a new `.indicator` span after the input, with `aria-hidden` and no `part`.
+  - **Chromium is unchanged:** the box, outline, offset and radius match ([reading](findings-1/checks/rf39-indicator-before-after.txt)).
+  - **In Firefox:** the indicator rows pass in the `firefox` job.
+  - **It closes** with `RF-35`, when the Safari keyboard rows are resolved under `RF-42`.
+
+- **Closed 2026-11-17 by the architect,** with `RF-35`, at `d756e4f4f`. In Safari, the indicator rows now reach their controls with Option-Tab and pass, so the indicator is read in every engine.
+
+#### RF-40 — material-x's `:host:has()` fallback sets custom states that no stylesheet reads
+
+Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF-39`.
+
+- **The code:** `useHasSlottedPolyfill` (`material-x/src/core/utils/polyfills.ts:22`) tests whether `:host:has(slot)` matches (`HOST_HAS_SUPPORTED`, `:10`). Where it doesn't, it sets the custom states `has-<slot>` on the host.
+- **Read by the architect at `5a0bba69b`:** no stylesheet or source under `packages/material-x/src/` or `packages/core/src/` reads `:state(has-`.
+- **Who relies on it:** text-field's lead, trail, prefix, suffix, support and counter rules (`text-field/styles/default/main.styles.css:141`–`:176`) and list items' support and overline rules (`list/styles/item/main.styles.css:35`–`:43`, `:184`) select on `:host:has(… :has-slotted)`.
+- **Not established:**
+  - whether Firefox renders those components differently;
+  - what `HOST_HAS_SUPPORTED` reads in Firefox;
+  - whether Firefox supports `:has-slotted`.
+- **Required property:** in every engine the gate runs, each `:host:has()` rule in material-x applies, or the component renders the same without it. A fallback that nothing reads is either completed or removed.
+- **Routed** to the owner to order. It isn't in the findings unit's scope as authorized. The architect recommends a reading first, in Firefox CI, of the two components with and without slotted content.
+
+#### RF-41 — The screenshot comparator doesn't see a state layer at the tokens' opacities
+
+Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings report](findings-1/findings-1-report.md) §7 (run 43886019999 at `c34cb01d7`). **No row is disabled.**
+
+- **The comparator:** Vitest 5.1.0's screenshot comparison is pixelmatch with `threshold: 0.1`, and it allows no mismatched pixel (`@vitest/browser/dist/index.js:1617`–`:1635`). The repository sets no comparator option.
+- **What it missed:** the findings unit added a focus state layer at 0.1 opacity to `mx-button`, `mx-radio` and `mx-checkbox`. The labeled recording passed all 19 visual rows and proposed nothing. So `button-focused`, `radio-focused` and `checkbox-focused` still show no layer, while the components draw one.
+- **Why, by the architect's arithmetic:** at threshold 0.1, pixelmatch's limit is a YIQ distance of 35215 × 0.1², about 352.
+  - A 10% near-black layer over a near-white surface moves each channel by about 22, a distance of about 245.
+  - A 10% primary layer over the button's surface gives about 113.
+  - Both are under the limit, and the hover layer at 0.08 is smaller still.
+- **Why it matters:** a visual row titled _hovered_ or _focused_ doesn't prove its state layer, so a change that removes the layer passes. The spec-contract rows read the layer's color and opacity against the tokens, so the layer is covered, but only by them. A stored baseline can differ from the rendering by a whole state layer.
+- **Required property:** one of these holds:
+  - the visual layer detects a state layer at the tokens' lowest opacity on the fixtures' surfaces, with no false failure in `RD-9`'s pinned environment;
+  - or `.agents/docs/test-architecture.md` states what the visual layer can't see, and names the spec rows as the coverage of state layers.
+- **Routed** to the owner, for a later unit. **It doesn't block the findings unit.** Item 7's check holds: the gate's `chromium` job matches every baseline, and no other baseline changes.
+
+#### RF-42 — Under `safaridriver`, Tab doesn't reach buttons, checkboxes or radios, and Safari's Tab preference doesn't change that
+
+Tier C, **closed 2026-11-17** (below). Before closure: open, and the 9 rows failed in Safari, unmarked, which kept `verify` red on #29. Registered on 2026-11-16 by the architect, from the [findings report](findings-1/findings-1-report.md) §7, relayed by the coordinator.
+
+- **The rows:** in `packages/material-x/tests/core/focus-layer.spec.browser.test.ts`, for each of `mx-button`, `mx-checkbox` and `mx-radio`:
+  - _"keyboard focus"_;
+  - _"keyboard focus with hover"_;
+  - _"draw the focus indicator on keyboard focus"_.
+- **The failure:** each row presses Tab, then asserts that the host and its native control have focus. In Safari, focus stays on `<body>` (run 43886020747 at `c34cb01d7`; `RF-33`'s `RF33T` reading before it).
+- **What is established:**
+  - WebKit's default Tab skips buttons, checkboxes and radios.
+  - `RD-12` property 10's preference was written in both domains and read back as set, and Tab still didn't reach a button ([reading 1](findings-1/checks/rd12-tab-reading-1.txt), [reading 2](findings-1/checks/rd12-tab-reading-2.txt)).
+- **Not established:** whether Safari under `safaridriver` reads the preference at all, and whether WebDriver's key actions take the path that the preference governs.
+- **Why the product isn't implicated:** the trigger is the same CSS in every engine. Safari's hover and click rows pass. The rows fail at the reach assertion, before the layer is read.
+- **Required property:** each of the 9 rows either reads keyboard focus in Safari through real keyboard input, or is disabled there under `RD-8` with this entry as its finding.
+- **Routed** to the owner. The options and the architect's recommendation are in the [findings handoff](findings-1/findings-1-handoff.md)'s _Disposition of the report at `fc3b89680`_.
+
+- **Closed 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f`, on the [findings report](findings-1/findings-1-report.md) §8, relayed by the coordinator.
+  - **The owner chose option (a).** In Safari only, the rows press Option-Tab. One constant in `focus-layer.spec.browser.test.ts` chooses the key by engine, and its comment cites this entry (`964af56ab`).
+  - **The reading:** in `verify` 44003141576 the 9 rows pass at the unchanged reach assertion, and every other Safari project's counts equal run 43895450645's ([reading](findings-1/checks/rf42-option-tab-safari.txt)). The fallback, `it.fails` in Safari, wasn't taken. The rows that item 8 added use the same key and pass in Safari.
+  - **What stays unread:** why Safari's Tab preference has no effect under `safaridriver`. Nothing depends on it now. `RD-12` property 10 records the key.
+
+#### RF-43 — `mx-switch-button` and `mx-switch-icon-button` break the `.host` invariant, so they draw no focus state layer on keyboard focus
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` (code at `fc3b89680`), relayed by the coordinator. **No row is disabled:** no row reads a switch button's focus layer.
+
+- **What is drawn:** both elements build through `useButtonCore`, so they adopt `button/styles/default/main.styles.css` and its focus-layer rule `:host .host:focus-visible > .ripple::before` (`:111`). In their templates, `.host` is a `<span>`, and the focusable element is the `<input class="control">` before it (`switch-button.tpl.html`, `switch-icon-button.tpl.html`). So the rule never matches. Their keyboard focus indicator draws on `.control:focus-visible + .host` (`button/styles/default/switch-control.styles.css:19`).
+- **The tokens:** Material's tables define `md.comp.button.filled.selected.focused.state-layer.color` and its `unselected` counterpart (tproc's cached tables). No switch token package (`defaultSwitchTokens`, `elevatedSwitchTokens`, `tonalSwitchTokens`, `outlinedSwitchTokens`, `variantSwitchTokens`) declares a focus-layer variable.
+- **Not a regression:** before the findings unit, no button drew a focus layer. That unit's scope, `RF-35`'s property, names `mx-button`, `mx-checkbox` and `mx-radio`.
+- **Required property:** each switch button draws the focus state layer its tokens define, checked and unchecked, on its focus indicator's trigger, with the variables and the precedence that `RF-35`'s rulings set. Or the record states why it doesn't.
+- **Routed** to the owner, as a material-x product unit. The architect recommends taking it with the next material-x unit: it reuses `RF-35`'s mechanism, and the rows of `focus-layer.spec.browser.test.ts` extend to it. **It doesn't block the findings unit.**
+- **Widened 2026-11-17 on the owner's direction,** relayed by the coordinator. Until then, this entry's title was _"`mx-switch-button` and `mx-switch-icon-button` draw no focus state layer on keyboard focus"_.
+  - **The invariant, as the owner stated it:** in every material-x component, `.host` is the shadow root's root element, and it is the element that takes focus. Shared rules and helpers depend on this, such as the focus layer and the focus forward. It wasn't written down before. It is now in [`architecture.md`](../.agents/docs/architecture.md) §Components.
+  - **The violation:** in `switch-button.tpl.html` and `switch-icon-button.tpl.html`, the root is `<span class="interaction">`. It holds `<input class="control" part="control" type="checkbox" role="switch">` and, beside it, `<span class="host" part="impl">`. Both templates were added at `1bf5c7cf9` (2026-07-11) and haven't changed since. The missing focus layer is one consequence. Others are `useButtonCore`'s target `.control ?? .host` (`button/ButtonCore.ts:106`–`:108`), whose fallback exists for the switches, and the switches' own focus-indicator trigger, `.control:focus-visible + .host`.
+  - **Required property,** in place of the one above. Each switch button's `.host` is its shadow root's root element and takes focus. It carries the switch's role and checked state. It draws the focus indicator and the focus state layer through the button family's shared rules, checked and unchecked, with the variables and the precedence of `RF-35`'s rulings. `part="impl"` and `part="control"` are public styling surface, so the unit states what each part names afterwards. The package is unreleased (`0.1.0`), so under CONTRIBUTING §8 no compatibility shape is kept.
+  - **The audit, in the same unit.** It reads every other material-x template against the invariant. It also reads every rule and helper that keys on `.host` for what it assumes: that `.host` is the root, that it takes focus, and that it carries `impl`. For each divergence, the unit proposes a restructure or a stated exception. Exceptions amend the owner's invariant, so the owner decides them, on the architect's recommendation. The architect's starting facts, from the first element of each template at `964af56ab`, are not yet judged:
+    - `.host` is the root and takes focus in `mx-button`, `mx-icon-button`, `mx-link-button`, `mx-fab`, `mx-list-button-item` and `mx-list-link-item`;
+    - `.host` is the root but doesn't take focus in `mx-list-item` (a `<div>`) and the split button (an `<mx-connected-button-group>`);
+    - there is no `.host` in `mx-checkbox` and `mx-radio` (the root is `.input`), in the text fields (`.input`, and the shared `text-field-core.tpl.html`), or in the button groups, `mx-icon` and `mx-list` (a `<slot>`);
+    - [`accessibility.md`](../.agents/docs/accessibility.md) §Button says that the switch variants use a native `<button>`. Their templates use `<input type="checkbox">`.
+  - **Routed** to the owner as the next material-x product unit, not pull request #29. It doesn't block the findings unit.
+
+#### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's item 8 stop, relayed by the coordinator. **No row is disabled.**
+
+- **The documentation:** [`trait-flattener-plugin.md`](../.agents/docs/trait-flattener-plugin.md) §Eligibility says that _"the supported generic subset accepts a direct pure transformer whose result is a class extending its parameter. It accepts public fields, constructors, methods, accessors…"_. §Trait IR says that normalization resolves _"descriptor-based and supported class-based traits"_.
+- **The code:** `packages/vite-traits-plugin/src/analyze.ts` passes every trait in a composition to `normalizeDescriptorTrait` (`src/normalize.ts:340`). When that returns `null`, it bails with `unsupported-trait` (`analyze.ts:583`–`:598`). No path normalizes a class-based trait.
+- **What it cost:** the findings unit's `FocusForwarding` trait (`implementer/item8-step1-trait-wip` at `92e13f9d6`) was a module-scoped `trait(base => class extends base { override focus(…) {…} }, brand)`, inside the documented subset. `npx just build-lib` in material-x warned seven times, and each adopter's whole composition was kept at runtime, not only that trait. So the forward ships in a per-class form (`RF-33`).
+- **Required property:** one of these holds:
+  - the plugin flattens the generic subset that §Eligibility describes, with the compatibility contract that the document states;
+  - or the document states only what the plugin implements, and names class-based traits as retained.
+- **Follow-up:** once the plugin flattens class-based traits, the `RF-33` forward moves to the trait parked at `92e13f9d6`, if the forward still ships.
+- **Routed** to `vite-traits-plugin`'s owner. **It doesn't block** the findings unit or pull request #29.
+
+#### RF-45 — material-x has no size measurement, so no budget covers its entries
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**
+
+- **The gap:** the `measurements` job (`.github/workflows/verify.yml:149`) runs the rows tagged `measurement`, and material-x has none. Its report on #29 lists box-quad, core and drag only. So no material-x entry has a size reading in CI, or a budget.
+- **What it cost:** item 8, step 1's _"a budget that fails is a stop"_ had nothing to read. The architect wrote that clause on the assumption that a budget existed. The implementer measured each entry locally instead: +63 minified bytes, and +2 to +23 brotli bytes, per entry ([reading](findings-1/checks/item8-step1-size.txt)). That reading stands in for the clause, and it is accepted. The growth is the cost of the form the owner chose.
+- **Why it matters:** CONTRIBUTING §15 asks that every meaningful change be measured by composition, and §18 treats a budget as the instrument that makes a change visible. material-x's changes are measured only when a unit does it by hand.
+- **Required property:** one of these holds:
+  - material-x's public entries have rows in the `measurements` job, each with a budget;
+  - or the record states that material-x is measured by hand for each change, and how.
+- **Routed** to the owner. The repository's measurement tool is still a [brief](../.agents/docs/measure/brief.md), so it may supply the instrument. **It doesn't block** the findings unit.
 
 ## Questions
 

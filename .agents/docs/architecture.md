@@ -73,6 +73,8 @@ Each component combines the core runtime and token processor:
 4. Import `@ydinjs/tproc` token packages from the component's styles.
 5. Register the element with `define('mx-*', Class)`.
 
+**`.host` is the root, and it takes focus.** In every material-x component, the shadow root's root element has the class `host`. In a component that takes focus, `.host` is the element that takes it. Shared styles and helpers depend on this. The button family's focus indicator and focus layer draw on `.host:focus-visible`. `useButtonCore`, FAB, the link button and the list items find their control as `.host`. Delegated and forwarded focus lands on it. If a template wraps `.host`, or puts the focusable element beside it, these break without an error. The owner stated the invariant on 2026-11-17. The templates that don't meet it yet, and its audit, are [`repo:RF-43`](../../.plan/00-index.md)'s.
+
 The component package contains buttons, button groups, checkboxes, FABs, icons, lists, radios, and text fields. Its public runtime entrypoints are declared in `packages/material-x/files.json`; add or remove entries with components.
 
 `packages/material-x/tests` mirrors the production tree. It owns browser behavior tests, tproc-backed visual-contract tests, visual-regression tests, and Material-X-specific Node tests. The core and tproc packages own their own test trees.

@@ -1,0 +1,87 @@
+# RD-14 item 1.1: `npx just docs-build` on a fresh clone of 275ad0f5c after `npm ci` (devcontainer, v26.13.0).
+# Exit status 1. The recipe's summary, then the failing task's log as nx saved it (terminalOutputs), from its error.
+
+275ad0f5c repo: verify every push and ready pull request in three engines, with a pinned visual environment (#27)
+npm ci rc=0
+docs-build rc=1
+nx run @ydinjs/material-x:docs:build --skipNxCache --tui=false
+
+ NX   6 tasks: 5 succeeded, 1 failed
+
+
+✖ nx run @ydinjs/material-x:docs:build
+  full log: /home/node/.nx/3449a74c5ff4e055/cache/terminalOutputs/14796370053070888082
+
+Re-run with --output-style=static to inline logs.
+
+  Run duration:      8.4s
+  Cache:             Skipped (--skip-nx-cache)
+  Critical path:     8.3s (3 tasks)
+  Recoverable time:  <1ms
+error: recipe `docs-build` failed on line 31 with exit code 1
+
+--- task log, from line 250:
+│  - Adjust chunk size limit for this warning via
+│  build.chunkSizeWarningLimit.
+│
+■  Vite ✗ Build failed in 3.55s
+│
+■  Failed to build the preview
+│
+■  Build failed with 1 error:
+
+│  Error: [vite]: Rolldown failed to resolve import "@ydinjs/box-quad"
+│  from
+│  "<clone>/packages/drag/src/draggable.stories.tsx".
+│  This is most likely unintended because it can break your application
+│  at runtime.
+│  If you do want to externalize this module explicitly add it to
+│  `build.rolldownOptions.external`
+│  at viteLog
+│  (file://<clone>/node_modules/vite/dist/node/chunks/node.js:34880:57)
+│  at
+│  file://<clone>/node_modules/vite/dist/node/chunks/node.js:34917:71
+│  at onwarn
+│  (file://<clone>/node_modules/@vitejs/plugin-react/dist/index.js:40:7)
+│  at
+│  file://<clone>/node_modules/vite/dist/node/chunks/node.js:34917:28
+│  at onRollupLog
+│  (file://<clone>/node_modules/vite/dist/node/chunks/node.js:34912:65)
+│  at onLog
+│  (file://<clone>/node_modules/vite/dist/node/chunks/node.js:34673:4)
+│  at
+│  file://<clone>/node_modules/rolldown/dist/shared/create-bundler-option-3Cr4j1yj.mjs:46:26
+│  at logger
+│  (file://<clone>/node_modules/rolldown/dist/shared/create-bundler-option-3Cr4j1yj.mjs:37:3)
+│  at aggregateBindingErrorsIntoJsError
+│  (file://<clone>/node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:110:18)
+│  at unwrapBindingResult
+│  (file://<clone>/node_modules/rolldown/dist/shared/error-C18Vb1Fe.mjs:78:128)
+│  at #build
+│  (file://<clone>/node_modules/rolldown/dist/shared/rolldown-D1DJCGXB.mjs:147:34)
+│  at async buildEnvironment
+│  (file://<clone>/node_modules/vite/dist/node/chunks/node.js:34787:66)
+│  at async Object.build
+│  (file://<clone>/node_modules/vite/dist/node/chunks/node.js:35208:19)
+│  at async build
+│  (file://<clone>/node_modules/@storybook/builder-vite/dist/index.js:1691:290)
+│  at async Promise.all (index 0)
+│  at async buildStaticStandalone
+│  (file://<clone>/node_modules/storybook/dist/core-server/index.js:7603:7)
+│  at async withTelemetry
+│  (file://<clone>/node_modules/storybook/dist/_node-chunks/chunk-BNXJXWAP.js:142:12)
+│  at async build
+│  (file://<clone>/node_modules/storybook/dist/bin/core.js:4821:3)
+│  at async _Command.<anonymous>
+│  (file://<clone>/node_modules/storybook/dist/bin/core.js:5003:7)
+│
+└  Storybook exited with an error
+
+error: recipe `docs-build` failed on line 52 with exit code 1
+npm error Lifecycle script `docs:build` failed with error:
+npm error code 1
+npm error path <clone>/packages/material-x
+npm error workspace @ydinjs/material-x@0.1.0
+npm error location <clone>/packages/material-x
+npm error command failed
+npm error command sh -c just docs-build

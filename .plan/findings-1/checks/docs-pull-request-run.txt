@@ -1,0 +1,12 @@
+# RD-14 on pull request #29: Publish Docs run 43875177531 (https://github.com/ausginer/material-x/actions/runs/43875177531) at 5a0bba69b.
+conclusion: success
+build: success, 13:23:04 to 13:25:09
+deploy: skipped (its condition admits only a push or a manual run on main)
+artifact: github-pages, 2,532,398 bytes, id 14229073798; artifact.tar holds 277 entries, among them:
+  ./iframe.html
+  ./index.json
+  ./api/index.html
+  ./api/core/index.html
+  ./api/material-x/
+  ./index.html
+Earlier runs on #29: 43871705217 at 4768f9ce4, success (build success, deploy skipped).

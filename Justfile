@@ -26,8 +26,10 @@ docs-dev:
     node .scripts/docs-api.ts --out node_modules/.cache/docs/api
     MATERIAL_X_API_STATIC_DIR=$PWD/node_modules/.cache/docs/api nx run @ydinjs/material-x:docs:dev --skipNxCache --tui=false
 
-# Build the full docs site (Storybook + API)
-docs-build:
+# Build the full docs site (Storybook + API). Storybook collects every package's
+# stories, and the packages they import resolve to their builds: `_package-builds`
+# builds them first, as it does for the tests.
+docs-build: _package-builds
     nx run @ydinjs/material-x:docs:build --skipNxCache --tui=false
     nx run @ydinjs/core:docs:api:build --skipNxCache --tui=false
     node .scripts/docs-api.ts --out .docs/api
@@ -45,12 +47,13 @@ debug FILE:
 # One process rather than a package fan-out: Nx never ordered tests — its
 # `targetDefaults` carry no `test` key — so it contributed scheduling and
 # nothing else, while a fan-out pays a Chromium and a CSS evaluation isolate per
-# package. The root configuration contributes 15 projects: the 14 the six
-# per-package configurations do, so coverage is unchanged, and `repo`, which runs
-# the repository's own `.scripts` tests. Per-package runs stay available:
+# package. The root configuration contributes every project the per-package
+# configurations do, for the engines in `MX_TEST_ENGINES` and with visual only
+# under `MX_TEST_VISUAL=1`, so coverage is unchanged, and `repo`, which runs the
+# repository's own `.scripts` tests. Per-package runs stay available:
 # `cd packages/<name> && just test`.
 #
-# The packages the tests import are built first: `_test-builds` says why.
+# The packages the tests import are built first: `_package-builds` says why.
 test *ARGS: _test-builds
     vitest run {{ ARGS }}
 
@@ -80,13 +83,17 @@ test-safari *ARGS: _test-builds
     done <<< "$projects"
     exit "$failed"
 
-# The packages the tests import resolve to their builds, as a consumer's do, and
-# the CSS plugin reads the custom property list that material-x's
-# `build:prepare` collects. drag's own build is the consumer project's global
-# setup.
+# The packages that tests, stories and the Vite configuration import by name
+# resolve to their builds, as a consumer's do. drag's own build is the consumer
+# project's global setup, and no package imports material-x's.
 [private]
-_test-builds:
+_package-builds:
     nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+
+# The CSS plugin also reads the custom property list that material-x's
+# `build:prepare` collects.
+[private]
+_test-builds: _package-builds
     nx run @ydinjs/material-x:build:prepare --skipNxCache
 
 # ---------------------------------------------------------------------------

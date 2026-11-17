@@ -1,0 +1,41 @@
+# RF-33: focus delegation by elimination, and the smallest reproduction, in CI.
+# Run 43872551455 (https://github.com/ausginer/material-x/actions/runs/43872551455) at 506512c9b (the probes of 7d53bd6f9). Firefox 159.0 (playwright v1572), Chromium as pinned.
+# The Safari job was cancelled by a later push before material-x's projects ran, so Safari has no reading here.
+# A–H add one of mx-button's ingredients at a time to a host whose shadow root delegates focus; F adopts mx-button's stylesheets.
+
+## firefox
+RF33 firefox A plain host: active=rf33-probe-1 shadowActive=native button
+RF33 firefox B + attachInternals(): active=rf33-probe-2 shadowActive=native button
+RF33 firefox C + formAssociated, no attachInternals(): active=rf33-probe-3 shadowActive=native button
+RF33 firefox D + attachInternals() + formAssociated: active=rf33-probe-4 shadowActive=native button
+RF33 firefox E + mx-button's template: active=rf33-probe-5 shadowActive=native button
+RF33 firefox F + mx-button's stylesheets: active=body shadowActive=null
+RF33 firefox G + mx-button's template and stylesheets: active=body shadowActive=null
+RF33 firefox H D + template + stylesheets: active=body shadowActive=null
+RF33 firefox real mx-button: active=body shadowActive=null
+RF33M firefox "": delegates
+RF33M firefox ":host { display: contents }": does not delegate
+RF33M firefox ":host { display: inline }": delegates
+RF33M firefox mx-button with focus() forwarded: activeElement=mx-button, shadow=native button
+RF33T firefox Tab: activeElement=mx-button, shadow=native button
+
+## chromium
+RF33 chromium A plain host: active=rf33-probe-1 shadowActive=native button
+RF33 chromium B + attachInternals(): active=rf33-probe-2 shadowActive=native button
+RF33 chromium C + formAssociated, no attachInternals(): active=rf33-probe-3 shadowActive=native button
+RF33 chromium D + attachInternals() + formAssociated: active=rf33-probe-4 shadowActive=native button
+RF33 chromium E + mx-button's template: active=rf33-probe-5 shadowActive=native button
+RF33 chromium F + mx-button's stylesheets: active=rf33-probe-6 shadowActive=native button
+RF33 chromium G + mx-button's template and stylesheets: active=rf33-probe-7 shadowActive=native button
+RF33 chromium H D + template + stylesheets: active=rf33-probe-8 shadowActive=native button
+RF33 chromium real mx-button: active=mx-button shadowActive=native button
+RF33M chromium "": delegates
+RF33M chromium ":host { display: contents }": delegates
+RF33M chromium ":host { display: inline }": delegates
+RF33M chromium mx-button with focus() forwarded: activeElement=mx-button, shadow=native button
+RF33T chromium Tab: activeElement=mx-button, shadow=native button
+
+## Local bisection (devcontainer Firefox 159.0, not evidence): sheet 1 of mx-button's 11 adopted sheets, its :host rule, the declaration display: contents
+RF33B firefox sheet 1 (7 rules): DOES NOT delegate; every other sheet delegates
+RF33B   rule 3 (:host { … display: contents; … }): DOES NOT delegate
+RF33B     declaration display: contents -> DOES NOT delegate

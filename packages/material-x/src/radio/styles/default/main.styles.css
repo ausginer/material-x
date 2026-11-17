@@ -52,11 +52,20 @@
   color: var(--_icon-color);
 }
 
-:host:has(.input:focus-visible) {
-  .off {
-    outline: var(--_indicator-thickness) solid var(--_indicator-color);
-    outline-offset: var(--_indicator-outline-offset);
-  }
+/*
+ * The focus layer: the focused state's state layer, on the focus indicator's
+ * trigger: a keyboard-focused input, read from a later sibling, because Firefox
+ * doesn't match `:host:has()`. It is more specific than the ripple's hover rule, so it shows over
+ * hover; the press wave is the ripple's ::after and stays as it is.
+ */
+:host .input:focus-visible ~ .ripple::before {
+  background-color: var(--_focus-layer-color);
+  opacity: var(--_focus-layer-opacity);
+}
+
+.input:focus-visible ~ .off {
+  outline: var(--_indicator-thickness) solid var(--_indicator-color);
+  outline-offset: var(--_indicator-outline-offset);
 }
 
 :host(:state(checked)) {

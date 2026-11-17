@@ -7,6 +7,7 @@ import {
   impl,
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
+import { focusControl } from '../core/utils/useCore.ts';
 import type {
   ButtonColor,
   ButtonCoreProps,
@@ -93,6 +94,10 @@ export default class SwitchButton extends SwitchButtonConstructor {
       switchSizeStyles,
       switchTonalStyles,
     ]);
+  }
+
+  override focus(options?: FocusOptions): void {
+    focusControl(this, options);
   }
 }
 

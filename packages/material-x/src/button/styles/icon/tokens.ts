@@ -102,6 +102,7 @@ export const variantTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
                 ? { 'container.color': 'transparent' }
                 : {}),
               'state-layer.color': `${setName}.pressed.state-layer.color`,
+              'focus-layer.color': `${setName}.focused.state-layer.color`,
             })
             .extend(
               createButtonExtensions(

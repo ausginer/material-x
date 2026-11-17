@@ -1,0 +1,19 @@
+# RD-12 property 10, Tab: reading 2, run 43892383154 (https://github.com/ausginer/material-x/actions/runs/43892383154), safari job 133386755435, at 6818dc8aa.
+# Safari's sandbox container exists: ~/Library/Containers/com.apple.Safari (listing below).
+# The first three configurations write to the container's domain
+#   ~/Library/Containers/com.apple.Safari/Data/Library/Preferences/com.apple.Safari,
+# the last three to the global com.apple.Safari domain; both print as 'com.apple.Safari' in the labels.
+# Every write read back as set (1), no write printed an error, and Tab left focus on <body> in every configuration.
+TABCONTAINER drwx------@ 4 runner  staff  128 Nov  2 04:03 /Users/runner/Library/Containers/com.apple.Safari
+TABKEYS com.apple.Safari A: A=1 B=unset
+TABRESULT com.apple.Safari A: TABPROBE safari activeElement=body shadow=null
+TABKEYS com.apple.Safari B: A=unset B=1
+TABRESULT com.apple.Safari B: TABPROBE safari activeElement=body shadow=null
+TABKEYS com.apple.Safari AB: A=1 B=1
+TABRESULT com.apple.Safari AB: TABPROBE safari activeElement=body shadow=null
+TABKEYS com.apple.Safari A: A=1 B=unset
+TABRESULT com.apple.Safari A: TABPROBE safari activeElement=body shadow=null
+TABKEYS com.apple.Safari B: A=unset B=1
+TABRESULT com.apple.Safari B: TABPROBE safari activeElement=body shadow=null
+TABKEYS com.apple.Safari AB: A=1 B=1
+TABRESULT com.apple.Safari AB: TABPROBE safari activeElement=body shadow=null

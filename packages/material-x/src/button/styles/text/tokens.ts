@@ -17,6 +17,7 @@ const SET_NAME = 'md.comp.button.text';
 const specialTokens = {
   'container.color': 'transparent',
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
+  'focus-layer.color': `${SET_NAME}.focused.state-layer.color`,
 };
 
 const renderer = createScopedDeclarationRenderer({

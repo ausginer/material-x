@@ -39,6 +39,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     connected,
     checkbox,
     radio,
+    icon,
   ] = await Promise.all([
     import('../../src/button/styles/size/tokens.ts'),
     import('../../src/button/styles/default/tokens.ts'),
@@ -50,6 +51,7 @@ async function loadRegistry(): Promise<ContractRegistry> {
     import('../../src/button-group/styles/connected/tokens.ts'),
     import('../../src/checkbox/styles/default/tokens.ts'),
     import('../../src/radio/styles/default/tokens.ts'),
+    import('../../src/button/styles/icon/tokens.ts'),
   ]);
 
   // Both group token arrays are indexed by `BUTTON_GROUP_SIZES`:
@@ -77,6 +79,12 @@ async function loadRegistry(): Promise<ContractRegistry> {
     'button-group.connected.xlarge': connected.connectedTokens[4]!,
     'checkbox.default': checkbox.defaultTokens,
     'radio.default': radio.defaultTokens,
+    'icon-button.color.filled':
+      icon.variantTokens[icon.VARIANTS.indexOf('filled')]!,
+    'icon-button.color.tonal':
+      icon.variantTokens[icon.VARIANTS.indexOf('tonal')]!,
+    'icon-button.color.standard':
+      icon.variantTokens[icon.VARIANTS.indexOf('standard')]!,
   };
 }
 

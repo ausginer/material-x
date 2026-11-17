@@ -1,0 +1,10 @@
+# RF-35 / RF-39: the keyboard focus indicator before and after moving its trigger into the shadow tree (local, not CI evidence).
+# After Tab onto each component: the element carrying the outline, its border box, outline, offset and corner radii.
+## before (:host:has(.input:focus-visible)); Firefox draws no outline on either, so prints nothing
+IND chromium mx-checkbox host: box=24,24,40x40 outline=solid 3px rgb(75, 102, 42) offset=2px radius=20px/20px/20px/20px
+IND chromium mx-radio .off: box=34,34,20x20 outline=solid 3px rgb(75, 102, 42) offset=2px radius=10px/10px/10px/10px
+## after (.input:focus-visible ~ .indicator for checkbox, ~ .off for radio)
+IND chromium mx-checkbox .indicator: box=24,24,40x40 outline=solid 3px rgb(75, 102, 42) offset=2px radius=20px/20px/20px/20px
+IND chromium mx-radio .off: box=34,34,20x20 outline=solid 3px rgb(75, 102, 42) offset=2px radius=10px/10px/10px/10px
+IND firefox mx-checkbox .indicator: box=24,24,40x40 outline=solid 3px rgb(75, 102, 42) offset=2px radius=20px/20px/20px/20px
+IND firefox mx-radio .off: box=34,34,20x20 outline=solid 3px rgb(75, 102, 42) offset=2px radius=10px/10px/10px/10px

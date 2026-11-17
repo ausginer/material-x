@@ -1,0 +1,21 @@
+# RF-35: the focus-layer spec rows (tests/core/focus-layer.spec.browser.test.ts), local Chromium, and a mutation.
+# With the rules: Tests 12 passed (12).
+# Mutated: the focus-layer selector in button/styles/default/main.styles.css and radio/styles/default/main.styles.css renamed so it matches nothing:
+#   × mx-button: should draw the focused state layer on keyboard focus
+#   × mx-button: should draw the focused state layer on keyboard focus with hover
+#   × mx-radio: should draw the focused state layer on keyboard focus
+#   × mx-radio: should draw the focused state layer on keyboard focus with hover
+#   Tests 4 failed | 8 passed (12). The checkbox rows, whose rule stayed, passed. Rules restored afterwards.
+
+# Mutation 2 (after the RF-35 trigger ruling (iii)), Firefox: every focus-layer and indicator selector renamed so it matches nothing:
+# ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+#   × mx-button focus layer visual contract > should draw the focused state layer on keyboard focus
+#   × mx-button focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+#   × mx-checkbox focus layer visual contract > should draw the focused state layer on keyboard focus
+#   × mx-radio focus layer visual contract > should draw the focused state layer on keyboard focus
+#   × mx-checkbox focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+#   × mx-radio focus layer visual contract > should draw the focused state layer on keyboard focus with hover
+#   × mx-checkbox focus indicator > should draw the focus indicator on keyboard focus
+#   × mx-radio focus indicator > should draw the focus indicator on keyboard focus
+#       Tests  8 failed | 10 passed (18)
+# Restored afterwards. With the selectors: Tests 18 passed (18) in three Firefox runs and two Chromium runs.

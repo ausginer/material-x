@@ -1,0 +1,38 @@
+# RF-37: the warning's source, and the pre-bundle before and after removing `cacheDir: '.vite'` from .scripts/vite-config.ts.
+# Local devcontainer, vitest 5.1.0, @vitest/browser 5.1.0, vite 8.3.8. Project browser/material-x (chromium), one file.
+
+## Why the warning appears
+- @vitest/browser puts the module runner in the browser's dependency pre-bundle itself:
+  node_modules/@vitest/browser/dist/index.js:3787-3795, the optimizeDeps include list:
+    	const include = [
+    		"vitest > expect-type",
+    		"vitest > magic-string",
+    		"vitest > chai",
+    		"vitest > vite/module-runner",
+    		"vitest",
+    		"vitest/internal/browser",
+    		"vitest/internal/traces"
+    	];
+- Vite's import analysis warns about a dynamic import it can't analyze only when the importer isn't in node_modules:
+  node_modules/vite/dist/node/chunks/node.js:26692-26693:
+    					if (!isInNodeModules(importer)) {
+    						if (!hasViteIgnoreRE.test(source.slice(dynamicIndex + 1, end))) this.warn(`\n` + import_picocolors.default.cyan(importerModule.file) + `\n` + import_picoc
+- The warned line is vite/module-runner's runExternalModule (node_modules/vite/dist/node/module-runner.js:809-811):
+    	runExternalModule(filepath) {
+    		return import(filepath);
+    	}
+- The repository's `cacheDir: '.vite'` (.scripts/vite-config.ts, since e842821ea) puts the pre-bundle at packages/<name>/.vite/vitest/<hash>/deps/,
+  outside node_modules, so the warning fires. Vite's default puts it under packages/<name>/node_modules/.vite/, where it doesn't.
+- Upstream: vitest-dev/vitest#11293 (closed 2026-10-02, a commenter says 'Fixed: 5.0.3'); the warning still appears with 5.1.0 and a cache dir outside node_modules.
+
+## Runs (local Chromium; also seen in a local Firefox run of the RF-33 probe)
+- before, cacheDir '.vite': the warning prints once, for packages/material-x/.vite/vitest/9a8c3b27…/deps/vitest_n_vite_module-runner.js
+- after, no cacheDir: occurrences of 'cannot be analyzed': 0
+
+## Pre-bundle metadata, project hash 9a8c3b27b3ca8af269f2b34f6469a1aea8e03d78
+before (.vite/vitest/…): 19 entries
+  @preact/signals-core, chai, expect-type, just-camel-case, just-kebab-case, magic-string, react, react-dom, react/jsx-dev-runtime, react/jsx-runtime, tinybench, vite/module-runner, vitest, vitest > chai, vitest > expect-type, vitest > magic-string, vitest > vite/module-runner, vitest/internal/browser, vitest/internal/traces
+after (node_modules/.vite/vitest/…): 19 entries
+  @preact/signals-core, chai, expect-type, just-camel-case, just-kebab-case, magic-string, react, react-dom, react/jsx-dev-runtime, react/jsx-runtime, tinybench, vite/module-runner, vitest, vitest > chai, vitest > expect-type, vitest > magic-string, vitest > vite/module-runner, vitest/internal/browser, vitest/internal/traces
+same entry names: True
+each entry resolves to the same file under node_modules (src differs only by one more ../): True

@@ -106,8 +106,9 @@ class OneShotTestExecution implements Reporter {
               (project) =>
                 `"${project.name}" (${project.config.sequence.groupOrder})`,
             )
-            .join(', ')}. A --sequence.* flag on the command line replaces ` +
-          `the configured sequence object wholesale and erases it.`,
+            .join(', ')}. A --sequence.groupOrder flag on the command line ` +
+          `gives every project that same value; other --sequence.* flags ` +
+          `merge into each project's sequence and leave its groupOrder alone.`,
       );
     }
 

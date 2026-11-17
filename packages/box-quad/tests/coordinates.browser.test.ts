@@ -203,6 +203,36 @@ describe('coordinates', () => {
   });
 });
 
+/** The tolerance for floating-point rounding in a recovered size. */
+const ROUNDING_TOLERANCE = 0.0001;
+
+/**
+ * The largest error that Firefox's client-rect quantization carries into the
+ * recovered size of the rotated and scaled fixture below.
+ *
+ * Firefox reports each rect edge as a multiple of its layout unit q = 1/60 px,
+ * rounded to a reporting resolution r = 2^-14 px, so each edge is off by at most
+ * q/2 + r/2 and each of the rect's width W and height H by at most e = q + r.
+ * Chromium and Safari report the edges unquantized.
+ *
+ * The recovery solves W = w|a| + h|c|, H = w|b| + h|d| for the box's width w and
+ * height h: w = (W|d| − H|c|) / det and h = (H|a| − W|b|) / det, where
+ * det = |a||d| − |b||c|. An error of at most e in W and H therefore moves w by
+ * at most e(|c| + |d|) / det and h by at most e(|a| + |b|) / det.
+ *
+ * For `rotate(30deg) scale(1.5)`, |a| = |d| = 1.5 cos 30° and
+ * |b| = |c| = 1.5 sin 30° = 0.75, so det = 1.125 and both bounds are
+ * 1.821 e ≈ 0.0305 px.
+ */
+const FIREFOX_SIZE_BOUND = (() => {
+  const quantum = 1 / 60;
+  const resolution = 2 ** -14;
+  const cos = 1.5 * Math.cos(Math.PI / 6);
+  const sin = 1.5 * Math.sin(Math.PI / 6);
+  const determinant = cos * cos - sin * sin;
+  return ((quantum + resolution) * (sin + cos)) / determinant;
+})();
+
 describe('coordinates numeric precision', () => {
   it('should derive an exact size for an axis-aligned box', () => {
     const measured = measure(
@@ -213,31 +243,29 @@ describe('coordinates numeric precision', () => {
     expect(measured[BOX_HEIGHT]).toBe(40);
   });
 
-  // Firefox reports client rects in 1/60 px layout units, which leaves a larger
-  // residual than this row allows (`repo:RF-34`).
-  (server.browser === 'firefox' ? it.fails : it)(
-    'should derive a rotated and scaled size to within a ten-thousandth',
-    () => {
-      // The size is recovered by un-projecting `getClientRects()` through the
-      // matrix determinant, so a rotation with a non-integer scale leaves a small
-      // residual — around 3e-5 here. This is where that error lives: `projection`
-      // itself is exact to Float64 precision, which the DOM-free self-inverse
-      // suite pins separately.
-      const measured = measure(
-        createBox({
-          styles: {
-            width: '20px',
-            height: '10px',
-            transform: 'rotate(30deg) scale(1.5)',
-          },
-        }),
-      );
+  it('should derive a rotated and scaled size to within the engine precision', () => {
+    // The size is recovered by un-projecting `getClientRects()` through the
+    // matrix determinant, so a rotation with a non-integer scale leaves a small
+    // residual — around 3e-5 here in Chromium and Safari. This is where that
+    // error lives: `projection` itself is exact to Float64 precision, which the
+    // DOM-free self-inverse suite pins separately.
+    const measured = measure(
+      createBox({
+        styles: {
+          width: '20px',
+          height: '10px',
+          transform: 'rotate(30deg) scale(1.5)',
+        },
+      }),
+    );
+    const tolerance =
+      ROUNDING_TOLERANCE +
+      (server.browser === 'firefox' ? FIREFOX_SIZE_BOUND : 0);
 
-      expect(measured[BOX_WIDTH]).not.toBe(20);
-      expectNear(measured[BOX_WIDTH]!, 20, 0.0001);
-      expectNear(measured[BOX_HEIGHT]!, 10, 0.0001);
-    },
-  );
+    expect(measured[BOX_WIDTH]).not.toBe(20);
+    expectNear(measured[BOX_WIDTH]!, 20, tolerance);
+    expectNear(measured[BOX_HEIGHT]!, 10, tolerance);
+  });
 
   it('should fall back to the computed size for a near-degenerate matrix', () => {
     // A heavy shear leaves the determinant tiny next to its scale, where

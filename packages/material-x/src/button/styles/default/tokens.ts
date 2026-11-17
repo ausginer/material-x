@@ -26,6 +26,8 @@ type Sets = typeof GENERAL_SET_NAME | typeof FILLED_SET_NAME;
 const specialTokens = {
   'state-layer.opacity': `${GENERAL_SET_NAME}.pressed.state-layer.opacity`,
   'state-layer.color': `${GENERAL_SET_NAME}.pressed.state-layer.color`,
+  'focus-layer.opacity': `${GENERAL_SET_NAME}.focused.state-layer.opacity`,
+  'focus-layer.color': `${GENERAL_SET_NAME}.focused.state-layer.color`,
   'press.easing': motionEffects['expressive.fast-spatial'],
   'press.duration': motionEffects['expressive.fast-spatial.duration'],
   'ripple.color': CSSVariable.ref('state-layer.color'),

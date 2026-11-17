@@ -1,0 +1,3 @@
+# RF-37 in CI: occurrences of 'cannot be analyzed' in each browser job's log.
+# Before (run 43872551455 at 506512c9b, cacheDir '.vite'): chromium 8, firefox 7, safari 6 (Safari job cancelled partway).
+# After (run 43875177436 at 5a0bba69b, Vite's default cache dir): chromium 0, firefox 0, safari 0.

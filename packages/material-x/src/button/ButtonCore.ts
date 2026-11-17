@@ -22,7 +22,7 @@ import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { t
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import { useContext } from '../core/utils/useContext.ts';
-import { useCore } from '../core/utils/useCore.ts';
+import { forwardFocus, useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import shapeStyles from './styles/shape/main.css.ts' with { type: 'css' };
@@ -110,6 +110,8 @@ export function useButtonCore(
   useDisableable(host, target);
 
   useARIA(host, target);
+
+  forwardFocus(host, target);
 
   useRipple(host, rippleHost, rippleHost);
 

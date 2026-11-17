@@ -1,0 +1,21 @@
+# Item 8 at the head a81841cb0 (step 1 7c09927f0, steps 2 and 3 a941ed888).
+# verify 44008539924 (https://github.com/ausginer/material-x/actions/runs/44008539924): success
+#   static 133789659946, chromium 133789659515, firefox 133789659914, safari 133789659910, measurements 133789659860: success
+# Publish Docs 44008539891 (https://github.com/ausginer/material-x/actions/runs/44008539891): success; build success, deploy skipped
+# Earlier: verify 44007045199 at a941ed888 (steps 2 and 3 alone): success in every job; Publish Docs 44007045355: success.
+
+chromium  browser/material-x  tests/core/utils/useCore.browser.test.ts (9 tests)               passed
+chromium  browser/material-x  tests/button/button.browser.test.ts (25 tests)                   passed
+chromium  browser/material-x  tests/list/list-item.browser.test.ts (3 tests)                   passed
+chromium  spec/material-x     tests/core/focus-layer.spec.browser.test.ts (28 tests)           passed
+chromium  visual/material-x   button, button-group, checkbox, radio visual files                passed (no baseline written)
+chromium  job total           1889 passed | 12 skipped (1901)
+firefox   the same four files                                                                  passed (9, 25, 3, 28)
+firefox   job total           1616 passed | 1 expected fail | 18 skipped (1635)
+          the expected fail is the RF-33 watching row (button.browser.test.ts, it.fails in Firefox)
+safari    the same four files                                                                  passed (9, 25, 3, 28)
+safari    browser/material-x/safari 158 passed (158); spec/material-x/safari 126 passed (126)
+          the other Safari projects' counts equal 44003141576's; the RF-42 rows press Option-Tab, unmarked
+
+# No marking other than RF-33's watching row in Firefox; RF-42 ended in option (a), so it holds no marking.
+# Visual baselines: the chromium job's visual project passed at every baseline, and the tree adds no __screenshots__ file.

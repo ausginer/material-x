@@ -1,0 +1,13 @@
+# RD-12 property 10, Tab: which Safari defaults key lets Tab reach a button. Reading 1, run 43889993969 (https://github.com/ausginer/material-x/actions/runs/43889993969), safari job 133378281218, at bba157cf3.
+# A = WebKitTabToLinksPreferenceKey, B = com.apple.Safari.ContentPageGroupIdentifier.WebKit2TabsToLinks, written to the global com.apple.Safari domain as the runner's user.
+# Each configuration runs a scratch row that presses Tab once on a page holding one mx-button. A read of an unset key prints the defaults error, truncated here.
+TABKEYS none: A=2026-11-16 14:51:42.094 defaults[2482:10311] 
+TABRESULT none: TABPROBE safari activeElement=body shadow=null
+TABKEYS A: A=1 B=2026-11-16 14:52:02.448 defaults[2754:11775] 
+TABRESULT A: TABPROBE safari activeElement=body shadow=null
+TABKEYS B: A=2026-11-16 14:52:11.746 defaults[2961:12415] 
+TABRESULT B: TABPROBE safari activeElement=body shadow=null
+TABKEYS AB: A=1 B=1
+TABRESULT AB: TABPROBE safari activeElement=body shadow=null
+
+# The same job's full Safari run: the 9 keyboard-focus rows fail as before (the preference was deleted again before the tests).

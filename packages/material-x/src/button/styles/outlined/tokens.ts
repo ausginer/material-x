@@ -27,6 +27,7 @@ const specialTokens = {
   'container.color': 'transparent',
   'outline.width': '1px',
   'state-layer.color': `${SET_NAME}.pressed.state-layer.color`,
+  'focus-layer.color': `${SET_NAME}.focused.state-layer.color`,
 };
 
 const specialSelectedTokens = {

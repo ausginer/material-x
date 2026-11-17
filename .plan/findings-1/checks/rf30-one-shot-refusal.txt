@@ -1,0 +1,14 @@
+# RF-30: the one-shot refusal against the installed Vitest, before and after the sentence's change.
+# vitest/5.1.0, node v26.13.0. Two browser projects, one file each.
+
+=== npx vitest run --project 'browser/box-quad (chromium)' --project 'browser/core (chromium)' --sequence.groupOrder=3 <one file each>
+Error: browser projects must each have a distinct non-zero sequence.groupOrder, so that they are serialized and each provider is released at a group boundary. These do not: "browser/core (chromium)" (3), "browser/box-quad (chromium)" (3). A --sequence.groupOrder flag on the command line gives every project that same value; other --sequence.* flags merge into each project's sequence and leave its groupOrder alone.
+
+=== npx vitest run --project 'browser/box-quad (chromium)' --project 'browser/core (chromium)' --sequence.shuffle <one file each>
+ Test Files  2 passed (2)
+      Tests  70 passed (70)
+
+=== npx vitest run --project 'browser/box-quad (chromium)' --project 'browser/core (chromium)' --sequence.seed=7 <one file each>
+ Test Files  2 passed (2)
+      Tests  70 passed (70)
+
