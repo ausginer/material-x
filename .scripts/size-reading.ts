@@ -77,9 +77,14 @@ async function readSizeLimit(name: string): Promise<SizeRow[]> {
   await run('aube', ['exec', 'just', 'build'], cwd);
 
   // size-limit exits non-zero when a row is over its limit, and still prints it.
-  const { stdout } = await run('aube', ['exec', 'size-limit', '--json'], cwd, {
-    allowFailure: true,
-  });
+  const { stdout } = await run(
+    'aube',
+    ['exec', '--', 'size-limit', '--json'],
+    cwd,
+    {
+      allowFailure: true,
+    },
+  );
   const rows = parseLastJSON(stdout, `${name}: size-limit`) as SizeLimitRow[];
 
   return rows.map((row) => ({

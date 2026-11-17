@@ -27,11 +27,11 @@ For a bounded set of repository-level code files, which the root recipes cannot 
 
 ```sh
 aube exec oxfmt <changed-files>
-aube exec oxlint --fix <changed-files>
-aube exec eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix <changed-files>
+aube exec -- oxlint --fix <changed-files>
+aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix <changed-files>
 aube exec oxfmt <changed-files>
 aube exec oxlint <changed-files>
-aube exec eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts <changed-files>
+aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts <changed-files>
 ```
 
 Source and tooling changes owe their applicable typechecks and tests. Use the component and visual-contract skills when the changed tests require them. Record a check failure and its scope; do not turn incomplete verification into acceptance.

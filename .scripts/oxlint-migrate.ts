@@ -57,6 +57,7 @@ async function runMigrate(): Promise<void> {
       'aube',
       [
         'exec',
+        '--',
         '@oxlint/migrate',
         '--type-aware',
         '--details',

@@ -88,7 +88,7 @@ jobs:
       - name: Safari projects
         run: |
           set -o pipefail
-          aube exec just test-safari --tags-filter '!measurement' 2>&1 | tee "$RUNNER_TEMP/safari.log"
+          aube exec -- just test-safari --tags-filter '!measurement' 2>&1 | tee "$RUNNER_TEMP/safari.log"
       - name: Failed projects
         id: failed
         if: failure()

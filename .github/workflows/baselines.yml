@@ -68,7 +68,7 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec playwright install --with-deps chromium
+      - run: aube exec -- playwright install --with-deps chromium
       - name: Runner image, processor and Chromium
         run: |
           {
@@ -78,7 +78,7 @@ jobs:
           } | tee "$RUNNER_TEMP/environment.txt"
       # The update flag rewrites a baseline only where its comparison failed or
       # it didn't exist; one that still matches stays as it is.
-      - run: aube exec just test --project visual/material-x --update
+      - run: aube exec -- just test --project visual/material-x --update
         env:
           MX_TEST_VISUAL: '1'
       - name: Collect the added and changed baselines
