@@ -150,6 +150,28 @@ That is the whole change. The old wording is quoted above, as the record of what
 
 A pull is a merge, so the rule covers it. This unit's merge at `d6838d0f1` is the first case: run `aube install` in the main checkout before anything else.
 
+## Item 5. The repair after `aube add` (`RF-48`)
+
+**Added 2026-11-17 by the architect** at `51a992b49`, after the report. `repo:RF-48`'s decision governs it. Run it before the review.
+
+**Witness first,** in slot `c`, with no other command using it, starting clean at the commit it is detached at. Save the commands and their output as `checks/rf48-repair.txt`:
+
+1. `aube install`, then list `node_modules/@ydinjs` and `node_modules/size-limit-preset-rolldown`;
+2. `aube add -D -W left-pad@1.3.0`, then the same listing;
+3. `aube install --frozen-lockfile --force`, then the same listing, `ls node_modules/left-pad`, `aube store status`, and the link count of `node_modules/typescript/lib/tsserver.js`;
+4. `aube remove` of `left-pad` at the root, then the same listing; if a link is gone, step 3's command and the listing again;
+5. revert `package.json` and `package-lock.json`, run `aube install`, and show `git status --short` clean.
+
+**Then add** to `.claude/agents/implementer.md`, beside the `aube add -D -W` rule, wording it to match its neighbours:
+
+> - **After `aube add` or `aube remove`, run `aube install --frozen-lockfile --force`,** and confirm that `node_modules/@ydinjs` holds the workspace packages. aube 2.10.0's `add` drops the workspace links, and `aube install` doesn't notice (`repo:RF-48`).
+
+**Stop,** and return to the architect with the reading, if step 3 doesn't restore every link, if `aube store status` fails, or if `tsserver.js` has more than one link.
+
+## Item 6. The picker's order (`RD-17` property 2)
+
+`coordinator-setup.md` §Session names says that `--resume <name>` with more than one match opens the picker and _"the owner chooses"_. Add that the picker lists the matches newest first, and that the newest is the session `cl` means.
+
 ## Order
 
 1. `git merge origin/main`, once `repo/ci-speed-1` has merged. (Done by the architect at `d6838d0f1`.)
@@ -210,3 +232,5 @@ A targeted feature-proof review reads the diff from the merge of `main` to the h
 It records at `.plan/reviews/harness-1/feature-proof-claude.md`, and the architect decides its findings.
 
 **Stopping boundary:** the report is committed and pushed, and the pull request is open with `verify` green. The review follows.
+
+**Amended 2026-11-17** by the architect at `51a992b49`: items 5 and 6 run after the report and before the review. The report gains a section for them, with `checks/rf48-repair.txt`. The review also covers `implementer.md`'s new rule against `RF-48`'s decision, and `coordinator-setup.md` against `RD-17` property 2 as amended.

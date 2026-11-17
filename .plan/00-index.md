@@ -841,6 +841,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Amended 2026-11-17 by the architect** on `repo/harness-1` at `4c489e745`, on the owner's proposal relayed by the coordinator: the slot root moves out of the checkout to its own volume, `/workspaces/worktrees`. The owner approved the amendment as proposed (_"Yes, it all looks right"_, as relayed). The owner added that aube's store must be shared: _"aube's shared storage will help a lot here, otherwise it's easy to eat all the free space"_ (as relayed). The cause was the architect's reading that Node resolves upward from a slot inside the checkout into the main checkout's `node_modules`. The title and properties 1, 3 and 8 changed, and property 9 is new. What they said before is at the end.
 
+**Amended 2026-11-17 by the architect** on `repo/harness-1` at `51a992b49`, from the harness report's [session-name reading](harness-1/harness-report.md#witness-4-session-names), relayed by the coordinator. Property 2 gains what `--resume <name>` does after a `/clear`. Nothing else in property 2 changes: the reading shows that `/clear` keeps the name, which is what the property relies on.
+
 **Read at `21392e738`** by the architect, in the devcontainer:
 
 - **The workspace filesystem.** `/workspaces` is the container's overlay, owned by root. Only `/workspaces/material-x` is bind-mounted from the host, and `node_modules` is a volume inside it. A sibling directory such as `../material-x-b` would therefore be lost on a container rebuild and invisible on the host.
@@ -870,6 +872,13 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - `cl [--init] <profile> [<slot>]` starts or resumes `Mx <Role>` in the main slot, and `Mx <Role> <S>`, with the letter in upper case, rooted in slot _s_.
    - When a unit ends, the owner clears the session (`/clear`), and the slot takes the next unit. **No session is renamed.**
    - Each name is unique among live sessions, so `SendMessage` reaches it.
+   - **Resuming after a `/clear` may open the resume picker** (amended 2026-11-17). Read in Claude Code 2.1.326's bundle ([reading](harness-1/checks/session-names.txt)):
+     - `/clear` starts a new session id with the cleared session's title;
+     - `--resume <name>` matches titles exactly, ignoring case, over the sessions of every worktree of the repository;
+     - with one match it resumes that session, and with more than one it opens the picker with the name as its search text, newest first.
+     - **Accepted.** The owner takes the newest entry, which is the session that `cl` means. The name's job is to stay unique among live sessions, and `/clear` keeps that.
+     - **Whether the picker opens is inferred, not read:** the key that the search deduplicates by wasn't read. Property 2 holds either way, so no further reading is needed.
+     - `cl --init` runs once per slot and profile. A second `--init` adds another session with the same title.
 3. **`cl` prepares a missing slot and nothing more** (amended 2026-11-17).
    - **It creates a missing slot** with `git worktree add --detach --lock --reason "session slot"` at `origin/main`, and reuses one that exists. It never removes, cleans, switches or unlocks one.
    - **It fails closed without the volume.** With a slot argument, `cl` refuses, with a non-zero exit and a message that names the devcontainer mount, unless `/workspaces/worktrees` is a mount point. It never creates that directory. The main slot doesn't need the volume.
@@ -928,6 +937,10 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 - **Sibling worktrees** (`../material-x-b`), the coordinator's first proposal. They would be lost on a container rebuild and invisible on the host.
 - **Renaming a finished session** by task. Its name is how messages reach it.
+- **Avoiding the picker after a `/clear`** (amended 2026-11-17). None of these is better than one keystroke in the picker:
+  - **`cl` resumes by session id,** found in Claude Code's transcripts under `CLAUDE_CONFIG_DIR/projects/`. That format is Claude Code's private storage, and the CLI offers no query for session titles.
+  - **`claude --continue`** resumes the newest session in the directory. A slot's directory holds the sessions of every role run there, so it can resume the wrong role.
+  - **Renaming before `/clear`.** The new session takes the renamed title, so it would need a second rename back, and property 2 renames no session.
 - **Rebasing the upper branch onto `main`.** It needs a force-push.
 - **Splitting the index now.** See property 6.
 - **Slots inside the checkout** (`.claude/worktrees/<s>`), this entry's first choice. Node resolves upward from there into the main checkout's `node_modules`, so a package missing from a slot loads silently from the main checkout. That path is also Claude Code's own.
@@ -945,6 +958,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - Property 3 said: _"`cl` prepares a missing slot and nothing more. It creates `.claude/worktrees/<s>` detached at `origin/main` when it is missing, and reuses it when it exists. It never removes, cleans or switches one. The session checks out its unit's branch and installs there. The owner removes a slot with `git worktree remove`."_
 - Property 8 said: _"A slot's git links are absolute container paths, so on the host `git worktree list` reports the slots as prunable. **Don't run `git worktree prune` on the host.** Each slot installs its own dependencies."_
 - _Why_ said: _"**Inside the checkout,** for the bind mount and the existing ignores."_
+
+**What the second amendment of 2026-11-17 changed.** Property 2 had no bullet on resuming after a `/clear`, and _Not adopted_ had no entry on avoiding the picker. Nothing was removed.
 
 #### RD-18 — The effort guard and `.scripts/claude-role.sh` are removed, and `cl` starts every role session at the effort its definition declares
 
@@ -1535,7 +1550,7 @@ Tier B, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 
 #### RF-48 — After one `aube add`, the main checkout's `node_modules/@ydinjs` links were gone, and `aube install` reported nothing to do
 
-Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's _Remediation of the stop at `633ef72d8`_ and the feature proof's _The open items_.
+Tier C, **decided, unimplemented** (decided 2026-11-17 at `51a992b49`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's _Remediation of the stop at `633ef72d8`_ and the feature proof's _The open items_.
 
 - **What was seen:** after remediation step B's `aube add -D -W @oxlint/migrate@1.93.0`, `node_modules/@ydinjs/` was missing from the main checkout. The root typecheck failed (nx: _"Cannot find package '@ydinjs/vite-traits-plugin'"_), and `aube install` answered _"Already up to date"_. `aube install --frozen-lockfile --force` restored the links.
 - **What holds:** the committed state. A fresh worktree of `633ef72d8`, `57c8849a2` or `9dab0c066` links all seven workspace packages on `aube install`. The lockfile keeps a `link` entry for each of them, and CI installs with `aube ci`.
@@ -1543,7 +1558,32 @@ Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 - **Why it matters:** `implementer.md` teaches `aube add -D -W <name>`. If the cause is aube's, every dependency change can leave a tree that fails to typecheck, and aube's state check doesn't notice.
 - **Required property:** after `aube add` or `aube remove`, `node_modules` links every workspace package, or the install command fails.
 - **Next:** a reading. In a scratch worktree that no other session uses, run `aube install`, then one `aube add -D -W` of a mature package with no install script, and list `node_modules/@ydinjs`. If the links are gone, it is aube's defect: the owner may report it upstream, and `implementer.md` gains the repair command beside the add rule. If they are not, this finding closes as not reproduced. **Not part of the CI-speed unit.** Its handoff doesn't depend on it.
-- **Scheduled 2026-11-17** by the architect at `d6838d0f1`, in the [harness handoff](harness-1/harness-handoff.md)'s item 2, witness 2. That witness already installs dependencies in slot `b`, a worktree under `.claude/worktrees/` that no other session uses, so the reading adds one `aube add`, two listings and a revert there. It is not a stop for that unit. The architect closes or keeps this finding from what the harness report records.
+- **Scheduled 2026-11-17** by the architect at `d6838d0f1`, in the [harness handoff](harness-1/harness-handoff.md)'s item 2, witness 2. That witness already installs dependencies in slot `b`, a worktree under `.claude/worktrees/` that no other session uses, so the reading adds one `aube add`, two listings and a revert there. It is not a stop for that unit. The architect closes or keeps this finding from what the harness report records. (_Corrected 2026-11-17:_ `RD-17`'s amendment at `4c489e745` moved the slots, so slot `b` is `/workspaces/worktrees/b`, not a worktree under `.claude/worktrees/`. No other session used it for the reading.)
+
+**Decision.** Recorded 2026-11-17 by the architect on `repo/harness-1` at `51a992b49`, from the [harness report](harness-1/harness-report.md#the-rf-48-reading) and its [reading](harness-1/checks/rf48-reading.txt), relayed by the coordinator. **The defect is aube's, and the repository works around it with one rule in `implementer.md`.**
+
+- **Read in slot `b`,** with no other command using it, on aube 2.10.0 with the hoisted linker:
+  - before the add, `node_modules/@ydinjs` held all seven workspace packages;
+  - `aube add -D -W left-pad@1.3.0` exited 0, and `node_modules/@ydinjs` then didn't exist;
+  - `aube install` then answered _"Already up to date"_ and restored nothing;
+  - the same happened a second time;
+  - reverting `package.json` and `package-lock.json` and running `aube install` restored all seven links both times, and `aube store status` passed afterwards.
+- **So the cause is aube's `add`,** not a concurrent operation. The finding's first sighting is the same defect.
+- **Inferred from the output, not read on disk:** `add`'s listing of the root importer leaves out every workspace package and two packages that the root manifest doesn't name (`prettier` and `@testing-library/dom`), and `install`'s listing has them. So `add` relinks the root from its manifest alone, without the workspace links. `install` compares the manifest and the lockfile, which `add` has already made consistent, so it finds nothing to do.
+- **The committed state stays sound.** The lockfile keeps its `link` entries, and CI installs with `aube ci`. The defect reaches only a local tree, and it fails loudly: the next typecheck can't find a `@ydinjs` package.
+
+**Required properties.**
+
+1. **The repair is a reinstall from the lockfile that `add` just wrote:** `aube install --frozen-lockfile --force`. It restored the links at the first sighting, in the shared main checkout, where the manifest change was kept. The isolated reading didn't run it, because the revert was enough. So the harness handoff's [item 5](harness-1/harness-handoff.md#item-5-the-repair-after-aube-add-rf-48) witnesses it in a slot, for `aube add` and `aube remove`, before the rule is written.
+2. **`implementer.md` gains the rule beside the `aube add -D -W` rule:** after `aube add` or `aube remove`, run `aube install --frozen-lockfile --force`, and confirm that `node_modules/@ydinjs` holds the workspace packages. It cites `repo:RF-48`. That meets the required property above by procedure, because aube can't meet it.
+3. **The rule is removed when aube's defect is gone.** When the pinned aube version (`packageManager` and the workflows' `AUBE_VERSION`) changes, the unit that changes it repeats the isolated reading in an unused slot. If the links survive an `aube add`, that unit removes the rule and closes this finding. aube 2.10.1 is available. Nobody has read whether it fixes the defect.
+4. **An upstream report is the owner's choice.** The reading is a complete reproduction: a hoisted workspace, one `aube add -D -W` of a package with no install script, and a listing before and after.
+
+**Not adopted.**
+
+- **A `just` recipe that wraps `aube add`** with the reinstall. The rule is one line for the one role that adds dependencies, and the failure it prevents is loud. A wrapper is code to maintain for a defect in a pinned tool version.
+- **Editing `package.json` by hand and running `aube install`,** instead of `aube add`. It loses `add`'s resolution of the latest compatible version, and nobody has read whether `install` after a manifest change has the same defect.
+- **Closing the finding with the documentation only.** Without the rule, a developer who follows `implementer.md` can still be left with a tree that fails to typecheck.
 
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
