@@ -334,7 +334,7 @@ The unit changes product source in material-x, the shared build recipe, the Vite
 
 Take it on this branch after item 7's Option-Tab reading (verify 44003141576) is reported. It changes the forward and adds rows. Nothing else changes.
 
-1. **The forward moves to the prototype chain.** (`reviewer-2`)
+1. **The forward moves to the prototype chain.** (`reviewer-2`) **Replaced** by _Item 8, step 1, amended 2026-11-17: the forward as a trait_, below. The bullets are kept for the record.
    - **No own property:** for each of the seven hosts the forward covers, `Object.hasOwn(host, 'focus')` is false, and `focus` resolves to a method of material-x's own classes.
    - **A subclass's own `focus()` is called,** and `super.focus(options)` in it focuses the control, in every engine, Firefox included.
    - **One body:** the forward's logic exists once (CONTRIBUTING §6). If each class declares the method, the declaration only calls the shared code.
@@ -356,11 +356,40 @@ Take it on this branch after item 7's Option-Tab reading (verify 44003141576) is
    - no visual baseline changes.
 5. **The report** adds a section for item 8, with the run links and the size reading.
 
+### Item 8, step 1, amended 2026-11-17: the forward as a trait
+
+The owner directed that while the forward ships, it is a trait, relayed by the coordinator. It stays a workaround for Firefox and goes when the watching row passes. `RF-33` holds the reasons. Step 1 becomes:
+
+1. **The trait.** One trait, made with `trait(transformer, brand)` from `@ydinjs/core/traits/primitives.js`. Its class declares `focus(options?: FocusOptions): void`, which focuses the host's registered control. A `use*` function in the same module registers the control, called where `forwardFocus` is called today: `useButtonCore` and `useInteractiveListItemCore`. `forwardFocus` is removed. This is core's own pattern, where a trait declares the surface and a `use*` function wires it, as `Disableable` and `useDisableable` do.
+   - **Where it lives:** in material-x's shared code. Not in `@ydinjs/core`, and not in material-x's `exports`.
+   - **No change to `@ydinjs/core`.** `traits/primitives` is an exported subpath, and its `trait` takes any pure class transformer. **Stop** if the trait can't be written, or composed through `impl`, without changing `@ydinjs/core`'s runtime or types. That would be core's decision, and it isn't in this unit.
+   - **The flattener lowers it.** The trait stays inside the generic subset that `vite-traits-plugin` supports ([`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md) §Eligibility). That means a module-scoped declaration, a pure transformer, and a method with no private names. So the registered controls are module-scoped state, not a `#private` field. **Stop** if the build warns that the plugin retained the trait.
+2. **Exactly the seven hosts that register a control adopt it,** each through its trait list:
+   - `button.ts`'s list, `ICON_BUTTON_CORE_TRAITS` and `link-button.ts`'s list;
+   - `SWITCH_CORE_TRAITS`, which covers both switch buttons;
+   - `LIST_INTERACTIVE_ITEM_CORE_TRAITS`, which covers both interactive list items.
+
+   It isn't added to `BUTTON_CORE_TRAITS`, because the split button and `ButtonGroupCore` also use that list, and they register no control. FAB, the split button, the button groups and `mx-list-item` don't adopt it. The registering function's host type requires the trait's interface, so a class that registers a control without adopting the trait fails to typecheck.
+
+3. **What stands from step 1:**
+   - `Object.hasOwn(host, 'focus')` is false for each of the seven, and `focus` resolves to the trait's method;
+   - a subclass's own `focus()` is called, and `super.focus(options)` in it focuses the control, in every engine, Firefox included;
+   - item 4's signature, target, options and engines, and `delegatesFocus: true` on the shadow roots;
+   - the comment, now on the trait: what it works around, `RF-33`, and that it goes when Firefox delegates through a `display: contents` host;
+   - the subclass rows for `mx-button` and `mx-list-button-item`, and the watching row with its Firefox marking;
+   - the `measurements` job's change is reported, and a budget that fails is a stop.
+4. **What changes in the types:** each adopting class's instance type gains the trait's brand, as every adopted trait adds one. No member changes. Neither the trait nor its brand is exported.
+5. **Removal:** when the watching row passes in Firefox, its marking, the trait's module, its five list entries and its two registrations are removed in one change. Delegation then focuses the control in every engine, and nothing exported changes.
+
+**The parked attempt at `891d672ec`** (`implementer/item8-step1-wip`, unpushed) may be reused. Its module `WeakMap` and its `focusControl` become the trait module's registry and the body of the trait's method, and the registering function takes `forwardFocus`'s place. Its seven per-class `override focus()` declarations are dropped, because the trait declares the method. Its rows in `tests/core/utils/useCore.browser.test.ts` stand: `Object.hasOwn` for the seven hosts, and the two subclass rows.
+
+**Step 4's mutation check, ruled 2026-11-17 on the implementer's note:** a mapping that tproc deduplicates into the button default doesn't fail its row when it's dropped. `mx-icon-button`'s filled mapping is one, because its focused colour equals the default's. The row stands, because it reads what is drawn. The default's mapping is what a mutation must drop to fail it. The report names each such row.
+
 ### Before the owner merges #29
 
 1. Item 7's Option-Tab reading is reported. The architect records the owner's `RF-42` answer and its outcome in `RD-12` property 10 and `RF-42`.
 2. Item 8 is implemented and reported. The architect then decides whether `RF-35`, `RF-39` and `RF-42` close. The two reports can come to the architect together.
-3. **A targeted feature-proof recheck** reads the code diff from `fc3b89680` to the head, excluding `.plan/`: item 7's key helper and item 8. It records at `.plan/reviews/findings-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
+3. **A targeted feature-proof recheck** reads the code diff from `fc3b89680` to the head, excluding `.plan/`: item 7's key helper and item 8, with step 1 as amended. It records at `.plan/reviews/findings-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
 4. `verify` and _Publish Docs_ pass on #29's head.
 5. The reviewer's `a22c109b7` and this disposition are merged into `repo/findings-1`.
 
