@@ -308,11 +308,12 @@ For the implementer, on `repo/ci-speed-1`, after merging the architect's commit 
    - **Stop** if the re-resolution touches anything else, or if the release age blocks it.
 4. **`@oxlint/migrate`:** `aube add -D -W @oxlint/migrate@1.93.0`, in a later commit than item 3. **Witness:** `just oxlint-migrate` runs and leaves `.oxlintrc.json` unchanged, or the report shows its diff. If the package has an install script, its `allowBuilds` entry is pinned to 1.93.0.
 5. **No auto-install** (`RD-16` property 12, added after this section): `.npmrc` gains `aubeNoAutoInstall=true`, in its own commit, under a comment saying that `aube run` and `aube exec` then install nothing.
-   - **Witness,** locally, on a tree that `aube install` has just brought up to date. Afterwards, restore every changed file with `git checkout`, run `aube install`, and `git status` is clean.
-     1. Add a script `"witness-no-install": "node -e 0"` to the root `package.json`, and create a marker file `m` in the scratchpad.
-     2. `aube exec tsc --version` and `aube run witness-no-install` both run, neither prints _Auto-installing_, and `find node_modules/.aube-state -newer "${m:?}"` prints nothing.
-     3. **The control,** after step 2 and never before it, because its install brings the state up to date and step 2 would then pass under any setting: with the `.npmrc` line removed and `package.json` still changed, `aube exec tsc --version` prints _Auto-installing_. If it doesn't, the edit is one the check ignores: use another, such as `^` before one exact devDependency version, repeat from step 1, and report which edit served.
+   - **Witness,** locally, on a tree that `aube install` has just brought up to date. Afterwards, restore every changed file with `git checkout`, `package-lock.json` included, because the control's install rewrites it. Then run `aube install`, and `git status` is clean.
+     1. In the root `package.json`, put `^` before `concurrently`'s exact version, add a script `"witness-no-install": "node -e 0"`, and create a marker file `m` in the scratchpad.
+     2. `aube exec -- tsc --version` and `aube run witness-no-install` both run, neither prints _Auto-installing_, and `find node_modules/.aube-state -newer "${m:?}"` prints nothing.
+     3. **The control,** after step 2 and never before it, because its install brings the state up to date and step 2 would then pass under any setting: with the `.npmrc` line removed and `package.json` still changed, `aube exec -- tsc --version` prints _Auto-installing_. If it doesn't, the edit is one the check ignores: use another dependency spec, repeat from step 1, and report which edit served.
    - **Stop** if step 2 installs: aube 2.10.0 then doesn't read the key. Don't substitute `--no-install`, an environment variable or another key. The architect decides.
+   - **Corrected 2026-11-17, after the witness held at `e60626671`.** Step 1 said only _"Add a script … to the root `package.json`"_, which the staleness check ignores. Steps 2 and 3 said _"`aube exec tsc --version`"_, which prints aube's own version (`RD-16` property 8's `--` rule). The restore didn't name `package-lock.json`. The implementer's run used the corrected form, so the witness stands.
 6. **Then the unit resumes** where the report's _Next_ says:
    - item 1 witness 5 (parallelism);
    - item 2 witness 2 (the issue path, which the owner authorized);
@@ -322,3 +323,48 @@ For the implementer, on `repo/ci-speed-1`, after merging the architect's commit 
    **Reading item 3 witness 1 needs _B_.** The first `scope` run (44052524310 at `4136c0eea`) chose full with _"B: none"_, which is right: no earlier run had a successful `webkit` job, so none counted as full (`RD-15` property 6). Item 3's witnesses can reduce a run only after one full run in which every gate job succeeds.
 
 The report gains a section for this remediation, with the readings above.
+
+## Disposition of the stop at `633ef72d8`
+
+The remediation stopped at step 3: `aube install --fix-lockfile` repaired the three entries and rewrote much more. The architect reproduced the diff and read it by resolution ([reading](checks/rf47-resolution.txt), [instrument](checks/rf47-resolution.mjs)).
+
+- **`RF-47`'s repair takes the whole diff, and stays in this unit.**
+  - No `name@version` is new to the lockfile, and the only ones to leave it are the stale ones.
+  - Nine resolutions change, each within its range, and `RF-47` lists them. Out-of-range resolutions go from four to two, the eslint 10 peers that the catalog overrides on purpose.
+  - A second `aube install` leaves the file byte-identical.
+  - The rest is aube placing versions the file already holds. Every later `aube add` would write this layout anyway, so confining the repair to three entries would only move the same diff into step 4.
+  - The owner isn't alarmed by the size. `RF-47`'s _Repair_ has the reasons.
+- **Step 4 waits for step 3's commit,** and is then isolated by it. Once aube has written the layout, an `aube add` changes only what it adds. That is step 4's new witness.
+- **`aube exec` reads its own options after the binary's name.** `RD-16` property 8 now requires `--` before the binary whenever the binary gets an option. That is a repair across the files this unit migrated, and it fixes a real defect: `.agents/docs/handoff.md`'s eslint command never passes `-c` to eslint.
+- **Step 5's departures are accepted,** and its text is corrected in place.
+
+## Remediation of the stop at `633ef72d8`
+
+For the implementer, on `repo/ci-speed-1`, after merging the architect's commit that adds this section. Steps 1, 2 and 5 above are done. Step 3 and step 4 are replaced by steps A and B.
+
+A. **`RF-47`:** `aube install --fix-lockfile`, in its own commit, with its whole diff.
+
+- **Witness,** locally:
+  - `node .plan/ci-speed-1/checks/rf47-resolution.mjs <before> package-lock.json`, with `<before>` being `package-lock.json` at `633ef72d8` saved outside the checkout, prints the reading's three sections, unchanged.
+  - A second `aube install` leaves `package-lock.json` unchanged.
+  - In a fresh scratch worktree of the commit, `aube install` runs the root `postinstall` (`.scripts/link-tsserver.ts`), and what it links exists. The rewrite drops the root's `hasInstallScript`, so this reading shows that the script still runs.
+- **Witness,** on the pull request after the push:
+  - the full gate run on the commit is green;
+  - `gh api repos/ausginer/material-x/dependency-graph/compare/main...<sha>` lists no removal of `vite` or `rolldown`.
+
+  The lockfile's root entry now names them as `catalog:`, and nx and GitHub's dependency graph both read that entry. From the architect's session, the compare endpoint answered 403, and item 4 witness 7's SBOM endpoint answered 404. If neither answers for the implementer either, the report says so. The graph is then read after the merge, by item 4 witness 7 or on the repository's _Dependency graph_ page.
+
+- **Stop** if the instrument's output differs from the reading, or if a second install changes the file. Also stop if the graph comparison loses `vite` or `rolldown`, or if an nx command of the gate fails: those two are `RD-16` property 11's capital stops, so report and wait for the owner. B. **`@oxlint/migrate`:** `aube add -D -W @oxlint/migrate@1.93.0`, in a later commit than A.
+- **Witness:**
+  - the instrument, run between A's file and B's, prints in section 1 only `@oxlint/migrate` and its own dependencies, and in section 2 only the root's new devDependency;
+  - section 3 is unchanged;
+  - `just oxlint-migrate` runs and leaves `.oxlintrc.json` unchanged, or the report shows its diff;
+  - if the package has an install script, its `allowBuilds` entry is pinned to 1.93.0.
+- **Stop** if the `aube add` changes anything else. That would mean aube's layout isn't stable after its first write, which `RD-16` property 11 assumes. C. **`--` before an option** (`RD-16` property 8):
+- **What changes.** Every current file that runs `aube exec <binary>` with an argument beginning with `-` writes `aube exec -- <binary> …`. That covers workflows, `.scripts/`, `packages/drag/tests/support/build-package.node.ts`, `.agents/docs/handoff.md`, agent definitions, READMEs and editor files, and the argument arrays given to `spawn`. Records stay as written.
+- **Witness:**
+  - a search for `aube exec` followed by a name and then an argument beginning with `-` finds nothing outside records;
+  - `.agents/docs/handoff.md`'s eslint command, run as written on one file with `-c` pointing at a missing file, fails on loading that config;
+  - the gate is green. D. **Then the unit resumes** with step 6 above.
+
+**Observed on run 44055280400, not decided here:** `measurements`' _Measurement rows_ step reports one failed test file, which `|| true` absorbs. The report names that file and whether it fails on `main`.

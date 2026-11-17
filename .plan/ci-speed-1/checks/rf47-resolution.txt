@@ -1,0 +1,71 @@
+RF-47: the architect's reading of aube install --fix-lockfile, by what Node resolves.
+Read 2026-11-17 by the architect, aube 2.10.0, in the devcontainer.
+
+Reproduction: a scratch worktree at 633ef72d8, `aube install --fix-lockfile --ignore-scripts`.
+  git diff --shortstat: 1 file changed, 2160 insertions(+), 1781 deletions(-)  (the implementer's figure)
+  A second `aube install` printed "Already up to date" and left package-lock.json byte-identical.
+  `aube install --fix-lockfile --lockfile-only` alone does nothing: "Lockfile is up to date, resolution step is skipped".
+Instrument: rf47-resolution.mjs, run as `node .plan/ci-speed-1/checks/rf47-resolution.mjs <before> <after>`
+  with <before> = package-lock.json at 633ef72d8 and <after> = the re-resolved file.
+
+1. name@version new to the lockfile:
+   name@version gone from the lockfile:
+  - ansi-regex@6.6.0
+  - @types/node@26.1.1
+  - undici-types@8.3.0
+  - lightningcss@1.32.0
+  - lightningcss-android-arm64@1.32.0
+  - lightningcss-darwin-arm64@1.32.0
+  - lightningcss-darwin-x64@1.32.0
+  - lightningcss-freebsd-x64@1.32.0
+  - lightningcss-linux-arm-gnueabihf@1.32.0
+  - lightningcss-linux-arm64-gnu@1.32.0
+  - lightningcss-linux-arm64-musl@1.32.0
+  - lightningcss-linux-x64-gnu@1.32.0
+  - lightningcss-linux-x64-musl@1.32.0
+  - lightningcss-win32-arm64-msvc@1.32.0
+  - lightningcss-win32-x64-msvc@1.32.0
+2. Resolved version changes, for entries present in both:
+  node_modules/@napi-rs/wasm-runtime -> @emnapi/core: 1.11.1 => 1.11.0
+  node_modules/@napi-rs/wasm-runtime -> @emnapi/runtime: 1.11.1 => 1.11.0
+  node_modules/@puppeteer/browsers/node_modules/strip-ansi -> ansi-regex: 6.6.0 => 6.2.2
+  node_modules/@wdio/logger/node_modules/strip-ansi -> ansi-regex: 6.6.0 => 6.2.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x -> @typescript-eslint/utils: 8.72.1 => 8.72.2
+  node_modules/eslint-import-resolver-typescript -> eslint-plugin-import-x: 4.18.1 => 4.17.1
+  node_modules/eslint-plugin-import-x -> @typescript-eslint/utils: 8.72.1 => 8.72.2
+  packages/size-limit-preset-rolldown -> @types/node: 26.1.1 => 26.6.6
+  packages/vite-custom-element-assets -> lightningcss: 1.32.0 => 1.33.0
+3. Out-of-range resolutions in <after>:
+  node_modules/eslint-plugin-jsx-a11y -> eslint ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9: node_modules/eslint 10.14.0
+  node_modules/eslint-plugin-react -> eslint ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7: node_modules/eslint 10.14.0
+
+Section 3 on <before> lists the same two eslint peer ranges, which the eslint catalog pin already overrides,
+and the two stale nests of RF-47 (@types/node 26.1.1 and lightningcss 1.32.0). The re-resolution removes
+exactly those two and adds none.
+
+Field changes that the entry-by-entry comparison (rf47-lockdiff.mjs) lists, read in full:
+  (root) devDependencies: each catalog entry is written as "catalog:" (eslint, @mdx-js/react, react, rolldown, vite),
+    where npm's file had the resolved version.
+  (root) hasInstallScript: dropped. The root package.json still has its postinstall.
+  (root) "version" 0.1.0: dropped. The root package.json has no version.
+  packages/vite-custom-element-assets and packages/vite-traits-plugin dependencies: gain "vite": "8.4.0-beta.1",
+    their peer, which the manifests list under peerDependencies.
+  packages/drag, box-quad, material-x, size-limit-preset-rolldown, vite-traits-plugin license: dropped.
+  node_modules/vitest peerDependenciesMeta vite: {"optional": false} becomes {}.
+  @emnapi dev flags: set on five entries. Every @emnapi entry is under an optional wasm32 binding or nx.
+  @emnapi/core 2.0.0-beta.2 was already in the lockfile, under @rolldown/binding-wasm32-wasi, which pins it.
+
+aube exec's argument parsing, read on 2.10.0 at the repository root:
+  aube exec tsc --version                         -> "2.10.0 linux-x64 (2026-11-09)", aube's own version
+  aube exec eslint -V                             -> aube's version
+  aube exec eslint -h ; aube exec oxfmt --help    -> aube exec's help
+  aube exec tsc -v ; aube exec eslint -v          -> aube's verbose flag; eslint lints instead of printing its version
+  aube exec eslint --silent                       -> eslint lints; --silent was taken by aube
+  aube exec eslint -c /nonexistent-cfg.ts package.json
+                                                  -> ESLint: No files matching the pattern "/nonexistent-cfg.ts"
+                                                     (-c is aube exec's --shell-mode; eslint got the path as a file)
+  aube exec -- eslint -c /nonexistent-cfg.ts package.json
+                                                  -> ESLint: ENOENT ... stat '/nonexistent-cfg.ts' in loadConfigFile
+  aube exec -- eslint -v ; aube exec -- eslint --version  -> v10.14.0
+  CI, run 44055280400, measurements: `aube exec just test ... --reporter=default --reporter=json --outputFile.json=...`
+    reached vitest unchanged, and wrote the JSON report. So `--reporter=<value>` passed, while the flags above didn't.

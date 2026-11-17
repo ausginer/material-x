@@ -720,6 +720,19 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **`aube add` rewrites the hoisted layout,** and drops nested entries that the workspace manifests no longer name. That staleness predates this unit and is `RF-47`. It is repaired in its own commit, before `@oxlint/migrate` is added.
 - **The merge base's size reading fails** until this pull request merges, because `main` has no aube settings. Accepted: `measurements` reports it and never fails the run (`RD-7`).
 
+**Dated 2026-11-17 by the architect** at `633ef72d8`, on the stop at `RF-47`'s repair ([reading](ci-speed-1/checks/rf47-resolution.txt)):
+
+- **aube's first full write of `package-lock.json`** is accepted as `RF-47`'s repair, with its whole diff. The resolution reading is under `RF-47`.
+- **What that write puts in the file**, besides placement:
+  - the root entry's `devDependencies` carry `catalog:` for the five catalog entries, where npm's file had versions;
+  - `vite`, a peer, appears under the `dependencies` of the `vite-custom-element-assets` and `vite-traits-plugin` entries;
+  - the root's `version` and `hasInstallScript`, and the workspaces' `license`, are dropped.
+
+  None of this changes what installs. It is what GitHub's dependency graph and nx read, so property 11's two stops on them are witnessed on this commit, not only after the merge.
+
+- **`aube exec` reads its own options after the binary,** so `.agents/docs/handoff.md`'s `aube exec eslint … -c eslint.config.ts` never passes `-c` to eslint. Property 8 gains its `--` rule.
+- **`aube install --fix-lockfile --lockfile-only`** does nothing on a fresh lockfile: _"Lockfile is up to date, resolution step is skipped"_.
+
 **Properties.**
 
 1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9). `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
@@ -750,6 +763,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - `aube add` and `aube remove` to change dependencies.
    - `aube run <script>` for a `package.json` script.
    - **`aube exec <binary>` in place of `npx`.** Never `aubx` or `aube dlx` for a repository tool, because they fetch a package that isn't installed.
+     - **`--` before the binary when it gets an option** (added 2026-11-17). aube 2.10.0 reads its own options after the binary's name too: `-c` (its shell mode), `-v`, `-V` and `--version`, `-h` and `--help`, and `--silent` among them ([reading](ci-speed-1/checks/rf47-resolution.txt)). So a command that passes the binary any argument beginning with `-` is written `aube exec -- <binary> <args>`, wherever it is written. The rule goes by form, not by a list of colliding options, because aube's options change between versions.
    - **Who changes:** recipes, scripts, editor tasks, workflows, agent definitions and documentation say so. Instructions addressed to consumers of the published packages keep `npm install`, because those are the consumers' commands.
 9. **CI.**
    - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from. The step runs outside the checkout, so npm doesn't read the repository's `.npmrc`.
@@ -1319,7 +1333,19 @@ Tier B, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 - **Effect:** `npm ci`, `aube ci` and `aube install` all install them as locked. So `vite-custom-element-assets` builds and tests against lightningcss 1.32.0, while its manifest says 1.33.0. Neither installer's frozen mode reported the drift.
 - **Seen:** an `aube add` of an unrelated package dropped all three (the report's release-age witness). The cause before the move to aube is not established. It predates the CI-speed unit.
 - **Required property:** every installed workspace dependency is the version its manifest names, and a frozen install of the committed lockfile installs exactly that.
-- **Repair:** `aube install --fix-lockfile`, which re-resolves only the drifted entries, in its own commit. The diff is limited to those entries, and the report lists it. Both target versions are older than `RD-16`'s 7 days: lightningcss 1.33.0 is from 2026-07-20, and `@types/node` 26.6.6 from 2026-10-28.
+- **Repair** (amended 2026-11-17 by the architect, after the stop at `633ef72d8`): `aube install --fix-lockfile`, in its own commit, **with its whole diff.** That diff is aube's first full write of the lockfile, not a change confined to the three entries. Both target versions are older than `RD-16`'s 7 days: lightningcss 1.33.0 is from 2026-07-20, and `@types/node` 26.6.6 from 2026-10-28.
+  - **What it changes, read by resolution** ([reading](ci-speed-1/checks/rf47-resolution.txt), [instrument](ci-speed-1/checks/rf47-resolution.mjs)). No `name@version` is new to the lockfile. Fifteen leave it: the stale lightningcss 1.32.0 with its 12 platform packages, `@types/node` 26.1.1, `undici-types` 8.3.0 and `ansi-regex` 6.6.0. Every added entry re-places a version that the lockfile already holds. Nine resolutions of existing entries change, each within its range:
+    - the two targets: lightningcss 1.33.0 for `vite-custom-element-assets`, and `@types/node` 26.6.6 for `size-limit-preset-rolldown`;
+    - `ansi-regex` 6.6.0 → 6.2.2, for the `strip-ansi` copies under `@puppeteer/browsers` and `@wdio/logger`;
+    - `@typescript-eslint/utils` 8.72.1 → 8.72.2, for both `eslint-plugin-import-x` copies. 8.72.2 is the root's `typescript-eslint` and `@typescript-eslint/types` version;
+    - `eslint-plugin-import-x` 4.18.1 → 4.17.1, for `eslint-import-resolver-typescript`. 4.17.1 is `eslint-config-vaadin`'s exact pin;
+    - `@emnapi/core` and `runtime` 1.11.1 → 1.11.0, under `@napi-rs/wasm-runtime`, which installs only on `wasm32`.
+  - **Out-of-range resolutions** go from four to two. The two that remain are the eslint 10 peers of `eslint-plugin-jsx-a11y` and `eslint-plugin-react`, which the catalog's eslint pin overrides on purpose.
+  - **Why the whole diff.** aube writes this layout at its first write, whatever triggers it: the `aube add` under _Seen_ dropped the same entries. A repair confined to three entries would be a hand-edited lockfile, which the next `aube add` rewrites anyway, inside an unrelated change. `RD-16` property 11 already says that a lockfile diff that aube writes once and then keeps stable is not a capital problem. The owner, told the size, said: _"а, ну ладно, это не страшно. npm тоже любит пол-локфайла переписать"_ ("oh well, that's not scary; npm likes to rewrite half the lockfile too").
+  - **Its witnesses** are in the CI-speed handoff, _Disposition of the stop at `633ef72d8`_.
+
+  (This bullet said: _"`aube install --fix-lockfile`, which re-resolves only the drifted entries, in its own commit. The diff is limited to those entries, and the report lists it."_ It assumed that `--fix-lockfile` touches only drifted entries. On 2.10.0 it rewrites the layout.)
+
 - **Routed** to the implementer, in the CI-speed unit.
 
 ## Questions
