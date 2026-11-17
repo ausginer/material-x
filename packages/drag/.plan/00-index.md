@@ -4995,6 +4995,19 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** a TransformedStage box stays where it was dropped in Safari, as in Chromium and Firefox, and the row passes there without its marking.
 - **Routed** to the architect. The CI unit doesn't change drag's source.
 
+#### DRF-52 — In Safari, the equivalence oracle intermittently records a mismatch at an animated row in a `layoutAnimation` row
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, on the coordinator's report of run 44030423689 on `repo` pull request #30. **No row is disabled.** The row is in the gate.
+
+- **The row:** `tests/layout-animation.browser.test.ts:183`, `layoutAnimation rows` › "should never animate the dragged item". It drags item 2 of 4 upward, so `layoutAnimation` animates rows 0 and 1. It waits only on WebDriver pointer commands and frames, with no wall-clock wait.
+- **The engine:** Safari on the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** attempt 2 of run 44030423689 at `a51e5cb1c`, in `consumer/drag`, at 170 ms. The row's own assertions didn't fail. The equivalence oracle (`DRD-67` property 4) failed the row at its end: _"the predicted insertion geometry disagreed with a fresh measurement at slot 0"_ (`tests/support/oracles.ts:311`, [log](../../../.plan/docs-gate-1/checks/safari-flake-44030423689-attempt-2.txt)). Slot 0 is a row that `layoutAnimation` animates at that moment.
+- **Other runs:** in the same attempt, the file passed in `browser/drag`, and it passed in both projects in attempt 1. It passed in Safari in each of the branch's five earlier `verify` runs (44016421012 to 44027436469). `a51e5cb1c` differs from the green `8f62beedf` (run 44027436469) only in `.plan/`, and the branch changes nothing in `packages/drag` but this record.
+- **The cause is not established.** One sample. The prediction and the fresh measurement read an animated row, and the oracle's precision is 1/16 px (`DRI-14`). A disagreement that depends on which frame of the animation each one reads is the candidate. It is an inference, not a reading. The file's earlier mismatch at slot 0 (`DRD-67`, _Property 7's stop_) came from a fixture that moved a row, and this row's fixture moves none.
+- **For a change to the Safari job's speed:** the row has no wall-clock wait, so a change in load can't break it through a timeout. If the candidate holds, its result depends on which animation frames the two readings fall in, and so on how Safari schedules frames. That also changes with load. In both attempts, `browser/drag` and `consumer/drag` each took about 218 s, at 97 % test time, which is most of the `safari` step. The projects ran in a different order in each attempt.
+- **Required property:** the row passes in Safari in every run. Any mismatch the oracle records there is either a defect in the prediction or one that `DRI-14` places outside the contract, and the record says which.
+- **Routed** to the architect. The next step is a reading, and it isn't planned here.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.

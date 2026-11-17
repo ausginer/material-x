@@ -1,0 +1,882 @@
+safari	Run npx just test-safari --tags-filter '!measurement'	﻿2026-11-17T06:22:10.2080590Z ##[group]Run npx just test-safari --tags-filter '!measurement'
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:10.2081720Z ^[[36;1mnpx just test-safari --tags-filter '!measurement'^[[0m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:10.2147310Z shell: /bin/bash -e {0}
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:10.2147640Z env:
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:10.2147820Z   NODE_VERSION: 26
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:10.2147990Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:11.2163970Z nx run-many -t build --projects=box-quad,core,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.7997300Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8002630Z ^[[7m^[[1m^[[36m NX ^[[39m^[[22m^[[27m  ^[[36mRunning target ^[[1mbuild^[[22m for 5 projects and ^[[1m1^[[22m task they depend on:^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8037360Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8080330Z ^[[2m-^[[22m @ydinjs/box-quad
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8146800Z ^[[2m-^[[22m @ydinjs/core
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8312940Z ^[[2m-^[[22m @ydinjs/tproc
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8458380Z ^[[2m-^[[22m @ydinjs/vite-custom-element-assets
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8578960Z ^[[2m-^[[22m @ydinjs/vite-traits-plugin
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8692830Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:12.8795510Z ^[[2m^[[36m^[[39m^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:13.9697660Z ^[[32m✔^[[39m  ^[[2mnx run^[[22m @ydinjs/vite-traits-plugin:build
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:14.0231100Z ^[[32m✔^[[39m  ^[[2mnx run^[[22m size-limit-preset-rolldown:build
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:14.0764530Z ^[[32m✔^[[39m  ^[[2mnx run^[[22m @ydinjs/vite-custom-element-assets:build
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.2329980Z ^[[32m✔^[[39m  ^[[2mnx run^[[22m @ydinjs/box-quad:build
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.3706960Z ^[[32m✔^[[39m  ^[[2mnx run^[[22m @ydinjs/tproc:build
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4096900Z ^[[32m✔^[[39m  ^[[2mnx run^[[22m @ydinjs/core:build
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4115820Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4116910Z ^[[2m^[[32m^[[39m^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4117720Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4118990Z ^[[7m^[[1m^[[32m NX ^[[39m^[[22m^[[27m  ^[[32mSuccessfully ran target ^[[1mbuild^[[22m for 5 projects and ^[[1m1^[[22m task they depend on^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4119910Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4120120Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4121080Z ^[[2mOutput of 6 successful tasks were not shown. Run with^[[22m --verbose ^[[2mor^[[22m --output-style=static ^[[2mto see it.^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4121900Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4149740Z   Run duration:      2.6s
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4150250Z   Cache:             Skipped (--skip-nx-cache)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4150780Z   Critical path:     2.6s (2 tasks)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.4151120Z   Recoverable time:  53ms (2% of the run)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:15.5437000Z nx run @ydinjs/material-x:build:prepare --skipNxCache
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:16.2359320Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:16.2360450Z ^[[2m> ^[[22m^[[2mnx run^[[22m @ydinjs/material-x:"build:prepare"
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:16.2360830Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:16.6600550Z > @ydinjs/material-x@0.1.0 build:prepare
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:16.6601880Z > just build-prepare
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:16.7965390Z node ../../.scripts/css/collect-props.ts
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.7856090Z Created CSS private properties list:  file:///Users/runner/work/material-x/material-x/node_modules/.cache/css/css-private-props.json
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8095970Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8097370Z ^[[2m^[[32m^[[39m^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8097710Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8099050Z ^[[7m^[[1m^[[32m NX ^[[39m^[[22m^[[27m  ^[[32mSuccessfully ran target ^[[1mbuild:prepare^[[22m for project @ydinjs/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8099610Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8099620Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8119360Z   Run duration:      2.6s
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8120270Z   Cache:             Skipped (--skip-nx-cache)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8120780Z   Critical path:     2.6s (1 task)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:18.8121110Z   Recoverable time:  <1ms
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:20.4028860Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:20.4029900Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:20.6880710Z ##[group]shipped/drag/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:21.5912500Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:21.5913490Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:21.6718610Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:21.6719980Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:21.6721570Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:41.9569450Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.2814320Z  ^[[32m✓^[[39m ^[[30m^[[43m shipped/drag/safari (safari) ^[[49m^[[39m tests/hot-path.browser.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 2544^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.2918830Z    ^[[32m✓^[[39m drag:DRI-17 hot path ^[[2m(9)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.3051130Z      ^[[33m^[[2m✓^[[22m^[[39m should read no layout in a sample, and none in a frame with nothing stale^[[33m 894^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.3695930Z      ^[[33m^[[2m✓^[[22m^[[39m drag:DRD-47 should read as many rects at a pointer drop with a warm cache for 20 items as for 400^[[33m 420^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.3883510Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4084410Z ^[[2m Test Files ^[[22m ^[[1m^[[32m1 passed^[[39m^[[22m^[[90m (1)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4199590Z ^[[2m      Tests ^[[22m ^[[1m^[[32m7 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (9)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4329230Z ^[[2m   Start at ^[[22m 06:22:21
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4471350Z ^[[2m   Duration ^[[22m 22.62s^[[2m (tests 50%, worker 46%, import 2%, setup 2%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4585810Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4805770Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.4907150Z shipped/drag/safari (safari) exited with 0
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:44.5009360Z ##[group]browser/core/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:46.8473750Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:46.8491610Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:46.9724970Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:46.9727460Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:46.9728750Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:52.7581190Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.6617070Z  ^[[31m❯^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/traits/reorderable.browser.test.ts ^[[2m(^[[22m^[[2m47 tests^[[22m^[[2m | ^[[22m^[[31m1 failed^[[39m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 2700^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.6718930Z    ^[[32m✓^[[39m ReorderEvent ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.6840950Z      ^[[32m✓^[[39m should bubble^[[32m 2^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.6944630Z      ^[[32m✓^[[39m should cross shadow DOM boundaries^[[32m 0^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7044180Z      ^[[32m✓^[[39m should be cancelable, being a proposed move rather than a commit^[[32m 0^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7154320Z    ^[[32m✓^[[39m Reorderable ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7250110Z      ^[[32m✓^[[39m should read reorderable as false when attribute is absent^[[32m 3^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7353590Z      ^[[32m✓^[[39m should read reorderable as true when attribute is present^[[32m 1^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7512030Z      ^[[32m✓^[[39m should write reorderable via the accessor^[[32m 0^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7613550Z    ^[[31m❯^[[39m useReorderable ^[[2m(33)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7731660Z      ^[[32m✓^[[39m should not set dragged state when reorderable is false^[[32m 69^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7834740Z      ^[[32m✓^[[39m should set dragged state once the drag activates^[[32m 21^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.7971200Z      ^[[32m✓^[[39m should not set dragged state before the threshold is crossed^[[32m 3^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8076470Z      ^[[32m✓^[[39m should create a footprint placeholder once the drag activates^[[32m 5^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8086670Z      ^[[32m✓^[[39m should move footprint on pointermove when sibling midpoint is crossed^[[32m 34^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8189320Z      ^[[32m✓^[[39m should reorder a horizontal row^[[32m 43^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8290820Z      ^[[32m✓^[[39m should reorder within a 2D grid by nearest cell^[[32m 24^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8411750Z      ^[[32m✓^[[39m should dispatch ReorderEvent with correct indices on pointerup^[[32m 17^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8513980Z      ^[[32m✓^[[39m should propose a move without reordering the DOM itself^[[32m 24^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8616060Z      ^[[2m^[[90m↓^[[39m^[[22m should not dispatch a reorder for a no-op drop
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8718220Z      ^[[32m✓^[[39m should animate home and not move when the intent is prevented^[[32m 9^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.8823850Z      ^[[32m✓^[[39m should settle once the consumer commits the proposed move^[[32m 17^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9092780Z      ^[[32m✓^[[39m should not dispatch ReorderEvent on pointercancel after movement^[[32m 48^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9260020Z      ^[[32m✓^[[39m should restore the item and remove the footprint on pointercancel after movement^[[32m 50^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9363070Z      ^[[32m✓^[[39m should re-hit-test after activation when the pointer returns near the origin^[[32m 51^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9466980Z      ^[[32m✓^[[39m should not dispatch ReorderEvent when no drag is active^[[32m 17^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9614550Z      ^[[32m✓^[[39m should clear dragged state on pointercancel^[[32m 49^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9624010Z      ^[[32m✓^[[39m should take pointer capture on the host rather than the footprint^[[32m 19^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9772150Z      ^[[32m✓^[[39m should tear the session down when the host disconnects mid-drag^[[32m 47^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:55.9914400Z      ^[[32m✓^[[39m should allow a new drag after disconnecting mid-drag and reconnecting^[[32m 69^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0060050Z      ^[[32m✓^[[39m should ignore pointerdown while a previous drag is settling^[[32m 17^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0162240Z      ^[[32m✓^[[39m should start a drag when the press lands on the item handle^[[32m 17^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0267860Z      ^[[32m✓^[[39m should not start a drag when the press misses the handle of an item that has one^[[32m 15^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0370770Z      ^[[32m✓^[[39m should not start a drag on a non-primary press^[[32m 22^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0484950Z      ^[[33m^[[2m✓^[[22m^[[39m should stop the landing and dispatch nothing when the host disconnects during settling^[[33m 346^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0588360Z      ^[[32m✓^[[39m should clean up when the landing setup throws^[[32m 31^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0692670Z      ^[[32m✓^[[39m should not finish the drag when a different pointer is released^[[32m 50^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0796290Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0826770Z ^[[31m     ^[[31m×^[[31m should restore pre-existing inline styles on the target after landing^[[39m^[[33m 1031^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0960770Z      ^[[32m✓^[[39m should assign the footprint to the same named slot as the item^[[32m 153^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.0962300Z      ^[[32m✓^[[39m should lift the dragged visual into the top layer as a popover^[[32m 32^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1065260Z      ^[[2m^[[90m↓^[[39m^[[22m should take the visual out of the top layer once the drag lands
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1167990Z      ^[[32m✓^[[39m should remeasure item geometry after a scroll^[[32m 68^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1274260Z      ^[[32m✓^[[39m should not dispatch ReorderEvent for a press that never crosses the threshold^[[32m 38^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1377090Z    ^[[32m✓^[[39m useReorderable keyboard ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1480050Z      ^[[32m✓^[[39m should grab the item when space is pressed on its handle^[[32m 16^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1589490Z      ^[[32m✓^[[39m should not grab when the key lands off the handle^[[32m 11^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1693370Z      ^[[32m✓^[[39m should step the footprint forward on ArrowDown^[[32m 31^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1799080Z      ^[[32m✓^[[39m should dispatch ReorderEvent with the stepped indices on drop^[[32m 8^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.1963780Z      ^[[32m✓^[[39m should settle promptly on the consumer commit rather than waiting for the timeout^[[32m 65^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.2074500Z      ^[[32m✓^[[39m should not dispatch a reorder when the grab is cancelled with Escape^[[32m 1^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.2179990Z      ^[[32m✓^[[39m should not dispatch a reorder for a keyboard drop that never moved^[[32m 13^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.2291140Z      ^[[32m✓^[[39m should announce the grab through a shadow-owned live region^[[32m 16^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.6225940Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useRovingTabindex.browser.test.ts ^[[2m(^[[22m^[[2m31 tests^[[22m^[[2m)^[[22m^[[33m 605^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.8517720Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:56.8565900Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useContext.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[32m 66^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:57.0653090Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:57.4367640Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useSlot.browser.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[33m 414^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:57.6504310Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:57.6612390Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/element.browser.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[32m 67^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:57.8251350Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:57.8387630Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/emitter.browser.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[32m 46^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.0442000Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.0620160Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/utils/DOM.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[32m 57^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.2822420Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.2935590Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useResizeObserver.browser.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 92^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.4957120Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.5061710Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/attribute.browser.test.ts ^[[2m(^[[22m^[[2m23 tests^[[22m^[[2m)^[[22m^[[32m 71^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.7139370Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.7246650Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/traits/linkable.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 64^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.9167420Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:58.9250900Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/traits/primitives.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 62^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:59.1835700Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:59.2039750Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useCSSProps.browser.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 74^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:59.4541070Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:59.6240410Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useARIA.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 275^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:59.8291660Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:22:59.8293390Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/traits/traits.browser.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[32m 49^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.1046290Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.1201870Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useMutationObserver.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 111^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.3414860Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.3523580Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useAttributes.browser.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 51^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.5093400Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.5414410Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useKeyboard.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 48^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.7174590Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.7340060Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useShadowDOM.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 46^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.9226050Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:00.9338260Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/utils/runtime.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 43^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.1603880Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.1711120Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useEvents.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 63^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.3838550Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.3984830Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/traits/selectable.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 62^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.5867030Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.5981310Z  ^[[32m✓^[[39m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/controllers/useConnected.browser.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 75^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6324290Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6324370Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6429510Z ^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m^[[1m^[[41m Failed Tests 1 ^[[49m^[[22m^[[31m⎯⎯⎯⎯⎯⎯⎯^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6431110Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m21 passed^[[39m^[[22m^[[90m (22)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6610840Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6612040Z ^[[2m      Tests ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m242 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[90m (245)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.6840640Z ^[[41m^[[1m FAIL ^[[22m^[[49m ^[[30m^[[42m browser/core/safari (safari) ^[[49m^[[39m tests/traits/reorderable.browser.test.ts^[[2m > ^[[22museReorderable^[[2m > ^[[22mshould restore pre-existing inline styles on the target after landing
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.7746200Z ^[[2m   Start at ^[[22m 06:22:46
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.8773970Z ^[[31m^[[1mAssertionError^[[22m: expected 'fixed' to be 'relative' // Object.is equality^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.8774880Z ^[[2m   Duration ^[[22m 14.65s^[[2m (tests 55%, worker 30%, setup 12%, import 4%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.8956500Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.8956630Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.9106580Z Expected: ^[[32m"relative"^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.9245060Z Received: ^[[31m"fixed"^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.9498490Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.9635680Z ^[[31m^[[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:01.9745620Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:02.0533170Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:02.0644480Z browser/core/safari (safari) exited with 1
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:02.0748750Z ##[group]browser/box-quad/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:05.0961390Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:05.0962800Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:05.2148740Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:05.2208750Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:05.2209470Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.1286230Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.3731020Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/advanced.browser.test.ts ^[[2m(^[[22m^[[2m47 tests^[[22m^[[2m)^[[22m^[[33m 311^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.5456970Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.5888030Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/coordinates.browser.test.ts ^[[2m(^[[22m^[[2m51 tests^[[22m^[[2m)^[[22m^[[32m 74^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.7753360Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.7855410Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/layout-and-transform.browser.test.ts ^[[2m(^[[22m^[[2m57 tests^[[22m^[[2m)^[[22m^[[32m 61^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.9341710Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:10.9612980Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/projection.browser.test.ts ^[[2m(^[[22m^[[2m30 tests^[[22m^[[2m)^[[22m^[[32m 68^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.1124750Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.1501620Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/storage.browser.test.ts ^[[2m(^[[22m^[[2m32 tests^[[22m^[[2m)^[[22m^[[32m 51^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.2484200Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.2587750Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/api.browser.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[32m 45^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.4282440Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.4386720Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/box-quad/safari (safari) ^[[49m^[[39m tests/local-delta.browser.test.ts ^[[2m(^[[22m^[[2m17 tests^[[22m^[[2m)^[[22m^[[32m 55^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.4592500Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.4693940Z ^[[2m Test Files ^[[22m ^[[1m^[[32m7 passed^[[39m^[[22m^[[90m (7)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.4881290Z ^[[2m      Tests ^[[22m ^[[1m^[[32m242 passed^[[39m^[[22m^[[90m (242)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.5705820Z ^[[2m   Start at ^[[22m 06:23:05
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.5706960Z ^[[2m   Duration ^[[22m 6.24s^[[2m (worker 68%, tests 26%, import 5%, setup 1%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.5707220Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.7283760Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.7386670Z browser/box-quad/safari (safari) exited with 0
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:11.7489240Z ##[group]browser/drag/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:15.0676740Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:15.0778200Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:15.1725020Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:15.1732540Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:15.1769390Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:20.7290320Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:23.2871310Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-14 collection failures^[[2m > ^[[22m^[[2mshould cancel with a fault when a pull during a drag throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:23.2973950Z ^[[22m^[[39m[Error: DragFault: drag: items]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:23.3486130Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-14 collection failures^[[2m > ^[[22m^[[2mshould end activation with a fault and no start when the second pull throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:23.3587950Z ^[[22m^[[39m[Error: DragFault: drag: items]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:23.4897950Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-14 collection failures^[[2m > ^[[22m^[[2mshould report a throwing visual, with no operation
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:23.4942800Z ^[[22m^[[39m[Error: DragFault: drag: visual]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.1309040Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder removes itself
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.1411460Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.2698390Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder moves itself
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.2803340Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.4208130Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder takes the list out
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.4211290Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.5719970Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder moves within the container
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.5824440Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.7321810Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder takes the item away from it
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:24.7323460Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:25.0220960Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould cancel and report when an anchor leaves the container
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:25.0281920Z ^[[22m^[[39m[Error: DragFault: drag: sortable/anchor-outside-container]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:25.3089100Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould cancel and report when an anchor leaves before the release
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:25.3090770Z ^[[22m^[[39m[Error: DragFault: drag: sortable/anchor-outside-container]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:25.5581610Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould report a factory that returns the dragged item, whose disposer then removes it
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:25.5684120Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.1186270Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/sortable.browser.test.ts ^[[2m(^[[22m^[[2m56 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 33447^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.1272940Z    ^[[32m✓^[[39m drag:DRI-15 placeholder integrity ^[[2m(13)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.1676670Z      ^[[33m^[[2m✓^[[22m^[[39m should cancel and report when an anchor leaves the container^[[33m 310^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.2053720Z    ^[[32m✓^[[39m sortable options ^[[2m(12)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.2526540Z      ^[[33m^[[2m✓^[[22m^[[39m should re-measure on scroll during a drag, nested scrollers included^[[33m 500^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.2795370Z      ^[[33m^[[2m✓^[[22m^[[39m drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up^[[33m 6735^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.3098720Z    ^[[32m✓^[[39m drag:DRI-14 candidates measured through box ^[[2m(5)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.3470630Z      ^[[33m^[[2m✓^[[22m^[[39m should measure every y() candidate through box, not through the item^[[33m 8759^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.3703940Z      ^[[33m^[[2m✓^[[22m^[[39m should measure every y() candidate through visual when there is no box^[[33m 9000^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:54.7296000Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:55.5893280Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould report a landing that cannot run, and let the outcome stand
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:55.5913050Z ^[[22m^[[39m[Error: DragFault: drag: Type error]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:57.8263430Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould report and skip a landing when the consumer unmounted the item, and stay usable
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:57.8267100Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:57.9735730Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould report and skip a landing when the consumer unmounted the item, and stay usable
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:57.9747690Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:58.3749870Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould start a named landing when releasing the top layer throws, and let the outcome stand
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:58.3851840Z ^[[22m^[[39m[Error: DragFault: drag: hide]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.5698970Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 sortable landing after the commit^[[2m > ^[[22m^[[2mshould skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.5966630Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.7609230Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/landing.browser.test.ts ^[[2m(^[[22m^[[2m25 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 5111^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.7951540Z    ^[[32m✓^[[39m drag:DRI-13 landing ^[[2m(19)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.8269950Z      ^[[33m^[[2m✓^[[22m^[[39m should land additively from where it was dropped^[[33m 443^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.8952060Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the landing through a press that never activates, and cancel at the next activation^[[33m 376^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.9080600Z    ^[[32m✓^[[39m drag:DRI-13 sortable landing after the commit ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.9432320Z      ^[[33m^[[2m✓^[[22m^[[39m should land on the final rect when an append loop leaves the placeholder at the head^[[33m 381^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:23:59.9997380Z      ^[[33m^[[2m✓^[[22m^[[39m should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand^[[33m 308^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:00.1453630Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:02.1609990Z ^[[90mstderr^[[2m | tests/requests.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-2 one reader and fixed precedence^[[2m > ^[[22m^[[2mshould report a fault raised after queued collection work once
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:02.1725250Z ^[[22m^[[39m[Error: DragFault: drag: after the work]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.2576920Z ^[[90mstderr^[[2m | tests/requests.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-8 deferred writes^[[2m > ^[[22m^[[2mshould report a throw in a step as a fault that decides
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.2683540Z ^[[22m^[[39m[Error: DragFault: drag: from a step]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.2786550Z ^[[90mstderr^[[2m | tests/requests.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-8 deferred writes^[[2m > ^[[22m^[[2mshould only report a throw in a step with no operation
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.2896790Z ^[[22m^[[39m[Error: DragFault: drag: idle]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.9394390Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/requests.browser.test.ts ^[[2m(^[[22m^[[2m26 tests^[[22m^[[2m)^[[22m^[[33m 3854^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.9398740Z    ^[[32m✓^[[39m drag:DRI-1 a request does not change the running step ^[[2m(6)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:03.9400590Z      ^[[33m^[[2m✓^[[22m^[[39m should let a sortable placeholder reaction cancel during activation^[[33m 347^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:04.0870600Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:05.5869500Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/displacement-sink.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 1523^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:05.6005290Z    ^[[32m✓^[[39m sortable options ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:05.6108860Z      ^[[33m^[[2m✓^[[22m^[[39m drag:DRD-50 should settle each row y() measures by asking the sink about that row^[[33m 618^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:05.6109990Z      ^[[33m^[[2m✓^[[22m^[[39m drag:DRD-50 should settle each row of an xy() rebuild by asking the sink about that row^[[33m 317^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:05.7079750Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:06.8409160Z ^[[90mstderr^[[2m | tests/callbacks.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-8 steps with a receiver^[[2m > ^[[22m^[[2mshould report a throw from a receiver step as a fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:06.8411910Z ^[[22m^[[39m[Error: DragFault: drag: from a receiver step]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:07.1043340Z ^[[90mstderr^[[2m | tests/callbacks.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 operation cleanup with a receiver^[[2m > ^[[22m^[[2mshould continue the walk past a throwing receiver disposer
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:07.1045560Z ^[[22m^[[39m[Error: DragFault: drag: from a disposer]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:07.4434460Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/callbacks.browser.test.ts ^[[2m(^[[22m^[[2m20 tests^[[22m^[[2m)^[[22m^[[33m 1765^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:07.6858360Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:10.7943770Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/input.browser.test.ts ^[[2m(^[[22m^[[2m18 tests^[[22m^[[2m)^[[22m^[[33m 3167^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:10.8051320Z    ^[[32m✓^[[39m drag:DRI-19 input ownership ^[[2m(7)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:10.8157120Z      ^[[33m^[[2m✓^[[22m^[[39m should not activate on a hover after a pointerup stopped on a child, and reorder at the next press^[[33m 317^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:11.0064870Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:14.0923430Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/destruction.browser.test.ts ^[[2m(^[[22m^[[2m23 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 3131^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:14.3481490Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:18.6866520Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/coordinates.browser.test.ts ^[[2m(^[[22m^[[2m31 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 4375^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:18.8554060Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:21.3811910Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/layout-animation.browser.test.ts ^[[2m(^[[22m^[[2m16 tests^[[22m^[[2m)^[[22m^[[33m 2563^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:21.5435800Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:23.0621530Z ^[[90mstderr^[[2m | tests/drop-targets.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-21 freeDrag + dropTargets^[[2m > ^[[22m^[[2mshould release the operation and keep the controller when targets() throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:23.0686890Z ^[[22m^[[39m[Error: DragFault: drag: targets]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.2086410Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/drop-targets.browser.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[33m 2697^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.2229850Z    ^[[32m✓^[[39m drag:DRI-21 freeDrag + dropTargets ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.2389230Z      ^[[33m^[[2m✓^[[22m^[[39m should mark the target under the pointer, name it at the drop and clear the mark at release^[[33m 411^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.2634640Z      ^[[33m^[[2m✓^[[22m^[[39m should release the operation and keep the controller when targets() throws^[[33m 472^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.2693710Z    ^[[32m✓^[[39m drag:DRD-33 C2 one config across controllers ^[[2m(1)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.2850660Z      ^[[33m^[[2m✓^[[22m^[[39m should give each controller its own runtime^[[33m 462^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:24.3604220Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:26.7453230Z ^[[90mstderr^[[2m | tests/free-drag.browser.test.ts^[[2m > ^[[22m^[[2mbounds with a function source^[[2m > ^[[22m^[[2mshould report a throw at activation as one fault carrying the thrown value
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:26.7457060Z ^[[22m^[[39m[Error: DragFault: drag: bounds]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.1110520Z ^[[90mstderr^[[2m | tests/free-drag.browser.test.ts^[[2m > ^[[22m^[[2mbounds with a function source^[[2m > ^[[22m^[[2mshould report a throw during the drag as one fault carrying the thrown value
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.1212410Z ^[[22m^[[39m[Error: DragFault: drag: bounds]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.3164290Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/free-drag.browser.test.ts ^[[2m(^[[22m^[[2m17 tests^[[22m^[[2m)^[[22m^[[33m 2977^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.3277790Z    ^[[32m✓^[[39m freeDrag ^[[2m(10)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.3281740Z      ^[[33m^[[2m✓^[[22m^[[39m should clamp against bounds measured again after a scroll between operations (drag:DRF-5)^[[33m 333^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.3383580Z      ^[[33m^[[2m✓^[[22m^[[39m should honor handle and visual^[[33m 301^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.3490120Z    ^[[32m✓^[[39m bounds with a function source ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.3606780Z      ^[[33m^[[2m✓^[[22m^[[39m should report a throw during the drag as one fault carrying the thrown value^[[33m 339^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.4366140Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.4677370Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould report a throw from activate once and leave the list clean: requestCancel before the throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.4742460Z ^[[22m^[[39m[Error: DragFault: drag: cancel]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.6110770Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould report a throw from activate once and leave the list clean: requestDestroy before the throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.6111670Z ^[[22m^[[39m[Error: DragFault: drag: destroy]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.7676380Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould report a throw from activate once and leave the list clean: nothing before the throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:27.7778320Z ^[[22m^[[39m[Error: DragFault: drag: fault]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:28.0694620Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould run end once when start throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:28.0796480Z ^[[22m^[[39m[Error: DragFault: drag: start]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:30.8285270Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/terminals.browser.test.ts ^[[2m(^[[22m^[[2m23 tests^[[22m^[[2m)^[[22m^[[33m 3403^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:30.8584050Z    ^[[32m✓^[[39m drag:DRI-4 cancel ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:30.8807790Z      ^[[33m^[[2m✓^[[22m^[[39m should not let a retained drag cancel a later operation^[[33m 309^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.1024020Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.1564950Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould cancel once with a fault when move throws, and let the terminal run
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.1678000Z ^[[22m^[[39m[Error: DragFault: drag: move]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.3038130Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report two faults in one pass once each, and let the first decide
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.3079540Z ^[[22m^[[39m[Error: DragFault: drag: first]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.3128380Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report two faults in one pass once each, and let the first decide
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.3144650Z ^[[22m^[[39m[Error: DragFault: drag: second]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5373770Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report disposer throws during destruction once each
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5491180Z ^[[22m^[[39m[Error: DragFault: drag: disposer 2]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5600810Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report disposer throws during destruction once each
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5703450Z ^[[22m^[[39m[Error: DragFault: drag: disposer 1]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5806170Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report disposer throws during destruction once each
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5900300Z ^[[22m^[[39m[Error: DragFault: drag: controller use]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5902430Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5903590Z ^[[22m^[[39m[Error: DragFault: drag: plain]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5904930Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5907700Z ^[[22m^[[39m[Error: DragFault: drag: null]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5908720Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5911890Z ^[[22m^[[39m[Error: DragFault: drag: undefined]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5912890Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5914140Z ^[[22m^[[39m[Error: DragFault: drag: text]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5915510Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5917610Z ^[[22m^[[39m[Error: DragFault: drag: Symbol(symbol)]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5920500Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5921830Z ^[[22m^[[39m[Error: DragFault: drag: frozen]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5923630Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5924960Z ^[[22m^[[39m[Error: DragFault: drag: unreadable value]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5927160Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5928550Z ^[[22m^[[39m[Error: DragFault: drag: unreadable value]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5951820Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould leave origin fault when a global listener requests cancel
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.5953190Z ^[[22m^[[39m[Error: DragFault: drag: boom]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.7453060Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver no terminal when a global listener requests destruction
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.7555010Z ^[[22m^[[39m[Error: DragFault: drag: boom]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.9896010Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould keep the outcome when a later fault is reported
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:31.9899710Z ^[[22m^[[39m[Error: DragFault: drag: settle]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.0514420Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report one fault when the lift acquires a visual with no box, and keep the controller
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.0617830Z ^[[22m^[[39m[Error: DragFault: drag: lift/visual-no-box-space]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.3321170Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a failed acquisition^[[2m > ^[[22m^[[2mshould restore the visual and let the acquisition fault decide
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.3423300Z ^[[22m^[[39m[Error: DragFault: drag: show]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.4849770Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a failed acquisition^[[2m > ^[[22m^[[2mshould report a failed restoration after the acquisition fault, which decides
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.4951250Z ^[[22m^[[39m[Error: DragFault: drag: show]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.5052910Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a failed acquisition^[[2m > ^[[22m^[[2mshould report a failed restoration after the acquisition fault, which decides
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.5155810Z ^[[22m^[[39m[Error: DragFault: drag: restore]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.6361190Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a throwing placeholder factory^[[2m > ^[[22m^[[2mshould report the throw as one fault and start nothing
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.6462540Z ^[[22m^[[39m[Error: DragFault: drag: placeholder]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.7779190Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a throwing placeholder factory^[[2m > ^[[22m^[[2mshould leave the item and the list as they were
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.7880990Z ^[[22m^[[39m[Error: DragFault: drag: placeholder]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.9312620Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a throwing placeholder factory^[[2m > ^[[22m^[[2mshould let the next drag reorder
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:32.9415370Z ^[[22m^[[39m[Error: DragFault: drag: placeholder]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:33.2069320Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/faults.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[33m 2147^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:34.3147100Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:35.3376300Z ^[[90mstderr^[[2m | tests/frameworks.browser.test.ts^[[2m > ^[[22m^[[2ma React consumer^[[2m > ^[[22m^[[2mshould finish, report and stay usable when the commit unmounts the dragged item
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:35.3488450Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:36.0012670Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/frameworks.browser.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[33m 1721^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:36.0120380Z    ^[[32m✓^[[39m a React consumer ^[[2m(7)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:36.0122440Z      ^[[33m^[[2m✓^[[22m^[[39m should finish, report and stay usable when the commit unmounts the dragged item^[[33m 336^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:36.1780520Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:38.6683020Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/click-guard.browser.test.ts ^[[2m(^[[22m^[[2m20 tests^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[2m)^[[22m^[[33m 2524^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:38.7963680Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:40.5191000Z ^[[90mstderr^[[2m | tests/release.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 release order^[[2m > ^[[22m^[[2mshould run disposers last in first out, past a throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:40.5283050Z ^[[22m^[[39m[Error: DragFault: drag: middle]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:40.9212510Z ^[[90mstderr^[[2m | tests/release.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 release order^[[2m > ^[[22m^[[2mshould report a throw from a late use
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:40.9321760Z ^[[22m^[[39m[Error: DragFault: drag: late]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:41.4645620Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/release.browser.test.ts ^[[2m(^[[22m^[[2m15 tests^[[22m^[[2m)^[[22m^[[33m 2691^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:41.4686170Z    ^[[32m✓^[[39m drag:DRI-9 release order ^[[2m(15)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:41.4688460Z      ^[[33m^[[2m✓^[[22m^[[39m should pass each outcome to a disposer^[[33m 450^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:24:41.7858250Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4942780Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/y-geometry.browser.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[33m 87805^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4948670Z    ^[[32m✓^[[39m drag:DRI-14 y() proposes the gap a full measurement gives ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4956670Z      ^[[33m^[[2m✓^[[22m^[[39m should agree on rows of unequal heights^[[33m 5553^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4959020Z      ^[[33m^[[2m✓^[[22m^[[39m should agree under a flow gap between the rows^[[33m 6483^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4959930Z      ^[[33m^[[2m✓^[[22m^[[39m should agree when the gap varies from row to row^[[33m 6762^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4960750Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with item margins in a flex column^[[33m 6564^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4961660Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with item margins in a block column^[[33m 6166^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4962600Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with an authored rotate on a row^[[33m 5518^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4963470Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with an authored scale on a row^[[33m 5740^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4965160Z      ^[[33m^[[2m✓^[[22m^[[39m should agree on sub-pixel geometry with a displacement running^[[33m 4967^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4976840Z    ^[[32m✓^[[39m drag:DRI-14 the gap instrument ^[[2m(5)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4979050Z      ^[[33m^[[2m✓^[[22m^[[39m should report gap disagreements when the library measures another element than the instrument^[[33m 4773^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.4981810Z      ^[[33m^[[2m✓^[[22m^[[39m should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects^[[33m 5327^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.5003520Z      ^[[33m^[[2m✓^[[22m^[[39m should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects^[[33m 5283^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.5005080Z      ^[[33m^[[2m✓^[[22m^[[39m should report a block column whose margins collapse on both sides of each row^[[33m 12289^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:09.5006260Z      ^[[33m^[[2m✓^[[22m^[[39m should agree on a block column whose margins collapse when the placeholder has the rows' margins^[[33m 12275^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:10.0162970Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:11.0708220Z ^[[90mstderr^[[2m | tests/activation.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder faults^[[2m > ^[[22m^[[2mshould report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:11.0811920Z ^[[22m^[[39m[Error: DragFault: drag: sortable/anchor-outside-container]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:11.1714990Z ^[[90mstderr^[[2m | tests/activation.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder faults^[[2m > ^[[22m^[[2mshould report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:11.1755590Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:11.7974100Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/activation.browser.test.ts ^[[2m(^[[22m^[[2m11 tests^[[22m^[[2m)^[[22m^[[33m 1936^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:12.0059350Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:14.1183390Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/keyboard.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 2130^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:14.1477170Z    ^[[32m✓^[[39m drag:DRI-14 commands from a nested text input ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:14.1710100Z      ^[[33m^[[2m✓^[[22m^[[39m should leave ArrowRight to an input marked data-drag-ignore^[[33m 708^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:14.4822960Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:16.6655730Z ^[[90mstderr^[[2m | tests/authoring.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-18 canvas group^[[2m > ^[[22m^[[2mshould roll back and report a failed save
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:16.6751880Z ^[[22m^[[39m[Error: DragFault: drag: save failed]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:17.1961790Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/authoring.browser.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[33m 2797^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:17.2086980Z    ^[[32m✓^[[39m drag:DRI-18 drop zone ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:17.2192430Z      ^[[33m^[[2m✓^[[22m^[[39m should land an async verdict of true where it says^[[33m 477^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:17.2307790Z      ^[[33m^[[2m✓^[[22m^[[39m should land an async verdict of false where it says^[[33m 458^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:17.4647140Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:21.0377170Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/commit.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 3620^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:21.0515600Z    ^[[32m✓^[[39m drag:DRI-9 README examples ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:21.0644780Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the free-drag example where it was dropped, across two drags^[[33m 314^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:21.0667170Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the scrolling-container example where it was dropped, and land it home^[[33m 2455^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:21.5456790Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.3776070Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/stories.browser.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 13896^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.3865340Z    ^[[32m✓^[[39m Sortable stories ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.4222310Z      ^[[33m^[[2m✓^[[22m^[[39m should reorder List twice in a row^[[33m 2294^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.4224390Z      ^[[33m^[[2m✓^[[22m^[[39m should reorder CustomPlaceholder twice in a row^[[33m 2080^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.4675240Z      ^[[33m^[[2m✓^[[22m^[[39m should reorder ZoomedContext twice in a row^[[33m 2133^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.4783950Z      ^[[33m^[[2m✓^[[22m^[[39m should reorder Grid twice in a row^[[33m 2104^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.4897290Z    ^[[32m✓^[[39m Free Drag stories ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.4999780Z      ^[[33m^[[2m✓^[[22m^[[39m should keep a bounded Interactive box where it was dropped^[[33m 1045^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.5102830Z      ^[[33m^[[2m✓^[[22m^[[39m should keep a TransformedStage box where it was dropped^[[33m 1079^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.5208230Z      ^[[33m^[[2m✓^[[22m^[[39m should pass the AsyncDropConfirmation status through saving to accepted^[[33m 987^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.5312780Z    ^[[32m✓^[[39m Custom Behavior stories ^[[2m(1)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.5436730Z      ^[[33m^[[2m✓^[[22m^[[39m should resize with ResizeHandle and restore the size on Escape^[[33m 2103^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:35.7277200Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:37.8117030Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould treat a throwing then accessor as a fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:37.8153720Z ^[[22m^[[39m[Error: DragFault: drag: accessor]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:37.9868450Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould treat a throwing then call as a fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:37.9972930Z ^[[22m^[[39m[Error: DragFault: drag: call]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.1560050Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould deliver a thrown and a rejected verdict as the reported fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.1667630Z ^[[22m^[[39m[Error: DragFault: drag: thrown]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.3064610Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould deliver a thrown and a rejected verdict as the reported fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.3065600Z ^[[22m^[[39m[Error: DragFault: drag: rejected]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.7808930Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/verdict.browser.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[33m 3149^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.8074550Z    ^[[32m✓^[[39m drag:DRI-5 verdict ^[[2m(11)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.8285640Z      ^[[33m^[[2m✓^[[22m^[[39m should keep a late resolve after a cancel from reaching the next drag^[[33m 465^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.8388840Z      ^[[33m^[[2m✓^[[22m^[[39m should keep a late reject after a cancel from reaching the next drag^[[33m 417^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.8516290Z      ^[[33m^[[2m✓^[[22m^[[39m should let a late reject after destruction reach nothing^[[33m 302^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:38.8640900Z      ^[[33m^[[2m✓^[[22m^[[39m should deliver a thrown and a rejected verdict as the reported fault^[[33m 368^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:39.1004330Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:40.4623210Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/focus.browser.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[33m 1442^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:40.8414970Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:41.8330110Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/refusals.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 1156^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:41.8351040Z    ^[[32m✓^[[39m drag:DRI-6 reentrant input ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:41.8363810Z      ^[[33m^[[2m✓^[[22m^[[39m should refuse a nested press, and take the next real one^[[33m 337^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:41.8368000Z      ^[[33m^[[2m✓^[[22m^[[39m should refuse no trusted event during ordinary drags^[[33m 337^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:42.1071500Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:42.3361560Z ^[[90mstderr^[[2m | tests/operation-lifecycle.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRD-30 operation lifecycle^[[2m > ^[[22m^[[2mshould release with the fault when the operation constructor throws after a use
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:42.3380570Z ^[[22m^[[39m[Error: DragFault: drag: constructor]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:42.6688440Z ^[[90mstderr^[[2m | tests/operation-lifecycle.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRD-30 operation lifecycle^[[2m > ^[[22m^[[2mshould keep a cancel recorded in activate when activate then throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:42.6690140Z ^[[22m^[[39m[Error: DragFault: drag: after the cancel]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:43.3113950Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/operation-lifecycle.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 1274^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:43.5192070Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:43.7698380Z ^[[90mstderr^[[2m | tests/order.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 and drag:DRI-12 release order^[[2m > ^[[22m^[[2mshould restore focus when end throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:43.7795630Z ^[[22m^[[39m[Error: DragFault: drag: end throws]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:43.8919350Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/order.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 416^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:44.1737350Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:44.6518560Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/classes.browser.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 537^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:44.8748720Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:45.7887960Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/scoped-requests.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 950^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:45.7933970Z    ^[[32m✓^[[39m drag:DRI-8 scoped requests ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:45.8126180Z      ^[[33m^[[2m✓^[[22m^[[39m should not run a step requested through a retained drag while a later operation is active^[[33m 353^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:45.9914240Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3576830Z  ^[[32m✓^[[39m ^[[30m^[[45m browser/drag/safari (safari) ^[[49m^[[39m tests/equivalence-check.browser.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 7424^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3581500Z    ^[[32m✓^[[39m drag:DRD-52 equivalence oracle ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3587880Z      ^[[33m^[[2m✓^[[22m^[[39m should check a plain column and record no mismatch^[[33m 626^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3593630Z      ^[[33m^[[2m✓^[[22m^[[39m should report a placeholder that a committed move displaces along x^[[33m 593^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3597060Z      ^[[33m^[[2m✓^[[22m^[[39m should report a slot in a block column whose margins collapse on both sides of each row^[[33m 6151^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3889550Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3891370Z ^[[2m Test Files ^[[22m ^[[1m^[[32m30 passed^[[39m^[[22m^[[90m (30)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3893240Z ^[[2m      Tests ^[[22m ^[[1m^[[32m432 passed^[[39m^[[22m^[[2m | ^[[22m^[[36m1 expected fail^[[39m^[[2m | ^[[22m^[[33m12 skipped^[[39m^[[90m (445)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3904810Z ^[[2m   Start at ^[[22m 06:23:15
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3905580Z ^[[2m   Duration ^[[22m 218.20s^[[2m (tests 97%, worker 2%, import 1%, setup 1%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.3906000Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.7978460Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.7986380Z browser/drag/safari (safari) exited with 0
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:53.7990010Z ##[group]consumer/drag/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:55.9474090Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:55.9476970Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:56.1092150Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:56.1095040Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:26:56.1096940Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:03.9839800Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:06.7216400Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-14 collection failures^[[2m > ^[[22m^[[2mshould cancel with a fault when a pull during a drag throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:06.7319950Z ^[[22m^[[39m[Error: DragFault: drag: items]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:06.7825140Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-14 collection failures^[[2m > ^[[22m^[[2mshould end activation with a fault and no start when the second pull throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:06.7928120Z ^[[22m^[[39m[Error: DragFault: drag: items]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:06.9324210Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-14 collection failures^[[2m > ^[[22m^[[2mshould report a throwing visual, with no operation
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:06.9429660Z ^[[22m^[[39m[Error: DragFault: drag: visual]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:07.5543240Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder removes itself
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:07.5649330Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:07.7237470Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder moves itself
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:07.7343540Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:07.8721680Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder takes the list out
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:07.8823760Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.0196620Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder moves within the container
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.0219640Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.1728960Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould end activation clean with a fault when a placeholder takes the item away from it
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.1831620Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.4366010Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould cancel and report when an anchor leaves the container
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.4367190Z ^[[22m^[[39m[Error: DragFault: drag: sortable/anchor-outside-container]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.6580440Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould cancel and report when an anchor leaves before the release
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.6587750Z ^[[22m^[[39m[Error: DragFault: drag: sortable/anchor-outside-container]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.9058030Z ^[[90mstderr^[[2m | tests/sortable.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder integrity^[[2m > ^[[22m^[[2mshould report a factory that returns the dragged item, whose disposer then removes it
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:08.9172930Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.2342310Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/sortable.browser.test.ts ^[[2m(^[[22m^[[2m56 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 36355^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.2533330Z    ^[[32m✓^[[39m sortable options ^[[2m(12)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.2579870Z      ^[[33m^[[2m✓^[[22m^[[39m should resolve a grid with xy()^[[33m 320^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.2722690Z      ^[[33m^[[2m✓^[[22m^[[39m should re-measure on scroll during a drag, nested scrollers included^[[33m 479^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.2929070Z      ^[[33m^[[2m✓^[[22m^[[39m drag:DRD-49 should hold the gap a measurement of every row gives, across 20 rows of two heights down and back up^[[33m 6725^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.3044370Z    ^[[32m✓^[[39m drag:DRI-14 candidates measured through box ^[[2m(5)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.3148660Z      ^[[33m^[[2m✓^[[22m^[[39m should measure every y() candidate through box, not through the item^[[33m 8909^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.3398380Z      ^[[33m^[[2m✓^[[22m^[[39m should measure every y() candidate through visual when there is no box^[[33m 11305^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.3509070Z      ^[[33m^[[2m✓^[[22m^[[39m should measure every xy() candidate through box, not through the item^[[33m 363^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.3610910Z    ^[[32m✓^[[39m drag:DRI-9 authored transitions ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.3728660Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the lifted visual under the pointer with a transition on the item^[[33m 405^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:40.6296970Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:41.3920850Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould report a landing that cannot run, and let the outcome stand
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:41.3924290Z ^[[22m^[[39m[Error: DragFault: drag: Type error]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:43.6078530Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould report and skip a landing when the consumer unmounted the item, and stay usable
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:43.6085980Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:43.7621200Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould report and skip a landing when the consumer unmounted the item, and stay usable
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:43.7728760Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:44.2610660Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 landing^[[2m > ^[[22m^[[2mshould start a named landing when releasing the top layer throws, and let the outcome stand
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:44.2628520Z ^[[22m^[[39m[Error: DragFault: drag: hide]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.3667360Z ^[[90mstderr^[[2m | tests/landing.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-13 sortable landing after the commit^[[2m > ^[[22m^[[2mshould skip the landing with one fault when the commit moves the item to another container, and let the outcome stand
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.3772250Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.5246610Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/landing.browser.test.ts ^[[2m(^[[22m^[[2m25 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 4973^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.5252010Z    ^[[32m✓^[[39m drag:DRI-13 landing ^[[2m(19)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.5268170Z      ^[[33m^[[2m✓^[[22m^[[39m should land additively from where it was dropped^[[33m 368^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.5269240Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the landing through a press that never activates, and cancel at the next activation^[[33m 345^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.5285680Z      ^[[33m^[[2m✓^[[22m^[[39m should report and skip a landing when the consumer unmounted the item, and stay usable^[[33m 326^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:45.8286760Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:47.7576840Z ^[[90mstderr^[[2m | tests/requests.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-2 one reader and fixed precedence^[[2m > ^[[22m^[[2mshould report a fault raised after queued collection work once
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:47.7578240Z ^[[22m^[[39m[Error: DragFault: drag: after the work]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:48.8858540Z ^[[90mstderr^[[2m | tests/requests.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-8 deferred writes^[[2m > ^[[22m^[[2mshould report a throw in a step as a fault that decides
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:48.8859820Z ^[[22m^[[39m[Error: DragFault: drag: from a step]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:48.8955210Z ^[[90mstderr^[[2m | tests/requests.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-8 deferred writes^[[2m > ^[[22m^[[2mshould only report a throw in a step with no operation
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:48.8960630Z ^[[22m^[[39m[Error: DragFault: drag: idle]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:49.5747660Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/requests.browser.test.ts ^[[2m(^[[22m^[[2m26 tests^[[22m^[[2m)^[[22m^[[33m 3837^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:49.5753520Z    ^[[32m✓^[[39m drag:DRI-1 a request does not change the running step ^[[2m(6)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:49.5756310Z      ^[[33m^[[2m✓^[[22m^[[39m should let a sortable placeholder reaction cancel during activation^[[33m 325^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:49.8113420Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:52.9091580Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/input.browser.test.ts ^[[2m(^[[22m^[[2m18 tests^[[22m^[[2m)^[[22m^[[33m 3137^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:52.9133920Z    ^[[32m✓^[[39m drag:DRI-19 input ownership ^[[2m(7)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:52.9159520Z      ^[[33m^[[2m✓^[[22m^[[39m should not activate on a hover after a pointerup stopped on a child, and reorder at the next press^[[33m 315^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:52.9208460Z      ^[[33m^[[2m✓^[[22m^[[39m should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press^[[33m 313^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:53.1190590Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:56.1285090Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/destruction.browser.test.ts ^[[2m(^[[22m^[[2m23 tests^[[22m^[[2m | ^[[22m^[[33m2 skipped^[[39m^[[2m)^[[22m^[[33m 3065^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:27:56.3564080Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:01.0285070Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/coordinates.browser.test.ts ^[[2m(^[[22m^[[2m31 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 4718^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:01.2612680Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:03.9501530Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/layout-animation.browser.test.ts ^[[2m(^[[22m^[[2m16 tests^[[22m^[[2m)^[[22m^[[33m 2729^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:04.2223310Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:05.7713110Z ^[[90mstderr^[[2m | tests/drop-targets.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-21 freeDrag + dropTargets^[[2m > ^[[22m^[[2mshould release the operation and keep the controller when targets() throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:05.7901160Z ^[[22m^[[39m[Error: DragFault: drag: targets]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:06.9095320Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/drop-targets.browser.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[33m 2747^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:06.9107200Z    ^[[32m✓^[[39m drag:DRI-21 freeDrag + dropTargets ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:06.9108610Z      ^[[33m^[[2m✓^[[22m^[[39m should mark the target under the pointer, name it at the drop and clear the mark at release^[[33m 400^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:06.9109640Z      ^[[33m^[[2m✓^[[22m^[[39m should release the operation and keep the controller when targets() throws^[[33m 495^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:06.9110270Z    ^[[32m✓^[[39m drag:DRD-33 C2 one config across controllers ^[[2m(1)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:06.9111100Z      ^[[33m^[[2m✓^[[22m^[[39m should give each controller its own runtime^[[33m 467^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:07.0983500Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:09.5469590Z ^[[90mstderr^[[2m | tests/free-drag.browser.test.ts^[[2m > ^[[22m^[[2mbounds with a function source^[[2m > ^[[22m^[[2mshould report a throw at activation as one fault carrying the thrown value
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:09.5482760Z ^[[22m^[[39m[Error: DragFault: drag: bounds]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:09.8775080Z ^[[90mstderr^[[2m | tests/free-drag.browser.test.ts^[[2m > ^[[22m^[[2mbounds with a function source^[[2m > ^[[22m^[[2mshould report a throw during the drag as one fault carrying the thrown value
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:09.8877520Z ^[[22m^[[39m[Error: DragFault: drag: bounds]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.0752870Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/free-drag.browser.test.ts ^[[2m(^[[22m^[[2m17 tests^[[22m^[[2m)^[[22m^[[33m 3019^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.0857730Z    ^[[32m✓^[[39m freeDrag ^[[2m(10)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.0960590Z      ^[[33m^[[2m✓^[[22m^[[39m should clamp against bounds measured again after a scroll between operations (drag:DRF-5)^[[33m 334^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.1067440Z      ^[[33m^[[2m✓^[[22m^[[39m should honor handle and visual^[[33m 302^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.1161930Z    ^[[32m✓^[[39m bounds with a function source ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.1200010Z      ^[[33m^[[2m✓^[[22m^[[39m should report a throw during the drag as one fault carrying the thrown value^[[33m 319^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.2903700Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.3209920Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould report a throw from activate once and leave the list clean: requestCancel before the throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.3234570Z ^[[22m^[[39m[Error: DragFault: drag: cancel]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.4620570Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould report a throw from activate once and leave the list clean: requestDestroy before the throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.4722460Z ^[[22m^[[39m[Error: DragFault: drag: destroy]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.6118420Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould report a throw from activate once and leave the list clean: nothing before the throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.6119370Z ^[[22m^[[39m[Error: DragFault: drag: fault]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.9124100Z ^[[90mstderr^[[2m | tests/terminals.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-3 terminals^[[2m > ^[[22m^[[2mshould run end once when start throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:10.9125020Z ^[[22m^[[39m[Error: DragFault: drag: start]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:13.6580800Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/terminals.browser.test.ts ^[[2m(^[[22m^[[2m23 tests^[[22m^[[2m)^[[22m^[[33m 3402^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:13.6680230Z    ^[[32m✓^[[39m drag:DRI-4 cancel ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:13.6793380Z      ^[[33m^[[2m✓^[[22m^[[39m should not let a retained drag cancel a later operation^[[33m 310^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:13.8422230Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:13.8929700Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould cancel once with a fault when move throws, and let the terminal run
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:13.9030900Z ^[[22m^[[39m[Error: DragFault: drag: move]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.0414320Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report two faults in one pass once each, and let the first decide
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.0515000Z ^[[22m^[[39m[Error: DragFault: drag: first]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.0617360Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report two faults in one pass once each, and let the first decide
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.0720330Z ^[[22m^[[39m[Error: DragFault: drag: second]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.2879610Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report disposer throws during destruction once each
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.2981590Z ^[[22m^[[39m[Error: DragFault: drag: disposer 2]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3083880Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report disposer throws during destruction once each
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3186070Z ^[[22m^[[39m[Error: DragFault: drag: disposer 1]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3294840Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report disposer throws during destruction once each
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3396970Z ^[[22m^[[39m[Error: DragFault: drag: controller use]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3510510Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3614160Z ^[[22m^[[39m[Error: DragFault: drag: plain]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3716360Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3819150Z ^[[22m^[[39m[Error: DragFault: drag: null]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.3921800Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4034110Z ^[[22m^[[39m[Error: DragFault: drag: undefined]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4138010Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4240880Z ^[[22m^[[39m[Error: DragFault: drag: text]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4326810Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4411470Z ^[[22m^[[39m[Error: DragFault: drag: Symbol(symbol)]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4492650Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4594670Z ^[[22m^[[39m[Error: DragFault: drag: frozen]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4697220Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4800270Z ^[[22m^[[39m[Error: DragFault: drag: unreadable value]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.4903660Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver every hostile value once, typed, with cause identity
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.5007790Z ^[[22m^[[39m[Error: DragFault: drag: unreadable value]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.5088380Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould leave origin fault when a global listener requests cancel
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.5190960Z ^[[22m^[[39m[Error: DragFault: drag: boom]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.5289310Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould deliver no terminal when a global listener requests destruction
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.5378140Z ^[[22m^[[39m[Error: DragFault: drag: boom]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.7413240Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould keep the outcome when a later fault is reported
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.7415890Z ^[[22m^[[39m[Error: DragFault: drag: settle]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.8059450Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 faults^[[2m > ^[[22m^[[2mshould report one fault when the lift acquires a visual with no box, and keep the controller
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:14.8164840Z ^[[22m^[[39m[Error: DragFault: drag: lift/visual-no-box-space]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.0839150Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a failed acquisition^[[2m > ^[[22m^[[2mshould restore the visual and let the acquisition fault decide
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.0939090Z ^[[22m^[[39m[Error: DragFault: drag: show]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.2351260Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a failed acquisition^[[2m > ^[[22m^[[2mshould report a failed restoration after the acquisition fault, which decides
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.2609400Z ^[[22m^[[39m[Error: DragFault: drag: show]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.2814300Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a failed acquisition^[[2m > ^[[22m^[[2mshould report a failed restoration after the acquisition fault, which decides
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.2815400Z ^[[22m^[[39m[Error: DragFault: drag: restore]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.3922380Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a throwing placeholder factory^[[2m > ^[[22m^[[2mshould report the throw as one fault and start nothing
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.4026710Z ^[[22m^[[39m[Error: DragFault: drag: placeholder]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.5362420Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a throwing placeholder factory^[[2m > ^[[22m^[[2mshould leave the item and the list as they were
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.5464870Z ^[[22m^[[39m[Error: DragFault: drag: placeholder]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.6845210Z ^[[90mstderr^[[2m | tests/faults.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-7 a throwing placeholder factory^[[2m > ^[[22m^[[2mshould let the next drag reorder
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.6877590Z ^[[22m^[[39m[Error: DragFault: drag: placeholder]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.9827800Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/faults.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[33m 2183^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:15.9930600Z    ^[[32m✓^[[39m drag:DRI-7 a throwing placeholder factory ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:16.0045360Z      ^[[33m^[[2m✓^[[22m^[[39m should let the next drag reorder^[[33m 319^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:16.5979570Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:17.5401870Z ^[[90mstderr^[[2m | tests/frameworks.browser.test.ts^[[2m > ^[[22m^[[2ma React consumer^[[2m > ^[[22m^[[2mshould finish, report and stay usable when the commit unmounts the dragged item
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:17.5508570Z ^[[22m^[[39m[Error: DragFault: drag: sortable/landing-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:18.2658890Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/frameworks.browser.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[33m 1745^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:18.2769220Z    ^[[32m✓^[[39m a React consumer ^[[2m(7)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:18.2877700Z      ^[[33m^[[2m✓^[[22m^[[39m should finish, report and stay usable when the commit unmounts the dragged item^[[33m 319^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:18.4788100Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:21.0250400Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/click-guard.browser.test.ts ^[[2m(^[[22m^[[2m20 tests^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[2m)^[[22m^[[33m 2594^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:21.2389500Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:22.9245650Z ^[[90mstderr^[[2m | tests/release.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 release order^[[2m > ^[[22m^[[2mshould run disposers last in first out, past a throw
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:22.9246900Z ^[[22m^[[39m[Error: DragFault: drag: middle]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:23.2512920Z ^[[90mstderr^[[2m | tests/release.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 release order^[[2m > ^[[22m^[[2mshould report a throw from a late use
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:23.2525300Z ^[[22m^[[39m[Error: DragFault: drag: late]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:23.7253330Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/release.browser.test.ts ^[[2m(^[[22m^[[2m15 tests^[[22m^[[2m)^[[22m^[[33m 2547^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:23.7255730Z    ^[[32m✓^[[39m drag:DRI-9 release order ^[[2m(15)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:23.7256640Z      ^[[33m^[[2m✓^[[22m^[[39m should pass each outcome to a disposer^[[33m 465^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:28:23.9037590Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9710820Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/y-geometry.browser.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[33m 98096^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9847440Z    ^[[32m✓^[[39m drag:DRI-14 y() proposes the gap a full measurement gives ^[[2m(8)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9901800Z      ^[[33m^[[2m✓^[[22m^[[39m should agree on rows of unequal heights^[[33m 5484^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9905030Z      ^[[33m^[[2m✓^[[22m^[[39m should agree under a flow gap between the rows^[[33m 6371^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9911200Z      ^[[33m^[[2m✓^[[22m^[[39m should agree when the gap varies from row to row^[[33m 6528^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9913600Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with item margins in a flex column^[[33m 6502^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9968460Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with item margins in a block column^[[33m 6146^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:01.9993360Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with an authored rotate on a row^[[33m 5503^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0111480Z      ^[[33m^[[2m✓^[[22m^[[39m should agree with an authored scale on a row^[[33m 7239^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0114230Z      ^[[33m^[[2m✓^[[22m^[[39m should agree on sub-pixel geometry with a displacement running^[[33m 9892^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0118100Z    ^[[32m✓^[[39m drag:DRI-14 the gap instrument ^[[2m(5)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0120600Z      ^[[33m^[[2m✓^[[22m^[[39m should report gap disagreements when the library measures another element than the instrument^[[33m 9263^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0124330Z      ^[[33m^[[2m✓^[[22m^[[39m should report a two-column grid driven by y(), whose prediction the equivalence oracle rejects^[[33m 5269^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0234710Z      ^[[33m^[[2m✓^[[22m^[[39m should report a wrapping flex row driven by y(), whose prediction the equivalence oracle rejects^[[33m 5273^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0236380Z      ^[[33m^[[2m✓^[[22m^[[39m should report a block column whose margins collapse on both sides of each row^[[33m 12289^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.0237550Z      ^[[33m^[[2m✓^[[22m^[[39m should agree on a block column whose margins collapse when the placeholder has the rows' margins^[[33m 12291^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:02.6395660Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:03.9300660Z ^[[90mstderr^[[2m | tests/activation.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder faults^[[2m > ^[[22m^[[2mshould report sortable/anchor-outside-container when a gap neighbor leaves without invalidate
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:03.9313100Z ^[[22m^[[39m[Error: DragFault: drag: sortable/anchor-outside-container]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.0244460Z ^[[90mstderr^[[2m | tests/activation.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-15 placeholder faults^[[2m > ^[[22m^[[2mshould report sortable/insertion-placeholder-lost when the placeholder leaves at insertion
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.0278870Z ^[[22m^[[39m[Error: DragFault: drag: sortable/insertion-placeholder-lost]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.6767020Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/activation.browser.test.ts ^[[2m(^[[22m^[[2m11 tests^[[22m^[[2m)^[[22m^[[33m 2154^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.6881350Z    ^[[32m✓^[[39m drag:DRI-13 a grab during a landing ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.6992200Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the visual under the pointer during a accepted landing^[[33m 339^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.7098130Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the visual under the pointer during a rejected landing^[[33m 308^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:04.9103290Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:06.1450410Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/keyboard.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 1286^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:06.3309680Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:08.5155010Z ^[[90mstderr^[[2m | tests/authoring.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-18 canvas group^[[2m > ^[[22m^[[2mshould roll back and report a failed save
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:08.5251730Z ^[[22m^[[39m[Error: DragFault: drag: save failed]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:09.0756180Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/authoring.browser.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[33m 2789^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:09.0857520Z    ^[[32m✓^[[39m drag:DRI-18 drop zone ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:09.0926400Z      ^[[33m^[[2m✓^[[22m^[[39m should land an async verdict of true where it says^[[33m 452^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:09.0935740Z      ^[[33m^[[2m✓^[[22m^[[39m should land an async verdict of false where it says^[[33m 466^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:09.3327950Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:12.9624970Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/commit.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 3677^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:12.9641230Z    ^[[32m✓^[[39m drag:DRI-9 README examples ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:12.9642420Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the free-drag example where it was dropped, across two drags^[[33m 302^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:12.9643400Z      ^[[33m^[[2m✓^[[22m^[[39m should keep the scrolling-container example where it was dropped, and land it home^[[33m 2485^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:13.1906230Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.4120160Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould treat a throwing then accessor as a fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.4139490Z ^[[22m^[[39m[Error: DragFault: drag: accessor]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.5961910Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould treat a throwing then call as a fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.5962760Z ^[[22m^[[39m[Error: DragFault: drag: call]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.7843960Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould deliver a thrown and a rejected verdict as the reported fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.7909160Z ^[[22m^[[39m[Error: DragFault: drag: thrown]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.9425630Z ^[[90mstderr^[[2m | tests/verdict.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-5 verdict^[[2m > ^[[22m^[[2mshould deliver a thrown and a rejected verdict as the reported fault
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:15.9528210Z ^[[22m^[[39m[Error: DragFault: drag: rejected]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:16.6540680Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/verdict.browser.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[33m 3500^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:16.6771540Z    ^[[32m✓^[[39m drag:DRI-5 verdict ^[[2m(11)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:16.6882500Z      ^[[33m^[[2m✓^[[22m^[[39m should keep a late resolve after a cancel from reaching the next drag^[[33m 470^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:16.7016590Z      ^[[33m^[[2m✓^[[22m^[[39m should keep a late reject after a cancel from reaching the next drag^[[33m 450^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:16.7125350Z      ^[[33m^[[2m✓^[[22m^[[39m should deliver a thrown and a rejected verdict as the reported fault^[[33m 408^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:16.7263290Z      ^[[33m^[[2m✓^[[22m^[[39m should hold a verdict through a pending drop, then finish^[[33m 371^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:17.0558940Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:18.4613880Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/focus.browser.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[33m 1466^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:18.6917110Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:19.6444270Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/refusals.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 1000^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:19.6543130Z    ^[[32m✓^[[39m drag:DRI-6 reentrant input ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:19.6648690Z      ^[[33m^[[2m✓^[[22m^[[39m should refuse a nested press, and take the next real one^[[33m 327^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:19.6773450Z      ^[[33m^[[2m✓^[[22m^[[39m should refuse no trusted event during ordinary drags^[[33m 320^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:19.8573640Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:20.0754590Z ^[[90mstderr^[[2m | tests/operation-lifecycle.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRD-30 operation lifecycle^[[2m > ^[[22m^[[2mshould release with the fault when the operation constructor throws after a use
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:20.0855040Z ^[[22m^[[39m[Error: DragFault: drag: constructor]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:20.4245970Z ^[[90mstderr^[[2m | tests/operation-lifecycle.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRD-30 operation lifecycle^[[2m > ^[[22m^[[2mshould keep a cancel recorded in activate when activate then throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:20.4350450Z ^[[22m^[[39m[Error: DragFault: drag: after the cancel]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:21.0314780Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/operation-lifecycle.browser.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 1225^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:21.6044640Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:21.8915000Z ^[[90mstderr^[[2m | tests/order.browser.test.ts^[[2m > ^[[22m^[[2mdrag:DRI-9 and drag:DRI-12 release order^[[2m > ^[[22m^[[2mshould restore focus when end throws
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:21.9017340Z ^[[22m^[[39m[Error: DragFault: drag: end throws]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:22.0286670Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/order.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 517^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:22.2903650Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:22.7043660Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/classes.browser.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 460^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:22.9448090Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:23.7975170Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/scoped-requests.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 920^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:23.8034280Z    ^[[32m✓^[[39m drag:DRI-8 scoped requests ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:23.8036480Z      ^[[33m^[[2m✓^[[22m^[[39m should not run a step requested through a retained drag while a later operation is active^[[33m 346^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:24.1233500Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6300130Z  ^[[32m✓^[[39m ^[[30m^[[45m consumer/drag/safari (safari) ^[[49m^[[39m tests/equivalence-check.browser.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 7583^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6312840Z    ^[[32m✓^[[39m drag:DRD-52 equivalence oracle ^[[2m(3)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6319010Z      ^[[33m^[[2m✓^[[22m^[[39m should check a plain column and record no mismatch^[[33m 642^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6338400Z      ^[[33m^[[2m✓^[[22m^[[39m should report a placeholder that a committed move displaces along x^[[33m 649^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6471070Z      ^[[33m^[[2m✓^[[22m^[[39m should report a slot in a block column whose margins collapse on both sides of each row^[[33m 6223^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6691400Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6793490Z ^[[2m Test Files ^[[22m ^[[1m^[[32m27 passed^[[39m^[[22m^[[90m (27)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6812920Z ^[[2m      Tests ^[[22m ^[[1m^[[32m398 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m12 skipped^[[39m^[[90m (410)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6813920Z ^[[2m   Start at ^[[22m 06:26:56
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6815060Z ^[[2m   Duration ^[[22m 215.55s^[[2m (tests 97%, worker 2%, import 1%, setup 1%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:31.6816920Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:32.1930080Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:32.2029430Z consumer/drag/safari (safari) exited with 0
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:32.2133830Z ##[group]browser/material-x/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:34.7217940Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:34.7227170Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:34.8913000Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:34.8925760Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:34.8927300Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:41.5416000Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:44.7544130Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/button/button.browser.test.ts ^[[2m(^[[22m^[[2m25 tests^[[22m^[[2m)^[[22m^[[33m 3314^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:45.1349360Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:51.1574130Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/core/elements/CheckableCore.browser.test.ts ^[[2m(^[[22m^[[2m44 tests^[[22m^[[2m)^[[22m^[[33m 6063^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:51.1683760Z    ^[[32m✓^[[39m mx-checkbox activation ^[[2m(11)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:51.1788260Z      ^[[33m^[[2m✓^[[22m^[[39m should expose one activation sequence for real pointer interaction^[[33m 357^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:51.1891800Z    ^[[32m✓^[[39m mx-radio activation ^[[2m(11)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:51.2057640Z      ^[[33m^[[2m✓^[[22m^[[39m should expose one activation sequence for real pointer interaction^[[33m 351^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:51.6742960Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:54.3480220Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/button-group/button-group.browser.test.ts ^[[2m(^[[22m^[[2m20 tests^[[22m^[[2m)^[[22m^[[33m 2715^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:54.6388990Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:56.4610060Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/checkbox/checkbox.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[33m 1901^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:57.1087570Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:58.9671890Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/text-field/text-field.browser.test.ts ^[[2m(^[[22m^[[2m14 tests^[[22m^[[2m)^[[22m^[[33m 1913^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:30:59.2179660Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:02.0241120Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/button/SwitchCore.browser.test.ts ^[[2m(^[[22m^[[2m23 tests^[[22m^[[2m)^[[22m^[[33m 2836^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:02.2288420Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:02.7489890Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/radio/radio.browser.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 568^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:03.2482510Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:04.3338770Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/core/utils/useCore.browser.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[33m 1107^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:04.5603830Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:04.8357810Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/button/split-button.browser.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 307^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:04.9946690Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.3738670Z  ^[[32m✓^[[39m ^[[30m^[[43m browser/material-x/safari (safari) ^[[49m^[[39m tests/list/list-item.browser.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 407^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.3944560Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.4046210Z ^[[2m Test Files ^[[22m ^[[1m^[[32m10 passed^[[39m^[[22m^[[90m (10)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.4146740Z ^[[2m      Tests ^[[22m ^[[1m^[[32m158 passed^[[39m^[[22m^[[90m (158)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.4266720Z ^[[2m   Start at ^[[22m 06:30:34
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.4371530Z ^[[2m   Duration ^[[22m 30.49s^[[2m (tests 79%, import 13%, worker 7%, setup 1%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.4501690Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.7648720Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.7706010Z browser/material-x/safari (safari) exited with 0
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:05.7773050Z ##[group]spec/material-x/safari (safari)
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:08.1118360Z ^[[33mTesting types with tsc and vue-tsc is an experimental feature.
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:08.1119690Z Breaking changes might not follow SemVer, please pin Vitest's version when using it.^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:08.2394540Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:08.2397050Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.1.0 ^[[39m^[[90m/Users/runner/work/material-x/material-x^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:08.2401940Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:14.2875520Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4118340Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/core/focus-layer.spec.browser.test.ts ^[[2m(^[[22m^[[2m28 tests^[[22m^[[2m)^[[22m^[[33m 7215^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4121290Z    ^[[32m✓^[[39m mx-button focus layer visual contract ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4122580Z      ^[[33m^[[2m✓^[[22m^[[39m should draw no layer after a mouse click with the pointer moved off^[[33m 527^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4123630Z    ^[[32m✓^[[39m mx-checkbox focus layer visual contract ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4124620Z      ^[[33m^[[2m✓^[[22m^[[39m should draw no layer after a mouse click with the pointer moved off^[[33m 471^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4125660Z    ^[[32m✓^[[39m mx-radio focus layer visual contract ^[[2m(4)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4126350Z      ^[[33m^[[2m✓^[[22m^[[39m should draw no layer after a mouse click with the pointer moved off^[[33m 467^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4127240Z    ^[[32m✓^[[39m mx-button focus indicator ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4128080Z      ^[[33m^[[2m✓^[[22m^[[39m should draw no focus indicator after a mouse click^[[33m 356^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4128810Z    ^[[32m✓^[[39m mx-checkbox focus indicator ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4129530Z      ^[[33m^[[2m✓^[[22m^[[39m should draw no focus indicator after a mouse click^[[33m 351^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4130160Z    ^[[32m✓^[[39m mx-radio focus indicator ^[[2m(2)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.4132060Z      ^[[33m^[[2m✓^[[22m^[[39m should draw no focus indicator after a mouse click^[[33m 363^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:21.6217400Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:24.3514190Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/button/button.color.spec.browser.test.ts ^[[2m(^[[22m^[[2m21 tests^[[22m^[[2m)^[[22m^[[33m 2756^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:24.5750470Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:30.6757300Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/button/button.spec.browser.test.ts ^[[2m(^[[22m^[[2m50 tests^[[22m^[[2m)^[[22m^[[33m 6155^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:30.9868260Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:31.7104970Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/checkbox/checkbox.spec.browser.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[33m 789^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:31.8972830Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:32.5138590Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/button/button.override.spec.browser.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 659^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:32.9201720Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:34.3206820Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/button-group/button-group.spec.browser.test.ts ^[[2m(^[[22m^[[2m10 tests^[[22m^[[2m)^[[22m^[[33m 1460^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:34.5399390Z Safari's window grew from a frame to 1280 × 720 in a 1280 × 668 viewport to a frame to 1280 × 720 in a 1280 × 720 viewport
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2792260Z  ^[[32m✓^[[39m ^[[30m^[[45m spec/material-x/safari (safari) ^[[49m^[[39m tests/core/elements/CheckableCore.spec.browser.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[33m 781^[[2mms^[[22m^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2920110Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2922460Z ^[[2m Test Files ^[[22m ^[[1m^[[32m7 passed^[[39m^[[22m^[[90m (7)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2924890Z ^[[2m      Tests ^[[22m ^[[1m^[[32m126 passed^[[39m^[[22m^[[90m (126)^[[39m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2927300Z ^[[2m   Start at ^[[22m 06:31:08
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2930710Z ^[[2m   Duration ^[[22m 27.05s^[[2m (tests 83%, import 9%, worker 7%, setup 1%)^[[22m
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.2940260Z 
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.6184290Z ##[endgroup]
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.6187710Z spec/material-x/safari (safari) exited with 0
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.6559760Z error: recipe `test-safari` failed with exit code 1
+safari	Run npx just test-safari --tags-filter '!measurement'	2026-11-17T06:31:35.7817230Z ##[error]Process completed with exit code 1.
+verify	Run echo "$RESULTS"	﻿2026-11-17T06:31:48.3259867Z ##[group]Run echo "$RESULTS"
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.3260819Z ^[[36;1mecho "$RESULTS"^[[0m
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.3261572Z ^[[36;1mtest "$(echo "$RESULTS" | jq -r 'map(select(. != "success")) | length')" = 0^[[0m
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4464631Z shell: /usr/bin/bash -e {0}
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4465368Z env:
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4465726Z   NODE_VERSION: 26
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4466266Z   RESULTS: [
+verify	Run echo "$RESULTS"	  "success",
+verify	Run echo "$RESULTS"	  "success",
+verify	Run echo "$RESULTS"	  "success",
+verify	Run echo "$RESULTS"	  "failure",
+verify	Run echo "$RESULTS"	  "success"
+verify	Run echo "$RESULTS"	]
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4466851Z ##[endgroup]
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4606320Z [
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4606782Z   "success",
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4607166Z   "success",
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4607522Z   "success",
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4607876Z   "failure",
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4608225Z   "success"
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4608558Z ]
+verify	Run echo "$RESULTS"	2026-11-17T06:31:48.4647374Z ##[error]Process completed with exit code 1.
