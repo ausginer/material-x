@@ -27,6 +27,8 @@ Dependencies are installed and binaries run with aube (`aube install`, `aube add
 
 **In a destructive shell command, expand every variable in a path with `${VAR:?}`**: `rm -rf "${S:?}/probe"`, not `rm -rf $S/probe`. An unset or empty variable then stops the command instead of turning the path into `/probe`. Check each variable where the path is assembled, not only the result. `d=$B/$1` followed by `rm -rf "${d:?}"` guards nothing: with `B` and `$1` empty, `d` is `/`. Write `d="${B:?}/${1:?}"`.
 
+**If SSH to github.com fails host key verification,** as after a container rebuild, restore `~/.ssh/known_hosts` from GitHub's authenticated API: `gh api meta --jq '.ssh_keys[] | "github.com " + .' >> ~/.ssh/known_hosts`. Never accept a host key through `ssh-keyscan`, `StrictHostKeyChecking=no` or `accept-new`.
+
 ## Where things are
 
 - For local coordination, start with [`.agents/docs/coordinator.md`](.agents/docs/coordinator.md) and [`.agents/docs/coordinator-setup.md`](.agents/docs/coordinator-setup.md). The owner relays prompts between Codex and standalone Claude role sessions, or a Claude `coordinator` session sends them directly; role definitions still govern those sessions.

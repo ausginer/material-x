@@ -126,6 +126,10 @@ Added by the architect at `1d6cbb5c2`, from `RF-48`'s decision. **The witness ca
 
 `coordinator-setup.md` §Session names says that the picker lists the matches newest first, and that the newest is the session `cl` means, in place of _"the owner chooses"_. The ordering is the architect's reading in `RD-17` property 2, not a new one.
 
+## The `known_hosts` rule
+
+Added at the owner's request, relayed by the coordinator, in its own commit. `AGENTS.md` §Evidence says that when SSH to github.com fails host key verification, an agent restores `~/.ssh/known_hosts` from GitHub's authenticated API with `gh api meta`, and never accepts a host key through `ssh-keyscan`, `StrictHostKeyChecking=no` or `accept-new`. **The reason:** after the rebuild, this unit's push failed with _"Host key verification failed"_, and `51a992b49` was pushed once over HTTPS with `gh`'s credential helper, passed on the command line only. The owner then restored `known_hosts`. **Read:** `gh api meta --jq '.ssh_keys[] | "github.com " + .'` prints three keys, which equal the `github.com` lines in the restored `~/.ssh/known_hosts`.
+
 ## What wasn't verified
 
 - `cl` against the real `claude`: every case uses the stub, and the owner's own `cl` starts are the live evidence.
