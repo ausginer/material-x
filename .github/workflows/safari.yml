@@ -6,6 +6,9 @@
 name: safari
 
 on:
+  # Temporary witness trigger (handoff item 2, witness 1); removed before review.
+  push:
+    branches: [repo/ci-speed-1]
   schedule:
     - cron: '0 5 * * 1'
   workflow_dispatch:

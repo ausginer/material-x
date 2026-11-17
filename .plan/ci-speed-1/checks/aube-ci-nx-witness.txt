@@ -1,0 +1,18 @@
+Item 4 witness 2 in CI: aube ci with nx@24.0.6 removed from aube.allowBuilds.
+Commit 6092c5f26 on repo/ci-speed-1 (pull request #31), verify run 44048707632,
+https://github.com/ausginer/material-x/actions/runs/44048707632 , job static.
+Every job that installs failed at the same step; static's log, from the API:
+
+2026-11-17T08:41:52.8454042Z ##[group]Run aube ci
+2026-11-17T08:41:52.8454279Z aube ci
+2026-11-17T08:41:52.8473695Z shell: /usr/bin/bash -e {0}
+2026-11-17T08:41:52.8473919Z env:
+2026-11-17T08:41:52.8474090Z   NODE_VERSION: 26
+2026-11-17T08:41:52.8474269Z   AUBE_VERSION: 2.10.0
+2026-11-17T08:41:52.8474453Z ##[endgroup]
+2026-11-17T08:41:53.6609634Z   × dependencies with build scripts must be reviewed before install:
+2026-11-17T08:41:53.6610382Z   │   - nx@24.0.6
+2026-11-17T08:41:53.6610886Z   │ help: add the package(s) to `allowBuilds` with `true`/`false`, or set
+2026-11-17T08:41:53.6611424Z   │ `strictDepBuilds=false`
+2026-11-17T08:41:53.6611630Z 
+2026-11-17T08:41:53.6663659Z ##[error]Process completed with exit code 1.
