@@ -1,0 +1,119 @@
+RF-47: aube install --fix-lockfile (CI-speed handoff, Remediation of the stop, step 3). STOPPED.
+Read 2026-11-17 by the implementer on repo/ci-speed-1 at cf0f9f344, aube 2.10.0, in the devcontainer.
+The step's stop: the re-resolution touches more than lightningcss, @types/node and ansi-regex.
+Not committed: package-lock.json was restored with git checkout, and node_modules with aube ci.
+
+Command: aube install --fix-lockfile   (exit 0)
+git diff --shortstat: 1 file changed, 2160 insertions(+), 1781 deletions(-)
+
+Entry-by-entry comparison of package-lock.json's "packages" (HEAD against the re-resolved file).
+"changed" counts a key whose version differs; "fieldOnly" a key whose version is equal and other fields differ.
+
+top-level keys differ: ["version"]
+== added: 40
+  node_modules/@napi-rs/wasm-runtime/node_modules/@emnapi/core@1.11.0
+  node_modules/@napi-rs/wasm-runtime/node_modules/@emnapi/core/node_modules/@emnapi/wasi-threads@1.2.2
+  node_modules/@napi-rs/wasm-runtime/node_modules/@emnapi/runtime@1.11.0
+  node_modules/@puppeteer/browsers/node_modules/strip-ansi/node_modules/ansi-regex@6.2.2
+  node_modules/@wdio/logger/node_modules/strip-ansi/node_modules/ansi-regex@6.2.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/scope-manager@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/scope-manager/node_modules/@typescript-eslint/visitor-keys@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/types@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/project-service@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/tsconfig-utils@8.72.2
+  node_modules/eslint-config-vaadin/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/visitor-keys@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x@4.17.1
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/types@8.72.1
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/scope-manager@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/scope-manager/node_modules/@typescript-eslint/visitor-keys@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/types@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/project-service@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/tsconfig-utils@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/visitor-keys@8.72.2
+  node_modules/eslint-import-resolver-typescript/node_modules/eslint-plugin-import-x/node_modules/semver@7.8.6
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/scope-manager@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/scope-manager/node_modules/@typescript-eslint/visitor-keys@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/project-service@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/tsconfig-utils@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/@typescript-eslint/visitor-keys@8.72.2
+  node_modules/eslint-plugin-import-x/node_modules/@typescript-eslint/utils/node_modules/@typescript-eslint/typescript-estree/node_modules/semver@7.8.6
+  packages/material-x/node_modules/@fontsource/roboto@5.3.0
+  packages/size-limit-preset-rolldown/node_modules/@size-limit/file@14.3.0
+  packages/vite-custom-element-assets/node_modules/@emnapi/core@2.0.0-beta.2
+  packages/vite-custom-element-assets/node_modules/@emnapi/runtime@2.0.0-beta.2
+  packages/vite-custom-element-assets/node_modules/@emnapi/wasi-threads@2.2.0
+  packages/vite-traits-plugin/node_modules/@emnapi/core@2.0.0-beta.2
+  packages/vite-traits-plugin/node_modules/@emnapi/runtime@2.0.0-beta.2
+  packages/vite-traits-plugin/node_modules/@emnapi/wasi-threads@2.2.0
+== removed: 18
+  node_modules/@fontsource/roboto@5.3.0
+  node_modules/@puppeteer/browsers/node_modules/ansi-regex@6.6.0
+  node_modules/@size-limit/file@14.3.0
+  node_modules/@wdio/logger/node_modules/ansi-regex@6.6.0
+  packages/size-limit-preset-rolldown/node_modules/@types/node@26.1.1
+  packages/size-limit-preset-rolldown/node_modules/undici-types@8.3.0
+  packages/vite-custom-element-assets/node_modules/lightningcss@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-android-arm64@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-darwin-arm64@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-darwin-x64@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-freebsd-x64@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-linux-arm-gnueabihf@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-linux-arm64-gnu@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-linux-arm64-musl@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-linux-x64-gnu@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-linux-x64-musl@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-win32-arm64-msvc@1.32.0
+  packages/vite-custom-element-assets/node_modules/lightningcss-win32-x64-msvc@1.32.0
+== changed: 0
+== fieldOnly: 15
+   [hasInstallScript,devDependencies]
+  node_modules/@emnapi/core [dev]
+  node_modules/@emnapi/runtime [dev]
+  node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@emnapi/core [dev]
+  node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@emnapi/runtime [dev]
+  node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@emnapi/wasi-threads [dev]
+  node_modules/@vitest/browser-playwright [peerDependenciesMeta]
+  node_modules/@vitest/browser-webdriverio [peerDependenciesMeta]
+  node_modules/vitest [peerDependenciesMeta]
+  packages/box-quad [license]
+  packages/drag [license]
+  packages/material-x [license]
+  packages/size-limit-preset-rolldown [license]
+  packages/vite-custom-element-assets [dependencies]
+  packages/vite-traits-plugin [license,dependencies]
+
+The root "version" field (0.1.0) is dropped by the re-resolution.
+
+The three targets, and every other entry of those names, after the re-resolution:
+node_modules/@isaacs/cliui/node_modules/ansi-regex 6.2.2
+node_modules/@puppeteer/browsers/node_modules/strip-ansi/node_modules/ansi-regex 6.2.2
+node_modules/@types/node 26.6.6
+node_modules/@wdio/logger/node_modules/strip-ansi/node_modules/ansi-regex 6.2.2
+node_modules/@wdio/repl/node_modules/@types/node 22.20.5
+node_modules/@wdio/repl/node_modules/undici-types 6.21.0
+node_modules/@wdio/types/node_modules/@types/node 22.20.5
+node_modules/@wdio/types/node_modules/undici-types 6.21.0
+node_modules/ansi-regex 5.0.1
+node_modules/concurrently/node_modules/ansi-regex 6.2.2
+node_modules/lightningcss 1.33.0
+node_modules/rust-just/node_modules/ansi-regex 6.2.2
+node_modules/undici-types 8.9.0
+node_modules/webdriver/node_modules/@types/node 22.20.5
+node_modules/webdriver/node_modules/undici-types 6.21.0
+node_modules/webdriverio/node_modules/@types/node 22.20.5
+node_modules/webdriverio/node_modules/undici-types 6.21.0
+node_modules/wrap-ansi/node_modules/ansi-regex 6.2.2
+
+Beyond the three: nested @typescript-eslint/* 8.72.2 trees and a second eslint-plugin-import-x 4.17.1
+and semver 7.8.6 under eslint-config-vaadin, eslint-import-resolver-typescript and eslint-plugin-import-x;
+@emnapi/core and runtime 2.0.0-beta.2 and wasi-threads 2.2.0 under vite-custom-element-assets and vite-traits-plugin,
+and @emnapi/core and runtime 1.11.0 under @napi-rs/wasm-runtime; @fontsource/roboto 5.3.0 and @size-limit/file 14.3.0
+move from the root to under material-x and size-limit-preset-rolldown; license fields on six workspace entries;
+dev flags on five @emnapi entries; peerDependenciesMeta on vitest and two @vitest/browser-* entries;
+dependencies on vite-custom-element-assets and vite-traits-plugin; hasInstallScript and devDependencies on the root.
