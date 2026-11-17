@@ -104,7 +104,6 @@
     },
     "allowBuilds": {
       "esbuild@0.28.1": true,
-      "nx@24.0.6": true,
       "rs-module-lexer@2.8.0": true,
       "unrs-resolver@1.11.1": true,
       "edgedriver": false,
