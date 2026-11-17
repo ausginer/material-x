@@ -1,0 +1,268 @@
+# Handoff: parallel units in session slots, and the harness without its effort guard
+
+**Recipient:** the implementer.
+
+**Branch:** `repo/harness-1`, from `main` at `21392e738`, with `main` merged in at `d6838d0f1`. **Input:** the architect's commit that adds this file, and the architect's commit after that merge, which adds item 4 and the `RF-48` reading.
+
+**When it starts.** Start after `repo/ci-speed-1` merges, and begin with `git merge origin/main`. That unit rewrites some of the same text, which is why: `AGENTS.md` §Evidence, `README.md`, `.claude/agents/implementer.md` and `der.md`, `.agents/docs/handoff.md`, and the devcontainer scripts. It is still changing them. The owner chose this timing (owner decision 2).
+
+**Started 2026-11-17.** `repo/ci-speed-1` merged as #31 at `8cf9781fa`, and the architect merged `origin/main` into this branch at `d6838d0f1`. The only conflict was in `.plan/00-index.md`. So the unit starts at this branch's head, and its first step is item 4's `aube install`.
+
+**Decided** by the owner, relayed by the coordinator on 2026-11-17:
+
+1. **Parallel development** in worktrees, with stacked pull requests. The process may change.
+2. **`.scripts/claude-role.sh` is removed.** The owner uses only `cl`.
+3. **The effort guard is removed.**
+4. **The `${VAR:?}` rule in `AGENTS.md` gets a counter-example.**
+5. **`implementer.md` says to run `aube install` after a merge that changes `package.json` or `package-lock.json`** (relayed 2026-11-17, after #31 merged).
+
+**Governing records,** in [`../00-index.md`](../00-index.md):
+
+- `repo:RD-17`: slots, worktrees, stacks, and the index kept as one file;
+- `repo:RD-18`: the guard and the launcher removed, and `cl` reading the effort;
+- `repo:RD-16` property 12: only an install command installs;
+- `repo:RF-48`: the reading added to item 2's witness 2.
+
+**Decided the same day and not part of this unit:** `RD-16` property 1's exception for nx's `npm run` is permanent, and `RF-49`'s repair is a split of both lint configurations, in its own unit after this one.
+
+The records hold the readings, the reasons and the alternatives weighed.
+
+## Item 1. Remove the guard and the launcher (`RD-18`)
+
+**Required:** `RD-18` property 1's list, removed in full.
+
+**Rewritten:**
+
+- **`AGENTS.md`:**
+  - §Before running a governed role is deleted. Its one surviving rule moves to §Before you change anything tracked or to §Where things are: start a role session with `cl <profile>`, which selects the role and its declared effort.
+  - The _"dispatch only from the main checkout"_ paragraph goes (`RD-17` property 4).
+- **`CLAUDE.md` §Running a role:** the paragraphs on `claude-role.sh` and the guard go. What remains says that the owner starts each role session with `cl`, which passes the definition's effort, because `--agent` alone doesn't.
+- **`README.md`:** the marketplace step and its sentence go.
+- **`.agents/docs/coordinator-setup.md`:** §Start a guarded role becomes §Start a role session, describing `cl`, its slots, and the `CLAUDE_CODE_EFFORT_LEVEL` refusal. The `claude-role.sh` commands and the manual effort check go.
+- **`.agents/docs/agent-workflow.md`:** the guard links go. Line 30's consolidator sentence names only its role definition.
+- **`.agents/docs/coordinator.md` and `.claude/agents/coordinator.md`:** _"governed role"_ becomes _"role"_.
+- **`.claude/agents/consolidator.md`:** its _"whether it is governed"_ goes. The no-`name`, no-`model` rule and its reason stay.
+- **Other mentions:** any further mention that the witness search finds.
+
+**`cl`** reads the effort as `RD-18` property 2 says.
+
+**Witnesses:**
+
+1. **The search.** This returns matches only under `.plan/` directories:
+
+   ```sh
+   git grep -nE 'effort guard|effort-guard|claude-role|harness-effort|HARNESS_EFFORT|governed role|Effort guard active|harness-orchestration'
+   ```
+
+   Save the output.
+
+2. **Settings.** `.claude/settings.json` parses, and holds `enabledPlugins` with `typescript-lsp` only.
+3. **Lint and format.** `just lint`, `just fmt-check` and `just typecheck` pass. Each removed allow-list name is shown unused: a `git grep` per name, outside `.plan/`, finds nothing.
+4. **`cl` reads the level.** With a stub `claude` first on `PATH` that prints its arguments and its working directory, `cl architect` passes `--effort high` and `cl implementer` passes `--effort medium`.
+   - A temporary copy of a definition with another `effort:` changes what `cl` passes.
+   - A definition without `effort:` makes `cl` refuse, with a non-zero exit.
+   - A set `CLAUDE_CODE_EFFORT_LEVEL` makes `cl` refuse.
+
+   These are a test file, `.scripts/cl.node.test.ts`, run by the root node project.
+
+## Item 2. Session slots and the parallel process (`RD-17`)
+
+**Required:**
+
+- **`cl`'s interface:** `cl [--init] <profile> [<slot>]`, per `RD-17` properties 1 to 3.
+  - No slot gives today's names and the main checkout.
+  - A slot outside `b`–`z` is a usage error (exit 64).
+  - `--init` creates the session and `--resume` resumes it, as today, with the root and the name of the slot.
+  - A new slot is created locked, and `cl` refuses a slot when `/workspaces/worktrees` isn't a mount point (`RD-17` property 3, amended 2026-11-17).
+- **The volume and the shared store** (`RD-17` properties 1 and 9, amended 2026-11-17 at `4c489e745`):
+  - `.devcontainer/devcontainer.json` mounts the named volume `${localWorkspaceFolderBasename}_worktrees` at `/workspaces/worktrees`. Its `containerEnv` sets `AUBE_STORE_DIR=/workspaces/worktrees/.aube/store` and `AUBE_CACHE_DIR=/workspaces/worktrees/.aube/cache`.
+  - `.devcontainer/post-create/chown.sh` gives `/workspaces/worktrees` to `node`, as it does `node_modules`.
+  - `.scripts/link-tsserver.ts` replaces `typescript/lib/tsserver.js` with a new file, and doesn't write into the existing one.
+  - **The owner rebuilds the container** after these are committed. Witness 2 needs the rebuild.
+- **Documentation.** `.agents/docs/coordinator.md`, `coordinator-setup.md` and `agent-workflow.md` state `RD-17` properties 2, 4, 5 and 7:
+  - the slot names;
+  - `/clear` in place of renaming;
+  - the main-slot architect as the only minter;
+  - the stack procedure, with what a squash merge does to it;
+  - several open units, with the coordinator's per-slot summary;
+  - one open task per session.
+- **The limits** of `RD-17` property 8 go in `coordinator-setup.md`: the lock and how to remove a slot, the volume being invisible on the host, and `.claude/worktrees/` staying Claude Code's. So does property 9's rule against writing into a dependency's file.
+
+**Witnesses:**
+
+1. **`cl` in a scratch clone,** with the stub `claude` of item 1. These are cases in `.scripts/cl.node.test.ts`:
+   - `cl implementer b` creates slot `b` under the slot root, detached at `origin/main` and locked (`git worktree list --porcelain`). It runs the stub there with `--agent implementer --effort medium --resume 'Mx Implementer B'`;
+   - `--init` passes `--name` instead;
+   - a second call reuses the worktree without touching it;
+   - `cl implementer B` and `cl implementer bb` exit 64;
+   - `cl coordinator` keeps `Mx Coordinator` in the main checkout;
+   - with a slot root that isn't a mount point, `cl implementer b` exits non-zero, names the mount, and creates nothing.
+
+   The test may point `cl` at a scratch slot root through one environment variable, which is `cl`'s only test hook. How the test gives the success cases a mount point is the implementer's choice.
+
+2. **Slots on the volume, after the rebuild** (replaced 2026-11-17 at `4c489e745`). Use `cl` to create slots `b` and `c`, and detach each at this branch's head. Then read, saving each command and its output as `checks/slot-volume.txt`:
+   1. in `b`, before any install, `node -p "require.resolve('vite')"` fails with _"Cannot find module"_;
+   2. `aube store path` prints `/workspaces/worktrees/.aube/store/v1`;
+   3. `aube install` in `b`, then `require.resolve('vite')` there resolves under `/workspaces/worktrees/b/`;
+   4. `aube install` in `c`, then `stat -c '%h %i'` on `node_modules/vite/package.json` in `b` and in `c` shows one inode, with a link count of at least 3;
+   5. `typescript/lib/tsserver.js` in `b` has link count 1 and holds the wrapper, and `aube store status` passes;
+   6. `git worktree list --porcelain` shows `b` and `c` locked;
+   7. `aube install` in the main checkout passes; record its time and any warning about copying.
+
+   (This witness was _"Tools in the main checkout ignore a slot"_, with the slot at `.claude/worktrees/b`. A slot on the volume is outside every tool's root, so it is dropped.)
+
+   **Then, in slot `b`, the `RF-48` reading** (added 2026-11-17 at `d6838d0f1`). Run it after these readings, with no other command using the slot:
+   1. list `node_modules/@ydinjs`;
+   2. `aube add -D -W <name>@<exact version>` of a package that is at least 7 days old, has no install script, and isn't a dependency today;
+   3. list `node_modules/@ydinjs` again, and if a link is gone, run `aube install` and save its output;
+   4. revert `package.json` and `package-lock.json` in the slot and run `aube install`, then `aube install --frozen-lockfile --force` if a link is still gone.
+
+   Save the commands and their output as `checks/rf48-reading.txt`. The result is a reading, not a stop: the architect decides `RF-48` from it. Nothing from it is committed outside `checks/`.
+
+3. **The stack procedure,** in a scratch repository: `main`, then branch `a` from `main`, then branch `b` from `a`.
+   - Squash-merge `a` into `main`, then `git merge main` in `b`.
+   - Record which hunks conflicted: one line that `a` changed and `b` changed again, and one line that only `a` changed.
+   - Read that `git diff main...b` shows only `b`'s change after the merge.
+
+   Save the transcript as `checks/stack-procedure.txt`. It is the example that the documentation cites.
+
+4. **Session names per directory.** Read, without starting a role session, whether Claude Code keys `--resume <name>` by the session's directory, so that `Mx Implementer` in the main checkout and `Mx Implementer B` in slot b can't collide. Also read what `--resume` does when two sessions in one directory share a name. The documentation states the answer. If `--init` on an existing name would make `--resume` ambiguous, `cl --init` refuses when the CLI can tell; otherwise the documentation says that `--init` is run once per slot.
+
+## Item 3. The `${VAR:?}` rule
+
+`AGENTS.md` §Evidence currently says:
+
+> **In a destructive shell command, expand every variable in a path with `${VAR:?}`**: `rm -rf "${S:?}/probe"`, not `rm -rf $S/probe`. An unset or empty variable then stops the command instead of turning the path into `/probe`.
+
+**Append, in the same paragraph:**
+
+> Check each variable where the path is assembled, not only the result. `d=$B/$1` followed by `rm -rf "${d:?}"` guards nothing: with `B` and `$1` empty, `d` is `/`. Write `d="${B:?}/${1:?}"`.
+
+That is the whole change. The old wording is quoted above, as the record of what it said.
+
+## Item 4. `aube install` after a merge (`RD-16` property 12)
+
+`.npmrc` sets `aubeNoAutoInstall=true`, so `aube run` and `aube exec` don't install, and `node_modules` stays as it was after a merge that changes the dependencies.
+
+**Add** to `.claude/agents/implementer.md`, beside the `aube add -D -W` rule:
+
+> - **After a merge that changes `package.json` or `package-lock.json`, run `aube install`.** `aubeNoAutoInstall` is on, so nothing else updates `node_modules`, and a stale tree shows up as a tool's failure (`repo:RD-16` property 12).
+
+A pull is a merge, so the rule covers it. This unit's merge at `d6838d0f1` is the first case: run `aube install` in the main checkout before anything else.
+
+## Item 5. The repair after `aube add` (`RF-48`)
+
+**Added 2026-11-17 by the architect** at `51a992b49`, after the report. `repo:RF-48`'s decision governs it. Run it before the review.
+
+**Witness first,** in slot `c`, with no other command using it, starting clean at the commit it is detached at. Save the commands and their output as `checks/rf48-repair.txt`:
+
+1. `aube install`, then list `node_modules/@ydinjs` and `node_modules/size-limit-preset-rolldown`;
+2. `aube add -D -W left-pad@1.3.0`, then the same listing;
+3. `aube install --frozen-lockfile --force`, then the same listing, `ls node_modules/left-pad`, `aube store status`, and the link count of `node_modules/typescript/lib/tsserver.js`;
+4. `aube remove` of `left-pad` at the root, then the same listing; if a link is gone, step 3's command and the listing again;
+5. revert `package.json` and `package-lock.json`, run `aube install`, and show `git status --short` clean.
+
+**Then add** to `.claude/agents/implementer.md`, beside the `aube add -D -W` rule, wording it to match its neighbours:
+
+> - **After `aube add` or `aube remove`, run `aube install --frozen-lockfile --force`,** and confirm that `node_modules/@ydinjs` holds the workspace packages. aube 2.10.0's `add` drops the workspace links, and `aube install` doesn't notice (`repo:RF-48`).
+
+**Stop,** and return to the architect with the reading, if step 3 doesn't restore every link, if `aube store status` fails, or if `tsserver.js` has more than one link.
+
+## Item 6. The picker's order (`RD-17` property 2)
+
+`coordinator-setup.md` §Session names says that `--resume <name>` with more than one match opens the picker and _"the owner chooses"_. Add that the picker lists the matches newest first, and that the newest is the session `cl` means.
+
+## Order
+
+1. `git merge origin/main`, once `repo/ci-speed-1` has merged. (Done by the architect at `d6838d0f1`.)
+2. Item 4.
+3. Item 3.
+4. Item 1, with its witnesses.
+5. Item 2's changes, and its witnesses 1, 3 and 4.
+6. **The owner rebuilds the container,** with item 2's devcontainer changes committed.
+7. Item 2's witness 2, with the `RF-48` reading. If the rebuild hasn't happened by the report, the report says that witness 2 and the reading weren't run.
+8. **The handoff's checks** on every changed file ([`handoff.md`](../../.agents/docs/handoff.md)):
+   - format Markdown, YAML and JSON;
+   - the TypeScript checks on `.scripts/cl.node.test.ts` and `.scripts/link-tsserver.ts`;
+   - shell-check `cl.sh` by reading it;
+   - `git diff --check`;
+   - the links in every changed document.
+9. **The pull request** to `main`, non-draft, which the implementer may open. Its `verify` passes. Never merge it.
+
+## Stops
+
+Return to the architect with what you have if:
+
+- anything outside `.claude/plugins/harness-effort-guard/` and the files listed in `RD-18` property 1 still loads, calls or tests the guard;
+- `cl`'s test needs more than one environment variable to choose its slot root;
+- after the rebuild, slots `b` and `c` don't share a package file's inode, or `aube store status` fails after both installs;
+- a dependency's install script writes into an existing file under `node_modules`, which the store check or a link count shows;
+- `--resume <name>` can't tell sessions in different directories apart;
+- removing a camelcase allow-list name fails lint in a file that isn't the guard's.
+
+## The report
+
+Write `.plan/harness-1/harness-report.md`. It covers:
+
+- per item, what changed, and the witnesses with their saved outputs;
+- the search's output;
+- the session-name reading;
+- witness 2's volume and store readings, with the main checkout's install time;
+- the `RF-48` reading: whether the links survived the `aube add`, and what `aube install` reported;
+- what wasn't verified.
+
+## Owner decisions
+
+Answered by the owner on 2026-11-17, relayed by the coordinator:
+
+1. **Accepted.** After the merge, the owner runs `claude plugin marketplace remove material-x` on the owner's machine, and may remove the plugin's data directory. The repository can't do either. Until then, a session may report the missing marketplace.
+2. **Accepted: the unit starts after `repo/ci-speed-1` merges,** not stacked on it. The procedure gets its first use with two units that don't overlap.
+3. **Accepted: slots `b` to `z`,** with no letter for the main slot.
+4. **Accepted, as corrected.** What removing the guard leaves unchecked is the consolidator's lens set and its no-`model`, no-`name` lens rule (`RD-18` property 3). It is not a subagent's effort: the harness starts a subagent at its definition's effort, and the default-effort problem was top-level only, which `cl` handles. **One reading is kept and flagged for the owner** (`RD-18`): on 2.1.263, a named spawn in an interactive session took the teammate path and ran at its parent's effort. Nobody has read it since, and the devcontainer enables agent teams. The no-`name` rule keeps lenses off that path regardless.
+
+## Review before merge
+
+A targeted feature-proof review reads the diff from the merge of `main` to the head. It covers:
+
+- the search;
+- `cl`'s test and its cases;
+- `.claude/settings.json`;
+- the documents against `RD-17` and `RD-18`.
+
+It records at `.plan/reviews/harness-1/feature-proof-claude.md`, and the architect decides its findings.
+
+**Stopping boundary:** the report is committed and pushed, and the pull request is open with `verify` green. The review follows.
+
+**Amended 2026-11-17** by the architect at `51a992b49`: items 5 and 6 run after the report and before the review. The report gains a section for them, with `checks/rf48-repair.txt`. The review also covers `implementer.md`'s new rule against `RF-48`'s decision, and `coordinator-setup.md` against `RD-17` property 2 as amended.
+
+## Decisions on the feature proof at `fbae00994`
+
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `fbae00994`, on the [feature proof](../reviews/harness-1/feature-proof-claude.md), relayed by the coordinator. It amends `repo:RD-18` property 4 and `repo:RF-48`'s _Decision_, and marks `RD-17` and `RD-18` implemented, in [`../00-index.md`](../00-index.md). **Only `reviewer-1`'s removal needs the owner,** and it doesn't block the merge.
+
+| Finding | Decision |
+| --- | --- |
+| `reviewer-1` | Recorded in `RD-18` property 4. Removing the registration is the owner's |
+| `reviewer-2` | Fix now, in the report: R2 |
+| `reviewer-3` | Fix now: R3, an exemption for saved transcripts |
+| _The `remove` departure_ | Accepted. `RF-48`'s _Decision_ now names `add` and `remove` |
+
+**`reviewer-1`: the record names the second registration, and the owner decides whether to remove it.** `RD-18` property 4 now names `harness-effort-guard@devcontainer-clipboard` beside the `material-x` marketplace. It says that `claude plugin marketplace remove material-x` doesn't remove it, and that the announcement it prints checks nothing. The registration is in the owner's user-level settings and serves other projects, so the repository records it and doesn't change it. Nothing in this unit changes.
+
+**`reviewer-2`: the report names the step that depends on the chown.**
+
+- **R2.** In `harness-report.md`'s _Item 2_, replace _"and it runs before `setup.sh`'s install"_ with: _"and it runs before the first aube command of `post-create`, `typescript-language-server.sh`'s `aube add -g`, which writes to the store on the volume"_. Add a dated correction after the paragraph that quotes the old words. `setup.sh` installs nothing.
+
+**`reviewer-3`: transcripts under a record's `checks/` are exempt from `git diff --check`.** A saved reading is output captured as it was printed. Trimming its trailing whitespace changes the evidence, and the 159 lines across every `checks/` directory in the tree show that the check has never passed there.
+
+- **R3.**
+  - Add `.gitattributes` at the root with one line, `**/.plan/**/checks/** -whitespace`, under a comment that says saved transcripts keep their output byte for byte.
+  - In `.agents/docs/handoff.md` §Markdown, step 3 gains: _"`.gitattributes` exempts saved transcripts under a record's `checks/`, because trimming them would change captured output."_
+  - **Witness**, saved as `checks/diff-check.txt`: `git diff --check d6838d0f1..HEAD` exits 0 after the change. In a scratch clone, a Markdown file with a trailing space is still reported, and a transcript under `.plan/<unit>/checks/` and one under `packages/<p>/.plan/<dir>/checks/` aren't. The architect read the same in a scratch repository.
+  - Format the changed Markdown, check its links, and run `git diff --check`.
+- **Not adopted:** **trimming the transcripts.** It alters evidence that a review compares against. **Stating the exception only in the report.** Every later unit with a `checks/` directory would need to state it again.
+
+**The `remove` departure: accepted.** `implementer.md`'s _"`add` and `remove` drop the workspace links"_ states what `checks/rf48-repair.txt` step 4 shows, and `RF-48`'s required property 2 already names both commands.
+
+**The observations** need no change. The test that reads the repository's own `architect.md` and `implementer.md` is the handoff's witness, and its cost is visible.
+
+**Next:** the implementer applies R2 and R3, with R3's witness, in one commit, and pushes. No second review: R2 changes a record's sentence, and R3's witness is mechanical. The coordinator checks the witness and `verify` on #33, and the owner merges.

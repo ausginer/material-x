@@ -742,7 +742,9 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
    - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
    - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
-   - **Revisited** when nx knows aube, or when npm stops running a script beside these keys. npm says the keys "will stop working in the next major version". If that breaks the runs, a gate job fails, because every nx target runs through npm. The alternative is to replace nx's inferred script targets with explicit ones that run `aube run`. That costs a target definition for each script in each package, 78 today, or a local nx plugin, and it changes nothing about what runs.
+   - **The exception is permanent** (amended 2026-11-17 at `d6838d0f1`, on the owner's decision relayed by the coordinator the same day). nx keeps running scripts with `npm run`. The owner's reason: speed beyond installs doesn't matter here, and more toolchain work would delay Landing. Replacing the runner was considered and declined (see _Not adopted_).
+   - **What returns it to the architect.** npm says the keys "will stop working in the next major version". If an npm release stops running a script beside them, every nx target fails, so a gate job fails. That is property 11's stop on nx's commands.
+   - (This bullet said: _"**Revisited** when nx knows aube, or when npm stops running a script beside these keys. npm says the keys "will stop working in the next major version". If that breaks the runs, a gate job fails, because every nx target runs through npm. The alternative is to replace nx's inferred script targets with explicit ones that run `aube run`. That costs a target definition for each script in each package, 78 today, or a local nx plugin, and it changes nothing about what runs."_)
    - (This property said: _"npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9)."_ The feature proof's `reviewer-2` read `npm run` in the final run's `docs` job.)
 
    `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
@@ -820,6 +822,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **aube's built-in trusted list,** and `strictDepBuilds` without `useDefaultTrustedDependencies=false`.
 - **`managePackageManagerVersions` at its default,** which downloads the pinned aube.
 - **The isolated layout.** That is a separate change to how modules resolve.
+- **Explicit `aube run` targets, or a local nx plugin, in place of nx's `npm run`** (considered 2026-11-17, declined by the owner). Explicit targets cost a definition for each script in each package, 78 today. A plugin is new toolchain to maintain. Either would change only which program starts the script line, and property 1 reads that npm there installs nothing and leaves aube's policy intact.
 
 **What it said before the amendment of 2026-11-17.**
 
@@ -831,6 +834,194 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - Property 6 said that if A won, the workflows wouldn't change.
 - The reasons said: _"B adds a second tool, a second allow list kept equal to the first, and a deprecation warning, so a gain in the noise of five runs doesn't pay for that."_ They also said that a catalog wasn't adopted, because npm doesn't read catalogs.
 - **Why it changed:** the owner's decision of 2026-11-17 for a full move without a speed condition, and the probes at `0706f41f5`, which showed `strictDepBuilds` leaving the built-in list in force.
+
+#### RD-17 — Units run in parallel in long-lived session slots, each slot a locked worktree on the `/workspaces/worktrees` volume with aube's shared store, and a stacked pull request is brought up to date by merging `main` into it
+
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's request relayed by the coordinator the same day: _"можем попробовать распараллелить именно разработку - создавать stack prs, и работать в разных worktree"_, and on session names, _"надо мне только понять, как правильно переименовывать готовые сессии … Возможно, стоит добавить какое-то правило в `cl`-скрипт"_. The process may change. `RD-15` and `RD-16` were decided on `repo/ci-speed-1` and weren't on this branch then, so this entry is numbered after them. **Implemented** on `repo/harness-1` by the [harness handoff](harness-1/harness-handoff.md), at `0b6eba25a` and `45194fb88`, and the [feature proof](reviews/harness-1/feature-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. (_Was:_ _"**Unimplemented:** the harness handoff implements it."_)
+
+**Amended 2026-11-17 by the architect** on `repo/harness-1` at `4c489e745`, on the owner's proposal relayed by the coordinator: the slot root moves out of the checkout to its own volume, `/workspaces/worktrees`. The owner approved the amendment as proposed (_"Yes, it all looks right"_, as relayed). The owner added that aube's store must be shared: _"aube's shared storage will help a lot here, otherwise it's easy to eat all the free space"_ (as relayed). The cause was the architect's reading that Node resolves upward from a slot inside the checkout into the main checkout's `node_modules`. The title and properties 1, 3 and 8 changed, and property 9 is new. What they said before is at the end.
+
+**Amended 2026-11-17 by the architect** on `repo/harness-1` at `51a992b49`, from the harness report's [session-name reading](harness-1/harness-report.md#witness-4-session-names), relayed by the coordinator. Property 2 gains what `--resume <name>` does after a `/clear`. Nothing else in property 2 changes: the reading shows that `/clear` keeps the name, which is what the property relies on.
+
+**Read at `21392e738`** by the architect, in the devcontainer:
+
+- **The workspace filesystem.** `/workspaces` is the container's overlay, owned by root. Only `/workspaces/material-x` is bind-mounted from the host, and `node_modules` is a volume inside it. A sibling directory such as `../material-x-b` would therefore be lost on a container rebuild and invisible on the host.
+- **The ignores.** `.claude/worktrees` is ignored by git (`.gitignore` line 55) and by ESLint (`eslint.config.ts`), and Claude Code's own worktree feature uses it.
+- **git is 2.47.3,** which has no `git worktree add --relative-paths` (2.48), so a worktree's links are absolute container paths.
+- **`.scripts/cl.sh`** maps each profile to one agent, one effort and one fixed session name, and resumes by that name.
+
+**Read at `2643f2d7d` and `4c489e745`** by the architect, in the devcontainer ([reading](harness-1/checks/slot-root-probe.txt)):
+
+- **Resolution.** From a directory inside the checkout, `require.resolve('vite')` finds `/workspaces/material-x/node_modules/vite`. From a directory outside it, both `require` and `import` fail. Nothing above `/workspaces` holds a `node_modules`, `NODE_PATH` is empty, and Node's global folders don't exist.
+- **Mounts.** `/workspaces` is root-owned and holds only `material-x`. The checkout is a bind, and its `node_modules` is the `_nodemodules` volume. `post-create/chown.sh` gives that volume to `node`. Both are on the host's btrfs.
+- **git.** A worktree on another filesystem works, and its `.git` file is an absolute path. With the worktree directories gone, `git worktree prune` removed an unlocked worktree and kept a locked one. `git worktree remove` refuses a locked one until it is unlocked.
+- **Links across mounts.** A hardlink from the `node_modules` volume to the checkout's bind fails with _"Invalid cross-device link"_. A reflink (`cp --reflink=always`) across the same two mounts succeeds. The main checkout's `node_modules` is a copy today: link count 1.
+- **aube 2.10.0.** `storeDir` is read from `AUBE_STORE_DIR`, and `cacheDir` from `AUBE_CACHE_DIR`, besides their `npm_config_` forms and `.npmrc`. Outside CI, `node_modules` is linked from a global virtual store under `cacheDir`, and that store is hardlinked from `storeDir`. With the store on tmpfs and the cache left on the overlay, two hoisted projects got copies (link count 1). With both on tmpfs, the second project's file had link count 4: one inode in the store, the virtual store and both projects. `aube store status` verifies the store against its package indexes.
+- **The repository's `postinstall`,** `.scripts/link-tsserver.ts`, writes `typescript/lib/tsserver.js` in place.
+- **Disk.** 35 GB free of 248 GB. The main `node_modules` is 736 MB, and aube's store 691 MB.
+
+**Properties.**
+
+1. **A slot** is a lowercase letter from `b` to `z`, or no letter for the main slot.
+   - The main slot is the main checkout.
+   - Slot _s_ is the worktree `/workspaces/worktrees/<s>` (amended 2026-11-17).
+   - **`/workspaces/worktrees`** is the devcontainer's named volume `${localWorkspaceFolderBasename}_worktrees`. `post-create` gives it to `node`, as it does `node_modules`.
+   - A slot holds one unit at a time: that unit's branch is checked out there, with its own `node_modules`.
+   - **Nothing is installed in `/workspaces/worktrees` or `/workspaces` themselves.** So Node's resolution from a slot stops at the slot's own `node_modules`.
+2. **A session is named by its slot, never by its task.**
+   - `cl [--init] <profile> [<slot>]` starts or resumes `Mx <Role>` in the main slot, and `Mx <Role> <S>`, with the letter in upper case, rooted in slot _s_.
+   - When a unit ends, the owner clears the session (`/clear`), and the slot takes the next unit. **No session is renamed.**
+   - Each name is unique among live sessions, so `SendMessage` reaches it.
+   - **Resuming after a `/clear` may open the resume picker** (amended 2026-11-17). Read in Claude Code 2.1.326's bundle ([reading](harness-1/checks/session-names.txt)):
+     - `/clear` starts a new session id with the cleared session's title;
+     - `--resume <name>` matches titles exactly, ignoring case, over the sessions of every worktree of the repository;
+     - with one match it resumes that session, and with more than one it opens the picker with the name as its search text, newest first.
+     - **Accepted.** The owner takes the newest entry, which is the session that `cl` means. The name's job is to stay unique among live sessions, and `/clear` keeps that.
+     - **Whether the picker opens is inferred, not read:** the key that the search deduplicates by wasn't read. Property 2 holds either way, so no further reading is needed.
+     - `cl --init` runs once per slot and profile. A second `--init` adds another session with the same title.
+3. **`cl` prepares a missing slot and nothing more** (amended 2026-11-17).
+   - **It creates a missing slot** with `git worktree add --detach --lock --reason "session slot"` at `origin/main`, and reuses one that exists. It never removes, cleans, switches or unlocks one.
+   - **It fails closed without the volume.** With a slot argument, `cl` refuses, with a non-zero exit and a message that names the devcontainer mount, unless `/workspaces/worktrees` is a mount point. It never creates that directory. The main slot doesn't need the volume.
+   - The session checks out its unit's branch and installs there.
+   - The owner removes a slot with `git worktree unlock`, then `git worktree remove`.
+4. **Who runs where.**
+   - The coordinator runs in the main slot.
+   - **Only the main slot's architect mints, amends, supersedes or renumbers a record identifier.** An architect in another slot, such as a challenge, proposes and doesn't record.
+   - Any other role may run in any slot, the consolidator and its passes included. `AGENTS.md`'s _"dispatch only from the main checkout"_ existed for the effort guard, which `RD-18` removes. A worktree's role definitions are those of its branch, which is the work that runs there.
+5. **Stacks.**
+   - **Opening one.** A unit that builds on another's unmerged work branches from that unit's branch, and its pull request's base is that branch. `verify` runs on it, because `pull_request` has no branch filter.
+   - **While the lower pull request is open,** its changes reach the upper branch by merging the lower branch into it.
+   - **Merge order.** The lower pull request merges first, and the owner merges each one.
+   - **After the lower one squash-merges:**
+     - retarget the upper pull request to `main` (`gh pr edit <number> --base main`), unless GitHub did it when the lower branch was deleted;
+     - in the upper branch, `git fetch origin && git merge origin/main`, with no rebase and no force-push;
+     - in each conflict, a hunk that is the lower unit's change takes `main`'s text, and a hunk that is the upper unit's own keeps its text.
+   - **What a squash merge does to a stack.** `main` gets one new commit whose tree holds the lower unit's changes and none of its commits, while the upper branch keeps those commits. So the merge sees the lower unit's changes on both sides of the fork point. Identical hunks merge cleanly. A line that the lower unit changed and the upper unit changed again conflicts, and the upper unit's version is the one to keep. After the merge, the upper pull request's diff against `main` is its own change, and its own squash merge adds one commit, as every pull request does.
+6. **The repository record stays one file.** `.plan/00-index.md` isn't split, nor is a package's index.
+   - **What conflicts there have been:**
+     - two units minting the same next identifier, which property 4's single minter prevents;
+     - two units amending the same entry, which is a real dependency that the stack order has to express;
+     - edits to neighbouring entries, which are ordinary text conflicts.
+   - **Why not split.** A split would change the record resolver (`.scripts/entry.ts`, `RD-5`), its tests, and every link into the index, for a cost nobody has measured.
+   - **Revisit it** when a unit's report records a conflict in an index that neither the single minter nor the stack order prevented. The coordinator keeps the count.
+7. **Coordination.**
+   - **One open task per session,** as before.
+   - **One unit per slot,** and several units open at once. For each slot, the coordinator's working summary keeps the unit, branch, pull request, base, state and next dependency.
+   - **Upper units wait on decisions.** An upper unit's implementation waits until the lower unit's decisions that it builds on are committed. Its plan names them.
+   - **Reviews.** Each pull request has its own review, which reads the diff from its base's head.
+8. **Limits** (amended 2026-11-17).
+   - **A slot's git links are absolute container paths,** so the host's git can't use a slot. The lock keeps `git worktree prune`, and `git gc`'s prune, from removing a slot's entry where the volume isn't mounted: on the host, or in a container without the volume.
+   - **The volume isn't visible on the host.** Uncommitted work in a slot exists only there, and it is lost if the volume is deleted. A slot's commits are in the main checkout's `.git`, on the bind.
+   - **Each slot installs its own dependencies,** and property 9 shares their files.
+   - **`.claude/worktrees/` stays Claude Code's own** (`isolation: "worktree"` and `EnterWorktree`), with its git and ESLint ignores. `cl` doesn't use it. A worktree there still resolves upward into the main checkout's `node_modules`.
+9. **Slots share aube's store by hardlinks** (added 2026-11-17, on the owner's addition).
+   - **The setting.** `devcontainer.json`'s `containerEnv` sets `AUBE_STORE_DIR=/workspaces/worktrees/.aube/store` and `AUBE_CACHE_DIR=/workspaces/worktrees/.aube/cache`. Both are needed, because `node_modules` is linked from the global virtual store under `cacheDir`, which is hardlinked from the store. With either on another mount, every file is copied.
+   - **Where it is set.** The devcontainer's environment survives a rebuild, is in the repository, and doesn't reach CI. In `.npmrc` the setting would reach CI and every checkout. A user-level config would be in `/home/node`, on the overlay, which a rebuild loses.
+   - **The image rule stands.** The development image's handoff forbids `AUBE_*` variables in the image, because an environment value overrides `.npmrc`'s script and version policy. These two set no policy key, and they are in the devcontainer, not the image. `RD-16` property 12 still holds, because neither is `aubeNoAutoInstall`.
+   - **CI is unaffected.** It sets neither variable, and aube disables the global virtual store under CI.
+   - **The main checkout's `node_modules` copies,** as it does today. It is a different mount (the `_nodemodules` volume), and a hardlink across mounts fails, as read. `link(2)` says that it fails across different mounts even of the same filesystem, so two mounts of one volume wouldn't help. That is one tree, 736 MB at `4c489e745`, and it is accepted with any warning aube prints for it.
+   - **No install step writes into an existing file under `node_modules`.** A file there may be a hardlink of the store's, so a write in place changes the store and every slot that links it.
+     - `.scripts/link-tsserver.ts` replaces `typescript/lib/tsserver.js` with a new file rather than writing into it, so its write never reaches another link.
+     - Any later script that changes a dependency's file does the same.
+     - Nobody edits a dependency's file in a slot by hand.
+
+**Why.**
+
+- **Slots, not task names.** A long-lived name is never wrong, so nothing is renamed. The coordinator's address book changes only when the owner adds a slot.
+- **A volume outside the checkout** (amended 2026-11-17). It has no `node_modules` above it, it survives a rebuild, and it keeps each slot's dependencies off the host, which is why `node_modules` is already a volume.
+- **A shared store:** the owner's concern for disk space. A slot's copy of the tree is about 736 MB, with 35 GB free.
+- **Merging `main` in, not rebasing,** because `AGENTS.md` forbids rewriting pushed commits and force-pushing.
+- **One minter:** two architects in parallel could both mint `RD-19`.
+
+**Not adopted.**
+
+- **Sibling worktrees** (`../material-x-b`), the coordinator's first proposal. They would be lost on a container rebuild and invisible on the host.
+- **Renaming a finished session** by task. Its name is how messages reach it.
+- **Avoiding the picker after a `/clear`** (amended 2026-11-17). None of these is better than one keystroke in the picker:
+  - **`cl` resumes by session id,** found in Claude Code's transcripts under `CLAUDE_CONFIG_DIR/projects/`. That format is Claude Code's private storage, and the CLI offers no query for session titles.
+  - **`claude --continue`** resumes the newest session in the directory. A slot's directory holds the sessions of every role run there, so it can resume the wrong role.
+  - **Renaming before `/clear`.** The new session takes the renamed title, so it would need a second rename back, and property 2 renames no session.
+- **Rebasing the upper branch onto `main`.** It needs a force-push.
+- **Splitting the index now.** See property 6.
+- **Slots inside the checkout** (`.claude/worktrees/<s>`), this entry's first choice. Node resolves upward from there into the main checkout's `node_modules`, so a package missing from a slot loads silently from the main checkout. That path is also Claude Code's own.
+- **A bind from the host** for `/workspaces/worktrees`. It would put every slot's dependencies on the host.
+- **Reflinks** (`packageImportMethod=clone-or-copy`). A reflink across mounts works on this host's btrfs, so it would also share the main tree's extents, and a write in place couldn't reach the store. Not adopted, for these reasons:
+  - it saves one tree, 736 MB;
+  - it depends on the host's filesystem;
+  - a link count can't witness it;
+  - aube's documentation gives btrfs hardlinks as faster.
+
+**What the amendment of 2026-11-17 changed.**
+
+- The title said: _"each slot a worktree under `.claude/worktrees/`"_.
+- Property 1 said that slot _s_ is _"the worktree `.claude/worktrees/<s>` inside the main checkout. It is on the host's bind mount and already ignored."_
+- Property 3 said: _"`cl` prepares a missing slot and nothing more. It creates `.claude/worktrees/<s>` detached at `origin/main` when it is missing, and reuses it when it exists. It never removes, cleans or switches one. The session checks out its unit's branch and installs there. The owner removes a slot with `git worktree remove`."_
+- Property 8 said: _"A slot's git links are absolute container paths, so on the host `git worktree list` reports the slots as prunable. **Don't run `git worktree prune` on the host.** Each slot installs its own dependencies."_
+- _Why_ said: _"**Inside the checkout,** for the bind mount and the existing ignores."_
+
+**What the second amendment of 2026-11-17 changed.** Property 2 had no bullet on resuming after a `/clear`, and _Not adopted_ had no entry on avoiding the picker. Nothing was removed.
+
+#### RD-18 — The effort guard and `.scripts/claude-role.sh` are removed, and `cl` starts every role session at the effort its definition declares
+
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's decisions relayed by the coordinator: _"устаревший скрипт, его стоит удалить; я сейчас пользуюсь только `cl`"_ (`claude-role.sh`), and _"этот гард тоже в принципе можно убрать (`cl` как раз решил эту проблему более \"брутфорсом\")"_. **Implemented** on `repo/harness-1` by the [harness handoff](harness-1/harness-handoff.md), at `4c489e745`, and the [feature proof](reviews/harness-1/feature-proof-claude.md) at `fbae00994` holds. It reaches `main` when #33 merges. Property 4's steps are the owner's and are pending. (_Was:_ _"**Unimplemented:** the harness handoff implements it."_)
+
+**What still depended on the guard,** read at `21392e738`:
+
+- **Top-level sessions:** nothing. `cl` passes `--effort` and refuses `CLAUDE_CODE_EFFORT_LEVEL`, which is what the guard checked on a main thread. Its levels equal every role definition's `effort:`.
+- **Subagents: not effort.** The harness starts a subagent on its ordinary path at its definition's effort, whatever the parent's level.
+  - **The guard's record:** a `consolidator` at `medium` spawned `reviewer` and `integrity` at `high` (2.1.260), and an unnamed `cleanup` lens matched its `medium` under enforcement (2.1.263). Both are in `.agents/docs/harness-effort-guard.md` §Measurements and §Governed worker identity, at `21392e738`.
+  - **The owner's correction says the same:** _"Агенты харнессом запускаются сразу с заданным effort, а вот для top-level сессий он это не умеет (точнее, там в принципе катавасия с effort происходит, из-за \"дефолта\"; субагенты от этого избавлены). Мы это раскопали когда гард делали."_
+  - **The default-effort problem the guard was built for is a top-level one:** `--agent` doesn't apply the definition's effort (2.1.260 and 2.1.263), and `cl` handles it.
+- **What the guard checked beyond that,** each in the dispatching call:
+  - **the consolidator's lens set,** its dispatch topology;
+  - **an explicit `model` argument** on a lens launch, refused before the child started. That argument is the dispatcher's own choice, not a harness default;
+  - **a named spawn in an interactive session.** On 2.1.263 it took the in-process teammate path, and a named `integrity` lens ran at its parent's `medium`, not its declared `high`. The guard refused it (`harness-effort-guard.md` §Governed worker identity, _"A named lens reproduces the original failure"_, at `21392e738`). The same record shows that a name alone isn't the trigger, because print mode took the subagent path with one.
+
+  `consolidator.md` requires lens launches with no `name` and no `model`. **Without the guard, that rule and the lens set are unchecked.** A subagent's effort on the ordinary path is not among them.
+
+- **Flagged for the owner:** the teammate-path reading is the one recorded exception to _"subagents start at their definition's effort"_, and it is kept here with its source.
+  - Nobody has read it since 2.1.263. The CLI is now 2.1.326.
+  - The devcontainer enables agent teams (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`), whose teammates may take the same path.
+  - The no-`name` rule keeps the consolidator's lenses off it, at the cost of a UI label. It stays whatever a later reading finds.
+
+- **Tests, CI and lint.**
+  - No workflow, recipe or Vitest project runs the plugin's tests.
+  - `.oxlintrc.json` has an override for them.
+  - `eslint.config.ts`'s camelcase allow list names the guard's log fields.
+- **Documents:**
+  - `AGENTS.md` §Before running a governed role and the `Evidence` link to it;
+  - `CLAUDE.md` §Running a role;
+  - `README.md`'s marketplace step;
+  - `.agents/docs/coordinator-setup.md` §Start a guarded role, and `agent-workflow.md` and `coordinator.md`;
+  - `consolidator.md` and `coordinator.md` among the role definitions;
+  - `.agents/docs/harness-effort-guard.md` and `harness-orchestration.md`.
+
+**Properties.**
+
+1. **Removed:**
+   - the guard plugin: `.claude/plugins/harness-effort-guard/`, and `.claude-plugin/marketplace.json`, whose only plugin it is;
+   - in `.claude/settings.json`: `env.HARNESS_EFFORT_GUARD_MODE`, `extraKnownMarketplaces.material-x` and `enabledPlugins["harness-effort-guard@material-x"]`. `typescript-lsp` stays;
+   - `.scripts/claude-role.sh`;
+   - `.agents/docs/harness-effort-guard.md` and `.agents/docs/harness-orchestration.md`. Both last existed at `21392e738`, which is where to read them, and `.plan/harness-guard-2/` keeps its record;
+   - the lint entries that only the guard used: `.oxlintrc.json`'s override, and each name on ESLint's camelcase allow list that no remaining source uses (`RD-10`'s exact list);
+   - **the text that names any of these,** in the documents listed above.
+2. **`cl` reads the effort from the role definition,** the `effort:` field of the session root's `.claude/agents/<agent>.md` frontmatter, and refuses to start if the field is missing or empty. Its profile table keeps the profile, the agent and the session name. It still refuses a set `CLAUDE_CODE_EFFORT_LEVEL`, which overrides every subagent's declared level, guard or no guard.
+3. **The consolidator's dispatch rules stay written and become unchecked:** its lens set, no `model` on a lens launch, and no `name`. A subagent's effort on the ordinary path needs no check, because the harness applies it. The no-`name` rule keeps lenses off the teammate path, which on 2.1.263 didn't apply the declared effort (the flag above). (**Corrected 2026-11-17 at `3ec67162c`,** on the owner's correction: this property said _"`consolidator.md` states why: a named spawn was observed to ignore the declared effort"_, and the reading above it said _"for subagents"_ as if the guard were the only check on their effort.)
+4. **The owner's own configuration** isn't the repository's. After the merge, the owner removes the registered marketplace (`claude plugin marketplace remove material-x`) and may delete the plugin's data directory.
+   - **A second registration** (added 2026-11-17, on the feature proof's `reviewer-1`). The owner's user-level settings also enable `harness-effort-guard@devcontainer-clipboard`, version 0.1.0, installed on 2026-10-06 from another project's marketplace. Its cached copy runs on `SessionStart`, `Stop`, `SubagentStop` and every `PreToolUse`. With `HARNESS_EFFORT_GUARD_MODE` unset, it applies no verdict, but it still announces _"Effort guard active"_. **That announcement checks nothing,** and no repository document explains it.
+   - **Whether to disable or uninstall it is the owner's choice,** because the registration serves the owner's other projects too. `claude plugin marketplace remove material-x` doesn't remove it. Until the owner removes it, sessions in this container may show the announcement, and it says nothing about whether the consolidator's dispatch rules hold.
+
+**Why.**
+
+- **The owner's decision,** and `cl` covers every session the owner starts.
+- **The harness starts subagents at their declared effort,** so the guard added no effort check there. What it added was enforcement of the consolidator's own dispatch rules, which bind one role and stay written.
+- **Reading the level in `cl`** replaces `claude-role.sh`'s one remaining property, that the launcher and the definition can't drift. `coordinator-setup.md`'s manual _"check them against role frontmatter"_ goes with it.
+
+**Not adopted.**
+
+- **Keeping the guard in observe mode.** Nothing would read what it logs.
+- **A smaller hook that checks only named spawns.** The owner chose removal. If the consolidator's rule is broken in practice, that is a new decision.
+- **Keeping the two guard documents** as current-state documents. They describe a mechanism that no longer exists. Their measurements are in git history at `21392e738` and in `.plan/harness-guard-2/`.
 
 ## Findings
 
@@ -1361,7 +1552,7 @@ Tier B, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 
 #### RF-48 — After one `aube add`, the main checkout's `node_modules/@ydinjs` links were gone, and `aube install` reported nothing to do
 
-Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's _Remediation of the stop at `633ef72d8`_ and the feature proof's _The open items_.
+Tier C, **decided, implemented, open** (decided 2026-11-17 at `51a992b49`; see _Decision_ below). The rule is in `implementer.md` at `45194fb88`, and the [feature proof](reviews/harness-1/feature-proof-claude.md) at `fbae00994` holds. The finding stays open until required property 3 closes it. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's _Remediation of the stop at `633ef72d8`_ and the feature proof's _The open items_.
 
 - **What was seen:** after remediation step B's `aube add -D -W @oxlint/migrate@1.93.0`, `node_modules/@ydinjs/` was missing from the main checkout. The root typecheck failed (nx: _"Cannot find package '@ydinjs/vite-traits-plugin'"_), and `aube install` answered _"Already up to date"_. `aube install --frozen-lockfile --force` restored the links.
 - **What holds:** the committed state. A fresh worktree of `633ef72d8`, `57c8849a2` or `9dab0c066` links all seven workspace packages on `aube install`. The lockfile keeps a `link` entry for each of them, and CI installs with `aube ci`.
@@ -1369,10 +1560,36 @@ Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 - **Why it matters:** `implementer.md` teaches `aube add -D -W <name>`. If the cause is aube's, every dependency change can leave a tree that fails to typecheck, and aube's state check doesn't notice.
 - **Required property:** after `aube add` or `aube remove`, `node_modules` links every workspace package, or the install command fails.
 - **Next:** a reading. In a scratch worktree that no other session uses, run `aube install`, then one `aube add -D -W` of a mature package with no install script, and list `node_modules/@ydinjs`. If the links are gone, it is aube's defect: the owner may report it upstream, and `implementer.md` gains the repair command beside the add rule. If they are not, this finding closes as not reproduced. **Not part of the CI-speed unit.** Its handoff doesn't depend on it.
+- **Scheduled 2026-11-17** by the architect at `d6838d0f1`, in the [harness handoff](harness-1/harness-handoff.md)'s item 2, witness 2. That witness already installs dependencies in slot `b`, a worktree under `.claude/worktrees/` that no other session uses, so the reading adds one `aube add`, two listings and a revert there. It is not a stop for that unit. The architect closes or keeps this finding from what the harness report records. (_Corrected 2026-11-17:_ `RD-17`'s amendment at `4c489e745` moved the slots, so slot `b` is `/workspaces/worktrees/b`, not a worktree under `.claude/worktrees/`. No other session used it for the reading.)
+
+**Decision.** Recorded 2026-11-17 by the architect on `repo/harness-1` at `51a992b49`, from the [harness report](harness-1/harness-report.md#the-rf-48-reading) and its [reading](harness-1/checks/rf48-reading.txt), relayed by the coordinator. **The defect is aube's, and the repository works around it with one rule in `implementer.md`.**
+
+- **Read in slot `b`,** with no other command using it, on aube 2.10.0 with the hoisted linker:
+  - before the add, `node_modules/@ydinjs` held all seven workspace packages;
+  - `aube add -D -W left-pad@1.3.0` exited 0, and `node_modules/@ydinjs` then didn't exist;
+  - `aube install` then answered _"Already up to date"_ and restored nothing;
+  - the same happened a second time;
+  - reverting `package.json` and `package-lock.json` and running `aube install` restored all seven links both times, and `aube store status` passed afterwards.
+- **So the cause is aube's `add` and `remove`,** not a concurrent operation. The finding's first sighting is the same defect. (_Amended 2026-11-17,_ on the feature proof: this said _"aube's `add`"_. The harness report's [repair reading](harness-1/checks/rf48-repair.txt), step 4, shows `aube remove left-pad` at the root dropping `node_modules/@ydinjs` and `size-limit-preset-rolldown`, and `aube install --frozen-lockfile --force` restoring both. Required property 1's command is witnessed for both by that reading.)
+- **Inferred from the output, not read on disk:** `add`'s listing of the root importer leaves out every workspace package and two packages that the root manifest doesn't name (`prettier` and `@testing-library/dom`), and `install`'s listing has them. So `add` relinks the root from its manifest alone, without the workspace links. `install` compares the manifest and the lockfile, which `add` has already made consistent, so it finds nothing to do.
+- **The committed state stays sound.** The lockfile keeps its `link` entries, and CI installs with `aube ci`. The defect reaches only a local tree, and it fails loudly: the next typecheck can't find a `@ydinjs` package.
+
+**Required properties.**
+
+1. **The repair is a reinstall from the lockfile that `add` just wrote:** `aube install --frozen-lockfile --force`. It restored the links at the first sighting, in the shared main checkout, where the manifest change was kept. The isolated reading didn't run it, because the revert was enough. So the harness handoff's [item 5](harness-1/harness-handoff.md#item-5-the-repair-after-aube-add-rf-48) witnesses it in a slot, for `aube add` and `aube remove`, before the rule is written.
+2. **`implementer.md` gains the rule beside the `aube add -D -W` rule:** after `aube add` or `aube remove`, run `aube install --frozen-lockfile --force`, and confirm that `node_modules/@ydinjs` holds the workspace packages. It cites `repo:RF-48`. That meets the required property above by procedure, because aube can't meet it.
+3. **The rule is removed when aube's defect is gone.** When the pinned aube version (`packageManager` and the workflows' `AUBE_VERSION`) changes, the unit that changes it repeats the isolated reading in an unused slot. If the links survive an `aube add`, that unit removes the rule and closes this finding. aube 2.10.1 is available. Nobody has read whether it fixes the defect.
+4. **An upstream report is the owner's choice.** The reading is a complete reproduction: a hoisted workspace, one `aube add -D -W` of a package with no install script, and a listing before and after.
+
+**Not adopted.**
+
+- **A `just` recipe that wraps `aube add`** with the reinstall. The rule is one line for the one role that adds dependencies, and the failure it prevents is loud. A wrapper is code to maintain for a defect in a pinned tool version.
+- **Editing `package.json` by hand and running `aube install`,** instead of `aube add`. It loses `add`'s resolution of the latest compatible version, and nobody has read whether `install` after a manifest change has the same defect.
+- **Closing the finding with the documentation only.** Without the rule, a developer who follows `implementer.md` can still be left with a tree that fails to typecheck.
 
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
-Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
+Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
 
 - **What:** the recipe runs `@oxlint/migrate` 1.93.0 on `eslint.config.ts` and writes `.oxlintrc.json`. Its output differs from the committed file in these ways:
   - it drops every comment;
@@ -1386,6 +1603,33 @@ Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
 - **Why it matters:** a developer who runs the recipe to pick up an eslint change silently discards those hand edits, unless they read the whole diff.
 - **Required property:** the record says which file is the source of the oxlint rules. Either the recipe's output is the file, so the hand edits move into `eslint.config.ts` or into the script's post-processing, or the file is hand-maintained, so the recipe is a diff aid that doesn't write it, or it is deleted.
 - **Not part of the CI-speed unit,** which only moved the recipe from `npx` to `aube exec`. The choice is the owner's, since the oxlint configuration is outside that unit's decisions. Until it is made, the recipe stays as it is.
+
+**Decision.** Recorded 2026-11-17 by the architect on `repo/harness-1` at `d6838d0f1`, on the owner's choice relayed by the coordinator the same day: **each side is split into a file that a tool writes and a file that a person writes.** That answers the required property above: the recipe's output is one file, and `.oxlintrc.json` is maintained by hand on top of it.
+
+- **Why the recipe can't write `.oxlintrc.json` today.** It reads `eslint.config.ts`. That file includes the configs that `buildFromOxlintConfigFile('./.oxlintrc.json')` derives, and a block that turns off ESLint rules oxlint already runs. So the recipe reads rules that the previous `.oxlintrc.json` turned off, and its output depends on its own last output.
+- **Read at `d6838d0f1`** by the architect, in `node_modules`:
+  - `@oxlint/migrate` 1.93.0's CLI takes the ESLint config as a positional argument (`.argument("[eslint-config]", …)`) and the output path as `--output-file <file>`, default `.oxlintrc.json` (`dist/bin/oxlint-migrate.mjs`).
+  - oxlint 1.93.0's schema defines `extends` as a list of paths relative to the file that holds it, merged first to last.
+  - `eslint-plugin-oxlint`'s `buildFromOxlintConfigFile` follows `extends`, recursively.
+  - Each package's `.oxlintrc.json` already `extends` `../../.oxlintrc.json`, and each package's `eslint.config.ts` re-exports the root's.
+
+**Required properties.**
+
+1. **The ESLint side.** `eslint.base.config.ts` holds the repository's own ESLint configuration: today's `eslint.config.ts` above the `buildFromOxlintConfigFile` spread. `eslint.config.ts` is the base, then the spread, then the block that turns off what oxlint covers, then the `unbound-method` block. The `unbound-method` block stays last, because its comment's reason still holds. What a package's `eslint.config.ts` imports doesn't change.
+2. **The oxlint side.**
+   - `just oxlint-migrate` passes `eslint.base.config.ts` to `@oxlint/migrate` and writes `.oxlintrc.migrated.json`. The script's post-processing reads and writes that file. Nothing in the recipe writes `.oxlintrc.json`.
+   - `.oxlintrc.migrated.json` is exactly what the recipe writes at that commit, formatted as `just fmt` leaves it. Nobody edits it by hand.
+   - `.oxlintrc.json` is hand-written JSONC. It `extends` `.oxlintrc.migrated.json`, and carries `options`, `ignorePatterns`, the custom overrides, and their comments. A key that oxlint or `buildFromOxlintConfigFile` doesn't take from an extended file stays in `.oxlintrc.json`.
+   - A change to a rule goes in `eslint.base.config.ts`, then through the recipe, or in `.oxlintrc.json` as an override with its reason. It never goes in `.oxlintrc.migrated.json`.
+3. **Two commits, in RF-49's own unit.**
+   1. **The split, with no rule change.** `.oxlintrc.migrated.json` holds today's rules, moved. Witness: `oxlint --print-config` and ESLint's `--print-config` give the same output before and after, for a TypeScript file at the root and in each package, run from the root and from the package's directory. oxlint's and ESLint's lint results over the tree are also the same.
+   2. **One regeneration.** `just oxlint-migrate` writes `.oxlintrc.migrated.json`. The lint fallout is repaired in the same unit, in source, in `eslint.base.config.ts`, or as an override in `.oxlintrc.json`. The unit's record lists each rule the regeneration changed and what was done about it.
+4. **Placement.** After the harness unit and the isolated aube layout, beside `RF-43` to `RF-45`. Not part of the harness unit.
+
+**Not adopted.**
+
+- **Filtering by config name.** `buildFromOxlintConfigFile`'s configs are named `oxlint/from-oxlint-config`, `oxlint/from-oxlint-config-override-<n>` and `oxlint/oxlint-config-ignore-patterns`, so a wrapper could give the recipe `eslint.config.ts` without them. That isn't better than the split: it depends on a naming convention that the plugin doesn't document as a contract, it also needs a name on the hand-written block, and it adds code that the positional argument makes unnecessary. The split is the owner's choice.
+- **One hand-maintained `.oxlintrc.json`,** with the recipe as a diff aid or deleted. A rule change in ESLint would then reach oxlint only through a hand copy.
 
 ## Questions
 

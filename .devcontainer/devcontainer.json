@@ -13,7 +13,9 @@
     "ENABLE_LSP_TOOL": "1",
     "SSH_AUTH_SOCK": "/ssh-agent",
     "LANG": "C.UTF-8",
-    "LC_CTYPE": "C.UTF-8"
+    "LC_CTYPE": "C.UTF-8",
+    "AUBE_STORE_DIR": "/workspaces/worktrees/.aube/store",
+    "AUBE_CACHE_DIR": "/workspaces/worktrees/.aube/cache"
   },
   "forwardPorts": [9876, 6006, 5176, 24678],
   "remoteUser": "node",
@@ -32,6 +34,11 @@
     {
       "source": "${localWorkspaceFolderBasename}_nodemodules",
       "target": "${containerWorkspaceFolder}/node_modules",
+      "type": "volume"
+    },
+    {
+      "source": "${localWorkspaceFolderBasename}_worktrees",
+      "target": "/workspaces/worktrees",
       "type": "volume"
     },
     {

@@ -75,27 +75,6 @@ const config: readonly Config[] = defineConfig(
         {
           properties: 'always',
           allow: [
-            // Claude Code's hook payload, which Claude Code sends and reads.
-            '^hook_event_name$',
-            '^session_id$',
-            '^tool_name$',
-            '^tool_input$',
-            '^agent_type$',
-            '^agent_id$',
-            '^transcript_path$',
-            '^subagent_type$',
-            // The harness effort guard's observation log, which copies the
-            // payload's fields under their names, adds its own in that style,
-            // and is read by the plugin's `observe.ts` and its documentation.
-            '^governed_role$',
-            '^identity_source$',
-            '^project_root$',
-            '^declared_model$',
-            '^runtime_model$',
-            '^model_check$',
-            '^dispatch_target$',
-            '^dispatch_name$',
-            '^dispatch_model$',
             // `@minify-html/node`'s options, which the native library reads
             // by name.
             '^minify_css$',

@@ -42,7 +42,7 @@ Every created or updated Markdown file owes these checks. A unit changing only M
 
 1. Format with `aube exec just fmt <changed files>` from the owning package, or `aube exec oxfmt <changed files>` for a repository-level file.
 2. Validate changed links and anchors. No repository instrument checks Markdown links, so check them manually or with a scratch script, and report how you checked them.
-3. Run `git diff --check`.
+3. Run `git diff --check`. `.gitattributes` exempts saved transcripts under a record's `checks/`, because trimming them would change captured output.
 
 Lint a Markdown file only when a linter is configured for it, and keep it out of the file list otherwise. At present none is: `oxlint` finds no Markdown files, which makes `just lint` exit non-zero, and ESLint ignores them. Record that lint did not apply rather than claiming a code-lint pass.
 

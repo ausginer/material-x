@@ -1,0 +1,94 @@
+Stack procedure (RD-17 property 5), read 2026-11-17 by the implementer. git 2.47.3.
+f.txt has lines L01 to L30. a changes L05 (b changes it again) and L15 (only a). b also changes L25.
+
+$ git init -q -b main repo
+(exit 0)
+$ git add f.txt
+(exit 0)
+$ git commit -q -m main: f.txt
+(exit 0)
+$ git switch -q -c a
+(exit 0)
+$ git commit -q -am a: L05 and L15
+(exit 0)
+$ git switch -q -c b
+(exit 0)
+$ git commit -q -am b: L05 again and L25
+(exit 0)
+
+# The owner squash-merges a into main.
+$ git switch -q main
+(exit 0)
+$ git merge -q --squash a
+Squash commit -- not updating HEAD
+(exit 0)
+$ git commit -q -m a (#1)
+(exit 0)
+$ git log --oneline --graph --all
+* 582efbf b: L05 again and L25
+* 67e817c a: L05 and L15
+| * 591d39f a (#1)
+|/  
+* 848b058 main: f.txt
+(exit 0)
+
+# In b: git merge main, with no rebase.
+$ git switch -q b
+(exit 0)
+$ git merge main
+Auto-merging f.txt
+CONFLICT (content): Merge conflict in f.txt
+Automatic merge failed; fix conflicts and then commit the result.
+(exit 1)
+$ git diff
+diff --cc f.txt
+index bfc3131,953ee53..0000000
+--- a/f.txt
++++ b/f.txt
+@@@ -2,7 -2,7 +2,11 @@@ L0
+  L02
+  L03
+  L04
+++<<<<<<< HEAD
+ +L05-b
+++=======
++ L05-a
+++>>>>>>> main
+  L06
+  L07
+  L08
+(exit 0)
+
+# One conflict: L05, which a changed and b changed again. L15, which only a changed, merged cleanly and isn't in the conflict. L25 is b's alone.
+# The conflict's hunk is b's own change, so it keeps b's text.
+$ git checkout --ours f.txt
+Updated 1 path from the index
+(exit 0)
+$ git commit -q -am Merge main into b
+(exit 0)
+
+# After the merge, b's diff against main is b's own change only.
+$ git diff main...b
+diff --git a/f.txt b/f.txt
+index 953ee53..bfc3131 100644
+--- a/f.txt
++++ b/f.txt
+@@ -2,7 +2,7 @@ L01
+ L02
+ L03
+ L04
+-L05-a
++L05-b
+ L06
+ L07
+ L08
+@@ -22,7 +22,7 @@ L21
+ L22
+ L23
+ L24
+-L25
++L25-b
+ L26
+ L27
+ L28
+(exit 0)

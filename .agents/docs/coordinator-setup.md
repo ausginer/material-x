@@ -13,9 +13,9 @@ Reuse a related architect or implementer session while its context is useful. Us
 
 ## Direct send
 
-A Claude `coordinator` session sends prompts to live role sessions with `SendMessage`, and the roles send their closing messages back the same way. The owner still starts, names and ends every session and assigns its role; the coordinator starts none and spawns no governed role. Its [role definition](../../.claude/agents/coordinator.md) owns the sending rules.
+A Claude `coordinator` session sends prompts to live role sessions with `SendMessage`, and the roles send their closing messages back the same way. The owner still starts, names and ends every session and assigns its role; the coordinator starts none and spawns no role as a subagent. Its [role definition](../../.claude/agents/coordinator.md) owns the sending rules.
 
-1. Start the coordinator from the main checkout root, as [Start a guarded role](#start-a-guarded-role) describes.
+1. Start the coordinator from the main checkout root, as [Start a role session](#start-a-role-session) describes.
 2. Start each role session on this machine. Nothing reports a failed delivery to a Remote Control session. Start the coordinator and every role session in the same permission mode: a session in a different mode holds incoming cross-session messages for its user's approval. A role's `permissionMode` frontmatter does not set the mode of a main-thread session.
 3. Send this as the first message of each role session, with the coordinator's session name and the role's stamp. A session treats a cross-session message as third-party text unless its own user says otherwise, so a checked-in file cannot give this authorization:
 
@@ -26,30 +26,43 @@ A Claude `coordinator` session sends prompts to live role sessions with `SendMes
 4. Tell the coordinator which session holds which role.
 5. Clear a session whenever you choose. The coordinator cannot see or reset another session's context and does not wait for a clear. A cleared session keeps accepting the coordinator's prompts, so step 3's message is not sent again.
 
-## Start a guarded role
+## Start a role session
 
-Start from the main checkout root. Follow [AGENTS.md](../../AGENTS.md) §Before running a governed role and [harness-effort-guard.md](harness-effort-guard.md) §Starting a role session. If startup context lacks `Effort guard active`, register the local marketplace and start a new Claude session before governed work:
-
-```sh
-claude plugin marketplace add ./
-```
-
-Select both role and effort. The launcher reads the declared level from the role definition and starts at the resolved checkout root:
+Start every role session with [`cl`](../../.scripts/cl.sh), the owner's link to `.scripts/cl.sh`:
 
 ```sh
-.scripts/claude-role.sh architect
-.scripts/claude-role.sh implementer
-.scripts/claude-role.sh reviewer
-.scripts/claude-role.sh consolidator
-.scripts/claude-role.sh coordinator
+cl --init architect      # creates `Mx Architect` in the main checkout
+cl architect             # resumes it
+cl --init implementer b  # creates `Mx Implementer B` in slot b
+cl implementer b         # resumes it
 ```
 
-The equivalent manual command is `claude --agent <role> --effort <declared-level>`. The frontmatter in [.claude/agents/](../../.claude/agents/) is authoritative; `--agent` alone does not select its effort. Remove `CLAUDE_CODE_EFFORT_LEVEL` before starting. Do not disable enforcement or pass a second plugin-loading mechanism to work around a refusal.
+`cl [--init] <profile> [<slot>]` maps the profile to an agent and a session name, and starts `claude --agent <agent> --effort <level>` with `--name <name>` under `--init` and `--resume <name>` otherwise. It reads the level from the `effort:` field of the session root's `.claude/agents/<agent>.md`, because `--agent` alone applies the definition's model and not its effort. It refuses to start when that field is missing or empty, and when `CLAUDE_CODE_EFFORT_LEVEL` is set, which would override every subagent's declared level. Its profiles are reviewer, architect, challenger, implementer, consolidator, integrity, cleanup, der and coordinator.
 
-[.scripts/cl.sh](../../.scripts/cl.sh) is an optional named-session convenience: `bash .scripts/cl.sh --init architect` creates a session and `bash .scripts/cl.sh architect` resumes it. Its supported profiles are reviewer, architect, implementer, consolidator, integrity, cleanup, der and coordinator. It hardcodes their levels; check them against role frontmatter when configuration changes. Prefer the definition-reading launcher for fresh sessions.
+### Slots
 
-An independent architecture challenge uses a fresh `architect` session with an explicit challenge prompt. There is no `challenger` launcher profile here. Limit the task to evidence probes and a review report; the authoring architect keeps decision authority. See [Architecture challenges](agent-workflow.md#architecture-challenges).
+A slot is a lowercase letter from `b` to `z`. No letter is the main slot, which is the main checkout. Any other argument is a usage error (exit 64).
 
-Dispatch nested workers only from the main checkout, with the guard active. Review lenses use the consolidator's unnamed subagent path, without model overrides, as its role definition requires. A linked worktree can host one worker but cannot dispatch.
+- **Slot _s_ is the worktree `/workspaces/worktrees/<s>`,** on the devcontainer's `<workspace>_worktrees` volume. When the slot is missing, `cl` creates it locked and detached at `origin/main`. When it exists, `cl` reuses it as it is. `cl` never removes, cleans, switches or unlocks a slot.
+- **`cl` refuses a slot when `/workspaces/worktrees` isn't a mount point,** and names the mount. Rebuild the container. The main slot doesn't need the volume.
+- **The session in a slot checks out its unit's branch and runs `aube install` there.** Each slot has its own `node_modules`. The coordinator runs in the main slot.
 
-This procedure describes local coordination. It does not install a Codex role or establish that a live role session has passed the guard. That evidence comes from the session being used.
+### Session names
+
+- **A session is named by its slot, never by its task:** `Mx <Role>` in the main slot and `Mx <Role> <S>` in slot _s_. Each live session's name is unique, so `SendMessage` reaches it.
+- **When a unit ends, clear the session with `/clear`,** and the slot takes the next unit. No session is renamed.
+- **Run `--init` once per slot and profile.** `--resume <name>` resumes the one session whose title is exactly that name, case-insensitively, among the sessions of every worktree of the repository. When more than one session has the title, it opens the resume picker with the name as its search text. The picker lists the matches newest first, and the newest is the session `cl` means. A second `--init` with the same name makes that choice necessary, and `/clear` gives the new session the cleared one's title. `cl` can't tell in advance, because the CLI offers no query for session titles. The reading is [`session-names.txt`](../../.plan/harness-1/checks/session-names.txt).
+
+### Slot limits
+
+- **The lock protects a slot's entry.** A slot's git links are absolute container paths, so the host's git can't use a slot, and the lock keeps `git worktree prune`, and `git gc`'s prune, from removing the entry where the volume isn't mounted. To remove a slot, run `git worktree unlock /workspaces/worktrees/<s>`, then `git worktree remove /workspaces/worktrees/<s>`.
+- **The volume isn't visible on the host.** Uncommitted work in a slot exists only on the volume, and it is lost if the volume is deleted. A slot's commits are in the main checkout's `.git`.
+- **Slots share aube's store by hardlinks.** The devcontainer sets `AUBE_STORE_DIR` and `AUBE_CACHE_DIR` on the volume, so each slot's `node_modules` links the same files. The main checkout's `node_modules` is on another volume, so its install copies.
+- **Never write into an existing file under `node_modules`.** It may be a hardlink of the store's, so a write in place changes the store and every slot that links it. A script that changes a dependency's file writes a new file and renames it over the old one, as `.scripts/link-tsserver.ts` does. Nobody edits a dependency's file by hand.
+- **`.claude/worktrees/` stays Claude Code's own,** for `isolation: "worktree"` and `EnterWorktree`. `cl` doesn't use it. A worktree there resolves packages upward into the main checkout's `node_modules`.
+
+An independent architecture challenge uses a fresh `architect` session with an explicit challenge prompt. `cl challenger` starts it as `Mx Architect Challenger`. Limit the task to evidence probes and a review report; the authoring architect keeps decision authority. See [Architecture challenges](agent-workflow.md#architecture-challenges).
+
+Review lenses use the consolidator's unnamed subagent path, without model overrides, as its role definition requires. Nothing checks that rule at dispatch.
+
+This procedure describes local coordination. It does not install a Codex role.

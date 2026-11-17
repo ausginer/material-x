@@ -27,7 +27,7 @@ Straightforward defects go to the implementer. A change to architecture, contrac
 
 For a new or substantially reworked architecture, use the [prototype checkpoint](#architecture-prototypes) before committing to the full design and production implementation.
 
-Top-level prompts and closing messages travel as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays them, or a `coordinator` session sends them directly. The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
+Top-level prompts and closing messages travel as [coordinator-setup.md](coordinator-setup.md) describes: the owner relays them, or a `coordinator` session sends them directly. The consolidator's review-local dispatch is governed by its [role definition](../../.claude/agents/consolidator.md).
 
 ## Architecture prototypes
 
@@ -73,6 +73,27 @@ Notice repeated failure and unexpected growth: the same blocker without new evid
 
 A targeted recheck may return to its original reviewer, but is identified as a recheck. Do not poll sessions or send keep-alives merely to preserve a cache. Report available usage honestly; do not invent token counts, cache savings or subscription costs.
 
+## Parallel units
+
+Several units may be open at once, one in each session slot ([coordinator-setup.md](coordinator-setup.md#slots)).
+
+- **Who runs where.** The coordinator runs in the main slot. **Only the main slot's architect mints, amends, supersedes or renumbers a record identifier.** An architect in another slot, such as a challenge, proposes and doesn't record. Any other role may run in any slot, the consolidator and its passes included. A slot's role definitions are those of its branch.
+- **One unit per slot, and one open task per session.**
+- **The record stays one file.** `.plan/00-index.md` and each package's index aren't split. The single minter prevents two units from minting one identifier. Two units that amend one entry depend on each other, and the stack order expresses that. The coordinator counts index conflicts that neither prevents.
+
+### Stacks
+
+- **Opening one.** A unit that builds on another's unmerged work branches from that unit's branch, and its pull request's base is that branch. `verify` runs on it.
+- **While the lower pull request is open,** merge the lower branch into the upper one to bring its changes up.
+- **Merge order.** The lower pull request merges first. The owner merges each one.
+- **An upper unit waits on decisions.** Its implementation starts after the lower unit's decisions that it builds on are committed, and its plan names them.
+- **After the lower one squash-merges:**
+  1. retarget the upper pull request to `main` (`gh pr edit <number> --base main`), unless GitHub did it when the lower branch was deleted;
+  2. in the upper branch, `git fetch origin && git merge origin/main`, with no rebase and no force-push;
+  3. in each conflict, a hunk that is the lower unit's change takes `main`'s text, and a hunk that is the upper unit's own keeps its text.
+- **What a squash merge does to a stack.** `main` gets one commit whose tree holds the lower unit's changes and none of its commits, and the upper branch keeps those commits. So the merge sees the lower unit's changes on both sides. Identical hunks merge cleanly. A line that the lower unit changed and the upper unit changed again conflicts, and the upper unit's version is the one to keep. After the merge, the upper pull request's diff against `main` is its own change. [`stack-procedure.txt`](../../.plan/harness-1/checks/stack-procedure.txt) is a worked example.
+- **Reviews.** Each pull request has its own review, which reads the diff from its base's head.
+
 ## Records and concise returns
 
 The repository carries the substance; messages route the work. [handoff.md](handoff.md#record-the-handoff) owns what a finalized handoff identifies and the form of its closing message.
@@ -91,7 +112,7 @@ Use SHAs and ranges to pin prompts and reviewed trees. Review artifacts record t
 
 Respect role write boundaries. In a shared checkout, serialize source and contract changes and keep a round's reviewed tree fixed. If another writer changes it, state which review claims need rechecking.
 
-[handoff.md](handoff.md) owns staging, saved evidence and scratch cleanup. [AGENTS.md](../../AGENTS.md#before-running-a-governed-role) owns dispatch from a worktree.
+[handoff.md](handoff.md) owns staging, saved evidence and scratch cleanup.
 
 ## Prompt format
 
@@ -131,6 +152,6 @@ When preparing a round, keep shared context to the revision, scope and canonical
 
 ## Agent configuration
 
-Model and effort are declared in `.claude/agents/*.md`; do not override or silently downgrade them. Use the launch and bootstrap procedure in [coordinator-setup.md](coordinator-setup.md). The guard governs Claude roles; it does not attest the owner-side Codex coordinator's work.
+Model and effort are declared in `.claude/agents/*.md`; do not override or silently downgrade them. Use the launch and bootstrap procedure in [coordinator-setup.md](coordinator-setup.md).
 
 A changed role or resident instruction may remain stale in an existing session. Use a fresh process when verifying such a change. Role write restrictions are not proof of an unchanged production tree; establish that from the diff against the reviewed baseline. A bare `@path` in a role file is not a resident import: dependencies must be explicit read instructions.

@@ -6,7 +6,7 @@ Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.m
 
 ## Find the owning record
 
-- [AGENTS.md](../../AGENTS.md) governs branch safety, publication, evidence and guarded role sessions. [CONTRIBUTING.md](../../CONTRIBUTING.md) owns source conventions and the size and ownership policy.
+- [AGENTS.md](../../AGENTS.md) governs branch safety, publication, evidence and role sessions. [CONTRIBUTING.md](../../CONTRIBUTING.md) owns source conventions and the size and ownership policy.
 - [architecture.md](architecture.md) maps the Web Components system. Package manifests, `files.json` and source establish the current shipped surface.
 - `packages/<package>/.plan/` owns package decisions, reviews and measurements.
 - [.plan/00-index.md](../../.plan/00-index.md) owns repository-level records and obligations, including verification infrastructure. Do not book that work to a package's register.
@@ -27,6 +27,8 @@ Put the summary before the next task prompt so the owner can spot an unwanted di
 Route architectural, contract, parity and public-surface choices to `architect`, settled implementation to `implementer`, feature proof to `reviewer`, and an acceptance round to `consolidator`. The role definitions under [.claude/agents/](../../.claude/agents/) decide their exact authority and review cadence. Prepare one compact English prompt naming the input revision, governing records and completion boundary. The owner launches or resumes the session; do not launch or automatically resume top-level role sessions yourself.
 
 For an authorized prototype in an isolated worktree, require committed runnable source there, as [Architecture prototypes](agent-workflow.md#architecture-prototypes) specifies. Keep the main checkout and adopted decisions unchanged; do not require the prototype branch's source to stay unchanged, which would leave the owner with only patches or scratch copies to inspect.
+
+Several units may be open at once, one per session slot, as [Parallel units](agent-workflow.md#parallel-units) describes. Each session holds one open task. For each slot, keep a working summary of its unit, branch, pull request, base, state and next dependency. Route every record-identifier change to the main slot's architect, and count each index conflict that neither the single minter nor the stack order prevented.
 
 Use a separate architecture challenge sparingly, for a concrete architectural risk or material contract change. Give a fresh architect session an explicitly read-only challenge task and route its report to the authoring architect for disposition. A challenge is not phase acceptance.
 

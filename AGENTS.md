@@ -17,23 +17,6 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Bef
 
 Before choosing identifiers or writing English comments, documentation, instructions or reports, read [technical English and self-documenting code](.agents/docs/technical-english.md).
 
-## Before running a governed role
-
-The effort guard loads from project settings, and **a fresh checkout's first session runs before it is loadable**: registering the repository marketplace and loading its plugin happen on successive starts. A role acting in that window is unchecked, and an unchecked session is indistinguishable from a clean one, because nothing is watching.
-
-A guarded session says so. `Effort guard active` arrives as startup context in every session the guard is loaded into, and it says so whether or not the role definitions resolved — the string answers _is the guard loaded_, and a resolution failure is reported as a separate sentence beside it.
-
-- **Seen it — work normally.**
-- **Not seen it — run `claude plugin marketplace add ./` and start a new session before doing governed work or spawning any worker.** A restart is required either way: a plugin does not become loaded in a session already running.
-
-**This binds every governed role**: `architect`, `implementer`, `consolidator`, `reviewer`, `integrity`, `cleanup`, `der` and `coordinator` — the set the guard governs, not a subset of it.
-
-**A role session selects its effort as well as its role.** `--agent` applies the definition's model and not its `effort:`, so the level is the starter's to pass; the guard denies the first tool call of a session that got it wrong, and repairs nothing. [`.scripts/claude-role.sh`](.scripts/claude-role.sh) reads the declared level out of the definition and passes it.
-
-**Dispatch only from the main checkout.** A linked worktree carries its own `.claude/` at its own commit, so it can govern part of the role set and allow the rest, or govern all of it at a superseded generation. Where the guard is loaded there it refuses dispatch outright; where it is not loaded there is no gate string to see, and this rule is the whole of the protection. A worktree-rooted session may still run as a single worker — that is what worktree isolation is for — but it dispatches nothing.
-
-[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md) §Starting a role session is the procedure; §How it loads is the mechanism.
-
 ## Evidence
 
 Verify cheap mechanical claims yourself, in the agent that cites them. **Delegate discovery, never verification** — a sub-agent returns candidates; the citing agent confirms the ones it reports. Delegate only when the search justifies a separate context.
@@ -42,11 +25,14 @@ Probes, diagnostics, fixtures and benchmarks are fine for any role that needs on
 
 Dependencies are installed and binaries run with aube (`aube install`, `aube add`, `aube exec`), never with npm, `npx`, `aubx` or `aube dlx`.
 
-**In a destructive shell command, expand every variable in a path with `${VAR:?}`**: `rm -rf "${S:?}/probe"`, not `rm -rf $S/probe`. An unset or empty variable then stops the command instead of turning the path into `/probe`.
+**In a destructive shell command, expand every variable in a path with `${VAR:?}`**: `rm -rf "${S:?}/probe"`, not `rm -rf $S/probe`. An unset or empty variable then stops the command instead of turning the path into `/probe`. Check each variable where the path is assembled, not only the result. `d=$B/$1` followed by `rm -rf "${d:?}"` guards nothing: with `B` and `$1` empty, `d` is `/`. Write `d="${B:?}/${1:?}"`.
+
+**If SSH to github.com fails host key verification,** as after a container rebuild, restore `~/.ssh/known_hosts` from GitHub's authenticated API: `gh api meta --jq '.ssh_keys[] | "github.com " + .' >> ~/.ssh/known_hosts`. Never accept a host key through `ssh-keyscan`, `StrictHostKeyChecking=no` or `accept-new`.
 
 ## Where things are
 
-- For local coordination, start with [`.agents/docs/coordinator.md`](.agents/docs/coordinator.md) and [`.agents/docs/coordinator-setup.md`](.agents/docs/coordinator-setup.md). The owner relays prompts between Codex and standalone Claude role sessions, or a Claude `coordinator` session sends them directly; role definitions and the guard still govern those sessions.
+- For local coordination, start with [`.agents/docs/coordinator.md`](.agents/docs/coordinator.md) and [`.agents/docs/coordinator-setup.md`](.agents/docs/coordinator-setup.md). The owner relays prompts between Codex and standalone Claude role sessions, or a Claude `coordinator` session sends them directly; role definitions still govern those sessions.
+- **A role session starts with `cl <profile> [<slot>]`** ([`.scripts/cl.sh`](.scripts/cl.sh)), which selects the role and the effort its definition declares. `--agent` alone applies the definition's model and not its `effort:`.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how code is written: source conventions, and the size and ownership policy. This is a library, not an application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
 - [`.agents/docs/`](.agents/docs/) — conventions and design references: `@ydinjs` architecture, CSS inheritance, attribute-vs-state styling, accessibility, the test layers, the trait flattener plugin, where documentation belongs, and how a review round is run.
 - `.claude/skills/` — task-scoped procedures for `@ydinjs/material-x` component tests, `@ydinjs/tproc` visual contracts, and anything under `.data/tokens`. They apply even when a request does not name them.
