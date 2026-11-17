@@ -5016,6 +5016,8 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, on the coordinator'
 
 **Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `repo:RD-12`'s amendment moves Safari out of the gate, into a weekly workflow that no rule requires. Once it is implemented, this row no longer fails `verify`. It isn't skipped, so it can still turn a weekly run red, and that run's issue names it (`repo:RD-12` property 12). The finding stays open, because no cause is established. **The row runs in Playwright's WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces it, and if it does, it is a `repo:RD-8` row in WebKit.
 
+**Dated 2026-11-17 by the architect,** at `4136c0eea`: this row passes in Playwright's WebKit in the gate, in both projects, twice ([inventory](../../../.plan/ci-speed-1/checks/webkit-inventory.txt)). WebKit does fail the same oracle message deterministically, but in another row, `sortable.browser.test.ts`'s _"should cancel and report when an anchor leaves before the release"_, at slot 1. That row removes an anchor from the list on purpose, and the [CI-speed handoff](../../../.plan/ci-speed-1/ci-speed-handoff.md)'s _Disposition of the stop at `4136c0eea`_ decides it there. Nothing about it is read as this finding's cause.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.

@@ -268,3 +268,51 @@ A targeted feature-proof review reads the diff from `229829ef7` to the head. It 
 It records at `.plan/reviews/ci-speed-1/feature-proof-claude.md`, and the architect decides its findings.
 
 **Stopping boundary:** the report is committed and pushed, and the pull request is open with a green final run. The review follows.
+
+## Disposition of the stop at `4136c0eea`
+
+Decided 2026-11-17 by the architect, on the [report](ci-speed-report.md) and the [WebKit inventory](checks/webkit-inventory.txt) (pull request #31; runs 44049217432 and 44050452080, and 44050444079 for the five runs per file). Both rows fail in `browser/drag/webkit` and `consumer/drag/webkit`, in 5 of 5 runs of their file. Neither has a Safari condition, and both pass in Safari. **Neither is a WebKit defect, and neither is disabled.** Both are repaired in the test, under `RD-8` property 2: the cause is in the test or its instrument, and no product behavior, public surface or decided contract changes. **No finding is registered for them, and nothing needs the owner.**
+
+### Row 1: a test that names engines
+
+`click-guard.browser.test.ts` › _"should prevent nothing on a press"_ ends with `expect(engine).toMatch(/chromium|firefox|safari/u)`. Its behavioral assertion, `expect(prevented).toBe(false)`, holds in WebKit.
+
+- **History.** The line was added as `/chromium|firefox|webkit/u` in `a9c323f6a` (#14). `RD-12`'s Safari unit rewrote it to `safari`. It is a list of engine names, which each change of engine set has to edit.
+- **What it asserts:** nothing about the click guard. An unknown engine is already an error of the shared factory (`MX_TEST_ENGINES`).
+- **Repair:** delete the line. Nothing replaces it.
+
+### Row 2: the oracle on a list outside its rule
+
+`sortable.browser.test.ts:636` › _"should cancel and report when an anchor leaves before the release"_ fails at the equivalence oracle's `afterEach`: _"the predicted insertion geometry disagreed with a fresh measurement at slot 1"_. The row's own assertions hold: one `canceled` result, one fault, and a clean list.
+
+- **Reading.** The row moves `#r2` out of the list to `document.body` in the middle of a drag, on purpose, and the product reports the fault at the release. From that removal until the release, the list is outside the rule the oracle checks: the oracle's prediction is the one the product made before an anchor left. `takeMismatches()` exists for this: _"a test about a list outside the rule reads the ones it expects and still passes"_, and `equivalence-check` and `y-geometry` rows use it so.
+- **Why only WebKit:** WebKit records a check in that window, and Chromium and Firefox don't. The likeliest cause is that WebKit has one more geometry collection between the removal and the release. That is a difference in event or frame timing, not in the geometry. This is an inference, and the witness below reads it.
+- **Repair.** The row takes the oracle's mismatches at two points:
+  - just before `document.body.append(...)`, it expects them empty, so the oracle still checks the part of the drag inside the rule;
+  - after the release, it takes them and asserts nothing about them, because they belong to the list outside the rule.
+
+  The row has no engine condition. The same code runs in every engine.
+
+- **Not the same as `drag:DRF-52`,** whose Safari row removes nothing. The dated note on `DRF-52` says so.
+
+## Remediation of the stop
+
+For the implementer, on `repo/ci-speed-1`, after merging the architect's commit that adds this section.
+
+1. **Row 1:** delete the line. **Witness:** the row passes in `browser/drag/webkit` and `consumer/drag/webkit`, and in Chromium.
+2. **Row 2:** the two `takeMismatches()` points above.
+   - **Witness:** in WebKit, the first point reads `[]`, and the second reads a non-empty list that names slot 1. In Chromium and Firefox, the row passes, and the second point reads whatever it reads. Record both readings.
+   - **Stop** if WebKit's first point is not empty. The disagreement would then come before the list left the rule, which would make it a WebKit geometry finding for the architect, not a test repair.
+3. **`RF-47`:** `aube install --fix-lockfile`, in its own commit.
+   - **Witness:** the lockfile diff touches only the three entries and their platform or child packages. Afterwards, `aube why lightningcss` under `packages/vite-custom-element-assets` reads 1.33.0. `aube ci` then leaves the lockfile unchanged.
+   - **Stop** if the re-resolution touches anything else, or if the release age blocks it.
+4. **`@oxlint/migrate`:** `aube add -D -W @oxlint/migrate@1.93.0`, in a later commit than item 3. **Witness:** `just oxlint-migrate` runs and leaves `.oxlintrc.json` unchanged, or the report shows its diff. If the package has an install script, its `allowBuilds` entry is pinned to 1.93.0.
+5. **Then the unit resumes** where the report's _Next_ says:
+   - item 1 witness 5 (parallelism);
+   - item 2 witness 2 (the issue path, which the owner authorized);
+   - item 3's witnesses on the pull request;
+   - the final green run.
+
+   **Reading item 3 witness 1 needs _B_.** The first `scope` run (44052524310 at `4136c0eea`) chose full with _"B: none"_, which is right: no earlier run had a successful `webkit` job, so none counted as full (`RD-15` property 6). Item 3's witnesses can reduce a run only after one full run in which every gate job succeeds.
+
+The report gains a section for this remediation, with the readings above.

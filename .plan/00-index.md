@@ -404,6 +404,13 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **The Safari findings.** The timing failures `RF-36`, `drag:DRF-49`, `drag:DRF-50` and `drag:DRF-52`, and `drag:DRF-51`'s 16 px offset, stop holding the gate. Their Safari conditions stay and apply to the weekly run. None is closed, because no cause is established and Safari still runs them. The same rows run in WebKit in the gate. Whether WebKit reproduces any of them is read in the CI-speed unit, and a row that fails there is an `RD-8` row like any other.
 - **Read at `229829ef7`:** Playwright's WebKit build `webkit-2388` doesn't launch in the devcontainer, for 26 missing system libraries. After an `apt-get update`, `playwright install-deps --dry-run webkit` resolves its 247 Debian 13 packages ([reading](ci-speed-1/checks/webkit-local-probe.txt)). The install itself and a launch after it were not read.
 
+**Dated 2026-11-17 by the architect** on `repo/ci-speed-1` at `4136c0eea` (pull request #31), on the CI-speed unit's stop at item 1's WebKit inventory ([inventory](ci-speed-1/checks/webkit-inventory.txt), runs 44049217432 and 44050452080).
+
+- **WebKit, serial, on `ubuntu-24.04`:** 4 failed, 1,613 passed and 18 skipped of 1,635, in a 280 s test step. Firefox's was 428 s and Chromium's 290 s.
+- **The four failures are two drag rows, each in `browser/drag/webkit` and `consumer/drag/webkit`, and each failed in 5 of 5 runs of its file.** The [CI-speed handoff](ci-speed-1/ci-speed-handoff.md)'s _Disposition of the stop at `4136c0eea`_ decides both as test repairs. No row is disabled.
+- **The Safari findings' rows all pass in WebKit:** `RF-36`'s three, `drag:DRF-49`, `DRF-50`, `DRF-51` and `DRF-52`. That is evidence that those failures belong to Safari, its driver or its runner, and not to the WebKit engine. It is a reading, not a repair.
+- **Tab** reaches the button, checkbox and radio in WebKit: the 28 rows of `focus-layer.spec.browser.test.ts` pass. That confirms property 11's keyboard bullet. drag's two reduced-motion rows run there, and pass.
+
 **The readings,** taken by the architect on 2026-11-16.
 
 - **Only WebDriver drives Safari.** Playwright's `webkit` is Playwright's own WebKit build, on macOS too, and not Safari. Vitest's `preview` provider opens a browser with no automation. Safari ships its own WebDriver server, `safaridriver`, with macOS.
@@ -652,7 +659,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 1. **The marker** is the literal `[noci]`, case-sensitive, anywhere in the message of the run's commit _H_. For a `pull_request` event, _H_ is the pull request's head commit, and for a push to `main`, the pushed commit. **A `workflow_dispatch` run is always full.** GitHub's own markers, `[skip ci]`, `[ci skip]`, `[no ci]`, `[skip actions]` and `[actions skip]`, keep the workflow from starting, so `verify` stays pending and the merge is blocked. `[noci]` without a space is not one of them.
 2. **The last fully verified commit** _B_ is the newest ancestor of _H_, or _H_ itself, for which a `verify` run concluded `success` in full mode. A run counts as full only if `static`, `chromium`, `firefox`, `webkit` and `docs` each concluded `success`, not `skipped`. _B_ is read from the GitHub Actions API, among `verify.yml`'s recent successful runs, and ancestry is read with `git merge-base --is-ancestor` on a full-history checkout.
 3. **The range** is the tree difference from _B_ to _H_, `git diff --name-only --no-renames B H`, so a merge commit and a rename count by every path they touch. **The run is reduced only if** _H_ carries the marker, _B_ exists, and every path in the range is either under a directory named `.plan` at any depth or ends in `.md`. An empty range qualifies. `.mdx` is not Markdown here: Storybook builds it.
-4. **What a reduced run checks.** `records` runs the install, `just fmt-check` and the record resolver's tests (`.scripts/entry.node.test.ts`). Those are the gate's checks that read records and Markdown: `oxfmt` formats both, and the resolver's tests resolve entries in the real records. **No other gate check reads them.** Lint ignores `.plan/` (`RD-8` property 3), the root `tsconfig.json` doesn't include it, Storybook's stories are `*.mdx` and `*.stories.tsx`, and TypeDoc's `readme` is `none`. The implementer confirms this by search, and adds to `records` any check that the search finds.
+4. **What a reduced run checks.** `records` runs the install, `just fmt-check` and the record resolver's tests (`.scripts/entry.node.test.ts`). Those are the gate's checks that read records and Markdown: `oxfmt` formats both, and the resolver's tests resolve entries in the real records. **No other gate check reads them.** Lint ignores `.plan/` (`RD-8` property 3), the root `tsconfig.json` doesn't include it, Storybook's stories are `*.mdx` and `*.stories.tsx`, and TypeDoc's `readme` is `none`. The implementer confirms this by search, and adds to `records` any check that the search finds. (**Amended 2026-11-17 at `4136c0eea`,** on the implementer's search. `packages/drag/tsconfig.json` includes `./.plan/probes/callback-list/allocation.ts`, so drag's typecheck reads a `.plan/` file. `records` therefore also runs `just typecheck`, the root recipe, which covers any later `tsconfig` that includes a record. The sentence _"the root `tsconfig.json` doesn't include it"_ was true and incomplete.)
 5. **Modes.** `scope` decides the mode and logs _H_, _B_ with its run, the mode, and the paths that kept the run full. **Full:** every gate job runs as `RD-6` property 3 says, and `records` is skipped. **Reduced:** `records` runs, and `static`, `chromium`, `firefox`, `webkit`, `docs` and `measurements` are skipped. `verify` succeeds only if `scope` succeeded, every job of its mode succeeded, and every job outside it was skipped. On `main`, a reduced run skips `docs`, so `deploy` doesn't run, and the site stays at its last deployment, which the range couldn't change.
 6. **It fails toward a full run.** If the API can't be read, no _B_ is found, the history can't answer ancestry, or the range can't be computed, the mode is full, and the log says why. `scope` fails only if it can't name a mode, and then `verify` fails.
 7. **Permissions.** `scope` adds `actions: read`, to read runs and jobs. It runs no install. Its only repository code is the decision script, which uses Node's built-in modules, `git` and `gh`. (**Amended 2026-11-17 at `0706f41f5`:** this said _"It runs no install and no repository code beyond `git`"_, which contradicted the handoff's script.)
@@ -703,6 +710,15 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **`aube import` is not faithful:** it rewrote npm's nested `ansi-regex@6.6.0` as 6.2.2, which is still in its dependents' range.
 - **nx 24.0.6 knows no aube lockfile,** and builds its external nodes from a bun, yarn, pnpm or npm lockfile.
 - **aube's releases** are weekly: 2.9.0 on 2026-11-02, 2.10.0 on 2026-11-09 and 2.10.1 on 2026-11-16.
+
+**Dated 2026-11-17 by the architect** at `4136c0eea`, on the CI-speed report's item 4 ([report](ci-speed-1/ci-speed-report.md)). The move is green: every gate job passed on aube's tree in run 44046829370 at `e9e8f92a2`. The witness that removed nx's `allowBuilds` entry failed `aube ci` as required (run 44048707632 at `6092c5f26`). The catalog change wrote no lockfile diff. Each reading is decided as follows:
+
+- **`savePrefix=`** (empty) replaces `save-exact`, which aube doesn't read. It is accepted as property 7's equivalent.
+- **`aube add` at the workspace root needs `-W`.** Accepted. `implementer.md` says `aube add -D -W <name>`.
+- **`aube exec` installs first when `package.json` changed** (_"Auto-installing: package.json has changed"_). Accepted. That install is the same `aube install`, under the same script policy, version pin and release age, from the lockfile. It is not a fetch of an unlocked package, which is what property 8's _"never `aubx` or `aube dlx`"_ excludes. In CI, `aube ci` runs first, so nothing changed and nothing installs.
+- **`just oxlint-migrate` needs `@oxlint/migrate`,** which `npx` used to fetch unpinned at each run. It becomes an exact devDependency at 1.93.0, `oxlint`'s version, published 2026-11-09. The recipe then runs from the lockfile.
+- **`aube add` rewrites the hoisted layout,** and drops nested entries that the workspace manifests no longer name. That staleness predates this unit and is `RF-47`. It is repaired in its own commit, before `@oxlint/migrate` is added.
+- **The merge base's size reading fails** until this pull request merges, because `main` has no aube settings. Accepted: `measurements` reports it and never fails the run (`RD-7`).
 
 **Properties.**
 
@@ -1283,6 +1299,20 @@ Tier B, **open**. Registered on 2026-11-17 by the architect, on the owner's repo
   - Vite builds with a `rolldown` inside its own declared range, and every other consumer keeps the one it declares;
   - the built docs site loads every story and docs entry with no uncaught error, and a gate check proves it (`RD-14` property 6).
 - **The repair, decided 2026-11-17 by the owner,** relayed by the coordinator: adopt `vite@8.4.0-beta.1`. It declares `rolldown` `~1.3.2`, so the whole tree stays on one `rolldown`, 1.3.2, inside every consumer's range. A separate install of the beta writes correct preload calls, and the repository's lockfile resolves with it ([reading](docs-gate-1/checks/rf46-rolldown-probe.txt) D and E). The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) item 1 says what the implementer checks, and when to stop. **The fallback,** if the beta stops, is the owner's: Vite 8.3.8 with a nested override that pins its own `rolldown` to `~1.2.18`. When the stable `vite@8.4.0` ships, the pin moves to it as an ordinary update.
+
+#### RF-47 — The committed lockfile installs nested versions that the workspace manifests no longer name
+
+Tier B, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `4136c0eea`, from the CI-speed report's item 4.
+
+- **What:** `package-lock.json` keeps three nested entries that are out of date with the manifests:
+  - lightningcss 1.32.0, with its 12 platform packages, under `packages/vite-custom-element-assets`, whose `package.json` names `1.33.0`;
+  - `@types/node` 26.1.1 and `undici-types` 8.3.0, under `packages/size-limit-preset-rolldown`, which names `26.6.6`;
+  - `ansi-regex` 6.6.0.
+- **Effect:** `npm ci`, `aube ci` and `aube install` all install them as locked. So `vite-custom-element-assets` builds and tests against lightningcss 1.32.0, while its manifest says 1.33.0. Neither installer's frozen mode reported the drift.
+- **Seen:** an `aube add` of an unrelated package dropped all three (the report's release-age witness). The cause before the move to aube is not established. It predates the CI-speed unit.
+- **Required property:** every installed workspace dependency is the version its manifest names, and a frozen install of the committed lockfile installs exactly that.
+- **Repair:** `aube install --fix-lockfile`, which re-resolves only the drifted entries, in its own commit. The diff is limited to those entries, and the report lists it. Both target versions are older than `RD-16`'s 7 days: lightningcss 1.33.0 is from 2026-07-20, and `@types/node` 26.6.6 from 2026-10-28.
+- **Routed** to the implementer, in the CI-speed unit.
 
 ## Questions
 
