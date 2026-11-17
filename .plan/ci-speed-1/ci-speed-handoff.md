@@ -1,4 +1,4 @@
-# Handoff: a faster gate, with WebKit in place of Safari, a `[noci]` path, and the installer chosen by measurement
+# Handoff: a faster gate, with WebKit in place of Safari, a `[noci]` path, and a full move to aube
 
 **Recipient:** the implementer.
 
@@ -7,7 +7,7 @@
 **Decided** by the owner, relayed by the coordinator on 2026-11-17:
 
 1. **Engines.** The required `verify` runs Chromium, Firefox and Playwright's WebKit, on Linux and headless. Real Safari leaves the gate for a separate workflow that no rule requires. It runs weekly, and can be started by hand on any branch or commit. Safari is not sharded for now.
-2. **aube instead of npm for installs, if it holds the tree,** with a measurement against `npm ci` with `setup-node`'s cache deciding which wins.
+2. **A full move from npm to aube,** for local development, CI and the records, with no speed condition. It was first decided as a measured choice, and amended the same day. Only a capital problem stops it. Yarn and pnpm are rejected. The owner's main concern is the supply chain, so only listed packages, at listed versions, run install scripts.
 3. **A commit-message marker, `[noci]`.** `verify` still runs, recognizes it, and succeeds quickly, but only if everything changed since the last fully verified commit is a record or Markdown.
 
 **Governing records,** in [`../00-index.md`](../00-index.md):
@@ -15,11 +15,11 @@
 - `repo:RD-12`, amended 2026-11-17: the engines, the gate's WebKit job (property 11) and the Safari workflow (property 12);
 - `repo:RD-6`, amended with it: properties 2, 3, 4, 7, 8 and 9;
 - `repo:RD-15`, new: the `[noci]` marker;
-- `repo:RD-16`, new: the installer, and the rule that decides it;
+- `repo:RD-16`, new and amended the same day: aube, the lockfile, the script policy and the capital problems;
 - `repo:RD-8` property 1 and `repo:RD-13` properties 7 and 8, amended;
 - the Safari findings `repo:RF-36` and `drag:DRF-49` to `DRF-52`, and `drag:DRO-18`, each with a dated note of 2026-11-17.
 
-The architect's readings are [`checks/aube-probe.txt`](checks/aube-probe.txt) and [`checks/webkit-local-probe.txt`](checks/webkit-local-probe.txt). The records hold the reasons and the alternatives weighed, and this file doesn't repeat them.
+The architect's readings are [`checks/aube-probe.txt`](checks/aube-probe.txt), [`checks/aube-policy-probe.txt`](checks/aube-policy-probe.txt) and [`checks/webkit-local-probe.txt`](checks/webkit-local-probe.txt). The records hold the reasons and the alternatives weighed, and this file doesn't repeat them.
 
 **Out of scope:**
 
@@ -93,7 +93,7 @@ Once this unit merges:
 **Witnesses.** `workflow_dispatch` can start only a workflow that exists on the default branch, so before the merge:
 
 1. **A run on the branch:** add a `push` trigger limited to `repo/ci-speed-1` in a witness commit, read one run, and remove the trigger in a later commit. The run is green, or red only on rows the Safari findings name. Save its job list and the per-project statuses.
-2. **The issue path,** only if the owner authorizes it (owner decision 2): in the same temporary form, make the test job fail on purpose, with a step that exits 1 after the tests, and let the issue job's condition accept a `push` event for that run. Read that it opens one issue. In a second run, read that it comments on that issue instead of opening another. Close the issue and remove both temporary changes. Save the issue's link. **Without that authorization,** the report says that the issue path is unwitnessed. The review then reads it.
+2. **The issue path,** authorized by the owner (owner decision 2). In the same temporary form, make the test job fail on purpose, with a step that exits 1 after the tests, and let the issue job's condition accept a `push` event for that run. Read that it opens one issue. In a second run, read that it comments on that issue instead of opening another. Close the issue and remove both temporary changes. Save the issue's link.
 3. **After the merge,** read by the coordinator and not owed before it: one `workflow_dispatch` on `main` with `ref` set to a commit SHA, and the first scheduled run.
 
 ## Item 3. The `[noci]` marker (`RD-15`)
@@ -130,31 +130,79 @@ Once this unit merges:
 
 Revert each witness's source change before the review.
 
-## Item 4. The installer (`RD-16`)
+## Item 4. The move to aube (`RD-16`)
 
-1. **Hold the tree first** (`RD-16` property 2). On the branch, in a commit that switches every `npm ci` in `verify.yml` to aube 2.10.1 with the hoisted layout and `aube.allowBuilds`, read:
-   - `aube why vite` and `aube why rolldown`;
-   - `package-lock.json` unchanged;
-   - `aube ignored-builds`, which lists only `edgedriver` and `geckodriver`;
-   - every gate job, `docs-smoke` included;
-   - the Safari workflow's install and listing, through the temporary `push` trigger of item 2.
+**Item 4 comes first** (see _Order_). After it lands, read every `npx <binary>` in this file as `aube exec <binary>`, and every `npm ci` as `aube ci`.
 
-   If any item fails, B is out. Revert the switch, and go to step 3 with that reason.
+**Required properties,** with `RD-16` properties 1 to 9 as the reference:
 
-2. **Measure** (`RD-16` properties 3 and 4) with a temporary workflow, `.github/workflows/install-bench.yml`. It is triggered by `push` to this branch only, and removed before the review.
-   - Each arm runs in fresh jobs on `ubuntu-24.04` and `macos-26`: one cold run, then five warm runs, one after another, so that each warm run restores the cache that an earlier run saved.
-   - Read each time from the API's step timings, from the end of checkout to the end of the install.
-   - Save the raw timings as `checks/install-bench.tsv`.
-3. **Apply the rule.** If B wins, keep the switch, and extend it to the Safari workflow and `baselines.yml` (`RD-16` property 5). If A wins, `verify.yml` is as it was before step 1. Either way, the report gives the figures and the outcome, and the architect dates `RD-16` and the [dev image handoff](devimage-handoff.md) with it.
+- **`package.json`:**
+  - `"packageManager": "aube@2.10.0"`;
+  - `aube.catalog` with the five pinned versions, and `catalog:` in place of each `$` override and of each direct dependency on them;
+  - `aube.allowBuilds` exactly as `RD-16` property 4 lists it;
+  - `allowScripts` deleted;
+  - the `concurrently npm:<script>` scripts rewritten as `aube run <script>` commands, because `concurrently`'s shorthand doesn't know aube.
+- **`.npmrc`:**
+  - `strictDepBuilds=true` and `useDefaultTrustedDependencies=false`;
+  - `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`;
+  - `minimumReleaseAge=10080` and `minimumReleaseAgeStrict=true`;
+  - `node-linker=hoisted` and `defaultLockfile=package-lock.json`;
+  - each of today's keys (`git-tag-version`, `prefer-dedupe`, `save-exact`) kept only if aube reads it. The report says which, and how that was read.
+- **`package-lock.json`:** `aube install` writes it once after the catalog change, and a second `aube install` leaves it unchanged. No `aube-lock.yaml` is committed.
+- **Workflows** (`verify.yml`, with `measurements`' merge-base tree, then the Safari workflow and `baselines.yml`):
+  - `setup-node` without `cache: npm`;
+  - `npm install -g @endevco/aube@2.10.0` as the bootstrap;
+  - aube's store cached under a key of the OS, the aube version and the lockfile's hash;
+  - `aube ci`, and `aube exec` for every `npx`.
+
+  The aube version is written once in the workflow, beside `NODE_VERSION`.
+
+- **Scripts and editor files:**
+  - `aube exec` in place of `npx` in `.scripts/size-reading.ts`, `.scripts/oxlint-migrate.ts` and `packages/drag/tests/support/build-package.node.ts`;
+  - `aube run` in `.scripts/zed-test.sh`, `.zed/tasks.json` and `.vscode/launch.json`;
+  - the `npm run build:cem` hint in `.storybook/docs/ApiTables.tsx` and `SummaryOrWarning.tsx`;
+  - `.scripts/vitest-config.ts`'s comment, which says `consumer.node` runs `npm pack`. It no longer does: the file spawns `tsc`.
+- **The `Justfile`s** name neither npm nor `npx`. Their recipes call binaries such as `vitest`, `nx` and `oxfmt` from `PATH`. `npx just` puts `node_modules/.bin` there today, and `aube exec just` must do the same. Every gate job running through `aube exec just` is the witness.
+- **The devcontainer:**
+  - `post-create/playwright-browsers.sh`'s hint names `aube install`.
+  - `post-create/typescript-language-server.sh` installs the language server globally at an exact version, with aube if aube installs global packages. Otherwise it uses npm at that exact version with `--ignore-scripts`, and the report names it as npm's second remaining use.
+  - `on-start/fix-zed-timeout.sh` patches the npm that Zed bundles for its own language servers. It installs nothing of the repository, so it stays.
+- **Documentation:**
+  - `AGENTS.md` gains one sentence under _Evidence_: dependencies are installed and binaries run with aube (`aube install`, `aube add`, `aube exec`), never with npm, `npx`, `aubx` or `aube dlx`.
+  - `.agents/docs/handoff.md` and `.agents/docs/architecture.md` name `aube exec` where they name `npx`.
+  - `.claude/agents/implementer.md`'s dependency rule becomes `aube add <name>`, with the 7-day release age and the `allowBuilds` pin noted. `der.md`'s commands name `aube exec`.
+  - Each README's development commands move to aube. Commands addressed to the packages' consumers keep `npm install`.
+  - `CONTRIBUTING.md` names neither tool, so it doesn't change.
+  - Historical records stay as they were written.
+
+**Witnesses:**
+
+1. **The tree,** on a clean checkout after `aube ci`:
+   - `aube why vite` and `aube why rolldown` show one vite 8.4.0-beta.1 and one rolldown 1.3.2;
+   - `git status` is clean;
+   - `aube install` run twice leaves `package-lock.json` unchanged. Save the one diff that the catalog change wrote, and state whether it touches more than the root package's entries;
+   - `package-lock.json` keeps `lockfileVersion: 3`, and each package entry keeps `version`, `resolved` and `integrity`.
+2. **The script policy,** locally:
+   - `aube ignored-builds` lists only `edgedriver` and `geckodriver`, and `fsevents` on macOS;
+   - with `nx@24.0.6` removed from `allowBuilds`, `aube ci` fails and names nx;
+   - with `esbuild@0.28.0` in place of `esbuild@0.28.1`, it fails and names esbuild.
+
+   **In CI:** one witness commit with the nx entry removed fails `aube ci` in `static`. The next commit restores it. Save the failing step's log.
+
+3. **The pin:** with an aube other than 2.10.0 on `PATH`, `aube install` fails and names both versions, and nothing is downloaded. The 2.10.1 binary from the npm package serves.
+4. **Release age:** `aube add` of a version published less than 7 days earlier fails with `ERR_AUBE_NO_MATURE_MATCHING_VERSION`. Revert it.
+5. **The gate and the Safari workflow on aube's tree:** every gate job, `docs-smoke` included, and the Safari workflow's install and listing. **A job that fails only on aube** is read again at the same commit on npm, by a temporary revert of the switch, before it is called a capital problem (`RD-16` property 11).
+6. **Timing, as a reading:** take `aube ci`'s step times from the gate's own runs, cold on the first run after a cache-key change and warm afterwards, on `ubuntu-24.04` and `macos-26`. Put them beside `npm ci`'s step times on #30's last green run. Save `checks/install-times.tsv`.
+7. **After the merge,** read by the coordinator: GitHub's dependency graph for `main` (`gh api repos/ausginer/material-x/dependency-graph/sbom`) lists vite 8.4.0-beta.1 and rolldown 1.3.2.
 
 ## Order
 
-1. Items 1 and 2 locally: the listing witness, and the handoff's checks on every changed file. Commit.
-2. Push. **Open a non-draft pull request** from `repo/ci-speed-1` to `main` (owner decision 1). Read the first run: item 1's witnesses 2 to 4, and item 2's witness 1.
-3. Item 1's parallelism reading (witness 5).
-4. Item 3 and its witnesses.
-5. Item 4.
-6. The report, then a final run in which every gate job and `verify` succeed, with every temporary trigger, workflow and witness change removed.
+1. **Item 4 locally:** its witnesses 1 to 4, and the handoff's checks on every changed file. Commit.
+2. Push. **Open a non-draft pull request** from `repo/ci-speed-1` to `main` (owner decision 1). Read the first run on aube's tree, with the gate still on Safari: item 4's witnesses 2 (CI), 5 and 6.
+3. **Items 1 and 2:** the listing witness, then a run with item 1's witnesses 2 to 4 and item 2's witness 1.
+4. Item 1's parallelism reading (witness 5).
+5. Item 3 and its witnesses.
+6. The report, then a final run in which every gate job and `verify` succeed, with every temporary trigger and witness change removed.
 
 **Owed for every changed file** ([`handoff.md`](../../.agents/docs/handoff.md)):
 
@@ -173,7 +221,7 @@ Return to the architect with what you have if:
 - the search in item 3 finds a reader of records or Markdown that `records` can't run;
 - `workflow_dispatch` with a SHA `ref` can't be made to check out that commit;
 - the `verify` aggregate can't tell `skipped` from `success` per job;
-- aube needs a change to `package-lock.json`, to the root `overrides` or to source to hold the tree.
+- a capital problem of `RD-16` property 11 appears. Nothing else about aube is a stop.
 
 ## The report
 
@@ -184,17 +232,21 @@ Write `.plan/ci-speed-1/ci-speed-report.md`. It covers:
   - the WebKit inventory, with the Safari findings' rows called out;
   - the parallelism figures and outcome;
   - the WebKit job's time, beside Firefox's and Chromium's.
-- **Item 2:** the Safari run's per-project statuses, and the issue path, or why it is unwitnessed.
+- **Item 2:** the Safari run's per-project statuses, and the issue path with the issue's link.
 - **Item 3:** the reduced run's wall time against a full run's, and the search's matches.
-- **Item 4:** the tree readings, the timing table, the medians and the rule's outcome.
+- **Item 4:**
+  - the tree and policy readings;
+  - the `.npmrc` keys kept and dropped;
+  - the language server's install;
+  - the timing table beside npm's.
 - **What wasn't verified.**
 
 ## Owner decisions and authorizations
 
-1. **Needed:** a non-draft pull request from `repo/ci-speed-1` to `main`, for the runs that items 1 to 4 read. `verify` runs on `pull_request` and on pushes to `main` only. Never merge it. The ruleset requires the branch to be up to date with `main`, so bring `main` in with a merge, not a rebase.
-2. **Needed:** item 2's witness issue in this repository, opened by the workflow, commented on once and closed by the implementer. Without it, the issue path is unwitnessed until the first scheduled failure after the merge.
+1. **Granted 2026-11-17 by the owner:** a non-draft pull request from `repo/ci-speed-1` to `main`, for the runs that items 1 to 4 read. The implementer already holds standing permission to open pull requests. `verify` runs on `pull_request` and on pushes to `main` only. Never merge it. The ruleset requires the branch to be up to date with `main`, so bring `main` in with a merge, not a rebase.
+2. **Granted 2026-11-17 by the owner:** item 2's witness issue in this repository, opened by the workflow, commented on once, and closed by the implementer.
 3. **No ruleset change.** The required check stays `verify`, and the Safari workflow is never required.
-4. **Settled by the owner's decisions above,** and not reopened here: Linux and headless WebKit in the gate, Safari weekly and manual, no sharding, aube only through `RD-16`'s rule, and the `[noci]` range.
+4. **Settled by the owner's decisions above,** and not reopened here: Linux and headless WebKit in the gate, Safari weekly and manual, no sharding, a full move to aube with `RD-16`'s policy, and the `[noci]` range.
 
 ## Review before merge
 
@@ -207,7 +259,7 @@ A targeted feature-proof review reads the diff from `229829ef7` to the head. It 
   - only the Safari issue job holds `issues: write`, and it runs no repository code;
   - the measurement, deploy and recording workflows are otherwise unchanged.
 - **The WebKit inventory** and the parallelism reading against `RD-12` property 11.
-- **If B won:** the tree readings against `RD-16` property 2, and the measurement against its rule.
+- **aube:** the tree readings, the script policy's witnesses, including the CI failure, and `.npmrc` and `package.json` against `RD-16` properties 2 to 7. Also that no `npx`, `npm ci`, `aubx` or `aube dlx` remains in a recipe, script, workflow, editor task, agent definition or current document, except consumer instructions and `RD-16` property 9's bootstrap.
 
 It records at `.plan/reviews/ci-speed-1/feature-proof-claude.md`, and the architect decides its findings.
 

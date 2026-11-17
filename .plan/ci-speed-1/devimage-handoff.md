@@ -10,7 +10,7 @@
 
 The status is decided in material-x, and its architect updates these lines. Do a part only when its line says it is ready.
 
-- **Part A, aube: not ready.** material-x adopts aube only if a CI measurement shows it faster than `npm ci` with a cache, and that measurement hasn't run yet. If it decides against aube, this part is dropped.
+- **Part A, aube: ready,** at version 2.10.0. On 2026-11-17 the owner decided a full move from npm to aube, with no condition (material-x `repo:RD-16`).
 - **Part B, WebKit's system libraries: ready.** Its check (below) decides whether WebKit really runs. If WebKit fails to launch even with the libraries, stop and report: material-x then drops local WebKit, and this part is reverted.
 
 ## What the image is today
@@ -29,18 +29,20 @@ These are readings from a container of `node:latest` on 2026-11-17:
 
 ## Part A: aube
 
-Do this only when the status line above says it is ready. That line also names the version, if it isn't 2.10.1.
+The status line above names the version.
 
-- **Version:** exactly `2.10.1`, the npm package `@endevco/aube`, released 2026-11-16. Pin it exactly, never `latest`. material-x pins the same version in CI, and the two change together.
+- **Version:** exactly `2.10.0`, the npm package `@endevco/aube`, released 2026-11-09. Pin it exactly, never `latest`.
+  - **Why not 2.10.1,** the newest: material-x accepts a release only once it is 7 days old, its supply-chain rule, and 2.10.1 came out on 2026-11-16.
+  - **It must match exactly.** material-x's `package.json` names `"packageManager": "aube@2.10.0"`, and its `.npmrc` makes any other aube version fail the install rather than download the pinned one. An image with another version can't install material-x, so material-x asks for a rebuild whenever it moves the pin.
 - **Install,** as root, in the image build, after Node:
 
   ```sh
-  npm install -g --ignore-scripts=false @endevco/aube@2.10.1
+  npm install -g --ignore-scripts=false @endevco/aube@2.10.0
   ```
 
   The package fetches its platform binary in a `preinstall` script, so scripts must be allowed. npm 11.20.0 still prints an `install-scripts` warning for it. The command line in the check below is what decides whether it worked. If the image is built for more than one architecture, run the check on each one.
 
-- **Configuration: none.** aube's store and cache default to the user's XDG data and cache directories, and material-x configures aube in its own files.
+- **Configuration: none.** aube's store and cache default to the user's XDG data and cache directories, and material-x configures aube in its own files. **Set no `AUBE_*` environment variable in the image:** an environment value overrides material-x's `.npmrc`, which keeps dependency build scripts and version pins strict.
 
 ## Part B: WebKit's system libraries
 
@@ -63,7 +65,7 @@ Do this only when the status line above says it is ready. That line also names t
 
 Run it in a container from the rebuilt image, as the user `node`, and save the output.
 
-1. **aube** (Part A only): `aube --version` prints `2.10.1 linux-x64`, or `linux-arm64`, and so on for each architecture.
+1. **aube:** `aube --version` prints `2.10.0 linux-x64`, or `linux-arm64`, and so on for each architecture. `env | grep '^AUBE_'` prints nothing.
 2. **WebKit launches and Tab reaches every control** (Part B). In a scratch directory:
 
    ```sh
@@ -109,11 +111,11 @@ If Tab reaches fewer than the three controls, publish anyway, and report the lin
 
 ## What material-x changes on its side
 
-The material-x CI-speed unit makes these changes, and nothing in it waits for you:
+The material-x CI-speed unit makes these changes. Only local installs wait for you, as the last item says:
 
 - **Its post-create script installs `chromium webkit`,** where it installed `chromium` alone.
 - **Its record** says that the devcontainer installs both builds, and that WebKit launches where the image carries its libraries. `devcontainer.json` keeps `node:latest`, so nothing there changes.
-- **If aube is adopted,** its CI pins the same version as Part A.
+- **aube is its package manager,** pinned to 2.10.0 in `package.json`'s `packageManager` and in its workflows. Until a container runs your rebuilt image, a developer installs that version by hand with Part A's command, as the user and with `--prefix ~/.local`.
 
 ## Return
 
@@ -121,6 +123,6 @@ Report:
 
 - the published tag and digest;
 - the check's three outputs;
-- whether Part A was done.
+- for each architecture, the aube version that the image carries.
 
 The coordinator relays this to the material-x architect, who records it.

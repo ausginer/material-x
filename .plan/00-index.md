@@ -129,7 +129,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 1. **Triggers (O1).** A push to `main`; a `pull_request` event of type `opened`, `reopened`, `synchronize` or `ready_for_review`; and `workflow_dispatch`. Every job skips a draft pull request. No other trigger, and no `pull_request_target`. A newer run for the same pull request cancels the older one. A run for a push to `main` is never cancelled.
 2. **The environment (O9, O13).** Every job runs on a GitHub-hosted runner named `ubuntu-24.04`. Safari's `macos-26` runner belongs to the Safari workflow, outside the gate (`RD-12` properties 6 and 12). Each label is named, not `*-latest`, so an operating system changes only by an edit. Each job uses the Node major version that the workflow names. **CI doesn't pull the development image, and no job runs in a container.** Chromium, Firefox and WebKit are the builds that the exact `playwright` dependency pins (`RD-9`), and a job installs its engine with `npx playwright install --with-deps <engine>`. Screenshots are reproducible because of `RD-9`'s pinned visual environment, not because of the runner's operating system.
-3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `webkit` run every browser project except visual in their engine (`RD-12` property 11). `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** In a run that `RD-15`'s marker reduces, only `records` runs, and the jobs above are skipped. Every job runs the repository's own recipes on a fresh checkout after the install that `RD-16` chooses. If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
+3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `webkit` run every browser project except visual in their engine (`RD-12` property 11). `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** In a run that `RD-15`'s marker reduces, only `records` runs, and the jobs above are skipped. Every job runs the repository's own recipes on a fresh checkout after `aube ci` (`RD-16`). If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
 4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox`, `webkit` and `safari`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project takes no Chromium launch arguments, and runs with `fileParallelism: false` and one worker, because a background page gets no input in Firefox, and Safari allows one session. WebKit does too unless `RD-12` property 11's reading allows file parallelism. A Safari project uses the WebdriverIO provider (`RD-12` properties 2 and 3). **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and runs drag's browser and shipped projects in the engines that the variable lists. A local run is Chromium only (`RD-13` property 7).
 5. **Visual runs in Chromium only.** Its baselines are per engine and platform, and only Chromium baselines exist. **The gate never writes, updates or approves a baseline.** The recording workflow proposes baselines in a pull request that the owner merges (`RD-13`). When `chromium` fails, the actual and diff images are uploaded as a workflow artifact.
 6. **A row that needs an instrument that an engine's driver doesn't provide** runs only in the engines that provide it, by an engine condition, as drag's `isChromium` rows do. Chromium-only instruments are the DevTools Protocol, heap snapshots and `--expose-gc`. Safari's driver also lacks media emulation (`RD-12` properties 4 and 5). That limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it.
@@ -655,7 +655,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 4. **What a reduced run checks.** `records` runs the install, `just fmt-check` and the record resolver's tests (`.scripts/entry.node.test.ts`). Those are the gate's checks that read records and Markdown: `oxfmt` formats both, and the resolver's tests resolve entries in the real records. **No other gate check reads them.** Lint ignores `.plan/` (`RD-8` property 3), the root `tsconfig.json` doesn't include it, Storybook's stories are `*.mdx` and `*.stories.tsx`, and TypeDoc's `readme` is `none`. The implementer confirms this by search, and adds to `records` any check that the search finds.
 5. **Modes.** `scope` decides the mode and logs _H_, _B_ with its run, the mode, and the paths that kept the run full. **Full:** every gate job runs as `RD-6` property 3 says, and `records` is skipped. **Reduced:** `records` runs, and `static`, `chromium`, `firefox`, `webkit`, `docs` and `measurements` are skipped. `verify` succeeds only if `scope` succeeded, every job of its mode succeeded, and every job outside it was skipped. On `main`, a reduced run skips `docs`, so `deploy` doesn't run, and the site stays at its last deployment, which the range couldn't change.
 6. **It fails toward a full run.** If the API can't be read, no _B_ is found, the history can't answer ancestry, or the range can't be computed, the mode is full, and the log says why. `scope` fails only if it can't name a mode, and then `verify` fails.
-7. **Permissions.** `scope` adds `actions: read`, to read runs and jobs. It runs no install and no repository code beyond `git`.
+7. **Permissions.** `scope` adds `actions: read`, to read runs and jobs. It runs no install. Its only repository code is the decision script, which uses Node's built-in modules, `git` and `gh`. (**Amended 2026-11-17 at `0706f41f5`:** this said _"It runs no install and no repository code beyond `git`"_, which contradicted the handoff's script.)
 
 **Why.**
 
@@ -671,9 +671,11 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **A range from the merge base with `main`.** It counts unverified commits on the branch as verified.
 - **A reduced run with no checks.** See _Why_.
 
-#### RD-16 — CI installs with whichever of `npm ci` with `setup-node`'s cache and aube a measurement on the gate's runner shows faster, and `package-lock.json` stays the lockfile
+#### RD-16 — The repository installs, runs scripts and records with aube, `package-lock.json` stays its one lockfile, and only listed packages at listed versions run install scripts
 
-**Decided 2026-11-17 by the architect** on `repo/ci-speed-1` at `229829ef7`, on the owner's decision relayed by the coordinator the same day: **aube instead of npm for installs, if it holds the tree.** The acceptance: an `npm ls` equivalent shows one vite 8.4.0-beta.1 and one rolldown 1.3.2, `docs-smoke` passes, and the install time is measured against `npm ci` with `setup-node`'s cache on the same runners. The measurement decides. The owner's references are <https://aube.sh/bun-users> and <https://aube.sh/settings/#setting-overrides>. **Unimplemented:** the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md) measures it, and this entry is dated with the result.
+**Decided 2026-11-17 by the architect** on `repo/ci-speed-1` at `229829ef7`, on the owner's decision relayed by the coordinator the same day: aube instead of npm for installs, if it holds the tree. The owner's references are <https://aube.sh/bun-users> and <https://aube.sh/settings/#setting-overrides>.
+
+**Amended 2026-11-17 by the architect** at `0706f41f5`, on the owner's decision relayed by the coordinator: **a full move from npm to aube, with no speed condition,** for local development, CI and the records. The owner's words: _"я бы хотел полностью перекатиться на aube, без дополнительных условий, если только нет каких-то прям капитальных проблем"_. Yarn and pnpm are rejected. **Only a capital problem stops it** (property 11), and the timing is a reading that decides nothing. The supply chain is the owner's main concern: _"allowScripts/allowBuilds немного меня настораживает, ибо проблемы с poisoned supply chain - это причина почему я вообще не допускаю building tools на host"_. The owner also pointed to `strictDepBuilds`. The title and every property changed. What they said before is at the end. **Unimplemented:** the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md)'s item 4 implements it.
 
 **Read at `229829ef7`** by the architect in the devcontainer, with aube 2.10.1 of 2026-11-16 ([reading](ci-speed-1/checks/aube-probe.txt)):
 
@@ -681,34 +683,87 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **A frozen install from `package-lock.json`** installs 901 packages and links the npm workspaces. It keeps one vite and one rolldown, and leaves the lockfile byte-identical. Its default layout is isolated: 52 top-level entries, against npm's 655.
 - **Dependency scripts differ:** aube read neither `allowScripts` list. It ran `esbuild` and `nx` from its built-in list, and skipped `rs-module-lexer` and `unrs-resolver`, which npm runs.
 
+**Read at `0706f41f5`** by the architect, on scratch fixtures with aube 2.10.1, and with 2.10.0 for the script policy ([reading](ci-speed-1/checks/aube-policy-probe.txt)):
+
+- **`strictDepBuilds` fails the install** on a dependency script that no entry reviews: _"dependencies with build scripts must be reviewed before install"_. That holds the owner's quotation of the docs.
+- **It doesn't override the built-in trusted list.** With `strictDepBuilds` alone, `esbuild` ran unlisted. Only `useDefaultTrustedDependencies=false` removes the built-in list, and with both settings every unlisted script fails the install.
+- **`allowBuilds` pins exact versions.** `esbuild@0.28.1` allows 0.28.1 only. With `esbuild@0.28.0` listed, the installed 0.28.1 counts as unreviewed, and the install fails. Semver ranges are refused. A deny by bare name (`esbuild: false`) counts as reviewed at any version.
+- **Where aube reads the settings:**
+  - `strictDepBuilds` and `useDefaultTrustedDependencies` are read from `.npmrc` and from the environment. `package.json`'s `aube` field and a workspace YAML without `packages:` don't set them.
+  - `allowBuilds` and the catalog are read from `package.json`'s `aube` field.
+- **A mismatched `packageManager` pin downloads another aube** (_"Switching to aube@2.10.0 … Downloading aube v2.10.0…"_). With `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`, it fails instead.
+- **The release-age gate** (`minimumReleaseAge` with `minimumReleaseAgeStrict=true`) fails a resolution that only a too-young version satisfies: `ERR_AUBE_NO_MATURE_MATCHING_VERSION`.
+- **Overrides through the catalog hold.** With `aube.catalog` and `catalog:` in place of each `$` reference, the manifests resolve to one copy each of `@mdx-js/react`, eslint, react, rolldown and vite, with no warning.
+- **`aube import` is not faithful:** it rewrote npm's nested `ansi-regex@6.6.0` as 6.2.2, which is still in its dependents' range.
+- **nx 24.0.6 knows no aube lockfile,** and builds its external nodes from a bun, yarn, pnpm or npm lockfile.
+- **aube's releases** are weekly: 2.9.0 on 2026-11-02, 2.10.0 on 2026-11-09 and 2.10.1 on 2026-11-16.
+
 **Properties.**
 
-1. **Two arms.** **A** is today's: `actions/setup-node` with `cache: npm`, then `npm ci`. **B** is aube at an exact version, 2.10.1 unless the unit names a newer one, which `aube install --frozen-lockfile` runs with aube's store cached under a key of the runner's OS and the lockfile's hash. B uses the **hoisted** layout.
-2. **B holds the tree, read before any timing.** Each item is a prerequisite:
-   - `aube why vite` and `aube why rolldown` show one vite 8.4.0-beta.1 and one rolldown 1.3.2;
-   - `package-lock.json` is unchanged after the install;
-   - aube runs exactly the dependency scripts that npm's `allowScripts` allows. `aube.allowBuilds` in `package.json` allows the same packages and denies `edgedriver` and `geckodriver`, and `strictDepBuilds` makes a new unreviewed script fail the install;
-   - on the branch, every gate job passes on B's tree, `docs-smoke` included, and the Safari workflow's install and project listing succeed on `macos-26`.
+1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9). `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
+2. **`package-lock.json` stays the one lockfile,** which aube reads and writes. No `aube-lock.yaml` or `pnpm-lock.yaml` is committed. `.npmrc` sets `defaultLockfile` to `package-lock.json`, so a stray `aube-lock.yaml` can't take precedence over it.
+3. **Overrides go through the catalog.** `package.json`'s `aube.catalog` holds the five pinned versions: `@mdx-js/react`, eslint, react, rolldown and vite. Each override and each direct dependency on one of them is `catalog:`, so each version is written once. No `$` reference remains.
+4. **Only listed packages, at listed versions, run install scripts.**
+   - **The settings.** `.npmrc` sets `strictDepBuilds=true` and `useDefaultTrustedDependencies=false`.
+   - **The allow list.** `package.json`'s `aube.allowBuilds` allows exactly `esbuild@0.28.1`, `nx@24.0.6`, `rs-module-lexer@2.8.0` and `unrs-resolver@1.11.1`, the four that npm's `allowScripts` allows today.
+   - **The deny list.** It denies `edgedriver`, `geckodriver` and `fsevents` by name. npm skips all three today: the first two aren't covered, and `fsevents` installs only on macOS.
+   - **npm's `allowScripts`** is deleted.
+   - **What follows.** An unlisted package with an install script fails the install, and so does a listed package at another version. Updating such a package therefore updates its pin in the same change, which is the review. The root package's own `postinstall` (`.scripts/link-tsserver.ts`) runs, as it does under npm.
+5. **The version pin is enforced, never fetched.** `.npmrc` sets `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`. A different aube fails instead of downloading the pinned one.
+6. **Release age.** `.npmrc` sets `minimumReleaseAge=10080`, which is 7 days, and `minimumReleaseAgeStrict=true`. A resolution that needs a younger version fails rather than quietly taking an older one. An exception is a `minimumReleaseAgeExclude` entry named here with its reason. The aube version in property 1 meets the same age. A frozen install resolves nothing, so CI is unaffected.
+7. **The layout is hoisted** (`node-linker=hoisted` in `.npmrc`). Every other `.npmrc` key stays only if aube reads it, and the report names the keys it drops.
+8. **Commands.**
+   - `aube ci` in CI, on a fresh checkout, and `aube install` locally.
+   - `aube add` and `aube remove` to change dependencies.
+   - `aube run <script>` for a `package.json` script.
+   - **`aube exec <binary>` in place of `npx`.** Never `aubx` or `aube dlx` for a repository tool, because they fetch a package that isn't installed.
+   - **Who changes:** recipes, scripts, editor tasks, workflows, agent definitions and documentation say so. Instructions addressed to consumers of the published packages keep `npm install`, because those are the consumers' commands.
+9. **CI.**
+   - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from.
+   - **The cache.** It caches aube's store under a key of the OS, aube's version and the lockfile's hash, then runs `aube ci`. `setup-node`'s `cache: npm` goes.
+   - **Scope.** This covers `verify` (`measurements`' merge-base tree included), the Safari workflow and `baselines.yml`.
+10. **Timing is a reading.** Cold and warm `aube ci` times on `ubuntu-24.04` and `macos-26`, beside `npm ci`'s at `229829ef7`. They decide nothing.
+11. **Capital problems** are the only stops. The unit returns to the architect, and the owner decides, if:
+    - **the tree doesn't hold:** a frozen install doesn't give one vite 8.4.0-beta.1 and one rolldown 1.3.2; or it changes `package-lock.json`; or the catalog form resolves another copy;
+    - **a check fails only on aube:** a gate job, `docs-smoke`, or the Safari workflow's install or listing fails on aube's tree and passes on npm's at the same commit, and no configuration change repairs it;
+    - **the script policy doesn't hold** at the pinned version, locally or in CI, in any of these ways:
+      - a dependency script runs without a matching `allowBuilds` entry;
+      - an unlisted script, or a listed package at another version, doesn't fail the install;
+      - the built-in list can't be turned off;
+    - **a mismatched `packageManager` downloads** despite property 5;
+    - **GitHub's dependency graph** loses vite or rolldown from `package-lock.json` after aube writes it;
+    - **nx's commands that the recipes run fail** on the aube tree.
 
-   If any item fails, A stays, without timing.
-
-3. **The measurement.** For each arm on `ubuntu-24.04`, and for the record on `macos-26`, take one cold run and five warm runs, each in a fresh job, on one lockfile. Each time runs from the end of checkout to the end of the install, and includes `setup-node`, the cache restore, and installing aube itself. The figure is the median of the warm runs.
-4. **The rule.** **B wins only if** its warm median on `ubuntu-24.04` is at least 20 % and at least 10 seconds below A's. Otherwise A wins. The `macos-26` figure is reported and decides nothing.
-5. **If B wins:** every workflow installs with it: `verify`, the Safari workflow and `baselines.yml`, including `measurements`' merge-base tree. **`package-lock.json` stays the lockfile, and npm keeps working for a developer.** The root `overrides` keep their `$` references, and aube's warning is accepted, because a catalog would move them where npm doesn't read them. aube's version is pinned in one place in the workflows, and a third-party action is pinned to a full commit hash (`RD-6` property 9). The development image carries the same version ([dev image handoff](ci-speed-1/devimage-handoff.md)).
-6. **If A wins:** the workflows don't change. The measurement is recorded here, and the dev image handoff's aube part is dropped.
+    A speed figure, a warning, documentation churn, or a `package-lock.json` diff that aube writes once and then keeps stable is not a capital problem.
 
 **Why.**
 
-- **The hoisted layout,** because this unit changes how fast the tree installs, not how it is laid out. Under the hoisted layout every tool resolves modules as it does under npm, so the switch needs no source change. Whether the isolated layout would hold is a separate question with its own cost.
-- **The same scripts as npm,** so that the two trees differ only in how they were installed. A skipped native-binding postinstall would make the two arms install different trees.
-- **The threshold.** B adds a second tool, a second allow list kept equal to the first, and a deprecation warning, so a gain in the noise of five runs doesn't pay for that.
-- **`ubuntu-24.04` decides,** because every gate job runs there after `RD-12`'s amendment.
+- **`package-lock.json`, not `aube-lock.yaml`.** GitHub's dependency graph reads `package-lock.json` for the transitive dependencies that its security alerts cover. nx 24 reads it and knows no aube lockfile. A frozen install from it keeps every resolved version, while `aube import` re-deduplicates them. aube reads and writes the file, so keeping it costs nothing in the move.
+- **The catalog, not `$`.** aube warns that `$` is deprecated, and an aube that dropped it could resolve a second vite. npm, which needed `$`, no longer reads `package.json`.
+- **Deny by default, with version pins:** the owner's supply-chain rule. A script runs only after someone listed its package and version. `strictDepBuilds` alone would leave the built-in list in force, and a bare-name allow would run a new version unreviewed.
+- **No download of a package manager,** and a 7-day release age: both close a path by which a freshly published release runs without review.
+- **`aube exec`, not `aubx`:** `npx` and `aubx` both fetch a missing binary from the registry, and `aube exec` runs only what the lockfile installed.
+- **npm as CI's bootstrap, not `jdx/aube-action`.** The action would add a third party to the supply chain, for a step that the npm registry, already trusted, serves.
 
 **Not adopted.**
 
-- **aube's own lockfile** (`aube-lock.yaml`). npm couldn't read it, and the lockfile would change in the same unit as the installer.
-- **Overrides as an aube catalog.** npm doesn't read catalogs.
-- **Caching `node_modules` under npm, as a third arm.** The owner named two arms.
+- **Yarn and pnpm,** on the owner's word.
+- **`aube-lock.yaml`,** and `pnpm-lock.yaml` written by aube. See _Why_.
+- **Keeping `$` overrides** with the warning accepted. See _Why_.
+- **aube's built-in trusted list,** and `strictDepBuilds` without `useDefaultTrustedDependencies=false`.
+- **`managePackageManagerVersions` at its default,** which downloads the pinned aube.
+- **The isolated layout.** That is a separate change to how modules resolve.
+
+**What it said before the amendment of 2026-11-17.**
+
+- The title said: _"CI installs with whichever of `npm ci` with `setup-node`'s cache and aube a measurement on the gate's runner shows faster, and `package-lock.json` stays the lockfile"_.
+- Property 1 set two arms: _"**A** is today's: `actions/setup-node` with `cache: npm`, then `npm ci`. **B** is aube at an exact version, 2.10.1 unless the unit names a newer one"_, with the hoisted layout.
+- Property 2 required B to hold the tree before any timing, with `aube.allowBuilds` matching npm's `allowScripts` and `strictDepBuilds`.
+- Properties 3 and 4 set a measurement and its rule: _"**B wins only if** its warm median on `ubuntu-24.04` is at least 20 % and at least 10 seconds below A's. Otherwise A wins."_
+- Property 5 said: _"`package-lock.json` stays the lockfile, and npm keeps working for a developer. The root `overrides` keep their `$` references, and aube's warning is accepted, because a catalog would move them where npm doesn't read them."_ It also said that aube is pinned in the workflows, and an action to a full commit hash.
+- Property 6 said that if A won, the workflows wouldn't change.
+- The reasons said: _"B adds a second tool, a second allow list kept equal to the first, and a deprecation warning, so a gain in the noise of five runs doesn't pay for that."_ They also said that a catalog wasn't adopted, because npm doesn't read catalogs.
+- **Why it changed:** the owner's decision of 2026-11-17 for a full move without a speed condition, and the probes at `0706f41f5`, which showed `strictDepBuilds` leaving the built-in list in force.
 
 ## Findings
 
