@@ -1,0 +1,3 @@
+# Saved transcripts under a record's checks/ keep their output byte for byte,
+# so `git diff --check` doesn't report their trailing whitespace.
+**/.plan/**/checks/** -whitespace

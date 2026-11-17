@@ -1,0 +1,34 @@
+R3's witness: transcripts under a record's checks/ are exempt from git diff --check (feature proof reviewer-3).
+Read 2026-11-17 by the implementer on repo/harness-1, with R2 and R3 applied over f755fa287. git 2.47.3.
+
+## 1. In the checkout
+$ cat .gitattributes
+# Saved transcripts under a record's checks/ keep their output byte for byte,
+# so `git diff --check` doesn't report their trailing whitespace.
+**/.plan/**/checks/** -whitespace
+(exit 0, 0 s)
+$ git diff --check d6838d0f1..HEAD
+(exit 0, 0 s)
+# the same range against the working tree, which carries R2 and R3
+$ git diff --check d6838d0f1
+(exit 0, 0 s)
+# the same range with attributes read from f755fa287, which has no .gitattributes: lines reported, by file
+$ git --attr-source=f755fa287 diff --check d6838d0f1..HEAD | grep -c 'trailing whitespace'
+16
+     15 .plan/harness-1/checks/guard-search.txt
+      1 .plan/harness-1/checks/stack-procedure.txt
+
+## 2. In a scratch clone
+$ git clone -q --no-checkout /workspaces/material-x <scratch>/attr-clone
+(exit 0, 0 s)
+$ git add -f .gitattributes .plan/unit/checks/reading.txt packages/p/.plan/dir/checks/reading.txt docs/note.md
+(exit 0, 0 s)
+$ git diff --cached --check
+docs/note.md:1: trailing whitespace.
++A sentence 
+(exit 2, 1 s)
+$ git check-attr whitespace -- .plan/unit/checks/reading.txt packages/p/.plan/dir/checks/reading.txt docs/note.md
+.plan/unit/checks/reading.txt: whitespace: unset
+packages/p/.plan/dir/checks/reading.txt: whitespace: unset
+docs/note.md: whitespace: unspecified
+(exit 0, 0 s)

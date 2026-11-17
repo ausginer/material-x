@@ -46,7 +46,9 @@
 - The session runs in the slot as `Mx <Role> <S>`, and the effort is read from the slot's own definition.
 - `CL_SLOT_ROOT` is the one test hook, and every path assembled from it is checked with `${…:?}`.
 
-**The volume and the shared store:** `devcontainer.json` mounts `${localWorkspaceFolderBasename}_worktrees` at `/workspaces/worktrees` and sets `AUBE_STORE_DIR` and `AUBE_CACHE_DIR` under it. `post-create/chown.sh` gives the volume to `node`, and it runs before `setup.sh`'s install. `.scripts/link-tsserver.ts` writes a new file and renames it over `tsserver.js`. With a probe hardlink standing for the store's copy, the probe kept its content and the target got a new inode ([reading](checks/tsserver-replace.txt)).
+**The volume and the shared store:** `devcontainer.json` mounts `${localWorkspaceFolderBasename}_worktrees` at `/workspaces/worktrees` and sets `AUBE_STORE_DIR` and `AUBE_CACHE_DIR` under it. `post-create/chown.sh` gives the volume to `node`, and it runs before the first aube command of `post-create`, `typescript-language-server.sh`'s `aube add -g`, which writes to the store on the volume. `.scripts/link-tsserver.ts` writes a new file and renames it over `tsserver.js`. With a probe hardlink standing for the store's copy, the probe kept its content and the target got a new inode ([reading](checks/tsserver-replace.txt)).
+
+(_Corrected 2026-11-17,_ on the feature proof's `reviewer-2`: this paragraph said _"and it runs before `setup.sh`'s install"_. `setup.sh` installs nothing.)
 
 **Documentation:**
 
