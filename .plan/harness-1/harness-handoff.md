@@ -234,3 +234,35 @@ It records at `.plan/reviews/harness-1/feature-proof-claude.md`, and the archite
 **Stopping boundary:** the report is committed and pushed, and the pull request is open with `verify` green. The review follows.
 
 **Amended 2026-11-17** by the architect at `51a992b49`: items 5 and 6 run after the report and before the review. The report gains a section for them, with `checks/rf48-repair.txt`. The review also covers `implementer.md`'s new rule against `RF-48`'s decision, and `coordinator-setup.md` against `RD-17` property 2 as amended.
+
+## Decisions on the feature proof at `fbae00994`
+
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `fbae00994`, on the [feature proof](../reviews/harness-1/feature-proof-claude.md), relayed by the coordinator. It amends `repo:RD-18` property 4 and `repo:RF-48`'s _Decision_, and marks `RD-17` and `RD-18` implemented, in [`../00-index.md`](../00-index.md). **Only `reviewer-1`'s removal needs the owner,** and it doesn't block the merge.
+
+| Finding | Decision |
+| --- | --- |
+| `reviewer-1` | Recorded in `RD-18` property 4. Removing the registration is the owner's |
+| `reviewer-2` | Fix now, in the report: R2 |
+| `reviewer-3` | Fix now: R3, an exemption for saved transcripts |
+| _The `remove` departure_ | Accepted. `RF-48`'s _Decision_ now names `add` and `remove` |
+
+**`reviewer-1`: the record names the second registration, and the owner decides whether to remove it.** `RD-18` property 4 now names `harness-effort-guard@devcontainer-clipboard` beside the `material-x` marketplace. It says that `claude plugin marketplace remove material-x` doesn't remove it, and that the announcement it prints checks nothing. The registration is in the owner's user-level settings and serves other projects, so the repository records it and doesn't change it. Nothing in this unit changes.
+
+**`reviewer-2`: the report names the step that depends on the chown.**
+
+- **R2.** In `harness-report.md`'s _Item 2_, replace _"and it runs before `setup.sh`'s install"_ with: _"and it runs before the first aube command of `post-create`, `typescript-language-server.sh`'s `aube add -g`, which writes to the store on the volume"_. Add a dated correction after the paragraph that quotes the old words. `setup.sh` installs nothing.
+
+**`reviewer-3`: transcripts under a record's `checks/` are exempt from `git diff --check`.** A saved reading is output captured as it was printed. Trimming its trailing whitespace changes the evidence, and the 159 lines across every `checks/` directory in the tree show that the check has never passed there.
+
+- **R3.**
+  - Add `.gitattributes` at the root with one line, `**/.plan/**/checks/** -whitespace`, under a comment that says saved transcripts keep their output byte for byte.
+  - In `.agents/docs/handoff.md` §Markdown, step 3 gains: _"`.gitattributes` exempts saved transcripts under a record's `checks/`, because trimming them would change captured output."_
+  - **Witness**, saved as `checks/diff-check.txt`: `git diff --check d6838d0f1..HEAD` exits 0 after the change. In a scratch clone, a Markdown file with a trailing space is still reported, and a transcript under `.plan/<unit>/checks/` and one under `packages/<p>/.plan/<dir>/checks/` aren't. The architect read the same in a scratch repository.
+  - Format the changed Markdown, check its links, and run `git diff --check`.
+- **Not adopted:** **trimming the transcripts.** It alters evidence that a review compares against. **Stating the exception only in the report.** Every later unit with a `checks/` directory would need to state it again.
+
+**The `remove` departure: accepted.** `implementer.md`'s _"`add` and `remove` drop the workspace links"_ states what `checks/rf48-repair.txt` step 4 shows, and `RF-48`'s required property 2 already names both commands.
+
+**The observations** need no change. The test that reads the repository's own `architect.md` and `implementer.md` is the handoff's witness, and its cost is visible.
+
+**Next:** the implementer applies R2 and R3, with R3's witness, in one commit, and pushes. No second review: R2 changes a record's sentence, and R3's witness is mechanical. The coordinator checks the witness and `verify` on #33, and the owner merges.
