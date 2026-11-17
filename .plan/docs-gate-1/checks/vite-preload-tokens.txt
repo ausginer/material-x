@@ -1,0 +1,17 @@
+# Malformed __vitePreload calls in .docs: a ']' or ')' followed directly by a 32-hex token.
+# grep -rEoc '[])][0-9a-f]{32}' .docs --include='*.js'  (files with a nonzero count; total)
+
+## Before: vite 8.3.8, at 5e1828d06
+.docs/vite-inject-mocker-entry.js:1
+.docs/assets/DocsRenderer-JROSPFPF-BrN1L-Y5.js:1
+.docs/assets/blocks-BXX6uuJt.js:2
+.docs/assets/components-D5Un7E2y.js:6
+.docs/assets/iframe-DyV7uOsB.js:38
+total: 48
+
+## After: vite 8.4.0-beta.1
+total: 0
+
+# Mutations of .scripts/docs-smoke.ts on temporary copies, against the after build:
+# A. RENDERED_EVENTS emptied and PAGE_TIMEOUT 3000 (a preview that never reports): exit 1, 2 of 102 pages passed at http://127.0.0.1:37297/material-x/ in 76.6 s, 100 timeouts
+# B. index.json with no entries: exit 1, throw new Error('.docs/index.json lists no entries');

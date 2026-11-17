@@ -1,0 +1,69 @@
+# npm ls vite rolldown
+
+## Before (5e1828d06)
+@ydinjs/material-x-workspace@ /workspaces/material-x
+├─┬ @storybook/react-vite@10.6.7
+│ ├─┬ @joshwooding/vite-plugin-react-docgen-typescript@0.7.0
+│ │ └── vite@8.3.8 deduped
+│ ├─┬ @storybook/builder-vite@10.6.7
+│ │ └── vite@8.3.8 deduped
+│ └── vite@8.3.8 deduped
+├─┬ @vitejs/plugin-react@6.3.0
+│ └── vite@8.3.8 deduped
+├─┬ @vitest/browser-playwright@5.1.0
+│ └─┬ @vitest/mocker@5.1.0
+│   └── vite@8.3.8 deduped
+├─┬ @ydinjs/vite-custom-element-assets@0.1.0 -> ./packages/vite-custom-element-assets
+│ ├── rolldown@1.3.2 deduped
+│ └── vite@8.3.8 deduped
+├─┬ @ydinjs/vite-traits-plugin@0.1.0 -> ./packages/vite-traits-plugin
+│ ├── rolldown@1.3.2 deduped
+│ └── vite@8.3.8 deduped
+├── rolldown@1.3.2
+├─┬ tsdown@0.23.7
+│ ├─┬ rolldown-plugin-dts@0.30.2
+│ │ └── rolldown@1.3.2 deduped
+│ └── rolldown@1.3.2 deduped
+├─┬ vite-plugin-inspect@12.1.0
+│ ├─┬ @vitejs/devtools-kit@0.7.6
+│ │ └── vite@8.3.8 deduped
+│ └── vite@8.3.8 deduped
+├─┬ vite@8.3.8
+│ └── rolldown@1.3.2 deduped
+└─┬ vitest@5.1.0
+  └── vite@8.3.8 deduped
+
+
+## After (vite 8.4.0-beta.1)
+@ydinjs/material-x-workspace@ /workspaces/material-x
+├─┬ @storybook/react-vite@10.6.7
+│ ├─┬ @joshwooding/vite-plugin-react-docgen-typescript@0.7.0
+│ │ └── vite@8.4.0-beta.1 deduped
+│ ├─┬ @storybook/builder-vite@10.6.7
+│ │ └── vite@8.4.0-beta.1 deduped
+│ └── vite@8.4.0-beta.1 deduped
+├─┬ @vitejs/plugin-react@6.3.0
+│ └── vite@8.4.0-beta.1 deduped
+├─┬ @vitest/browser-playwright@5.1.0
+│ └─┬ @vitest/mocker@5.1.0
+│   └── vite@8.4.0-beta.1 deduped
+├─┬ @ydinjs/vite-custom-element-assets@0.1.0 -> ./packages/vite-custom-element-assets
+│ ├── rolldown@1.3.2 deduped
+│ └── vite@8.4.0-beta.1 deduped
+├─┬ @ydinjs/vite-traits-plugin@0.1.0 -> ./packages/vite-traits-plugin
+│ ├── rolldown@1.3.2 deduped
+│ └── vite@8.4.0-beta.1 deduped
+├── rolldown@1.3.2
+├─┬ tsdown@0.23.7
+│ ├─┬ rolldown-plugin-dts@0.30.2
+│ │ └── rolldown@1.3.2 deduped
+│ └── rolldown@1.3.2 deduped
+├─┬ vite-plugin-inspect@12.1.0
+│ ├─┬ @vitejs/devtools-kit@0.7.6
+│ │ └── vite@8.4.0-beta.1 deduped
+│ └── vite@8.4.0-beta.1 deduped
+├─┬ vite@8.4.0-beta.1
+│ └── rolldown@1.3.2 deduped
+└─┬ vitest@5.1.0
+  └── vite@8.4.0-beta.1 deduped
+

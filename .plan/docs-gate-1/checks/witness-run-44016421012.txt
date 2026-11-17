@@ -1,0 +1,23 @@
+# verify run 44016421012, workflow_dispatch on repo/docs-gate-1 at 5e1828d06 (items 2 and 3, before item 1). https://github.com/ausginer/material-x/actions/runs/44016421012
+run: failure
+static: success (2026-11-17T04:19:54Z to 2026-11-17T04:22:14Z)
+measurements: success (2026-11-17T04:19:55Z to 2026-11-17T04:22:10Z)
+firefox: success (2026-11-17T04:19:55Z to 2026-11-17T04:28:54Z)
+chromium: success (2026-11-17T04:19:55Z to 2026-11-17T04:26:35Z)
+safari: success (2026-11-17T04:19:55Z to 2026-11-17T04:31:38Z)
+docs: failure (2026-11-17T04:19:55Z to 2026-11-17T04:21:51Z)
+deploy: skipped (2026-11-17T04:21:51Z to 2026-11-17T04:21:51Z)
+verify: failure (2026-11-17T04:31:41Z to 2026-11-17T04:31:45Z)
+
+## docs, step 'npx just docs-smoke': summary and first failures
+2 of 102 pages passed at http://127.0.0.1:34967/material-x/ in 9.8 s
+Step times: npm ci 49 s, playwright install 22 s, docs-build 19 s, docs-smoke 10 s; job 1 min 53 s.
+FAIL story drag-free-drag--interactive
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-free-drag--async-drop-confirmation
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-custom-behavior--resize-handle
+...
+FAIL lines: 100
