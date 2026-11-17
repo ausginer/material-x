@@ -1,0 +1,128 @@
+aubeNoAutoInstall=true (RD-16 property 12; CI-speed handoff, Remediation of the stop, step 5)
+Read 2026-11-17 by the implementer on repo/ci-speed-1 at cf0f9f344 with the .npmrc line added
+(uncommitted), aube 2.10.0, in the devcontainer, on a tree `aube install` had just brought up to date.
+The marker m is a file in the session scratchpad, touched after step 1's edit.
+
+Readings, in brief:
+- `aube exec tsc --version`, the handoff's literal command, never reaches tsc: aube takes `--version`
+  wherever it stands and prints its own version (aube-local-witnesses.txt, reading 5). It also never
+  reaches the staleness check: in the first control it printed aube's version and installed nothing.
+  Both rounds therefore also ran `aube exec -- tsc --version`, which runs tsc (Version 7.0.2).
+- First round, edit = an added script `witness-no-install`. Step 2 held. The control, with the line
+  removed, did not install either, under both forms: the check ignores an added script.
+- Second round, edit = the script and `concurrently` 10.0.7 -> ^10.0.7 (the handoff's suggested
+  alternative). Step 2 held: no "Auto-installing", nothing in .aube-state newer than m. The control,
+  with the line removed, printed "Auto-installing: package.json has changed", rewrote five
+  .aube-state files, and also rewrote package-lock.json.
+- So aube 2.10.0 reads the key: step 5's stop does not apply. The edit that served is the `^` range.
+- Restored afterwards: `git checkout -- package.json package-lock.json`, the .npmrc line put back,
+  `aube install` (exit 0), and `git status --short` lists only the intended .npmrc change and the
+  unit's untracked records.
+
+The log as it was written:
+
+## step 1: package.json gains scripts.witness-no-install; marker created
+ package.json | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+## step 2a: aube exec tsc --version
+2.10.0 linux-x64 (2026-11-09)
+
+  aube 2.10.1 is available (current: 2.10.0)
+  upgrade: https://aube.sh
+exit=0
+## step 2b: aube run witness-no-install
+$ node -e 0
+exit=0
+## step 2c: find node_modules/.aube-state -newer m
+(end of find output)
+## step 2a': aube exec -- tsc --version
+Version 7.0.2
+exit=0
+## step 2a'': aube exec tsc -v
+exit=0
+## step 2c': find node_modules/.aube-state -newer m
+(end of find output)
+## step 3 (control): .npmrc line removed
+0
+## step 3a: aube exec tsc --version
+2.10.0 linux-x64 (2026-11-09)
+
+  aube 2.10.1 is available (current: 2.10.0)
+  upgrade: https://aube.sh
+exit=0
+## step 3c: find node_modules/.aube-state -newer m
+(end of find output)
+## step 3a': aube exec -- tsc --version
+Version 7.0.2
+exit=0
+## step 3c': find node_modules/.aube-state -newer m
+(end of find output)
+
+########## Repeat from step 1 with a second edit: concurrently 10.0.7 -> ^10.0.7, and the script
+## .npmrc has the line:
+1
+diff --git a/package.json b/package.json
+index 13b0cbb38..fdd24a91a 100644
+--- a/package.json
++++ b/package.json
+@@ -20,7 +20,8 @@
+     "lint:fix": "just lint-fix",
+     "oxlint:migrate": "just oxlint-migrate",
+     "typecheck": "just typecheck",
+-    "postinstall": "node ./.scripts/link-tsserver.ts"
++    "postinstall": "node ./.scripts/link-tsserver.ts",
++    "witness-no-install": "node -e 0"
+   },
+   "devDependencies": {
+     "@custom-elements-manifest/analyzer": "0.11.0",
+@@ -46,7 +47,7 @@
+     "@vitest/browser-webdriverio": "5.0.0",
+     "@vitest/coverage-v8": "5.1.0",
+     "@vitest/ui": "5.1.0",
+-    "concurrently": "10.0.7",
++    "concurrently": "^10.0.7",
+     "eslint": "catalog:",
+     "eslint-config-prettier": "10.1.8",
+     "eslint-config-vaadin": "1.0.0-beta.8",
+## step 2a: aube exec -- tsc --version
+Version 7.0.2
+exit=0
+## step 2b: aube run witness-no-install
+$ node -e 0
+exit=0
+## step 2c: find node_modules/.aube-state -newer m
+(end of find output)
+## step 3 (control): .npmrc line removed; count:
+0
+## step 3a: aube exec -- tsc --version
+Auto-installing: package.json has changed
+aube 2.10.0 by jdx.dev
+██████████████░  889/889 pkgs · linking
+███████████████  889/889 pkgs
+✓ resolved 889 · reused 889 in 2.9s
+@ydinjs/material-x-workspace:
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
+exit=0
+## step 3c: find node_modules/.aube-state -newer m
+node_modules/.aube-state
+node_modules/.aube-state/hoisted-placements.json
+node_modules/.aube-state/bin-links.json
+node_modules/.aube-state/licenses.json
+node_modules/.aube-state/state.json
+node_modules/.aube-state/fresh.json
+(end of find output)
+## after the control: git status --short
+ M .npmrc
+ M package-lock.json
+ M package.json
+?? .plan/ci-speed-1/checks/rf47-fix-lockfile.txt
+?? .plan/ci-speed-1/checks/rf47-lockdiff.mjs
+## restored: git checkout package.json (and package-lock.json if changed); .npmrc keeps its new line; aube install
+ M .npmrc
+?? .plan/ci-speed-1/checks/rf47-fix-lockfile.txt
+?? .plan/ci-speed-1/checks/rf47-lockdiff.mjs

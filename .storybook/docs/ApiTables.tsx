@@ -35,7 +35,7 @@ export function ApiTables({ tag }: Readonly<{ tag: string }>): JSX.Element {
       {!declaration ? (
         <blockquote>
           Could not find <code>{tag}</code> in <code>custom-elements.json</code>
-          . Run <code>npm run build:cem</code> and rebuild docs.
+          . Run <code>aube run build:cem</code> and rebuild docs.
         </blockquote>
       ) : null}
 

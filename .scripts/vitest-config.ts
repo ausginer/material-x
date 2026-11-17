@@ -33,8 +33,8 @@ const BROWSER_WORKERS = 2;
 // Files at once across the whole non-browser group, which shares one
 // `groupOrder` and therefore one resolved bound. Half the cores rather than
 // Vitest's `cores - 1`, because several files in this group spawn work that uses
-// more than the one core the worker holding it is counted as: `consumer.node`
-// runs `npm pack` and `tsc`, and `size.node` bundles and compresses. At
+// more than the one core the worker holding it is counted as:
+// `consumer-types.node` spawns `tsc`, and `size.node` bundles and compresses. At
 // `cores - 1` the group oversubscribed badly enough to time out three tests;
 // measured on all five node projects, 40 s with four failures against 45 s with
 // none. It has not been repeated since.
@@ -191,9 +191,9 @@ type WorkspaceTestConfigOptions = Readonly<{
   viteTraitsPluginRoot: URL;
 }>;
 
-type Engine = 'chromium' | 'firefox' | 'safari';
+type Engine = 'chromium' | 'firefox' | 'webkit' | 'safari';
 
-const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'safari'];
+const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'webkit', 'safari'];
 
 function isEngine(name: string): name is Engine {
   return (ENGINES as readonly string[]).includes(name);
@@ -238,9 +238,9 @@ function scopedName(base: string, scope?: string): string {
 /**
  * Chromium is Playwright's full build, in Chrome's new headless mode, which the
  * `chromium` channel selects. The `chromium-headless-shell` build that
- * Playwright starts otherwise is a separate implementation. Chromium and Firefox
- * are the builds that the exact `playwright` dependency pins; Safari isn't
- * pinned.
+ * Playwright starts otherwise is a separate implementation. Chromium, Firefox
+ * and WebKit are the builds that the exact `playwright` dependency pins; Safari
+ * isn't pinned.
  */
 function createChromiumProvider(
   launchArgs: readonly string[] = [],
@@ -264,10 +264,10 @@ function createChromiumProvider(
 }
 
 /**
- * Each engine's provider. Chromium and Firefox are Playwright's builds, which the
- * exact `playwright` dependency pins. Safari is the browser on the macOS that
- * runs it, driven through its own `safaridriver`, because only WebDriver drives
- * Safari.
+ * Each engine's provider. Chromium, Firefox and WebKit are Playwright's builds,
+ * which the exact `playwright` dependency pins. Safari is the browser on the
+ * macOS that runs it, driven through its own `safaridriver`, because only
+ * WebDriver drives Safari.
  */
 function createEngineProvider(
   engine: Engine,
@@ -289,15 +289,18 @@ function createBrowserTestConfig(
   commands?: Record<string, BrowserCommand<any[]>>,
   options?: Readonly<{ launchArgs?: readonly string[] }>,
 ): UserConfig {
-  const isChromium = engine === 'chromium';
+  const isParallel = engine === 'chromium' || engine === 'webkit';
   const isSafari = engine === 'safari';
 
   return {
     test: {
       // A page in the background gets no input in Firefox and Safari, and
-      // Safari allows one WebDriver session at a time.
-      fileParallelism: isChromium && !isDebug,
-      maxWorkers: isChromium ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
+      // Safari allows one WebDriver session at a time, so both run serially.
+      // WebKit runs in parallel at Chromium's worker count: in three CI runs
+      // beside serial ones, no row failed and its test step was 39 to 48 %
+      // shorter by the jobs API's step times (`repo:RD-12` property 11).
+      fileParallelism: isParallel && !isDebug,
+      maxWorkers: isParallel ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {
         enabled: true,
         // Safari has no headless mode.

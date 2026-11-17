@@ -9,13 +9,13 @@
     "debug": "just debug",
     "build": "nx run-many -t build --all --skipNxCache",
     "clean:build": "nx run-many -t clean:build --all --skipNxCache",
-    "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
+    "check": "concurrently \"aube run fmt:check\" \"aube run lint\" \"aube run typecheck\"",
     "test": "vitest run",
     "docs": "just docs-build",
     "docs:dev": "just docs-dev",
     "fmt": "just fmt",
     "fmt:check": "just fmt-check",
-    "lint": "concurrently npm:lint:packages",
+    "lint": "concurrently \"aube run lint:packages\"",
     "lint:packages": "just lint",
     "lint:fix": "just lint-fix",
     "oxlint:migrate": "just oxlint-migrate",
@@ -26,9 +26,10 @@
     "@custom-elements-manifest/analyzer": "0.11.0",
     "@eslint/config-helpers": "0.7.0",
     "@jridgewell/gen-mapping": "0.3.13",
-    "@mdx-js/react": "3.1.1",
+    "@mdx-js/react": "catalog:",
     "@minify-html/node": "0.18.1",
     "@mizchi/lsmcp": "0.10.0",
+    "@oxlint/migrate": "1.93.0",
     "@preact/signals-core": "1.14.5",
     "@storybook/addon-docs": "10.6.7",
     "@storybook/addon-links": "10.6.7",
@@ -47,7 +48,7 @@
     "@vitest/coverage-v8": "5.1.0",
     "@vitest/ui": "5.1.0",
     "concurrently": "10.0.7",
-    "eslint": "10.14.0",
+    "eslint": "catalog:",
     "eslint-config-prettier": "10.1.8",
     "eslint-config-vaadin": "1.0.0-beta.8",
     "eslint-plugin-import-x": "4.18.1",
@@ -64,9 +65,9 @@
     "oxlint-tsgolint": "7.0.2007",
     "playwright": "1.65.0",
     "publint": "0.3.25",
-    "react": "19.3.1",
+    "react": "catalog:",
     "react-dom": "19.3.1",
-    "rolldown": "1.3.2",
+    "rolldown": "catalog:",
     "rust-just": "1.59.0",
     "size-limit": "14.3.0",
     "sorcery": "1.0.0",
@@ -78,25 +79,38 @@
     "typedoc": "0.28.20",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.72.2",
-    "vite": "8.4.0-beta.1",
+    "vite": "catalog:",
     "vite-plugin-inspect": "12.1.0",
     "vitest": "5.1.0",
     "webdriverio": "10.2.0"
   },
   "overrides": {
-    "@mdx-js/react": "$@mdx-js/react",
-    "eslint": "$eslint",
-    "react": "$react",
-    "rolldown": "$rolldown",
-    "vite": "$vite"
+    "@mdx-js/react": "catalog:",
+    "eslint": "catalog:",
+    "react": "catalog:",
+    "rolldown": "catalog:",
+    "vite": "catalog:"
   },
   "engines": {
     "node": ">=24"
   },
-  "allowScripts": {
-    "rs-module-lexer@2.8.0": true,
-    "unrs-resolver@1.11.1": true,
-    "esbuild@0.28.1": true,
-    "nx@24.0.6": true
+  "packageManager": "aube@2.10.0",
+  "aube": {
+    "catalog": {
+      "@mdx-js/react": "3.1.1",
+      "eslint": "10.14.0",
+      "react": "19.3.1",
+      "rolldown": "1.3.2",
+      "vite": "8.4.0-beta.1"
+    },
+    "allowBuilds": {
+      "esbuild@0.28.1": true,
+      "nx@24.0.6": true,
+      "rs-module-lexer@2.8.0": true,
+      "unrs-resolver@1.11.1": true,
+      "edgedriver": false,
+      "geckodriver": false,
+      "fsevents": false
+    }
   }
 }

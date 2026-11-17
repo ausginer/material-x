@@ -7,7 +7,6 @@ import {
   commands,
   deliveredClicks,
   dragAndDrop,
-  engine,
   frames,
   grab,
   isChromium,
@@ -369,6 +368,5 @@ describe('drag:DRI-11 the click guard', () => {
     await commands.pointerDown();
     await commands.pointerUp();
     expect(prevented).toBe(false);
-    expect(engine).toMatch(/chromium|firefox|safari/u);
   });
 });

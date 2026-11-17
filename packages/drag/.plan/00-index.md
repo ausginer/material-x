@@ -4959,6 +4959,14 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - In CI, the result split with the Vite version, 2 to 2. Locally, it split the other way.
   - **Neither variance nor Vite's version is established as the cause.** Two samples per version don't decide it. Whether Vite's version moves the reading is a question for this finding. The finding stays open, and its required property doesn't change.
 
+- **Dated 2026-11-17 by the architect: two more CI readings,** from the [CI-speed report](../../../.plan/ci-speed-1/ci-speed-report.md), _The measurement rows' failing file_. Both runs are on Vite 8.4.0-beta.1:
+
+  | Reading | Commit | Installer | Row | B per move |
+  | --- | --- | --- | --- | --- |
+  | CI 44035423615, `main` | `21392e738` | npm | failed | 18.77 |
+  | CI 44055280400, `repo/ci-speed-1` | `633ef72d8` | aube | failed | 29.33 |
+  - The row fails under both installers, so the move to aube isn't its cause. The CI-speed unit doesn't change it. The finding stays open, with the same required property.
+
 #### DRF-49 — In Safari, the `y()` sweep through `box` with a `visual` intermittently stalls until its timeout
 
 Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` properties 1 and 4 and its handoff's _Resuming after the three Safari runs_. **Skipped in Safari only** (`it.skipIf(isSafari)`), in both `browser/drag` and `consumer/drag`, and the marking cites this address.
@@ -4970,6 +4978,8 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **What is established:** the row's only waits are the WebDriver `pointerMove` command and `requestAnimationFrame` (`tests/support/gap-conformance.ts`'s `sweepGaps`), and Safari's pointer command delivers every interpolated move before it returns (`repo` CI unit's probe, run 43829273272). **The cause is not established.** No timeout was raised.
 - **Required property:** the row finishes in Safari in every run.
 - **Routed** to the architect. The CI unit doesn't change the row's instrument.
+
+**Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `repo:RD-12`'s amendment moves Safari out of the gate, into a weekly workflow that no rule requires. Once it is implemented, this row no longer fails `verify`. Its Safari skip stays and applies to the weekly run. The finding stays open, because no cause is established. **The row runs in Playwright's WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces it, and if it does, it is a `repo:RD-8` row in WebKit.
 
 #### DRF-50 — In Safari, the gap sweep with transitions on the rows and the item intermittently stalls until its timeout
 
@@ -4983,6 +4993,8 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Required property:** the row finishes in Safari in every run.
 - **Routed** to the architect. The CI unit doesn't change the row's instrument.
 
+**Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `repo:RD-12`'s amendment moves Safari out of the gate, into a weekly workflow that no rule requires. Once it is implemented, this row no longer fails `verify`. Its Safari skip stays and applies to the weekly run. The finding stays open, because no cause is established. **The row runs in Playwright's WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces it, and if it does, it is a `repo:RD-8` row in WebKit.
+
 #### DRF-51 — In Safari, a TransformedStage box ends 16 px lower than where it was dropped
 
 Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` property 4 and its handoff's _Resuming after the three Safari runs_, step 3. **Expected to fail in Safari only** (`it.fails`), and the marking cites this address.
@@ -4994,6 +5006,25 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **The cause is not established.** The stage is rotated 6° and scaled 1.15 (`src/stories.module.css`, `.warped`), and the story commits the drop through the local delta.
 - **Required property:** a TransformedStage box stays where it was dropped in Safari, as in Chromium and Firefox, and the row passes there without its marking.
 - **Routed** to the architect. The CI unit doesn't change drag's source.
+
+**Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `repo:RD-12`'s amendment moves Safari out of the gate, into a weekly workflow that no rule requires. Once it is implemented, the row no longer runs in Safari in `verify`. Its Safari expected failure stays and applies to the weekly run. The finding stays open, because no cause is established. **The row runs in Playwright's WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces it, and if it does, it is a `repo:RD-8` row in WebKit.
+
+#### DRF-52 — In Safari, the equivalence oracle intermittently records a mismatch at an animated row in a `layoutAnimation` row
+
+Tier C, **open**. Registered on 2026-11-17 by the architect, on the coordinator's report of run 44030423689 on `repo` pull request #30. **No row is disabled.** The row is in the gate.
+
+- **The row:** `tests/layout-animation.browser.test.ts:183`, `layoutAnimation rows` › "should never animate the dragged item". It drags item 2 of 4 upward, so `layoutAnimation` animates rows 0 and 1. It waits only on WebDriver pointer commands and frames, with no wall-clock wait.
+- **The engine:** Safari on the `macos-26` runner, through the WebdriverIO provider.
+- **The failure:** attempt 2 of run 44030423689 at `a51e5cb1c`, in `consumer/drag`, at 170 ms. The row's own assertions didn't fail. The equivalence oracle (`DRD-67` property 4) failed the row at its end: _"the predicted insertion geometry disagreed with a fresh measurement at slot 0"_ (`tests/support/oracles.ts:311`, [log](../../../.plan/docs-gate-1/checks/safari-flake-44030423689-attempt-2.txt)). Slot 0 is a row that `layoutAnimation` animates at that moment.
+- **Other runs:** in the same attempt, the file passed in `browser/drag`, and it passed in both projects in attempt 1. It passed in Safari in each of the branch's five earlier `verify` runs (44016421012 to 44027436469). `a51e5cb1c` differs from the green `8f62beedf` (run 44027436469) only in `.plan/`, and the branch changes nothing in `packages/drag` but this record.
+- **The cause is not established.** One sample. The prediction and the fresh measurement read an animated row, and the oracle's precision is 1/16 px (`DRI-14`). A disagreement that depends on which frame of the animation each one reads is the candidate. It is an inference, not a reading. The file's earlier mismatch at slot 0 (`DRD-67`, _Property 7's stop_) came from a fixture that moved a row, and this row's fixture moves none.
+- **For a change to the Safari job's speed:** the row has no wall-clock wait, so a change in load can't break it through a timeout. If the candidate holds, its result depends on which animation frames the two readings fall in, and so on how Safari schedules frames. That also changes with load. In both attempts, `browser/drag` and `consumer/drag` each took about 218 s, at 97 % test time, which is most of the `safari` step. The projects ran in a different order in each attempt.
+- **Required property:** the row passes in Safari in every run. Any mismatch the oracle records there is either a defect in the prediction or one that `DRI-14` places outside the contract, and the record says which.
+- **Routed** to the architect. The next step is a reading, and it isn't planned here.
+
+**Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `repo:RD-12`'s amendment moves Safari out of the gate, into a weekly workflow that no rule requires. Once it is implemented, this row no longer fails `verify`. It isn't skipped, so it can still turn a weekly run red, and that run's issue names it (`repo:RD-12` property 12). The finding stays open, because no cause is established. **The row runs in Playwright's WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces it, and if it does, it is a `repo:RD-8` row in WebKit.
+
+**Dated 2026-11-17 by the architect,** at `4136c0eea`: this row passes in Playwright's WebKit in the gate, in both projects, twice ([inventory](../../../.plan/ci-speed-1/checks/webkit-inventory.txt)). WebKit does fail the same oracle message deterministically, but in another row, `sortable.browser.test.ts`'s _"should cancel and report when an anchor leaves before the release"_, at slot 1. That row removes an anchor from the list on purpose, and the [CI-speed handoff](../../../.plan/ci-speed-1/ci-speed-handoff.md)'s _Disposition of the stop at `4136c0eea`_ decides it there. Nothing about it is read as this finding's cause.
 
 ## Owner decisions
 
@@ -5382,6 +5413,8 @@ No timing was taken.
 **Dated 2026-11-16, by the architect:** `repo:RD-12` makes CI's third engine **Safari on a macOS runner**, on the owner's correction, instead of Playwright's WebKit. No Playwright WebKit build runs anywhere, locally or in CI. `test-engines` runs Chromium and Firefox, so its projects are exactly the selection above: `browser`, `browser/firefox`, `shipped` and `shipped/firefox`. `browser/webkit` and `shipped/webkit` no longer exist, and CI's Safari projects are `browser/safari` and `shipped/safari`. A report states that Safari didn't run locally, as it stated for WebKit. Unimplemented: until the CI unit lands, no run covers Safari.
 
 **Dated 2026-11-16, by the architect, on the owner's direction:** `repo:RD-13` makes local runs **Chromium only**. A check that names `npx just test-engines` is owed locally in Chromium, through `browser` and `shipped`. Firefox and Safari are read in CI on the unit's pull request (`repo:RD-13` property 8). `test-engines` sets no engine list, so it runs the engines that `MX_TEST_ENGINES` lists, Chromium by default. This replaces the local Firefox selection above. The project names in each engine don't change.
+
+**Dated 2026-11-17, by the architect,** on `repo/ci-speed-1` at `229829ef7`, on the owner's decisions relayed by the coordinator: `repo:RD-12` makes Playwright's WebKit the gate's third engine, and Safari runs weekly outside the gate. The owner also asked that a rebuild of the development image install WebKit's system libraries in advance (_"чтобы при ребилде всё устанавливалось заранее (aube и библиотеки для webkit)"_), which reverses this entry's _"WebKit isn't restored in the local environment"_. **Why WebKit didn't run locally:** the image never had its system libraries. The earlier units' `webkit-env.sh` pointed WebKit at Debian packages unpacked into a scratch directory, and a Playwright reinstall removed those links. In the devcontainer at `229829ef7`, WebKit still fails to launch for missing libraries, and their 247 packages resolve from Debian 13 ([reading](../../../.plan/ci-speed-1/checks/webkit-local-probe.txt)). The [dev image handoff](../../../.plan/ci-speed-1/devimage-handoff.md) installs them. **What a unit owes doesn't change:** a local check is Chromium (`repo:RD-13` property 8). WebKit locally is a reproduction, and its projects are `browser/webkit` and `shipped/webkit`.
 
 #### DRO-19 — The code the tests run is the code the user receives
 

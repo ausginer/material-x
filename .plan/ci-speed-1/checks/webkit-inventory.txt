@@ -1,0 +1,201 @@
+WebKit inventory, CI-speed unit item 1 witness 2 (the stop), by the implementer,
+2026-11-17. Playwright 1.65.0's WebKit, headless, on ubuntu-24.04, serial
+(fileParallelism off, one worker), on aube's tree.
+
+A. The gate's webkit job, twice, each run of every */webkit project without
+   measurement rows (`aube exec just test --project '*/webkit' --tags-filter
+   '!measurement'`, MX_TEST_ENGINES=webkit):
+   - verify run 44049217432 at 5ab74f309: Test Files 4 failed | 100 passed (104);
+     Tests 4 failed | 1613 passed | 18 skipped (1635); 274.38 s (step 280 s).
+   - verify run 44050452080 at 078574da3: the same four failures, the same counts.
+   Firefox in run 44049217432, for comparison: 104 files passed; Tests 1616
+   passed | 1 expected fail | 18 skipped (1635); 420.63 s (step 428 s).
+   Chromium's test step in the same run: 290 s (with coverage and visual).
+
+   The four failures are two rows, each in browser/drag/webkit and
+   consumer/drag/webkit:
+
+   1. packages/drag/tests/click-guard.browser.test.ts
+      `drag:DRI-11 the click guard` > "should prevent nothing on a press"
+      AssertionError: expected 'webkit' to match /chromium|firefox|safari/u
+      The row's last line is `expect(engine).toMatch(/chromium|firefox|safari/u)`
+      (line 372). Its own assertion before it, `expect(prevented).toBe(false)`,
+      held. No engine condition: the row runs in every engine.
+   2. packages/drag/tests/sortable.browser.test.ts
+      `drag:DRI-15 placeholder integrity` > "should cancel and report when an
+      anchor leaves before the release" (line 636)
+      Error: the predicted insertion geometry disagreed with a fresh measurement
+      at slot 1
+      Thrown by the equivalence oracle's afterEach (tests/support/oracles.ts:311,
+      recorded at :220), not by the row's own assertions. No engine condition.
+      The same oracle message, at slot 0, is drag:DRF-52's intermittent Safari
+      failure in a layoutAnimation row.
+
+   Both rows passed in real Safari in this unit: verify run 44046829370's
+   safari job at e9e8f92a2, and Safari workflow run 44049207091 at 5ab74f309.
+
+B. Five runs of each failing row's file, per project (RD-8 property 1),
+   webkit-inventory run 44050444079 at 078574da3, after one `_test-builds`:
+   `aube exec vitest run --project <project>/drag/webkit --tags-filter
+   '!measurement' packages/drag/tests/<file>.browser.test.ts`
+
+   project               file                        runs failing the row
+   browser/drag/webkit   click-guard.browser.test.ts 5 of 5
+   consumer/drag/webkit  click-guard.browser.test.ts 5 of 5
+   browser/drag/webkit   sortable.browser.test.ts    5 of 5
+   consumer/drag/webkit  sortable.browser.test.ts    5 of 5
+
+   Each run failed that one row and no other ("Failed Tests 1"). Neither row is
+   intermittent: each always fails in WebKit.
+
+C. The Safari findings' rows in WebKit. None of them is among the failures in
+   A. Every Safari condition is false in WebKit, and WebKit's skipped count
+   (18 of 1635) equals Firefox's, so they ran, and passed in both full runs:
+   - repo:RF-36: packages/core/tests/traits/reorderable.browser.test.ts,
+     the `useReorderable` rows (it.skipIf(server.browser === 'safari'), lines
+     396 and 972, and the unskipped row);
+   - drag:DRF-49 and drag:DRF-50: sortable.browser.test.ts, it.skipIf(isSafari),
+     lines 1194 and 1299, in browser/drag and consumer/drag;
+   - drag:DRF-51: stories.browser.test.ts, `(isSafari ? it.fails : it)`, line
+     162, browser/drag;
+   - drag:DRF-52: layout-animation.browser.test.ts:183, both projects.
+   This is evidence that those failures are particular to Safari, its driver or
+   its runner, and not to the WebKit engine. It is a reading, not a repair.
+
+D. Witnesses 3 and 4, from the same inventory run, once each, per row:
+   - spec/material-x/webkit, focus-layer.spec.browser.test.ts: 28 rows, all
+     passed, including every "on keyboard focus" row for mx-button,
+     mx-checkbox and mx-radio. Tab reaches the button, the checkbox and the
+     radio in WebKit.
+   - browser/drag/webkit, landing.browser.test.ts: 25 rows, all passed,
+     including the two reduced-motion rows, which run (not skip) in WebKit:
+     "should give a landing that `landing()` starts zero duration with
+     reduced motion" and "should call a duration function with reduced
+     motion, and still land at once".
+
+Per run of B: rows by status, then each row that didn't pass (file, status, row):
+  browser-click-guard-1.json  passed 16, skipped 3, failed 1
+  browser-click-guard-2.json  passed 16, skipped 3, failed 1
+  browser-click-guard-3.json  passed 16, skipped 3, failed 1
+  browser-click-guard-4.json  passed 16, skipped 3, failed 1
+  browser-click-guard-5.json  passed 16, skipped 3, failed 1
+  browser-sortable-1.json     passed 55, failed 1
+  browser-sortable-2.json     passed 55, failed 1
+  browser-sortable-3.json     passed 55, failed 1
+  browser-sortable-4.json     passed 55, failed 1
+  browser-sortable-5.json     passed 55, failed 1
+  consumer-click-guard-1.json passed 16, skipped 3, failed 1
+  consumer-click-guard-2.json passed 16, skipped 3, failed 1
+  consumer-click-guard-3.json passed 16, skipped 3, failed 1
+  consumer-click-guard-4.json passed 16, skipped 3, failed 1
+  consumer-click-guard-5.json passed 16, skipped 3, failed 1
+  consumer-sortable-1.json    passed 55, failed 1
+  consumer-sortable-2.json    passed 55, failed 1
+  consumer-sortable-3.json    passed 55, failed 1
+  consumer-sortable-4.json    passed 55, failed 1
+  consumer-sortable-5.json    passed 55, failed 1
+  browser-click-guard-1.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  browser-click-guard-1.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  browser-click-guard-1.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  browser-click-guard-1.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  browser-click-guard-2.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  browser-click-guard-2.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  browser-click-guard-2.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  browser-click-guard-2.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  browser-click-guard-3.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  browser-click-guard-3.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  browser-click-guard-3.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  browser-click-guard-3.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  browser-click-guard-4.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  browser-click-guard-4.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  browser-click-guard-4.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  browser-click-guard-4.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  browser-click-guard-5.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  browser-click-guard-5.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  browser-click-guard-5.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  browser-click-guard-5.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  browser-sortable-1.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  browser-sortable-2.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  browser-sortable-3.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  browser-sortable-4.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  browser-sortable-5.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  consumer-click-guard-1.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  consumer-click-guard-1.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  consumer-click-guard-1.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  consumer-click-guard-1.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  consumer-click-guard-2.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  consumer-click-guard-2.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  consumer-click-guard-2.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  consumer-click-guard-2.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  consumer-click-guard-3.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  consumer-click-guard-3.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  consumer-click-guard-3.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  consumer-click-guard-3.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  consumer-click-guard-4.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  consumer-click-guard-4.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  consumer-click-guard-4.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  consumer-click-guard-4.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  consumer-click-guard-5.json	skipped	drag:DRI-11 the click guard should complete a touch drag with no platform cancel, and keep the next click
+  consumer-click-guard-5.json	skipped	drag:DRI-11 the click guard should cancel with origin interrupted when the platform cancels a touch
+  consumer-click-guard-5.json	skipped	drag:DRI-11 the click guard should follow the primary touch and ignore a second finger
+  consumer-click-guard-5.json	failed	drag:DRI-11 the click guard should prevent nothing on a press
+  consumer-sortable-1.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  consumer-sortable-2.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  consumer-sortable-3.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  consumer-sortable-4.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+  consumer-sortable-5.json	failed	drag:DRI-15 placeholder integrity should cancel and report when an anchor leaves before the release
+
+The two files of D, every row:
+  focus-layer.json	passed	mx-button focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-button focus layer visual contract should draw the focused state layer on keyboard focus with hover
+  focus-layer.json	passed	mx-button focus layer visual contract should draw the hovered state layer on hover alone
+  focus-layer.json	passed	mx-button focus layer visual contract should draw no layer after a mouse click with the pointer moved off
+  focus-layer.json	passed	mx-checkbox focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-checkbox focus layer visual contract should draw the focused state layer on keyboard focus with hover
+  focus-layer.json	passed	mx-checkbox focus layer visual contract should draw the hovered state layer on hover alone
+  focus-layer.json	passed	mx-checkbox focus layer visual contract should draw no layer after a mouse click with the pointer moved off
+  focus-layer.json	passed	mx-radio focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-radio focus layer visual contract should draw the focused state layer on keyboard focus with hover
+  focus-layer.json	passed	mx-radio focus layer visual contract should draw the hovered state layer on hover alone
+  focus-layer.json	passed	mx-radio focus layer visual contract should draw no layer after a mouse click with the pointer moved off
+  focus-layer.json	passed	mx-button focus indicator should draw the focus indicator on keyboard focus
+  focus-layer.json	passed	mx-button focus indicator should draw no focus indicator after a mouse click
+  focus-layer.json	passed	mx-checkbox focus indicator should draw the focus indicator on keyboard focus
+  focus-layer.json	passed	mx-checkbox focus indicator should draw no focus indicator after a mouse click
+  focus-layer.json	passed	mx-radio focus indicator should draw the focus indicator on keyboard focus
+  focus-layer.json	passed	mx-radio focus indicator should draw no focus indicator after a mouse click
+  focus-layer.json	passed	mx-button elevated focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-button outlined focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-button text focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-button tonal focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-icon-button filled focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-icon-button tonal focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-icon-button standard focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-checkbox checked focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-checkbox indeterminate focus layer visual contract should draw the focused state layer on keyboard focus
+  focus-layer.json	passed	mx-radio checked focus layer visual contract should draw the focused state layer on keyboard focus
+  landing.json	passed	drag:DRI-13 landing should land additively from where it was dropped
+  landing.json	passed	drag:DRI-13 landing should start nothing when the visual is already where it lands
+  landing.json	passed	drag:DRI-13 landing should start nothing without a landing composed
+  landing.json	passed	drag:DRI-13 landing should report a landing that cannot run, and let the outcome stand
+  landing.json	passed	drag:DRI-13 landing should keep the landing through a press that never activates, and cancel at the next activation
+  landing.json	passed	drag:DRI-13 landing should stay above static siblings for the whole flight
+  landing.json	passed	drag:DRI-13 landing should stay above relative siblings for the whole flight
+  landing.json	passed	drag:DRI-13 landing should stay above z-index siblings for the whole flight
+  landing.json	passed	drag:DRI-13 landing should keep an item with its own z-index on top, in every engine
+  landing.json	passed	drag:DRI-13 landing should keep an absolutely positioned item on top
+  landing.json	passed	drag:DRI-13 landing should leave no inline style from elevation
+  landing.json	passed	drag:DRI-13 landing should start no animation when no landing is composed
+  landing.json	passed	drag:DRI-13 landing should give a landing that `landing()` starts zero duration with reduced motion
+  landing.json	passed	drag:DRI-13 landing should call a duration function with reduced motion, and still land at once
+  landing.json	passed	drag:DRI-13 landing should land an accepted drop at its new slot
+  landing.json	passed	drag:DRI-13 landing should report and skip a landing when the consumer unmounted the item, and stay usable
+  landing.json	passed	drag:DRI-13 landing should keep timing a custom landing named
+  landing.json	passed	drag:DRI-13 landing should keep the timing values returned at the land call when the timing reuses its object
+  landing.json	passed	drag:DRI-13 landing should start a named landing when releasing the top layer throws, and let the outcome stand
+  landing.json	passed	drag:DRI-13 free-drag landing origin should start the landing from the axis-locked position, not the pointer
+  landing.json	passed	drag:DRI-13 free-drag landing origin should start the landing from the clamped position, not the pointer
+  landing.json	passed	drag:DRI-13 free-drag landing origin should start the landing from the moveTo position, not the pointer
+  landing.json	passed	drag:DRI-13 sortable landing after the commit should land on the final rect when an append loop leaves the placeholder at the head
+  landing.json	passed	drag:DRI-13 sortable landing after the commit should land on the final rect when a morphdom-style patch strands the placeholder at the tail
+  landing.json	passed	drag:DRI-13 sortable landing after the commit should skip the landing with one fault when the commit moves the item to another container, and let the outcome stand

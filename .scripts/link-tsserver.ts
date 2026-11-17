@@ -19,7 +19,7 @@ async function main(): Promise<void> {
   let wrapperRoot: string;
   try {
     // Resolving both packages doubles as the "deps installed?" guard, so the
-    // postinstall hook stays silent (never breaks an install) before `npm i`.
+    // postinstall hook stays silent (never breaks an install) before the first install.
     import.meta.resolve('@typescript/old/lib/tsserver.js');
     wrapperRoot = dirname(
       fileURLToPath(import.meta.resolve('typescript/package.json')),

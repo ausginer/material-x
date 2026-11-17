@@ -1,0 +1,49 @@
+Playwright WebKit in the devcontainer, by the architect, 2026-11-17, on
+repo/ci-speed-1 at 229829ef7. Image ghcr.io/ausginer/devimages/node:latest,
+Debian GNU/Linux 13 (trixie), Node 26.13.0, playwright 1.65.0. The user `node`
+has passwordless sudo. ~/.cache/ms-playwright holds chromium-1254,
+chromium_headless_shell-1254, ffmpeg-1013, firefox-1572 and webkit-2388.
+
+1. Launch: `webkit.launch()` from a scratch script in .scripts/ (removed after)
+   FAILED browserType.launch:
+   Host system is missing dependencies to run browsers.
+   Missing libraries: libgstreamer-1.0.so.0, libgtk-4.so.1, libgraphene-1.0.so.0,
+   libxslt.so.1, libevent-2.1.so.7, libopus.so.0, libgstallocators-1.0.so.0,
+   libgstapp-1.0.so.0, libgstbase-1.0.so.0, libgstpbutils-1.0.so.0,
+   libgstaudio-1.0.so.0, libgsttag-1.0.so.0, libgstvideo-1.0.so.0,
+   libgstgl-1.0.so.0, libgstcodecparsers-1.0.so.0, libgstfft-1.0.so.0,
+   libwebpdemux.so.2, libjxl.so.0.11, libavif.so.16, libharfbuzz-icu.so.0,
+   libwebpmux.so.3, libmanette-0.2.so.0, libenchant-2.so.2, libsecret-1.so.0,
+   libhyphen.so.0, libGLESv2.so.2, ... (output cut at 30 lines)
+
+2. `npx playwright install-deps --dry-run webkit`, before any apt update:
+   Error: 'apt-get install -s' exited with code 100:
+   E: Unable to locate package libsoup-3.0-0 (and every other package)
+   The image ships with empty apt lists.
+
+3. After `sudo apt-get update -qq` (lists only; nothing installed):
+   `npx playwright install-deps --dry-run webkit`
+   Missing system dependencies (247): dictionaries-common, emacsen-common,
+   fonts-freefont-ttf, fonts-ipafont-gothic, fonts-noto-color-emoji,
+   fonts-tlwg-loma-otf, fonts-unifont, fonts-wqy-zenhei, gstreamer1.0-libav,
+   gstreamer1.0-plugins-bad, gstreamer1.0-plugins-base,
+   gstreamer1.0-plugins-good, libgl1, libgl1-mesa-dri, libgles2, libglvnd0,
+   libglx-mesa0, libglx0, libgtk-4-1, libgtk-4-common, ..., xvfb
+   Every package resolves from Debian trixie: Playwright 1.65.0 supports this
+   distribution, and the install would succeed as root.
+
+Not done: the install itself. It adds 247 packages, fonts among them, to a
+container that other sessions were running Chromium tests in, and the
+container's packages are lost on a rebuild anyway. So WebKit's launch after
+the install is not read here.
+
+Why WebKit didn't run locally before (drag:DRO-18), from drag's records:
+- the image never had WebKit's system libraries;
+- earlier units ran it with `~/.cache/ms-playwright/webkit-env.sh`, which pointed
+  WebKit at Debian trixie libraries fetched with `apt-get download`, unpacked
+  into a scratch directory and linked into the WebKit build
+  (`packages/drag/.plan/slot-array-report.md`);
+- a Playwright reinstall replaced the build directory (webkit-2370 ->
+  webkit-2388) and removed those links, and restoring them was an environment
+  change no unit was given (`drag2-retirement-report.md` open item 3), which the
+  owner answered with DRO-18.

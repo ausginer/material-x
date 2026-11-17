@@ -1,0 +1,25 @@
+Item 1 witness 5: WebKit's parallelism (repo:RD-12 property 11).
+Read 2026-11-17 by the implementer. Run 44060878670 (workflow webkit-parallel, at 86b2fddc2, a temporary
+witness removed in the next commit that removes the temporaries): three consecutive jobs on ubuntu-24.04
+(max-parallel 1), each running the WebKit job's test step twice,
+  aube exec -- just test --project '*/webkit' --tags-filter '!measurement'   with MX_TEST_ENGINES=webkit,
+once serially (the gate's setting: fileParallelism false, maxWorkers 1) and once with
+MX_WITNESS_WEBKIT_PARALLEL=1, which gave WebKit Chromium's setting (fileParallelism true,
+maxWorkers BROWSER_WORKERS = 2). Runs 1 and 3 ran serial first, run 2 parallel first.
+
+job                     step       step time   Vitest duration   files          tests
+run 1 (serial-first)    serial     284 s       275.73 s          104 passed     1617 passed | 18 skipped (1635)
+run 1 (serial-first)    parallel   148 s       141.02 s          104 passed     1617 passed | 18 skipped (1635)
+run 2 (parallel-first)  parallel   171 s       161.88 s          104 passed     1617 passed | 18 skipped (1635)
+run 2 (parallel-first)  serial     282 s       273.30 s          104 passed     1617 passed | 18 skipped (1635)
+run 3 (serial-first)    serial     281 s       274.76 s          104 passed     1617 passed | 18 skipped (1635)
+run 3 (serial-first)    parallel   145 s       138.97 s          104 passed     1617 passed | 18 skipped (1635)
+
+Step times are from the jobs API (completedAt - startedAt). The parallel step is 48 %, 39 % and 48 % shorter
+than its own job's serial step (148/284, 171/282, 145/281); by Vitest's durations, 49 %, 41 % and 49 %.
+No row failed in either mode, so none fails in parallel that passes serially. Both conditions of property 11
+hold: WebKit runs in parallel at Chromium's worker count.
+
+The WebKit job's timeout. The gate's WebKit job outside its test step takes about 70 s (run 44059513528:
+job 352 s, test step 281 s; playwright install 49 s). The longest parallel job is then about
+70 + 171 = 241 s; twice that is about 8 minutes, so `timeout-minutes: 8`.

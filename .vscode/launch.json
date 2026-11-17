@@ -5,7 +5,7 @@
       "name": "css.ts debug",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "aube",
       "runtimeArgs": ["run", "debug", "--", "${relativeFile}"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

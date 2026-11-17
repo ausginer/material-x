@@ -1,0 +1,25 @@
+Item 2 witness 1: the Safari workflow on the branch, by the implementer,
+2026-11-17. safari.yml at 5ab74f309 with a temporary `push` trigger limited to
+repo/ci-speed-1 (added at 5ab74f309, removed at 078574da3).
+Run 44049207091, https://github.com/ausginer/material-x/actions/runs/44049207091
+Conclusion: success. Jobs: safari success; issue skipped (event push, not
+schedule).
+
+macOS and Safari, from the job's log:
+  reduceMotion: 0
+  ProductVersion:		26.7.2
+  BuildVersion:		25G332
+  Safari: 27.2
+
+Per-project statuses, as test-safari logs them:
+  shipped/drag/safari (safari) exited with 0
+  browser/core/safari (safari) exited with 0
+  browser/box-quad/safari (safari) exited with 0
+  browser/drag/safari (safari) exited with 0
+  consumer/drag/safari (safari) exited with 0
+  browser/material-x/safari (safari) exited with 0
+  spec/material-x/safari (safari) exited with 0
+
+Install on macos-26: aube ci 22 s, cold ("Cache not found": the branch's cache
+scope holds no entry; the pull request's runs save under refs/pull/31/merge).
+Safari projects step: 564 s.

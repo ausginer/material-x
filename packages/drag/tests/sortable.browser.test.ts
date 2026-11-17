@@ -36,6 +36,7 @@ import {
   ReactionProbe,
   release,
   rowsOf,
+  takeMismatches,
   order,
 } from './support/harness.ts';
 
@@ -643,8 +644,13 @@ describe('drag:DRI-15 placeholder integrity', () => {
       },
     });
     await grab('#r0', 0, 45);
+    // The oracle checks the drag while the list is inside its rule.
+    expect(takeMismatches()).toEqual([]);
     document.body.append(document.querySelector('#r2')!);
     await release();
+    // From the removal on, the list is outside the rule, and the oracle's
+    // mismatches there are its own. The test takes them and asserts nothing.
+    takeMismatches();
     expect(results).toEqual(['canceled']);
     expect(faultMessages()).toHaveLength(1);
     expect(isClean(list)).toBe(true);

@@ -67,9 +67,9 @@ run-vitest() {
   shift || true
 
   if [ -n "$symbol" ]; then
-    npm run "${cmd}" -- "$test_file" --testNamePattern=\""$symbol"\" "$@"
+    aube run "${cmd}" -- "$test_file" --testNamePattern=\""$symbol"\" "$@"
   else
-    npm run "${cmd}" -- "$test_file" "$@"
+    aube run "${cmd}" -- "$test_file" "$@"
   fi
 }
 

@@ -1,0 +1,44 @@
+The two WebKit rows' repairs (CI-speed handoff, "Remediation of the stop", steps 1 and 2)
+Read 2026-11-17 by the implementer, on repo/ci-speed-1 after merging d631e7432, in the
+devcontainer (Debian 13), with Playwright's webkit-2388, chromium-1254 and firefox-1572.
+WebKit launched there after `sudo apt-get update && sudo aube exec playwright install-deps webkit`,
+inside the container.
+
+Step 2's witness, a temporary probe in the row (not committed). It logged each takeMismatches()
+reading, still asserting the first one empty:
+    const probeBefore = takeMismatches();
+    console.log('PROBE before', JSON.stringify(probeBefore));
+    expect(probeBefore).toEqual([]);
+    document.body.append(document.querySelector('#r2')!);
+    await release();
+    console.log('PROBE after', JSON.stringify(takeMismatches()));
+Command, per project:
+    MX_TEST_ENGINES=<engine> aube exec vitest run --project <project> \
+      packages/drag/tests/sortable.browser.test.ts -t 'anchor leaves before the release' --silent=false
+
+project                  before the removal   after the release
+browser/drag/webkit      []                   ["slot 1"]
+consumer/drag/webkit     []                   ["slot 1"]
+browser/drag (chromium)  []                   []
+consumer/drag (chromium) []                   []
+browser/drag/firefox     []                   []
+consumer/drag/firefox    []                   []
+
+The row passed in all six. WebKit's first reading is empty, so the step's stop does not apply:
+the disagreement comes after the anchor left the list.
+
+Step 1's witness: "should prevent nothing on a press" with the engine-name line deleted.
+    MX_TEST_ENGINES=<engine> aube exec vitest run --project <project> \
+      packages/drag/tests/click-guard.browser.test.ts -t 'should prevent nothing on a press'
+browser/drag/webkit, consumer/drag/webkit, browser/drag (chromium), consumer/drag (chromium):
+1 passed | 19 skipped each.
+
+Both committed files in full, each drag browser project:
+    MX_TEST_ENGINES=<engine> aube exec vitest run --project <project> \
+      packages/drag/tests/sortable.browser.test.ts packages/drag/tests/click-guard.browser.test.ts
+browser/drag/webkit     2 files passed, 73 passed | 3 skipped
+consumer/drag/webkit    2 files passed, 73 passed | 3 skipped
+browser/drag            2 files passed, 76 passed
+consumer/drag           2 files passed, 76 passed
+browser/drag/firefox    2 files passed, 73 passed | 3 skipped
+consumer/drag/firefox   2 files passed, 73 passed | 3 skipped

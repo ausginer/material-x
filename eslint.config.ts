@@ -105,6 +105,10 @@ const config: readonly Config[] = defineConfig(
             // The Material token data's custom field, whose shape the token
             // tables reproduce.
             '^token_class$',
+            // GitHub's REST API answers, which `verify`'s mode decision reads.
+            '^workflow_runs$',
+            '^head_sha$',
+            '^html_url$',
           ],
         },
       ],

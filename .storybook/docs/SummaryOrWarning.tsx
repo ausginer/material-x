@@ -14,7 +14,7 @@ export function SummaryOrWarning({
   return (
     <blockquote>
       Could not find summary for <code>{tag}</code> in{' '}
-      <code>custom-elements.json</code>. Run <code>npm run build:cem</code> and
+      <code>custom-elements.json</code>. Run <code>aube run build:cem</code> and
       rebuild docs.
     </blockquote>
   );
