@@ -28,6 +28,8 @@ Route architectural, contract, parity and public-surface choices to `architect`,
 
 For an authorized prototype in an isolated worktree, require committed runnable source there, as [Architecture prototypes](agent-workflow.md#architecture-prototypes) specifies. Keep the main checkout and adopted decisions unchanged; do not require the prototype branch's source to stay unchanged, which would leave the owner with only patches or scratch copies to inspect.
 
+Several units may be open at once, one per session slot, as [Parallel units](agent-workflow.md#parallel-units) describes. Each session holds one open task. For each slot, keep a working summary of its unit, branch, pull request, base, state and next dependency. Route every record-identifier change to the main slot's architect, and count each index conflict that neither the single minter nor the stack order prevented.
+
 Use a separate architecture challenge sparingly, for a concrete architectural risk or material contract change. Give a fresh architect session an explicitly read-only challenge task and route its report to the authoring architect for disposition. A challenge is not phase acceptance.
 
 Ask the owner about goals, scope, priorities and product tradeoffs. Route technical architectural choices to the architect. Do not write production code or feature tests, mint or amend contract decisions, waive verification or lower acceptance criteria. Maintain coordination and workflow documents when asked.

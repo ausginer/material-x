@@ -1,0 +1,51 @@
+Item 2 witness 4: how `claude --resume <name>` finds a session. Read 2026-11-17 by the implementer, without
+starting any session, in Claude Code 2.1.326 (/home/node/.local/share/claude/versions/2.1.326, a compiled bundle).
+Read by extracting minified source around byte offsets found with `LC_ALL=C grep -boaF`. Minified names are the
+bundle's own; a name can be reused by another module, so each function below was read at its own definition.
+
+1. The argument (offset ~327773600, the interactive start path):
+     Ze = vt(e.resume)                    -- a session id, if the argument is one
+     if (e.resume is a string && !Ze && !VQe(e.resume)) {      -- VQe: a .jsonl path
+       N = e.resume.trim()
+       T = await _ue(N, {exact: true}, A)
+       if (T.length === 1) ce = T[0], Ze = <its session id>    -- resume that session
+       else lo = N                                             -- no unique match
+     }
+   Later, with no session chosen: ri(..., vce(Te()), {..., initialSearchQuery: lo, ...}),
+   which opens the resume picker with the name as its search text.
+
+2. _ue, the title search (offset 316118367):
+     y = await vce(Te());  k = await men(y, ...);  logs = Iit(k, ...)
+     match: (customTitle ?? aiTitle).toLowerCase().trim() === name.toLowerCase().trim()   (exact: true)
+     deduplicated by a per-log key, the most recently modified kept; sorted newest first.
+
+3. Which sessions it searches:
+   - Te() is the session's originalCwd (offset 304612434).
+   - vce(dir) (offset 315797020) runs `git worktree list --porcelain` in dir and returns every worktree path,
+     the one containing dir first.
+   - men(paths) (offset 316175393): with one worktree, it lists the current directory's project dir
+     (plus `<project>--claude-worktrees-*` dirs); with more than one, it lists the project dir of EVERY
+     worktree path under CLAUDE_CONFIG_DIR/projects.
+   So a name is matched across all worktrees of the repository, not only the session's own directory.
+
+4. What is on disk, read under /agents/claude/projects/-workspaces-material-x/:
+   - a session's title is a transcript line {"type":"custom-title","customTitle":"<name>","sessionId":...};
+   - titles by count of transcripts in the main checkout's project dir: 63 "Mx Implementer",
+     57 "Mx Architect", 21 "Mx Reviewer", 4 "Mx Review Swarm", 2 "Mx Cleanup", 1 each of the others;
+   - each of the four most recent "Mx Implementer" transcripts holds one session id;
+   - this session (54481a1c-…), which began with /clear, carries "custom-title":"Mx Implementer" from its
+     first line: /clear starts a new session id with the same title.
+
+Answers:
+- Different directories: names are matched across every worktree of the repository, so the directory does
+  not separate them. `Mx Implementer` and `Mx Implementer B` are different titles, so an exact match tells
+  them apart. Two slots with the same letter can't exist, so slot names don't collide.
+- Two sessions with one title: `--resume <name>` does not choose. It opens the picker with the name as
+  its search text. A repeated `--init` with one name, and a /clear, each add a session with that title.
+- `cl --init` can't refuse in advance: the CLI offers no command that lists session titles
+  (`claude agents` lists running background sessions). So the documentation says to run `--init` once
+  per slot and profile, and that the picker appears after a /clear.
+
+Not read: which key `_ue` deduplicates by (another module reuses the minified name `ug`), so whether a
+session and the session that /clear started from it count as one match is inferred from the 63
+one-id transcripts, not read. Not observed interactively.

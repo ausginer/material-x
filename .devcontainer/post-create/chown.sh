@@ -7,3 +7,4 @@ if [ -z "$WORKSPACE_DIR" ]; then
 fi
 
 sudo chown -R node:node "$WORKSPACE_DIR/node_modules"
+sudo chown -R node:node /workspaces/worktrees

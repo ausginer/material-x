@@ -1,0 +1,14 @@
+.scripts/cl.node.test.ts against mutations of .scripts/cl.sh. Read 2026-11-17 by the implementer.
+`aube exec -- vitest run .scripts/cl.node.test.ts` (repo node project), 18 cases.
+
+unmutated                                           18 passed
+effort=high before the empty-effort check (item 1)  4 failed  (implementer, changed effort, no effort, missing definition)
+no --lock on worktree add                           1 failed  (locked and detached at origin/main)
+mount check replaced by `if false`                  1 failed  (refuses a slot root that is not a mount point)
+`a` admitted as a slot                              1 failed  (exit 64 for the main slot letter)
+worktree add on every call                          1 failed  (reuses an existing slot without touching it)
+slot letter not upper-cased in the name             2 failed  (slot resume name, slot --init name)
+
+The success cases put a stub `mountpoint` that exits 0 first on PATH, beside the stub `claude`. The refusal
+case leaves it off PATH, so /usr/bin/mountpoint reads a scratch directory, which is not a mount point.
+CL_SLOT_ROOT is the one environment variable that chooses the slot root.
