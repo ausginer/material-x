@@ -381,6 +381,10 @@ The owner directed that while the forward ships, it is a trait, relayed by the c
 4. **What changes in the types:** each adopting class's instance type gains the trait's brand, as every adopted trait adds one. No member changes. Neither the trait nor its brand is exported.
 5. **Removal:** when the watching row passes in Firefox, its marking, the trait's module, its five list entries and its two registrations are removed in one change. Delegation then focuses the control in every engine, and nothing exported changes.
 
+**The parked attempt at `891d672ec`** (`implementer/item8-step1-wip`, unpushed) may be reused. Its module `WeakMap` and its `focusControl` become the trait module's registry and the body of the trait's method, and the registering function takes `forwardFocus`'s place. Its seven per-class `override focus()` declarations are dropped, because the trait declares the method. Its rows in `tests/core/utils/useCore.browser.test.ts` stand: `Object.hasOwn` for the seven hosts, and the two subclass rows.
+
+**Step 4's mutation check, ruled 2026-11-17 on the implementer's note:** a mapping that tproc deduplicates into the button default doesn't fail its row when it's dropped. `mx-icon-button`'s filled mapping is one, because its focused colour equals the default's. The row stands, because it reads what is drawn. The default's mapping is what a mutation must drop to fail it. The report names each such row.
+
 ### Before the owner merges #29
 
 1. Item 7's Option-Tab reading is reported. The architect records the owner's `RF-42` answer and its outcome in `RD-12` property 10 and `RF-42`.
