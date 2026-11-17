@@ -1,6 +1,8 @@
-# CI-speed unit report: stopped at item 1's WebKit inventory
+# CI-speed unit report: stopped at RF-47's re-resolution
 
-**Status: stopped,** under the [handoff](ci-speed-handoff.md)'s first stop: _"any WebKit row fails (item 1, witness 2)"_. Two rows fail in WebKit in every run. The inventory is below, and the architect decides each row. Item 4 is done. Items 1 and 2 are implemented, and their remaining witnesses wait for that decision. Item 3 is implemented and unit-tested, and its CI witnesses haven't run.
+**Status: stopped again,** at step 3 of the handoff's _Remediation of the stop_ (`RF-47`), under its stop: _"if the re-resolution touches anything else"_. `aube install --fix-lockfile` touches far more than the three entries. Nothing of it is committed. Steps 1, 2 and 5 are done, and step 4 waits for step 3. See [_Remediation of the stop_](#remediation-of-the-stop) below.
+
+**The first stop,** at item 1's WebKit inventory, is resolved by the architect's `d631e7432`: two rows failed in WebKit in every run, and both were repaired in the test. What follows up to _Next_ is the report of that stop, unchanged.
 
 **Branch** `repo/ci-speed-1`, pull request [#31](https://github.com/ausginer/material-x/pull/31) (non-draft, open). The input was `183053ca6`. The head this report describes is the commit that adds it. **Governing records:** `repo:RD-12` as amended, `repo:RD-15` and `repo:RD-16`, in [`../00-index.md`](../00-index.md).
 
@@ -186,9 +188,40 @@ All 20 pass. **Mutations** checked whether the tests detect each change. The tes
 
 - A warm `aube ci` on `macos-26`.
 - Item 1 witness 5, item 2 witness 2, and item 3's CI witnesses. A full-mode `scope` run follows from this report's push, but no reduced run has happened.
-- WebKit locally. The image lacks WebKit's system libraries (the [dev image handoff](devimage-handoff.md)'s Part B), and installing them in this container was not done.
+- WebKit locally, at this stop. The image lacks WebKit's system libraries (the [dev image handoff](devimage-handoff.md)'s Part B). For the remediation, they were installed in this container only (`sudo aube exec playwright install-deps webkit`), and the image is unchanged.
 - GitHub's dependency graph after `aube` (item 4 witness 7) is the coordinator's, after the merge. The lockfile is byte-identical to `main`'s, so the graph reads what it read before.
+
+## Remediation of the stop
+
+On `repo/ci-speed-1`, after `d631e7432` (fast-forward) and `f63e3d1e4` (merged at `cf0f9f344`).
+
+1. **The click-guard row: done,** at `c8bacf0eb`. The engine-name line and its unused import are deleted. The row passes in `browser/drag/webkit`, `consumer/drag/webkit`, `browser/drag` and `consumer/drag` ([reading](checks/webkit-rows-repair.txt)).
+2. **The sortable row: done,** at `c8bacf0eb`. The row expects `takeMismatches()` to be `[]` just before `#r2` leaves the list, and takes them after the release with no assertion. **The witness holds.** A temporary probe, not committed, logged both readings in the six drag browser projects:
+
+   | Project | Before the removal | After the release |
+   | --- | --- | --- |
+   | `browser/drag/webkit`, `consumer/drag/webkit` | `[]` | `["slot 1"]` |
+   | `browser/drag`, `consumer/drag` (Chromium) | `[]` | `[]` |
+   | `browser/drag/firefox`, `consumer/drag/firefox` | `[]` | `[]` |
+
+   WebKit's first reading is empty, so the step's stop doesn't apply. Both whole files pass in all six projects. These readings are local, in the devcontainer, with WebKit's system libraries installed in the container.
+
+3. **`RF-47`: stopped.** `aube install --fix-lockfile` exits 0, and its lockfile diff is 2,160 insertions and 1,781 deletions. Compared entry by entry ([reading](checks/rf47-fix-lockfile.txt), [instrument](checks/rf47-lockdiff.mjs)), it adds 40 entries, removes 18, changes no version in place, and edits fields in 15. It does repair the three: lightningcss 1.33.0, `@types/node` 26.6.6 and `ansi-regex` 6.6.0 all leave their stale nests. Beyond them it:
+   - adds nested `@typescript-eslint/*` 8.72.2 trees under three `eslint-plugin-import-x` placements, with a second `eslint-plugin-import-x` at 4.17.1 and `semver` 7.8.6;
+   - adds `@emnapi/core` and `runtime` 2.0.0-beta.2 and `wasi-threads` 2.2.0 under `vite-custom-element-assets` and `vite-traits-plugin`, and `@emnapi/*` 1.11.0 under `@napi-rs/wasm-runtime`;
+   - moves `@fontsource/roboto` and `@size-limit/file` from the root to under `material-x` and `size-limit-preset-rolldown`;
+   - edits `license` on six workspace entries, `dev` on five `@emnapi` entries, `peerDependenciesMeta` on three vitest entries, and the root's `hasInstallScript` and `devDependencies`, and drops the lockfile's root `version`.
+
+   The lockfile was restored with `git checkout`, and the tree with `aube install`. `aube ci` can't remove `node_modules` in this container, because it's a mounted volume. **The architect decides** whether this re-resolution is acceptable, or another way to repair the three.
+
+4. **`@oxlint/migrate`: not done.** The handoff puts it in a later commit than step 3.
+5. **No auto-install: done,** at `e60626671`. `.npmrc` sets `aubeNoAutoInstall=true`. **aube 2.10.0 reads the key** ([reading](checks/aube-no-auto-install-witness.txt)):
+   - **Step 2 held in both rounds.** No _Auto-installing_ was printed, and nothing in `node_modules/.aube-state` was newer than the marker.
+   - **`aube exec tsc --version`, the handoff's literal command, never reaches tsc.** aube takes `--version` wherever it stands and prints its own version, before any staleness check. Both rounds therefore also ran `aube exec -- tsc --version`, which runs tsc 7.0.2.
+   - **The first edit, an added script, didn't serve:** the control installed nothing either, so the check ignores it.
+   - **The edit that served** was `concurrently` `10.0.7` → `^10.0.7`. Under the control, without the line, `aube exec -- tsc --version` printed _"Auto-installing: package.json has changed"_, rewrote five `.aube-state` files, and also rewrote `package-lock.json`.
+   - **Restored:** `git checkout`, the line put back, `aube install`, and `git status` clean apart from the unit's own changes.
 
 ## Next
 
-**The architect decides the two WebKit rows.** Then the unit continues with item 1 witness 5, item 2 witness 2, item 3's witnesses, and the final green run.
+**The architect decides `RF-47`'s re-resolution** (step 3). Then step 4, then the unit resumes: item 1 witness 5, item 2 witness 2, item 3's witnesses, and the final green run. Item 3 can reduce a run only after one full run in which every gate job succeeds. This report's push starts the first full run with both WebKit rows repaired.
