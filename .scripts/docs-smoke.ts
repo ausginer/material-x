@@ -6,9 +6,19 @@
  * It serves `.docs` at the base path the build was made for, then opens the
  * manager's `index.html`, `iframe.html` for every entry of `index.json`, and
  * `api/index.html`. An entry passes when Storybook's preview reports it
- * rendered; the other pages pass on their `load` event. Any uncaught exception,
- * console error, failed or 4xx/5xx request under the server's origin, render
- * error that Storybook reports, or timeout fails the run.
+ * rendered, and the manager when the preview it embeds reports that;
+ * `api/index.html` passes on its `load` event. Any uncaught exception, console
+ * error, failed or 4xx/5xx request under the server's origin, render error that
+ * Storybook reports, or timeout fails the run.
+ *
+ * The result depends only on the build and the pinned browser: every request
+ * outside the server's origin is answered by the check with an empty `200`
+ * and never reaches the network, so a third-party host's availability or
+ * latency neither fails nor passes a page.
+ *
+ * A page is observed from navigation until its `load` event or its completion
+ * signal, whichever is later, and not after. An error the page raises only
+ * after that is outside the check.
  */
 import { readFile, stat } from 'node:fs/promises';
 import {
@@ -62,7 +72,8 @@ type IndexEntry = Readonly<{
 type Target = Readonly<{
   name: string;
   path: string;
-  // Whether the page is Storybook's preview, which reports its own render.
+  // Whether the page runs Storybook's preview, itself or embedded in the
+  // manager, which reports its render.
   preview: boolean;
 }>;
 
@@ -87,7 +98,7 @@ if (entries.length === 0) {
 }
 
 const targets: readonly Target[] = [
-  { name: 'index.html', path: '', preview: false },
+  { name: 'index.html', path: '', preview: true },
   ...entries.map((entry) => ({
     name: `${entry.type} ${entry.id}`,
     path: `iframe.html?id=${encodeURIComponent(entry.id)}&viewMode=${entry.type}`,
@@ -206,6 +217,13 @@ async function check(browser: Browser, target: Target): Promise<string[]> {
     }
   });
 
+  await page.route(
+    (url) => url.origin !== origin,
+    (route) => route.fulfill({ status: 200, body: '' }),
+  );
+
+  // Both reach every frame of the page, so the manager's embedded preview
+  // reports through them as an entry's page does.
   if (target.preview) {
     await page.exposeFunction(
       '__docsSmokeReport',

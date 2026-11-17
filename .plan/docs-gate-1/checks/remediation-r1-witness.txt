@@ -1,0 +1,212 @@
+# R1 witness: <link rel="stylesheet" href="https://docs-smoke.invalid/probe.css" /> added to the built .docs/iframe.html
+
+## Before R1: .scripts/docs-smoke.ts at c97b671be (unchanged since 81c9fe47e). Exit 1, 100 entries fail
+
+node .scripts/docs-smoke.ts
+FAIL story drag-custom-behavior--resize-handle
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-free-drag--transformed-stage
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-free-drag--async-drop-confirmation
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-sortable--list
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-free-drag--interactive
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-sortable--grid
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-sortable--custom-placeholder
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-group-standard--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-group-standard--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story drag-sortable--zoomed-context
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-group-standard--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-group-connected--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-group-connected--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-group-standard--switch
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-group-connected--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-regular--color
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-group-connected--switch
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-regular--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-regular--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-regular--shape
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-regular--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-regular--with-icon
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-icon--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-icon--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-icon--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-icon--shape
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-icon--color
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-icon--width
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-link--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-link--states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-link--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-link--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-link--shape
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-link--with-icon
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-link--color
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-split--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-split--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-split--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-split--shape
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-split--states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-split--color
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-split--with-icon
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-switch--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch--states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch--shape
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch--color
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch--with-icon
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs button-switch-icon--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch-icon--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch-icon--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch-icon--shape
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch-icon--color
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story button-switch-icon--width
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs checkbox--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story checkbox--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story checkbox--with-label
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story checkbox--checked
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs fab-extended--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-extended--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-extended--colors
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-extended--states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-extended--tonal-colors
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-extended--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-extended--direction
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs fab-regular--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-regular--states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-regular--colors
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-regular--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-regular--tonal-colors
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story fab-regular--sizes
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story icon--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs icon--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story icon--outlined
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story icon--rounded
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story list--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story list--content-density
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs list--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story list--interactive
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story list--media
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story radio--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs radio--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story list--draggable
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story radio--states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story radio--group
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story radio--with-label
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs reference-api--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs text-field-multiline--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-multiline--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-multiline--filled
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-multiline--outlined
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-multiline--filled-states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-multiline--outlined-states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL docs text-field-regular--docs
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-regular--playground
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-regular--filled
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-regular--outlined
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-regular--filled-states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+FAIL story text-field-regular--outlined-states
+  console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)
+2 of 102 pages passed at http://127.0.0.1:39707/material-x/ in 50.7 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
+
+## After R1. Exit 0
+
+node .scripts/docs-smoke.ts
+102 of 102 pages passed at http://127.0.0.1:37713/material-x/ in 12.8 s

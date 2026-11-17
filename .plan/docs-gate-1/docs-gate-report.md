@@ -2,7 +2,7 @@
 
 **Handoff:** [`docs-gate-handoff.md`](docs-gate-handoff.md), with item 1 as amended at `8061619c7`. **Input:** `d7125f464` on `repo/docs-gate-1`. **Pull request:** [#30](https://github.com/ausginer/material-x/pull/30), not a draft. **Governing records:** `repo:RD-14` property 6, `repo:RD-6` properties 3, 8 and 9, and `repo:RF-46`, in [`../00-index.md`](../00-index.md).
 
-**State: items 1, 2 and 3 done. No stop was hit.** The witness run failed at the smoke check, and the pull request's run is green. The coordinator reads `deploy` after the merge.
+**State: items 1, 2 and 3 done, and the feature proof's remediation R1 to R4. No stop was hit.** The witness run failed at the smoke check, and the pull request's run is green. The coordinator reads `deploy` after the merge.
 
 ## Commits
 
@@ -11,7 +11,9 @@
 | `5e1828d06` | Items 2 and 3: `.scripts/docs-smoke.ts`, `just docs-smoke`, the `docs` and `deploy` jobs in `verify.yml`, `docs.yml` removed, `test-architecture.md` §CI policy |
 | `bbb7b13ee` | The architect's amended item 1 (`8061619c7`), merged |
 | `3b38426cf` | Item 1: `vite` 8.4.0-beta.1, and the readings under `checks/` |
-| this report's commit | `docs`'s `timeout-minutes`, and this report |
+| `948390aa5` | `docs`'s `timeout-minutes`, and this report |
+| `81c9fe47e`, `c97b671be` | The feature proof, and the architect's disposition with R1 to R4 |
+| the remediation's commit | R1 to R3 in `.scripts/docs-smoke.ts`, R4 in this report, and the witnesses under `checks/` |
 
 ## 2. The smoke check: `just docs-smoke`
 
@@ -20,7 +22,7 @@
 - **The base path** is read from the built `iframe.html`. The preview's entry script is `${base}assets/iframe-*.js`, because Vite emits every asset under `${base}assets/`. No second definition of `/material-x/` exists. A build without that script stops the check.
 - **Serving:** `node:http` on `127.0.0.1` at a free port. Only paths under the base are served, and a directory serves its `index.html`.
 - **What it loads:** `index.html`, then `iframe.html?id=<id>&viewMode=<type>` for every entry of `index.json`, then `api/index.html`. That is 102 pages: 83 stories, 17 docs entries and the two other pages. Four pages are checked at a time, each in its own page of one Chromium.
-- **The completion signal.** An init script puts an accessor on `globalThis.__STORYBOOK_ADDONS_CHANNEL__`, which Storybook's preview assigns when it installs its channel (`setChannel` in `storybook/dist/preview/runtime.js`). The accessor subscribes to the channel before the preview renders. An entry passes on `storyRendered` or `docsRendered`. `storyErrored`, `storyThrewException`, `storyMissing`, `playFunctionThrewException` and `configError` fail it. The other two pages pass on `load`.
+- **The completion signal.** An init script puts an accessor on `globalThis.__STORYBOOK_ADDONS_CHANNEL__`, which Storybook's preview assigns when it installs its channel (`setChannel` in `storybook/dist/preview/runtime.js`). The accessor subscribes to the channel before the preview renders. An entry passes on `storyRendered` or `docsRendered`. `storyErrored`, `storyThrewException`, `storyMissing`, `playFunctionThrewException` and `configError` fail it. The other two pages passed on `load`; after R2 the manager waits for its embedded preview's events, and only `api/index.html` passes on `load` ([remediation](#remediation-of-the-feature-proof)).
 - **It fails on** `pageerror`, a console message of type `error`, `requestfailed` or a 4xx/5xx response under the server's origin, a Storybook error event, and a 30-second timeout per page. The output names the page and each message. There is no allow list, and no existing story logged an error.
 - **It can't pass vacuously** ([`checks/vite-preload-tokens.txt`](checks/vite-preload-tokens.txt), mutations run on temporary copies):
   - with no completion event subscribed and a 3-second timeout, the 100 Storybook pages time out and the check exits 1;
@@ -34,6 +36,7 @@
 - **`deploy`** moved unchanged, apart from `needs: docs`. A diff of both moved jobs against `docs.yml` at `4e85ac046` shows only that line, the build job's new name, its removed job-level `contents: read`, and the two new steps. `deploy`'s `if` requires `refs/heads/main` and a push or a manual run, so a pull request's run skips it. It is the only job that holds `pages: write` or `id-token: write`, and it isn't in `verify`'s `needs`.
 - **`docs.yml`** is deleted. `verify.yml`'s header and `test-architecture.md` §CI policy say what the handoff lists.
 - **`timeout-minutes: 5`** for `docs`: twice its longest observed run, 2 min 7 s, rounded up. The first draft used `docs.yml`'s 20. The two observed runs are the witness (1 min 53 s) and the green run (2 min 7 s). The file's timeout comment now names this report.
+  - **It stays at 5** (the architect's point (a)). When no preview reports at all, the smoke check outlasts the job: the timeout cancels it, the `FAIL` lines already printed name the entries reached, `verify` fails, and the job ends as timed out.
 - **One difference from `docs.yml`, by design:** `verify.yml`'s concurrency group for a push is `verify-<sha>`, where `docs.yml`'s was per run. A manual run on `main` at the sha of a running push now waits for that push's run. Nothing is cancelled, because `cancel-in-progress` is only true for pull requests.
 - **Not run:** actionlint, as in the findings unit. GitHub accepted the file in both runs.
 
@@ -79,16 +82,18 @@ No entry names the malformed preload call itself.
 **Measurements.** On #30 the `measurements` job had no base reading: _"the merge base gave no machine-readable reading"_. For comparison, `main`'s run at `4e85ac046` is 44013920613.
 
 - **Size rows:** each drag row equals its ceiling, and the others are below their limits. They measure tsdown builds, which the library comparison above shows to be byte-identical.
-- **`drag:DRI-17`'s per-sample allocation row** varies in both directions on unchanged code:
+- **`drag:DRI-17`'s per-sample allocation row.** `drag:DRF-48` governs the row and holds these six readings:
 
-  | Run                      | Vite     | Result       |
-  | ------------------------ | -------- | ------------ |
-  | `main`'s CI, `4e85ac046` | 8.3.8    | passed       |
-  | local                    | 8.3.8    | failed, 30.4 |
-  | local                    | the beta | passed       |
-  | #30's CI                 | the beta | failed, 44.8 |
+  | Reading | Commit | Vite | Row | B per move |
+  | --- | --- | --- | --- | --- |
+  | CI 44013920613, `main` | `4e85ac046` | 8.3.8 | passed | — |
+  | CI 44016421012 | `5e1828d06` | 8.3.8 | passed | — |
+  | CI 44018861028 | `3b38426cf` | 8.4.0-beta.1 | failed | 44.79 |
+  | CI 44020422663 | `948390aa5` | 8.4.0-beta.1 | failed | 20.77 |
+  | local, before the Vite change | — | 8.3.8 | failed | 30.4 |
+  | local, after the Vite change | — | 8.4.0-beta.1 | passed | — |
 
-  This is inferred to be variance in that row, not an effect of the beta. It is outside the gate (`RD-7`).
+  Neither variance nor the beta is established as the cause. The row is outside the gate (`RD-7`).
 
 **After the unit:** move to the stable `vite@8.4.0` when it ships, as an ordinary dependency update.
 
@@ -102,6 +107,47 @@ No entry names the malformed preload call itself.
 - `deploy` is skipped.
 
 **Run 44018861028**, the pull request at `3b38426cf` with item 1, is green, as above.
+
+## Remediation of the feature proof
+
+**Handoff:** [§Remediation of the feature proof](docs-gate-handoff.md#remediation-of-the-feature-proof), decided at `c97b671be` on the [feature proof](../reviews/docs-gate-1/feature-proof-claude.md) at `81c9fe47e`. **Governing:** `repo:RD-14` property 6 as amended. **No stop was hit.** Every reading below is local, on one build of the branch's head, with `.docs` restored from a copy after each mutation.
+
+### R1. Requests outside the origin
+
+- **The change:** each page routes every request whose URL's origin isn't the server's to `route.fulfill({ status: 200, body: '' })`, before any navigation. The route covers the page's frames, so the manager's embedded preview is answered the same way. The rules for `pageerror`, console errors, Storybook's error events, and failed or 4xx/5xx requests under the origin are unchanged. There is no allow list.
+- **The header comment** states the property.
+- **No page fails on the check's response.** On the unmodified build, 102 of 102 pass. The empty bodies for the Google Fonts stylesheets, the font files and MDN's video log no console error.
+- **Witness** ([`checks/remediation-r1-witness.txt`](checks/remediation-r1-witness.txt)): `<link rel="stylesheet" href="https://docs-smoke.invalid/probe.css" />` added to the built `iframe.html`.
+  - Before R1, with the script as the review read it: 100 preview entries fail on `console error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED (https://docs-smoke.invalid/probe.css:0)`, and exit 1. `index.html` and `api/index.html` pass.
+  - After R1: 102 of 102 pass, exit 0.
+- **The review's M1 still fails** after R1: the 4 checkbox entries fail on `console error: probe-M1`, exit 1 ([`checks/remediation-probes.txt`](checks/remediation-probes.txt)).
+- **Local time of `just docs-smoke`:** 17.3, 17.7 and 17.4 s on three runs. The same build took 50.9 s before R1, with the third-party requests fetched.
+
+### R2. The manager
+
+- **The change:** `index.html` is checked like an entry's page. The same init script and exposed function reach every frame, so the accessor on `__STORYBOOK_ADDONS_CHANNEL__` subscribes to the embedded preview's channel. The manager passes on `storyRendered` or `docsRendered`, and fails on the same error events. `api/index.html` keeps `load`. No second mechanism is added.
+- **The entry the manager opens** when its URL names none is `drag-custom-behavior--resize-handle`: the manager redirects to `?path=/story/drag-custom-behavior--resize-handle`, and its iframe loads `iframe.html?id=drag-custom-behavior--resize-handle&viewMode=story`. Its stories chunk is `draggable.stories-CZVW8pwE.js`, which no other entry imports.
+- **Witness** ([`checks/remediation-r2-witness.txt`](checks/remediation-r2-witness.txt)): `)` appended to that chunk, as the review's M2 did to `radio`'s.
+  - Before R2: only `story drag-custom-behavior--resize-handle` fails. `index.html` passes. 101 of 102, exit 1.
+  - After R2: `index.html` fails beside that entry, on the same `SyntaxError: Unexpected token ')'` and `storyMissing`. 100 of 102, exit 1.
+  - The manager's failure lists each message twice. The preview's `storyMissing` reaches both the preview's and the manager's channel, and the console error appears twice in the page. The cause of the second console error wasn't read.
+- **The review's M8 still fails:** `FAIL index.html`, `uncaught: Error: probe-M8`, exit 1.
+- **M7, not a criterion:** a `throw` 1 s after `load` in `index.html` now fails, `uncaught: Error: probe-M7`, exit 1. The manager's preview rendered more than 1 s after `load` in this run. Under R3, a slower or faster render can change that result.
+
+### R3. The observed period
+
+No code change. The header comment states that a page is observed from navigation until its `load` event or its completion signal, whichever is later, and that an error raised after that is outside the check.
+
+### Checks
+
+- `.scripts/docs-smoke.ts`: `oxfmt`, `oxlint --fix`, `eslint --fix`, `oxfmt`, then `oxlint` and `eslint` report nothing. `npx tsc --noEmit -p tsconfig.json`, whose `include` names `.scripts`, passes. `npx just typecheck` checks the packages, which this remediation doesn't change, and wasn't run.
+- Locally, `npx just docs-build && npx just docs-smoke` passes, 102 of 102.
+- Markdown: `npx oxfmt`, and `git diff --check`. Lint doesn't apply to Markdown.
+- **In CI,** the pull request's head: see [_The run of the remediation_](#the-run-of-the-remediation).
+
+### The run of the remediation
+
+Pending: written after the push.
 
 ## Not verified
 

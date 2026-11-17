@@ -1,0 +1,25 @@
+# R2 witness: ')' appended to .docs/assets/draggable.stories-CZVW8pwE.js, the stories chunk of drag-custom-behavior--resize-handle, the entry the manager opens when its URL names none
+# (manager URL resolved to ?path=/story/drag-custom-behavior--resize-handle, iframe.html?id=drag-custom-behavior--resize-handle&viewMode=story)
+
+## Before R2: script at c97b671be. Exit 1, index.html passes
+
+node .scripts/docs-smoke.ts
+FAIL story drag-custom-behavior--resize-handle
+  console error: SyntaxError: Unexpected token ')' (http://127.0.0.1:45467/material-x/assets/iframe-DWgNt0sv.js:578)
+  storyMissing: ["drag-custom-behavior--resize-handle"]
+101 of 102 pages passed at http://127.0.0.1:45467/material-x/ in 53.1 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
+
+## After R2. Exit 1, index.html fails
+
+node .scripts/docs-smoke.ts
+FAIL story drag-custom-behavior--resize-handle
+  console error: SyntaxError: Unexpected token ')' (http://127.0.0.1:38339/material-x/assets/iframe-DWgNt0sv.js:578)
+  storyMissing: ["drag-custom-behavior--resize-handle"]
+FAIL index.html
+  console error: SyntaxError: Unexpected token ')' (http://127.0.0.1:38339/material-x/assets/iframe-DWgNt0sv.js:578)
+  storyMissing: ["drag-custom-behavior--resize-handle"]
+  console error: SyntaxError: Unexpected token ')' (http://127.0.0.1:38339/material-x/assets/iframe-DWgNt0sv.js:578)
+  storyMissing: ["drag-custom-behavior--resize-handle"]
+100 of 102 pages passed at http://127.0.0.1:38339/material-x/ in 12.7 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
