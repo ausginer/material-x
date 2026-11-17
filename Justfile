@@ -34,6 +34,12 @@ docs-build: _package-builds
     nx run @ydinjs/core:docs:api:build --skipNxCache --tui=false
     node .scripts/docs-api.ts --out .docs/api
 
+# Load the built docs site in Chromium: every Storybook entry, the manager and
+# the API page. Fails on any page error (`repo:RD-14`). Reads `.docs` and builds
+# nothing: run `docs-build` first.
+docs-smoke:
+    node .scripts/docs-smoke.ts
+
 # Debug a material-x .css.ts file — path is relative to packages/material-x/src
 debug FILE:
     cd packages/material-x && just debug {{ FILE }}
