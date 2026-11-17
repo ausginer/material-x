@@ -49,7 +49,7 @@ The sections from _Item 4_ to _What wasn't verified_ are the report of the first
 
 **The tree** ([local witnesses](checks/aube-local-witnesses.txt) §1):
 
-- After the catalog change, `aube install` wrote **no** `package-lock.json` diff, and a second one reported _"Already up to date"_. So there is no diff to save. The root entry keeps the resolved versions (`"vite": "8.4.0-beta.1"`), not `catalog:`.
+- After the catalog change, `aube install` wrote **no** `package-lock.json` diff, and a second one reported _"Already up to date"_. So there is no diff to save. The root entry keeps the resolved versions (`"vite": "8.4.0-beta.1"`), not `catalog:`. (_Corrected 2026-11-17:_ since `57c8849a2`, aube's first write of the lockfile, the root entry has `"vite": "catalog:"` and `"rolldown": "catalog:"`.)
 - `aube why` shows one vite 8.4.0-beta.1 and one rolldown 1.3.2, and the hoisted tree holds one copy of each on disk.
 - The lockfile keeps `lockfileVersion: 3`, and all 1,259 installed entries keep `version`, `resolved` and `integrity`.
 - On a clean copy, `aube ci` exits 0 and leaves `git status` clean. The root `postinstall` ran.
@@ -79,7 +79,7 @@ The sections from _Item 4_ to _What wasn't verified_ are the report of the first
   - `@types/node` 26.1.1 and `undici-types` 8.3.0, under `packages/size-limit-preset-rolldown`, which names 26.6.6;
   - `ansi-regex` 6.6.0.
 
-  `aube ci` and `aube install` keep those entries, so the committed lockfile installs lightningcss 1.32.0 for `vite-custom-element-assets` under npm and aube alike. **This is a defect in the lockfile, and this unit didn't cause it.** The next `aube add` corrects it as a side effect. It is reported, not repaired.
+  `aube ci` and `aube install` keep those entries, so the committed lockfile installs lightningcss 1.32.0 for `vite-custom-element-assets` under npm and aube alike. **This is a defect in the lockfile, and this unit didn't cause it.** The next `aube add` corrects it as a side effect. It is reported, not repaired. (_Corrected 2026-11-17:_ `RF-47` repaired these entries at `57c8849a2`, and the lockfile at the head has none of them. See step A of [_Remediation of the stop at `633ef72d8`_](#remediation-of-the-stop-at-633ef72d8).)
 
 - **`aube exec` installs first when `package.json` changed** (_"Auto-installing: package.json has changed"_), unless it is given `--no-install`. After the witness commit's edit to `allowBuilds`, `aube exec oxfmt` ran an install, which the policy refused, and the tool didn't run.
 - **`aube exec <bin> --version` and `--help` print aube's own output.** Every other argument reaches the binary. (_Corrected 2026-11-17:_ aube takes its own options directly after the binary's name, up to the first argument it doesn't own, and these are some of them. See [step C](#remediation-of-the-stop-at-633ef72d8).) A scratch recipe received every flag that the workflows and scripts pass, unchanged (§5).
@@ -124,7 +124,7 @@ A warm macOS install wasn't read. Both macOS runs were cold, because the pull re
 
 **Witness 4, reduced motion: holds.** `landing.browser.test.ts`'s 25 rows pass in `browser/drag/webkit`, including the two reduced-motion rows, which run there.
 
-**The WebKit job's time.** In run 44049217432, the test step took 280 s for WebKit, serially. Firefox's took 428 s, serially, and Chromium's took 290 s, in parallel with coverage and visual. WebKit's job took about 6 minutes. **The timeout stays at 20 minutes** until the job passes. It will then be set to about twice the longest WebKit run.
+**The WebKit job's time.** In run 44049217432, the test step took 280 s for WebKit, serially. Firefox's took 428 s, serially, and Chromium's took 290 s, in parallel with coverage and visual. WebKit's job took about 6 minutes. **The timeout stays at 20 minutes** until the job passes. It will then be set to about twice the longest WebKit run. (_Corrected 2026-11-17:_ the timeout has been 8 minutes since `368ffeea2`. See _The timeout: 8 minutes_ below.)
 
 **Witness 5, parallelism: WebKit runs in parallel** ([reading](checks/webkit-parallelism.txt)). Run 44060878670, a temporary workflow, ran the WebKit test step three times serially and three times with Chromium's setting (`fileParallelism`, 2 workers), in alternating order:
 
@@ -354,15 +354,21 @@ So the row is intermittent on `main` and predates this unit. It is `drag`'s, for
 
 ## Final run
 
-_Read after this commit's push, and sent to the coordinator with its run ID._
+**Run [44077720154](https://github.com/ausginer/material-x/actions/runs/44077720154)** (verify, pull request) at `cf82c53c9`, the feature proof's step E, proves the stopping boundary. Its mode is full: scope says _"mode: full, because cf82c53c9…'s message carries no [noci]"_. `scope`, `static`, `chromium`, `firefox`, `webkit`, `docs` and `measurements` passed, and `verify` passed. `records` and `deploy` were skipped.
+
+The run before it is [44071947594](https://github.com/ausginer/material-x/actions/runs/44071947594) at `e5fd8329e`, also full and green, with the same job results.
+
+This report's own commit carries `[noci]`, so its run is reduced, with _B_ at `cf82c53c9`.
 
 ## Next
 
-The stopping boundary: pull request #31 green, this report, and the head and run IDs sent to the coordinator. The feature-proof review follows. **Open for the architect:**
+The stopping boundary: pull request #31 green, this report, and the head and run IDs sent to the coordinator. The owner merges. `RD-12` property 12 witness 3 and the dependency graph's reading (remediation step A) come after the merge.
 
-- `aube add`'s workspace links;
-- nx's use of npm;
-- `.oxlintrc.json` against `just oxlint-migrate`;
-- the Safari issue's _Failed projects_ wording;
-- the corrected reading of `aube exec`'s options;
-- `hot-path`'s intermittent row, which is `drag`'s.
+(_Dated 2026-11-17:_ the feature proof is done. The architect decided each open item in the handoff's [_Disposition of the feature proof at `c57722b67`_](ci-speed-handoff.md#disposition-of-the-feature-proof-at-c57722b67).)
+
+- `aube add`'s workspace links: recorded for later, as `RF-48`.
+- nx's use of npm: `RD-16` property 1's second exception, with property 9's reason corrected. `.npmrc`'s comment follows it (step E).
+- `.oxlintrc.json` against `just oxlint-migrate`: recorded for later, as `RF-49`.
+- The Safari issue's _Failed projects_ wording: closed, no change.
+- The corrected reading of `aube exec`'s options: corrected in `RD-16` and the handoff (`reviewer-1`).
+- `hot-path`'s intermittent row: recorded for later, as `drag:DRF-48`.
