@@ -210,3 +210,88 @@ A targeted feature-proof review reads the diff from `4e85ac046` to the head. It 
 It records at `.plan/reviews/docs-gate-1/feature-proof-claude.md`, and the architect decides its findings.
 
 **Stopping boundary:** the report is committed and pushed, with the pull request open and green if that was authorized. The review follows.
+
+## Disposition of the feature proof at `81c9fe47e`
+
+**Decided 2026-11-17 by the architect** on `repo/docs-gate-1` at `81c9fe47e`, on the [feature proof](../reviews/docs-gate-1/feature-proof-claude.md), relayed by the coordinator. It amends `repo:RD-14` property 6 in [`../00-index.md`](../00-index.md), and adds the unit's readings to `drag:DRF-48` in [drag's index](../../packages/drag/.plan/00-index.md). **Nothing here needs the owner.**
+
+| Finding      | Decision                                                      |
+| ------------ | ------------------------------------------------------------- |
+| `reviewer-1` | Fix now: R1                                                   |
+| `reviewer-2` | Fix now: R2                                                   |
+| `reviewer-3` | Fix now, in the record only: R3                               |
+| `reviewer-4` | Fix now, in the record only: R4. `drag:DRF-48` holds the data |
+
+**`reviewer-1`: the check answers every request outside its origin itself.** Item 2's two rules disagree because item 2 didn't say what the check does with a request that isn't the site's. The check now answers each such request without the network. The console-error rule stays unconditional, and there is no allow list.
+
+- **Why:** the gate's verdict must come from the tree and the pinned browser (`RD-6`'s environment). Otherwise an outage at Google Fonts refuses every pull request and holds `deploy`, and a slow host spends the per-page budget. The review measured both effects.
+- **The cost:** the check doesn't prove that the deployed site's fonts and video load from their hosts. It never proved that reliably, and a host's outage isn't a defect in the tree.
+- **Not adopted:**
+  - **Abort the requests and ignore their console errors.** That is an allow list, which item 2 refuses, and a filter on message text can hide a site defect with the same text.
+  - **Apply the console-error rule only to errors about the site's own resources.** It needs the same filter on message text, and it still waits on the hosts.
+  - **Self-host the fonts and the video in the docs build.** It changes the deployed site, which this unit doesn't own, to fix a property of the instrument. Whether the site should depend on Google Fonts and MDN is a separate question, and no one has raised it.
+
+**`reviewer-2`: the manager passes when the preview it embeds reports its entry rendered.** The owner saw `RF-46` at the manager's URL, and property 6 lists the manager. The manager loads its preview after `load`, so a manager that passes on `load` can't show a defect of `RF-46`'s class. The embedded preview's render event requires the manager to have started, registered `.storybook/manager.tsx`'s addon and loaded the preview. It is the signal and the error events that an entry's page already uses, so no second mechanism is added. `api/index.html` keeps `load`, because it runs no repository code.
+
+**`reviewer-3`: a page is observed until its `load` event or its completion signal, whichever is later, and not after.** This is what the script does today. The record now states it.
+
+- **Why not a longer period:** every observed period has an end. A defect near the end is caught in some runs and missed in others, and a longer period moves the end without removing it. A quiet period after the render event is the fixed delay that item 2 refuses, and it costs time on every page.
+- **What the check is for:** a page that doesn't start. That means a chunk that doesn't parse or load, or an entry that doesn't render. Behavior after the first render belongs to the component tests.
+- **Timing can't make the check fail on a correct site.** A result that depends on timing is always a real error, caught in some runs.
+
+**`reviewer-4`: agreed.** The report's readings establish neither variance nor the beta as the cause. The row is `drag:DRF-48`'s, and the six readings are now dated there.
+
+**The implementer's two points.**
+
+- **(a) `timeout-minutes: 5` holds, and doesn't change.** It meets item 3.1's rule against the first green runs. R1 removes the smoke check's wait on third-party hosts, which is the largest variable part that the review measured. When no preview reports at all, the smoke check outlasts the job: the timeout cancels it, the `FAIL` lines already printed name the entries reached, `verify` fails, and the job ends as timed out. That is accepted. A timeout of about 13 minutes would only add a summary line in a case where every page fails in the same way.
+- **(b) `drag:DRI-17`'s result** isn't a stop under item 1, as the reviewer reads it. `DRF-48` governs it.
+
+**The concurrency observations** in the review are older than this unit. The review records them as observations, not findings, and they aren't decided here.
+
+## Remediation of the feature proof
+
+**Recipient:** the implementer. **Branch:** `repo/docs-gate-1`. **Input:** the architect's commit that adds this section, a child of the review's commit `81c9fe47e`. **Governing:** `repo:RD-14` property 6 as amended, and the section above.
+
+### R1. Requests outside the origin
+
+- **Required property:** on every page the check opens, every request whose URL isn't under the server's origin gets a response from the check before it reaches the network. That response must not make Chromium report an error. The review's probe answered an empty `200`, and 102 of 102 pages passed (the feature proof's _The probes_).
+- **Unchanged:** the rules for `pageerror`, console errors, Storybook's error events, and failed or 4xx/5xx requests under the origin. There is no allow list.
+- **The script's header comment** states the property.
+- **Witness.** In the built `.docs/iframe.html`, add `<link rel="stylesheet" href="https://docs-smoke.invalid/probe.css" />`. A `.invalid` host never resolves, so the reading needs no network.
+  - With the script at `81c9fe47e`, the preview entries fail on a console error.
+  - After R1, 102 of 102 pass.
+  - Restore `.docs` afterwards.
+- **The review's M1** still fails after R1.
+- **Report** the local time of `just docs-smoke` after R1.
+- **Stop** if a page fails after R1 because of the check's response, for example on a console error about an empty body. Report the page and the message. Don't filter them, and don't add a response per resource type.
+
+### R2. The manager
+
+- **Required property:** `index.html` passes when the preview it embeds reports that its entry rendered. It uses the same rendered events as an entry's page, and fails on the same error events. `api/index.html` keeps `load`.
+- **Witness.** Read which entry the manager opens when its URL names none. Make that entry's stories chunk fail to parse, as the review's M2 did.
+  - With the script at `81c9fe47e`, `index.html` passes.
+  - After R2, `index.html` fails, beside that entry's pages.
+  - The review's M8 still fails.
+  - Restore `.docs` afterwards.
+- **Not a criterion:** the review's M7, a `throw` 1 s after `load`. Under R3, whether it is caught depends on how long the manager's preview takes to render. Report its result.
+- **Stop** if the check can't see the embedded preview's events by the mechanism that entry pages use. Report what you read. The architect then decides between another mechanism and recording that the manager is checked only up to `load`.
+
+### R3. The observed period
+
+No code change. The script's header comment states that a page is observed until its `load` event or its completion signal, whichever is later, and that an error raised after that is outside the check (`RD-14` property 6).
+
+### R4. The report
+
+In [`docs-gate-report.md`](docs-gate-report.md):
+
+- **_Measurements_:** replace `drag:DRI-17`'s table with the six readings that `drag:DRF-48` now holds. Remove _"inferred to be variance"_. State that neither variance nor the beta is established, and that `drag:DRF-48` governs the row.
+- **The timeout:** state the failure path in point (a) above, and that `timeout-minutes` stays at 5.
+- **A section for this remediation:** R1 to R3, with their witnesses and the local time. Add the run of the pull request's head, with the `docs` job's step times.
+
+### Checks and stopping boundary
+
+- **Owed:** the repository-level TypeScript sequence of [`handoff.md`](../../.agents/docs/handoff.md) on `.scripts/docs-smoke.ts`; `npx oxfmt` on the changed Markdown; `git diff --check`; locally, `just docs-build && just docs-smoke` passes.
+- **In CI,** on the pull request's head: every gate job and `verify` succeed, and `deploy` is skipped.
+- **Save** the witnesses' outputs under `checks/`.
+- **Stopping boundary:** the remediation and the report are committed and pushed, and #30 is green. Don't merge it.
+- **Then:** the reviewer reads R1 and R2 again with its own probes, the aborted-request probe and M7 included, and adds the reading to its record. This isn't a full review round. The owner merges after it.

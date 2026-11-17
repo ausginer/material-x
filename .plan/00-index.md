@@ -557,9 +557,11 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 4. **The recipe builds what the docs import.** `just docs-build` succeeds on a fresh checkout after `npm ci`. It builds every workspace package that the Storybook or the API documentation resolves to a build. The workflow adds no private build step (`RD-6` property 3's rule, applied here).
 5. **In the gate.** `verify` needs `docs` (`RD-6` property 8), so a pull request whose docs build fails can't merge. `deploy` isn't in `verify`'s list, and it doesn't wait for the other gate jobs. On `main`, what deploys is the artifact that the gate's `docs` job built.
 6. **The gate loads the built site.** A build that exits 0 isn't enough (`RF-46`). `just docs-smoke` serves `.docs` at the base path the build was made for, and opens it in Playwright's pinned Chromium. It fails on any uncaught exception, any console error, any failed request for one of the site's own resources, or a render error or timeout that Storybook reports. It loads:
-   - the manager's `index.html`;
-   - `iframe.html` for every story and docs entry in `.docs/index.json`;
-   - `api/index.html`.
+   - the manager's `index.html`, which passes when the preview it embeds reports that its entry rendered;
+   - `iframe.html` for every story and docs entry in `.docs/index.json`, which passes when Storybook reports that the entry rendered;
+   - `api/index.html`, which passes on `load`.
+
+   **Its result depends only on the build and the pinned browser.** The check answers every request outside its server's origin itself, without the network, so a third-party host's availability or latency neither fails nor passes it. Whether a third-party resource loads on the deployed site is outside the check. **Each page is observed from navigation until its `load` event or its completion signal, whichever is later, and not after.** An error that a page raises only after that is outside the check. Behavior after the first render belongs to the component tests.
 
 **Why.**
 
@@ -593,6 +595,13 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - Property 5 said: _"**Outside the gate.** `verify` doesn't need the docs build. A failing docs build shows on the pull request and doesn't block its merge, until the owner decides otherwise (the findings unit's owner question 2)."_
 - _Not adopted_ said: _"**A docs job in `verify`,** without the owner's decision. The gate's scope is the owner's (O1 to O8 in the [CI design](ci-verification-1/ci-verification-design.md))."_
 - **Why it changed:** the owner's answer, after the docs build passed and deployed on `main`.
+
+**Amended again 2026-11-17 by the architect** on `repo/docs-gate-1` at `81c9fe47e`, on the docs gate's [feature proof](reviews/docs-gate-1/feature-proof-claude.md) (`reviewer-1` to `reviewer-3`), relayed by the coordinator. Property 6 changed:
+
+- **Third-party requests.** It didn't say what the check does with a request outside its origin. Its rule for failed requests covered only the site's own resources, and its console-error rule had no exception. With the fonts' and MDN's hosts unreachable, 100 of 102 pages failed on console errors.
+- **The manager and the observed period.** It listed the pages without saying when each one passes. The manager passed on `load`, before it loads its preview, so it passed on `RF-46`'s broken build. An error raised after an entry's render event was caught in some entries and missed in others.
+
+The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the feature proof_ holds the reasons and the alternatives weighed. **Unimplemented** until its remediation lands.
 
 ## Findings
 
