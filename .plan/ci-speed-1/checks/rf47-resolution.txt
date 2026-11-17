@@ -64,6 +64,9 @@ aube exec's argument parsing, read on 2.10.0 at the repository root:
   aube exec eslint -c /nonexistent-cfg.ts package.json
                                                   -> ESLint: No files matching the pattern "/nonexistent-cfg.ts"
                                                      (-c is aube exec's --shell-mode; eslint got the path as a file)
+                                                  Corrected 2026-11-17 (feature proof reviewer-1): aube takes its options only up to
+                                                  the first argument after the binary that it doesn't own. In
+                                                  `aube exec eslint --flag ... -c x`, -c reaches eslint.
   aube exec -- eslint -c /nonexistent-cfg.ts package.json
                                                   -> ESLint: ENOENT ... stat '/nonexistent-cfg.ts' in loadConfigFile
   aube exec -- eslint -v ; aube exec -- eslint --version  -> v10.14.0

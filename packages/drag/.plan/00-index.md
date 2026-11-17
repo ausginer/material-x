@@ -4959,6 +4959,14 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - In CI, the result split with the Vite version, 2 to 2. Locally, it split the other way.
   - **Neither variance nor Vite's version is established as the cause.** Two samples per version don't decide it. Whether Vite's version moves the reading is a question for this finding. The finding stays open, and its required property doesn't change.
 
+- **Dated 2026-11-17 by the architect: two more CI readings,** from the [CI-speed report](../../../.plan/ci-speed-1/ci-speed-report.md), _The measurement rows' failing file_. Both runs are on Vite 8.4.0-beta.1:
+
+  | Reading | Commit | Installer | Row | B per move |
+  | --- | --- | --- | --- | --- |
+  | CI 44035423615, `main` | `21392e738` | npm | failed | 18.77 |
+  | CI 44055280400, `repo/ci-speed-1` | `633ef72d8` | aube | failed | 29.33 |
+  - The row fails under both installers, so the move to aube isn't its cause. The CI-speed unit doesn't change it. The finding stays open, with the same required property.
+
 #### DRF-49 — In Safari, the `y()` sweep through `box` with a `visual` intermittently stalls until its timeout
 
 Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report](../../../.plan/ci-verification-1/ci-verification-report.md)), under `repo:RD-8` properties 1 and 4 and its handoff's _Resuming after the three Safari runs_. **Skipped in Safari only** (`it.skipIf(isSafari)`), in both `browser/drag` and `consumer/drag`, and the marking cites this address.

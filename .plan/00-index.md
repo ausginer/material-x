@@ -730,12 +730,23 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
   None of this changes what installs. It is what GitHub's dependency graph and nx read, so property 11's two stops on them are witnessed on this commit, not only after the merge.
 
-- **`aube exec` reads its own options after the binary,** so `.agents/docs/handoff.md`'s `aube exec eslint … -c eslint.config.ts` never passes `-c` to eslint. Property 8 gains its `--` rule.
+- **`aube exec` reads its own options directly after the binary's name,** up to the first argument it doesn't own. Property 8 gains its `--` rule.
+
+  (_Corrected 2026-11-17 by the architect at `c57722b67`,_ on the feature proof's `reviewer-1`. This bullet said: _"`aube exec` reads its own options after the binary, so `.agents/docs/handoff.md`'s `aube exec eslint … -c eslint.config.ts` never passes `-c` to eslint."_ That command was `aube exec eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts …`. aube stopped at `--flag`, so `-c` reached eslint. The probe it relied on put `-c` directly after the binary. The rule stands, because it goes by form.)
+
 - **`aube install --fix-lockfile --lockfile-only`** does nothing on a fresh lockfile: _"Lockfile is up to date, resolution step is skipped"_.
 
 **Properties.**
 
-1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9). `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
+1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with two exceptions: npm's one bootstrap step in CI (property 9), and nx's script runner (amended 2026-11-17 at `c57722b67`).
+   - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
+   - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
+   - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
+   - **Revisited** when nx knows aube, or when npm stops running a script beside these keys. npm says the keys "will stop working in the next major version". If that breaks the runs, a gate job fails, because every nx target runs through npm. The alternative is to replace nx's inferred script targets with explicit ones that run `aube run`. That costs a target definition for each script in each package, 78 today, or a local nx plugin, and it changes nothing about what runs.
+   - (This property said: _"npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9)."_ The feature proof's `reviewer-2` read `npm run` in the final run's `docs` job.)
+
+   `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
+
 2. **`package-lock.json` stays the one lockfile,** which aube reads and writes. No `aube-lock.yaml` or `pnpm-lock.yaml` is committed. `.npmrc` sets `defaultLockfile` to `package-lock.json`, so a stray `aube-lock.yaml` can't take precedence over it.
 3. **Overrides go through the catalog.** `package.json`'s `aube.catalog` holds the five pinned versions: `@mdx-js/react`, eslint, react, rolldown and vite. Each override and each direct dependency on one of them is `catalog:`, so each version is written once. No `$` reference remains.
 4. **Only listed packages, at listed versions, run install scripts.**
@@ -763,10 +774,10 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - `aube add` and `aube remove` to change dependencies.
    - `aube run <script>` for a `package.json` script.
    - **`aube exec <binary>` in place of `npx`.** Never `aubx` or `aube dlx` for a repository tool, because they fetch a package that isn't installed.
-     - **`--` before the binary when it gets an option** (added 2026-11-17). aube 2.10.0 reads its own options after the binary's name too: `-c` (its shell mode), `-v`, `-V` and `--version`, `-h` and `--help`, and `--silent` among them ([reading](ci-speed-1/checks/rf47-resolution.txt)). So a command that passes the binary any argument beginning with `-` is written `aube exec -- <binary> <args>`, wherever it is written. The rule goes by form, not by a list of colliding options, because aube's options change between versions.
+     - **`--` before the binary when it gets an option** (added 2026-11-17, its reason corrected the same day at `c57722b67`). aube 2.10.0 also reads its own options after the binary's name, until the first argument it doesn't own. Those options include `-c` (its shell mode), `-v`, `-V` and `--version`, `-h` and `--help`, and `--silent` ([reading](ci-speed-1/checks/rf47-resolution.txt)). So `aube exec eslint -c x` loses `-c` to aube, while `aube exec eslint --flag … -c x` and `aube exec eslint file.ts -c x` pass it to eslint. Whether an option survives therefore depends on what comes before it. A command that passes the binary any argument beginning with `-` is written `aube exec -- <binary> <args>`, wherever it is written. The rule goes by form, not by a list of colliding options, because aube's options change between versions.
    - **Who changes:** recipes, scripts, editor tasks, workflows, agent definitions and documentation say so. Instructions addressed to consumers of the published packages keep `npm install`, because those are the consumers' commands.
 9. **CI.**
-   - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from. The step runs outside the checkout, so npm doesn't read the repository's `.npmrc`.
+   - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from. The step runs outside the checkout, so the install of aube reads no repository configuration. npm reads `.npmrc` later, under nx (property 1). (Amended 2026-11-17 at `c57722b67`. The reason said: _"so npm doesn't read the repository's `.npmrc`"_.)
    - **The cache.** It caches aube's store under a key of the OS, aube's version and the lockfile's hash, then runs `aube ci`. `setup-node`'s `cache: npm` goes.
    - **Scope.** This covers `verify` (`measurements`' merge-base tree included), the Safari workflow and `baselines.yml`.
 10. **Timing is a reading.** Cold and warm `aube ci` times on `ubuntu-24.04` and `macos-26`, beside `npm ci`'s at `229829ef7`. They decide nothing.
@@ -1347,6 +1358,34 @@ Tier B, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1`
   (This bullet said: _"`aube install --fix-lockfile`, which re-resolves only the drifted entries, in its own commit. The diff is limited to those entries, and the report lists it."_ It assumed that `--fix-lockfile` touches only drifted entries. On 2.10.0 it rewrites the layout.)
 
 - **Routed** to the implementer, in the CI-speed unit.
+
+#### RF-48 — After one `aube add`, the main checkout's `node_modules/@ydinjs` links were gone, and `aube install` reported nothing to do
+
+Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's _Remediation of the stop at `633ef72d8`_ and the feature proof's _The open items_.
+
+- **What was seen:** after remediation step B's `aube add -D -W @oxlint/migrate@1.93.0`, `node_modules/@ydinjs/` was missing from the main checkout. The root typecheck failed (nx: _"Cannot find package '@ydinjs/vite-traits-plugin'"_), and `aube install` answered _"Already up to date"_. `aube install --frozen-lockfile --force` restored the links.
+- **What holds:** the committed state. A fresh worktree of `633ef72d8`, `57c8849a2` or `9dab0c066` links all seven workspace packages on `aube install`. The lockfile keeps a `link` entry for each of them, and CI installs with `aube ci`.
+- **The cause is not established.** It was seen once, in a checkout whose `node_modules` other sessions were using at the same time. So the cause may be aube's incremental `add` with the hoisted linker, or a concurrent operation from another session. It is not reproduced in isolation.
+- **Why it matters:** `implementer.md` teaches `aube add -D -W <name>`. If the cause is aube's, every dependency change can leave a tree that fails to typecheck, and aube's state check doesn't notice.
+- **Required property:** after `aube add` or `aube remove`, `node_modules` links every workspace package, or the install command fails.
+- **Next:** a reading. In a scratch worktree that no other session uses, run `aube install`, then one `aube add -D -W` of a mature package with no install script, and list `node_modules/@ydinjs`. If the links are gone, it is aube's defect: the owner may report it upstream, and `implementer.md` gains the repair command beside the add rule. If they are not, this finding closes as not reproduced. **Not part of the CI-speed unit.** Its handoff doesn't depend on it.
+
+#### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
+
+Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
+
+- **What:** the recipe runs `@oxlint/migrate` 1.93.0 on `eslint.config.ts` and writes `.oxlintrc.json`. Its output differs from the committed file in these ways:
+  - it drops every comment;
+  - it narrows `ignorePatterns` from 76 entries to the 15 of `eslint.config.ts`;
+  - it drops one top-level rule and adds three;
+  - it loses the override for the harness guard plugin's tests;
+  - it changes rules inside the other overrides.
+
+  The committed file is therefore maintained by hand beyond the tool's output. The step left it unchanged.
+
+- **Why it matters:** a developer who runs the recipe to pick up an eslint change silently discards those hand edits, unless they read the whole diff.
+- **Required property:** the record says which file is the source of the oxlint rules. Either the recipe's output is the file, so the hand edits move into `eslint.config.ts` or into the script's post-processing, or the file is hand-maintained, so the recipe is a diff aid that doesn't write it, or it is deleted.
+- **Not part of the CI-speed unit,** which only moved the recipe from `npx` to `aube exec`. The choice is the owner's, since the oxlint configuration is outside that unit's decisions. Until it is made, the recipe stays as it is.
 
 ## Questions
 

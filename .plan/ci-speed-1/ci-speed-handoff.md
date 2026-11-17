@@ -335,7 +335,8 @@ The remediation stopped at step 3: `aube install --fix-lockfile` repaired the th
   - The rest is aube placing versions the file already holds. Every later `aube add` would write this layout anyway, so confining the repair to three entries would only move the same diff into step 4.
   - The owner isn't alarmed by the size. `RF-47`'s _Repair_ has the reasons.
 - **Step 4 waits for step 3's commit,** and is then isolated by it. Once aube has written the layout, an `aube add` changes only what it adds. That is step 4's new witness.
-- **`aube exec` reads its own options after the binary's name.** `RD-16` property 8 now requires `--` before the binary whenever the binary gets an option. That is a repair across the files this unit migrated, and it fixes a real defect: `.agents/docs/handoff.md`'s eslint command never passes `-c` to eslint.
+- **`aube exec` reads its own options directly after the binary's name,** up to the first argument it doesn't own. `RD-16` property 8 now requires `--` before the binary whenever the binary gets an option. That is a repair across the files this unit migrated.
+  - (_Corrected 2026-11-17 by the architect at `c57722b67`,_ on the feature proof's `reviewer-1`. This bullet said that aube reads its options _"after the binary's name"_ without limit. It also said the repair _"fixes a real defect: `.agents/docs/handoff.md`'s eslint command never passes `-c` to eslint"_. It did pass `-c`, because `--flag …` came first. The repair stands. It is a rule by form, not the fix of a seen failure.)
 - **Step 5's departures are accepted,** and its text is corrected in place.
 
 ## Remediation of the stop at `633ef72d8`
@@ -354,17 +355,66 @@ A. **`RF-47`:** `aube install --fix-lockfile`, in its own commit, with its whole
 
   The lockfile's root entry now names them as `catalog:`, and nx and GitHub's dependency graph both read that entry. From the architect's session, the compare endpoint answered 403, and item 4 witness 7's SBOM endpoint answered 404. If neither answers for the implementer either, the report says so. The graph is then read after the merge, by item 4 witness 7 or on the repository's _Dependency graph_ page.
 
-- **Stop** if the instrument's output differs from the reading, or if a second install changes the file. Also stop if the graph comparison loses `vite` or `rolldown`, or if an nx command of the gate fails: those two are `RD-16` property 11's capital stops, so report and wait for the owner. B. **`@oxlint/migrate`:** `aube add -D -W @oxlint/migrate@1.93.0`, in a later commit than A.
+- **Stop** if the instrument's output differs from the reading, or if a second install changes the file. Also stop if the graph comparison loses `vite` or `rolldown`, or if an nx command of the gate fails: those two are `RD-16` property 11's capital stops, so report and wait for the owner.
+
+B. **`@oxlint/migrate`:** `aube add -D -W @oxlint/migrate@1.93.0`, in a later commit than A.
+
 - **Witness:**
   - the instrument, run between A's file and B's, prints in section 1 only `@oxlint/migrate` and its own dependencies, and in section 2 only the root's new devDependency;
   - section 3 is unchanged;
   - `just oxlint-migrate` runs and leaves `.oxlintrc.json` unchanged, or the report shows its diff;
   - if the package has an install script, its `allowBuilds` entry is pinned to 1.93.0.
-- **Stop** if the `aube add` changes anything else. That would mean aube's layout isn't stable after its first write, which `RD-16` property 11 assumes. C. **`--` before an option** (`RD-16` property 8):
+- **Stop** if the `aube add` changes anything else. That would mean aube's layout isn't stable after its first write, which `RD-16` property 11 assumes.
+
+C. **`--` before an option** (`RD-16` property 8):
+
 - **What changes.** Every current file that runs `aube exec <binary>` with an argument beginning with `-` writes `aube exec -- <binary> …`. That covers workflows, `.scripts/`, `packages/drag/tests/support/build-package.node.ts`, `.agents/docs/handoff.md`, agent definitions, READMEs and editor files, and the argument arrays given to `spawn`. Records stay as written.
 - **Witness:**
   - a search for `aube exec` followed by a name and then an argument beginning with `-` finds nothing outside records;
   - `.agents/docs/handoff.md`'s eslint command, run as written on one file with `-c` pointing at a missing file, fails on loading that config;
-  - the gate is green. D. **Then the unit resumes** with step 6 above.
+  - the gate is green.
+
+D. **Then the unit resumes** with step 6 above.
 
 **Observed on run 44055280400, not decided here:** `measurements`' _Measurement rows_ step reports one failed test file, which `|| true` absorbs. The report names that file and whether it fails on `main`.
+
+## Disposition of the feature proof at `c57722b67`
+
+The [feature proof](../reviews/ci-speed-1/feature-proof-claude.md), read at `e5fd8329e`, holds with four Tier C findings. The architect read it at `c57722b67`, with the report's open items. Each item below is either fixed by the architect's commit that adds this section, fixed by the implementer before the merge, or recorded for later in a named place.
+
+| Item | Disposition | Where |
+| --- | --- | --- |
+| `reviewer-1`: the `-c` reason | **Fixed in the architect's commit.** The reason is corrected. The `--` rule stands, because it goes by form. | `RD-16`'s note at `633ef72d8` and property 8, this file's _Disposition of the stop at `633ef72d8`_, and [`rf47-resolution.txt`](checks/rf47-resolution.txt), each with a dated correction |
+| `reviewer-2`: nx runs scripts with `npm run` | **Fixed in the architect's commit, as an exception** with its reading. nx 24.0.6 can't name aube. npm installs nothing there and runs only the script line, and what it exports leaves aube's policy intact. **Before the merge,** the implementer corrects `.npmrc`'s comment (step E). | `RD-16` property 1, and property 9's reason |
+| `reviewer-3`: the report's final run and three stale sentences | **Before the merge,** by the implementer (step F) | `ci-speed-report.md` |
+| `reviewer-4`: the parallelism figure | **Before the merge,** by the implementer (step E) | `.scripts/vitest-config.ts` |
+| `aube add` lost the workspace links | **Recorded for later.** It was seen once, in a checkout other sessions were using, so the cause isn't established. The committed state is sound. | `RF-48`, whose next step is a reading in an unshared worktree |
+| `.oxlintrc.json` against `just oxlint-migrate` | **Recorded for later,** as the owner's choice of which file is the source | `RF-49` |
+| The Safari issue's _Failed projects_ wording | **Closed, no change.** In the final `safari.yml`, only `Failed projects` itself can fail after `Safari projects`. So _"none named"_ appears only when the run failed before any project reported, and then it is accurate. Only the witness's extra `exit 1` step made it wrong. | the feature proof's _The open items_ |
+| drag's hot-path allocation row | **Recorded for later,** as drag's. It fails on `main` under npm too, so the move to aube isn't its cause. | `drag:DRF-48`, with a dated reading |
+
+**With property 1's exception, the report's _"Status: done"_ covers all of `RD-16`** once steps E and F are done. Nothing here is a capital problem under property 11.
+
+## Remediation of the feature proof
+
+For the implementer, on `repo/ci-speed-1`, after merging the architect's commit that adds this section.
+
+E. **Two comments, in one commit** whose message has no `[noci]`, so its run is full.
+
+- **`.scripts/vitest-config.ts`:** the comment above `fileParallelism` gives the figure for the measure it names. The test step was 39 to 48 % shorter, by the jobs API's step times, or it quotes Vitest's durations as durations ([reading](checks/webkit-parallelism.txt)).
+- **`.npmrc`'s first comment:** it says only what `RD-16` property 9 now says. The bootstrap runs outside the checkout and reads no repository configuration, and npm reads this file when nx runs a package script (property 1).
+- **Witness:** `.agents/docs/handoff.md`'s order on `vitest-config.ts`, then the push's run is full and green.
+- **Stop** if that run fails on a job that passed at `e5fd8329e`.
+
+F. **The report, in a later commit** with `[noci]` in its message.
+
+- _Final run_ names E's run (its ID, head, mode and job results) as the run that proves the stopping boundary, and 44071947594 at `e5fd8329e` as the run before it.
+- Lines 52, 82 and 127 each carry a dated note saying what is true at the head:
+  - the lockfile's root entry has `catalog:` since `57c8849a2`;
+  - `RF-47` repaired the stale nests there;
+  - the timeout has been 8 minutes since `368ffeea2`.
+- _Next_ points each open item to its disposition above.
+- **Witness:** the commit's own run is reduced, with _B_ at E's head, and `records` passes.
+- **Stop** if that run is full. Changing only `.plan/` after a green full run should reduce it (`RD-15`).
+
+G. **The stopping boundary:** push, then send the coordinator the head and both run IDs. The owner merges. `RD-12` property 12 witness 3 and the dependency graph's reading (remediation step A) come after the merge, as before.
