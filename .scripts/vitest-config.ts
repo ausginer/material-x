@@ -289,7 +289,11 @@ function createBrowserTestConfig(
   commands?: Record<string, BrowserCommand<any[]>>,
   options?: Readonly<{ launchArgs?: readonly string[] }>,
 ): UserConfig {
-  const isChromium = engine === 'chromium';
+  // TEMPORARY witness (CI-speed item 1 witness 5): WebKit with Chromium's
+  // parallelism, only under `.github/workflows/webkit-parallel.yml`.
+  const isParallel =
+    engine === 'chromium' ||
+    (engine === 'webkit' && process.env.MX_WITNESS_WEBKIT_PARALLEL === '1');
   const isSafari = engine === 'safari';
 
   return {
@@ -298,8 +302,8 @@ function createBrowserTestConfig(
       // Safari allows one WebDriver session at a time. WebKit runs serially as
       // Firefox does until a reading shows its background pages get input
       // (`repo:RD-12` property 11).
-      fileParallelism: isChromium && !isDebug,
-      maxWorkers: isChromium ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
+      fileParallelism: isParallel && !isDebug,
+      maxWorkers: isParallel ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {
         enabled: true,
         // Safari has no headless mode.
