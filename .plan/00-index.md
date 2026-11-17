@@ -693,6 +693,12 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
   - `allowBuilds` and the catalog are read from `package.json`'s `aube` field.
 - **A mismatched `packageManager` pin downloads another aube** (_"Switching to aube@2.10.0 … Downloading aube v2.10.0…"_). With `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`, it fails instead.
 - **The release-age gate** (`minimumReleaseAge` with `minimumReleaseAgeStrict=true`) fails a resolution that only a too-young version satisfies: `ERR_AUBE_NO_MATURE_MATCHING_VERSION`.
+- **Exceptions, read on 2.10.0:**
+  - `minimumReleaseAgeExclude` in `.npmrc` takes one comma-separated value, whose entries are names, `*` patterns, or names with an exact version (`esbuild@0.28.1`). A pattern can't carry a version, and repeated lines keep only the last.
+  - An entry covers its package and not that package's dependencies.
+  - The gate doesn't apply to a frozen or fresh-lockfile install of locked versions, or to an `aube add` that leaves them locked. Only a re-resolution of vite 8.4.0-beta.1 is blocked, and then by vite and next by postcss 8.5.33.
+  - With `minimumReleaseAgeStrict=false`, a young version that alone satisfies its range is installed without notice.
+- **npm warns about aube's `.npmrc` keys,** and says that they will stop working in its next major version, whenever it runs inside the checkout.
 - **Overrides through the catalog hold.** With `aube.catalog` and `catalog:` in place of each `$` reference, the manifests resolve to one copy each of `@mdx-js/react`, eslint, react, rolldown and vite, with no warning.
 - **`aube import` is not faithful:** it rewrote npm's nested `ansi-regex@6.6.0` as 6.2.2, which is still in its dependents' range.
 - **nx 24.0.6 knows no aube lockfile,** and builds its external nodes from a bun, yarn, pnpm or npm lockfile.
@@ -710,7 +716,18 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - **npm's `allowScripts`** is deleted.
    - **What follows.** An unlisted package with an install script fails the install, and so does a listed package at another version. Updating such a package therefore updates its pin in the same change, which is the review. The root package's own `postinstall` (`.scripts/link-tsserver.ts`) runs, as it does under npm.
 5. **The version pin is enforced, never fetched.** `.npmrc` sets `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`. A different aube fails instead of downloading the pinned one.
-6. **Release age.** `.npmrc` sets `minimumReleaseAge=10080`, which is 7 days, and `minimumReleaseAgeStrict=true`. A resolution that needs a younger version fails rather than quietly taking an older one. An exception is a `minimumReleaseAgeExclude` entry named here with its reason. The aube version in property 1 meets the same age. A frozen install resolves nothing, so CI is unaffected.
+6. **Release age, with exact-version exceptions** (amended 2026-11-17 at `588eeae42`).
+   - **The gate.** `.npmrc` sets `minimumReleaseAge=10080`, which is 7 days, and `minimumReleaseAgeStrict=true`. A resolution that only a younger version satisfies fails.
+   - **What it applies to.** It applies when a version is resolved anew: adding a dependency, changing its version, or re-resolving the lockfile. A frozen or fresh-lockfile install of locked versions isn't gated. So CI, `aube install` on a fresh lockfile, and the catalog change of property 3 need no exception.
+   - **An exception** is an entry of `.npmrc`'s single `minimumReleaseAgeExclude` value, comma-separated, written as `name@exact-version` only. A bare name or a `*` pattern would exempt every later version, so neither is allowed.
+     - It is added in the change whose resolution failed on that version, and it names one package. A dependency of an excepted package that is too young needs its own entry.
+     - Each entry is listed here with its reason and the date its version turns 7 days old.
+     - After that date the entry exempts nothing, so the first change after it that touches `.npmrc` or the dependencies removes it.
+   - **No exception is needed at `588eeae42`.** vite 8.4.0-beta.1, published 2026-11-16, and postcss 8.5.33, the only version that satisfies vite's `^8.5.33` (2026-11-13), are locked. A re-resolution before 2026-11-23 would need `vite@8.4.0-beta.1,postcss@8.5.33`.
+   - **aube's own version** in property 1 meets the same age.
+
+   (This property said: _"**Release age.** `.npmrc` sets `minimumReleaseAge=10080`, which is 7 days, and `minimumReleaseAgeStrict=true`. A resolution that needs a younger version fails rather than quietly taking an older one. An exception is a `minimumReleaseAgeExclude` entry named here with its reason. The aube version in property 1 meets the same age. A frozen install resolves nothing, so CI is unaffected."_ The owner chose, on 2026-11-17, to keep the 7-day gate if aube has per-package exceptions and to drop it otherwise: _"Давай 2, если не умеет, то 3. Возрастное ограничение штука хорошая, но всё-таки у меня контейнер и dev deps only, поэтому это чуть менее важно"_. aube has them, so the gate stays.)
+
 7. **The layout is hoisted** (`node-linker=hoisted` in `.npmrc`). Every other `.npmrc` key stays only if aube reads it, and the report names the keys it drops.
 8. **Commands.**
    - `aube ci` in CI, on a fresh checkout, and `aube install` locally.
@@ -719,7 +736,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - **`aube exec <binary>` in place of `npx`.** Never `aubx` or `aube dlx` for a repository tool, because they fetch a package that isn't installed.
    - **Who changes:** recipes, scripts, editor tasks, workflows, agent definitions and documentation say so. Instructions addressed to consumers of the published packages keep `npm install`, because those are the consumers' commands.
 9. **CI.**
-   - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from.
+   - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from. The step runs outside the checkout, so npm doesn't read the repository's `.npmrc`.
    - **The cache.** It caches aube's store under a key of the OS, aube's version and the lockfile's hash, then runs `aube ci`. `setup-node`'s `cache: npm` goes.
    - **Scope.** This covers `verify` (`measurements`' merge-base tree included), the Safari workflow and `baselines.yml`.
 10. **Timing is a reading.** Cold and warm `aube ci` times on `ubuntu-24.04` and `macos-26`, beside `npm ci`'s at `229829ef7`. They decide nothing.
@@ -742,6 +759,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **The catalog, not `$`.** aube warns that `$` is deprecated, and an aube that dropped it could resolve a second vite. npm, which needed `$`, no longer reads `package.json`.
 - **Deny by default, with version pins:** the owner's supply-chain rule. A script runs only after someone listed its package and version. `strictDepBuilds` alone would leave the built-in list in force, and a bare-name allow would run a new version unreviewed.
 - **No download of a package manager,** and a 7-day release age: both close a path by which a freshly published release runs without review.
+- **Strict release age, with exact-version exceptions.** Without strict mode, a young exact pin installs without notice, so the gate would cover only ranges. An exact-version exception lets one reviewed release through and nothing published after it.
 - **`aube exec`, not `aubx`:** `npx` and `aubx` both fetch a missing binary from the registry, and `aube exec` runs only what the lockfile installed.
 - **npm as CI's bootstrap, not `jdx/aube-action`.** The action would add a third party to the supply chain, for a step that the npm registry, already trusted, serves.
 

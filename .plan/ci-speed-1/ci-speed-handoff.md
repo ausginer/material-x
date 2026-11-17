@@ -145,13 +145,13 @@ Revert each witness's source change before the review.
 - **`.npmrc`:**
   - `strictDepBuilds=true` and `useDefaultTrustedDependencies=false`;
   - `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`;
-  - `minimumReleaseAge=10080` and `minimumReleaseAgeStrict=true`;
+  - `minimumReleaseAge=10080` and `minimumReleaseAgeStrict=true`, with no `minimumReleaseAgeExclude`. None is needed: the gate applies only to versions that are resolved anew, and this item resolves none (`RD-16` property 6). If a step does re-resolve, add exact-version entries only, as property 6 says, and list each one in the report;
   - `node-linker=hoisted` and `defaultLockfile=package-lock.json`;
   - each of today's keys (`git-tag-version`, `prefer-dedupe`, `save-exact`) kept only if aube reads it. The report says which, and how that was read.
 - **`package-lock.json`:** `aube install` writes it once after the catalog change, and a second `aube install` leaves it unchanged. No `aube-lock.yaml` is committed.
 - **Workflows** (`verify.yml`, with `measurements`' merge-base tree, then the Safari workflow and `baselines.yml`):
   - `setup-node` without `cache: npm`;
-  - `npm install -g @endevco/aube@2.10.0` as the bootstrap;
+  - `npm install -g @endevco/aube@2.10.0` as the bootstrap, run outside the checkout (for example with `working-directory: ${{ runner.temp }}`), so npm doesn't read the repository's `.npmrc`;
   - aube's store cached under a key of the OS, the aube version and the lockfile's hash;
   - `aube ci`, and `aube exec` for every `npx`.
 
@@ -190,7 +190,11 @@ Revert each witness's source change before the review.
    **In CI:** one witness commit with the nx entry removed fails `aube ci` in `static`. The next commit restores it. Save the failing step's log.
 
 3. **The pin:** with an aube other than 2.10.0 on `PATH`, `aube install` fails and names both versions, and nothing is downloaded. The 2.10.1 binary from the npm package serves.
-4. **Release age:** `aube add` of a version published less than 7 days earlier fails with `ERR_AUBE_NO_MATURE_MATCHING_VERSION`. Revert it.
+4. **Release age,** locally, each step reverted afterwards:
+   - `aube ci` passes with vite 8.4.0-beta.1 locked and no exception;
+   - `aube add -D` of any version published less than 7 days earlier fails with `ERR_AUBE_NO_MATURE_MATCHING_VERSION`;
+   - with that version as an exact `minimumReleaseAgeExclude` entry, the same `aube add` passes;
+   - with the entry as a bare name, the report states what it exempts. It is never committed in that form.
 5. **The gate and the Safari workflow on aube's tree:** every gate job, `docs-smoke` included, and the Safari workflow's install and listing. **A job that fails only on aube** is read again at the same commit on npm, by a temporary revert of the switch, before it is called a capital problem (`RD-16` property 11).
 6. **Timing, as a reading:** take `aube ci`'s step times from the gate's own runs, cold on the first run after a cache-key change and warm afterwards, on `ubuntu-24.04` and `macos-26`. Put them beside `npm ci`'s step times on #30's last green run. Save `checks/install-times.tsv`.
 7. **After the merge,** read by the coordinator: GitHub's dependency graph for `main` (`gh api repos/ausginer/material-x/dependency-graph/sbom`) lists vite 8.4.0-beta.1 and rolldown 1.3.2.
@@ -221,7 +225,7 @@ Return to the architect with what you have if:
 - the search in item 3 finds a reader of records or Markdown that `records` can't run;
 - `workflow_dispatch` with a SHA `ref` can't be made to check out that commit;
 - the `verify` aggregate can't tell `skipped` from `success` per job;
-- a capital problem of `RD-16` property 11 appears. Nothing else about aube is a stop.
+- a capital problem of `RD-16` property 11 appears. Nothing else about aube is a stop, and a resolution blocked by the release age isn't one: it gets an exact-version entry under `RD-16` property 6.
 
 ## The report
 
@@ -259,7 +263,7 @@ A targeted feature-proof review reads the diff from `229829ef7` to the head. It 
   - only the Safari issue job holds `issues: write`, and it runs no repository code;
   - the measurement, deploy and recording workflows are otherwise unchanged.
 - **The WebKit inventory** and the parallelism reading against `RD-12` property 11.
-- **aube:** the tree readings, the script policy's witnesses, including the CI failure, and `.npmrc` and `package.json` against `RD-16` properties 2 to 7. Also that no `npx`, `npm ci`, `aubx` or `aube dlx` remains in a recipe, script, workflow, editor task, agent definition or current document, except consumer instructions and `RD-16` property 9's bootstrap.
+- **aube:** the tree readings, the script policy's witnesses, including the CI failure, and `.npmrc` and `package.json` against `RD-16` properties 2 to 7, including that every `minimumReleaseAgeExclude` entry is an exact version that the report justifies. Also that no `npx`, `npm ci`, `aubx` or `aube dlx` remains in a recipe, script, workflow, editor task, agent definition or current document, except consumer instructions and `RD-16` property 9's bootstrap.
 
 It records at `.plan/reviews/ci-speed-1/feature-proof-claude.md`, and the architect decides its findings.
 

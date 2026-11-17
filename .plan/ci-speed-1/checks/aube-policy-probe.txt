@@ -79,3 +79,58 @@ F. nx 24.0.6 (node_modules/nx/dist/src/utils/package-manager.js and
    pnpm and npm lockfiles and no aube file; the JS plugin builds its external
    nodes from the lockfile it finds. With only aube-lock.yaml, nx would see
    no lockfile.
+
+G. Release-age exclusions and frozen installs, aube 2.10.0, 2026-11-17
+   (added for the owner's question on minimumReleaseAge).
+   Fixture 1: dependency esbuild ^0.28.0, .npmrc minimumReleaseAge=525600 and
+   minimumReleaseAgeStrict=true (every 0.28.x too young), `aube install
+   --lockfile-only`. "->" is the esbuild version resolved.
+
+   minimumReleaseAgeExclude written as                     exit  ->
+   (none)                                                  21    blocked
+   .npmrc  minimumReleaseAgeExclude=esbuild                21    esbuild passes; fails on its dependency @esbuild/aix-ppc64
+   .npmrc  minimum-release-age-exclude=esbuild             21    same (kebab read)
+   .npmrc  minimumReleaseAgeExclude[]=esbuild              21    blocked at esbuild: not read
+   package.json aube.minimumReleaseAgeExclude ["esbuild"]  21    blocked at esbuild: not read
+   aube-workspace.yaml list [esbuild]                      21    esbuild passes; fails on @esbuild/aix-ppc64
+   .npmrc  minimumReleaseAgeExclude=esbuild@0.28.1         21    esbuild 0.28.1 chosen (not 0.28.2); fails on @esbuild/aix-ppc64
+   .npmrc  ...=esbuild@0.28.0 || 0.28.1                    21    0.28.1 chosen; fails on @esbuild/aix-ppc64
+   .npmrc  minimumReleaseAgeExclude=esbuild,@esbuild/*     0     0.28.2
+   .npmrc  ...=esbuild@0.28.1,@esbuild/*@0.28.1            21    WARN_AUBE_INVALID_MINIMUM_RELEASE_AGE_EXCLUDE: a wildcard takes no version
+   .npmrc  two lines, esbuild then @esbuild/*              21    the last line wins
+   .npmrc  ...=esbuild @esbuild/*  (space)                 21    WARN_AUBE_INVALID_..., malformed
+   yaml list [esbuild@0.28.1, "@esbuild/*"]                0     0.28.1
+
+   Reading: per-package exclusions exist. In .npmrc they are one comma-separated
+   value; an entry is a name, a `*` pattern, or a name with an exact version or
+   an exact union. A pattern can't carry a version. An exclusion covers that
+   package only, not its dependencies.
+
+   Fixture 2: devDependency vite 8.4.0-beta.1 (published 2026-11-16T07:22Z);
+   package-lock.json written by npm (vite 8.4.0-beta.1, rolldown 1.3.2 of
+   2026-11-11). .npmrc minimumReleaseAge=10080, minimumReleaseAgeStrict=true,
+   no exclusion.
+     aube ci                                exit 0, lockfile unchanged
+     aube install (lockfile fresh)          exit 0, lockfile unchanged
+     aube add -D is-number@7.0.0            exit 0, lockfile gains is-number only
+     aube install --no-frozen-lockfile      exit 21 "blocked by age gate: 8.4.0-beta.1"
+   With minimumReleaseAgeExclude=vite@8.4.0-beta.1 (then also rolldown@1.3.2,
+   @rolldown/*), the re-resolution fails next on vite's dependency:
+     "no version of postcss matching ^8.5.33 is older than 10080 minute(s)",
+     postcss 8.5.33 published 2026-11-13.
+   minimumReleaseAgeStrict=false, no exclusion: exit 0, vite 8.4.0-beta.1 and
+   postcss 8.5.33 resolved. aube's help: strict=false "fall[s] back to the
+   lowest satisfying" version. A young exact pin or a range that only young
+   versions satisfy is installed without notice.
+   vite's specifier changed to "catalog:" with aube.catalog {vite:
+   "8.4.0-beta.1"}, strict, no exclusion: `aube install` exit 0, lockfile diff
+   1 line (the root specifier); `aube ci` afterwards exit 0. The catalog change
+   doesn't re-resolve.
+
+   Reading: the gate applies only when a version is resolved anew. A frozen or
+   fresh-lockfile install of locked versions isn't gated, so today's vite
+   doesn't block an install, and RD-16's catalog change needs no exclusion.
+
+   Also seen: npm 11.20.0 run in a directory with this .npmrc warns
+   `Unknown project config "minimumReleaseAge". This will stop working in the
+   next major version of npm.` for each aube key.

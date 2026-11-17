@@ -115,7 +115,7 @@ The material-x CI-speed unit makes these changes. Only local installs wait for y
 
 - **Its post-create script installs `chromium webkit`,** where it installed `chromium` alone.
 - **Its record** says that the devcontainer installs both builds, and that WebKit launches where the image carries its libraries. `devcontainer.json` keeps `node:latest`, so nothing there changes.
-- **aube is its package manager,** pinned to 2.10.0 in `package.json`'s `packageManager` and in its workflows. Until a container runs your rebuilt image, a developer installs that version by hand with Part A's command, as the user and with `--prefix ~/.local`.
+- **aube is its package manager,** pinned to 2.10.0 in `package.json`'s `packageManager` and in its workflows. Until a container runs your rebuilt image, a developer installs that version by hand with Part A's command, as the user and with `--prefix ~/.local`, from a directory outside the checkout, so that npm doesn't read the checkout's `.npmrc`.
 
 ## Return
 
