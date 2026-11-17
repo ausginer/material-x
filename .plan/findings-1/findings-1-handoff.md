@@ -316,6 +316,7 @@ The unit changes product source in material-x, the shared build recipe, the Vite
 - `RF-36`'s next reading.
 - `RF-40`, which the coordinator will send as its own task.
 - `RF-41`.
+- `RF-44`: the trait-flattener plugin doesn't flatten class-based traits, which its documentation says it does. The forward moves to a trait once it does.
 - `RF-43`: the switch buttons break the `.host` invariant, and every other template is audited against it, in the next material-x unit.
 - `RF-33`'s report to Mozilla.
 
@@ -334,7 +335,7 @@ The unit changes product source in material-x, the shared build recipe, the Vite
 
 Take it on this branch after item 7's Option-Tab reading (verify 44003141576) is reported. It changes the forward and adds rows. Nothing else changes.
 
-1. **The forward moves to the prototype chain.** (`reviewer-2`) **Replaced** by _Item 8, step 1, amended 2026-11-17: the forward as a trait_, below. The bullets are kept for the record.
+1. **The forward moves to the prototype chain.** (`reviewer-2`) **In force,** in the per-class form of _Item 8, step 1, amended again 2026-11-17_, below. The trait amendment that replaced it for a while is superseded.
    - **No own property:** for each of the seven hosts the forward covers, `Object.hasOwn(host, 'focus')` is false, and `focus` resolves to a method of material-x's own classes.
    - **A subclass's own `focus()` is called,** and `super.focus(options)` in it focuses the control, in every engine, Firefox included.
    - **One body:** the forward's logic exists once (CONTRIBUTING §6). If each class declares the method, the declaration only calls the shared code.
@@ -357,6 +358,8 @@ Take it on this branch after item 7's Option-Tab reading (verify 44003141576) is
 5. **The report** adds a section for item 8, with the run links and the size reading.
 
 ### Item 8, step 1, amended 2026-11-17: the forward as a trait
+
+**Superseded** by the owner's decision in _Item 8, step 1, amended again 2026-11-17_, below. The section is kept for the record and for the move that `RF-44` follows up.
 
 The owner directed that while the forward ships, it is a trait, relayed by the coordinator. It stays a workaround for Firefox and goes when the watching row passes. `RF-33` holds the reasons. Step 1 becomes:
 
@@ -383,13 +386,23 @@ The owner directed that while the forward ships, it is a trait, relayed by the c
 
 **The parked attempt at `891d672ec`** (`implementer/item8-step1-wip`, unpushed) may be reused. Its module `WeakMap` and its `focusControl` become the trait module's registry and the body of the trait's method, and the registering function takes `forwardFocus`'s place. Its seven per-class `override focus()` declarations are dropped, because the trait declares the method. Its rows in `tests/core/utils/useCore.browser.test.ts` stand: `Object.hasOwn` for the seven hosts, and the two subclass rows.
 
+### Item 8, step 1, amended again 2026-11-17: the per-class form
+
+**The stop:** the trait, parked on `implementer/item8-step1-trait-wip` at `92e13f9d6`, makes `npx just build-lib` in material-x warn seven times: _"retained runtime composition for ButtonConstructor (unsupported-trait): trait FocusForwarding is not a supported descriptor trait"_. The plugin then keeps each adopter's whole composition, not only this trait. The cause is `RF-44`.
+
+**The owner decided,** relayed by the coordinator: step 1 ships in the per-class form of the parked attempt at `891d672ec`. The owner rejected accepting the retained composition. The trait at `92e13f9d6` is kept for later: when the plugin flattens class-based traits, the forward moves to the trait, under `RF-44`.
+
+1. **The form:** a module `WeakMap` that the registering function fills in place of `forwardFocus`, one `focusControl(host, options)` that focuses the registered control, and in each of the seven classes an `override focus(options?: FocusOptions)` that only calls `focusControl`.
+2. **The properties** are step 1's, as decided at `dd9aa1911`: no own `focus` on the seven hosts, a subclass's own `focus()` called with `super.focus()` reaching the control in every engine, one body, item 4's signature, target, options and engines unchanged, the comment, the subclass rows, the watching row, and the size reading with a failing budget as a stop.
+3. **The build:** no flattener warning that the forward adds.
+
 **Step 4's mutation check, ruled 2026-11-17 on the implementer's note:** a mapping that tproc deduplicates into the button default doesn't fail its row when it's dropped. `mx-icon-button`'s filled mapping is one, because its focused colour equals the default's. The row stands, because it reads what is drawn. The default's mapping is what a mutation must drop to fail it. The report names each such row.
 
 ### Before the owner merges #29
 
 1. Item 7's Option-Tab reading is reported. The architect records the owner's `RF-42` answer and its outcome in `RD-12` property 10 and `RF-42`.
 2. Item 8 is implemented and reported. The architect then decides whether `RF-35`, `RF-39` and `RF-42` close. The two reports can come to the architect together.
-3. **A targeted feature-proof recheck** reads the code diff from `fc3b89680` to the head, excluding `.plan/`: item 7's key helper and item 8, with step 1 as amended. It records at `.plan/reviews/findings-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
+3. **A targeted feature-proof recheck** reads the code diff from `fc3b89680` to the head, excluding `.plan/`: item 7's key helper and item 8, with step 1 in its per-class form. It records at `.plan/reviews/findings-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
 4. `verify` and _Publish Docs_ pass on #29's head.
 5. The reviewer's `a22c109b7` and this disposition are merged into `repo/findings-1`.
 
