@@ -322,4 +322,4 @@ if (import.meta.main) {
   }
 }
 
-// TEMPORARY witness (CI-speed item 3 witness 2): a source change under [noci].
+// TEMPORARY witness (CI-speed item 3 witnesses 2 and 3): a source change in the range.
