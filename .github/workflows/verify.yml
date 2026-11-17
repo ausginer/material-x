@@ -93,7 +93,9 @@ jobs:
       - run: aube ci
       - run: aube exec just fmt-check
       - run: aube exec just typecheck
-      - run: aube exec -- vitest run --project repo .scripts/entry.node.test.ts
+      # Through the root `test` recipe, which builds what the Vitest config
+      # loads, as in every other gate job.
+      - run: aube exec -- just test --project repo .scripts/entry.node.test.ts
 
   static:
     needs: scope
