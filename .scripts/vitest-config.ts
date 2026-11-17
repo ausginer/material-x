@@ -191,9 +191,9 @@ type WorkspaceTestConfigOptions = Readonly<{
   viteTraitsPluginRoot: URL;
 }>;
 
-type Engine = 'chromium' | 'firefox' | 'safari';
+type Engine = 'chromium' | 'firefox' | 'webkit' | 'safari';
 
-const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'safari'];
+const ENGINES: readonly Engine[] = ['chromium', 'firefox', 'webkit', 'safari'];
 
 function isEngine(name: string): name is Engine {
   return (ENGINES as readonly string[]).includes(name);
@@ -238,9 +238,9 @@ function scopedName(base: string, scope?: string): string {
 /**
  * Chromium is Playwright's full build, in Chrome's new headless mode, which the
  * `chromium` channel selects. The `chromium-headless-shell` build that
- * Playwright starts otherwise is a separate implementation. Chromium and Firefox
- * are the builds that the exact `playwright` dependency pins; Safari isn't
- * pinned.
+ * Playwright starts otherwise is a separate implementation. Chromium, Firefox
+ * and WebKit are the builds that the exact `playwright` dependency pins; Safari
+ * isn't pinned.
  */
 function createChromiumProvider(
   launchArgs: readonly string[] = [],
@@ -264,10 +264,10 @@ function createChromiumProvider(
 }
 
 /**
- * Each engine's provider. Chromium and Firefox are Playwright's builds, which the
- * exact `playwright` dependency pins. Safari is the browser on the macOS that
- * runs it, driven through its own `safaridriver`, because only WebDriver drives
- * Safari.
+ * Each engine's provider. Chromium, Firefox and WebKit are Playwright's builds,
+ * which the exact `playwright` dependency pins. Safari is the browser on the
+ * macOS that runs it, driven through its own `safaridriver`, because only
+ * WebDriver drives Safari.
  */
 function createEngineProvider(
   engine: Engine,
@@ -295,7 +295,9 @@ function createBrowserTestConfig(
   return {
     test: {
       // A page in the background gets no input in Firefox and Safari, and
-      // Safari allows one WebDriver session at a time.
+      // Safari allows one WebDriver session at a time. WebKit runs serially as
+      // Firefox does until a reading shows its background pages get input
+      // (`repo:RD-12` property 11).
       fileParallelism: isChromium && !isDebug,
       maxWorkers: isChromium ? (requestedWorkers ?? BROWSER_WORKERS) : 1,
       browser: {

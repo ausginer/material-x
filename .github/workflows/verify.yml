@@ -1,5 +1,7 @@
 # The repository's verification: formatting, lint and types, the test suite in
-# Chromium, Firefox and Safari, and the docs site, built and loaded in Chromium.
+# Chromium, Firefox and Playwright's WebKit, on Linux and headless, and the docs
+# site, built and loaded in Chromium. Real Safari runs outside the gate, in
+# `safari.yml`, weekly and on demand (`repo:RD-12`).
 # `verify` is the one check the branch rule requires (`repo:RD-6`). `deploy`
 # publishes the docs build to GitHub Pages from `main` only (`repo:RD-14`).
 # `measurements` reports sizes and allocations and never fails the run
@@ -134,12 +136,12 @@ jobs:
         env:
           MX_TEST_ENGINES: firefox
 
-  # Real Safari, which runs only on macOS and only through WebDriver. Nothing
-  # installs it: the runner image's Safari and its `safaridriver` run.
-  safari:
+  # Playwright's WebKit build, headless on Linux, through the provider and the
+  # commands Chromium and Firefox use (`repo:RD-12` property 11).
+  webkit:
     if: github.event.pull_request.draft != true
-    runs-on: macos-26
-    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -156,23 +158,10 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - name: Enable Safari's remote automation
-        run: sudo safaridriver --enable
-      # A Safari page reports the preferences a Chromium or Firefox page reports
-      # by default, and the runner's user has Reduce Motion on
-      # (`repo:RD-12` property 10).
-      - name: Turn off Reduce Motion
-        run: |
-          defaults write com.apple.universalaccess reduceMotion -bool false
-          value="$(defaults read com.apple.universalaccess reduceMotion)"
-          echo "reduceMotion: $value"
-          [ "$value" = 0 ]
-      - name: macOS and Safari versions
-        run: |
-          sw_vers
-          defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
-      # Each Safari project in its own Vitest process (`repo:RD-12`).
-      - run: aube exec just test-safari --tags-filter '!measurement'
+      - run: aube exec playwright install --with-deps webkit
+      - run: aube exec just test --project '*/webkit' --tags-filter '!measurement'
+        env:
+          MX_TEST_ENGINES: webkit
 
   # Builds the docs site and loads every page of it (`repo:RD-14`). On `main`,
   # its artifact is what `deploy` publishes.
@@ -207,7 +196,7 @@ jobs:
   # job fails it.
   verify:
     if: always() && github.event.pull_request.draft != true
-    needs: [static, chromium, firefox, safari, docs]
+    needs: [static, chromium, firefox, webkit, docs]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
