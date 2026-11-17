@@ -267,7 +267,8 @@ No mapping stands without a row. All 28 rows pass in each engine.
 **The mutation reading** (local Chromium, [`checks/item8-focus-layer-mutation.txt`](checks/item8-focus-layer-mutation.txt)):
 
 - With every focus-layer mapping dropped, all 10 new rows fail.
-- With only each row's own mapping dropped, 9 fail. **`mx-icon-button` filled** passes. tproc deduplicates its mapping into the button default's, because its focused colour equals the default's. As ruled, the row stands, and the default's mapping is what the mutation must drop. It is the only such row.
+- With only each row's own mapping dropped, 9 fail. **`mx-icon-button` filled** passes. tproc deduplicates its mapping into the button default's, because its focused colour equals the default's. As ruled, the row stands, and the default's mapping is what the mutation must drop.
+- **Corrected 2026-11-17 by the architect,** on the targeted recheck's `recheck-1` ([disposition](findings-1-handoff.md#disposition-of-the-targeted-recheck-at-14d342778)). Filled isn't the only such row. **`mx-icon-button` tonal** is a second. `mx-icon-button` also adopts the button's tonal sheet, which writes the same focused colour under the same `tonal` scope (`tonal/tokens.ts:29`). So dropping only the icon sheet's tonal line leaves the row passing. Mutation B dropped both lines, and so the row failed there. The row stands, as filled's does, and the button's tonal mapping is what the mutation must drop as well. No other row has a stand-in.
 
 ## Checks for every item
 

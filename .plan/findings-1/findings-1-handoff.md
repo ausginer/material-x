@@ -397,7 +397,7 @@ The owner directed that while the forward ships, it is a trait, relayed by the c
 2. **The properties** are step 1's, as decided at `dd9aa1911`: no own `focus` on the seven hosts, a subclass's own `focus()` called with `super.focus()` reaching the control in every engine, one body, item 4's signature, target, options and engines unchanged, the comment, the subclass rows, the watching row, and the size reading with a failing budget as a stop.
 3. **The build:** no flattener warning that the forward adds.
 
-**Step 4's mutation check, ruled 2026-11-17 on the implementer's note:** a mapping that tproc deduplicates into the button default doesn't fail its row when it's dropped. `mx-icon-button`'s filled mapping is one, because its focused colour equals the default's. The row stands, because it reads what is drawn. The default's mapping is what a mutation must drop to fail it. The report names each such row.
+**Step 4's mutation check, ruled 2026-11-17 on the implementer's note:** a mapping that tproc deduplicates into the button default doesn't fail its row when it's dropped. `mx-icon-button`'s filled mapping is one, because its focused colour equals the default's. The row stands, because it reads what is drawn. The default's mapping is what a mutation must drop to fail it. The report names each such row. _Widened by the [recheck's disposition](#disposition-of-the-targeted-recheck-at-14d342778): a second adopted sheet that writes the same value stands in the same way._
 
 ### Before the owner merges #29
 
@@ -429,3 +429,20 @@ The owner's question 2 and the entries under _Still open, outside this unit_ don
 2. **`verify` and _Publish Docs_** pass on the final head (item 4). They passed at `d756e4f4f`, and they must pass again after any later push.
 
 Nothing else blocks the merge. The owner's question 2, `RF-33`'s open part, `RF-36`, `RF-40`, `RF-41`, `RF-43`, `RF-44`, `RF-45` and the Mozilla report all stay outside this unit.
+
+## Disposition of the targeted recheck at `14d342778`
+
+**Decided 2026-11-17 by the architect,** on the [targeted recheck](../reviews/findings-1/feature-proof-recheck-claude.md), which read the code at `d756e4f4f`, relayed by the coordinator. It covers item 3 of _Before the owner merges #29_.
+
+| Finding | Disposition |
+| --- | --- |
+| `reviewer-2`, `reviewer-3`, `reviewer-4` | **Resolved,** as the recheck reads them |
+| `recheck-1`: the `mx-icon-button` tonal row doesn't fail when only its own mapping is dropped | **Accepted. The records are corrected, and nothing else changes.** `RF-35` stays closed |
+
+**What I confirmed for `recheck-1`.** `IconButton` adopts `mainTonalStyles` before `mainIconStyles` (`icon-button.ts:64`–`:70`). Both sheets scope their declarations to the colour `tonal`: `tonal/tokens.ts`'s renderer and `icon/tokens.ts`'s `variantScope('tonal')`. Both map `focus-layer.color` (`tonal/tokens.ts:29`, `icon/tokens.ts:105`). Through tproc's `DB`, `md.comp.icon-button.tonal.focused.state-layer.color` and `md.comp.button.tonal.focused.state-layer.color` both reference `md.sys.color.on-secondary-container`, and both focused opacities are 0.1. Drop only the icon sheet's tonal line, and the button's tonal sheet still writes the expected colour. No other row has a stand-in of this kind. The button sheets are scoped to `elevated`, `outlined`, `text` and `tonal`, and the icon sheet to `tonal` and `standard`, with `filled` as its unscoped default, so `tonal` is the only overlap. `mx-button` doesn't adopt the icon sheet, and the checkbox and radio sheets have no second source. I resolved the tokens and read the source. I didn't run the narrower mutation, and none is owed: the required property is met by naming the row and its stand-in.
+
+**Why the closure stands.** `RF-35` closed on two conditions: item 8's rows pass, and they read each mapping against that state's own focused tokens. Both hold. The tonal row's expectation comes from `icon-button.color.tonal`, and what it reads is what is drawn. Step 4's ruling already let a row stand when another mapping draws the same value. The filled row's stand-in is tproc's deduplication, and the tonal row's is a second adopted sheet. The ruling now covers both: **a mapping row stands when another declaration the host adopts writes the same value. The record names the row and that declaration.** Only the count in the record was wrong. Mutation B dropped both tonal sheets' lines together, so its reading is correct for the mutation it ran.
+
+**Corrected:** [report](findings-1-report.md) §9's mutation paragraph and `RF-35`'s closing entry now name two such rows, each with its stand-in. The reading [`checks/item8-focus-layer-mutation.txt`](checks/item8-focus-layer-mutation.txt) is kept as recorded.
+
+**Before the owner merges #29:** items 1 to 3 and item 5 are done. Item 4 remains: `verify` and _Publish Docs_ pass on the head that carries this disposition. Nothing else blocks the merge.
