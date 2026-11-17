@@ -14,6 +14,8 @@ export function useCore(
   useShadowDOM(host, templates, styles as readonly CSSStyleSheet[], init);
 }
 
+const CONTROLS = new WeakMap<HTMLElement, HTMLElement>();
+
 /**
  * Makes `host.focus()` focus `control`, the element that delegating focus picks.
  * Firefox doesn't delegate focus from a host whose box is `display: contents`,
@@ -22,7 +24,15 @@ export function useCore(
  * delegates focus, and this can go once Firefox delegates through such a host.
  */
 export function forwardFocus(host: HTMLElement, control: HTMLElement): void {
-  host.focus = (options) => {
-    control.focus(options);
-  };
+  CONTROLS.set(host, control);
+}
+
+/**
+ * Focuses the control that {@link forwardFocus} recorded for `host`. Each
+ * caller's class declares `focus()` as a call to this, so the forward is a
+ * method of the prototype: a subclass overrides it and reaches the control
+ * through `super.focus()`.
+ */
+export function focusControl(host: HTMLElement, options?: FocusOptions): void {
+  CONTROLS.get(host)!.focus(options);
 }

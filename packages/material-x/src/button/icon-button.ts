@@ -8,6 +8,7 @@ import {
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
 import { useFormActivation } from '../core/utils/events.ts';
+import { focusControl } from '../core/utils/useCore.ts';
 import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import {
@@ -70,6 +71,10 @@ export default class IconButton extends IconButtonConstructor {
 
     useIconButtonCore(this);
     useFormActivation(this);
+  }
+
+  override focus(options?: FocusOptions): void {
+    focusControl(this, options);
   }
 }
 

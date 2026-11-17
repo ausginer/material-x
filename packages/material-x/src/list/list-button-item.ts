@@ -9,6 +9,7 @@ import {
 } from '@ydinjs/core/traits/attributes.js';
 import { useSelectable } from '@ydinjs/core/traits/selectable.js';
 import type { EmptyObject } from 'type-fest';
+import { focusControl } from '../core/utils/useCore.ts';
 import template from './list-button-item.tpl.html' with { type: 'html' };
 import {
   LIST_INTERACTIVE_ITEM_CORE_TRAITS,
@@ -51,6 +52,10 @@ export default class ListButtonItem extends ListButtonItemConstructor {
     super();
     const target = useInteractiveListItemCore(this, template);
     useSelectable(this, target);
+  }
+
+  override focus(options?: FocusOptions): void {
+    focusControl(this, options);
   }
 }
 
