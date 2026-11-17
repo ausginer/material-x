@@ -1,6 +1,6 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import { describe, expect, it } from 'vitest';
-import { commands, userEvent } from 'vitest/browser';
+import { commands, server, userEvent } from 'vitest/browser';
 import '../../src/button/button.ts';
 import '../../src/checkbox/checkbox.ts';
 import '../../src/radio/radio.ts';
@@ -63,11 +63,17 @@ function create(tag: Case['tag']): HTMLElement {
 }
 
 /**
+ * The key that moves focus to every control. Safari's default Tab skips
+ * buttons, checkboxes and radios, and Option-Tab reaches them (`repo:RF-42`).
+ */
+const TAB = server.browser === 'safari' ? '{Alt>}{Tab}{/Alt}' : '{Tab}';
+
+/**
  * Presses Tab and asserts that it reached the host's native control, so a
  * failed reach doesn't read as a missing layer or indicator.
  */
 async function tabTo(element: HTMLElement, control: string): Promise<void> {
-  await userEvent.keyboard('{Tab}');
+  await userEvent.keyboard(TAB);
 
   expect(document.activeElement).toBe(element);
   expect(element.shadowRoot?.activeElement).toBe($(element, control));
