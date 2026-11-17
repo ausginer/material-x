@@ -321,5 +321,3 @@ if (import.meta.main) {
     );
   }
 }
-
-// TEMPORARY witness (CI-speed item 3 witnesses 2 and 3): a source change in the range.

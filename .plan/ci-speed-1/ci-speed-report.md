@@ -1,8 +1,11 @@
-# CI-speed unit report: stopped at RF-47's re-resolution
+# CI-speed unit report
 
-**Status: stopped again,** at step 3 of the handoff's _Remediation of the stop_ (`RF-47`), under its stop: _"if the re-resolution touches anything else"_. `aube install --fix-lockfile` touches far more than the three entries. Nothing of it is committed. Steps 1, 2 and 5 are done, and step 4 waits for step 3. See [_Remediation of the stop_](#remediation-of-the-stop) below.
+**Status: done.** Items 1 to 4 are implemented and witnessed, and the final run is green: [_Final run_](#final-run). The unit stopped twice on the way, and the architect resolved each stop:
 
-**The first stop,** at item 1's WebKit inventory, is resolved by the architect's `d631e7432`: two rows failed in WebKit in every run, and both were repaired in the test. What follows up to _Next_ is the report of that stop, unchanged.
+- **At item 1's WebKit inventory** (`4136c0eea`): two rows failed in WebKit in every run. `d631e7432` decided both as test repairs. See [_Remediation of the stop_](#remediation-of-the-stop).
+- **At `RF-47`'s re-resolution** (`633ef72d8`): `aube install --fix-lockfile` rewrote far more than the three entries. `f480cc1de` accepted the whole write. See [_Remediation of the stop at `633ef72d8`_](#remediation-of-the-stop-at-633ef72d8).
+
+The sections from _Item 4_ to _What wasn't verified_ are the report of the first stop. Each one that a later step changed carries a dated note.
 
 **Branch** `repo/ci-speed-1`, pull request [#31](https://github.com/ausginer/material-x/pull/31) (non-draft, open). The input was `183053ca6`. The head this report describes is the commit that adds it. **Governing records:** `repo:RD-12` as amended, `repo:RD-15` and `repo:RD-16`, in [`../00-index.md`](../00-index.md).
 
@@ -16,6 +19,22 @@
 | [44049207091](https://github.com/ausginer/material-x/actions/runs/44049207091) | safari | `5ab74f309` | success | Item 2 witness 1: the Safari workflow on the branch, through a temporary `push` trigger. |
 | [44050444079](https://github.com/ausginer/material-x/actions/runs/44050444079) | webkit-inventory | `078574da3` | success | Five runs of each failing row's file, and witnesses 3 and 4, through a temporary workflow. |
 | [44050452080](https://github.com/ausginer/material-x/actions/runs/44050452080) | verify | `078574da3` | failure | The second WebKit run: the same two rows. |
+| [44055280400](https://github.com/ausginer/material-x/actions/runs/44055280400) | verify | `633ef72d8` | success | The first full run with both WebKit rows repaired. Its `measurements` step absorbs one failing file: [below](#the-measurement-rows-failing-file). |
+| [44058089546](https://github.com/ausginer/material-x/actions/runs/44058089546) | verify | `57c8849a2` | success | Step A: the gate on aube's write of the lockfile, nx's jobs included. |
+| [44059513528](https://github.com/ausginer/material-x/actions/runs/44059513528) | verify | `8a5017d68` | success | Steps B and C. |
+| [44060878670](https://github.com/ausginer/material-x/actions/runs/44060878670) | webkit-parallel | `86b2fddc2` | success | Item 1 witness 5, through a temporary workflow: three parallel and three serial WebKit test steps. |
+| [44060878452](https://github.com/ausginer/material-x/actions/runs/44060878452) | safari | `86b2fddc2` | failure, on purpose | Item 2 witness 2: opens issue [#32](https://github.com/ausginer/material-x/issues/32). |
+| [44060886935](https://github.com/ausginer/material-x/actions/runs/44060886935) | verify | `86b2fddc2` | failure | The witness commit's own run. `static` and `docs` fail on the temporary toggle's TS4111 error ([below](#what-went-wrong-on-the-way)). |
+| [44062592521](https://github.com/ausginer/material-x/actions/runs/44062592521) | safari | `36915512b` | failure, on purpose | Item 2 witness 2: comments on #32 and opens no second issue. |
+| [44062603945](https://github.com/ausginer/material-x/actions/runs/44062603945) | verify | `36915512b` | failure | The same TS4111 error. |
+| [44065100765](https://github.com/ausginer/material-x/actions/runs/44065100765) | verify | `791701529` | success | WebKit in parallel in the gate, with the witnesses removed. |
+| [44066465139](https://github.com/ausginer/material-x/actions/runs/44066465139) | verify | `503f613ec` | failure | The first reduced run. `scope` chooses reduced, and `records` fails because nothing in it built what the Vitest config loads ([below](#what-went-wrong-on-the-way)). |
+| [44066844320](https://github.com/ausginer/material-x/actions/runs/44066844320) | verify | `9afdd3ad0` | success | `records` repaired. A full run, so _B_ for witnesses 1 and 2. |
+| [44068384079](https://github.com/ausginer/material-x/actions/runs/44068384079) | verify | `a542fb992` | success | Item 3 witness 1: reduced, in 77 s. |
+| [44068663234](https://github.com/ausginer/material-x/actions/runs/44068663234) | verify | `b247c053e` | cancelled | Item 3 witness 2: full despite the marker. Cancelled by witness 3's first push, after `scope` decided. |
+| [44069053052](https://github.com/ausginer/material-x/actions/runs/44069053052) | verify | `e49a802c8` | cancelled | Item 3 witness 3: the source change's run, cancelled by the next push. |
+| [44069866771](https://github.com/ausginer/material-x/actions/runs/44069866771) | verify | `2eaccc745` | success | Item 3 witness 3: full despite the marker, because _B_ precedes the source change. |
+| [44071394306](https://github.com/ausginer/material-x/actions/runs/44071394306) | verify | `7314a5060` | failure, on purpose | Item 3 witness 4: `records` fails on a misformatted record. |
 
 ## Item 4: the move to aube (`RD-16`), done
 
@@ -63,11 +82,11 @@
   `aube ci` and `aube install` keep those entries, so the committed lockfile installs lightningcss 1.32.0 for `vite-custom-element-assets` under npm and aube alike. **This is a defect in the lockfile, and this unit didn't cause it.** The next `aube add` corrects it as a side effect. It is reported, not repaired.
 
 - **`aube exec` installs first when `package.json` changed** (_"Auto-installing: package.json has changed"_), unless it is given `--no-install`. After the witness commit's edit to `allowBuilds`, `aube exec oxfmt` ran an install, which the policy refused, and the tool didn't run.
-- **`aube exec <bin> --version` and `--help` print aube's own output.** Every other argument reaches the binary. A scratch recipe received every flag that the workflows and scripts pass, unchanged (§5).
+- **`aube exec <bin> --version` and `--help` print aube's own output.** Every other argument reaches the binary. (_Corrected 2026-11-17:_ aube takes its own options directly after the binary's name, up to the first argument it doesn't own, and these are some of them. See [step C](#remediation-of-the-stop-at-633ef72d8).) A scratch recipe received every flag that the workflows and scripts pass, unchanged (§5).
 
 **The language server.** aube installs global packages. `post-create/typescript-language-server.sh` runs `aube add -g typescript-language-server@6.0.3` from `$HOME`, with `AUBE_GLOBAL_BIN_DIR=$HOME/.local/bin`. aube's own global bin directory isn't on `PATH`, and `~/.local/bin` is. 6.0.3 is from 2026-11-02, and 6.1.0 is 5 days old. Tried in this container: the binary resolves from `~/.local/bin` and prints 6.0.3. **npm's only remaining command** is CI's bootstrap.
 
-**`aube exec @oxlint/migrate`.** `.scripts/oxlint-migrate.ts` now runs `aube exec @oxlint/migrate`, as the handoff asks. `@oxlint/migrate` isn't a dependency, so `just oxlint-migrate` now fails until it is added. `npx` used to fetch it. This is `RD-16` property 8 working as decided. Whether to add the package is open.
+**`aube exec @oxlint/migrate`.** (_Since resolved by step B:_ the package is an exact devDependency.) `.scripts/oxlint-migrate.ts` now runs `aube exec @oxlint/migrate`, as the handoff asks. `@oxlint/migrate` isn't a dependency, so `just oxlint-migrate` now fails until it is added. `npx` used to fetch it. This is `RD-16` property 8 working as decided. Whether to add the package is open.
 
 **Timing, a reading only** ([`checks/install-times.tsv`](checks/install-times.tsv)). Seconds per step: npm's `setup-node` includes its cache restore, and aube's total adds `Install aube`, the cache restore and, when cold, the cache save.
 
@@ -80,7 +99,7 @@ A warm macOS install wasn't read. Both macOS runs were cold, because the pull re
 
 **The merge base's size reading** (`measurements`) fails on this pull request. `main` has no aube settings, so `aube ci` installs it in the isolated layout, and the base's `tsdown` config can't import `@ydinjs/vite-traits-plugin`. The step reports _"The merge base gave no machine-readable size reading"_, as it is written to. The failure lasts until this pull request merges and the merge base carries `.npmrc`.
 
-## Item 1: WebKit in the gate, stopped at witness 2
+## Item 1: WebKit in the gate, done
 
 **What changed** (`5f2522c3e`):
 
@@ -107,7 +126,17 @@ A warm macOS install wasn't read. Both macOS runs were cold, because the pull re
 
 **The WebKit job's time.** In run 44049217432, the test step took 280 s for WebKit, serially. Firefox's took 428 s, serially, and Chromium's took 290 s, in parallel with coverage and visual. WebKit's job took about 6 minutes. **The timeout stays at 20 minutes** until the job passes. It will then be set to about twice the longest WebKit run.
 
-**Not done, waiting for the decision on the two rows:** witness 5, the parallelism reading.
+**Witness 5, parallelism: WebKit runs in parallel** ([reading](checks/webkit-parallelism.txt)). Run 44060878670, a temporary workflow, ran the WebKit test step three times serially and three times with Chromium's setting (`fileParallelism`, 2 workers), in alternating order:
+
+| Job                   | Serial step | Parallel step | Shorter by |
+| --------------------- | ----------- | ------------- | ---------- |
+| run 1, serial first   | 284 s       | 148 s         | 48 %       |
+| run 2, parallel first | 282 s       | 171 s         | 39 %       |
+| run 3, serial first   | 281 s       | 145 s         | 48 %       |
+
+Every step passed all 1,617 rows (18 skipped). No row fails in parallel that passes serially, and each parallel step is more than 20 % faster, so both conditions of `RD-12` property 11 hold. `.scripts/vitest-config.ts` gives WebKit Chromium's parallelism, and its comment states the reading (`368ffeea2`). In the gate, WebKit's job went from 352 s (run 44059513528) to 239 s (run 44065100765).
+
+**The timeout: 8 minutes.** The job spends about 70 s outside its test step, so the longest parallel job is about 70 + 171 = 241 s. Twice that is about 8 minutes.
 
 ## Item 2: the Safari workflow
 
@@ -120,9 +149,18 @@ A warm macOS install wasn't read. Both macOS runs were cold, because the pull re
 
 **Witness 1: holds** ([record](checks/safari-workflow-witness-1.txt)). Run 44049207091 is green on macOS 26.7.2 (25G332) with Safari 27.2 and Reduce Motion read back as 0. All 7 projects exited 0. The `push` trigger was removed at `078574da3`.
 
-**Not done:** witness 2, the issue path. Witness 3 is the coordinator's, after the merge.
+**Witness 2, the issue path: holds.** One temporary commit (`86b2fddc2`) added a `push` trigger for `safari.yml` on this branch, a step that exits 1 after the tests, and `push` to the issue job's condition. A second commit (`36915512b`) changed only a comment, to start the second run.
 
-## Item 3: the `[noci]` marker, implemented and unit-tested
+- Run 44060878452 opened [#32](https://github.com/ausginer/material-x/issues/32), _"The scheduled Safari run failed"_, labelled `safari`, with the run, the commit, macOS 26.7.2 (25G332) and Safari 27.2.
+- Run 44062592521 commented on #32 with its own run and commit, and opened no other issue.
+- In both runs, every Safari project passed, and only the deliberate step failed.
+- The implementer closed #32 with a comment naming the witness. `368ffeea2` removed all three temporaries. `safari.yml` is byte-identical to its state at `8a5017d68`.
+
+**A wording defect, not repaired:** when every project passed and a later step failed, the issue's _Failed projects_ reads _"none named: the job failed before a project reported its status"_. Here the projects did report: they all exited 0. Only a failure after the tests produces this case, so a real scheduled run would show it only if a later step fails. The architect decides whether the wording changes.
+
+Witness 3 is the coordinator's, after the merge.
+
+## Item 3: the `[noci]` marker, done
 
 **What changed** (the commit that adds this report):
 
@@ -176,20 +214,26 @@ All 20 pass. **Mutations** checked whether the tests detect each change. The tes
 
 `records` therefore runs the install, `just fmt-check`, `just typecheck` and the resolver's tests. The typecheck is the one addition to `RD-15` property 4's list, and the search is what required it. It is the root recipe, so any later `tsconfig` that includes a record is covered too.
 
-**Not done:** witnesses 1 to 4 on the pull request.
+**`records` runs its tests through `just test`** (`9afdd3ad0`). The first reduced run, 44066465139, failed in `records`. The root Vitest config loads the custom-element plugin, which imports `node_modules/.cache/css/css-private-props.json`, and nothing in `records` built that file. The root `test` recipe builds it first (`_test-builds`), as for every other gate job. Locally, with the file removed, `aube exec -- just test --project repo .scripts/entry.node.test.ts` rebuilt it, and the 14 tests passed. My earlier local check passed only because the file was already there.
+
+**Witnesses on the pull request:**
+
+1. **Reduced: holds.** `[noci]` on `a542fb992`, which changed only `.plan/ci-speed-1/checks/noci-witnesses.md`. Run 44068384079: _"B: 9afdd3ad0… (run 44066844320)"_, _"mode: reduced, because [noci], and every path in the range is a record or Markdown"_. `records` succeeded, the other seven jobs were skipped, and `verify` succeeded. **Wall time 77 s,** against 518 s for the full run at `9afdd3ad0`. The reduced run at `a542fb992` wasn't taken as _B_ by the next run, as `RD-15` property 2 requires.
+2. **Full despite the marker: holds.** `[noci]` on `b247c053e`, which added a comment to `.scripts/ci-scope.ts`. Run 44068663234: _"mode: full, because the range changes paths that are neither records nor Markdown"_, _"kept full by: .scripts/ci-scope.ts"_. Witness 3's first push cancelled the run after `scope` had decided.
+3. **The range: holds.** `e49a802c8`, with no marker, reworded that comment, so the source change stayed in the range. While its run 44069053052 was in progress, `2eaccc745`, `[noci]` and changing only the record, was pushed. 44069053052 was cancelled. Run 44069866771 chose full, with _B_ `9afdd3ad0`, _"kept full by: .scripts/ci-scope.ts"_, and went green.
+4. **`records` fails: holds.** `[noci]` on `7314a5060`, with a misformatted line in the record. Run 44071394306 chose reduced (_B_ `2eaccc745`, the green full run of witness 3). `just fmt-check` failed naming `.plan/ci-speed-1/checks/noci-witnesses.md`, and `verify` failed.
+
+The witnesses' source change and their scratch record are removed in the commit that brings this report up to date, and the final run reads that commit.
 
 ## Temporary changes still on the branch
 
-- `.github/workflows/webkit-inventory.yml` is removed in the commit that adds this report.
-- None remains in `safari.yml`: the `push` trigger was removed at `078574da3`.
-- `package.json`'s `nx` entry was restored at `5ab74f309`.
+None. `webkit-inventory.yml` was removed at `4136c0eea`, `webkit-parallel.yml` and `safari.yml`'s three witness changes at `368ffeea2`, and `nx`'s `allowBuilds` entry was restored at `5ab74f309`. Item 3's comment in `.scripts/ci-scope.ts` and `checks/noci-witnesses.md` are removed in the commit that brings this report up to date.
 
 ## What wasn't verified
 
 - A warm `aube ci` on `macos-26`.
-- Item 1 witness 5, item 2 witness 2, and item 3's CI witnesses. A full-mode `scope` run follows from this report's push, but no reduced run has happened.
-- WebKit locally, at this stop. The image lacks WebKit's system libraries (the [dev image handoff](devimage-handoff.md)'s Part B). For the remediation, they were installed in this container only (`sudo aube exec playwright install-deps webkit`), and the image is unchanged.
-- GitHub's dependency graph after `aube` (item 4 witness 7) is the coordinator's, after the merge. The lockfile is byte-identical to `main`'s, so the graph reads what it read before.
+- **GitHub's dependency graph.** From this session, with a token that has admin on the repository, `gh api repos/ausginer/material-x/dependency-graph/compare/main...57c8849a2` answers HTTP 403 _"Forbidden"_, and `…/dependency-graph/sbom` answers HTTP 404. That matches what the architect saw. The graph is read after the merge, by item 4 witness 7 or on the repository's _Dependency graph_ page. nx, the other reader of the lockfile's root entry, ran in every gate job of run 44058089546 at `57c8849a2` and later, and all of them passed.
+- WebKit locally. The image lacks WebKit's system libraries (the [dev image handoff](devimage-handoff.md)'s Part B). For the row repairs, they were installed in this container only (`sudo aube exec playwright install-deps webkit`), and the image is unchanged.
 
 ## Remediation of the stop
 
@@ -212,9 +256,9 @@ On `repo/ci-speed-1`, after `d631e7432` (fast-forward) and `f63e3d1e4` (merged a
    - moves `@fontsource/roboto` and `@size-limit/file` from the root to under `material-x` and `size-limit-preset-rolldown`;
    - edits `license` on six workspace entries, `dev` on five `@emnapi` entries, `peerDependenciesMeta` on three vitest entries, and the root's `hasInstallScript` and `devDependencies`, and drops the lockfile's root `version`.
 
-   The lockfile was restored with `git checkout`, and the tree with `aube install`. `aube ci` can't remove `node_modules` in this container, because it's a mounted volume. **The architect decides** whether this re-resolution is acceptable, or another way to repair the three.
+   The lockfile was restored with `git checkout`, and the tree with `aube install`. `aube ci` can't remove `node_modules` in this container, because it's a mounted volume. **The architect decides** whether this re-resolution is acceptable, or another way to repair the three. (_Decided by `f480cc1de`:_ the whole write is accepted. It is committed at `57c8849a2`, step A below.)
 
-4. **`@oxlint/migrate`: not done.** The handoff puts it in a later commit than step 3.
+4. **`@oxlint/migrate`: not done here.** The handoff puts it in a later commit than step 3. (_Done as step B_, at `9dab0c066`.)
 5. **No auto-install: done,** at `e60626671`. `.npmrc` sets `aubeNoAutoInstall=true`. **aube 2.10.0 reads the key** ([reading](checks/aube-no-auto-install-witness.txt)):
    - **Step 2 held in both rounds.** No _Auto-installing_ was printed, and nothing in `node_modules/.aube-state` was newer than the marker.
    - **`aube exec tsc --version`, the handoff's literal command, never reaches tsc.** aube takes `--version` wherever it stands and prints its own version, before any staleness check. Both rounds therefore also ran `aube exec -- tsc --version`, which runs tsc 7.0.2.
@@ -222,6 +266,103 @@ On `repo/ci-speed-1`, after `d631e7432` (fast-forward) and `f63e3d1e4` (merged a
    - **The edit that served** was `concurrently` `10.0.7` → `^10.0.7`. Under the control, without the line, `aube exec -- tsc --version` printed _"Auto-installing: package.json has changed"_, rewrote five `.aube-state` files, and also rewrote `package-lock.json`.
    - **Restored:** `git checkout`, the line put back, `aube install`, and `git status` clean apart from the unit's own changes.
 
+## Remediation of the stop at `633ef72d8`
+
+After `f480cc1de` (fast-forward). Readings: [A, B and C](checks/remediation-abc.txt), [`.oxlintrc.json`'s regeneration](checks/oxlintrc-migrate-compare.txt).
+
+**A. `RF-47`: done,** at `57c8849a2`, with the whole of aube's write.
+
+- `aube install --fix-lockfile` gives the architect's 2,160 insertions and 1,781 deletions. The instrument, run against the lockfile at `633ef72d8`, prints the reading's three sections, and `diff` against them is empty.
+- A second `aube install` answers _"Already up to date"_, and `cmp` finds the file byte-identical.
+- **The root `postinstall` still runs.** In a fresh worktree of `57c8849a2`, `aube install` wrote `node_modules/typescript/lib/tsserver.js`. It has a link count of 1, while the store's files have 4, and it carries the script's _"Generated by .scripts/link-tsserver.ts"_ line. Its target exists.
+- **The gate is green on it:** run 44058089546, nx's jobs included.
+- **The dependency-graph comparison didn't answer:** 403, and 404 for the SBOM. See _What wasn't verified_.
+
+**B. `@oxlint/migrate` 1.93.0: done,** at `9dab0c066`. `aube add -D -W @oxlint/migrate@1.93.0` gives exactly the expected change:
+
+- **Section 1** of the instrument, run between A's file and B's, lists only the package and its own dependencies: `commander` 15.1.0, `globals` 17.14.0, and `oxc-parser` 0.157.0 with its bindings and `@oxc-project/types`.
+- **Section 2** lists only the root's new devDependency, and **section 3** is unchanged.
+- **The lockfile entries:** 24 added, none removed, and only the root entry modified.
+- **No `allowBuilds` entry is needed,** because no added entry has an install script.
+
+**`just oxlint-migrate` runs, and rewrites `.oxlintrc.json`** (160 insertions, 143 deletions). With comments and key order ignored, the regenerated file:
+
+- drops every comment;
+- narrows `ignorePatterns` from 76 to the 15 of `eslint.config.ts`;
+- drops one top-level rule and adds three (`typescript/no-unsafe-enum-assignment`, `typescript/strict-void-return`, `typescript/unbound-method`);
+- loses the seventh override, the hand-written one for the harness guard plugin's tests;
+- changes rules inside the others.
+
+So the committed file is hand-maintained beyond the tool's output. **Not committed:** the file was restored. Whether the recipe stays, and what it should leave unchanged, is the architect's.
+
+**C. `--` before an option: done,** at `8a5017d68`. It covers:
+
+- 3 lines in `.agents/docs/handoff.md` and 1 in `.claude/agents/der.md`;
+- 2 in `baselines.yml`, 1 in `safari.yml` and 11 in `verify.yml`;
+- the `spawn` arrays of `.scripts/oxlint-migrate.ts`, `.scripts/size-reading.ts` and `packages/drag/tests/support/build-package.node.ts`.
+
+Witnesses:
+
+- **The search** for `aube exec <name>` followed by an argument beginning with `-`, outside records, in command lines and in `spawn` arrays, finds nothing. The `aube run` lines in the editor files and `zed-test.sh` aren't `aube exec`, and already pass `--`.
+- **`handoff.md`'s eslint command, as written,** with `-c /nonexistent-cfg.ts` on one file, fails in `loadConfigFile` with `ENOENT … '/nonexistent-cfg.ts'`. With `-c eslint.config.ts`, it exits 0.
+- **Each changed `spawn` runs:**
+  - `consumer/drag`, whose global setup runs `build-package.node.ts`: 20 passed;
+  - `node/drag`: 49 passed;
+  - `just size-reading` writes its JSON;
+  - `just oxlint-migrate` runs.
+- **The gate is green:** run 44059513528.
+
+**A reading that contradicts the disposition.** The disposition says `handoff.md`'s eslint command never passed `-c` to eslint. It did. The old form, `aube exec eslint --flag … -c /nonexistent-cfg.ts`, also fails on loading the config. aube takes its own options only **directly after the binary's name**, up to the first argument it doesn't own:
+
+- `aube exec eslint -c x` and `aube exec tsc --version` lose the option to aube;
+- `aube exec eslint --flag … --version` prints eslint's version;
+- `aube exec eslint package.json -c x` passes `-c` to eslint.
+
+`RD-16` property 8's rule holds by form, so this changes no file. It changes only the reason the disposition gives.
+
+**`aube add` broke the workspace links in place.** After B's `aube add`, `node_modules/@ydinjs/` was gone from the main checkout. The root typecheck then failed (nx: _"Cannot find package '@ydinjs/vite-traits-plugin'"_), and `aube install` still answered _"Already up to date"_.
+
+Fresh worktrees of `633ef72d8`, `57c8849a2` and `9dab0c066` each link all seven workspace packages on `aube install`, and all three lockfiles keep the seven `link` entries. **So the committed state is sound,** and the defect is in aube's incremental `add` with the hoisted linker. `aube install --frozen-lockfile --force` repaired the tree. **It is a finding for the architect,** because every `aube add` a developer runs can leave a tree that typechecks fail on.
+
+**Then the unit resumed,** with item 1 witness 5, item 2 witness 2 and item 3's witnesses above.
+
+## What went wrong on the way
+
+- **A witness commit failed `static` and `docs`.** The temporary parallelism toggle read `process.env.MX_WITNESS_WEBKIT_PARALLEL`, and typecheck requires bracket access there (TS4111). I linted that change but didn't typecheck it. Runs 44060886935 and 44062603945 failed on it. The witnesses themselves ran in their own workflows, and the toggle is gone at `368ffeea2`.
+- **`records` couldn't run its tests** until `9afdd3ad0` (see item 3).
+- **A `vitest list --json <path>` command** took the path as its output file and overwrote `click-guard.browser.test.ts` with the listing. I restored it from git before any commit.
+
+## nx runs package scripts through npm
+
+The `docs` job's log on run 44060886935 shows nx running a package script with npm: _"npm error Lifecycle script `docs:api:build` failed … command sh -c just docs-api-build"_. The local nx log shows the same, with npm's _"Unknown project config"_ warnings for `.npmrc`'s aube keys.
+
+nx picks its package manager from the lockfile, and `package-lock.json` reads as npm's. So the `package.json` scripts that nx targets run through `npm run`. That is npm running repository code, which `RD-16` property 1 says only aube does, apart from CI's bootstrap. Everything installed is aube's, and the gate is green, so it isn't a capital problem.
+
+It wasn't in the handoff's scope, and I haven't changed it. nx can be told which package manager to use, but that is the architect's decision.
+
+## The measurement rows' failing file
+
+The `measurements` job's _Measurement rows_ step on run 44055280400 reports one failed file, which `|| true` absorbs:
+
+- **File:** `packages/drag/tests/hot-path.browser.test.ts` in `shipped/drag (chromium)`.
+- **Row:** _"drag:DRI-17 hot path › should allocate per sample only the CSS string a lifted write needs"_.
+- **Failure:** the kernel's bytes per move are 29.33, against a limit of 16 (`tests/hot-path.browser.test.ts:310`).
+
+**It fails on `main` too.** On `main`'s last verify run, 44035423615 at `21392e738` under npm, the same row fails with 18.77 against 16. On the run before it, 44013920613 at `4e85ac046`, both measurement files pass.
+
+So the row is intermittent on `main` and predates this unit. It is `drag`'s, for `RD-8`.
+
+## Final run
+
+_Read after this commit's push, and sent to the coordinator with its run ID._
+
 ## Next
 
-**The architect decides `RF-47`'s re-resolution** (step 3). Then step 4, then the unit resumes: item 1 witness 5, item 2 witness 2, item 3's witnesses, and the final green run. Item 3 can reduce a run only after one full run in which every gate job succeeds. This report's push starts the first full run with both WebKit rows repaired.
+The stopping boundary: pull request #31 green, this report, and the head and run IDs sent to the coordinator. The feature-proof review follows. **Open for the architect:**
+
+- `aube add`'s workspace links;
+- nx's use of npm;
+- `.oxlintrc.json` against `just oxlint-migrate`;
+- the Safari issue's _Failed projects_ wording;
+- the corrected reading of `aube exec`'s options;
+- `hot-path`'s intermittent row, which is `drag`'s.
