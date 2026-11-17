@@ -316,7 +316,7 @@ The unit changes product source in material-x, the shared build recipe, the Vite
 - `RF-36`'s next reading.
 - `RF-40`, which the coordinator will send as its own task.
 - `RF-41`.
-- `RF-43`, the switch buttons' focus layer, which the feature-proof review found.
+- `RF-43`: the switch buttons break the `.host` invariant, and every other template is audited against it, in the next material-x unit.
 - `RF-33`'s report to Mozilla.
 
 ## Disposition of the feature-proof review at `a22c109b7`
