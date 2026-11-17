@@ -835,9 +835,11 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - The reasons said: _"B adds a second tool, a second allow list kept equal to the first, and a deprecation warning, so a gain in the noise of five runs doesn't pay for that."_ They also said that a catalog wasn't adopted, because npm doesn't read catalogs.
 - **Why it changed:** the owner's decision of 2026-11-17 for a full move without a speed condition, and the probes at `0706f41f5`, which showed `strictDepBuilds` leaving the built-in list in force.
 
-#### RD-17 — Units run in parallel in long-lived session slots, each slot a worktree under `.claude/worktrees/`, and a stacked pull request is brought up to date by merging `main` into it
+#### RD-17 — Units run in parallel in long-lived session slots, each slot a locked worktree on the `/workspaces/worktrees` volume with aube's shared store, and a stacked pull request is brought up to date by merging `main` into it
 
 **Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's request relayed by the coordinator the same day: _"можем попробовать распараллелить именно разработку - создавать stack prs, и работать в разных worktree"_, and on session names, _"надо мне только понять, как правильно переименовывать готовые сессии … Возможно, стоит добавить какое-то правило в `cl`-скрипт"_. The process may change. `RD-15` and `RD-16` were decided on `repo/ci-speed-1` and weren't on this branch then, so this entry is numbered after them. **Unimplemented:** the [harness handoff](harness-1/harness-handoff.md) implements it.
+
+**Amended 2026-11-17 by the architect** on `repo/harness-1` at `4c489e745`, on the owner's proposal relayed by the coordinator: the slot root moves out of the checkout to its own volume, `/workspaces/worktrees`. The owner approved the amendment as proposed (_"Yes, it all looks right"_, as relayed). The owner added that aube's store must be shared: _"aube's shared storage will help a lot here, otherwise it's easy to eat all the free space"_ (as relayed). The cause was the architect's reading that Node resolves upward from a slot inside the checkout into the main checkout's `node_modules`. The title and properties 1, 3 and 8 changed, and property 9 is new. What they said before is at the end.
 
 **Read at `21392e738`** by the architect, in the devcontainer:
 
@@ -846,17 +848,33 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **git is 2.47.3,** which has no `git worktree add --relative-paths` (2.48), so a worktree's links are absolute container paths.
 - **`.scripts/cl.sh`** maps each profile to one agent, one effort and one fixed session name, and resumes by that name.
 
+**Read at `2643f2d7d` and `4c489e745`** by the architect, in the devcontainer ([reading](harness-1/checks/slot-root-probe.txt)):
+
+- **Resolution.** From a directory inside the checkout, `require.resolve('vite')` finds `/workspaces/material-x/node_modules/vite`. From a directory outside it, both `require` and `import` fail. Nothing above `/workspaces` holds a `node_modules`, `NODE_PATH` is empty, and Node's global folders don't exist.
+- **Mounts.** `/workspaces` is root-owned and holds only `material-x`. The checkout is a bind, and its `node_modules` is the `_nodemodules` volume. `post-create/chown.sh` gives that volume to `node`. Both are on the host's btrfs.
+- **git.** A worktree on another filesystem works, and its `.git` file is an absolute path. With the worktree directories gone, `git worktree prune` removed an unlocked worktree and kept a locked one. `git worktree remove` refuses a locked one until it is unlocked.
+- **Links across mounts.** A hardlink from the `node_modules` volume to the checkout's bind fails with _"Invalid cross-device link"_. A reflink (`cp --reflink=always`) across the same two mounts succeeds. The main checkout's `node_modules` is a copy today: link count 1.
+- **aube 2.10.0.** `storeDir` is read from `AUBE_STORE_DIR`, and `cacheDir` from `AUBE_CACHE_DIR`, besides their `npm_config_` forms and `.npmrc`. Outside CI, `node_modules` is linked from a global virtual store under `cacheDir`, and that store is hardlinked from `storeDir`. With the store on tmpfs and the cache left on the overlay, two hoisted projects got copies (link count 1). With both on tmpfs, the second project's file had link count 4: one inode in the store, the virtual store and both projects. `aube store status` verifies the store against its package indexes.
+- **The repository's `postinstall`,** `.scripts/link-tsserver.ts`, writes `typescript/lib/tsserver.js` in place.
+- **Disk.** 35 GB free of 248 GB. The main `node_modules` is 736 MB, and aube's store 691 MB.
+
 **Properties.**
 
 1. **A slot** is a lowercase letter from `b` to `z`, or no letter for the main slot.
    - The main slot is the main checkout.
-   - Slot _s_ is the worktree `.claude/worktrees/<s>` inside the main checkout. It is on the host's bind mount and already ignored.
+   - Slot _s_ is the worktree `/workspaces/worktrees/<s>` (amended 2026-11-17).
+   - **`/workspaces/worktrees`** is the devcontainer's named volume `${localWorkspaceFolderBasename}_worktrees`. `post-create` gives it to `node`, as it does `node_modules`.
    - A slot holds one unit at a time: that unit's branch is checked out there, with its own `node_modules`.
+   - **Nothing is installed in `/workspaces/worktrees` or `/workspaces` themselves.** So Node's resolution from a slot stops at the slot's own `node_modules`.
 2. **A session is named by its slot, never by its task.**
    - `cl [--init] <profile> [<slot>]` starts or resumes `Mx <Role>` in the main slot, and `Mx <Role> <S>`, with the letter in upper case, rooted in slot _s_.
    - When a unit ends, the owner clears the session (`/clear`), and the slot takes the next unit. **No session is renamed.**
    - Each name is unique among live sessions, so `SendMessage` reaches it.
-3. **`cl` prepares a missing slot and nothing more.** It creates `.claude/worktrees/<s>` detached at `origin/main` when it is missing, and reuses it when it exists. It never removes, cleans or switches one. The session checks out its unit's branch and installs there. The owner removes a slot with `git worktree remove`.
+3. **`cl` prepares a missing slot and nothing more** (amended 2026-11-17).
+   - **It creates a missing slot** with `git worktree add --detach --lock --reason "session slot"` at `origin/main`, and reuses one that exists. It never removes, cleans, switches or unlocks one.
+   - **It fails closed without the volume.** With a slot argument, `cl` refuses, with a non-zero exit and a message that names the devcontainer mount, unless `/workspaces/worktrees` is a mount point. It never creates that directory. The main slot doesn't need the volume.
+   - The session checks out its unit's branch and installs there.
+   - The owner removes a slot with `git worktree unlock`, then `git worktree remove`.
 4. **Who runs where.**
    - The coordinator runs in the main slot.
    - **Only the main slot's architect mints, amends, supersedes or renumbers a record identifier.** An architect in another slot, such as a challenge, proposes and doesn't record.
@@ -882,14 +900,27 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    - **One unit per slot,** and several units open at once. For each slot, the coordinator's working summary keeps the unit, branch, pull request, base, state and next dependency.
    - **Upper units wait on decisions.** An upper unit's implementation waits until the lower unit's decisions that it builds on are committed. Its plan names them.
    - **Reviews.** Each pull request has its own review, which reads the diff from its base's head.
-8. **Limits.**
-   - A slot's git links are absolute container paths, so on the host `git worktree list` reports the slots as prunable. **Don't run `git worktree prune` on the host.**
-   - Each slot installs its own dependencies.
+8. **Limits** (amended 2026-11-17).
+   - **A slot's git links are absolute container paths,** so the host's git can't use a slot. The lock keeps `git worktree prune`, and `git gc`'s prune, from removing a slot's entry where the volume isn't mounted: on the host, or in a container without the volume.
+   - **The volume isn't visible on the host.** Uncommitted work in a slot exists only there, and it is lost if the volume is deleted. A slot's commits are in the main checkout's `.git`, on the bind.
+   - **Each slot installs its own dependencies,** and property 9 shares their files.
+   - **`.claude/worktrees/` stays Claude Code's own** (`isolation: "worktree"` and `EnterWorktree`), with its git and ESLint ignores. `cl` doesn't use it. A worktree there still resolves upward into the main checkout's `node_modules`.
+9. **Slots share aube's store by hardlinks** (added 2026-11-17, on the owner's addition).
+   - **The setting.** `devcontainer.json`'s `containerEnv` sets `AUBE_STORE_DIR=/workspaces/worktrees/.aube/store` and `AUBE_CACHE_DIR=/workspaces/worktrees/.aube/cache`. Both are needed, because `node_modules` is linked from the global virtual store under `cacheDir`, which is hardlinked from the store. With either on another mount, every file is copied.
+   - **Where it is set.** The devcontainer's environment survives a rebuild, is in the repository, and doesn't reach CI. In `.npmrc` the setting would reach CI and every checkout. A user-level config would be in `/home/node`, on the overlay, which a rebuild loses.
+   - **The image rule stands.** The development image's handoff forbids `AUBE_*` variables in the image, because an environment value overrides `.npmrc`'s script and version policy. These two set no policy key, and they are in the devcontainer, not the image. `RD-16` property 12 still holds, because neither is `aubeNoAutoInstall`.
+   - **CI is unaffected.** It sets neither variable, and aube disables the global virtual store under CI.
+   - **The main checkout's `node_modules` copies,** as it does today. It is a different mount (the `_nodemodules` volume), and a hardlink across mounts fails, as read. `link(2)` says that it fails across different mounts even of the same filesystem, so two mounts of one volume wouldn't help. That is one tree, 736 MB at `4c489e745`, and it is accepted with any warning aube prints for it.
+   - **No install step writes into an existing file under `node_modules`.** A file there may be a hardlink of the store's, so a write in place changes the store and every slot that links it.
+     - `.scripts/link-tsserver.ts` replaces `typescript/lib/tsserver.js` with a new file rather than writing into it, so its write never reaches another link.
+     - Any later script that changes a dependency's file does the same.
+     - Nobody edits a dependency's file in a slot by hand.
 
 **Why.**
 
 - **Slots, not task names.** A long-lived name is never wrong, so nothing is renamed. The coordinator's address book changes only when the owner adds a slot.
-- **Inside the checkout,** for the bind mount and the existing ignores.
+- **A volume outside the checkout** (amended 2026-11-17). It has no `node_modules` above it, it survives a rebuild, and it keeps each slot's dependencies off the host, which is why `node_modules` is already a volume.
+- **A shared store:** the owner's concern for disk space. A slot's copy of the tree is about 736 MB, with 35 GB free.
 - **Merging `main` in, not rebasing,** because `AGENTS.md` forbids rewriting pushed commits and force-pushing.
 - **One minter:** two architects in parallel could both mint `RD-19`.
 
@@ -899,6 +930,21 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Renaming a finished session** by task. Its name is how messages reach it.
 - **Rebasing the upper branch onto `main`.** It needs a force-push.
 - **Splitting the index now.** See property 6.
+- **Slots inside the checkout** (`.claude/worktrees/<s>`), this entry's first choice. Node resolves upward from there into the main checkout's `node_modules`, so a package missing from a slot loads silently from the main checkout. That path is also Claude Code's own.
+- **A bind from the host** for `/workspaces/worktrees`. It would put every slot's dependencies on the host.
+- **Reflinks** (`packageImportMethod=clone-or-copy`). A reflink across mounts works on this host's btrfs, so it would also share the main tree's extents, and a write in place couldn't reach the store. Not adopted, for these reasons:
+  - it saves one tree, 736 MB;
+  - it depends on the host's filesystem;
+  - a link count can't witness it;
+  - aube's documentation gives btrfs hardlinks as faster.
+
+**What the amendment of 2026-11-17 changed.**
+
+- The title said: _"each slot a worktree under `.claude/worktrees/`"_.
+- Property 1 said that slot _s_ is _"the worktree `.claude/worktrees/<s>` inside the main checkout. It is on the host's bind mount and already ignored."_
+- Property 3 said: _"`cl` prepares a missing slot and nothing more. It creates `.claude/worktrees/<s>` detached at `origin/main` when it is missing, and reuses it when it exists. It never removes, cleans or switches one. The session checks out its unit's branch and installs there. The owner removes a slot with `git worktree remove`."_
+- Property 8 said: _"A slot's git links are absolute container paths, so on the host `git worktree list` reports the slots as prunable. **Don't run `git worktree prune` on the host.** Each slot installs its own dependencies."_
+- _Why_ said: _"**Inside the checkout,** for the bind mount and the existing ignores."_
 
 #### RD-18 — The effort guard and `.scripts/claude-role.sh` are removed, and `cl` starts every role session at the effort its definition declares
 

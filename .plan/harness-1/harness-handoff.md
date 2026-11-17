@@ -73,6 +73,12 @@ The records hold the readings, the reasons and the alternatives weighed.
   - No slot gives today's names and the main checkout.
   - A slot outside `b`–`z` is a usage error (exit 64).
   - `--init` creates the session and `--resume` resumes it, as today, with the root and the name of the slot.
+  - A new slot is created locked, and `cl` refuses a slot when `/workspaces/worktrees` isn't a mount point (`RD-17` property 3, amended 2026-11-17).
+- **The volume and the shared store** (`RD-17` properties 1 and 9, amended 2026-11-17 at `4c489e745`):
+  - `.devcontainer/devcontainer.json` mounts the named volume `${localWorkspaceFolderBasename}_worktrees` at `/workspaces/worktrees`. Its `containerEnv` sets `AUBE_STORE_DIR=/workspaces/worktrees/.aube/store` and `AUBE_CACHE_DIR=/workspaces/worktrees/.aube/cache`.
+  - `.devcontainer/post-create/chown.sh` gives `/workspaces/worktrees` to `node`, as it does `node_modules`.
+  - `.scripts/link-tsserver.ts` replaces `typescript/lib/tsserver.js` with a new file, and doesn't write into the existing one.
+  - **The owner rebuilds the container** after these are committed. Witness 2 needs the rebuild.
 - **Documentation.** `.agents/docs/coordinator.md`, `coordinator-setup.md` and `agent-workflow.md` state `RD-17` properties 2, 4, 5 and 7:
   - the slot names;
   - `/clear` in place of renaming;
@@ -80,24 +86,32 @@ The records hold the readings, the reasons and the alternatives weighed.
   - the stack procedure, with what a squash merge does to it;
   - several open units, with the coordinator's per-slot summary;
   - one open task per session.
-- **The worktree limit** of `RD-17` property 8 goes in `coordinator-setup.md`.
+- **The limits** of `RD-17` property 8 go in `coordinator-setup.md`: the lock and how to remove a slot, the volume being invisible on the host, and `.claude/worktrees/` staying Claude Code's. So does property 9's rule against writing into a dependency's file.
 
 **Witnesses:**
 
 1. **`cl` in a scratch clone,** with the stub `claude` of item 1. These are cases in `.scripts/cl.node.test.ts`:
-   - `cl implementer b` creates `.claude/worktrees/b`, detached at `origin/main`. It runs the stub there with `--agent implementer --effort medium --resume 'Mx Implementer B'`;
+   - `cl implementer b` creates slot `b` under the slot root, detached at `origin/main` and locked (`git worktree list --porcelain`). It runs the stub there with `--agent implementer --effort medium --resume 'Mx Implementer B'`;
    - `--init` passes `--name` instead;
    - a second call reuses the worktree without touching it;
    - `cl implementer B` and `cl implementer bb` exit 64;
-   - `cl coordinator` keeps `Mx Coordinator` in the main checkout.
-2. **Tools in the main checkout ignore a slot.** With `.claude/worktrees/b` holding a checkout of this branch with its dependencies installed, read in the main checkout:
-   - `just fmt-check`, `just lint` and `just typecheck`;
-   - `vitest list --filesOnly`;
-   - `nx show projects`.
+   - `cl coordinator` keeps `Mx Coordinator` in the main checkout;
+   - with a slot root that isn't a mount point, `cl implementer b` exits non-zero, names the mount, and creates nothing.
 
-   Each lists or reads nothing from `.claude/worktrees/`. Compare the counts with and without the slot.
+   The test may point `cl` at a scratch slot root through one environment variable, which is `cl`'s only test hook. How the test gives the success cases a mount point is the implementer's choice.
 
-   **Then, in slot `b`, the `RF-48` reading** (added 2026-11-17 at `d6838d0f1`). Run it after the counts, with no other command using the slot:
+2. **Slots on the volume, after the rebuild** (replaced 2026-11-17 at `4c489e745`). Use `cl` to create slots `b` and `c`, and detach each at this branch's head. Then read, saving each command and its output as `checks/slot-volume.txt`:
+   1. in `b`, before any install, `node -p "require.resolve('vite')"` fails with _"Cannot find module"_;
+   2. `aube store path` prints `/workspaces/worktrees/.aube/store/v1`;
+   3. `aube install` in `b`, then `require.resolve('vite')` there resolves under `/workspaces/worktrees/b/`;
+   4. `aube install` in `c`, then `stat -c '%h %i'` on `node_modules/vite/package.json` in `b` and in `c` shows one inode, with a link count of at least 3;
+   5. `typescript/lib/tsserver.js` in `b` has link count 1 and holds the wrapper, and `aube store status` passes;
+   6. `git worktree list --porcelain` shows `b` and `c` locked;
+   7. `aube install` in the main checkout passes; record its time and any warning about copying.
+
+   (This witness was _"Tools in the main checkout ignore a slot"_, with the slot at `.claude/worktrees/b`. A slot on the volume is outside every tool's root, so it is dropped.)
+
+   **Then, in slot `b`, the `RF-48` reading** (added 2026-11-17 at `d6838d0f1`). Run it after these readings, with no other command using the slot:
    1. list `node_modules/@ydinjs`;
    2. `aube add -D -W <name>@<exact version>` of a package that is at least 7 days old, has no install script, and isn't a dependency today;
    3. list `node_modules/@ydinjs` again, and if a link is gone, run `aube install` and save its output;
@@ -142,21 +156,25 @@ A pull is a merge, so the rule covers it. This unit's merge at `d6838d0f1` is th
 2. Item 4.
 3. Item 3.
 4. Item 1, with its witnesses.
-5. Item 2, with its witnesses and the `RF-48` reading.
-6. **The handoff's checks** on every changed file ([`handoff.md`](../../.agents/docs/handoff.md)):
+5. Item 2's changes, and its witnesses 1, 3 and 4.
+6. **The owner rebuilds the container,** with item 2's devcontainer changes committed.
+7. Item 2's witness 2, with the `RF-48` reading. If the rebuild hasn't happened by the report, the report says that witness 2 and the reading weren't run.
+8. **The handoff's checks** on every changed file ([`handoff.md`](../../.agents/docs/handoff.md)):
    - format Markdown, YAML and JSON;
-   - the TypeScript checks on `.scripts/cl.node.test.ts`;
+   - the TypeScript checks on `.scripts/cl.node.test.ts` and `.scripts/link-tsserver.ts`;
    - shell-check `cl.sh` by reading it;
    - `git diff --check`;
    - the links in every changed document.
-7. **The pull request** to `main`, non-draft, which the implementer may open. Its `verify` passes. Never merge it.
+9. **The pull request** to `main`, non-draft, which the implementer may open. Its `verify` passes. Never merge it.
 
 ## Stops
 
 Return to the architect with what you have if:
 
 - anything outside `.claude/plugins/harness-effort-guard/` and the files listed in `RD-18` property 1 still loads, calls or tests the guard;
-- a tool in the main checkout reads a slot's files, and no ignore entry that the tool already honours stops it;
+- `cl`'s test needs more than one environment variable to choose its slot root;
+- after the rebuild, slots `b` and `c` don't share a package file's inode, or `aube store status` fails after both installs;
+- a dependency's install script writes into an existing file under `node_modules`, which the store check or a link count shows;
 - `--resume <name>` can't tell sessions in different directories apart;
 - removing a camelcase allow-list name fails lint in a file that isn't the guard's.
 
@@ -167,6 +185,7 @@ Write `.plan/harness-1/harness-report.md`. It covers:
 - per item, what changed, and the witnesses with their saved outputs;
 - the search's output;
 - the session-name reading;
+- witness 2's volume and store readings, with the main checkout's install time;
 - the `RF-48` reading: whether the links survived the `aube add`, and what `aube install` reported;
 - what wasn't verified.
 

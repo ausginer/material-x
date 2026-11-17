@@ -1,0 +1,59 @@
+Slot root and aube store readings for RD-17's amendment of 2026-11-17.
+Read by the architect in the devcontainer, on repo/harness-1 at 2643f2d7d and 4c489e745.
+git 2.47.3, aube 2.10.0, Node as installed in the image, Linux 7.2.15.
+
+1. Filesystem
+   $ ls -la /workspaces            -> only material-x; /workspaces is root:root 755
+   $ ls -d /node_modules /workspaces/node_modules   -> both: No such file or directory
+   NODE_PATH is empty; ~/.node_modules, ~/.node_libraries, /lib/node, /usr/lib/node don't exist
+   /proc/mounts:
+     /dev/mapper/luks-… /workspaces/material-x              btrfs subvolid=5,subvol=/
+     /dev/mapper/luks-… /workspaces/material-x/node_modules btrfs subvolid=5,subvol=/
+   df: 248G, 208G used, 35G free (86 %) for the checkout and for / (overlay)
+   du -sh node_modules -> 736M; du -sh ~/.local/share/aube/store/v1 -> 691M
+   .devcontainer/post-create/chown.sh:9: sudo chown -R node:node "$WORKSPACE_DIR/node_modules"
+
+2. Node resolution
+   from /workspaces/material-x/.plan/harness-1:
+     node -p "require.resolve('vite')" -> /workspaces/material-x/node_modules/vite/dist/node/index.js
+   from /dev/shm/rp (outside the checkout):
+     node -p "require.resolve('vite')"            -> Error: Cannot find module 'vite'
+     node --input-type=module -e "await import('vite')" -> ERR_MODULE_NOT_FOUND
+
+3. git worktree across filesystems, lock against prune (scratch repo on overlayfs, worktrees on tmpfs)
+   git worktree add -q --detach --lock --reason 'session slot' /dev/shm/wt-probe/b
+   git worktree add -q --detach /dev/shm/wt-probe/c
+   cat b/.git -> gitdir: <scratch>/r/.git/worktrees/b   (absolute)
+   git -C b status -sb -> ## HEAD (no branch)
+   mv b b.gone; mv c c.gone; git worktree prune -v
+     -> Removing worktrees/c: gitdir file points to non-existent location
+   git worktree list -> /dev/shm/wt-probe/b … (detached HEAD) locked
+   git worktree remove /dev/shm/wt-probe/b -> use 'remove -f -f' to override or unlock first
+   git worktree unlock …/b; git worktree prune -v -> Removing worktrees/b
+
+4. Links across mounts (a 1 MiB file in node_modules/, the _nodemodules volume; targets in .claude/worktrees/, the checkout's bind)
+   ln node_modules/.probe/f .claude/worktrees/.probe/hl -> Invalid cross-device link
+   cp --reflink=always node_modules/.probe/f .claude/worktrees/.probe/rl -> succeeded
+   ln node_modules/.probe/f node_modules/.probe/same -> link count 2
+   stat -c %h node_modules/vite/package.json -> 1 (the main tree is a copy today)
+
+5. aube 2.10.0 settings
+   aube config explain storeDir: Environment npm_config_store_dir, NPM_CONFIG_STORE_DIR, AUBE_STORE_DIR;
+     default $XDG_DATA_HOME/aube/store/; aube appends v1
+   aube config explain cacheDir: Environment npm_config_cache_dir, NPM_CONFIG_CACHE_DIR, AUBE_CACHE_DIR;
+     holds the global virtual store, "hardlinked out of the content-addressable store, so … a cacheDir
+     and storeDir split across filesystems degrades every install to a per-file copy and aube warns about it"
+   aube config explain enableGlobalVirtualStore: enabled by default outside CI, disabled under CI
+   aube config explain packageImportMethod: auto picks hardlink on Linux, copy across filesystems
+   aube store status: "Verify the store against cached package indexes"
+
+6. Two hoisted projects sharing a store (tmpfs, is-number@7.0.0, node-linker=hoisted)
+   a. AUBE_STORE_DIR on tmpfs, cacheDir at its default (~/.cache, overlay):
+      p1 node_modules/is-number/index.js links: 1; p2: 1  (copied)
+   b. AUBE_STORE_DIR and AUBE_CACHE_DIR both on tmpfs:
+      p1 after its install: links 3; p2 after its install: links 4
+      inode 593 in cache/virtual-store/v1/is-number@7.0.0-…/node_modules/is-number/index.js,
+      p1/node_modules/is-number/index.js and p2/node_modules/is-number/index.js
+
+7. The repository's own postinstall
+   .scripts/link-tsserver.ts: writeFile(join(<typescript>, 'lib', 'tsserver.js'), …) writes the file in place.
