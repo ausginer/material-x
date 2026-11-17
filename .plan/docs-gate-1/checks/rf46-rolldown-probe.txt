@@ -28,3 +28,14 @@ ort(`${e.pathname}${t}&mock=${s.type}${e.hash}`),[]2d7e7e1a443a24f2869c40dcb56dd
 ## Context
 # rolldown 1.3.2 and vite 8.3.8 came in together at 31bac1381 (repo: update dependencies, 2026-11-13); before it, vite 8.3.5 and rolldown 1.2.15.
 # tsdown 0.23.7 needs rolldown ~1.3.0. vite@8.4.0-beta.1 needs rolldown ~1.3.2; vite latest is 8.3.8.
+
+## D. Read 2026-11-17 after the owner chose the beta: a separate install of vite@8.4.0-beta.1 (rolldown ~1.3.2, resolved 1.3.2)
+139:window.load = (p) => __vitePreload(() => import(
+143:window.lazy = () => __vitePreload(() => import("./other-BwFGG1_6.js").then((m) => __vitePreload(() => import("./third-BvRk9kiK.js").then(() => m), [])), []);
+# lines matching [\])][0-9a-f]{32}: 0
+
+## E. The repository's lockfile with only the root devDependency changed to "vite": "8.4.0-beta.1"
+# npm install --package-lock-only --ignore-scripts on d7125f464: exit 0, no ERESOLVE. The root override "vite": "$vite"
+# carries the beta to vitest's and Storybook's peer ranges (^8.0.0), which a prerelease doesn't satisfy by itself.
+# Lockfile: vite 8.3.8 -> 8.4.0-beta.1, postcss 8.5.32 -> 8.5.33, napi-windows-process-start-time 0.1.0 added (optional,
+# Windows only). One rolldown, 1.3.2. The change was discarded after the reading.

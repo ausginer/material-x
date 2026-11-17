@@ -1083,6 +1083,7 @@ Tier B, **open**. Registered on 2026-11-17 by the architect, on the owner's repo
 - **Required property:**
   - Vite builds with a `rolldown` inside its own declared range, and every other consumer keeps the one it declares;
   - the built docs site loads every story and docs entry with no uncaught error, and a gate check proves it (`RD-14` property 6).
+- **The repair, decided 2026-11-17 by the owner,** relayed by the coordinator: adopt `vite@8.4.0-beta.1`. It declares `rolldown` `~1.3.2`, so the whole tree stays on one `rolldown`, 1.3.2, inside every consumer's range. A separate install of the beta writes correct preload calls, and the repository's lockfile resolves with it ([reading](docs-gate-1/checks/rf46-rolldown-probe.txt) D and E). The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) item 1 says what the implementer checks, and when to stop. **The fallback,** if the beta stops, is the owner's: Vite 8.3.8 with a nested override that pins its own `rolldown` to `~1.2.18`. When the stable `vite@8.4.0` ships, the pin moves to it as an ordinary update.
 
 ## Questions
 
