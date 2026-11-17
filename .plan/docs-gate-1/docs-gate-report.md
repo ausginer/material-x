@@ -147,7 +147,18 @@ No code change. The header comment states that a page is observed from navigatio
 
 ### The run of the remediation
 
-Pending: written after the push.
+**Run [44025945743](https://github.com/ausginer/material-x/actions/runs/44025945743)**, #30 at `9e3a39610` ([`checks/remediation-run-44025945743.txt`](checks/remediation-run-44025945743.txt)): `static`, `chromium`, `firefox`, `safari`, `docs`, `measurements` and `verify` succeed, and `deploy` is skipped.
+
+| `docs` step | Time |
+| --- | --- |
+| `npm ci` | 1 min 26 s |
+| `npx playwright install --with-deps chromium` | 22 s |
+| `npx just docs-build` | 25 s |
+| `npx just docs-smoke` | 31 s; the script reports 102 of 102 in 29.9 s |
+| `upload-pages-artifact` | 2 s |
+| the job | 3 min 0 s, inside `timeout-minutes: 5` |
+
+The run of the commit that adds this reading changes only Markdown and a text file. The pull request's checks show it.
 
 ## Not verified
 

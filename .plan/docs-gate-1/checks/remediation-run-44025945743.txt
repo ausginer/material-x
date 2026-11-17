@@ -1,0 +1,27 @@
+# verify run 44025945743, pull request #30 at 9e3a39610 (the remediation)
+
+## Jobs
+chromium	success	2026-11-17T05:42:16Z	2026-11-17T05:48:57Z
+docs	success	2026-11-17T05:42:16Z	2026-11-17T05:45:16Z
+safari	success	2026-11-17T05:42:17Z	2026-11-17T05:54:07Z
+measurements	success	2026-11-17T05:42:16Z	2026-11-17T05:44:32Z
+static	success	2026-11-17T05:42:16Z	2026-11-17T05:44:10Z
+firefox	success	2026-11-17T05:42:17Z	2026-11-17T05:51:29Z
+deploy	skipped	2026-11-17T05:45:17Z	2026-11-17T05:45:16Z
+verify	success	2026-11-17T05:54:10Z	2026-11-17T05:54:13Z
+
+## docs steps
+Set up job	success	2026-11-17T05:42:17Z	2026-11-17T05:42:18Z
+Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	success	2026-11-17T05:42:18Z	2026-11-17T05:42:21Z
+Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1	success	2026-11-17T05:42:21Z	2026-11-17T05:42:28Z
+Run npm ci	success	2026-11-17T05:42:28Z	2026-11-17T05:43:54Z
+Run npx playwright install --with-deps chromium	success	2026-11-17T05:43:54Z	2026-11-17T05:44:16Z
+Run npx just docs-build	success	2026-11-17T05:44:16Z	2026-11-17T05:44:41Z
+Run npx just docs-smoke	success	2026-11-17T05:44:41Z	2026-11-17T05:45:12Z
+Run actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9	success	2026-11-17T05:45:12Z	2026-11-17T05:45:14Z
+Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1	success	2026-11-17T05:45:14Z	2026-11-17T05:45:14Z
+Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1	success	2026-11-17T05:45:14Z	2026-11-17T05:45:14Z
+Complete job	success	2026-11-17T05:45:14Z	2026-11-17T05:45:14Z
+
+## docs-smoke
+102 of 102 pages passed at http://127.0.0.1:43217/material-x/ in 29.9 s
