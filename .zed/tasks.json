@@ -27,8 +27,8 @@
     "tags": ["js-test"]
   },
   {
-    "label": "npm",
-    "command": "npm",
+    "label": "aube",
+    "command": "aube",
     "args": ["run", "$ZED_SYMBOL"],
     "cwd": "$ZED_DIRNAME",
     "use_new_terminal": false,
@@ -36,13 +36,10 @@
     "tags": ["package-script"]
   },
   {
-    "label": "npm:debug",
-    "command": "npm",
-    "args": [
-      "--node-options=\"--inspect-brk=127.0.0.1:9229\"",
-      "run",
-      "$ZED_SYMBOL"
-    ],
+    "label": "aube:debug",
+    "command": "aube",
+    "args": ["run", "$ZED_SYMBOL"],
+    "env": { "NODE_OPTIONS": "--inspect-brk=127.0.0.1:9229" },
     "cwd": "$ZED_DIRNAME",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,

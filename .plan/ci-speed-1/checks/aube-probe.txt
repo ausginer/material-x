@@ -1,0 +1,71 @@
+aube probe, by the architect, 2026-11-17, in the devcontainer (Debian 13,
+Node 26.13.0, npm 11.20.0, x86_64), on repo/ci-speed-1 at 229829ef7.
+Scratch only: nothing here touched the checkout's node_modules or lockfile.
+
+aube: `npm install --prefix <scratch> --ignore-scripts=false @endevco/aube@2.10.1`
+  $ aube --version
+  2.10.1 linux-x64 (2026-11-16)
+Store and cache: XDG_DATA_HOME and XDG_CACHE_HOME pointed at scratch, so the
+first install below is cold.
+
+The tree: `git archive HEAD package.json package-lock.json packages/*/package.json`
+plus `.npmrc`, unpacked into an empty directory. No source, no `.scripts`.
+
+1. Frozen install from package-lock.json
+   $ aube install --frozen-lockfile
+   aube 2.10.1 by jdx.dev
+   WARN registry slow: 15 / 3 / 30 metadata fetches over 10000ms   (this network)
+   ✓ resolved 901 · reused 8 · downloaded 893 (177.7 MB) in 1m33s
+   × root postinstall script failed   <- `.scripts/link-tsserver.ts` isn't in the copy
+   - package-lock.json afterwards: byte-identical to HEAD's (diff exit 0).
+   - npm workspaces (`workspaces: ["packages/*"]`) were read: node_modules/@ydinjs/
+     links box-quad, core, drag, material-x, tproc, vite-custom-element-assets,
+     vite-traits-plugin -> ../../packages/<name>; size-limit-preset-rolldown is
+     linked at node_modules/size-limit-preset-rolldown (its package name).
+   - Layout: isolated (pnpm-like). node_modules has 52 top-level entries, against
+     655 in npm's hoisted tree in the checkout.
+   - node_modules/.aube holds one rolldown@1.3.2 and one
+     vite@8.4.0-beta.1_@types+node@26.6.6_esbuild@0.28.1_jiti@2.7.0_yaml@2.9.0.
+   $ aube ignored-builds
+     The following builds were ignored during install:
+       edgedriver@8.0.0
+       rs-module-lexer@2.8.0
+       unrs-resolver@1.11.1
+   For comparison, npm 11.20.0 in the checkout runs only package.json
+   `allowScripts`: rs-module-lexer@2.8.0, unrs-resolver@1.11.1, esbuild@0.28.1,
+   nx@24.0.6. `npm install-scripts ls` reports edgedriver@8.0.0 and
+   geckodriver@8.0.0 as not covered, so npm skips those two.
+   aube therefore read neither `allowScripts` list: it ran esbuild and nx (its
+   built-in trusted list) and skipped rs-module-lexer and unrs-resolver, which
+   npm runs.
+
+2. Resolution without a lockfile, with the root `overrides` as committed
+   ("vite": "$vite", "rolldown": "$rolldown", and three more)
+   $ aube install --lockfile-only --ignore-scripts      (20 s, exit 0)
+   WARN override "vite" uses deprecated $ reference $vite; use a catalog entry instead
+        code="WARN_AUBE_OVERRIDE_DOLLAR_REF_DEPRECATED"   (the same for all five)
+   Lockfile written (1144 packages)       -> aube-lock.yaml
+   aube-lock.yaml packages: rolldown@1.3.2, vite@8.4.0-beta.1 (one of each)
+
+3. Control: the same, with `overrides` deleted from package.json
+   $ aube install --lockfile-only --ignore-scripts      (exit 0)
+   Lockfile written (1162 packages)
+   aube-lock.yaml packages: rolldown@1.2.19, rolldown@1.3.2, vite@8.3.8,
+   vite@8.4.0-beta.1
+
+Reading: aube 2.10.1 applies package.json's top-level npm `overrides`,
+including the `$name` reference, and warns that `$` is deprecated in favour of
+a catalog. Steps 2 and 3 discriminate: without the overrides, a second vite and
+a second rolldown resolve. A frozen install from package-lock.json keeps one of
+each and leaves the lockfile unchanged.
+
+Not read here: install time on a GitHub runner, a warm-store install, the
+hoisted layout (`--node-linker hoisted`), the gate's jobs on an aube tree, and
+docs-smoke. The 1m33s above is this network's cold download, not a runner
+figure.
+
+Docs read through a fetch agent (aube.sh, 2026-11-17): CI page (`aube ci`,
+`aube install --frozen-lockfile`, action `jdx/aube-action@v1`), lockfiles page
+(reads and writes package-lock.json v2/v3), lifecycle-scripts page (dependency
+scripts need an allowlist: `aube.allowBuilds` in package.json; `strictDepBuilds`),
+settings page ("The `$` prefix references a direct dep's declared version").

@@ -14,9 +14,9 @@
  * other defaults, and is printed for the record only.
  *
  * `node bench/size/measure.ts` measures the tree as it is, prints the table and
- * exits non-zero on a violation; `npx just size` builds first. With `--json` it
- * prints, instead of the table, one JSON array of readings: each row's name, its
- * Brotli and gzip bytes, and its ceiling.
+ * exits non-zero on a violation; `aube exec just size` builds first. With
+ * `--json` it prints, instead of the table, one JSON array of readings: each
+ * row's name, its Brotli and gzip bytes, and its ceiling.
  */
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';

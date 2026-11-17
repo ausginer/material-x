@@ -28,7 +28,7 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 │   └── vite-custom-element-assets/   # private Vite asset transforms
 ├── .scripts/                         # shared build and development tooling
 ├── nx.json                           # workspace task orchestration
-└── package.json                      # npm workspaces
+└── package.json                      # workspaces, installed with aube
 ```
 
 ## Core runtime: `@ydinjs/core`
@@ -81,7 +81,7 @@ The component package contains buttons, button groups, checkboxes, FABs, icons, 
 
 ## Build and tooling
 
-- **npm workspaces and NX** coordinate all `@ydinjs` packages.
+- **aube and NX** coordinate all `@ydinjs` packages: aube installs the `workspaces` and runs their binaries, and NX orchestrates their tasks.
 - **tsdown** builds package entrypoints from each package's `files.json` into the package root, including declarations.
 - **Vite** runs development and browser-test transforms.
 - **`@ydinjs/vite-traits-plugin`** lowers safe `@ydinjs/core` trait compositions before the remaining transforms.

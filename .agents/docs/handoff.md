@@ -8,11 +8,11 @@ The `fmt`, `lint-fix`, `typecheck` and other recipes live in each package's own 
 
 Every edited `.ts`, `.tsx`, `.css` or `.html` file, in this order:
 
-1. format with `npx just fmt <changed files>`;
-2. lint and autofix with `npx just lint-fix <changed files>`;
-3. format again with `npx just fmt <changed files>`;
-4. confirm with `npx just lint <changed files>`. If an error survives, list it — do not resolve lint errors by hand; report them and continue;
-5. typecheck with `npx just typecheck` in the affected package. The root recipe checks all packages and builds their prerequisites. Ignore errors in files you did not touch, unless your change caused them.
+1. format with `aube exec just fmt <changed files>`;
+2. lint and autofix with `aube exec just lint-fix <changed files>`;
+3. format again with `aube exec just fmt <changed files>`;
+4. confirm with `aube exec just lint <changed files>`. If an error survives, list it — do not resolve lint errors by hand; report them and continue;
+5. typecheck with `aube exec just typecheck` in the affected package. The root recipe checks all packages and builds their prerequisites. Ignore errors in files you did not touch, unless your change caused them.
 
 **`fmt` runs on both sides of `lint-fix` because an autofix can write unformatted text**: oxlint's `func-names` autofix turns an anonymous `function (` into `function  name(` with a double space. Step 4 reads the file after `fmt` has written last, so a lint result never comes from a state that was later rewritten.
 
@@ -20,18 +20,18 @@ Every edited `.ts`, `.tsx`, `.css` or `.html` file, in this order:
 
 Two things that catch people out:
 
-- **Rebuild `@ydinjs/core` (`npx just build` from `packages/core`) before typechecking `@ydinjs/material-x`** when you have changed a core source file it consumes. Material X resolves `@ydinjs/core` through its built `.d.ts` at the package root rather than through `src`, so type changes are invisible until core is rebuilt.
+- **Rebuild `@ydinjs/core` (`aube exec just build` from `packages/core`) before typechecking `@ydinjs/material-x`** when you have changed a core source file it consumes. Material X resolves `@ydinjs/core` through its built `.d.ts` at the package root rather than through `src`, so type changes are invisible until core is rebuilt.
 - The **root** `Justfile`'s `fmt`, `fmt-check`, `lint` and `lint-fix` take no file arguments. They run every package and then the repository-level files no package owns — everything outside `packages/`. `oxfmt` writes all of them, Markdown included, so every file in the tree has exactly one formatter and none is offered to two.
 
 For a bounded set of repository-level code files, which the root recipes cannot target, the same order uses the tools directly:
 
 ```sh
-npx oxfmt <changed-files>
-npx oxlint --fix <changed-files>
-npx eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix <changed-files>
-npx oxfmt <changed-files>
-npx oxlint <changed-files>
-npx eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts <changed-files>
+aube exec oxfmt <changed-files>
+aube exec -- oxlint --fix <changed-files>
+aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --fix <changed-files>
+aube exec oxfmt <changed-files>
+aube exec oxlint <changed-files>
+aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts <changed-files>
 ```
 
 Source and tooling changes owe their applicable typechecks and tests. Use the component and visual-contract skills when the changed tests require them. Record a check failure and its scope; do not turn incomplete verification into acceptance.
@@ -40,7 +40,7 @@ Source and tooling changes owe their applicable typechecks and tests. Use the co
 
 Every created or updated Markdown file owes these checks. A unit changing only Markdown does not also require TypeScript builds or tests.
 
-1. Format with `npx just fmt <changed files>` from the owning package, or `npx oxfmt <changed files>` for a repository-level file.
+1. Format with `aube exec just fmt <changed files>` from the owning package, or `aube exec oxfmt <changed files>` for a repository-level file.
 2. Validate changed links and anchors. No repository instrument checks Markdown links, so check them manually or with a scratch script, and report how you checked them.
 3. Run `git diff --check`.
 

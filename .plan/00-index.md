@@ -111,7 +111,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Consequences carried elsewhere,** all in the handoff's item 2: `CONTRIBUTING.md` §Reading one entry of a record, `documentation.md` §7 and §9, `handoff.md` §Markdown, `agent-workflow.md`, `review-findings.md` and `coordinator.md`. `RD-4` holds through drag's `DRAG_NODE_BUILD`, the same mechanism with drag's build. Its text, which names drag2's setup as the only one, isn't rewritten.
 
-#### RD-6 — One workflow verifies every push to `main` and every ready pull request, in Chromium, Firefox and Safari on named runners, and one aggregate check gates merge
+#### RD-6 — One workflow verifies every push to `main` and every ready pull request, in Chromium, Firefox and WebKit on a named runner, and one aggregate check gates merge
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `a8726c57d`, on the owner's requirements relayed by the coordinator the same day ([design](ci-verification-1/ci-verification-design.md) §1, O1 to O8). **Unimplemented:** [`ci-verification-handoff.md`](ci-verification-1/ci-verification-handoff.md) implements it. It is `RD-2`'s deliverable 2, and it prepares deliverable 3, which the owner performs. Deliverable 1 is `RD-9`.
 
@@ -123,17 +123,19 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Amended 2026-11-17 by `RD-14`,** on the owner's answer to the findings unit's question 2, relayed by the coordinator: the docs build is a gate job. Properties 3, 8 and 9 changed. `RD-14` holds the reasons, and the [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) implements it. What they said before is at the end. **Unimplemented** until that handoff's pull request merges.
 
+**Amended 2026-11-17 by `RD-12`,** on the owner's decision relayed by the coordinator: the third engine of the gate is Playwright's WebKit, and Safari runs weekly outside it. The title and properties 2, 3, 4, 7 and 8 changed. **Amended the same day by `RD-15`** (the `[noci]` marker): properties 3, 8 and 9. **Unimplemented** until the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md)'s pull request merges. What they said before is at the end.
+
 **Properties.**
 
 1. **Triggers (O1).** A push to `main`; a `pull_request` event of type `opened`, `reopened`, `synchronize` or `ready_for_review`; and `workflow_dispatch`. Every job skips a draft pull request. No other trigger, and no `pull_request_target`. A newer run for the same pull request cancels the older one. A run for a push to `main` is never cancelled.
-2. **The environment (O9, O13).** Every job except `safari` runs on a GitHub-hosted runner named `ubuntu-24.04`, and `safari` runs on `macos-26` (`RD-12` property 6). Each label is named, not `*-latest`, so an operating system changes only by an edit. Each job uses the Node major version that the workflow names. **CI doesn't pull the development image, and no job runs in a container.** Chromium and Firefox are the builds that the exact `playwright` dependency pins (`RD-9`), and a job installs its engine with `npx playwright install --with-deps <engine>`. Safari is the runner image's own and isn't pinned (`RD-12` property 7). Screenshots are reproducible because of `RD-9`'s pinned visual environment, not because of the runner's operating system.
-3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `safari` run every browser project except visual in their engine. `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** Every job runs the repository's own recipes on a fresh checkout after `npm ci`. If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
-4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox` and `safari`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project takes no Chromium launch arguments, and runs with `fileParallelism: false` and one worker, because a background page gets no input in those engines. A Safari project uses the WebdriverIO provider (`RD-12` properties 2 and 3). **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and runs drag's browser and shipped projects in the engines that the variable lists. A local run is Chromium only (`RD-13` property 7).
+2. **The environment (O9, O13).** Every job runs on a GitHub-hosted runner named `ubuntu-24.04`. Safari's `macos-26` runner belongs to the Safari workflow, outside the gate (`RD-12` properties 6 and 12). Each label is named, not `*-latest`, so an operating system changes only by an edit. Each job uses the Node major version that the workflow names. **CI doesn't pull the development image, and no job runs in a container.** Chromium, Firefox and WebKit are the builds that the exact `playwright` dependency pins (`RD-9`), and a job installs its engine with `npx playwright install --with-deps <engine>`. Screenshots are reproducible because of `RD-9`'s pinned visual environment, not because of the runner's operating system.
+3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `webkit` run every browser project except visual in their engine (`RD-12` property 11). `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** In a run that `RD-15`'s marker reduces, only `records` runs, and the jobs above are skipped. Every job runs the repository's own recipes on a fresh checkout after `aube ci` (`RD-16`). If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
+4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox`, `webkit` and `safari`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project takes no Chromium launch arguments, and runs with `fileParallelism: false` and one worker, because a background page gets no input in Firefox, and Safari allows one session. WebKit does too unless `RD-12` property 11's reading allows file parallelism. A Safari project uses the WebdriverIO provider (`RD-12` properties 2 and 3). **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and runs drag's browser and shipped projects in the engines that the variable lists. A local run is Chromium only (`RD-13` property 7).
 5. **Visual runs in Chromium only.** Its baselines are per engine and platform, and only Chromium baselines exist. **The gate never writes, updates or approves a baseline.** The recording workflow proposes baselines in a pull request that the owner merges (`RD-13`). When `chromium` fails, the actual and diff images are uploaded as a workflow artifact.
 6. **A row that needs an instrument that an engine's driver doesn't provide** runs only in the engines that provide it, by an engine condition, as drag's `isChromium` rows do. Chromium-only instruments are the DevTools Protocol, heap snapshots and `--expose-gc`. Safari's driver also lacks media emulation (`RD-12` properties 4 and 5). That limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it.
-7. **Coverage (O4).** `chromium` runs with V8 coverage and uploads it to Codecov on every run. A failed upload fails the job. Codecov's project and patch statuses are `informational`, so a percentage never blocks a merge. Firefox and Safari contribute no coverage, because the V8 provider cannot instrument them.
-8. **The aggregate check.** `verify` needs `static`, `chromium`, `firefox`, `safari` and `docs`, and succeeds only if each succeeded. **It is the one check the branch rule requires,** so adding or splitting a job changes `verify`'s list and not the rule. A job not in `verify`'s list cannot block a merge.
-9. **Permissions.** The workflow's token is `contents: read`. Only the measurement job adds `pull-requests: write` (`RD-7`), and only `deploy`, which runs for `main` alone, adds `pages: write` and `id-token: write` (`RD-14`). A third-party action is pinned to a full commit hash.
+7. **Coverage (O4).** `chromium` runs with V8 coverage and uploads it to Codecov on every run. A failed upload fails the job. Codecov's project and patch statuses are `informational`, so a percentage never blocks a merge. Firefox and WebKit contribute no coverage, because the V8 provider cannot instrument them.
+8. **The aggregate check.** `verify` needs `static`, `chromium`, `firefox`, `webkit` and `docs`, and `RD-15`'s `scope` and `records`. It succeeds only if `scope` succeeded and every job of the mode that `scope` chose succeeded, while every other job was skipped (`RD-15` property 5). **It is the one check the branch rule requires,** so adding or splitting a job changes `verify`'s list and not the rule. A job not in `verify`'s list cannot block a merge.
+9. **Permissions.** The workflow's token is `contents: read`. Only the measurement job adds `pull-requests: write` (`RD-7`), only `scope` adds `actions: read` (`RD-15`), and only `deploy`, which runs for `main` alone, adds `pages: write` and `id-token: write` (`RD-14`). A third-party action is pinned to a full commit hash.
 
 **Why.**
 
@@ -180,6 +182,17 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 - Property 8 said: _"`verify` needs `static`, `chromium`, `firefox` and `safari`"_.
 - Property 9 said: _"Only the measurement job adds `pull-requests: write` (`RD-7`)."_
 - **Why it changed:** the owner's answer to the findings unit's question 2, which `RD-14` decides.
+
+**What it said before the amendments of 2026-11-17 by `RD-12` and `RD-15`.**
+
+- The title said _"in Chromium, Firefox and Safari on named runners"_.
+- Property 2 said: _"Every job except `safari` runs on a GitHub-hosted runner named `ubuntu-24.04`, and `safari` runs on `macos-26` (`RD-12` property 6)."_ and _"Chromium and Firefox are the builds that the exact `playwright` dependency pins (`RD-9`), and a job installs its engine with `npx playwright install --with-deps <engine>`. Safari is the runner image's own and isn't pinned (`RD-12` property 7)."_
+- Property 3 said: _"`firefox` and `safari` run every browser project except visual in their engine."_ and _"Every job runs the repository's own recipes on a fresh checkout after `npm ci`."_
+- Property 4 listed _"`chromium`, `firefox` and `safari`"_ and said that a non-Chromium project runs serially _"because a background page gets no input in those engines"_.
+- Property 7 said: _"Firefox and Safari contribute no coverage"_.
+- Property 8 said: _"`verify` needs `static`, `chromium`, `firefox`, `safari` and `docs`, and succeeds only if each succeeded."_
+- Property 9 named no `actions: read`.
+- **Why it changed:** the owner's decision of 2026-11-17, which `RD-12`, `RD-15` and `RD-16` decide.
 
 **What it said before `RD-13`.** Property 4 said: _"drag's `test-engines` recipe keeps its name and runs `chromium,firefox`, so its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are `drag:DRO-18`'s selection. A local `just test` without the variable runs Chromium only, as it does today."_ Property 5 said: _"CI never writes, updates or approves a baseline."_ **Why it changed:** the owner's decisions (O14, O15), which `RD-13` decides.
 
@@ -228,7 +241,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Properties.**
 
-1. **The inventory comes first.** The unit reads every failing row and check in each gate job, at its own base: Chromium and Firefox locally; Safari, and the visual result on CI's operating system, in CI. A row counts as intermittent if it both fails and passes in five runs of its file.
+1. **The inventory comes first.** The unit reads every failing row and check in each gate job, at its own base: Chromium and Firefox locally; WebKit, and the visual result on CI's operating system, in CI. A row counts as intermittent if it both fails and passes in five runs of its file. (**Amended 2026-11-17 by `RD-12`:** _"Safari"_ became WebKit, because Safari left the gate. A Safari failure is triaged under `RD-12` property 7.)
 2. **Repair** when the cause is in the test, the test infrastructure or repository tooling, and the repair changes no product behavior, no public surface and no decided contract. Lint repairs follow `RF-32`'s required property: no rule turned off, no disable comment, and runtime names kept where another library reads them.
 3. **The record is not source.** A file under a `.plan/` directory is evidence: a probe's source is what ran, and a tool's output is what the tool wrote. **Lint doesn't read `.plan/`,** because a lint repair would change what ran. **Formatting does read it,** because formatting changes no data. Each unit already owes `fmt` for each file it adds, so the record's unformatted files are repaired by formatting them.
 4. **Disable** in every other case, and only in the engine where the row fails. A row that always fails is marked as an expected failure (Vitest `fails`), so a later repair shows up as a failure. An intermittent row is skipped. **Each disabled row is a finding** in the register of the scope that owns it (`drag` for drag, `repo` for everything else), with the row, the engine, the failure, the cause if it was established, and the required property. The marking cites that finding's address. A product cause is routed as its own unit, which the owner orders. The CI unit doesn't change product source.
@@ -356,7 +369,7 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 - **An ESLint disable comment beside the oxlint one,** which `RD-8` and `RF-32` rule out, and which would state one exemption twice.
 - **Removing the overload,** which `useSlot.ts:44` uses.
 
-#### RD-12 — The third engine is Safari on a macOS runner, driven through Vitest's WebdriverIO provider, and Playwright's WebKit runs nowhere
+#### RD-12 — The gate's third engine is Playwright's WebKit on Linux, and real Safari runs outside the gate, weekly and on demand, on a macOS runner through Vitest's WebdriverIO provider
 
 **Decided 2026-11-16 by the architect** on `ci/verification` at `9c96be2d8`, on the owner's correction relayed by the coordinator the same day (O13 in the [design](ci-verification-1/ci-verification-design.md)): _"Chromium, Firefox and WebKit"_ in O2 means real Safari, run on a macOS runner. At `9c96be2d8` the `webkit` job runs Playwright's WebKit build on `ubuntu-24.04`, and pull request #27's first run is in progress with it. **It amends `RD-6`** (title, properties 2, 3, 4, 6, 7 and 8), **`RD-8` property 1** and **`RD-9` property 1**, in place, each with what it said before. **Unimplemented:** the [handoff](ci-verification-1/ci-verification-handoff.md)'s section _Resuming with Safari as the third engine_ implements it.
 
@@ -382,6 +395,21 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 **Amended again 2026-11-16 by the architect** on `repo/findings-1` at `fc3b89680`, on the findings unit's [report](findings-1/findings-1-report.md) §7, relayed by the coordinator. **The _Tab_ bullet's premise was false.** The `safari` job wrote both keys, to the global domain and to Safari's container domain. Each read back as set, and Tab still left focus on `<body>` in all six configurations ([reading 1](findings-1/checks/rd12-tab-reading-1.txt), run 43889993969; [reading 2](findings-1/checks/rd12-tab-reading-2.txt), run 43892383154). The preference doesn't reach Safari's Tab under `safaridriver`. Why it doesn't hasn't been read. The bullet is amended in place: the job sets no Tab preference, and `RF-42` holds the rows. How they reach their controls is the owner's decision (the [findings handoff](findings-1/findings-1-handoff.md)'s _Disposition of the report at `fc3b89680`_). No other property changes.
 
 **Amended a third time 2026-11-17 by the architect** on `repo/findings-1` at `d756e4f4f`, on the findings unit's [report](findings-1/findings-1-report.md) §8, relayed by the coordinator. The owner chose `RF-42`'s option (a): in Safari, the keyboard rows press Option-Tab, which with Safari's default settings moves focus to every control. In run 44003141576 at `964af56ab`, the 9 rows pass, and no other Safari row changes ([reading](findings-1/checks/rf42-option-tab-safari.txt)). The _Tab_ bullet records the key. No other property changes.
+
+**Amended 2026-11-17 by the architect** on `repo/ci-speed-1` at `229829ef7`, on the owner's decision relayed by the coordinator the same day. **The required `verify` runs Chromium, Firefox and Playwright's WebKit, on Linux and headless. Real Safari leaves the gate** for a separate workflow that no rule requires, that runs weekly, and that anyone can start by hand on any branch or commit. The owner's words: _"что-то необязательное, которое не будет тормозить разработку … но и при этом останется как возможность прогнать его against the code и получить некий результат … weekly"_, and _"обязательно возможность ручного старта"_. **Sharding Safari is not adopted for now** (_"с шардами погоди"_). The title, properties 1, 6, 7 and 8, and two items of _Not adopted_ change in place, each with what it said before. Properties 11 and 12 are added. The Safari properties that the weekly workflow keeps (2 to 5, 9 and 10) are unchanged. `RD-6` changes with it, and `RD-15` and `RD-16` are decided in the same unit. **Unimplemented:** the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md) implements it.
+
+- **Why the gate moves to WebKit.** The `safari` job is the gate's longest, at about 12 minutes: 9.5 minutes of tests and about 2 of `npm ci` on macOS. Firefox takes about 9, and Chromium about 6.5. It is serial by Safari's one session (property 3), and four of its rows fail intermittently on timing: `RF-36` (three rows), `drag:DRF-49`, `drag:DRF-50` and `drag:DRF-52`. Playwright's WebKit runs on the same Linux runners as the other engines, at the version the `playwright` dependency pins, through the provider and commands Chromium and Firefox use. It keeps the WebKit engine family in every pull request. What only real Safari has, macOS's input and preferences, `safaridriver` and the shipped build, is read weekly instead.
+- **The cost, accepted by the owner:** a change that breaks only real Safari can merge, and the weekly run finds it within a week.
+- **What a failing weekly run produces** is property 12's issue. A finding is the architect's, after a reading, so a workflow doesn't write one. A red scheduled run on its own notifies only the user who last edited the workflow's `cron` line, which is GitHub's rule for scheduled runs, and nothing asks anyone to read it.
+- **The Safari findings.** The timing failures `RF-36`, `drag:DRF-49`, `drag:DRF-50` and `drag:DRF-52`, and `drag:DRF-51`'s 16 px offset, stop holding the gate. Their Safari conditions stay and apply to the weekly run. None is closed, because no cause is established and Safari still runs them. The same rows run in WebKit in the gate. Whether WebKit reproduces any of them is read in the CI-speed unit, and a row that fails there is an `RD-8` row like any other.
+- **Read at `229829ef7`:** Playwright's WebKit build `webkit-2388` doesn't launch in the devcontainer, for 26 missing system libraries. After an `apt-get update`, `playwright install-deps --dry-run webkit` resolves its 247 Debian 13 packages ([reading](ci-speed-1/checks/webkit-local-probe.txt)). The install itself and a launch after it were not read.
+
+**Dated 2026-11-17 by the architect** on `repo/ci-speed-1` at `4136c0eea` (pull request #31), on the CI-speed unit's stop at item 1's WebKit inventory ([inventory](ci-speed-1/checks/webkit-inventory.txt), runs 44049217432 and 44050452080).
+
+- **WebKit, serial, on `ubuntu-24.04`:** 4 failed, 1,613 passed and 18 skipped of 1,635, in a 280 s test step. Firefox's was 428 s and Chromium's 290 s.
+- **The four failures are two drag rows, each in `browser/drag/webkit` and `consumer/drag/webkit`, and each failed in 5 of 5 runs of its file.** The [CI-speed handoff](ci-speed-1/ci-speed-handoff.md)'s _Disposition of the stop at `4136c0eea`_ decides both as test repairs. No row is disabled.
+- **The Safari findings' rows all pass in WebKit:** `RF-36`'s three, `drag:DRF-49`, `DRF-50`, `DRF-51` and `DRF-52`. That is evidence that those failures belong to Safari, its driver or its runner, and not to the WebKit engine. It is a reading, not a repair.
+- **Tab** reaches the button, checkbox and radio in WebKit: the 28 rows of `focus-layer.spec.browser.test.ts` pass. That confirms property 11's keyboard bullet. drag's two reduced-motion rows run there, and pass.
 
 **The readings,** taken by the architect on 2026-11-16.
 
@@ -409,7 +437,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 
 **Properties.**
 
-1. **The engines are `chromium`, `firefox` and `safari`.** `MX_TEST_ENGINES` lists those names. `webkit` is no longer an engine, and naming it is the unknown-engine error. A Safari project is named `<name>/safari`. Chromium and Firefox projects don't change.
+1. **The engines are `chromium`, `firefox`, `webkit` and `safari`.** `MX_TEST_ENGINES` lists those names. `webkit` is Playwright's WebKit build, which the exact `playwright` dependency pins as it pins Chromium and Firefox. `safari` is real Safari (property 2). A project is named `<name>/<engine>`, except Chromium's, which keeps its name. (**Amended 2026-11-17 at `229829ef7`.** This property said: _"The engines are `chromium`, `firefox` and `safari`. `MX_TEST_ENGINES` lists those names. `webkit` is no longer an engine, and naming it is the unknown-engine error. A Safari project is named `<name>/safari`. Chromium and Firefox projects don't change."_)
 2. **Safari projects use the WebdriverIO provider; Chromium and Firefox stay on Playwright's.** `@vitest/browser-webdriverio` and `webdriverio` are exact `devDependencies` at the root. The driver is the `safaridriver` that ships with macOS, and nothing installs a browser or a driver for Safari. A Safari project's instance is `{ browser: 'safari' }`.
 3. **A Safari project runs:**
    - **not headless,** because Safari has no headless mode;
@@ -418,7 +446,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
    - **in a test frame that the orchestrator doesn't scale,** at the configured 1280 × 720, **inside a top-level viewport that contains the whole frame,** so that pointer input reaches every point of the frame. If the provider's window size leaves the frame or the top-level viewport smaller, the Safari configuration makes the window large enough. From inside a Safari test, the implementer shows the frame's inner size, the top-level viewport's size and that no scale transform applies. (**Amended 2026-11-16 at `83ff45024`.** This item didn't name the top-level viewport. It said: _"If the provider's window size leaves the frame smaller, the Safari configuration makes the window large enough. The implementer shows the frame's inner size and that no scale transform applies, from inside a Safari test."_)
 4. **Every repository browser command that a Safari row calls has a WebdriverIO implementation** with the same name, arguments, result and coordinate frame as its Playwright implementation. The command selects its implementation from the provider that runs it. Pointer movement, presses and key presses use WebDriver actions. **The pointer's state lasts from `pointerDown` to `pointerUp`:** a command doesn't release the input state between them, because Playwright's mouse doesn't. A command that has no WebDriver counterpart, which is each CDP command and `emulateReducedMotion`, **throws an error that names the command and the provider.** It never does nothing. (**Dated 2026-11-16,** on the feature-proof review's `reviewer-5`, [review](reviews/ci-verification-1/feature-proof-claude.md): the frame is the same, and the precision differs. `pointerMove` sends each interpolated point to WebDriver rounded to a whole CSS pixel, because WebDriver drivers disagree about fractional pointer coordinates and some refuse them, while Playwright sends them unrounded. Each point is within 0.5 px of Playwright's, and the kept position is the unrounded target, so the interpolation is Playwright's. A sub-pixel difference in a Safari row isn't a product difference until it is shown to exceed that bound.)
 5. **A row that needs an instrument that an engine's driver doesn't provide runs only in the engines that provide it,** by an engine condition, as drag's `isChromium` rows do. This generalizes `RD-6` property 6 from Chromium-only instruments to every driver's instruments. It limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it. **A row limited for any other reason is a disabled row under `RD-8`,** with its finding. The report lists every row that is newly limited for Safari, with the command it needs.
-6. **The Safari job runs on GitHub's `macos-26` runner,** named by that label and not by `macos-latest`, so the operating system changes only by an edit. It uses the Node major version that the workflow names, like every other job. Before the tests, it enables remote automation with `sudo safaridriver --enable`. **Its log names the macOS version and Safari's version** before the tests run. Every other job stays on `ubuntu-24.04`. **The job runs each Safari project in its own Vitest process, one after another,** through the root recipe `test-safari`, which the job calls with `--tags-filter '!measurement'`. The recipe:
+6. **The Safari job runs on GitHub's `macos-26` runner,** in the Safari workflow of property 12 and not in `verify` (**amended 2026-11-17 at `229829ef7`;** it was a job of `verify`), named by that label and not by `macos-latest`, so the operating system changes only by an edit. It uses the Node major version that the workflow names, like every other job. Before the tests, it enables remote automation with `sudo safaridriver --enable`. **Its log names the macOS version and Safari's version** before the tests run. Every other job stays on `ubuntu-24.04`. **The job runs each Safari project in its own Vitest process, one after another,** through the root recipe `test-safari`, which the job calls with `--tags-filter '!measurement'`. The recipe:
    - sets `MX_TEST_ENGINES=safari` itself;
    - builds what the root `test` recipe builds, once for all projects, and shares those build steps with `test` instead of copying them;
    - takes the list of Safari projects from the configuration when it runs, with a listing that opens no browser. Nothing writes the list out, so a new Safari project runs with no edit to the recipe or the workflow;
@@ -428,8 +456,8 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 
    (**Amended 2026-11-16 at `347d4e499`.** The job ran every Safari project in one Vitest process, with `npx just test --project '*/safari'`.)
 
-7. **Safari isn't pinned.** Its version is the runner image's. A Safari failure is handled under `RD-8`, like any engine's, whether it comes from a repository change or from an image update, and the job log's Safari version tells which. `RD-9` pins only the visual environment, and visual runs in Chromium only.
-8. **Locally, nothing runs Safari or WebKit.** The devcontainer runs Linux, so Safari can't run there, and no Playwright WebKit build is installed or started anywhere. Local runs are Chromium only (`RD-13` property 7). A developer on macOS with remote automation enabled can run `just test-safari`, and the repository promises nothing more there. (**Amended 2026-11-16 at `347d4e499`:** this sentence named _"`MX_TEST_ENGINES=safari`"_, and a single Vitest process run with it opens only its first Safari project.) (**Amended 2026-11-16 by `RD-13`.** This property said: _"drag's `test-engines` runs `chromium,firefox`. Its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are exactly `drag:DRO-18`'s selection."_)
+7. **Safari isn't pinned.** Its version is the runner image's, and the job log's Safari version tells whether a failure comes from a repository change or from an image update. **A Safari failure is triaged from property 12's issue, not under `RD-8`,** which governs the gate. A failing Safari row that no finding names becomes a finding when the architect reads it. Whether a known intermittent row is skipped in Safari is decided in its own finding. `RD-9` pins only the visual environment, and visual runs in Chromium only. (**Amended 2026-11-17 at `229829ef7`.** The third sentence said: _"A Safari failure is handled under `RD-8`, like any engine's, whether it comes from a repository change or from an image update, and the job log's Safari version tells which."_)
+8. **Locally, Safari can't run, and WebKit runs only on request.** The devcontainer runs Linux, so Safari can't run there. **Playwright's WebKit runs locally with `MX_TEST_ENGINES=webkit`** once the development image carries WebKit's system libraries ([dev image handoff](ci-speed-1/devimage-handoff.md)) and the devcontainer installs its build (`RD-13` property 7). A local run is still Chromium by default, and a local WebKit run is a reproduction, not evidence (`RD-13` properties 7 and 8). (**Amended 2026-11-17 at `229829ef7`.** The first two sentences said: _"**Locally, nothing runs Safari or WebKit.** The devcontainer runs Linux, so Safari can't run there, and no Playwright WebKit build is installed or started anywhere."_) A developer on macOS with remote automation enabled can run `just test-safari`, and the repository promises nothing more there. (**Amended 2026-11-16 at `347d4e499`:** this sentence named _"`MX_TEST_ENGINES=safari`"_, and a single Vitest process run with it opens only its first Safari project.) (**Amended 2026-11-16 by `RD-13`.** This property said: _"drag's `test-engines` runs `chromium,firefox`. Its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are exactly `drag:DRO-18`'s selection."_)
 9. **A Vitest or provider upgrade re-reads the Safari job,** because the provider is released apart from Vitest. The reading is the Safari job's result on the upgrade's pull request. No row watches it.
 10. **A Safari page reports the same user preferences as a Chromium or Firefox page reports by default:** `prefers-reduced-motion: no-preference` (added at `83ff45024`).
     - **How each engine gets it:** Chromium and Firefox have it from Playwright's default, and drag's landing rows also reset it by emulation. Safari's driver can't emulate the preference, so **the `safari` job sets the runner's macOS preference before the tests.** It turns Reduce Motion off as the runner's user, reads the value back, and logs it. The step fails if the value read back isn't off.
@@ -437,6 +465,21 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
     - **If the job can't set the preference, or Safari still reports `reduce` after the job has set it, the unit stops** under `RD-8` property 5. The rows that need motion are then neither limited nor disabled, and the owner decides.
     - **Any other macOS preference** that the runner image sets differently from Chromium's and Firefox's default, and that a row depends on, is named here by an amendment before the job sets it.
     - **Tab** (added at `c34cb01d7`, amended at `fc3b89680`). Safari's default Tab doesn't move focus to buttons, checkboxes or radios. **The job sets no preference for it,** because setting Safari's _"Press Tab to highlight each item"_ changed nothing under `safaridriver`. **A Safari row reaches such a control with Option-Tab** (`{Alt>}{Tab}{/Alt}`), the key that moves focus to every control under Safari's default settings. Chromium and Firefox keep Tab. The owner chose this under `RF-42`, and it is real keyboard input, not a limit on rows. (**Amended at `d756e4f4f`.** The previous sentence said: _"How a Safari row reaches such a control by keyboard is `RF-42`'s, and is recorded here once the owner decides."_) (**Amended at `fc3b89680`.** This bullet said: _"In a Safari page, Tab moves focus to every element that Chromium's and Firefox's default Tab reaches: links, buttons and every form control. The setting is Safari's 'Press Tab to highlight each item', not the system's keyboard navigation, which changes more than Safari. As with Reduce Motion, the `safari` job turns it on as the runner's user before the tests, reads it back and logs it, and the step fails if the value read back isn't on. The implementer picks the keys with a reading. It is the job's environment, not a limit on rows. The unit stops under `RD-8` property 5 if the job can't set it, or if Tab still doesn't reach a button in a Safari row after it is set. The keyboard-focus rows are then neither limited nor disabled, and the owner decides."_)
+
+11. **The gate's WebKit job** (added 2026-11-17 at `229829ef7`). `verify`'s `webkit` job runs on `ubuntu-24.04`, installs its engine with `npx playwright install --with-deps webkit`, and runs every browser project except visual in WebKit, without `measurement` rows, headless, through Playwright's provider and the commands Chromium and Firefox use.
+    - **Conditions.** A row conditioned on `safari` doesn't apply to `webkit`. Playwright's WebKit has media emulation, so drag's reduced-motion rows run in it, and a Chromium-only instrument stays Chromium-only (property 5).
+    - **Keyboard.** A WebKit row presses Tab, as Chromium and Firefox do. Option-Tab stays Safari's (property 10). The architect's understanding of WebKit's source, which this decision didn't re-read and no run has shown: WebKit makes Tab skip buttons and form controls only in its macOS port, where it follows macOS's keyboard-access setting and Option inverts it, and on Linux its Tab reaches every control. Tab is also the key a Linux user presses. **If Tab doesn't reach a button, checkbox or radio in WebKit, the unit stops,** and the owner decides. Option-Tab isn't substituted, because on Linux it isn't a focus key.
+    - **Parallelism.** WebKit runs without file parallelism and with one worker, as Firefox does, **unless** the unit's reading meets both conditions:
+      - three consecutive runs of the WebKit job with file parallelism and Chromium's worker count fail no row that the serial run passes;
+      - the parallel test step takes at least 20 % less time than the serial one.
+
+      Firefox is serial because a page in the background gets no input there. Nothing has read whether WebKit's does, and the three runs read exactly that, through every input row. The configuration's comment states which case holds.
+12. **Safari outside the gate** (added 2026-11-17 at `229829ef7`). The workflow `.github/workflows/safari.yml` holds the Safari job of property 6, unchanged.
+    - **Triggers.** A weekly `schedule`, and `workflow_dispatch` with an optional `ref` input: a branch, tag or commit SHA, which the job checks out. Without it, the job checks out the ref the run was started on. No `push` or `pull_request` trigger.
+    - **Not required.** `verify` doesn't need it, and the ruleset names only `verify`, so it never blocks a merge.
+    - **Concurrency.** One run per checked-out ref at a time. A newer run waits, and none is cancelled.
+    - **A failing scheduled run** opens one issue, or comments on the one that is already open. It is labelled `safari`, and the issue or comment names the run, the commit, the macOS and Safari versions, and each project that failed. A job that runs no repository code does this, after the test job, with `issues: write`. The test job keeps `contents: read`. A passing run closes nothing: whoever triages the issue closes it.
+    - **A failing manual run** produces its red run only, because whoever started it reads it.
 
 **Why.**
 
@@ -451,8 +494,11 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 
 **Not adopted.**
 
-- **Playwright's WebKit, on Ubuntu or on macOS.** That is the build that `9c96be2d8` runs, and the owner's correction rules it out: it isn't Safari.
-- **Keeping Playwright's WebKit as a fourth engine.** No requirement names it, it can't run locally (`drag:DRO-18`), and an engine that no job runs is machinery with no use.
+- **Playwright's WebKit in place of Safari.** It isn't Safari, which is why Safari keeps its own workflow (property 12). (**Amended 2026-11-17 at `229829ef7`.** This item said: _"**Playwright's WebKit, on Ubuntu or on macOS.** That is the build that `9c96be2d8` runs, and the owner's correction rules it out: it isn't Safari."_ The owner's decision of 2026-11-17 makes it the gate's third engine, beside Safari and not in place of it.)
+- **Playwright's WebKit on a macOS runner** (2026-11-17). Its macOS port is closer to Safari, Option-Tab included, but a `macos-26` runner has 3 vCPU against Linux's 4, and the owner chose Linux and headless.
+- **Safari in `verify` as a job that `verify` doesn't need** (2026-11-17). It would still spend about 12 macOS minutes on every push, and report a red check that blocks nothing on every flake. The owner asked for a weekly run.
+- **Sharding Safari across runners** (2026-11-17), on the owner's word. It is also `RD-12`'s rejected matrix: each shard repeats checkout, install and build on macOS.
+- **Keeping Playwright's WebKit as a fourth engine — adopted 2026-11-17** by the amendment at `229829ef7`. This item said: _"No requirement names it, it can't run locally (`drag:DRO-18`), and an engine that no job runs is machinery with no use."_ The gate's `webkit` job now runs it, and the [dev image handoff](ci-speed-1/devimage-handoff.md) reads whether it runs locally.
 - **A cloud browser service,** such as BrowserStack or Sauce Labs. It needs an account and a secret, and a fork's pull request can't use the secret.
 - **Safari Technology Preview.** It isn't the Safari that users run.
 - **A no-op `emulateReducedMotion` in Safari,** for the reason above.
@@ -471,6 +517,7 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **`RD-9` property 1:** _"as Firefox and WebKit already are"_ and _"WebKit stays out of local development (`drag:DRO-18`)"_.
 - **`drag:DRO-18`** gets a dated note: the job that covers the WebKit family is Safari on macOS, and its local selection is unchanged.
 - **`.agents/docs/test-architecture.md` §CI policy,** in the same commit. It said: _"each in Chromium, Firefox and WebKit … CI runs on plain GitHub-hosted runners, and its browsers are the builds the locked `playwright` package pins."_
+- **By the amendment of 2026-11-17:** `RD-6`'s title and properties 2, 3, 4, 7 and 8, in place with what each said before; `RD-8` property 1's engine; `RD-13` property 7's engines; and a dated note on `drag:DRO-18`. `.agents/docs/test-architecture.md` §CI policy and `verify.yml`'s comments change with the implementation, not here.
 
 #### RD-13 — Baselines are recorded on GitHub's runner by a separate workflow that proposes them in a pull request, and local runs are Chromium only, without visual
 
@@ -507,9 +554,9 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 6. **Concurrency and forks.** One recording per target runs at a time, and a newer one cancels the older one. A pull request from a fork never gets a write token, so the labeled trigger skips it. Its baselines are recorded on a branch in this repository.
 7. **Local runs are Chromium only, without visual (O15).**
    - **Visual:** the shared factory declares the visual project only when `MX_TEST_VISUAL=1`. The gate's `chromium` job and the `record` job set the variable. No recipe sets it, and material-x's `test-visual` and `test-visual-update` recipes are removed.
-   - **Engines:** `MX_TEST_ENGINES` still defaults to `chromium`. The devcontainer installs only Playwright's Chromium. drag's `test-engines` sets no engine list: it runs drag's browser and shipped projects in the engines that `MX_TEST_ENGINES` lists, which is Chromium by default.
+   - **Engines:** `MX_TEST_ENGINES` still defaults to `chromium`. The devcontainer installs Playwright's Chromium and WebKit builds, and WebKit launches where the development image carries its system libraries (`RD-12` property 8). (**Amended 2026-11-17 by `RD-12`.** This sentence said: _"The devcontainer installs only Playwright's Chromium."_) drag's `test-engines` sets no engine list: it runs drag's browser and shipped projects in the engines that `MX_TEST_ENGINES` lists, which is Chromium by default.
    - **Other engines** run in CI. A developer who sets either variable locally gets an unchecked run, and its result is not evidence.
-8. **What a unit owes locally.** A local check covers Chromium, without visual. Firefox, Safari and visual results are read in CI on the unit's pull request. A unit that changes something they can see pushes and reads them there before it reports. A visual change is recorded through property 2, and the owner reviews the proposal.
+8. **What a unit owes locally.** A local check covers Chromium, without visual. Firefox, WebKit and visual results are read in CI on the unit's pull request. A unit that changes something they can see pushes and reads them there before it reports. **A unit that changes something only Safari can see,** such as a WebdriverIO command, the Safari configuration or the Safari workflow, starts the Safari workflow on its branch (`RD-12` property 12) and reads it before it reports. (**Amended 2026-11-17 by `RD-12`.** The second sentence said: _"Firefox, Safari and visual results are read in CI on the unit's pull request."_ The sentence about the Safari workflow is new.) A visual change is recorded through property 2, and the owner reviews the proposal.
 9. **Diagnostics, not guards.** The gate's `chromium` job and the `record` job log the runner image's version (`ImageOS`, `ImageVersion`) and the processor model before the tests. Nothing compares them. If the visual rows turn intermittent in CI, the unit stops, and the owner decides (`RD-9` property 4).
 
 **Why.**
@@ -602,6 +649,188 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 - **The manager and the observed period.** It listed the pages without saying when each one passes. The manager passed on `load`, before it loads its preview, so it passed on `RF-46`'s broken build. An error raised after an entry's render event was caught in some entries and missed in others.
 
 The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the feature proof_ holds the reasons and the alternatives weighed. **Unimplemented** until its remediation lands.
+
+#### RD-15 — A pull request or push whose commit carries `[noci]` gets a fast `verify` when every change since the last fully verified commit is a record or Markdown
+
+**Decided 2026-11-17 by the architect** on `repo/ci-speed-1` at `229829ef7`, on the owner's decision relayed by the coordinator the same day. The owner's example is `[noci] drag: changed plan`. **`verify` must still run:** it recognizes the marker and succeeds quickly, because GitHub's own `[skip ci]` doesn't start the workflow and leaves the required `verify` pending. **The skip holds only if every change since the last fully verified commit is under `.plan/` or is a `*.md` file.** Otherwise the run is full. The range is checked, not only the head commit, because a push cancels the running `verify`, so earlier commits may never have been verified. In the owner's words: _"правильнее действительно будет перепроверять `.plan` и `.md`-файлы"_. **Unimplemented:** the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md) implements it.
+
+**Properties.**
+
+1. **The marker** is the literal `[noci]`, case-sensitive, anywhere in the message of the run's commit _H_. For a `pull_request` event, _H_ is the pull request's head commit, and for a push to `main`, the pushed commit. **A `workflow_dispatch` run is always full.** GitHub's own markers, `[skip ci]`, `[ci skip]`, `[no ci]`, `[skip actions]` and `[actions skip]`, keep the workflow from starting, so `verify` stays pending and the merge is blocked. `[noci]` without a space is not one of them.
+2. **The last fully verified commit** _B_ is the newest ancestor of _H_, or _H_ itself, for which a `verify` run concluded `success` in full mode. A run counts as full only if `static`, `chromium`, `firefox`, `webkit` and `docs` each concluded `success`, not `skipped`. _B_ is read from the GitHub Actions API, among `verify.yml`'s recent successful runs, and ancestry is read with `git merge-base --is-ancestor` on a full-history checkout.
+3. **The range** is the tree difference from _B_ to _H_, `git diff --name-only --no-renames B H`, so a merge commit and a rename count by every path they touch. **The run is reduced only if** _H_ carries the marker, _B_ exists, and every path in the range is either under a directory named `.plan` at any depth or ends in `.md`. An empty range qualifies. `.mdx` is not Markdown here: Storybook builds it.
+4. **What a reduced run checks.** `records` runs the install, `just fmt-check` and the record resolver's tests (`.scripts/entry.node.test.ts`). Those are the gate's checks that read records and Markdown: `oxfmt` formats both, and the resolver's tests resolve entries in the real records. **No other gate check reads them.** Lint ignores `.plan/` (`RD-8` property 3), the root `tsconfig.json` doesn't include it, Storybook's stories are `*.mdx` and `*.stories.tsx`, and TypeDoc's `readme` is `none`. The implementer confirms this by search, and adds to `records` any check that the search finds. (**Amended 2026-11-17 at `4136c0eea`,** on the implementer's search. `packages/drag/tsconfig.json` includes `./.plan/probes/callback-list/allocation.ts`, so drag's typecheck reads a `.plan/` file. `records` therefore also runs `just typecheck`, the root recipe, which covers any later `tsconfig` that includes a record. The sentence _"the root `tsconfig.json` doesn't include it"_ was true and incomplete.)
+5. **Modes.** `scope` decides the mode and logs _H_, _B_ with its run, the mode, and the paths that kept the run full. **Full:** every gate job runs as `RD-6` property 3 says, and `records` is skipped. **Reduced:** `records` runs, and `static`, `chromium`, `firefox`, `webkit`, `docs` and `measurements` are skipped. `verify` succeeds only if `scope` succeeded, every job of its mode succeeded, and every job outside it was skipped. On `main`, a reduced run skips `docs`, so `deploy` doesn't run, and the site stays at its last deployment, which the range couldn't change.
+6. **It fails toward a full run.** If the API can't be read, no _B_ is found, the history can't answer ancestry, or the range can't be computed, the mode is full, and the log says why. `scope` fails only if it can't name a mode, and then `verify` fails.
+7. **Permissions.** `scope` adds `actions: read`, to read runs and jobs. It runs no install. Its only repository code is the decision script, which uses Node's built-in modules, `git` and `gh`. (**Amended 2026-11-17 at `0706f41f5`:** this said _"It runs no install and no repository code beyond `git`"_, which contradicted the handoff's script.)
+
+**Why.**
+
+- **A marker, not a path rule alone,** because the owner asked for one. A record-only push stays full unless its author asks for less.
+- **The range from the last fully verified commit, not from the previous push.** The previous push's run may have been cancelled, so a range from it can hide an unverified source change.
+- **A reduced run still checks what changed.** Without `records`, a misformatted record or a broken entry could reach `main` under `[noci]`, and the next full run would fail on a change that isn't its own.
+- **One more job in `verify`, not a second required check,** so the ruleset stays as it is (`RD-6` property 8).
+
+**Not adopted.**
+
+- **GitHub's `[skip ci]`, or `paths-ignore` on the workflow.** Either one keeps the workflow from starting, so the required check never reports.
+- **The head commit's paths only,** or a range from the previous push's `before`. Both are ruled out by the cancellation above.
+- **A range from the merge base with `main`.** It counts unverified commits on the branch as verified.
+- **A reduced run with no checks.** See _Why_.
+
+#### RD-16 — The repository installs, runs scripts and records with aube, `package-lock.json` stays its one lockfile, and only listed packages at listed versions run install scripts
+
+**Decided 2026-11-17 by the architect** on `repo/ci-speed-1` at `229829ef7`, on the owner's decision relayed by the coordinator the same day: aube instead of npm for installs, if it holds the tree. The owner's references are <https://aube.sh/bun-users> and <https://aube.sh/settings/#setting-overrides>.
+
+**Amended 2026-11-17 by the architect** at `0706f41f5`, on the owner's decision relayed by the coordinator: **a full move from npm to aube, with no speed condition,** for local development, CI and the records. The owner's words: _"я бы хотел полностью перекатиться на aube, без дополнительных условий, если только нет каких-то прям капитальных проблем"_. Yarn and pnpm are rejected. **Only a capital problem stops it** (property 11), and the timing is a reading that decides nothing. The supply chain is the owner's main concern: _"allowScripts/allowBuilds немного меня настораживает, ибо проблемы с poisoned supply chain - это причина почему я вообще не допускаю building tools на host"_. The owner also pointed to `strictDepBuilds`. The title and every property changed. What they said before is at the end. **Unimplemented:** the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md)'s item 4 implements it.
+
+**Read at `229829ef7`** by the architect in the devcontainer, with aube 2.10.1 of 2026-11-16 ([reading](ci-speed-1/checks/aube-probe.txt)):
+
+- **aube applies the root `overrides`, `$` references included.** Resolved without a lockfile, the manifests give one vite 8.4.0-beta.1 and one rolldown 1.3.2. With `overrides` deleted, the same resolution gives vite 8.3.8 and 8.4.0-beta.1, and rolldown 1.2.19 and 1.3.2. aube warns that `$` is deprecated in favour of a catalog.
+- **A frozen install from `package-lock.json`** installs 901 packages and links the npm workspaces. It keeps one vite and one rolldown, and leaves the lockfile byte-identical. Its default layout is isolated: 52 top-level entries, against npm's 655.
+- **Dependency scripts differ:** aube read neither `allowScripts` list. It ran `esbuild` and `nx` from its built-in list, and skipped `rs-module-lexer` and `unrs-resolver`, which npm runs.
+
+**Read at `0706f41f5`** by the architect, on scratch fixtures with aube 2.10.1, and with 2.10.0 for the script policy ([reading](ci-speed-1/checks/aube-policy-probe.txt)):
+
+- **`strictDepBuilds` fails the install** on a dependency script that no entry reviews: _"dependencies with build scripts must be reviewed before install"_. That holds the owner's quotation of the docs.
+- **It doesn't override the built-in trusted list.** With `strictDepBuilds` alone, `esbuild` ran unlisted. Only `useDefaultTrustedDependencies=false` removes the built-in list, and with both settings every unlisted script fails the install.
+- **`allowBuilds` pins exact versions.** `esbuild@0.28.1` allows 0.28.1 only. With `esbuild@0.28.0` listed, the installed 0.28.1 counts as unreviewed, and the install fails. Semver ranges are refused. A deny by bare name (`esbuild: false`) counts as reviewed at any version.
+- **Where aube reads the settings:**
+  - `strictDepBuilds` and `useDefaultTrustedDependencies` are read from `.npmrc` and from the environment. `package.json`'s `aube` field and a workspace YAML without `packages:` don't set them.
+  - `allowBuilds` and the catalog are read from `package.json`'s `aube` field.
+- **A mismatched `packageManager` pin downloads another aube** (_"Switching to aube@2.10.0 … Downloading aube v2.10.0…"_). With `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`, it fails instead.
+- **The release-age gate** (`minimumReleaseAge` with `minimumReleaseAgeStrict=true`) fails a resolution that only a too-young version satisfies: `ERR_AUBE_NO_MATURE_MATCHING_VERSION`.
+- **Exceptions, read on 2.10.0:**
+  - `minimumReleaseAgeExclude` in `.npmrc` takes one comma-separated value, whose entries are names, `*` patterns, or names with an exact version (`esbuild@0.28.1`). A pattern can't carry a version, and repeated lines keep only the last.
+  - An entry covers its package and not that package's dependencies.
+  - The gate doesn't apply to a frozen or fresh-lockfile install of locked versions, or to an `aube add` that leaves them locked. Only a re-resolution of vite 8.4.0-beta.1 is blocked, and then by vite and next by postcss 8.5.33.
+  - With `minimumReleaseAgeStrict=false`, a young version that alone satisfies its range is installed without notice.
+- **npm warns about aube's `.npmrc` keys,** and says that they will stop working in its next major version, whenever it runs inside the checkout.
+- **Overrides through the catalog hold.** With `aube.catalog` and `catalog:` in place of each `$` reference, the manifests resolve to one copy each of `@mdx-js/react`, eslint, react, rolldown and vite, with no warning.
+- **`aube import` is not faithful:** it rewrote npm's nested `ansi-regex@6.6.0` as 6.2.2, which is still in its dependents' range.
+- **nx 24.0.6 knows no aube lockfile,** and builds its external nodes from a bun, yarn, pnpm or npm lockfile.
+- **aube's releases** are weekly: 2.9.0 on 2026-11-02, 2.10.0 on 2026-11-09 and 2.10.1 on 2026-11-16.
+
+**Dated 2026-11-17 by the architect** at `4136c0eea`, on the CI-speed report's item 4 ([report](ci-speed-1/ci-speed-report.md)). The move is green: every gate job passed on aube's tree in run 44046829370 at `e9e8f92a2`. The witness that removed nx's `allowBuilds` entry failed `aube ci` as required (run 44048707632 at `6092c5f26`). The catalog change wrote no lockfile diff. Each reading is decided as follows:
+
+- **`savePrefix=`** (empty) replaces `save-exact`, which aube doesn't read. It is accepted as property 7's equivalent.
+- **`aube add` at the workspace root needs `-W`.** Accepted. `implementer.md` says `aube add -D -W <name>`.
+- **`aube exec` installs first when `package.json` changed** (_"Auto-installing: package.json has changed"_). **Superseded the same day by property 12:** the owner turned the auto-install off. (This reading said: _"Accepted. That install is the same `aube install`, under the same script policy, version pin and release age, from the lockfile. It is not a fetch of an unlocked package, which is what property 8's "never `aubx` or `aube dlx`" excludes. In CI, `aube ci` runs first, so nothing changed and nothing installs."_)
+- **`just oxlint-migrate` needs `@oxlint/migrate`,** which `npx` used to fetch unpinned at each run. It becomes an exact devDependency at 1.93.0, `oxlint`'s version, published 2026-11-09. The recipe then runs from the lockfile.
+- **`aube add` rewrites the hoisted layout,** and drops nested entries that the workspace manifests no longer name. That staleness predates this unit and is `RF-47`. It is repaired in its own commit, before `@oxlint/migrate` is added.
+- **The merge base's size reading fails** until this pull request merges, because `main` has no aube settings. Accepted: `measurements` reports it and never fails the run (`RD-7`).
+
+**Dated 2026-11-17 by the architect** at `633ef72d8`, on the stop at `RF-47`'s repair ([reading](ci-speed-1/checks/rf47-resolution.txt)):
+
+- **aube's first full write of `package-lock.json`** is accepted as `RF-47`'s repair, with its whole diff. The resolution reading is under `RF-47`.
+- **What that write puts in the file**, besides placement:
+  - the root entry's `devDependencies` carry `catalog:` for the five catalog entries, where npm's file had versions;
+  - `vite`, a peer, appears under the `dependencies` of the `vite-custom-element-assets` and `vite-traits-plugin` entries;
+  - the root's `version` and `hasInstallScript`, and the workspaces' `license`, are dropped.
+
+  None of this changes what installs. It is what GitHub's dependency graph and nx read, so property 11's two stops on them are witnessed on this commit, not only after the merge.
+
+- **`aube exec` reads its own options directly after the binary's name,** up to the first argument it doesn't own. Property 8 gains its `--` rule.
+
+  (_Corrected 2026-11-17 by the architect at `c57722b67`,_ on the feature proof's `reviewer-1`. This bullet said: _"`aube exec` reads its own options after the binary, so `.agents/docs/handoff.md`'s `aube exec eslint … -c eslint.config.ts` never passes `-c` to eslint."_ That command was `aube exec eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts …`. aube stopped at `--flag`, so `-c` reached eslint. The probe it relied on put `-c` directly after the binary. The rule stands, because it goes by form.)
+
+- **`aube install --fix-lockfile --lockfile-only`** does nothing on a fresh lockfile: _"Lockfile is up to date, resolution step is skipped"_.
+
+**Properties.**
+
+1. **aube is the repository's package manager.** Locally, in CI and in every record, installs, dependency changes, `package.json` scripts and local binaries go through aube. npm, yarn and pnpm install nothing of the repository. They run nothing of it, with two exceptions: npm's one bootstrap step in CI (property 9), and nx's script runner (amended 2026-11-17 at `c57722b67`).
+   - **nx's script runner.** nx 24.0.6 runs a `package.json` script target as `npm run <script>`. Its `nx:run-script` executor takes the command from the detected package manager. Detection reads `nx.json`'s `cli.packageManager`, then the lockfile's name, so `package-lock.json` gives npm (`nx/dist/src/utils/package-manager.js`, `detectPackageManager` and npm's `run`). Its schema allows only `yarn`, `pnpm`, `npm` and `bun`, so no setting gives aube.
+   - **What npm does there.** It reads `.npmrc`, warns once for each aube key, and runs the script line, which is `just <recipe>` or the tool command. It installs nothing. No `package.json` names a `pre<script>` or `post<script>` for a script it has, so npm runs nothing else. The root's `postinstall` belongs to the install lifecycle, which nx never runs.
+   - **What it exports doesn't change aube's settings.** npm exports each `.npmrc` key as `npm_config_<key in lower case>`, such as `npm_config_usedefaulttrusteddependencies`. aube's environment names are snake case, such as `npm_config_use_default_trusted_dependencies`, so the two don't match. The one name that matches, `npm_config_node_linker`, carries the same value. Read on 2.10.0 with npm 11.20.0: under `npm run`, `aube install` of an unlisted `esbuild` still fails as unreviewed, as it does when run directly. `esbuild` is on aube's built-in trust list, so the install would run its script if `useDefaultTrustedDependencies=false` had been lost. So properties 4, 5 and 12 hold under nx.
+   - **Revisited** when nx knows aube, or when npm stops running a script beside these keys. npm says the keys "will stop working in the next major version". If that breaks the runs, a gate job fails, because every nx target runs through npm. The alternative is to replace nx's inferred script targets with explicit ones that run `aube run`. That costs a target definition for each script in each package, 78 today, or a local nx plugin, and it changes nothing about what runs.
+   - (This property said: _"npm, yarn and pnpm install nothing and run nothing of the repository, except npm's one bootstrap step in CI (property 9)."_ The feature proof's `reviewer-2` read `npm run` in the final run's `docs` job.)
+
+   `package.json` names `"packageManager": "aube@2.10.0"`, the newest release that meets property 6's age on 2026-11-17. One edit changes the version in `packageManager`, the workflows and the development image together. `engines.node` stays `>=24`, and nothing names npm in `engines`.
+
+2. **`package-lock.json` stays the one lockfile,** which aube reads and writes. No `aube-lock.yaml` or `pnpm-lock.yaml` is committed. `.npmrc` sets `defaultLockfile` to `package-lock.json`, so a stray `aube-lock.yaml` can't take precedence over it.
+3. **Overrides go through the catalog.** `package.json`'s `aube.catalog` holds the five pinned versions: `@mdx-js/react`, eslint, react, rolldown and vite. Each override and each direct dependency on one of them is `catalog:`, so each version is written once. No `$` reference remains.
+4. **Only listed packages, at listed versions, run install scripts.**
+   - **The settings.** `.npmrc` sets `strictDepBuilds=true` and `useDefaultTrustedDependencies=false`.
+   - **The allow list.** `package.json`'s `aube.allowBuilds` allows exactly `esbuild@0.28.1`, `nx@24.0.6`, `rs-module-lexer@2.8.0` and `unrs-resolver@1.11.1`, the four that npm's `allowScripts` allows today.
+   - **The deny list.** It denies `edgedriver`, `geckodriver` and `fsevents` by name. npm skips all three today: the first two aren't covered, and `fsevents` installs only on macOS.
+   - **npm's `allowScripts`** is deleted.
+   - **What follows.** An unlisted package with an install script fails the install, and so does a listed package at another version. Updating such a package therefore updates its pin in the same change, which is the review. The root package's own `postinstall` (`.scripts/link-tsserver.ts`) runs, as it does under npm.
+5. **The version pin is enforced, never fetched.** `.npmrc` sets `managePackageManagerVersions=false`, `packageManagerStrict=error` and `packageManagerStrictVersion=true`. A different aube fails instead of downloading the pinned one.
+6. **Release age, with exact-version exceptions** (amended 2026-11-17 at `588eeae42`).
+   - **The gate.** `.npmrc` sets `minimumReleaseAge=10080`, which is 7 days, and `minimumReleaseAgeStrict=true`. A resolution that only a younger version satisfies fails.
+   - **What it applies to.** It applies when a version is resolved anew: adding a dependency, changing its version, or re-resolving the lockfile. A frozen or fresh-lockfile install of locked versions isn't gated. So CI, `aube install` on a fresh lockfile, and the catalog change of property 3 need no exception.
+   - **An exception** is an entry of `.npmrc`'s single `minimumReleaseAgeExclude` value, comma-separated, written as `name@exact-version` only. A bare name or a `*` pattern would exempt every later version, so neither is allowed.
+     - It is added in the change whose resolution failed on that version, and it names one package. A dependency of an excepted package that is too young needs its own entry.
+     - Each entry is listed here with its reason and the date its version turns 7 days old.
+     - After that date the entry exempts nothing, so the first change after it that touches `.npmrc` or the dependencies removes it.
+   - **No exception is needed at `588eeae42`.** vite 8.4.0-beta.1, published 2026-11-16, and postcss 8.5.33, the only version that satisfies vite's `^8.5.33` (2026-11-13), are locked. A re-resolution before 2026-11-23 would need `vite@8.4.0-beta.1,postcss@8.5.33`.
+   - **aube's own version** in property 1 meets the same age.
+
+   (This property said: _"**Release age.** `.npmrc` sets `minimumReleaseAge=10080`, which is 7 days, and `minimumReleaseAgeStrict=true`. A resolution that needs a younger version fails rather than quietly taking an older one. An exception is a `minimumReleaseAgeExclude` entry named here with its reason. The aube version in property 1 meets the same age. A frozen install resolves nothing, so CI is unaffected."_ The owner chose, on 2026-11-17, to keep the 7-day gate if aube has per-package exceptions and to drop it otherwise: _"Давай 2, если не умеет, то 3. Возрастное ограничение штука хорошая, но всё-таки у меня контейнер и dev deps only, поэтому это чуть менее важно"_. aube has them, so the gate stays.)
+
+7. **The layout is hoisted** (`node-linker=hoisted` in `.npmrc`). Every other `.npmrc` key stays only if aube reads it, and the report names the keys it drops.
+8. **Commands.**
+   - `aube ci` in CI, on a fresh checkout, and `aube install` locally.
+   - `aube add` and `aube remove` to change dependencies.
+   - `aube run <script>` for a `package.json` script.
+   - **`aube exec <binary>` in place of `npx`.** Never `aubx` or `aube dlx` for a repository tool, because they fetch a package that isn't installed.
+     - **`--` before the binary when it gets an option** (added 2026-11-17, its reason corrected the same day at `c57722b67`). aube 2.10.0 also reads its own options after the binary's name, until the first argument it doesn't own. Those options include `-c` (its shell mode), `-v`, `-V` and `--version`, `-h` and `--help`, and `--silent` ([reading](ci-speed-1/checks/rf47-resolution.txt)). So `aube exec eslint -c x` loses `-c` to aube, while `aube exec eslint --flag … -c x` and `aube exec eslint file.ts -c x` pass it to eslint. Whether an option survives therefore depends on what comes before it. A command that passes the binary any argument beginning with `-` is written `aube exec -- <binary> <args>`, wherever it is written. The rule goes by form, not by a list of colliding options, because aube's options change between versions.
+   - **Who changes:** recipes, scripts, editor tasks, workflows, agent definitions and documentation say so. Instructions addressed to consumers of the published packages keep `npm install`, because those are the consumers' commands.
+9. **CI.**
+   - **The bootstrap.** Each workflow installs aube with `npm install -g @endevco/aube@<version>`. That is npm's only remaining command, because `setup-node` ships npm, and the registry that serves it is the one every dependency already comes from. The step runs outside the checkout, so the install of aube reads no repository configuration. npm reads `.npmrc` later, under nx (property 1). (Amended 2026-11-17 at `c57722b67`. The reason said: _"so npm doesn't read the repository's `.npmrc`"_.)
+   - **The cache.** It caches aube's store under a key of the OS, aube's version and the lockfile's hash, then runs `aube ci`. `setup-node`'s `cache: npm` goes.
+   - **Scope.** This covers `verify` (`measurements`' merge-base tree included), the Safari workflow and `baselines.yml`.
+10. **Timing is a reading.** Cold and warm `aube ci` times on `ubuntu-24.04` and `macos-26`, beside `npm ci`'s at `229829ef7`. They decide nothing.
+11. **Capital problems** are the only stops. The unit returns to the architect, and the owner decides, if:
+    - **the tree doesn't hold:** a frozen install doesn't give one vite 8.4.0-beta.1 and one rolldown 1.3.2; or it changes `package-lock.json`; or the catalog form resolves another copy;
+    - **a check fails only on aube:** a gate job, `docs-smoke`, or the Safari workflow's install or listing fails on aube's tree and passes on npm's at the same commit, and no configuration change repairs it;
+    - **the script policy doesn't hold** at the pinned version, locally or in CI, in any of these ways:
+      - a dependency script runs without a matching `allowBuilds` entry;
+      - an unlisted script, or a listed package at another version, doesn't fail the install;
+      - the built-in list can't be turned off;
+    - **a mismatched `packageManager` downloads** despite property 5;
+    - **GitHub's dependency graph** loses vite or rolldown from `package-lock.json` after aube writes it;
+    - **nx's commands that the recipes run fail** on the aube tree.
+
+    A speed figure, a warning, documentation churn, or a `package-lock.json` diff that aube writes once and then keeps stable is not a capital problem.
+
+12. **Only an install command installs** (added 2026-11-17, on the owner's decision).
+    - **The setting.** `.npmrc` sets `aubeNoAutoInstall=true`. `aube run` and `aube exec` then skip their check of `node_modules/.aube-state` against `package.json` and the lockfile, and install nothing.
+    - **What installs.** Only `aube install`, `aube ci`, `aube add` and `aube remove` change `node_modules`. After a pull or a merge that changes `package.json` or `package-lock.json`, the developer runs `aube install`.
+    - **The value is exactly `true`.** aube reads the key as a strict boolean: `true` and `1` turn the check off, and any other value leaves the auto-install on without notice. The witness reads it at the pinned version.
+    - **Nothing overrides it.** An environment value (`AUBE_NO_AUTO_INSTALL`, or its `npm_config_` form) would. CI sets none. The development image sets neither form today (read 2026-11-17), and its handoff already forbids `AUBE_*` variables and any aube configuration, so it needs no change.
+    - **CI is unaffected:** `aube ci` installs before any `aube run` or `aube exec`.
+
+**Why.**
+
+- **`package-lock.json`, not `aube-lock.yaml`.** GitHub's dependency graph reads `package-lock.json` for the transitive dependencies that its security alerts cover. nx 24 reads it and knows no aube lockfile. A frozen install from it keeps every resolved version, while `aube import` re-deduplicates them. aube reads and writes the file, so keeping it costs nothing in the move.
+- **The catalog, not `$`.** aube warns that `$` is deprecated, and an aube that dropped it could resolve a second vite. npm, which needed `$`, no longer reads `package.json`.
+- **Deny by default, with version pins:** the owner's supply-chain rule. A script runs only after someone listed its package and version. `strictDepBuilds` alone would leave the built-in list in force, and a bare-name allow would run a new version unreviewed.
+- **No download of a package manager,** and a 7-day release age: both close a path by which a freshly published release runs without review.
+- **Strict release age, with exact-version exceptions.** Without strict mode, a young exact pin installs without notice, so the gate would cover only ranges. An exact-version exception lets one reviewed release through and nothing published after it.
+- **`aube exec`, not `aubx`:** `npx` and `aubx` both fetch a missing binary from the registry, and `aube exec` runs only what the lockfile installed.
+- **No auto-install,** on the owner's word of 2026-11-17: _"да, ставим, чтобы не шалил"_ ("yes, set it, so that it doesn't act up"). A command that runs a tool doesn't also install. A stale tree then shows up as the tool's own failure, which `aube install` repairs, rather than as an install in the middle of another command.
+- **npm as CI's bootstrap, not `jdx/aube-action`.** The action would add a third party to the supply chain, for a step that the npm registry, already trusted, serves.
+
+**Not adopted.**
+
+- **Yarn and pnpm,** on the owner's word.
+- **`aube-lock.yaml`,** and `pnpm-lock.yaml` written by aube. See _Why_.
+- **Keeping `$` overrides** with the warning accepted. See _Why_.
+- **aube's built-in trusted list,** and `strictDepBuilds` without `useDefaultTrustedDependencies=false`.
+- **`managePackageManagerVersions` at its default,** which downloads the pinned aube.
+- **The isolated layout.** That is a separate change to how modules resolve.
+
+**What it said before the amendment of 2026-11-17.**
+
+- The title said: _"CI installs with whichever of `npm ci` with `setup-node`'s cache and aube a measurement on the gate's runner shows faster, and `package-lock.json` stays the lockfile"_.
+- Property 1 set two arms: _"**A** is today's: `actions/setup-node` with `cache: npm`, then `npm ci`. **B** is aube at an exact version, 2.10.1 unless the unit names a newer one"_, with the hoisted layout.
+- Property 2 required B to hold the tree before any timing, with `aube.allowBuilds` matching npm's `allowScripts` and `strictDepBuilds`.
+- Properties 3 and 4 set a measurement and its rule: _"**B wins only if** its warm median on `ubuntu-24.04` is at least 20 % and at least 10 seconds below A's. Otherwise A wins."_
+- Property 5 said: _"`package-lock.json` stays the lockfile, and npm keeps working for a developer. The root `overrides` keep their `$` references, and aube's warning is accepted, because a catalog would move them where npm doesn't read them."_ It also said that aube is pinned in the workflows, and an action to a full commit hash.
+- Property 6 said that if A won, the workflows wouldn't change.
+- The reasons said: _"B adds a second tool, a second allow list kept equal to the first, and a deprecation warning, so a gain in the noise of five runs doesn't pay for that."_ They also said that a catalog wasn't adopted, because npm doesn't read catalogs.
+- **Why it changed:** the owner's decision of 2026-11-17 for a full move without a speed condition, and the probes at `0706f41f5`, which showed `strictDepBuilds` leaving the built-in list in force.
 
 ## Findings
 
@@ -935,6 +1164,16 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
   - **Required property, amended:** the rows pass in Safari in every run, with a wait that states the landing it covers. (It said: _"…with a wait that states the landing and the commit grace it covers."_)
   - **The next reading** needs the failing condition itself. It runs the two rows unskipped, logging the probe's timestamps, in the full `browser/core` Safari project. It needs enough full Safari runs to catch a failure: about one run in six failed. It runs outside the gate, so that `verify` doesn't become intermittent. **Routed** to core's owner as its own unit, which the owner orders.
 
+- **Dated 2026-11-17 by the architect: a third row failed the same way in the gate,** reported by the coordinator. It is registered here and not as a new finding, because it has the same gesture, the same wait and the same teardown as the two skipped rows.
+  - **The row:** "should restore pre-existing inline styles on the target after landing", in the same file. It isn't skipped.
+  - **The failure:** attempt 1 of run 44030423689 at `a51e5cb1c`, in `browser/core`. The row drags the sole item 90 px and releases it, then waits up to 1,000 ms for `item.style.position` to be `relative` again. The wait gave up at 1,031 ms: `expected 'fixed' to be 'relative'` ([log](docs-gate-1/checks/safari-flake-44030423689-attempt-1.txt)).
+  - **What the reading shows:** `fixed` is the lift's inline position (`pinVisual`, `src/traits/reorderable.ts:303`). `teardown` restores it in the same call that takes the visual out of the top layer (`:503`–`:509`). So, as in both skipped rows, `teardown` hadn't run about four times the probe's slowest landing after the gesture.
+  - **Other runs:** in attempt 2, which re-ran the whole `safari` job, the row passed. It passed in Safari in each of the branch's five earlier `verify` runs (44016421012 to 44027436469). `a51e5cb1c` differs from the green `8f62beedf` (run 44027436469) only in `.plan/`.
+  - **For a change to the Safari job's speed:** these rows wait on the wall clock, against a landing of about 250 ms. A change that adds load on the runner, or makes Safari sessions share it, plausibly makes a stall longer and more frequent. That is an inference: no reading of the stall's cause exists. `drag:DRF-49` and `drag:DRF-50` are Safari-only stalls of the same kind, and their causes are not read either. In this run, `browser/core` took 14 s of the job.
+  - **What it changes:** the stall reaches rows that aren't skipped. Seven more rows in the file use the same 1,000 ms wait. The cause is still not established, and the required property doesn't change. **No row is disabled.**
+
+**Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `RD-12`'s amendment moves Safari out of the gate. Once it is implemented, these rows no longer fail `verify`. Their Safari skips stay and apply to the weekly Safari workflow, where the unskipped third row can still turn a run red, and that run's issue names it (`RD-12` property 12). The finding stays open, because no cause is established. **The three rows run in WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces the stall, and if it does, the row is an `RD-8` row in WebKit.
+
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 
 Tier C, **closed 2026-11-16** (below), low priority. Registered on 2026-11-16 by the architect, on the owner's observation relayed by the coordinator. **It doesn't affect results.** On the owner's direction, it is handled after the CI unit, not inside it. Nothing for the CI unit to do.
@@ -1093,6 +1332,60 @@ Tier B, **open**. Registered on 2026-11-17 by the architect, on the owner's repo
   - Vite builds with a `rolldown` inside its own declared range, and every other consumer keeps the one it declares;
   - the built docs site loads every story and docs entry with no uncaught error, and a gate check proves it (`RD-14` property 6).
 - **The repair, decided 2026-11-17 by the owner,** relayed by the coordinator: adopt `vite@8.4.0-beta.1`. It declares `rolldown` `~1.3.2`, so the whole tree stays on one `rolldown`, 1.3.2, inside every consumer's range. A separate install of the beta writes correct preload calls, and the repository's lockfile resolves with it ([reading](docs-gate-1/checks/rf46-rolldown-probe.txt) D and E). The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md) item 1 says what the implementer checks, and when to stop. **The fallback,** if the beta stops, is the owner's: Vite 8.3.8 with a nested override that pins its own `rolldown` to `~1.2.18`. When the stable `vite@8.4.0` ships, the pin moves to it as an ordinary update.
+
+#### RF-47 — The committed lockfile installs nested versions that the workspace manifests no longer name
+
+Tier B, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `4136c0eea`, from the CI-speed report's item 4.
+
+- **What:** `package-lock.json` keeps three nested entries that are out of date with the manifests:
+  - lightningcss 1.32.0, with its 12 platform packages, under `packages/vite-custom-element-assets`, whose `package.json` names `1.33.0`;
+  - `@types/node` 26.1.1 and `undici-types` 8.3.0, under `packages/size-limit-preset-rolldown`, which names `26.6.6`;
+  - `ansi-regex` 6.6.0.
+- **Effect:** `npm ci`, `aube ci` and `aube install` all install them as locked. So `vite-custom-element-assets` builds and tests against lightningcss 1.32.0, while its manifest says 1.33.0. Neither installer's frozen mode reported the drift.
+- **Seen:** an `aube add` of an unrelated package dropped all three (the report's release-age witness). The cause before the move to aube is not established. It predates the CI-speed unit.
+- **Required property:** every installed workspace dependency is the version its manifest names, and a frozen install of the committed lockfile installs exactly that.
+- **Repair** (amended 2026-11-17 by the architect, after the stop at `633ef72d8`): `aube install --fix-lockfile`, in its own commit, **with its whole diff.** That diff is aube's first full write of the lockfile, not a change confined to the three entries. Both target versions are older than `RD-16`'s 7 days: lightningcss 1.33.0 is from 2026-07-20, and `@types/node` 26.6.6 from 2026-10-28.
+  - **What it changes, read by resolution** ([reading](ci-speed-1/checks/rf47-resolution.txt), [instrument](ci-speed-1/checks/rf47-resolution.mjs)). No `name@version` is new to the lockfile. Fifteen leave it: the stale lightningcss 1.32.0 with its 12 platform packages, `@types/node` 26.1.1, `undici-types` 8.3.0 and `ansi-regex` 6.6.0. Every added entry re-places a version that the lockfile already holds. Nine resolutions of existing entries change, each within its range:
+    - the two targets: lightningcss 1.33.0 for `vite-custom-element-assets`, and `@types/node` 26.6.6 for `size-limit-preset-rolldown`;
+    - `ansi-regex` 6.6.0 → 6.2.2, for the `strip-ansi` copies under `@puppeteer/browsers` and `@wdio/logger`;
+    - `@typescript-eslint/utils` 8.72.1 → 8.72.2, for both `eslint-plugin-import-x` copies. 8.72.2 is the root's `typescript-eslint` and `@typescript-eslint/types` version;
+    - `eslint-plugin-import-x` 4.18.1 → 4.17.1, for `eslint-import-resolver-typescript`. 4.17.1 is `eslint-config-vaadin`'s exact pin;
+    - `@emnapi/core` and `runtime` 1.11.1 → 1.11.0, under `@napi-rs/wasm-runtime`, which installs only on `wasm32`.
+  - **Out-of-range resolutions** go from four to two. The two that remain are the eslint 10 peers of `eslint-plugin-jsx-a11y` and `eslint-plugin-react`, which the catalog's eslint pin overrides on purpose.
+  - **Why the whole diff.** aube writes this layout at its first write, whatever triggers it: the `aube add` under _Seen_ dropped the same entries. A repair confined to three entries would be a hand-edited lockfile, which the next `aube add` rewrites anyway, inside an unrelated change. `RD-16` property 11 already says that a lockfile diff that aube writes once and then keeps stable is not a capital problem. The owner, told the size, said: _"а, ну ладно, это не страшно. npm тоже любит пол-локфайла переписать"_ ("oh well, that's not scary; npm likes to rewrite half the lockfile too").
+  - **Its witnesses** are in the CI-speed handoff, _Disposition of the stop at `633ef72d8`_.
+
+  (This bullet said: _"`aube install --fix-lockfile`, which re-resolves only the drifted entries, in its own commit. The diff is limited to those entries, and the report lists it."_ It assumed that `--fix-lockfile` touches only drifted entries. On 2.10.0 it rewrites the layout.)
+
+- **Routed** to the implementer, in the CI-speed unit.
+
+#### RF-48 — After one `aube add`, the main checkout's `node_modules/@ydinjs` links were gone, and `aube install` reported nothing to do
+
+Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's _Remediation of the stop at `633ef72d8`_ and the feature proof's _The open items_.
+
+- **What was seen:** after remediation step B's `aube add -D -W @oxlint/migrate@1.93.0`, `node_modules/@ydinjs/` was missing from the main checkout. The root typecheck failed (nx: _"Cannot find package '@ydinjs/vite-traits-plugin'"_), and `aube install` answered _"Already up to date"_. `aube install --frozen-lockfile --force` restored the links.
+- **What holds:** the committed state. A fresh worktree of `633ef72d8`, `57c8849a2` or `9dab0c066` links all seven workspace packages on `aube install`. The lockfile keeps a `link` entry for each of them, and CI installs with `aube ci`.
+- **The cause is not established.** It was seen once, in a checkout whose `node_modules` other sessions were using at the same time. So the cause may be aube's incremental `add` with the hoisted linker, or a concurrent operation from another session. It is not reproduced in isolation.
+- **Why it matters:** `implementer.md` teaches `aube add -D -W <name>`. If the cause is aube's, every dependency change can leave a tree that fails to typecheck, and aube's state check doesn't notice.
+- **Required property:** after `aube add` or `aube remove`, `node_modules` links every workspace package, or the install command fails.
+- **Next:** a reading. In a scratch worktree that no other session uses, run `aube install`, then one `aube add -D -W` of a mature package with no install script, and list `node_modules/@ydinjs`. If the links are gone, it is aube's defect: the owner may report it upstream, and `implementer.md` gains the repair command beside the add rule. If they are not, this finding closes as not reproduced. **Not part of the CI-speed unit.** Its handoff doesn't depend on it.
+
+#### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
+
+Tier C, **open**. Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
+
+- **What:** the recipe runs `@oxlint/migrate` 1.93.0 on `eslint.config.ts` and writes `.oxlintrc.json`. Its output differs from the committed file in these ways:
+  - it drops every comment;
+  - it narrows `ignorePatterns` from 76 entries to the 15 of `eslint.config.ts`;
+  - it drops one top-level rule and adds three;
+  - it loses the override for the harness guard plugin's tests;
+  - it changes rules inside the other overrides.
+
+  The committed file is therefore maintained by hand beyond the tool's output. The step left it unchanged.
+
+- **Why it matters:** a developer who runs the recipe to pick up an eslint change silently discards those hand edits, unless they read the whole diff.
+- **Required property:** the record says which file is the source of the oxlint rules. Either the recipe's output is the file, so the hand edits move into `eslint.config.ts` or into the script's post-processing, or the file is hand-maintained, so the recipe is a diff aid that doesn't write it, or it is deleted.
+- **Not part of the CI-speed unit,** which only moved the recipe from `npx` to `aube exec`. The choice is the owner's, since the oxlint configuration is outside that unit's decisions. Until it is made, the recipe stays as it is.
 
 ## Questions
 

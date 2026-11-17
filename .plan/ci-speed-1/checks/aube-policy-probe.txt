@@ -1,0 +1,136 @@
+aube build-script policy, packageManager, release age, catalog and import
+probes, by the architect, 2026-11-17, in the devcontainer (Debian 13, Node
+26.13.0, x86_64). aube 2.10.1 (2026-11-16) unless marked 2.10.0 (2026-11-09).
+Scratch fixtures only; XDG_DATA_HOME and XDG_CACHE_HOME in scratch.
+
+A. Build scripts. Fixture: dependencies esbuild@0.28.1 (on aube's built-in
+   trusted list) and unrs-resolver@1.11.1 (not on it), both with install
+   scripts. "ignored" is `aube ignored-builds` after the install.
+
+   case                                        where set            exit  ignored
+   p1  nothing                                 -                    0     unrs-resolver   (WARN_AUBE_IGNORED_BUILD_SCRIPTS)
+   p2  aube.useDefaultTrustedDependencies=false package.json         0     unrs-resolver   <- not read there
+   p3  aube.strictDepBuilds=true               package.json         0     unrs-resolver   <- not read there
+   p4  strictDepBuilds=true                    .npmrc               1     unrs-resolver   "dependencies with build scripts must be reviewed before install"
+   p5  strict-dep-builds=true                  .npmrc               1     unrs-resolver
+   p6  strictDepBuilds: true                   aube-workspace.yaml  0     unrs-resolver   <- not read (yaml with no `packages:`)
+   p7  AUBE_STRICT_DEP_BUILDS=true             environment          1     unrs-resolver
+   p8  strictDepBuilds=true +
+       useDefaultTrustedDependencies=false     .npmrc               1     esbuild, unrs-resolver  (error lists esbuild@0.28.1 too)
+   p9  as p8 + aube.allowBuilds
+       {"esbuild@0.28.1":true,"unrs-resolver@1.11.1":true}          0     none
+   p10 as p8 + aube.allowBuilds
+       {"esbuild@0.28.0":true,"unrs-resolver@1.11.1":true}          1     esbuild  (installed 0.28.1 doesn't match the pin: unreviewed -> fail)
+   p11 useDefaultTrustedDependencies=false only,
+       allowBuilds {"unrs-resolver@1.11.1":true}                    0     esbuild  (silent skip + WARN, no fail)
+   p12 strictDepBuilds=true, allowBuilds
+       {"esbuild":false,"unrs-resolver@1.11.1":true}                0     esbuild  (an explicit deny counts as reviewed)
+
+   Repeated on 2.10.0: p1 (0, unrs), p4 (1, unrs), p8 (1, esbuild + unrs),
+   p9 (0, none), p10 (1, esbuild). Same results.
+
+   Reading:
+   - strictDepBuilds fails the install on an unreviewed dependency script (p4).
+   - strictDepBuilds does NOT override the built-in trusted list: under p4,
+     esbuild ran without being listed. Only useDefaultTrustedDependencies=false
+     removes the built-in list (p8).
+   - allowBuilds keys pin exact versions; a version that doesn't match its pin
+     is unreviewed, and under strictDepBuilds that fails the install (p10).
+   - Both settings were read from .npmrc and the environment, not from
+     package.json's `aube` field. allowBuilds was read from package.json's
+     `aube.allowBuilds` (p9, p10).
+
+B. packageManager (fixture with one dependency, is-number@7.0.0)
+   packageManager aube@2.10.0, running 2.10.1, nothing set:
+     "Switching to aube@2.10.0 (pinned by packageManager)… Downloading aube v2.10.0…"  exit 0
+   same, .npmrc managePackageManagerVersions=false, packageManagerStrict=error,
+   packageManagerStrictVersion=true:
+     "× packageManager requires aube@2.10.0, but this is aube@2.10.1"  exit 1
+   packageManager aube@2.10.1 with the same .npmrc: exit 0
+   Reading: by default a mismatched pin downloads and runs another aube build;
+   with those three settings it fails instead.
+
+C. Release age (fixture: esbuild ^0.28.0; 0.28.0 2026-04-02, 0.28.1
+   2026-06-11, 0.28.2 2026-08-08)
+   .npmrc minimumReleaseAge=525600, minimumReleaseAgeStrict=true:
+     ERR_AUBE_NO_MATURE_MATCHING_VERSION "no version of esbuild matching ^0.28.0
+     is older than 525600 minute(s)"  exit 21
+   nothing set: resolves esbuild@0.28.2  exit 0
+   aube's own releases: 2.9.0 2026-11-02, 2.10.0 2026-11-09, 2.10.1 2026-11-16.
+
+D. Catalog in place of `$` overrides (the repository's manifests at 229829ef7)
+   package.json: aube.catalog {"@mdx-js/react":"3.1.1","eslint":"10.14.0",
+   "react":"19.3.1","rolldown":"1.3.2","vite":"8.4.0-beta.1"}; each override
+   and each direct dependency on those five set to "catalog:".
+   `aube install --lockfile-only --ignore-scripts`: exit 0, no WARN line,
+   1144 packages; one @mdx-js/react 3.1.1, eslint 10.14.0, react 19.3.1,
+   rolldown 1.3.2 and vite 8.4.0-beta.1. (The `$` form gave the same tree with
+   five WARN_AUBE_OVERRIDE_DOLLAR_REF_DEPRECATED lines: aube-probe.txt step 2.)
+
+E. `aube import` (package-lock.json -> aube-lock.yaml), same manifests
+   "Imported 1170 packages from package-lock.json to aube-lock.yaml", exit 0.
+   Not identical: npm's nested ansi-regex@6.6.0 (under @wdio/logger and
+   @puppeteer/browsers) became ansi-regex@6.2.2, in range of their ^6
+   dependents. Aliased entries (typescript, @typescript/native) are recorded
+   under different names, so a name@version comparison needs alias handling.
+
+F. nx 24.0.6 (node_modules/nx/dist/src/utils/package-manager.js and
+   plugins/js/lock-file/lock-file.js): detectPackageManager knows bun, yarn,
+   pnpm and npm lockfiles and no aube file; the JS plugin builds its external
+   nodes from the lockfile it finds. With only aube-lock.yaml, nx would see
+   no lockfile.
+
+G. Release-age exclusions and frozen installs, aube 2.10.0, 2026-11-17
+   (added for the owner's question on minimumReleaseAge).
+   Fixture 1: dependency esbuild ^0.28.0, .npmrc minimumReleaseAge=525600 and
+   minimumReleaseAgeStrict=true (every 0.28.x too young), `aube install
+   --lockfile-only`. "->" is the esbuild version resolved.
+
+   minimumReleaseAgeExclude written as                     exit  ->
+   (none)                                                  21    blocked
+   .npmrc  minimumReleaseAgeExclude=esbuild                21    esbuild passes; fails on its dependency @esbuild/aix-ppc64
+   .npmrc  minimum-release-age-exclude=esbuild             21    same (kebab read)
+   .npmrc  minimumReleaseAgeExclude[]=esbuild              21    blocked at esbuild: not read
+   package.json aube.minimumReleaseAgeExclude ["esbuild"]  21    blocked at esbuild: not read
+   aube-workspace.yaml list [esbuild]                      21    esbuild passes; fails on @esbuild/aix-ppc64
+   .npmrc  minimumReleaseAgeExclude=esbuild@0.28.1         21    esbuild 0.28.1 chosen (not 0.28.2); fails on @esbuild/aix-ppc64
+   .npmrc  ...=esbuild@0.28.0 || 0.28.1                    21    0.28.1 chosen; fails on @esbuild/aix-ppc64
+   .npmrc  minimumReleaseAgeExclude=esbuild,@esbuild/*     0     0.28.2
+   .npmrc  ...=esbuild@0.28.1,@esbuild/*@0.28.1            21    WARN_AUBE_INVALID_MINIMUM_RELEASE_AGE_EXCLUDE: a wildcard takes no version
+   .npmrc  two lines, esbuild then @esbuild/*              21    the last line wins
+   .npmrc  ...=esbuild @esbuild/*  (space)                 21    WARN_AUBE_INVALID_..., malformed
+   yaml list [esbuild@0.28.1, "@esbuild/*"]                0     0.28.1
+
+   Reading: per-package exclusions exist. In .npmrc they are one comma-separated
+   value; an entry is a name, a `*` pattern, or a name with an exact version or
+   an exact union. A pattern can't carry a version. An exclusion covers that
+   package only, not its dependencies.
+
+   Fixture 2: devDependency vite 8.4.0-beta.1 (published 2026-11-16T07:22Z);
+   package-lock.json written by npm (vite 8.4.0-beta.1, rolldown 1.3.2 of
+   2026-11-11). .npmrc minimumReleaseAge=10080, minimumReleaseAgeStrict=true,
+   no exclusion.
+     aube ci                                exit 0, lockfile unchanged
+     aube install (lockfile fresh)          exit 0, lockfile unchanged
+     aube add -D is-number@7.0.0            exit 0, lockfile gains is-number only
+     aube install --no-frozen-lockfile      exit 21 "blocked by age gate: 8.4.0-beta.1"
+   With minimumReleaseAgeExclude=vite@8.4.0-beta.1 (then also rolldown@1.3.2,
+   @rolldown/*), the re-resolution fails next on vite's dependency:
+     "no version of postcss matching ^8.5.33 is older than 10080 minute(s)",
+     postcss 8.5.33 published 2026-11-13.
+   minimumReleaseAgeStrict=false, no exclusion: exit 0, vite 8.4.0-beta.1 and
+   postcss 8.5.33 resolved. aube's help: strict=false "fall[s] back to the
+   lowest satisfying" version. A young exact pin or a range that only young
+   versions satisfy is installed without notice.
+   vite's specifier changed to "catalog:" with aube.catalog {vite:
+   "8.4.0-beta.1"}, strict, no exclusion: `aube install` exit 0, lockfile diff
+   1 line (the root specifier); `aube ci` afterwards exit 0. The catalog change
+   doesn't re-resolve.
+
+   Reading: the gate applies only when a version is resolved anew. A frozen or
+   fresh-lockfile install of locked versions isn't gated, so today's vite
+   doesn't block an install, and RD-16's catalog change needs no exclusion.
+
+   Also seen: npm 11.20.0 run in a directory with this .npmrc warns
+   `Unknown project config "minimumReleaseAge". This will stop working in the
+   next major version of npm.` for each aube key.

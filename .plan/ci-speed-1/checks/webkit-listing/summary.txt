@@ -1,0 +1,15 @@
+Item 1 witness 1, by the implementer, 2026-11-17, in the devcontainer, on aube's tree.
+$ MX_TEST_ENGINES=webkit aube exec vitest list --filesOnly --json --project '*/webkit'   > webkit.json
+$ MX_TEST_ENGINES=firefox aube exec vitest list --filesOnly --json --project '*/firefox' > firefox.json
+Both exit 0. Paths are relative to the checkout root.
+
+project (ENGINE = firefox | webkit)            firefox  webkit
+browser/box-quad/ENGINE (ENGINE)                  7       7
+browser/core/ENGINE (ENGINE)                     22      22
+browser/drag/ENGINE (ENGINE)                     30      30
+browser/material-x/ENGINE (ENGINE)               10      10
+consumer/drag/ENGINE (ENGINE)                    27      27
+shipped/drag/ENGINE (ENGINE)                      1       1
+spec/material-x/ENGINE (ENGINE)                   7       7
+total                                           104     104
+same project/file pairs after the name substitution: true

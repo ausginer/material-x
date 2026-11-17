@@ -40,6 +40,8 @@ Verify cheap mechanical claims yourself, in the agent that cites them. **Delegat
 
 Probes, diagnostics, fixtures and benchmarks are fine for any role that needs one to establish a fact. TypeScript runs directly — `node my-file.ts` — with no build or loader step.
 
+Dependencies are installed and binaries run with aube (`aube install`, `aube add`, `aube exec`), never with npm, `npx`, `aubx` or `aube dlx`.
+
 **In a destructive shell command, expand every variable in a path with `${VAR:?}`**: `rm -rf "${S:?}/probe"`, not `rm -rf $S/probe`. An unset or empty variable then stops the command instead of turning the path into `/probe`.
 
 ## Where things are

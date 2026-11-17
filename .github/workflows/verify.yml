@@ -1,9 +1,13 @@
 # The repository's verification: formatting, lint and types, the test suite in
-# Chromium, Firefox and Safari, and the docs site, built and loaded in Chromium.
+# Chromium, Firefox and Playwright's WebKit, on Linux and headless, and the docs
+# site, built and loaded in Chromium. Real Safari runs outside the gate, in
+# `safari.yml`, weekly and on demand (`repo:RD-12`).
 # `verify` is the one check the branch rule requires (`repo:RD-6`). `deploy`
 # publishes the docs build to GitHub Pages from `main` only (`repo:RD-14`).
 # `measurements` reports sizes and allocations and never fails the run
-# (`repo:RD-7`).
+# (`repo:RD-7`). `scope` makes a run whose head commit carries `[noci]`, and
+# whose changes since the last fully verified commit are records or Markdown,
+# a reduced one, in which only `records` runs (`repo:RD-15`).
 name: verify
 
 on:
@@ -24,13 +28,78 @@ permissions:
 
 env:
   NODE_VERSION: 26
+  # The aube that `package.json`'s `packageManager` names. Each job installs it
+  # with npm's one command, outside the checkout, so that npm doesn't read the
+  # repository's `.npmrc` (`repo:RD-16` property 9).
+  AUBE_VERSION: 2.10.0
 
 # Each job's timeout-minutes is about twice its longest run observed on pull
 # request #27 (`.plan/ci-verification-1/ci-verification-report.md`), and
 # `docs`'s on its first runs (`.plan/docs-gate-1/docs-gate-report.md`).
 jobs:
-  static:
+  # Decides the run's mode (`repo:RD-15`). `reduced` only if the head commit
+  # carries `[noci]` and every change since the last fully verified commit is a
+  # record or Markdown; otherwise `full`. It installs nothing: the decision
+  # script uses Node's built-in modules, `git` and `gh`.
+  scope:
     if: github.event.pull_request.draft != true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      mode: ${{ steps.scope.outputs.mode }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node .scripts/ci-scope.ts
+
+  # A reduced run's checks: the gate's checks that read records and Markdown.
+  # `oxfmt` formats both, the record resolver's tests resolve entries in the
+  # real records, and drag's `tsconfig.json` includes a probe under its `.plan/`.
+  records:
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'reduced'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # The record resolver's `repo` tests read retired scopes from history.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec just fmt-check
+      - run: aube exec just typecheck
+      # Through the root `test` recipe, which builds what the Vitest config
+      # loads, as in every other gate job.
+      - run: aube exec -- just test --project repo .scripts/entry.node.test.ts
+
+  static:
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -38,14 +107,24 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx just fmt-check
-      - run: npx just lint
-      - run: npx just typecheck
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec just fmt-check
+      - run: aube exec just lint
+      - run: aube exec just typecheck
 
   chromium:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -56,9 +135,18 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec -- playwright install --with-deps chromium
       # Diagnostics for the visual rows (`repo:RD-13` property 9). Nothing
       # compares them.
       - name: Runner image and processor
@@ -67,7 +155,7 @@ jobs:
           lscpu | grep 'Model name'
       # Every project, visual included, without measurement rows, with coverage.
       # Vitest's default reporters under GitHub Actions, and its exit status.
-      - run: npx just test --coverage --tags-filter '!measurement'
+      - run: aube exec -- just test --coverage --tags-filter '!measurement'
         env:
           MX_TEST_VISUAL: '1'
       # Every run uploads, including one whose tests failed.
@@ -88,7 +176,8 @@ jobs:
           if-no-files-found: ignore
 
   firefox:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -96,48 +185,55 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps firefox
-      - run: npx just test --project '*/firefox' --tags-filter '!measurement'
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec -- playwright install --with-deps firefox
+      - run: aube exec -- just test --project '*/firefox' --tags-filter '!measurement'
         env:
           MX_TEST_ENGINES: firefox
 
-  # Real Safari, which runs only on macOS and only through WebDriver. Nothing
-  # installs it: the runner image's Safari and its `safaridriver` run.
-  safari:
-    if: github.event.pull_request.draft != true
-    runs-on: macos-26
-    timeout-minutes: 30
+  # Playwright's WebKit build, headless on Linux, through the provider and the
+  # commands Chromium and Firefox use (`repo:RD-12` property 11).
+  webkit:
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - name: Enable Safari's remote automation
-        run: sudo safaridriver --enable
-      # A Safari page reports the preferences a Chromium or Firefox page reports
-      # by default, and the runner's user has Reduce Motion on
-      # (`repo:RD-12` property 10).
-      - name: Turn off Reduce Motion
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
         run: |
-          defaults write com.apple.universalaccess reduceMotion -bool false
-          value="$(defaults read com.apple.universalaccess reduceMotion)"
-          echo "reduceMotion: $value"
-          [ "$value" = 0 ]
-      - name: macOS and Safari versions
-        run: |
-          sw_vers
-          defaults read /Applications/Safari.app/Contents/Info.plist CFBundleShortVersionString
-      # Each Safari project in its own Vitest process (`repo:RD-12`).
-      - run: npx just test-safari --tags-filter '!measurement'
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec -- playwright install --with-deps webkit
+      - run: aube exec -- just test --project '*/webkit' --tags-filter '!measurement'
+        env:
+          MX_TEST_ENGINES: webkit
 
   # Builds the docs site and loads every page of it (`repo:RD-14`). On `main`,
   # its artifact is what `deploy` publishes.
   docs:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -145,28 +241,59 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npx just docs-build
-      - run: npx just docs-smoke
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec -- playwright install --with-deps chromium
+      - run: aube exec just docs-build
+      - run: aube exec just docs-smoke
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: .docs
 
-  # Succeeds only if every gate job succeeded. A skipped, cancelled or failed
-  # job fails it.
+  # Succeeds only if `scope` succeeded, every job of its mode succeeded, and
+  # every job outside the mode was skipped (`repo:RD-15` property 5). A
+  # cancelled or failed job fails it in either mode.
   verify:
     if: always() && github.event.pull_request.draft != true
-    needs: [static, chromium, firefox, safari, docs]
+    needs: [scope, records, static, chromium, firefox, webkit, docs]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - env:
-          RESULTS: ${{ toJSON(needs.*.result) }}
+          NEEDS: ${{ toJSON(needs) }}
+          MODE: ${{ needs.scope.outputs.mode }}
         run: |
-          echo "$RESULTS"
-          test "$(echo "$RESULTS" | jq -r 'map(select(. != "success")) | length')" = 0
+          failed=0
+          expect() {
+            result="$(jq -r --arg job "$1" '.[$job].result' <<< "$NEEDS")"
+            echo "$1: $result, expected $2"
+            [ "$result" = "$2" ] || failed=1
+          }
+          expect scope success
+          case "$MODE" in
+            full)
+              for job in static chromium firefox webkit docs; do expect "$job" success; done
+              expect records skipped
+              ;;
+            reduced)
+              expect records success
+              for job in static chromium firefox webkit docs; do expect "$job" skipped; done
+              ;;
+            *)
+              echo "scope named no mode: '$MODE'"
+              failed=1
+              ;;
+          esac
+          exit "$failed"
 
   # Holds the Pages token, and runs only for `main`. Outside the gate: it needs
   # only `docs`, so a failure elsewhere doesn't hold the docs back. Deployments
@@ -193,7 +320,8 @@ jobs:
 
   # Outside the gate: `verify` doesn't need it, and nothing in it fails the run.
   measurements:
-    if: github.event.pull_request.draft != true
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     continue-on-error: true
@@ -208,16 +336,25 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - run: aube ci
+      - run: aube exec -- playwright install --with-deps chromium
       # A failing row is reported, not a failed step. A declaration project
       # type-checks its files and has no tags, so it is not selected.
       - name: Measurement rows
         run: >-
-          npx just test --tags-filter measurement --project '!declaration*' --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
+          aube exec -- just test --tags-filter measurement --project '!declaration*' --reporter=default --reporter=json --outputFile.json="$RUNNER_TEMP/measurements.json" || true
       - name: Sizes at the head
-        run: npx just size-reading "$RUNNER_TEMP/head-size.json"
+        run: aube exec just size-reading "$RUNNER_TEMP/head-size.json"
       # The merge base's tree, with its own instruments. A tree that can't give
       # a machine-readable reading leaves no file, which the report states.
       - name: Sizes at the merge base
@@ -230,12 +367,12 @@ jobs:
           git worktree add "$RUNNER_TEMP/base" "$base"
           (
             cd "$RUNNER_TEMP/base" &&
-            npm ci &&
-            npx just size-reading "$RUNNER_TEMP/base-size.json"
+            aube ci &&
+            aube exec just size-reading "$RUNNER_TEMP/base-size.json"
           ) || echo "::notice title=Measurement::The merge base gave no machine-readable size reading"
       - name: Report
         run: |
-          npx just size-report --head "$RUNNER_TEMP/head-size.json" \
+          aube exec -- just size-report --head "$RUNNER_TEMP/head-size.json" \
             --base "$RUNNER_TEMP/base-size.json" \
             --tests "$RUNNER_TEMP/measurements.json" \
             --out "$RUNNER_TEMP/size-report.md"
