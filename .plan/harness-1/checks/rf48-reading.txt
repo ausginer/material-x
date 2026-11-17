@@ -1,0 +1,626 @@
+RF-48 reading (harness handoff item 2, witness 2). Read 2026-11-17 by the implementer in slot b,
+/workspaces/worktrees/b, detached at 0b6eba25a, after witness 2's readings, with no other command using the slot.
+aube 2.10.0, node-linker hoisted, store and cache on the worktrees volume. The package: left-pad@1.3.0
+(published 2018, scripts only test and bench, absent from package-lock.json).
+
+## 1. Before
+$ ls node_modules/@ydinjs
+box-quad
+core
+drag
+material-x
+tproc
+vite-custom-element-assets
+vite-traits-plugin
+(exit 0, 0 s)
+
+## 2. One aube add
+$ aube add -D -W left-pad@1.3.0
+Resolving left-pad@1.3.0...
+  + left-pad@1.3.0 (specifier: 1.3.0)
+Updated package.json
+aube 2.10.0 by jdx.dev
+✓ resolved 896 · reused 881 · downloaded 15 (2.5 MB) in 17.4s
+warn: deprecated left-pad@1.3.0: use String.prototype.padStart()
+@ydinjs/material-x-workspace:
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0  latest 10.15.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ left-pad@1.3.0  deprecated
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0  latest 1.94.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1  latest 8.3.8
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1  latest 8.3.8
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1  latest 8.3.8
+
+(exit 0, 19 s)
+$ git status --short
+ M package-lock.json
+ M package.json
+(exit 0, 0 s)
+
+## 3. After
+$ ls node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+(exit 2, 0 s)
+$ ls -la node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+(exit 2, 0 s)
+
+## 4. Revert and reinstall
+$ git checkout -- package.json package-lock.json
+(exit 0, 0 s)
+$ git status --short
+(exit 0, 0 s)
+$ aube install
+@ydinjs/material-x-workspace:
+dependencies:
++ @ydinjs/box-quad@0.1.0
++ @ydinjs/core@0.1.0
++ @ydinjs/drag@0.1.0
++ @ydinjs/material-x@0.1.0
++ @ydinjs/tproc@0.1.0
++ @ydinjs/vite-custom-element-assets@0.1.0
++ @ydinjs/vite-traits-plugin@0.1.0
++ size-limit-preset-rolldown@0.1.0
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/dom@10.4.2
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ prettier@3.8.1
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1
+
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 1.1s
+(exit 0, 1 s)
+$ ls node_modules/@ydinjs
+box-quad
+core
+drag
+material-x
+tproc
+vite-custom-element-assets
+vite-traits-plugin
+(exit 0, 0 s)
+$ ls node_modules/left-pad
+ls: cannot access 'node_modules/left-pad': No such file or directory
+(exit 2, 0 s)
+
+## 5. Repeated: one aube add, then aube install while a link is gone (step 3 of the handoff's reading)
+$ aube add -D -W left-pad@1.3.0
+Resolving left-pad@1.3.0...
+  + left-pad@1.3.0 (specifier: 1.3.0)
+Updated package.json
+aube 2.10.0 by jdx.dev
+✓ resolved 896 · reused 896 in 5.6s
+warn: deprecated left-pad@1.3.0: use String.prototype.padStart()
+@ydinjs/material-x-workspace:
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ left-pad@1.3.0  deprecated
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1
+
+(exit 0, 8 s)
+$ ls node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+(exit 2, 0 s)
+$ aube install
+aube 2.10.0 by jdx.dev · ✓ Already up to date
+(exit 0, 0 s)
+$ ls node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+(exit 2, 0 s)
+$ ls node_modules/left-pad
+COPYING
+README.md
+index.d.ts
+index.js
+package.json
+perf
+test.js
+(exit 0, 0 s)
+
+## 6. Revert again
+$ git checkout -- package.json package-lock.json
+(exit 0, 0 s)
+$ git status --short
+(exit 0, 0 s)
+$ aube install
+@ydinjs/material-x-workspace:
+dependencies:
++ @ydinjs/box-quad@0.1.0
++ @ydinjs/core@0.1.0
++ @ydinjs/drag@0.1.0
++ @ydinjs/material-x@0.1.0
++ @ydinjs/tproc@0.1.0
++ @ydinjs/vite-custom-element-assets@0.1.0
++ @ydinjs/vite-traits-plugin@0.1.0
++ size-limit-preset-rolldown@0.1.0
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/dom@10.4.2
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ prettier@3.8.1
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1
+
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 965ms
+(exit 0, 1 s)
+$ ls node_modules/@ydinjs
+box-quad
+core
+drag
+material-x
+tproc
+vite-custom-element-assets
+vite-traits-plugin
+(exit 0, 0 s)
+$ ls node_modules/left-pad
+ls: cannot access 'node_modules/left-pad': No such file or directory
+(exit 2, 0 s)
+$ aube store status
+Store is consistent: 912 packages verified
+(exit 0, 0 s)

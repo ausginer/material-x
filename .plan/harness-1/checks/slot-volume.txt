@@ -1,0 +1,517 @@
+Item 2 witness 2: slots on the volume. Read 2026-11-17 by the implementer after the owner's rebuild.
+
+Main checkout on repo/harness-1 at 0b6eba25a3ff853a277143654e23048a893c7a7f. aube 2.10.0. AUBE_STORE_DIR=/workspaces/worktrees/.aube/store AUBE_CACHE_DIR=/workspaces/worktrees/.aube/cache
+Slot b existed (created by the owner with cl at origin/main 8cf9781fa, no node_modules).
+
+## 0. Detach slot b at the branch head
+$ git checkout -q --detach 0b6eba25a3ff853a277143654e23048a893c7a7f
+(exit 0, 0 s)
+$ git log --oneline -1
+0b6eba25a repo: add session slots on the worktrees volume to cl, share aube's store there, replace tsserver.js instead of writing into it, and document slots, stacks and session names
+(exit 0, 0 s)
+
+## 1. In b, before any install
+$ node -p require.resolve('vite')
+node:internal/modules/cjs/loader:1607
+  throw err;
+  ^
+
+Error: Cannot find module 'vite'
+Require stack:
+- /workspaces/worktrees/b/[eval]
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1603:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1145:27)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1196:12)
+    at require.resolve (node:internal/modules/helpers:336:31)
+    at [eval]:1:9
+    at runScriptInThisContext (node:internal/vm:219:10)
+    at node:internal/process/execution:485:12
+    at [eval]-wrapper:6:24
+    at runScriptInContext (node:internal/process/execution:483:60)
+    at evalFunction (node:internal/process/execution:317:30) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ '/workspaces/worktrees/b/[eval]' ]
+}
+
+Node.js v26.13.1
+(exit 1, 0 s)
+
+## 2. The store
+$ aube store path
+/workspaces/worktrees/.aube/store/v1
+(exit 0, 0 s)
+
+## 3. aube install in b
+$ aube install
+aube 2.10.0 by jdx.dev
+ WARN aube_registry::slow_metadata: registry slow: 10 metadata fetches over 10000ms (slowest: packument @typescript-eslint/eslint-plugin) code="WARN_AUBE_SLOW_METADATA"
+✓ resolved 903 · reused 8 · downloaded 895 (175.1 MB) in 36.9s
+@ydinjs/material-x-workspace:
+dependencies:
++ @ydinjs/box-quad@0.1.0
++ @ydinjs/core@0.1.0
++ @ydinjs/drag@0.1.0
++ @ydinjs/material-x@0.1.0
++ @ydinjs/tproc@0.1.0
++ @ydinjs/vite-custom-element-assets@0.1.0
++ @ydinjs/vite-traits-plugin@0.1.0
++ size-limit-preset-rolldown@0.1.0
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/dom@10.4.2
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ prettier@3.8.1
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1
+
+(exit 0, 38 s)
+$ node -p require.resolve('vite')
+/workspaces/worktrees/b/node_modules/vite/dist/node/index.js
+(exit 0, 0 s)
+
+## 4a. Create slot c with cl; a stub claude first on PATH prints its arguments, so no session starts
+$ env PATH=<scratch>/stubbin:$PATH /workspaces/material-x/.scripts/cl.sh implementer c
+stub claude: --agent implementer --effort medium --resume Mx Implementer C
+cwd=/workspaces/worktrees/c
+(exit 0, 0 s)
+$ git checkout -q --detach 0b6eba25a3ff853a277143654e23048a893c7a7f
+(exit 0, 1 s)
+$ git log --oneline -1
+0b6eba25a repo: add session slots on the worktrees volume to cl, share aube's store there, replace tsserver.js instead of writing into it, and document slots, stacks and session names
+(exit 0, 0 s)
+
+## 4b. aube install in c, then one inode for vite's package.json in b and c
+$ aube install
+@ydinjs/material-x-workspace:
+dependencies:
++ @ydinjs/box-quad@0.1.0
++ @ydinjs/core@0.1.0
++ @ydinjs/drag@0.1.0
++ @ydinjs/material-x@0.1.0
++ @ydinjs/tproc@0.1.0
++ @ydinjs/vite-custom-element-assets@0.1.0
++ @ydinjs/vite-traits-plugin@0.1.0
++ size-limit-preset-rolldown@0.1.0
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/dom@10.4.2
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ prettier@3.8.1
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1
+
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 883ms
+(exit 0, 1 s)
+$ stat -c %h %i %n /workspaces/worktrees/b/node_modules/vite/package.json /workspaces/worktrees/c/node_modules/vite/package.json
+4 147010175 /workspaces/worktrees/b/node_modules/vite/package.json
+4 147010175 /workspaces/worktrees/c/node_modules/vite/package.json
+(exit 0, 0 s)
+
+## 5. tsserver.js in b, and the store check
+$ stat -c %h %i %n /workspaces/worktrees/b/node_modules/typescript/lib/tsserver.js
+1 147043170 /workspaces/worktrees/b/node_modules/typescript/lib/tsserver.js
+(exit 0, 0 s)
+$ cat /workspaces/worktrees/b/node_modules/typescript/lib/tsserver.js
+// Generated by .scripts/link-tsserver.ts — forwards to the real TS 6 tsserver.
+require('@typescript/old/lib/tsserver.js');
+(exit 0, 0 s)
+$ aube store status
+Store is consistent: 897 packages verified
+(exit 0, 0 s)
+
+## 6. The slots are locked
+$ git -C /workspaces/material-x worktree list --porcelain
+worktree /workspaces/material-x
+HEAD 0b6eba25a3ff853a277143654e23048a893c7a7f
+branch refs/heads/repo/harness-1
+
+worktree /workspaces/worktrees/b
+HEAD 0b6eba25a3ff853a277143654e23048a893c7a7f
+detached
+locked session slot
+
+worktree /workspaces/worktrees/c
+HEAD 0b6eba25a3ff853a277143654e23048a893c7a7f
+detached
+locked session slot
+
+(exit 0, 0 s)
+
+## 7. aube install in the main checkout (node_modules on the _nodemodules volume)
+$ aube install
+@ydinjs/material-x-workspace:
+dependencies:
++ @ydinjs/box-quad@0.1.0
++ @ydinjs/core@0.1.0
++ @ydinjs/drag@0.1.0
++ @ydinjs/material-x@0.1.0
++ @ydinjs/tproc@0.1.0
++ @ydinjs/vite-custom-element-assets@0.1.0
++ @ydinjs/vite-traits-plugin@0.1.0
++ size-limit-preset-rolldown@0.1.0
+devDependencies:
++ @custom-elements-manifest/analyzer@0.11.0
++ @eslint/config-helpers@0.7.0
++ @jridgewell/gen-mapping@0.3.13
++ @mdx-js/react@3.1.1
++ @minify-html/node@0.18.1
++ @mizchi/lsmcp@0.10.0
++ @oxlint/migrate@1.93.0
++ @preact/signals-core@1.14.5
++ @storybook/addon-docs@10.6.7
++ @storybook/addon-links@10.6.7
++ @storybook/addon-themes@10.6.7
++ @storybook/react-vite@10.6.7
++ @testing-library/dom@10.4.2
++ @testing-library/jest-dom@7.0.1
++ @testing-library/user-event@14.6.10
++ @types/node@26.6.6
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ @typescript/native@7.0.2
++ @vitejs/plugin-react@6.3.0
++ @vitest/browser@5.1.0
++ @vitest/browser-playwright@5.1.0
++ @vitest/browser-webdriverio@5.0.0
++ @vitest/coverage-v8@5.1.0
++ @vitest/ui@5.1.0
++ concurrently@10.0.7
++ eslint@10.14.0
++ eslint-config-prettier@10.1.8
++ eslint-config-vaadin@1.0.0-beta.8
++ eslint-plugin-import-x@4.18.1
++ eslint-plugin-oxlint@1.93.0
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ just-safe-get@4.2.0
++ just-safe-set@4.2.1
++ lightningcss@1.33.0
++ nx@24.0.6
++ oxc-transform@0.158.0
++ oxfmt@0.78.0
++ oxlint@1.93.0
++ oxlint-tsgolint@7.0.2007
++ playwright@1.65.0
++ prettier@3.8.1
++ publint@0.3.25
++ react@19.3.1
++ react-dom@19.3.1
++ rolldown@1.3.2
++ rust-just@1.59.0
++ size-limit@14.3.0
++ sorcery@1.0.0
++ storybook@10.6.7
++ tsdown@0.23.7
++ tsgolint@0.0.1
++ tsrs@0.25.0-ts7.1.0-beta
++ type-fest@5.10.0
++ typedoc@0.28.20
++ typescript@6.0.2
++ typescript-eslint@8.72.2
++ vite@8.4.0-beta.1
++ vite-plugin-inspect@12.1.0
++ vitest@5.1.0
++ webdriverio@10.2.0
+
+@ydinjs/box-quad:
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/core:
+dependencies:
++ type-fest@5.10.0
+devDependencies:
++ size-limit@14.3.0
++ size-limit-preset-rolldown@0.1.0
+
+@ydinjs/drag:
+dependencies:
++ @ydinjs/box-quad@0.1.0
+devDependencies:
++ @types/react@19.3.0
++ @types/react-dom@19.3.0
++ react@19.3.1
++ react-dom@19.3.1
++ type-fest@5.10.0
+
+@ydinjs/material-x:
+dependencies:
++ @ydinjs/core@0.1.0
++ type-fest@5.10.0
+devDependencies:
++ @fontsource/roboto@5.3.0
++ @ydinjs/tproc@0.1.0
+
+size-limit-preset-rolldown:
+dependencies:
++ @size-limit/file@14.3.0
++ size-limit@14.3.0
+devDependencies:
++ @types/node@26.6.6
+
+@ydinjs/tproc:
+dependencies:
++ just-camel-case@6.2.0
++ just-kebab-case@4.2.0
++ type-fest@5.10.0
+
+@ydinjs/vite-custom-element-assets:
+dependencies:
++ @jridgewell/gen-mapping@0.3.13
++ @minify-html/node@0.18.1
++ lightningcss@1.33.0
++ oxfmt@0.78.0
++ rolldown@1.3.2
++ sorcery@1.0.0
++ vite@8.4.0-beta.1
+
+@ydinjs/vite-traits-plugin:
+dependencies:
++ @oxc-project/types@0.158.0
++ oxc-parser@0.158.0
++ rolldown@1.3.2
++ vite@8.4.0-beta.1
+
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 2.1s
+(exit 0, 2 s)
+$ stat -c %h %i %n node_modules/vite/package.json
+1 147059150 node_modules/vite/package.json
+(exit 0, 0 s)
+$ df --output=target /workspaces/material-x/node_modules /workspaces/worktrees
+Mounted on
+/workspaces/material-x/node_modules
+/workspaces/worktrees
+(exit 0, 0 s)
