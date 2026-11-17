@@ -1,0 +1,41 @@
+# The review's probes after R1 and R2, each against a freshly restored .docs
+
+## M1
+
+node .scripts/docs-smoke.ts
+FAIL docs checkbox--docs
+  console error: probe-M1 (http://127.0.0.1:40193/material-x/assets/checkbox.stories-eBdIMYzp.js:0)
+FAIL story checkbox--playground
+  console error: probe-M1 (http://127.0.0.1:40193/material-x/assets/checkbox.stories-eBdIMYzp.js:0)
+FAIL story checkbox--checked
+  console error: probe-M1 (http://127.0.0.1:40193/material-x/assets/checkbox.stories-eBdIMYzp.js:0)
+FAIL story checkbox--with-label
+  console error: probe-M1 (http://127.0.0.1:40193/material-x/assets/checkbox.stories-eBdIMYzp.js:0)
+98 of 102 pages passed at http://127.0.0.1:40193/material-x/ in 13.6 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
+
+## M8
+
+node .scripts/docs-smoke.ts
+FAIL index.html
+  uncaught: Error: probe-M8
+    at http://127.0.0.1:45087/material-x/:3:23
+101 of 102 pages passed at http://127.0.0.1:45087/material-x/ in 18.5 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
+
+## M7
+
+node .scripts/docs-smoke.ts
+FAIL index.html
+  uncaught: Error: probe-M7
+    at http://127.0.0.1:40145/material-x/:3:42
+101 of 102 pages passed at http://127.0.0.1:40145/material-x/ in 17.3 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
+
+## Clean build, after R1 and R2
+
+node .scripts/docs-smoke.ts
+102 of 102 pages passed at http://127.0.0.1:33227/material-x/ in 17.9 s
+102 of 102 pages passed at http://127.0.0.1:37317/material-x/ in 17.3 s
+102 of 102 pages passed at http://127.0.0.1:44119/material-x/ in 17.7 s
+102 of 102 pages passed at http://127.0.0.1:44097/material-x/ in 17.4 s

@@ -1,0 +1,308 @@
+# just docs-build && just docs-smoke at 5e1828d06 (vite 8.3.8, rolldown 1.3.2), local devcontainer, 2026-11-17. Exit 1.
+node .scripts/docs-smoke.ts
+FAIL story drag-custom-behavior--resize-handle
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-free-drag--async-drop-confirmation
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-free-drag--interactive
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-free-drag--transformed-stage
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-sortable--list
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-sortable--grid
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-sortable--custom-placeholder
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story drag-sortable--zoomed-context
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-group-standard--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-group-standard--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-group-standard--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-group-standard--switch
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-group-connected--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-group-connected--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-group-connected--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-group-connected--switch
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-regular--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-regular--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-regular--color
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-regular--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-regular--shape
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-regular--with-icon
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-icon--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-icon--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-icon--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-icon--shape
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-icon--color
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-icon--width
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-link--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-link--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-link--states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-link--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-link--shape
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-link--color
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-link--with-icon
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-split--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-split--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-split--states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-split--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-split--shape
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-split--color
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-split--with-icon
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-switch--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch--states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch--shape
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch--color
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch--with-icon
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs button-switch-icon--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch-icon--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch-icon--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch-icon--shape
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch-icon--color
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs checkbox--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story checkbox--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story checkbox--checked
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story button-switch-icon--width
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs fab-extended--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story checkbox--with-label
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-extended--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-extended--states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-extended--colors
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-extended--tonal-colors
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-extended--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-extended--direction
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs fab-regular--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-regular--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-regular--states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-regular--colors
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-regular--tonal-colors
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story fab-regular--sizes
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story icon--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs icon--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story icon--outlined
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story icon--rounded
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs list--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story list--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story list--content-density
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story list--interactive
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story list--media
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story list--draggable
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story radio--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs radio--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story radio--states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story radio--group
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story radio--with-label
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs reference-api--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs text-field-multiline--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-multiline--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-multiline--filled
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-multiline--outlined
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-multiline--filled-states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-multiline--outlined-states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL docs text-field-regular--docs
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-regular--playground
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-regular--filled
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-regular--outlined
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-regular--filled-states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+FAIL story text-field-regular--outlined-states
+  uncaught: SyntaxError: missing ) after argument list
+  uncaught: SyntaxError: missing ) after argument list
+2 of 102 pages passed at http://127.0.0.1:45257/material-x/ in 13.8 s
+error: recipe `docs-smoke` failed on line 41 with exit code 1
+
+real	0m14.305s
+user	0m12.038s
+sys	0m3.208s

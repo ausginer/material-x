@@ -4946,6 +4946,18 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 - **Why it is a problem:** the local `npx just test` in drag fails on this row until the owner of the budget decides (`RD-7` property 2), and CI reports it in the measurement job's comment and summary.
 - **Required property:** the row's budget states what the kernel allocates per sample in the pinned Chromium, and the row passes there. Whether the bound moves or the kernel's allocation is reduced is drag's decision, not the CI unit's.
 - **Routed** to the architect. The CI unit doesn't change the budget.
+- **Dated 2026-11-17 by the architect: readings from the docs-gate unit,** which moved Vite from 8.3.8 to 8.4.0-beta.1 (`repo:RF-46`). They are from its [report](../../../.plan/docs-gate-1/docs-gate-report.md) and its [feature proof](../../../.plan/reviews/docs-gate-1/feature-proof-claude.md) (`reviewer-4`):
+
+  | Reading | Commit | Vite | Row | B per move |
+  | --- | --- | --- | --- | --- |
+  | CI 44013920613, `main` | `4e85ac046` | 8.3.8 | passed | — |
+  | CI 44016421012 | `5e1828d06` | 8.3.8 | passed | — |
+  | CI 44018861028 | `3b38426cf` | 8.4.0-beta.1 | failed | 44.79 |
+  | CI 44020422663 | `948390aa5` | 8.4.0-beta.1 | failed | 20.77 |
+  | local, before the Vite change | — | 8.3.8 | failed | 30.4 |
+  | local, after the Vite change | — | 8.4.0-beta.1 | passed | — |
+  - In CI, the result split with the Vite version, 2 to 2. Locally, it split the other way.
+  - **Neither variance nor Vite's version is established as the cause.** Two samples per version don't decide it. Whether Vite's version moves the reading is a question for this finding. The finding stays open, and its required property doesn't change.
 
 #### DRF-49 — In Safari, the `y()` sweep through `box` with a `visual` intermittently stalls until its timeout
 

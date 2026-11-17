@@ -1,0 +1,7 @@
+# just docs-build && just docs-smoke with vite 8.4.0-beta.1 (rolldown 1.3.2), local devcontainer, 2026-11-17. Exit 0.
+node .scripts/docs-smoke.ts
+102 of 102 pages passed at http://127.0.0.1:39077/material-x/ in 21.0 s
+
+real	0m21.651s
+user	0m18.672s
+sys	0m5.456s
