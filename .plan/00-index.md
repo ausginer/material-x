@@ -603,6 +603,123 @@ The two outcomes, with nothing between them, read as a stall, not as slowness, s
 
 The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the feature proof_ holds the reasons and the alternatives weighed. **Unimplemented** until its remediation lands.
 
+#### RD-17 — Units run in parallel in long-lived session slots, each slot a worktree under `.claude/worktrees/`, and a stacked pull request is brought up to date by merging `main` into it
+
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's request relayed by the coordinator the same day: _"можем попробовать распараллелить именно разработку - создавать stack prs, и работать в разных worktree"_, and on session names, _"надо мне только понять, как правильно переименовывать готовые сессии … Возможно, стоит добавить какое-то правило в `cl`-скрипт"_. The process may change. `RD-15` and `RD-16` are decided on `repo/ci-speed-1` and aren't on this branch yet, so this entry is numbered after them. **Unimplemented:** the [harness handoff](harness-1/harness-handoff.md) implements it.
+
+**Read at `21392e738`** by the architect, in the devcontainer:
+
+- **The workspace filesystem.** `/workspaces` is the container's overlay, owned by root. Only `/workspaces/material-x` is bind-mounted from the host, and `node_modules` is a volume inside it. A sibling directory such as `../material-x-b` would therefore be lost on a container rebuild and invisible on the host.
+- **The ignores.** `.claude/worktrees` is ignored by git (`.gitignore` line 55) and by ESLint (`eslint.config.ts`), and Claude Code's own worktree feature uses it.
+- **git is 2.47.3,** which has no `git worktree add --relative-paths` (2.48), so a worktree's links are absolute container paths.
+- **`.scripts/cl.sh`** maps each profile to one agent, one effort and one fixed session name, and resumes by that name.
+
+**Properties.**
+
+1. **A slot** is a lowercase letter from `b` to `z`, or no letter for the main slot.
+   - The main slot is the main checkout.
+   - Slot _s_ is the worktree `.claude/worktrees/<s>` inside the main checkout. It is on the host's bind mount and already ignored.
+   - A slot holds one unit at a time: that unit's branch is checked out there, with its own `node_modules`.
+2. **A session is named by its slot, never by its task.**
+   - `cl [--init] <profile> [<slot>]` starts or resumes `Mx <Role>` in the main slot, and `Mx <Role> <S>`, with the letter in upper case, rooted in slot _s_.
+   - When a unit ends, the owner clears the session (`/clear`), and the slot takes the next unit. **No session is renamed.**
+   - Each name is unique among live sessions, so `SendMessage` reaches it.
+3. **`cl` prepares a missing slot and nothing more.** It creates `.claude/worktrees/<s>` detached at `origin/main` when it is missing, and reuses it when it exists. It never removes, cleans or switches one. The session checks out its unit's branch and installs there. The owner removes a slot with `git worktree remove`.
+4. **Who runs where.**
+   - The coordinator runs in the main slot.
+   - **Only the main slot's architect mints, amends, supersedes or renumbers a record identifier.** An architect in another slot, such as a challenge, proposes and doesn't record.
+   - Any other role may run in any slot, the consolidator and its passes included. `AGENTS.md`'s _"dispatch only from the main checkout"_ existed for the effort guard, which `RD-18` removes. A worktree's role definitions are those of its branch, which is the work that runs there.
+5. **Stacks.**
+   - **Opening one.** A unit that builds on another's unmerged work branches from that unit's branch, and its pull request's base is that branch. `verify` runs on it, because `pull_request` has no branch filter.
+   - **While the lower pull request is open,** its changes reach the upper branch by merging the lower branch into it.
+   - **Merge order.** The lower pull request merges first, and the owner merges each one.
+   - **After the lower one squash-merges:**
+     - retarget the upper pull request to `main` (`gh pr edit <number> --base main`), unless GitHub did it when the lower branch was deleted;
+     - in the upper branch, `git fetch origin && git merge origin/main`, with no rebase and no force-push;
+     - in each conflict, a hunk that is the lower unit's change takes `main`'s text, and a hunk that is the upper unit's own keeps its text.
+   - **What a squash merge does to a stack.** `main` gets one new commit whose tree holds the lower unit's changes and none of its commits, while the upper branch keeps those commits. So the merge sees the lower unit's changes on both sides of the fork point. Identical hunks merge cleanly. A line that the lower unit changed and the upper unit changed again conflicts, and the upper unit's version is the one to keep. After the merge, the upper pull request's diff against `main` is its own change, and its own squash merge adds one commit, as every pull request does.
+6. **The repository record stays one file.** `.plan/00-index.md` isn't split, nor is a package's index.
+   - **What conflicts there have been:**
+     - two units minting the same next identifier, which property 4's single minter prevents;
+     - two units amending the same entry, which is a real dependency that the stack order has to express;
+     - edits to neighbouring entries, which are ordinary text conflicts.
+   - **Why not split.** A split would change the record resolver (`.scripts/entry.ts`, `RD-5`), its tests, and every link into the index, for a cost nobody has measured.
+   - **Revisit it** when a unit's report records a conflict in an index that neither the single minter nor the stack order prevented. The coordinator keeps the count.
+7. **Coordination.**
+   - **One open task per session,** as before.
+   - **One unit per slot,** and several units open at once. For each slot, the coordinator's working summary keeps the unit, branch, pull request, base, state and next dependency.
+   - **Upper units wait on decisions.** An upper unit's implementation waits until the lower unit's decisions that it builds on are committed. Its plan names them.
+   - **Reviews.** Each pull request has its own review, which reads the diff from its base's head.
+8. **Limits.**
+   - A slot's git links are absolute container paths, so on the host `git worktree list` reports the slots as prunable. **Don't run `git worktree prune` on the host.**
+   - Each slot installs its own dependencies.
+
+**Why.**
+
+- **Slots, not task names.** A long-lived name is never wrong, so nothing is renamed. The coordinator's address book changes only when the owner adds a slot.
+- **Inside the checkout,** for the bind mount and the existing ignores.
+- **Merging `main` in, not rebasing,** because `AGENTS.md` forbids rewriting pushed commits and force-pushing.
+- **One minter:** two architects in parallel could both mint `RD-19`.
+
+**Not adopted.**
+
+- **Sibling worktrees** (`../material-x-b`), the coordinator's first proposal. They would be lost on a container rebuild and invisible on the host.
+- **Renaming a finished session** by task. Its name is how messages reach it.
+- **Rebasing the upper branch onto `main`.** It needs a force-push.
+- **Splitting the index now.** See property 6.
+
+#### RD-18 — The effort guard and `.scripts/claude-role.sh` are removed, and `cl` starts every role session at the effort its definition declares
+
+**Decided 2026-11-17 by the architect** on `repo/harness-1` at `21392e738`, on the owner's decisions relayed by the coordinator: _"устаревший скрипт, его стоит удалить; я сейчас пользуюсь только `cl`"_ (`claude-role.sh`), and _"этот гард тоже в принципе можно убрать (`cl` как раз решил эту проблему более \"брутфорсом\")"_. **Unimplemented:** the [harness handoff](harness-1/harness-handoff.md) implements it.
+
+**What still depended on the guard,** read at `21392e738`:
+
+- **Top-level sessions:** nothing. `cl` passes `--effort` and refuses `CLAUDE_CODE_EFFORT_LEVEL`, which is what the guard checked on a main thread. Its levels equal every role definition's `effort:`.
+- **Subagents.** The guard checked them at `SubagentStart` and `PreToolUse`. Its record (`.agents/docs/harness-effort-guard.md`, Claude Code 2.1.263) shows what that covered:
+  - an unnamed subagent runs at its definition's effort, from any parent;
+  - a **named** spawn takes the teammate path and ran at its parent's effort, which the guard refused;
+  - an explicit `model` override was refused before the child started;
+  - the guard also held the consolidator to its lens set.
+
+  `consolidator.md` already requires lens launches with no `name` and no `model`. **Without the guard, that rule and the lens set are unchecked.**
+
+- **Tests, CI and lint.**
+  - No workflow, recipe or Vitest project runs the plugin's tests.
+  - `.oxlintrc.json` has an override for them.
+  - `eslint.config.ts`'s camelcase allow list names the guard's log fields.
+- **Documents:**
+  - `AGENTS.md` §Before running a governed role and the `Evidence` link to it;
+  - `CLAUDE.md` §Running a role;
+  - `README.md`'s marketplace step;
+  - `.agents/docs/coordinator-setup.md` §Start a guarded role, and `agent-workflow.md` and `coordinator.md`;
+  - `consolidator.md` and `coordinator.md` among the role definitions;
+  - `.agents/docs/harness-effort-guard.md` and `harness-orchestration.md`.
+
+**Properties.**
+
+1. **Removed:**
+   - the guard plugin: `.claude/plugins/harness-effort-guard/`, and `.claude-plugin/marketplace.json`, whose only plugin it is;
+   - in `.claude/settings.json`: `env.HARNESS_EFFORT_GUARD_MODE`, `extraKnownMarketplaces.material-x` and `enabledPlugins["harness-effort-guard@material-x"]`. `typescript-lsp` stays;
+   - `.scripts/claude-role.sh`;
+   - `.agents/docs/harness-effort-guard.md` and `.agents/docs/harness-orchestration.md`. Both last existed at `21392e738`, which is where to read them, and `.plan/harness-guard-2/` keeps its record;
+   - the lint entries that only the guard used: `.oxlintrc.json`'s override, and each name on ESLint's camelcase allow list that no remaining source uses (`RD-10`'s exact list);
+   - **the text that names any of these,** in the documents listed above.
+2. **`cl` reads the effort from the role definition,** the `effort:` field of the session root's `.claude/agents/<agent>.md` frontmatter, and refuses to start if the field is missing or empty. Its profile table keeps the profile, the agent and the session name. It still refuses a set `CLAUDE_CODE_EFFORT_LEVEL`, which overrides every subagent's declared level, guard or no guard.
+3. **The consolidator's dispatch rules stay written and become unchecked:** no `name` and no `model` on a lens launch, and its lens set. `consolidator.md` states why: a named spawn was observed to ignore the declared effort.
+4. **The owner's own configuration** isn't the repository's. After the merge, the owner removes the registered marketplace (`claude plugin marketplace remove material-x`) and may delete the plugin's data directory.
+
+**Why.**
+
+- **The owner's decision,** and `cl` covers every session the owner starts.
+- **The subagent path honours its frontmatter,** so only a broken written rule could have been caught, and the consolidator is the one role the rule binds.
+- **Reading the level in `cl`** replaces `claude-role.sh`'s one remaining property, that the launcher and the definition can't drift. `coordinator-setup.md`'s manual _"check them against role frontmatter"_ goes with it.
+
+**Not adopted.**
+
+- **Keeping the guard in observe mode.** Nothing would read what it logs.
+- **A smaller hook that checks only named spawns.** The owner chose removal. If the consolidator's rule is broken in practice, that is a new decision.
+- **Keeping the two guard documents** as current-state documents. They describe a mechanism that no longer exists. Their measurements are in git history at `21392e738` and in `.plan/harness-guard-2/`.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
