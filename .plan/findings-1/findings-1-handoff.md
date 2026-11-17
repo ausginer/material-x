@@ -316,4 +316,52 @@ The unit changes product source in material-x, the shared build recipe, the Vite
 - `RF-36`'s next reading.
 - `RF-40`, which the coordinator will send as its own task.
 - `RF-41`.
+- `RF-43`, the switch buttons' focus layer, which the feature-proof review found.
 - `RF-33`'s report to Mozilla.
+
+## Disposition of the feature-proof review at `a22c109b7`
+
+**Decided 2026-11-17 by the architect,** on the [feature-proof review](../reviews/findings-1/feature-proof-claude.md), which read the code at `fc3b89680` and the records at `8ca27201a`, relayed by the coordinator. Focus items 1, 2, 5, 6 and 7 hold. The register entries named below hold each decision's reasons.
+
+| Finding | Disposition |
+| --- | --- |
+| `reviewer-1`: the switch buttons draw no focus layer | **Accepted and deferred.** Registered as `RF-43`, outside this unit. It doesn't block the merge: `RF-35`'s property names `mx-button`, `mx-checkbox` and `mx-radio`, and no switch button drew a focus layer before the unit |
+| `reviewer-2`: `focus` is an own property of each instance | **Accepted. It changes before merge** (item 8, step 1). It deviates from `RF-33`'s ruling, and no owner decision is needed |
+| `reviewer-3`: no row reads most of the focus-layer mappings | **Accepted. Rows are added before merge** (item 8, step 3) |
+| `reviewer-4`: the claim about a control that can't take focus has no reading | **Accepted. Rows are added before merge** (item 8, step 2) |
+
+### Item 8: the feature-proof findings
+
+Take it on this branch after item 7's Option-Tab reading (verify 44003141576) is reported. It changes the forward and adds rows. Nothing else changes.
+
+1. **The forward moves to the prototype chain.** (`reviewer-2`)
+   - **No own property:** for each of the seven hosts the forward covers, `Object.hasOwn(host, 'focus')` is false, and `focus` resolves to a method of material-x's own classes.
+   - **A subclass's own `focus()` is called,** and `super.focus(options)` in it focuses the control, in every engine, Firefox included.
+   - **One body:** the forward's logic exists once (CONTRIBUTING §6). If each class declares the method, the declaration only calls the shared code.
+   - **Unchanged:** item 4's signature, target, options, engines and comment. The shadow roots keep `delegatesFocus: true`. The declared member restates `HTMLElement.prototype.focus`'s signature, and no other member or type changes.
+   - **Rows:** add one for a subclass of `mx-button`'s class and one for a subclass of `mx-list-button-item`'s, each under a tag of the test's own. The subclass declares `focus()`, which counts its calls and calls `super.focus()`. The row asserts that the instance has no own `focus`, that the subclass's method ran once, and that the control has focus, in every engine.
+   - **The watching row** (`HTMLElement.prototype.focus.call(host)`) keeps its code and its Firefox marking.
+   - **Size:** report the `measurements` job's change for the affected entries. A budget that fails is a stop.
+2. **A control that can't take focus.** (`reviewer-4`) Add one row for a disabled `mx-button` and one for a disabled `mx-list-button-item`. Each row focuses another element first, calls `focus()` on the disabled host, and asserts that `document.activeElement` is still that element, in every engine. **Stop** if a disabled host's control takes focus in any engine. Report it, and don't repair it here.
+3. **The focus-layer mappings.** (`reviewer-3`) Add one _keyboard focus_ row for each mapping that a component declares and no row reads:
+   - `mx-checkbox` checked and indeterminate, and `mx-radio` checked, each against its selected focused state;
+   - `mx-button` in `elevated`, `outlined`, `text` and `tonal`;
+   - `mx-icon-button` in its default colour, and in each colour whose token package declares a focus-layer variable.
+
+   Each row's expectation comes from that state's own focused tokens through the bridge, as the existing rows' do. Each row asserts the reach first. In Safari it uses item 7's key, or it carries item 7's Safari marking if item 7 ended in its fallback. If a state has no contract in the bridge, register the component's existing token package for it. If that isn't enough, don't add the row: the report names the mapping as standing without a row.
+
+4. **Checks:**
+   - the gate passes in every engine, with only the markings that `RF-33` and `RF-42` hold;
+   - read locally in one engine, the new rows of step 3 fail under a mutation that drops their mappings. Save the reading;
+   - no visual baseline changes.
+5. **The report** adds a section for item 8, with the run links and the size reading.
+
+### Before the owner merges #29
+
+1. Item 7's Option-Tab reading is reported. The architect records the owner's `RF-42` answer and its outcome in `RD-12` property 10 and `RF-42`.
+2. Item 8 is implemented and reported. The architect then decides whether `RF-35`, `RF-39` and `RF-42` close. The two reports can come to the architect together.
+3. **A targeted feature-proof recheck** reads the code diff from `fc3b89680` to the head, excluding `.plan/`: item 7's key helper and item 8. It records at `.plan/reviews/findings-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
+4. `verify` and _Publish Docs_ pass on #29's head.
+5. The reviewer's `a22c109b7` and this disposition are merged into `repo/findings-1`.
+
+The owner's question 2 and the entries under _Still open, outside this unit_ don't block the merge.
