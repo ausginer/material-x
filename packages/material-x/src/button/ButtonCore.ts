@@ -21,8 +21,12 @@ import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
+import {
+  useFocusForwarding,
+  type FocusForwarding,
+} from '../core/traits/focus-forwarding.ts';
 import { useContext } from '../core/utils/useContext.ts';
-import { forwardFocus, useCore } from '../core/utils/useCore.ts';
+import { useCore } from '../core/utils/useCore.ts';
 import disabledStyles from './styles/default/disabled.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 import shapeStyles from './styles/shape/main.css.ts' with { type: 'css' };
@@ -79,7 +83,7 @@ export type ButtonSharedCSSProperties = Readonly<{
 const BUTTON_CORE_ATTRS = { ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS };
 
 export function useButtonCore(
-  host: ButtonCore,
+  host: ButtonCore & FocusForwarding,
   template: HTMLTemplateElement,
   styles: ReadonlyArray<CSSStyleSheet | string>,
   init?: Partial<ShadowRootInit>,
@@ -108,7 +112,7 @@ export function useButtonCore(
 
   useARIA(host, target);
 
-  forwardFocus(host, target);
+  useFocusForwarding(host, target);
 
   useRipple(host, target, target);
 

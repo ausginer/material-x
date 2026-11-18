@@ -1,0 +1,104 @@
+# Read by the architect in slot b on 2026-11-18, on repo/declarations-check-1 at 83a985b99 (origin/main), after
+# `aube install --frozen-lockfile --force` (all seven node_modules/@ydinjs links present) and a build of all eight
+# packages. TypeScript: the root's tsc, Version 7.0.2. <slot> stands for /workspaces/worktrees/b, <scratch> for the
+# session's scratch directory. Every source edit below was reverted, and the packages rebuilt, before this file was
+# written; the branch's tree is 83a985b99's.
+
+## A. TS2611 in a copy of the built declarations, and the candidate repair. <scratch>/rf54 holds a copy of every built
+## .d.ts of core and material-x, with node_modules/@ydinjs/core pointing at the copy. tsconfig: strict, skipLibCheck
+## false, types [], module esnext, moduleResolution bundler, lib esnext+dom+dom.iterable; material-x/react.d.ts
+## excluded (no @types/react in the copy).
+
+$ tsc -p .   # core's Branded as built: P & Readonly<Record<B, true>>
+material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+exit 2
+
+$ tsc -p .   # the copy's core/traits/primitives.d.ts edited to: type Branded<P extends object, B extends symbol> = { [K in keyof P]: P[K] } & Readonly<Record<B, true>>;
+exit 0
+
+## B. A source probe against the same copy (src-probe/probe.ts): a class extending impl(ControlledElement, [Valuable])
+##   import { ControlledElement, type ControlledElementConstructor } from '@ydinjs/core/element.js';
+##   import { impl, type TraitedConstructor } from '@ydinjs/core/traits/attributes.js';
+##   import { Valuable } from '@ydinjs/core/traits/valuable.js';
+##   const TRAITS: readonly [typeof Valuable] = [Valuable];
+##   const Base: TraitedConstructor<ControlledElement, ControlledElementConstructor, typeof TRAITS> = impl(ControlledElement, TRAITS);
+##   export class WithAccessor extends Base {
+##     override get value(): string | null { return null; }
+##     override set value(_v: string | null) {}
+##   }
+##   // a property override must still be checked against the type
+##   export class WithWrongType extends Base {
+##     // @ts-expect-error: number is not string | null
+##     override value: number = 1;
+##   }
+##   const x = new WithAccessor();
+##   const v: string | null = x.value;
+##   x.value = null;
+##   export const branded: Valuable = x;
+##   declare const unbranded: ControlledElement & { value: string | null };
+##   // @ts-expect-error: the brand must stay nominal
+##   export const notBranded: Valuable = unbranded;
+##   export { v };
+
+$ tsc -p tsconfig.src.json   # Branded as built
+src-probe/probe.ts(7,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { value: string | null; } & Readonly<Record<unique symbol, true>>', but is overridden here in 'WithAccessor' as an accessor.
+exit 1
+
+$ tsc -p tsconfig.src.json   # Branded mapped
+exit 0
+## So with the mapped Branded: the accessor override type-checks with no directive; a property override of the wrong
+## type is still an error (its @ts-expect-error is used); the brand stays nominal (the unbranded assignment is still
+## an error). With Branded as built, only the accessor line fails.
+
+## C. The repair applied in slot b's source, then reverted:
+##   packages/core/src/traits/primitives.ts: Branded = { [K in keyof P]: P[K] } & Readonly<Record<B, true>>
+##   packages/material-x/src/text-field/TextFieldCore.ts: the @ts-expect-error line above `override get value()` removed
+$ aube exec just typecheck
+exit 0
+$ aube exec -- just test --project "declaration/*"
+ Test Files  7 passed (7)
+      Tests  43 passed (43)
+Type Errors  no errors
+exit 0
+$ nx run-many -t build (all eight)
+exit 0
+$ grep -n -A2 "^type Branded" packages/core/traits/primitives.d.ts
+8:type Branded<P extends object, B extends symbol> = { [K in keyof P]: P[K]; } & Readonly<Record<B, true>>;
+9-/**
+10- * Callable trait contract for transforming one constructor into a branded
+$ grep -n "value" packages/material-x/text-field/TextFieldCore.d.ts
+40:  override get value(): string | null;
+41:  override set value(value: string | null);
+$ (cd packages/material-x && aube exec just typecheck)
+tsc -p tsconfig.json --noEmit
+exit 0
+$ tsc -p all-nodenext.json  (108 built .d.ts, skipLibCheck false, types [])
+exit 0
+$ tsc -p all-bundler.json  (108 built .d.ts, skipLibCheck false, types [])
+exit 0
+
+## all-<mode>.json: include ["<slot>/packages/*/**/*.d.ts"], exclude <slot>/packages/*/{node_modules,src,tests};
+## strict, skipLibCheck false, types [], noEmit, target esnext, lib esnext+dom+dom.iterable; module and
+## moduleResolution nodenext (module esnext for bundler). --listFilesOnly lists 108 package declaration files.
+
+## D. After the revert and a rebuild of all eight packages:
+$ grep -n "^type Branded" packages/core/traits/primitives.d.ts
+8:type Branded<P extends object, B extends symbol> = P & Readonly<Record<B, true>>;
+$ tsc -p all-nodenext.json
+packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+exit 2
+
+## E. microsoft/TypeScript#54879, read with `gh issue view` on 2026-11-18: "A function that returns a class with a
+## property getter is unusable via a declaration file (TS2611)", OPEN, labels Needs Investigation, Rescheduled.
+
+## F. Why the mapped Branded exempts the override. The native tsc has no readable checker; the JS checker that the
+## workspace also installs, @typescript/old 6.0.3, lib/typescript.js, checkKindsOfPropertyMemberOverrides:
+        if (basePropertyFlags && derivedPropertyFlags) {
+          if ((getCheckFlags(base) & 6 /* Synthetic */ ? (_b = base.declarations) == null ? void 0 : _b.some((d) => isPropertyAbstractOrInterface(d, baseDeclarationFlags)) : (_c = base.declarations) == null ? void 0 : _c.every((d) => isPropertyAbstractOrInterface(d, baseDeclarationFlags))) || getCheckFlags(base) & 262144 /* Mapped */ || derived.valueDeclaration && isBinaryExpression(derived.valueDeclaration)) {
+            continue;
+          }
+          const overriddenInstanceProperty = basePropertyFlags !== 4 /* Property */ && derivedPropertyFlags === 4 /* Property */;
+          const overriddenInstanceAccessor = basePropertyFlags === 4 /* Property */ && derivedPropertyFlags !== 4 /* Property */;
+## A base property that a mapped type produces (CheckFlags.Mapped) skips TS2610 and TS2611, as does one declared in an
+## interface. A trait's fields are declared in a type literal (`Trait<{ value: string | null }, …>`), so neither holds
+## today. TypeScript 7.0.2 behaves the same way in A to C. This is checker behaviour, not a documented language rule.

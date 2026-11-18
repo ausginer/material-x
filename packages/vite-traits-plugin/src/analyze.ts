@@ -1,5 +1,6 @@
 import { dirname, join, relative } from 'node:path';
 import type {
+  CallExpression,
   Class,
   Expression,
   Node,
@@ -13,9 +14,13 @@ import { TRAIT_IR_VERSION, type CompositionIR, type TraitIR } from './ir.ts';
 import {
   collectImports,
   collectTopBindings,
+  collectTopLevelNames,
   type LocalImport,
   normalizeDescriptorTrait,
+  normalizeMethodTrait,
   resolveFactoryLocals,
+  resolveGenericFactoryLocals,
+  staticKeyName,
   type SyntheticExport,
   type TopBinding,
   unwrapTS,
@@ -32,13 +37,26 @@ export interface ModuleLoader {
   load(id: string): Promise<string>;
 }
 
+/** A module id's file extension, dot included. */
+const EXTENSION = /\.[^./]+$/u;
+
 /**
- * Specifiers whose `impl` export is the composition builder. Matches both the
- * current module names (`attributes`, `primitives`) and the pre-rename ones
- * (`traits`, `piirre`) so the plugin is robust to the in-flight migration.
+ * Whether a method trait's source text can be copied from `origin` into
+ * `consumer` unchanged: only between modules of one file extension, so the
+ * consumer's parser reads the text with the origin's language and options.
+ * Any other pair can change the syntax or the meaning: `.mts` and `.cts`
+ * reject a `<T>x` assertion that `.ts` accepts, and TypeScript reads
+ * JavaScript's `a < b > (c)` as a call with a type argument.
  */
+function canCopySource(originId: string, consumerId: string): boolean {
+  const origin = EXTENSION.exec(originId)?.[0];
+
+  return origin !== undefined && origin === EXTENSION.exec(consumerId)?.[0];
+}
+
+/** Specifiers whose `impl` export is the composition builder. */
 const IMPL_MODULE =
-  /(?:^|\/)@ydinjs\/core\/traits\/(?:attributes|primitives|traits|piirre)(?:\.[cm]?[jt]sx?)?$/u;
+  /(?:^|\/)@ydinjs\/core\/traits\/(?:attributes|primitives)(?:\.[cm]?[jt]sx?)?$/u;
 
 /** Range in the consumer source, as `[start, end)` byte offsets. */
 export type Span = readonly [number, number];
@@ -94,6 +112,7 @@ function walk(root: Node, visit: (node: Node) => void): void {
 type ImplSite = Readonly<{
   declaration: VariableDeclaration;
   declarator: VariableDeclarator;
+  call: CallExpression;
   name: string;
 }>;
 
@@ -113,7 +132,12 @@ function findImplSites(
         init.callee.type === 'Identifier' &&
         implLocals.has(init.callee.name)
       ) {
-        sites.push({ declaration, declarator, name: declarator.id.name });
+        sites.push({
+          declaration,
+          declarator,
+          call: init,
+          name: declarator.id.name,
+        });
       }
     }
   };
@@ -174,17 +198,23 @@ function requireSingleConsumer(program: Program, site: ImplSite): Class {
   return consumer;
 }
 
-const parseCache = new Map<string, Program>();
+const parseCache = new Map<
+  string,
+  Readonly<{ code: string; program: Program }>
+>();
 
-/** Parses `code` for `id`, caching by id. */
+/**
+ * Parses `code` for `id`. The cache holds the last source parsed for each id,
+ * and a different source for that id is parsed again.
+ */
 export function parseModule(id: string, code: string): Program {
   const cached = parseCache.get(id);
-  if (cached) {
-    return cached;
+  if (cached?.code === code) {
+    return cached.program;
   }
 
   const { program } = parseSync(id, code);
-  parseCache.set(id, program);
+  parseCache.set(id, { code, program });
 
   return program;
 }
@@ -197,6 +227,7 @@ export function invalidateModule(id: string): void {
 /** A trait module resolved to the module context it lives in. */
 type ModuleCtx = Readonly<{
   id: string;
+  code: string;
   program: Program;
   imports: Map<string, LocalImport>;
   bindings: Map<string, TopBinding>;
@@ -208,7 +239,8 @@ type TraitRef = Readonly<{
   name: string;
   /** Absolute id of the module defining the trait. */
   originId: string;
-  /** Parsed origin module. */
+  /** Source text and parse of the origin module. */
+  code: string;
   program: Program;
   /** Specifier the consumer imports the trait's links through; `''` when local. */
   specifier: string;
@@ -227,6 +259,11 @@ type Resolver = Readonly<{
   dependencies: Set<string>;
   /** Ordered trait references accumulated in declaration/layer order. */
   out: TraitRef[];
+  /**
+   * Trait-list bindings being expanded, as `<module id>\0<binding name>`. A
+   * binding met again while it is being expanded is a cycle.
+   */
+  listPath: Set<string>;
 }>;
 
 /**
@@ -262,9 +299,11 @@ async function buildCtx(r: Resolver, originId: string): Promise<ModuleCtx> {
     return cached;
   }
   r.dependencies.add(originId);
-  const parsed = parseModule(originId, await r.loader.load(originId));
+  const code = await r.loader.load(originId);
+  const parsed = parseModule(originId, code);
   const ctx: ModuleCtx = {
     id: originId,
+    code,
     program: parsed,
     imports: collectImports(parsed),
     bindings: collectTopBindings(parsed),
@@ -366,6 +405,7 @@ async function resolveTraitRef(
     r.out.push({
       name,
       originId: ctx.id,
+      code: ctx.code,
       program: ctx.program,
       specifier: consumerSpecifier(r, ctx.id, ''),
       exportName: name,
@@ -393,10 +433,66 @@ async function resolveTraitRef(
   r.out.push({
     name,
     originId,
+    code: origin.code,
     program: origin.program,
     specifier: consumerSpecifier(r, originId, imported.specifier),
     exportName: imported.imported,
   });
+}
+
+/**
+ * Finds the array literal that a trait-list reference names, local to `ctx` or
+ * imported into it, with the module that declares it.
+ */
+async function findListBinding(
+  r: Resolver,
+  name: string,
+  ctx: ModuleCtx,
+  site: ImplSite,
+): Promise<Readonly<{ key: string; array: Expression; ctx: ModuleCtx }>> {
+  const localArray = arrayInit(ctx.bindings.get(name));
+  if (localArray) {
+    return { key: `${ctx.id}\0${name}`, array: localArray, ctx };
+  }
+  if (ctx.bindings.has(name)) {
+    bail(
+      REASON.UNSUPPORTED_TRAIT_LIST,
+      site.name,
+      `${name} is not an array literal`,
+    );
+  }
+
+  const imported = ctx.imports.get(name);
+  if (!imported) {
+    bail(
+      REASON.UNSUPPORTED_TRAIT_LIST,
+      site.name,
+      `trait list reference ${name} is not defined`,
+    );
+  }
+  const originId = await r.loader.resolve(imported.specifier, ctx.id);
+  if (!originId) {
+    bail(
+      REASON.UNSUPPORTED_TRAIT_LIST,
+      site.name,
+      `cannot resolve trait-list module ${imported.specifier}`,
+    );
+  }
+  const origin = await buildCtx(r, originId);
+  const importedArray = arrayInit(origin.bindings.get(imported.imported));
+  if (!importedArray) {
+    bail(
+      REASON.UNSUPPORTED_TRAIT_LIST,
+      site.name,
+      `imported trait list ${name} is not an array literal`,
+    );
+  }
+
+  return {
+    key: `${originId}\0${imported.imported}`,
+    array: importedArray,
+    ctx: origin,
+  };
 }
 
 /**
@@ -415,45 +511,17 @@ async function resolveList(
   const node = unwrapTS(expr);
 
   if (node.type === 'Identifier') {
-    const localArray = arrayInit(ctx.bindings.get(node.name));
-    if (localArray) {
-      await resolveList(r, localArray, ctx, site);
-      return;
-    }
-    if (ctx.bindings.has(node.name)) {
+    const list = await findListBinding(r, node.name, ctx, site);
+    if (r.listPath.has(list.key)) {
       bail(
         REASON.UNSUPPORTED_TRAIT_LIST,
         site.name,
-        `${node.name} is not an array literal`,
+        `trait list ${node.name} references itself`,
       );
     }
-
-    const imported = ctx.imports.get(node.name);
-    if (!imported) {
-      bail(
-        REASON.UNSUPPORTED_TRAIT_LIST,
-        site.name,
-        `trait list reference ${node.name} is not defined`,
-      );
-    }
-    const originId = await r.loader.resolve(imported.specifier, ctx.id);
-    if (!originId) {
-      bail(
-        REASON.UNSUPPORTED_TRAIT_LIST,
-        site.name,
-        `cannot resolve trait-list module ${imported.specifier}`,
-      );
-    }
-    const origin = await buildCtx(r, originId);
-    const importedArray = arrayInit(origin.bindings.get(imported.imported));
-    if (!importedArray) {
-      bail(
-        REASON.UNSUPPORTED_TRAIT_LIST,
-        site.name,
-        `imported trait list ${node.name} is not an array literal`,
-      );
-    }
-    await resolveList(r, importedArray, origin, site);
+    r.listPath.add(list.key);
+    await resolveList(r, list.array, list.ctx, site);
+    r.listPath.delete(list.key);
     return;
   }
 
@@ -487,10 +555,347 @@ async function resolveList(
   }
 }
 
+/** A key that one composition layer declares, and how. */
+type LayerMember = Readonly<{ key: string; kind: 'method' | 'get' | 'set' }>;
+
+/** The keys a trait layer declares on the prototype. */
+function traitLayer(trait: TraitIR): readonly LayerMember[] {
+  return trait.kind === 'method'
+    ? trait.members
+    : trait.accessors.flatMap(({ key }) => [
+        { key, kind: 'get' as const },
+        { key, kind: 'set' as const },
+      ]);
+}
+
+/** The non-static keys the component class declares. */
+function classLayer(consumer: Class): readonly LayerMember[] {
+  const members: LayerMember[] = [];
+  for (const member of consumer.body.body) {
+    if (
+      member.type !== 'MethodDefinition' ||
+      member.static ||
+      member.kind === 'constructor'
+    ) {
+      continue;
+    }
+    const key = staticKeyName(member.key, member.computed);
+    if (key !== undefined) {
+      members.push({ key, kind: member.kind });
+    }
+  }
+
+  return members;
+}
+
+/**
+ * Retains the site when a layer would change meaning once the trait layers
+ * are gone. The flattened class body holds every trait's members, in trait
+ * order, before the class's own, and its `super` is the base. So a lone getter
+ * or setter in a later layer would join an earlier layer's other half, and
+ * `super.key` in the class would skip the trait. Any other repeated key takes
+ * the later definition, as the prototype chain does.
+ */
+function requireLayerMeaning(
+  consumer: Class,
+  traits: readonly TraitIR[],
+  site: ImplSite,
+): void {
+  // Key -> whether the layers so far leave an accessor or a method under it.
+  const earlier = new Map<string, 'accessor' | 'method'>();
+  const enter = (
+    layer: readonly LayerMember[],
+    reason:
+      | typeof REASON.CLASS_ACCESSOR_HALF
+      | typeof REASON.TRAIT_ACCESSOR_HALF,
+    layerName: string,
+  ): void => {
+    const getters = new Set<string>();
+    const setters = new Set<string>();
+    for (const { key, kind } of layer) {
+      if (kind === 'get') {
+        getters.add(key);
+      } else if (kind === 'set') {
+        setters.add(key);
+      }
+    }
+    for (const key of getters.symmetricDifference(setters)) {
+      if (earlier.get(key) === 'accessor') {
+        bail(
+          reason,
+          site.name,
+          `${layerName} declares one half of ${key}, which a trait supplies as an accessor`,
+        );
+      }
+    }
+    for (const { key, kind } of layer) {
+      earlier.set(key, kind === 'method' ? 'method' : 'accessor');
+    }
+  };
+
+  for (const trait of traits) {
+    enter(traitLayer(trait), REASON.TRAIT_ACCESSOR_HALF, `trait ${trait.name}`);
+  }
+  const traitKeys = new Set(earlier.keys());
+  enter(classLayer(consumer), REASON.CLASS_ACCESSOR_HALF, 'the class');
+
+  walk(consumer.body, (node) => {
+    if (node.type !== 'MemberExpression' || node.object.type !== 'Super') {
+      return;
+    }
+    if (node.computed) {
+      bail(
+        REASON.CLASS_COMPUTED_SUPER,
+        site.name,
+        'the class uses a computed super member',
+      );
+    }
+    const key = staticKeyName(node.property, false);
+    if (
+      key === 'observedAttributes' ||
+      (key !== undefined && traitKeys.has(key))
+    ) {
+      bail(
+        REASON.CLASS_SUPER_TRAIT_MEMBER,
+        site.name,
+        `the class uses super.${key}, which a flattened trait supplies`,
+      );
+    }
+  });
+}
+
+/** Whether `consumer` is declared at module scope, with no enclosing scope. */
+function isModuleScoped(program: Program, consumer: Class): boolean {
+  return program.body.some((node) => {
+    const declaration =
+      node.type === 'ExportNamedDeclaration' ||
+      node.type === 'ExportDefaultDeclaration'
+        ? node.declaration
+        : node;
+    if (declaration === consumer) {
+      return true;
+    }
+
+    return (
+      declaration?.type === 'VariableDeclaration' &&
+      declaration.declarations.some(
+        ({ init }) => init && unwrapTS(init) === consumer,
+      )
+    );
+  });
+}
+
+/**
+ * Retains the site when a name that a method trait's member reads would
+ * resolve to another binding once the member is in the consumer's class body.
+ * A global keeps its name, so the consumer module must not bind it; a binding
+ * linked in place keeps its name too; and neither may be the class's own name
+ * or be shadowed by a scope around the class.
+ */
+function requireMemberScope(
+  program: Program,
+  consumer: Class,
+  traits: readonly TraitIR[],
+  site: ImplSite,
+): void {
+  const globals = new Set<string>();
+  const kept = new Set<string>();
+  for (const trait of traits) {
+    if (trait.kind !== 'method') {
+      continue;
+    }
+    for (const member of trait.members) {
+      for (const name of member.globals) {
+        globals.add(name);
+        kept.add(name);
+      }
+      for (const { name, ref } of member.links) {
+        if (ref.local) {
+          kept.add(name);
+        }
+      }
+    }
+  }
+  if (kept.size === 0) {
+    return;
+  }
+
+  if (!isModuleScoped(program, consumer)) {
+    bail(
+      REASON.TRAIT_BINDING_SHADOWED,
+      site.name,
+      'the class is not module-scoped, so a scope around it may bind a name a trait member reads',
+    );
+  }
+  const className = consumer.id?.name;
+  if (className !== undefined && kept.has(className)) {
+    bail(
+      REASON.TRAIT_BINDING_SHADOWED,
+      site.name,
+      `a trait member reads ${className}, which names the class`,
+    );
+  }
+  const topLevel = collectTopLevelNames(program);
+  const shadowed = globals.values().find((name) => topLevel.has(name));
+  if (shadowed !== undefined) {
+    bail(
+      REASON.TRAIT_BINDING_SHADOWED,
+      site.name,
+      `a trait member reads the global ${shadowed}, which the consumer module binds`,
+    );
+  }
+}
+
+/** Per-module analysis state shared by the module's `impl` sites. */
+type ModuleAnalysis = Readonly<{
+  code: string;
+  program: Program;
+  consumerCtx: ModuleCtx;
+  resolver: Resolver;
+  /** Origin module id -> its descriptor and generic factory locals. */
+  factoryCache: Map<string, FactoryLocals>;
+}>;
+
+type FactoryLocals = Readonly<{
+  descriptor: ReadonlySet<string>;
+  generic: ReadonlySet<string>;
+}>;
+
+/**
+ * Runs one trait's normalization, attributing a bailout it raises to the site
+ * that the bailout retains.
+ */
+function normalizeTrait<T>(
+  site: ImplSite,
+  traitName: string,
+  normalize: () => T,
+): T {
+  try {
+    return normalize();
+  } catch (error) {
+    if (!(error instanceof BailoutError)) {
+      throw error;
+    }
+    return bail(
+      error.reason,
+      site.name,
+      `trait ${traitName}: ${error.message}`,
+    );
+  }
+}
+
+/**
+ * Analyzes one `impl` site. A bailout is thrown as {@link BailoutError} before
+ * the site's synthetic exports reach `synthetics`.
+ */
+async function analyzeSite(
+  analysis: ModuleAnalysis,
+  site: ImplSite,
+  synthetics: Map<string, Map<string, SyntheticExport>>,
+): Promise<AnalyzedComposition> {
+  const { code, program, consumerCtx, resolver, factoryCache } = analysis;
+  const consumer = requireSingleConsumer(program, site);
+
+  const [baseArg, listArg] = site.call.arguments;
+  if (!baseArg || baseArg.type === 'SpreadElement') {
+    bail(REASON.UNSUPPORTED_TRAIT_LIST, site.name, 'missing base constructor');
+  }
+  if (!listArg || listArg.type === 'SpreadElement') {
+    bail(REASON.UNSUPPORTED_TRAIT_LIST, site.name, 'missing trait list');
+  }
+
+  resolver.out.length = 0;
+  resolver.listPath.clear();
+  await resolveList(resolver, listArg, consumerCtx, site);
+
+  const siteSynthetics = new Map<string, Map<string, SyntheticExport>>();
+  const traits: TraitIR[] = [];
+  for (const ref of resolver.out) {
+    const factoryLocals = factoryCache.get(ref.originId) ?? {
+      descriptor: resolveFactoryLocals(ref.program),
+      generic: resolveGenericFactoryLocals(ref.program),
+    };
+    factoryCache.set(ref.originId, factoryLocals);
+
+    const moduleSynthetics =
+      siteSynthetics.get(ref.originId) ?? new Map<string, SyntheticExport>();
+    siteSynthetics.set(ref.originId, moduleSynthetics);
+
+    // oxlint-disable-next-line no-await-in-loop
+    const rebases = await originRebases(resolver, ref.originId);
+    const rebase = (specifier: string): string | null =>
+      rebases.get(specifier) ?? null;
+    const ir = normalizeTrait(
+      site,
+      ref.name,
+      () =>
+        normalizeDescriptorTrait(
+          ref.program,
+          ref.originId,
+          ref.specifier,
+          ref.exportName,
+          moduleSynthetics,
+          factoryLocals.descriptor,
+          rebase,
+        ) ??
+        normalizeMethodTrait(
+          ref.code,
+          ref.program,
+          ref.originId,
+          ref.specifier,
+          ref.exportName,
+          moduleSynthetics,
+          factoryLocals.generic,
+          rebase,
+        ),
+    );
+    if (!ir) {
+      bail(
+        REASON.UNSUPPORTED_TRAIT,
+        site.name,
+        `trait ${ref.name} is not a supported descriptor or method trait`,
+      );
+    }
+    if (
+      ir.kind === 'method' &&
+      !canCopySource(ref.originId, resolver.consumerId)
+    ) {
+      bail(
+        REASON.TRAIT_SOURCE_LANGUAGE,
+        site.name,
+        `trait ${ref.name}'s source language can't be copied into the consumer`,
+      );
+    }
+    traits.push(ir);
+  }
+
+  requireLayerMeaning(consumer, traits, site);
+  requireMemberScope(program, consumer, traits, site);
+
+  for (const [moduleId, siteExports] of siteSynthetics) {
+    const moduleExports = synthetics.get(moduleId) ?? new Map();
+    synthetics.set(moduleId, moduleExports);
+    for (const [local, synthetic] of siteExports) {
+      moduleExports.set(local, synthetic);
+    }
+  }
+
+  return {
+    composition: { version: TRAIT_IR_VERSION, traits },
+    baseSource: code.slice(baseArg.start, baseArg.end),
+    className: consumer.id?.name ?? site.name,
+    declarationSpan: [site.declaration.start, site.declaration.end],
+    superClassSpan: [consumer.superClass!.start, consumer.superClass!.end],
+    classBodyInsert: consumer.body.start + 1,
+  };
+}
+
 /**
  * Analyzes a consumer module and returns every eligible, fully-normalized
  * composition together with the private bindings that need synthetic exports in
- * their origin modules. Bailouts are thrown as {@link BailoutError}.
+ * their origin modules. Each `impl` site is a transaction: a site that bails
+ * contributes only its {@link BailoutError}, and the module's other sites are
+ * still analyzed.
  */
 export async function analyzeModule(
   id: string,
@@ -499,6 +904,8 @@ export async function analyzeModule(
 ): Promise<
   Readonly<{
     compositions: readonly AnalyzedComposition[];
+    /** One per retained site, in source order. */
+    bailouts: readonly BailoutError[];
     /** Origin module id -> synthetic exports it must expose. */
     synthetics: ReadonlyMap<string, readonly SyntheticExport[]>;
     /** Modules whose parse this analysis depended on, for watch tracking. */
@@ -516,101 +923,60 @@ export async function analyzeModule(
 
   const sites = findImplSites(program, implLocals);
   if (sites.length === 0) {
-    return { compositions: [], synthetics: new Map(), dependencies: [] };
+    return {
+      compositions: [],
+      bailouts: [],
+      synthetics: new Map(),
+      dependencies: [],
+    };
   }
 
   const compositions: AnalyzedComposition[] = [];
+  const bailouts: BailoutError[] = [];
   const syntheticsByModule = new Map<string, Map<string, SyntheticExport>>();
   const dependencies = new Set<string>();
-  const ctxCache = new Map<string, ModuleCtx>();
-  const factoryCache = new Map<string, ReadonlySet<string>>();
+  const consumerCtx: ModuleCtx = {
+    id,
+    code,
+    program,
+    imports,
+    bindings: collectTopBindings(program),
+  };
 
   // The resolver expands a trait list into an ordered list of trait references,
   // following const-array references and spreads across module boundaries.
-  const resolver: Resolver = {
-    consumerId: id,
-    consumerDir: dirname(id),
-    loader,
-    ctxCache,
-    rebaseCache: new Map(),
-    dependencies,
-    out: [],
+  const analysis: ModuleAnalysis = {
+    code,
+    program,
+    consumerCtx,
+    resolver: {
+      consumerId: id,
+      consumerDir: dirname(id),
+      loader,
+      ctxCache: new Map([[id, consumerCtx]]),
+      rebaseCache: new Map(),
+      dependencies,
+      out: [],
+      listPath: new Set(),
+    },
+    factoryCache: new Map(),
   };
 
   for (const site of sites) {
-    const consumer = requireSingleConsumer(program, site);
-    const call = site.declarator.init;
-    if (call?.type !== 'CallExpression') {
-      continue;
-    }
-
-    const [baseArg, listArg] = call.arguments;
-    if (!baseArg || baseArg.type === 'SpreadElement') {
-      bail(
-        REASON.UNSUPPORTED_TRAIT_LIST,
-        site.name,
-        'missing base constructor',
-      );
-    }
-    if (!listArg || listArg.type === 'SpreadElement') {
-      bail(REASON.UNSUPPORTED_TRAIT_LIST, site.name, 'missing trait list');
-    }
-
-    resolver.out.length = 0;
-    const consumerCtx: ModuleCtx = {
-      id,
-      program,
-      imports,
-      bindings: collectTopBindings(program),
-    };
-    ctxCache.set(id, consumerCtx);
-    // oxlint-disable-next-line no-await-in-loop
-    await resolveList(resolver, listArg, consumerCtx, site);
-
-    const traits: TraitIR[] = [];
-    for (const ref of resolver.out) {
-      const factoryLocals =
-        factoryCache.get(ref.originId) ?? resolveFactoryLocals(ref.program);
-      factoryCache.set(ref.originId, factoryLocals);
-
-      const moduleSynthetics =
-        syntheticsByModule.get(ref.originId) ??
-        new Map<string, SyntheticExport>();
-      syntheticsByModule.set(ref.originId, moduleSynthetics);
-
+    try {
       // oxlint-disable-next-line no-await-in-loop
-      const rebases = await originRebases(resolver, ref.originId);
-      const ir = normalizeDescriptorTrait(
-        ref.program,
-        ref.originId,
-        ref.specifier,
-        ref.exportName,
-        moduleSynthetics,
-        factoryLocals,
-        (specifier) => rebases.get(specifier) ?? null,
-      );
-      if (!ir) {
-        bail(
-          REASON.UNSUPPORTED_TRAIT,
-          site.name,
-          `trait ${ref.name} is not a supported descriptor trait`,
-        );
+      compositions.push(await analyzeSite(analysis, site, syntheticsByModule));
+    } catch (error) {
+      if (!(error instanceof BailoutError)) {
+        throw error;
       }
-      traits.push(ir);
+      bailouts.push(error);
     }
-
-    compositions.push({
-      composition: { version: TRAIT_IR_VERSION, traits },
-      baseSource: code.slice(baseArg.start, baseArg.end),
-      className: consumer.id?.name ?? site.name,
-      declarationSpan: [site.declaration.start, site.declaration.end],
-      superClassSpan: [consumer.superClass!.start, consumer.superClass!.end],
-      classBodyInsert: consumer.body.start + 1,
-    });
   }
 
   return {
     compositions,
+    bailouts,
     synthetics: new Map(
       [...syntheticsByModule].map(([m, s]) => [m, [...s.values()]]),
     ),

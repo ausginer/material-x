@@ -16,7 +16,6 @@ import {
   type LinkableProps,
 } from '@ydinjs/core/traits/linkable.js';
 import type { EmptyObject, Simplify } from 'type-fest';
-import { focusControl } from '../core/utils/useCore.ts';
 import template from './list-link-item.tpl.html' with { type: 'html' };
 import {
   LIST_INTERACTIVE_ITEM_CORE_TRAITS,
@@ -73,10 +72,6 @@ export default class ListLinkItem extends ListLinkItemConstructor {
         target.ariaCurrent = value ? 'page' : null;
       }),
     });
-  }
-
-  override focus(options?: FocusOptions): void {
-    focusControl(this, options);
   }
 }
 

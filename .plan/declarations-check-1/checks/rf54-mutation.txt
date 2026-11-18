@@ -1,0 +1,46 @@
+# Item 1, witness 1: the mutation. Read by the implementer in slot b on 2026-11-18, on repo/declarations-check-1 at
+# 1fb375b88 with item 1's changes uncommitted. TypeScript 7.0.2. Mutation: packages/core/src/traits/primitives.ts's Branded
+# restored to `P & Readonly<Record<B, true>>`, every other item 1 change kept, core rebuilt (`aube exec just build` in
+# packages/core), so the built primitives.d.ts read `type Branded<…> = P & Readonly<Record<B, true>>;`. Undone afterwards,
+# and core rebuilt.
+
+## material-x's typecheck
+$ (cd packages/material-x && aube exec just typecheck)
+tsc -p tsconfig.json --noEmit
+src/text-field/TextFieldCore.ts(223,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+error: recipe `typecheck` failed on line 68 with exit code 1
+exit 1
+
+## core's new type test
+$ (cd packages/core && aube exec -- vitest run --project declaration tests/traits/overrides.declaration.test.ts)
+Testing types with tsc and vue-tsc is an experimental feature.
+Breaking changes might not follow SemVer, please pin Vitest's version when using it.
+
+ RUN  v5.1.0 /workspaces/worktrees/b/packages/core
+
+ ❯ |declaration|  TS  tests/traits/overrides.declaration.test.ts (3 tests | 1 failed)
+   ❯ trait field overrides (3)
+     × should allow an accessor override of a trait field
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |declaration| tests/traits/overrides.declaration.test.ts:9 > trait field overrides > should allow an accessor override of a trait field
+TypeCheckError: 'value' is defined as a property in class 'ControlledElement & { value string | null; } & Readonly<Record<unique symbol, true>>', but is overridden here in 'WithAccessor' as an accessor.
+ ❯ tests/traits/overrides.declaration.test.ts:11:20
+      9|   it('should allow an accessor override of a trait field', () => {
+     10|     class WithAccessor extends Base {
+     11|       override get value(): string | null {
+       |                    ^
+     12|         return null;
+     13|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+Type Errors  no errors
+   Start at  04:20:10
+   Duration  355ms (typecheck 100%)
+
+exit 1

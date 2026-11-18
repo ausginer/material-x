@@ -1,0 +1,71 @@
+# Why `apt-get install --no-download <dir>/*.deb` fails when <dir> isn't apt's archive cache.
+# Read by the architect on 2026-11-18 in apt's source: tag 2.7.14 (noble's release pocket),
+# and the same code at tag 2.8.2 and on main. noble-updates publishes 2.8.4ubuntu0.1
+# (Launchpad API, getPublishedSources). The excerpts are from 2.7.14; line numbers are 2.7.14's.
+# https://raw.githubusercontent.com/Debian/apt/2.7.14/apt-pkg/acquire-item.cc
+# https://raw.githubusercontent.com/Debian/apt/2.7.14/apt-private/private-install.cc
+
+## apt-pkg/acquire-item.cc, pkgAcqArchive: the only "already present" check (lines 3497-3512)
+## It looks in Dir::Cache::Archives under apt's own file name, and nowhere else.
+
+   // Check if we already downloaded the file
+   struct stat Buf;
+   auto FinalFile = _config->FindDir("Dir::Cache::Archives") + flNotDir(StoreFilename);
+   if (stat(FinalFile.c_str(), &Buf) == 0)
+   {
+      // Make sure the size matches
+      if ((unsigned long long)Buf.st_size == Version->Size)
+      {
+	 Complete = true;
+	 Local = true;
+	 ...
+	 return;
+      }
+      ...
+   }
+   ...
+   // Create the item
+   Local = false;
+   QueueURI(Desc);
+
+## StoreFilename (lines 3457-3461) is <name>_<version>_<arch>.<ext>, quoted. A fetch made with
+## Dir::Cache::archives set to the directory leaves each archive under that name.
+## A .deb named on the command line has a file: URI (Desc.URI = Index->ArchiveURI(...)),
+## and it is queued like any download unless the check above finds it.
+
+## apt-private/private-install.cc (lines 94-113, 183-205): with APT::Get::Download false,
+## every item that isn't Local is removed and counted missing. A file: URI isn't exempt.
+
+static void RemoveDownloadNeedingItemsFromFetcher(pkgAcquire &Fetcher, bool &Transient)
+{
+   for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I < Fetcher.ItemsEnd();)
+   {
+      if ((*I)->Local == true)
+      {
+	 ++I;
+	 continue;
+      }
+      // Close the item and check if it was found in cache
+      (*I)->Finished();
+      if ((*I)->Complete == false)
+	 Transient = true;
+      ...
+   }
+}
+...
+   if (DownloadAllowed == false)
+   {
+      bool Missing = false;
+      RemoveDownloadNeedingItemsFromFetcher(Fetcher, Missing);
+      if (Missing)
+      {
+	 ...
+	    return _error->Error(_("Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?"));
+
+## The cold run's log agrees: apt prints "Recommended packages:" during resolution
+## (private-install.cc line 1028), then fails at line 186, before ShowNew (line 225) would
+## list the new packages. So the log has no package list and no URI.
+
+## --print-uris (lines 343-350) prints each queued URI and returns before any fetch, and it
+## skips the archive lock. With --no-download also set, the check at line 183 fails first,
+## so the two can't be combined.

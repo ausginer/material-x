@@ -1,0 +1,175 @@
+# RF-44 item 2b recheck probes, read by the reviewer on 2026-11-18 in slot d at a93110bf3 (repo/traits-plugin-1, clean).
+# Run from a scratch directory with node <probe>. 'before' is packages/vite-traits-plugin/src at 3eb1912f4, exported
+# with git show into the scratch directory (node_modules linked to slot d's); 'after' is slot d's src. oxc-parser and
+# oxc-transform 0.158.0. Nothing in the tree was changed.
+
+## The plugin's own gates, packages/vite-traits-plugin at a93110bf3
+$ aube exec just test        -> Test Files 8 passed (8), Tests 142 passed (142)
+$ aube exec just typecheck   -> exit 0
+$ aube exec just lint src/analyze.ts src/diagnostics.ts src/free-references.ts tests/analyze-method.node.test.ts -> exit 0
+$ aube exec just fmt-check   -> All matched files use the correct format.
+
+## rows.ts: the handoff's rows and their neighbours, before and after
+```ts
+// RF-44 item 2b recheck: the handoff's rows as in-memory cases, against the plugin source named in argv[2].
+const SRC = process.argv[2];
+const { analyzeModule } = await import(SRC + '/analyze.ts');
+const D = '/v/';
+const origin = (member: string) => `import { trait } from '@ydinjs/core/traits/primitives.js';
+const $t = Symbol('t');
+export const T = trait((base) => class extends base {
+  ${member}
+}, $t);
+`;
+const consumer = (originFile: string) => `import { impl } from '@ydinjs/core/traits/attributes.js';
+import { T } from './${originFile}';
+class Base extends HTMLElement {}
+const FooBase = impl(Base, [T]);
+export class Foo extends FooBase {}
+`;
+async function run(label: string, originFile: string, member: string, consumerFile: string) {
+  const files: Record<string, string> = { [D + originFile]: origin(member), [D + consumerFile]: consumer(originFile) };
+  const loader = {
+    resolve: async (s: string) => (s.startsWith('./') ? D + s.slice(2) : null),
+    load: async (i: string) => files[i] ?? Promise.reject(new Error('no ' + i)),
+  };
+  const { compositions, bailouts } = await analyzeModule(D + consumerFile, files[D + consumerFile], loader);
+  console.log(`${label.padEnd(34)} ${originFile} -> ${consumerFile.padEnd(6)} flattened=${compositions.length} bailouts=${JSON.stringify(bailouts.map((b: any) => b.reason))}`);
+}
+await run('eval(src)', 't.ts', 'm(src: string) { return eval(src); }', 'c.ts');
+await run('(eval)(src)', 't.ts', 'm(src: string) { return (eval)(src); }', 'c.ts');
+await run('(eval as F)(src)', 't.ts', 'm(src: string) { return (eval as (s: string) => unknown)(src); }', 'c.ts');
+await run('(0, eval)(src)', 't.ts', 'm(src: string) { return (0, eval)(src); }', 'c.ts');
+await run('new eval(src)', 't.ts', 'm(src: string) { return new eval(src); }', 'c.ts');
+await run('{ eval } shorthand', 't.ts', 'm() { return { eval }; }', 'c.ts');
+await run('eval?.(src)', 't.ts', 'm(src: string) { return eval?.(src); }', 'c.ts');
+await run('globalThis.eval(src) (indirect)', 't.ts', 'm(src: string) { return globalThis.eval(src); }', 'c.ts');
+await run('.ts into .tsx', 't.ts', 'm(): number { return 1; }', 'c.tsx');
+await run('.ts into .ts', 't.ts', 'm(): number { return 1; }', 'c.ts');
+await run('.mjs into .ts', 't.mjs', 'm() { return 1; }', 'c.ts');
+await run('.js into .tsx', 't.js', 'm() { return 1; }', 'c.tsx');
+await run('.jsx into .tsx', 't.jsx', 'm() { return 1; }', 'c.tsx');
+await run('.tsx into .tsx', 't.tsx', 'm(): number { return 1; }', 'c.tsx');
+await run('.ts into .js', 't.ts', 'm(): number { return 1; }', 'c.js');
+await run('.js into .js', 't.js', 'm() { return 1; }', 'c.js');
+```
+$ node rows.ts <before src>
+eval(src)                          t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+(eval)(src)                        t.ts -> c.ts   flattened=1 bailouts=[]
+(eval as F)(src)                   t.ts -> c.ts   flattened=1 bailouts=[]
+(0, eval)(src)                     t.ts -> c.ts   flattened=1 bailouts=[]
+new eval(src)                      t.ts -> c.ts   flattened=1 bailouts=[]
+{ eval } shorthand                 t.ts -> c.ts   flattened=1 bailouts=[]
+eval?.(src)                        t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+globalThis.eval(src) (indirect)    t.ts -> c.ts   flattened=1 bailouts=[]
+.ts into .tsx                      t.ts -> c.tsx  flattened=1 bailouts=[]
+.ts into .ts                       t.ts -> c.ts   flattened=1 bailouts=[]
+.mjs into .ts                      t.mjs -> c.ts   flattened=1 bailouts=[]
+.js into .tsx                      t.js -> c.tsx  flattened=1 bailouts=[]
+.jsx into .tsx                     t.jsx -> c.tsx  flattened=1 bailouts=[]
+.tsx into .tsx                     t.tsx -> c.tsx  flattened=1 bailouts=[]
+.ts into .js                       t.ts -> c.js   flattened=0 bailouts=["trait-source-language"]
+.js into .js                       t.js -> c.js   flattened=1 bailouts=[]
+$ node rows.ts <after src>
+eval(src)                          t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+(eval)(src)                        t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+(eval as F)(src)                   t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+(0, eval)(src)                     t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+new eval(src)                      t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+{ eval } shorthand                 t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+eval?.(src)                        t.ts -> c.ts   flattened=0 bailouts=["unsupported-trait-member"]
+globalThis.eval(src) (indirect)    t.ts -> c.ts   flattened=1 bailouts=[]
+.ts into .tsx                      t.ts -> c.tsx  flattened=0 bailouts=["trait-source-language"]
+.ts into .ts                       t.ts -> c.ts   flattened=1 bailouts=[]
+.mjs into .ts                      t.mjs -> c.ts   flattened=1 bailouts=[]
+.js into .tsx                      t.js -> c.tsx  flattened=0 bailouts=["trait-source-language"]
+.jsx into .tsx                     t.jsx -> c.tsx  flattened=0 bailouts=["trait-source-language"]
+.tsx into .tsx                     t.tsx -> c.tsx  flattened=1 bailouts=[]
+.ts into .js                       t.ts -> c.js   flattened=0 bailouts=["trait-source-language"]
+.js into .js                       t.js -> c.js   flattened=1 bailouts=[]
+
+## probe2b.ts: pairs that the after check copies, analyzed, lowered and parsed with the consumer's id (recheck-1, recheck-2)
+```ts
+// RF-44 item 2b recheck probe: language pairs that the check copies. Analyzes and lowers in memory against slot d's
+// plugin source, then parses the lowered consumer with its own id.
+import { analyzeModule, parseModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts';
+import { lowerModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/lower.ts';
+import { createRequire } from 'node:module';
+const { parseSync } = createRequire('/workspaces/worktrees/d/packages/vite-traits-plugin/package.json')('oxc-parser');
+
+const D = '/v/';
+const origin = (member: string) => `import { trait } from '@ydinjs/core/traits/primitives.js';
+const $t = Symbol('t');
+export const T = trait((base) => class extends base {
+  ${member}
+}, $t);
+`;
+const consumer = (ext: string, originFile: string) => `import { impl } from '@ydinjs/core/traits/attributes.js';
+import { T } from './${originFile}';
+class Base extends HTMLElement {}
+const FooBase = impl(Base, [T]);
+export class Foo extends FooBase {}
+`;
+async function run(label: string, originFile: string, member: string, consumerExt: string) {
+  const files: Record<string, string> = { [D + originFile]: origin(member) };
+  const id = D + 'c.' + consumerExt;
+  files[id] = consumer(consumerExt, originFile);
+  const loader = {
+    resolve: async (s: string) => (s.startsWith('./') ? D + s.slice(2) : null),
+    load: async (i: string) => { const c = files[i]; if (c === undefined) throw new Error('no ' + i); return c; },
+  };
+  const { compositions, bailouts } = await analyzeModule(id, files[id]!, loader);
+  const out = compositions.length ? lowerModule(files[id]!, compositions).toString() : '';
+  const parsed = out ? parseSync(id, out) : undefined;
+  console.log(`${label.padEnd(44)} ${originFile} -> c.${consumerExt.padEnd(3)} flattened=${compositions.length} bailouts=${JSON.stringify(bailouts.map((b) => b.reason))}` +
+    (parsed ? ` lowered parse errors=${JSON.stringify(parsed.errors.map((e) => e.message))}` : ''));
+  return { out, parsed };
+}
+
+const ASSERT = 'm(x: unknown): number { return <number>x; }';
+const ARROW = 'm(): unknown { return <T>(x: T) => x; }';
+for (const ext of ['ts', 'mts', 'cts', 'tsx']) await run('type assertion <number>x', 't.ts', ASSERT, ext);
+for (const ext of ['ts', 'mts', 'cts']) await run('generic arrow <T>(x: T) => x', 't.ts', ARROW, ext);
+
+const AMBIG = 'm(a, b, c) { return a < b > (c); }';
+const js = parseSync('m.js', `(a, b, c) => a < b > (c)`).program.body[0].expression.body;
+const ts = parseSync('m.ts', `(a, b, c) => a < b > (c)`).program.body[0].expression.body;
+console.log(`\n"a < b > (c)" parses as ${js.type}${js.operator ? ' ' + js.operator : ''} in .js, and as ${ts.type} in .ts` +
+  (ts.typeArguments ? ` with type arguments` : ''));
+const { out } = await run('comparison a < b > (c)', 't.js', AMBIG, 'ts');
+const line = out.split('\n').find((l) => l.includes('a < b'));
+console.log('lowered member line:', line?.trim());
+```
+$ node probe2b.ts
+type assertion <number>x                     t.ts -> c.ts  flattened=1 bailouts=[] lowered parse errors=[]
+type assertion <number>x                     t.ts -> c.mts flattened=1 bailouts=[] lowered parse errors=["This syntax is reserved in files with the .mts or .cts extension. Use an `as` expression instead."]
+type assertion <number>x                     t.ts -> c.cts flattened=1 bailouts=[] lowered parse errors=["This syntax is reserved in files with the .mts or .cts extension. Use an `as` expression instead."]
+type assertion <number>x                     t.ts -> c.tsx flattened=0 bailouts=["trait-source-language"]
+generic arrow <T>(x: T) => x                 t.ts -> c.ts  flattened=1 bailouts=[] lowered parse errors=[]
+generic arrow <T>(x: T) => x                 t.ts -> c.mts flattened=1 bailouts=[] lowered parse errors=["This syntax is reserved in files with the .mts or .cts extension. Add a trailing comma or explicit constraint."]
+generic arrow <T>(x: T) => x                 t.ts -> c.cts flattened=1 bailouts=[] lowered parse errors=["This syntax is reserved in files with the .mts or .cts extension. Add a trailing comma or explicit constraint."]
+
+"a < b > (c)" parses as BinaryExpression > in .js, and as CallExpression in .ts with type arguments
+comparison a < b > (c)                       t.js -> c.ts  flattened=1 bailouts=[] lowered parse errors=[]
+lowered member line: m(a, b, c) { return a < b > (c); }
+
+## strip.mjs: what oxc's TypeScript transform emits for those members
+```js
+// What the TypeScript transform makes of the copied JavaScript member, and of the TS-only forms in .mts.
+import { createRequire } from 'node:module';
+const require = createRequire('/workspaces/worktrees/d/package.json');
+const { transformSync } = require('oxc-transform');
+const show = (id, code) => {
+  const r = transformSync(id, code);
+  console.log(`${id.padEnd(6)} ${JSON.stringify(code)} -> ${JSON.stringify(r.code.trim())} errors=${JSON.stringify(r.errors.map((e) => e.message))}`);
+};
+show('m.js', 'export const r = (a, b, c) => a < b > (c);');
+show('m.ts', 'export const r = (a, b, c) => a < b > (c);');
+show('m.mts', 'export const f = (x: unknown) => <number>x;');
+show('m.mts', 'export const g = <T>(x: T) => x;');
+```
+$ node strip.mjs
+m.js   "export const r = (a, b, c) => a < b > (c);" -> "export const r = (a, b, c) => a < b > c;" errors=[]
+m.ts   "export const r = (a, b, c) => a < b > (c);" -> "export const r = (a, b, c) => a(c);" errors=[]
+m.mts  "export const f = (x: unknown) => <number>x;" -> "export const f = (x) => x;" errors=["This syntax is reserved in files with the .mts or .cts extension. Use an `as` expression instead."]
+m.mts  "export const g = <T>(x: T) => x;" -> "export const g = (x) => x;" errors=["This syntax is reserved in files with the .mts or .cts extension. Add a trailing comma or explicit constraint."]

@@ -5,11 +5,18 @@ import type { Constructor } from 'type-fest';
 /**
  * Nominal instance marker added by a trait through its external brand symbol.
  *
+ * The fields are re-declared by a mapped type rather than taken as `P`
+ * itself: TypeScript reports an accessor that overrides a base property
+ * (`TS2611`) only when the property is not mapped, so the mapped form lets a
+ * subclass override a trait field with `get` and `set`, in source and in
+ * emitted declarations.
+ *
  * @typeParam P - Instance properties contributed by the trait.
  * @typeParam B - Unique symbol identifying the trait nominally.
  */
-type Branded<P extends object, B extends symbol> = P &
-  Readonly<Record<B, true>>;
+type Branded<P extends object, B extends symbol> = {
+  [K in keyof P]: P[K];
+} & Readonly<Record<B, true>>;
 
 /**
  * Callable trait contract for transforming one constructor into a branded
