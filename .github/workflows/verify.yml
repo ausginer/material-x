@@ -104,8 +104,12 @@ jobs:
   # still chooses the packages: apt runs its `install-deps` in download-only
   # mode, so it downloads what Playwright's install would on this image. A hit
   # ends after the lookup. Each leg saves its own engine, so a re-run after a
-  # timeout doesn't fetch that engine again. The limit covers WebKit's 125 MB
-  # from a slow mirror, and is the only place a slow mirror can fail a run.
+  # timeout doesn't fetch that engine again. A set that the image already has
+  # saves an empty directory, which `actions/cache` stores, and the test jobs
+  # read it as a hit. The limit covers WebKit's 125 MB from a slow mirror. When
+  # every test job's restore hits, it is the only place a slow mirror can fail
+  # a run. A test job whose own restore misses falls back to the mirror, and on
+  # a slow one it can time out (`repo:RD-21` property 4).
   system-deps:
     needs: scope
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'

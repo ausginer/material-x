@@ -1,0 +1,35 @@
+# The browser action's 'System packages' step, extracted from .github/actions/browser/action.yml, run with bash -e -o pipefail as GitHub runs it.
+# sudo, apt-get and aube are stubs on PATH that print their arguments; the aube stub's --dry-run exits with DRY_RUN_EXIT. ENGINE=chromium HIT=true, DIR is an empty directory.
+
+## an empty entry, and the check passes
+chromium: the cache entry holds no archive, so the image has the whole set
+STUB aube exec -- playwright install-deps --dry-run chromium
+exit: 0
+GITHUB_OUTPUT: 
+partial/ created: no
+
+## an empty entry, and the check fails
+chromium: the cache entry holds no archive, so the image has the whole set
+STUB aube exec -- playwright install-deps --dry-run chromium
+::warning title=System packages::chromium: the check found missing packages, so Playwright installs them from the mirror
+STUB aube exec -- playwright install --with-deps chromium
+exit: 0
+GITHUB_OUTPUT: fallback=true
+partial/ created: no
+
+## control: one archive in the entry, and the check passes
+STUB sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dir::Cache::Archives=<scratch>/dir/ --no-download <scratch>/dir/libfoo_1.0_amd64.deb
+STUB apt-get install -y --no-install-recommends -o Dir::Cache::Archives=<scratch>/dir/ --no-download <scratch>/dir/libfoo_1.0_amd64.deb
+STUB aube exec -- playwright install-deps --dry-run chromium
+exit: 0
+GITHUB_OUTPUT: 
+
+## control: the step before this change (HEAD d58f8a869), against the same empty entry
+STUB sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dir::Cache::Archives=<scratch>/dir/ --no-download <scratch>/dir/*.deb
+STUB apt-get install -y --no-install-recommends -o Dir::Cache::Archives=<scratch>/dir/ --no-download <scratch>/dir/*.deb
+STUB aube exec -- playwright install-deps --dry-run chromium
+exit: 0
+GITHUB_OUTPUT: 
+
+# In the last control, the literal path <scratch>/dir/*.deb reaches apt-get. A real apt then fails on a file that doesn't exist, and the step reports
+# 'the offline install failed' for an install that never ran. With this change, the empty entry skips the install and only the check decides.
