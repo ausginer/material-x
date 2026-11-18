@@ -186,6 +186,8 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `.agents/docs/review-findings.md`, `handoff.md` | Convention and Operation — routed chunks; each carries a retrieval header naming its trigger |
 | `.agents/docs/agent-workflow.md` | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime |
 | `.agents/docs/coordinator.md`, `coordinator-setup.md` | Operation — local Codex or Claude coordination, owner-relayed or directly sent handoffs and Claude role startup |
+| `.agents/docs/work-queue.md` | Operation — the rules for the work queue on GitHub |
+| GitHub Issues and the `Work queue` board | The work queue — what is next and whom it waits on, never a reason (`work-queue.md`) |
 | Other files under `.agents/docs/` | Convention, operation, design reference or retired measurement record — consulted, not resident |
 | `.claude/agents/` | Operation — the role definitions, and the store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |
@@ -212,3 +214,4 @@ What this document used to say, and what changed it. Section numbers are permane
 | 2026-11-06 | Introduction, §3, §7, §8 | **Corrected:** the table's homes now match §8; a closing change record is named as the exception to the current-state rule, replacing _carries no history of its own_; routing edges are stored in role definitions and resident files, not _only_ role definitions; the routing graph is intended rather than enforced; link coverage is drag2's normative tree, not all cross-document links; §8 describes the remaining `.agents/docs/` files as a class, because its list omitted some. Routing and instruments did not change |
 | 2026-11-06 | Introduction, §2, §4, §5, §7 | **Removed** point-in-time statements, written here because no record carries them and not rechecked: _a published type surface in which decision narrative outweighs the library it describes by seven to one_; _All 55 citations in this repository address a section number_; `CONTRIBUTING.md` §18's former _121 B vocabulary root with 29 B of slack_, _re-based twice_; _the current tree writes them the same way_; _the published-declaration weight has no measured regression behind it yet_ |
 | 2026-11-15 | §7 | **Removed:** the row for citations in drag2's normative tree, whose instrument was deleted with drag2. Its withdrawal is stated in the record, not here. Links into drag2 in this table name its paths at `0870abd75`. Record: `repo:RD-5` |
+| 2026-11-18 | §8 | **Added:** `work-queue.md`, and GitHub Issues with the `Work queue` board as the work queue, outside the four kinds of document. Record: `repo:RD-22` |
