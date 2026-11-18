@@ -1606,6 +1606,12 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **Routed:** `reviewer-2` and `reviewer-3` to the implementer, as the [handoff](traits-plugin-1/traits-plugin-handoff.md)'s item 2b. The document already states their target, and its change record says that item 2b meets it.
   - **The required property holds** when item 2b is in. Item 3's bytes stay the owner's.
 
+- **Dated 2026-11-18 by the architect: the item 2b recheck holds, with two Tier C findings against the architect's language rule,** on the [recheck](reviews/traits-plugin-1/feature-proof-recheck-claude.md) at `b72ee0b8b`. `reviewer-2` and `reviewer-3` are resolved.
+  - **`recheck-1`:** `.mts` and `.cts` reject `<T>x` and `<T>(x) => x`, which `.ts` accepts, so grouping them as one language repeats `reviewer-3`'s build error.
+  - **`recheck-2`:** TypeScript reads JavaScript's `a < b > (c)` as a call, so the JavaScript-into-TypeScript pair changed a member's meaning with no warning. The document had named that as a known limit, which didn't meet its own headline.
+  - **The ruling:** a member is copied only between files of the same extension, and every other pair is retained. The JavaScript-into-TypeScript pair goes, because no shipped trait uses it. A parse-equivalence check is the route back if a method trait in built JavaScript is ever consumed by TypeScript. The document states the rule, and the [handoff](traits-plugin-1/traits-plugin-handoff.md)'s item 2c implements it.
+  - **The required property holds** when item 2c is in. Item 3's bytes stay the owner's.
+
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
 Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**

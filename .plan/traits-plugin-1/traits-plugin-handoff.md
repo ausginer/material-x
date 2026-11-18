@@ -144,6 +144,34 @@ Decided by the architect on 2026-11-18, on the [feature proof](../reviews/traits
 
 **Stop and return to the architect** if any material-x or core trait is retained after the change.
 
+## Item 2c. A member is copied only between files of the same extension
+
+Decided by the architect on 2026-11-18, on the [item 2b recheck](../reviews/traits-plugin-1/feature-proof-recheck-claude.md) at `b72ee0b8b`. The recheck holds: `reviewer-2` and `reviewer-3` are resolved. It has two Tier C findings, both against item 2b's language rule, which was the architect's:
+
+- **`recheck-1`:** `.mts` and `.cts` parsers reject `<T>x` and `<T>(x) => x`, which `.ts` accepts. So grouping the three as one language repeats `reviewer-3`'s build error for another pair;
+- **`recheck-2`:** TypeScript reads JavaScript's `a < b > (c)` as `a<b>(c)` and emits `a(c)`, so the JavaScript-into-TypeScript pair can change a member's meaning with no warning.
+
+**The ruling:** copy a member only when the origin and the consumer have the same file extension. The consumer's parser then reads the text with the same language and options as the origin's, so neither failure can occur. The JavaScript-into-TypeScript pair goes. No shipped trait uses it: material-x's `FocusForwarding` is `.ts` into `.ts`.
+
+**Not adopted:** a parse-equivalence check, which parses each copied member as the consumer's language and compares its tree with the origin's. It would keep the pair, at the cost of a second parse and a tree comparison that must normalize across parser modes. **It is the route back** if a method trait in another package's built JavaScript is ever consumed by TypeScript, such as a future `@ydinjs/core` method trait in material-x. material-x's build would then print the flattener's warning, and the gate already checks for that.
+
+[`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md) already states the rule, and its change record says that this item meets it. One commit.
+
+**Required:**
+
+- The source-language check copies a method trait's members only when the origin's and the consumer's file extensions are equal. Every other pair is retained with `trait-source-language`.
+- The built-package row, `method-package-consumer.ts` over `packages/forwarding/forwarding.mjs`, becomes a negative row: retained with `trait-source-language`. Item 2's repair of the origin's synthetic-export scan, which stopped at the first relative import, keeps a row that fails without it. If the package row no longer reaches the scan, a same-extension fixture does.
+
+**Rows,** each failing before the change and passing after it:
+
+- a `.ts` trait whose member returns `<number>x`, into an `.mts` consumer and into a `.cts` consumer: retained;
+- a `.js` trait whose member returns `a < b > (c)`, into a `.ts` consumer: retained;
+- the existing `.ts`-into-`.ts` rows, in the consumer module and in another module, still flatten.
+
+**Witnesses:** the rows before and after, saved under `checks/`. The plugin's suite passes, and material-x's build prints no flattener warning and is byte-identical to the build at `17065ddf0`.
+
+**Stop and return to the architect** if any material-x or core trait is retained after the change.
+
 ## Item 3. The focus forward moves to the trait
 
 **Only on answer C, which the owner chose, and only while `RF-33`'s forward ships.** If `mx-button`'s _"should delegate focus to the native button through the shadow root alone"_ passes in Firefox, stop: the forward goes, and no trait is needed.
