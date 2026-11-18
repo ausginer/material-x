@@ -62,8 +62,8 @@ const SwitchButtonConstructor: TraitedConstructor<
  * @slot - Button label/content.
  * @slot icon - Leading icon content.
  *
- * @csspart impl - Visual button container.
- * @csspart control - Internal native checkbox control.
+ * @csspart impl - Internal native button with the switch role: the visual
+ * container and the focus target.
  *
  * @cssprop --md-button-container-height - Overrides button height.
  * @cssprop --md-button-leading-space - Overrides start padding.
@@ -76,8 +76,9 @@ const SwitchButtonConstructor: TraitedConstructor<
  * @cssprop --md-button-press-easing - Overrides press transition easing.
  *
  * @event click - Fired when the button is activated.
- * @event input - Fired when switch interaction occurs.
- * @event change - Fired when switch interaction occurs.
+ * @event input - Fired after `click` when the switch is activated. The switch
+ * is controlled: activation doesn't change `checked`.
+ * @event change - Fired after `input` when the switch is activated.
  */
 export default class SwitchButton extends SwitchButtonConstructor {
   static override formAssociated = true;

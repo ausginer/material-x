@@ -1,0 +1,12 @@
+# Item 6: size of the switch, FAB, checkbox and radio entries. Local devcontainer.
+# material-x has no size budget (repo:RF-45), so this reading stands in for one.
+# Method: `aube exec just build-lib` in packages/material-x with src at e9236603e (before), then at the unit's head
+# (after); each entry bundled with its dependencies by esbuild (`bundle`, `minify`, `format: esm`), then brotli
+# (quality 11) and gzip (level 9) through node:zlib. Bytes.
+
+entry                          minified               brotli                 gzip                  
+button_switch-button.js        21342 -> 21091 (-251)  5622 -> 5478 (-144)    6313 -> 6144 (-169)   
+button_switch-icon-button.js   26607 -> 26641 (+34)   6028 -> 5867 (-161)    6767 -> 6604 (-163)   
+fab_fab.js                     16501 -> 16636 (+135)  4375 -> 4416 (+41)     4925 -> 4985 (+60)    
+checkbox_checkbox.js           12251 -> 12331 (+80)   4187 -> 4206 (+19)     4694 -> 4716 (+22)    
+radio_radio.js                 10107 -> 10127 (+20)   3632 -> 3637 (+5)      4081 -> 4087 (+6)     

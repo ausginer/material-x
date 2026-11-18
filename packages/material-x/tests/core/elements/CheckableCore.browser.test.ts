@@ -224,12 +224,41 @@ describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
     ]);
   });
 
-  it('should reflect the checked control back on interaction', () => {
+  it('should leave the host and the control unchecked after a click without a handler', () => {
     const element = createCheckable(tag);
 
     element.click();
 
-    expect(getControl(element).checked).toBe(true);
+    expect([element.checked, getControl(element).checked]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('should leave the host and the control unchecked after a Space press without a handler', async () => {
+    const element = createCheckable(tag);
+
+    element.focus();
+    await userEvent.keyboard(' ');
+
+    expect([element.checked, getControl(element).checked]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('should leave the host and the control checked when a change handler sets checked', () => {
+    const element = createCheckable(tag);
+    element.addEventListener('change', () => {
+      element.checked = true;
+    });
+
+    element.click();
+
+    expect([element.checked, getControl(element).checked]).toEqual([
+      true,
+      true,
+    ]);
   });
 
   it('should activate with a real Space key press', async () => {

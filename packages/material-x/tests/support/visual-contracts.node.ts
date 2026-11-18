@@ -85,6 +85,16 @@ async function loadRegistry(): Promise<ContractRegistry> {
       icon.variantTokens[icon.VARIANTS.indexOf('tonal')]!,
     'icon-button.color.standard':
       icon.variantTokens[icon.VARIANTS.indexOf('standard')]!,
+    'switch-button.color.filled': def.defaultSwitchFilledTokens,
+    'switch-button.color.elevated': elevated.elevatedSwitchTokens,
+    'switch-button.color.tonal': tonal.tonalSwitchTokens,
+    'switch-button.color.outlined': outlined.outlinedSwitchTokens,
+    'switch-icon-button.color.filled':
+      icon.variantSwitchTokens[icon.VARIANTS.indexOf('filled')]!,
+    'switch-icon-button.color.tonal':
+      icon.variantSwitchTokens[icon.VARIANTS.indexOf('tonal')]!,
+    'switch-icon-button.color.standard':
+      icon.variantSwitchTokens[icon.VARIANTS.indexOf('standard')]!,
   };
 }
 

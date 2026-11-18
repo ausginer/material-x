@@ -30,8 +30,14 @@ const specialTokens = {
   'focus-layer.opacity': `${SET_NAME}.focused.state-layer.opacity`,
 };
 
+const specialUnselectedSwitchTokens = {
+  'focus-layer.color': `${SET_NAME}.unselected.focused.state-layer.color`,
+  'focus-layer.opacity': `${SET_NAME}.focused.state-layer.opacity`,
+};
+
 const specialSelectedTokens = {
   'state-layer.color': `${SET_NAME}.selected.pressed.state-layer.color`,
+  'focus-layer.color': `${SET_NAME}.selected.focused.state-layer.color`,
 };
 
 const renderer = createScopedDeclarationRenderer({
@@ -66,6 +72,7 @@ export const tonalSwitchTokens: ReadonlySignal<TokenPackage> = computed(() =>
   createPackage((processor) =>
     processor
       .select(switchTokenSelector, notDisabledTokenSelector, omitSelectedShape)
+      .append('unselected.default', specialUnselectedSwitchTokens)
       .append('selected.default', specialSelectedTokens)
       .extend(
         createButtonExtensions(

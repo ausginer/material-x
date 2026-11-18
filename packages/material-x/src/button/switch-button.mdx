@@ -75,7 +75,7 @@ export const usageSnippet =
 
 Use the live example below to inspect interaction states:
 
-- click or press `Space` to toggle `checked`
+- click or press `Space` or `Enter` to activate it. Activation fires `click`, `input` and `change`, and doesn't change `checked`. The story's `change` handler sets `checked`.
 - hover with a pointer to inspect hover treatment
 - move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
 
@@ -85,10 +85,11 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Semantics:** Uses an internal native checkbox with `switch` semantics and exposes its `checked`, `input`, and `change` behavior.
-- **Keyboard:** Supports focus and activation using native keyboard behavior.
+- **Semantics:** Uses an internal native `<button>` with the `switch` role. Its `aria-checked` follows `checked`.
+- **Controlled:** Activation fires `click`, then `input`, then `change`, and changes no state. Set `checked` in a `change` handler to toggle the switch.
+- **Keyboard:** `Tab` reaches the switch, and `Space` or `Enter` activates it.
 - **Name:** Label text in the default slot provides the accessible name.
-- **Disabled:** `disabled` blocks interaction and updates assistive-state signaling.
+- **Disabled:** `disabled` removes the switch from the tab order and suppresses activation.
 
 ## Content guidelines
 
@@ -100,8 +101,7 @@ Use the live example below to inspect interaction states:
 
 - `default` slot: label/content.
 - `icon` slot: leading icon content.
-- `impl` CSS part: visual button container.
-- `control` CSS part: internal native checkbox control.
+- `impl` CSS part: internal native button with the `switch` role, which is the visual container and the focus target.
 
 ## Theming
 
@@ -117,6 +117,7 @@ Use the live example below to inspect interaction states:
 - Material 3 overview: [https://m3.material.io/components/segmented-buttons/overview](https://m3.material.io/components/segmented-buttons/overview)
 - Material 3 guidelines: [https://m3.material.io/components/segmented-buttons/guidelines](https://m3.material.io/components/segmented-buttons/guidelines)
 - Deltas:
+  - This is a controlled component — the host application manages `checked`.
   - Includes explicit `checked` and `value` attributes.
   - Emits `input` and `change` events in addition to `click`.
 

@@ -5,13 +5,11 @@ import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
   Checkable,
-  useCheckable,
   type CheckableProps,
 } from '@ydinjs/core/traits/checkable.js';
 import {
   VALUABLE_ATTRS,
   Valuable,
-  useValuable,
   type ValuableProps,
 } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
@@ -19,7 +17,6 @@ import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
 import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { BUTTON_CORE_TRAITS, useButtonCore } from './ButtonCore.ts';
-import controlStyles from './styles/default/switch-control.css.ts' with { type: 'css' };
 
 export type SwitchProps = CheckableProps & ValuableProps;
 export type SwitchEvents = Readonly<{
@@ -35,6 +32,12 @@ export const SWITCH_CORE_TRAITS: readonly [
 
 export type SwitchCore = Traited<ControlledElement, typeof SWITCH_CORE_TRAITS>;
 
+/**
+ * Sets up a switch whose `.host` is a `<button role="switch">`. The switch is
+ * controlled: activation dispatches `input` and `change` and changes no state.
+ * `aria-checked`, the `checked` custom state and the form value follow the
+ * host's `checked` only.
+ */
 export function useSwitchCore(
   host: SwitchCore,
   template: HTMLTemplateElement,
@@ -44,29 +47,20 @@ export function useSwitchCore(
   const target = useButtonCore(
     host,
     template,
-    [...styles, controlStyles],
+    styles,
     init,
-  ) as HTMLInputElement;
-
-  target.role = 'switch';
-
-  useCheckable(host, target);
-  useValuable(host, target);
-
+  ) as HTMLButtonElement;
   const innards = internals(host);
-
-  const submitValue = (checked: boolean) => {
-    innards.setFormValue(checked ? (host.value ?? 'on') : null);
-  };
 
   useAttributes(host, {
     checked: via(Bool, (_, value) => {
       toggleState(innards, 'checked', value);
-      submitValue(value);
+      target.ariaChecked = String(value);
+      innards.setFormValue(value ? (host.value ?? 'on') : null);
     }),
     value(_, newValue) {
-      if (target.checked) {
-        innards.setFormValue(newValue);
+      if (host.checked) {
+        innards.setFormValue(newValue ?? 'on');
       }
     },
   });
@@ -77,23 +71,25 @@ export function useSwitchCore(
     VALUABLE_ATTRS,
     (_, oldValue, newValue) => {
       if (oldValue === host.value) {
-        innards.states.delete('checked');
-        target.checked = false;
-        submitValue(false);
+        host.checked = false;
       } else if (newValue === host.value) {
-        innards.states.add('checked');
-        target.checked = true;
-        submitValue(true);
+        host.checked = true;
       }
     },
   );
 
+  // A button fires no `input` or `change`. The button's command runs as its
+  // activation behaviour: after `click` has finished dispatching, and only if
+  // no listener cancelled it. So `input` and `change` follow `click` as they
+  // follow it on a native checkbox.
+  target.commandForElement = target;
+  target.command = '--activate';
+
   useEvents(
     host,
     {
-      change() {
-        submitValue(target.checked);
-        notify(host, 'change');
+      command() {
+        notify(host, 'input', 'change');
       },
     },
     target,
