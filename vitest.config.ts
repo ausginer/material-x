@@ -6,7 +6,7 @@ import { createWorkspaceTestConfig } from './.scripts/vitest-config.ts';
 // eslint-disable-next-line import-x/no-relative-packages
 import { dragBrowserCommands } from './packages/drag/tests/support/commands.node.ts';
 // eslint-disable-next-line import-x/no-relative-packages
-import { materialXBrowserCommands } from './packages/material-x/tests/support/visual-contracts.node.ts';
+import { materialXBrowserCommands } from './packages/material-x/tests/support/commands.node.ts';
 
 const config: UserConfigFnObject = defineConfig((env) =>
   createWorkspaceTestConfig(env, {

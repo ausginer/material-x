@@ -70,19 +70,24 @@ export function useCheckableCore(
       innards.setFormValue(value ? (host.value ?? 'on') : null);
     }),
     value(_, newValue) {
-      if (input.checked) {
-        innards.setFormValue(newValue);
+      if (host.checked) {
+        innards.setFormValue(newValue ?? 'on');
       }
     },
   });
 
   useRipple(host);
 
+  // The component is controlled, but the native input's activation changes
+  // its own `checked`. Once the consumer's `change` handlers have run, the
+  // input shows the host's state again: the new state if a handler set it, and
+  // the old one otherwise.
   useEvents(
     host,
     {
       change() {
         notify(host, 'change');
+        input.checked = host.checked;
       },
     },
     input,

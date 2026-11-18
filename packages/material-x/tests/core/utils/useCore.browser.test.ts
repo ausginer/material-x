@@ -5,6 +5,7 @@ import '../../../src/button/icon-button.ts';
 import '../../../src/button/link-button.ts';
 import '../../../src/button/switch-button.ts';
 import '../../../src/button/switch-icon-button.ts';
+import '../../../src/fab/fab.ts';
 import ListButtonItem from '../../../src/list/list-button-item.ts';
 import '../../../src/list/list-link-item.ts';
 
@@ -15,6 +16,7 @@ const FORWARDING_TAGS = [
   'mx-link-button',
   'mx-switch-button',
   'mx-switch-icon-button',
+  'mx-fab',
   'mx-list-button-item',
   'mx-list-link-item',
 ] as const;
@@ -64,6 +66,19 @@ describe('forwardFocus', () => {
       );
     },
   );
+
+  it.each(FORWARDING_TAGS)('should focus the .host of %s on focus()', (tag) => {
+    const element = create(tag);
+    // A link takes focus only when it has an `href`.
+    if (tag.includes('link')) {
+      element.setAttribute('href', '#');
+    }
+
+    element.focus();
+
+    expect(document.activeElement).toBe(element);
+    expect(element.shadowRoot?.activeElement).toBe($(element, '.host'));
+  });
 
   it.each([
     { tag: 'test-focus-counting-button', base: 'mx-button' },

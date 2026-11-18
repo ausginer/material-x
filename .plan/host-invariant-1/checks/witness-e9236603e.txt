@@ -1,0 +1,117 @@
+# Witnesses: the unit's new and changed rows, run against packages/material-x/src at e9236603e (the unit's tests at its head).
+# Local devcontainer. Method: git stash of packages/material-x/src, then vitest --project 'browser*' on the four files below.
+# Files: tests/button/SwitchCore.browser.test.ts, tests/core/utils/useCore.browser.test.ts,
+#        tests/core/elements/CheckableCore.browser.test.ts, tests/checkbox/checkbox.browser.test.ts
+
+## chromium
+⎯⎯⎯⎯⎯⎯ Failed Tests 35 ⎯⎯⎯⎯⎯⎯⎯
+tests/button/SwitchCore.browser.test.ts:76 > mx-switch-button activation events > should dispatch click, input and change for a pointer click
+tests/button/SwitchCore.browser.test.ts:76 > mx-switch-icon-button activation events > should dispatch click, input and change for a pointer click
+tests/button/SwitchCore.browser.test.ts:104 > mx-switch-button activation events > should activate with a real Enter key press
+tests/button/SwitchCore.browser.test.ts:104 > mx-switch-icon-button activation events > should activate with a real Enter key press
+tests/button/SwitchCore.browser.test.ts:150 > mx-switch-button activation events > should preserve native event interfaces and flags
+tests/button/SwitchCore.browser.test.ts:150 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+tests/button/SwitchCore.browser.test.ts:198 > mx-switch-button semantics > should expose the switch role on the internal button
+tests/button/SwitchCore.browser.test.ts:198 > mx-switch-icon-button semantics > should expose the switch role on the internal button
+tests/button/SwitchCore.browser.test.ts:202 > mx-switch-button semantics > should expose aria-checked false on a new switch
+tests/button/SwitchCore.browser.test.ts:202 > mx-switch-icon-button semantics > should expose aria-checked false on a new switch
+tests/button/SwitchCore.browser.test.ts:206 > mx-switch-button semantics > should synchronize the checked property to aria-checked
+tests/button/SwitchCore.browser.test.ts:206 > mx-switch-icon-button semantics > should synchronize the checked property to aria-checked
+tests/button/SwitchCore.browser.test.ts:214 > mx-switch-button semantics > should synchronize the checked attribute to aria-checked
+tests/button/SwitchCore.browser.test.ts:214 > mx-switch-icon-button semantics > should synchronize the checked attribute to aria-checked
+tests/button/SwitchCore.browser.test.ts:223 > mx-switch-button semantics > should leave every checked observation unchanged by activation without a handler
+tests/button/SwitchCore.browser.test.ts:223 > mx-switch-icon-button semantics > should leave every checked observation unchanged by activation without a handler
+tests/button/SwitchCore.browser.test.ts:233 > mx-switch-button semantics > should follow a change handler that sets checked
+tests/button/SwitchCore.browser.test.ts:233 > mx-switch-icon-button semantics > should follow a change handler that sets checked
+tests/button/SwitchCore.browser.test.ts:252 > mx-switch-button accessible name > should take its accessible name from its label content
+tests/button/SwitchCore.browser.test.ts:315 > mx-switch-button in a connected button group > should check the switch whose value matches the group value
+tests/button/SwitchCore.browser.test.ts:326 > mx-switch-button in a connected button group > should uncheck the previous switch when the group value changes
+tests/button/SwitchCore.browser.test.ts:338 > mx-switch-button in a connected button group > should move roving focus to the internal button
+tests/button/SwitchCore.browser.test.ts:351 > mx-switch-button focus > should focus the internal button on focus()
+tests/button/SwitchCore.browser.test.ts:359 > mx-switch-button focus > should reach the internal button by Tab
+tests/button/SwitchCore.browser.test.ts:351 > mx-switch-icon-button focus > should focus the internal button on focus()
+tests/button/SwitchCore.browser.test.ts:359 > mx-switch-icon-button focus > should reach the internal button by Tab
+tests/checkbox/checkbox.browser.test.ts:109 > mx-checkbox indeterminate > should stay indeterminate in the host and the control after a click without a handler
+tests/core/elements/CheckableCore.browser.test.ts:227 > mx-checkbox activation > should leave the host and the control unchecked after a click without a handler
+tests/core/elements/CheckableCore.browser.test.ts:227 > mx-radio activation > should leave the host and the control unchecked after a click without a handler
+tests/core/elements/CheckableCore.browser.test.ts:238 > mx-checkbox activation > should leave the host and the control unchecked after a Space press without a handler
+tests/core/elements/CheckableCore.browser.test.ts:238 > mx-radio activation > should leave the host and the control unchecked after a Space press without a handler
+tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-fab class, not an own property
+tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-button on focus()
+tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-icon-button on focus()
+tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-fab on focus()
+      Tests  35 failed | 89 passed (124)
+
+## firefox and webkit
+⎯⎯⎯⎯⎯⎯ Failed Tests 70 ⎯⎯⎯⎯⎯⎯⎯
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:76 > mx-switch-button activation events > should dispatch click, input and change for a pointer click
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:76 > mx-switch-icon-button activation events > should dispatch click, input and change for a pointer click
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:104 > mx-switch-button activation events > should activate with a real Enter key press
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:104 > mx-switch-icon-button activation events > should activate with a real Enter key press
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:150 > mx-switch-button activation events > should preserve native event interfaces and flags
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:150 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:198 > mx-switch-button semantics > should expose the switch role on the internal button
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:198 > mx-switch-icon-button semantics > should expose the switch role on the internal button
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:202 > mx-switch-button semantics > should expose aria-checked false on a new switch
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:202 > mx-switch-icon-button semantics > should expose aria-checked false on a new switch
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:206 > mx-switch-button semantics > should synchronize the checked property to aria-checked
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:206 > mx-switch-icon-button semantics > should synchronize the checked property to aria-checked
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:214 > mx-switch-button semantics > should synchronize the checked attribute to aria-checked
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:214 > mx-switch-icon-button semantics > should synchronize the checked attribute to aria-checked
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:223 > mx-switch-button semantics > should leave every checked observation unchanged by activation without a handler
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:223 > mx-switch-icon-button semantics > should leave every checked observation unchanged by activation without a handler
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:233 > mx-switch-button semantics > should follow a change handler that sets checked
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:233 > mx-switch-icon-button semantics > should follow a change handler that sets checked
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:252 > mx-switch-button accessible name > should take its accessible name from its label content
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:315 > mx-switch-button in a connected button group > should check the switch whose value matches the group value
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:326 > mx-switch-button in a connected button group > should uncheck the previous switch when the group value changes
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:338 > mx-switch-button in a connected button group > should move roving focus to the internal button
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:351 > mx-switch-button focus > should focus the internal button on focus()
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:359 > mx-switch-button focus > should reach the internal button by Tab
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:351 > mx-switch-icon-button focus > should focus the internal button on focus()
+|browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:359 > mx-switch-icon-button focus > should reach the internal button by Tab
+|browser/firefox (firefox)| tests/checkbox/checkbox.browser.test.ts:109 > mx-checkbox indeterminate > should stay indeterminate in the host and the control after a click without a handler
+|browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:227 > mx-checkbox activation > should leave the host and the control unchecked after a click without a handler
+|browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:227 > mx-radio activation > should leave the host and the control unchecked after a click without a handler
+|browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:238 > mx-checkbox activation > should leave the host and the control unchecked after a Space press without a handler
+|browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:238 > mx-radio activation > should leave the host and the control unchecked after a Space press without a handler
+|browser/firefox (firefox)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-fab class, not an own property
+|browser/firefox (firefox)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-button on focus()
+|browser/firefox (firefox)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-icon-button on focus()
+|browser/firefox (firefox)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-fab on focus()
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:76 > mx-switch-button activation events > should dispatch click, input and change for a pointer click
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:76 > mx-switch-icon-button activation events > should dispatch click, input and change for a pointer click
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:104 > mx-switch-button activation events > should activate with a real Enter key press
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:104 > mx-switch-icon-button activation events > should activate with a real Enter key press
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:150 > mx-switch-button activation events > should preserve native event interfaces and flags
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:150 > mx-switch-icon-button activation events > should preserve native event interfaces and flags
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:198 > mx-switch-button semantics > should expose the switch role on the internal button
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:198 > mx-switch-icon-button semantics > should expose the switch role on the internal button
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:202 > mx-switch-button semantics > should expose aria-checked false on a new switch
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:202 > mx-switch-icon-button semantics > should expose aria-checked false on a new switch
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:206 > mx-switch-button semantics > should synchronize the checked property to aria-checked
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:206 > mx-switch-icon-button semantics > should synchronize the checked property to aria-checked
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:214 > mx-switch-button semantics > should synchronize the checked attribute to aria-checked
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:214 > mx-switch-icon-button semantics > should synchronize the checked attribute to aria-checked
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:223 > mx-switch-button semantics > should leave every checked observation unchanged by activation without a handler
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:233 > mx-switch-button semantics > should follow a change handler that sets checked
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:233 > mx-switch-icon-button semantics > should follow a change handler that sets checked
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:223 > mx-switch-icon-button semantics > should leave every checked observation unchanged by activation without a handler
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:252 > mx-switch-button accessible name > should take its accessible name from its label content
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:315 > mx-switch-button in a connected button group > should check the switch whose value matches the group value
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:326 > mx-switch-button in a connected button group > should uncheck the previous switch when the group value changes
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:338 > mx-switch-button in a connected button group > should move roving focus to the internal button
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:351 > mx-switch-button focus > should focus the internal button on focus()
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:359 > mx-switch-button focus > should reach the internal button by Tab
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:351 > mx-switch-icon-button focus > should focus the internal button on focus()
+|browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:359 > mx-switch-icon-button focus > should reach the internal button by Tab
+|browser/webkit (webkit)| tests/checkbox/checkbox.browser.test.ts:109 > mx-checkbox indeterminate > should stay indeterminate in the host and the control after a click without a handler
+|browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:227 > mx-checkbox activation > should leave the host and the control unchecked after a click without a handler
+|browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:227 > mx-radio activation > should leave the host and the control unchecked after a click without a handler
+|browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:238 > mx-checkbox activation > should leave the host and the control unchecked after a Space press without a handler
+|browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:238 > mx-radio activation > should leave the host and the control unchecked after a Space press without a handler
+|browser/webkit (webkit)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-fab class, not an own property
+|browser/webkit (webkit)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-button on focus()
+|browser/webkit (webkit)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-icon-button on focus()
+|browser/webkit (webkit)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-fab on focus()
+      Tests  70 failed | 178 passed (248)

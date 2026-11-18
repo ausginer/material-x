@@ -68,7 +68,7 @@ Associate a label using a wrapping `<label>` element or via `for`/`id`.
 
 Use the live example below to inspect interaction states:
 
-- click or press `Space` to toggle `checked`
+- click or press `Space` to activate it. Activation fires `click`, `input` and `change`, and doesn't change `checked`. The story's `change` handler toggles `checked`.
 - hover with a pointer to inspect hover treatment
 - move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
 
@@ -78,7 +78,7 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Keyboard:** Focusable with `Tab`; toggles with `Space`.
+- **Keyboard:** Focusable with `Tab`; `Space` activates it.
 - **Focus indicator:** Drawn around the state-layer area (40 × 40 px touch target).
 - **Name:** Provide an accessible name via a wrapping `<label>` or `aria-label`.
 - **`indeterminate`:** Purely visual — it does not affect the submitted form value. Screen readers announce the element as "mixed". Clear `indeterminate` before toggling `checked` to reflect a definite state.

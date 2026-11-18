@@ -1,0 +1,20 @@
+# Items 9 and 10: the new rows against 2bef29ac0's source (src/button/SwitchCore.ts and src/core/elements/CheckableCore.ts
+# at 2bef29ac0, tests at the remediation commit). Devcontainer, Playwright Chromium, Firefox, WebKit, through
+# packages/material-x/vitest.config.ts with MX_TEST_ENGINES=chromium,firefox,webkit and --reporter=verbose.
+# Failing rows, durations removed:
+ × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:354 > mx-switch-button in a connected button group > should check only the matching switch when a checked switch joins a group with a value
+ × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:372 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+ × |browser (chromium)| tests/button/SwitchCore.browser.test.ts:393 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+ × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-checkbox form participation > should contribute "on" when checked after its value is removed
+ × |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-radio form participation > should contribute "on" when checked after its value is removed
+ × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:354 > mx-switch-button in a connected button group > should check only the matching switch when a checked switch joins a group with a value
+ × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:372 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+ × |browser/firefox (firefox)| tests/button/SwitchCore.browser.test.ts:393 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+ × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-checkbox form participation > should contribute "on" when checked after its value is removed
+ × |browser/firefox (firefox)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-radio form participation > should contribute "on" when checked after its value is removed
+ × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:354 > mx-switch-button in a connected button group > should check only the matching switch when a checked switch joins a group with a value
+ × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:372 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed
+ × |browser/webkit (webkit)| tests/button/SwitchCore.browser.test.ts:393 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value
+ × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-checkbox form participation > should contribute "on" when checked after its value is removed
+ × |browser/webkit (webkit)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-radio form participation > should contribute "on" when checked after its value is removed
+      Tests  15 failed | 279 passed (294)

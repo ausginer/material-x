@@ -4,31 +4,38 @@
   display: flex;
   gap: var(--md-button-group-between-space, var(--_between-space));
 
+  /*
+   * Each button's corners are declared on the button itself, so the group's
+   * pressed and selected sizes, and `--_shape-full`, resolve against the
+   * button's own height. `--md-button-group-inner-corner-size` overrides the
+   * resting inner corners only.
+   */
   ::slotted(*) {
-    --_border-radius: var(
+    --_inner-corner: var(
       --md-button-group-inner-corner-size,
       var(--_inner-corner-corner-size)
     );
+    --_outer-corner: var(--_container-shape);
+    --_border-radius: var(--_inner-corner);
   }
 
-  ::slotted(:active),
-  ::slotted([checked]) {
-    --_inner-corner-corner-size: var(--_container-shape);
+  ::slotted(:state(checked)),
+  ::slotted(:active) {
+    --_inner-corner: var(--_inner-corner-corner-size);
+  }
+
+  /* The group's shape, not the button's own toggle shape. */
+  ::slotted(:state(checked)) {
+    --_outer-corner: var(--_outer-corner-corner-size);
   }
 
   ::slotted([data-first]) {
-    --_border-radius: var(--_container-shape)
-      var(--md-button-group-inner-corner-size, var(--_inner-corner-corner-size))
-      var(--md-button-group-inner-corner-size, var(--_inner-corner-corner-size))
-      var(--_container-shape);
+    --_border-radius: var(--_outer-corner) var(--_inner-corner)
+      var(--_inner-corner) var(--_outer-corner);
   }
 
   ::slotted([data-last]) {
-    --_border-radius: var(
-        --md-button-group-inner-corner-size,
-        var(--_inner-corner-corner-size)
-      )
-      var(--_container-shape) var(--_container-shape)
-      var(--md-button-group-inner-corner-size, var(--_inner-corner-corner-size));
+    --_border-radius: var(--_inner-corner) var(--_outer-corner)
+      var(--_outer-corner) var(--_inner-corner);
   }
 }
