@@ -1589,6 +1589,12 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **Witnesses** (W2): each of twelve rules, reverted alone, fails at least one of the plugin's 138 tests.
   - **Still owed:** the architect widens the document to method traits. Item 3 is next.
 
+- **Dated 2026-11-18 by the implementer: the plan's item 3 is in,** on `repo/traits-plugin-1`. The focus forward is the trait `FocusForwarding` (`material-x/src/core/traits/focus-forwarding.ts`), as parked at `92e13f9d6`. It replaces the eight per-class `focus()` declarations, `forwardFocus` and `focusControl`. The FAB is the eighth adopter: #35 made it register a control, after the handoff counted seven.
+  - **Placement,** as parked: the shared lists `ICON_BUTTON_CORE_TRAITS`, `SWITCH_CORE_TRAITS` and `LIST_INTERACTIVE_ITEM_CORE_TRAITS`, and the own lists of `mx-button`, `mx-link-button` and `mx-fab`. `BUTTON_CORE_TRAITS` doesn't name it, so `mx-split-button` and the button group don't adopt it.
+  - **Held** ([witness](traits-plugin-1/checks/item3-witness.txt)): the build prints no flattener warning. Each adopter's emitted class extends `ControlledElement` directly, declares its own `focus()` and doesn't import the generic `trait`. The suites of the eight hosts pass in chromium, firefox and webkit (1092 tests), with `RF-33`'s rows among them. mx-button's delegation row still fails in Firefox, so the forward still ships.
+  - **Measured** (W1), against the per-class form: +19 or +20 minified bytes in five entries, the brand symbol and its install. +84 in `icon-button`, `switch-button` and `switch-icon-button`: their shared lists are spread arrays that the bundler keeps after flattening, and they keep `FocusForwarding`'s dead class layer too. Brotli moves by −23 to +43. A variant, measured and not committed, names the trait in those three hosts' own lists, and every entry grows by 19 to 21.
+  - **Pending the owner:** accept or decline the growth, and choose between the parked placement and the variant.
+
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
 Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**
