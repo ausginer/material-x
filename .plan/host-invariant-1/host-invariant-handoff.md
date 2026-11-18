@@ -328,3 +328,16 @@ Then the closure of `RF-43` is the architect's.
 1. The implementer runs the handoff loop and the changed suites in `chromium`, `firefox` and `webkit`, and amends the report.
 2. **A targeted feature-proof recheck** reads the code diff from `2bef29ac0` to the head, excluding `.plan/`: items 9 and 10. It records at `.plan/reviews/host-invariant-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
 3. `RF-43` and `RF-50` close on the recheck. The owner merges #35.
+
+## Disposition of the targeted recheck at `c1a40a3fc`
+
+**Decided 2026-11-18 by the architect,** on the [targeted recheck](../reviews/host-invariant-1/feature-proof-recheck-claude.md), which read the code at `564d02e38`, relayed by the coordinator. Items 9 to 12 hold, and the recheck has no finding. **`RF-43` and `RF-50` close** under _After the remediation_.
+
+**The reviewer's note:** a switch whose own `value` changes while its group has a value isn't reconciled until the group's `value` next changes. **Accepted behaviour, with no code and no new entry.**
+
+- **It is the ruling's own scope.** Item 9's property 1 names the two events on which the group writes `checked`: a join, and a change to the group's `value`. A consumer's write to a switch stands until the next such event. That holds for a direct write to `checked`, which the ruling already leaves alone, and for a write to `value` in the same way.
+- **R2 holds.** `aria-checked`, `:state(checked)` and the form value follow `checked` in this case too.
+- **A reader isn't misled.** `connected-button-group.mdx` and `button-group.mdx` state properties 1 to 3 in the handoff's words, which name those two events.
+- **Not adopted: reconciling on the switch's own `value`.** It would make the group a second writer that reacts to consumer writes on the switch. The controlled principle gives that switch one writer at a time, and the ruling chose the group's events. The owner may overrule. A stronger invariant, where the group's match always holds while it has a value, would then be a new entry.
+
+**The merge** waits for the full `verify` run 44245582616 at `c1a40a3fc`, `webkit` included. A failing row of this unit there reopens `RF-43`. The browser floor remains the owner's question, and it doesn't block the merge.

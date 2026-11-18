@@ -1494,7 +1494,7 @@ Tier C, **closed 2026-11-17** (below). Before closure: open, and the 9 rows fail
 
 #### RF-43 — `mx-switch-button` and `mx-switch-icon-button` break the `.host` invariant, so they draw no focus state layer on keyboard focus
 
-Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` (code at `fc3b89680`), relayed by the coordinator. **No row is disabled:** no row reads a switch button's focus layer.
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-17 by the architect, from the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` (code at `fc3b89680`), relayed by the coordinator. **No row is disabled:** no row reads a switch button's focus layer.
 
 - **What is drawn:** both elements build through `useButtonCore`, so they adopt `button/styles/default/main.styles.css` and its focus-layer rule `:host .host:focus-visible > .ripple::before` (`:111`). In their templates, `.host` is a `<span>`, and the focusable element is the `<input class="control">` before it (`switch-button.tpl.html`, `switch-icon-button.tpl.html`). So the rule never matches. Their keyboard focus indicator draws on `.control:focus-visible + .host` (`button/styles/default/switch-control.styles.css:19`).
 - **The tokens:** Material's tables define `md.comp.button.filled.selected.focused.state-layer.color` and its `unselected` counterpart (tproc's cached tables). No switch token package (`defaultSwitchTokens`, `elevatedSwitchTokens`, `tonalSwitchTokens`, `outlinedSwitchTokens`, `variantSwitchTokens`) declares a focus-layer variable.
@@ -1526,6 +1526,12 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **`reviewer-3` to `reviewer-5`** are remediated in this unit: the _States_ claims, item 6 for the two group entries, and the PERCENT count.
   - **The switch's activation depends on invoker commands** (`command` and `commandfor`, R1's dispatch after `click`). In an engine without them, a switch fires `click` and never `input` or `change`. They are Baseline since December 2025: Chromium 135, Firefox 144 and Safari 26.2 (MDN's _Invoker Commands API_ and the web-features entry, read 2026-11-18). No record states a browser floor, so this isn't a defect. **The owner's question:** does material-x state a browser floor? The architect recommends the current stable release of each engine, which includes invoker commands. It doesn't block #35.
   - **It closes** when the targeted recheck of items 9 and 10 finds no defect.
+
+- **Closed 2026-11-18 by the architect,** on the targeted [recheck](reviews/host-invariant-1/feature-proof-recheck-claude.md), which read the code at `564d02e38` and has no finding. The [handoff's disposition](host-invariant-1/host-invariant-handoff.md#disposition-of-the-targeted-recheck-at-c1a40a3fc) holds the reasons.
+  - **Met:** items 1 to 12. Each switch's `.host` is its root and takes focus, and the five feature-proof findings are resolved, the group path and the checkbox's and radio's form value among them.
+  - **The reviewer's note is accepted behaviour:** a switch whose own `value` changes inside a group with a value keeps its `checked` until the group's next event. The group writes `checked` only on a join and on a change to its own `value`. A consumer's write to a switch, of `checked` or `value`, stands until then. No code, and no new entry.
+  - **The merge's condition, not the closure's:** the full `verify` run 44245582616 at `c1a40a3fc`, `webkit` included. A row of this unit that fails there reopens this entry.
+  - **Still open, and the owner's:** whether material-x states a browser floor (this entry's 2026-11-18 decision).
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
@@ -1695,7 +1701,7 @@ Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Deci
 
 #### RF-50 — `mx-checkbox`, `mx-radio` and the text fields change their own state on user interaction, against the controlled principle
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, on the owner's principle that every material-x component is controlled ([`architecture.md`](../.agents/docs/architecture.md) §Components), relayed by the coordinator with the answers to `RF-43`. **No row is disabled.**
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, on the owner's principle that every material-x component is controlled ([`architecture.md`](../.agents/docs/architecture.md) §Components), relayed by the coordinator with the answers to `RF-43`. **No row is disabled.**
 
 - **What was read** at `e9236603e`:
   - **`mx-checkbox` and `mx-radio`.** Activation runs the native input's activation behaviour: a checkbox inverts `checked` and clears `indeterminate`, and a radio sets `checked`. The host's `checked` and `indeterminate`, `:state(checked)` and the form value don't change, because `CheckableCore.ts`'s `change` handler only notifies. So until the consumer answers, the input's state, which assistive technology reads, disagrees with the host's. The row _"should reflect the checked control back on interaction"_ (`tests/core/elements/CheckableCore.browser.test.ts:227`) asserts the input's toggle.
@@ -1717,6 +1723,8 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, on the owner's prin
   - **What remains of this entry:** checkbox and radio, under item 7. It closes when item 7's rows pass.
 
 - **Feature proof decided 2026-11-18 by the architect** (`RF-43`'s entry of the same day). `reviewer-2`: a checked `mx-checkbox` or `mx-radio` whose `value` is removed submits nothing, because its `value` callback gates on the native input's `checked` and writes the raw value. Item 7 required that the form value follow the host only, so item 7 owes it, and no new entry is needed. The form value is `value ?? 'on'` while the host is checked, as the switch's already is. It is item 10 of the [handoff's disposition](host-invariant-1/host-invariant-handoff.md#disposition-of-the-feature-proof-review-at-5b1544100). This entry closes with `RF-43`.
+
+- **Closed 2026-11-18 by the architect,** with `RF-43`, on the same recheck. Item 7 and item 10 hold: activation leaves the native input as the host's state, and the form value is `value ?? 'on'` while checked, for both elements. The text fields remain the principle's one exception.
 
 #### RF-51 — `material-x/react.d.ts` imports React's types by an absolute path on the build machine
 
