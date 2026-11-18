@@ -1595,6 +1595,9 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **Measured** (W1), against the per-class form: +19 or +20 minified bytes in five entries, the brand symbol and its install. +84 in `icon-button`, `switch-button` and `switch-icon-button`: their shared lists are spread arrays that the bundler keeps after flattening, and they keep `FocusForwarding`'s dead class layer too. Brotli moves by −23 to +43. A variant, measured and not committed, names the trait in those three hosts' own lists, and every entry grows by 19 to 21.
   - **Pending the owner:** accept or decline the growth, and choose between the parked placement and the variant.
 
+- **Dated 2026-11-18 by the architect: the document is widened to method traits,** on the implementer's item 2 report and a reading of the code at `17065ddf0`. [`trait-flattener-plugin.md`](../.agents/docs/trait-flattener-plugin.md) now states what the plugin implements for both kinds of trait. That covers the recognition from `primitives`, the definition, member, scope and linking rules, the walker's conservative allowlist, `TRAIT_IR_VERSION` 2, member insertion, and a table of all twelve reason codes. Its change record says what changed, including that `observedAttributes` is emitted only with a descriptor trait.
+  - **`RF-44`'s required property now holds in the document and the code,** item 2's witnesses read with it. The entry stays open for item 3, whose bytes the owner accepts or declines. The architect doesn't decide that here.
+
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
 Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**
