@@ -2,7 +2,7 @@
 
 **Handoff:** [`host-invariant-handoff.md`](host-invariant-handoff.md), items 1 to 8. **Input:** `ac213194d` on `repo/host-invariant-1` for items 1 to 7, whose `packages/` tree is the same as at `e9236603e`. Item 8 is from `2cef95836`, which the architect added after the stop at `7667a2a5a`. **Governing records:** `repo:RF-43`, `repo:RF-50`, `repo:RF-56`, `repo:RF-35`, `repo:RF-33`, `repo:RF-42`, and [`architecture.md`](../../.agents/docs/architecture.md) §Components.
 
-**Status: waiting for the owner's acceptance of one visual change.** `button-group-connected-selected` changes (item 1, property 8, and item 8). Every other property holds. The baseline isn't recorded, and the pull request isn't opened, so the gate (`verify`) hasn't run. See [The stop](#the-stop).
+**Status: complete, with the gate's `webkit` job not yet run.** Every property holds. The owner accepted the `button-group-connected-selected` change, and its baseline was recorded through `RD-13` (#36, merged as `8eb38b667`). Pull request #35's `verify` passes in every job except `webkit`, which the runner's package install cancelled twice before any test ran. See [The gate](#the-gate).
 
 All readings below are local runs in the devcontainer: Chromium 158, Firefox 159 and WebKit 27.2, through Playwright. "Three engines" means these three.
 
@@ -150,7 +150,14 @@ Pull request #35. `main` gained #34 after the unit's last commit, and a conflict
   - The `DragFault` lines in both logs are drag's expected fault output, and no drag row failed.
 - **The cause:** `TypeError: commands.pointerPress is not a function`. CI runs the root `vitest.config.ts`, which registered material-x's commands from `visual-contracts.node.ts` alone. The input commands were added to `packages/material-x/vitest.config.ts` only, and the local runs used that config.
 - **The repair:** `tests/support/commands.node.ts` now defines material-x's command map once, as the token-contract commands and the input commands, and both configs import it. Through the root config, the file's 50 rows pass in each of the three engines locally.
-- **Baselines:** run 44235050889 recorded the baseline on GitHub's runner and opened #36 (`baselines/repo/host-invariant-1`) into this branch, for the owner's merge (`RD-13`).
+- **Baselines:** run 44235050889 recorded the baseline on GitHub's runner and opened #36 (`baselines/repo/host-invariant-1`) into this branch. #36 changes one file, `button-group-connected-selected-chromium-linux.png`, recorded at `59ca99e6a`. The owner merged it as `8eb38b667` (`RD-13`).
+- **Run 44236329357 on `ce3516d00`:** `firefox` passed, with 1,728 rows and 1 expected failure. `chromium` failed 1 of 2,052 rows: only the visual row, before #36 was merged. `webkit` and `docs` were cancelled.
+- **Run 44238673598 on `8eb38b667`, attempts 1 and 2:**
+  - `scope`, `static`, `chromium`, `firefox`, `docs` and `measurements` passed. `chromium` passed 2,040 rows with 12 skipped, the visual row included, and `firefox` passed 1,728 rows with 1 expected failure.
+  - `webkit` was cancelled in both attempts, inside `playwright install --with-deps webkit`, at the job's 8-minute `timeout-minutes`. Its test step was skipped, so no WebKit row ran in CI.
+  - **Read, not established by this unit:** the coordinator reports that #37's run hit the same step's limit at the same time, with the Ubuntu mirror serving at about 60 KB/s. So the cause is the runner's package install, not this unit's change. The owner has asked for a separate unit that installs system dependencies up front, and this unit doesn't change the workflow.
+  - **WebKit locally:** every material-x row passes in Playwright's WebKit 27.2 in the devcontainer (item 8's _Full local run_). Under `RD-13` property 8 that is not CI evidence.
+- **Open:** a passing `webkit` job. The push of this report starts the next attempt.
 
 **`button-group-connected-selected` changes** (item 1, property 8: _a visual baseline differs_).
 
@@ -171,7 +178,7 @@ Local rendering doesn't match the CI baselines, so each comparison was made in o
 
 - Every other visual row matches.
 
-**For the owner:** accept the item 8 image, after which the baseline is recorded through `RD-13`'s workflow, or rule otherwise. The pull request waits for that acceptance, and the report's _full gate_ line stays open until `verify` runs.
+**Decided 2026-11-18 by the owner:** the item 8 image is accepted (_"the spec is in charge here, not me"_). The baseline was recorded on GitHub's runner and merged through #36 (`8eb38b667`). The stop is resolved.
 
 ## Scratch work
 
