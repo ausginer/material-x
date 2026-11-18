@@ -1,10 +1,17 @@
 # Handoff: the runners' system packages, fetched once up front and installed offline
 
-**Recipient:** the implementer, in slot `c`.
+**Recipient:** the implementer, in the main checkout. (It said slot `c`. The coordinator reassigned the unit on 2026-11-18.)
 
 **Branch:** `repo/ci-deps-1`, from `origin/main` at `83a985b99`. **Input:** the architect's commit that adds this file.
 
 **Begins after** the main slot's architect records the proposals below (`RD-17` properties 4 and 7). If the recorded entries differ, they bind, and the implementer returns here before implementing anything they change.
+
+**Recorded 2026-11-18** by the main slot's architect, on the owner's choice of this plan over a custom CI image. The entries are `RF-58` and `RD-21`, with the amendments to `RD-6`, `RD-12` and `RD-15` in place, in [`../00-index.md`](../00-index.md). They bind. Where they differ from the proposals below:
+
+- **The decision is `RD-21`, not `RD-20`,** because `RD-20` went to material-x's browser floor on `repo/traits-plugin-1`. Items 1 and 2 and the last section name `RD-21`. The proposal sections keep the number they proposed.
+- **`RD-21` property 2.2 adds one requirement:** the offline install names the archive files themselves, so it doesn't depend on the versions in the runner's package lists. A fetch made after an `apt-get update` can hold a newer version than those lists name, such as Mesa's upgrade in Chromium's set. If apt can't install the files without the network, that is this handoff's second stop.
+- **`RD-21` adds a reason about the cache's scope,** from GitHub's documentation: a pull request restores what `main`'s runs saved. Witness 1's cold run fills only the pull request's own scope.
+- **The custom image** is recorded under _Not adopted_ as the owner's decision.
 
 **The owner's direction,** relayed by the coordinator on 2026-11-18: system dependencies are installed up front, at environment initialization, before any test starts. How is the architect's to establish.
 
@@ -105,15 +112,15 @@ Properties. The handoff items below are their form.
 
 **Required:**
 
-- `.github/actions/browser/action.yml`, as `RD-20` property 2 says.
+- `.github/actions/browser/action.yml`, as `RD-21` property 2 says.
   - **A `using: composite` action.** Any third-party action it uses is pinned to a full commit hash, as `RD-6` property 9 requires. `actions/cache/restore` and `actions/cache/save` take the same hash as the `actions/cache` that the workflows already use.
   - **The key is computed in one place,** in a step or script that both the fetch job and the action use, so the two can't disagree.
   - **The archive directory is outside the checkout,** under `$RUNNER_TEMP`.
 - `verify.yml`:
-  - the `system-deps` job, as `RD-20` property 1 says;
+  - the `system-deps` job, as `RD-21` property 1 says;
   - `chromium`, `firefox`, `webkit`, `docs` and `measurements` replace their `playwright install --with-deps` step with the action, at the same position, after `aube ci`, and need `system-deps`;
   - `verify` needs `system-deps`, and expects `success` in full mode and `skipped` in reduced mode;
-  - the header comment names `repo:RD-20`.
+  - the header comment names `repo:RD-21`.
 - `baselines.yml` replaces its install step with the action.
 - No recipe changes. Installing system packages is the workflow's job, as it is today.
 
@@ -148,5 +155,5 @@ Each of these means that the key or the method is wrong, and the fallback would 
 
 - Follow [`.agents/docs/handoff.md`](../../.agents/docs/handoff.md): `aube exec just fmt-check` at the root covers the YAML and the Markdown. Check the report's links.
 - No test changes. The gate's own runs are the test.
-- Don't change the records' status in `00-index.md`. The main slot's architect records `RD-20` as implemented from the report and the review.
+- Don't change the records' status in `00-index.md`. The main slot's architect records `RD-21` as implemented from the report and the review.
 - Commit item 1, push `repo/ci-deps-1`, and ask the coordinator for the pull request, since the witnesses need its runs. Then commit item 2 and push.
