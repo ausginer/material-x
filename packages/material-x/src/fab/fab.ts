@@ -26,7 +26,7 @@ import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { useCore } from '../core/utils/useCore.ts';
+import { focusControl, forwardFocus, useCore } from '../core/utils/useCore.ts';
 import template from './fab.tpl.html' with { type: 'html' };
 import colorStyles from './styles/color/main.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
@@ -112,18 +112,26 @@ const FABConstructor: TraitedConstructor<
 export default class FAB extends FABConstructor {
   constructor() {
     super();
-    useCore(this, [template], {}, [
-      elevationStyles,
-      focusStyles,
-      defaultStyles,
-      colorStyles,
-      sizeStyles,
-      tonalStyles,
-      extendedStyles,
-    ]);
+    useCore(
+      this,
+      [template],
+      {},
+      [
+        elevationStyles,
+        focusStyles,
+        defaultStyles,
+        colorStyles,
+        sizeStyles,
+        tonalStyles,
+        extendedStyles,
+      ],
+      { delegatesFocus: true },
+    );
 
     const target = $<HTMLButtonElement>(this, '.host')!;
     useARIA(this, target);
+
+    forwardFocus(this, target);
 
     useRipple(this, target, target);
 
@@ -141,6 +149,10 @@ export default class FAB extends FABConstructor {
       tonal: (_, newValue) =>
         toggleState(innards, 'tonal', Bool.from(newValue)),
     });
+  }
+
+  override focus(options?: FocusOptions): void {
+    focusControl(this, options);
   }
 }
 

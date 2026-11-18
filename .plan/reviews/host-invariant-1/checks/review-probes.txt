@@ -1,0 +1,85 @@
+# Review probes, host-invariant-1 feature proof. Code at 2bef29ac0, devcontainer, Playwright Chromium, Firefox, WebKit.
+# Each probe ran as a temporary file tests/zz-review-probe.browser.test.ts in packages/material-x, then deleted.
+# Command: MX_TEST_ENGINES=chromium,firefox,webkit aube exec -- vitest run -c vitest.config.ts --silent=false <file>
+# Every PROBE line below printed identically in all three engines (uniq -c count 3 per line).
+
+## Probe 1 source
+type Sw = HTMLElement & { checked: boolean; value: string | null; indeterminate?: boolean };
+afterEach(() => { document.body.replaceChildren(); });
+function formOf(el) { const f = document.createElement('form'); el.setAttribute('name', 'n'); f.append(el); document.body.append(f); return f; }
+A:  group (no value) > switch (no value, checked = true, text 'x'); wait 50ms; log checked, hasAttribute('checked'), .host ariaChecked;
+    group.setAttribute('value','other'); wait 50ms; log checked.
+A2: group value='b' > switch value='a' checked=true, switch value='b'; wait 50ms; log a.checked, b.checked.
+C:  for mx-checkbox, mx-radio, mx-switch-button: value='a', checked=true, inside <form>, name='n';
+    FormData before; removeAttribute('value'); FormData after.
+D:  standalone switch; document capture listeners for command, click, input, change; s.click(); log what document saw.
+E:  mx-checkbox / mx-radio with <label for>; label.click(), then el.click(); log host events, host.checked, input.checked.
+F:  mx-checkbox indeterminate with <label for>; label.click(); log host/input indeterminate and input.checked.
+
+## Probe 1 output (one engine's copy; the other two are identical)
+PROBE A checked after join: false false false
+PROBE A checked after group value=other: false
+PROBE A2 a.checked, b.checked: true true
+PROBE C mx-checkbox: before=a after=null checked=true
+PROBE C mx-radio: before=a after=null checked=true
+PROBE C mx-switch-button: before=a after=on checked=true
+PROBE D seen at document: click:mx-switch-button click:mx-switch-button input:mx-switch-button change:mx-switch-button
+PROBE E mx-checkbox label: events=click,input,change host=false input=false
+PROBE E mx-checkbox host.click: events=click,input,change host=false input=false
+PROBE E mx-radio label: events=click,input,change host=false input=false
+PROBE E mx-radio host.click: events=click,input,change host=false input=false
+PROBE F: host.ind=true input.ind=true input.checked=false
+
+## Probe 2 source
+A3: group value='a' > switch value='a', switch (no value); wait 50ms; log both checked;
+    group.removeAttribute('value'); wait 50ms; log both checked, and the valueless one's .host ariaChecked and :state(checked).
+
+## Probe 2 output (uniq -c across the three engines)
+      3 PROBE A3 after removing group value: a=false valueless=true aria=true state=true
+      3 PROBE A3 start: a=true valueless=false
+
+## Mutations, Chromium only, restored with git checkout afterwards
+# M1: SwitchCore dispatches input and change from a click listener on .host (if !defaultPrevented) instead of the command.
+# M2: CheckableCore drops 'input.checked = host.checked' after notify(change).
+# Files: tests/button/SwitchCore.browser.test.ts, tests/core/elements/CheckableCore.browser.test.ts, tests/checkbox/checkbox.browser.test.ts
+      Tests  20 failed | 86 passed (106)
+     × should activate through a label that names the host 53ms
+     × should activate through a label that names the host 85ms
+     × should activate with a real Enter key press 78ms
+     × should activate with a real Enter key press 99ms
+     × should activate with a real Space key press 102ms
+     × should activate with a real Space key press 65ms
+     × should dispatch click, input and change for a pointer click 112ms
+     × should dispatch click, input and change for a pointer click 219ms
+     × should dispatch input and change after every click listener 51ms
+     × should dispatch input and change after every click listener 65ms
+     × should dispatch no input or change for a cancelled click 100ms
+     × should dispatch no input or change for a cancelled click 85ms
+     × should dispatch one activation sequence for host click 54ms
+     × should leave the host and the control unchecked after a Space press without a handler 80ms
+     × should leave the host and the control unchecked after a Space press without a handler 95ms
+     × should leave the host and the control unchecked after a click without a handler 72ms
+     × should leave the host and the control unchecked after a click without a handler 91ms
+     × should preserve native event interfaces and flags 51ms
+     × should preserve native event interfaces and flags 84ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+## PERCENT lengths in tproc's cached tables (node, src/DB/index.ts)
+DIPS 376
+PERCENT 16
+md.comp.button-group.connected.xlarge.selected.inner-corner.corner-size
+md.comp.button-group.connected.large.selected.inner-corner.corner-size
+md.comp.button-group.connected.medium.selected.inner-corner.corner-size
+md.comp.button-group.connected.small.selected.inner-corner.corner-size
+md.comp.button-group.connected.xsmall.selected.inner-corner.corner-size
+md.comp.button-group.standard.xsmall.pressed.item.width.multiplier
+md.comp.button-group.standard.small.pressed.item.width.multiplier
+md.comp.button-group.standard.medium.pressed.item.width.multiplier
+md.comp.button-group.standard.large.pressed.item.width.multiplier
+md.comp.button-group.standard.xlarge.pressed.item.width.multiplier
+md.comp.split-button.xsmall.trailing-button.inner-corner.selected.corner-size
+md.comp.split-button.xsmall.outer-corner.corner-size
+md.comp.split-button.small.trailing-button.inner-corner.selected.corner-size
+md.comp.split-button.medium.trailing-button.inner-corner.selected.corner-size
+md.comp.split-button.large.trailing-button.inner-corner.selected.corner-size
+md.comp.split-button.xlarge.trailing-button.inner-corner.selected.corner-size

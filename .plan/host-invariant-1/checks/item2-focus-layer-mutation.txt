@@ -1,0 +1,40 @@
+# Item 2: the switches' focus-layer mappings, dropped and run. Local devcontainer, Chromium, spec project,
+# tests/core/focus-layer.spec.browser.test.ts at the unit's head.
+
+## Every switch focus-layer mapping dropped at once (all five token files at e9236603e): 11 of 66 rows fail.
+mx-switch-button unchecked :: should draw the focused state layer on keyboard focus
+mx-switch-icon-button unchecked :: should draw the focused state layer on keyboard focus
+mx-switch-button unchecked :: should draw the focused state layer on keyboard focus with hover
+mx-switch-icon-button unchecked :: should draw the focused state layer on keyboard focus with hover
+mx-switch-button filled unchecked :: should draw the focused state layer on keyboard focus
+mx-switch-icon-button filled unchecked :: should draw the focused state layer on keyboard focus
+mx-switch-button elevated checked :: should draw the focused state layer on keyboard focus
+mx-switch-button outlined checked :: should draw the focused state layer on keyboard focus
+mx-switch-button tonal checked :: should draw the focused state layer on keyboard focus
+mx-switch-icon-button tonal checked :: should draw the focused state layer on keyboard focus
+mx-switch-icon-button standard checked :: should draw the focused state layer on keyboard focus
+
+## Each mapping row with only its own mapping dropped (the colour and selection's `focus-layer.*` lines).
+mx-switch-button filled unchecked          :: fails
+mx-switch-button filled checked            :: fails
+mx-switch-button elevated unchecked        :: fails
+mx-switch-button elevated checked          :: fails
+mx-switch-button outlined unchecked        :: passes
+mx-switch-button outlined checked          :: fails
+mx-switch-button tonal unchecked           :: fails
+mx-switch-button tonal checked             :: fails
+mx-switch-icon-button filled unchecked     :: passes
+mx-switch-icon-button filled checked       :: passes
+mx-switch-icon-button tonal unchecked      :: passes
+mx-switch-icon-button tonal checked        :: passes
+mx-switch-icon-button standard unchecked   :: passes
+mx-switch-icon-button standard checked     :: fails
+
+# 7 of 14 fail, 7 pass. Each row that passes does so because another sheet the switch adopts writes the same value:
+# - switch-button outlined unchecked: the outlined main sheet writes md.comp.button.outlined.focused.state-layer.color,
+#   which resolves as md.comp.button.outlined.unselected.focused.state-layer.color does.
+# - switch-icon-button filled, both states, and standard unchecked: the default switch sheet writes
+#   md.comp.button.{unselected,selected}.focused.state-layer.color, which resolve as the icon-button tokens do.
+# - switch-icon-button tonal, both states: the button's tonal switch sheet writes
+#   md.comp.button.tonal.{unselected,selected}.focused.state-layer.color, which resolve as the icon-button tokens do.
+# Equality is read from the token DB (use-tokens-db), resolved values compared per pair.

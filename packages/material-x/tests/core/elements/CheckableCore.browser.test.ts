@@ -224,12 +224,41 @@ describe.each(CHECKABLE_TAGS)('%s activation', (tag) => {
     ]);
   });
 
-  it('should reflect the checked control back on interaction', () => {
+  it('should leave the host and the control unchecked after a click without a handler', () => {
     const element = createCheckable(tag);
 
     element.click();
 
-    expect(getControl(element).checked).toBe(true);
+    expect([element.checked, getControl(element).checked]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('should leave the host and the control unchecked after a Space press without a handler', async () => {
+    const element = createCheckable(tag);
+
+    element.focus();
+    await userEvent.keyboard(' ');
+
+    expect([element.checked, getControl(element).checked]).toEqual([
+      false,
+      false,
+    ]);
+  });
+
+  it('should leave the host and the control checked when a change handler sets checked', () => {
+    const element = createCheckable(tag);
+    element.addEventListener('change', () => {
+      element.checked = true;
+    });
+
+    element.click();
+
+    expect([element.checked, getControl(element).checked]).toEqual([
+      true,
+      true,
+    ]);
   });
 
   it('should activate with a real Space key press', async () => {
@@ -299,5 +328,34 @@ describe.each(CHECKABLE_TAGS)('%s form participation', (tag) => {
     document.body.append(form);
 
     expect([...new FormData(form).keys()]).not.toContain('choice');
+  });
+
+  it('should contribute "on" when checked after its value is removed', () => {
+    const form = document.createElement('form');
+    const element = createCheckable(tag);
+    element.setAttribute('name', 'choice');
+    element.setAttribute('value', 'yes');
+    element.toggleAttribute('checked', true);
+    form.append(element);
+    document.body.append(form);
+
+    element.removeAttribute('value');
+
+    expect(new FormData(form).get('choice')).toBe('on');
+  });
+
+  it('should contribute a value set again after its removal when checked', () => {
+    const form = document.createElement('form');
+    const element = createCheckable(tag);
+    element.setAttribute('name', 'choice');
+    element.setAttribute('value', 'yes');
+    element.toggleAttribute('checked', true);
+    form.append(element);
+    document.body.append(form);
+    element.removeAttribute('value');
+
+    element.setAttribute('value', 'again');
+
+    expect(new FormData(form).get('choice')).toBe('again');
   });
 });

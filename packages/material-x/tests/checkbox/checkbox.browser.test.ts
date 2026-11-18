@@ -106,6 +106,18 @@ describe('mx-checkbox indeterminate', () => {
     expect(getControl(element).indeterminate).toBe(true);
   });
 
+  it('should stay indeterminate in the host and the control after a click without a handler', () => {
+    const element = createCheckbox();
+    element.indeterminate = true;
+
+    element.click();
+
+    expect([element.indeterminate, getControl(element).indeterminate]).toEqual([
+      true,
+      true,
+    ]);
+  });
+
   it('should expose indeterminate as a host custom state', () => {
     const element = createCheckbox();
 

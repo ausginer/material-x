@@ -62,8 +62,10 @@ const RadioConstructor: TraitedConstructor<
  *
  * @csspart impl - Internal host element (the visible radio control).
  *
- * @event change - Fired when this radio button becomes selected (user interaction only).
- * @event input - Fired when this radio button becomes selected (user interaction only).
+ * @event change - Fired after `input` when the user activates an unchecked
+ * radio.
+ * Activation doesn't change `checked`.
+ * @event input - Fired after `click` when the user activates an unchecked radio.
  */
 export default class Radio extends RadioConstructor {
   static override formAssociated = true;

@@ -1,0 +1,26 @@
+# Item 6: size of the switch, FAB, checkbox and radio entries. Local devcontainer.
+# material-x has no size budget (repo:RF-45), so this reading stands in for one.
+# Method: `aube exec just build-lib` in packages/material-x with src at e9236603e (before), then at the unit's head
+# (after); each entry bundled with its dependencies by esbuild (`bundle`, `minify`, `format: esm`), then brotli
+# (quality 11) and gzip (level 9) through node:zlib. Bytes.
+
+entry                          minified               brotli                 gzip                  
+button_switch-button.js        21342 -> 21091 (-251)  5622 -> 5478 (-144)    6313 -> 6144 (-169)   
+button_switch-icon-button.js   26607 -> 26641 (+34)   6028 -> 5867 (-161)    6767 -> 6604 (-163)   
+fab_fab.js                     16501 -> 16636 (+135)  4375 -> 4416 (+41)     4925 -> 4985 (+60)    
+checkbox_checkbox.js           12251 -> 12331 (+80)   4187 -> 4206 (+19)     4694 -> 4716 (+22)    
+radio_radio.js                 10107 -> 10127 (+20)   3632 -> 3637 (+5)      4081 -> 4087 (+6)     
+
+# Repeated after item 8 and items 9 and 10 (handoff item 12), same method, with the button-group entries added.
+# Before: src at e9236603e. After: the remediation commit for items 9 to 12, whose parent is b7e1386e3.
+# The before column reproduces the table above for all five entries it shares. fab/fab is the control row:
+# items 9 to 12 don't reach it, and it reproduces the head figures above exactly.
+
+entry                                   minified               brotli                 gzip
+button/switch-button                    21342 -> 21105 (-237)  5622 -> 5490 (-132)    6313 -> 6149 (-164)
+button/switch-icon-button               26607 -> 26655 (+48)   6028 -> 5881 (-147)    6767 -> 6609 (-158)
+fab/fab                                 16501 -> 16636 (+135)  4375 -> 4416 (+41)     4925 -> 4985 (+60)
+checkbox/checkbox                       12251 -> 12337 (+86)   4187 -> 4207 (+20)     4694 -> 4717 (+23)
+radio/radio                             10107 -> 10133 (+26)   3632 -> 3639 (+7)      4081 -> 4088 (+7)
+button-group/button-group               11076 -> 11076 (0)     3432 -> 3431 (-1)      3913 -> 3913 (0)
+button-group/connected-button-group     13209 -> 13742 (+533)  4133 -> 4203 (+70)     4672 -> 4750 (+78)

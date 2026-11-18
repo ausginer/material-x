@@ -102,10 +102,7 @@ export function useButtonCore(
     shadowInit,
   );
 
-  const rippleHost = $<HTMLElement>(host, '.host')!;
-  const target =
-    $<HTMLInputElement>(host, '.control') ??
-    $<HTMLButtonElement>(host, '.host')!;
+  const target = $<HTMLButtonElement>(host, '.host')!;
 
   useDisableable(host, target);
 
@@ -113,7 +110,7 @@ export function useButtonCore(
 
   forwardFocus(host, target);
 
-  useRipple(host, rippleHost, rippleHost);
+  useRipple(host, target, target);
 
   const innards = internals(host);
   const switcher = (oldValue: string | null, newValue: string | null) =>

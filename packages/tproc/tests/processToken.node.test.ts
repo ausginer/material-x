@@ -66,6 +66,13 @@ describe('processToken', () => {
     expect(processToken(token)).toBe('4px');
   });
 
+  it('should convert percent length tokens to a percentage', () => {
+    const token = createToken();
+    setupValue(createValue({ length: { value: 50, unit: 'PERCENT' } }));
+
+    expect(processToken(token)).toBe('50%');
+  });
+
   it('should convert opacity tokens to string', () => {
     const token = createToken();
     setupValue(createValue({ opacity: 0.5 }));

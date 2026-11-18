@@ -1,5 +1,6 @@
 import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
+import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import {
   ControlledElement,
   define,
@@ -89,8 +90,9 @@ const CheckboxConstructor: TraitedConstructor<
  *
  * @csspart impl - Internal host element (the visible checkbox box).
  *
- * @event change - Fired when the checked state changes (user interaction only).
- * @event input - Fired when the checked state changes (user interaction only).
+ * @event change - Fired after `input` when the user activates the checkbox.
+ * Activation doesn't change `checked` or `indeterminate`.
+ * @event input - Fired after `click` when the user activates the checkbox.
  */
 export default class Checkbox extends CheckboxConstructor {
   static override formAssociated = true;
@@ -126,6 +128,18 @@ export default class Checkbox extends CheckboxConstructor {
         toggleState(innards, 'indeterminate', value);
       }),
     });
+
+    // Activation clears the native input's `indeterminate`. Like `checked` in
+    // the core, it shows the host's state again after the `change` handlers.
+    useEvents(
+      this,
+      {
+        change: () => {
+          input.indeterminate = this.indeterminate;
+        },
+      },
+      input,
+    );
   }
 }
 

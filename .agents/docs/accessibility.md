@@ -6,16 +6,17 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 ### Fulfilled requirements
 
-- Native `<button>` is used for `mx-button`, `mx-icon-button`, `mx-switch-button`, and `mx-switch-icon-button`, so keyboard activation and semantics are built-in (`src/button/button.tpl.html`, `src/button/icon-button.tpl.html`).
-- Disabled state is transferred to the internal button via `useAttributeTransfer`, so native `disabled` behavior is preserved on button-based variants (`src/button/useButtonCore.ts`).
-- `aria-*` attributes on the host are mirrored to the internal control, enabling accessible names/descriptions via `aria-label`/`aria-labelledby`/`aria-describedby` (`src/core/controllers/useARIA.ts`, `src/button/useButtonCore.ts`).
-- `mx-link-button` removes `href`, applies `aria-disabled`, and sets `tabindex="-1"` when disabled, preventing focus/activation (`src/button/link-button.ts`, `src/button/link-button.tpl.html`).
-- A visible focus indicator is defined via `:focus-visible` and outline tokens (`src/button/styles/default/main.ctr.css`).
-- Switch variants assign `role="switch"` and map `checked` to `aria-checked` via `useTargetedARIA`, so assistive tech can read the switch state when `checked` is set (`src/button/useSwitch.ts`, `src/core/utils/useCore.ts`).
+- `mx-button`, `mx-icon-button`, `mx-switch-button` and `mx-switch-icon-button` render a native `<button>` as `.host`, so keyboard activation, `disabled` and removal from the tab order are built in (`src/button/button.tpl.html`, `src/button/icon-button.tpl.html`, `src/button/switch-button.tpl.html`, `src/button/switch-icon-button.tpl.html`).
+- `disabled` is transferred to the internal button by `useDisableable`, so native `disabled` behavior is preserved on the button-based variants (`packages/core/src/traits/disableable.ts`, called from `src/button/ButtonCore.ts`).
+- `aria-*` attributes on the host are mirrored to the internal control by `useARIA`, enabling accessible names and descriptions through `aria-label`, `aria-labelledby` and `aria-describedby` (`packages/core/src/controllers/useARIA.ts`, called from `src/button/ButtonCore.ts`).
+- `mx-link-button` removes `href`, applies `aria-disabled` and sets `tabindex="-1"` when disabled, which prevents focus and activation (`useDisableableLinkable` in `packages/core/src/traits/linkable.ts`, called from `src/button/link-button.ts`).
+- A visible focus indicator is drawn on `.host:focus-visible` with the focus-indicator tokens (`src/core/styles/focus/focus.styles.css`, `src/button/styles/default/main.styles.css`).
+- The switch variants' `.host` is a `<button type="button" role="switch">`. Its accessible name comes from its content, so `<mx-switch-button>Enabled</mx-switch-button>` is named _"Enabled"_. `aria-checked` is `"false"` from the first render and follows the host's `checked` (`src/button/switch-button.tpl.html`, `src/button/switch-icon-button.tpl.html`, `src/button/SwitchCore.ts`).
+- The switch variants are controlled, as `mx-checkbox` and `mx-radio` are. `Space`, `Enter`, a pointer click and a `<label>` that names the host fire `click`, then `input`, then `change`, and change no state. `aria-checked`, the `checked` custom state and the form value change only when the consumer sets `checked`, so assistive technology never announces a state that the switch doesn't draw (`src/button/SwitchCore.ts`). An application that wants the switch to toggle sets `checked` in a `change` handler.
 
 ### Missing requirements
 
-- Switch variants do not toggle `checked` on activation; `aria-checked` only updates when the host attribute changes externally, so default interaction does not announce state changes unless the consumer updates `checked` (`src/button/useSwitch.ts`). [Docs]
+None known.
 
 ## Button Group
 
