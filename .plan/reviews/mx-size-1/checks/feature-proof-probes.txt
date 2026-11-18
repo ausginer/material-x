@@ -1,0 +1,71 @@
+# Feature proof of RD-24's rows unit: the reviewer's own runs, 2026-11-18.
+# Tree: 2a6231671, detached, in a scratch worktree outside the slots (local devcontainer).
+# NX_DAEMON=false NX_NO_CLOUD=true for every nx run.
+
+## Install
+$ aube install --frozen-lockfile
+exit 0
+$ aube install --fix-lockfile
+exit 0; git status: no change to package-lock.json
+# That --fix-lockfile dropped node_modules/@ydinjs (RF-48), and the next root 'just size' failed in core:build with
+# "Cannot find package '@ydinjs/vite-traits-plugin'". After 'aube install --frozen-lockfile --force' the seven
+# workspace links were back. The failure was the reviewer's install, not the unit.
+
+## Root 'just size' (--parallel=1, as committed)
+$ aube exec just size
+nx run-many -t size --projects=box-quad,core,drag,material-x --parallel=1 --skipNxCache
+exit 0, real 13.1 s
+Task order (--output-style=static): vite-traits-plugin:build, size-limit-preset-rolldown:build,
+core:build, tproc:build, vite-custom-element-assets:build, core:size, box-quad:size, material-x:size, drag:size
+material-x's 19 rows printed, the same figures as rd24-reading.txt.
+
+## Root 'just size-reading'
+$ aube exec just size-reading <file>
+exit 0, real 6.4 s
+packages in order: box-quad, core, material-x, drag
+material-x rows: 19, names in files.json order then 'complete', every brotli equal to rd24-reading.txt
+(complete 17258), every limit null.
+# The scratch worktree's root path is 91 characters, slot d's (/workspaces/worktrees/d) 23. complete.js imports each entry by its
+# absolute path, and 'complete' still reads 17258 B, so the path doesn't reach the measured output.
+
+## Serialization: wall time, default parallelism against --parallel=1
+$ aube exec -- nx run-many -t size --projects=box-quad,core,drag,material-x [--parallel=1] --skipNxCache
+default      exit 0  8504 ms
+--parallel=1 exit 0 13090 ms
+default      exit 0  8558 ms
+--parallel=1 exit 0 12623 ms
+default      exit 0  8698 ms
+--parallel=1 exit 0 12494 ms
+
+## Default parallelism, six static runs and three streamed runs
+static runs 1-6: exit 0; md5 of material-x's 'Size:' lines identical in all six (71e37847), and equal to the
+--parallel=1 run's.
+streamed runs 1-3: core:size starts after core:build. Every core output line precedes material-x:size's first
+line, so no overlap was observed. All three: "Successfully ran target size". Nothing orders core:size before material-x:size: material-x:size depends on
+'^build' only, and core's tsdown writes in place (clean: false).
+
+## Property 2: an entry row with no built file, without the 'complete' row
+# .size-limit.ts edited in the working tree: rows from [...files.runtime, 'nope/nope'], the 'complete' row removed.
+$ aube exec -- size-limit
+✖ Bundling with Rolldown
+ ERROR  Error: Build failed with 1 error:
+[INVALID_OPTION] You must supply `options.input` to rolldown, you should at least provide one entrypoint via
+`options.input` or `this.emitFile({type: 'chunk', ...})`
+exit 1
+# Reverted with the saved copy; git status clean.
+
+## Gates on the unit's files
+$ aube exec just typecheck    (packages/material-x)    exit 0
+$ aube exec just lint         (packages/material-x)    exit 0, oxlint and eslint over '.', which includes .size-limit.ts
+$ aube exec just fmt-check .size-limit.ts package.json project.json tsconfig.json    correct format
+$ aube exec -- oxfmt -c .oxfmtrc.json --check .scripts/size-reading.ts    correct format
+
+## CI: the merge base is never built
+# Pull request #68, head 335a545a1, run 44279774938, job 134717402054 (measurements, success):
+merge base: a133bebee4e4dd8cd72356e94d72d5b119724723
+Error: aube exec just build failed in /home/runner/work/_temp/base/packages/box-quad:
+Cannot find module '/home/runner/work/_temp/base/node_modules/@ydinjs/vite-traits-plugin/index.js' imported from /home/runner/work/_temp/base/.scripts/tsdown-library.ts
+##[notice]The merge base gave no machine-readable size reading
+# Pull request #66, run 44279730764, job 134717314490: the same merge base, the same three lines.
+# The size comments of #37, #38, #39, #59, #61 and #66 each open with "No base reading".
+# #68's comment lists material-x's 19 rows with Base '—' and no limit, under "No base reading". None is marked added.
