@@ -1086,7 +1086,14 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
    4. **on a miss, or if the install or the check fails,** writes a warning annotation that says which of the three happened, then runs `aube exec -- playwright install --with-deps <engine>`. The fallback keeps the job correct when the cache is wrong or missing;
    5. installs the browser with `aube exec -- playwright install <engine>`. The fallback's command has already done this.
 3. **Order.** Each job of property 2 that is in `verify.yml` `needs` `system-deps`, and so does `verify`: in full mode `system-deps` must succeed, and in reduced mode it is skipped. The recording workflow has no fetch job. It restores what `main`'s runs saved, and falls back on a miss.
-4. **Timeouts.** The test jobs' limits don't change, because their install no longer depends on the mirror. `system-deps` has 30 minutes: a miss on the slow pool fetches WebKit's 125 MB in about 21 minutes at 100 kB/s, and a hit takes well under a minute. **That limit is the only place a slow mirror can still fail a run,** and it fails the run before any test starts.
+4. **Timeouts.** The test jobs' limits don't change. `system-deps` has 30 minutes: a miss on the slow pool fetches WebKit's 125 MB in about 21 minutes at 100 kB/s, and a hit takes well under a minute. **When every test job's restore hits, that limit is the only place a slow mirror can still fail a run,** and it fails the run before any test starts. **A test job whose own restore misses** falls back to the mirror, as property 2.4 says, and on the slow pool it can time out as it did before this decision. `webkit` (8 minutes) and `docs` (5 minutes) can't fetch their sets at 100 kB/s within their limits. That miss happens when:
+   - the job runs on a runner image of another release than its engine's `system-deps` leg, as during an image rollout (inferred from the key, not observed);
+   - the entry is evicted between the leg and the job;
+   - the leg fails to save;
+   - the recording workflow runs before any run has saved for its image.
+
+   The fallback keeps such a job correct, not on time, and its warning names the miss. (**Amended 2026-11-18** by the architect, on the [CI-deps report](ci-deps-1/ci-deps-report.md)'s witness 3, forced-miss run 44259919530, where `webkit` fell back on `us-east-2.ec2.archive.ubuntu.com` and was cancelled at its limit. The property said that the test jobs' limits don't change _"because their install no longer depends on the mirror"_, and that the `system-deps` limit _"is the only place a slow mirror can still fail a run"_, without the condition that every restore hits.)
+
 5. **What doesn't change:** the plain runners, the engines, the package list (still Playwright's), the browser download, and the mirror. `RD-9`'s visual environment is the same set of packages.
 
 **Why.**
@@ -1107,6 +1114,12 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Caching the archives inside each test job,** with no fetch job. It adds nothing to the critical path. But on a miss up to five jobs fetch in parallel, Chromium's set three times, and a slow mirror stalls a test job, which is the opposite of the owner's direction.
 - **Caching the browsers.** Their CDN wasn't the stall.
 - **Removing packages from Chromium's set,** such as the fonts. The visual baselines were recorded with them (`RD-9`).
+- **Changing the miss path** (added 2026-11-18, with property 4's amendment). A test job's miss falls back to today's install, as it did before this decision, so the miss path is no worse than before. Three changes were considered and not adopted:
+  - **A longer limit for the fallback.** A step can't have a limit of its own that is longer than its job's. So `webkit` would need about 30 minutes in every run, and that would hide a hung test for 30 minutes on a hit as well.
+  - **Failing fast on a miss.** It turns a job that would pass on the fast pool into a failed run, and its re-run lands on whichever pool the queue assigns.
+  - **Restoring another release's archives** with a restore key. That would cover the rollout case. But a set fetched for one image can ask the other for a downgrade, or miss a package, so it adds a third path for an inferred case.
+
+  **What reopens it:** a test job in the gate that misses on its own, outside a forced witness, and times out. The architect then registers a finding with the run, and the restore-key option is read first.
 
 **What this amends,** in place, each with what it said before: `RD-6` properties 2 and 8 and one reason, `RD-12` property 11, and `RD-15` property 5.
 
@@ -1896,7 +1909,7 @@ Tier C, **open, decided, unimplemented**. Registered on 2026-11-18 by the archit
   - The package indexes and Playwright's browser downloads were fast on both pools.
   - The volume per engine is the same on both pools: Chromium 32.1 MB, Firefox 48.8 MB, WebKit 125 MB. `docs` and `measurements` fetch Chromium's set too.
 - **Why it matters:** a job that times out tests nothing. Its re-run lands on whichever pool the queue assigns, and #35 and #37 each needed several attempts. At 100 kB/s, WebKit's set takes about 21 minutes against an 8-minute limit.
-- **Required property:** no gate job contacts the Ubuntu mirror while the cache holds its engine's packages. When a run does reach the mirror, that happens before any test job starts.
+- **Required property:** no gate job contacts the Ubuntu mirror while the cache holds its engine's packages for the job's key. When `system-deps` reaches the mirror, that happens before any test job starts. A test job reaches it only when its own restore misses, and its warning then names the miss. (**Amended 2026-11-18** by the architect, with `RD-21` property 4. The second sentence said _"When a run does reach the mirror, that happens before any test job starts"_. A test job whose restore misses falls back to the mirror, so that sentence held only when every restore hits.)
 - **Routed** to `RD-21`. The [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) implements it. It closes when that handoff's witnesses hold and a review reads them.
 
 ## Questions
