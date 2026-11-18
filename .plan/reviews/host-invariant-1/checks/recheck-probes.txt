@@ -1,0 +1,44 @@
+# Recheck probes, host-invariant-1 items 9 and 10. Code at 564d02e38, devcontainer, Playwright Chromium, Firefox, WebKit.
+# The probe ran as a temporary file tests/zz-review-probe.browser.test.ts in packages/material-x, then deleted.
+# Command: MX_TEST_ENGINES=chromium,firefox,webkit aube exec -- vitest run -c vitest.config.ts --silent=false <file>
+# Each line's leading count is the number of engines that printed it (3 = all).
+
+## Item 9 probe, for each group (mx-connected-button-group, mx-button-group) and each switch tag. Cell: checked/aria-checked/:state(checked)
+# A2:     group value=b > a (value a, checked), b (value b), valueless (checked). Join.
+# remove: then group value=a; consumer checks the valueless switch; z (value z, checked) joins;
+#         c (value c) joins and the consumer checks it; then group.removeAttribute('value').
+# A:      a new group with no value > valueless (checked), w (value w, checked). Join; then group value=w.
+      3 PROBE mx-button-group mx-switch-button A2 join value=b: a=false/false/false b=true/true/true valueless=false/false/false
+      3 PROBE mx-button-group mx-switch-button join no value: valueless=true/true/true w=true/true/true
+      3 PROBE mx-button-group mx-switch-button remove after value=a: a=false/false/false b=false/false/false valueless=true/true/true c=true/true/true
+      3 PROBE mx-button-group mx-switch-button then value=w: valueless=false/false/false w=true/true/true
+      3 PROBE mx-button-group mx-switch-icon-button A2 join value=b: a=false/false/false b=true/true/true valueless=false/false/false
+      3 PROBE mx-button-group mx-switch-icon-button join no value: valueless=true/true/true w=true/true/true
+      3 PROBE mx-button-group mx-switch-icon-button remove after value=a: a=false/false/false b=false/false/false valueless=true/true/true c=true/true/true
+      3 PROBE mx-button-group mx-switch-icon-button then value=w: valueless=false/false/false w=true/true/true
+      3 PROBE mx-connected-button-group mx-switch-button A2 join value=b: a=false/false/false b=true/true/true valueless=false/false/false
+      3 PROBE mx-connected-button-group mx-switch-button join no value: valueless=true/true/true w=true/true/true
+      3 PROBE mx-connected-button-group mx-switch-button remove after value=a: a=false/false/false b=false/false/false valueless=true/true/true c=true/true/true
+      3 PROBE mx-connected-button-group mx-switch-button then value=w: valueless=false/false/false w=true/true/true
+      3 PROBE mx-connected-button-group mx-switch-icon-button A2 join value=b: a=false/false/false b=true/true/true valueless=false/false/false
+      3 PROBE mx-connected-button-group mx-switch-icon-button join no value: valueless=true/true/true w=true/true/true
+      3 PROBE mx-connected-button-group mx-switch-icon-button remove after value=a: a=false/false/false b=false/false/false valueless=true/true/true c=true/true/true
+      3 PROBE mx-connected-button-group mx-switch-icon-button then value=w: valueless=false/false/false w=true/true/true
+
+## Item 10 probe: FormData.get(name) through a sequence of value and checked changes
+      3 PROBE C2 mx-checkbox: unchecked+value=a:null unchecked-noValue:null checked:on value=b:b unchecked:null unchecked+value=c:null
+      3 PROBE C2 mx-radio: unchecked+value=a:null unchecked-noValue:null checked:on value=b:b unchecked:null unchecked+value=c:null
+
+## The changed suites at 564d02e38, three engines
+# SwitchCore, CheckableCore, checkbox, button-group.spec and button-group browser files
+ Test Files  15 passed (15)
+      Tests  549 passed (549)
+
+## Witness repeated: src/button/SwitchCore.ts and src/core/elements/CheckableCore.ts at 2bef29ac0, tests at 564d02e38, Chromium
+# Source restored with git checkout afterwards.
+      Tests  5 failed | 93 passed (98)
+     × should check only the matching switch when a checked switch joins a group with a value
+     × should contribute "on" when checked after its value is removed
+     × should keep a checked switch checked when it joins a group with no value
+     × should uncheck only the selected switch when the group value is removed
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
