@@ -1,0 +1,9 @@
+job	job_id	image	mirror	volume	result
+system-deps (webkit)	134631566942	20261103.629	azure.archive.ubuntu.com	125 MB	fetched, saved
+system-deps (firefox)	134631566959	20261103.629	us-east-2.ec2.archive.ubuntu.com	48.8 MB	fetched, saved
+system-deps (chromium)	134631566989	20261103.629	us-east-2.ec2.archive.ubuntu.com	32.1 MB	fetched, saved
+webkit	134634072295	20261103.629	azure.archive.ubuntu.com	125 MB	webkit: the offline install failed, so Playwright installs them from the mirror
+docs	134634072308	20261103.629	azure.archive.ubuntu.com	32.1 MB	chromium: the offline install failed, so Playwright installs them from the mirror
+firefox	134634072324	20261103.629	us-east-2.ec2.archive.ubuntu.com	48.8 MB	firefox: the offline install failed, so Playwright installs them from the mirror
+chromium	134634072422	20261103.629	azure.archive.ubuntu.com	32.1 MB	chromium: the offline install failed, so Playwright installs them from the mirror
+measurements	134634072543	20261103.629	azure.archive.ubuntu.com	32.1 MB	chromium: the offline install failed, so Playwright installs them from the mirror
