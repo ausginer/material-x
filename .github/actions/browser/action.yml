@@ -24,7 +24,7 @@ runs:
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ steps.key.outputs.dir }}
-        key: ${{ steps.key.outputs.key }}-forced-miss
+        key: ${{ steps.key.outputs.key }}
     # The install names the archive files, so it doesn't depend on the versions
     # in the runner's package lists, and it runs no `apt-get update`.
     # `--no-download` makes a missing dependency a failure, not a fetch.
