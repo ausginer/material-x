@@ -1063,7 +1063,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 #### RD-21 — One job fetches the engines' system packages before the test jobs start, and every job that launches a browser installs them offline from the cache
 
-**Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198`, which answers `RF-58`. The owner's earlier direction was that system dependencies are installed up front, before any test starts. The owner chose this cache over a custom image: _"the cache looks simpler, much simpler"_, because the cache goes cold only every few weeks. Recorded by the main slot's architect on `repo/ci-deps-1`. It was proposed as `RD-20`. That number went to the browser floor on `repo/traits-plugin-1`, so this entry is `RD-21`. **Unimplemented:** the handoff implements it.
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198`, which answers `RF-58`. The owner's earlier direction was that system dependencies are installed up front, before any test starts. The owner chose this cache over a custom image: _"the cache looks simpler, much simpler"_, because the cache goes cold only every few weeks. Recorded by the main slot's architect on `repo/ci-deps-1`. It was proposed as `RD-20`. That number went to the browser floor on `repo/traits-plugin-1`, so this entry is `RD-21`. **Implemented 2026-11-18** on `repo/ci-deps-1` (#38, not yet merged): the code at `10100984f`, and the report at `a4a90f683`. It applies to `main` when #38 merges. `RF-58`'s closure holds the reading. Before: unimplemented, and the handoff implemented it.
 
 **Properties.**
 
@@ -1901,7 +1901,7 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
 
-Tier C, **open, decided, unimplemented**. Registered on 2026-11-18 by the architect, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198` and its [mirror reading](ci-deps-1/checks/mirror-reading.tsv), relayed by the coordinator with the owner's choice of `RD-21`. **No row is disabled.**
+Tier C, **closed 2026-11-18** (below). Before closure: open, decided, unimplemented. Registered on 2026-11-18 by the architect, on Architect B's proposal in the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) at `073266198` and its [mirror reading](ci-deps-1/checks/mirror-reading.tsv), relayed by the coordinator with the owner's choice of `RD-21`. **No row is disabled.**
 
 - **What was read:** 19 jobs of runs 44237471520, 44238673598 and 44240485947 (#35 and #37). Each job's `playwright install --with-deps` step downloads its engine's `.deb` files.
   - All 12 jobs on runner image `20261111.127.1` used the mirror `us-east-2.ec2.archive.ubuntu.com`. Each fetched at 70 to 202 kB/s, or was cancelled at its job limit while fetching.
@@ -1911,6 +1911,11 @@ Tier C, **open, decided, unimplemented**. Registered on 2026-11-18 by the archit
 - **Why it matters:** a job that times out tests nothing. Its re-run lands on whichever pool the queue assigns, and #35 and #37 each needed several attempts. At 100 kB/s, WebKit's set takes about 21 minutes against an 8-minute limit.
 - **Required property:** no gate job contacts the Ubuntu mirror while the cache holds its engine's packages for the job's key. When `system-deps` reaches the mirror, that happens before any test job starts. A test job reaches it only when its own restore misses, and its warning then names the miss. (**Amended 2026-11-18** by the architect, with `RD-21` property 4. The second sentence said _"When a run does reach the mirror, that happens before any test job starts"_. A test job whose restore misses falls back to the mirror, so that sentence held only when every restore hits.)
 - **Routed** to `RD-21`. The [CI-deps handoff](ci-deps-1/ci-deps-handoff.md) implements it. It closes when that handoff's witnesses hold and a review reads them.
+- **Closed 2026-11-18 by the architect** on `repo/ci-deps-1` at `a4a90f683` (#38, not yet merged), relayed by the coordinator. The closure rests on the [CI-deps report](ci-deps-1/ci-deps-report.md), the [feature proof](reviews/ci-deps-1/feature-proof-claude.md) and the handoff's [item 3](ci-deps-1/ci-deps-handoff.md#item-3-the-feature-proofs-three-findings). The required property holds in every run read:
+  - **Witness 2** is three warm runs, the last of them 44264485321 on item 3's `10100984f`. In that run, every test job restored its engine's entry, wrote no warning, had no `Get:` from any `archive.ubuntu.com` host, and passed. Those jobs ran on both pools, and `docs`, `measurements` and `firefox` ran on the incident pool, `20261111.127.1`. The architect read those five jobs' logs, and they agree with [`checks/item3-run.tsv`](ci-deps-1/checks/item3-run.tsv).
+  - **Witness 3,** the forced miss in run 44259919530, wrote the warning and fell back to the mirror, as `RD-21` property 4 states. Its `webkit` job was cancelled at its limit on `20261111.127.1`, which is the miss path that property 4 names, not a defect of the hit path.
+  - **Not read in a run:** a hit whose entry holds no archive. `actions/cache`'s source shows that it saves an empty directory ([reading](ci-deps-1/checks/actions-cache-empty-directory.txt)), and the step, run locally with stubs, skips the install and runs the check ([witness](ci-deps-1/checks/empty-entry-step.txt)). The recording workflow was read in its YAML and wasn't run (witness 6).
+  - **What reopens it** is `RD-21`'s condition: a test job in the gate that misses on its own, outside a forced witness, and times out.
 
 ## Questions
 
