@@ -89,6 +89,24 @@ jobs:
         run: |
           set -o pipefail
           aube exec -- just test-safari --tags-filter '!measurement' 2>&1 | tee "$RUNNER_TEMP/safari.log"
+      # Scratch step for the `repo:RF-36` reading, reverted after it:
+      # `browser/core` alone six more times, each in its own Vitest process as
+      # `test-safari` runs it, continuing after a failure.
+      - name: browser/core six times
+        if: ${{ !cancelled() }}
+        run: |
+          set +e
+          export MX_TEST_ENGINES=safari
+          failed=0
+          for run in 1 2 3 4 5 6; do
+            echo "::group::browser/core run $run"
+            aube exec -- vitest run --project 'browser/core/safari (safari)' --tags-filter '!measurement' < /dev/null
+            status=$?
+            echo "::endgroup::"
+            echo "browser/core run $run exited with $status"
+            [ "$status" -eq 0 ] || failed=1
+          done
+          exit "$failed"
       - name: Failed projects
         id: failed
         if: failure()
