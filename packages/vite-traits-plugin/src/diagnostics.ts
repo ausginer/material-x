@@ -37,7 +37,10 @@ export const REASON = {
    * module-scoped.
    */
   TRAIT_BINDING_SHADOWED: 'trait-binding-shadowed',
-  /** A method trait's TypeScript source would be copied into a JavaScript consumer. */
+  /**
+   * A method trait's source would be copied between languages other than one
+   * language to itself or JavaScript to TypeScript.
+   */
   TRAIT_SOURCE_LANGUAGE: 'trait-source-language',
 } as const;
 

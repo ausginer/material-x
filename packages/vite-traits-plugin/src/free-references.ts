@@ -7,7 +7,7 @@
  * `fail` on any other, so a construct it can't account for retains the trait
  * rather than being copied with a guessed meaning. `var`, function and class
  * declarations are outside the allowlist because they hoist past the blocks
- * that the analysis scopes; `super`, direct `eval` and `import.meta` are outside
+ * that the analysis scopes; `super`, any `eval` reference and `import.meta` are outside
  * it because they mean something else in the consumer.
  */
 
@@ -41,6 +41,7 @@ const CHILDREN: Readonly<Record<string, readonly string[]>> = {
   AwaitExpression: ['argument'],
   BinaryExpression: ['left', 'right'],
   BreakStatement: [],
+  CallExpression: ['callee', 'arguments'],
   ChainExpression: ['expression'],
   ConditionalExpression: ['test', 'consequent', 'alternate'],
   ContinueStatement: [],
@@ -168,6 +169,12 @@ class ReferenceCollector {
     write: boolean,
   ): void {
     const name = nameOf(identifier);
+    // Any reference retains the trait: `(eval)(src)` and `(eval as F)(src)` are
+    // direct calls that read the consumer's scope. Strict code, which a class
+    // body is, can't bind `eval`, so no scope lookup is needed.
+    if (name === 'eval') {
+      this.#fail('a member references eval');
+    }
     for (let current = scope; current; current = current.parent) {
       if (current.names.has(name)) {
         return;
@@ -350,14 +357,6 @@ class ReferenceCollector {
       case 'Identifier':
         this.#reference(node, scope, false, false);
         return;
-      case 'CallExpression': {
-        const callee = child(node, 'callee')!;
-        if (callee.type === 'Identifier' && nameOf(callee) === 'eval') {
-          this.#fail('a member calls eval');
-        }
-        this.#visitChildren(node, ['callee', 'arguments'], scope);
-        return;
-      }
       case 'MemberExpression':
         this.#visitChildren(
           node,

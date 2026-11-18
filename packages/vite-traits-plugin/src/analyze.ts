@@ -37,8 +37,32 @@ export interface ModuleLoader {
   load(id: string): Promise<string>;
 }
 
-/** A TypeScript module id, whose source may carry type syntax. */
-const TYPESCRIPT_MODULE = /\.[cm]?tsx?$/u;
+/** A module id's extension groups: JavaScript, JSX, TypeScript and TSX. */
+const SOURCE_LANGUAGE =
+  /\.(?:(?<js>[cm]?js)|(?<jsx>jsx)|(?<ts>[cm]?ts)|(?<tsx>tsx))$/u;
+
+/** A module's source language, by its id's extension. */
+function sourceLanguage(id: string): string | undefined {
+  const groups = SOURCE_LANGUAGE.exec(id)?.groups;
+
+  return groups && Object.keys(groups).find((name) => groups[name]);
+}
+
+/**
+ * Whether a method trait's source text can be copied from `origin` into
+ * `consumer` unchanged: between modules of one language, or from JavaScript
+ * into TypeScript. Any other pair can change the meaning or the syntax, such
+ * as a TypeScript `<T>x` assertion in TSX.
+ */
+function canCopySource(originId: string, consumerId: string): boolean {
+  const origin = sourceLanguage(originId);
+  const consumer = sourceLanguage(consumerId);
+
+  return (
+    origin !== undefined &&
+    (origin === consumer || (origin === 'js' && consumer === 'ts'))
+  );
+}
 
 /** Specifiers whose `impl` export is the composition builder. */
 const IMPL_MODULE =
@@ -844,13 +868,12 @@ async function analyzeSite(
     }
     if (
       ir.kind === 'method' &&
-      TYPESCRIPT_MODULE.test(ref.originId) &&
-      !TYPESCRIPT_MODULE.test(resolver.consumerId)
+      !canCopySource(ref.originId, resolver.consumerId)
     ) {
       bail(
         REASON.TRAIT_SOURCE_LANGUAGE,
         site.name,
-        `trait ${ref.name} is TypeScript and the consumer is not`,
+        `trait ${ref.name}'s source language can't be copied into the consumer`,
       );
     }
     traits.push(ir);

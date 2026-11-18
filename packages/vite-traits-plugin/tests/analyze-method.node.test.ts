@@ -109,6 +109,18 @@ describe('analyzeModule and a method trait', () => {
     ['a decorated method', '@Object m() {}'],
     ['a body that uses super', 'm() { return super.toString(); }'],
     ['a body that calls eval', "m() { return eval('1'); }"],
+    [
+      'a body that calls a parenthesized eval',
+      'm(src: string) { return (eval)(src); }',
+    ],
+    [
+      'a body that calls eval through a type assertion',
+      'm(src: string) { return (eval as (s: string) => unknown)(src); }',
+    ],
+    [
+      'a body that calls eval indirectly',
+      'm(src: string) { return (0, eval)(src); }',
+    ],
     ["a body that reads the transformer's parameter", 'm() { return base; }'],
     ['a body that declares a var', 'm() { var x = 1; return x; }'],
     ['a body that declares a function', 'm() { function f() {} return f; }'],
@@ -217,6 +229,13 @@ const FooBase = impl(Base, [GlobalReader]);`;
   it('should retain a TypeScript method trait in a JavaScript consumer', async () => {
     const code = `${GLOBAL_HEAD}\nexport class Foo extends FooBase {}`;
     expect(await reasons(code, 'method-consumer-src.js')).toEqual([
+      REASON.TRAIT_SOURCE_LANGUAGE,
+    ]);
+  });
+
+  it('should retain a TypeScript method trait in a TSX consumer', async () => {
+    const code = `${GLOBAL_HEAD}\nexport class Foo extends FooBase {}`;
+    expect(await reasons(code, 'method-consumer-src.tsx')).toEqual([
       REASON.TRAIT_SOURCE_LANGUAGE,
     ]);
   });
