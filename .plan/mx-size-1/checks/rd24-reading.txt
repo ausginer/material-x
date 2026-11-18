@@ -1,4 +1,5 @@
-# RD-24 reading: material-x's size rows, read by the implementer on 2026-11-18, local devcontainer (slot d),
+# RD-24 reading: material-x's size rows. The current reading is the last section, after the second merge of origin/main.
+# First reading: read by the implementer on 2026-11-18, local devcontainer (slot d),
 # on repo/mx-size-1 at the merge b77795e25 with this unit's changes, as committed in the commit that adds this file.
 # Built first: core by the root order; then 'aube exec just size' in packages/material-x (its recipe builds material-x).
 # Instrument: size-limit 14.3.0 with size-limit-preset-rolldown 0.1.0, rows from packages/material-x/.size-limit.ts. Brotli, bytes.
@@ -185,5 +186,180 @@ exit: 0
   {
     "name": "complete",
     "size": 17258
+  }
+]
+
+
+# ---------------------------------------------------------------------------
+# After merging origin/main at a133bebee (#59) into repo/mx-size-1, as merge 51b3b27bc. Read the same day, the same way.
+# Six rows moved, all smaller. The merge changed one runtime source, packages/material-x/src/core/utils/polyfills.ts:
+# useHasSlottedPolyfill no longer probes ':host:has()' support at import (an element appended to the body, a shadow root,
+# a style and getComputedStyle) and sets the state in every engine. The moved rows are exactly the entries that import it:
+# list-item, list-button-item and list-link-item through ListItemCore.ts, multiline-text-field, text-field through
+# TextFieldCore.ts, and complete. The other thirteen rows did not move.
+
+row                                     before     now  diff
+button/button                             4828    4828    +0
+button/icon-button                        5380    5380    +0
+button/link-button                        4799    4799    +0
+button/switch-button                      5411    5411    +0
+button/switch-icon-button                 5870    5870    +0
+button/split-button                       7514    7514    +0
+button-group/button-group                 3308    3308    +0
+button-group/connected-button-group       4024    4024    +0
+checkbox/checkbox                         4144    4144    +0
+fab/fab                                   4351    4351    +0
+icon/icon                                  661     661    +0
+list/list                                 3664    3664    +0
+list/list-item                            2674    2585   -89
+list/list-button-item                     4615    4555   -60
+list/list-link-item                       4813    4763   -50
+radio/radio                               3581    3581    +0
+text-field/multiline-text-field           4533    4434   -99
+text-field/text-field                     8492    8396   -96
+complete                                 17258   17137  -121
+
+# material-x's 'just size', from size-limit on (build output omitted):
+
+size-limit 
+- Bundling with Rolldown
+✔ Bundling with Rolldown
+  
+  button/button
+  Size: 4.83 kB brotlied
+  
+  button/icon-button
+  Size: 5.38 kB brotlied
+  
+  button/link-button
+  Size: 4.8 kB brotlied
+  
+  button/switch-button
+  Size: 5.41 kB brotlied
+  
+  button/switch-icon-button
+  Size: 5.87 kB brotlied
+  
+  button/split-button
+  Size: 7.51 kB brotlied
+  
+  button-group/button-group
+  Size: 3.31 kB brotlied
+  
+  button-group/connected-button-group
+  Size: 4.02 kB brotlied
+  
+  checkbox/checkbox
+  Size: 4.14 kB brotlied
+  
+  fab/fab
+  Size: 4.35 kB brotlied
+  
+  icon/icon
+  Size: 661 B brotlied
+  
+  list/list
+  Size: 3.66 kB brotlied
+  
+  list/list-item
+  Size: 2.58 kB brotlied
+  
+  list/list-button-item
+  Size: 4.55 kB brotlied
+  
+  list/list-link-item
+  Size: 4.76 kB brotlied
+  
+  radio/radio
+  Size: 3.58 kB brotlied
+  
+  text-field/multiline-text-field
+  Size: 4.43 kB brotlied
+  
+  text-field/text-field
+  Size: 8.4 kB brotlied
+  
+  complete
+  Size: 17.14 kB brotlied
+exit: 0
+
+# size-limit --json:
+
+[
+  {
+    "name": "button/button",
+    "size": 4828
+  },
+  {
+    "name": "button/icon-button",
+    "size": 5380
+  },
+  {
+    "name": "button/link-button",
+    "size": 4799
+  },
+  {
+    "name": "button/switch-button",
+    "size": 5411
+  },
+  {
+    "name": "button/switch-icon-button",
+    "size": 5870
+  },
+  {
+    "name": "button/split-button",
+    "size": 7514
+  },
+  {
+    "name": "button-group/button-group",
+    "size": 3308
+  },
+  {
+    "name": "button-group/connected-button-group",
+    "size": 4024
+  },
+  {
+    "name": "checkbox/checkbox",
+    "size": 4144
+  },
+  {
+    "name": "fab/fab",
+    "size": 4351
+  },
+  {
+    "name": "icon/icon",
+    "size": 661
+  },
+  {
+    "name": "list/list",
+    "size": 3664
+  },
+  {
+    "name": "list/list-item",
+    "size": 2585
+  },
+  {
+    "name": "list/list-button-item",
+    "size": 4555
+  },
+  {
+    "name": "list/list-link-item",
+    "size": 4763
+  },
+  {
+    "name": "radio/radio",
+    "size": 3581
+  },
+  {
+    "name": "text-field/multiline-text-field",
+    "size": 4434
+  },
+  {
+    "name": "text-field/text-field",
+    "size": 8396
+  },
+  {
+    "name": "complete",
+    "size": 17137
   }
 ]
