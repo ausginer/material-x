@@ -1,0 +1,62 @@
+# Read by the architect in slot c on 2026-11-18, on repo/host-has-fallback-1 at 83a985b99, after `aube exec just build`.
+# Probe: rf40-engine-probe.mjs (beside this file), run with node from the scratch directory, resolving playwright 1.65.0
+# from slot c. Browsers are Playwright's builds in the devcontainer.
+
+## A. The shipped CSS. The material-x build passes every stylesheet through @ydinjs/vite-custom-element-assets'
+## hasSlottedFallbackVisitor (src/css/utils.ts, composed in src/css/transform.ts:30). It rewrites `:has-slotted` to the
+## class `.has-slotted`, and adds `:host(:state(has-<class>))` beside each `:host:has(.<class>:has-slotted)`, with the
+## class that precedes `:has-slotted`. The architect's reading at 5a0bba69b searched src/ only, so it missed these.
+$ grep -o selectors with state(has-…) text-field/styles/default/main.css.js
+:host:has(.lead.has-slotted),:host(:state(has-lead))
+:host:has(.trail.has-slotted),:host(:state(has-trail))
+:host:has(.prefix.has-slotted),:host(:state(has-prefix))
+:host:has(.suffix.has-slotted),:host(:state(has-suffix))
+:host:has(.support .has-slotted),:host(:state(has-support)),:host:has(.counter .has-slotted),:host(:state(has-counter))
+$ grep -o selectors with state(has-…) list/styles/item/main.css.js
+:host:has(.support.has-slotted),:host(:state(has-support)),:host:has(.overline.has-slotted),:host(:state(has-overline))
+:host:has(.support.has-slotted):has(.overline.has-slotted),:host(:state(has-support):state(has-overline))
+:host:has(.support.has-slotted):has(.overline.has-slotted) &,:host(:state(has-support):state(has-overline)) &
+
+## B. Slot names, which the runtime turns into state names (polyfills.ts: `has-${slot.name || 'default'}`).
+src/list/list-item-shared.tpl.html:1:<slot class="lead" name="lead">
+src/list/list-item-shared.tpl.html:3:<slot class="overline" name="overline">
+src/list/list-item-shared.tpl.html:4:<slot class="label">
+src/list/list-item-shared.tpl.html:5:<slot class="support" name="support">
+src/list/list-item-shared.tpl.html:7:<slot class="trail" name="trail">
+src/text-field/text-field-core.tpl.html:1:<slot name="lead" class="lead" part="lead">
+src/text-field/text-field-core.tpl.html:2:<slot name="prefix" class="prefix" part="prefix">
+src/text-field/text-field-core.tpl.html:4:<slot name="label">
+src/text-field/text-field-core.tpl.html:6:<slot name="suffix" class="suffix" part="suffix">
+src/text-field/text-field-core.tpl.html:7:<slot name="trail" class="trail" part="trail">
+src/text-field/text-field-core.tpl.html:9:<slot name="support">
+src/text-field/text-field-core.tpl.html:12:<slot name="counter">
+8:<div id="support" class="support" part="support">
+11:<div id="counter" class="counter" part="counter">
+## Each class in A names its slot, or (support, counter) an element whose only slot has that name. The derived state
+## names therefore equal the states the runtime sets: has-lead, has-trail, has-prefix, has-suffix, has-support,
+## has-counter, has-overline.
+
+## C. Every `:host:has(` in material-x's source, on main and on origin/repo/host-invariant-1 at b7e1386e3: the same
+## list in both. Every rule tests `:has-slotted`, so the fallback covers each one. (checkbox and radio mention
+## `:host:has()` in comments only, and polyfills.ts in its detection.)
+
+## D. The engines. HOST_HAS_SUPPORTED is material-x's detection, verbatim. Then a form-associated element whose shadow
+## root holds the built rule forms: --a by `:host:has(.lead.has-slotted)`, --b by `:host(:state(has-lead))`, --c by the
+## list's combined rule. Read before anything is set, after the class is set on the slots, and after the states too.
+$ node rf40-engine-probe.mjs
+chromium 158.0.8127.18 {"HOST_HAS_SUPPORTED":true,"supports_has_slotted":false,"supports_state":true,"before":{"hasRule":"0","stateRule":"0","combined":"0"},"afterClass":{"hasRule":"1","stateRule":"0","combined":"1"},"afterState":{"hasRule":"1","stateRule":"1","combined":"1"}}
+firefox 159.0 {"HOST_HAS_SUPPORTED":false,"supports_has_slotted":true,"supports_state":true,"before":{"hasRule":"0","stateRule":"0","combined":"0"},"afterClass":{"hasRule":"0","stateRule":"0","combined":"0"},"afterState":{"hasRule":"0","stateRule":"1","combined":"1"}}
+webkit 27.2 {"HOST_HAS_SUPPORTED":true,"supports_has_slotted":false,"supports_state":true,"before":{"hasRule":"0","stateRule":"0","combined":"0"},"afterClass":{"hasRule":"1","stateRule":"0","combined":"1"},"afterState":{"hasRule":"1","stateRule":"1","combined":"1"}}
+## Chromium and WebKit match `:host:has()`, so the polyfill sets no states there and the class path applies. Firefox 159
+## doesn't match `:host:has()`; the detection reads false, the polyfill sets the states, and the `:state()` selectors
+## apply. Firefox's native `:has-slotted` support doesn't matter: the build rewrites the pseudo-class in every engine.
+
+## E. Specificity. In Firefox the fallback selector, `:host(:state(has-x))`, is (0,2,0); Chromium's `:host:has(.x.has-slotted)`
+## is (0,3,0). A competing rule between the two could win in Firefox only. Read in the sources: no other rule in
+## text-field's default, outlined or disabled sheets, or in the list item's sheet, sets the properties these rules set
+## (the column sizes, inline paddings, icon gaps, grid-template-rows, row-gap, container height, support row size).
+## `:host(:state(lead-large))` sets the list item's leading space, a different property.
+
+## F. No test observes these rules. tests/text-field/text-field.browser.test.ts slots support and counter content for
+## aria-describedby only; tests/list/list-item.browser.test.ts tests focus delegation only; vite-custom-element-assets
+## has no tests.

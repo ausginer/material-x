@@ -1,0 +1,133 @@
+# RF-40 items 1 and 2, feature proof: the reviewer's own runs. Read in slot e on 2026-11-18, at 90789d260
+# (repo/host-has-fallback-1, clean, equal to origin), in the devcontainer, from packages/material-x.
+# Each mutation was applied to the working tree, run, and reverted with git checkout; the probe file was deleted.
+# 'git status --short' was empty after each step. Nothing here is committed product or test code.
+
+## 1. The browser project, all three engines
+$ MX_TEST_ENGINES=chromium,firefox,webkit aube exec -- just test --project browser --project browser/firefox --project browser/webkit
+ Test Files  33 passed (33)
+      Tests  647 passed | 1 expected fail (648)
+exit 0
+
+## 2. typecheck, lint and fmt-check
+$ aube exec just typecheck
+exit 0
+$ aube exec just lint tests/text-field/text-field.browser.test.ts tests/list/list-item.browser.test.ts tests/support/visual-contracts.node.ts
+oxlint tests/text-field/text-field.browser.test.ts tests/list/list-item.browser.test.ts tests/support/visual-contracts.node.ts
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts tests/text-field/text-field.browser.test.ts tests/list/list-item.browser.test.ts tests/support/visual-contracts.node.ts
+exit 0
+$ aube exec just fmt-check
+All matched files use the correct format.
+Finished in 285ms on 230 files using 12 threads.
+
+## 3. The reviewer's lead-slot probe (temporary file tests/text-field/zz-reviewer-probe.browser.test.ts, deleted after use)
+    // Reviewer's temporary probe (RF-40 feature proof). Never committed.
+    import { $ } from '@ydinjs/core/utils/DOM.js';
+    import { it } from 'vitest';
+    import '../../src/text-field/text-field.ts';
+    import { nextFrame } from '../browser.ts';
+    
+    it('probe: lead slot mechanism', async () => {
+      const field = document.createElement('mx-text-field');
+      document.body.append(field);
+      await nextFrame();
+      const slot = $<HTMLElement>(field, '[part=lead]')!;
+      const box = document.createElement('span');
+      box.slot = 'lead';
+      box.style.display = 'inline-block';
+      box.style.inlineSize = '24px';
+      box.style.blockSize = '24px';
+      field.append(box);
+      await nextFrame();
+      const host = getComputedStyle(field);
+      const s = getComputedStyle(slot);
+      console.log(
+        `PROBE ${navigator.userAgent.match(/(Firefox|Chrome|Safari)\/[\d.]+/)?.[0]} ` +
+          JSON.stringify({
+            slotClass: slot.className,
+            stateHasLead: field.matches(':state(has-lead)'),
+            stateHasLeading: field.matches(':state(has-leading)'),
+            leadColumnSize: host.getPropertyValue('--_lead-column-size').trim(),
+            paddingInlineStart: host.getPropertyValue('--_padding-inline-start').trim(),
+            slotGridColumnStart: s.gridColumnStart,
+            slotGridRowStart: s.gridRowStart,
+            slotDisplay: s.display,
+            slotWidth: slot.getBoundingClientRect().width,
+          }),
+      );
+    });
+
+### 3a. Unmutated tree
+PROBE Chrome/158.0.0.0 {"slotClass":"lead has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"L","slotGridRowStart":"L","slotDisplay":"block","slotWidth":24}
+ ✓ |browser (chromium)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 147ms
+PROBE Firefox/159.0 {"slotClass":"lead has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"L","slotGridRowStart":"L","slotDisplay":"block","slotWidth":24}
+ ✓ |browser/firefox (firefox)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 163ms
+PROBE Safari/605.1.15 {"slotClass":"lead has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"L","slotGridRowStart":"L","slotDisplay":"block","slotWidth":24}
+ ✓ |browser/webkit (webkit)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 159ms
+      Tests  3 passed | 78 skipped (81)
+
+### 3b. Witness 3's mutation, as the implementer applied it
+# (handoff witness 3, as applied by the implementer): template class="lead" -> "lead-renamed"
+-<slot name="lead" class="lead" part="lead"></slot>
++<slot name="lead" class="lead-renamed" part="lead"></slot>
+PROBE Chrome/158.0.0.0 {"slotClass":"lead-renamed has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"auto","slotGridRowStart":"auto","slotDisplay":"block","slotWidth":12}
+ ✓ |browser (chromium)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 199ms
+ × |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 225ms
+   → expected 12 to be 24 // Object.is equality
+ × |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 82ms
+   → expected 12 to be 24 // Object.is equality
+ × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 199ms
+   → expected 12 to be 24 // Object.is equality
+ × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 201ms
+   → expected 12 to be 24 // Object.is equality
+PROBE Firefox/159.0 {"slotClass":"lead-renamed has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"auto","slotGridRowStart":"auto","slotDisplay":"block","slotWidth":12}
+ ✓ |browser/firefox (firefox)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 115ms
+PROBE Safari/605.1.15 {"slotClass":"lead-renamed has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"auto","slotGridRowStart":"auto","slotDisplay":"block","slotWidth":12}
+ ✓ |browser/webkit (webkit)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 182ms
+ × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 228ms
+   → expected 12 to be 24 // Object.is equality
+ × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 87ms
+   → expected 12 to be 24 // Object.is equality
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  6 failed | 3 passed | 72 skipped (81)
+exit 1
+
+### 3c. The coupling mutation (reviewer's): the class renamed in the sheet and the template alike; the slot name unchanged
+# (reviewer): class "lead" -> "leading" in both the default sheet and the template; slot name stays "lead"
+-:host:has(.lead:has-slotted) {
++:host:has(.leading:has-slotted) {
+-.lead {
++.leading {
+-.lead {
++.leading {
+-<slot name="lead" class="lead" part="lead"></slot>
++<slot name="lead" class="leading" part="lead"></slot>
+PROBE Chrome/158.0.0.0 {"slotClass":"leading has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"L","slotGridRowStart":"L","slotDisplay":"block","slotWidth":24}
+ ✓ |browser (chromium)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 212ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 151ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 97ms
+ × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 221ms
+   → expected +0 to be 24 // Object.is equality
+ × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 212ms
+   → expected +0 to be 24 // Object.is equality
+PROBE Firefox/159.0 {"slotClass":"leading has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"","paddingInlineStart":"16px","slotGridColumnStart":"L","slotGridRowStart":"L","slotDisplay":"block","slotWidth":0}
+ ✓ |browser/firefox (firefox)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 111ms
+PROBE Safari/605.1.15 {"slotClass":"leading has-slotted","stateHasLead":true,"stateHasLeading":false,"leadColumnSize":"min-content","paddingInlineStart":"12px","slotGridColumnStart":"L","slotGridRowStart":"L","slotDisplay":"block","slotWidth":24}
+ ✓ |browser/webkit (webkit)| tests/text-field/zz-reviewer-probe.browser.test.ts:7 > probe: lead slot mechanism 182ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 179ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 89ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  2 failed | 7 passed | 72 skipped (81)
+exit 1
+
+## 4. Links and whitespace
+Every relative link in .plan/host-has-fallback-1/host-has-fallback-report.md resolves (12 targets, checked by script).
+$ git diff --check 479d8fcf7 90789d260 -> clean
+
+## 5. --_support-row-size
+$ grep -rn support-row-size packages/ --include=*.css --include=*.ts --include=*.html
+packages/material-x/src/list/styles/item/main.styles.css:48:  --_support-row-size: calc(2 * var(--_supporting-text-line-height));
+$ git show ede90d958 -- packages/material-x/src | grep support-row-size
+-  --_support-row-size: var(--_supporting-text-line-height);
+   --_support-row-size: calc(2 * var(--_supporting-text-line-height));
+-  max-block-size: var(--_support-row-size, 0);
