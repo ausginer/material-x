@@ -1765,6 +1765,20 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
 - **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
 - **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
 
+#### RF-60 — A flattener runtime-equivalence row failed once in CI with no change, and its cause isn't established
+
+Tier B, **open**. Registered on 2026-11-18 by the architect, on the coordinator's report of `verify` run 44245582616. `RF-58` and `RF-59` are on `repo/ci-deps-1` and `repo/host-has-fallback-1`, so this is the next free number. **No row is disabled.**
+
+- **What was observed** ([excerpt](traits-plugin-1/checks/rf60-flatten-flake.txt)). In attempt 1, the `chromium` job (job 134603867751) failed one row: `node/vite-traits-plugin` › `tests/flatten.node.test.ts` › _"should preserve trait brands for instanceof"_, at `:84`: _"flattened: expected Foo{ extra: 'here' } to be an instance of Nameable"_. The same file's other five rows passed, `Checkable`'s assertion at `:83` among them. Attempt 2 passed every job with no change.
+- **The tree:** `c1a40a3fc` on `repo/host-invariant-1`. Its `vite-traits-plugin` is `main`'s at `83a985b99`. It doesn't have `RF-44`'s item 1, so the source-keyed parse cache can neither cause nor fix what was seen there.
+- **Ruled out, by reading:** a parse-cache collision. Every test that reuses a fixture's id parses that fixture's own source, and the ad-hoc sources in `analyze.node.test.ts` use ids that no fixture has. So an id-keyed cache serves the same AST that a source key would.
+- **Not reproduced:** 40 local runs of the plugin's suite at `c1a40a3fc`, with no failure. CI ran the root config with coverage, beside every other project.
+- **A candidate, not established:** the symptom matches a flattened class whose `Nameable` brand link evaluates to `undefined`. Then the brand would be installed under the key `"undefined"`, and only that assertion would fail. Under Vitest's module runner, a named import that the module doesn't export may read as `undefined` instead of failing to link. No reading shows why the generated `nameable.ts` would lack its synthetic export in one run.
+- **Why it matters:** a row whose result depends on more than the code is an unsound instrument. A rerun hides it, and it costs a full gate run each time.
+- **Required property:** the row's result depends only on the code. Either a reproduction names the cause and the cause is repaired, or the record states why the row can't fail again.
+- **The architect's direction,** for the unit that takes it: first make the row report what it needs. When the assertion fails, it prints the generated `foo-flat.ts`, the generated `nameable.ts` and the brand key that the flattened prototype carries. Then reproduce under the root config with coverage, repeated.
+- **Routed** to the owner to order, beside `RF-44`, because both concern `vite-traits-plugin`. It isn't `RF-44`'s: that entry is about what the plugin's document and code say, and this row fails in a tree without that unit's changes. **It doesn't block** #35 or `RF-44`.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
