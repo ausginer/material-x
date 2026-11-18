@@ -1490,6 +1490,7 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **E1, E2 and E3 are approved.** The owner proposed that E1 cover any focus target that can't be a container, not only `<input>` and `<textarea>`, and said he might be extrapolating. **The architect accepts this, with a limit:** the criterion applies to the native element that the component's semantics need, not to an element the component chooses. Without the limit, today's switches would qualify, since their `<input>` can't be a container, and the exception would swallow the invariant. A container that gives the same semantics, such as a `<button>` with a role, takes precedence. The members are unchanged.
   - **`mx-fab`'s focus forward is in this unit** (item 3).
   - **R2 stands, and the owner states it as a principle for the repository:** every material-x component is controlled. It is in `architecture.md` §Components. The components that don't meet it are `RF-50`'s. Checkbox and radio join this unit as item 7.
+- **Stopped 2026-11-18, and decided by the architect,** on the [host-invariant report](host-invariant-1/host-invariant-report.md#the-stop) at `7667a2a5a`, relayed by the coordinator with the owner's rejection of the new baseline. `button-group-connected-selected` differs: under R2 the group's `value` sets `checked`, so the connected group's `::slotted([checked])` rule draws for the first time. **The owner rejects the new rendering:** _"in the spec they are obviously not rounded like that"_. **Neither rendering is the spec's:** the selected button is a full pill, which is `RF-56`. The [handoff](host-invariant-1/host-invariant-handoff.md)'s new item 8 repairs it in this unit, because the unit can't finish on either baseline.
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
@@ -1661,6 +1662,31 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, on the owner's prin
 - **Answered 2026-11-18 by the owner,** relayed by the coordinator: **the text fields are an exception to the principle,** as the architect recommended. The text is the user's input. `value` reads it, and the consumer may set it. In the owner's words: _"this is already a question of performance. Speed matters more than the principle."_ `architecture.md` §Components states the exception.
   - **No code changes.** `TextFieldCore.ts` already behaves this way: the `value` getter reads the native field, and the setter writes it, `:state(populated)` and the form value (`:224`–`:231`, read by the architect at `e9236603e`).
   - **What remains of this entry:** checkbox and radio, under item 7. It closes when item 7's rows pass.
+
+#### RF-56 — In a connected button group, a selected button isn't a full pill, and a pressed button's inner corners grow instead of shrinking
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop at `7667a2a5a` and the owner's rejection of the new `button-group-connected-selected` baseline, relayed by the coordinator. `RF-51` to `RF-55` are allocated on `repo/aube-isolated-1`. **No row is disabled.**
+
+- **The tokens,** read through tproc. For each size, `md.comp.button-group.connected.<size>.*`:
+
+  | Size | `container.shape` | `inner-corner.corner-size` | `pressed.inner-corner.corner-size` | `selected.inner-corner.corner-size` |
+  | --- | --- | --- | --- | --- |
+  | xsmall | circular | 8dp | 4dp | 50% |
+  | small | circular | 8dp | 4dp | 50% |
+  | medium | circular | 8dp | 4dp | 50% |
+  | large | circular | 16dp | 12dp | 50% |
+  | xlarge | circular | 20dp | 16dp | 50% |
+
+  Material's 50% is half the shorter side, so a selected button's inner corners are full, like its outer ones. The owner's reference image of Material's connected group agrees: selected buttons are pills, and unselected ones keep small inner corners.
+
+- **What is drawn,** in `button-group/styles/connected/main.styles.css`:
+  - the group emits only `inner-corner.corner-size` (`connected/tokens.ts` selects the default state alone). The pressed and selected sizes aren't emitted;
+  - `::slotted(:active), ::slotted([checked])` set the inner corners to the button's `--_container-shape`;
+  - for a checked switch button, `--_container-shape` is the button's own toggle shape, `md.comp.button.<size>.selected.container.shape.round` (12dp for small, `button/styles/shape/main.css.ts`). So a selected button's corners become 12dp, and an end button's outer corners lose their full shape too;
+  - a pressed button's inner corners take the container shape, which is larger than the resting size, where the tokens make them smaller.
+- **Since when:** the rule was never drawn for a selection until `RF-43`'s R2. Before it, the group's `value` set only the custom state `checked`, and `[checked]` didn't match. `button-group/spec-consistency.md:35` records the morph as matching the spec, and it doesn't.
+- **Required property:** a connected group's buttons have the shapes that the group's tokens define, at every size. The [host-invariant handoff](host-invariant-1/host-invariant-handoff.md)'s item 8 states them.
+- **Routed** to the host-invariant unit, item 8.
 
 ## Questions
 

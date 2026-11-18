@@ -202,9 +202,42 @@ Under `RF-50`. Both build on `CheckableCore.ts`. Today the native input's activa
 
 **Expected, not established:** a screen reader may announce the native toggle and then the restored state. That is the cost of a controlled native input, and the report states what was observed, if anything was.
 
+## 8. The connected group's shapes (`RF-56`)
+
+**Added 2026-11-18 by the architect,** on the stop at `7667a2a5a`. `RF-56` holds the tokens, what is drawn today, and the cause. The owner rejected the new `button-group-connected-selected` baseline, so this item replaces it with the spec's shape. The old baseline is wrong too.
+
+**Required,** for each button in an `mx-connected-button-group`, at every size. _Full_ means half the button's own height, which is how this repository draws Material's circular shape and its 50% corner:
+
+1. **Unselected, at rest:** unchanged. The outer corners are the group's container shape, which is full in a round group and the buttons' square shape in a square group. The inner corners are `inner-corner.corner-size`.
+2. **Selected:** all four corners are full, a pill, in a round group and in a square group, whatever the button's position.
+   - The inner corners take `selected.inner-corner.corner-size`.
+   - The outer corners stay full. Inside a connected group, the button's own toggle shape (`md.comp.button.<size>.selected.container.shape.*`) doesn't apply. Outside a group it still does, unchanged.
+3. **Pressed:** the inner corners take `pressed.inner-corner.corner-size`, and the outer corners are unchanged. A selected button that is pressed takes the pressed inner corners while it is pressed, and its pill returns on release. The tokens don't order the two, and material-x's state lists keep selection apart from the interaction states (`button/styles/utils.ts:21`–`:29`). So this is the architect's ruling: the press is the feedback the user is producing at that moment. The architect recalls that Jetpack Compose's toggle-button shapes use the same order, but that wasn't read here.
+4. **The tokens** come from tproc, through the group's token package, as `inner-corner.corner-size` already does. The selected and pressed sizes aren't written by hand. The pressed sizes are the table's per-size values (`RF-56`).
+5. **`--md-button-group-inner-corner-size`** stays the consumer's override of the resting inner corners only. It doesn't change the selected or pressed shape. Its JSDoc says so.
+6. **Neighbours don't change:** selecting or pressing a button changes only that button's shape.
+7. **`button-group/spec-consistency.md`**'s _Selection/press morph_ bullet states what is true after this item, with its tokens.
+
+**Rows,** in `tests/button-group/button-group.spec.browser.test.ts`, beside _"should render the tokenized inner-corner radius on a middle button"_. They read the computed corner radii against tproc's values and against the button's measured height, for every size:
+
+- a selected button, first, middle and last: each corner is full;
+- a pressed middle button: its inner corners are `pressed.inner-corner.corner-size`. Use real pointer input, and read while the pointer is down;
+- a selected middle button while pressed: its inner corners are the pressed size;
+- an unselected neighbour of a selected button keeps its resting corners;
+- with `--md-button-group-inner-corner-size` set, a selected button is still a pill.
+
+**The witness:** at `7667a2a5a`, the selected and pressed rows fail. Save their output.
+
+**The visual row.** `button-group-connected-selected` changes again. Save the local images at `e9236603e` and at the head, and the diff, beside the stop's images under `checks/`, for the owner to compare with Material's reference. The baseline is recorded only through `RD-13`'s workflow, after the owner accepts it. That is still a stop under _Order and stops_, item 1's property 8: the report states the change, and the owner decides.
+
+**Stop** if:
+
+- the button's toggle shape can't be kept out of a connected group without changing how `mx-switch-button` draws outside a group;
+- the pressed state can't be read with real input in one of the three engines.
+
 ## Order and stops
 
-**Order:** item 1, then item 2 (it needs item 1's `.host`), then items 3 and 7. Each item lands with its rows from item 4 or item 7. Items 5 and 6 come last.
+**Order:** item 1, then item 2 (it needs item 1's `.host`), then items 3 and 7. Each item lands with its rows from item 4 or item 7. Items 5 and 6 come last. Item 8, added after the stop at `7667a2a5a`, follows the commits already made, and item 6's measurement is repeated for the `button-group` entries.
 
 **Stop and report, without working around it:**
 
