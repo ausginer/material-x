@@ -1,0 +1,88 @@
+# RF-59: what an import before <body> does. Read by the architect in slot c on 2026-11-18, on repo/host-has-fallback-1
+# at 836d4d003, against slot c's built packages (`aube exec just build` at 83a985b99's sources; this branch changes no
+# source). Probe: rf59-head-import-probe.mjs (beside this file), run as
+#   node rf59-head-import-probe.mjs /workspaces/worktrees/c <scratch dir>
+# with playwright 1.65.0 and rolldown from slot c, in the devcontainer.
+#
+# The page. A local server streams <head> at once and </head><body><mx-text-field></mx-text-field></body> after
+# hold ms. The head declares its charset and is over 1024 bytes, so no engine waits to sniff the encoding (a first
+# run without them showed Firefox and WebKit parsing nothing until the body arrived; that run is not used). An import
+# map maps @ydinjs/core/ to the built core. An inline classic script records window errors, and import() rejections
+# through __rec, with whether document.body existed at that moment. After load (+300 ms): defined = whether the
+# module's customElements.define ran; upgraded = whether the page's <mx-text-field> has a shadow root.
+#
+# The scenarios, each placed in <head>:
+#   module-src                 <script type="module" src=text-field.js>          (deferred by default)
+#   module-src-async           the same with async
+#   module-inline(-async)      <script type="module"[ async]>import '…text-field.js'</script>
+#   classic-dynamic-import     <script>import('…text-field.js')</script>          (and the same for list-item.js)
+#   classic-bundle             <script src=text-field.iife.js>, rolldown's IIFE bundle of text-field.js and its graph
+#   classic-bundle-defer       the same with defer
+# hold=1500 stands for a document whose body arrives after the module graph has loaded: a streamed or slow document,
+# a long head, or modules already in the cache. hold=0 sends the whole document at once.
+
+$ node rf59-head-import-probe.mjs /workspaces/worktrees/c <scratch>
+## chromium 158.0.8127.18
+hold=1500	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-src-async                  	defined=false	upgraded=false	errors=["Uncaught TypeError: Cannot read properties of null (reading 'append')"]	bodyAtError=[false]	pageerror=["Cannot read properties of null (reading 'append')"]
+hold=1500	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline-async               	defined=false	upgraded=false	errors=["Uncaught TypeError: Cannot read properties of null (reading 'append')"]	bodyAtError=[false]	pageerror=["Cannot read properties of null (reading 'append')"]
+hold=1500	classic-dynamic-import            	defined=false	upgraded=false	errors=["rejected: TypeError: Cannot read properties of null (reading 'append')"]	bodyAtError=[false]	pageerror=[]
+hold=1500	classic-dynamic-import-list-item  	defined=false	upgraded=false	errors=["rejected: TypeError: Cannot read properties of null (reading 'append')"]	bodyAtError=[false]	pageerror=[]
+hold=1500	classic-bundle                    	defined=false	upgraded=false	errors=["Uncaught TypeError: Cannot read properties of null (reading 'append')"]	bodyAtError=[false]	pageerror=["Cannot read properties of null (reading 'append')"]
+hold=1500	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle                    	defined=false	upgraded=false	errors=["Uncaught TypeError: Cannot read properties of null (reading 'append')"]	bodyAtError=[false]	pageerror=["Cannot read properties of null (reading 'append')"]
+hold=0	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+## firefox 159.0
+hold=1500	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-src-async                  	defined=false	upgraded=false	errors=["TypeError: can't access property \"append\", document.body is null"]	bodyAtError=[false]	pageerror=["can't access property \"append\", document.body is null"]
+hold=1500	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline-async               	defined=false	upgraded=false	errors=["TypeError: can't access property \"append\", document.body is null"]	bodyAtError=[false]	pageerror=["can't access property \"append\", document.body is null"]
+hold=1500	classic-dynamic-import            	defined=false	upgraded=false	errors=["rejected: TypeError: can't access property \"append\", document.body is null"]	bodyAtError=[false]	pageerror=[]
+hold=1500	classic-dynamic-import-list-item  	defined=false	upgraded=false	errors=["rejected: TypeError: can't access property \"append\", document.body is null"]	bodyAtError=[false]	pageerror=[]
+hold=1500	classic-bundle                    	defined=false	upgraded=false	errors=["TypeError: can't access property \"append\", document.body is null"]	bodyAtError=[false]	pageerror=["can't access property \"append\", document.body is null"]
+hold=1500	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle                    	defined=false	upgraded=false	errors=["TypeError: can't access property \"append\", document.body is null"]	bodyAtError=[false]	pageerror=["can't access property \"append\", document.body is null"]
+hold=0	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+## webkit 27.2
+hold=1500	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import            	defined=false	upgraded=false	errors=["rejected: TypeError: null is not an object (evaluating 'document.body.append')"]	bodyAtError=[false]	pageerror=[]
+hold=1500	classic-dynamic-import-list-item  	defined=false	upgraded=false	errors=["rejected: TypeError: null is not an object (evaluating 'document.body.append')"]	bodyAtError=[false]	pageerror=[]
+hold=1500	classic-bundle                    	defined=false	upgraded=false	errors=["TypeError: null is not an object (evaluating 'document.body.append')"]	bodyAtError=[false]	pageerror=["null is not an object (evaluating 'document.body.append')"]
+hold=1500	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle                    	defined=false	upgraded=false	errors=["TypeError: null is not an object (evaluating 'document.body.append')"]	bodyAtError=[false]	pageerror=["null is not an object (evaluating 'document.body.append')"]
+hold=0	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+
+# Reading. Every throw is the detection's `document.body.append` with document.body null (bodyAtError false), and
+# it fails the module, so nothing defines the element: the page's <mx-text-field> never upgrades.
+#
+#                              Chromium 158      Firefox 159       WebKit 27.2
+#   classic-bundle             throws, 0 and 1500 throws, 0 and 1500 throws, 0 and 1500   (deterministic: it runs in <head>)
+#   classic-dynamic-import     throws at 1500    throws at 1500    throws at 1500
+#   module-src-async, -inline-async
+#                              throws at 1500    throws at 1500    no throw         (why WebKit waits wasn't read)
+#   module-src, module-inline, classic-bundle-defer
+#                              no throw          no throw          no throw         (they run after parsing)
+#
+# At hold=0 on localhost, only classic-bundle throws: the parser reaches <body> before the module graph loads.
