@@ -48,6 +48,15 @@ describe('resolveFactoryLocals', () => {
   it('should ignore modules that do not import the factory', async () => {
     expect([...(await factoryLocalsFor('base.ts'))]).toEqual([]);
   });
+
+  it('should ignore a trait imported from the pre-rename traits module', () => {
+    const program = parseModule(
+      fixtureId('pre-rename-factory.ts'),
+      "import { trait } from '@ydinjs/core/traits/traits.js';",
+    );
+
+    expect([...resolveFactoryLocals(program)]).toEqual([]);
+  });
 });
 
 describe('normalizeDescriptorTrait', () => {

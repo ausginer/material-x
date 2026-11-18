@@ -4,8 +4,8 @@
  * The IR is the boundary between the two analysis passes described in
  * `.agents/docs/trait-flattener-plugin.md`:
  *
- * 1. trait normalization resolves descriptor-based (and, later, supported
- *    class-based) traits into this common shape; and
+ * 1. trait normalization resolves descriptor traits into this common shape;
+ *    and
  * 2. composition lowering consumes only the IR and never re-reads the original
  *    trait authoring form.
  *
@@ -64,7 +64,7 @@ export type DescriptorAccessorIR = Readonly<{
 
 /**
  * Normalized descriptor trait: a declarative specialization created by
- * `@ydinjs/core/traits/traits`.
+ * `@ydinjs/core/traits/attributes`.
  */
 export type DescriptorTraitIR = Readonly<{
   kind: 'descriptor';
@@ -79,9 +79,7 @@ export type DescriptorTraitIR = Readonly<{
 }>;
 
 /**
- * A normalized trait. Only descriptor traits are supported today; the union is
- * kept open so the generic class-transformer subset can be added without
- * changing the lowering contract.
+ * A normalized trait. The plugin flattens only descriptor traits.
  */
 export type TraitIR = DescriptorTraitIR;
 

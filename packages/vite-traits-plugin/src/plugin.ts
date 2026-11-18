@@ -8,7 +8,6 @@ import {
   parseModule,
   type ModuleLoader,
 } from './analyze.ts';
-import { BailoutError } from './diagnostics.ts';
 import { annotatePureTraitCalls, augmentOrigin, lowerModule } from './lower.ts';
 import {
   collectModuleSyntheticExports,
@@ -95,34 +94,29 @@ export function viteTraitsPlugin(): Plugin & RolldownPlugin {
       // module still gets its `trait(...)` calls marked pure so the now-unused
       // intermediary scaffolding can be tree-shaken downstream.
       if (code.includes('impl(')) {
-        try {
-          const { compositions, dependencies } = await analyzeModule(
-            cleanId,
-            code,
-            loader,
-          );
-          for (const dependency of dependencies) {
-            this.addWatchFile(dependency);
-          }
+        const { compositions, bailouts, dependencies } = await analyzeModule(
+          cleanId,
+          code,
+          loader,
+        );
+        for (const dependency of dependencies) {
+          this.addWatchFile(dependency);
+        }
+        for (const bailout of bailouts) {
+          this.warn({
+            message: `trait-flattener: retained runtime composition${
+              bailout.composition ? ` for ${bailout.composition}` : ''
+            } (${bailout.reason}): ${bailout.message}`,
+            id: cleanId,
+          });
+        }
 
-          if (compositions.length > 0) {
-            // Return the native MagicString as `code`; the bundler derives the
-            // sourcemap from it natively.
-            const magic = lowerModule(code, compositions);
-            annotatePureTraitCalls(magic, program, factoryLocals);
-            return emit(magic, cleanId);
-          }
-        } catch (error) {
-          if (error instanceof BailoutError) {
-            this.warn({
-              message: `trait-flattener: retained runtime composition${
-                error.composition ? ` for ${error.composition}` : ''
-              } (${error.reason}): ${error.message}`,
-              id: cleanId,
-            });
-          } else {
-            throw error;
-          }
+        if (compositions.length > 0) {
+          // Return the native MagicString as `code`; the bundler derives the
+          // sourcemap from it natively.
+          const magic = lowerModule(code, compositions);
+          annotatePureTraitCalls(magic, program, factoryLocals);
+          return emit(magic, cleanId);
         }
       }
 

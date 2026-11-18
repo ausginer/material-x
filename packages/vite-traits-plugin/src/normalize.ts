@@ -8,14 +8,12 @@ import { bail, REASON } from './diagnostics.ts';
 import type { BindingRef, DescriptorTraitIR } from './ir.ts';
 
 /**
- * Raw specifier of the descriptor `trait(...)` factory. The factory now lives in
- * `traits/attributes`; `traits/traits` is the pre-rename name, kept so
- * recognition survives the in-flight migration. Matched on the raw import
- * specifier (rather than a resolved path) so it works even while material-x
- * still imports the renamed-away `@ydinjs/core/traits/attributes.js`.
+ * Raw specifier of the descriptor `trait(...)` factory, the `attributes` module.
+ * Matched on the raw import specifier rather than a resolved path, so a built
+ * trait module's `./attributes.js` is recognized too.
  */
 const FACTORY_SPECIFIER =
-  /(?:^|\/)(?:attributes|traits)\.[cm]?[jt]sx?$|(?:^|\/)traits\/(?:attributes|traits)$/u;
+  /(?:^|\/)attributes\.[cm]?[jt]sx?$|(?:^|\/)traits\/attributes$/u;
 
 /** TS-only expression wrappers that carry a runtime `.expression` inside. */
 const TS_WRAPPERS = new Set([

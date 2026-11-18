@@ -16,6 +16,12 @@ export const REASON = {
   UNSUPPORTED_TRAIT: 'unsupported-trait',
   /** A trait definition is not module-scoped or not a direct `trait(...)` call. */
   UNSUPPORTED_TRAIT_DEFINITION: 'unsupported-trait-definition',
+  /** The class declares one half of an accessor pair for a trait's key. */
+  CLASS_ACCESSOR_HALF: 'class-accessor-half',
+  /** The class reads or writes `super.key` for a key a trait supplies. */
+  CLASS_SUPER_TRAIT_MEMBER: 'class-super-trait-member',
+  /** The class uses a computed `super[key]`, whose key can't be checked. */
+  CLASS_COMPUTED_SUPER: 'class-computed-super',
 } as const;
 
 export type Reason = (typeof REASON)[keyof typeof REASON];

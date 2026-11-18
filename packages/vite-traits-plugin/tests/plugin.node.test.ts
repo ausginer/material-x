@@ -117,6 +117,51 @@ describe('viteTraitsPlugin', () => {
     expect(result).toBeNull();
   });
 
+  describe('on a module with two impl sites of which one bails', () => {
+    const code = [
+      "import { impl } from '@ydinjs/core/traits/attributes.js';",
+      "import { Base } from './base.ts';",
+      "import { Checkable } from './checkable.ts';",
+      "import { Focusable } from './focusable.ts';",
+      'const FirstBase = impl(Base, [Checkable]);',
+      'export class First extends FirstBase {}',
+      'const SecondBase = impl(Base, [Checkable, Focusable]);',
+      'export class Second extends SecondBase {}',
+    ].join('\n');
+
+    it('should flatten the eligible site', async () => {
+      const result = await runTransform(
+        mockContext(),
+        code,
+        fixtureId('two-sites-plugin.ts'),
+      );
+
+      expect(String(result?.code)).toMatch(/class First extends Base/u);
+    });
+
+    it('should retain the site that bails', async () => {
+      const result = await runTransform(
+        mockContext(),
+        code,
+        fixtureId('two-sites-plugin.ts'),
+      );
+
+      expect(String(result?.code)).toContain(
+        'const SecondBase = impl(Base, [Checkable, Focusable]);',
+      );
+    });
+
+    it('should warn once, for the retained site', async () => {
+      const context = mockContext();
+
+      await runTransform(context, code, fixtureId('two-sites-plugin.ts'));
+
+      expect(context.warnings).toEqual([
+        expect.stringContaining('for SecondBase (unsupported-trait)'),
+      ]);
+    });
+  });
+
   it('should register trait dependencies as watch files', async () => {
     const context = mockContext();
 
