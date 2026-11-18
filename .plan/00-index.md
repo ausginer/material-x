@@ -1677,6 +1677,15 @@ Tier B, **open**. Registered on 2026-11-18 by the architect, from the [isolated-
 - **The witness:** the built `react.d.ts` imports from `"react"`, and a search of every package's built `.d.ts` files finds no import of an absolute path. The search runs before and after the repair.
 - **Not decided here:** a standing check for this class. The report names `import-x/no-extraneous-dependencies`, which `eslint.config.ts` turns off with no reason stated. Turning it on is a lint-policy question for the owner, under `RD-10` and `RD-11`.
 - **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`.
+- **Answered 2026-11-18 by the owner,** relayed by the coordinator.
+  - **`@types/react` is declared beside `react`.** The required property gains: `@types/react` is an optional peer too, with the same range, because `react.d.ts` imports types that only `@types/react` provides. The [isolated-layout handoff](aube-isolated-1/aube-isolated-handoff.md)'s item 1, as amended, carries it.
+  - **The owner asked for a written rule** on which field a package goes in, `@types/*` packages included, and on what a published declaration file's imports require. The rule is in [`CONTRIBUTING.md`](../CONTRIBUTING.md) Part I, _Dependencies of a published package_. Applied to today's manifests, it finds this entry's `react` and `@types/react`, and `RF-55`.
+  - **The standing check: only if it doesn't mean a custom rule, and the owner noted that TypeScript already reports an error in `react.d.ts`.** The architect read both ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt)):
+    - **The error** is the one the owner's editor shows: TS7016, _"Could not find a declaration file for module '…/node_modules/react/index.js'. … implicitly has an 'any' type."_ The specifier is a path to React's JavaScript, with no declarations beside it. TypeScript looks for `@types/react` only for the bare specifier `react`. So `DetailedHTMLProps` and `HTMLAttributes` are `any`, and every JSX type in the file is `any` with them.
+    - **Why no gate fails on it:** no checked program contains the file. material-x's `typecheck` includes `src/**` and `tests/**`, not the build output. A program that does load it, such as a consumer's or any project extending `tsconfig.base.json`, runs with `skipLibCheck: true` (`tsconfig.base.json:7`), which suppresses every error inside a `.d.ts` file. With `skipLibCheck` off, the file fails with TS7016 (exit 2). With it on, the same file passes (exit 0). The editor reports errors in the file that is open, so it shows the error.
+    - **So the check needs no custom rule:** a TypeScript program over every published declaration file, as a consumer reads them, with `skipLibCheck` off and no ambient `types`. It is a configuration and a recipe, and the gate runs it after the build. **Decided** in that form, with this property: the gate fails when a published declaration file doesn't type-check that way.
+    - **What it doesn't catch:** an import that resolves only because the workspace hoists an undeclared package to the root, and an absolute path that happens to reach a declaration file on the build machine. `CONTRIBUTING.md`'s rule names the first. Neither is worth a custom rule.
+    - **It can't land green today.** Over the 108 built declaration files, with `react` declared, it finds one error: TS2611 in `material-x/text-field/TextFieldCore.d.ts`, which is `RF-54`. **The check lands together with `RF-54`'s repair,** in one unit after this one. The owner schedules it.
 
 #### RF-52 — `.storybook/manager.tsx` imports `@storybook/icons`, which no manifest declares
 
@@ -1702,6 +1711,31 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-
   - each package's clean removes its own build outputs and nothing else. For the preset, these are the files its manifest publishes: `index.js`, `index.js.map` and `index.d.ts`;
   - every package cleans through one mechanism.
 - **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`. The handoff chooses the form.
+
+#### RF-54 — material-x's published `TextFieldCore.d.ts` doesn't type-check: the `@ts-expect-error` on `value` isn't in the declaration
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
+
+- **What was read:**
+  - `src/text-field/TextFieldCore.ts:223` suppresses TS2611 on `override get value()` with `@ts-expect-error`, citing microsoft/TypeScript#54879;
+  - the built `text-field/TextFieldCore.d.ts:40` declares the same accessor without the directive;
+  - a program that type-checks the declarations with `skipLibCheck` off reports _"TS2611: 'value' is defined as a property in class '…', but is overridden here in 'TextFieldCore' as an accessor."_ No other built declaration file in the repository reports an error.
+- **Effect:** a consumer of `mx-text-field` or `mx-multiline-text-field` whose `skipLibCheck` is off gets a type error in material-x's typings. With it on, nothing is reported.
+- **Required property:** every published declaration file type-checks with `skipLibCheck` off. This one doesn't, so `RF-51`'s standing check can't land until this repair does.
+- **Not decided:** the repair. The base type that declares `value` as a property comes from the `Valuable` trait through `impl`. Whether the declaration can carry an accessor, or the trait's type has to change, needs a reading of #54879's status and of `@ydinjs/core`'s trait types.
+- **Routed** to the owner, with `RF-51`'s check, as one unit after the isolated-layout unit.
+
+#### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONTRIBUTING.md`'s rule on published dependencies to today's manifests ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) C). **No row is disabled.**
+
+- **What was read:**
+  - `@ydinjs/vite-custom-element-assets` and `@ydinjs/vite-traits-plugin` both declare `"rolldown": "1.3.2"` in `dependencies` and `"vite": "^8.1.4"` in `peerDependencies`;
+  - each `index.d.ts` imports `Plugin` from `rolldown` and from `vite`, and `css/transform.d.ts` imports `SourceMapInput` from `rolldown`;
+  - both plugins also use `RolldownMagicString` at runtime.
+- **Why it matters:** the plugin's `Plugin` type comes from its own pinned `rolldown`, and the consumer's Vite types plugins with the `rolldown` it brings. When the two copies differ, the types can clash, which is `RF-31`'s cause, and the consumer installs a second `rolldown`. Under the rule's second question, the plugins share the consumer's copy, so `rolldown` is a peer.
+- **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
+- **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
 
 ## Questions
 

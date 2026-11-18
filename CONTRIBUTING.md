@@ -126,6 +126,32 @@ In short: **argue for what is, never about what was.**
 
 ---
 
+## Dependencies of a published package
+
+A package's manifest names every package that its published files import. Published files are the JavaScript and the declaration files that the manifest's `files` and `exports` ship. A type-only import in a declaration file counts, because the consumer's TypeScript resolves it. Node's built-in modules are the exception, and they follow the environment rule below.
+
+**Place a package by asking these questions in order:**
+
+1. **Does a published file import it?** If not, it goes in `devDependencies`: building, testing, linting and unpublished files need it, and the consumer doesn't.
+2. **Does the consumer supply it, or must the package share the consumer's copy?** If so, it goes in `peerDependencies`. Examples: a framework (`react`), a host whose types the package's public API takes or returns (`vite`, and anything whose types reach the consumer through that host), or an environment (Node).
+3. **Otherwise** it goes in `dependencies`. That includes a package that exists only for its types, such as `type-fest`.
+
+**Types go where their package goes.**
+
+- A package that ships its own declarations needs nothing more.
+- Otherwise, its `@types/*` package goes in the same field: `@types/react` beside `react` in `peerDependencies`, and the `@types/*` of a dependency in `dependencies`. An environment's types follow the environment: if a published declaration uses Node's types, `@types/node` is a peer.
+- A package or `@types/*` package that a published file imports never goes only in `devDependencies`. The consumer doesn't install it. A runtime import then fails, and a declaration's import becomes `any` with no error under `skipLibCheck`.
+
+**Peers.**
+
+- A peer's range names the majors that the workspace builds and tests against.
+- When only an optional entry point imports a peer, `peerDependenciesMeta` marks it optional, and its `@types/*` package too.
+- The workspace installs each peer for its own builds and tests, in the package's or the root's `devDependencies`, at a version inside the range.
+
+**Why the build depends on this too.** tsdown keeps an import that no manifest names external by its resolved path, so an undeclared import writes the build machine's absolute path into the output ([`repo:RF-51`](.plan/00-index.md)).
+
+**What checks it.** A program that type-checks every published declaration file as a consumer does, with `skipLibCheck` off, finds an import that doesn't resolve (`repo:RF-51`). It doesn't find an import that resolves only because the workspace hoists an undeclared package to the root. That still needs a reader, or a per-package lint rule, which the repository doesn't run today.
+
 # Part II — Code of Size
 
 How we reduce bundle size. The goal is **not code golf**: it is to remove runtime machinery the library does not need, move guarantees to compile time, preserve tree-shaking, and keep the public API and lifecycle semantics clear. A size pass must make the implementation smaller **without making the contract worse**.
@@ -410,3 +436,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-08 | Part I, Class encapsulation | **Added:** at the owner's direction, mutable class state is private and public fields are read-only. Read-only interfaces and reference bindings do not permit exposing writable class-owned state |
 | 2026-11-09 | Part I, TypeScript | **Clarified:** interfaces describe intended implementation contracts. Library-created object values remain types even when they contain functions. Method presence and lint behavior do not determine the declaration kind |
 | 2026-11-15 | Reading one entry of a record; §1.1 | **Changed:** the resolver is `.scripts/entry.sh`, and a retired scope resolves at the commit its scope row names. The examples read drag's record. §1.1 names only drag's failure path. Links into drag2 name its paths at `0870abd75`, or its entries by `drag2:` address. Record: `repo:RD-5` |
+| 2026-11-18 | Part I, Dependencies of a published package | **Added:** which manifest field each package goes in, `@types/*` packages included, on the owner's request after `repo:RF-51` (material-x's React typings imported React by an absolute path). Record: `repo:RF-51` |

@@ -15,11 +15,13 @@
 
 Each entry's _Required property_ binds. This handoff adds the form where the entry leaves it open, and the witnesses. The entries hold the readings and the alternatives weighed.
 
-**Not part of this unit:** a standing check for absolute imports in published declarations, such as turning on `import-x/no-extraneous-dependencies`. `RF-51` leaves that to the owner. Nothing here depends on the answer.
+**Not part of this unit:** the standing check on published declarations. `RF-51`'s _Answered_ bullet decides its form, and it lands with `RF-54`'s repair in a later unit. Nothing here depends on it.
 
 **Order:** one commit per item, in this order. The items are independent, so a stop in one doesn't block the others.
 
 ## Item 1. The React peer of `@ydinjs/material-x` (`RF-51`)
+
+**Amended 2026-11-18 by the main slot's architect, on the owner's answer** (`RF-51`, _Answered_): `@types/react` is an optional peer beside `react`, with the same range. `react.d.ts` imports types that only `@types/react` provides, and [`CONTRIBUTING.md`](../../CONTRIBUTING.md) Part I, _Dependencies of a published package_, puts a peer's `@types/*` package in the same field. The root already installs `@types/react` 19.3.0, inside the range. Before this amendment, the block below declared `react` alone, and item 1 landed in that form at `ef530af97`. **The amendment is a further commit of its own:** add `@types/react` as the block shows, then `aube install`, and repeat the `RF-48` check of `node_modules/@ydinjs`. Its witnesses are 1 and 4 below, and a rebuilt `react.d.ts` that still imports from `"react"`. The report quotes both lockfile diffs.
 
 **Required:**
 
@@ -27,9 +29,13 @@ Each entry's _Required property_ binds. This handoff adds the form where the ent
 
   ```json
   "peerDependencies": {
+    "@types/react": "^19",
     "react": "^19"
   },
   "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    },
     "react": {
       "optional": true
     }
@@ -43,7 +49,7 @@ Each entry's _Required property_ binds. This handoff adds the form where the ent
 
 **Witnesses:**
 
-1. **The lockfile diff** is confined to the `packages/material-x` entry, and adds no `name@version` that the lockfile didn't already hold. Quote the diff in the report.
+1. **The lockfile diff** is confined to the `packages/material-x` entry, and adds no `name@version` that the lockfile didn't already hold. Quote the diff in the report. It names both peers.
 2. **The built typings.** Build every package that publishes declarations: `aube exec just build`, then `aube exec -- nx run-many -t build --projects=box-quad,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown --skipNxCache`.
    - `packages/material-x/react.d.ts` imports React's types from `"react"`.
    - **The absolute-path search** finds nothing. Run it over every built `.d.ts` under `packages/`, outside `node_modules`, `src` and `tests`, for an import or export whose specifier starts with `/` or a drive letter. That covers `from "/…"`, `import("/…")` and `import "/…"`. Save the command and its output.
