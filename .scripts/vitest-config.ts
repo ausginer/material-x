@@ -429,8 +429,27 @@ const isVisual = process.env['MX_TEST_VISUAL'] === '1';
 function createVisualTestProjects(
   options: BrowserTestProjectOptions,
 ): UserConfig[] {
+  // Scratch, for `repo:RD-23`'s reading: the threshold comes from the
+  // environment. The unit replaces this with the chosen value.
   return isVisual && engines.includes('chromium')
-    ? [createBrowserTestProject(options, 'chromium')]
+    ? [
+        mergeConfig(createBrowserTestProject(options, 'chromium'), {
+          test: {
+            browser: {
+              expect: {
+                toMatchScreenshot: {
+                  comparatorName: 'pixelmatch',
+                  comparatorOptions: {
+                    threshold: Number(
+                      process.env['MX_VISUAL_THRESHOLD'] ?? '0.1',
+                    ),
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]
     : [];
 }
 
