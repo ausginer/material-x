@@ -1,0 +1,6 @@
+job	job_id	conclusion	image	archive_ubuntu_gets	install	dry_run	browser_action_s	job_s	warning
+chromium	134650742490	success	20261103.629	30	4 upgraded, 9 newly installed	-	27	358	chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+measurements	134650742569	success	20261103.629	22	4 upgraded, 9 newly installed	-	436	503	chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+firefox	134650742579	success	20261103.629	57	0 upgraded, 40 newly installed	-	21	477	firefox: the cache holds no archives for this key, so Playwright installs them from the mirror
+docs	134650742696	success	20261103.629	30	4 upgraded, 9 newly installed	-	28	106	chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+webkit	134650742824	cancelled	20261103.629	28	4 upgraded, 181 newly installed	-	475	494	webkit: the cache holds no archives for this key, so Playwright installs them from the mirror

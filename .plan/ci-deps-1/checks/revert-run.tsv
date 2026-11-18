@@ -1,0 +1,9 @@
+job	job_id	conclusion	image	archive_ubuntu_gets	install	dry_run	browser_action_s	job_s	warning
+system-deps (webkit)	134655132033	success	20261103.629	0	-	-	-	9	none
+system-deps (firefox)	134655132161	success	20261103.629	0	-	-	-	11	none
+system-deps (chromium)	134655132176	success	20261103.629	0	-	-	-	9	none
+docs	134655230872	success	20261103.629	0	4 upgraded, 9 newly installed	All system dependencies are installed	36	100	none
+webkit	134655230941	success	20261103.629	0	4 upgraded, 181 newly installed	All system dependencies are installed	29	218	none
+measurements	134655230977	success	20261103.629	0	4 upgraded, 9 newly installed	All system dependencies are installed	24	95	none
+chromium	134655231006	success	20261103.629	0	4 upgraded, 9 newly installed	All system dependencies are installed	15	331	none
+firefox	134655231014	success	20261103.629	0	0 upgraded, 40 newly installed	All system dependencies are installed	18	473	none

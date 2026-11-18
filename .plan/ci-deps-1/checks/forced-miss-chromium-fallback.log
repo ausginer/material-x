@@ -1,0 +1,45 @@
+# run 44259919530, job chromium 134650742490, step Run ./.github/actions/browser (excerpt)
+2026-11-18T07:35:20.5894036Z   HIT: 
+2026-11-18T07:35:20.5894220Z   DIR: /home/runner/work/_temp/system-deps
+2026-11-18T07:35:20.5894451Z ##[endgroup]
+2026-11-18T07:35:20.5947205Z ##[warning]chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+2026-11-18T07:35:20.9832391Z Installing dependencies...
+2026-11-18T07:35:20.9935918Z Switching to root user to install dependencies...
+2026-11-18T07:35:21.0863552Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-18T07:35:21.1209078Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-18T07:35:21.1210260Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-18T07:35:21.1245732Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-18T07:35:21.1274700Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-18T07:35:21.1292636Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-18T07:35:21.2324523Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [794 kB]
+2026-11-18T07:35:21.2462721Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [723 kB]
+2026-11-18T07:35:21.2779575Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1455 kB]
+2026-11-18T07:35:21.2852331Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [317 kB]
+2026-11-18T07:35:21.2912345Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1715 kB]
+2026-11-18T07:35:21.2936850Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [345 kB]
+2026-11-18T07:35:21.2943671Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1887 kB]
+2026-11-18T07:35:21.3020861Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [433 kB]
+2026-11-18T07:35:21.3045225Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.6 kB]
+2026-11-18T07:35:21.3752535Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1196 kB]
+2026-11-18T07:35:21.3812560Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [238 kB]
+2026-11-18T07:35:21.3831973Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1229 kB]
+2026-11-18T07:35:21.4332122Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+2026-11-18T07:35:21.4348151Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1788 kB]
+2026-11-18T07:35:21.4422067Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [411 kB]
+2026-11-18T07:35:21.4442651Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.7 kB]
+2026-11-18T07:35:27.6214864Z Fetched 13.2 MB in 1s (11.1 MB/s)
+2026-11-18T07:35:28.6443564Z Reading package lists...
+2026-11-18T07:35:28.6724577Z Reading package lists...
+2026-11-18T07:35:28.9482990Z Building dependency tree...
+2026-11-18T07:35:28.9489276Z Reading state information...
+2026-11-18T07:35:29.1438742Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-11-18T07:35:29.1439349Z libasound2t64 set to manually installed.
+2026-11-18T07:35:29.1439924Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-18T07:35:29.1440363Z libatk-bridge2.0-0t64 set to manually installed.
+2026-11-18T07:35:29.1440721Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-18T07:35:29.1441036Z libatk1.0-0t64 set to manually installed.
+2026-11-18T07:35:29.1441647Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+[...]
+2026-11-18T07:35:27.6214864Z Fetched 13.2 MB in 1s (11.1 MB/s)
+2026-11-18T07:35:29.1900312Z 4 upgraded, 9 newly installed, 0 to remove and 28 not upgraded.
+2026-11-18T07:35:31.4264455Z Fetched 32.1 MB in 2s (16.7 MB/s)
