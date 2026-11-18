@@ -79,3 +79,23 @@
 
 - Commit item 1, push `repo/context-token-1`, and ask the coordinator for the pull request. Then commit item 2 and push.
 - **The pull request description says `Refs` and not `Closes`** for `RF-61`'s issue, if it exists by then. The entry is still on `repo/work-queue-1` (`RD-22` property 8: the entry and the issue change at the same merge).
+
+## Disposition of the feature-proof review at `8f83af6a3`
+
+**Decided 2026-11-18 by the architect,** on the [feature-proof review](../reviews/context-token-1/feature-proof-claude.md), which read the code at `ef8d5cf43`, relayed by the coordinator. Item 1 holds, its witnesses hold, and neither stop applies. The review has no finding in the unit. **`RF-61` closes when this pull request merges.**
+
+| Finding | Disposition |
+| --- | --- |
+| `reviewer-1`: the checkbox's `WithLabel` story calls `crypto.randomUUID`, so it throws in a Storybook served over plain HTTP from a LAN address | **Accepted, Tier C. Registered as `repo:RF-62`** on `repo/work-queue-1`, beside `RF-61`. Not remediated in this unit |
+
+**Why `reviewer-1` is registered.** It is `RF-61`'s platform restriction, in the development case that `RF-61` calls ordinary: a development server opened from a phone or from another machine. A story is how a developer sees a component there.
+
+**Why it isn't folded into this unit.** This unit changes `@ydinjs/core` alone, and its proof is complete. A material-x change would widen the unit and need another proof, for a story that isn't in the package's exports.
+
+**Where `RF-61`'s closure is written.** The entry is on `repo/work-queue-1`, which has no pull request, so this branch can't change it, and either branch can merge first.
+
+- **After this pull request merges,** the architect writes the closure in `RF-61`'s entry, citing the merge commit. It goes on `repo/work-queue-1` if that branch hasn't merged by then, and otherwise on the main slot's branch at that time. Either way, it reaches `main` after this repair does.
+- **Until then,** the entry says that the repair is on this branch and points here. That is true in either merge order.
+- **Not now on `repo/work-queue-1`:** if that branch merged first, `main` would record `RF-61` closed while its `createContext` still called `randomUUID`.
+- **Not on this branch:** the entry isn't here, and a copy would conflict with `repo/work-queue-1`'s in `00-index.md`.
+- **If `RF-61`'s issue opens before the closure,** this pull request's `Refs` stands, and the pull request that carries the closure says `Closes` for it (`RD-22` property 8).
