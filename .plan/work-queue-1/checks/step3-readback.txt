@@ -1,0 +1,614 @@
+# Work-queue step 3: what GitHub holds after the population. Read by the implementer on 2026-11-18,
+# on repo/work-queue-1 at b9119cdf1, with gh 2.104.0 as Lodin. Each section is one command's output.
+# The project stays private, on the owner's answer relayed by the coordinator: "let's test it private for now".
+# #58 (the material-x release) was closed as not planned before items were added, so it isn't on the board.
+# #38 merged before items were added. It isn't on the board: no workflow sets Done on add, and nobody sets Done by hand.
+
+## gh label list --limit 100
+bug	Something isn't working	#d73a4a
+documentation	Improvements or additions to documentation	#0075ca
+duplicate	This issue or pull request already exists	#cfd3d7
+enhancement	New feature or request	#a2eeef
+good first issue	Good for newcomers	#7057ff
+help wanted	Extra attention is needed	#008672
+invalid	This doesn't seem right	#e4e669
+question	Further information is requested	#d876e3
+wontfix	This will not be worked on	#ffffff
+record-baselines	Record visual baselines on GitHub's runner and propose them in a pull request	#1D76DB
+safari	A failing scheduled Safari run	#d93f0b
+unregistered	The observation has no record entry yet; the architect owes one	#FBCA04
+pkg:core	The package whose code changes: @ydinjs/core	#5319E7
+pkg:material-x	The package whose code changes: @ydinjs/material-x	#5319E7
+pkg:drag	The package whose code changes: @ydinjs/drag	#5319E7
+pkg:box-quad	The package whose code changes: @ydinjs/box-quad	#5319E7
+pkg:tproc	The package whose code changes: @ydinjs/tproc	#5319E7
+pkg:build-tools	vite-traits-plugin, vite-custom-element-assets or size-limit-preset-rolldown	#5319E7
+repo	Repository-level: CI, the harness, the record tooling	#0E8A16
+
+## gh api 'repos/ausginer/material-x/milestones?state=all'
+[]
+## gh issue list --state all --limit 1000 --json number,title,labels,milestone,body,state,stateReason
+[
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 60,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "Some open record entries have no issue"
+  },
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 58,
+    "state": "CLOSED",
+    "stateReason": "NOT_PLANNED",
+    "title": "Release `@ydinjs/material-x`"
+  },
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxR2g",
+        "name": "pkg:drag",
+        "description": "The package whose code changes: @ydinjs/drag",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 57,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "Release `@ydinjs/drag`"
+  },
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxSnQ",
+        "name": "pkg:box-quad",
+        "description": "The package whose code changes: @ydinjs/box-quad",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 56,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "Release `@ydinjs/box-quad`"
+  },
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 55,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "Write documentation and examples"
+  },
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 54,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "Build a landing page"
+  },
+  {
+    "body": "Record: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 53,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "Agents' code navigation still runs on TypeScript 6"
+  },
+  {
+    "body": "Record: `repo:RF-61`, registered on `repo/work-queue-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxQeA",
+        "name": "pkg:core",
+        "description": "The package whose code changes: @ydinjs/core",
+        "color": "5319E7"
+      },
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 52,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-61 — material-x's buttons and text field fail to import on pages served over plain HTTP"
+  },
+  {
+    "body": "Record: `repo:RD-20`, registered on `repo/traits-plugin-1`, not yet on `main`.\n\nQuestion: which browserslist query does material-x state? The owner writes it before material-x's first release. The entry's property 3 lists what the release owes with it.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 51,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RD-20 — material-x needs a browserslist before its first release"
+  },
+  {
+    "body": "Record: `repo:RF-57`, registered on `repo/declarations-check-1` (#37), not yet on `main`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxQeA",
+        "name": "pkg:core",
+        "description": "The package whose code changes: @ydinjs/core",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 50,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-57 — A trait's class field can hide a subclass's getter and setter"
+  },
+  {
+    "body": "Record: `repo:RF-48`.\nStep: a reading of the defect on aube 2.10.1.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 49,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-48 — `aube add` removes the workspace's own package links"
+  },
+  {
+    "body": "Record: `repo:RF-55`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxTzg",
+        "name": "pkg:build-tools",
+        "description": "vite-traits-plugin, vite-custom-element-assets or size-limit-preset-rolldown",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 48,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-55 — The Vite plugins can install a second copy of rolldown"
+  },
+  {
+    "body": "Record: `repo:RF-49`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 47,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-49 — The oxlint config can't be regenerated from the ESLint config"
+  },
+  {
+    "body": "Record: `repo:RF-45`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      },
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 46,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-45 — material-x has no bundle-size budget"
+  },
+  {
+    "body": "Record: `repo:RF-41`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      },
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxUyA",
+        "name": "repo",
+        "description": "Repository-level: CI, the harness, the record tooling",
+        "color": "0E8A16"
+      }
+    ],
+    "milestone": null,
+    "number": 45,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-41 — Screenshot tests can't see hover and focus highlights"
+  },
+  {
+    "body": "Record: `repo:RF-36`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxQeA",
+        "name": "pkg:core",
+        "description": "The package whose code changes: @ydinjs/core",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 44,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-36 — In Safari, reorder tests sometimes time out after the drop"
+  },
+  {
+    "body": "Record: `repo:RF-60`, registered on `repo/traits-plugin-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxTzg",
+        "name": "pkg:build-tools",
+        "description": "vite-traits-plugin, vite-custom-element-assets or size-limit-preset-rolldown",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 43,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-60 — A trait-flattener test fails at random in CI"
+  },
+  {
+    "body": "Record: `repo:RF-44`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxTzg",
+        "name": "pkg:build-tools",
+        "description": "vite-traits-plugin, vite-custom-element-assets or size-limit-preset-rolldown",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 42,
+    "state": "CLOSED",
+    "stateReason": "COMPLETED",
+    "title": "repo:RF-44 — The trait flattener doesn't flatten method traits yet"
+  },
+  {
+    "body": "Record: `repo:RF-40`. Its correction and the owner's question are on `repo/host-has-fallback-1`, not yet on `main`.\n\nQuestion: does the entry close on the reading, as not a defect, or when the handoff's item 1 lands, with rows that pass in all three engines and fail in Firefox when the fallback is disabled? The entry has the context and the architect's recommendation.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 41,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-40 — Does the Firefox fallback for slotted-content styles need tests before it closes?"
+  },
+  {
+    "body": "Record: `repo:RF-59`, registered on `repo/host-has-fallback-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDnxRKw",
+        "name": "pkg:material-x",
+        "description": "The package whose code changes: @ydinjs/material-x",
+        "color": "5319E7"
+      }
+    ],
+    "milestone": null,
+    "number": 40,
+    "state": "OPEN",
+    "stateReason": "",
+    "title": "repo:RF-59 — material-x fails when imported from `<head>`"
+  },
+  {
+    "body": "- **Run:** https://github.com/ausginer/material-x/actions/runs/44060878452\n- **Commit:** 86b2fddc27eee57d5c0f45298905cfe6b9bf5277\n- **macOS:** 26.7.2 (25G332)\n- **Safari:** 27.2\n- **Failed projects:** none named: the job failed before a project reported its status",
+    "labels": [
+      {
+        "id": "LA_kwDOPK872s8AAAADDbMfcg",
+        "name": "safari",
+        "description": "A failing scheduled Safari run",
+        "color": "d93f0b"
+      }
+    ],
+    "milestone": null,
+    "number": 32,
+    "state": "CLOSED",
+    "stateReason": "COMPLETED",
+    "title": "The scheduled Safari run failed"
+  }
+]
+
+## gh pr list --state all --limit 100 --json number,title,state,headRefName,baseRefName (open, and those numbered 37 and above)
+[{"baseRefName":"main","headRefName":"repo/traits-plugin-1","number":61,"state":"MERGED","title":"repo: the trait flattener flattens method traits, and the focus forward moves to a trait (RF-44, RF-33)"},{"baseRefName":"main","headRefName":"repo/host-has-fallback-1","number":59,"state":"OPEN","title":"material-x: the has-slotted polyfill detects nothing at import, and rows witness each slot's fallback in every engine (RF-59, RF-40)"},{"baseRefName":"main","headRefName":"repo/context-token-1","number":39,"state":"MERGED","title":"core: createContext derives its token from Math.random, so material-x imports over plain HTTP (RF-61)"},{"baseRefName":"main","headRefName":"repo/ci-deps-1","number":38,"state":"MERGED","title":"repo: fetch the runners' system packages once up front and install them offline (RF-58, RD-21)"},{"baseRefName":"main","headRefName":"repo/declarations-check-1","number":37,"state":"MERGED","title":"repo: type-check the published declarations in the gate, and type trait fields by a mapped brand (RF-51, RF-54)"}]
+
+## The issue comment for the In progress item #42
+{"body":"In progress: slot `d`, branch `repo/traits-plugin-1`, base `main`, pull request #61.\n\n— IMPLEMENTER\n","html_url":"https://github.com/ausginer/material-x/issues/42#issuecomment-6974371268"}
+
+## gh project list --owner ausginer
+{
+  "number": 1,
+  "title": "Work Queue",
+  "url": "https://github.com/orgs/ausginer/projects/1",
+  "public": false,
+  "closed": false
+}
+
+## The project: visibility, linked repositories, fields with options, views and workflows (GraphQL)
+{
+  "title": "Work Queue",
+  "public": false,
+  "closed": false,
+  "repositories": {
+    "nodes": [
+      {
+        "nameWithOwner": "ausginer/material-x"
+      }
+    ]
+  },
+  "fields": {
+    "nodes": [
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Title",
+        "dataType": "TITLE"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Assignees",
+        "dataType": "ASSIGNEES"
+      },
+      {
+        "__typename": "ProjectV2SingleSelectField",
+        "name": "Status",
+        "dataType": "SINGLE_SELECT",
+        "options": [
+          {
+            "id": "0ffb23c3",
+            "name": "Waiting on owner",
+            "description": "The next action is the owner's: a question, a choice or an authorization"
+          },
+          {
+            "id": "d7804bf3",
+            "name": "Next",
+            "description": "The owner has ordered this item to be taken next"
+          },
+          {
+            "id": "f75ad846",
+            "name": "Queued",
+            "description": "In the queue, in the owner's rank within the column"
+          },
+          {
+            "id": "5ab5ae0f",
+            "name": "Not urgent",
+            "description": "Taken when nothing else is ready"
+          },
+          {
+            "id": "47fc9ee4",
+            "name": "In progress",
+            "description": "A unit holds the item; a comment on the issue names the slot, branch and base"
+          },
+          {
+            "id": "98236657",
+            "name": "Done",
+            "description": "Closed; set only by the project's workflows"
+          }
+        ]
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Labels",
+        "dataType": "LABELS"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Linked pull requests",
+        "dataType": "LINKED_PULL_REQUESTS"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Milestone",
+        "dataType": "MILESTONE"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Repository",
+        "dataType": "REPOSITORY"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Reviewers",
+        "dataType": "REVIEWERS"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Parent issue",
+        "dataType": "PARENT_ISSUE"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Sub-issues progress",
+        "dataType": "SUB_ISSUES_PROGRESS"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Created",
+        "dataType": "CREATED"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Updated",
+        "dataType": "UPDATED"
+      },
+      {
+        "__typename": "ProjectV2Field",
+        "name": "Closed",
+        "dataType": "CLOSED"
+      }
+    ]
+  },
+  "views": {
+    "nodes": [
+      {
+        "name": "Board",
+        "number": 1,
+        "layout": "BOARD_LAYOUT",
+        "filter": null,
+        "verticalGroupByFields": {
+          "nodes": [
+            {
+              "name": "Status"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "workflows": {
+    "nodes": [
+      {
+        "number": 4,
+        "name": "Auto-add sub-issues to project",
+        "enabled": false
+      },
+      {
+        "number": 3,
+        "name": "Auto-close issue",
+        "enabled": false
+      },
+      {
+        "number": 6,
+        "name": "Item added to project",
+        "enabled": false
+      },
+      {
+        "number": 1,
+        "name": "Item closed",
+        "enabled": true
+      },
+      {
+        "number": 7,
+        "name": "Item reopened",
+        "enabled": true
+      },
+      {
+        "number": 5,
+        "name": "Pull request linked to issue",
+        "enabled": false
+      },
+      {
+        "number": 2,
+        "name": "Pull request merged",
+        "enabled": true
+      }
+    ]
+  }
+}
+
+## gh project item-list 1 --owner ausginer --limit 1000 --format json (number, type, state, Status, in board order)
+40	Issue	Next	repo:RF-59 — material-x fails when imported from `<head>`
+41	Issue	Waiting on owner	repo:RF-40 — Does the Firefox fallback for slotted-content styles need tests before it closes?
+42	Issue	Done	repo:RF-44 — The trait flattener doesn't flatten method traits yet
+43	Issue	Queued	repo:RF-60 — A trait-flattener test fails at random in CI
+44	Issue	Queued	repo:RF-36 — In Safari, reorder tests sometimes time out after the drop
+45	Issue	Queued	repo:RF-41 — Screenshot tests can't see hover and focus highlights
+46	Issue	Queued	repo:RF-45 — material-x has no bundle-size budget
+47	Issue	Queued	repo:RF-49 — The oxlint config can't be regenerated from the ESLint config
+48	Issue	Queued	repo:RF-55 — The Vite plugins can install a second copy of rolldown
+49	Issue	Queued	repo:RF-48 — `aube add` removes the workspace's own package links
+50	Issue	Not urgent	repo:RF-57 — A trait's class field can hide a subclass's getter and setter
+51	Issue	Waiting on owner	repo:RD-20 — material-x needs a browserslist before its first release
+52	Issue	Queued	repo:RF-61 — material-x's buttons and text field fail to import on pages served over plain HTTP
+53	Issue	Not urgent	Agents' code navigation still runs on TypeScript 6
+54	Issue	Queued	Build a landing page
+55	Issue	Queued	Write documentation and examples
+56	Issue	Queued	Release `@ydinjs/box-quad`
+57	Issue	Queued	Release `@ydinjs/drag`
+60	Issue	Queued	Some open record entries have no issue
+37	PullRequest	Done	repo: type-check the published declarations in the gate, and type trait fields by a mapped brand (RF-51, RF-54)
+59	PullRequest	In progress	material-x: the has-slotted polyfill detects nothing at import, and rows witness each slot's fallback in every engine (RF-59, RF-40)
+61	PullRequest	Done	repo: the trait flattener flattens method traits, and the focus forward moves to a trait (RF-44, RF-33)
+
+## Verification of step 3, from the sections above and a script over the same commands
+1 every title and body is English, and none contains claude.ai/code or Claude-Session: holds (no non-ASCII character but the em dash)
+2 every address in a title resolves on main or on the branch that its body names (git show <ref>:.plan/00-index.md, the #### heading): holds
+3 no address is the subject of two open issues: holds
+4 no queue issue has the safari label: holds
+5 the repository has no milestone, and no issue has one: holds (0 milestones)
+6 every body that an agent wrote ends with a stamp: holds (each ends with "— IMPLEMENTER")
+7 every open queue issue is on the board once, with a Status other than Done, and every closed item is Done: holds
+  #37 merged at 09:22:00Z and #61 at 09:24:12Z, while the items were being added. Each was added as In progress. The
+  project's workflows then set #37, #61 and #42 to Done, and #61's "Closes #42" closed #42 at 09:24:14Z.
+  #42's In progress comment was written at 09:23:44Z, before #42 closed.
+8 no custom field other than Status: holds. The other fields are GitHub's built-in fields (dataType other than
+  SINGLE_SELECT, TEXT, NUMBER, DATE or ITERATION). Auto-add (Auto-add sub-issues to project) and Auto-close issue are off.
+
+## What the API can't read
+- A workflow's target Status. ProjectV2Workflow exposes only number, name, enabled and timestamps.
+  Done was observed in use by Pull request merged (#37, #61) and Item closed (#42). Item reopened's Queued isn't observed.
