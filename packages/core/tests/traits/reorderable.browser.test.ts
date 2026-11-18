@@ -73,183 +73,6 @@ function commitOnReorder(list: HTMLElement): void {
   });
 }
 
-/*
- * Scratch instruments for the Safari landing reading (`repo:RF-36`). They
- * trace one landing of a sole item from the gesture's start, log it as one JSON
- * line, and, when the row's wait gives up, keep watching for up to 10 s and
- * fail with the trace. Reverted after the reading.
- */
-type LandingMark = [name: string, at: number];
-
-const landingCounts = new Map<string, number>();
-
-function traceLanding(row: string, list: HTMLElement, item: HTMLElement) {
-  const repeat = (landingCounts.get(row) ?? 0) + 1;
-  landingCounts.set(row, repeat);
-
-  const start = performance.now();
-  const at = () => Math.round((performance.now() - start) * 10) / 10;
-  const marks: LandingMark[] = [];
-  const mark = (name: string) => {
-    marks.push([name, at()]);
-  };
-  const timelineTime = () => {
-    const time = document.timeline.currentTime;
-    return time == null ? null : Math.round(Number(time) * 10) / 10;
-  };
-  const pageState = () => ({
-    at: at(),
-    visibility: document.visibilityState,
-    focus: document.hasFocus(),
-    timeline: timelineTime(),
-  });
-
-  const controller = new AbortController();
-  const { signal } = controller;
-  let lastMove: number | null = null;
-
-  list.addEventListener('pointerdown', () => mark('pointerdown'), { signal });
-  list.addEventListener(
-    'pointermove',
-    () => {
-      lastMove = at();
-    },
-    { signal },
-  );
-  list.addEventListener('pointerup', () => mark('pointerup'), { signal });
-  item.addEventListener('toggle', (event) => mark(`toggle ${event.newState}`), {
-    signal,
-  });
-
-  let { position } = item.style;
-  const observer = new MutationObserver(() => {
-    if (item.style.position !== position) {
-      ({ position } = item.style);
-      mark(`position ${position || '(none)'}`);
-    }
-  });
-  observer.observe(item, { attributes: true, attributeFilter: ['style'] });
-
-  const nativeAnimate = Object.getOwnPropertyDescriptor(
-    Element.prototype,
-    'animate',
-  )!;
-  let animation: Animation | null = null;
-  function tracedAnimate(
-    this: Element,
-    ...args: Parameters<Element['animate']>
-  ): Animation {
-    const result = (nativeAnimate.value as Element['animate']).apply(
-      this,
-      args,
-    );
-    if (this === item) {
-      animation = result;
-      mark('animate');
-      result.finished.then(
-        () => mark('finished'),
-        () => mark('finished rejected'),
-      );
-    }
-    return result;
-  }
-
-  Object.defineProperty(Element.prototype, 'animate', {
-    ...nativeAnimate,
-    value: tracedAnimate,
-  });
-
-  const frames: Array<[at: number, timeline: number | null]> = [];
-  let frame = requestAnimationFrame(function onFrame() {
-    frames.push([at(), timelineTime()]);
-    frame = requestAnimationFrame(onFrame);
-  });
-
-  // Lateness of each tick of a 50 ms timer, against its schedule.
-  const timerLateness: number[] = [];
-  const timerStart = performance.now();
-  let ticks = 0;
-  const timer = setInterval(() => {
-    ticks += 1;
-    timerLateness.push(
-      Math.round((performance.now() - timerStart - ticks * 50) * 10) / 10,
-    );
-  }, 50);
-
-  const atStart = pageState();
-
-  const animationState = () => {
-    const current = animation;
-    if (!current) {
-      return null;
-    }
-    const timing = current.effect?.getComputedTiming();
-    return {
-      playState: current.playState,
-      currentTime:
-        current.currentTime == null
-          ? null
-          : Math.round(Number(current.currentTime) * 10) / 10,
-      progress: timing?.progress ?? null,
-      duration: timing?.duration ?? null,
-    };
-  };
-
-  const dispose = () => {
-    controller.abort();
-    observer.disconnect();
-    Object.defineProperty(Element.prototype, 'animate', nativeAnimate);
-    cancelAnimationFrame(frame);
-    clearInterval(timer);
-  };
-
-  return {
-    /** Marks the return of `ue.pointer`. */
-    released(): void {
-      mark('ue.pointer returned');
-    },
-    /**
-     * Waits as the row does, up to 1,000 ms. On a timeout it keeps watching for
-     * up to 10 s more and then fails with the trace.
-     */
-    async settle(assertion: () => void): Promise<void> {
-      let atTimeout: Record<string, unknown> | null = null;
-      let ended = true;
-
-      try {
-        await vi.waitFor(assertion, { timeout: 1000 });
-      } catch {
-        atTimeout = { ...pageState(), animation: animationState() };
-        mark('wait gave up');
-        try {
-          await vi.waitFor(assertion, { timeout: 10_000, interval: 10 });
-        } catch {
-          ended = false;
-        }
-      }
-
-      const record = {
-        row,
-        repeat,
-        browser: server.browser,
-        result: atTimeout ? (ended ? 'late' : 'stuck') : 'passed',
-        marks,
-        lastMove,
-        atStart,
-        atTimeout,
-        atEnd: { ...pageState(), animation: animationState() },
-        frames,
-        timerLateness,
-      };
-      dispose();
-      console.warn(`RF-36 landing ${JSON.stringify(record)}`);
-      if (atTimeout) {
-        throw new Error(`RF-36 landing stalled: ${JSON.stringify(record)}`);
-      }
-    },
-  };
-}
-
 function createReorderEvent(): ReorderEvent {
   return new ReorderEvent(document.createElement('div'), 0, 1);
 }
@@ -570,9 +393,8 @@ describe('useReorderable', () => {
 
   // Intermittently keeps the visual in the top layer past the wait in Safari
   // (`repo:RF-36`).
-  it(
+  it.skipIf(server.browser === 'safari')(
     'should not dispatch a reorder for a no-op drop',
-    { repeats: 9 },
     async () => {
       const list = createList();
       const item = createItem();
@@ -585,16 +407,17 @@ describe('useReorderable', () => {
       const reorderSpy = vi.fn<(e: Event) => void>();
       list.addEventListener('reorder', reorderSpy);
 
-      const trace = traceLanding('no-op drop', list, item);
       // Sole item: it can only land where it started, so nothing is proposed.
       await ue.pointer([
         { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
         { coords: { clientY: 100 } },
         { keys: '[/MouseLeft]' },
       ]);
-      trace.released();
-      await trace.settle(() =>
-        expect(item.matches(':popover-open')).toBeFalsy(),
+      await vi.waitFor(
+        () => expect(item.matches(':popover-open')).toBeFalsy(),
+        {
+          timeout: 1000,
+        },
       );
 
       expect(reorderSpy).not.toHaveBeenCalled();
@@ -1073,36 +896,32 @@ describe('useReorderable', () => {
     expect(internals(item1).states.has('drag')).toBeTruthy();
   });
 
-  it(
-    'should restore pre-existing inline styles on the target after landing',
-    { repeats: 9 },
-    async () => {
-      const list = createList();
-      const item = createItem();
+  it('should restore pre-existing inline styles on the target after landing', async () => {
+    const list = createList();
+    const item = createItem();
 
-      // The target already carries inline geometry the lift will overwrite.
-      item.style.position = 'relative';
-      item.style.transform = 'translateX(5px)';
+    // The target already carries inline geometry the lift will overwrite.
+    item.style.position = 'relative';
+    item.style.transform = 'translateX(5px)';
 
-      document.body.append(list);
-      list.append(item);
-      list.reorderable = true;
-      await nextFrame();
+    document.body.append(list);
+    list.append(item);
+    list.reorderable = true;
+    await nextFrame();
 
-      const trace = traceLanding('restore inline styles', list, item);
-      await ue.pointer([
-        { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
-        { coords: { clientY: 100 } },
-        { keys: '[/MouseLeft]' },
-      ]);
-      trace.released();
+    await ue.pointer([
+      { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
+      { coords: { clientY: 100 } },
+      { keys: '[/MouseLeft]' },
+    ]);
 
-      // Sole item, so the drop is a no-op that just animates home; wait for the
-      // teardown to restore the target's own inline styles.
-      await trace.settle(() => expect(item.style.position).toBe('relative'));
-      expect(item.style.transform).toBe('translateX(5px)');
-    },
-  );
+    // Sole item, so the drop is a no-op that just animates home; wait for the
+    // teardown to restore the target's own inline styles.
+    await vi.waitFor(() => expect(item.style.position).toBe('relative'), {
+      timeout: 1000,
+    });
+    expect(item.style.transform).toBe('translateX(5px)');
+  });
 
   it('should assign the footprint to the same named slot as the item', async () => {
     const template = document.createElement('template');
@@ -1150,9 +969,8 @@ describe('useReorderable', () => {
 
   // Intermittently keeps the visual in the top layer past the wait in Safari
   // (`repo:RF-36`).
-  it(
+  it.skipIf(server.browser === 'safari')(
     'should take the visual out of the top layer once the drag lands',
-    { repeats: 9 },
     async () => {
       const list = createList();
       const item = createItem();
@@ -1162,17 +980,18 @@ describe('useReorderable', () => {
       list.reorderable = true;
       await nextFrame();
 
-      const trace = traceLanding('top layer', list, item);
       await ue.pointer([
         { target: item, keys: '[MouseLeft>]', coords: { clientY: 10 } },
         { coords: { clientY: 100 } },
         { keys: '[/MouseLeft]' },
       ]);
-      trace.released();
 
       // Wait for the landing to settle and hand the visual back from the top layer.
-      await trace.settle(() =>
-        expect(item.matches(':popover-open')).toBeFalsy(),
+      await vi.waitFor(
+        () => expect(item.matches(':popover-open')).toBeFalsy(),
+        {
+          timeout: 1000,
+        },
       );
       expect(item.hasAttribute('popover')).toBeFalsy();
     },
