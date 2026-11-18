@@ -1440,7 +1440,7 @@ Tier B, **closed 2026-11-17** (below). Before closure: open. Registered on 2026-
 
 - **Closed 2026-11-17 by the architect,** with `RF-35`, at `d756e4f4f`. In Safari, the indicator rows now reach their controls with Option-Tab and pass, so the indicator is read in every engine.
 
-#### RF-40 — material-x's `:host:has()` fallback sets custom states that no stylesheet reads
+#### RF-40 — material-x's `:host:has()` fallback is complete in the build, and no test in the gate observes it
 
 Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF-39`.
 
@@ -1453,6 +1453,12 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF
   - whether Firefox supports `:has-slotted`.
 - **Required property:** in every engine the gate runs, each `:host:has()` rule in material-x applies, or the component renders the same without it. A fallback that nothing reads is either completed or removed.
 - **Routed** to the owner to order. It isn't in the findings unit's scope as authorized. The architect recommends a reading first, in Firefox CI, of the two components with and without slotted content.
+- **Corrected 2026-11-18 by the architect,** on slot `c`'s [handoff](host-has-fallback-1/host-has-fallback-handoff.md) and [reading](host-has-fallback-1/checks/rf40-reading.txt) at `83a985b99`, relayed by the coordinator. Until then, this entry's title was _"material-x's `:host:has()` fallback sets custom states that no stylesheet reads"_.
+  - **The premise didn't hold.** The reading at `5a0bba69b` searched `src/` only. The build passes every material-x stylesheet through `hasSlottedFallbackVisitor` (`vite-custom-element-assets/src/css/utils.ts`), which adds `:host(:state(has-<class>))` beside each `:host:has(.<class>:has-slotted)`. So the shipped sheets read each state the polyfill sets, and the names agree (reading A and B). The architect confirmed reading A on a material-x build of the same day: the built text-field sheet carries `has-lead`, `has-trail`, `has-prefix`, `has-suffix`, `has-support` and `has-counter`, and the list item's carries `has-support` and `has-overline`.
+  - **The _Not established_ items are answered** (reading D). Firefox 159 doesn't match `:host:has()`, `HOST_HAS_SUPPORTED` reads `false`, the polyfill sets the states, and the fallback rules apply. Chromium 158 and WebKit 27.2 match `:host:has()`. Firefox supports `:has-slotted`, which doesn't matter, because the build rewrites it in every engine.
+  - **The required property holds at the CSS level. No test in the gate observes it** (reading F). A mismatch between a slot's `name`, the class beside `:has-slotted` and the derived state would break Firefox alone, as `RF-39`'s defect did.
+  - **The owner's question:** does this entry close on the reading, as _not a defect_, or when the handoff's item 1 lands, with rows that pass in all three engines and fail in Firefox when the fallback is disabled? **The architect recommends the tests,** as the handoff does. The correction above holds under either answer.
+  - **Separate:** the detection itself runs at import. That is `RF-59`.
 
 #### RF-41 — The screenshot comparator doesn't see a state layer at the tokens' opacities
 
@@ -1754,6 +1760,19 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
 - **Why it matters:** the plugin's `Plugin` type comes from its own pinned `rolldown`, and the consumer's Vite types plugins with the `rolldown` it brings. When the two copies differ, the types can clash, which is `RF-31`'s cause, and the consumer installs a second `rolldown`. Under the rule's second question, the plugins share the consumer's copy, so `rolldown` is a peer.
 - **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
 - **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
+
+#### RF-59 — material-x's `:host:has()` detection runs at import: it appends to `document.body` and forces a style computation
+
+Tier A, **open**. Registered on 2026-11-18 by the architect, on slot `c`'s [handoff](host-has-fallback-1/host-has-fallback-handoff.md) proposal 2, relayed by the coordinator. `RF-58` is proposed on `repo/ci-deps-1`, so this is the next free number. **No row is disabled.**
+
+- **The code,** read by the architect at `83a985b99`: `HOST_HAS_SUPPORTED` (`material-x/src/core/utils/polyfills.ts:10`–`:20`) is evaluated when the module loads. It creates an element with a shadow root, appends it to `document.body`, reads `getComputedStyle`, and removes it.
+- **What a consumer observes:**
+  - **Every consumer that imports `mx-text-field`, `mx-multiline-text-field` or a list item pays for a style computation at import,** before any element exists, whether or not it ever uses one.
+  - **An import before `<body>` exists throws.** While the parser is in `<head>`, `document.body` is `null`, so `document.body.append` throws a `TypeError`, and the module and every module that imports it fail to evaluate. Loading a custom-element library from `<head>` is a correct integration, so that elements upgrade as they parse: an `async` module script, or a dynamic `import()` that settles before the body is parsed. **Inferred** from the code and from HTML's parsing order, not observed.
+- **Tier A** on the throw's consequence: a correctly integrated consumer gets an import failure. The trigger depends on load timing, which lowers its priority within the tier and not its tier.
+- **Required property:** importing a material-x module neither touches the document nor forces a style computation. The detection gives the same answer as it does today.
+- **The architect's direction,** for the unit that takes it: detect once, on the first `useHasSlottedPolyfill` call, when a host exists. A row that imports the module with no `document.body` would witness the throw before the change.
+- **Routed** to the owner to order. It isn't in `repo/host-has-fallback-1`'s unit, which is test-only.
 
 ## Questions
 
