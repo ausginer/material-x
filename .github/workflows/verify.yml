@@ -195,6 +195,7 @@ jobs:
       - run: aube exec just fmt-check
       - run: aube exec just lint
       - run: aube exec just typecheck
+      - run: aube exec just typecheck-declarations
 
   chromium:
     needs: [scope, system-deps]

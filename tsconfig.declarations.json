@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": false,
+    "types": [],
+    "noEmit": true,
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["esnext", "dom", "dom.iterable"]
+  },
+  "include": ["packages/*/**/*.d.ts"],
+  "exclude": ["packages/*/node_modules", "packages/*/src", "packages/*/tests"]
+}

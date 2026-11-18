@@ -220,7 +220,6 @@ export class TextFieldCore extends TextFieldCoreConstructor {
     return internals(this).states.has('populated');
   }
 
-  // @ts-expect-error: https://github.com/microsoft/TypeScript/issues/54879
   override get value(): string | null {
     return this.#input.value;
   }

@@ -1,0 +1,66 @@
+# RF-44 item 3 witnesses. W1: size of the focus forward as the FocusForwarding trait, against the per-class form. Local devcontainer,
+# read by the implementer on 2026-11-18 in slot d on repo/traits-plugin-1. Measured by hand, as RF-45 records.
+# Method (as findings-1/checks/item8-step1-size.txt): aube exec just build-prepare and build-lib in packages/material-x;
+# each entry bundled with its dependencies by esbuild 0.28.1 (--bundle --minify --format=esm), then brotli (quality 11)
+# and gzip (level 9) through node:zlib. Bytes.
+# Per-class: src at 242feffcb (the item 2 plugin, the per-class forward). Trait: the commit that adds this file.
+# The trait-form build printed no trait-flattener warning; each adopter's emitted class extends ControlledElement
+# directly, declares its own focus(), and contains no impl(). Rebuilding the trait form reproduced every figure.
+
+## The trait form, as committed: FocusForwarding in the shared lists ICON_BUTTON_CORE_TRAITS, SWITCH_CORE_TRAITS and
+## LIST_INTERACTIVE_ITEM_CORE_TRAITS, and in the own lists of mx-button, mx-link-button and mx-fab
+entry                          minified               brotli                 gzip
+button_button.js                17385 ->  17405 ( +20)    4973 ->  4965 (  -8)    5546 ->  5549 (  +3)
+button_icon-button.js           21284 ->  21368 ( +84)    5514 ->  5545 ( +31)    6159 ->  6192 ( +33)
+button_link-button.js           17152 ->  17172 ( +20)    4852 ->  4862 ( +10)    5447 ->  5451 (  +4)
+button_switch-button.js         21105 ->  21189 ( +84)    5490 ->  5519 ( +29)    6149 ->  6177 ( +28)
+button_switch-icon-button.js    26655 ->  26739 ( +84)    5881 ->  5924 ( +43)    6609 ->  6634 ( +25)
+fab_fab.js                      16636 ->  16655 ( +19)    4416 ->  4429 ( +13)    4985 ->  4988 (  +3)
+list_list-button-item.js        15058 ->  15077 ( +19)    4731 ->  4718 ( -13)    5338 ->  5345 (  +7)
+list_list-link-item.js          15789 ->  15809 ( +20)    4916 ->  4893 ( -23)    5561 ->  5570 (  +9)
+
+# Causes. +19 or +20 minified in every entry: the brand symbol, Symbol("FocusForwarding"), and its install in the
+# class's static block, less the removed focusControl function; the focus() body reads the WeakMap directly. Read in
+# button_button.js: function St(t,e){gt.get(t).focus(e)} and focus(e){St(this,e)} become focus(e){q.get(this).focus(e)}
+# beside ht=Symbol("FocusForwarding").
+# +84 in icon-button, switch-button and switch-icon-button: a further +64 to +65 of dead code. Their shared lists are
+# module-level arrays built with a spread, [...BUTTON_CORE_TRAITS, ...], which esbuild doesn't remove, so the arrays
+# stay after flattening and keep every trait they name. That now includes FocusForwarding's trait(...) call and its
+# class layer. The lists already kept the generic trait runtime in these entries and in fab: its error string is in
+# the same four bundles in both forms. list-button-item and list-link-item spread LIST_ITEM_CORE_TRAITS, an empty
+# constant array, and their list is removed.
+
+## Variant, measured and not committed: FocusForwarding named in the own impl() lists of mx-icon-button,
+## mx-switch-button and mx-switch-icon-button, as [...<shared list>, FocusForwarding], instead of in the shared lists
+button_button.js                17385 ->  17405 ( +20)    4973 ->  4965 (  -8)    5546 ->  5549 (  +3)
+button_icon-button.js           21284 ->  21305 ( +21)    5514 ->  5502 ( -12)    6159 ->  6168 (  +9)
+button_link-button.js           17152 ->  17172 ( +20)    4852 ->  4862 ( +10)    5447 ->  5451 (  +4)
+button_switch-button.js         21105 ->  21126 ( +21)    5490 ->  5489 (  -1)    6149 ->  6157 (  +8)
+button_switch-icon-button.js    26655 ->  26676 ( +21)    5881 ->  5908 ( +27)    6609 ->  6616 (  +7)
+fab_fab.js                      16636 ->  16655 ( +19)    4416 ->  4429 ( +13)    4985 ->  4988 (  +3)
+list_list-button-item.js        15058 ->  15077 ( +19)    4731 ->  4718 ( -13)    5338 ->  5345 (  +7)
+list_list-link-item.js          15789 ->  15809 ( +20)    4916 ->  4893 ( -23)    5561 ->  5570 (  +9)
+# Every entry then grows by 19 to 21 minified bytes: the brand alone. The variant build also printed no flattener
+# warning, and each of the three classes declared its own focus().
+
+## W2: the suites of the eight adopters, in chromium, firefox and webkit
+# MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test --project browser{,/firefox,/webkit} --project spec{,/firefox,/webkit}
+#   tests/button tests/list tests/core tests/button-group, in packages/material-x, on the trait form.
+# 1092 tests in 39 file runs, 0 failed; the 1 expected fail is mx-button's 'should delegate focus to the native button
+# through the shadow root alone' in firefox, so the forward still ships (the handoff's stop doesn't apply).
+# runs  tests  status  file (each file ran once per engine)
+ 3   60 passed button-group/button-group.browser.test.ts
+ 3  150 passed button-group/button-group.spec.browser.test.ts
+ 3  138 passed button/SwitchCore.browser.test.ts
+ 3   75 passed button/button.browser.test.ts
+ 3   63 passed button/button.color.spec.browser.test.ts
+ 3   15 passed button/button.override.spec.browser.test.ts
+ 3  150 passed button/button.spec.browser.test.ts
+ 3    6 passed button/split-button.browser.test.ts
+ 3  156 passed core/elements/CheckableCore.browser.test.ts
+ 3   18 passed core/elements/CheckableCore.spec.browser.test.ts
+ 3  198 passed core/focus-layer.spec.browser.test.ts
+ 3   54 passed core/traits/focus-forwarding.browser.test.ts
+ 3    9 passed list/list-item.browser.test.ts
+# focus-forwarding.browser.test.ts carries RF-33's rows: no own focus on each of the eight hosts, focus() reaches
+# .host on each, and a subclass's own focus() reaches the control through super, for mx-button and mx-list-button-item.

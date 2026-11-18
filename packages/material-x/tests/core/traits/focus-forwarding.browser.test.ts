@@ -5,11 +5,12 @@ import '../../../src/button/icon-button.ts';
 import '../../../src/button/link-button.ts';
 import '../../../src/button/switch-button.ts';
 import '../../../src/button/switch-icon-button.ts';
+import { FocusForwarding } from '../../../src/core/traits/focus-forwarding.ts';
 import '../../../src/fab/fab.ts';
 import ListButtonItem from '../../../src/list/list-button-item.ts';
 import '../../../src/list/list-link-item.ts';
 
-/** Every host whose core forwards focus (`repo:RF-33`). */
+/** Every host that adopts the trait (`repo:RF-33`). */
 const FORWARDING_TAGS = [
   'mx-button',
   'mx-icon-button',
@@ -50,18 +51,29 @@ function create(tag: string): HTMLElement {
   return element;
 }
 
-describe('forwardFocus', () => {
+/** The nearest prototype of `element` that declares `focus`. */
+function focusOwner(element: HTMLElement): object {
+  let prototype = Object.getPrototypeOf(element) as object | null;
+
+  while (prototype && !Object.hasOwn(prototype, 'focus')) {
+    prototype = Object.getPrototypeOf(prototype) as object | null;
+  }
+
+  return prototype!;
+}
+
+describe('FocusForwarding', () => {
   beforeEach(() => {
     subclassFocusCalls = 0;
   });
 
   it.each(FORWARDING_TAGS)(
-    'should forward focus through the %s class, not an own property',
+    'should resolve focus on %s to the trait method, not an own property',
     (tag) => {
       const element = create(tag);
 
       expect(Object.hasOwn(element, 'focus')).toBe(false);
-      expect(Object.hasOwn(customElements.get(tag)!.prototype, 'focus')).toBe(
+      expect(Object.hasOwn(focusOwner(element), FocusForwarding.brand)).toBe(
         true,
       );
     },

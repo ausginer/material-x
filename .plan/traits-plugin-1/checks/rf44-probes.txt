@@ -1,0 +1,92 @@
+# RF-44 probes, read by the architect on 2026-11-18 in slot d at origin/main 83a985b99
+# Run from packages/vite-traits-plugin with: node <probe>. Sources follow each transcript.
+
+## P1: analyzer on generic traits and on a module with two impl sites (probe.ts)
+# A: two descriptor sites. B: site B0 descriptor-only, site B1 adds a generic trait. C: one site with a generic trait.
+# Each case uses its own module id; with one shared id the parse cache returned case A's program for B and C.
+A good+good compositions: 2
+B good+generic threw BailoutError unsupported-trait B1 - trait G is not a supported descriptor trait
+C generic only threw BailoutError unsupported-trait B0 - trait G is not a supported descriptor trait
+
+## P2: a cyclic trait-list reference (cycle.ts)
+Exception in PromiseRejectCallback:
+file:///workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts:488
+}
+^
+
+RangeError: Maximum call stack size exceeded
+
+Exception in PromiseRejectCallback:
+file:///workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts:420
+      await resolveList(r, localArray, ctx, site);
+            ^
+
+RangeError: Maximum call stack size exceeded
+
+threw RangeError  Maximum call stack size exceeded
+
+## P3: plain-JS class semantics of lowerModule's emitted shape (accessor-split.mjs)
+Composed get: component | set: TypeError
+Flat     get: component | set: assigned, _x=1
+Composed2 super.x: trait | Flat2 super.x: undefined
+
+## source: probe.ts
+import { analyzeModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts';
+import { nodeLoader } from '/workspaces/worktrees/d/packages/vite-traits-plugin/tests/helpers.ts';
+const F = '/workspaces/worktrees/d/packages/vite-traits-plugin/tests/fixtures';
+const generic = `
+import { trait } from '@ydinjs/core/traits/primitives.js';
+const $g = Symbol('G');
+export const G = trait((base) => class extends base { focus() {} }, $g);
+`;
+const mk = (lists: string[]) => `
+import { impl } from '@ydinjs/core/traits/attributes.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+import { Nameable } from './nameable.ts';
+const G = 0;
+${lists.map((l, i) => `const B${i} = impl(Base, [${l}]);\nexport class C${i} extends B${i} {}`).join('\n')}
+`;
+// A: one module with a good site then a bad site (bad: unresolvable/unsupported trait)
+const loader = { ...nodeLoader, load: async (id: string) => id.endsWith('/gen.ts') ? generic : nodeLoader.load(id) };
+const run = async (label: string, code: string) => {
+  try {
+    const r = await analyzeModule(F + '/probe-' + label.split(' ')[0] + '.ts', code, loader);
+    console.log(label, 'compositions:', r.compositions.length);
+  } catch (e: any) { console.log(label, 'threw', e.name, e.reason, e.composition, '-', e.message); }
+};
+await run('A good+good', mk(['Checkable', 'Nameable']));
+const withGen = (lists: string[]) => mk(lists).replace("const G = 0;", "import { G } from './gen.ts';");
+await run('B good+generic', withGen(['Checkable', 'Nameable, G']));
+await run('C generic only', withGen(['Checkable, G']));
+
+## source: cycle.ts
+import { analyzeModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts';
+import { nodeLoader, fixtureId } from '/workspaces/worktrees/d/packages/vite-traits-plugin/tests/helpers.ts';
+const code = `
+import { impl } from '@ydinjs/core/traits/attributes.js';
+import { Base } from './base.ts';
+const A = [...B];
+const B = [...A];
+const X = impl(Base, A);
+export class C extends X {}
+`;
+try { await analyzeModule(fixtureId('probe-cycle.ts'), code, nodeLoader); console.log('no error'); }
+catch (e: any) { console.log('threw', e.constructor.name, e.reason ?? '', String(e.message).slice(0, 80)); }
+
+## source: accessor-split.mjs
+// Runtime form: the trait layer holds a get/set pair; the component overrides the getter only.
+class Base {}
+const Layer = class extends Base { get x() { return 'trait'; } set x(v) { this._x = v; } };
+class Composed extends Layer { get x() { return 'component'; } }
+// Flattened form, as lowerModule emits it: trait accessors first in the component's own body.
+class Flat extends Base { get x() { return 'trait'; } set x(v) { this._x = v; } get x() { return 'component'; } }
+for (const C of [Composed, Flat]) {
+  const o = new C();
+  let r; try { o.x = 1; r = `assigned, _x=${o._x}`; } catch (e) { r = `${e.constructor.name}`; }
+  console.log(C.name.padEnd(8), 'get:', o.x, '| set:', r);
+}
+// super.K from the component reaches the trait layer at runtime, the base after flattening.
+class Composed2 extends Layer { get y() { return super.x; } }
+class Flat2 extends Base { get x() { return 'trait'; } get y() { return super.x; } }
+console.log('Composed2 super.x:', new Composed2().y, '| Flat2 super.x:', new Flat2().y);

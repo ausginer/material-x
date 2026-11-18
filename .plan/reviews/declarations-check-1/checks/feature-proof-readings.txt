@@ -1,0 +1,89 @@
+# Feature proof readings for the declarations-check unit. Read by the reviewer in slot b on 2026-11-18,
+# at e129624a8 (repo/declarations-check-1). TypeScript is the root's tsc 7.0.2. Every source mutation below was undone
+# with git checkout, and the tree was rebuilt and left clean at e129624a8.
+
+## 1. Head: aube exec just clean-build, then aube exec just typecheck-declarations
+exit 0
+
+## 2. File set: --listFilesOnly under packages/ outside node_modules, against the handoff's find
+listFilesOnly: 108 files; find: 108 files; diff: none
+find for *.d.mts and *.d.cts outside node_modules: 0 files
+git ls-files 'packages/**/*.d.ts' outside src/ and tests/: none, so every checked file is build output
+
+## 3. Mutation: Branded restored to 'P & Readonly<Record<B, true>>' in primitives.ts, every other change of e129624a8 kept
+### aube exec just typecheck-declarations: exit 2
+packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+### packages/material-x: aube exec just typecheck: exit 1
+src/text-field/TextFieldCore.ts(223,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+### aube exec -- just test --project 'declaration/*': exit 1
+     × should allow an accessor override of a trait field
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |declaration/core| tests/traits/overrides.declaration.test.ts:9 > trait field overrides > should allow an accessor override of a trait field
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 45 passed (46)
+Type Errors  no errors
+### Built .d.ts of every package, mutation against head (diff -r over all 108 files)
+diff -r dts-mut/packages/core/traits/primitives.d.ts dts-head/packages/core/traits/primitives.d.ts
+14c14
+< type Branded<P extends object, B extends symbol> = P & Readonly<Record<B, true>>;
+---
+> type Branded<P extends object, B extends symbol> = { [K in keyof P]: P[K]; } & Readonly<Record<B, true>>;
+
+## 4. Base sources: primitives.ts, attributes.ts and TextFieldCore.ts checked out from 83a985b99, check of item 2 kept
+### aube exec just clean-build, then aube exec just typecheck-declarations: exit 2
+packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+### sha256sum of the 119 built .js files of core and material-x, base against head
+16c16
+< 5e892ebe2a1133f7f41b949ace46c3c3daf0aa67793dbcbba0add6168f418810  packages/core/traits/attributes.js
+---
+> 846a119e456202f8b65735a35e4cc30c0f0d89ea722c083aa953be75f8a3600e  packages/core/traits/attributes.js
+### diff of packages/core/traits/attributes.js, base against head
+16,22c16,23
+< * @remarks TypeScript currently treats trait-generated members as plain
+< * properties in some class-override paths, even though this helper installs
+< * runtime accessors with `Object.defineProperty(...)`. This means subclass
+< * `override get` / `override set` declarations may still hit `TS2611`. See
+< * https://github.com/microsoft/TypeScript/issues/54879 for the closest known
+< * limitation. At the moment there is no framework-level workaround here; for
+< * intentional accessor overrides, prefer a local `@ts-expect-error`.
+---
+> * @remarks This helper installs each field as an accessor on the prototype
+> * with `Object.defineProperty(...)`, and the trait types the fields as mapped
+> * properties. TypeScript does not report `TS2611` for an accessor that
+> * overrides a mapped property, so a subclass may override a trait field with
+> * `override get` and `override set`, with no directive, in source and in
+> * emitted declarations. A local `@ts-expect-error` would not help a consumer:
+> * it does not reach the emitted declaration
+> * (https://github.com/microsoft/TypeScript/issues/54879).
+
+## 5. Mutations of the new type test, one at a time, aube exec -- just test --project 'declaration/core'
+### 'override value: number = 1' changed to 'override value: string | null = null': exit 1
+     × should reject a property override of the wrong type
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+TypeCheckError: Unused '@ts-expect-error' directive.
+      Tests  1 failed | 20 passed (21)
+### unbranded typed as 'Valuable & {...}' instead of 'ControlledElement & {...}': exit 1
+     × should keep the trait brand nominal
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+TypeCheckError: Unused '@ts-expect-error' directive.
+      Tests  1 failed | 20 passed (21)
+
+## 6. Absolute import: built packages/material-x/react.d.ts line 21 edited to the absolute React path, no rebuild
+### aube exec -- tsc -p tsconfig.declarations.json: exit 2
+packages/material-x/react.d.ts(21,51): error TS7016: Could not find a declaration file for module '/workspaces/worktrees/b/node_modules/react/index.js'. '/workspaces/worktrees/b/node_modules/react/index.js' implicitly has an 'any' type.
+### file restored, same command: exit 0
+
+## 7. Head gates: fmt-check, lint, typecheck: exit 0 each. aube exec -- just test --project 'declaration/*': exit 0
+ Test Files  8 passed (8)
+      Tests  46 passed (46)
+Type Errors  no errors
+
+## 8. CI, from gh run view (static job and its typecheck-declarations step, UTC)
+44237109069 f6f5c1818 static success 04:24:57-04:26:17 (80 s), step 04:26:04-04:26:13 (9 s)
+44237471520 7b49d1604 static success 04:28:21-04:29:47 (86 s), step 04:29:34-04:29:44 (10 s)
+44233935238 83a985b99 (main) static success 03:57:33-03:58:55 (82 s), no step
+44240485947 e129624a8 static success 04:54:24-04:55:31 (67 s), step 04:55:20-04:55:28 (8 s)
+44240485947 e129624a8 docs cancelled 04:54:25-04:59:41, in 'aube exec -- playwright install --with-deps chromium' (04:54:46-04:59:38)
+git diff --stat 83a985b99..e129624a8 -- .github Justfile packages/*/package.json package-lock.json: verify.yml 1 line (static), Justfile 7 lines
+44237109069 f6f5c1818 docs success
+44237471520 7b49d1604 docs cancelled in 'aube exec -- playwright install --with-deps chromium' on attempts 1, 2 and 3

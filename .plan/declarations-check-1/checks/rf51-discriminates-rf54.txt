@@ -1,0 +1,16 @@
+# Item 2, witness 2: the check discriminates RF-54. Read by the implementer in slot b on 2026-11-18, TypeScript 7.0.2,
+# with item 2's tsconfig.declarations.json and recipe. Lines other than commands and diagnostics are filtered out.
+
+## Before item 1: the three source files item 1 changes checked out from 1fb375b88 (item 1's parent), then restored.
+$ aube exec just typecheck-declarations   # sources of 1fb375b88, item 1's parent
+nx run-many -t build --projects=box-quad,core,drag,material-x,size-limit-preset-rolldown,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+tsc -p tsconfig.declarations.json
+packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+error: recipe `typecheck-declarations` failed on line 135 with exit code 2
+exit 2
+
+## After item 1 (00e3f5448), from a clean build.
+$ aube exec just typecheck-declarations
+nx run-many -t build --projects=box-quad,core,drag,material-x,size-limit-preset-rolldown,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+tsc -p tsconfig.declarations.json
+exit 0
