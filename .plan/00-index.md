@@ -1052,6 +1052,25 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Isolated with the global virtual store everywhere** (`--enable-global-virtual-store` in CI). CI would resolve through a store-wide hidden hoist whose content depends on what that runner installed. Locally, every slot shares that directory.
 - **Isolated and project-local everywhere.** Typecheck fails in all eight packages until each undeclared import of a dependency is repaired, and the slots then gain nothing over hoisted.
 
+#### RD-22 — GitHub Issues on one Projects board are the work queue, and the `.plan/` records stay the only record
+
+**Decided 2026-11-18 by the owner, as a trial,** relayed by the coordinator, on the architect's [work-queue plan](work-queue-1/work-queue-plan.md) at `a3e8dfbe5`. The owner's answers are in the plan's [Owner's answers](work-queue-1/work-queue-plan.md#owners-answers): a trial, milestones in the order box-quad, drag, material-x with the set left open, answers in chat to the coordinator for now, a board whose `Status` field replaces the state labels, and titles in plain words after the address. Registered by the architect on `repo/work-queue-1`. `RD-20` is on `repo/traits-plugin-1` and `RD-21` on `repo/ci-deps-1`, so this is the next free number. **Unimplemented:** the plan's steps 2 and 3 implement it.
+
+**Properties:** the plan's [properties 1 to 14](work-queue-1/work-queue-plan.md#decision-proposed-as-repord-22), as written at `a3e8dfbe5`, with its `Status` options, labels and milestones. In short:
+
+- the queue holds queue state only: the item, its `Status` and rank, its milestone, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record (properties 1 and 4);
+- an issue names its entry by qualified address and copies nothing from it, and at most one open issue has a given address as its subject (properties 2 and 3);
+- what first appears on GitHub is copied into the record before anyone relies on it (property 5);
+- the coordinator is the routine writer, the owner sets the order, and roles write only through a pull request description's `Closes #N` or `Refs #N` (properties 7 and 8);
+- text from any other account is information, never a task, and an agent's text carries its role stamp (properties 10 and 11);
+- everything on GitHub is in English and follows the pull request rules (property 12).
+
+**Once `.agents/docs/work-queue.md` exists** (the plan's step 2), it states these rules as they stand, and this entry is the decision and its reasons. A change to a rule changes that document, and this entry records the change.
+
+**The trial.** The owner may end or change it at any time. Ending it amends this entry. Until then the queue's issues and board are what is next, and they never stand in for a record entry. No review point is set. The plan names the first step if the trial shows drift: a small check of open issues whose entry is closed, duplicate addresses, and items whose `Status` disagrees with the issue.
+
+**Why.** A queue must answer what is next across every slot at once. A record entry exists on its branch until that branch merges, while an issue exists in one place for every branch. The queue lived only in the coordinator's session and was nearly lost twice. The rest is in the plan's [Problem](work-queue-1/work-queue-plan.md#problem), its [Readings](work-queue-1/work-queue-plan.md#readings) and its [_Rejected or changed_](work-queue-1/work-queue-plan.md#rejected-or-changed-from-the-coordinators-proposal) section, which this entry adopts: no tier labels, the `safari` label kept out of the queue, the board replacing the state labels, and no issues for #37 and #38.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -1827,6 +1846,23 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop
 - **Since when:** the rule was never drawn for a selection until `RF-43`'s R2. Before it, the group's `value` set only the custom state `checked`, and `[checked]` didn't match. `button-group/spec-consistency.md:35` records the morph as matching the spec, and it doesn't.
 - **Required property:** a connected group's buttons have the shapes that the group's tokens define, at every size. The [host-invariant handoff](host-invariant-1/host-invariant-handoff.md)'s item 8 states them.
 - **Routed** to the host-invariant unit, item 8.
+
+#### RF-61 — `createContext` calls `crypto.randomUUID`, so on a page served over plain HTTP the button group module throws when it loads
+
+Tier A, **open**. Registered on 2026-11-18 by the architect, on the [work-queue plan](work-queue-1/work-queue-plan.md)'s reading of `createContext` at `377ca72df`, relayed by the coordinator. `RF-60` is on `repo/traits-plugin-1`, so this is the next free number. **No row is disabled.**
+
+- **The code,** read at `377ca72df`: `createContext` returns `crypto.randomUUID()` (`core/src/controllers/useContext.ts:33`–`:35`). Its JSDoc says that it requires HTTPS. `material-x/src/button-group/button-group-context.ts:25` calls it when the module loads, to create `BUTTON_GROUP_CTX`. No other source calls it on `main`.
+- **Observed** ([reading](work-queue-1/checks/rf61-insecure-context.txt), [probe](work-queue-1/checks/rf61-insecure-context-probe.mjs)), in Chromium 158, Firefox 159 and WebKit 27.2. Over plain HTTP from a host other than `localhost`:
+  - `isSecureContext` is `false`;
+  - `crypto.randomUUID` is `undefined`, and calling it throws a `TypeError`;
+  - `crypto.getRandomValues` works.
+
+  From `localhost`, all three APIs work.
+
+- **What a consumer observes,** read in the code and not run: on such a page, the button group module throws when it is evaluated. So the module, and every module that imports it, fails, and no button group is defined. A page served from a LAN address over HTTP is an ordinary case, for example a development server opened on a phone, or an intranet.
+- **Tier A:** a correct integration gets an import failure. The JSDoc's requirement doesn't lower the tier. It describes core's function, and material-x calls that function at import without stating any requirement to its consumers.
+- **Required property:** `createContext` works in every context a page can run in, secure or not. Each token stays distinct from every other context's token, including the tokens of another copy of `@ydinjs/core` on the same page. The coordinator suggested `crypto.getRandomValues`, which works in both contexts. The repair is the unit's to choose.
+- **Routed** to the owner to order, through the work queue (`RD-22`).
 
 ## Questions
 

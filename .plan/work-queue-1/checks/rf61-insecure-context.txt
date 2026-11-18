@@ -1,0 +1,19 @@
+# RF-61: what a page served over plain HTTP from a host other than localhost has of `crypto`. Read by the architect
+# on 2026-11-18, on repo/work-queue-1 at a3e8dfbe5, in the devcontainer with playwright 1.65.0 and its browsers.
+# Probe: rf61-insecure-context-probe.mjs (beside this file), run as
+#   node rf61-insecure-context-probe.mjs /workspaces/material-x
+# A local server on 0.0.0.0 serves one module script. Each engine opens it twice: by the container's own IPv4
+# address, which is not a potentially trustworthy origin, and by localhost, which is. No material-x code runs.
+#
+chromium 158.0.8127.18	{"origin":"http://172.17.0.2:43001","isSecureContext":false,"randomUUID":"undefined","getRandomValues":"function","call":"TypeError: crypto.randomUUID is not a function","getRandomValuesBytes":16}
+chromium 158.0.8127.18	{"origin":"http://localhost:43001","isSecureContext":true,"randomUUID":"function","getRandomValues":"function","call":36,"getRandomValuesBytes":16}
+firefox 159.0	{"origin":"http://172.17.0.2:43001","isSecureContext":false,"randomUUID":"undefined","getRandomValues":"function","call":"TypeError: crypto.randomUUID is not a function","getRandomValuesBytes":16}
+firefox 159.0	{"origin":"http://localhost:43001","isSecureContext":true,"randomUUID":"function","getRandomValues":"function","call":36,"getRandomValuesBytes":16}
+webkit 27.2	{"origin":"http://172.17.0.2:43001","isSecureContext":false,"randomUUID":"undefined","getRandomValues":"function","call":"TypeError: crypto.randomUUID is not a function. (In 'crypto.randomUUID()', 'crypto.randomUUID' is undefined)","getRandomValuesBytes":16}
+webkit 27.2	{"origin":"http://localhost:43001","isSecureContext":true,"randomUUID":"function","getRandomValues":"function","call":36,"getRandomValuesBytes":16}
+
+# Reading. Over plain HTTP from a host other than localhost, isSecureContext is false in all three engines,
+# crypto.randomUUID is undefined, and calling it throws a TypeError. crypto.getRandomValues exists and fills its
+# array in both contexts. createContext() calls crypto.randomUUID() (core/src/controllers/useContext.ts:33-35), and
+# button-group-context.ts:25 calls createContext() at module evaluation, so on such a page the module throws and
+# every module that imports it fails to evaluate. That last step was read in the code, not run.
