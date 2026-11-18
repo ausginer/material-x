@@ -7,18 +7,22 @@ import {
 import { $$, toggleState } from '@ydinjs/core/utils/DOM.js';
 
 const DEFAULT_SLOT_STATE_NAME = 'default';
-const HOST_HAS_SUPPORTED = (() => {
-  const host = document.createElement('div');
-  const shadow = host.attachShadow({ mode: 'open' });
-  shadow.innerHTML =
-    '<style>:host{--_has:0}:host:has(slot){--_has:1}</style><slot></slot>';
-  document.body.append(host);
-  const hasSupport = getComputedStyle(host).getPropertyValue('--_has') === '1';
-  host.remove();
 
-  return hasSupport;
-})();
-
+/**
+ * Marks which of `host`'s slots have content: each slot gets the class
+ * `has-slotted`, and the host the state `has-<slot name>`, or `has-default` for
+ * the default slot. The build's `hasSlottedFallbackVisitor`
+ * (`@ydinjs/vite-custom-element-assets`) rewrites `:has-slotted` to the class,
+ * and writes `:host(:state(has-<class>))` beside each
+ * `:host:has(.<class>:has-slotted)`. So a slot's `name` and the class beside
+ * `:has-slotted` must agree.
+ *
+ * The state is set in every engine, because no selector tells reliably whether
+ * `:host:has()` matches: Firefox reports it as supported and doesn't match it.
+ * Where both selectors match, they set the same declarations. This function and
+ * the build's rewrite go together, once every supported engine matches
+ * `:has-slotted` and `:host:has()`.
+ */
 export function useHasSlottedPolyfill(host: ControlledElement): void {
   const innards = internals(host);
 
@@ -27,14 +31,11 @@ export function useHasSlottedPolyfill(host: ControlledElement): void {
       const hasNodes = nodes.length > 0;
 
       slot.classList.toggle('has-slotted', hasNodes);
-
-      if (!HOST_HAS_SUPPORTED) {
-        toggleState(
-          innards,
-          `has-${slot.name || DEFAULT_SLOT_STATE_NAME}`,
-          hasNodes,
-        );
-      }
+      toggleState(
+        innards,
+        `has-${slot.name || DEFAULT_SLOT_STATE_NAME}`,
+        hasNodes,
+      );
     });
   }
 }
