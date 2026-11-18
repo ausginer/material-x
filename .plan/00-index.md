@@ -1616,6 +1616,24 @@ Tier C, **decided, implemented, open** (decided 2026-11-17 at `51a992b49`; see _
 - **Editing `package.json` by hand and running `aube install`,** instead of `aube add`. It loses `add`'s resolution of the latest compatible version, and nobody has read whether `install` after a manifest change has the same defect.
 - **Closing the finding with the documentation only.** Without the rule, a developer who follows `implementer.md` can still be left with a tree that fails to typecheck.
 
+**Widened 2026-11-18 by the architect** on `repo/aube-isolated-1`, on the isolated-layout unit's [feature proof](reviews/aube-isolated-1/feature-proof-claude.md) at `f480544a6`, `reviewer-1` and `reviewer-2`, relayed by the coordinator.
+
+- **What was read.**
+  - In slot `b`, twice: `aube install --fix-lockfile` recorded a peer edit and dropped `node_modules/@ydinjs` and `node_modules/size-limit-preset-rolldown`. `aube install --frozen-lockfile --force` restored them ([first](aube-isolated-1/checks/react-peer-install.txt), [second](aube-isolated-1/checks/types-react-peer-install.txt)).
+  - In the reviewer's scratch hoisted workspace ([probe](reviews/aube-isolated-1/checks/manifest-edit-probe.txt)):
+    - a plain `aube install` after a hand edit of `dependencies` writes the lockfile and drops the workspace links. That is read only there, not in the repository;
+    - after an edit to the peer fields only, a plain `aube install` answers _"Already up to date"_, and `aube install --frozen-lockfile` and `aube ci` exit 0 against a lockfile that lacks the edit. Only `--fix-lockfile` writes it. In slot `b`, a plain `aube install` also left the lockfile unchanged after the peer edit, twice.
+- **The decision is widened** (`reviewer-1`): the defect follows every aube command that writes `package-lock.json`, not only `add` and `remove`. The _Decision_ bullet _"So the cause is aube's `add` and `remove`"_ stands as a reading of those two. The rest of the record now reads as follows.
+  - **The required property** reads: after any aube command that writes `package-lock.json`, `node_modules` links every workspace package, or the command fails.
+  - **Required property 2's rule** in `implementer.md` names every such command: `add`, `remove`, `install --fix-lockfile`, and an `install` after a hand edit of a manifest. Each is followed by `aube install --frozen-lockfile --force`.
+  - **The _Not adopted_ bullet on hand edits** stays not adopted for adding a dependency, because it loses `add`'s resolution. Its clause _"nobody has read whether `install` after a manifest change has the same defect"_ is answered: it has, in the scratch workspace.
+- **A peer change** (`reviewer-2`) is recorded like this.
+  - **The command:** the peer fields are edited by hand, because `peerDependenciesMeta` has no aube command. `aube install --fix-lockfile` records the edit in the same commit, and the reinstall follows. `implementer.md` states both.
+  - **`aube add --save-peer` is not adopted.** Nobody has read what it writes, and an optional peer needs `peerDependenciesMeta` anyway.
+  - **The drift that no gate detects is accepted.** A frozen install passes against a lockfile that lacks a workspace manifest's peer fields. No install here reads those fields: the workspace installs each peer through a devDependency (`CONTRIBUTING.md` Part I, _Dependencies of a published package_). So the drift misleads nobody. The next lockfile write records it, as an unrelated diff in someone else's change. The review of a peer change reads the lockfile diff.
+  - **Not adopted: a gate check** that compares each manifest's peer fields with the lockfile. It would be a custom check for fields that no installer here reads, which is the kind of machinery that `RF-51`'s answer declined.
+- **Status unchanged:** decided, implemented as widened, and open until required property 3 closes it.
+
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
 Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
