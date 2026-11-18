@@ -1149,7 +1149,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 #### RD-23 — The visual project compares screenshots at a threshold that sees a state layer at the tokens' lowest opacity, chosen by a reading on GitHub's runner
 
-**Decided 2026-11-18 by the owner,** relayed by the coordinator, on the architect's [state-layer visual plan](state-layer-visual-1/state-layer-visual-plan.md) at `b76c7a012`, which answers `RF-41`. The owner chose branch (a): the visual layer sees state layers. He accepts the review load: _"Yes, let's"_. Recorded by the main slot's architect on `repo/state-layer-visual-1`. The plan proposed `RD-24` if `RD-22` and `RD-23` were registered first. `RD-22` is on `repo/work-queue-1`, and no branch registers `RD-23`, so this decision is `RD-23`. The material-x size plan on `repo/mx-size-1` proposes `RD-23` too, and that plan's decision takes the next free number when it is registered. **Partly implemented 2026-11-18** on `repo/state-layer-visual-1` by the implementer: the [threshold reading](state-layer-visual-1/checks/threshold-reading.md) (run 44276375207) chose 0.01. The threshold and `test-architecture.md` §What screenshots prove follow it. Five baselines fail at 0.01 in both runs: the three focused ones, `button-group-standard-disabled` and `checkbox-disabled`. Their re-recording under property 4 is still owed. Before: unimplemented, and the plan's [Implementation](state-layer-visual-1/state-layer-visual-plan.md#implementation) implements it.
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, on the architect's [state-layer visual plan](state-layer-visual-1/state-layer-visual-plan.md) at `b76c7a012`, which answers `RF-41`. The owner chose branch (a): the visual layer sees state layers. He accepts the review load: _"Yes, let's"_. Recorded by the main slot's architect on `repo/state-layer-visual-1`. The plan proposed `RD-24` if `RD-22` and `RD-23` were registered first. `RD-22` is on `repo/work-queue-1`, and no branch registers `RD-23`, so this decision is `RD-23`. The material-x size plan on `repo/mx-size-1` proposes `RD-23` too, and that plan's decision takes the next free number when it is registered. **Implemented 2026-11-18** on `repo/state-layer-visual-1` (#66, not yet merged), as the architect read it on the [feature proof](reviews/state-layer-visual-1/feature-proof-claude.md) at `b51d3a9a0`. The [threshold reading](state-layer-visual-1/checks/threshold-reading.md) (run 44276375207) chose 0.01, which `0bd5a467b` sets, and `test-architecture.md` §What screenshots prove states the rule. #67 (`082c6086b`) re-recorded the five baselines that fail at 0.01 in both runs: the three focused ones, `button-group-standard-disabled` and `checkbox-disabled`. Run 44279730764 at `362851ed3` passes them in two `chromium` attempts. **Changed 2026-11-18 by the architect.** Until then, this line was the implementer's, at `0bd5a467b`: _"Partly implemented … Their re-recording under property 4 is still owed."_ Before that, the entry said unimplemented.
 
 **Properties:** the plan's [properties 1 to 6](state-layer-visual-1/state-layer-visual-plan.md#decision-proposed-as-the-next-free-rd-), as written at `b76c7a012`. In short:
 
@@ -1159,6 +1159,13 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - each row that fails in both runs is re-recorded under `RD-13`, and the owner reviews each changed baseline (property 4);
 - if no value qualifies, the comparator stays at 0.1, and that is a stop for the owner before the unit takes `RF-41`'s documentation branch (property 5);
 - `test-architecture.md` §What screenshots prove states the rule that applies (property 6).
+
+**Property 2 (i), amended 2026-11-18 by the architect,** on `reviewer-1` of the feature proof, relayed by the coordinator. **The value doesn't change.**
+
+- **The premise was false for one row.** Condition (i) read _"each of the three focused rows fails against its current baseline, the stale one with no focus layer"_. The stale `checkbox-focused` baseline shows the hover layer instead. Its disc is `237,237,236`, a layer of about 0.08 over the white surface, and the new baseline's disc is `232,232,231`, which is 0.1. The architect read both pixels from the two images. The old image was probably recorded before #27's `beforeEach` parked the pointer, which is inferred. So that row's witness measured the hover layer against the focus layer. It is the only row that rules out 0.045 to 0.02.
+- **Condition (i) now reads:** each of the three focused rows fails against its stale baseline, which doesn't show the focus layer. The baseline has no layer, or another state's layer. The diff covers the layer's area, not only its edges.
+- **0.01 stays, because the row it rests on is a real case of this decision's subject.** A row titled _focused_ whose baseline shows the _hovered_ state is a wrong baseline, the kind this decision exists to catch. From 0.02 to 0.045 the comparator passes it. 0.045 was inferred and not read on the runner. The cost is review load, which the owner accepted, and the 21 jobs of the reading showed no false failure.
+- **The owner's option:** to trade that case for less review load, a new reading with a no-layer witness for the checkbox chooses the value. That is a new unit, and the owner orders it.
 
 **The review load is accepted.** Every later change that moves a rendering by more than the new threshold proposes a baseline change, and the owner reviews it. That is what a baseline is for.
 
@@ -1585,7 +1592,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
 
 #### RF-41 — The screenshot comparator doesn't see a state layer at the tokens' opacities
 
-Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings report](findings-1/findings-1-report.md) §7 (run 43886019999 at `c34cb01d7`). **No row is disabled.**
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-16 by the architect, from the [findings report](findings-1/findings-1-report.md) §7 (run 43886019999 at `c34cb01d7`). **No row is disabled.**
 
 - **The comparator:** Vitest 5.1.0's screenshot comparison is pixelmatch with `threshold: 0.1`, and it allows no mismatched pixel (`@vitest/browser/dist/index.js:1617`–`:1635`). The repository sets no comparator option.
 - **What it missed:** the findings unit added a focus state layer at 0.1 opacity to `mx-button`, `mx-radio` and `mx-checkbox`. The labeled recording passed all 19 visual rows and proposed nothing. So `button-focused`, `radio-focused` and `checkbox-focused` still show no layer, while the components draw one.
@@ -1599,6 +1606,12 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings 
   - or `.agents/docs/test-architecture.md` states what the visual layer can't see, and names the spec rows as the coverage of state layers.
 - **Routed** to the owner, for a later unit. **It doesn't block the findings unit.** Item 7's check holds: the gate's `chromium` job matches every baseline, and no other baseline changes.
 - **Dated 2026-11-18 by the architect: decided by `RD-23`,** on the owner's choice of branch (a), relayed by the coordinator. The visual layer sees state layers, at a threshold that a reading on GitHub's runner chooses. The [state-layer visual plan](state-layer-visual-1/state-layer-visual-plan.md) on `repo/state-layer-visual-1` implements it, and that unit's pull request closes this entry.
+- **Closed 2026-11-18 by the architect** on `repo/state-layer-visual-1` (#66, not yet merged), relayed by the coordinator. The closure rests on the [feature proof](reviews/state-layer-visual-1/feature-proof-claude.md) at `b51d3a9a0`, which finds no Tier A or B defect, and on the implementer's [report](state-layer-visual-1/state-layer-visual-report.md). **The first branch of the required property holds:**
+  - The visual project compares at 0.01, with antialiased pixels excluded, no mismatched pixel allowed, and no row's override.
+  - In the [reading](state-layer-visual-1/checks/threshold-reading.md) (run 44276375207, 21 jobs), each focused row fails against a baseline that doesn't show its focus layer, and each hovered row fails with the hover layer at 0. The two runs agree on every row.
+  - Run 44279730764 at `362851ed3` passes all 19 rows with the re-recorded baselines in both `chromium` attempts, jobs 134717314524 and 134722348592.
+  - `test-architecture.md` §What screenshots prove states the rule.
+- **Corrected at the closure:** the registration's _"`button-focused`, `radio-focused` and `checkbox-focused` still show no layer"_ held for the first two only. `checkbox-focused`'s baseline showed the hover layer (`RD-23`, property 2 (i)'s amendment).
 
 #### RF-42 — Under `safaridriver`, Tab doesn't reach buttons, checkboxes or radios, and Safari's Tab preference doesn't change that
 

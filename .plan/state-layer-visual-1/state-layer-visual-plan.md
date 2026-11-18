@@ -24,6 +24,7 @@ Read by the architect at `377ca72df`:
 1. **One setting for the visual project.** The threshold is set once, in the visual project's browser configuration (`expect.toMatchScreenshot.comparatorOptions.threshold`), and no row overrides it. `includeAA` stays `false`, and no mismatched pixel is allowed, as now. A comment beside the setting names this decision.
 2. **The threshold is the largest value in the reading that meets all three conditions:**
    - **(i) focus is seen:** each of the three focused rows fails against its current baseline, the stale one with no focus layer, and the diff covers the layer's area, not only its edges;
+     - **Amended 2026-11-18 by the architect** (`repo:RD-23`): the stale baseline doesn't show the focus layer. It has no layer, or another state's layer. `checkbox-focused`'s showed the hover layer. The value stays 0.01.
    - **(ii) hover is seen:** with a scratch mutation that sets the hover layer's opacity to 0, each of the three hovered rows fails;
    - **(iii) nothing else moves between runs:** two runs at the same commit give the same result and the same mismatched-pixel count for every row. The value is the largest one, so that the instrument is no stricter than the property requires.
 3. **The reading.** On GitHub's `ubuntu-24.04` runner, in `RD-9`'s environment, at the unit's input commit: the visual project at the thresholds 0.1, 0.06, 0.045, 0.03, 0.02, 0.01 and 0, twice at each, and once at each with the hover mutation. Each row records pass or fail, and the mismatched-pixel count from the failure message. The reading runs outside the gate, by a scratch workflow or step that the unit removes, and its output is saved in `.plan/state-layer-visual-1/checks/`.
@@ -74,3 +75,28 @@ After the owner's answer, and after the decision is registered:
 
 - `repo:RD-23`, registered for this decision. Until it was registered, this item proposed `repo:RD-24` if `RD-22` and `RD-23` were registered first.
 - `RF-41` is closed by the implementing pull request. No new finding.
+
+## Disposition of the feature proof at `b51d3a9a0`
+
+**Decided 2026-11-18 by the architect,** on the [feature proof](../reviews/state-layer-visual-1/feature-proof-claude.md), relayed by the coordinator. Properties 1, 3, 4 and 6 hold, property 2 holds, and witness 2 holds. `RD-23` is implemented and `RF-41` is closed in [`../00-index.md`](../00-index.md).
+
+| Finding | Disposition |
+| --- | --- |
+| `reviewer-1`: the stale `checkbox-focused` baseline shows the hover layer, so that row alone selected 0.01 | **Accepted, Tier C. Property 2 (i) is amended, and 0.01 stays** (`RD-23`). The implementer corrects the records that state the old premise (item 1 below) |
+| `reviewer-2`: the report says that every job ran in witness 2's second attempt | **Accepted, Tier C.** Remediated in #66 (item 2) |
+| `reviewer-3`: the reading and the report credit `0bd5a467b` with removing the scratch workflow | **Accepted, Tier C.** Remediated in #66 (item 2) |
+| `reviewer-4`: "five processors" for runs `a` and `b`, and the radio's "whole focus layer" | **Accepted, Tier C.** Remediated in #66 (item 2) |
+| `reviewer-5`: `RD-23`'s status line is the implementer's, and it is stale | **Accepted, Tier C. Remediated by the architect,** who replaced the line in the index |
+
+**The implementer's remediation, in #66, before it merges:**
+
+1. **`reviewer-1`'s records.**
+   - The comment in `createVisualTestProjects` (`.scripts/vitest-config.ts`) states what 0.01 was chosen to see, without the claim that it is the largest value that sees a state layer. It sees a hovered row with no hover layer, a focused row with no focus layer, and a focused checkbox whose baseline shows the hover layer. It is the largest swept value that meets `repo:RD-23` property 2.
+   - The reading's list of failing rows and its conclusion state what the stale `checkbox-focused` baseline shows. The report agrees.
+2. **The reading and the report.**
+   - They state which jobs ran in witness 2's second attempt: `chromium` and `verify` (`reviewer-2`).
+   - They name `a3926b964` as the commit that removed the scratch workflow, and `0bd5a467b` as the one that removed the scratch hook (`reviewer-3`).
+   - They state that runs `a` and `b` ran on four processors, and that all 21 jobs, on five processors, agree on every row that the mutation doesn't touch. They state the radio's diff at 0.01 as counted, without the claim that it covers the whole layer (`reviewer-4`).
+3. **Witnesses:** the handoff loop on `.scripts/vitest-config.ts`, the Markdown checks on the two records, and #66's run on the commit, with the `visual` project passing. Only a comment changes in source, so no baseline moves.
+
+**No new review.** The architect reads the diff, and nothing else in #66 is owed.
