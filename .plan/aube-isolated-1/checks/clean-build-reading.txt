@@ -1,0 +1,37 @@
+Read by the architect in slot b on 2026-11-18, at 96b2975d3 (repo/aube-isolated-1), hoisted layout.
+The root recipe: just clean-build runs nx run-many -t clean:build over seven projects, size-limit-preset-rolldown included.
+That package's clean:build is 'just clean-build', which runs:
+
+$ node ../../.scripts/package-files.ts clean --package .   (cwd packages/size-limit-preset-rolldown)
+node:internal/modules/esm/resolve:241
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '<slot>/packages/size-limit-preset-rolldown/files.json' imported from <slot>/.scripts/package-files.ts
+    at finalizeResolution (node:internal/modules/esm/resolve:241:11)
+    at moduleResolve (node:internal/modules/esm/resolve:846:10)
+    at defaultResolve (node:internal/modules/esm/resolve:973:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+    at #resolve (node:internal/modules/esm/loader:690:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+    at node:internal/modules/esm/loader:639:32
+    at TracingChannel.tracePromise (node:diagnostics_channel:582:22) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file://<slot>/packages/size-limit-preset-rolldown/files.json'
+}
+
+Node.js v26.13.1
+exit 1
+
+$ ls packages/*/files.json
+packages/box-quad/files.json
+packages/core/files.json
+packages/drag/files.json
+packages/material-x/files.json
+packages/tproc/files.json
+packages/vite-custom-element-assets/files.json
+packages/vite-traits-plugin/files.json
+
+readPackageFiles (.scripts/package-files.ts:55) imports files.json before clean (:125) runs git clean, so nothing is deleted.

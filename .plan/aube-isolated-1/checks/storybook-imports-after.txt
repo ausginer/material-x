@@ -1,0 +1,13 @@
+# After aube add -D -W @storybook/icons@2.0.2 and aube install --frozen-lockfile --force
+$ node storybook-imports.ts   (the script is in storybook-imports-before.txt)
+# Bare specifiers imported by every .ts and .tsx file under .storybook/, reduced to package names
+@storybook/addon-docs	docs/DocsContainer.tsx: @storybook/addon-docs/blocks, docs/Source.tsx: @storybook/addon-docs/blocks
+@storybook/icons	manager.tsx: @storybook/icons
+@storybook/react-vite	main.ts: @storybook/react-vite, preview.ts: @storybook/react-vite
+node:fs	main.ts: node:fs
+node:url	main.ts: node:url
+react	docs/ApiTables.tsx: react, docs/DocsContainer.tsx: react, docs/Source.tsx: react, docs/SummaryOrWarning.tsx: react, docs/ThemeToggleLink.tsx: react, manager.tsx: react
+storybook	docs/ThemeToggleLink.tsx: storybook/preview-api, manager.tsx: storybook/internal/components, manager.tsx: storybook/manager-api, preview.ts: storybook/preview-api
+
+# Names that are neither a node: builtin nor a key of the root dependencies or devDependencies
+# end

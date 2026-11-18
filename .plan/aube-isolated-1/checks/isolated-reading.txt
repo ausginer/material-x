@@ -1,0 +1,139 @@
+Isolated-layout reading. Read 2026-11-18 by the architect in slot b, /workspaces/worktrees/b, on
+repo/aube-isolated-1 at e9236603e, with no other command using the slot. aube 2.10.0, Node 26.13.1.
+AUBE_STORE_DIR=/workspaces/worktrees/.aube/store, AUBE_CACHE_DIR=/workspaces/worktrees/.aube/cache.
+The only edit was .npmrc's `node-linker=hoisted` -> `node-linker=isolated` (or `--node-linker isolated`),
+reverted at the end. Excerpts, not full transcripts: full logs were scratch files and are not kept.
+Local runs are Chromium only, without visual (RD-13). Firefox, WebKit and visual were not run.
+
+Two isolated modes exist. aube's default outside CI is the global virtual store (GVS): node_modules
+holds symlinks into <cacheDir>/virtual-store/v1/. Under CI, aube disables the GVS and materializes
+the virtual store inside the project, at node_modules/.aube/ ("project-local" below).
+`aube install --help`: "--enable-global-virtual-store ... Overrides CI's default per-project
+materialization".
+
+## 1. Install, isolated with the GVS (local default)
+
+$ aube install                      (after the .npmrc edit)
+exit 0, real 1.1 s. package-lock.json unchanged (git status: only .npmrc).
+$ ls -A node_modules | wc -l        -> 62     (hoisted: 660)
+$ du -sh node_modules               -> 7.6M   (hoisted: 659M by du; its files are hardlinks, see 9)
+$ realpath node_modules/vite
+/workspaces/worktrees/.aube/cache/virtual-store/v1/vite@8.4.0-beta.1_@types+node@26.6.6_esbuild@0.28.1_jiti@2.7.0_yaml@2.9.0_-5e581187964aacd7/node_modules/vite
+$ ls node_modules/.aube/node_modules | wc -l   -> 617  (project hidden hoist)
+$ ls /workspaces/worktrees/.aube/cache/virtual-store/v1/node_modules | wc -l -> 663
+  (a hidden hoist beside the shared virtual store, an ancestor of every GVS package; it holds
+   node_modules/eslint -> eslint@10.14.0 and node_modules/@types/eslint -> @types/eslint@9.6.1,
+   and its modification time changed at 03:02, during the hoisted reinstall of step 8)
+One vite (8.4.0-beta.1) and one rolldown (1.3.2) in node_modules/.aube.
+
+## 2. Checks, isolated with the GVS
+
+$ aube exec just typecheck                 exit 0 (14 tasks)
+$ aube exec just fmt-check                 exit 0
+$ aube exec just lint                      exit 1
+  /workspaces/worktrees/b/.storybook/manager.tsx
+    1:35  error  Unable to resolve path to module '@storybook/icons'  import-x/no-unresolved
+$ aube exec -- just test --tags-filter '!measurement'
+  Test Files  138 passed (138)
+       Tests  1908 passed | 12 skipped (1920)
+  Type Errors  no errors
+  exit 0, 4 m 38 s. No resolution or fs.allow warning in the output.
+$ aube exec just docs-build                exit 0
+$ aube exec just docs-smoke                102 of 102 pages passed, exit 0
+$ aube exec just build (+ box-quad, drag, vite-custom-element-assets, vite-traits-plugin,
+  size-limit-preset-rolldown)              exit 0
+$ aube exec just size                      exit 1 (box-quad and core fail, drag passes)
+  ERROR  Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'size-limit-preset-rolldown' imported from
+  /workspaces/worktrees/.aube/cache/virtual-store/v1/size-limit@14.3.0-21b37ab157aeb2c0/node_modules/size-limit/load-plugins.js
+$ ls "$(realpath node_modules/typescript)/lib/tsserver.js"   -> No such file or directory
+$ node -e 'import("@typescript/old/lib/tsserver.js")'          -> ERR_MODULE_NOT_FOUND
+  (.scripts/link-tsserver.ts resolves @typescript/old from the root, gets this error, and returns
+   without writing: its catch is the "deps not installed yet" guard)
+
+## 3. Install, isolated without the GVS (CI's mode)
+
+$ aube install --disable-global-virtual-store --force
+  WARN global virtual store enabled -> disabled; removing .../node_modules and reinstalling from scratch
+  ERR_AUBE_NO_MATURE_MATCHING_VERSION ... no version of @testing-library/user-event matching 14.6.10 is
+  older than 10080 minute(s)
+  (without --frozen-lockfile, --force re-resolved; node_modules was already removed)
+$ aube install --frozen-lockfile --disable-global-virtual-store    exit 0, real 1.0 s
+$ realpath node_modules/size-limit
+/workspaces/worktrees/b/node_modules/.aube/size-limit@14.3.0/node_modules/size-limit
+$ du -sh node_modules               -> 670M
+node_modules/.aube/node_modules holds @storybook/icons and @typescript/old, and no `eslint`.
+
+## 4. Checks, isolated without the GVS
+
+$ aube exec just size                      exit 0
+  (size-limit's real path is under the project, so its lookup reaches the root node_modules, which
+   links the workspace package size-limit-preset-rolldown)
+$ aube exec just lint                      exit 1, the same @storybook/icons error
+$ aube exec just typecheck                 exit 1, all 8 packages
+  packages/core: ../../eslint.config.ts(96,3): error TS2345: Argument of type 'EslintPluginOxlintConfig'
+  is not assignable to parameter of type 'InfiniteArray<ConfigWithExtends>'.
+  ... Type 'import(".../node_modules/.aube/@types+eslint@9.6.1/node_modules/@types/eslint/index").Linter.LanguageOptions'
+  is not assignable to type 'import(".../node_modules/.aube/@eslint+core@1.2.1/node_modules/@eslint/core/dist/cjs/types").LanguageOptions'.
+eslint-plugin-oxlint 1.93.0: dependencies {jsonc-parser}, peerDependencies {oxlint}; its
+dist/index.d.mts has `import { Linter } from "eslint"`. Its virtual-store siblings are
+eslint-plugin-oxlint, jsonc-parser and oxlint. Walking up, TypeScript reaches
+node_modules/.aube/node_modules, which has @types/eslint 9.6.1 and no eslint, before the root's eslint 10.
+The test suite was not run in this mode.
+
+## 5. The same import with the GVS (step 2's typecheck passed)
+
+$ aube install --frozen-lockfile --node-linker isolated   (GVS on again)
+Node, from realpath(node_modules/eslint-plugin-oxlint):
+  require.resolve('eslint') -> /workspaces/worktrees/.aube/cache/virtual-store/v1/eslint@10.14.0_jiti@2.7.0_-a51df3fa48066172/node_modules/eslint/lib/api.js
+tsc --traceResolution (packages/core):
+  Module name 'eslint' was successfully resolved to '.../virtual-store/v1/eslint@10.14.0_jiti@2.7.0_-a51df3fa48066172/node_modules/eslint/lib/types/index.d.ts'
+So with the GVS, the plugin's undeclared `eslint` resolves through the store-wide hidden hoist
+(step 1) to eslint 10; without it, through the project hidden hoist to @types/eslint 9.6.1.
+
+## 6. RF-48, isolated with the GVS
+
+before: node_modules/@ydinjs = box-quad core drag material-x tproc vite-custom-element-assets
+        vite-traits-plugin; node_modules/size-limit-preset-rolldown present
+$ aube add -D -W left-pad@1.3.0            exit 0
+after:  node_modules/@ydinjs missing; node_modules/size-limit-preset-rolldown missing
+        (packages/material-x/node_modules/@ydinjs still holds core and tproc)
+$ aube remove -W left-pad                  "package '-W' is not a dependency" (wrong syntax; not a reading)
+Restored by `git checkout package.json package-lock.json` and `aube install --frozen-lockfile`: 7 links.
+The lockfile diff of the same add (repeated, then reverted): 9 lines, the root devDependency and one
+node_modules/left-pad entry. The isolated linker writes package-lock.json in npm's form, as hoisted does.
+
+## 7. Build outputs, isolated (GVS) against hoisted
+
+sha256 of every ignored build output under packages/ (461 files, .tsbuildinfo and test artefacts
+excluded), built on each layout from the same commit. One file differs:
+  packages/material-x/react.d.ts
+Hoisted: import { DetailedHTMLProps, HTMLAttributes } from "/workspaces/worktrees/b/node_modules/react/index.js"
+The isolated build writes the same import with the virtual-store path instead. Its source is
+packages/material-x/src/react.ts: `import type { DetailedHTMLProps, HTMLAttributes } from 'react'`.
+packages/material-x/package.json names neither react nor @types/react. tsdown.config.ts sets
+deps.neverBundle: [/node_modules/u]. No other built .d.ts or .js under packages/ has a /workspaces path.
+
+## 8. Hoisted baseline at the same commit (after `git checkout .npmrc`, `aube install --frozen-lockfile`)
+
+$ aube exec just lint        exit 0
+$ aube exec just size        exit 0
+$ aube exec just typecheck   exit 0
+$ aube exec just clean-build exit 1: x nx run size-limit-preset-rolldown:clean:build
+  (the same failure as on isolated: ERR_MODULE_NOT_FOUND
+   url: 'file:///workspaces/worktrees/b/packages/size-limit-preset-rolldown/files.json';
+   git ls-files has no such file in that package)
+node_modules/typescript/lib/tsserver.js exists (126 bytes).
+package-lock.json: node_modules/@storybook/icons 2.0.2, a dependency of storybook and
+@storybook/addon-docs; the root manifest doesn't name it.
+
+## 9. Disk
+
+Hoisted, slot b: stat -c %h -> 5 vite/package.json, 7 typescript/lib/typescript.js,
+5 rolldown/package.json. The hoisted tree's files are already hardlinks of the shared store
+(RD-17 property 9), so a slot's data is not duplicated on either layout.
+du --apparent-size node_modules (hoisted) -> 587M. Volume: 36 GB free of 248 GB.
+
+## 10. End state
+
+.npmrc restored; `aube install --frozen-lockfile`: 660 top-level entries, 7 @ydinjs links,
+tsserver.js present; `aube config get node-linker` -> hoisted; git status clean before this file.

@@ -1,0 +1,9 @@
+# At 5cdc7e019, packages/material-x/package.json unchanged, after aube exec just build and the nx build of box-quad, drag, vite-custom-element-assets, vite-traits-plugin and size-limit-preset-rolldown.
+$ find packages -type d \( -name node_modules -o -name src -o -name tests \) -prune -o -type f \( -name '*.d.ts' -o -name '*.d.mts' -o -name '*.d.cts' \) -print0 \
+  | sort -z \
+  | xargs -0 grep -nHE '(\bfrom|\bimport\(|\bimport)[[:space:]]*["'"'"']([A-Za-z]:[\\/]|/)'
+packages/material-x/react.d.ts:21:import { DetailedHTMLProps, HTMLAttributes } from "/workspaces/worktrees/b/node_modules/react/index.js";
+exit=0
+
+# Declaration files searched:
+108

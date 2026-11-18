@@ -1,0 +1,46 @@
+# aube 2.10.0, slot b, after adding peerDependencies and peerDependenciesMeta to packages/material-x/package.json
+# Each aube command is abridged to its summary line; the listings and the diff are verbatim.
+$ aube install
+aube 2.10.0 by jdx.dev · ✓ Already up to date
+(package-lock.json unchanged)
+
+$ aube install --fix-lockfile
+✓ resolved 895 · reused 895
+$ ls node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+$ ls -d node_modules/size-limit-preset-rolldown
+ls: cannot access 'node_modules/size-limit-preset-rolldown': No such file or directory
+
+$ aube install --frozen-lockfile --force
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 1.2s
+$ ls node_modules/@ydinjs
+box-quad
+core
+drag
+material-x
+tproc
+vite-custom-element-assets
+vite-traits-plugin
+$ ls -d node_modules/size-limit-preset-rolldown
+node_modules/size-limit-preset-rolldown
+
+$ git diff package-lock.json
+diff --git a/package-lock.json b/package-lock.json
+index 59d604f22..ab73bc685 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -19619,6 +19619,14 @@
+       },
+       "engines": {
+         "node": ">=24"
++      },
++      "peerDependencies": {
++        "react": "^19"
++      },
++      "peerDependenciesMeta": {
++        "react": {
++          "optional": true
++        }
+       }
+     },
+     "packages/material-x/node_modules/@fontsource/roboto": {

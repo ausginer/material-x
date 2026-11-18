@@ -821,7 +821,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Keeping `$` overrides** with the warning accepted. See _Why_.
 - **aube's built-in trusted list,** and `strictDepBuilds` without `useDefaultTrustedDependencies=false`.
 - **`managePackageManagerVersions` at its default,** which downloads the pinned aube.
-- **The isolated layout.** That is a separate change to how modules resolve.
+- **The isolated layout.** That is a separate change to how modules resolve. `RD-19` reads it and keeps hoisted.
 - **Explicit `aube run` targets, or a local nx plugin, in place of nx's `npm run`** (considered 2026-11-17, declined by the owner). Explicit targets cost a definition for each script in each package, 78 today. A plugin is new toolchain to maintain. Either would change only which program starts the script line, and property 1 reads that npm there installs nothing and leaves aube's policy intact.
 
 **What it said before the amendment of 2026-11-17.**
@@ -1022,6 +1022,35 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Keeping the guard in observe mode.** Nothing would read what it logs.
 - **A smaller hook that checks only named spawns.** The owner chose removal. If the consolidator's rule is broken in practice, that is a new decision.
 - **Keeping the two guard documents** as current-state documents. They describe a mechanism that no longer exists. Their measurements are in git history at `21392e738` and in `.plan/harness-guard-2/`.
+
+#### RD-19 — The layout stays hoisted: the isolated layout is not adopted, because its two modes resolve differently and it buys no check this repository lacks
+
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, on the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, read in slot `b` with aube 2.10.0 ([reading](aube-isolated-1/checks/isolated-reading.txt)). Recorded by the main slot's architect, who agrees with the report's recommendation. The owner also decided to fix the report's three findings. They are `RF-51`, `RF-52` and `RF-53`, and they don't depend on the layout.
+
+**Properties.**
+
+1. **`node-linker=hoisted` stays,** as `RD-16` property 7 says.
+2. **Revisit** when one of these holds, and not otherwise:
+   - aube deprecates or changes the hoisted linker, or a defect that only hoisted has becomes a capital problem in `RD-16` property 11's sense;
+   - an aube release makes the isolated layout resolve an undeclared import the same with and without the global virtual store. The witness is the reading's `eslint-plugin-oxlint` typecheck.
+3. **An adoption decided later owes at least:**
+   - one mode locally and in CI, set in the repository;
+   - every gate job green in that mode, Firefox, WebKit and visual included, and `just size`;
+   - size-limit loading `size-limit-preset-rolldown`;
+   - `link-tsserver.ts` failing loudly when the dependencies are installed, and never writing into a shared virtual store;
+   - the `RF-48` reading repeated on that layout.
+
+**Why.**
+
+- **Parity.** Under aube 2.10.0, the isolated layout has two modes: the global virtual store, aube's default outside CI, and a project-local store, its default in CI. They resolve a dependency's undeclared import differently. The same commit typechecks locally and fails in all eight packages in CI. A local pass would no longer predict CI.
+- **No gain for the slots.** Hoisted files are already hardlinks of the shared store (`RD-17` property 9). Warm installs take about 1 s on both layouts, and `RF-48` reproduces on both.
+- **Weak strictness here.** The root declares every tool, and workspace packages resolve through the root's `node_modules` on both layouts. So the isolated layout checks only imports that no manifest in the repository declares. It found one, `RF-52`. It doesn't catch a published package that imports what its own manifest doesn't name, which is `RF-51`'s class.
+- **Two working things break,** and each would need a repair first: size-limit's plugin loading under the global virtual store, and the editor's `tsserver.js`.
+
+**Not adopted.**
+
+- **Isolated with the global virtual store everywhere** (`--enable-global-virtual-store` in CI). CI would resolve through a store-wide hidden hoist whose content depends on what that runner installed. Locally, every slot shares that directory.
+- **Isolated and project-local everywhere.** Typecheck fails in all eight packages until each undeclared import of a dependency is repaired, and the slots then gain nothing over hoisted.
 
 ## Findings
 
@@ -1587,6 +1616,24 @@ Tier C, **decided, implemented, open** (decided 2026-11-17 at `51a992b49`; see _
 - **Editing `package.json` by hand and running `aube install`,** instead of `aube add`. It loses `add`'s resolution of the latest compatible version, and nobody has read whether `install` after a manifest change has the same defect.
 - **Closing the finding with the documentation only.** Without the rule, a developer who follows `implementer.md` can still be left with a tree that fails to typecheck.
 
+**Widened 2026-11-18 by the architect** on `repo/aube-isolated-1`, on the isolated-layout unit's [feature proof](reviews/aube-isolated-1/feature-proof-claude.md) at `f480544a6`, `reviewer-1` and `reviewer-2`, relayed by the coordinator.
+
+- **What was read.**
+  - In slot `b`, twice: `aube install --fix-lockfile` recorded a peer edit and dropped `node_modules/@ydinjs` and `node_modules/size-limit-preset-rolldown`. `aube install --frozen-lockfile --force` restored them ([first](aube-isolated-1/checks/react-peer-install.txt), [second](aube-isolated-1/checks/types-react-peer-install.txt)).
+  - In the reviewer's scratch hoisted workspace ([probe](reviews/aube-isolated-1/checks/manifest-edit-probe.txt)):
+    - a plain `aube install` after a hand edit of `dependencies` writes the lockfile and drops the workspace links. That is read only there, not in the repository;
+    - after an edit to the peer fields only, a plain `aube install` answers _"Already up to date"_, and `aube install --frozen-lockfile` and `aube ci` exit 0 against a lockfile that lacks the edit. Only `--fix-lockfile` writes it. In slot `b`, a plain `aube install` also left the lockfile unchanged after the peer edit, twice.
+- **The decision is widened** (`reviewer-1`): the defect follows every aube command that writes `package-lock.json`, not only `add` and `remove`. The _Decision_ bullet _"So the cause is aube's `add` and `remove`"_ stands as a reading of those two. The rest of the record now reads as follows.
+  - **The required property** reads: after any aube command that writes `package-lock.json`, `node_modules` links every workspace package, or the command fails.
+  - **Required property 2's rule** in `implementer.md` names every such command: `add`, `remove`, `install --fix-lockfile`, and an `install` after a hand edit of a manifest. Each is followed by `aube install --frozen-lockfile --force`.
+  - **The _Not adopted_ bullet on hand edits** stays not adopted for adding a dependency, because it loses `add`'s resolution. Its clause _"nobody has read whether `install` after a manifest change has the same defect"_ is answered: it has, in the scratch workspace.
+- **A peer change** (`reviewer-2`) is recorded like this.
+  - **The command:** the peer fields are edited by hand, because `peerDependenciesMeta` has no aube command. `aube install --fix-lockfile` records the edit in the same commit, and the reinstall follows. `implementer.md` states both.
+  - **`aube add --save-peer` is not adopted.** Nobody has read what it writes, and an optional peer needs `peerDependenciesMeta` anyway.
+  - **The drift that no gate detects is accepted.** A frozen install passes against a lockfile that lacks a workspace manifest's peer fields. No install here reads those fields: the workspace installs each peer through a devDependency (`CONTRIBUTING.md` Part I, _Dependencies of a published package_). So the drift misleads nobody. The next lockfile write records it, as an unrelated diff in someone else's change. The review of a peer change reads the lockfile diff.
+  - **Not adopted: a gate check** that compares each manifest's peer fields with the lockfile. It would be a custom check for fields that no installer here reads, which is the kind of machinery that `RF-51`'s answer declined.
+- **Status unchanged:** decided, implemented as widened, and open until required property 3 closes it.
+
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
 Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
@@ -1630,6 +1677,83 @@ Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Deci
 
 - **Filtering by config name.** `buildFromOxlintConfigFile`'s configs are named `oxlint/from-oxlint-config`, `oxlint/from-oxlint-config-override-<n>` and `oxlint/oxlint-config-ignore-patterns`, so a wrapper could give the recipe `eslint.config.ts` without them. That isn't better than the split: it depends on a naming convention that the plugin doesn't document as a contract, it also needs a name on the hand-written block, and it adds code that the positional argument makes unnecessary. The split is the owner's choice.
 - **One hand-maintained `.oxlintrc.json`,** with the recipe as a diff aid or deleted. A rule change in ESLint would then reach oxlint only through a hand copy.
+
+#### RF-51 — `material-x/react.d.ts` imports React's types by an absolute path on the build machine
+
+Tier B, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 1, on the owner's decision to fix it (`RD-19`). `RF-50` is allocated on `repo/host-invariant-1`. **No row is disabled.**
+
+- **What was read:**
+  - the hoisted build writes `import { DetailedHTMLProps, HTMLAttributes } from "/workspaces/worktrees/b/node_modules/react/index.js"` into `packages/material-x/react.d.ts` ([reading](aube-isolated-1/checks/isolated-reading.txt), line 110);
+  - the source, `src/react.ts:2`, imports the types from `react`;
+  - `packages/material-x/package.json` names neither `react` nor `@types/react`, and it exports the file as the `types` of `./react.js`.
+- **The cause, inferred:** tsdown's `neverBundle: [/node_modules/u]` (`material-x/tsdown.config.ts:12`) keeps the import external by its resolved path, because no manifest entry names `react`.
+- **Effect:** a consumer's TypeScript can't resolve the import, so the React typings that material-x publishes don't work. Tier B, for the published surface. The package is unreleased, so this blocks its first release, not a user.
+- **Required property:**
+  - no declaration file that any package publishes imports by an absolute path;
+  - `react.d.ts` imports React's types by the bare specifier `react`;
+  - `@ydinjs/material-x` declares `react` as an optional peer dependency, with a range that covers React 19, the major the workspace builds and tests against. A consumer that doesn't import `./react.js` needs no React.
+- **The witness:** the built `react.d.ts` imports from `"react"`, and a search of every package's built `.d.ts` files finds no import of an absolute path. The search runs before and after the repair.
+- **Not decided here:** a standing check for this class. The report names `import-x/no-extraneous-dependencies`, which `eslint.config.ts` turns off with no reason stated. Turning it on is a lint-policy question for the owner, under `RD-10` and `RD-11`.
+- **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`.
+- **Answered 2026-11-18 by the owner,** relayed by the coordinator.
+  - **`@types/react` is declared beside `react`.** The required property gains: `@types/react` is an optional peer too, with the same range, because `react.d.ts` imports types that only `@types/react` provides. The [isolated-layout handoff](aube-isolated-1/aube-isolated-handoff.md)'s item 1, as amended, carries it.
+  - **The owner asked for a written rule** on which field a package goes in, `@types/*` packages included, and on what a published declaration file's imports require. The rule is in [`CONTRIBUTING.md`](../CONTRIBUTING.md) Part I, _Dependencies of a published package_. Applied to today's manifests, it finds this entry's `react` and `@types/react`, and `RF-55`.
+  - **The standing check: only if it doesn't mean a custom rule, and the owner noted that TypeScript already reports an error in `react.d.ts`.** The architect read both ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt)):
+    - **The error** is the one the owner's editor shows: TS7016, _"Could not find a declaration file for module '…/node_modules/react/index.js'. … implicitly has an 'any' type."_ The specifier is a path to React's JavaScript, with no declarations beside it. TypeScript looks for `@types/react` only for the bare specifier `react`. So `DetailedHTMLProps` and `HTMLAttributes` are `any`, and every JSX type in the file is `any` with them.
+    - **Why no gate fails on it:** no checked program contains the file. material-x's `typecheck` includes `src/**` and `tests/**`, not the build output. A program that does load it, such as a consumer's or any project extending `tsconfig.base.json`, runs with `skipLibCheck: true` (`tsconfig.base.json:7`), which suppresses every error inside a `.d.ts` file. With `skipLibCheck` off, the file fails with TS7016 (exit 2). With it on, the same file passes (exit 0). The editor reports errors in the file that is open, so it shows the error.
+    - **So the check needs no custom rule:** a TypeScript program over every published declaration file, as a consumer reads them, with `skipLibCheck` off and no ambient `types`. It is a configuration and a recipe, and the gate runs it after the build. **Decided** in that form, with this property: the gate fails when a published declaration file doesn't type-check that way.
+    - **What it doesn't catch:** an import that resolves only because the workspace hoists an undeclared package to the root, and an absolute path that happens to reach a declaration file on the build machine. `CONTRIBUTING.md`'s rule names the first. Neither is worth a custom rule.
+    - **It can't land green today.** Over the 108 built declaration files, with `react` declared, it finds one error: TS2611 in `material-x/text-field/TextFieldCore.d.ts`, which is `RF-54`. **The check lands together with `RF-54`'s repair,** in one unit after this one. The owner schedules it.
+
+#### RF-52 — `.storybook/manager.tsx` imports `@storybook/icons`, which no manifest declares
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 2, on the owner's decision to fix it (`RD-19`). **No row is disabled.**
+
+- **What was read:** `.storybook/manager.tsx:1` imports `MoonIcon` and `SunIcon` from `@storybook/icons`. No `package.json` in the repository names it. It resolves only because the hoisted layout places Storybook's own dependency, 2.0.2 (`storybook`'s range `^2.0.2`), at the root. The isolated layout's `lint` fails on it.
+- **Required property:** every import under `.storybook/` resolves to a package that the root manifest declares.
+- **The repair:** declare `@storybook/icons` as an exact root devDependency at 2.0.2, the version that Storybook already resolves, so the lockfile adds no version. Install it as `RD-16` says, and reinstall from the lockfile afterwards (`RF-48`).
+- **Not adopted: removing the import.** The manager's theme control uses the two icons.
+- **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`.
+
+#### RF-53 — The root `just clean-build` exits 1, because `size-limit-preset-rolldown` has no `files.json`
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 3, on the owner's decision to fix it (`RD-19`). **No row is disabled.**
+
+- **What was read** ([reading](aube-isolated-1/checks/clean-build-reading.txt)):
+  - the root recipe runs `clean:build` in seven projects, the preset included (`Justfile:17`);
+  - the preset's `clean-build` runs `.scripts/package-files.ts clean`, which imports the package's `files.json` (`:55`–`:61`) and exits 1 with `ERR_MODULE_NOT_FOUND`;
+  - the other six packages have a `files.json`;
+  - the import fails before `git clean` runs, so nothing is deleted.
+- **Required property:**
+  - the root `just clean-build` exits 0;
+  - each package's clean removes its own build outputs and nothing else. For the preset, these are the files its manifest publishes: `index.js`, `index.js.map` and `index.d.ts`;
+  - every package cleans through one mechanism.
+- **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`. The handoff chooses the form.
+
+#### RF-54 — material-x's published `TextFieldCore.d.ts` doesn't type-check: the `@ts-expect-error` on `value` isn't in the declaration
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
+
+- **What was read:**
+  - `src/text-field/TextFieldCore.ts:223` suppresses TS2611 on `override get value()` with `@ts-expect-error`, citing microsoft/TypeScript#54879;
+  - the built `text-field/TextFieldCore.d.ts:40` declares the same accessor without the directive;
+  - a program that type-checks the declarations with `skipLibCheck` off reports _"TS2611: 'value' is defined as a property in class '…', but is overridden here in 'TextFieldCore' as an accessor."_ No other built declaration file in the repository reports an error.
+- **Effect:** a consumer of `mx-text-field` or `mx-multiline-text-field` whose `skipLibCheck` is off gets a type error in material-x's typings. With it on, nothing is reported.
+- **Required property:** every published declaration file type-checks with `skipLibCheck` off. This one doesn't, so `RF-51`'s standing check can't land until this repair does.
+- **Not decided:** the repair. The base type that declares `value` as a property comes from the `Valuable` trait through `impl`. Whether the declaration can carry an accessor, or the trait's type has to change, needs a reading of #54879's status and of `@ydinjs/core`'s trait types.
+- **Routed** to the owner, with `RF-51`'s check, as one unit after the isolated-layout unit.
+
+#### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONTRIBUTING.md`'s rule on published dependencies to today's manifests ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) C). **No row is disabled.**
+
+- **What was read:**
+  - `@ydinjs/vite-custom-element-assets` and `@ydinjs/vite-traits-plugin` both declare `"rolldown": "1.3.2"` in `dependencies` and `"vite": "^8.1.4"` in `peerDependencies`;
+  - each `index.d.ts` imports `Plugin` from `rolldown` and from `vite`, and `css/transform.d.ts` imports `SourceMapInput` from `rolldown`;
+  - both plugins also use `RolldownMagicString` at runtime.
+- **Why it matters:** the plugin's `Plugin` type comes from its own pinned `rolldown`, and the consumer's Vite types plugins with the `rolldown` it brings. When the two copies differ, the types can clash, which is `RF-31`'s cause, and the consumer installs a second `rolldown`. Under the rule's second question, the plugins share the consumer's copy, so `rolldown` is a peer.
+- **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
+- **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
 
 ## Questions
 
