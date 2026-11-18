@@ -38,8 +38,8 @@ export const REASON = {
    */
   TRAIT_BINDING_SHADOWED: 'trait-binding-shadowed',
   /**
-   * A method trait's source would be copied between languages other than one
-   * language to itself or JavaScript to TypeScript.
+   * A method trait's origin module has a different file extension from the
+   * consumer's, so its source can't be copied unchanged.
    */
   TRAIT_SOURCE_LANGUAGE: 'trait-source-language',
 } as const;
