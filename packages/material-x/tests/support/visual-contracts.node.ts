@@ -138,7 +138,7 @@ export async function resolveTokenContract(
   };
 }
 
-export const materialXBrowserCommands: Readonly<
+export const tokenContractCommands: Readonly<
   Record<string, BrowserCommand<any[]>>
 > = {
   resolveTokenContract: defineBrowserCommand<[TokenContractRequest]>(

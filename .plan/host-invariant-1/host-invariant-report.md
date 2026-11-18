@@ -139,7 +139,18 @@ The radio row the handoff names, _a radio clicked with no handler stays unchecke
 
 `aube exec just typecheck` passes. `aube exec just lint` passes on every changed `.ts` file. No linter is configured for `.tpl.html`, `.mdx` or `.md`, so lint didn't apply to them. `oxfmt` formatted every changed file.
 
-## The stop
+## The gate
+
+Pull request #35. `main` gained #34 after the unit's last commit, and a conflicting pull request runs no workflow, so `main` was merged into the branch (`59ca99e6a`, conflict in `.plan/00-index.md` only: both sides added entries, and all are kept). `aube install` and the local suites ran on the merged tree.
+
+- **Run 44235006672 on `59ca99e6a`: failed.**
+  - `chromium`: 11 rows failed of 2,052. Ten are item 8's pressed rows, and one is the visual row `button-group-connected-selected`, which waits for the recorded baseline.
+  - `firefox`: the same 10 pressed rows failed.
+  - `webkit` and `docs` were cancelled.
+  - The `DragFault` lines in both logs are drag's expected fault output, and no drag row failed.
+- **The cause:** `TypeError: commands.pointerPress is not a function`. CI runs the root `vitest.config.ts`, which registered material-x's commands from `visual-contracts.node.ts` alone. The input commands were added to `packages/material-x/vitest.config.ts` only, and the local runs used that config.
+- **The repair:** `tests/support/commands.node.ts` now defines material-x's command map once, as the token-contract commands and the input commands, and both configs import it. Through the root config, the file's 50 rows pass in each of the three engines locally.
+- **Baselines:** run 44235050889 recorded the baseline on GitHub's runner and opened #36 (`baselines/repo/host-invariant-1`) into this branch, for the owner's merge (`RD-13`).
 
 **`button-group-connected-selected` changes** (item 1, property 8: _a visual baseline differs_).
 
