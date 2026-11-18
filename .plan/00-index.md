@@ -1486,6 +1486,10 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **Ruled:** the switch's `.host` is a native `<button type="button" role="switch" part="impl">`, the shadow root's one top-level element, and the `<input>` and part `control` are removed (R1, R3). The switch stays a controlled component: activation fires `click`, `input` and `change` and changes no state, and `aria-checked`, `:state(checked)` and the form value follow `checked` alone (R2). The switches draw focus only through the button family's shared rules (R4).
   - **Judged:** `mx-list-item` meets the invariant, since it takes no focus. `mx-fab` diverges: its shadow root doesn't delegate focus and no forward reaches `.host`.
   - **Waiting on the owner:** the three exceptions E1 to E3 (native-input controls, slot-only components, the split button), whether `mx-fab`'s forward is in this unit, and whether R2's controlled model stands. The implementer starts after the architect records the answers here and in `architecture.md` §Components.
+- **Answered 2026-11-18 by the owner,** relayed by the coordinator, and recorded by the architect in [`architecture.md`](../.agents/docs/architecture.md) §Components and the [handoff](host-invariant-1/host-invariant-handoff.md#the-owners-answers).
+  - **E1, E2 and E3 are approved.** The owner proposed that E1 cover any focus target that can't be a container, not only `<input>` and `<textarea>`, and said he might be extrapolating. **The architect accepts this, with a limit:** the criterion applies to the native element that the component's semantics need, not to an element the component chooses. Without the limit, today's switches would qualify, since their `<input>` can't be a container, and the exception would swallow the invariant. A container that gives the same semantics, such as a `<button>` with a role, takes precedence. The members are unchanged.
+  - **`mx-fab`'s focus forward is in this unit** (item 3).
+  - **R2 stands, and the owner states it as a principle for the repository:** every material-x component is controlled. It is in `architecture.md` §Components. The components that don't meet it are `RF-50`'s. Checkbox and radio join this unit as item 7.
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
@@ -1634,6 +1638,26 @@ Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Deci
 
 - **Filtering by config name.** `buildFromOxlintConfigFile`'s configs are named `oxlint/from-oxlint-config`, `oxlint/from-oxlint-config-override-<n>` and `oxlint/oxlint-config-ignore-patterns`, so a wrapper could give the recipe `eslint.config.ts` without them. That isn't better than the split: it depends on a naming convention that the plugin doesn't document as a contract, it also needs a name on the hand-written block, and it adds code that the positional argument makes unnecessary. The split is the owner's choice.
 - **One hand-maintained `.oxlintrc.json`,** with the recipe as a diff aid or deleted. A rule change in ESLint would then reach oxlint only through a hand copy.
+
+#### RF-50 — `mx-checkbox`, `mx-radio` and the text fields change their own state on user interaction, against the controlled principle
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, on the owner's principle that every material-x component is controlled ([`architecture.md`](../.agents/docs/architecture.md) §Components), relayed by the coordinator with the answers to `RF-43`. **No row is disabled.**
+
+- **What was read** at `e9236603e`:
+  - **`mx-checkbox` and `mx-radio`.** Activation runs the native input's activation behaviour: a checkbox inverts `checked` and clears `indeterminate`, and a radio sets `checked`. The host's `checked` and `indeterminate`, `:state(checked)` and the form value don't change, because `CheckableCore.ts`'s `change` handler only notifies. So until the consumer answers, the input's state, which assistive technology reads, disagrees with the host's. The row _"should reflect the checked control back on interaction"_ (`tests/core/elements/CheckableCore.browser.test.ts:227`) asserts the input's toggle.
+  - **The switch buttons** have the same split, and their form value also follows the input (`SwitchCore.ts:94`–`:95`). `RF-43`'s R2 and item 1 remove it.
+  - **`mx-text-field` and `mx-multiline-text-field`.** Typing changes the native field's text. The `value` getter reads it (`TextFieldCore.ts:224`), and `:state(populated)` and the form value follow it on `input` (`:202`–`:204`). The typed text is state that the component holds.
+  - **Components that meet the principle:** the split button's `open`, the groups' `value`, the list items' `selected` and the FAB's `extended` change only when the consumer sets them.
+- **Required property:** each component meets the principle, or the record states its exception.
+- **Checkbox and radio.**
+  - Required: after an activation and the consumer's synchronous `input` and `change` handlers, the native input's `checked` and `indeterminate` equal the host's.
+  - The events, their order, interfaces and flags don't change.
+  - The row at `:227` is reversed.
+  - This is item 7 of the [host-invariant handoff](host-invariant-1/host-invariant-handoff.md).
+- **The text fields: a question for the owner.**
+  - **Read strictly:** after each `input`, the field reverts to `value` unless the consumer set it, as React does for a controlled `<input>`. The revert rewrites the field while the user types. It has to keep the caret in place, it breaks the native undo history, and it must not run during an IME composition.
+  - **The architect recommends an exception:** a text field's text is the user's input. `value` reads it and the consumer may set it, and `:state(populated)` and the form value follow it. That is an uncontrolled field, so it is an exception to the principle, not a reading of it.
+- **Routed:** checkbox and radio to the host-invariant unit, item 7. The text fields to the owner, and they block nothing.
 
 ## Questions
 

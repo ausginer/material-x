@@ -1,6 +1,6 @@
 # Handoff: the `.host` invariant — the switch buttons restructured, and every template audited
 
-**Recipient:** the implementer, **after the owner answers the three questions under [_For the owner_](#for-the-owner)** and the architect records the answers. Until then, this is the plan for the owner.
+**Recipient:** the implementer. The owner answered the plan's three questions on 2026-11-18, and the architect recorded the answers ([_The owner's answers_](#the-owners-answers)).
 
 **Branch:** `repo/host-invariant-1`, from `main` at `e9236603e`. **Input:** the architect's commit that adds this file.
 
@@ -8,8 +8,9 @@
 
 **Governing records:**
 
-- [`repo:RF-43`](../00-index.md), with its widening of 2026-11-17;
-- the invariant in [`architecture.md`](../../.agents/docs/architecture.md) §Components;
+- [`repo:RF-43`](../00-index.md), with its widening of 2026-11-17 and the owner's answers of 2026-11-18;
+- [`repo:RF-50`](../00-index.md): the components that aren't controlled yet;
+- the invariant, its exceptions and the controlled principle in [`architecture.md`](../../.agents/docs/architecture.md) §Components;
 - [`repo:RF-35`](../00-index.md)'s rulings: the focus layer has its own variables, it shows over hover, and it draws on the keyboard-focus trigger;
 - [`repo:RF-33`](../00-index.md): the focus forward (`forwardFocus`, `focusControl`, and `override focus()` in each class);
 - [`repo:RF-42`](../00-index.md): Safari's rows press Option-Tab;
@@ -90,7 +91,7 @@ A native button gives all three, and it is what `mx-button`, `mx-icon-button` an
 - **It keeps the host's observable contract.** Today, activation doesn't change the host's `checked` or `:state(checked)`, so a consumer that reads `event.target.checked` in `change` reads the old value. That stays the same.
 - **It removes today's split.** Today, activation toggles the inner input, so the screen reader's state and the form value (`SwitchCore.ts:94`–`:95`) change, while `checked` and the visual state don't. A switch whose consumer doesn't answer `change` announces _"on"_ and submits `on` while it is drawn off. The split exists because of the native checkbox, not because anyone chose it.
 
-**The alternative, for the owner (question 3):** the switch toggles itself. Activation sets `checked`, then fires `input` and `change`, and cancelling the `click` prevents the toggle, as with a native checkbox. That matches `switch-button.mdx:78`'s _"click or press `Space` to toggle `checked`"_ and `accessibility.md` §Button's _missing requirement_. But it departs from the family's controlled model, and in a connected group, a switch would be checked beside the group's `value` until the consumer answers. If the owner chooses it, `mx-checkbox` and `mx-radio` would differ from the switches, so the architect would register a finding for them.
+**Confirmed by the owner on 2026-11-18,** who states it as a principle for every material-x component ([`architecture.md`](../../.agents/docs/architecture.md) §Components). The alternative put to the owner, a switch that toggles itself, is not adopted.
 
 ### R3 — The parts afterwards
 
@@ -101,27 +102,16 @@ A native button gives all three, and it is what `mx-button`, `mx-icon-button` an
 
 No switch-specific focus rule remains. The indicator is `.host:focus-visible`, and the layer is `RF-35`'s rule at `main.styles.css:111`. Whatever remains of `switch-control.styles.css` is only what the switch still needs once `.interaction` and `.control` are gone. If nothing remains, the sheet and its import go.
 
-## For the owner
+## The owner's answers
 
-**1. The exceptions to the invariant.** Each one amends the owner's rule, so the owner decides. The architect recommends all three.
+Given on 2026-11-18 and relayed by the coordinator. The architect recorded them in `RF-43`, `RF-50` and [`architecture.md`](../../.agents/docs/architecture.md) §Components.
 
-- **E1 — A component whose focus target is a native `<input>` or `<textarea>`:** `mx-checkbox`, `mx-radio`, `mx-text-field`, `mx-multiline-text-field`. The input can't contain the component's other parts, so no element can be both the root and the focus target. Replacing the input gives up native checked and indeterminate state, text editing, IME and validation, and it would reopen `RF-35`'s ruling on the trigger. These components adopt none of the rules keyed on `.host`. They draw their indicator and layer from the input's `:focus-visible` through later siblings (`RF-35`).
-- **E2 — A component that renders only its light-DOM children through one `<slot>`, and takes no focus of its own:** `mx-icon`, `mx-list`, `mx-button-group`, `mx-connected-button-group`. A `class="host"` on a `<slot>` would have nothing to style and nothing to find, and a shared `.host` rule that matched a slot would be a defect.
-- **E3 — A composite of other material-x components:** `mx-split-button`. Its `.host` is the root and carries `impl` (and `group`). It doesn't take focus: each of its two focus stops is a nested component that meets the invariant.
-
-**The amended paragraph** that the architect writes into `architecture.md` §Components once the owner decides. It replaces the current paragraph:
-
-> **`.host` is the root, and it takes focus.** In a material-x component that renders a container of its own, the shadow root's one top-level element has the class `host` and the part `impl`. In a component that takes focus, `.host` is the element that takes it. Shared styles and helpers depend on this. The button family's focus indicator and focus layer draw on `.host:focus-visible`. `useButtonCore`, FAB, the link button and the list items find their control as `.host`. Delegated and forwarded focus lands on it. If a template wraps `.host`, or puts the focusable element beside it, these break without an error. The owner stated the invariant on 2026-11-17, and decided its exceptions on _date_ ([`repo:RF-43`](../../.plan/00-index.md)):
->
-> - **A native input is the focus target.** `mx-checkbox`, `mx-radio`, `mx-text-field` and `mx-multiline-text-field` have no `.host`. The input can't contain the component's other parts. They draw their focus indicator and focus layer from the input's `:focus-visible` through later siblings.
-> - **Only a slot.** `mx-icon`, `mx-list`, `mx-button-group` and `mx-connected-button-group` render their children through one `<slot>`, take no focus, and have no `.host`.
-> - **A composite.** `mx-split-button`'s `.host` is the root and doesn't take focus. Its focus stops are nested components that meet the invariant.
->
-> A new component meets the invariant, or the record states which exception it falls under.
-
-**2. Is `mx-fab`'s focus forward in this unit?** The architect recommends yes. It is the same mechanism as `RF-33`, and it adds one class to the forward's adopters and one row. Declined, it stays under `RF-43` as an open divergence.
-
-**3. Is the switch controlled (R2) or self-toggling?** The architect recommends controlled, as R2 states. Under either model, item 1 is otherwise unchanged.
+1. **The exceptions E1, E2 and E3 are approved.** `architecture.md` §Components states them.
+   - **E1** covers a component whose semantics need a native element that can't hold the component's other parts: `mx-checkbox`, `mx-radio`, `mx-text-field` and `mx-multiline-text-field`. Their `<input>` or `<textarea>` is the focus target, and they have no `.host`. They draw their indicator and layer from the element's `:focus-visible` through later siblings (`RF-35`). Replacing that element would give up native checked and indeterminate state, text editing, IME and validation. The owner proposed this wider reading of E1. The architect accepted it, with a limit: the exception doesn't apply to an element that the component chooses when a container could give the same semantics. The switches' `<input>` is such a choice, and R1 replaces it.
+   - **E2** covers the components that render only one `<slot>` and take no focus: `mx-icon`, `mx-list`, `mx-button-group` and `mx-connected-button-group`. A `class="host"` on a `<slot>` would have nothing to style and nothing to find.
+   - **E3** covers the composite `mx-split-button`. Its `.host` is the root and carries `impl` and `group`. It doesn't take focus: each of its two focus stops is a nested component that meets the invariant.
+2. **`mx-fab`'s focus forward is in this unit:** item 3.
+3. **R2 stands, as a principle for the repository:** every material-x component is controlled. `mx-checkbox` and `mx-radio` don't meet it today (`RF-50`), and item 7 fixes them. The text fields don't meet it either, and their question is the owner's under `RF-50`. They aren't in this unit.
 
 ## 1. The switch restructure
 
@@ -134,14 +124,14 @@ For `mx-switch-button` and `mx-switch-icon-button`, under R1 to R4. **Required p
    - `useButtonCore`'s target is `.host`. The `.control` query and its fallback are removed (CONTRIBUTING §8 and §16).
 3. **Role and state:**
    - `.host` has the role `switch`;
-   - `.host`'s `aria-checked` is `"true"` or `"false"` from the first render on, and it always equals `checked`, under R2 or under the owner's answer to question 3.
+   - `.host`'s `aria-checked` is `"true"` or `"false"` from the first render on, and it always equals `checked` (R2).
 4. **Activation:**
    - a pointer click, `host.click()`, Space and Enter each produce `click`, then `input`, then `change` on the host, each once, with the interfaces and flags under R1;
    - a disabled switch produces none, and Tab skips it;
    - a `<label for>` that names the host activates it as today (`useClickActivation`).
 5. **The form value** is `value ?? 'on'` when `checked`, and absent otherwise. It follows `checked` under R2.
 6. **The group:** in an `mx-connected-button-group`, a `value` set on the group checks the switch whose `value` matches and unchecks the others. Each one's `aria-checked`, `:state(checked)` and form value agree. Roving tabindex reaches each switch's `.host`.
-7. **The parts and their documentation** follow R3: the `@csspart` JSDoc of both classes, and the _Parts_ and _Semantics_ sections of `switch-button.mdx` and `switch-icon-button.mdx`. Each claim about activation in the `.mdx` files states the model the owner decides. `:78` says that a click toggles `checked`. Under R2 that is false.
+7. **The parts and their documentation** follow R3: the `@csspart` JSDoc of both classes, and the _Parts_ and _Semantics_ sections of `switch-button.mdx` and `switch-icon-button.mdx`. Each claim about activation in the `.mdx` files states the controlled model. `:78` says that a click toggles `checked`, which is false under R2.
 8. **Rendering:** at rest, unchecked, checked, hovered and disabled, each switch renders as it does at `e9236603e`. The switch visual baselines don't change (`button-switch-variants.png`, and the button-group rows that hold switch buttons).
 
 ## 2. The switches' focus layer
@@ -158,7 +148,7 @@ For `mx-switch-button` and `mx-switch-icon-button`, under R1 to R4. **Required p
 
 **Stop** if a switch colour's tables define no focused state-layer token for a selection state. Report the colour and the state, and don't map a neighbouring token in its place.
 
-## 3. `mx-fab`'s focus forward (if the owner answers yes to question 2)
+## 3. `mx-fab`'s focus forward
 
 **Required:**
 
@@ -172,7 +162,7 @@ For `mx-switch-button` and `mx-switch-icon-button`, under R1 to R4. **Required p
 - **`tests/button/SwitchCore.browser.test.ts`** reads `.host`, not `.control`. It keeps every row's property and adds:
   - Enter activates the switch;
   - `aria-checked` is `"false"` on a new switch, and follows `checked` through the property, the attribute and a group's `value`;
-  - activation leaves `checked`, `aria-checked`, `:state(checked)` and the form value as R2 or the owner's answer requires;
+  - with no consumer handler, activation leaves `checked`, `aria-checked`, `:state(checked)` and the form value as they were. With a `change` handler that sets `checked`, all four follow it;
   - the accessible name of `<mx-switch-button>Enabled</mx-switch-button>` is _"Enabled"_. **The witness:** the row fails at `e9236603e` (_read, not run_; if it passes there, report that and keep the row).
 
   The row _"should reflect the value attribute to the control"_ goes. No control remains, and the form-data rows cover `value`.
@@ -183,17 +173,38 @@ For `mx-switch-button` and `mx-switch-icon-button`, under R1 to R4. **Required p
 
 ## 5. Documentation
 
-- `accessibility.md` §Button: the switch bullets state what is true after item 1, under the owner's state model, and every citation in §Button names a file that exists. The claims in §Button Group, §FAB and §Text Field that cite missing files (`useButtonGroupCore.ts`, `core/controllers/useARIA.ts`, `useSlot.ts`, `focus.ctr.css`) are outside this unit, and the report lists them.
+- `accessibility.md` §Button: the switch bullets state what is true after item 1, under the controlled model. The _missing requirement_ about activation becomes the stated contract, as for the checkbox, and every citation in §Button names a file that exists. The claims in §Button Group, §FAB and §Text Field that cite missing files (`useButtonGroupCore.ts`, `core/controllers/useARIA.ts`, `useSlot.ts`, `focus.ctr.css`) are outside this unit, and the report lists them.
 - The switches' JSDoc and `.mdx` files: item 1, property 7.
-- **`architecture.md` is the architect's,** and it is written before the implementer starts (_For the owner_).
+- `checkbox.mdx` and `radio.mdx` already call the components controlled. Item 7 checks that no claim in them says that activation changes `checked` or `indeterminate`.
+- **`architecture.md` is the architect's,** and it already states the exceptions and the principle.
 
 ## 6. Measurement
 
-material-x has no size budget (`RF-45`). Measure by hand, as the findings unit did ([reading](../findings-1/checks/item8-step1-size.txt)): minified and brotli bytes for the `switch-button`, `switch-icon-button` and `fab` entries, at `e9236603e` and at the head. Save the reading under `checks/`. No change in size is a stop. Report it.
+material-x has no size budget (`RF-45`). Measure by hand, as the findings unit did ([reading](../findings-1/checks/item8-step1-size.txt)): minified and brotli bytes for the `switch-button`, `switch-icon-button`, `fab`, `checkbox` and `radio` entries, at `e9236603e` and at the head. Save the reading under `checks/`. No change in size is a stop. Report it.
+
+## 7. `mx-checkbox` and `mx-radio` become strictly controlled
+
+Under `RF-50`. Both build on `CheckableCore.ts`. Today the native input's activation behaviour changes its own state: a checkbox inverts `checked` and clears `indeterminate`, and a radio sets `checked`. The host's state doesn't change.
+
+**Required:**
+
+- after an activation and the consumer's synchronous `input` and `change` handlers, the native input's `checked` and `indeterminate` equal the host's. Activation can come from a pointer click, `host.click()`, Space, or a `<label>` that names the host. If a handler sets the state, the input shows the new state. If no handler sets it, the input shows the old one;
+- `click`, `input` and `change` still fire once each, in that order, with today's interfaces and flags (`CheckableCore.browser.test.ts`);
+- a disabled component is unchanged: no events, and no state change;
+- `:state(checked)`, `:state(indeterminate)` and the form value already follow the host only, and they stay that way.
+
+**Rows,** in `tests/core/elements/CheckableCore.browser.test.ts` and `tests/checkbox/checkbox.browser.test.ts`:
+
+- _"should reflect the checked control back on interaction"_ (`:227`) is reversed. After a click with no handler, the host and the input are unchecked. **The witness:** the reversed row fails at `e9236603e`;
+- a click with a `change` handler that sets `checked` leaves the host and the input checked;
+- an indeterminate checkbox clicked with no handler stays indeterminate in the host and the input;
+- a radio clicked with no handler stays unchecked.
+
+**Expected, not established:** a screen reader may announce the native toggle and then the restored state. That is the cost of a controlled native input, and the report states what was observed, if anything was.
 
 ## Order and stops
 
-**Order:** item 1, then item 2 (it needs item 1's `.host`), then item 4's rows for each item, then items 3, 5 and 6.
+**Order:** item 1, then item 2 (it needs item 1's `.host`), then items 3 and 7. Each item lands with its rows from item 4 or item 7. Items 5 and 6 come last.
 
 **Stop and report, without working around it:**
 
@@ -201,7 +212,8 @@ material-x has no size budget (`RF-45`). Measure by hand, as the findings unit d
 - a switch colour has no focused state-layer token for a selection state (item 2);
 - `.host` takes focus in Chromium but not in Firefox or Safari, by Tab or by `focus()`;
 - the group path can't keep `checked`, `aria-checked`, `:state(checked)` and the form value in step without changing `ButtonGroupCore`'s context contract;
-- the activation sequence can't keep today's event interfaces and flags.
+- the activation sequence can't keep today's event interfaces and flags, for the switches or, under item 7, for the checkbox and the radio;
+- an `RF-35` row of the checkbox or the radio changes its result under item 7.
 
 ## The report
 
@@ -222,10 +234,11 @@ Then the closure of `RF-43` is the architect's.
 - **Keeping the `<input>` beside a `<button>`,** with the button as `.host` and the input for its events. Two controls hold one state, which is today's split again. An interactive element inside a `<button>` is invalid HTML.
 - **Checkbox and radio rebuilt without a native input,** to meet the invariant by the letter. See E1.
 - **A `class="host"` on the `<slot>` roots.** See E2.
-- **Self-toggling as the ruling.** It is the owner's alternative under question 3, not the default. See R2.
+- **A switch that toggles itself.** The owner chose the controlled model. See R2.
+- **Cancelling the native input's `click` to keep its state** (item 7). A cancelled checkbox or radio activation reverts the state and fires no `input` or `change`, so the events would have to be rebuilt.
 
 ## Outside this unit
 
 - **No focus layer on `mx-fab` or the interactive list items.** Their tokens may define one. `RF-35` and `RF-43` name only the button family, the checkbox and the radio, so this unit doesn't add one. If the owner wants it, the architect registers a finding.
 - **The duplicate `.host:focus-visible` outline rule,** in `focus.styles.css:1` and `button/styles/default/main.styles.css:100`. The button family adopts both. It is a cleanup item and doesn't touch the invariant.
-- **`mx-checkbox`'s inner input still toggles on activation** while its host's `checked` doesn't. That is R2's split, in a component that E1 leaves as it is. Under R2 the architect recommends registering it as a finding for a later unit.
+- **The text fields under the controlled principle.** `RF-50` holds the question for the owner.
