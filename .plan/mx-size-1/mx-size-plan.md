@@ -111,6 +111,14 @@ After the owner's answers, and with `RD-24` registered:
 - **The reading** ([rd24-reading.txt](checks/rd24-reading.txt)): 19 rows, no limits; `complete` is 17,258 B. Thirteen entry rows differ from the probe, by −41 to +83 B. The probe's own script, run again at the same tree, gives every entry row to the byte, so the differences come from the runtime changes that the merge brought (#61, #37, #39), not from the instrument. After `origin/main` was merged again at `a133bebee` (#59), six rows got smaller: the three list items, both text fields and `complete`, which is 17,137 B. They are the entries that import `polyfills.ts`, which no longer probes `:host:has()` at import. The file records both readings.
 - **The witness for property 2** ([rd24-p2-witness.txt](checks/rd24-p2-witness.txt)): an entry added to `files.json` gets a row with no change to the configuration, and an entry that `files.json` lists with no built file makes size-limit exit 1.
 
+**Step 4 and the feature proof, ruled 2026-11-18 by the architect,** on the coordinator's report and the [feature proof](../reviews/mx-size-1/feature-proof-claude.md) committed at `5bc157284`, which read the code at `2a6231671`, relayed by the coordinator.
+
+- **Step 4 is met for what this unit owns.** #68's comment at `335a545a1` (run 44279774938) lists material-x's 19 rows with no limit, and each row equals the local reading to the byte.
+- **The _added_ marks aren't observable,** because the merge-base reading has failed on every pull request since #27 (`repo:RF-65`). That defect isn't this unit's. Its repair in #68 wouldn't show the marks either, because #68's merge base predates the repair. So #68 doesn't owe them. If `RF-65`'s repair merges first and #68 then merges `main`, the comment shows the marks, and nothing more is owed.
+- **`reviewer-1`** is registered as `repo:RF-65`, outside this unit.
+- **`reviewer-2`, accepted, Tier C. Remediated in #68.** The comment in `.size-limit.ts` states property 6 without contradicting it. It states the boundary, and what the unit at the boundary owes: each ceiling at its reading with no slack, and the witness that a row can fail. It states that the architect states the rule for the ceilings after the release. It states the owner's acts: ordering ceilings sooner, releasing without them, and giving them up. And it names `repo:RD-24`. **Witnesses:** the handoff loop on the file, and material-x's `just size` printing the same 19 rows. Only the comment changes, so there is no new review: the architect reads the diff.
+- **`--parallel=1` stands,** as the feature proof judges it.
+
 **Merge order.** #38 changes `verify.yml`'s jobs. This unit changes no workflow, so it doesn't depend on #38. The job's time limit holds with material-x added: about 10 s more on each side.
 
 ## Proposed identifiers
