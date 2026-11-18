@@ -1,0 +1,176 @@
+# RF-59: can a light-DOM selector, `:host(:has(> [slot=<name>]))`, replace the has-slotted polyfill? Read by the
+# architect in slot e on 2026-11-18, on repo/host-has-fallback-1 at b44c655d7 (abfc843a8 merged with origin/main at
+# 377ca72df). Probe: rf59-light-dom-probe.mjs (beside this file), run as
+#   node rf59-light-dom-probe.mjs /workspaces/material-x
+# with playwright 1.65.0 and its browsers in the devcontainer. No material-x code runs: each rule is written raw, in
+# one shadow root with named slots lead, support and overline and a default slot `.label`, as an author would write
+# it before the build's rewrite. Each rule sets its own custom property:
+#   light            :host(:has(> [slot=lead]))
+#   combined         :host(:has(> [slot=support]):has(> [slot=overline]))
+#   default          :host(:has(> :not([slot])))
+#   shadowHas        :host:has(.lead)                      (the shadow-tree form, which RF-40's detection tests)
+#   shadowHasSlotted :host:has(.lead:has-slotted)          (material-x's source form, before the build)
+#   slotLead/Label   slot:has-slotted, read on the slot
+# Each step reads synchronously after the mutation; "| after frames" appears only when two frames later differ.
+#
+## chromium 158.0.8127.18
+supports: {"hostHasLight":false,"hasSlotted":false,"hostHasShadow":true}
+# in the document
+  empty: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append <span slot=lead>: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute lead -> trail: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute trail -> lead: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  grandchild <div><span slot=lead>: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove the wrapper: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append support only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append overline too: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove support and overline: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: a text node: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: whitespace only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove the text: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: an element: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# child before first style
+  connected with <span slot=lead>: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  child removed: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  host re-inserted: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  child appended again: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  host re-inserted: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# inside a shadow tree
+  empty: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append <span slot=lead>: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute lead -> trail: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute trail -> lead: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  grandchild <div><span slot=lead>: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove the wrapper: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append support only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append overline too: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove support and overline: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: a text node: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: whitespace only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove the text: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: an element: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# nested slot
+  outer slot empty: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0 assigned=1 flattened=0
+  outer slot filled: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0 assigned=1 flattened=1
+## firefox 159.0
+supports: {"hostHasLight":true,"hasSlotted":true,"hostHasShadow":true}
+# in the document
+  empty: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append <span slot=lead>: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+  slot attribute lead -> trail: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute trail -> lead: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+  remove it: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  grandchild <div><span slot=lead>: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  remove the wrapper: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append support only: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append overline too: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove support and overline: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: a text node: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  default slot: whitespace only: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  default slot: remove the text: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: an element: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  default slot: remove it: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# child before first style
+  connected with <span slot=lead>: light=1 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+  child removed: light=1 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  host re-inserted: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  child appended again: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+  host re-inserted: light=1 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+# inside a shadow tree
+  empty: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append <span slot=lead>: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+  slot attribute lead -> trail: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute trail -> lead: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0
+  remove it: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  grandchild <div><span slot=lead>: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  remove the wrapper: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append support only: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append overline too: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove support and overline: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: a text node: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  default slot: whitespace only: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  default slot: remove the text: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: an element: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=1
+  default slot: remove it: light=0 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# nested slot
+  outer slot empty: light=1 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=0 slotLabel=0 assigned=1 flattened=0
+  outer slot filled: light=1 combined=0 default=0 shadowHas=0 shadowHasSlotted=0 slotLead=1 slotLabel=0 assigned=1 flattened=1
+## webkit 27.2
+supports: {"hostHasLight":true,"hasSlotted":false,"hostHasShadow":true}
+# in the document
+  empty: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append <span slot=lead>: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute lead -> trail: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute trail -> lead: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  grandchild <div><span slot=lead>: light=0 combined=0 default=1 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove the wrapper: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append support only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append overline too: light=0 combined=1 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove support and overline: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: a text node: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: whitespace only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove the text: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: an element: light=0 combined=0 default=1 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# child before first style
+  connected with <span slot=lead>: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  child removed: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  host re-inserted: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  child appended again: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  host re-inserted: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# inside a shadow tree
+  empty: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append <span slot=lead>: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute lead -> trail: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  slot attribute trail -> lead: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  grandchild <div><span slot=lead>: light=0 combined=0 default=1 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove the wrapper: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append support only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  append overline too: light=0 combined=1 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  remove support and overline: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: a text node: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: whitespace only: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove the text: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: an element: light=0 combined=0 default=1 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+  default slot: remove it: light=0 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0
+# nested slot
+  outer slot empty: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0 assigned=1 flattened=0
+  outer slot filled: light=1 combined=0 default=0 shadowHas=1 shadowHasSlotted=0 slotLead=0 slotLabel=0 assigned=1 flattened=1
+
+# Reading.
+#
+#                                          Chromium 158     Firefox 159              WebKit 27.2
+#   CSS.supports(:host(:has(> [slot])))    false            true                     true
+#   :host(:has(> [slot=lead])) matches     never            only when the host's     yes, and follows every
+#                                                           own style is computed:   change (append, remove,
+#                                                           stale after a light-DOM  slot attribute, inside a
+#                                                           change until the host    shadow tree, combined)
+#                                                           is re-inserted
+#   :has-slotted matches                   no               yes, and follows changes no
+#   :host:has(<shadow>) matches            yes              no (supports() says yes) yes
+#
+# So no engine matches `:host:has(.x:has-slotted)` as written: Chromium and WebKit lack `:has-slotted`, and Firefox
+# lacks `:host:has()`. Chromium matches neither `:has-slotted` nor `:host(:has())`, so no CSS selector tells
+# Chromium 158 that a slot has content: it needs the runtime's class. Firefox's `:host(:has())` goes stale, which is
+# worse than no match. The owner's recollection (":host(:has()) works in Firefox and Safari, :has-slotted works in
+# Chrome") holds for WebKit's `:host(:has())` only.
+#
+# What `:host(:has(> [slot=x]))` would also miss, in WebKit where it works:
+#   - the default slot: `:not([slot])` sees element children only, never text, and the list item's label is often
+#     text. Its `slot:has-slotted` rule (display: block) needs to see text.
+#   - nested slots: a re-slotted, empty `<slot slot=lead>` matches (light=1 with flattened=0). The polyfill's
+#     `assignedNodes()` count agrees with it (assigned=1); Firefox's native `:has-slotted` doesn't (slotLead=0).
+#   - the slot-level rules (`slot:has-slotted`, `.label :has-slotted`, `.counter :has-slotted`,
+#     `.prefix:has-slotted`) style the slot, not the host, so each would need rewriting as `:host(…) slot.x`.
+# And CSSWG's csswg-drafts#11859 ("Should :host(:has()) match?", open, last comment 2026-03-28): Selectors 4 says
+# `:has()` is invalid inside `:host()`, which takes a compound selector. The group discussed it on 2025-04-03 without
+# a resolution; Gecko's maintainer named invalidation as the obstacle, which is what Firefox shows above. Relying on
+# it means relying on a selector the specification currently rules invalid.
+#
+# `CSS.supports()` also can't replace the detection: Firefox reports `:host:has()` as supported and doesn't match it.

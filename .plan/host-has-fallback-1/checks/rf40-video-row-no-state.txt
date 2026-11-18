@@ -1,0 +1,85 @@
+Item 4, witness 2: useHasSlottedPolyfill sets no has-<slot> state (its toggleState call removed). Applied at f80e841b4, then reverted.
+diff --git a/packages/material-x/src/core/utils/polyfills.ts b/packages/material-x/src/core/utils/polyfills.ts
+index 1a2da4bf5..36d72819d 100644
+--- a/packages/material-x/src/core/utils/polyfills.ts
++++ b/packages/material-x/src/core/utils/polyfills.ts
+@@ -31,11 +31,7 @@ export function useHasSlottedPolyfill(host: ControlledElement): void {
+       const hasNodes = nodes.length > 0;
+ 
+       slot.classList.toggle('has-slotted', hasNodes);
+-      toggleState(
+-        innards,
+-        `has-${slot.name || DEFAULT_SLOT_STATE_NAME}`,
+-        hasNodes,
+-      );
++      void toggleState, innards, DEFAULT_SLOT_STATE_NAME;
+     });
+   }
+ }
+
+$ MX_TEST_ENGINES=chromium,firefox,webkit aube exec -- just test --project 'browser*' --reporter=verbose -t 'leading video' tests/list
+vitest run -c vitest.config.ts --project browser* --reporter=verbose -t leading video tests/list
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/material-x
+
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:120 > mx-list-item slotted content > should select the large leading video size only while support and overline both have content 140ms
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted
+ × |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:120 > mx-list-item slotted content > should select the large leading video size only while support and overline both have content 222ms
+   → expected [ 100, 56 ] to deeply equal [ 114, 64 ]
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted
+ ✓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:120 > mx-list-item slotted content > should select the large leading video size only while support and overline both have content 186ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:120 > mx-list-item slotted content > should select the large leading video size only while support and overline both have content
+AssertionError: expected [ 100, 56 ] to deeply equal [ 114, 64 ]
+
+- Expected
++ Received
+
+  [
+-   114,
+-   64,
++   100,
++   56,
+  ]
+
+ ❯ tests/list/list-item.browser.test.ts:161:34
+    159|     const overline = appendSlotted('overline');
+    160|
+    161|     expect(await getVideoSize()).toEqual([largeWidth, largeHeight]);
+       |                                  ^
+    162|
+    163|     support.remove();
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms     123ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 2 passed | 18 skipped (21)
+   Start at  08:53:51
+   Duration  4.43s (worker 41%, tests 30%, import 27%, setup 2%)
+
+error: recipe `test` failed on line 56 with exit code 1
+exit 1
