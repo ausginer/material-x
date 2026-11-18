@@ -4,11 +4,16 @@
 
 **Branch:** `repo/host-has-fallback-1`, from `origin/main` at `83a985b99`. **Input:** the architect's commit that adds this file.
 
-**Begins after** the main slot's architect records proposal 1 (`RD-17` properties 4 and 7), and after the owner answers question 1. The owner is away, so the recommendation is stated with the question.
+**Items 1 and 2 begin after** the main slot's architect records proposal 1 (`RD-17` properties 4 and 7), and after the owner answers question 1. The owner is away, so the recommendation is stated with the question. Proposal 1 was recorded at `836d4d003`. **Item 3 begins now.**
 
-**Governing record:** `repo:RF-40`, in [`../00-index.md`](../00-index.md). It came from `RF-39`, which is closed.
+**Governing records:** `repo:RF-40` and `repo:RF-59`, in [`../00-index.md`](../00-index.md). `RF-40` came from `RF-39`, which is closed.
 
-**Evidence:** [the reading](checks/rf40-reading.txt) and [its probe](checks/rf40-engine-probe.mjs), at `83a985b99`.
+**Evidence:**
+
+- `RF-40`: [the reading](checks/rf40-reading.txt) and [its probe](checks/rf40-engine-probe.mjs), at `83a985b99`.
+- `RF-59`: [the import before `<body>`](checks/rf59-head-import.txt) ([probe](checks/rf59-head-import-probe.mjs)) at `836d4d003`, and [the light-DOM selector](checks/rf59-light-dom.txt) ([probe](checks/rf59-light-dom-probe.mjs)) at `b44c655d7`.
+
+**`RF-59` joined this unit on 2026-11-18** as [item 3](#item-3-rf-59-the-polyfill-sets-its-states-in-every-engine-and-detects-nothing), on the owner's agreement, relayed by the coordinator. Item 3 doesn't wait for the owner's answer to question 1. It holds whether items 1 and 2 land or `RF-40` closes on the reading, and it leaves nothing behind when the polyfill is later removed. The branch merged `origin/main` at `377ca72df` in `b44c655d7`.
 
 ## What was read
 
@@ -71,6 +76,8 @@ Tier C. Proposed for registration and routed to the owner to order. **Not part o
 
 `RF-58` is proposed in slot `c`'s CI-deps handoff, so this is the next free number. The main slot's architect may renumber either.
 
+**Registered** as `RF-59` at `836d4d003`, Tier A, and observed at `abfc843a8`. **Its repair is item 3,** which replaces the recommendation above: see [The light-DOM selector, read](#rf-59-the-light-dom-selector-read).
+
 ## Item 1. The tests
 
 **Required:**
@@ -86,7 +93,7 @@ Tier C. Proposed for registration and routed to the owner to order. **Not part o
 **Witnesses:**
 
 1. **The rows pass** in Chromium, Firefox and WebKit: `aube exec -- just test --project browser` locally for Chromium, and the pull request's `firefox` and `webkit` jobs. Locally, `MX_TEST_ENGINES=firefox,webkit` runs the other two in the devcontainer, where WebKit launched for this reading.
-2. **Firefox's rows test the fallback.** Temporarily make the polyfill skip the states, for example by forcing the detection to `true`. Every new row fails in Firefox and passes in Chromium and WebKit. Save the output, and revert.
+2. **Firefox's rows test the fallback.** Temporarily make the polyfill skip the states, for example by removing its `toggleState` call. Before item 3 lands, forcing the detection to `true` does the same. Every new row fails in Firefox and passes in Chromium and WebKit. Save the output, and revert.
 3. **Chromium's rows test the rules.** Temporarily rename `class="lead"` on text-field's lead slot. The `lead` row fails in Chromium and in Firefox: the class path loses the rule, and the fallback's derived name no longer matches. Save the output, and revert.
 4. `aube exec just typecheck` and `aube exec just lint` exit 0. Follow `.agents/docs/handoff.md` for the changed files.
 
@@ -96,6 +103,62 @@ Tier C. Proposed for registration and routed to the owner to order. **Not part o
 
 `.plan/host-has-fallback-1/host-has-fallback-report.md`: the rows, each engine's result with the pull request's run identifiers, and both mutations' outputs under `checks/`. Don't change `RF-40`'s status. The main slot's architect closes it from the report and the review.
 
+**Item 3's witnesses go in the same report,** in a section of their own. If item 1 isn't authorized, the report carries item 3 alone. Don't change `RF-59`'s status either.
+
+## `RF-59`: the light-DOM selector, read
+
+The owner asked whether `:host(:has(> [slot=lead]))` could replace the polyfill. That selector reads the host's light-DOM children by their `slot` attribute. He recalled that it works in Firefox and Safari, and that `:has-slotted` works in Chrome, so the two rules side by side might cover every engine with no runtime. [The reading](checks/rf59-light-dom.txt) tested it with raw rules, as an author would write them:
+
+|  | Chromium 158 | Firefox 159 | WebKit 27.2 |
+| --- | --- | --- | --- |
+| `:host(:has(> [slot=lead]))` | not parsed | parsed, but goes stale | matches, and follows every change |
+| `:has-slotted` | no | yes | no |
+| `:host:has()` on the shadow tree | yes | no, although `CSS.supports()` says yes | yes |
+
+- **Chromium matches neither selector,** so no CSS selector tells Chromium 158 that a slot has content. Only the runtime's class does.
+- **Firefox matches `:host(:has())` only when the host's own style is computed.** After a child is added or removed, the rule keeps its old answer until the host is re-inserted. A stale match is worse than none.
+- **The owner's recollection holds for WebKit's `:host(:has())` only.** The table above is what was read, and it agrees with `RF-40`'s reading D.
+- **Where it works, it still misses:**
+  - the default slot, because `:not([slot])` sees element children and never text. The list item's label is usually text, and its `slot:has-slotted` rule has to see it;
+  - the slot-level rules (`slot:has-slotted`, `.label :has-slotted`, `.counter :has-slotted`, `.prefix:has-slotted`), which style the slot and not the host. Each would need rewriting.
+
+  A re-slotted, empty `<slot slot="lead">` counts as content. The polyfill's `assignedNodes()` agrees, and Firefox's native `:has-slotted` doesn't, so this isn't a regression against today.
+
+- **The specification rules it out today.** [csswg-drafts#11859](https://github.com/w3c/csswg-drafts/issues/11859), _"Should :host(:has()) match?"_, is open; its last comment is from 2026-03-28. Selectors 4 makes `:has()` invalid inside `:host()`, which takes a compound selector. The working group discussed it on 2025-04-03 without a resolution. Gecko's maintainer named invalidation as the obstacle, and Firefox's stale match is that obstacle.
+
+**So the polyfill can't go now,** and `RF-59`'s repair isn't its removal. It can go when every engine that material-x supports (`RD-20`, on `repo/traits-plugin-1`) matches `:has-slotted` and `:host:has()`. Then the build's rewrite and the runtime are removed together. `:host(:has())` isn't a route while Chromium doesn't parse it and #11859 stays open.
+
+**Why item 3 doesn't detect at all.** The earlier recommendation was to detect on the first `useHasSlottedPolyfill` call. That still forces a style computation, now in an element's constructor. It also still needs a document to append to. `CSS.supports()` can't replace it, because Firefox reports `:host:has()` as supported and doesn't match it. The detection isn't needed:
+
+- the build writes each `:host(:state(has-<class>))` into the same rule as the `:host:has(.<class>.has-slotted)` it stands for (`RF-40` reading A). Where both match, they set the same declarations;
+- Chromium 158 and WebKit 27.2 match `:host(:state())` (reading D, _afterState_);
+- the `has-*` states are private, derived states ([`attribute-vs-state-styling.md`](../../.agents/docs/attribute-vs-state-styling.md)), so setting them in every engine changes no public surface.
+
+Setting the state in every engine therefore renders the same in each engine as today, and costs one `toggleState` per `slotchange`.
+
+## Item 3. `RF-59`: the polyfill sets its states in every engine, and detects nothing
+
+One commit. It can land before item 1, or without it.
+
+**Required:**
+
+- **`polyfills.ts` has no detection.** `HOST_HAS_SUPPORTED` goes. On every `slotchange`, `useHasSlottedPolyfill` sets the slot's `has-slotted` class and the host's `has-<slot name, or default>` state, in every engine.
+- **Importing the module evaluates declarations only.** Nothing in the module touches `document` or reads a computed style when it loads. The function touches only its host's shadow root and internals.
+- **The JSDoc** that item 1 requires, if item 3 lands first. It also says three things:
+  - the state is set in every engine, because no selector tells reliably whether `:host:has()` matches;
+  - where both selectors match, they set the same declarations;
+  - the function and the build's rewrite go together, when every supported engine matches `:has-slotted` and `:host:has()`.
+- **Nothing else changes:** not the visitor, the stylesheets, the templates, nor `TextFieldCore.ts` and its TODO (`RF-54`'s branch edits that file).
+
+**Witnesses:**
+
+1. **A gate row fails before the change and passes after it,** in all three engines. Importing the module calls neither `document.body.append` nor `getComputedStyle`. For example, the row can evaluate a fresh instance of the module while it observes both. The [`test-component`](../../.claude/skills/test-component/SKILL.md) skill's routing decides the file. Save the failure from before the change.
+2. **The import before `<body>` no longer fails.** Re-run [the head-import probe](checks/rf59-head-import-probe.mjs) against a build of this branch. Every scenario defines the element and upgrades it in all three engines, `classic-bundle` included. Save the output as `checks/rf59-head-import-after.txt`.
+3. **The rendering doesn't change.** The `visual` project passes with no baseline changed, and the `browser` project passes in all three engines. If item 1 has landed, its rows pass in all three engines.
+4. `aube exec just typecheck` and `aube exec just lint` exit 0. Follow `.agents/docs/handoff.md` for the changed files.
+
+**Stop and return to the architect** if a visual baseline changes. That would mean that a state rule and the `:host:has()` rule it stands for differ somewhere, against reading A.
+
 ## What the implementation waits for
 
 - **Proposal 1's record,** and the owner's answer to question 1.
@@ -104,6 +167,6 @@ Tier C. Proposed for registration and routed to the owner to order. **Not part o
   - `commands.node.ts`;
   - `input-commands.node.ts`.
 
-  **If item 1 needs a change to one of them, it waits for #35 to merge,** then branches from or merges `main` (`RD-17` property 5). Adding a new helper file needs no wait.
+  **If item 1 needs a change to one of them, it waits for #35 to merge,** then branches from or merges `main` (`RD-17` property 5). Adding a new helper file needs no wait. **#35 merged** at `377ca72df`, and this branch merged it in `b44c655d7`, so nothing waits for it now.
 
 - **Not `repo/declarations-check-1`** (`RF-54`). It removes the `@ts-expect-error` in `TextFieldCore.ts`, and this unit doesn't edit that file.
