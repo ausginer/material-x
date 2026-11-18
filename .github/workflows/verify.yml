@@ -7,7 +7,9 @@
 # `measurements` reports sizes and allocations and never fails the run
 # (`repo:RD-7`). `scope` makes a run whose head commit carries `[noci]`, and
 # whose changes since the last fully verified commit are records or Markdown,
-# a reduced one, in which only `records` runs (`repo:RD-15`).
+# a reduced one, in which only `records` runs (`repo:RD-15`). `system-deps`
+# fetches the engines' system packages before any test job starts, and each job
+# that launches a browser installs them offline from the cache (`repo:RD-21`).
 name: verify
 
 on:
@@ -97,6 +99,78 @@ jobs:
       # loads, as in every other gate job.
       - run: aube exec -- just test --project repo .scripts/entry.node.test.ts
 
+  # Fetches each engine's system packages once per cache key, before any test
+  # job starts, and installs nothing (`repo:RD-21` property 1). Playwright
+  # still chooses the packages: apt runs its `install-deps` in download-only
+  # mode, so it downloads what Playwright's install would on this image. A hit
+  # ends after the lookup. Each leg saves its own engine, so a re-run after a
+  # timeout doesn't fetch that engine again. A set that the image already has
+  # saves an empty directory, which `actions/cache` stores, and the test jobs
+  # read it as a hit. The limit covers WebKit's 125 MB from a slow mirror. When
+  # every test job's restore hits, it is the only place a slow mirror can fail
+  # a run. A test job whose own restore misses falls back to the mirror, and on
+  # a slow one it can time out (`repo:RD-21` property 4).
+  system-deps:
+    needs: scope
+    if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: key
+        env:
+          ENGINE: ${{ matrix.engine }}
+        run: .github/actions/browser/key.sh "$ENGINE"
+      - id: lookup
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.key.outputs.dir }}
+          key: ${{ steps.key.outputs.key }}
+          lookup-only: true
+      - if: steps.lookup.outputs.cache-hit != 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - if: steps.lookup.outputs.cache-hit != 'true'
+        name: Install aube
+        id: aube
+        working-directory: ${{ runner.temp }}
+        run: |
+          npm install -g "@endevco/aube@$AUBE_VERSION"
+          echo "store=$(aube store path)" >> "$GITHUB_OUTPUT"
+      - if: steps.lookup.outputs.cache-hit != 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.aube.outputs.store }}
+          key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.lookup.outputs.cache-hit != 'true'
+        run: aube ci
+      # apt reads the configuration as root, under Playwright's sudo, and
+      # leaves its lock and partial downloads beside the archives.
+      - if: steps.lookup.outputs.cache-hit != 'true'
+        name: Download the system packages
+        env:
+          ENGINE: ${{ matrix.engine }}
+          DIR: ${{ steps.key.outputs.dir }}
+        run: |
+          echo "ImageOS: $ImageOS, ImageVersion: $ImageVersion"
+          mkdir -p "${DIR:?}/partial"
+          printf 'APT::Get::Download-Only "true";\nDir::Cache::archives "%s/";\n' "$DIR" |
+            sudo tee /etc/apt/apt.conf.d/99-system-deps
+          aube exec -- playwright install-deps "$ENGINE"
+          sudo rm -rf /etc/apt/apt.conf.d/99-system-deps "${DIR:?}/partial" "${DIR:?}/lock"
+          sudo chown -R "$(id -un)" "$DIR"
+          echo "$(find "$DIR" -name '*.deb' | wc -l) archives, $(du -sh "$DIR" | cut -f1)"
+      - if: steps.lookup.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.key.outputs.dir }}
+          key: ${{ steps.key.outputs.key }}
+
   static:
     needs: scope
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
@@ -123,7 +197,7 @@ jobs:
       - run: aube exec just typecheck
 
   chromium:
-    needs: scope
+    needs: [scope, system-deps]
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -146,7 +220,9 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec -- playwright install --with-deps chromium
+      - uses: ./.github/actions/browser
+        with:
+          engine: chromium
       # Diagnostics for the visual rows (`repo:RD-13` property 9). Nothing
       # compares them.
       - name: Runner image and processor
@@ -176,7 +252,7 @@ jobs:
           if-no-files-found: ignore
 
   firefox:
-    needs: scope
+    needs: [scope, system-deps]
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -196,7 +272,9 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec -- playwright install --with-deps firefox
+      - uses: ./.github/actions/browser
+        with:
+          engine: firefox
       - run: aube exec -- just test --project '*/firefox' --tags-filter '!measurement'
         env:
           MX_TEST_ENGINES: firefox
@@ -204,7 +282,7 @@ jobs:
   # Playwright's WebKit build, headless on Linux, through the provider and the
   # commands Chromium and Firefox use (`repo:RD-12` property 11).
   webkit:
-    needs: scope
+    needs: [scope, system-deps]
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 8
@@ -224,7 +302,9 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec -- playwright install --with-deps webkit
+      - uses: ./.github/actions/browser
+        with:
+          engine: webkit
       - run: aube exec -- just test --project '*/webkit' --tags-filter '!measurement'
         env:
           MX_TEST_ENGINES: webkit
@@ -232,7 +312,7 @@ jobs:
   # Builds the docs site and loads every page of it (`repo:RD-14`). On `main`,
   # its artifact is what `deploy` publishes.
   docs:
-    needs: scope
+    needs: [scope, system-deps]
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -252,7 +332,9 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec -- playwright install --with-deps chromium
+      - uses: ./.github/actions/browser
+        with:
+          engine: chromium
       - run: aube exec just docs-build
       - run: aube exec just docs-smoke
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
@@ -264,7 +346,8 @@ jobs:
   # cancelled or failed job fails it in either mode.
   verify:
     if: always() && github.event.pull_request.draft != true
-    needs: [scope, records, static, chromium, firefox, webkit, docs]
+    needs:
+      [scope, records, system-deps, static, chromium, firefox, webkit, docs]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -281,12 +364,12 @@ jobs:
           expect scope success
           case "$MODE" in
             full)
-              for job in static chromium firefox webkit docs; do expect "$job" success; done
+              for job in system-deps static chromium firefox webkit docs; do expect "$job" success; done
               expect records skipped
               ;;
             reduced)
               expect records success
-              for job in static chromium firefox webkit docs; do expect "$job" skipped; done
+              for job in system-deps static chromium firefox webkit docs; do expect "$job" skipped; done
               ;;
             *)
               echo "scope named no mode: '$MODE'"
@@ -320,7 +403,7 @@ jobs:
 
   # Outside the gate: `verify` doesn't need it, and nothing in it fails the run.
   measurements:
-    needs: scope
+    needs: [scope, system-deps]
     if: github.event.pull_request.draft != true && needs.scope.outputs.mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -347,7 +430,9 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec -- playwright install --with-deps chromium
+      - uses: ./.github/actions/browser
+        with:
+          engine: chromium
       # A failing row is reported, not a failed step. A declaration project
       # type-checks its files and has no tags, so it is not selected.
       - name: Measurement rows

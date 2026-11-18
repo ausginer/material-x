@@ -1,0 +1,70 @@
+# CI-deps feature proof: runner image, mirror and cache key per browser job, read by the reviewer on 2026-11-18
+# Source: gh api repos/ausginer/material-x/actions/runs/<run>/jobs, then gh run view --job <id> --log for each job (scope, records, static and verify left out).
+# image = the 'Version:' line of the log's 'Runner Image' group. provisioner = the 'Version:' line of its 'Runner Image Provisioner' group.
+# mirror = the most frequent *archive.ubuntu.com host in the whole job log, '-' when no line names one. key = key.sh's first 'key=' output line.
+# Runs: 44254065323 cold (ecb3b094d), 44258255489 warm (8b56cbf27), 44259919530 forced miss (16ece6f4b), 44261296408 warm (b3980fbc9).
+run	job_id	job	conclusion	image	provisioner	mirror	key
+44254065323	134631566942	system-deps (webkit)	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44254065323	134631566959	system-deps (firefox)	success	20261111.127.1	20261103.629	us-east-2.ec2.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44254065323	134631566989	system-deps (chromium)	success	20261111.127.1	20261103.629	us-east-2.ec2.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44254065323	134634072295	webkit	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44254065323	134634072308	docs	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44254065323	134634072324	firefox	success	20261111.127.1	20261103.629	us-east-2.ec2.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44254065323	134634072422	chromium	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44254065323	134634072543	measurements	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44258255489	134645262622	system-deps (chromium)	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44258255489	134645262623	system-deps (firefox)	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44258255489	134645262638	system-deps (webkit)	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44258255489	134645385714	docs	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44258255489	134645385777	webkit	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44258255489	134645385806	firefox	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44258255489	134645385819	measurements	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44258255489	134645386221	chromium	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44259919530	134650624542	system-deps (firefox)	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44259919530	134650624663	system-deps (webkit)	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44259919530	134650624730	system-deps (chromium)	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44259919530	134650742490	chromium	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44259919530	134650742569	measurements	success	20261111.127.1	20261103.629	us-east-2.ec2.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44259919530	134650742579	firefox	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44259919530	134650742696	docs	success	20261111.370.1	20261103.629	azure.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44259919530	134650742824	webkit	cancelled	20261111.127.1	20261103.629	us-east-2.ec2.archive.ubuntu.com	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44261296408	134655132033	system-deps (webkit)	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44261296408	134655132161	system-deps (firefox)	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+44261296408	134655132176	system-deps (chromium)	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44261296408	134655230872	docs	success	20261111.127.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44261296408	134655230941	webkit	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0
+44261296408	134655230977	measurements	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44261296408	134655231006	chromium	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+44261296408	134655231014	firefox	success	20261111.370.1	20261103.629	-	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0
+
+# Image and mirror, over the 13 jobs whose log names a mirror:
+#       5 20261111.127.1 us-east-2.ec2.archive.ubuntu.com
+#       8 20261111.370.1 azure.archive.ubuntu.com
+
+# Excerpt, the docs job of run 44258255489 (134645385714), its 'Set up job' groups and the action's key and restore:
+2026-11-18T07:22:27.9133017Z ##[group]Runner Image Provisioner
+2026-11-18T07:22:27.9133671Z Hosted Compute Agent
+2026-11-18T07:22:27.9134129Z Version: 20261103.629
+2026-11-18T07:22:27.9134582Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-18T07:22:27.9135108Z Build Date: 2026-11-03T17:26:59Z
+2026-11-18T07:22:27.9135598Z Worker ID: {a0e07364-6e0a-4244-8965-470d7e66b870}
+2026-11-18T07:22:27.9136095Z Region: us-west-2
+2026-11-18T07:22:27.9136533Z Cloud: AWS
+2026-11-18T07:22:27.9136925Z ##[endgroup]
+2026-11-18T07:22:27.9137791Z ##[group]Operating System
+2026-11-18T07:22:27.9138648Z Ubuntu
+2026-11-18T07:22:27.9139012Z 24.04.5
+2026-11-18T07:22:27.9139373Z LTS
+2026-11-18T07:22:27.9139754Z ##[endgroup]
+2026-11-18T07:22:27.9140133Z ##[group]Runner Image
+2026-11-18T07:22:27.9140550Z Image: ubuntu-24.04
+2026-11-18T07:22:27.9140944Z Version: 20261111.127.1
+2026-11-18T07:22:27.9141709Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.127/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-18T07:22:27.9142962Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.127
+2026-11-18T07:22:27.9143640Z ##[endgroup]
+2026-11-18T07:22:49.0003979Z key=system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+2026-11-18T07:22:51.2839732Z Cache restored from key: system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0
+
+# The action's glob when the restored directory holds no .deb (local bash, an empty directory):
+$ bash -c 'DIR="$1"; set -- "$DIR"/*.deb; echo "argc=$#: $1"' _ <empty dir>
+argc=1: <empty dir>/*.deb
