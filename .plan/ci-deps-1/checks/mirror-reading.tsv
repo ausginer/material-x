@@ -1,0 +1,26 @@
+# Read by the architect in slot c on 2026-11-18 from the GitHub Actions API (job steps) and job logs (gh run view --job <id> --log).
+# Runs: 44237471520 (#37, three attempts), 44238673598 (#35, two attempts), 44240485947 (#37). One row per distinct job id.
+# image = the runner image version the job's log names; mirror = the archive.ubuntu.com host apt used; debs = apt's 'Need to get'; fetched = apt's last 'Fetched' line for the debs, empty where the job was cancelled first;
+# step = the 'playwright install --with-deps' step's start-end (UTC) and conclusion. The 13.2 MB index fetch ('apt-get update') took 1 to 10 s on both mirrors.
+# A re-run attempt lists the jobs it didn't re-run under new ids, with the earlier job's log; those copies are dropped (same run, job and step times).
+# Summary: 20261111.127.1 via us-east-2.ec2.archive.ubuntu.com, 12 jobs: every deb fetch ran at 70 to 202 kB/s or was cancelled at the job limit. 20261111.370.1 via azure.archive.ubuntu.com, 7 jobs: 8.2 to 45.9 MB/s. Both pools fetched the same volume per engine (chromium 32.1 MB, firefox 48.8 MB, webkit 125 MB).
+run	job_id	job	image	mirror	debs	fetched	step
+44237471520	134577216888	chromium	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB	32.1 MB in 5min 56s (89.9 kB/s)	04:28:48-04:35:27 success
+44237471520	134577216891	measurements	20261111.370.1	azure.archive.ubuntu.com	32.1 MB	32.1 MB in 1s (30.9 MB/s)	04:28:39-04:29:03 success
+44237471520	134577216902	docs	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB		04:28:36-04:33:34 cancelled
+44237471520	134577216915	webkit	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	125 MB		04:28:41-04:36:35 cancelled
+44237471520	134577216920	firefox	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	48.8 MB	48.8 MB in 4min 1s (202 kB/s)	04:28:44-04:33:33 success
+44237471520	134582046961	docs	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB		04:41:29-04:46:24 cancelled
+44237471520	134582047227	webkit	20261111.370.1	azure.archive.ubuntu.com	125 MB	125 MB in 15s (8192 kB/s)	04:41:28-04:42:09 success
+44237471520	134584376695	docs	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB		04:47:42-04:52:36 cancelled
+44238673598	134580999684	firefox	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	48.8 MB	48.8 MB in 8min 7s (100 kB/s)	04:38:41-04:47:33 success
+44238673598	134580999714	measurements	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB	32.1 MB in 5min 30s (97.1 kB/s)	04:38:40-04:44:50 success
+44238673598	134580999773	webkit	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	125 MB		04:38:36-04:46:31 cancelled
+44238673598	134580999784	chromium	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB	32.1 MB in 7min 38s (70.0 kB/s)	04:38:44-04:47:13 success
+44238673598	134580999964	docs	20261111.370.1	azure.archive.ubuntu.com	32.1 MB	32.1 MB in 1s (23.2 MB/s)	04:38:36-04:38:58 success
+44238673598	134587674052	webkit	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	125 MB		04:56:31-05:04:27 cancelled
+44240485947	134587006324	chromium	20261111.370.1	azure.archive.ubuntu.com	32.1 MB	32.1 MB in 1s (45.9 MB/s)	04:54:44-04:55:08 success
+44240485947	134587006380	webkit	20261111.370.1	azure.archive.ubuntu.com	125 MB	125 MB in 9s (13.5 MB/s)	04:54:40-04:55:14 success
+44240485947	134587006385	firefox	20261111.370.1	azure.archive.ubuntu.com	48.8 MB	48.8 MB in 3s (18.4 MB/s)	04:54:39-04:54:58 success
+44240485947	134587006406	docs	20261111.127.1	us-east-2.ec2.archive.ubuntu.com	32.1 MB	32.1 MB in 4min 19s (124 kB/s)	04:54:46-04:59:38 cancelled
+44240485947	134587006486	measurements	20261111.370.1	azure.archive.ubuntu.com	32.1 MB	32.1 MB in 1s (27.6 MB/s)	04:54:41-04:55:01 success
