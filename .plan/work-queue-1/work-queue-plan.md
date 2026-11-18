@@ -133,7 +133,7 @@ The coordinator listed the items. The architect proposed titles, labels and mile
 | `repo:RF-48` | `aube add` removes the workspace's own package links | `repo` | _Queued_ | — | The step is a reading on aube 2.10.1. An upstream report is a public write to another project, and it is the owner's choice (`RF-48` property 4). |
 | `repo:RF-57` | A trait's class field can hide a subclass's getter and setter | `pkg:core` | _Not urgent_ | — | On `repo/declarations-check-1`. Its entry says _"lowest priority, unscheduled"_. |
 | `repo:RD-20` | material-x needs a browserslist before its first release | `pkg:material-x` | _Waiting on owner_ | material-x | On `repo/traits-plugin-1`. The owner writes the query. |
-| `repo:RF-61` | The button group fails on pages served over plain HTTP | `pkg:core`, `pkg:material-x` | _Queued_ | — | Registered on this branch, so it opens without `unregistered`. See below. |
+| `repo:RF-61` | material-x's buttons and text field fail to import on pages served over plain HTTP | `pkg:core`, `pkg:material-x` | _Queued_ | — | Registered on this branch, so it opens without `unregistered`. See below. |
 | none | Agents' code navigation still runs on TypeScript 6 | `repo` | _Not urgent_ | — | A task, not a defect: see below. |
 | none | Build a landing page | `repo` | _Queued_ | — | Roadmap. |
 | none | Write documentation and examples | `repo` | _Queued_ | — | Roadmap. It may be split per package when a unit takes it. |

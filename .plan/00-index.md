@@ -1847,7 +1847,7 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop
 - **Required property:** a connected group's buttons have the shapes that the group's tokens define, at every size. The [host-invariant handoff](host-invariant-1/host-invariant-handoff.md)'s item 8 states them.
 - **Routed** to the host-invariant unit, item 8.
 
-#### RF-61 — `createContext` calls `crypto.randomUUID`, so on a page served over plain HTTP the button group module throws when it loads
+#### RF-61 — `createContext` calls `crypto.randomUUID`, so on a page served over plain HTTP every material-x button, both button groups and the text field fail to import
 
 Tier A, **open**. Registered on 2026-11-18 by the architect, on the [work-queue plan](work-queue-1/work-queue-plan.md)'s reading of `createContext` at `377ca72df`, relayed by the coordinator. `RF-60` is on `repo/traits-plugin-1`, so this is the next free number. **No row is disabled.**
 
@@ -1863,6 +1863,10 @@ Tier A, **open**. Registered on 2026-11-18 by the architect, on the [work-queue 
 - **Tier A:** a correct integration gets an import failure. The JSDoc's requirement doesn't lower the tier. It describes core's function, and material-x calls that function at import without stating any requirement to its consumers.
 - **Required property:** `createContext` works in every context a page can run in, secure or not. Each token stays distinct from every other context's token, including the tokens of another copy of `@ydinjs/core` on the same page. The coordinator suggested `crypto.getRandomValues`, which works in both contexts. The repair is the unit's to choose.
 - **Routed** to the owner to order, through the work queue (`RD-22`).
+- **Amended 2026-11-18 by the architect,** on the [import witness](context-token-1/checks/rf61-import.txt) in slot `f`, at `377ca72df` after a build. That file is on `repo/context-token-1`. Until then, the title said _"so on a page served over plain HTTP the button group module throws when it loads"_.
+  - **The import failure is observed.** From a LAN address over HTTP, importing the button group, `mx-button` or `mx-text-field` rejects with the `TypeError` in Chromium 158, Firefox 159 and WebKit 27.2, and no element is defined. `mx-checkbox` loads. From `localhost`, every entry loads.
+  - **The reach is wider.** 9 of material-x's 20 exports import the context: every button through `ButtonCore.ts` or `SwitchCore.ts`, both button groups, and the text field through its icon button.
+  - **The repair is planned** in the [context-token handoff](context-token-1/context-token-handoff.md) on `repo/context-token-1`: `createContext` derives its token from `Math.random()`. The required property stands. The handoff adds that the token stays a string and that creating one does no other work.
 
 ## Questions
 
