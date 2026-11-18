@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX } from 'react';
+import { useArgs } from 'storybook/preview-api';
 import css from '../story.module.css';
 import './checkbox.ts';
 
@@ -61,6 +62,8 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     },
   },
   render({ label, checked, indeterminate, disabled }) {
+    const [, updateArgs] = useArgs<PlaygroundArgs>();
+
     return (
       <>
         <mx-checkbox
@@ -68,6 +71,9 @@ export const Playground: StoryObj<PlaygroundArgs> = {
           checked={checked}
           indeterminate={indeterminate}
           disabled={disabled}
+          onChange={() => {
+            updateArgs({ checked: !checked });
+          }}
         />
         <label htmlFor={PLAYGROUND_ID}>{label}</label>
       </>

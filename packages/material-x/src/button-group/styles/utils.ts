@@ -70,10 +70,6 @@ export const connectedAllowedTokensSelector: GroupSelector =
 export const connectedAllowedTokensWithShapeSelector: GroupSelector =
   createAllowedTokensSelector(CONNECTED_ALLOWED_TOKENS_WITH_SHAPE);
 
-export function buttonGroupDefaultSelector(path: string): boolean {
-  return path === 'default';
-}
-
 const pressedState = pseudoClass('active');
 const selectedState = pseudoClass('state', 'checked');
 const slottedPressedState = pseudoElement('slotted', pressedState);
@@ -83,22 +79,16 @@ type ButtonGroupRendererOptions = Readonly<{
   scope?: Param | null;
   useHostStates?: boolean;
   useSlottedStates?: boolean;
-  onlyDefault?: boolean;
 }>;
 
 export function createButtonGroupDeclarationRenderer({
   scope = null,
   useHostStates,
   useSlottedStates,
-  onlyDefault,
 }: ButtonGroupRendererOptions): DeclarationBlockRenderer {
   const hostSelector = selector(':host', scope);
 
   return (path, declarations) => {
-    if (onlyDefault && path !== 'default') {
-      return null;
-    }
-
     if (path === 'default') {
       return {
         path,

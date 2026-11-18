@@ -69,9 +69,9 @@ Associate a label using a wrapping `<label>` element or via `for`/`id`.
 
 Use the live example below to inspect interaction states:
 
-- click to change the selected radio
+- click to activate a radio. Activation fires `click`, `input` and `change`, and doesn't change `checked`. The story's `change` handler sets `checked`.
 - move focus with `Tab` / `Shift+Tab` to inspect keyboard focus
-- press `Space` to select the focused radio
+- press `Space` to activate the focused radio
 
 <LinkTo kind="Radio" story="Playground">
   Playground
@@ -79,7 +79,7 @@ Use the live example below to inspect interaction states:
 
 ## Accessibility
 
-- **Keyboard:** `Tab` moves focus to each radio in turn; `Space` selects the focused radio. Arrow-key roving **is not implemented** — every radio is a separate tab stop, which departs from the expected radio-group keyboard pattern.
+- **Keyboard:** `Tab` moves focus to each radio in turn; `Space` activates the focused radio. Arrow-key roving **is not implemented** — every radio is a separate tab stop, which departs from the expected radio-group keyboard pattern.
 - **Focus indicator:** Drawn around the radio icon (not the full touch target).
 - **Name:** Provide an accessible name via a wrapping `<label>` or `aria-label`.
 - **Grouping:** `role="radiogroup"` is **not** provided automatically. Wrap a group in an element with `role="radiogroup"` and give it an accessible name, or assistive technology will announce each radio in isolation.
