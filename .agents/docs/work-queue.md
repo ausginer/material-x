@@ -1,12 +1,12 @@
 # Work queue
 
-> Retrieved before reading an issue's text, before writing to GitHub — an issue, a comment, a label, a milestone, the `Work queue` board or a pull request description that names an issue — and when the coordinator recovers its state.
+> Retrieved before reading an issue's text, before writing to GitHub — an issue, a comment, a label, the `Work queue` board or a pull request description that names an issue — and when the coordinator recovers its state.
 
 GitHub Issues, shown on one Projects board, are the repository's work queue: what is next, in what order, and whom it waits on. The `.plan/` records stay the only record: decisions, findings, reasons and evidence. An issue says what the item is, and the board's `Status` says where it is in the queue. Neither says why. The decision and its reasons are `repo:RD-22`.
 
 ## What the queue holds
 
-- **Queue state only:** the work item, its `Status` and its rank within that status, its milestone, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record.
+- **Queue state only:** the work item, its `Status` and its rank within that status, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record.
 - **The record holds no queue state.** A new record entry doesn't state an order, a priority or a schedule. _Lowest priority_, _unscheduled_ and _not urgent_ are the item's `Status`. A dated routing fact stays in the record, such as _routed to the owner_, and so does the architect's analysis of consequence and priority within a tier.
 - **What first appears on GitHub is copied into the record before anyone relies on it.** An owner's answer in a comment, or a workflow's failure report, is a source. The architect records it in the owning entry and cites the issue's URL. The record's copy is the one that applies. No decision or reason exists only in an issue.
 
@@ -42,7 +42,7 @@ Step: <only when the issue is one step of the entry, one sentence>
 
 ## Writers
 
-- **The coordinator** is the routine writer. It creates and edits issues, sets labels and milestones, adds items to the board and sets their `Status`, comments, and closes issues that no pull request closes. It writes on the owner's direction, or on a role's closing message that proposes a queue change.
+- **The coordinator** is the routine writer. It creates and edits issues, sets labels, adds items to the board and sets their `Status`, comments, and closes issues that no pull request closes. It writes on the owner's direction, or on a role's closing message that proposes a queue change.
 - **The owner** sets the order and may create, edit, move or close any item. The coordinator applies an order that the owner states in chat.
 - **Roles** write to the queue only through a pull request description: `Closes #N` when the pull request completes the work item, `Refs #N` when it only advances it. A role's report may propose queue changes, and it doesn't make them.
 - **Workflows** write only what their own definitions say, as `safari.yml` does.
@@ -81,12 +81,13 @@ One organization project, `Work queue`, owned by `ausginer` and linked to `mater
 | _Done_ | Closed. Only the project's workflows set it |
 
 - **`Status` is the only copy of the queue state.** No label says the same thing. A card's order within its status is the owner's rank, and nothing else stores a rank.
-- **Everything else on a card is the issue's own field,** shown and not copied: the title, labels, milestone, linked pull requests and _blocked by_. The project has no custom field other than `Status`: none for package, tier, release or priority.
+- **No milestones.** `Status` and the rank within it are the queue's only ordering. A release is an issue, ranked like any other item.
+- **Everything else on a card is the issue's own field,** shown and not copied: the title, labels, linked pull requests and _blocked by_. The project has no custom field other than `Status`: none for package, tier, release or priority.
 - **_Done_ follows the issue.** The project's built-in workflows set _Done_ when an item is closed and when a pull request is merged, and set _Queued_ when an item is reopened. Nobody sets _Done_ by hand. To finish an item, close its issue ([Closing](#closing)). The workflow that closes an issue when its card reaches _Done_ is off.
 - **Items are added by hand.** Auto-add is off. An issue from another account, or a `safari` issue, reaches the board only when the coordinator adds it after triage.
 - **An open pull request is an item too.** A unit's pull request goes on the board in _In progress_. Its issue moves to _In progress_ with it, and a comment on the issue names the slot, branch and base. A unit starts from an issue.
 
-## Labels and milestones
+## Labels
 
 | Label | Meaning |
 | --- | --- |
@@ -98,11 +99,9 @@ One organization project, `Work queue`, owned by `ausginer` and linked to `mater
 - **No label states a tier.** The tier is the record's, and the record re-tiers entries. A tier that matters for the order reaches the queue as the owner's order.
 - **GitHub's default labels, `record-baselines` and `safari` aren't queue labels.** `record-baselines` starts `baselines.yml`. `safari.yml` comments its next failure on any open issue that has `safari`. So no queue issue has that label. A `safari` issue stays the workflow's signal: the coordinator attributes its failures to record entries in a comment, and then closes it.
 
-**One milestone per release,** in the owner's order: `box-quad first release`, `drag first release` and `material-x first release`. The set isn't closed: a later release gets its own milestone. A milestone has no due date unless the owner sets one. An owed item whose deadline is a release belongs to that release's milestone, which is the queue's form of the deadline.
-
 ## Language and links
 
-Everything written to GitHub is in English: titles, bodies, comments, labels, milestones, and the board's name, fields, options and views. It follows [technical English](technical-english.md) and the rules for pull requests in [`AGENTS.md`](../../AGENTS.md#before-you-change-anything-tracked):
+Everything written to GitHub is in English: titles, bodies, comments, labels, and the board's name, fields, options and views. It follows [technical English](technical-english.md) and the rules for pull requests in [`AGENTS.md`](../../AGENTS.md#before-you-change-anything-tracked):
 
 - no session link: no `Claude-Session:` trailer and no `claude.ai/code/session_…` URL;
 - no bare `@name` unless it is meant to notify that account;
@@ -117,7 +116,7 @@ After a restart, the coordinator rebuilds its working summary from the queue and
 ```sh
 gh project list --owner ausginer                     # the Work queue project's number
 gh project item-list <number> --owner ausginer --limit 1000 --format json
-gh issue list --state open --limit 1000 --json number,title,labels,milestone
+gh issue list --state open --limit 1000 --json number,title,labels
 gh pr list --state open --json number,title,headRefName,baseRefName
 git worktree list                                     # each slot's branch
 ```

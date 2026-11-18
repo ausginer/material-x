@@ -1058,7 +1058,7 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Properties:** the plan's [properties 1 to 14](work-queue-1/work-queue-plan.md#decision-proposed-as-repord-22), as written at `a3e8dfbe5`, with its `Status` options, labels and milestones. In short:
 
-- the queue holds queue state only: the item, its `Status` and rank, its milestone, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record (properties 1 and 4);
+- the queue holds queue state only: the item, its `Status` and rank, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record (properties 1 and 4);
 - an issue names its entry by qualified address and copies nothing from it, and at most one open issue has a given address as its subject (properties 2 and 3);
 - what first appears on GitHub is copied into the record before anyone relies on it (property 5);
 - the coordinator is the routine writer, the owner sets the order, and roles write only through a pull request description's `Closes #N` or `Refs #N` (properties 7 and 8);
@@ -1073,6 +1073,8 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Property 3:** the documented check matches the address followed by anything but a digit, so a hand-edited separator is still found. The plan's example matched `repo:RF-59 —` exactly.
 - **Property 10:** `AGENTS.md`, which every role has, routes to `work-queue.md` before a role reads an issue's text. The plan's rule reached a role only when it wrote to GitHub (`reviewer-2`).
 - **Property 12:** `AGENTS.md` states the bare-`@name` rule, which `work-queue.md` attributes to it. No document stated it before (`reviewer-1`).
+
+**Amended 2026-11-18 by the architect,** on the owner's later answer relayed by the coordinator, before the owner accepts the documents: **no milestones for now.** The queue is a kanban queue, and the board's `Status` and the rank within it are its only ordering. This replaces the answer on milestones in the _Decided_ paragraph above. Properties 1, 7, 12 and 14 and the plan's section on labels and milestones changed, and the plan's [Owner's answers](work-queue-1/work-queue-plan.md#owners-answers) lists what each said. This entry's first summary bullet listed _"its milestone"_ in the queue state. The one gap, release scope, and a proposal that uses _blocked by_ on the release issues are in the plan's [Release scope without milestones](work-queue-1/work-queue-plan.md#release-scope-without-milestones). The proposal waits on the owner.
 
 **The trial.** The owner may end or change it at any time. Ending it amends this entry. Until then the queue's issues and board are what is next, and they never stand in for a record entry. No review point is set. The plan names the first step if the trial shows drift: a small check of open issues whose entry is closed, duplicate addresses, and items whose `Status` disagrees with the issue.
 
