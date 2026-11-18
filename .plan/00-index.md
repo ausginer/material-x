@@ -1052,6 +1052,29 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Isolated with the global virtual store everywhere** (`--enable-global-virtual-store` in CI). CI would resolve through a store-wide hidden hoist whose content depends on what that runner installed. Locally, every slot shares that directory.
 - **Isolated and project-local everywhere.** Typecheck fails in all eight packages until each undeclared import of a dependency is repaired, and the slots then gain nothing over hoisted.
 
+#### RD-24 — material-x is measured by size-limit with the Rolldown preset, one row per runtime entry and one complete row, with no ceiling until its first publication
+
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, on Architect B's [size plan](mx-size-1/mx-size-plan.md) at `d512c8def`, which answers `RF-45`. The owner answered in two steps: _"Let's leave it without limits for now. The package is under heavy development, so there's no point in setting limits yet."_ Then yes to all 18 runtime entries plus `complete`, and yes to CI notifying as `RD-7` decides. Recorded by the main slot's architect on `repo/mx-size-1`. It was proposed as `RD-23`. That number went to `RF-41`'s decision on `repo/state-layer-visual-1`, and `RD-20` to `RD-22` are on `repo/traits-plugin-1`, `main` and `repo/work-queue-1`, so this entry is `RD-24`. **Unimplemented:** the plan's [Implementation](mx-size-1/mx-size-plan.md#implementation) implements it.
+
+**Properties:** the plan's [properties 1 to 8](mx-size-1/mx-size-plan.md#decision-registered-as-repord-24), as written at registration. In short:
+
+- one row per entry in `files.json`'s `runtime` list, and one `complete` row that measures a single module importing every entry. A row never lists several files for a composition (property 1);
+- the rows come from `files.json`, or the size configuration fails when the two disagree (property 2);
+- size-limit 14.3.0 and `size-limit-preset-rolldown` as devDependencies, a `size` recipe that builds first, and material-x in the root `just size` and `.scripts/size-reading.ts` after `core` (property 3);
+- Brotli governs (property 4);
+- no ceiling until the first publication, so the rows report and never signal. A unit that changes material-x's runtime output reports each row against its base, with its control row (property 5);
+- before the first publication of `@ydinjs/material-x`, which the owner performs, a unit sets each ceiling to its reading after the release's last change, with no slack. The size configuration's comment states the rule and names this decision (property 6);
+- CI notifies, as `RD-7` decides (property 7);
+- hand readings with another bundler end (property 8).
+
+**No issue stands for the boundary.** On 2026-11-18 the owner removed material-x's release item: _"Let's remove the material-x release card for now. It'll be built up from the spec, and that's quite big."_ The coordinator closed #58 as not planned. The plan's property 6 named that issue until registration, and the plan records the change.
+
+**`RF-45` stays open** until the ceilings exist ([How this meets `RF-45`](mx-size-1/mx-size-plan.md#how-this-meets-rf-45)). A row without a ceiling isn't the budget its required property asks for.
+
+**`RD-7`'s property 5** lists the packages that the root `just size` measures. When this unit's rows land, the main slot's architect adds material-x there in a dated, non-substantive note. The rule doesn't change.
+
+**Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: the repository's instrument, not a new one. Every entry, because a row costs about a tenth of a second and an entry without a row is `RF-45`'s gap. No ceiling while almost every change moves rows on purpose. A boundary that the owner performs, not a schedule. Not adopted: ceilings re-based at each approved change, amending `RF-45`'s required property, slack, rows for only some entries, and hand measurement.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -1557,6 +1580,7 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings 
   - material-x's public entries have rows in the `measurements` job, each with a budget;
   - or the record states that material-x is measured by hand for each change, and how.
 - **Routed** to the owner. The repository's measurement tool is still a [brief](../.agents/docs/measure/brief.md), so it may supply the instrument. **It doesn't block** the findings unit.
+- **Dated 2026-11-18 by the architect: `RD-24` is its repair,** on the owner's answers, relayed by the coordinator. The [size plan](mx-size-1/mx-size-plan.md) on `repo/mx-size-1` adds the rows without ceilings. The ceilings are owed before material-x's first publication, and the pull request that sets them closes this entry. Until then, the entry stays open, and the rows' pull request says `Refs` for its issue.
 
 #### RF-46 — The deployed docs site doesn't load: Vite's build under the forced `rolldown` 1.3.2 writes a malformed `__vitePreload` call
 
