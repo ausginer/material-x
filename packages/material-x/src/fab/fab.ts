@@ -26,7 +26,11 @@ import { useRipple } from '../core/animations/ripple/ripple.ts';
 import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { type: 'css' };
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { focusControl, forwardFocus, useCore } from '../core/utils/useCore.ts';
+import {
+  FocusForwarding,
+  useFocusForwarding,
+} from '../core/traits/focus-forwarding.ts';
+import { useCore } from '../core/utils/useCore.ts';
 import template from './fab.tpl.html' with { type: 'html' };
 import colorStyles from './styles/color/main.css.ts' with { type: 'css' };
 import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
@@ -77,8 +81,8 @@ export type FABCSSProperties = Readonly<{
 const FABConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
-  [typeof FABLike, typeof Disableable]
-> = impl(ControlledElement, [FABLike, Disableable]);
+  [typeof FABLike, typeof Disableable, typeof FocusForwarding]
+> = impl(ControlledElement, [FABLike, Disableable, FocusForwarding]);
 
 /**
  * @tag mx-fab
@@ -131,7 +135,7 @@ export default class FAB extends FABConstructor {
     const target = $<HTMLButtonElement>(this, '.host')!;
     useARIA(this, target);
 
-    forwardFocus(this, target);
+    useFocusForwarding(this, target);
 
     useRipple(this, target, target);
 
@@ -149,10 +153,6 @@ export default class FAB extends FABConstructor {
       tonal: (_, newValue) =>
         toggleState(innards, 'tonal', Bool.from(newValue)),
     });
-  }
-
-  override focus(options?: FocusOptions): void {
-    focusControl(this, options);
   }
 }
 

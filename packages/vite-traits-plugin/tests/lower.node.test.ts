@@ -28,6 +28,7 @@ describe('appendSyntheticExports', () => {
       program,
       id,
       resolveFactoryLocals(program),
+      code,
     );
 
     const augmented = appendSyntheticExports(code, synthetics)?.toString();

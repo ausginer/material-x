@@ -14,6 +14,7 @@ import {
 } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
+import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
 import { BUTTON_CORE_TRAITS, useButtonCore } from './ButtonCore.ts';
@@ -28,7 +29,8 @@ export const SWITCH_CORE_TRAITS: readonly [
   ...typeof BUTTON_CORE_TRAITS,
   typeof Checkable,
   typeof Valuable,
-] = [...BUTTON_CORE_TRAITS, Checkable, Valuable];
+  typeof FocusForwarding,
+] = [...BUTTON_CORE_TRAITS, Checkable, Valuable, FocusForwarding];
 
 export type SwitchCore = Traited<ControlledElement, typeof SWITCH_CORE_TRAITS>;
 

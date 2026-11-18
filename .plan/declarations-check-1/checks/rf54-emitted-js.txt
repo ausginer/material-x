@@ -1,0 +1,273 @@
+# Item 1, witness 2: emitted JavaScript. Read by the implementer in slot b on 2026-11-18. Each list is sha256sum of every
+# built .js file of core and material-x (git's ignored files under packages/core and packages/material-x, outside
+# node_modules), after `aube exec just clean-build` and a build of all eight packages. Before: 1fb375b88 as committed.
+# After: item 1's changes. 119 files each.
+
+## diff before after
+16c16
+< 5e892ebe2a1133f7f41b949ace46c3c3daf0aa67793dbcbba0add6168f418810  packages/core/traits/attributes.js
+---
+> 846a119e456202f8b65735a35e4cc30c0f0d89ea722c083aa953be75f8a3600e  packages/core/traits/attributes.js
+
+## The one differing file differs only in the JSDoc @remarks of trait() that item 1 rewrites (tsdown keeps JSDoc in the
+## .js). Built with HEAD's attributes.ts and item 1's primitives.ts, attributes.js hashes 5e892ebe…, the before value,
+## so the Branded change emits nothing. diff of attributes.js, HEAD's attributes.ts against item 1's:
+16,22c16,23
+< * @remarks TypeScript currently treats trait-generated members as plain
+< * properties in some class-override paths, even though this helper installs
+< * runtime accessors with `Object.defineProperty(...)`. This means subclass
+< * `override get` / `override set` declarations may still hit `TS2611`. See
+< * https://github.com/microsoft/TypeScript/issues/54879 for the closest known
+< * limitation. At the moment there is no framework-level workaround here; for
+< * intentional accessor overrides, prefer a local `@ts-expect-error`.
+---
+> * @remarks This helper installs each field as an accessor on the prototype
+> * with `Object.defineProperty(...)`, and the trait types the fields as mapped
+> * properties. TypeScript does not report `TS2611` for an accessor that
+> * overrides a mapped property, so a subclass may override a trait field with
+> * `override get` and `override set`, with no directive, in source and in
+> * emitted declarations. A local `@ts-expect-error` would not help a consumer:
+> * it does not reach the emitted declaration
+> * (https://github.com/microsoft/TypeScript/issues/54879).
+
+## before
+9118272c648af2484ed85b75f4b27e9102511ad07a1a087fbd435b6e57b297b1  packages/core/attribute.js
+4d27e6651cd29c85b80fd97956a38c10cf8d11a8b3ca962126639cd401f7ec61  packages/core/controllers/useARIA.js
+41ae7125a4f656ad9697a7de4a2b0918e602fc25f8015e62ddda1e2bf56a79fe  packages/core/controllers/useAttributes.js
+26b7df7474a758cb2103a954a8c0cf02b8d89795a3f1fa73cc6e153a8067f7ae  packages/core/controllers/useCSSProps.js
+9cff3893e49bae87aea405d9772a5a9163d7eba5b66a95b7884f3a1200cd8351  packages/core/controllers/useConnected.js
+14255a0473d304c5d0f297255803e15d33d4fea4adac75f38726f94051cda8e3  packages/core/controllers/useContext.js
+f231ae28ecb37844be51eec7a1dd1cc733ab3ea9713dff38da90f6611234ab3f  packages/core/controllers/useEvents.js
+bd6ab47e6b53cc833dd36be27b62387e26cf4bb6f712e89311f09144e41317b9  packages/core/controllers/useKeyboard.js
+a72ab37afd8005a317e090e6392e894631417e3d1d02ed360433a301916c3fbb  packages/core/controllers/useMutationObserver.js
+321ee7a4041e5f83d8b99ac6b09f1bcff75f762edfd6ce2022ec8fb189d91df6  packages/core/controllers/useResizeObserver.js
+f501ee8522704e28d853c5acf77da43cb3dd6f89de1a85fb7011c5aaa9961bf6  packages/core/controllers/useRovingTabindex.js
+1d6ee9b52071dff10214f1cf3c0439fe60396ce0f2f4eda65883fd96e4db232f  packages/core/controllers/useShadowDOM.js
+c9fee174359951f5164a4b86677ec943d39347c3c213ddbc698bcee6d1bc77d0  packages/core/controllers/useSlot.js
+0f67cf4f627356fc1076a01773f91d90398dd4bb7cad2522bc14c386b886e165  packages/core/element.js
+8eee6d8cbc8f912897aabc2a04b36928d4438555e3766823aa55fae28753eb80  packages/core/emitter.js
+5e892ebe2a1133f7f41b949ace46c3c3daf0aa67793dbcbba0add6168f418810  packages/core/traits/attributes.js
+4aa78c671f46ee3a6a15bba9bdaa8b1e46c81711dd57fe5fb8cbc9ebc22de0b6  packages/core/traits/checkable.js
+7e16d0e1e8adabd34857085ff99877c4beb60a81ac032dbdfa9ad9a774246ef7  packages/core/traits/disableable.js
+80ae7c14a44ad3c5552b183982ef1427c6ee11db2053c59fa4679e595f91de1e  packages/core/traits/linkable.js
+304d0a4fe6fdeabe013811c946be81908f390d5c2c5bf884c29b38fc2aac22ce  packages/core/traits/nameable.js
+40cd2f5a713a8311620cd22e795d60f28ad9d4859949bd7ed06591908ef8ddb2  packages/core/traits/primitives.js
+06d2f9bd60a51ea833728b5e88ba65a4739fec96f809a89c453b70628fbcd600  packages/core/traits/reorderable.js
+070ba2dd7d3f83047d67a9aaff8e3cf943eea044367e9214432a3fe1f23db185  packages/core/traits/selectable.js
+8b19a688028974de4dabf1aeda19aba87b0382e2a3d81032a3b0c8605a041b80  packages/core/traits/typeable.js
+9d778b957edd359066866a4371593be81eb8563c2c26f1e98678fe0d2476c347  packages/core/traits/valuable.js
+c5599bdf062af4e84c86492e1ba3ca0647f0e56a64a77b153323789f87ec0e23  packages/core/utils/DOM.js
+ac3c08f43ac7d492c4597733de17ff5713f3c54744ee48c3f4812983d5cafa94  packages/core/utils/runtime.js
+a13ffbf6cc60b3b5e082fcb589118e4af034102cb61def44955e6ad304a9b444  packages/material-x/button-group/ButtonGroupCore.js
+24da4af077e22636fa0699b5da0275bcf6f427d1707bc17a12f0a9ccda0adc13  packages/material-x/button-group/button-group-context.js
+097963fc95cfe5f8ffdf05a945e0389909303a142c61e55cfb6080eb7f88daa7  packages/material-x/button-group/button-group.js
+c96f8b45b3a6f44a530a2270e57327ca472bd653c61909a7706ea60001136b92  packages/material-x/button-group/button-group.tpl.html.js
+acefe5ef88b8f00b838da4780a460616932f18adbadd460e8648546dd0fff162  packages/material-x/button-group/connected-button-group.js
+aa70bff66a30187ce39241df18fb50854fc450c84e5b914d92408bdb93ac4377  packages/material-x/button-group/styles/connected/main.css.js
+caa6c6acde92cf223abe0c972eb98d7ef64620a3e41ba5cc99307c46f09f2829  packages/material-x/button-group/styles/standard/main.css.js
+54930719076dd43941972f23321fc1afa5f8b2b2579c01ac2a47f225633b65c9  packages/material-x/button-group/utils.js
+59cb93b86d43e9aed7ddc0f2f31f4b3cb0404fb1f6e600bb24735d8b7d33fca6  packages/material-x/button/ButtonCore.js
+a19bb35ef44bd3d9a335dd47c532c1a4eaccdce8b6171fa3bd3d90115bef70b7  packages/material-x/button/IconButtonCore.js
+6a53d7466649aa05726b93717136d6cd7eb5b1b0de301e92e8d78f0a720445e4  packages/material-x/button/SwitchCore.js
+35738d6712f6cc510a3b45ca2fe9eb8271f4986b07da5a077256e6288c560c72  packages/material-x/button/button.js
+82dcc317d31258b0e9069a76c9d285c31431536f6a9b9a878a1d89852bb0b5b5  packages/material-x/button/button.tpl.html.js
+e664086720ae7b2f8f44cabb19b86d3ad89945a6061628f6c0c5df2a783ed5ac  packages/material-x/button/icon-button.js
+6b9962ced0a2be8f2ba640a22cba5bec2adc8ba7c3e910fd87f16ae04ea97924  packages/material-x/button/icon-button.tpl.html.js
+963ec0fff74dc7a31c760897a07c0c86f1206ccc29f67188a585fbd1bcacecbe  packages/material-x/button/link-button.js
+f6088e1125bd1c7ade1e9858f26c4e6b0607333f52b4ee4b477d6b2f1cb785d0  packages/material-x/button/link-button.tpl.html.js
+b5c61ca59706aa4c363f444cfb911770715fced903f110ed38c1e6e1ca2cff8e  packages/material-x/button/split-button.js
+1009d2abf74d38fb7573a4f21a2cc5404df9a47b0204ebc22e3390d9a22056ba  packages/material-x/button/split-button.tpl.html.js
+6002ab48aeed39c2f3dd782577d063f36e462da5e3c6e151f8cd853a0691a183  packages/material-x/button/styles/default/disabled.css.js
+32fbe7d1e1d1600b6df1f0fc789bac716ebd27e0a92fb3b3cfbf384030ecb3a0  packages/material-x/button/styles/default/main.css.js
+9695874e466c8fc84e0d40ef075f4fb7f7d444925b27ae7fde11805008f3b617  packages/material-x/button/styles/default/switch-control.css.js
+0672dc1414ef5b0ad3d45200dccfa2f738a503abfc302764be2b405eaa890c1f  packages/material-x/button/styles/default/switch.css.js
+49fd6a6bbaef31ee1771b65ec9789cec641729961dafe9ef6e925caed391d411  packages/material-x/button/styles/elevated/main.css.js
+24c51c1a249177426817cb509e4dfbdbd00fa0d8e5b9980fd6c33b716afad4b3  packages/material-x/button/styles/elevated/switch.css.js
+9ccfc995cd1a837f2c231be0f85d513d0a55a213cadc0f6e25eb0824c2cd044b  packages/material-x/button/styles/icon/main.css.js
+141574df9c895417c7d10acb6389affeb9c9638e823209107a3ee7787f892c9c  packages/material-x/button/styles/icon/switch.css.js
+14ae5fc43728c9eba6db9288e02d5601357d2e4347e11cb1f53e810ed57d067e  packages/material-x/button/styles/outlined/main.css.js
+2e4783991b40935d0cd604b28e1a3c87d94a0bf04a8c764a01d10b8b4e93e5b5  packages/material-x/button/styles/outlined/switch.css.js
+30bd964e307fa222c52306f6ad73d549ab5c3208cc21193a37285d6840dc91f5  packages/material-x/button/styles/shape/main.css.js
+892b72133a0c71d3dcc6b6d86c011c10f57d86992d2d167e851f1bdb7725ba31  packages/material-x/button/styles/size/main.css.js
+c40f12c3c9f995703afcfe19ba1e0595c2bf37ce104a87e57a531af5aa00a10b  packages/material-x/button/styles/size/switch.css.js
+e2c046dc27a60652672d16262441f6867566022ccb6404140f8a4531940396c4  packages/material-x/button/styles/split/main.css.js
+542c4b7c518916ebac24fb60c24203c44798d1240ccdd52db7b3ff9315dced82  packages/material-x/button/styles/text/main.css.js
+4c0557879248482297662234e5dd56489011d1038a6054107c24780901ec2b61  packages/material-x/button/styles/tonal/main.css.js
+7edb416ea0dd8dfc01da9064153fe39b82a07f765594bd5f1e185f2d87320173  packages/material-x/button/styles/tonal/switch.css.js
+b06e517d86002a582acf2cc1235077d3818bf3ed5c1eeb6dfa33597d601602b1  packages/material-x/button/switch-button.js
+4a93f01dd4fb5aa2758bc7cdd60f45bf7edf01e33314cde28aa69782c728f33a  packages/material-x/button/switch-button.tpl.html.js
+5cbb8a2a310cde7bbbee2260126695124ba01ff51d45b80188c4ba00638baa20  packages/material-x/button/switch-icon-button.js
+9cc63b2c3e7e2d29dbecc09b5066af0d9ab2637f7785205723f97f641bf351ab  packages/material-x/button/switch-icon-button.tpl.html.js
+3db353a02c1d6d1cda8bf6f1df0e646ac9dc4ab146bc1c11f2a3d535a7186a83  packages/material-x/checkbox/checkbox.js
+82e4612c2c70c6dd7fe41eec7e305e98505962c9882f2ae9b26780e396c79aa3  packages/material-x/checkbox/checkbox.tpl.html.js
+39c8730e4ce7360e6d7cf2ada36bbea7afe974a706aa8452fa410f8b4d9b1235  packages/material-x/checkbox/styles/default/main.css.js
+fa79f24587a4e8ccf1fe51534ca9f90292295a311d18d0fd613a4f30eac17403  packages/material-x/core/animations/notched-outline/notched-outline.ctr.css.js
+fa82f6cfc88376859190b8f45a36c9d60c69755d3a8e3ec339c69a6d42b08e1a  packages/material-x/core/animations/notched-outline/notched-outline.js
+6390a239caf50339be698ae718eaf83333b8bba2e7e5abac967968fd4f3d378a  packages/material-x/core/animations/notched-outline/notched-outline.tpl.html.js
+d1b324be3349f8834a3bb89664a8df7bafd504f288850f3430133135bf030984  packages/material-x/core/animations/ripple/ripple.js
+541d1dafee23bff7ce45c21a1d8d97dcf0bbd41c0987d458d55e2ff5f43a0c15  packages/material-x/core/animations/ripple/styles/main.css.js
+1a13bd796969a3cf33944a61d8fa36ca9a816bdf1e43ab88ce5129f4c2ecdcba  packages/material-x/core/elements/CheckableCore.js
+394e44184161fae9da3b855dcf656554789601bd5d93c440f4a898ef06eb1803  packages/material-x/core/elements/styles/main.css.js
+9af8c49dd6c982ffda6fec58edc24d7c3d207c0e5433eac6dc5d7005a7d76bca  packages/material-x/core/styles/elevation/elevation.css.js
+7c54c18b2b2f18bb2ded591e7d89c71f6cc75dc6a5aa3c1627f9097553d72843  packages/material-x/core/styles/elevation/elevation.runtime.js
+7f4bcfb41b05a9da6fe0402caf17af80803c3a85ba9f7f0e08a93f9fff889d86  packages/material-x/core/styles/focus/focus.css.js
+0f95d29a9770c17acf6d5fd8b80737d84d4386101cea0849f4380123ee11897d  packages/material-x/core/utils/events.js
+74b9a6809e86143331f0a8086bfd68368253e01c367fece6eb1d82c2804f799d  packages/material-x/core/utils/fns.js
+59c253a117e5884fb1bd0980c9781b92c0973128e4125ed96c2ebc39e619bd34  packages/material-x/core/utils/polyfills.js
+ac5ccb77baec2f01b17bd768dfc4a1cce1828db36896e442445dfa4322c58dbd  packages/material-x/core/utils/useContext.js
+e29085064f67bdf4abdc9270653dca032390a0fb957a5942cdaed85f7377dde4  packages/material-x/core/utils/useCore.js
+3feef4545c4a810170c67a55800165805c20407fb0aad088def05205ffa6f6d9  packages/material-x/fab/fab.js
+9261fa8086f73b79f8c4a020c3b031e92a48eea8afdf9ac1899597fe33bd0a87  packages/material-x/fab/fab.tpl.html.js
+55431435e8c26c9011690dfc3b2fb48e63a6adfa9b98e3b71429a0e1288661f7  packages/material-x/fab/styles/color/main.css.js
+17fcb49f379e78bff9757335509e17830110203420a4a083892d876c45386a75  packages/material-x/fab/styles/default/main.css.js
+138ddc3437df243d13ab7331967c50b4c911b252c9daac57c1e629916fc2876d  packages/material-x/fab/styles/extended/main.css.js
+0fa9e0be2efeadc718c7430a8cc923cd2aa2fd3439812b0c2b0a315d6e6a59a0  packages/material-x/fab/styles/size/main.css.js
+66f9516b2739dccda4e2b38342ae1f6995043c44ef68e34052650bc47218df31  packages/material-x/fab/styles/tonal/main.css.js
+dfb680691efdde90d6b539079b0a84f47f0694cf94881ceba36f6319c92b7d9b  packages/material-x/icon/icon.js
+146e46e6a0a4a97847abb7007de6a38800a5f0c004847b4db22b2b87305e0cc8  packages/material-x/icon/icon.tpl.html.js
+e0dea572bb207cdcd3c3a21075e54bbc031b5fee5d9183c60eee7fbac314449b  packages/material-x/icon/styles/icon.ctr.css.js
+837274391eab426d0f53e893934a1898f26af702b319306470da7a2a9415bee1  packages/material-x/list/ListInteractiveItemCore.js
+b9f3f0ce897e5d0b939a61da312507946c131affd6cdb3a6bad2bc13850eb1c4  packages/material-x/list/ListItemCore.js
+ced538de2a86fd05d9668a71293147af72f86d45e049ec9d45575ddc6eeb2f30  packages/material-x/list/list-button-item.js
+dd920302fa8027e949faf26587ff9d90593b192e0905c6441b4597eb8168273d  packages/material-x/list/list-button-item.tpl.html.js
+c3b3b99e6f7ffbe75d6a926559118f9069781df96ecb43d0bc15b9490a5a6fcb  packages/material-x/list/list-item-shared.tpl.html.js
+6c2855c77c42022aa9b2c2b48e2dae3fb7200899091e4ecd4b2c53b3cafdd67b  packages/material-x/list/list-item.js
+27af4072cdb4002dde9b23b5a7c434c4732b92d2e2cbe3e1eac1f8b45f642cb4  packages/material-x/list/list-item.tpl.html.js
+0a5e26ded1e638ef511d8daba3867998709d352af24ce1292368cb9d59cac889  packages/material-x/list/list-link-item.js
+b221485dc90d2df4ee144c4fd209de8da0cd15bbd0087875ac0f2297ac1dff81  packages/material-x/list/list-link-item.tpl.html.js
+5fd0aa90c46dd55d661194d6b5fba7027758c0ac192cddc22e03eee898b431e9  packages/material-x/list/list.js
+92e3fab4ed19b8c859e51823d17e47e53eb5676c4ee732eeb2d38d871d090c5b  packages/material-x/list/list.tpl.html.js
+3659ee13eb992591bcec04f496c3e522efeb75ad4ede53fa97651c5b3ab4e2ea  packages/material-x/list/styles/default/main.css.js
+af4d8682ee3ce108b4d1511cf62264eac1523b660be4f1b6365a8faa2e794ab4  packages/material-x/list/styles/item/main.css.js
+aaa0e5377ceca59f5217cf31723cc7a2108eca15265af14e6a627d6d9cdb4dfc  packages/material-x/radio/radio.js
+82d04d3e0cb207aa8a28ceb6d3ba33a1ad465d551f167b65acb1372b25c051ac  packages/material-x/radio/radio.tpl.html.js
+37b95374d1a526ea5bdedf1db3086a775a8b19f19fbe9d694a235f0ea17629a8  packages/material-x/radio/styles/default/main.css.js
+c2b6e6b7ce0742fb0418711e17f17f1d76d7adf0c4f80555281c6874b3a219c2  packages/material-x/text-field/TextFieldCore.js
+e6c858106f83b46a90024c6ff54a1553ea5848299e1eda175c638e9058a0f9a9  packages/material-x/text-field/multiline-text-field.js
+ff4a5181556e4765516bcb67b2e9c32b11802054f5d9d9acb450f90ee9b31165  packages/material-x/text-field/multiline-text-field.tpl.html.js
+975b63814aa77cf64051b78f5958a47f6f7e1cb426bd0f259d4c100c6f050e57  packages/material-x/text-field/styles/default/main.css.js
+80592bb55a1cd973c6b5aed44a0e1ffce3763d9874d4d81aa8341441f6e9beed  packages/material-x/text-field/styles/outlined/main.css.js
+4024c3ab37eea8a815a745139bfa3f3a2056b6e3ea768678113946199eff7a1a  packages/material-x/text-field/text-field-core.tpl.html.js
+8706a6f55de05ccae60ee0e798826ae4e5c8f5bee21142a9f89d5796f8e5cadc  packages/material-x/text-field/text-field.js
+f3b67270a60e5f0c4cf8c022b4fe5b07fbcd8c380cce81e381984ec0b07854ea  packages/material-x/text-field/text-field.tpl.html.js
+
+## after
+9118272c648af2484ed85b75f4b27e9102511ad07a1a087fbd435b6e57b297b1  packages/core/attribute.js
+4d27e6651cd29c85b80fd97956a38c10cf8d11a8b3ca962126639cd401f7ec61  packages/core/controllers/useARIA.js
+41ae7125a4f656ad9697a7de4a2b0918e602fc25f8015e62ddda1e2bf56a79fe  packages/core/controllers/useAttributes.js
+26b7df7474a758cb2103a954a8c0cf02b8d89795a3f1fa73cc6e153a8067f7ae  packages/core/controllers/useCSSProps.js
+9cff3893e49bae87aea405d9772a5a9163d7eba5b66a95b7884f3a1200cd8351  packages/core/controllers/useConnected.js
+14255a0473d304c5d0f297255803e15d33d4fea4adac75f38726f94051cda8e3  packages/core/controllers/useContext.js
+f231ae28ecb37844be51eec7a1dd1cc733ab3ea9713dff38da90f6611234ab3f  packages/core/controllers/useEvents.js
+bd6ab47e6b53cc833dd36be27b62387e26cf4bb6f712e89311f09144e41317b9  packages/core/controllers/useKeyboard.js
+a72ab37afd8005a317e090e6392e894631417e3d1d02ed360433a301916c3fbb  packages/core/controllers/useMutationObserver.js
+321ee7a4041e5f83d8b99ac6b09f1bcff75f762edfd6ce2022ec8fb189d91df6  packages/core/controllers/useResizeObserver.js
+f501ee8522704e28d853c5acf77da43cb3dd6f89de1a85fb7011c5aaa9961bf6  packages/core/controllers/useRovingTabindex.js
+1d6ee9b52071dff10214f1cf3c0439fe60396ce0f2f4eda65883fd96e4db232f  packages/core/controllers/useShadowDOM.js
+c9fee174359951f5164a4b86677ec943d39347c3c213ddbc698bcee6d1bc77d0  packages/core/controllers/useSlot.js
+0f67cf4f627356fc1076a01773f91d90398dd4bb7cad2522bc14c386b886e165  packages/core/element.js
+8eee6d8cbc8f912897aabc2a04b36928d4438555e3766823aa55fae28753eb80  packages/core/emitter.js
+846a119e456202f8b65735a35e4cc30c0f0d89ea722c083aa953be75f8a3600e  packages/core/traits/attributes.js
+4aa78c671f46ee3a6a15bba9bdaa8b1e46c81711dd57fe5fb8cbc9ebc22de0b6  packages/core/traits/checkable.js
+7e16d0e1e8adabd34857085ff99877c4beb60a81ac032dbdfa9ad9a774246ef7  packages/core/traits/disableable.js
+80ae7c14a44ad3c5552b183982ef1427c6ee11db2053c59fa4679e595f91de1e  packages/core/traits/linkable.js
+304d0a4fe6fdeabe013811c946be81908f390d5c2c5bf884c29b38fc2aac22ce  packages/core/traits/nameable.js
+40cd2f5a713a8311620cd22e795d60f28ad9d4859949bd7ed06591908ef8ddb2  packages/core/traits/primitives.js
+06d2f9bd60a51ea833728b5e88ba65a4739fec96f809a89c453b70628fbcd600  packages/core/traits/reorderable.js
+070ba2dd7d3f83047d67a9aaff8e3cf943eea044367e9214432a3fe1f23db185  packages/core/traits/selectable.js
+8b19a688028974de4dabf1aeda19aba87b0382e2a3d81032a3b0c8605a041b80  packages/core/traits/typeable.js
+9d778b957edd359066866a4371593be81eb8563c2c26f1e98678fe0d2476c347  packages/core/traits/valuable.js
+c5599bdf062af4e84c86492e1ba3ca0647f0e56a64a77b153323789f87ec0e23  packages/core/utils/DOM.js
+ac3c08f43ac7d492c4597733de17ff5713f3c54744ee48c3f4812983d5cafa94  packages/core/utils/runtime.js
+a13ffbf6cc60b3b5e082fcb589118e4af034102cb61def44955e6ad304a9b444  packages/material-x/button-group/ButtonGroupCore.js
+24da4af077e22636fa0699b5da0275bcf6f427d1707bc17a12f0a9ccda0adc13  packages/material-x/button-group/button-group-context.js
+097963fc95cfe5f8ffdf05a945e0389909303a142c61e55cfb6080eb7f88daa7  packages/material-x/button-group/button-group.js
+c96f8b45b3a6f44a530a2270e57327ca472bd653c61909a7706ea60001136b92  packages/material-x/button-group/button-group.tpl.html.js
+acefe5ef88b8f00b838da4780a460616932f18adbadd460e8648546dd0fff162  packages/material-x/button-group/connected-button-group.js
+aa70bff66a30187ce39241df18fb50854fc450c84e5b914d92408bdb93ac4377  packages/material-x/button-group/styles/connected/main.css.js
+caa6c6acde92cf223abe0c972eb98d7ef64620a3e41ba5cc99307c46f09f2829  packages/material-x/button-group/styles/standard/main.css.js
+54930719076dd43941972f23321fc1afa5f8b2b2579c01ac2a47f225633b65c9  packages/material-x/button-group/utils.js
+59cb93b86d43e9aed7ddc0f2f31f4b3cb0404fb1f6e600bb24735d8b7d33fca6  packages/material-x/button/ButtonCore.js
+a19bb35ef44bd3d9a335dd47c532c1a4eaccdce8b6171fa3bd3d90115bef70b7  packages/material-x/button/IconButtonCore.js
+6a53d7466649aa05726b93717136d6cd7eb5b1b0de301e92e8d78f0a720445e4  packages/material-x/button/SwitchCore.js
+35738d6712f6cc510a3b45ca2fe9eb8271f4986b07da5a077256e6288c560c72  packages/material-x/button/button.js
+82dcc317d31258b0e9069a76c9d285c31431536f6a9b9a878a1d89852bb0b5b5  packages/material-x/button/button.tpl.html.js
+e664086720ae7b2f8f44cabb19b86d3ad89945a6061628f6c0c5df2a783ed5ac  packages/material-x/button/icon-button.js
+6b9962ced0a2be8f2ba640a22cba5bec2adc8ba7c3e910fd87f16ae04ea97924  packages/material-x/button/icon-button.tpl.html.js
+963ec0fff74dc7a31c760897a07c0c86f1206ccc29f67188a585fbd1bcacecbe  packages/material-x/button/link-button.js
+f6088e1125bd1c7ade1e9858f26c4e6b0607333f52b4ee4b477d6b2f1cb785d0  packages/material-x/button/link-button.tpl.html.js
+b5c61ca59706aa4c363f444cfb911770715fced903f110ed38c1e6e1ca2cff8e  packages/material-x/button/split-button.js
+1009d2abf74d38fb7573a4f21a2cc5404df9a47b0204ebc22e3390d9a22056ba  packages/material-x/button/split-button.tpl.html.js
+6002ab48aeed39c2f3dd782577d063f36e462da5e3c6e151f8cd853a0691a183  packages/material-x/button/styles/default/disabled.css.js
+32fbe7d1e1d1600b6df1f0fc789bac716ebd27e0a92fb3b3cfbf384030ecb3a0  packages/material-x/button/styles/default/main.css.js
+9695874e466c8fc84e0d40ef075f4fb7f7d444925b27ae7fde11805008f3b617  packages/material-x/button/styles/default/switch-control.css.js
+0672dc1414ef5b0ad3d45200dccfa2f738a503abfc302764be2b405eaa890c1f  packages/material-x/button/styles/default/switch.css.js
+49fd6a6bbaef31ee1771b65ec9789cec641729961dafe9ef6e925caed391d411  packages/material-x/button/styles/elevated/main.css.js
+24c51c1a249177426817cb509e4dfbdbd00fa0d8e5b9980fd6c33b716afad4b3  packages/material-x/button/styles/elevated/switch.css.js
+9ccfc995cd1a837f2c231be0f85d513d0a55a213cadc0f6e25eb0824c2cd044b  packages/material-x/button/styles/icon/main.css.js
+141574df9c895417c7d10acb6389affeb9c9638e823209107a3ee7787f892c9c  packages/material-x/button/styles/icon/switch.css.js
+14ae5fc43728c9eba6db9288e02d5601357d2e4347e11cb1f53e810ed57d067e  packages/material-x/button/styles/outlined/main.css.js
+2e4783991b40935d0cd604b28e1a3c87d94a0bf04a8c764a01d10b8b4e93e5b5  packages/material-x/button/styles/outlined/switch.css.js
+30bd964e307fa222c52306f6ad73d549ab5c3208cc21193a37285d6840dc91f5  packages/material-x/button/styles/shape/main.css.js
+892b72133a0c71d3dcc6b6d86c011c10f57d86992d2d167e851f1bdb7725ba31  packages/material-x/button/styles/size/main.css.js
+c40f12c3c9f995703afcfe19ba1e0595c2bf37ce104a87e57a531af5aa00a10b  packages/material-x/button/styles/size/switch.css.js
+e2c046dc27a60652672d16262441f6867566022ccb6404140f8a4531940396c4  packages/material-x/button/styles/split/main.css.js
+542c4b7c518916ebac24fb60c24203c44798d1240ccdd52db7b3ff9315dced82  packages/material-x/button/styles/text/main.css.js
+4c0557879248482297662234e5dd56489011d1038a6054107c24780901ec2b61  packages/material-x/button/styles/tonal/main.css.js
+7edb416ea0dd8dfc01da9064153fe39b82a07f765594bd5f1e185f2d87320173  packages/material-x/button/styles/tonal/switch.css.js
+b06e517d86002a582acf2cc1235077d3818bf3ed5c1eeb6dfa33597d601602b1  packages/material-x/button/switch-button.js
+4a93f01dd4fb5aa2758bc7cdd60f45bf7edf01e33314cde28aa69782c728f33a  packages/material-x/button/switch-button.tpl.html.js
+5cbb8a2a310cde7bbbee2260126695124ba01ff51d45b80188c4ba00638baa20  packages/material-x/button/switch-icon-button.js
+9cc63b2c3e7e2d29dbecc09b5066af0d9ab2637f7785205723f97f641bf351ab  packages/material-x/button/switch-icon-button.tpl.html.js
+3db353a02c1d6d1cda8bf6f1df0e646ac9dc4ab146bc1c11f2a3d535a7186a83  packages/material-x/checkbox/checkbox.js
+82e4612c2c70c6dd7fe41eec7e305e98505962c9882f2ae9b26780e396c79aa3  packages/material-x/checkbox/checkbox.tpl.html.js
+39c8730e4ce7360e6d7cf2ada36bbea7afe974a706aa8452fa410f8b4d9b1235  packages/material-x/checkbox/styles/default/main.css.js
+fa79f24587a4e8ccf1fe51534ca9f90292295a311d18d0fd613a4f30eac17403  packages/material-x/core/animations/notched-outline/notched-outline.ctr.css.js
+fa82f6cfc88376859190b8f45a36c9d60c69755d3a8e3ec339c69a6d42b08e1a  packages/material-x/core/animations/notched-outline/notched-outline.js
+6390a239caf50339be698ae718eaf83333b8bba2e7e5abac967968fd4f3d378a  packages/material-x/core/animations/notched-outline/notched-outline.tpl.html.js
+d1b324be3349f8834a3bb89664a8df7bafd504f288850f3430133135bf030984  packages/material-x/core/animations/ripple/ripple.js
+541d1dafee23bff7ce45c21a1d8d97dcf0bbd41c0987d458d55e2ff5f43a0c15  packages/material-x/core/animations/ripple/styles/main.css.js
+1a13bd796969a3cf33944a61d8fa36ca9a816bdf1e43ab88ce5129f4c2ecdcba  packages/material-x/core/elements/CheckableCore.js
+394e44184161fae9da3b855dcf656554789601bd5d93c440f4a898ef06eb1803  packages/material-x/core/elements/styles/main.css.js
+9af8c49dd6c982ffda6fec58edc24d7c3d207c0e5433eac6dc5d7005a7d76bca  packages/material-x/core/styles/elevation/elevation.css.js
+7c54c18b2b2f18bb2ded591e7d89c71f6cc75dc6a5aa3c1627f9097553d72843  packages/material-x/core/styles/elevation/elevation.runtime.js
+7f4bcfb41b05a9da6fe0402caf17af80803c3a85ba9f7f0e08a93f9fff889d86  packages/material-x/core/styles/focus/focus.css.js
+0f95d29a9770c17acf6d5fd8b80737d84d4386101cea0849f4380123ee11897d  packages/material-x/core/utils/events.js
+74b9a6809e86143331f0a8086bfd68368253e01c367fece6eb1d82c2804f799d  packages/material-x/core/utils/fns.js
+59c253a117e5884fb1bd0980c9781b92c0973128e4125ed96c2ebc39e619bd34  packages/material-x/core/utils/polyfills.js
+ac5ccb77baec2f01b17bd768dfc4a1cce1828db36896e442445dfa4322c58dbd  packages/material-x/core/utils/useContext.js
+e29085064f67bdf4abdc9270653dca032390a0fb957a5942cdaed85f7377dde4  packages/material-x/core/utils/useCore.js
+3feef4545c4a810170c67a55800165805c20407fb0aad088def05205ffa6f6d9  packages/material-x/fab/fab.js
+9261fa8086f73b79f8c4a020c3b031e92a48eea8afdf9ac1899597fe33bd0a87  packages/material-x/fab/fab.tpl.html.js
+55431435e8c26c9011690dfc3b2fb48e63a6adfa9b98e3b71429a0e1288661f7  packages/material-x/fab/styles/color/main.css.js
+17fcb49f379e78bff9757335509e17830110203420a4a083892d876c45386a75  packages/material-x/fab/styles/default/main.css.js
+138ddc3437df243d13ab7331967c50b4c911b252c9daac57c1e629916fc2876d  packages/material-x/fab/styles/extended/main.css.js
+0fa9e0be2efeadc718c7430a8cc923cd2aa2fd3439812b0c2b0a315d6e6a59a0  packages/material-x/fab/styles/size/main.css.js
+66f9516b2739dccda4e2b38342ae1f6995043c44ef68e34052650bc47218df31  packages/material-x/fab/styles/tonal/main.css.js
+dfb680691efdde90d6b539079b0a84f47f0694cf94881ceba36f6319c92b7d9b  packages/material-x/icon/icon.js
+146e46e6a0a4a97847abb7007de6a38800a5f0c004847b4db22b2b87305e0cc8  packages/material-x/icon/icon.tpl.html.js
+e0dea572bb207cdcd3c3a21075e54bbc031b5fee5d9183c60eee7fbac314449b  packages/material-x/icon/styles/icon.ctr.css.js
+837274391eab426d0f53e893934a1898f26af702b319306470da7a2a9415bee1  packages/material-x/list/ListInteractiveItemCore.js
+b9f3f0ce897e5d0b939a61da312507946c131affd6cdb3a6bad2bc13850eb1c4  packages/material-x/list/ListItemCore.js
+ced538de2a86fd05d9668a71293147af72f86d45e049ec9d45575ddc6eeb2f30  packages/material-x/list/list-button-item.js
+dd920302fa8027e949faf26587ff9d90593b192e0905c6441b4597eb8168273d  packages/material-x/list/list-button-item.tpl.html.js
+c3b3b99e6f7ffbe75d6a926559118f9069781df96ecb43d0bc15b9490a5a6fcb  packages/material-x/list/list-item-shared.tpl.html.js
+6c2855c77c42022aa9b2c2b48e2dae3fb7200899091e4ecd4b2c53b3cafdd67b  packages/material-x/list/list-item.js
+27af4072cdb4002dde9b23b5a7c434c4732b92d2e2cbe3e1eac1f8b45f642cb4  packages/material-x/list/list-item.tpl.html.js
+0a5e26ded1e638ef511d8daba3867998709d352af24ce1292368cb9d59cac889  packages/material-x/list/list-link-item.js
+b221485dc90d2df4ee144c4fd209de8da0cd15bbd0087875ac0f2297ac1dff81  packages/material-x/list/list-link-item.tpl.html.js
+5fd0aa90c46dd55d661194d6b5fba7027758c0ac192cddc22e03eee898b431e9  packages/material-x/list/list.js
+92e3fab4ed19b8c859e51823d17e47e53eb5676c4ee732eeb2d38d871d090c5b  packages/material-x/list/list.tpl.html.js
+3659ee13eb992591bcec04f496c3e522efeb75ad4ede53fa97651c5b3ab4e2ea  packages/material-x/list/styles/default/main.css.js
+af4d8682ee3ce108b4d1511cf62264eac1523b660be4f1b6365a8faa2e794ab4  packages/material-x/list/styles/item/main.css.js
+aaa0e5377ceca59f5217cf31723cc7a2108eca15265af14e6a627d6d9cdb4dfc  packages/material-x/radio/radio.js
+82d04d3e0cb207aa8a28ceb6d3ba33a1ad465d551f167b65acb1372b25c051ac  packages/material-x/radio/radio.tpl.html.js
+37b95374d1a526ea5bdedf1db3086a775a8b19f19fbe9d694a235f0ea17629a8  packages/material-x/radio/styles/default/main.css.js
+c2b6e6b7ce0742fb0418711e17f17f1d76d7adf0c4f80555281c6874b3a219c2  packages/material-x/text-field/TextFieldCore.js
+e6c858106f83b46a90024c6ff54a1553ea5848299e1eda175c638e9058a0f9a9  packages/material-x/text-field/multiline-text-field.js
+ff4a5181556e4765516bcb67b2e9c32b11802054f5d9d9acb450f90ee9b31165  packages/material-x/text-field/multiline-text-field.tpl.html.js
+975b63814aa77cf64051b78f5958a47f6f7e1cb426bd0f259d4c100c6f050e57  packages/material-x/text-field/styles/default/main.css.js
+80592bb55a1cd973c6b5aed44a0e1ffce3763d9874d4d81aa8341441f6e9beed  packages/material-x/text-field/styles/outlined/main.css.js
+4024c3ab37eea8a815a745139bfa3f3a2056b6e3ea768678113946199eff7a1a  packages/material-x/text-field/text-field-core.tpl.html.js
+8706a6f55de05ccae60ee0e798826ae4e5c8f5bee21142a9f89d5796f8e5cadc  packages/material-x/text-field/text-field.js
+f3b67270a60e5f0c4cf8c022b4fe5b07fbcd8c380cce81e381984ec0b07854ea  packages/material-x/text-field/text-field.tpl.html.js

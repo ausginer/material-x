@@ -108,13 +108,14 @@ export type Interface<T extends Trait<any, any>> =
  * `Object.defineProperty(...)`; the returned trait is normalized explicitly
  * from the converter descriptor shape `P`.
  *
- * @remarks TypeScript currently treats trait-generated members as plain
- * properties in some class-override paths, even though this helper installs
- * runtime accessors with `Object.defineProperty(...)`. This means subclass
- * `override get` / `override set` declarations may still hit `TS2611`. See
- * https://github.com/microsoft/TypeScript/issues/54879 for the closest known
- * limitation. At the moment there is no framework-level workaround here; for
- * intentional accessor overrides, prefer a local `@ts-expect-error`.
+ * @remarks This helper installs each field as an accessor on the prototype
+ * with `Object.defineProperty(...)`, and the trait types the fields as mapped
+ * properties. TypeScript does not report `TS2611` for an accessor that
+ * overrides a mapped property, so a subclass may override a trait field with
+ * `override get` and `override set`, with no directive, in source and in
+ * emitted declarations. A local `@ts-expect-error` would not help a consumer:
+ * it does not reach the emitted declaration
+ * (https://github.com/microsoft/TypeScript/issues/54879).
  *
  * @typeParam P - Descriptor shape for the trait fields.
  * @typeParam B - External nominal brand symbol for the trait.

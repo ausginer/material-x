@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type { Program, Statement } from '@oxc-project/types';
 import { RolldownMagicString } from 'rolldown';
 import type { AnalyzedComposition } from './analyze.ts';
-import type { BindingRef, DescriptorTraitIR } from './ir.ts';
+import type { BindingRef, DescriptorTraitIR, MemberIR } from './ir.ts';
 import { type SyntheticExport, unwrapTS } from './normalize.ts';
 
 /** Marks the annotated call side-effect-free for the downstream bundler. */
@@ -48,7 +48,7 @@ export function appendSyntheticExports(
 }
 
 /**
- * Prepends `/*@__PURE__*\/` to every top-level descriptor `trait(...)` call so a
+ * Prepends `/*@__PURE__*\/` to every top-level `trait(...)` call so a
  * downstream bundler can tree-shake trait scaffolding (the intermediary trait
  * objects and their trait-list arrays) left unused once a composition is
  * flattened. `trait()` only builds and brands a class — no external side
@@ -95,7 +95,7 @@ export function annotatePureTraitCalls(
 
 /**
  * Origin-module transform: exposes private trait bindings as synthetic exports
- * and marks descriptor `trait(...)` calls pure. Returns the edited magic string,
+ * and marks `trait(...)` calls pure. Returns the edited magic string,
  * or `null` when neither applies.
  */
 export function augmentOrigin(
@@ -164,23 +164,56 @@ function accessorMembers(trait: DescriptorTraitIR): readonly string[] {
 }
 
 /**
+ * A method trait's member as its origin source, with every linked binding
+ * rewritten to the name the flattened output imports it as.
+ */
+function memberSource(member: MemberIR): string {
+  const edits = member.links
+    .filter(({ ref }) => !ref.local)
+    .flatMap(({ name, ref, occurrences }) =>
+      occurrences.map(({ start, end, shorthand }) => ({
+        start,
+        end,
+        text: shorthand ? `${name}: ${linkLocal(ref)}` : linkLocal(ref),
+      })),
+    )
+    .sort((a, b) => b.start - a.start);
+
+  let { source } = member;
+  for (const { start, end, text } of edits) {
+    source = source.slice(0, start) + text + source.slice(end);
+  }
+
+  return `  ${source}`;
+}
+
+/**
  * Renders the class members that flatten one composition: the merged
- * `observedAttributes`, one class getter/setter pair per trait attribute, and a
- * single `static {}` block that installs every trait brand — a symbol-keyed data
- * property, which class syntax can't express — through one `Object.defineProperties`.
+ * `observedAttributes` when a descriptor trait contributes it, each trait's
+ * members in trait order (a getter/setter pair per descriptor attribute, and
+ * a method trait's members as their source), and a single `static {}` block
+ * that installs every trait brand — a symbol-keyed data property, which class
+ * syntax can't express — through one `Object.defineProperties`.
  */
 function compositionStatics(analyzed: AnalyzedComposition): string {
   const { traits } = analyzed.composition;
-  const observed = traits
+  const descriptors = traits.filter((t) => t.kind === 'descriptor');
+  const observed = descriptors
     .flatMap((t) => t.observedAttributes)
     .map((a) => JSON.stringify(a));
 
+  // A descriptor layer defines its own `observedAttributes`; a method layer
+  // leaves the base's to be inherited.
   const observedField =
-    `\n  static observedAttributes = [...new Set([` +
-    `...(${analyzed.baseSource}.observedAttributes ?? []), ${observed.join(', ')}])];`;
+    descriptors.length > 0
+      ? `\n  static observedAttributes = [...new Set([` +
+        `...(${analyzed.baseSource}.observedAttributes ?? []), ${observed.join(', ')}])];`
+      : '';
 
-  const accessors = traits.flatMap(accessorMembers);
-  const accessorBlock = accessors.length > 0 ? `\n${accessors.join('\n')}` : '';
+  const members = traits.flatMap((t) =>
+    t.kind === 'descriptor' ? accessorMembers(t) : t.members.map(memberSource),
+  );
+  const memberBlock = members.length > 0 ? `\n${members.join('\n')}` : '';
 
   const brands = traits
     .map((t) => `      [${linkLocal(t.brand)}]: { value: true },`)
@@ -189,18 +222,29 @@ function compositionStatics(analyzed: AnalyzedComposition): string {
     `\n  static {\n    Object.defineProperties(this.prototype, {\n` +
     `${brands}\n    });\n  }\n`;
 
-  return `${observedField}${accessorBlock}${brandBlock}`;
+  return `${observedField}${memberBlock}${brandBlock}`;
 }
 
-/** Every linked binding referenced by a composition (converters + brands). */
+/**
+ * Every linked binding referenced by a composition: brands, converters and the
+ * bindings method trait members read.
+ */
 function compositionLinks(
   analyzed: AnalyzedComposition,
 ): readonly BindingRef[] {
   const refs: BindingRef[] = [];
   for (const trait of analyzed.composition.traits) {
     refs.push(trait.brand);
-    for (const accessor of trait.accessors) {
-      refs.push(accessor.converter);
+    if (trait.kind === 'descriptor') {
+      for (const accessor of trait.accessors) {
+        refs.push(accessor.converter);
+      }
+    } else {
+      for (const member of trait.members) {
+        for (const { ref } of member.links) {
+          refs.push(ref);
+        }
+      }
     }
   }
 
@@ -231,9 +275,13 @@ export function lowerModule(
       if (!ref.local) {
         links.set(linkLocal(ref), ref);
       }
-      if (analyzed.composition.traits.some((t) => t.accessors.length > 0)) {
-        needsAttr = true;
-      }
+    }
+    if (
+      analyzed.composition.traits.some(
+        (t) => t.kind === 'descriptor' && t.accessors.length > 0,
+      )
+    ) {
+      needsAttr = true;
     }
   }
 

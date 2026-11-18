@@ -48,6 +48,15 @@ describe('resolveFactoryLocals', () => {
   it('should ignore modules that do not import the factory', async () => {
     expect([...(await factoryLocalsFor('base.ts'))]).toEqual([]);
   });
+
+  it('should ignore a trait imported from the pre-rename traits module', () => {
+    const program = parseModule(
+      fixtureId('pre-rename-factory.ts'),
+      "import { trait } from '@ydinjs/core/traits/traits.js';",
+    );
+
+    expect([...resolveFactoryLocals(program)]).toEqual([]);
+  });
 });
 
 describe('normalizeDescriptorTrait', () => {
@@ -232,12 +241,14 @@ describe('normalizeDescriptorTrait', () => {
 describe('collectModuleSyntheticExports', () => {
   it('should collect the private brand of a descriptor module', async () => {
     const id = fixtureId('nameable.ts');
-    const program = parseModule(id, await readFixture('nameable.ts'));
+    const code = await readFixture('nameable.ts');
+    const program = parseModule(id, code);
 
     const synthetics = collectModuleSyntheticExports(
       program,
       id,
       await factoryLocalsFor('nameable.ts'),
+      code,
     );
 
     expect(synthetics.map((s) => s.local)).toEqual(['$nameable']);
@@ -245,13 +256,15 @@ describe('collectModuleSyntheticExports', () => {
 
   it('should collect nothing from a module without descriptor traits', async () => {
     const id = fixtureId('base.ts');
-    const program = parseModule(id, await readFixture('base.ts'));
+    const code = await readFixture('base.ts');
+    const program = parseModule(id, code);
 
     expect(
       collectModuleSyntheticExports(
         program,
         id,
         await factoryLocalsFor('base.ts'),
+        code,
       ),
     ).toEqual([]);
   });

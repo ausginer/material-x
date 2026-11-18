@@ -16,6 +16,32 @@ export const REASON = {
   UNSUPPORTED_TRAIT: 'unsupported-trait',
   /** A trait definition is not module-scoped or not a direct `trait(...)` call. */
   UNSUPPORTED_TRAIT_DEFINITION: 'unsupported-trait-definition',
+  /** The class declares one half of an accessor pair for a trait's key. */
+  CLASS_ACCESSOR_HALF: 'class-accessor-half',
+  /** The class reads or writes `super.key` for a key a trait supplies. */
+  CLASS_SUPER_TRAIT_MEMBER: 'class-super-trait-member',
+  /** The class uses a computed `super[key]`, whose key can't be checked. */
+  CLASS_COMPUTED_SUPER: 'class-computed-super',
+  /**
+   * A method trait's member is outside the subset: a constructor, field,
+   * static or private member, decorator, computed key, or a body that uses
+   * `super`, `eval`, the transformer's parameter or a construct the
+   * free-identifier analysis doesn't model.
+   */
+  UNSUPPORTED_TRAIT_MEMBER: 'unsupported-trait-member',
+  /** A trait declares one half of an accessor that an earlier trait supplies. */
+  TRAIT_ACCESSOR_HALF: 'trait-accessor-half',
+  /**
+   * A name a method trait's member reads would resolve to another binding in
+   * the consumer: the consumer module or class binds it, or the class isn't
+   * module-scoped.
+   */
+  TRAIT_BINDING_SHADOWED: 'trait-binding-shadowed',
+  /**
+   * A method trait's origin module has a different file extension from the
+   * consumer's, so its source can't be copied unchanged.
+   */
+  TRAIT_SOURCE_LANGUAGE: 'trait-source-language',
 } as const;
 
 export type Reason = (typeof REASON)[keyof typeof REASON];

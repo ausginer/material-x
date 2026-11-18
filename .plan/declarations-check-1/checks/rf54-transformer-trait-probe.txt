@@ -1,0 +1,32 @@
+# Read by the main slot's architect on 2026-11-18, against slot b's source at 2544a24fd (core's src as at 83a985b99),
+# with slot b's tsc (7.0.2). The probe lived in the architect's scratch directory, <scratch>, and imported the source
+# by absolute path. Question: does the generic transformer `trait()` in packages/core/src/traits/primitives.ts, whose
+# instance delta is `TraitProps<T, U> = Omit<InstanceType<U>, keyof InstanceType<T>>`, already escape TS2611, before
+# RF-54's mapped `Branded`?
+
+$ cat <scratch>/xform/probe.ts
+import { impl, trait } from '/workspaces/worktrees/b/packages/core/src/traits/primitives.ts';
+class Base { a = 1; }
+const BRAND: unique symbol = Symbol('fielded');
+const Fielded = trait(
+  (C: typeof Base) => class extends C { x: string = 'own'; },
+  BRAND,
+);
+const T = impl(Base, [Fielded]);
+export class Sub extends T {
+  override get x(): string { return 'accessor'; }
+  override set x(_v: string) {}
+}
+
+$ cat <scratch>/xform/tsconfig.json
+{ "compilerOptions": { "strict": true, "noEmit": true, "target": "esnext", "module": "nodenext", "moduleResolution": "nodenext", "allowImportingTsExtensions": true, "skipLibCheck": true, "types": [], "useDefineForClassFields": true }, "files": ["probe.ts"] }
+
+$ tsc -p .
+exit 0
+
+## So a transformer trait's fields are already exempt from TS2610 and TS2611 today: `Omit` is a mapped type, so its
+## properties carry CheckFlags.Mapped (the checker branch quoted in rf54-mapped-brand-probe.txt, part F). Here the
+## exemption hides a real hazard: `x` is a class field of the transformer's subclass, so it is an own property of
+## every instance, and it shadows `Sub`'s accessor at runtime. RF-54's mapped `Branded` doesn't create this gap and
+## doesn't widen it. It changes the exemption only for attribute traits, whose fields are declared as type literals
+## and installed as prototype accessors.

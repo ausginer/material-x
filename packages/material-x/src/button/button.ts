@@ -14,8 +14,8 @@ import {
 } from '@ydinjs/core/traits/nameable.js';
 import { Typeable, useTypeable } from '@ydinjs/core/traits/typeable.js';
 import type { EmptyObject } from 'type-fest';
+import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import { useFormActivation } from '../core/utils/events.ts';
-import { focusControl } from '../core/utils/useCore.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
   BUTTON_CORE_TRAITS,
@@ -35,8 +35,18 @@ export type ButtonCSSProperties = ButtonSharedCSSProperties;
 const ButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
-  [...typeof BUTTON_CORE_TRAITS, typeof Nameable, typeof Typeable]
-> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, Nameable, Typeable]);
+  [
+    ...typeof BUTTON_CORE_TRAITS,
+    typeof Nameable,
+    typeof Typeable,
+    typeof FocusForwarding,
+  ]
+> = impl(ControlledElement, [
+  ...BUTTON_CORE_TRAITS,
+  Nameable,
+  Typeable,
+  FocusForwarding,
+]);
 /**
  * @tag mx-button
  *
@@ -86,10 +96,6 @@ export default class Button extends ButtonConstructor {
     useNameable(this, target);
     useTypeable(this, target);
     useFormActivation(this);
-  }
-
-  override focus(options?: FocusOptions): void {
-    focusControl(this, options);
   }
 }
 

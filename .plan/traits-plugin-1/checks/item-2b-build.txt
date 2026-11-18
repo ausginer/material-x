@@ -1,0 +1,9 @@
+# RF-44 item 2b: material-x's build against 17065ddf0's.
+# 17065ddf0 is an ancestor of 3eb1912f4, and the commits between change only .plan/ and .agents/docs/, so the build at 3eb1912f4 without item 2b is 17065ddf0's build.
+# Method: in each state, packages/vite-traits-plugin 'just build', packages/core 'just build', packages/material-x 'just build-prepare' and 'just build-lib';
+# then sha256sum of every git-ignored output file under packages/material-x and packages/core, outside node_modules and without .tsbuildinfo.
+before (item 2b's src/ changes stashed): 295 files, list sha256 974004e82a8c26e1da42db4e8abd128dd6a5b76282cc2d58599fdadd24851ab0
+after  (item 2b applied):              295 files, list sha256 974004e82a8c26e1da42db4e8abd128dd6a5b76282cc2d58599fdadd24851ab0
+cmp before after: identical
+The instrument sees the plugin: its own build output, packages/vite-traits-plugin/index.js, differs between the states (sha256 abbf9111ae698da2… before, ad0a02718518ec24… after).
+Flattener warnings in material-x's build log: none in either state (the log names no bailout; its only 'trait' lines are the file list's core/traits/focus-forwarding.*). So no material-x or core trait is retained.

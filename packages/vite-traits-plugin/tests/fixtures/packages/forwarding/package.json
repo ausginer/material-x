@@ -1,0 +1,7 @@
+{
+  "name": "@fixture/forwarding",
+  "type": "module",
+  "exports": {
+    "./*": "./*"
+  }
+}

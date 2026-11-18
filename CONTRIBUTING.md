@@ -49,6 +49,7 @@ Part II is senior to Part I wherever the two meet.
 ## Language and platform
 
 - Use **Baseline-2025** features.
+- **`@ydinjs/material-x` supports the current stable release of Chromium, Firefox and Safari** until its first release. A browserslist owed before that release replaces this floor (`repo:RD-20`).
 - Prefer native browser and Node.js APIs wherever the native API covers the use case — `fetch` over axios, `Array.groupBy` over lodash, `#private` over the `private` keyword. This does not apply to libraries providing substantial value beyond a native API, such as TanStack Query or React Router.
 - Never use the `sync` variants of `node:fs` unless there is genuinely no async alternative. `registerHooks` from `node:module` requires synchronous hooks and is the only known exception.
 - Use `AbortController` and `{ once: true }` instead of `removeEventListener` wherever they apply.
@@ -437,3 +438,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-09 | Part I, TypeScript | **Clarified:** interfaces describe intended implementation contracts. Library-created object values remain types even when they contain functions. Method presence and lint behavior do not determine the declaration kind |
 | 2026-11-15 | Reading one entry of a record; §1.1 | **Changed:** the resolver is `.scripts/entry.sh`, and a retired scope resolves at the commit its scope row names. The examples read drag's record. §1.1 names only drag's failure path. Links into drag2 name its paths at `0870abd75`, or its entries by `drag2:` address. Record: `repo:RD-5` |
 | 2026-11-18 | Part I, Dependencies of a published package | **Added:** which manifest field each package goes in, `@types/*` packages included, on the owner's request after `repo:RF-51` (material-x's React typings imported React by an absolute path). Record: `repo:RF-51` |
+| 2026-11-18 | Part I, Language and platform | **Added:** material-x's browser floor, the current stable release of each engine, on the owner's answer to the question `repo:RF-43` left open. No document stated a floor before. Record: `repo:RD-20` |
