@@ -1,0 +1,10 @@
+# Item 1, witness 3. Read by the implementer in slot b on 2026-11-18, with item 1's changes, TypeScript 7.0.2.
+$ aube exec just typecheck
+exit 0
+$ aube exec just lint
+exit 0
+$ aube exec -- just test --project 'declaration/*'
+ Test Files  8 passed (8)
+      Tests  46 passed (46)
+Type Errors  no errors
+exit 0

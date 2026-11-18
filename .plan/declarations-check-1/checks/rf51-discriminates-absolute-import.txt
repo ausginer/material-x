@@ -1,0 +1,8 @@
+# Item 2, witness 3: the check discriminates RF-51's class. Read by the implementer in slot b on 2026-11-18, TypeScript
+# 7.0.2, at 00e3f5448 with item 2's files, after the recipe's build. Line 21 of the built react.d.ts was edited to the absolute
+# path in ../../aube-isolated-1/checks/abs-import-search-before.txt, then the recipe rebuilt it to import from "react".
+$ sed -n 21p packages/material-x/react.d.ts   # edited after the build
+import { DetailedHTMLProps, HTMLAttributes } from "/workspaces/worktrees/b/node_modules/react/index.js";
+$ aube exec -- tsc -p tsconfig.declarations.json   # no rebuild
+packages/material-x/react.d.ts(21,51): error TS7016: Could not find a declaration file for module '/workspaces/worktrees/b/node_modules/react/index.js'. '/workspaces/worktrees/b/node_modules/react/index.js' implicitly has an 'any' type.
+exit 2
