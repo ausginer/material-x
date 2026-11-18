@@ -1,45 +1,45 @@
-PR #59, run 44273791779 on 5b1a4d35d (item 4's f80e841b4 merged with origin/main): conclusion success.
-Read from each test job's log with `gh run view 44273791779 --job <id> --log`, colour codes removed: the runner image version, the two changed test files, every visual file, and the test step's summary. CI uses Vitest's default reporter, which lists files and not rows.
+PR #59, run 44276212222 on 4df80913f (the branch's f48143080 merged with origin/main at 7a4f82eb4): conclusion success.
+Read from each test job's log with `gh run view 44276212222 --job <id> --log`, colour codes removed: the runner image version, the two changed test files, every visual file, and the test step's summary. CI uses Vitest's default reporter, which lists files and not rows.
 
-== chromium, job 134697009472
-Version: 20261111.370.1
- ✓  browser/material-x (chromium)  tests/text-field/text-field.browser.test.ts (26 tests) 2513ms
- ✓  browser/material-x (chromium)  tests/list/list-item.browser.test.ts (7 tests) 753ms
- ✓  visual/material-x (chromium)  tests/button-group/button-group.visual.browser.test.ts (4 tests) 706ms
- ✓  visual/material-x (chromium)  tests/button/button.visual.browser.test.ts (7 tests) 1100ms
- ✓  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (4 tests) 691ms
- ✓  visual/material-x (chromium)  tests/radio/radio.visual.browser.test.ts (4 tests) 646ms
- Test Files  143 passed (143)
-      Tests  2066 passed | 12 skipped (2078)
+== chromium, job 134705238062
+Version: 20261103.629
+ ✓  browser/material-x (chromium)  tests/text-field/text-field.browser.test.ts (26 tests) 2475ms
+ ✓  browser/material-x (chromium)  tests/list/list-item.browser.test.ts (7 tests) 767ms
+ ✓  visual/material-x (chromium)  tests/button-group/button-group.visual.browser.test.ts (4 tests) 724ms
+ ✓  visual/material-x (chromium)  tests/button/button.visual.browser.test.ts (7 tests) 1234ms
+ ✓  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (4 tests) 676ms
+ ✓  visual/material-x (chromium)  tests/radio/radio.visual.browser.test.ts (4 tests) 644ms
+ Test Files  146 passed (146)
+      Tests  2164 passed | 12 skipped (2176)
 
-== firefox, job 134697009408
-Version: 20261111.127.1
- ✓  browser/material-x/firefox (firefox)  tests/text-field/text-field.browser.test.ts (26 tests) 2390ms
- ✓  browser/material-x/firefox (firefox)  tests/list/list-item.browser.test.ts (7 tests) 710ms
+== firefox, job 134705238220
+Version: 20261103.629
+ ✓  browser/material-x/firefox (firefox)  tests/text-field/text-field.browser.test.ts (26 tests) 2469ms
+ ✓  browser/material-x/firefox (firefox)  tests/list/list-item.browser.test.ts (7 tests) 802ms
  Test Files  105 passed (105)
       Tests  1754 passed | 1 expected fail | 18 skipped (1773)
 
-== webkit, job 134697009481
-Version: 20261111.127.1
- ✓  browser/material-x/webkit (webkit)  tests/text-field/text-field.browser.test.ts (26 tests) 2538ms
- ✓  browser/material-x/webkit (webkit)  tests/list/list-item.browser.test.ts (7 tests) 740ms
+== webkit, job 134705238152
+Version: 20261103.629
+ ✓  browser/material-x/webkit (webkit)  tests/text-field/text-field.browser.test.ts (26 tests) 2440ms
+ ✓  browser/material-x/webkit (webkit)  tests/list/list-item.browser.test.ts (7 tests) 693ms
  Test Files  105 passed (105)
       Tests  1755 passed | 18 skipped (1773)
 
 == jobs
-134696676999 scope success
-134696835129 system-deps (firefox) success
-134696835136 system-deps (webkit) success
-134696835174 system-deps (chromium) success
-134696835250 static success
-134696838439 records skipped
-134697009360 docs success
-134697009408 firefox success
-134697009417 measurements success
-134697009472 chromium success
-134697009481 webkit success
-134697738309 deploy skipped
-134701308903 verify success
+134704898546 scope success
+134705120279 system-deps (firefox) success
+134705120335 system-deps (chromium) success
+134705120348 system-deps (webkit) success
+134705120379 static success
+134705124161 records skipped
+134705238062 chromium success
+134705238151 docs success
+134705238152 webkit success
+134705238219 measurements success
+134705238220 firefox success
+134705947943 deploy skipped
+134709579040 verify success
 
 == chromium steps (the screenshot upload runs only on failure())
   Set up job success
@@ -57,3 +57,5 @@ Version: 20261111.127.1
   Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 success
   Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 success
   Complete job success
+
+== git diff --name-only origin/main 4df80913f -- '*__screenshots__*' (origin/main at 7a4f82eb4): 0 files
