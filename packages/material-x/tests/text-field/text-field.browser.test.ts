@@ -40,6 +40,11 @@ function addSlottedContent(
   return element;
 }
 
+/**
+ * The slot rows find their elements by `part`, which no stylesheet rule
+ * selects, so a slot whose class disagrees with its stylesheet fails the rule's
+ * assertion rather than the lookup.
+ */
 function getShadowElement(field: HTMLElement, selector: string): HTMLElement {
   const element = $<HTMLElement>(field, selector);
 
@@ -115,7 +120,7 @@ describe.each(FIELD_TAGS)('%s slotted content', (tag) => {
   it('should open the lead column with the icon padding and gap while lead has content', async () => {
     const field = await renderField();
     const empty = getInputStart(field);
-    const lead = getShadowElement(field, '.lead');
+    const lead = getShadowElement(field, '[part=lead]');
     const content = addSlottedBox(field, 'lead');
 
     await nextFrame();
@@ -138,7 +143,7 @@ describe.each(FIELD_TAGS)('%s slotted content', (tag) => {
   it('should open the trail column with the icon padding and gap while trail has content', async () => {
     const field = await renderField();
     const empty = getInputEnd(field);
-    const trail = getShadowElement(field, '.trail');
+    const trail = getShadowElement(field, '[part=trail]');
     const content = addSlottedBox(field, 'trail');
 
     await nextFrame();
@@ -161,7 +166,7 @@ describe.each(FIELD_TAGS)('%s slotted content', (tag) => {
   it('should open the prefix column with the prefix gap while prefix has content', async () => {
     const field = await renderField();
     const empty = getInputStart(field);
-    const prefix = getShadowElement(field, '.prefix');
+    const prefix = getShadowElement(field, '[part=prefix]');
     const content = addSlottedBox(field, 'prefix');
 
     await nextFrame();
@@ -184,7 +189,7 @@ describe.each(FIELD_TAGS)('%s slotted content', (tag) => {
   it('should open the suffix column with the suffix gap while suffix has content', async () => {
     const field = await renderField();
     const empty = getInputEnd(field);
-    const suffix = getShadowElement(field, '.suffix');
+    const suffix = getShadowElement(field, '[part=suffix]');
     const content = addSlottedBox(field, 'suffix');
 
     await nextFrame();
@@ -210,8 +215,8 @@ describe.each(FIELD_TAGS)('%s slotted content', (tag) => {
       const field = await renderField();
       const empty = field.getBoundingClientRect().height;
       const container = getShadowElement(field, '.notched-outline');
-      const row = getShadowElement(field, `.${slot}`);
-      const rowSlot = getShadowElement(field, `.${slot} slot`);
+      const row = getShadowElement(field, `[part=${slot}]`);
+      const rowSlot = getShadowElement(field, `[part=${slot}] slot`);
       const content = addSlottedContent(field, slot);
 
       await nextFrame();
