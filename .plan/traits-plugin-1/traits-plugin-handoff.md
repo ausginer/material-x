@@ -6,6 +6,8 @@
 
 **Authorized** by the owner's queue, relayed by the coordinator on 2026-11-18: plan `RF-44`. The owner hasn't yet chosen how `RF-44`'s required property is met. [The owner's question](#the-owners-question) below asks him. Item 1 is needed under either answer, so it can start now. Items 2 and 3 wait for the answer.
 
+**Answered 2026-11-18 by the owner: C, method traits,** relayed by the coordinator and recorded in `RF-44`. His aside: _"we gave up classes long ago exactly because of the complexity"_. Items 2 and 3 apply as written, and the generic subset stays rejected. **Recipient for items 2 and 3:** Implementer B, in slot `d`, after #37 merges and `main` is merged into this branch (`RD-17`).
+
 **Governing records,** in [`../00-index.md`](../00-index.md):
 
 - `repo:RF-44`, amended 2026-11-18 by this plan;
@@ -73,7 +75,7 @@
 
 ## Item 2. Method traits are flattened
 
-**Only on answer C.** When the implementer reports item 2, the architect widens the document from this section.
+**Only on answer C,** which the owner chose on 2026-11-18. When the implementer reports item 2, the architect widens the document from this section.
 
 **An eligible class-based trait:**
 
@@ -117,7 +119,7 @@ A negative fixture for each retained case above.
 
 ## Item 3. The focus forward moves to the trait
 
-**Only on answer C, and only while `RF-33`'s forward ships.** If `mx-button`'s _"should delegate focus to the native button through the shadow root alone"_ passes in Firefox, stop: the forward goes, and no trait is needed.
+**Only on answer C, which the owner chose, and only while `RF-33`'s forward ships.** If `mx-button`'s _"should delegate focus to the native button through the shadow root alone"_ passes in Firefox, stop: the forward goes, and no trait is needed.
 
 **Required properties:**
 
