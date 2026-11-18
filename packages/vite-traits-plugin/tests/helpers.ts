@@ -1,4 +1,12 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import {
+  cp,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
@@ -48,8 +56,46 @@ export const nodeLoader: ModuleLoader = {
   load: (id) => readFile(id, 'utf8'),
 };
 
+/** Scope of the fixture packages under `fixtures/packages/`. */
+const FIXTURE_SCOPE = '@fixture/';
+
+/**
+ * {@link nodeLoader}, with `@fixture/<name>/<path>` resolved to
+ * `fixtures/packages/<name>/<path>`: another package's built JavaScript, as the
+ * bundler hands it to a consumer.
+ */
+export const fixtureLoader: ModuleLoader = {
+  resolve: (specifier, importer) =>
+    specifier.startsWith(FIXTURE_SCOPE)
+      ? Promise.resolve(
+          fixtureId(`packages/${specifier.slice(FIXTURE_SCOPE.length)}`),
+        )
+      : nodeLoader.resolve(specifier, importer),
+  load: (id) => nodeLoader.load(id),
+};
+
+/**
+ * Applies the origin-module transform to `code`: the synthetic exports of its
+ * traits' private bindings.
+ */
+function augmentSource(id: string, code: string): string {
+  const program = parseModule(id, code);
+  const synthetics = collectModuleSyntheticExports(
+    program,
+    id,
+    resolveFactoryLocals(program),
+    code,
+  );
+
+  return appendSyntheticExports(code, synthetics)?.toString() ?? code;
+}
+
 /** A materialized flattening: both forms on disk, importable, then disposed. */
 export interface Flattening {
+  /** The flattened consumer's source. */
+  readonly flat: string;
+  /** Reason codes of the consumer's retained sites. */
+  readonly bailouts: readonly string[];
   /** Absolute file URL for a generated module (e.g. `foo-flat.ts`). */
   url(file: string): string;
   /** Removes the generated directory. */
@@ -72,33 +118,47 @@ export async function flattenToDir(
   options: Readonly<{
     augment: readonly string[];
     passthrough: readonly string[];
+    /**
+     * Fixture packages under `fixtures/packages/`, installed as
+     * `node_modules/@fixture/<name>` with each module augmented, as that
+     * package's own build emits it.
+     */
+    packages?: readonly string[];
   }>,
 ): Promise<Flattening> {
   const genDir = await mkdtemp(join(fileURLToPath(FIXTURES), 'gen-'));
   const consumerId = fixtureId(consumerName);
   const consumerCode = await readFixture(consumerName);
-  const { compositions } = await analyzeModule(
+  const { compositions, bailouts } = await analyzeModule(
     consumerId,
     consumerCode,
-    nodeLoader,
+    fixtureLoader,
   );
   const flat = lowerModule(consumerCode, compositions).toString();
 
   const augment = async (name: string): Promise<void> => {
-    const id = fixtureId(name);
     const code = await readFixture(name);
-    const program = parseModule(id, code);
-    const synthetics = collectModuleSyntheticExports(
-      program,
-      id,
-      resolveFactoryLocals(program),
-    );
-    const emitted =
-      appendSyntheticExports(code, synthetics)?.toString() ?? code;
-    await writeFile(join(genDir, name), emitted);
+    await writeFile(join(genDir, name), augmentSource(fixtureId(name), code));
+  };
+
+  const install = async (name: string): Promise<void> => {
+    const source = fixtureId(`packages/${name}`);
+    const target = join(genDir, 'node_modules', '@fixture', name);
+    await mkdir(target, { recursive: true });
+    await cp(source, target, { recursive: true });
+    for (const file of await readdir(source)) {
+      if (file.endsWith('.js')) {
+        const id = join(source, file);
+        // oxlint-disable-next-line no-await-in-loop
+        const code = await readFile(id, 'utf8');
+        // oxlint-disable-next-line no-await-in-loop
+        await writeFile(join(target, file), augmentSource(id, code));
+      }
+    }
   };
 
   await Promise.all([
+    ...(options.packages ?? []).map(install),
     ...options.passthrough.map(
       async (name) =>
         await writeFile(join(genDir, name), await readFixture(name)),
@@ -109,6 +169,8 @@ export async function flattenToDir(
   ]);
 
   return {
+    flat,
+    bailouts: bailouts.map(({ reason }) => reason),
     url: (file) => pathToFileURL(join(genDir, file)).href,
     dispose: () => rm(genDir, { recursive: true, force: true }),
   };

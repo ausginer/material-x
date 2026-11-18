@@ -12,6 +12,7 @@ import { annotatePureTraitCalls, augmentOrigin, lowerModule } from './lower.ts';
 import {
   collectModuleSyntheticExports,
   resolveFactoryLocals,
+  resolveGenericFactoryLocals,
 } from './normalize.ts';
 
 /** Only real TypeScript/JS source modules are candidates. */
@@ -89,6 +90,10 @@ export function viteTraitsPlugin(): Plugin & RolldownPlugin {
 
       const program = parseModule(cleanId, code);
       const factoryLocals = resolveFactoryLocals(program);
+      // Both factories' calls are marked pure.
+      const traitLocals = factoryLocals.union(
+        resolveGenericFactoryLocals(program),
+      );
 
       // Consumer responsibility: flatten eligible compositions. A flattened
       // module still gets its `trait(...)` calls marked pure so the now-unused
@@ -115,20 +120,21 @@ export function viteTraitsPlugin(): Plugin & RolldownPlugin {
           // Return the native MagicString as `code`; the bundler derives the
           // sourcemap from it natively.
           const magic = lowerModule(code, compositions);
-          annotatePureTraitCalls(magic, program, factoryLocals);
+          annotatePureTraitCalls(magic, program, traitLocals);
           return emit(magic, cleanId);
         }
       }
 
-      // Origin responsibility: expose private brand/converter bindings so a
-      // flattened consumer in another module can link them, and mark descriptor
-      // `trait(...)` calls pure.
+      // Origin responsibility: expose the private bindings that brands,
+      // converters and method trait members read, so a flattened consumer in
+      // another module can link them, and mark `trait(...)` calls pure.
       const synthetics = collectModuleSyntheticExports(
         program,
         cleanId,
         factoryLocals,
+        code,
       );
-      const augmented = augmentOrigin(code, synthetics, program, factoryLocals);
+      const augmented = augmentOrigin(code, synthetics, program, traitLocals);
 
       return augmented ? emit(augmented, cleanId) : null;
     },

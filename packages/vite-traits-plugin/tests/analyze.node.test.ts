@@ -121,13 +121,25 @@ export default FooBase;`;
     expect(bailouts[0]).toBeInstanceOf(BailoutError);
   });
 
-  it('should bail on a class-based trait', async () => {
+  it('should bail on a class-based trait outside the method subset', async () => {
     const code = `${CONSUMER_HEAD}
-import { Focusable } from './focusable.ts';
-const FooBase = impl(Base, [Checkable, Focusable]);
+import { Stateful } from './stateful.ts';
+const FooBase = impl(Base, [Checkable, Stateful]);
 export class Foo extends FooBase {}`;
 
     const { bailouts } = await analyzeSource('class-based.ts', code);
+    expect(bailouts.map((b) => b.reason)).toEqual([
+      REASON.UNSUPPORTED_TRAIT_MEMBER,
+    ]);
+  });
+
+  it('should bail on a trait no factory creates', async () => {
+    const code = `${CONSUMER_HEAD}
+const Plain = (base: typeof Base) => class extends base {};
+const FooBase = impl(Base, [Checkable, Plain]);
+export class Foo extends FooBase {}`;
+
+    const { bailouts } = await analyzeSource('plain-trait.ts', code);
     expect(bailouts.map((b) => b.reason)).toEqual([REASON.UNSUPPORTED_TRAIT]);
   });
 
@@ -160,10 +172,10 @@ export class Foo extends FooBase {}`;
 
 describe('analyzeModule with two impl sites', () => {
   const code = `${CONSUMER_HEAD}
-import { Focusable } from './focusable.ts';
+import { Stateful } from './stateful.ts';
 const FirstBase = impl(Base, [Checkable]);
 export class First extends FirstBase {}
-const SecondBase = impl(Base, [Checkable, Focusable]);
+const SecondBase = impl(Base, [Checkable, Stateful]);
 export class Second extends SecondBase {}`;
 
   it('should flatten the eligible site when the other one bails', async () => {
@@ -174,7 +186,7 @@ export class Second extends SecondBase {}`;
   it('should report the bailout of the retained site', async () => {
     const { bailouts } = await analyzeSource('two-sites.ts', code);
     expect(bailouts.map((b) => [b.composition, b.reason] as const)).toEqual([
-      ['SecondBase', REASON.UNSUPPORTED_TRAIT],
+      ['SecondBase', REASON.UNSUPPORTED_TRAIT_MEMBER],
     ]);
   });
 });

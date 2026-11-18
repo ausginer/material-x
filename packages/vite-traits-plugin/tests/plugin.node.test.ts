@@ -85,6 +85,40 @@ describe('viteTraitsPlugin', () => {
     expect(String(result?.code)).toMatch(/\/\*@__PURE__\*\/ trait\(/u);
   });
 
+  it('should export the private binding a method trait member reads', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('forwarding.ts'),
+      fixtureId('forwarding.ts'),
+    );
+
+    expect(String(result?.code)).toMatch(
+      /export \{ \$forwarding as __mxflat_\S+, \$forwarding, targets as __mxflat_\S+, targets \};/u,
+    );
+  });
+
+  it('should mark generic trait() calls pure for downstream tree-shaking', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('forwarding.ts'),
+      fixtureId('forwarding.ts'),
+    );
+
+    expect(String(result?.code)).toMatch(/\/\*@__PURE__\*\/ trait\(/u);
+  });
+
+  it('should mark the trait() calls of a flattened consumer pure', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('method-local-consumer.ts'),
+      fixtureId('method-local-consumer.ts'),
+    );
+
+    expect(
+      String(result?.code).match(/\/\*@__PURE__\*\/ trait\(/gu),
+    ).toHaveLength(2);
+  });
+
   it('should skip modules with neither impl nor trait', async () => {
     const result = await runTransform(
       mockContext(),
@@ -122,10 +156,10 @@ describe('viteTraitsPlugin', () => {
       "import { impl } from '@ydinjs/core/traits/attributes.js';",
       "import { Base } from './base.ts';",
       "import { Checkable } from './checkable.ts';",
-      "import { Focusable } from './focusable.ts';",
+      "import { Stateful } from './stateful.ts';",
       'const FirstBase = impl(Base, [Checkable]);',
       'export class First extends FirstBase {}',
-      'const SecondBase = impl(Base, [Checkable, Focusable]);',
+      'const SecondBase = impl(Base, [Checkable, Stateful]);',
       'export class Second extends SecondBase {}',
     ].join('\n');
 
@@ -147,7 +181,7 @@ describe('viteTraitsPlugin', () => {
       );
 
       expect(String(result?.code)).toContain(
-        'const SecondBase = impl(Base, [Checkable, Focusable]);',
+        'const SecondBase = impl(Base, [Checkable, Stateful]);',
       );
     });
 
@@ -157,7 +191,7 @@ describe('viteTraitsPlugin', () => {
       await runTransform(context, code, fixtureId('two-sites-plugin.ts'));
 
       expect(context.warnings).toEqual([
-        expect.stringContaining('for SecondBase (unsupported-trait)'),
+        expect.stringContaining('for SecondBase (unsupported-trait-member)'),
       ]);
     });
   });

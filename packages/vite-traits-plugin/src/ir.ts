@@ -4,8 +4,8 @@
  * The IR is the boundary between the two analysis passes described in
  * `.agents/docs/trait-flattener-plugin.md`:
  *
- * 1. trait normalization resolves descriptor traits into this common shape;
- *    and
+ * 1. trait normalization resolves descriptor traits and method traits into
+ *    this common shape; and
  * 2. composition lowering consumes only the IR and never re-reads the original
  *    trait authoring form.
  *
@@ -18,7 +18,7 @@
  * Bumped whenever the serialized shape changes. Persisted caches and snapshots
  * compare against this before trusting a stored IR.
  */
-export const TRAIT_IR_VERSION = 1;
+export const TRAIT_IR_VERSION = 2;
 
 /**
  * Reference to a value that lives in some module and must be linked (imported)
@@ -79,9 +79,55 @@ export type DescriptorTraitIR = Readonly<{
 }>;
 
 /**
- * A normalized trait. The plugin flattens only descriptor traits.
+ * A name that a method trait's member reads from its origin module, linked
+ * into the consumer.
  */
-export type TraitIR = DescriptorTraitIR;
+export type MemberLinkIR = Readonly<{
+  /** Name the member's source uses. */
+  name: string;
+  ref: BindingRef;
+  /**
+   * Each reference, as `[start, end)` offsets in the member's source. A
+   * shorthand property, `{ name }`, is rewritten as `name: <link>`.
+   */
+  occurrences: ReadonlyArray<
+    Readonly<{ start: number; end: number; shorthand: boolean }>
+  >;
+}>;
+
+/**
+ * A method, getter or setter that a method trait's class declares, copied as
+ * its origin source into the consumer's class body.
+ */
+export type MemberIR = Readonly<{
+  key: string;
+  kind: 'method' | 'get' | 'set';
+  /** The member's origin source, modifiers included. */
+  source: string;
+  /** Origin module bindings the member reads, in first-reference order. */
+  links: readonly MemberLinkIR[];
+  /** Names the member reads that no origin scope binds: globals. */
+  globals: readonly string[];
+}>;
+
+/**
+ * Normalized method trait: a `trait(transformer, brand)` of
+ * `@ydinjs/core/traits/primitives` whose class has only methods and accessors.
+ */
+export type MethodTraitIR = Readonly<{
+  kind: 'method';
+  /** Human-readable trait name, for diagnostics only. */
+  name: string;
+  /** Linked brand symbol installed on the prototype. */
+  brand: BindingRef;
+  /** The class's members, in declaration order. */
+  members: readonly MemberIR[];
+}>;
+
+/**
+ * A normalized trait. The plugin flattens descriptor traits and method traits.
+ */
+export type TraitIR = DescriptorTraitIR | MethodTraitIR;
 
 /**
  * A fully-resolved composition ready for lowering. Produced by analysis +
