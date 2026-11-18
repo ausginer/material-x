@@ -98,6 +98,32 @@ function captureContextEvent(): Event {
   return lookupEvent;
 }
 
+describe('createContext', () => {
+  it('should create distinct string tokens where crypto.randomUUID is unavailable', () => {
+    // An insecure page, such as plain HTTP from a LAN address, has no
+    // `crypto.randomUUID`. The gate serves from `localhost`, which is secure.
+    const descriptor = Object.getOwnPropertyDescriptor(
+      Crypto.prototype,
+      'randomUUID',
+    )!;
+    Object.defineProperty(Crypto.prototype, 'randomUUID', {
+      ...descriptor,
+      value: undefined,
+    });
+
+    try {
+      const tokens = [createContext(), createContext()];
+
+      expect([
+        tokens.map((token) => typeof token),
+        tokens[0] === tokens[1],
+      ]).toEqual([['string', 'string'], false]);
+    } finally {
+      Object.defineProperty(Crypto.prototype, 'randomUUID', descriptor);
+    }
+  });
+});
+
 describe('context lookup event', () => {
   it('should bubble', () => {
     expect(captureContextEvent().bubbles).toBeTruthy();
