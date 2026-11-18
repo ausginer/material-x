@@ -1,8 +1,9 @@
 import { $ } from '@ydinjs/core/utils/DOM.js';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
 import '../../src/text-field/multiline-text-field.ts';
 import '../../src/text-field/text-field.ts';
-import { nextFrame } from '../browser.ts';
+import { nextFrame, pixels } from '../browser.ts';
 
 type FieldTag = 'mx-text-field' | 'mx-multiline-text-field';
 type FieldElement = HTMLElement & {
@@ -38,6 +39,204 @@ function addSlottedContent(
   field.append(element);
   return element;
 }
+
+/**
+ * The slot rows find each slot and supporting row by `part`, which no
+ * stylesheet rule selects, so a slot whose class disagrees with its stylesheet
+ * fails the rule's assertion rather than the lookup. `.notched-outline` and
+ * `.input` are found by class; no selector beside `:has-slotted` names either.
+ */
+function getShadowElement(field: HTMLElement, selector: string): HTMLElement {
+  const element = $<HTMLElement>(field, selector);
+
+  if (!element) {
+    throw new Error(`Missing internal text field element ${selector}`);
+  }
+
+  return element;
+}
+
+/**
+ * Slots a box of fixed inline size, so every column the slot's presence opens
+ * has an integer width and the geometry compares exactly.
+ */
+function addSlottedBox(field: HTMLElement, slot: string): HTMLElement {
+  const element = document.createElement('span');
+  element.slot = slot;
+  element.style.display = 'inline-block';
+  element.style.inlineSize = '24px';
+  element.style.blockSize = '24px';
+  field.append(element);
+  return element;
+}
+
+/** The inline offset of the internal field's start from the host's start. */
+function getInputStart(field: HTMLElement): number {
+  return (
+    getInput(field).getBoundingClientRect().left -
+    field.getBoundingClientRect().left
+  );
+}
+
+/** The inline offset of the internal field's end from the host's end. */
+function getInputEnd(field: HTMLElement): number {
+  return (
+    field.getBoundingClientRect().right -
+    getInput(field).getBoundingClientRect().right
+  );
+}
+
+const SLOT_TOKENS = [
+  'container.icon.padding.inline',
+  'container.padding.inline',
+  'input-text.prefix.gap',
+  'input-text.suffix.gap',
+  'supporting-text.row-gap',
+] as const;
+
+type SlotTokenValues = Readonly<Record<(typeof SLOT_TOKENS)[number], number>>;
+
+describe.each(FIELD_TAGS)('%s slotted content', (tag) => {
+  let tokens: SlotTokenValues;
+
+  beforeAll(async () => {
+    const { values } = await commands.resolveTokenContract({
+      contract: 'text-field.default',
+      state: 'default',
+      tokens: SLOT_TOKENS,
+    });
+
+    tokens = Object.fromEntries(
+      SLOT_TOKENS.map((token) => [token, pixels(values[token]!)]),
+    );
+  }, 120_000);
+
+  async function renderField(): Promise<FieldElement> {
+    const field = createField(tag);
+    document.body.append(field);
+    await nextFrame();
+    return field;
+  }
+
+  it('should open the lead column with the icon padding and gap while lead has content', async () => {
+    const field = await renderField();
+    const empty = getInputStart(field);
+    const lead = getShadowElement(field, '[part=lead]');
+    const content = addSlottedBox(field, 'lead');
+
+    await nextFrame();
+
+    expect(lead.getBoundingClientRect().width).toBe(
+      content.getBoundingClientRect().width,
+    );
+    expect(getInputStart(field)).toBe(
+      tokens['container.icon.padding.inline'] +
+        content.getBoundingClientRect().width +
+        tokens['container.padding.inline'],
+    );
+
+    content.remove();
+    await nextFrame();
+
+    expect(getInputStart(field)).toBe(empty);
+  });
+
+  it('should open the trail column with the icon padding and gap while trail has content', async () => {
+    const field = await renderField();
+    const empty = getInputEnd(field);
+    const trail = getShadowElement(field, '[part=trail]');
+    const content = addSlottedBox(field, 'trail');
+
+    await nextFrame();
+
+    expect(trail.getBoundingClientRect().width).toBe(
+      content.getBoundingClientRect().width,
+    );
+    expect(getInputEnd(field)).toBe(
+      tokens['container.icon.padding.inline'] +
+        content.getBoundingClientRect().width +
+        tokens['container.padding.inline'],
+    );
+
+    content.remove();
+    await nextFrame();
+
+    expect(getInputEnd(field)).toBe(empty);
+  });
+
+  it('should open the prefix column with the prefix gap while prefix has content', async () => {
+    const field = await renderField();
+    const empty = getInputStart(field);
+    const prefix = getShadowElement(field, '[part=prefix]');
+    const content = addSlottedBox(field, 'prefix');
+
+    await nextFrame();
+
+    expect(prefix.getBoundingClientRect().width).toBe(
+      content.getBoundingClientRect().width,
+    );
+    expect(getInputStart(field)).toBe(
+      tokens['container.padding.inline'] +
+        content.getBoundingClientRect().width +
+        tokens['input-text.prefix.gap'],
+    );
+
+    content.remove();
+    await nextFrame();
+
+    expect(getInputStart(field)).toBe(empty);
+  });
+
+  it('should open the suffix column with the suffix gap while suffix has content', async () => {
+    const field = await renderField();
+    const empty = getInputEnd(field);
+    const suffix = getShadowElement(field, '[part=suffix]');
+    const content = addSlottedBox(field, 'suffix');
+
+    await nextFrame();
+
+    expect(suffix.getBoundingClientRect().width).toBe(
+      content.getBoundingClientRect().width,
+    );
+    expect(getInputEnd(field)).toBe(
+      tokens['container.padding.inline'] +
+        content.getBoundingClientRect().width +
+        tokens['input-text.suffix.gap'],
+    );
+
+    content.remove();
+    await nextFrame();
+
+    expect(getInputEnd(field)).toBe(empty);
+  });
+
+  it.each(['support', 'counter'])(
+    'should open the supporting row below the row gap while %s has content',
+    async (slot) => {
+      const field = await renderField();
+      const empty = field.getBoundingClientRect().height;
+      const container = getShadowElement(field, '.notched-outline');
+      const row = getShadowElement(field, `[part=${slot}]`);
+      const rowSlot = getShadowElement(field, `[part=${slot}] slot`);
+      const content = addSlottedContent(field, slot);
+
+      await nextFrame();
+
+      expect(row.getBoundingClientRect().height).toBe(
+        rowSlot.getBoundingClientRect().height,
+      );
+      expect(
+        row.getBoundingClientRect().top -
+          container.getBoundingClientRect().bottom,
+      ).toBe(tokens['supporting-text.row-gap']);
+
+      content.remove();
+      await nextFrame();
+
+      expect(field.getBoundingClientRect().height).toBe(empty);
+    },
+  );
+});
 
 describe.each(FIELD_TAGS)('%s', (tag) => {
   it('should restore slot label fallback after aria-labelledby removal', async () => {

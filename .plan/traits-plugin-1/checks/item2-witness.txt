@@ -1,0 +1,46 @@
+# RF-44 item 2 witnesses, read by the implementer on 2026-11-18 in slot d on repo/traits-plugin-1
+# Before: be491e375 (item 1, with origin/main 377ca72df merged). After: the commit that adds this file.
+# Each side: aube exec just build in packages/vite-traits-plugin, packages/core, packages/vite-custom-element-assets
+# and packages/tproc, then aube exec just build-prepare and build-lib in packages/material-x; sha256 of every built .js.
+
+## W1: built JavaScript
+### core (27 files): identical, file set identical
+### material-x (92 files): one file differs, file set identical; the after build is stable across two runs
+$ diff list-item.before.js list-item.after.js
+21d20
+< 	static observedAttributes = [.../* @__PURE__ */ new Set([...ControlledElement.observedAttributes ?? []])];
+# Cause: list-item composes impl(ControlledElement, LIST_ITEM_CORE_TRAITS), and LIST_ITEM_CORE_TRAITS is [].
+# The lowering now emits static observedAttributes only when a descriptor layer contributes it. At runtime impl()
+# returns the base for an empty list, so the class inherits ControlledElement.observedAttributes, as the after form does.
+### flattener warnings in material-x's build-lib log: 0 before, 0 after
+
+## W2: each item 2 rule, reverted alone, fails the plugin's tests (aube exec just test in packages/vite-traits-plugin)
+# unmutated: 138 passed (138)
+## M1 the walker binds every name (no free references)
+# 19 failed | 119 passed (138)
+## M2 a member may read the transformer's parameter
+# 2 failed | 136 passed (138)
+## M3 no consumer-scope check
+# 3 failed | 135 passed (138)
+## M4 no source-language check
+# 1 failed | 137 passed (138)
+## M5 trait layers are not checked for accessor halves
+# 4 failed | 134 passed (138)
+## M6 linked names are not rewritten
+# 8 failed | 130 passed (138)
+## M7 a shorthand property is rewritten as a bare link
+# 3 failed | 135 passed (138)
+## M8 the origin scan rebases nothing
+# 2 failed | 136 passed (138)
+## M9 an unmodeled node is walked instead of failing
+# 4 failed | 134 passed (138)
+## M10 observedAttributes is emitted for method traits alone
+# 1 failed | 137 passed (138)
+## M11 method traits are not normalized
+# 47 failed | 91 passed (138)
+## M12 generic trait() calls are not marked pure
+# 2 failed | 136 passed (138)
+
+## W3: the handoff loop
+# fmt, lint-fix, fmt, lint on every changed .ts/.js file of packages/vite-traits-plugin: 0 errors
+# (8 warnings: eslint ignores tests/fixtures/**). tsc -p tsconfig.json --noEmit: 0 errors.

@@ -1,0 +1,19 @@
+# RF-59 item 3, witness 1, before the repair: tests/core/utils/polyfills.browser.test.ts in packages/material-x, run as
+#   MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test --project browser --project browser/firefox \
+#     --project browser/webkit tests/core/utils/polyfills.browser.test.ts --reporter=verbose
+# Read by the implementer in slot e on 2026-11-18, on repo/host-has-fallback-1 at d23abc117 with the new rows
+# and the source unchanged.
+
+× |browser (chromium)| tests/core/utils/polyfills.browser.test.ts:9 > polyfills > should neither append to the document nor compute a style when imported 194ms
+× |browser (chromium)| tests/core/utils/polyfills.browser.test.ts:23 > polyfills > should set the host's has-<slot> state in every engine 1095ms
+× |browser/firefox (firefox)| tests/core/utils/polyfills.browser.test.ts:9 > polyfills > should neither append to the document nor compute a style when imported 251ms
+✓ |browser/firefox (firefox)| tests/core/utils/polyfills.browser.test.ts:23 > polyfills > should set the host's has-<slot> state in every engine 182ms
+× |browser/webkit (webkit)| tests/core/utils/polyfills.browser.test.ts:9 > polyfills > should neither append to the document nor compute a style when imported 204ms
+× |browser/webkit (webkit)| tests/core/utils/polyfills.browser.test.ts:23 > polyfills > should set the host's has-<slot> state in every engine 1085ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ 1, 1 ] to deeply equal [ +0, +0 ]
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected [ 1, 1 ] to deeply equal [ +0, +0 ]
+AssertionError: expected [ 1, 1 ] to deeply equal [ +0, +0 ]
+AssertionError: expected false to be true // Object.is equality
+Tests  5 failed | 1 passed (6)

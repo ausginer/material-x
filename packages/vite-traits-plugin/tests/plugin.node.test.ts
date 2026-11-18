@@ -85,6 +85,40 @@ describe('viteTraitsPlugin', () => {
     expect(String(result?.code)).toMatch(/\/\*@__PURE__\*\/ trait\(/u);
   });
 
+  it('should export the private binding a method trait member reads', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('forwarding.ts'),
+      fixtureId('forwarding.ts'),
+    );
+
+    expect(String(result?.code)).toMatch(
+      /export \{ \$forwarding as __mxflat_\S+, \$forwarding, targets as __mxflat_\S+, targets \};/u,
+    );
+  });
+
+  it('should mark generic trait() calls pure for downstream tree-shaking', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('forwarding.ts'),
+      fixtureId('forwarding.ts'),
+    );
+
+    expect(String(result?.code)).toMatch(/\/\*@__PURE__\*\/ trait\(/u);
+  });
+
+  it('should mark the trait() calls of a flattened consumer pure', async () => {
+    const result = await runTransform(
+      mockContext(),
+      await readFixture('method-local-consumer.ts'),
+      fixtureId('method-local-consumer.ts'),
+    );
+
+    expect(
+      String(result?.code).match(/\/\*@__PURE__\*\/ trait\(/gu),
+    ).toHaveLength(2);
+  });
+
   it('should skip modules with neither impl nor trait', async () => {
     const result = await runTransform(
       mockContext(),
@@ -115,6 +149,51 @@ describe('viteTraitsPlugin', () => {
     expect(warnSpy).toHaveBeenCalledOnce();
     expect(context.warnings[0]).toContain('impl-escapes');
     expect(result).toBeNull();
+  });
+
+  describe('on a module with two impl sites of which one bails', () => {
+    const code = [
+      "import { impl } from '@ydinjs/core/traits/attributes.js';",
+      "import { Base } from './base.ts';",
+      "import { Checkable } from './checkable.ts';",
+      "import { Stateful } from './stateful.ts';",
+      'const FirstBase = impl(Base, [Checkable]);',
+      'export class First extends FirstBase {}',
+      'const SecondBase = impl(Base, [Checkable, Stateful]);',
+      'export class Second extends SecondBase {}',
+    ].join('\n');
+
+    it('should flatten the eligible site', async () => {
+      const result = await runTransform(
+        mockContext(),
+        code,
+        fixtureId('two-sites-plugin.ts'),
+      );
+
+      expect(String(result?.code)).toMatch(/class First extends Base/u);
+    });
+
+    it('should retain the site that bails', async () => {
+      const result = await runTransform(
+        mockContext(),
+        code,
+        fixtureId('two-sites-plugin.ts'),
+      );
+
+      expect(String(result?.code)).toContain(
+        'const SecondBase = impl(Base, [Checkable, Stateful]);',
+      );
+    });
+
+    it('should warn once, for the retained site', async () => {
+      const context = mockContext();
+
+      await runTransform(context, code, fixtureId('two-sites-plugin.ts'));
+
+      expect(context.warnings).toEqual([
+        expect.stringContaining('for SecondBase (unsupported-trait-member)'),
+      ]);
+    });
   });
 
   it('should register trait dependencies as watch files', async () => {

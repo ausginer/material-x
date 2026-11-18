@@ -1,0 +1,166 @@
+# RF-44 item 2c recheck probes, read by the reviewer on 2026-11-18 in slot d at fbe60bd53 (repo/traits-plugin-1, clean,
+# equal to origin). Node v26.13.1, oxc-parser 0.158.0. Nothing in slot d's tree was changed.
+# The mutations ran on a scratch export of the whole tree at fbe60bd53 (git archive), with node_modules linked to slot d's,
+# run as `aube exec -- vitest run --root <scratch>/packages/vite-traits-plugin -c <scratch>/.../vitest.config.ts` from slot d.
+# 'before' in rows.ts is packages/vite-traits-plugin/src at 008d7a422, exported beside the scratch src.
+
+## The plugin's own gates, packages/vite-traits-plugin in slot d at fbe60bd53
+$ aube exec just test        -> Test Files 8 passed (8), Tests 147 passed (147)
+$ aube exec just typecheck   -> exit 0
+$ aube exec just lint src/analyze.ts tests/analyze-method.node.test.ts tests/flatten-method.node.test.ts tests/helpers.ts tests/fixtures/method-package-consumer.mjs
+  -> oxlint 0; eslint 0 errors, 1 warning: the .mjs fixture is ignored by a matching ignore pattern
+$ aube exec just fmt-check   -> All matched files use the correct format.
+## The scratch export at fbe60bd53, unmutated -> Tests 147 passed (147)
+
+## Mutations on the scratch export, each restored before the next
+### B: analyze.ts replaced by 008d7a422's (item 2b's language groups, and JavaScript into TypeScript)
+Tests  4 failed | 143 passed (147)
+× analyze-method.node.test.ts:358 > ... > should retain a trait from assertion-trait.ts in extension-consumer.cts
+× analyze-method.node.test.ts:358 > ... > should retain a trait from assertion-trait.ts in extension-consumer.mts
+× analyze-method.node.test.ts:358 > ... > should retain a trait from chevron-trait.js in extension-consumer.ts
+× flatten-method.node.test.ts:231 > method trait flattening of another package's built JavaScript into TypeScript > should retain the composition, since the extensions differ
+### M8: collectModuleSyntheticExports' rebase returns null for a relative import
+#   const keep: RebaseImport = (specifier) => (specifier.startsWith('.') ? null : specifier);
+Tests  2 failed | 145 passed (147)
+× flatten-method.node.test.ts:201 > method trait flattening of another package's built JavaScript > should call the trait method
+× flatten-method.node.test.ts:207 > method trait flattening of another package's built JavaScript > should reach the package's private bindings and relative import
+### M14: canCopySource compares extensions after dropping a leading c or m (.mts = .ts, .mjs = .js)
+Tests  2 failed | 145 passed (147)
+× analyze-method.node.test.ts:358 > ... > should retain a trait from assertion-trait.ts in extension-consumer.cts
+× analyze-method.node.test.ts:358 > ... > should retain a trait from assertion-trait.ts in extension-consumer.mts
+# The .ts-into-.mts and .ts-into-.cts rows fail, so those pairs are pinned. The two that survive, .mjs or .cjs against .js, have
+# no row. The code retains them (rows.ts below), and no shipped trait crosses either pair.
+
+## rows.ts: language pairs as in-memory cases
+```ts
+// RF-44 item 2c recheck: language pairs as in-memory cases, against the plugin source directory named in argv[2].
+const SRC = process.argv[2];
+const { analyzeModule } = await import(SRC + '/analyze.ts');
+const origin = (member: string) => `import { trait } from '@ydinjs/core/traits/primitives.js';
+const $t = Symbol('t');
+const a = 1, b = 2, c = 3;
+export const T = trait((base) => class extends base {
+  ${member}
+}, $t);
+`;
+const consumer = (spec: string) => `import { impl } from '@ydinjs/core/traits/attributes.js';
+import { T } from '${spec}';
+class Base extends HTMLElement {}
+const FooBase = impl(Base, [T]);
+export class Foo extends FooBase {}
+`;
+async function run(label: string, originId: string, member: string, consumerId: string) {
+  const files: Record<string, string> = { [originId]: origin(member), [consumerId]: consumer('./origin') };
+  const loader = {
+    resolve: async (s: string) => (s === './origin' ? originId : null),
+    load: async (i: string) => files[i] ?? Promise.reject(new Error('no ' + i)),
+  };
+  const { compositions, bailouts } = await analyzeModule(consumerId, files[consumerId], loader);
+  console.log(`${label.padEnd(28)} ${originId.padEnd(12)} -> ${consumerId.padEnd(10)} flattened=${compositions.length} bailouts=${JSON.stringify(bailouts.map((x: any) => x.reason))}`);
+}
+const TS = 'm(x: unknown): number { return <number>x; }';
+const JS = 'm() { return a < b > (c); }';
+const PLAIN_TS = 'm(): number { return 1; }';
+const PLAIN_JS = 'm() { return 1; }';
+await run('<number>x', '/v/t.ts', TS, '/v/c.mts');
+await run('<number>x', '/v/t.ts', TS, '/v/c.cts');
+await run('<number>x', '/v/t.ts', TS, '/v/c.tsx');
+await run('<number>x', '/v/t.ts', TS, '/v/c.ts');
+await run('a < b > (c)', '/v/t.js', JS, '/v/c.ts');
+await run('a < b > (c)', '/v/t.mjs', JS, '/v/c.ts');
+await run('a < b > (c)', '/v/t.js', JS, '/v/c.js');
+await run('plain', '/v/t.mjs', PLAIN_JS, '/v/c.mjs');
+await run('plain', '/v/t.mjs', PLAIN_JS, '/v/c.js');
+await run('plain', '/v/t.js', PLAIN_JS, '/v/c.mjs');
+await run('plain', '/v/t.cjs', PLAIN_JS, '/v/c.js');
+await run('plain', '/v/t.mts', PLAIN_TS, '/v/c.mts');
+await run('plain', '/v/t.mts', PLAIN_TS, '/v/c.ts');
+await run('plain', '/v/t.tsx', PLAIN_TS, '/v/c.tsx');
+await run('plain', '/v/t.jsx', PLAIN_JS, '/v/c.jsx');
+await run('plain, origin no extension', '/v.d/t', PLAIN_JS, '/v.d/c');
+await run('plain, dotted dir', '/v.ts/t', PLAIN_JS, '/v.ts/c.ts');
+```
+$ node rows.ts <before (008d7a422)>
+<number>x                    /v/t.ts      -> /v/c.mts   flattened=1 bailouts=[]
+<number>x                    /v/t.ts      -> /v/c.cts   flattened=1 bailouts=[]
+<number>x                    /v/t.ts      -> /v/c.tsx   flattened=0 bailouts=["trait-source-language"]
+<number>x                    /v/t.ts      -> /v/c.ts    flattened=1 bailouts=[]
+a < b > (c)                  /v/t.js      -> /v/c.ts    flattened=1 bailouts=[]
+a < b > (c)                  /v/t.mjs     -> /v/c.ts    flattened=1 bailouts=[]
+a < b > (c)                  /v/t.js      -> /v/c.js    flattened=1 bailouts=[]
+plain                        /v/t.mjs     -> /v/c.mjs   flattened=1 bailouts=[]
+plain                        /v/t.mjs     -> /v/c.js    flattened=1 bailouts=[]
+plain                        /v/t.js      -> /v/c.mjs   flattened=1 bailouts=[]
+plain                        /v/t.cjs     -> /v/c.js    flattened=1 bailouts=[]
+plain                        /v/t.mts     -> /v/c.mts   flattened=1 bailouts=[]
+plain                        /v/t.mts     -> /v/c.ts    flattened=1 bailouts=[]
+plain                        /v/t.tsx     -> /v/c.tsx   flattened=1 bailouts=[]
+plain                        /v/t.jsx     -> /v/c.jsx   flattened=1 bailouts=[]
+plain, origin no extension   /v.d/t       -> /v.d/c     flattened=0 bailouts=["trait-source-language"]
+plain, dotted dir            /v.ts/t      -> /v.ts/c.ts flattened=0 bailouts=["trait-source-language"]
+$ node rows.ts <after (fbe60bd53)>
+<number>x                    /v/t.ts      -> /v/c.mts   flattened=0 bailouts=["trait-source-language"]
+<number>x                    /v/t.ts      -> /v/c.cts   flattened=0 bailouts=["trait-source-language"]
+<number>x                    /v/t.ts      -> /v/c.tsx   flattened=0 bailouts=["trait-source-language"]
+<number>x                    /v/t.ts      -> /v/c.ts    flattened=1 bailouts=[]
+a < b > (c)                  /v/t.js      -> /v/c.ts    flattened=0 bailouts=["trait-source-language"]
+a < b > (c)                  /v/t.mjs     -> /v/c.ts    flattened=0 bailouts=["trait-source-language"]
+a < b > (c)                  /v/t.js      -> /v/c.js    flattened=1 bailouts=[]
+plain                        /v/t.mjs     -> /v/c.mjs   flattened=1 bailouts=[]
+plain                        /v/t.mjs     -> /v/c.js    flattened=0 bailouts=["trait-source-language"]
+plain                        /v/t.js      -> /v/c.mjs   flattened=0 bailouts=["trait-source-language"]
+plain                        /v/t.cjs     -> /v/c.js    flattened=0 bailouts=["trait-source-language"]
+plain                        /v/t.mts     -> /v/c.mts   flattened=1 bailouts=[]
+plain                        /v/t.mts     -> /v/c.ts    flattened=0 bailouts=["trait-source-language"]
+plain                        /v/t.tsx     -> /v/c.tsx   flattened=1 bailouts=[]
+plain                        /v/t.jsx     -> /v/c.jsx   flattened=1 bailouts=[]
+plain, origin no extension   /v.d/t       -> /v.d/c     flattened=0 bailouts=["trait-source-language"]
+plain, dotted dir            /v.ts/t      -> /v.ts/c.ts flattened=0 bailouts=["trait-source-language"]
+
+## mx.ts: analyzeModule over every material-x source that calls impl(, at fbe60bd53, with the plugin loader's shape
+```ts
+// RF-44 item 2c recheck: analyzeModule over every material-x source that calls impl(, with the plugin's loader shape.
+import { readFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const { analyzeModule } = await import(process.argv[2] + '/analyze.ts');
+const loader = {
+  resolve: async (s: string, importer: string) => {
+    if (s.startsWith('.')) return resolve(dirname(importer), s);
+    if (s.startsWith('@ydinjs/')) { try { return fileURLToPath(import.meta.resolve(s)); } catch { return null; } }
+    return null;
+  },
+  load: (i: string) => readFile(i, 'utf8'),
+};
+let total = 0, method = 0;
+for (const id of process.argv.slice(3)) {
+  const code = await readFile(id, 'utf8');
+  const { compositions, bailouts } = await analyzeModule(id, code, loader);
+  total += compositions.length;
+  const m = compositions.filter((c: any) => JSON.stringify(c).includes('"kind":"method"')).length;
+  method += m;
+  console.log(`${id.replace(/.*\/src\//, '')}: flattened=${compositions.length} withMethodTrait=${m} bailouts=${JSON.stringify(bailouts.map((x: any) => x.reason))}`);
+}
+console.log(`total flattened=${total}, with a method trait=${method}`);
+```
+$ node mx.ts <after> $(grep -rl "impl(" packages/material-x/src | sort)
+button-group/button-group.ts: flattened=1 withMethodTrait=0 bailouts=[]
+button-group/connected-button-group.ts: flattened=1 withMethodTrait=0 bailouts=[]
+button/button.ts: flattened=1 withMethodTrait=1 bailouts=[]
+button/icon-button.ts: flattened=1 withMethodTrait=1 bailouts=[]
+button/link-button.ts: flattened=1 withMethodTrait=1 bailouts=[]
+button/split-button.ts: flattened=1 withMethodTrait=0 bailouts=[]
+button/switch-button.ts: flattened=1 withMethodTrait=1 bailouts=[]
+button/switch-icon-button.ts: flattened=1 withMethodTrait=1 bailouts=[]
+checkbox/checkbox.ts: flattened=1 withMethodTrait=0 bailouts=[]
+fab/fab.ts: flattened=1 withMethodTrait=1 bailouts=[]
+list/list-button-item.ts: flattened=1 withMethodTrait=1 bailouts=[]
+list/list-item.ts: flattened=1 withMethodTrait=0 bailouts=[]
+list/list-link-item.ts: flattened=1 withMethodTrait=1 bailouts=[]
+list/list.ts: flattened=1 withMethodTrait=0 bailouts=[]
+radio/radio.ts: flattened=1 withMethodTrait=0 bailouts=[]
+text-field/TextFieldCore.ts: flattened=1 withMethodTrait=0 bailouts=[]
+total flattened=16, with a method trait=8
+
+## Source extensions: every file under packages/material-x/src and packages/core/src that calls impl( is .ts.
+# The .tsx files under packages/*/src are stories; none calls impl(.

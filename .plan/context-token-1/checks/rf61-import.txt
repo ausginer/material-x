@@ -1,0 +1,43 @@
+# RF-61: importing material-x over plain HTTP from a host other than localhost. Read by the architect in slot f on
+# 2026-11-18, on repo/context-token-1 at 377ca72df (origin/main), after `aube exec just build`, with playwright
+# 1.65.0 and its browsers in the devcontainer. Probe: rf61-import-probe.mjs (beside this file), run as
+#   node rf61-import-probe.mjs /workspaces/worktrees/f
+# A local server on 0.0.0.0 serves the built packages, with an import map for @ydinjs/core/. Each page imports one
+# entry with a dynamic import() and holds that entry's element in its body. Each engine opens every page by the
+# container's own IPv4 address (not a potentially trustworthy origin) and by localhost (one).
+#
+chromium 158.0.8127.18	LAN address	button-group/button-group.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function"]}
+chromium 158.0.8127.18	LAN address	button/button.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function"]}
+chromium 158.0.8127.18	LAN address	text-field/text-field.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function"]}
+chromium 158.0.8127.18	LAN address	checkbox/checkbox.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	button-group/button-group.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	button/button.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	text-field/text-field.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	checkbox/checkbox.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	LAN address	button-group/button-group.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function"]}
+firefox 159.0	LAN address	button/button.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function"]}
+firefox 159.0	LAN address	text-field/text-field.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function"]}
+firefox 159.0	LAN address	checkbox/checkbox.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	button-group/button-group.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	button/button.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	text-field/text-field.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	checkbox/checkbox.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	LAN address	button-group/button-group.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function. (In 'crypto.randomUUID()', 'crypto.randomUUID' is undefined)"]}
+webkit 27.2	LAN address	button/button.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function. (In 'crypto.randomUUID()', 'crypto.randomUUID' is undefined)"]}
+webkit 27.2	LAN address	text-field/text-field.js	{"secure":false,"import":"rejected","defined":false,"upgraded":false,"errors":["rejected: TypeError: crypto.randomUUID is not a function. (In 'crypto.randomUUID()', 'crypto.randomUUID' is undefined)"]}
+webkit 27.2	LAN address	checkbox/checkbox.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	button-group/button-group.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	button/button.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	text-field/text-field.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	checkbox/checkbox.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+
+# Reading. From the LAN address, isSecureContext is false, and importing the button group, mx-button or
+# mx-text-field rejects with createContext's TypeError in all three engines: no element is defined or upgraded.
+# mx-checkbox, whose import graph doesn't reach button-group-context.js, loads. From localhost, every entry loads.
+#
+# The reach, read in the built package's import graph (package.json exports, relative imports followed): 9 of
+# material-x's 20 exports reach button-group-context.js and fail the same way:
+#   ./button/button.js  ./button/icon-button.js  ./button/link-button.js  ./button/switch-button.js
+#   ./button/switch-icon-button.js  ./button/split-button.js  ./button-group/button-group.js
+#   ./button-group/connected-button-group.js  ./text-field/text-field.js
+# ButtonCore.ts and SwitchCore.ts import the context, so every button does, and the text field imports a button.

@@ -1,0 +1,47 @@
+# RF-60: a flattener row that failed once in CI. Read by the architect on 2026-11-18.
+# Source: gh run view 44245582616 --attempt 1 --log-failed (job 134603867751, chromium), escape sequences stripped.
+# The run's commit is c1a40a3fc on repo/host-invariant-1. Its packages/vite-traits-plugin is main's (83a985b99), without RF-44 item 1.
+# Attempt 2 of the same run passed every job, with no change.
+
+## The plugin's files in that job (log lines 654-666)
+ ✓  node/vite-traits-plugin  tests/normalize.node.test.ts (16 tests) 17ms
+ ✓  node/vite-traits-plugin  tests/plugin.node.test.ts (7 tests) 19ms
+ ✓  node/vite-traits-plugin  tests/analyze.node.test.ts (8 tests) 24ms
+ ✓  node/vite-traits-plugin  tests/flatten-composite.node.test.ts (5 tests) 58ms
+ ✓  node/vite-traits-plugin  tests/lower.node.test.ts (10 tests) 17ms
+ ❯  node/vite-traits-plugin  tests/flatten.node.test.ts (6 tests | 1 failed) 44ms
+   ❯ descriptor flattening runtime equivalence (6)
+     ✓ should default the boolean accessor to false 1ms
+     ✓ should round-trip the boolean accessor through the attribute 0ms
+     ✓ should round-trip the string accessor 0ms
+     ✓ should keep the component instance field 0ms
+     × should preserve trait brands for instanceof 4ms
+     ✓ should merge observedAttributes with the base 1ms
+
+## The failure (log lines 1178-1200)
+ FAIL   node/vite-traits-plugin  tests/flatten.node.test.ts > descriptor flattening runtime equivalence > should preserve trait brands for instanceof
+AssertionError: flattened: expected Foo{ extra: 'here' } to be an instance of 
+ ❯ tests/flatten.node.test.ts:84:31
+     82|       const instance = new Ctor();
+     83|       expect(instance, label).toBeInstanceOf(Checkable);
+     84|       expect(instance, label).toBeInstanceOf(Nameable);
+
+       |                               ^
+     85|     }
+     86|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 141 passed (142)
+      Tests  1 failed | 2046 passed | 12 skipped (2059)
+Type Errors  no errors
+   Start at  05:44:53
+   Duration  289.59s (tests 94%, worker 3%, import 1%, transform 1%)
+
+
+##[error]AssertionError: flattened: expected Foo{ extra: 'here' } to be an instance of 
+ ❯ tests/flatten.node.test.ts:84:31
+
+
+## Local repetition: aube exec -- vitest run in packages/vite-traits-plugin at c1a40a3fc, 40 times
+failures: 0 / 40 (52 tests each)

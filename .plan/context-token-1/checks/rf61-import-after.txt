@@ -1,0 +1,30 @@
+# RF-61 item 1, witness 2: importing material-x over plain HTTP from the LAN address, after the repair. Read by the
+# implementer in slot f on 2026-11-18, on repo/context-token-1 with item 1's createContext, after core was rebuilt
+# (the built controllers/useContext.js names no randomUUID). Probe and pages as rf61-import.txt describes, run as
+#   node rf61-import-probe.mjs /workspaces/worktrees/f
+# Every entry resolves, defines and upgrades its element in all three engines, by the LAN address and by localhost.
+
+chromium 158.0.8127.18	LAN address	button-group/button-group.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	LAN address	button/button.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	LAN address	text-field/text-field.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	LAN address	checkbox/checkbox.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	button-group/button-group.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	button/button.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	text-field/text-field.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+chromium 158.0.8127.18	localhost	checkbox/checkbox.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	LAN address	button-group/button-group.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	LAN address	button/button.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	LAN address	text-field/text-field.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	LAN address	checkbox/checkbox.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	button-group/button-group.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	button/button.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	text-field/text-field.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+firefox 159.0	localhost	checkbox/checkbox.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	LAN address	button-group/button-group.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	LAN address	button/button.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	LAN address	text-field/text-field.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	LAN address	checkbox/checkbox.js	{"secure":false,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	button-group/button-group.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	button/button.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	text-field/text-field.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}
+webkit 27.2	localhost	checkbox/checkbox.js	{"secure":true,"import":"resolved","defined":true,"upgraded":true,"errors":[]}

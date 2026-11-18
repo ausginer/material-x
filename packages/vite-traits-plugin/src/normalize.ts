@@ -1,21 +1,40 @@
 import { createHash } from 'node:crypto';
 import type {
+  CallExpression,
+  ClassElement,
+  Expression,
   Program,
   Statement,
   VariableDeclarator,
 } from '@oxc-project/types';
 import { bail, REASON } from './diagnostics.ts';
-import type { BindingRef, DescriptorTraitIR } from './ir.ts';
+import {
+  addPatternNames,
+  collectFreeReferences,
+  type Fail,
+} from './free-references.ts';
+import type {
+  BindingRef,
+  DescriptorTraitIR,
+  MemberIR,
+  MemberLinkIR,
+  MethodTraitIR,
+} from './ir.ts';
 
 /**
- * Raw specifier of the descriptor `trait(...)` factory. The factory now lives in
- * `traits/attributes`; `traits/traits` is the pre-rename name, kept so
- * recognition survives the in-flight migration. Matched on the raw import
- * specifier (rather than a resolved path) so it works even while material-x
- * still imports the renamed-away `@ydinjs/core/traits/attributes.js`.
+ * Raw specifier of the descriptor `trait(...)` factory, the `attributes` module.
+ * Matched on the raw import specifier rather than a resolved path, so a built
+ * trait module's `./attributes.js` is recognized too.
  */
 const FACTORY_SPECIFIER =
-  /(?:^|\/)(?:attributes|traits)\.[cm]?[jt]sx?$|(?:^|\/)traits\/(?:attributes|traits)$/u;
+  /(?:^|\/)attributes\.[cm]?[jt]sx?$|(?:^|\/)traits\/attributes$/u;
+
+/**
+ * Raw specifier of the generic `trait(transformer, brand)` factory, the
+ * `primitives` module, matched the way {@link FACTORY_SPECIFIER} is.
+ */
+const GENERIC_FACTORY_SPECIFIER =
+  /(?:^|\/)primitives\.[cm]?[jt]sx?$|(?:^|\/)traits\/primitives$/u;
 
 /** TS-only expression wrappers that carry a runtime `.expression` inside. */
 const TS_WRAPPERS = new Set([
@@ -183,22 +202,99 @@ export function collectTopBindings(program: Program): Map<string, TopBinding> {
 }
 
 /**
- * Local names bound to the descriptor `trait` factory, recognized by the raw
- * import specifier (see {@link FACTORY_SPECIFIER}).
+ * Every runtime name a module declares at top level: imports of every form,
+ * variables of every kind and pattern, functions, classes, enums and
+ * namespaces.
  */
-export function resolveFactoryLocals(program: Program): ReadonlySet<string> {
+export function collectTopLevelNames(program: Program): Set<string> {
+  const names = new Set<string>();
+  const fail: Fail = (detail) =>
+    bail(REASON.UNSUPPORTED_TRAIT_DEFINITION, undefined, detail);
+
+  const add = (
+    declaration: Readonly<{
+      type: string;
+      id?: unknown;
+      declarations?: readonly VariableDeclarator[];
+    }>,
+  ): void => {
+    for (const declarator of declaration.declarations ?? []) {
+      addPatternNames(declarator.id, names, fail);
+    }
+    const id = declaration.id as { type?: string; name?: string } | null;
+    if (id?.type === 'Identifier' && id.name) {
+      names.add(id.name);
+    }
+  };
+
+  for (const node of program.body) {
+    if (node.type === 'ImportDeclaration') {
+      for (const spec of node.specifiers) {
+        names.add(spec.local.name);
+      }
+    } else if (
+      (node.type === 'ExportNamedDeclaration' ||
+        node.type === 'ExportDefaultDeclaration') &&
+      node.declaration
+    ) {
+      add(node.declaration);
+    } else {
+      add(node);
+    }
+  }
+
+  return names;
+}
+
+/** Local names bound to `trait` from a module whose specifier matches `pattern`. */
+function factoryLocalsFor(
+  program: Program,
+  pattern: RegExp,
+): ReadonlySet<string> {
   const locals = new Set<string>();
 
   for (const [local, imported] of collectImports(program)) {
-    if (
-      imported.imported === 'trait' &&
-      FACTORY_SPECIFIER.test(imported.specifier)
-    ) {
+    if (imported.imported === 'trait' && pattern.test(imported.specifier)) {
       locals.add(local);
     }
   }
 
   return locals;
+}
+
+/**
+ * Local names bound to the descriptor `trait` factory, recognized by the raw
+ * import specifier (see {@link FACTORY_SPECIFIER}).
+ */
+export function resolveFactoryLocals(program: Program): ReadonlySet<string> {
+  return factoryLocalsFor(program, FACTORY_SPECIFIER);
+}
+
+/**
+ * Local names bound to the generic `trait` factory, recognized by the raw
+ * import specifier (see {@link GENERIC_FACTORY_SPECIFIER}).
+ */
+export function resolveGenericFactoryLocals(
+  program: Program,
+): ReadonlySet<string> {
+  return factoryLocalsFor(program, GENERIC_FACTORY_SPECIFIER);
+}
+
+/**
+ * Static name of a class member key or a member expression's property: an
+ * identifier that isn't computed, or a string literal. `undefined` otherwise.
+ */
+export function staticKeyName(
+  key: Readonly<{ type: string; name?: unknown; value?: unknown }>,
+  computed: boolean,
+): string | undefined {
+  if (key.type === 'Identifier' && !computed && typeof key.name === 'string') {
+    return key.name;
+  }
+
+  return key.type === 'Literal' && typeof key.value === 'string'
+    ? key.value
+    : undefined;
 }
 
 /** Reads one descriptor object key, bailing on spread/computed/dynamic keys. */
@@ -323,6 +419,32 @@ function linkBinding(name: string, ctx: LinkContext): BindingRef {
 }
 
 /**
+ * The `trait(...)` call that the trait binding `exportName` is initialized to,
+ * when its callee is one of `factoryLocals`.
+ */
+function traitFactoryCall(
+  bindings: Map<string, TopBinding>,
+  specifier: string,
+  exportName: string,
+  factoryLocals: ReadonlySet<string>,
+): CallExpression | null {
+  const binding = bindings.get(exportName);
+  // A trait defined in the consumer module need not be exported; one reached
+  // through a specifier must be, so the consumer's imports stay valid.
+  if (!binding?.declarator.init || (!binding.exported && specifier !== '')) {
+    return null;
+  }
+
+  const init = unwrapTS(binding.declarator.init);
+
+  return init.type === 'CallExpression' &&
+    init.callee.type === 'Identifier' &&
+    factoryLocals.has(init.callee.name)
+    ? init
+    : null;
+}
+
+/**
  * Normalizes a single descriptor trait exported as `exportName` from an already
  * parsed origin module into Trait IR, collecting any synthetic exports its
  * linked private bindings require.
@@ -348,20 +470,8 @@ export function normalizeDescriptorTrait(
 ): DescriptorTraitIR | null {
   const bindings = collectTopBindings(program);
   const imports = collectImports(program);
-  const local = specifier === '';
-
-  const binding = bindings.get(exportName);
-  // A trait defined in the consumer module need not be exported; one reached
-  // through a specifier must be, so the consumer's imports stay valid.
-  if (!binding?.declarator.init || (!binding.exported && !local)) {
-    return null;
-  }
-
-  const init = unwrapTS(binding.declarator.init);
-  if (init.type !== 'CallExpression' || init.callee.type !== 'Identifier') {
-    return null;
-  }
-  if (!factoryLocals.has(init.callee.name)) {
+  const init = traitFactoryCall(bindings, specifier, exportName, factoryLocals);
+  if (!init) {
     return null;
   }
 
@@ -459,31 +569,268 @@ export function normalizeDescriptorTrait(
   };
 }
 
+/** The class expression a method trait's transformer returns, if it has one. */
+function transformerClass(body: Expression | Statement): Expression | null {
+  if (body.type !== 'BlockStatement') {
+    return unwrapTS(body as Expression);
+  }
+  const [statement, ...rest] = body.body;
+
+  return statement?.type === 'ReturnStatement' &&
+    statement.argument &&
+    rest.length === 0
+    ? unwrapTS(statement.argument)
+    : null;
+}
+
+/**
+ * Reads one class member of a method trait: its key, kind, source and free
+ * references. Returns `null` for a member that emits no JavaScript, an
+ * overload signature or an index signature, and calls `fail` on a member
+ * outside the subset.
+ */
+function normalizeMember(
+  element: ClassElement,
+  code: string,
+  fail: Fail,
+): Readonly<{
+  key: string;
+  kind: MemberIR['kind'];
+  source: string;
+  start: number;
+  references: ReturnType<typeof collectFreeReferences>;
+}> | null {
+  if (element.type === 'TSIndexSignature') {
+    return null;
+  }
+  if (element.type !== 'MethodDefinition') {
+    return fail(`the class declares a ${element.type}`);
+  }
+  if (element.value.type === 'TSEmptyBodyFunctionExpression') {
+    return null;
+  }
+  if (element.static || element.kind === 'constructor') {
+    return fail(
+      `the class declares a ${element.static ? 'static member' : 'constructor'}`,
+    );
+  }
+  if (element.decorators.length > 0) {
+    return fail('a member has a decorator');
+  }
+  const key =
+    element.key.type === 'PrivateIdentifier' || element.computed
+      ? undefined
+      : staticKeyName(element.key, false);
+  if (key === undefined) {
+    return fail('a member key is private, computed or not a string');
+  }
+
+  return {
+    key,
+    kind: element.kind,
+    source: code.slice(element.start, element.end),
+    start: element.start,
+    references: collectFreeReferences(element.value, fail),
+  };
+}
+
+/**
+ * Normalizes a method trait exported as `exportName` from an already parsed
+ * origin module into Trait IR: a `trait(transformer, brand)` of the generic
+ * factory whose transformer returns a class with only methods and accessors.
+ * Collects the synthetic exports its members' private bindings require.
+ *
+ * Returns `null` when the binding isn't a generic `trait(...)` call, and bails
+ * when it is one outside the subset.
+ *
+ * @param code - Source text of the origin module, which members are copied
+ *   from.
+ * @param genericLocals - Local names bound to the generic factory.
+ *
+ * The other parameters are those of {@link normalizeDescriptorTrait}.
+ */
+// oxlint-disable-next-line max-params, max-lines-per-function
+export function normalizeMethodTrait(
+  code: string,
+  program: Program,
+  moduleId: string,
+  specifier: string,
+  exportName: string,
+  synthetics: Map<string, SyntheticExport>,
+  genericLocals: ReadonlySet<string>,
+  rebase: RebaseImport = () => null,
+): MethodTraitIR | null {
+  const bindings = collectTopBindings(program);
+  const imports = collectImports(program);
+  const init = traitFactoryCall(bindings, specifier, exportName, genericLocals);
+  if (!init) {
+    return null;
+  }
+
+  const definition = (detail: string): never =>
+    bail(REASON.UNSUPPORTED_TRAIT_DEFINITION, exportName, detail);
+  const member = (detail: string): never =>
+    bail(REASON.UNSUPPORTED_TRAIT_MEMBER, exportName, detail);
+
+  if (init.arguments.length !== 2) {
+    definition('class-based trait factory expects (transformer, brand)');
+  }
+  const transformer = unwrapTS(init.arguments[0]!);
+  const brandArg = unwrapTS(init.arguments[1]!);
+
+  const link = (name: string): BindingRef =>
+    linkBinding(name, {
+      bindings,
+      imports,
+      moduleId,
+      specifier,
+      synthetics,
+      rebase,
+      traitName: exportName,
+    });
+
+  if (brandArg.type !== 'Identifier') {
+    return definition(
+      'trait brand is not a named binding (an inline Symbol() cannot be linked)',
+    );
+  }
+  const brand = link(brandArg.name);
+
+  if (
+    (transformer.type !== 'ArrowFunctionExpression' &&
+      transformer.type !== 'FunctionExpression') ||
+    transformer.async ||
+    transformer.generator
+  ) {
+    return definition(
+      'transformer is not a synchronous arrow function or function expression',
+    );
+  }
+  const [param, ...otherParams] = transformer.params;
+  if (param?.type !== 'Identifier' || otherParams.length > 0) {
+    return definition('transformer does not take one identifier parameter');
+  }
+
+  const cls = transformer.body ? transformerClass(transformer.body) : null;
+  if (cls?.type !== 'ClassExpression') {
+    return definition('transformer does not return a class expression');
+  }
+  const superClass = cls.superClass ? unwrapTS(cls.superClass) : null;
+  if (superClass?.type !== 'Identifier' || superClass.name !== param.name) {
+    return definition("class does not extend the transformer's parameter");
+  }
+  if (cls.decorators.length > 0) {
+    definition('class has a decorator');
+  }
+
+  // Names bound between the members and the module scope. A member that reads
+  // one would read something else once copied into the consumer.
+  const enclosing = new Set([param.name]);
+  for (const id of [transformer.id, cls.id]) {
+    if (id) {
+      enclosing.add(id.name);
+    }
+  }
+
+  const topLevel = collectTopLevelNames(program);
+  const local = specifier === '';
+  const members: MemberIR[] = [];
+  for (const element of cls.body.body) {
+    const ir = normalizeMember(element, code, member);
+    if (!ir) {
+      continue;
+    }
+
+    const links = new Map<string, MemberLinkIR>();
+    const globals = new Set<string>();
+    for (const reference of ir.references) {
+      const { name } = reference;
+      if (enclosing.has(name)) {
+        member(
+          `${ir.key} reads ${name}, which the transformer binds, not the module`,
+        );
+      }
+      if (!topLevel.has(name)) {
+        globals.add(name);
+        continue;
+      }
+      if (reference.write && !local) {
+        member(`${ir.key} assigns ${name}, which an import cannot assign`);
+      }
+      const linked = links.get(name) ?? {
+        name,
+        ref: link(name),
+        occurrences: [],
+      };
+      links.set(name, {
+        ...linked,
+        occurrences: [
+          ...linked.occurrences,
+          {
+            start: reference.start - ir.start,
+            end: reference.end - ir.start,
+            shorthand: reference.shorthand,
+          },
+        ],
+      });
+    }
+
+    members.push({
+      key: ir.key,
+      kind: ir.kind,
+      source: ir.source,
+      links: [...links.values()],
+      globals: [...globals],
+    });
+  }
+
+  return { kind: 'method', name: exportName, brand, members };
+}
+
 /**
  * Scans a parsed module for every private binding that would need a synthetic
- * export if any of its descriptor traits were flattened, so the origin-module
- * transform can emit those exports deterministically.
+ * export if any of its descriptor or method traits were flattened, so the
+ * origin-module transform can emit those exports deterministically.
  */
 export function collectModuleSyntheticExports(
   program: Program,
   moduleId: string,
   factoryLocals: ReadonlySet<string>,
+  code: string,
 ): readonly SyntheticExport[] {
   const synthetics = new Map<string, SyntheticExport>();
+  const genericLocals = resolveGenericFactoryLocals(program);
+  // Only the consumer's links need a rebased specifier. Here every import is
+  // accepted as it is, so a relative one doesn't stop the scan before the
+  // private bindings after it.
+  const keep: RebaseImport = (specifier) => specifier;
 
   for (const name of collectExportedNames(program)) {
     try {
-      normalizeDescriptorTrait(
+      const descriptor = normalizeDescriptorTrait(
         program,
         moduleId,
         moduleId,
         name,
         synthetics,
         factoryLocals,
+        keep,
       );
+      if (!descriptor) {
+        normalizeMethodTrait(
+          code,
+          program,
+          moduleId,
+          moduleId,
+          name,
+          synthetics,
+          genericLocals,
+          keep,
+        );
+      }
     } catch {
-      // A non-descriptor export is simply skipped here; flattening a consumer
-      // that references it will surface the real diagnostic.
+      // A non-trait export is simply skipped here; flattening a consumer that
+      // references it will surface the real diagnostic.
     }
   }
 

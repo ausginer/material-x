@@ -15,7 +15,7 @@ import {
 } from '@ydinjs/core/traits/linkable.js';
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject, Simplify } from 'type-fest';
-import { focusControl } from '../core/utils/useCore.ts';
+import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import {
   BUTTON_CORE_TRAITS,
   useButtonCore,
@@ -35,8 +35,8 @@ export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
 const LinkButtonConstructor: TraitedConstructor<
   ControlledElement,
   ControlledElementConstructor,
-  [...typeof BUTTON_CORE_TRAITS, typeof Linkable]
-> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, Linkable]);
+  [...typeof BUTTON_CORE_TRAITS, typeof Linkable, typeof FocusForwarding]
+> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, Linkable, FocusForwarding]);
 
 /**
  * @tag mx-link-button
@@ -83,10 +83,6 @@ export default class LinkButton extends LinkButtonConstructor {
     const anchor = $<HTMLAnchorElement>(this, '.host')!;
     useLinkable(this, anchor);
     useDisableableLinkable(this, anchor);
-  }
-
-  override focus(options?: FocusOptions): void {
-    focusControl(this, options);
   }
 }
 

@@ -1,0 +1,12 @@
+# Run 44258255489, warm (8b56cbf27). Read from the GitHub Actions API (job steps) and each job's log.
+# image = the 'Version:' line of the log's 'Runner Image' group; provisioner = that of its 'Runner Image Provisioner' group; key = key.sh's first 'key=' line.
+# mirror = the most frequent *archive.ubuntu.com host in the log, '-' when none; archive_ubuntu_gets = 'Get:' lines from such a host; browser_action_s = the 'Run ./.github/actions/browser' step.
+job	job_id	conclusion	image	provisioner	key	mirror	archive_ubuntu_gets	need_to_get	install	dry_run	browser_action_s	job_s	warning
+system-deps (chromium)	134645262622	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	-	0	-	-	-	-	14	none
+system-deps (firefox)	134645262623	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0	-	0	-	-	-	-	9	none
+system-deps (webkit)	134645262638	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0	-	0	-	-	-	-	8	none
+docs	134645385714	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	-	0	-	4 upgraded, 9 newly installed	All system dependencies are installed	38	102	none
+webkit	134645385777	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0	-	0	-	4 upgraded, 181 newly installed	All system dependencies are installed	30	221	none
+firefox	134645385806	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0	-	0	-	0 upgraded, 40 newly installed	All system dependencies are installed	41	498	none
+measurements	134645385819	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	-	0	-	4 upgraded, 9 newly installed	All system dependencies are installed	21	101	none
+chromium	134645386221	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	-	0	-	4 upgraded, 9 newly installed	All system dependencies are installed	40	367	none
