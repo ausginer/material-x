@@ -1,0 +1,7 @@
+# RF-61 item 1, witness 4: size of controllers/useContext.js, recorded and not budgeted. Read by the implementer in
+# slot f on 2026-11-18. core's .size-limit.json has no such entry, so a temporary one was added and not committed:
+#   { "name": "controllers/useContext", "path": "controllers/useContext.js", "limit": "10 KB" }
+# then aube exec just size --json in packages/core (it builds first), with the repository's size-limit preset.
+# Before: createContext as at 9a514e235 (crypto.randomUUID()). After: item 1's createContext.
+controllers/useContext	before 520 B	after 514 B	delta -6 B
+# The other rows didn't move: element 312 B, emitter 198 B, traits/reorderable 3270 B, before and after.
