@@ -125,13 +125,15 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 
 **Amended 2026-11-17 by `RD-12`,** on the owner's decision relayed by the coordinator: the third engine of the gate is Playwright's WebKit, and Safari runs weekly outside it. The title and properties 2, 3, 4, 7 and 8 changed. **Amended the same day by `RD-15`** (the `[noci]` marker): properties 3, 8 and 9. **Unimplemented** until the [CI-speed handoff](ci-speed-1/ci-speed-handoff.md)'s pull request merges. What they said before is at the end.
 
+**Amended 2026-11-18 by `RF-51`,** recorded by the main slot's architect from slot `b`'s [declarations-check handoff](declarations-check-1/declarations-check-handoff.md), proposal 3: `static` also runs the published-declarations check that `RF-51`'s answer decided. Property 3 changed. **Unimplemented** until that handoff's pull request merges. What it said before is at the end.
+
 **Amended 2026-11-18 by `RD-21`,** on the owner's choice relayed by the coordinator: the engines' system packages are fetched once by `system-deps` and installed offline. Properties 2 and 8 and one reason changed. **Unimplemented** until the [CI-deps handoff](ci-deps-1/ci-deps-handoff.md)'s pull request merges. What they said before is at the end.
 
 **Properties.**
 
 1. **Triggers (O1).** A push to `main`; a `pull_request` event of type `opened`, `reopened`, `synchronize` or `ready_for_review`; and `workflow_dispatch`. Every job skips a draft pull request. No other trigger, and no `pull_request_target`. A newer run for the same pull request cancels the older one. A run for a push to `main` is never cancelled.
 2. **The environment (O9, O13).** Every job runs on a GitHub-hosted runner named `ubuntu-24.04`. Safari's `macos-26` runner belongs to the Safari workflow, outside the gate (`RD-12` properties 6 and 12). Each label is named, not `*-latest`, so an operating system changes only by an edit. Each job uses the Node major version that the workflow names. **CI doesn't pull the development image, and no job runs in a container.** Chromium, Firefox and WebKit are the builds that the exact `playwright` dependency pins (`RD-9`). A job installs its engine's system packages offline from the cache that `system-deps` fills, falling back to `aube exec -- playwright install --with-deps <engine>`, and its browser with `aube exec -- playwright install <engine>` (`RD-21`). Screenshots are reproducible because of `RD-9`'s pinned visual environment, not because of the runner's operating system.
-3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint` and `just typecheck`. `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `webkit` run every browser project except visual in their engine (`RD-12` property 11). `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** In a run that `RD-15`'s marker reduces, only `records` runs, and the jobs above are skipped. Every job runs the repository's own recipes on a fresh checkout after `aube ci` (`RD-16`). If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
+3. **The gate jobs.** `static` runs the root `just fmt-check`, `just lint`, `just typecheck` and `just typecheck-declarations` (`RF-51`). `chromium` runs the root suite, with every project, including node, declaration and visual. `firefox` and `webkit` run every browser project except visual in their engine (`RD-12` property 11). `docs` runs the root `just docs-build`, loads the built site with `just docs-smoke`, and uploads the Pages artifact (`RD-14`). **The three test jobs exclude `measurement` rows (`RD-7`).** In a run that `RD-15`'s marker reduces, only `records` runs, and the jobs above are skipped. Every job runs the repository's own recipes on a fresh checkout after `aube ci` (`RD-16`). If a recipe needs a step that a developer's tree happens to satisfy, the recipe is repaired. The workflow adds no private step.
 4. **One engine selection (O2).** `MX_TEST_ENGINES`, a comma-separated list of `chromium`, `firefox`, `webkit` and `safari`, read by the shared factory in `.scripts/vitest-config.ts`. It defaults to `chromium`. Each browser project except visual is declared once per listed engine. A Chromium project keeps its name, and another engine's project is named `<name>/<engine>`. A non-Chromium project takes no Chromium launch arguments, and runs with `fileParallelism: false` and one worker, because a background page gets no input in Firefox, and Safari allows one session. WebKit does too unless `RD-12` property 11's reading allows file parallelism. A Safari project uses the WebdriverIO provider (`RD-12` properties 2 and 3). **It replaces `createDragAllEnginesTestConfig` and `packages/drag/vitest.engines.config.ts`.** drag's `test-engines` recipe keeps its name and runs drag's browser and shipped projects in the engines that the variable lists. A local run is Chromium only (`RD-13` property 7).
 5. **Visual runs in Chromium only.** Its baselines are per engine and platform, and only Chromium baselines exist. **The gate never writes, updates or approves a baseline.** The recording workflow proposes baselines in a pull request that the owner merges (`RD-13`). When `chromium` fails, the actual and diff images are uploaded as a workflow artifact.
 6. **A row that needs an instrument that an engine's driver doesn't provide** runs only in the engines that provide it, by an engine condition, as drag's `isChromium` rows do. Chromium-only instruments are the DevTools Protocol, heap snapshots and `--expose-gc`. Safari's driver also lacks media emulation (`RD-12` properties 4 and 5). That limits the row's scope and doesn't disable it, so `RD-8` doesn't apply to it.
@@ -195,6 +197,8 @@ Each one checked only drag2's record, which is frozen at `0870abd75`. The checks
 - Property 8 said: _"`verify` needs `static`, `chromium`, `firefox`, `safari` and `docs`, and succeeds only if each succeeded."_
 - Property 9 named no `actions: read`.
 - **Why it changed:** the owner's decision of 2026-11-17, which `RD-12`, `RD-15` and `RD-16` decide.
+
+**What it said before the amendment of 2026-11-18 by `RF-51`.** Property 3 said: _"`static` runs the root `just fmt-check`, `just lint` and `just typecheck`."_ **Why it changed:** `RF-51`'s standing check, decided on the owner's condition that it needs no custom rule, runs in the gate after the build.
 
 **What it said before `RD-13`.** Property 4 said: _"drag's `test-engines` recipe keeps its name and runs `chromium,firefox`, so its project names are `browser`, `browser/firefox`, `shipped` and `shipped/firefox`, which are `drag:DRO-18`'s selection. A local `just test` without the variable runs Chromium only, as it does today."_ Property 5 said: _"CI never writes, updates or approves a baseline."_ **Why it changed:** the owner's decisions (O14, O15), which `RD-13` decides.
 
@@ -1726,6 +1730,14 @@ Tier C, **decided, implemented, open** (decided 2026-11-17 at `51a992b49`; see _
   - **Not adopted: a gate check** that compares each manifest's peer fields with the lockfile. It would be a custom check for fields that no installer here reads, which is the kind of machinery that `RF-51`'s answer declined.
 - **Status unchanged:** decided, implemented as widened, and open until required property 3 closes it.
 
+**Queued 2026-11-18 by the owner,** relayed by the coordinator, and recorded by the main slot's architect. Two follow-ups, neither urgent. They come after the material-x work and don't displace it.
+
+1. **The reading of aube 2.10.1,** required property 3's reading, in an unused slot.
+   - **Not before 2026-11-23.** 2.10.1 was published on 2026-11-16, and `RD-16`'s 7-day release age covers the aube version too.
+   - **It reads every command that the widened property names:** `add`, `remove`, `install --fix-lockfile`, and `install` after a hand edit of a manifest. Each is followed by a listing of `node_modules/@ydinjs` and `node_modules/size-limit-preset-rolldown`.
+   - **Its result applies property 3 as written.** If the links survive every command, the unit that moves the pin to 2.10.1 removes the rule and closes this finding. Otherwise the rule stays, whatever the pin.
+2. **An upstream bug report to aube.** The owner files it himself, which answers required property 4. It is built from a minimal reproduction of the repository's readings: a scratch hoisted workspace outside this repository, with a workspace package that the root depends on, one command that writes the lockfile, and listings of `node_modules` before and after, with aube's version. The reviewer's [scratch workspace](reviews/aube-isolated-1/checks/manifest-edit-probe.txt) is already close to that form. **It follows the 2.10.1 reading** and runs on the newest aube that reading covers, so the report doesn't describe a defect that is already fixed. The reproduction is saved under this record. No agent files anything upstream.
+
 #### RF-49 — `just oxlint-migrate` writes a configuration that differs from the hand-maintained `.oxlintrc.json`
 
 Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Decision_ below). Registered on 2026-11-17 by the architect on `repo/ci-speed-1` at `c57722b67`, from the CI-speed report's step B and its [comparison](ci-speed-1/checks/oxlintrc-migrate-compare.txt).
@@ -1799,7 +1811,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
 
 #### RF-51 — `material-x/react.d.ts` imports React's types by an absolute path on the build machine
 
-Tier B, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 1, on the owner's decision to fix it (`RD-19`). `RF-50` is allocated on `repo/host-invariant-1`. **No row is disabled.**
+Tier B, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 1, on the owner's decision to fix it (`RD-19`). `RF-50` is allocated on `repo/host-invariant-1`. **No row is disabled.**
 
 - **What was read:**
   - the hoisted build writes `import { DetailedHTMLProps, HTMLAttributes } from "/workspaces/worktrees/b/node_modules/react/index.js"` into `packages/material-x/react.d.ts` ([reading](aube-isolated-1/checks/isolated-reading.txt), line 110);
@@ -1821,12 +1833,20 @@ Tier B, **open**. Registered on 2026-11-18 by the architect, from the [isolated-
     - **The error** is the one the owner's editor shows: TS7016, _"Could not find a declaration file for module '…/node_modules/react/index.js'. … implicitly has an 'any' type."_ The specifier is a path to React's JavaScript, with no declarations beside it. TypeScript looks for `@types/react` only for the bare specifier `react`. So `DetailedHTMLProps` and `HTMLAttributes` are `any`, and every JSX type in the file is `any` with them.
     - **Why no gate fails on it:** no checked program contains the file. material-x's `typecheck` includes `src/**` and `tests/**`, not the build output. A program that does load it, such as a consumer's or any project extending `tsconfig.base.json`, runs with `skipLibCheck: true` (`tsconfig.base.json:7`), which suppresses every error inside a `.d.ts` file. With `skipLibCheck` off, the file fails with TS7016 (exit 2). With it on, the same file passes (exit 0). The editor reports errors in the file that is open, so it shows the error.
     - **So the check needs no custom rule:** a TypeScript program over every published declaration file, as a consumer reads them, with `skipLibCheck` off and no ambient `types`. It is a configuration and a recipe, and the gate runs it after the build. **Decided** in that form, with this property: the gate fails when a published declaration file doesn't type-check that way.
+      - **Form,** recorded 2026-11-18 by the main slot's architect from slot `b`'s [declarations-check handoff](declarations-check-1/declarations-check-handoff.md), proposal 2: the root `tsconfig.declarations.json`, run by the root recipe `just typecheck-declarations`, which first builds every package that writes declarations. Every built declaration file is checked, including those of private packages. The program resolves modules as `nodenext`. At `83a985b99`, `bundler` mode gave the same result, before the repair and after it ([probe](declarations-check-1/checks/rf54-mapped-brand-probe.txt) A, C and D). The gate's `static` job runs it after `just typecheck` (`RD-6` property 3).
     - **What it doesn't catch:** an import that resolves only because the workspace hoists an undeclared package to the root, and an absolute path that happens to reach a declaration file on the build machine. `CONTRIBUTING.md`'s rule names the first. Neither is worth a custom rule.
     - **It can't land green today.** Over the 108 built declaration files, with `react` declared, it finds one error: TS2611 in `material-x/text-field/TextFieldCore.d.ts`, which is `RF-54`. **The check lands together with `RF-54`'s repair,** in one unit after this one. The owner schedules it.
 
+**Closed 2026-11-18 by the architect,** from the implementer's [fixes report](aube-isolated-1/aube-isolated-fixes-report.md) and the [feature proof](reviews/aube-isolated-1/feature-proof-claude.md), which holds. The required property, with the owner's amendment, is on `main` through #34 (head `f45c7f753`, merged as `83a985b99`).
+
+- `@ydinjs/material-x` declares `react` and `@types/react` as optional peers, both `^19` (`ef530af97`, `9fadeb8ec`). The root installs React 19.3.1 and `@types/react` 19.3.0.
+- The built `react.d.ts` imports from `"react"`. The absolute-path search over the 108 built declaration files finds nothing after the repair, and finds only this file before it ([before](aube-isolated-1/checks/abs-import-search-before.txt), [after](aube-isolated-1/checks/abs-import-search-amended.txt)).
+- `verify` passed in full at `f480544a6` (run 44231766539) and on `main` at `83a985b99` (run 44233935238). The run at `f45c7f753` (44233678056) was reduced by `[noci]`, because that commit changed only records.
+- **The standing check is not part of this closure.** Its form is recorded above, and `RD-6` property 3 carries it as unimplemented until the [declarations-check handoff](declarations-check-1/declarations-check-handoff.md)'s pull request merges.
+
 #### RF-52 — `.storybook/manager.tsx` imports `@storybook/icons`, which no manifest declares
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 2, on the owner's decision to fix it (`RD-19`). **No row is disabled.**
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 2, on the owner's decision to fix it (`RD-19`). **No row is disabled.**
 
 - **What was read:** `.storybook/manager.tsx:1` imports `MoonIcon` and `SunIcon` from `@storybook/icons`. No `package.json` in the repository names it. It resolves only because the hoisted layout places Storybook's own dependency, 2.0.2 (`storybook`'s range `^2.0.2`), at the root. The isolated layout's `lint` fails on it.
 - **Required property:** every import under `.storybook/` resolves to a package that the root manifest declares.
@@ -1834,9 +1854,11 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-
 - **Not adopted: removing the import.** The manager's theme control uses the two icons.
 - **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`.
 
+**Closed 2026-11-18 by the architect,** from the implementer's [fixes report](aube-isolated-1/aube-isolated-fixes-report.md), item 2, and the [feature proof](reviews/aube-isolated-1/feature-proof-claude.md), which holds. On `main` through #34 (merged as `83a985b99`): the root `package.json` declares `"@storybook/icons": "2.0.2"`, exact (`8bf346d94`), and the lockfile's entry keeps the same version, `resolved` and `integrity`. A listing of every import under `.storybook/`, `.storybook/docs/` included, reports `@storybook/icons` alone before the change and nothing after it ([before](aube-isolated-1/checks/storybook-imports-before.txt), [after](aube-isolated-1/checks/storybook-imports-after.txt)). `verify` passed in full at `f480544a6` (run 44231766539) and on `main` (run 44233935238).
+
 #### RF-53 — The root `just clean-build` exits 1, because `size-limit-preset-rolldown` has no `files.json`
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 3, on the owner's decision to fix it (`RD-19`). **No row is disabled.**
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 3, on the owner's decision to fix it (`RD-19`). **No row is disabled.**
 
 - **What was read** ([reading](aube-isolated-1/checks/clean-build-reading.txt)):
   - the root recipe runs `clean:build` in seven projects, the preset included (`Justfile:17`);
@@ -1849,9 +1871,11 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from the [isolated-
   - every package cleans through one mechanism.
 - **Routed** to the isolated-layout unit's handoff, on `repo/aube-isolated-1`. The handoff chooses the form.
 
+**Closed 2026-11-18 by the architect,** from the implementer's [fixes report](aube-isolated-1/aube-isolated-fixes-report.md), item 3, and the [feature proof](reviews/aube-isolated-1/feature-proof-claude.md), which holds. On `main` through #34 (merged as `83a985b99`): the preset's `files.json` is `{ "runtime": ["index"] }` (`292b1649b`), so it cleans through `.scripts/package-files.ts`, as the other six packages do. After a build, the root `just clean-build` exits 0 with 7 of 7 tasks, and the preset's clean removes exactly `index.js`, `index.js.map` and `index.d.ts` and no tracked file ([reading](aube-isolated-1/checks/preset-clean.txt)). `verify` passed in full at `f480544a6` (run 44231766539) and on `main` (run 44233935238).
+
 #### RF-54 — material-x's published `TextFieldCore.d.ts` doesn't type-check: the `@ts-expect-error` on `value` isn't in the declaration
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
+Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ below). Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
 
 - **What was read:**
   - `src/text-field/TextFieldCore.ts:223` suppresses TS2611 on `override get value()` with `@ts-expect-error`, citing microsoft/TypeScript#54879;
@@ -1859,8 +1883,23 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, while answering `RF
   - a program that type-checks the declarations with `skipLibCheck` off reports _"TS2611: 'value' is defined as a property in class '…', but is overridden here in 'TextFieldCore' as an accessor."_ No other built declaration file in the repository reports an error.
 - **Effect:** a consumer of `mx-text-field` or `mx-multiline-text-field` whose `skipLibCheck` is off gets a type error in material-x's typings. With it on, nothing is reported.
 - **Required property:** every published declaration file type-checks with `skipLibCheck` off. This one doesn't, so `RF-51`'s standing check can't land until this repair does.
-- **Not decided:** the repair. The base type that declares `value` as a property comes from the `Valuable` trait through `impl`. Whether the declaration can carry an accessor, or the trait's type has to change, needs a reading of #54879's status and of `@ydinjs/core`'s trait types.
+- **The repair** is decided below. (Before the decision, this bullet said: _"**Not decided:** the repair. The base type that declares `value` as a property comes from the `Valuable` trait through `impl`. Whether the declaration can carry an accessor, or the trait's type has to change, needs a reading of #54879's status and of `@ydinjs/core`'s trait types."_)
 - **Routed** to the owner, with `RF-51`'s check, as one unit after the isolated-layout unit.
+
+**Decided 2026-11-18** by the main slot's architect, on slot `b`'s [declarations-check handoff](declarations-check-1/declarations-check-handoff.md), proposal 1, and its [probe](declarations-check-1/checks/rf54-mapped-brand-probe.txt) at `83a985b99`, relayed by the coordinator: **a trait's instance fields are typed by a mapped type.** `@ydinjs/core`'s `Branded<P, B>` (`src/traits/primitives.ts`) becomes `{ [K in keyof P]: P[K] } & Readonly<Record<B, true>>`. The `@ts-expect-error` at `TextFieldCore.ts:223` is removed.
+
+- **Why it works.** TypeScript doesn't apply TS2610 and TS2611 to a base property that a mapped type produces (read in TypeScript 6.0.3's checker, `checkKindsOfPropertyMemberOverrides`, and reproduced with 7.0.2). An attribute trait's fields are declared in a type literal today (`Trait<{ value: string | null }, …>`), so the check applies to them.
+- **Why it is correct for attribute traits.** The attribute `trait()` (`src/traits/attributes.ts`) installs each field as an accessor on the prototype (`Object.defineProperty`), so a subclass's accessor overrides it at runtime. TS2611 protects against a base field, defined on the instance, that shadows a subclass accessor. An attribute trait never creates that field.
+- **The transformer trait is unchanged.** core's other `trait()`, in `src/traits/primitives.ts`, also returns `Branded<P, B>`, with `P` as `Omit<InstanceType<U>, keyof InstanceType<T>>`. `Omit` is already a mapped type, so its fields are already exempt today. A transformer's class field with a subclass accessor over it type-checks with no directive at `2544a24fd` ([probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt)). There the exemption hides a real hazard, because a class field is an own property of the instance and shadows the subclass's accessor. The repair doesn't create that gap and doesn't widen it. It is a limit of TypeScript's checking of mixins, recorded here and not registered. In the repository, the attribute `trait()` builds on the transformer trait and re-types its result, and otherwise only core's own tests build one.
+- **What it costs.** It changes no emitted JavaScript. With the mapped type, a property override of the wrong type is still an error, and the brand stays nominal (probe B). The exemption also covers TS2610, a subclass field over a trait field. TS2610 couldn't fire before either, because a trait field was typed as a property.
+- **Why at the source.** `@ts-expect-error` doesn't survive declaration emit (microsoft/TypeScript#54879, open). The mapped type makes the source and the declaration agree, so neither needs a directive. It also covers every later accessor override of a trait field.
+- **The risk.** The exemption is checker behaviour, not a documented rule. If TypeScript drops it, core's type test and `RF-51`'s check both fail, so the change can't go unnoticed.
+- **Not adopted:**
+  - **Carrying the directive into the declaration** by post-processing tsdown's output. That is a custom build step for one line, and it hides the error from consumers instead of removing it.
+  - **Declaring each trait's fields as accessors** (`{ get value(): …; set value(…) }`). That would be every trait's annotation, `trait()`'s mapped `FieldReadersFromConverters` can't produce accessors, and `Props` reads the same `P`.
+  - **Excluding the file from the check.** That fails `RF-51`'s property.
+
+**Routed** to the same handoff, which lands the repair before the check. The architect closes this finding from that unit's report and review.
 
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
 
@@ -1898,6 +1937,26 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop
 - **Since when:** the rule was never drawn for a selection until `RF-43`'s R2. Before it, the group's `value` set only the custom state `checked`, and `[checked]` didn't match. `button-group/spec-consistency.md:35` records the morph as matching the spec, and it doesn't.
 - **Required property:** a connected group's buttons have the shapes that the group's tokens define, at every size. The [host-invariant handoff](host-invariant-1/host-invariant-handoff.md)'s item 8 states them.
 - **Routed** to the host-invariant unit, item 8.
+
+#### RF-57 — A transformer trait's class field shadows a subclass's accessor at runtime, and TypeScript doesn't report the override
+
+Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the architect, on the owner's request relayed by the coordinator, from the note in `RF-54`'s decision and its [probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt). `RF-56` is allocated on `repo/host-invariant-1`. **No row is disabled.**
+
+- **What was read** at `2544a24fd`:
+  - core's transformer `trait()` (`src/traits/primitives.ts`) types a trait's instance fields as `Omit<InstanceType<U>, keyof InstanceType<T>>`, which is a mapped type. So TypeScript doesn't apply TS2610 or TS2611 to them.
+  - A transformer whose subclass declares a class field `x`, with a subclass of the traited class overriding `x` with `get` and `set`, type-checks with no directive.
+  - At runtime the class field is an own property of every instance, so it shadows the subclass's accessor.
+- **What doesn't have the hazard:** attribute traits. The attribute `trait()` builds on the transformer trait but installs each field as a prototype accessor, so a subclass's accessor overrides it. `RF-54`'s mapped `Branded` doesn't create this hazard and doesn't widen it.
+- **Effect today:** none observable. In the repository, only the attribute `trait()` and core's own tests build transformer traits, and `@ydinjs/core` is unreleased. So the finding is Tier C.
+- **Why it is registered:** the owner may publish core's traits as a separate package. Other people would then write transformer traits with class fields, and the type contract would accept an override that the runtime ignores. **Once the transformer `trait()` is published outside the repository, this finding is Tier B**, because the types it publishes then mislead a correct integrator.
+- **Required property,** due before the transformer `trait()` is published outside the repository: an author of a transformer trait, or a consumer who overrides one of its fields, can't be misled. Either the types reject an accessor override of a field that the trait installs on the instance, or the transformer `trait()`'s published contract says what such a trait must do. That is: it installs its instance members on the prototype, as accessors and methods, not as class fields or constructor assignments, because its field types don't tell a property from an accessor.
+- **Repair direction,** recommended and not yet decided:
+  - **The contract is the minimum.** It goes in the transformer `trait()`'s JSDoc, and in the package's documentation when that package exists.
+  - **A type-level repair is unread.** It would keep the declaration kind of the trait's fields, for example by exposing the transformer's instance type instead of an `Omit` delta, without breaking `impl`'s composition. Nobody has read whether that is possible. A repair that changes `Trait`'s public shape is decided when this finding is scheduled.
+- **Not adopted:**
+  - **A runtime check on the transformer's result,** for own fields that shadow an accessor. Once the contract states the rule, a class field is incorrect use of it, and the trait doesn't corrupt state that it owns. So the check fails both conditions of `CONTRIBUTING.md`'s _Definition of success_ for a defensive check.
+  - **A custom lint rule.** That is the machinery that `RF-51`'s answer declined.
+- **Routed** to the owner. It isn't scheduled, and it blocks nothing.
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
 
