@@ -1,6 +1,6 @@
 # The isolated aube layout — reading and proposal
 
-**Status: proposal, not recorded.** The recommendation is to keep the hoisted layout and not adopt the isolated one. Nothing in `00-index.md` changes on this branch.
+**Status: recorded 2026-11-18.** The owner decided to keep the hoisted layout and fix the three findings. The main slot's architect recorded the decision as `repo:RD-19` and the findings as `repo:RF-51`, `RF-52` and `RF-53`, in [`../00-index.md`](../00-index.md). Below is the proposal as it was written. The index holds the recorded text.
 
 **Branch** `repo/aube-isolated-1`, from `origin/main` at `e9236603e`. **Governing records:** `repo:RD-16` (property 7 and _Not adopted_), `repo:RD-17` (properties 4 and 9) and `repo:RF-48`, in [`../00-index.md`](../00-index.md). **Evidence:** [the reading](checks/isolated-reading.txt), taken in slot `b` with aube 2.10.0.
 
