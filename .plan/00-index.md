@@ -1624,6 +1624,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
   - **The reviewer's note is accepted behaviour:** a switch whose own `value` changes inside a group with a value keeps its `checked` until the group's next event. The group writes `checked` only on a join and on a change to its own `value`. A consumer's write to a switch, of `checked` or `value`, stands until then. No code, and no new entry.
   - **The merge's condition, not the closure's:** the full `verify` run 44245582616 at `c1a40a3fc`, `webkit` included. A row of this unit that fails there reopens this entry.
   - **Still open, and the owner's:** whether material-x states a browser floor (this entry's 2026-11-18 decision).
+  - **Answered 2026-11-18 by the owner, in `RD-20`:** material-x supports the current stable release of each engine until its first release, and a browserslist is owed before that release. Recorded by the architect when `repo/traits-plugin-1` merged `main` at `68debb425`.
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
