@@ -429,12 +429,14 @@ const isVisual = process.env['MX_TEST_VISUAL'] === '1';
 function createVisualTestProjects(
   options: BrowserTestProjectOptions,
 ): UserConfig[] {
-  // The comparator sees a state layer at the tokens' lowest opacity on the
-  // fixtures' white surface: pixelmatch's default of 0.1 misses the focus and
-  // hover layers, and the reading on GitHub's runner found 0.01 the largest
-  // value that sees them with no difference between runs (`repo:RD-23`). Every
-  // row uses this one value. Antialiased pixels stay excluded, and no
-  // mismatched pixel is allowed.
+  // The comparator sees state layers on the fixtures' white surface, which
+  // pixelmatch's default of 0.1 doesn't. At 0.01 a hovered row with no hover
+  // layer fails, a focused row with no focus layer fails, and so does a focused
+  // checkbox whose baseline shows the hover layer instead of the focus layer.
+  // 0.01 is the largest value in the reading on GitHub's runner that meets
+  // those conditions with no difference between runs (`repo:RD-23`). Every row
+  // uses this one value. Antialiased pixels stay excluded, and no mismatched
+  // pixel is allowed.
   return isVisual && engines.includes('chromium')
     ? [
         mergeConfig(createBrowserTestProject(options, 'chromium'), {
