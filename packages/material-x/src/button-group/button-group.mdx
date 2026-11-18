@@ -109,7 +109,10 @@ Use the live example below to inspect grouped interaction behavior:
 - Material 3 overview: [https://m3.material.io/components/segmented-buttons/overview](https://m3.material.io/components/segmented-buttons/overview)
 - Material 3 guidelines: [https://m3.material.io/components/segmented-buttons/guidelines](https://m3.material.io/components/segmented-buttons/guidelines)
 - Deltas:
-  - Standard group preserves button semantics without connected segmented selection behavior.
+  - Standard group preserves button semantics without connected segmented presentation. Its `value` selects switch buttons by the same rule as `mx-connected-button-group`:
+    - While the group has a `value`, a switch is checked exactly when its own `value` is set and equals the group's. This holds when the switch joins and after every change to the group's `value`.
+    - Removing the group's `value` unchecks the switch that the previous value selected. No other switch's `checked` changes.
+    - A switch that joins a group with no `value` keeps its `checked`.
   - API metadata in this page is generated from the local CEM output.
 
 ## Changelog / stability

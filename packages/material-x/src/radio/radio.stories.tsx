@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX } from 'react';
+import { useArgs } from 'storybook/preview-api';
 import css from '../story.module.css';
 import './radio.ts';
 
@@ -75,6 +76,8 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     },
   },
   render({ label, checked, disabled, value }) {
+    const [, updateArgs] = useArgs<PlaygroundArgs>();
+
     return (
       <>
         <mx-radio
@@ -82,6 +85,9 @@ export const Playground: StoryObj<PlaygroundArgs> = {
           checked={checked}
           disabled={disabled}
           value={value}
+          onChange={() => {
+            updateArgs({ checked: true });
+          }}
         />
         <label htmlFor={PLAYGROUND_ID}>{label}</label>
       </>

@@ -43,7 +43,7 @@ export default function processToken(token: Token): ProcessedTokenValue | null {
   } = value;
 
   if (length != null) {
-    return `${length.value ?? 0}px`;
+    return `${length.value ?? 0}${length.unit === 'PERCENT' ? '%' : 'px'}`;
   }
 
   if (opacity != null) {

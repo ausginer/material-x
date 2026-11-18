@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState, type JSX, type PropsWithChildren } from 'react';
+import { useArgs } from 'storybook/preview-api';
 import '../icon/icon.ts';
 import css from '../story.module.css';
 import type { ButtonShape, ButtonSize } from './ButtonCore.ts';
@@ -87,6 +88,8 @@ export const Playground: StoryObj<PlaygroundArgs> = {
     },
   },
   render({ color, size, shape, width, icon, checked, disabled }) {
+    const [, updateArgs] = useArgs<PlaygroundArgs>();
+
     return (
       <mx-switch-icon-button
         color={color === 'filled' ? undefined : color}
@@ -95,6 +98,9 @@ export const Playground: StoryObj<PlaygroundArgs> = {
         width={width === 'default' ? undefined : width}
         checked={checked}
         disabled={disabled}
+        onChange={() => {
+          updateArgs({ checked: !checked });
+        }}
       >
         <mx-icon>{icon}</mx-icon>
       </mx-switch-icon-button>

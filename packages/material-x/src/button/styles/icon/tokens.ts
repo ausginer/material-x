@@ -131,12 +131,14 @@ export const variantSwitchTokens: ReadonlyArray<ReadonlySignal<TokenPackage>> =
             )
             .append('unselected.default', {
               'state-layer.color': `${setName}.unselected.pressed.state-layer.color`,
+              'focus-layer.color': `${setName}.unselected.focused.state-layer.color`,
             })
             .append('selected.default', {
               ...(variant === 'standard'
                 ? { 'container.color': 'transparent' }
                 : {}),
               'state-layer.color': `${setName}.selected.pressed.state-layer.color`,
+              'focus-layer.color': `${setName}.selected.focused.state-layer.color`,
             })
             .extend(
               createButtonExtensions(
