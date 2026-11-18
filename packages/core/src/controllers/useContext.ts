@@ -24,15 +24,17 @@ class ContextEvent extends Event {
 /**
  * Creates a unique context identifier that providers and consumers can share.
  *
- * @remarks Requires launch over HTTPS because it uses `crypto.randomUUID`
- * internally.
+ * The token is the event type that a consumer dispatches and its provider
+ * listens for. It is unique on the page, also across copies of this package,
+ * and isn't a secret. Creating one is safe in any context, secure or not, and
+ * touches no document.
  *
  * @typeParam T - The stable value shape exposed through this context.
- * @returns A - unique opaque context token.
+ * @returns A unique opaque context token.
  */
 export function createContext<T>(): Context<T> {
   // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-  return crypto.randomUUID() as Context<T>;
+  return `ydin-context-${Math.random()}` as Context<T>;
 }
 
 /**
