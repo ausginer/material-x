@@ -179,10 +179,32 @@ Decided by the architect on 2026-11-18 at `2c1fa4e22`. Evidence: [`checks/apt-no
 
 **Witnesses,** in the next run of the pull request. Item 2's numbering and requirements stand.
 
-- **Witness 2 reads the next run, whether or not the legs hit.** If the runner image's release is still `20261103`, the `system-deps` legs hit. If the release changed, the legs miss, fetch and save before any test job starts, so they also give a cold reading of witness 1. Either way, every test job restores a hit and runs the offline install. Record which case happened.
+- **Witness 2 reads the next run, whether or not the legs hit.** If the runner image's release is still `20261103`, the `system-deps` legs hit. (**A misreading,** corrected on 2026-11-18 from the feature proof's `reviewer-1`: `20261103.629` is the runner image provisioner's version, not the image's. The image was `20261111.127.1` or `20261111.370.1` in every job read, so the key's release was `20261111`. The conclusion stands, because the key didn't change between the runs.) If the release changed, the legs miss, fetch and save before any test job starts, so they also give a cold reading of witness 1. Either way, every test job restores a hit and runs the offline install. Record which case happened.
 - In each test job, witness 2 also needs the following. The install step succeeds without the warning. It shows no `Get:` from any `archive.ubuntu.com` host. The dry run then passes.
 - **Then witnesses 3 to 6 as item 2 says.** Witness 3's forced miss doesn't reach the `--print-uris` branch, and it doesn't need to.
 - **The handoff's three stops still apply.** In particular: if the dry run fails on a hit, download-only mode didn't give the full set. If apt asks for a downgrade, the key is wrong. If `--print-uris` lists any archive, record its lines in `checks/`. They name the archive and the stop.
+
+## Item 3. The feature proof's three findings
+
+Decided by the architect on 2026-11-18, on the [feature proof](../reviews/ci-deps-1/feature-proof-claude.md) at `299e8d55e`, read at `754f15174`. Witnesses 1 to 6 hold, and there are three Tier C findings. All three are accepted. The architect corrected item 1b's premise above. The rest is this item: two commits, the code first.
+
+**Commit 1, the code** (`reviewer-2`, `reviewer-3`):
+
+- **`verify.yml`'s comment on `system-deps`** states `RD-21` property 4 as amended. That limit is the only place a slow mirror can fail a run when every test job's restore hits. A test job whose own restore misses falls back and can time out.
+- **A hit whose entry holds no archive is a complete set** for that image. The action skips the offline install and goes on to the dry-run check, without reaching the mirror. If the check fails, the warning says _"the check found missing packages"_, and the fallback runs as for any failed check. Today the unexpanded `"$DIR"/*.deb` would reach apt as a literal path, report a failed install that didn't happen, and fall back to the mirror. `RF-58`'s property covers an empty set too: the cache holds the engine's whole set for that key, which is none.
+- **An empty set must also reach the test jobs as a hit.** Read in `actions/cache`'s source at the pinned hash whether `save` stores a directory that holds no file, and report it. If it doesn't, `system-deps` puts one marker file in the directory before it saves, so the entry exists.
+- **Witnesses:**
+  - the shell of the action's install step, run locally against an empty directory with `sudo`, `apt-get` and `aube` stubbed on `PATH`. It shows that the install is skipped and the check runs. Save it under `checks/`;
+  - the pull request's next run on this commit. Every test job hits, writes no warning, has no `Get:` from any `archive.ubuntu.com` host, and passes, as in witness 2.
+
+**Commit 2, the report** (`reviewer-1`):
+
+- **Each job's runner image** comes from the log's `Runner Image` group (`20261111.127.1` or `20261111.370.1`), and the key's release from `key.sh`'s `key=` line. Correct the report's text and every `image` column in `checks/`, and add the provisioner's version as a column of its own if it is kept.
+- **Witness 2 names the pool.** The offline install ran without contacting a mirror on `20261111.127.1`, the incident pool, in `docs`, `firefox` and `chromium` of 44258255489 and in `docs` of 44261296408. The review's [`checks/job-images.tsv`](../reviews/ci-deps-1/checks/job-images.tsv) has the pairing: 5 of 5 jobs on `.127.1` used `us-east-2.ec2.archive.ubuntu.com`, and 8 of 8 on `.370.1` used `azure.archive.ubuntu.com`.
+- **Witness 3 names the pool** of the cancelled `webkit` job and of `measurements`: `20261111.127.1`.
+- Add the new run of commit 1 to the run table and to witness 2.
+
+**Then the architect** records `RD-21` as implemented and closes `RF-58`, from the corrected report and this review.
 
 ## Verification and handoff
 
