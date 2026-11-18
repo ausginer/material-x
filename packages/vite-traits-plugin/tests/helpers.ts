@@ -7,7 +7,7 @@ import {
   rm,
   writeFile,
 } from 'node:fs/promises';
-import { join } from 'node:path';
+import { extname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   analyzeModule,
@@ -104,7 +104,8 @@ export interface Flattening {
 
 /**
  * Flattens `consumerName` and materializes the runtime-composed form
- * (`foo-composed.ts`), the flattened form (`foo-flat.ts`), the `augment`ed trait
+ * (`foo-composed.ts`), the flattened form (`foo-flat.ts`), each with the
+ * consumer's extension, the `augment`ed trait
  * modules (with their build-only synthetic exports), and the `passthrough`
  * modules verbatim, into a fresh dir INSIDE the package tree — so the emitted
  * `@ydinjs/core` imports still resolve through the workspace node_modules.
@@ -164,8 +165,11 @@ export async function flattenToDir(
         await writeFile(join(genDir, name), await readFixture(name)),
     ),
     ...options.augment.map(augment),
-    writeFile(join(genDir, 'foo-flat.ts'), flat),
-    writeFile(join(genDir, 'foo-composed.ts'), consumerCode),
+    writeFile(join(genDir, `foo-flat${extname(consumerName)}`), flat),
+    writeFile(
+      join(genDir, `foo-composed${extname(consumerName)}`),
+      consumerCode,
+    ),
   ]);
 
   return {

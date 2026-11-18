@@ -14,10 +14,11 @@ type ForwardingCtor = new () => {
 async function loadForms<T>(
   gen: Flattening,
   name = 'default',
+  extension = '.ts',
 ): Promise<ReadonlyArray<readonly [string, T]>> {
   const [composed, flattened] = (await Promise.all([
-    import(gen.url('foo-composed.ts')),
-    import(gen.url('foo-flat.ts')),
+    import(gen.url(`foo-composed${extension}`)),
+    import(gen.url(`foo-flat${extension}`)),
   ])) as [Record<string, T>, Record<string, T>];
 
   return [
@@ -179,12 +180,14 @@ describe("method trait flattening of another package's built JavaScript", () => 
   let forms: ReadonlyArray<readonly [string, ForwardingCtor]>;
 
   beforeAll(async () => {
-    gen = await flattenToDir('method-package-consumer.ts', {
+    // A consumer of the package's extension, .mjs. The origin-module scan has
+    // to export the private map that the member reads after a relative import.
+    gen = await flattenToDir('method-package-consumer.mjs', {
       augment: [],
       passthrough: ['base.ts'],
       packages: ['forwarding'],
     });
-    forms = await loadForms(gen);
+    forms = await loadForms(gen, 'default', '.mjs');
   });
 
   afterAll(async () => {
@@ -207,5 +210,28 @@ describe("method trait flattening of another package's built JavaScript", () => 
       instance.focus('options');
       expect(instance.target, label).toEqual({ calls: 1, options: 'options' });
     }
+  });
+});
+
+describe("method trait flattening of another package's built JavaScript into TypeScript", () => {
+  let gen: Flattening;
+
+  beforeAll(async () => {
+    gen = await flattenToDir('method-package-consumer.ts', {
+      augment: [],
+      passthrough: ['base.ts'],
+      packages: ['forwarding'],
+    });
+  });
+
+  afterAll(async () => {
+    await gen.dispose();
+  });
+
+  it('should retain the composition, since the extensions differ', () => {
+    expect([gen.bailouts, gen.flat.includes('impl(')]).toEqual([
+      ['trait-source-language'],
+      true,
+    ]);
   });
 });

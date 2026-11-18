@@ -37,31 +37,21 @@ export interface ModuleLoader {
   load(id: string): Promise<string>;
 }
 
-/** A module id's extension groups: JavaScript, JSX, TypeScript and TSX. */
-const SOURCE_LANGUAGE =
-  /\.(?:(?<js>[cm]?js)|(?<jsx>jsx)|(?<ts>[cm]?ts)|(?<tsx>tsx))$/u;
-
-/** A module's source language, by its id's extension. */
-function sourceLanguage(id: string): string | undefined {
-  const groups = SOURCE_LANGUAGE.exec(id)?.groups;
-
-  return groups && Object.keys(groups).find((name) => groups[name]);
-}
+/** A module id's file extension, dot included. */
+const EXTENSION = /\.[^./]+$/u;
 
 /**
  * Whether a method trait's source text can be copied from `origin` into
- * `consumer` unchanged: between modules of one language, or from JavaScript
- * into TypeScript. Any other pair can change the meaning or the syntax, such
- * as a TypeScript `<T>x` assertion in TSX.
+ * `consumer` unchanged: only between modules of one file extension, so the
+ * consumer's parser reads the text with the origin's language and options.
+ * Any other pair can change the syntax or the meaning: `.mts` and `.cts`
+ * reject a `<T>x` assertion that `.ts` accepts, and TypeScript reads
+ * JavaScript's `a < b > (c)` as a call with a type argument.
  */
 function canCopySource(originId: string, consumerId: string): boolean {
-  const origin = sourceLanguage(originId);
-  const consumer = sourceLanguage(consumerId);
+  const origin = EXTENSION.exec(originId)?.[0];
 
-  return (
-    origin !== undefined &&
-    (origin === consumer || (origin === 'js' && consumer === 'ts'))
-  );
+  return origin !== undefined && origin === EXTENSION.exec(consumerId)?.[0];
 }
 
 /** Specifiers whose `impl` export is the composition builder. */

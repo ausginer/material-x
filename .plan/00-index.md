@@ -1612,6 +1612,11 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **The ruling:** a member is copied only between files of the same extension, and every other pair is retained. The JavaScript-into-TypeScript pair goes, because no shipped trait uses it. A parse-equivalence check is the route back if a method trait in built JavaScript is ever consumed by TypeScript. The document states the rule, and the [handoff](traits-plugin-1/traits-plugin-handoff.md)'s item 2c implements it.
   - **The required property holds** when item 2c is in. Item 3's bytes stay the owner's.
 
+- **Dated 2026-11-18 by the implementer: the plan's item 2c is in,** on `repo/traits-plugin-1`. `canCopySource` copies a method trait's members only when the origin's and the consumer's file extensions are equal, and every other pair is retained with `trait-source-language` ([witness](traits-plugin-1/checks/item2c-witness.txt)).
+  - **Rows,** each failing before and passing after: a `.ts` trait that returns `<number>x`, into an `.mts` and into a `.cts` consumer, and a `.js` trait that returns `a < b > (c)`, into a `.ts` consumer, are retained. A `.ts` trait into a `.ts` consumer still flattens.
+  - **The built-package row** from `method-package-consumer.ts` is retained. A new `method-package-consumer.mjs`, of the package's own extension, flattens. Its runtime rows still fail when item 2's origin-scan repair is reverted.
+  - **material-x's build** is byte-identical to the build with the plugin at `17065ddf0` (93 files), and core's is too. The build prints no retention warning. No shipped trait is retained.
+
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
 Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**

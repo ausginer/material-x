@@ -1,6 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
-import { analyzeModule, parseModule } from '../src/analyze.ts';
+import {
+  analyzeModule,
+  parseModule,
+  type ModuleLoader,
+} from '../src/analyze.ts';
 import { BailoutError, REASON, type Reason } from '../src/diagnostics.ts';
 import { lowerModule } from '../src/lower.ts';
 import {
@@ -312,5 +316,62 @@ describe('lowerModule and a method trait', () => {
     expect(lowerModule(code, compositions).toString()).not.toContain(
       'observedAttributes',
     );
+  });
+});
+
+describe('analyzeModule and the extensions of a method trait and its consumer', () => {
+  /** A trait module served from memory beside the fixtures, by its file name. */
+  const origins: Readonly<Record<string, string>> = {
+    'assertion-trait.ts': `import { trait } from '@ydinjs/core/traits/primitives.js';
+const $t = Symbol('T');
+export const T = trait((base: new () => object) => class extends base {
+  m(x: unknown): number { return <number>x; }
+}, $t);`,
+    'chevron-trait.js': `import { trait } from '@ydinjs/core/traits/primitives.js';
+const $t = Symbol('T');
+const a = 1, b = 2, c = 3;
+export const T = trait((base) => class extends base {
+  m() { return a < b > (c); }
+}, $t);`,
+  };
+
+  const loader: ModuleLoader = {
+    resolve: (specifier, importer) => nodeLoader.resolve(specifier, importer),
+    load: (id) => {
+      const name = Object.keys(origins).find((file) => id === fixtureId(file));
+      return name ? Promise.resolve(origins[name]!) : nodeLoader.load(id);
+    },
+  };
+
+  const consumerOf = (
+    origin: string,
+  ) => `import { impl } from '@ydinjs/core/traits/attributes.js';
+import { Base } from './base.ts';
+import { T } from './${origin}';
+const FooBase = impl(Base, [T]);
+export class Foo extends FooBase {}`;
+
+  it.each<readonly [string, string]>([
+    ['assertion-trait.ts', 'extension-consumer.mts'],
+    ['assertion-trait.ts', 'extension-consumer.cts'],
+    ['chevron-trait.js', 'extension-consumer.ts'],
+  ])('should retain a trait from %s in %s', async (origin, name) => {
+    const { bailouts } = await analyzeModule(
+      fixtureId(name),
+      consumerOf(origin),
+      loader,
+    );
+    expect(bailouts.map(({ reason }) => reason)).toEqual([
+      REASON.TRAIT_SOURCE_LANGUAGE,
+    ]);
+  });
+
+  it('should flatten a .ts trait in a .ts consumer', async () => {
+    const { compositions } = await analyzeModule(
+      fixtureId('extension-consumer.ts'),
+      consumerOf('assertion-trait.ts'),
+      loader,
+    );
+    expect(compositions.map(({ className }) => className)).toEqual(['Foo']);
   });
 });
