@@ -13,6 +13,8 @@
 - **`RD-21` adds a reason about the cache's scope,** from GitHub's documentation: a pull request restores what `main`'s runs saved. Witness 1's cold run fills only the pull request's own scope.
 - **The custom image** is recorded under _Not adopted_ as the owner's decision.
 
+**Returned at the second stop on 2026-11-18,** after cold run 44254065323 ([report](ci-deps-report.md)). The architect read the cause in apt's source. Item 1b fixes it inside `RD-21` as recorded. See [The second stop](#the-second-stop-the-cause-and-item-1b).
+
 **The owner's direction,** relayed by the coordinator on 2026-11-18: system dependencies are installed up front, at environment initialization, before any test starts. How is the architect's to establish.
 
 **Governing records,** in [`../00-index.md`](../00-index.md):
@@ -150,6 +152,37 @@ The report is `.plan/ci-deps-1/ci-deps-report.md`, with each witness's run ident
 - a hit installs a package version older than the image's, so apt asks for a downgrade.
 
 Each of these means that the key or the method is wrong, and the fallback would only hide it.
+
+## The second stop: the cause and item 1b
+
+Decided by the architect on 2026-11-18 at `2c1fa4e22`. Evidence: [`checks/apt-no-download-source.txt`](checks/apt-no-download-source.txt).
+
+**The cause, read in apt's source,** at 2.7.14 (noble's release), 2.8.2 and `main`, which agree:
+
+- With `--no-download`, apt keeps an archive only if it is already in `Dir::Cache::Archives`, under apt's own file name (`<name>_<version>_<arch>.deb`) and with the size its index gives. apt checks no other place.
+- A `.deb` named on the command line outside that directory gets a `file:` URI and is queued like a download. `--no-download` then drops it and fails with _"Unable to fetch some archives"_. The `file:` URI isn't exempt.
+- The action named `$RUNNER_TEMP/system-deps/*.deb`, and the archive cache was still `/var/cache/apt/archives/`. So every archive counted as a fetch, in every job and for every engine. That matches five failures out of five.
+- The log agrees. apt printed its recommended packages while it resolved, and then failed before it lists the new packages, so the log names no package.
+
+**The implementer's hypothesis** was that apt prefers the repository's copy of the same version. That isn't the cause. Whichever source apt chooses, the check above looks in the archive cache under the same file name, so the fix holds in both cases. No diagnostic run is needed before the fix. The fixed run is the test.
+
+**Within `RD-21`.** The install is still `apt-get install --no-download` on the archive files, with no `apt-get update`, and the fallback doesn't change. `RD-21` property 2.2 now states the requirement it was missing. The mechanism is unchanged, so the owner doesn't need to decide anything.
+
+### Item 1b. The offline install reads the restored directory as apt's archive cache (one commit)
+
+**Required:**
+
+- **The offline install sets `Dir::Cache::Archives` to the restored directory, for that one command.** It keeps naming the files, `--no-download` and `--no-install-recommends`. The fetch already stored each archive under apt's file name in that directory, because `system-deps` set the same option. So the key and the cache entries don't change, and the three entries from run 44254065323 remain valid.
+- **A failed offline install names its missing archives in the log, before the fallback.** The command to use is the same install with `--print-uris` in place of `--no-download`. apt then prints each archive it would fetch and fetches nothing. The two options can't be combined, because `--no-download` fails first. The warning annotation doesn't change.
+- The action's comment says why the archive cache is set: under `--no-download`, apt keeps only archives that are in its archive cache.
+- **The action doesn't save the directory.** apt leaves its lock and `partial/` there. Only `system-deps` saves, and its directory comes from the fetch.
+
+**Witnesses,** in the next run of the pull request. Item 2's numbering and requirements stand.
+
+- **Witness 2 reads the next run, whether or not the legs hit.** If the runner image's release is still `20261103`, the `system-deps` legs hit. If the release changed, the legs miss, fetch and save before any test job starts, so they also give a cold reading of witness 1. Either way, every test job restores a hit and runs the offline install. Record which case happened.
+- In each test job, witness 2 also needs the following. The install step succeeds without the warning. It shows no `Get:` from any `archive.ubuntu.com` host. The dry run then passes.
+- **Then witnesses 3 to 6 as item 2 says.** Witness 3's forced miss doesn't reach the `--print-uris` branch, and it doesn't need to.
+- **The handoff's three stops still apply.** In particular: if the dry run fails on a hit, download-only mode didn't give the full set. If apt asks for a downgrade, the key is wrong. If `--print-uris` lists any archive, record its lines in `checks/`. They name the archive and the stop.
 
 ## Verification and handoff
 
