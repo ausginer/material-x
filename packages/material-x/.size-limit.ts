@@ -11,11 +11,15 @@
  * files, because size-limit would then sum separate chunks that no consumer
  * ships.
  *
- * No row has a limit until the first publication of `@ydinjs/material-x` to a
- * registry, which the owner performs. Before that publication, a unit sets each
- * row's limit to its reading after the release's last change, with no slack,
- * and shows that a row can fail. Publishing without limits, or giving them up,
- * is the owner's act and amends this rule (`repo:RD-24`).
+ * The rows have no limit yet. The boundary for their limits is the first
+ * publication of `@ydinjs/material-x` to a registry, which the owner performs.
+ * Before that publication, a unit sets each row's limit to its reading after
+ * the release's last change, with no slack, and runs the witness that a row can
+ * fail: one row's limit set one byte below its reading makes `just size` exit
+ * non-zero and name that row. The architect states the rule that governs the
+ * limits after the release; from then on, a reading over a limit is a decision.
+ * The owner may order the limits sooner. Releasing without them, or giving them
+ * up, is also his act, and either one amends this rule (`repo:RD-24`).
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
