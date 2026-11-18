@@ -1,8 +1,8 @@
 PR #59, run 44276212222 on 4df80913f (the branch's f48143080 merged with origin/main at 7a4f82eb4): conclusion success.
-Read from each test job's log with `gh run view 44276212222 --job <id> --log`, colour codes removed: the runner image version, the two changed test files, every visual file, and the test step's summary. CI uses Vitest's default reporter, which lists files and not rows.
+Read from each test job's log with `gh run view 44276212222 --job <id> --log`, colour codes removed: the version in the Runner Image group, the two changed test files, every visual file, and the test step's summary. CI uses Vitest's default reporter, which lists files and not rows.
 
 == chromium, job 134705238062
-Version: 20261103.629
+Version: 20261111.370.1
  ✓  browser/material-x (chromium)  tests/text-field/text-field.browser.test.ts (26 tests) 2475ms
  ✓  browser/material-x (chromium)  tests/list/list-item.browser.test.ts (7 tests) 767ms
  ✓  visual/material-x (chromium)  tests/button-group/button-group.visual.browser.test.ts (4 tests) 724ms
@@ -13,14 +13,14 @@ Version: 20261103.629
       Tests  2164 passed | 12 skipped (2176)
 
 == firefox, job 134705238220
-Version: 20261103.629
+Version: 20261111.370.1
  ✓  browser/material-x/firefox (firefox)  tests/text-field/text-field.browser.test.ts (26 tests) 2469ms
  ✓  browser/material-x/firefox (firefox)  tests/list/list-item.browser.test.ts (7 tests) 802ms
  Test Files  105 passed (105)
       Tests  1754 passed | 1 expected fail | 18 skipped (1773)
 
 == webkit, job 134705238152
-Version: 20261103.629
+Version: 20261111.127.1
  ✓  browser/material-x/webkit (webkit)  tests/text-field/text-field.browser.test.ts (26 tests) 2440ms
  ✓  browser/material-x/webkit (webkit)  tests/list/list-item.browser.test.ts (7 tests) 693ms
  Test Files  105 passed (105)

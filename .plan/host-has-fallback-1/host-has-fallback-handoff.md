@@ -215,3 +215,5 @@ The architect closes both on this branch, where `RF-59`'s entry is and where `RF
 
 - **`RF-59`:** item 3's last witness holds. In the pull request's run on item 4's commit, `visual` passes with no baseline changed, and `browser` passes in the `chromium`, `firefox` and `webkit` jobs. A changed baseline is item 3's stop.
 - **`RF-40`:** item 4 is in, its row and its Firefox witness hold, and the same run passes item 1's rows in all three jobs. The report records the run's identifiers. Every rule that `RF-40` lists is then witnessed in the gate.
+
+**Both closed 2026-11-18 by the architect,** in [`../00-index.md`](../00-index.md), on #59's run 44276212222. That run is on `4df80913f`, which merges `origin/main` at `7a4f82eb4`. The earlier run on `5b1a4d35d` predates #37 and #61, so it doesn't read the tree that merges.

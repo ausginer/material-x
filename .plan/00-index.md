@@ -1538,7 +1538,7 @@ Tier B, **closed 2026-11-17** (below). Before closure: open. Registered on 2026-
 
 #### RF-40 — material-x's `:host:has()` fallback is complete in the build, and no test in the gate observes it
 
-Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF-39`.
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-16 by the architect, while ruling on `RF-39`.
 
 - **The code:** `useHasSlottedPolyfill` (`material-x/src/core/utils/polyfills.ts:22`) tests whether `:host:has(slot)` matches (`HOST_HAS_SUPPORTED`, `:10`). Where it doesn't, it sets the custom states `has-<slot>` on the host.
 - **Read by the architect at `5a0bba69b`:** no stylesheet or source under `packages/material-x/src/` or `packages/core/src/` reads `:state(has-`.
@@ -1559,6 +1559,12 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF
   - **The coupling is witnessed:** when a slot's class disagrees with its `name`, the lead rows fail in Firefox alone (the review's mutation _3c_).
   - **`list/styles/item/main.styles.css:184`,** the three-line leading video's size, has no row. The handoff's item 4 adds one.
   - **It closes** when item 4 is in and the pull request's run on item 4's commit passes the rows in all three jobs, per the [handoff's disposition](host-has-fallback-1/host-has-fallback-handoff.md#closing-rf-40-and-rf-59).
+- **Closed 2026-11-18 by the architect** on `repo/host-has-fallback-1` (#59, not yet merged), relayed by the coordinator. The closure rests on the [report](host-has-fallback-1/host-has-fallback-report.md) at `28a3ad4bb`, and on the run's job logs, which the architect read.
+  - **Every rule this entry lists has a row in the gate:** text field's `lead`, `trail`, `prefix`, `suffix`, `support` and `counter`, on both text field elements, and the list item's `support`, `overline`, both together, and the three-line leading video at `:184` (item 4).
+  - **The rows pass on the tree that merges.** #59's run 44276212222 is on `4df80913f`, which merges `origin/main` at `7a4f82eb4`. It passes `text-field.browser.test.ts` (26 tests) and `list-item.browser.test.ts` (7 tests) in the `chromium` job 134705238062, the `firefox` job 134705238220 and the `webkit` job 134705238152 ([reading](host-has-fallback-1/checks/rf40-pr-run.txt)). The earlier run 44273791779, on `5b1a4d35d`, isn't cited. It predates #37 and #61, and #61 changes the text field and list item sources and the flattener that compiles them in the gate.
+  - **The rows test the fallback:** with the polyfill setting no state, they fail in Firefox alone (the report's item 1 witness 2, and item 4 witness 2). The coupling's witness is the review's mutation _3c_.
+  - **The rows assert outcomes only,** so they stay valid when the polyfill and the build's rewrite go (`RF-59`).
+  - **Corrected at this closure:** the run's reading quoted the Runner Image Provisioner's version, `20261103.629`, as the runner image. It now gives the Runner Image group's version: `20261111.370.1` in the `chromium` and `firefox` jobs, and `20261111.127.1` in the `webkit` job.
 
 #### RF-41 — The screenshot comparator doesn't see a state layer at the tokens' opacities
 
@@ -2067,7 +2073,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open, decided, unimplemen
 
 #### RF-59 — material-x's `:host:has()` detection runs at import: it appends to `document.body` and forces a style computation
 
-Tier A, **open**. Registered on 2026-11-18 by the architect, on slot `c`'s [handoff](host-has-fallback-1/host-has-fallback-handoff.md) proposal 2, relayed by the coordinator. `RF-58` is proposed on `repo/ci-deps-1`, so this is the next free number. **No row is disabled.**
+Tier A, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, on slot `c`'s [handoff](host-has-fallback-1/host-has-fallback-handoff.md) proposal 2, relayed by the coordinator. `RF-58` is proposed on `repo/ci-deps-1`, so this is the next free number. **No row is disabled.**
 
 - **The code,** read by the architect at `83a985b99`: `HOST_HAS_SUPPORTED` (`material-x/src/core/utils/polyfills.ts:10`–`:20`) is evaluated when the module loads. It creates an element with a shadow root, appends it to `document.body`, reads `getComputedStyle`, and removes it.
 - **What a consumer observes:**
@@ -2080,6 +2086,10 @@ Tier A, **open**. Registered on 2026-11-18 by the architect, on slot `c`'s [hand
 - **Routed** to `repo/host-has-fallback-1`'s unit as item 3, on the owner's agreement of 2026-11-18, relayed by the coordinator.
 - **Changed 2026-11-18.** Until then, the direction was _"detect once, on the first `useHasSlottedPolyfill` call, when a host exists"_, and the entry was routed _"to the owner to order. It isn't in `repo/host-has-fallback-1`'s unit, which is test-only."_ The direction changed because a lazy detection still forces a style computation and still needs a document. `CSS.supports()` can't replace it, because Firefox reports `:host:has()` as supported and doesn't match it.
 - **Amended 2026-11-18 by the architect,** on `reviewer-1` of the [feature proof](reviews/host-has-fallback-1/feature-proof-claude.md) at `f88437c6b`. The required property's second sentence said _"The detection gives the same answer as it does today."_ The decided repair has no detection, so that sentence couldn't be checked against the code. It now states what the detection's answer served: each component renders in every engine as it did. The handoff's item 3, witness 3, checks it. The first sentence doesn't change.
+- **Closed 2026-11-18 by the architect** on `repo/host-has-fallback-1` (#59, not yet merged), relayed by the coordinator, per the [handoff's condition](host-has-fallback-1/host-has-fallback-handoff.md#closing-rf-40-and-rf-59). The closure rests on the [report](host-has-fallback-1/host-has-fallback-report.md) at `28a3ad4bb`, and on the run's job logs, which the architect read.
+  - **The required property's first sentence holds.** `HOST_HAS_SUPPORTED` is gone, and the module evaluates declarations only. The import row in `tests/core/utils/polyfills.browser.test.ts` fails before the repair and passes after it, in all three engines (item 3 witness 1). The head-import probe defines the element in every scenario and every engine, `classic-bundle` included (witness 2).
+  - **Its second sentence holds in the gate,** on the tree that merges. #59's run 44276212222 is on `4df80913f`, which merges `origin/main` at `7a4f82eb4` ([reading](host-has-fallback-1/checks/rf40-pr-run.txt)). In the `chromium` job 134705238062, `visual` passes with no baseline changed. Its four files pass, the screenshot upload is skipped, and the branch changes no file under `__screenshots__` against `origin/main`. `browser` passes in that job, in the `firefox` job 134705238220 and in the `webkit` job 134705238152, `polyfills.browser.test.ts` and `RF-40`'s rows included.
+  - **What remains isn't this finding:** the polyfill and the build's rewrite stay until every supported engine matches `:has-slotted` and `:host:has()` (above).
 
 #### RF-60 — A flattener runtime-equivalence row failed once in CI with no change, and its cause isn't established
 
