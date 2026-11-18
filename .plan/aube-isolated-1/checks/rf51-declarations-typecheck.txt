@@ -1,0 +1,54 @@
+# Read by the architect (main slot) on 2026-11-18, against slot b's built packages at 5cdc7e019 plus Implementer B's
+# uncommitted item-1 manifest edit (react as an optional peer). TypeScript from slot b's node_modules: Version 7.0.2.
+# <slot> stands for /workspaces/worktrees/b. Nothing was written in slot b except this file.
+
+## A. RF-51's error, reproduced. abs-react.d.ts is the built react.d.ts with React imported by the absolute path the
+## build wrote before the peer (the form in checks/abs-import-search-before.txt); bare-react.d.ts imports "react".
+## Both rewrite ./ imports to <slot>/packages/material-x/. The config extends tsconfig.base.json with types: [] and
+## paths: { react: <slot>/node_modules/@types/react/index.d.ts }, because the scratch directory is outside slot b.
+
+$ tsc -p (abs-react.d.ts, skipLibCheck false)
+abs-react.d.ts(21,51): error TS7016: Could not find a declaration file for module '<slot>/node_modules/react/index.js'. '<slot>/node_modules/react/index.js' implicitly has an 'any' type.
+<slot>/packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+exit 2
+
+$ tsc -p (abs-react.d.ts, skipLibCheck true)
+exit 0
+
+$ tsc -p (bare-react.d.ts, skipLibCheck false)
+<slot>/packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+exit 2
+
+$ tsc -p (bare-react.d.ts, skipLibCheck true)
+exit 0
+
+## B. Every built .d.ts under packages/ (outside node_modules, src, tests), as a consumer reads them: one program,
+## skipLibCheck false, types [], strict, moduleResolution bundler. 108 files.
+
+$ tsc -p all.json
+<slot>/packages/material-x/text-field/TextFieldCore.d.ts(40,16): error TS2611: 'value' is defined as a property in class 'ControlledElement & { type: TextFieldType | null; inputmode: TextFieldInputMode | null; outlined: boolean; } & Readonly<Record<unique symbol, true>> & ... 5 more ... & Readonly<...>', but is overridden here in 'TextFieldCore' as an accessor.
+exit 2
+
+## C. Bare specifiers imported by those declaration files, by package, with each importing package's manifest.
+     56 @ydinjs/core
+     15 type-fest
+      3 rolldown
+      3 @ydinjs/box-quad
+      2 vite
+      1 react
+      1 lightningcss
+@ydinjs/box-quad {"dependencies":[],"peerDependencies":[]}
+@ydinjs/core {"dependencies":["type-fest"],"peerDependencies":[]}
+@ydinjs/drag {"dependencies":["@ydinjs/box-quad"],"peerDependencies":[]}
+@ydinjs/material-x {"dependencies":["@ydinjs/core","type-fest"],"peerDependencies":["react"]}
+size-limit-preset-rolldown {"dependencies":["@size-limit/file"],"peerDependencies":["size-limit"]}
+@ydinjs/tproc {"dependencies":["just-camel-case","just-kebab-case","type-fest"],"peerDependencies":[]}
+@ydinjs/vite-custom-element-assets {"dependencies":["@jridgewell/gen-mapping","@minify-html/node","lightningcss","oxfmt","rolldown","sorcery"],"peerDependencies":["vite"]}
+@ydinjs/vite-traits-plugin {"dependencies":["@oxc-project/types","oxc-parser","rolldown"],"peerDependencies":["vite"]}
+
+$ grep -nE rolldown|vite" in the two Vite plugins' entry declarations
+packages/vite-traits-plugin/index.d.ts:1:import { Plugin } from "rolldown";
+packages/vite-traits-plugin/index.d.ts:2:import { Plugin as Plugin$1 } from "vite";
+packages/vite-custom-element-assets/css/transform.d.ts:1:import { SourceMapInput } from "rolldown";
+packages/vite-custom-element-assets/index.d.ts:1:import { Plugin } from "rolldown";
+packages/vite-custom-element-assets/index.d.ts:2:import { Plugin as Plugin$1 } from "vite";

@@ -1,0 +1,14 @@
+RF-51 form probe. Read 2026-11-18 by the architect in slot b, at 1ee6ff6dd (repo/aube-isolated-1),
+hoisted layout, aube 2.10.0. Nothing was installed; the manifest edit was reverted afterwards.
+
+packages/material-x/package.json, edited after devDependencies:
+  "peerDependencies": { "react": "^19" },
+  "peerDependenciesMeta": { "react": { "optional": true } }
+
+$ (cd packages/material-x && aube exec just build)    exit 0
+$ grep -n DetailedHTMLProps packages/material-x/react.d.ts
+21:import { DetailedHTMLProps, HTMLAttributes } from "react";
+
+Without the edit, the same build writes
+  import { DetailedHTMLProps, HTMLAttributes } from "/workspaces/worktrees/b/node_modules/react/index.js"
+(isolated-reading.txt, section 7).

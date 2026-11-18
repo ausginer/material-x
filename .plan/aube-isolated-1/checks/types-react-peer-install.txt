@@ -1,0 +1,45 @@
+# aube 2.10.0, slot b, at 292b1649b, after adding @types/react ^19 as an optional peer in packages/material-x/package.json
+# Each aube command is abridged to its summary line; the listings and the diff are verbatim.
+$ aube install
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 1.1s
+(package-lock.json unchanged)
+
+$ aube install --fix-lockfile
+✓ resolved 895 · reused 895 in 6.8s
+$ ls node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+$ ls -d node_modules/size-limit-preset-rolldown
+ls: cannot access 'node_modules/size-limit-preset-rolldown': No such file or directory
+
+$ aube install --frozen-lockfile --force
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 1.2s
+$ ls node_modules/@ydinjs
+box-quad
+core
+drag
+material-x
+tproc
+vite-custom-element-assets
+vite-traits-plugin
+$ ls -d node_modules/size-limit-preset-rolldown
+node_modules/size-limit-preset-rolldown
+
+$ git diff package-lock.json
+diff --git a/package-lock.json b/package-lock.json
+index bc3daa77e..6bc15c6a5 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -19622,9 +19622,13 @@
+         "node": ">=24"
+       },
+       "peerDependencies": {
++        "@types/react": "^19",
+         "react": "^19"
+       },
+       "peerDependenciesMeta": {
++        "@types/react": {
++          "optional": true
++        },
+         "react": {
+           "optional": true
+         }

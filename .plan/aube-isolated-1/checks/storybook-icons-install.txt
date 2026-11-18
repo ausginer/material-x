@@ -1,0 +1,53 @@
+# aube 2.10.0, slot b, at ef530af97
+# Each aube command is abridged to its summary line; the listings and the diff are verbatim.
+$ aube add -D -W @storybook/icons@2.0.2
+(exit 0)
+$ ls node_modules/@ydinjs
+ls: cannot access 'node_modules/@ydinjs': No such file or directory
+$ ls -d node_modules/size-limit-preset-rolldown
+ls: cannot access 'node_modules/size-limit-preset-rolldown': No such file or directory
+
+$ aube install --frozen-lockfile --force
+aube 2.10.0 by jdx.dev · ✓ installed 979 packages in 2.1s
+$ ls node_modules/@ydinjs
+box-quad
+core
+drag
+material-x
+tproc
+vite-custom-element-assets
+vite-traits-plugin
+$ ls -d node_modules/size-limit-preset-rolldown
+node_modules/size-limit-preset-rolldown
+
+$ git diff package.json package-lock.json
+diff --git a/package-lock.json b/package-lock.json
+index ab73bc685..bc3daa77e 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -20,6 +20,7 @@
+         "@storybook/addon-docs": "10.6.7",
+         "@storybook/addon-links": "10.6.7",
+         "@storybook/addon-themes": "10.6.7",
++        "@storybook/icons": "2.0.2",
+         "@storybook/react-vite": "10.6.7",
+         "@testing-library/jest-dom": "7.0.1",
+         "@testing-library/user-event": "14.6.10",
+diff --git a/package.json b/package.json
+index 952075aad..f70d7fd09 100644
+--- a/package.json
++++ b/package.json
+@@ -34,6 +34,7 @@
+     "@storybook/addon-docs": "10.6.7",
+     "@storybook/addon-links": "10.6.7",
+     "@storybook/addon-themes": "10.6.7",
++    "@storybook/icons": "2.0.2",
+     "@storybook/react-vite": "10.6.7",
+     "@testing-library/jest-dom": "7.0.1",
+     "@testing-library/user-event": "14.6.10",
+
+$ grep -n "\"node_modules/@storybook/icons\"" -A3 package-lock.json   (unchanged from ef530af97)
+4864:    "node_modules/@storybook/icons": {
+4865-      "version": "2.0.2",
+4866-      "resolved": "https://registry.npmjs.org/@storybook/icons/-/icons-2.0.2.tgz",
+4867-      "integrity": "sha512-KZBCpXsshAIjczYNXR/rlxEtCUX/eAbpFNwKi8bcOomrLA4t/SyPz5RF+lVPO2oZBUE4sAkt43mfJUevQDSEEw==",

@@ -92,7 +92,7 @@ The component package contains buttons, button groups, checkboxes, FABs, icons, 
 ## Build and tooling
 
 - **aube and NX** coordinate all `@ydinjs` packages: aube installs the `workspaces` and runs their binaries, and NX orchestrates their tasks.
-- **tsdown** builds package entrypoints from each package's `files.json` into the package root, including declarations.
+- **tsdown** builds each package's entrypoints into the package root, including declarations. Most packages list them in `files.json`. `vite-traits-plugin` and `size-limit-preset-rolldown` name their one entry in `tsdown.config.ts`, and their `files.json` feeds only the clean.
 - **Vite** runs development and browser-test transforms.
 - **`@ydinjs/vite-traits-plugin`** lowers safe `@ydinjs/core` trait compositions before the remaining transforms.
 - **`@ydinjs/vite-custom-element-assets`** compiles component CSS and HTML assets.

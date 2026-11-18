@@ -1,0 +1,47 @@
+# At ef530af97, before declaring @storybook/icons
+$ node storybook-imports.ts   (the script follows the output)
+# Bare specifiers imported by every .ts and .tsx file under .storybook/, reduced to package names
+@storybook/addon-docs	docs/DocsContainer.tsx: @storybook/addon-docs/blocks, docs/Source.tsx: @storybook/addon-docs/blocks
+@storybook/icons	manager.tsx: @storybook/icons
+@storybook/react-vite	main.ts: @storybook/react-vite, preview.ts: @storybook/react-vite
+node:fs	main.ts: node:fs
+node:url	main.ts: node:url
+react	docs/ApiTables.tsx: react, docs/DocsContainer.tsx: react, docs/Source.tsx: react, docs/SummaryOrWarning.tsx: react, docs/ThemeToggleLink.tsx: react, manager.tsx: react
+storybook	docs/ThemeToggleLink.tsx: storybook/preview-api, manager.tsx: storybook/internal/components, manager.tsx: storybook/manager-api, preview.ts: storybook/preview-api
+
+# Names that are neither a node: builtin nor a key of the root dependencies or devDependencies
+@storybook/icons
+# end
+
+# storybook-imports.ts
+import { readdir, readFile } from 'node:fs/promises';
+import { builtinModules } from 'node:module';
+
+const dir = '.storybook';
+const root = JSON.parse(await readFile('package.json', 'utf8'));
+const declared = new Set([...Object.keys(root.dependencies ?? {}), ...Object.keys(root.devDependencies ?? {})]);
+const files = (await readdir(dir, { recursive: true })).filter((f) => /\.(ts|tsx)$/u.test(f)).sort();
+const specifier = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+)['"]([^'"]+)['"]/gu;
+const names = new Map<string, string[]>();
+for (const file of files) {
+  const text = await readFile(`${dir}/${file}`, 'utf8');
+  for (const [, spec] of text.matchAll(specifier)) {
+    if (spec.startsWith('.') || spec.startsWith('/')) {
+      continue;
+    }
+    const name = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
+    names.set(name, [...(names.get(name) ?? []), `${file}: ${spec}`]);
+  }
+}
+console.log(`# Bare specifiers imported by every .ts and .tsx file under ${dir}/, reduced to package names`);
+for (const [name, uses] of [...names].sort()) {
+  console.log(`${name}\t${uses.join(', ')}`);
+}
+console.log('\n# Names that are neither a node: builtin nor a key of the root dependencies or devDependencies');
+for (const name of [...names.keys()].sort()) {
+  if (name.startsWith('node:') || builtinModules.includes(name) || declared.has(name)) {
+    continue;
+  }
+  console.log(name);
+}
+console.log('# end');
