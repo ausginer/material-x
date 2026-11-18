@@ -1321,6 +1321,7 @@ Tier C since 2026-11-16 (below), before that Tier B; **open**. Registered on 202
   - **A control that can't take focus is now read:** `focus()` on a disabled `mx-button` or `mx-list-button-item` leaves focus on the element that had it, in Chromium, Firefox and Safari (`a941ed888`).
   - **The registering function keeps the name `forwardFocus`.** It is accepted: the call states which control the host forwards to, and `focusControl` does the focusing.
   - **What stays open is unchanged:** the watching row, which still fails as expected in Firefox, and `autofocus` in Firefox.
+- **Dated 2026-11-18 by the architect: the forward is the trait,** on `repo/traits-plugin-1` at `17065ddf0` (`RF-44`'s item 3, which the owner accepted). `FocusForwarding`, as parked at `92e13f9d6`, replaces the per-class `focus()` declarations, `forwardFocus` and `focusControl` in eight hosts. The FAB is the eighth: #35 made it register a control. The flattener copies the trait's `focus()` into each host, so `Object.hasOwn(host, 'focus')` stays false, and the subclass rows pass in every engine ([witness](traits-plugin-1/checks/item3-witness.txt)). What stays open is unchanged.
 
 #### RF-34 — In Firefox, the rotated and scaled box size is recovered to about 0.008 px, not 1e-4
 
@@ -1555,7 +1556,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
-Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's item 8 stop, relayed by the coordinator. **No row is disabled.**
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-17 by the architect, from the findings unit's item 8 stop, relayed by the coordinator. **No row is disabled.**
 
 - **The documentation:** [`trait-flattener-plugin.md`](../.agents/docs/trait-flattener-plugin.md) §Eligibility says that _"the supported generic subset accepts a direct pure transformer whose result is a class extending its parameter. It accepts public fields, constructors, methods, accessors…"_. §Trait IR says that normalization resolves _"descriptor-based and supported class-based traits"_.
 - **The code:** `packages/vite-traits-plugin/src/analyze.ts` passes every trait in a composition to `normalizeDescriptorTrait` (`src/normalize.ts:340`). When that returns `null`, it bails with `unsupported-trait` (`analyze.ts:583`–`:598`). No path normalizes a class-based trait.
@@ -1616,6 +1617,11 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
   - **Rows,** each failing before and passing after: a `.ts` trait that returns `<number>x`, into an `.mts` and into a `.cts` consumer, and a `.js` trait that returns `a < b > (c)`, into a `.ts` consumer, are retained. A `.ts` trait into a `.ts` consumer still flattens.
   - **The built-package row** from `method-package-consumer.ts` is retained. A new `method-package-consumer.mjs`, of the package's own extension, flattens. Its runtime rows still fail when item 2's origin-scan repair is reverted.
   - **material-x's build** is byte-identical to the build with the plugin at `17065ddf0` (93 files), and core's is too. The build prints no retention warning. No shipped trait is retained.
+
+- **Closed 2026-11-18 by the architect** on `repo/traits-plugin-1` at `9c0bb2f60` (not yet in a pull request), on the [second recheck](reviews/traits-plugin-1/feature-proof-recheck-2-claude.md) and the owner's answer on item 3, both relayed by the coordinator. The [handoff's disposition](traits-plugin-1/traits-plugin-handoff.md#disposition-of-the-second-recheck-at-9c0bb2f60-and-the-owners-answer-on-item-3) holds the ruling.
+  - **The required property holds** in the document and the code. Item 2c is in, and `recheck-1` and `recheck-2` are resolved.
+  - **The owner accepts item 3** as committed at `17065ddf0`, with its growth: +19 or +20 minified bytes in five entries, and +84 in `icon-button`, `switch-button` and `switch-icon-button`. In the owner's words, translated: _"Since it's dead code, a plain tree-shake removes it. Maybe that's how it should be done, but let the architect decide. For now I'm for the dead-code option — we'll clean it up later."_ The cleanup is `RF-63`.
+  - **One comment is still owed before the pull request opens,** the recheck's `recheck-3`, Tier C. The JSDoc of `TRAIT_SOURCE_LANGUAGE` still says that JavaScript is copied into TypeScript. The handoff's item 3b corrects it. It changes no output and doesn't bear on the required property.
 
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
@@ -1912,6 +1918,23 @@ Tier B, **open**. Registered on 2026-11-18 by the architect, on the coordinator'
 - **Required property:** the row's result depends only on the code. Either a reproduction names the cause and the cause is repaired, or the record states why the row can't fail again.
 - **The architect's direction,** for the unit that takes it: first make the row report what it needs. When the assertion fails, it prints the generated `foo-flat.ts`, the generated `nameable.ts` and the brand key that the flattened prototype carries. Then reproduce under the root config with coverage, repeated.
 - **Routed** to the owner to order, beside `RF-44`, because both concern `vite-traits-plugin`. It isn't `RF-44`'s: that entry is about what the plugin's document and code say, and this row fails in a tree without that unit's changes. **It doesn't block** #35 or `RF-44`.
+
+#### RF-63 — A shared trait list built with a spread keeps a flattened method trait's dead class layer in an esbuild bundle, and other bundlers aren't measured
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item 3 measurement and the owner's answer on it, relayed by the coordinator. `RF-62` is on `repo/work-queue-1`, so this is the next free number. **No row is disabled.**
+
+- **What was measured** ([W1](traits-plugin-1/checks/item3-witness.txt)), by the implementer, with esbuild 0.28.1 (`--bundle --minify --format=esm`), at `17065ddf0`. `icon-button`, `switch-button` and `switch-icon-button` grow by 84 minified bytes against the per-class form. The five other adopters grow by 19 or 20. Of the 84, 64 or 65 bytes are dead code:
+  - `ICON_BUTTON_CORE_TRAITS` (`IconButtonCore.ts:56`) and `SWITCH_CORE_TRAITS` (`SwitchCore.ts:33`) are module-level arrays built with a spread, `[...BUTTON_CORE_TRAITS, …]`;
+  - after flattening, nothing reads them at runtime, and esbuild keeps them, with every trait they name. That now includes `FocusForwarding`'s `trait(…)` call and its class layer;
+  - **this predates the unit:** the same lists already kept the generic trait runtime in these entries and in `fab`, in both forms;
+  - a variant that names the trait in each host's own list grows every entry by 19 to 21 bytes. It wasn't adopted.
+- **The owner's hypothesis, not tested:** a tree-shaking bundler removes the dead lists, either rolldown, which this repository builds with and measures sizes with (`size-limit-preset-rolldown`), or a consumer's bundler. esbuild is one such bundler, and it keeps them. Whether a spread of an imported array can be removed depends on what the bundler assumes about the spread's iteration.
+- **Tier C:** only shipped bytes change, by at most 65 per entry. The lists are exported, so a library build that doesn't bundle them keeps them by definition. Only a bundle decides.
+- **Required property:** one of these holds:
+  - in each bundler the record names, no adopter's bundle carries a trait list or a trait layer that flattening has made dead;
+  - or the record states which named bundler keeps them, by how many bytes, and why that is accepted.
+- **The architect's direction,** for the unit that takes it: measure before any change. Bundle the eight adopters' entries at the head with rolldown, at the repository's version, through `size-limit-preset-rolldown`, and with esbuild as W1 did. For each entry, record whether `Symbol("FocusForwarding")`'s `trait(…)` call and the spread lists survive, and the bytes. The architect then rules from that reading. The bundler set is rolldown and esbuild unless the owner names another.
+- **Routed** to the owner to order, through the work queue (`RD-22`). The owner accepted the growth for now. **It doesn't block** `RF-44`'s pull request.
 
 ## Questions
 

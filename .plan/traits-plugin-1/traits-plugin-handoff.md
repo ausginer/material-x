@@ -193,3 +193,32 @@ Decided by the architect on 2026-11-18, on the [item 2b recheck](../reviews/trai
 ## Stopping boundary
 
 The implementer may start item 1 now. When item 1 is in, the implementer stops and reports. Items 2 and 3 start when the coordinator relays the owner's answer. On answer B, the unit ends at item 1, and the architect closes `RF-44` and drops `RF-33`'s move to a trait.
+
+## Disposition of the second recheck at `9c0bb2f60`, and the owner's answer on item 3
+
+**Decided 2026-11-18 by the architect,** on the [second recheck](../reviews/traits-plugin-1/feature-proof-recheck-2-claude.md), which read the code at `fbe60bd53`, and on the owner's answer on item 3, both relayed by the coordinator.
+
+**Item 3 is accepted by the owner,** as committed at `17065ddf0`. In the owner's words, translated: _"Since it's dead code, a plain tree-shake removes it. Maybe that's how it should be done, but let the architect decide. For now I'm for the dead-code option — we'll clean it up later."_
+
+- **The placement stays as parked:** `FocusForwarding` is named in the shared lists `ICON_BUTTON_CORE_TRAITS`, `SWITCH_CORE_TRAITS` and `LIST_INTERACTIVE_ITEM_CORE_TRAITS`, and in the own lists of `mx-button`, `mx-link-button` and `mx-fab`. The variant isn't adopted.
+- **The growth is accepted:** +19 or +20 minified bytes in five entries, and +84 in `icon-button`, `switch-button` and `switch-icon-button` ([W1](checks/item3-witness.txt)).
+- **The cleanup is a follow-up,** registered as `repo:RF-63`. Its first step is to test the owner's hypothesis that the bundler removes the dead lists. It doesn't block this unit.
+
+| Finding | Disposition |
+| --- | --- |
+| `recheck-3`: the JSDoc of `TRAIT_SOURCE_LANGUAGE` (`src/diagnostics.ts:40`–`:43`) still says that JavaScript is copied into TypeScript | **Accepted, Tier C. Remediated in this unit before its pull request opens** (item 3b) |
+
+**Why before the pull request.** The comment is in this unit's own code, it states a rule that this unit withdrew, and the correct rule is settled. Merging it would leave one more place where the plugin's text says more than its code does, which is `RF-44`'s subject.
+
+## Item 3b. The reason's JSDoc (one commit)
+
+- **Required property:** the JSDoc of `TRAIT_SOURCE_LANGUAGE` describes the pairs that the code retains: a method trait whose origin's file extension differs from the consumer's. That agrees with the document's reason table and with `canCopySource`'s JSDoc.
+- **Nothing else changes.** It changes no output, so no rebuild or byte comparison is owed.
+- **Verification:** the handoff loop on `src/diagnostics.ts`, and `aube exec just typecheck` in `packages/vite-traits-plugin`. No new review: the architect reads the commit's diff.
+
+## Closing the unit
+
+When item 3b is in, the unit is complete. `RF-44` is closed (its entry).
+
+- **After #38 merges,** Implementer B merges `origin/main` into this branch (`RD-17`) and asks the coordinator for the pull request. If the merge changes any file under `packages/vite-traits-plugin` or `packages/material-x/src`, the implementer stops and reports instead.
+- **The pull request carries `RD-20`, `RF-60` and `RF-63` open.** None of them blocks the merge.
