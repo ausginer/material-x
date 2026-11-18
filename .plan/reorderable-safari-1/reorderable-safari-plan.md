@@ -1,6 +1,6 @@
 # The Safari landing stall in `useReorderable` — plan
 
-**Status: proposed, for the owner.** No identifier is minted. Written by the architect on 2026-11-18 at `377ca72df` (`origin/main`), on `repo/reorderable-safari-1`, on the coordinator's task. It plans a reading that establishes `repo:RF-36`'s cause, and it doesn't decide the repair. The repair is decided on the reading, and the decision then gets its identifier.
+**Status: accepted by the owner on 2026-11-18,** as relayed by the coordinator. His answers are in [Owner's answers](#owners-answers), and they change the implementation's dispatch step. No identifier is minted. Written by the architect on 2026-11-18 at `377ca72df` (`origin/main`), on `repo/reorderable-safari-1`, on the coordinator's task. It plans a reading that establishes `repo:RF-36`'s cause, and it doesn't decide the repair. The repair is decided on the reading, and the decision then gets its identifier. Until the answers, this line said _"proposed, for the owner"_.
 
 Canonical entry: `RF-36` — in Safari, `useReorderable` intermittently keeps the landed visual in the top layer past its rows' wait ([`00-index.md`](../00-index.md)). Its required property, as amended on 2026-11-16: the rows pass in Safari in every run, with a wait that states the landing it covers.
 
@@ -61,11 +61,19 @@ The implementer reports, and the architect adjudicates. The main slot's architec
 1. **Up to three dispatches of `safari.yml` on `repo/reorderable-safari-1`,** each about 14 min, stopping early after two caught failures, and none in the gate? **The architect recommends yes.** The record holds no observation of a failing landing, and nothing else can give one.
 2. **If no failure is caught:** keep a short failure diagnostic on the unskipped third row, so that a future weekly failure carries its trace, or keep the row as it is? **The architect recommends the diagnostic.** It is a few lines in the test file, and it turns the weekly run into the reading at no further cost.
 
+## Owner's answers
+
+Given on 2026-11-18 and relayed by the coordinator, translated.
+
+1. **The dispatches:** yes, up to three dispatches of `safari.yml` on this branch, with no stop for the owner before each: _"You don't even need to ask. We need to detect what goes wrong."_ The limit of three and the early stop after two caught failures stand.
+2. **If no failure is caught:** yes, keep the diagnostic on the unskipped third row.
+
 ## Implementation
 
-1. **One implementer unit on `repo/reorderable-safari-1`,** after the owner's answer. It writes the instruments and the scratch workflow step as committed, pushed scratch commits. Then it asks the coordinator for each dispatch. The coordinator takes the dispatch to the owner first, as the coordinator's task stated.
+1. **One implementer unit on `repo/reorderable-safari-1`.** It writes the instruments and the scratch workflow step as committed, pushed scratch commits. Then it dispatches `safari.yml` on the branch itself, one dispatch after another, with no stop for the owner before each: at most three, and none after two failures with full traces are caught. It reports each run's id to the coordinator. (Changed on the owner's answer 1. Until then, the implementer asked the coordinator for each dispatch, and the coordinator took it to the owner first.)
 2. **Before the first dispatch,** one local Chromium run and one local WebKit run of the instrumented file pass with no timeout. That shows the instruments don't hold the landing themselves. The implementer also checks that a run of the branch's workflow ran the added step.
 3. **After the last dispatch:** the scratch commits are reverted, the outputs are saved, and the report states which candidate each failure's trace matches, or that none was caught.
+   - **If none was caught,** the unit keeps a short failure diagnostic on the unskipped third row, _"should restore pre-existing inline styles on the target after landing"_, on the owner's answer 2. When the row's wait gives up, its failure message carries the trace fields of [The reading](#the-reading) at that moment. The diagnostic lives in the test file only, it changes neither the wait nor the skips, and it adds no output to a row that passes. The diagnostic is the one committed change that this unit keeps, and it gets a feature proof.
 4. **No repair in this unit.** `src/`, the rows' waits and the skips don't change.
 
 ## Proposed identifiers

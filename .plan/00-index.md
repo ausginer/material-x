@@ -1394,6 +1394,8 @@ Tier C, **open**. Registered on 2026-11-16 by the CI verification unit ([report]
 
 **Dated 2026-11-17 by the architect,** on `repo/ci-speed-1` at `229829ef7`: `RD-12`'s amendment moves Safari out of the gate. Once it is implemented, these rows no longer fail `verify`. Their Safari skips stay and apply to the weekly Safari workflow, where the unskipped third row can still turn a run red, and that run's issue names it (`RD-12` property 12). The finding stays open, because no cause is established. **The three rows run in WebKit in the gate.** The CI-speed unit reads whether WebKit reproduces the stall, and if it does, the row is an `RD-8` row in WebKit.
 
+**Dated 2026-11-18 by the architect: a reading is planned, and the owner accepted it,** relayed by the coordinator. The [Safari reading plan](reorderable-safari-1/reorderable-safari-plan.md) on `repo/reorderable-safari-1` instruments the three rows and dispatches `safari.yml` on its branch, at most three times. The owner lets the implementer dispatch with no stop before each. If no failure is caught, the unskipped third row keeps a failure diagnostic. The reading establishes the cause, and the repair is decided on it. The required property doesn't change.
+
 #### RF-37 — At a browser run's start, Vite warns that it can't analyze a dynamic import in the pre-bundled `vite/module-runner`
 
 Tier C, **closed 2026-11-16** (below), low priority. Registered on 2026-11-16 by the architect, on the owner's observation relayed by the coordinator. **It doesn't affect results.** On the owner's direction, it is handled after the CI unit, not inside it. Nothing for the CI unit to do.
