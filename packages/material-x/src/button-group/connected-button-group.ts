@@ -50,7 +50,9 @@ const ConnectedButtonGroupConstructor: TraitedConstructor<
  * @cssprop --md-button-group-between-space - Overrides spacing between buttons.
  * @cssprop --md-button-group-interaction-width-multiplier - Overrides active
  * overlap width factor.
- * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
+ * @cssprop --md-button-group-inner-corner-size - Overrides the inner corner
+ * radius of a button at rest. A selected or pressed button keeps its own
+ * corners.
  */
 export default class ConnectedButtonGroup extends ConnectedButtonGroupConstructor {
   constructor() {

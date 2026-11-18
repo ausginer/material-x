@@ -37,12 +37,15 @@ const specialTokens = {
 
 const specialUnselectedTokens = {
   'state-layer.color': `${GENERAL_SET_NAME}.unselected.pressed.state-layer.color`,
+  'focus-layer.color': `${GENERAL_SET_NAME}.unselected.focused.state-layer.color`,
+  'focus-layer.opacity': `${GENERAL_SET_NAME}.focused.state-layer.opacity`,
   'container.color.reverse': `${GENERAL_SET_NAME}.selected.container.color`,
   'label-text.color.reverse': `${GENERAL_SET_NAME}.label-text.selected.color`,
 };
 
 const specialSelectedTokens = {
   'state-layer.color': `${GENERAL_SET_NAME}.selected.pressed.state-layer.color`,
+  'focus-layer.color': `${GENERAL_SET_NAME}.selected.focused.state-layer.color`,
 };
 
 const renderer = createScopedDeclarationRenderer();
@@ -96,6 +99,13 @@ export const defaultSwitchFilledTokens: ReadonlySignal<TokenPackage> = computed(
           notDisabledTokenSelector,
           omitSelectedShape,
         )
+        .append('unselected.default', {
+          'focus-layer.color': `${FILLED_SET_NAME}.unselected.focused.state-layer.color`,
+          'focus-layer.opacity': `${FILLED_SET_NAME}.focused.state-layer.opacity`,
+        })
+        .append('selected.default', {
+          'focus-layer.color': `${FILLED_SET_NAME}.selected.focused.state-layer.color`,
+        })
         .extend(
           createButtonExtensions(
             defaultTokens.value,

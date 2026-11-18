@@ -1500,7 +1500,7 @@ Tier C, **closed 2026-11-17** (below). Before closure: open, and the 9 rows fail
 
 #### RF-43 — `mx-switch-button` and `mx-switch-icon-button` break the `.host` invariant, so they draw no focus state layer on keyboard focus
 
-Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` (code at `fc3b89680`), relayed by the coordinator. **No row is disabled:** no row reads a switch button's focus layer.
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-17 by the architect, from the findings unit's [feature-proof review](reviews/findings-1/feature-proof-claude.md), `reviewer-1` (code at `fc3b89680`), relayed by the coordinator. **No row is disabled:** no row reads a switch button's focus layer.
 
 - **What is drawn:** both elements build through `useButtonCore`, so they adopt `button/styles/default/main.styles.css` and its focus-layer rule `:host .host:focus-visible > .ripple::before` (`:111`). In their templates, `.host` is a `<span>`, and the focusable element is the `<input class="control">` before it (`switch-button.tpl.html`, `switch-icon-button.tpl.html`). So the rule never matches. Their keyboard focus indicator draws on `.control:focus-visible + .host` (`button/styles/default/switch-control.styles.css:19`).
 - **The tokens:** Material's tables define `md.comp.button.filled.selected.focused.state-layer.color` and its `unselected` counterpart (tproc's cached tables). No switch token package (`defaultSwitchTokens`, `elevatedSwitchTokens`, `tonalSwitchTokens`, `outlinedSwitchTokens`, `variantSwitchTokens`) declares a focus-layer variable.
@@ -1517,6 +1517,27 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
     - there is no `.host` in `mx-checkbox` and `mx-radio` (the root is `.input`), in the text fields (`.input`, and the shared `text-field-core.tpl.html`), or in the button groups, `mx-icon` and `mx-list` (a `<slot>`);
     - [`accessibility.md`](../.agents/docs/accessibility.md) §Button says that the switch variants use a native `<button>`. Their templates use `<input type="checkbox">`.
   - **Routed** to the owner as the next material-x product unit, not pull request #29. It doesn't block the findings unit.
+- **Planned 2026-11-18 by the architect** on `repo/host-invariant-1` from `e9236603e`, in the [host-invariant handoff](host-invariant-1/host-invariant-handoff.md), on the owner's authorization relayed by the coordinator. The handoff judges the audit's starting facts.
+  - **Ruled:** the switch's `.host` is a native `<button type="button" role="switch" part="impl">`, the shadow root's one top-level element, and the `<input>` and part `control` are removed (R1, R3). The switch stays a controlled component: activation fires `click`, `input` and `change` and changes no state, and `aria-checked`, `:state(checked)` and the form value follow `checked` alone (R2). The switches draw focus only through the button family's shared rules (R4).
+  - **Judged:** `mx-list-item` meets the invariant, since it takes no focus. `mx-fab` diverges: its shadow root doesn't delegate focus and no forward reaches `.host`.
+  - **Waiting on the owner:** the three exceptions E1 to E3 (native-input controls, slot-only components, the split button), whether `mx-fab`'s forward is in this unit, and whether R2's controlled model stands. The implementer starts after the architect records the answers here and in `architecture.md` §Components.
+- **Answered 2026-11-18 by the owner,** relayed by the coordinator, and recorded by the architect in [`architecture.md`](../.agents/docs/architecture.md) §Components and the [handoff](host-invariant-1/host-invariant-handoff.md#the-owners-answers).
+  - **E1, E2 and E3 are approved.** The owner proposed that E1 cover any focus target that can't be a container, not only `<input>` and `<textarea>`, and said he might be extrapolating. **The architect accepts this, with a limit:** the criterion applies to the native element that the component's semantics need, not to an element the component chooses. Without the limit, today's switches would qualify, since their `<input>` can't be a container, and the exception would swallow the invariant. A container that gives the same semantics, such as a `<button>` with a role, takes precedence. The members are unchanged.
+  - **`mx-fab`'s focus forward is in this unit** (item 3).
+  - **R2 stands, and the owner states it as a principle for the repository:** every material-x component is controlled. It is in `architecture.md` §Components. The components that don't meet it are `RF-50`'s. Checkbox and radio join this unit as item 7.
+- **Stopped 2026-11-18, and decided by the architect,** on the [host-invariant report](host-invariant-1/host-invariant-report.md#the-stop) at `7667a2a5a`, relayed by the coordinator with the owner's rejection of the new baseline. `button-group-connected-selected` differs: under R2 the group's `value` sets `checked`, so the connected group's `::slotted([checked])` rule draws for the first time. **The owner rejects the new rendering:** _"in the spec they are obviously not rounded like that"_. **Neither rendering is the spec's:** the selected button is a full pill, which is `RF-56`. The [handoff](host-invariant-1/host-invariant-handoff.md)'s new item 8 repairs it in this unit, because the unit can't finish on either baseline.
+
+- **Feature proof decided 2026-11-18 by the architect,** on the [review](reviews/host-invariant-1/feature-proof-claude.md) at `5b1544100`, which read the code at `2bef29ac0`, relayed by the coordinator. The [handoff's disposition](host-invariant-1/host-invariant-handoff.md#disposition-of-the-feature-proof-review-at-5b1544100) routes each finding.
+  - **`reviewer-1`, the group path, is remediated in this unit.** The join case contradicts item 1's property 6. **The ruling on a missing `value`:** both groups document `value` as the one selected segment, so a `null` selects nothing and matches no switch. The group controls its switches' `checked` only while it has a value. Removing the value clears the selection it made, and a switch that joins a group with no `value` keeps its `checked`. That reading keeps the consumer as the only other writer, so it meets the controlled principle with no owner decision. It needs no change to the context contract. `button-group.mdx:112` says that the standard group has no segmented selection, against its own code and story, so the remediation corrects it too.
+  - **`reviewer-3` to `reviewer-5`** are remediated in this unit: the _States_ claims, item 6 for the two group entries, and the PERCENT count.
+  - **The switch's activation depends on invoker commands** (`command` and `commandfor`, R1's dispatch after `click`). In an engine without them, a switch fires `click` and never `input` or `change`. They are Baseline since December 2025: Chromium 135, Firefox 144 and Safari 26.2 (MDN's _Invoker Commands API_ and the web-features entry, read 2026-11-18). No record states a browser floor, so this isn't a defect. **The owner's question:** does material-x state a browser floor? The architect recommends the current stable release of each engine, which includes invoker commands. It doesn't block #35.
+  - **It closes** when the targeted recheck of items 9 and 10 finds no defect.
+
+- **Closed 2026-11-18 by the architect,** on the targeted [recheck](reviews/host-invariant-1/feature-proof-recheck-claude.md), which read the code at `564d02e38` and has no finding. The [handoff's disposition](host-invariant-1/host-invariant-handoff.md#disposition-of-the-targeted-recheck-at-c1a40a3fc) holds the reasons.
+  - **Met:** items 1 to 12. Each switch's `.host` is its root and takes focus, and the five feature-proof findings are resolved, the group path and the checkbox's and radio's form value among them.
+  - **The reviewer's note is accepted behaviour:** a switch whose own `value` changes inside a group with a value keeps its `checked` until the group's next event. The group writes `checked` only on a join and on a change to its own `value`. A consumer's write to a switch, of `checked` or `value`, stands until then. No code, and no new entry.
+  - **The merge's condition, not the closure's:** the full `verify` run 44245582616 at `c1a40a3fc`, `webkit` included. A row of this unit that fails there reopens this entry.
+  - **Still open, and the owner's:** whether material-x states a browser floor (this entry's 2026-11-18 decision).
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
@@ -1684,6 +1705,33 @@ Tier C, **decided, unimplemented** (decided 2026-11-17 at `d6838d0f1`; see _Deci
 - **Filtering by config name.** `buildFromOxlintConfigFile`'s configs are named `oxlint/from-oxlint-config`, `oxlint/from-oxlint-config-override-<n>` and `oxlint/oxlint-config-ignore-patterns`, so a wrapper could give the recipe `eslint.config.ts` without them. That isn't better than the split: it depends on a naming convention that the plugin doesn't document as a contract, it also needs a name on the hand-written block, and it adds code that the positional argument makes unnecessary. The split is the owner's choice.
 - **One hand-maintained `.oxlintrc.json`,** with the recipe as a diff aid or deleted. A rule change in ESLint would then reach oxlint only through a hand copy.
 
+#### RF-50 — `mx-checkbox`, `mx-radio` and the text fields change their own state on user interaction, against the controlled principle
+
+Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, on the owner's principle that every material-x component is controlled ([`architecture.md`](../.agents/docs/architecture.md) §Components), relayed by the coordinator with the answers to `RF-43`. **No row is disabled.**
+
+- **What was read** at `e9236603e`:
+  - **`mx-checkbox` and `mx-radio`.** Activation runs the native input's activation behaviour: a checkbox inverts `checked` and clears `indeterminate`, and a radio sets `checked`. The host's `checked` and `indeterminate`, `:state(checked)` and the form value don't change, because `CheckableCore.ts`'s `change` handler only notifies. So until the consumer answers, the input's state, which assistive technology reads, disagrees with the host's. The row _"should reflect the checked control back on interaction"_ (`tests/core/elements/CheckableCore.browser.test.ts:227`) asserts the input's toggle.
+  - **The switch buttons** have the same split, and their form value also follows the input (`SwitchCore.ts:94`–`:95`). `RF-43`'s R2 and item 1 remove it.
+  - **`mx-text-field` and `mx-multiline-text-field`.** Typing changes the native field's text. The `value` getter reads it (`TextFieldCore.ts:224`), and `:state(populated)` and the form value follow it on `input` (`:202`–`:204`). The typed text is state that the component holds.
+  - **Components that meet the principle:** the split button's `open`, the groups' `value`, the list items' `selected` and the FAB's `extended` change only when the consumer sets them.
+- **Required property:** each component meets the principle, or the record states its exception.
+- **Checkbox and radio.**
+  - Required: after an activation and the consumer's synchronous `input` and `change` handlers, the native input's `checked` and `indeterminate` equal the host's.
+  - The events, their order, interfaces and flags don't change.
+  - The row at `:227` is reversed.
+  - This is item 7 of the [host-invariant handoff](host-invariant-1/host-invariant-handoff.md).
+- **The text fields: a question for the owner.**
+  - **Read strictly:** after each `input`, the field reverts to `value` unless the consumer set it, as React does for a controlled `<input>`. The revert rewrites the field while the user types. It has to keep the caret in place, it breaks the native undo history, and it must not run during an IME composition.
+  - **The architect recommends an exception:** a text field's text is the user's input. `value` reads it and the consumer may set it, and `:state(populated)` and the form value follow it. That is an uncontrolled field, so it is an exception to the principle, not a reading of it.
+- **Routed:** checkbox and radio to the host-invariant unit, item 7. The text fields to the owner, and they block nothing.
+- **Answered 2026-11-18 by the owner,** relayed by the coordinator: **the text fields are an exception to the principle,** as the architect recommended. The text is the user's input. `value` reads it, and the consumer may set it. In the owner's words: _"this is already a question of performance. Speed matters more than the principle."_ `architecture.md` §Components states the exception.
+  - **No code changes.** `TextFieldCore.ts` already behaves this way: the `value` getter reads the native field, and the setter writes it, `:state(populated)` and the form value (`:224`–`:231`, read by the architect at `e9236603e`).
+  - **What remains of this entry:** checkbox and radio, under item 7. It closes when item 7's rows pass.
+
+- **Feature proof decided 2026-11-18 by the architect** (`RF-43`'s entry of the same day). `reviewer-2`: a checked `mx-checkbox` or `mx-radio` whose `value` is removed submits nothing, because its `value` callback gates on the native input's `checked` and writes the raw value. Item 7 required that the form value follow the host only, so item 7 owes it, and no new entry is needed. The form value is `value ?? 'on'` while the host is checked, as the switch's already is. It is item 10 of the [handoff's disposition](host-invariant-1/host-invariant-handoff.md#disposition-of-the-feature-proof-review-at-5b1544100). This entry closes with `RF-43`.
+
+- **Closed 2026-11-18 by the architect,** with `RF-43`, on the same recheck. Item 7 and item 10 hold: activation leaves the native input as the host's state, and the form value is `value ?? 'on'` while checked, for both elements. The text fields remain the principle's one exception.
+
 #### RF-51 — `material-x/react.d.ts` imports React's types by an absolute path on the build machine
 
 Tier B, **open**. Registered on 2026-11-18 by the architect, from the [isolated-layout report](aube-isolated-1/aube-isolated-report.md) at `96b2975d3`, finding 1, on the owner's decision to fix it (`RD-19`). `RF-50` is allocated on `repo/host-invariant-1`. **No row is disabled.**
@@ -1760,6 +1808,31 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
 - **Why it matters:** the plugin's `Plugin` type comes from its own pinned `rolldown`, and the consumer's Vite types plugins with the `rolldown` it brings. When the two copies differ, the types can clash, which is `RF-31`'s cause, and the consumer installs a second `rolldown`. Under the rule's second question, the plugins share the consumer's copy, so `rolldown` is a peer.
 - **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
 - **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
+
+#### RF-56 — In a connected button group, a selected button isn't a full pill, and a pressed button's inner corners grow instead of shrinking
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop at `7667a2a5a` and the owner's rejection of the new `button-group-connected-selected` baseline, relayed by the coordinator. `RF-51` to `RF-55` are allocated on `repo/aube-isolated-1`. **No row is disabled.**
+
+- **The tokens,** read through tproc. For each size, `md.comp.button-group.connected.<size>.*`:
+
+  | Size | `container.shape` | `inner-corner.corner-size` | `pressed.inner-corner.corner-size` | `selected.inner-corner.corner-size` |
+  | --- | --- | --- | --- | --- |
+  | xsmall | circular | 8dp | 4dp | 50% |
+  | small | circular | 8dp | 4dp | 50% |
+  | medium | circular | 8dp | 4dp | 50% |
+  | large | circular | 16dp | 12dp | 50% |
+  | xlarge | circular | 20dp | 16dp | 50% |
+
+  Material's 50% is half the shorter side, so a selected button's inner corners are full, like its outer ones. The owner's reference image of Material's connected group agrees: selected buttons are pills, and unselected ones keep small inner corners.
+
+- **What is drawn,** in `button-group/styles/connected/main.styles.css`:
+  - the group emits only `inner-corner.corner-size` (`connected/tokens.ts` selects the default state alone). The pressed and selected sizes aren't emitted;
+  - `::slotted(:active), ::slotted([checked])` set the inner corners to the button's `--_container-shape`;
+  - for a checked switch button, `--_container-shape` is the button's own toggle shape, `md.comp.button.<size>.selected.container.shape.round` (12dp for small, `button/styles/shape/main.css.ts`). So a selected button's corners become 12dp, and an end button's outer corners lose their full shape too;
+  - a pressed button's inner corners take the container shape, which is larger than the resting size, where the tokens make them smaller.
+- **Since when:** the rule was never drawn for a selection until `RF-43`'s R2. Before it, the group's `value` set only the custom state `checked`, and `[checked]` didn't match. `button-group/spec-consistency.md:35` records the morph as matching the spec, and it doesn't.
+- **Required property:** a connected group's buttons have the shapes that the group's tokens define, at every size. The [host-invariant handoff](host-invariant-1/host-invariant-handoff.md)'s item 8 states them.
+- **Routed** to the host-invariant unit, item 8.
 
 #### RF-59 — material-x's `:host:has()` detection runs at import: it appends to `document.body` and forces a style computation
 
