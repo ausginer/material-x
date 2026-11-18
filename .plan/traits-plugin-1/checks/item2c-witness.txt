@@ -1,0 +1,47 @@
+# RF-44 item 2c witnesses, read by the implementer on 2026-11-18 in slot d on repo/traits-plugin-1 at 008d7a422.
+# The rule: a method trait's member is copied only when the origin's and the consumer's file extensions are equal.
+
+## W1: the rows, before the change (008d7a422's canCopySource) and after it
+# aube exec just test tests/analyze-method.node.test.ts -t 'extensions of a method trait' --reporter=verbose,
+# in packages/vite-traits-plugin. The origins are served from memory, so the .js origin keeps its extension.
+### before
+× |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a assertion-trait.ts trait in a extension-consumer.mts consumer
+× |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a assertion-trait.ts trait in a extension-consumer.cts consumer
+× |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a chevron-trait.js trait in a extension-consumer.ts consumer
+✓ |node| tests/analyze-method.node.test.ts:367 > analyzeModule and the extensions of a method trait and its consumer > should flatten a .ts trait in a .ts consumer
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [] to deeply equal [ 'trait-source-language' ]
+Tests  3 failed | 1 passed | 119 skipped (123)
+# (The rows were named 'should retain a %s trait in a %s consumer' in this run, and renamed before the commit.)
+### after
+✓ |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a trait from assertion-trait.ts in extension-consumer.mts
+✓ |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a trait from assertion-trait.ts in extension-consumer.cts
+✓ |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a trait from chevron-trait.js in extension-consumer.ts
+✓ |node| tests/analyze-method.node.test.ts:367 > analyzeModule and the extensions of a method trait and its consumer > should flatten a .ts trait in a .ts consumer
+Tests  4 passed | 119 skipped (123)
+
+## W2: the plugin's suite, and two rules reverted alone
+# aube exec just test: 147 passed (147).
+# The built-package row over fixtures/packages/forwarding/forwarding.mjs: from method-package-consumer.ts it is retained
+# with trait-source-language; from method-package-consumer.mjs, the package's own extension, it flattens, and its
+# runtime rows read the private map after a relative import, so they keep item 2's origin-scan repair witnessed (M8).
+## M8 the origin scan rebases nothing (item 2's repair reverted)
+# 2 failed | 145 passed (147)
+  × |node| tests/flatten-method.node.test.ts:201 > method trait flattening of another package's built JavaScript > should call the trait method
+  × |node| tests/flatten-method.node.test.ts:207 > method trait flattening of another package's built JavaScript > should reach the package's private bindings and relative import
+## M13 JavaScript into TypeScript and the .ts/.mts/.cts group copy again (item 2b's rule)
+# 4 failed | 143 passed (147)
+  × |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a trait from assertion-trait.ts in extension-consumer.mts
+  × |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a trait from assertion-trait.ts in extension-consumer.cts
+  × |node| tests/analyze-method.node.test.ts:356 > analyzeModule and the extensions of a method trait and its consumer > should retain a trait from chevron-trait.js in extension-consumer.ts
+  × |node| tests/flatten-method.node.test.ts:231 > method trait flattening of another package's built JavaScript into TypeScript > should retain the composition, since the extensions differ
+
+## W3: material-x's build
+# Each side: aube exec just build in packages/vite-traits-plugin, packages/core, packages/vite-custom-element-assets and
+# packages/tproc, then build-prepare and build-lib in packages/material-x; sha256 of every built .js. Base: the plugin's
+# src at 17065ddf0. After: this commit. material-x and core sources are unchanged between the two.
+### material-x (93 files): identical, file set identical. core (27 files): identical.
+### 'retained runtime composition' warnings in material-x's build-lib log: 0 at the base, 0 after. The log's one other
+### line naming the plugin is the bundler's timing summary, 'plugin trait-flattener transform (123 calls)', on both sides.
+
+## W4: the handoff loop on the five changed files of packages/vite-traits-plugin: just lint 0 errors; tsc --noEmit 0 errors.

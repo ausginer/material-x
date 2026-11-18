@@ -1,0 +1,230 @@
+# RF-44 items 1-2 feature-proof probes, read by the reviewer on 2026-11-18 against slot d's plugin source at 5ecec6af3
+# (packages/vite-traits-plugin/src is unchanged from b5977ec0f). Run from a scratch directory with: node <probe>.ts
+
+## probe1.ts: item 1 properties
+```ts
+// Item 1 probes: two sites with one bailout, a cross-module list cycle, the pre-rename names, the source-keyed cache.
+import { analyzeModule, parseModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts';
+const D = '/v/';
+const desc = `import { trait } from '@ydinjs/core/traits/attributes.js';
+const $a: unique symbol = Symbol('a');
+const num = (v: string | null) => Number(v);
+export const A = trait({ size: num }, $a);
+`;
+async function run(label: string, files: Record<string, string>, id: string) {
+  const loader = {
+    resolve: async (s: string) => (s.startsWith('./') ? D + s.slice(2) : null),
+    load: async (i: string) => { const c = files[i]; if (c === undefined) throw new Error('no ' + i); return c; },
+  };
+  try {
+    const { compositions, bailouts } = await analyzeModule(id, files[id]!, loader);
+    console.log(`## ${label}\nflattened: ${compositions.map((c) => c.composition.name ?? '?').length}; bailouts:`, bailouts.map((b) => `${b.reason}: ${b.message}`));
+  } catch (e) { console.log(`## ${label}\nTHROWN`, String(e).slice(0, 200)); }
+}
+await run('two sites, the second bails', {
+  [D + 'a.ts']: desc,
+  [D + 'c.ts']: `import { impl } from '@ydinjs/core/traits/attributes.js';
+import { A } from './a.ts';
+class Base extends HTMLElement {}
+const C1 = impl(Base, [A]);
+export class X extends C1 {}
+const C2 = impl(Base, [A, Unknown]);
+export class Y extends C2 {}
+`,
+}, D + 'c.ts');
+await run('a cross-module list cycle', {
+  [D + 'a.ts']: desc,
+  [D + 'l1.ts']: `import { A } from './a.ts';\nimport { L2 } from './l2.ts';\nexport const L1 = [A, ...L2] as const;\n`,
+  [D + 'l2.ts']: `import { L1 } from './l1.ts';\nexport const L2 = [...L1] as const;\n`,
+  [D + 'c.ts']: `import { impl } from '@ydinjs/core/traits/attributes.js';
+import { L1 } from './l1.ts';
+class Base extends HTMLElement {}
+const C1 = impl(Base, L1);
+export class X extends C1 {}
+`,
+}, D + 'c.ts');
+await run('impl imported through the pre-rename traits module', {
+  [D + 'a.ts']: desc,
+  [D + 'c.ts']: `import { impl } from '@ydinjs/core/traits/traits.js';
+import { A } from './a.ts';
+class Base extends HTMLElement {}
+const C1 = impl(Base, [A]);
+export class X extends C1 {}
+`,
+}, D + 'c.ts');
+const p1 = parseModule('/v/same.ts', 'export const a = 1;');
+const p2 = parseModule('/v/same.ts', 'export const b = 2;');
+console.log('## source-keyed cache: second parse sees', (p2.body[0] as any).declaration.declarations[0].id.name, p1 === p2 ? '(same program)' : '(new program)');
+```
+$ node probe1.ts
+## two sites, the second bails
+flattened: 1; bailouts: [ 'unsupported-trait: trait Unknown is not resolvable' ]
+## a cross-module list cycle
+flattened: 0; bailouts: [ 'unsupported-trait-list: trait list L1 references itself' ]
+## impl imported through the pre-rename traits module
+flattened: 0; bailouts: []
+## source-keyed cache: second parse sees b (new program)
+
+## probe.ts: item 2 walker, linking and source-language cases
+```ts
+// Feature-proof probes of RF-44 item 2, run against slot d's plugin source.
+import { analyzeModule, parseModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/analyze.ts';
+import { lowerModule } from '/workspaces/worktrees/d/packages/vite-traits-plugin/src/lower.ts';
+
+const D = '/v/';
+const trait = (body: string, pre = '') => `import { trait } from '@ydinjs/core/traits/primitives.js';
+${pre}
+const $b: unique symbol = Symbol('b');
+export const T = trait((base: new () => HTMLElement) => class extends base {
+${body}
+}, $b);
+`;
+const consumer = (ext = 'ts', pre = '') => `import { impl } from '@ydinjs/core/traits/primitives.js';
+import { T } from './origin.ts';
+${pre}
+class Base extends HTMLElement {}
+const C = impl(Base, [T]);
+export class X extends C {}
+`;
+
+async function run(label: string, files: Record<string, string>, consumerId: string) {
+  const loader = {
+    resolve: async (s: string, imp: string) => s.startsWith('./') ? D + s.slice(2) : null,
+    load: async (id: string) => files[id] ?? (() => { throw new Error('no ' + id); })(),
+  };
+  const { compositions, bailouts } = await analyzeModule(consumerId, files[consumerId]!, loader);
+  console.log(`## ${label}`);
+  console.log('bailouts:', bailouts.map((b) => `${b.reason}: ${b.message}`));
+  if (compositions.length) {
+    const out = lowerModule(files[consumerId]!, compositions).toString();
+    console.log(out.split('\n').filter((l) => !/^\s*$/.test(l)).join('\n'));
+    try { parseModule(consumerId + '.check' + consumerId.slice(consumerId.lastIndexOf('.')), out); console.log('output parses as', consumerId.slice(consumerId.lastIndexOf('.'))); }
+    catch (e) { console.log('output parse error', e); }
+  }
+}
+
+await run('A: member calls a private function declaration of the origin', {
+  [D + 'origin.ts']: trait('  focus(): void { helper(this); }', 'function helper(x: object): void {}'),
+  [D + 'c.ts']: consumer(),
+}, D + 'c.ts');
+
+await run('B: member calls an exported function declaration of the origin', {
+  [D + 'origin.ts']: trait('  focus(): void { helper(this); }', 'export function helper(x: object): void {}'),
+  [D + 'c.ts']: consumer(),
+}, D + 'c.ts');
+
+await run('C: .ts origin with a <T>x type assertion, into a .tsx consumer', {
+  [D + 'origin.ts']: trait('  focus(): number { return (<number>(<unknown>1)); }'),
+  [D + 'c.tsx']: consumer('tsx'),
+}, D + 'c.tsx');
+
+await run('D: parenthesized direct eval', {
+  [D + 'origin.ts']: trait("  focus(): void { (eval)('secret'); }", "const secret = 1;"),
+  [D + 'c.ts']: consumer('ts', "const secret = 2;"),
+}, D + 'c.ts');
+
+await run('E: TS-wrapped eval callee', {
+  [D + 'origin.ts']: trait("  focus(): void { (eval as (s: string) => void)('secret'); }"),
+  [D + 'c.ts']: consumer(),
+}, D + 'c.ts');
+
+await run('F: plain direct eval (control)', {
+  [D + 'origin.ts']: trait("  focus(): void { eval('1'); }"),
+  [D + 'c.ts']: consumer(),
+}, D + 'c.ts');
+
+await run('G: member reads a namespace import of the origin', {
+  [D + 'origin.ts']: trait('  focus(): void { ns.go(); }', "import * as ns from 'pkg';"),
+  [D + 'c.ts']: consumer(),
+}, D + 'c.ts');
+```
+$ node probe.ts
+## A: member calls a private function declaration of the origin
+bailouts: [
+  'unsupported-trait-definition: trait T: helper is not a module-scoped binding'
+]
+## B: member calls an exported function declaration of the origin
+bailouts: [
+  'unsupported-trait-definition: trait T: helper is not a module-scoped binding'
+]
+## C: .ts origin with a <T>x type assertion, into a .tsx consumer
+bailouts: []
+import { __mxflat_$b_773eaf1f as __mxflat_lnk_a5c99c8e } from "./origin.ts";
+import { impl } from '@ydinjs/core/traits/primitives.js';
+import { T } from './origin.ts';
+class Base extends HTMLElement {}
+export class X extends Base {
+  focus(): number { return (<number>(<unknown>1)); }
+  static {
+    Object.defineProperties(this.prototype, {
+      [__mxflat_lnk_a5c99c8e]: { value: true },
+    });
+  }
+}
+## D: parenthesized direct eval
+bailouts: []
+import { __mxflat_$b_773eaf1f as __mxflat_lnk_a5c99c8e } from "./origin.ts";
+import { impl } from '@ydinjs/core/traits/primitives.js';
+import { T } from './origin.ts';
+const secret = 2;
+class Base extends HTMLElement {}
+export class X extends Base {
+  focus(): void { (eval)('secret'); }
+  static {
+    Object.defineProperties(this.prototype, {
+      [__mxflat_lnk_a5c99c8e]: { value: true },
+    });
+  }
+}
+## E: TS-wrapped eval callee
+bailouts: []
+import { __mxflat_$b_773eaf1f as __mxflat_lnk_a5c99c8e } from "./origin.ts";
+import { impl } from '@ydinjs/core/traits/primitives.js';
+import { T } from './origin.ts';
+class Base extends HTMLElement {}
+export class X extends Base {
+  focus(): void { (eval as (s: string) => void)('secret'); }
+  static {
+    Object.defineProperties(this.prototype, {
+      [__mxflat_lnk_a5c99c8e]: { value: true },
+    });
+  }
+}
+## F: plain direct eval (control)
+bailouts: [ 'unsupported-trait-member: trait T: a member calls eval' ]
+## G: member reads a namespace import of the origin
+bailouts: [
+  'unsupported-trait-definition: trait T: ns is not a module-scoped binding'
+]
+
+# probe.ts's in-process parse check is dropped above: oxc's parseSync returns errors and doesn't throw, so it proved nothing. parsecheck.ts replaces it.
+
+## parsecheck.ts: is case C's emitted member valid in each consumer language?
+```ts
+import { parseSync } from '/workspaces/worktrees/d/node_modules/oxc-parser/src-js/index.js';
+const body = 'export class X extends Base {\n  focus(): number { return (<number>(<unknown>1)); }\n}\n';
+for (const id of ['c.ts', 'c.tsx']) {
+  const { errors } = parseSync(id, body);
+  console.log(id, errors.length ? errors.map((e: { message: string }) => e.message) : 'no errors');
+}
+```
+$ node parsecheck.ts
+c.ts no errors
+c.tsx [ "Unexpected token. Did you mean `{'}'}` or `&rbrace;`?" ]
+
+## evalsem.mjs: is a parenthesized eval direct? (cases D and E)
+```js
+// Is `(eval)(src)` a direct eval? A direct eval sees the enclosing module scope.
+const secret = 'module-scope';
+globalThis.secret = 'global-scope';
+console.log('(eval)("secret") ->', (eval)('secret'));
+console.log('(0, eval)("secret") ->', (0, eval)('secret'));
+```
+$ node evalsem.mjs
+(eval)("secret") -> module-scope
+(0, eval)("secret") -> global-scope
+
+## the plugin's suite at the head
+$ aube exec just test   # in packages/vite-traits-plugin
+ Test Files  8 passed (8)
+      Tests  138 passed (138)

@@ -15,7 +15,10 @@ import {
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
-import { forwardFocus } from '../core/utils/useCore.ts';
+import {
+  FocusForwarding,
+  useFocusForwarding,
+} from '../core/traits/focus-forwarding.ts';
 import {
   LIST_ITEM_CORE_TRAITS,
   useListItemCore,
@@ -36,7 +39,8 @@ export const LIST_INTERACTIVE_ITEM_CORE_TRAITS: readonly [
   ...typeof LIST_ITEM_CORE_TRAITS,
   typeof Disableable,
   typeof Selectable,
-] = [...LIST_ITEM_CORE_TRAITS, Disableable, Selectable];
+  typeof FocusForwarding,
+] = [...LIST_ITEM_CORE_TRAITS, Disableable, Selectable, FocusForwarding];
 
 export type ListInteractiveItemCore = Traited<
   ControlledElement,
@@ -53,7 +57,7 @@ export function useInteractiveListItemCore(
 
   useDisableable(host, target);
   useARIA(host, target);
-  forwardFocus(host, target);
+  useFocusForwarding(host, target);
   useRipple(host, target, target);
   useAttributes(host, {
     selected: via(Bool, (_, newValue) => {

@@ -7,7 +7,6 @@ import {
   impl,
   type TraitedConstructor,
 } from '@ydinjs/core/traits/attributes.js';
-import { focusControl } from '../core/utils/useCore.ts';
 import {
   SWITCH_ICON_BUTTON_CORE_TRAITS,
   useIconButtonCore,
@@ -86,10 +85,6 @@ export default class SwitchIconButton extends SwitchIconButtonConstructor {
     ]);
 
     useIconButtonCore(this);
-  }
-
-  override focus(options?: FocusOptions): void {
-    focusControl(this, options);
   }
 }
 

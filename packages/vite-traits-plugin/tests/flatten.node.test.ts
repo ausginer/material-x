@@ -97,3 +97,53 @@ describe('descriptor flattening runtime equivalence', () => {
     }
   });
 });
+
+describe('flattening of a class that overrides a trait accessor pair', () => {
+  type OverrideCtor = new () => {
+    checked: string;
+    getAttribute(name: string): string | null;
+  };
+
+  let gen: Flattening;
+  let composed: OverrideCtor;
+  let flattened: OverrideCtor;
+
+  beforeAll(async () => {
+    gen = await flattenToDir('override-consumer.ts', {
+      augment: ['checkable.ts'],
+      passthrough: ['base.ts'],
+    });
+    const [composedMod, flatMod] = (await Promise.all([
+      import(gen.url('foo-composed.ts')),
+      import(gen.url('foo-flat.ts')),
+    ])) as [{ default: OverrideCtor }, { default: OverrideCtor }];
+    ({ default: composed } = composedMod);
+    ({ default: flattened } = flatMod);
+  });
+
+  afterAll(async () => {
+    await gen.dispose();
+  });
+
+  const cases = (): ReadonlyArray<readonly [string, OverrideCtor]> => [
+    ['composed', composed],
+    ['flattened', flattened],
+  ];
+
+  it("should read through the class's getter", () => {
+    for (const [label, Ctor] of cases()) {
+      expect(new Ctor().checked, label).toBe('unset');
+    }
+  });
+
+  it("should write through the class's setter, not the trait's", () => {
+    for (const [label, Ctor] of cases()) {
+      const instance = new Ctor();
+      instance.checked = 'on';
+      expect(
+        [instance.checked, instance.getAttribute('checked')],
+        label,
+      ).toEqual(['set:on', null]);
+    }
+  });
+});

@@ -10,52 +10,91 @@ The transform affects JavaScript emission only. Declaration generation uses the 
 
 ## Compatibility contract
 
-Supported generic traits are pure class transformers. Descriptor traits are handled as an equivalent declarative specialization. For a transformed composition, the output preserves:
+The plugin flattens two kinds of trait:
+
+- **descriptor traits,** created by `trait(attrs, brand)` from `@ydinjs/core/traits/attributes.js`;
+- **method traits,** a closed subset of the class-based traits that the generic `trait(transformer, brand)` from `@ydinjs/core/traits/primitives.js` creates. A method trait's class has only methods and accessors and uses no `super` (§Eligibility).
+
+**Any other class-based trait isn't flattened.** A composition that contains one is retained at runtime with a warning (`repo:RF-44`). The plugin doesn't lower constructors, fields, static members or `super`. A trait that needs them stays a runtime layer.
+
+For a flattened composition, the output preserves:
 
 - trait declaration order and prototype-layer precedence;
-- instance and static method/accessor descriptors;
-- getter/setter shadowing semantics across inheritance layers;
-- `super.member` resolution, including calls through multiple overrides;
-- constructor argument flow, public-field initialization, and instance and static initialization order;
-- the non-enumerable, non-writable, non-configurable prototype brand installed by `piirre.trait`, and therefore the existing `instanceof Trait` contract;
-- descriptor traits' converter-backed accessors and `observedAttributes` merge/deduplication; and
-- source maps and watch dependencies.
+- each descriptor accessor's semantics: a configurable, non-enumerable getter and setter that read and write the attribute through the trait's converter;
+- each method trait member's behavior. The member is the origin's own source, and every name it reads resolves to the same binding as in the origin. A module binding is the origin's live binding, not a copy;
+- the component class's own members, including an override of a trait's accessor or method;
+- the non-enumerable, non-writable, non-configurable prototype brand that `trait` installs, and therefore the existing `instanceof Trait` contract;
+- `observedAttributes`: when the composition has a descriptor trait, merged with the base's list and deduplicated in trait order; otherwise inherited from the base, as at runtime; and
+- watch dependencies.
 
-Trait-factory creation/application timing and effects performed outside the returned class declaration are not part of this contract. An effectful factory is unsupported and is retained at runtime.
+Trait-factory creation timing is not part of this contract.
 
-Flattening removes runtime subclass layers. Applied trait implementations and factory modules should also remain tree-shakeable when the generated class only needs directly linkable bindings such as the trait brand or converter values.
+Flattening removes runtime subclass layers. The flattened class imports only the bindings it needs: the brands, the converters, and the bindings that method trait members read. So the trait objects and their factory modules stay tree-shakeable.
 
 ## Eligibility
 
-The plugin recognizes `impl` and `trait` by their resolved `@ydinjs/core` imports rather than by spelling alone. An `impl` site is eligible only when it initializes a local composition constructor that is used solely as the superclass of one local class. Exported, instantiated, reassigned, escaping, or multiply consumed intermediaries are retained.
+The plugin recognizes `impl` and both `trait` factories by the specifier they are imported from, without resolving it:
 
-Trait lists may be inline readonly arrays or statically resolvable readonly tuples. Local/imported tuple references and tuple spreads are expanded in source order. Mutable or computed arrays, conditional elements, holes, and cycles are unsupported.
+- `impl` is recognized when it is imported from `@ydinjs/core/traits/attributes.js` or `@ydinjs/core/traits/primitives.js`;
+- the descriptor `trait` is recognized when it is imported from a module named `attributes`, through a package or a relative specifier. That covers a built `@ydinjs/core` trait module, which imports `./attributes.js`. It also covers a module of the same name in another package;
+- the generic `trait` is recognized the same way, from a module named `primitives`.
 
-Supported trait definitions must be module-scoped declarations initialized directly by a recognized `trait(...)` call. Traits created inside functions, blocks, loops, conditionals, callbacks, or other nested lexical scopes are unsupported and remain runtime-based. The plugin does not perform closure conversion for nested trait factories.
+An `impl` site is eligible only when it initializes a top-level composition constructor that is used solely as the superclass of one local class. Exported, instantiated, reassigned, escaping, or multiply consumed intermediaries are retained.
 
-Lowered members may reference imports and module-scoped bindings. Existing exports are reused. Private module-scoped bindings may receive collision-free, build-only synthetic exports so the flattened consumer can import the original live binding without copying its dependency graph. These synthetic exports are not emitted in declarations and are not part of the package's supported public API. References to nested lexical bindings bail out.
+Trait lists may be inline readonly arrays or statically resolvable readonly tuples. Local/imported tuple references and tuple spreads are expanded in source order. Mutable or computed arrays, non-identifier elements, holes, and cyclic references are unsupported.
 
-The supported generic subset accepts a direct pure transformer whose result is a class extending its parameter. It accepts public fields, constructors, methods, accessors, and statically named safe static members. It rejects private names, decorators, dynamic computed names, dynamic `super`, constructor object returns, `eval`, escaping class/base references, and factory statements outside the returned class. Descriptor traits created by `@ydinjs/core/traits/attributes.js` are a first-class specialization.
+A supported trait is a module-scoped declaration initialized directly by a recognized `trait(...)` call. Its brand is a named symbol binding, not an inline `Symbol()`.
 
-Supported constructors must have exactly one statically identifiable `super(...)` call executed on every constructor path. Conditional or repeated `super`, control flow crossing `super`, `try`/`finally` around `super`, object returns, and parameter/constructor behavior whose `this`, `arguments`, or `new.target` semantics cannot be retained bail out.
+**A descriptor trait's** attributes are an object literal with static keys, inline or in a module-scoped const, and an inline literal's converters are identifiers.
 
-Generic static fields and blocks that observe constructor identity, `this`, the class name, `super`, prototype/static reflection, or class-evaluation timing are unsupported unless the analyzer can prove staged equivalence. Known descriptor specializations such as `observedAttributes` use dedicated lowering rules.
+**A method trait's transformer** is a synchronous arrow function or function expression with one identifier parameter, which may be typed. Its body is a class expression that extends that parameter, or a block whose only statement returns one. The class has no decorator.
+
+**A method trait's members** are non-static methods, getters and setters with static identifier or string-literal keys. Members that emit no JavaScript, such as an index signature or an overload signature, are skipped. The trait is unsupported when its class declares a constructor, a field, a static member or block, a private name, a decorator, a computed key or an `accessor` member.
+
+**A member's body** must keep its meaning when it is copied into another module:
+
+- **Its names are found by a conservative walker** (`src/free-references.ts`). The walker models an allowlist of node types and rejects any other, so a construct it doesn't account for retains the trait instead of being copied with a guessed meaning. `var`, function and class declarations are outside the allowlist, because they hoist past the blocks the walker scopes. `super` and `import.meta` are outside it too, because they mean something else in the consumer. So is any reference to `eval`, whatever wraps it: a direct `eval` reads the scope it is written in, and `(eval)(x)` and `(eval as F)(x)` are direct.
+- **It doesn't read a name that the transformer binds:** its parameter, its own name, or the class's name.
+- **Every other name it reads is either a linkable module binding of the origin or a global.**
+  - A linkable binding is a named or default import, or a `const`, `let` or `var` declaration whose name is an identifier. It is linked the way a descriptor converter is (below).
+  - A name that the origin binds in any other form is retained with `unsupported-trait-definition`: a function, class or enum declaration, a namespace, a destructured variable, or a namespace import. Descriptor converters are linked by the same rule.
+  - A member that assigns a module binding is unsupported unless the trait is in the consumer module, because an imported binding can't be assigned.
+  - A global keeps its name.
+- **The consumer must resolve those names the same way.** The site is retained when a member reads a global or a consumer-local binding, and the consumer class isn't module-scoped, the consumer module binds that global's name at top level, or the class's own name is one the member reads.
+- **The consumer's parser must read the member as the origin's does.** A member is copied as the origin's source text, so it is copied only when the origin and the consumer have the same file extension. The consumer's parser then reads it with the same language and options as the origin's. Every other pair is retained, because a parser for another extension can reject the text or read it with another meaning. TypeScript in `.mts` and `.cts` files reserves `<T>x` and `<T>(x) => x`, TSX rejects them, and TypeScript reads JavaScript's `a < b > (c)` as a call with a type argument. So a method trait in another package's built JavaScript isn't copied into a TypeScript consumer.
+
+**Lowered members may reference imports and module-scoped bindings:**
+
+- the linkable forms are those named above;
+- a value that the origin imports through a package specifier is re-imported from the same specifier;
+- a value that it imports through a relative specifier is re-imported through the package name and subpath that the nearest `package.json` gives. When no package is found, the trait is unsupported;
+- existing exports are reused;
+- private module-scoped bindings receive collision-free, build-only synthetic exports, so the flattened consumer can import the original live binding without copying its dependency graph. These synthetic exports are not emitted in declarations and are not part of the package's supported public API.
+
+**Each layer must keep its meaning once the layers are joined.** The flattened class holds every trait's members, in trait order, before the class's own, and its `super` is the base. A repeated key takes the later layer's definition, as the prototype chain does. A composition is retained when:
+
+- a later trait declares only a getter or only a setter for a key that an earlier trait supplies as an accessor, because the flattened class would join it with the earlier trait's other half;
+- the class does the same for a key that a trait supplies;
+- the class reads or writes `super.key` for a key that a trait supplies, `super.observedAttributes` included, because the flattened `super` is the base; or
+- the class uses a computed `super[key]`, whose key the plugin can't check.
 
 ## Trait IR
 
 Analysis is split into two logical passes:
 
-1. trait normalization resolves descriptor-based and supported class-based traits into a common Trait IR; and
+1. trait normalization resolves descriptor traits and method traits into a common Trait IR; and
 2. composition lowering consumes only Trait IR and does not depend on the original trait authoring form.
 
-Trait IR is versioned, JSON-serializable, and linkable across modules. Semantic structure remains explicit: members, property keys, descriptor halves, constructor stages, static stages, brands, and `super` references are separate IR nodes rather than opaque source strings.
+Trait IR is versioned (`TRAIT_IR_VERSION`, 2), JSON-serializable, and linkable across modules. Semantic structure remains explicit: brands, observed attributes, accessors and their converters, and method trait members are separate IR nodes.
 
-Leaf code fragments may be stored as source strings together with:
+A method trait member's node holds:
 
-- their origin module and source span;
-- an explicit table of free bindings;
-- stable references for rewritable `super` operations; and
-- the lexical mode required for `this`, `arguments`, and `new.target`.
+- its key and kind (`method`, `get` or `set`);
+- its origin source text;
+- the origin bindings it reads, each with its link and the offsets where the source reads it;
+- the globals it reads.
+
+The source text is opaque only inside a member's body. Every name in it that crosses a module boundary is a node of its own.
 
 A binding reference identifies the origin module and exported name. Imported or already exported values are linked directly. A private module-scoped binding is linked through a synthetic build-only export added to its origin module. The IR never recursively copies the binding's dependency chain.
 
@@ -63,42 +102,68 @@ The brand is linked as its original symbol binding rather than by retaining the 
 
 ## Lowering
 
-Analysis and emission are transactional per `impl` site. The plugin resolves the base, tuple, every trait, and every linked binding before changing source. A failed proof emits a single diagnostic at the composition and makes no edits for that site.
+Analysis and emission are transactional per `impl` site. The plugin resolves the base, tuple, every trait, and every linked binding before changing source. A failed proof emits a single diagnostic at the composition and makes no edits for that site. Other eligible sites in the same module are still flattened.
 
-The final component class is rewritten to extend the original base. Public members are selected according to prototype-layer descriptor semantics, not by blindly concatenating class bodies. A getter and setter from different inheritance layers must not accidentally become one public accessor pair. Shadowed implementations remain available only when required by a later `super` reference.
+The component class is rewritten to extend the original base, and the `impl(...)` declaration is removed. At the start of the class body, before the class's own members, the plugin inserts:
 
-Earlier overridden implementations are lowered to collision-free generated module-scoped helpers or equivalent helper values whose invocation preserves the original receiver. They are not emitted as instance private methods, because that would add an unrelated private-brand requirement to borrowed method calls. `super.foo()`, `super.foo`, and `super.foo = value` are redirected to the appropriate method/getter/setter helper. Dynamic `super[key]` bails out.
+- when the composition has a descriptor trait, a static `observedAttributes` field that merges the base's list with every descriptor trait's attributes, deduplicated in trait order;
+- each trait's members, in trait order:
+  - for a descriptor trait, one class getter and setter per attribute, which call the attribute operator of `@ydinjs/core/attribute.js` with the linked converter;
+  - for a method trait, each member's source, in which every linked name is replaced by the name the consumer imports it as. A shorthand property, `{ name }`, becomes `name: <link>`;
+- one `static {}` block that installs every trait brand through a single `Object.defineProperties(this.prototype, …)`, with `{ value: true }` for each linked brand symbol.
 
-Constructors are normalized into ordered stages. Each constructor retains its parameter/default-initializer scope, pre-`super` evaluation, `super(...)` argument transform, public-field initialization, and post-`super` body. The base-facing `super(...)` call is emitted once, followed by trait stages in original nested-class order and finally the component fields/body. Expressions with side effects are evaluated once. Generated lexical scopes and identifiers prevent local-name collisions.
+The class's own members follow and override what was inserted, as a subclass's members override its superclass's. The eligibility rules above retain each case where the two differ.
 
-Static initialization is represented as ordered stages matching the original nested class-evaluation order. Generic static members are emitted only when that order and their observations can be preserved. Generated calls to `Object.defineProperty` live in class `static {}` blocks; there is no post-class setup.
-
-Each trait brand is installed with:
-
-```ts
-Object.defineProperty(this.prototype, brand, { value: true });
-```
-
-where `brand` is the directly linked original symbol binding. Descriptor accessors use the same `configurable`, getter, and setter semantics as the runtime implementation, and `observedAttributes` is initialized at the corresponding trait stage.
+The plugin marks every top-level `trait(...)` call of either factory `/*@__PURE__*/`, so a downstream bundler can remove a trait object and its trait-list arrays once nothing references them.
 
 ## Plugin architecture
 
-`.scripts/flattener` contains a small normalization, analysis, and lowering core plus a plugin adapter configured with `enforce: 'pre'`. The adapter uses the host resolver, registers every analyzed definition with `addWatchFile`, caches parsed modules by id and source, detects resolution cycles, applies synthetic exports and imports transactionally, and emits sourcemapped edits. The same adapter is installed before other transforms in tsdown and Vite/Vitest for both packages.
+`@ydinjs/vite-traits-plugin` is a public package. Its one export, `viteTraitsPlugin()`, returns a Vite and Rolldown plugin configured with `enforce: 'pre'`. Its source is a normalization, analysis and lowering core, the free-identifier walker, and that adapter. The repository's shared tsdown, Vite and Vitest configurations install it.
 
-The internal constructor is `constructTraitFlattenerPlugin()`. It is `@ydinjs` workspace build tooling, not an `@ydinjs/core` runtime export, and is not listed in `files.json`.
+The adapter uses the host resolver, and Node's resolution for an external `@ydinjs/*` package. It registers every analyzed definition with `addWatchFile`, caches parsed modules by id and source, applies synthetic exports and imports, and emits sourcemapped edits.
 
-Diagnostics contain the source location, composition name, and stable reason code. Unsupported sites warn and retain runtime composition; malformed plugin configuration and internal invariant failures are build errors.
+Diagnostics contain the source location, composition name, and stable reason code. Unsupported sites warn and retain runtime composition. Internal invariant failures are build errors.
 
-The serializable Trait IR may be emitted in an opt-in debug mode for snapshots, persistent-cache inspection, and troubleshooting, but JSON files are not part of normal package output.
+| Reason code | The site is retained because |
+| --- | --- |
+| `impl-escapes` | the `impl` intermediary is exported, instantiated, or otherwise escapes |
+| `impl-multiple-consumers` | more than one class consumes the intermediary |
+| `unsupported-trait-list` | the trait list isn't a statically resolvable readonly array or tuple, or it refers to itself |
+| `unsupported-trait` | a trait isn't a supported descriptor or method trait |
+| `unsupported-trait-definition` | a trait isn't module-scoped or a direct `trait(...)` call; or its brand, transformer or class is outside the subset; or a binding it needs isn't a linkable form, or can't be reached from the consumer |
+| `unsupported-trait-member` | a method trait's member is outside the subset; or its body uses a construct the walker doesn't model, `super`, `eval` in any form, a name the transformer binds, or an assignment to an imported binding |
+| `trait-accessor-half` | a later trait declares one half of an accessor that an earlier trait supplies |
+| `trait-binding-shadowed` | the consumer would resolve a name that a member reads to another binding |
+| `trait-source-language` | a method trait's file extension differs from the consumer's |
+| `class-accessor-half` | the class declares one half of an accessor that a trait supplies |
+| `class-super-trait-member` | the class reads or writes `super.key` for a key that a trait supplies |
+| `class-computed-super` | the class uses a computed `super[key]` |
 
 ## Verification
 
-Node fixtures cover import aliases, tuple/spread expansion, resolution cycles, eligibility, warnings, unchanged bailout output, source maps, Trait IR serialization, and two-pass normalization/lowering boundaries.
+Node fixtures cover import aliases, tuple/spread expansion, eligibility, warnings, unchanged bailout output, and a module with two `impl` sites of which one bails.
 
-Linking fixtures cover existing exports, imported values, private module-scoped synthetic exports, live `let` bindings, name collisions, and nested lexical captures that must bail out.
+Linking fixtures cover existing exports, imported values, private module-scoped synthetic exports, and the synthetic export names.
 
-Runtime equivalence fixtures compare composed and flattened classes for member precedence, getter/setter shadowing, borrowed method receivers, method/accessor `super` chains, constructor argument/default flow, public-field and static initialization, descriptors, brands, and `instanceof`.
+Runtime equivalence fixtures compare composed and flattened classes for:
 
-Descriptor fixtures cover converter accessors, linked converter bindings, direct brand linking, tree-shaking of unused trait factories, and ordered/deduplicated `observedAttributes`. Negative fixtures cover every documented bailout, including nested trait factories, constructor control flow, dynamic `super`, unsafe static reflection, and unsupported lexical captures.
+- converter accessors and `observedAttributes` merging;
+- the component's own fields, accessor overrides and method overrides;
+- brands and `instanceof`;
+- a method trait's member, alone and overridden by the class;
+- a private binding's identity across a function of the origin module and the flattened member;
+- a subclass whose own method calls `super` and reaches the flattened member;
+- a method trait in the consumer module and in another module of the same extension. A method trait in another package's built JavaScript, consumed by TypeScript, is a negative fixture.
 
-Finally, `@ydinjs/core` and `@ydinjs/material-x` builds and browser suites run with the plugin, and representative emitted components are checked for a direct `ControlledElement` superclass, absence of `impl(...)`, no unnecessary runtime trait factory import, and unchanged declaration output.
+Negative fixtures cover every bailout above, among them a class-based trait outside the subset, an inline brand, a cyclic trait list, an accessor half whose other half a trait supplies, `super.key` for a trait's key, and a computed `super[key]`. They also cover each case the walker or the scope check retains.
+
+A change to the plugin is also checked by building `@ydinjs/material-x` with it: the build prints no flattener warning.
+
+## Change record
+
+| Date | Sections | Change |
+| --- | --- | --- |
+| 2026-11-18 | All but Purpose | **Narrowed to what the plugin implements** (`repo:RF-44`). The document described a generic class-transformer subset — fields, constructors, methods, accessors and safe static members, lowered through helpers and constructor and static stages — that no code flattened. It also placed the plugin in `.scripts/flattener` as a private `constructTraitFlattenerPlugin()`, said that it resolved imports to recognize them, and named an IR debug mode. **Kept, and met by the code at `49e26415d`** under the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 1: per-site transactions, a parse cache keyed by source, a diagnostic for a cyclic list, and the accessor and `super` eligibility rules. The pre-rename module names are no longer recognized |
+| 2026-11-18 | All but Purpose | **Widened to method traits** (`repo:RF-44`), on the owner's answer C, as the code at `242feffcb` implements them (the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2). **Added:** method traits in §Compatibility contract; their recognition, definition, member, scope and linking rules in §Eligibility; the layer rule for a trait's accessor half; the member node and `TRAIT_IR_VERSION` 2 in §Trait IR; member insertion in §Lowering; and the table of reason codes. **Changed:** `observedAttributes` is emitted only when the composition has a descriptor trait, and is otherwise inherited from the base. Before, the document said the field was always inserted, and that the plugin doesn't flatten a class-based trait |
+| 2026-11-18 | Eligibility, Plugin architecture | **Corrected** on the feature proof at `8a5365adc` (`reviewer-1` to `reviewer-3`). **Narrowed:** the linkable binding forms are named, and a member that reads a function, class, enum or namespace declaration, a destructured variable or a namespace import is retained. Before, the document said that every module binding is linked. **Changed, and met by the code once the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2b is in:** any reference to `eval` retains the trait, where the document said _direct `eval`_ and the code missed wrapped forms. The language rule copies only between the same languages and from JavaScript into TypeScript, where it said _"The source language must match"_ and checked TypeScript into JavaScript only. The JavaScript-into-TypeScript limit is stated |
+| 2026-11-18 | Eligibility, Verification, Plugin architecture | **Narrowed** on the item 2b recheck at `b72ee0b8b` (`recheck-1`, `recheck-2`), and met by the code once the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2c is in. A member is copied only between files of the same extension. The rule said that a member is copied between the same languages, with `.ts`, `.mts` and `.cts` as one, and from JavaScript into TypeScript, with `a < b > (c)` as a known limit. The `.mts` and `.cts` parsers reject what `.ts` accepts, and the limit changed a member's meaning with no warning. The fixture for another package's built JavaScript becomes a negative one |
