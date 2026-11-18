@@ -1658,6 +1658,9 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, on the owner's prin
   - **Read strictly:** after each `input`, the field reverts to `value` unless the consumer set it, as React does for a controlled `<input>`. The revert rewrites the field while the user types. It has to keep the caret in place, it breaks the native undo history, and it must not run during an IME composition.
   - **The architect recommends an exception:** a text field's text is the user's input. `value` reads it and the consumer may set it, and `:state(populated)` and the form value follow it. That is an uncontrolled field, so it is an exception to the principle, not a reading of it.
 - **Routed:** checkbox and radio to the host-invariant unit, item 7. The text fields to the owner, and they block nothing.
+- **Answered 2026-11-18 by the owner,** relayed by the coordinator: **the text fields are an exception to the principle,** as the architect recommended. The text is the user's input. `value` reads it, and the consumer may set it. In the owner's words: _"this is already a question of performance. Speed matters more than the principle."_ `architecture.md` §Components states the exception.
+  - **No code changes.** `TextFieldCore.ts` already behaves this way: the `value` getter reads the native field, and the setter writes it, `:state(populated)` and the form value (`:224`–`:231`, read by the architect at `e9236603e`).
+  - **What remains of this entry:** checkbox and radio, under item 7. It closes when item 7's rows pass.
 
 ## Questions
 

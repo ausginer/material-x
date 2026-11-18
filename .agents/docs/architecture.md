@@ -81,7 +81,9 @@ Each component combines the core runtime and token processor:
 
 A new component meets the invariant, or the record states which exception it falls under.
 
-**Every component is controlled.** A component's state is what the consumer sets: its attributes and properties, such as `checked`, `indeterminate`, `selected`, `open` and a group's `value`. Everything derived from that state follows it, and nothing else changes it: custom states, ARIA states, the form value, and the state of any native control inside the shadow tree. User interaction fires events, such as `click`, `input` and `change`, and changes no state. The consumer answers an event by setting the state. The owner stated this principle on 2026-11-18. The components that don't meet it yet are [`repo:RF-50`](../../.plan/00-index.md)'s.
+**Every component is controlled.** A component's state is what the consumer sets: its attributes and properties, such as `checked`, `indeterminate`, `selected`, `open` and a group's `value`. Everything derived from that state follows it, and nothing else changes it: custom states, ARIA states, the form value, and the state of any native control inside the shadow tree. User interaction fires events, such as `click`, `input` and `change`, and changes no state. The consumer answers an event by setting the state. The owner stated this principle on 2026-11-18.
+
+**The text fields are the exception.** In `mx-text-field` and `mx-multiline-text-field`, the text is the user's input. Typing changes it, `value` reads it, and the consumer may set it. `:state(populated)` and the form value follow the text. A controlled text field would have to rewrite the field on every keystroke, and the owner decided that speed matters more than the principle here. The owner decided the exception on 2026-11-18. The components that don't meet the principle yet are [`repo:RF-50`](../../.plan/00-index.md)'s.
 
 The component package contains buttons, button groups, checkboxes, FABs, icons, lists, radios, and text fields. Its public runtime entrypoints are declared in `packages/material-x/files.json`; add or remove entries with components.
 

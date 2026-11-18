@@ -111,7 +111,7 @@ Given on 2026-11-18 and relayed by the coordinator. The architect recorded them 
    - **E2** covers the components that render only one `<slot>` and take no focus: `mx-icon`, `mx-list`, `mx-button-group` and `mx-connected-button-group`. A `class="host"` on a `<slot>` would have nothing to style and nothing to find.
    - **E3** covers the composite `mx-split-button`. Its `.host` is the root and carries `impl` and `group`. It doesn't take focus: each of its two focus stops is a nested component that meets the invariant.
 2. **`mx-fab`'s focus forward is in this unit:** item 3.
-3. **R2 stands, as a principle for the repository:** every material-x component is controlled. `mx-checkbox` and `mx-radio` don't meet it today (`RF-50`), and item 7 fixes them. The text fields don't meet it either, and their question is the owner's under `RF-50`. They aren't in this unit.
+3. **R2 stands, as a principle for the repository:** every material-x component is controlled. `mx-checkbox` and `mx-radio` don't meet it today (`RF-50`), and item 7 fixes them. The text fields are the principle's one exception, which the owner decided the same day (`RF-50`). Their code doesn't change.
 
 ## 1. The switch restructure
 
@@ -241,4 +241,4 @@ Then the closure of `RF-43` is the architect's.
 
 - **No focus layer on `mx-fab` or the interactive list items.** Their tokens may define one. `RF-35` and `RF-43` name only the button family, the checkbox and the radio, so this unit doesn't add one. If the owner wants it, the architect registers a finding.
 - **The duplicate `.host:focus-visible` outline rule,** in `focus.styles.css:1` and `button/styles/default/main.styles.css:100`. The button family adopts both. It is a cleanup item and doesn't touch the invariant.
-- **The text fields under the controlled principle.** `RF-50` holds the question for the owner.
+- **The text fields.** The owner made them an exception to the controlled principle (`RF-50`), and their code already behaves that way.
