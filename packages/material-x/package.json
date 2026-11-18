@@ -123,7 +123,8 @@
     "fmt:check": "just fmt-check",
     "lint": "just lint",
     "lint:fix": "just lint-fix",
-    "test": "just test"
+    "test": "just test",
+    "size": "just size"
   },
   "dependencies": {
     "@ydinjs/core": "0.1.0",
@@ -131,7 +132,9 @@
   },
   "devDependencies": {
     "@fontsource/roboto": "5.3.0",
-    "@ydinjs/tproc": "0.1.0"
+    "@ydinjs/tproc": "0.1.0",
+    "size-limit": "14.3.0",
+    "size-limit-preset-rolldown": "0.1.0"
   },
   "peerDependencies": {
     "@types/react": "^19",

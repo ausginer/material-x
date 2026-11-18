@@ -104,6 +104,13 @@ After the owner's answers, and with `RD-24` registered:
 5. **Review:** a feature proof against properties 1–8.
 6. **Before material-x's first publication,** a separate unit under property 6 sets each row's ceiling to its reading after the release's last change. It runs the witness that a row can fail: one entry's ceiling set one byte below its reading makes material-x's `just size` exit non-zero and name that row. The witness runs in the working tree, is reverted, and its output is saved. The unit records the rule that the architect states for the ceilings after release. Its pull request closes `RF-45` and its issue.
 
+**Steps 1 to 3, done on 2026-11-18** by the implementer on `repo/mx-size-1`, after merging `origin/main` at `7a4f82eb4`:
+
+- **The configuration** is `packages/material-x/.size-limit.ts`. It builds one row from each entry in `files.json`'s `runtime` list, and the `complete` row from a module it writes to `node_modules/.cache/size-limit/complete.js`. That module imports each entry for its effects, as a consumer does, where the probe re-exported each entry. Its comment states property 6 and names `repo:RD-24`.
+- **Ordering.** material-x's `size` target depends on its dependencies' `build` in `project.json`, and the root `just size` runs its four packages one at a time (`--parallel=1`), so that no other package's `size` rebuilds `core` while material-x is bundled. `.scripts/size-reading.ts` reads material-x after `core`.
+- **The reading** ([rd24-reading.txt](checks/rd24-reading.txt)): 19 rows, no limits; `complete` is 17,258 B. Thirteen entry rows differ from the probe, by −41 to +83 B. The probe's own script, run again at the same tree, gives every entry row to the byte, so the differences come from the runtime changes that the merge brought (#61, #37, #39), not from the instrument.
+- **The witness for property 2** ([rd24-p2-witness.txt](checks/rd24-p2-witness.txt)): an entry added to `files.json` gets a row with no change to the configuration, and an entry that `files.json` lists with no built file makes size-limit exit 1.
+
 **Merge order.** #38 changes `verify.yml`'s jobs. This unit changes no workflow, so it doesn't depend on #38. The job's time limit holds with material-x added: about 10 s more on each side.
 
 ## Proposed identifiers
