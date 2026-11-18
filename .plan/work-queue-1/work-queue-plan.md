@@ -141,7 +141,7 @@ The coordinator listed the items. The architect proposed titles and labels. The 
 | none | Write documentation and examples | `repo` | _Queued_ | Roadmap. It may be split per package when a unit takes it. |
 | none | Release `@ydinjs/box-quad` | `pkg:box-quad` | _Queued_ | Moves to _Waiting on owner_ when the owner orders the release. The release needs the owner's authorization (`coordinator.md`). The rank of the three releases is the owner's ([Release scope without milestones](#release-scope-without-milestones)). |
 | none | Release `@ydinjs/drag` | `pkg:drag` | _Queued_ | As above. |
-| none | Release `@ydinjs/material-x` | `pkg:material-x` | _Queued_ | As above. |
+| none | Release `@ydinjs/material-x` | `pkg:material-x` | _Queued_ | As above. **Opened as #58, and closed as not planned on 2026-11-18** by the coordinator, on the owner's answer in [Release scope without milestones](#release-scope-without-milestones). |
 | none | Some open record entries have no issue | `repo` | _Queued_ | **Added by the architect.** See below. |
 | #37 | (the pull request) | — | _In progress_ | No issue (property 14). |
 | #38 | (the pull request) | — | _In progress_ | No issue (property 14). |
@@ -202,6 +202,13 @@ The second question, whether the landing page and the documentation belong to a 
 
 1. **Release scope:** accept _blocked by_ on the release issues as above, or keep release scope out of the queue. If he declines, release scope stays in the record and with him, and each release item waits in _Queued_ until he orders it.
 2. **The releases' rank:** his order for the dropped milestones was box-quad, drag, material-x. Whether that order stands as the release items' rank is his to say. Until he says, the coordinator ranks them in that order.
+
+**The owner's answer, 2026-11-18,** relayed by the coordinator, translated: _"Let's remove the material-x release card for now. It'll be built up from the spec, and that's quite big."_
+
+- **The material-x release item is gone.** The coordinator closed #58, _Release `@ydinjs/material-x`_, as not planned, with a comment. Question 1 is moot for material-x.
+- **The box-quad and drag releases,** #56 and #57, keep no blockers. Nothing in the record must close before either one, so the proposal has nothing to carry. It isn't adopted. It stays the route if a release issue returns that waits on items.
+- **Their rank** is box-quad, then drag, the owner's order for the dropped milestones. He gave no other order, and the coordinator ranks them that way.
+- **material-x's release scope stays in the record.** `RD-20`, `RF-45` and `RD-24` each state their boundary as material-x's first release or publication. The owner performs that act, and no issue stands for it until he orders one.
 
 ## Implementation
 
