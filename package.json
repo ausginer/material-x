@@ -34,6 +34,7 @@
     "@storybook/addon-docs": "10.6.7",
     "@storybook/addon-links": "10.6.7",
     "@storybook/addon-themes": "10.6.7",
+    "@storybook/icons": "2.0.2",
     "@storybook/react-vite": "10.6.7",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/user-event": "14.6.10",
