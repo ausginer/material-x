@@ -41,9 +41,10 @@ function addSlottedContent(
 }
 
 /**
- * The slot rows find their elements by `part`, which no stylesheet rule
- * selects, so a slot whose class disagrees with its stylesheet fails the rule's
- * assertion rather than the lookup.
+ * The slot rows find each slot and supporting row by `part`, which no
+ * stylesheet rule selects, so a slot whose class disagrees with its stylesheet
+ * fails the rule's assertion rather than the lookup. `.notched-outline` and
+ * `.input` are found by class; no selector beside `:has-slotted` names either.
  */
 function getShadowElement(field: HTMLElement, selector: string): HTMLElement {
   const element = $<HTMLElement>(field, selector);

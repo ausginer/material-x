@@ -116,4 +116,53 @@ describe('mx-list-item slotted content', () => {
       expect(control.getBoundingClientRect().height).toBe(empty);
     },
   );
+
+  it('should select the large leading video size only while support and overline both have content', async () => {
+    const tokens = [
+      'leading-video.width',
+      'small.leading-video.height',
+      'large.leading-video.width',
+      'large.leading-video.height',
+    ] as const;
+    const { values } = await commands.resolveTokenContract({
+      contract: 'list-item.default',
+      state: 'default',
+      tokens,
+    });
+    const [smallWidth, smallHeight, largeWidth, largeHeight] = tokens.map(
+      (token) => pixels(values[token]!),
+    );
+    const element = createItem('mx-list-item');
+    const video = document.createElement('video');
+    video.slot = 'lead';
+    element.append(video);
+
+    const appendSlotted = (slot: string): HTMLElement => {
+      const content = document.createElement('span');
+      content.slot = slot;
+      content.textContent = slot;
+      element.append(content);
+      return content;
+    };
+    const getVideoSize = async (): Promise<readonly number[]> => {
+      await nextFrame();
+      const { width, height } = video.getBoundingClientRect();
+      return [width, height];
+    };
+
+    expect(await getVideoSize()).toEqual([smallWidth, smallHeight]);
+
+    const support = appendSlotted('support');
+
+    expect(await getVideoSize()).toEqual([smallWidth, smallHeight]);
+
+    const overline = appendSlotted('overline');
+
+    expect(await getVideoSize()).toEqual([largeWidth, largeHeight]);
+
+    support.remove();
+    overline.remove();
+
+    expect(await getVideoSize()).toEqual([smallWidth, smallHeight]);
+  });
 });
