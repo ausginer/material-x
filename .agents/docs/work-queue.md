@@ -1,6 +1,6 @@
 # Work queue
 
-> Retrieved before writing to GitHub — an issue, a comment, a label, a milestone, the `Work queue` board or a pull request description that names an issue — and when the coordinator recovers its state.
+> Retrieved before reading an issue's text, before writing to GitHub — an issue, a comment, a label, a milestone, the `Work queue` board or a pull request description that names an issue — and when the coordinator recovers its state.
 
 GitHub Issues, shown on one Projects board, are the repository's work queue: what is next, in what order, and whom it waits on. The `.plan/` records stay the only record: decisions, findings, reasons and evidence. An issue says what the item is, and the board's `Status` says where it is in the queue. Neither says why. The decision and its reasons are `repo:RD-22`.
 
@@ -14,13 +14,15 @@ GitHub Issues, shown on one Projects board, are the repository's work queue: wha
 
 **One subject, named by address.** An issue names its record entry by qualified address and copies nothing from it.
 
-- **The title** opens with the address and then says in plain words what the item is: for a finding, what goes wrong; for an owed decision, what is missing; for a task, what it delivers. A reader who doesn't know the identifiers must understand it. Example: `repo:RF-59 — material-x fails when imported from <head>`. The entry's own title isn't copied, because records retitle entries. An item with no entry has a title without an address.
-- **At most one open issue has a given address as its subject.** One entry can produce several issues in sequence, such as a reading and then a repair, but only one is open at a time. Before creating an issue, list the open issues and filter their titles for the exact address locally:
+- **The title** is the address, a space, an em dash and a space, and then what the item is in plain words: for a finding, what goes wrong; for an owed decision, what is missing; for a task, what it delivers. A reader who doesn't know the identifiers must understand it. Example: `repo:RF-59 — material-x fails when imported from <head>`. The entry's own title isn't copied, because records retitle entries. An item with no entry has a title without an address.
+- **At most one open issue has a given address as its subject.** One entry can produce several issues in sequence, such as a reading and then a repair, but only one is open at a time. Before creating an issue, list the open issues and filter their titles for the exact address locally. The filter matches the address followed by anything but a digit. So it also finds a title whose separator was edited by hand, and `repo:RF-5` doesn't match `repo:RF-59`:
 
   ```sh
   gh issue list --state open --limit 1000 --json number,title \
-    --jq '.[] | select(.title | startswith("repo:RF-59 —"))'
+    --jq '.[] | select(.title | test("^repo:RF-59([^0-9]|$)"))'
   ```
+
+  `gh`'s `--jq` takes Go's regular expressions, which have no lookahead.
 
   Don't use GitHub's search for this check. `repo:` is a search qualifier, and search splits `RF-59` at the hyphen.
 

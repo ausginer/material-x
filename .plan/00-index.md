@@ -1067,6 +1067,13 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **Once `.agents/docs/work-queue.md` exists** (the plan's step 2), it states these rules as they stand, and this entry is the decision and its reasons. A change to a rule changes that document, and this entry records the change.
 
+**Amended 2026-11-18 by the architect,** on the [step-2 review](reviews/work-queue-1/feature-proof-claude.md) at `1ff70cbef`, before the owner accepts the documents:
+
+- **Property 2:** a title is the address, a space, an em dash and a space, and then the item in plain words. The plan's property said only that a title _"opens with the address"_, with the em dash in its example (`reviewer-3`).
+- **Property 3:** the documented check matches the address followed by anything but a digit, so a hand-edited separator is still found. The plan's example matched `repo:RF-59 —` exactly.
+- **Property 10:** `AGENTS.md`, which every role has, routes to `work-queue.md` before a role reads an issue's text. The plan's rule reached a role only when it wrote to GitHub (`reviewer-2`).
+- **Property 12:** `AGENTS.md` states the bare-`@name` rule, which `work-queue.md` attributes to it. No document stated it before (`reviewer-1`).
+
 **The trial.** The owner may end or change it at any time. Ending it amends this entry. Until then the queue's issues and board are what is next, and they never stand in for a record entry. No review point is set. The plan names the first step if the trial shows drift: a small check of open issues whose entry is closed, duplicate addresses, and items whose `Status` disagrees with the issue.
 
 **Why.** A queue must answer what is next across every slot at once. A record entry exists on its branch until that branch merges, while an issue exists in one place for every branch. The queue lived only in the coordinator's session and was nearly lost twice. The rest is in the plan's [Problem](work-queue-1/work-queue-plan.md#problem), its [Readings](work-queue-1/work-queue-plan.md#readings) and its [_Rejected or changed_](work-queue-1/work-queue-plan.md#rejected-or-changed-from-the-coordinators-proposal) section, which this entry adopts: no tier labels, the `safari` label kept out of the queue, the board replacing the state labels, and no issues for #37 and #38.

@@ -94,7 +94,7 @@ Milestones, one per first release, in this order: **`box-quad first release`**, 
 | Document | Change |
 | --- | --- |
 | **New:** `.agents/docs/work-queue.md` | Operation. Properties 1–14 as current-state rules, the `Status` options, labels and milestones, the title and body form, and the recovery commands. The single home of the issue and board rules, including property 12. |
-| [`AGENTS.md`](../../AGENTS.md) | The bullet on session links covers issue text too, and states that everything written to GitHub is English. This file is resident, so every role that touches GitHub has the rule. |
+| [`AGENTS.md`](../../AGENTS.md) | The bullet on session links covers issue text too, and states that everything written to GitHub is English. This file is resident, so every role that touches GitHub has the rule. **Amended 2026-11-18** on the step-2 review: the bullet also states the bare-`@name` rule, and it routes to `work-queue.md` before a role reads an issue's text, not only before it writes. |
 | [`handoff.md`](../../.agents/docs/handoff.md) §Publish the branch | One paragraph: a pull request description names its issue with `Closes #N` or `Refs #N`, never in a commit message. Link to `work-queue.md`. Implementers read this file when they finalize. |
 | [`coordinator.md`](../../.agents/docs/coordinator.md) | Read `work-queue.md`. Recover state from the queue as well as git. The per-slot working summary becomes the _In progress_ item and its comment. The queue is not a decision ledger. |
 | [`agent-workflow.md`](../../.agents/docs/agent-workflow.md) §Recovering state | The durable part of the working summary is the queue. The `.agents/codex/` note stays a convenience. |
