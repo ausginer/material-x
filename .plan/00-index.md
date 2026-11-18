@@ -1622,6 +1622,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
   - **The required property holds** in the document and the code. Item 2c is in, and `recheck-1` and `recheck-2` are resolved.
   - **The owner accepts item 3** as committed at `17065ddf0`, with its growth: +19 or +20 minified bytes in five entries, and +84 in `icon-button`, `switch-button` and `switch-icon-button`. In the owner's words, translated: _"Since it's dead code, a plain tree-shake removes it. Maybe that's how it should be done, but let the architect decide. For now I'm for the dead-code option — we'll clean it up later."_ The cleanup is `RF-63`.
   - **One comment is still owed before the pull request opens,** the recheck's `recheck-3`, Tier C. The JSDoc of `TRAIT_SOURCE_LANGUAGE` still says that JavaScript is copied into TypeScript. The handoff's item 3b corrects it. It changes no output and doesn't bear on the required property.
+  - **Item 3b is in** at `c3af883d7`. It changes only those two lines of `diagnostics.ts`. The architect read the diff: the reason is now _"a method trait's origin module has a different file extension from the consumer's"_, which agrees with `canCopySource`'s JSDoc and the document's reason table. The unit is complete. Its pull request waits for #38's merge and the merge of `main` into this branch.
 
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
