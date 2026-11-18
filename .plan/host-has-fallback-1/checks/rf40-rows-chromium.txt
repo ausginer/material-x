@@ -1,0 +1,229 @@
+Witness 1, Chromium: the whole browser project at c10d73f1d.
+$ MX_TEST_ENGINES=chromium aube exec -- just test --project 'browser' --reporter=verbose
+vitest run -c vitest.config.ts --project browser --reporter=verbose
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/material-x
+
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:64 > mx-checkbox state synchronization > should synchronize the checked property to the control 168ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:72 > mx-checkbox state synchronization > should synchronize the checked attribute to the control 63ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:80 > mx-checkbox state synchronization > should expose checked as a host custom state 69ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:88 > mx-checkbox state synchronization > should clear the checked custom state when unchecked 64ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:97 > mx-checkbox state synchronization > should reflect the value attribute to the control 66ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:105 > mx-checkbox state synchronization > should reflect the name attribute to the control 51ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:113 > mx-checkbox state synchronization > should reflect the disabled property to the control 66ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:121 > mx-checkbox state synchronization > should match the disabled pseudo-class when disabled 52ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:64 > mx-radio state synchronization > should synchronize the checked property to the control 70ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:72 > mx-radio state synchronization > should synchronize the checked attribute to the control 75ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:80 > mx-radio state synchronization > should expose checked as a host custom state 87ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:88 > mx-radio state synchronization > should clear the checked custom state when unchecked 66ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:97 > mx-radio state synchronization > should reflect the value attribute to the control 150ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:105 > mx-radio state synchronization > should reflect the name attribute to the control 51ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 186ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:113 > mx-radio state synchronization > should reflect the disabled property to the control 65ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:121 > mx-radio state synchronization > should match the disabled pseudo-class when disabled 50ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:143 > mx-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 98ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:166 > mx-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:131 > mx-checkbox activation > should expose the native activation sequence on control click 54ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:144 > mx-checkbox activation > should expose one activation sequence for real pointer interaction 112ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:157 > mx-checkbox activation > should expose one activation sequence on host click 51ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:189 > mx-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:170 > mx-checkbox activation > should retarget a host click to the internal control 50ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:179 > mx-checkbox activation > should activate the internal control through an external label 52ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while support has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:197 > mx-checkbox activation > should preserve the native event interfaces 49ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:208 > mx-checkbox activation > should preserve the native event flags 49ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while counter has content 101ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:227 > mx-checkbox activation > should leave the host and the control unchecked after a click without a handler 51ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:238 > mx-checkbox activation > should leave the host and the control unchecked after a Space press without a handler 65ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 97ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:143 > mx-multiline-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:250 > mx-checkbox activation > should leave the host and the control checked when a change handler sets checked 54ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:264 > mx-checkbox activation > should activate with a real Space key press 63ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:278 > mx-checkbox activation > should suppress activation when disabled 52ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:289 > mx-checkbox activation > should delegate focus to the native control 51ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:166 > mx-multiline-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:131 > mx-radio activation > should expose the native activation sequence on control click 49ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:144 > mx-radio activation > should expose one activation sequence for real pointer interaction 97ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:189 > mx-multiline-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:157 > mx-radio activation > should expose one activation sequence on host click 52ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while support has content 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:170 > mx-radio activation > should retarget a host click to the internal control 51ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:179 > mx-radio activation > should activate the internal control through an external label 51ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:197 > mx-radio activation > should preserve the native event interfaces 49ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while counter has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:241 > mx-text-field > should restore slot label fallback after aria-labelledby removal 83ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:208 > mx-radio activation > should preserve the native event flags 49ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:227 > mx-radio activation > should leave the host and the control unchecked after a click without a handler 51ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:261 > mx-text-field > should restore support and counter fallback after aria-describedby removal 83ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:238 > mx-radio activation > should leave the host and the control unchecked after a Space press without a handler 64ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:250 > mx-radio activation > should leave the host and the control checked when a change handler sets checked 53ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:282 > mx-text-field > should remove fallback aria-describedby when related slots become empty 84ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:303 > mx-text-field > should update slot label fallback as label content is added and removed 100ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:264 > mx-radio activation > should activate with a real Space key press 64ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:278 > mx-radio activation > should suppress activation when disabled 52ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:327 > mx-text-field > should keep populated state in sync for value setter and input events 83ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:289 > mx-radio activation > should delegate focus to the native control 53ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:299 > mx-checkbox form participation > should contribute its value to the form data when checked 48ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:348 > mx-text-field > should expose the original native-like input event 67ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:375 > mx-text-field > should bridge change from the internal field to the host 67ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:311 > mx-checkbox form participation > should contribute the default "on" value when checked without a value 51ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:322 > mx-checkbox form participation > should omit its value from the form data when unchecked 50ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-checkbox form participation > should contribute "on" when checked after its value is removed 49ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:241 > mx-multiline-text-field > should restore slot label fallback after aria-labelledby removal 82ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:347 > mx-checkbox form participation > should contribute a value set again after its removal when checked 51ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:261 > mx-multiline-text-field > should restore support and counter fallback after aria-describedby removal 85ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:299 > mx-radio form participation > should contribute its value to the form data when checked 52ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:311 > mx-radio form participation > should contribute the default "on" value when checked without a value 65ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:282 > mx-multiline-text-field > should remove fallback aria-describedby when related slots become empty 82ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:322 > mx-radio form participation > should omit its value from the form data when unchecked 49ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:333 > mx-radio form participation > should contribute "on" when checked after its value is removed 51ms
+ ✓ |browser (chromium)| tests/core/elements/CheckableCore.browser.test.ts:347 > mx-radio form participation > should contribute a value set again after its removal when checked 50ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:303 > mx-multiline-text-field > should update slot label fallback as label content is added and removed 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:327 > mx-multiline-text-field > should keep populated state in sync for value setter and input events 83ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:348 > mx-multiline-text-field > should expose the original native-like input event 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:375 > mx-multiline-text-field > should bridge change from the internal field to the host 100ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:48 > mx-button > should delegate focus to the native button 68ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:76 > mx-switch-button activation events > should dispatch click, input and change for a pointer click 154ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:85 > mx-switch-button activation events > should dispatch one activation sequence for host click 53ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:94 > mx-switch-button activation events > should activate with a real Space key press 64ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:56 > mx-button > should expose disabled state to the native button 63ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:64 > mx-button > should suppress activation when disabled 51ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:104 > mx-switch-button activation events > should activate with a real Enter key press 65ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:114 > mx-switch-button activation events > should activate through a label that names the host 53ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:48 > mx-icon-button > should delegate focus to the native button 51ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:56 > mx-icon-button > should expose disabled state to the native button 47ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:64 > mx-icon-button > should suppress activation when disabled 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:128 > mx-switch-button activation events > should dispatch input and change after every click listener 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:148 > mx-switch-button activation events > should dispatch no input or change for a cancelled click 49ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:77 > mx-button > should delegate focus to the native button through the shadow root alone 51ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:88 > mx-button > should leave focus where it was when the host is disabled 51ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:158 > mx-switch-button activation events > should preserve native event interfaces and flags 51ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:76 > mx-switch-icon-button activation events > should dispatch click, input and change for a pointer click 97ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:100 > mx-button > should reflect the name property to the native button 49ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:108 > mx-button > should reflect the type property to the native button 49ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:85 > mx-switch-icon-button activation events > should dispatch one activation sequence for host click 52ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:116 > mx-button > should submit its associated form when activated 52ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:133 > mx-button > should submit its associated form by default when it has no type 51ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:94 > mx-switch-icon-button activation events > should activate with a real Space key press 66ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:104 > mx-switch-icon-button activation events > should activate with a real Enter key press 65ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:149 > mx-button > should attribute the submission to itself as the submitter 65ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:166 > mx-button > should reset its associated form when activated with type reset 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:114 > mx-switch-icon-button activation events > should activate through a label that names the host 53ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:128 > mx-switch-icon-button activation events > should dispatch input and change after every click listener 49ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:182 > mx-button > should not submit its associated form with type button 50ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:201 > mx-button in a button group > should derive disabled state from the group context 50ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:211 > mx-button in a button group > should re-enable when the group context clears disabled 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:148 > mx-switch-icon-button activation events > should dispatch no input or change for a cancelled click 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:158 > mx-switch-icon-button activation events > should preserve native event interfaces and flags 50ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:225 > mx-link-button > should delegate focus to the native anchor 50ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:234 > mx-link-button > should expose its destination on the native anchor 49ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:183 > mx-switch-button disabled > should suppress activation when disabled 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:193 > mx-switch-button disabled > should be skipped by Tab when disabled 66ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:242 > mx-link-button > should reflect the navigation target to the native anchor 69ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:250 > mx-link-button > should remove its destination when disabled 47ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:183 > mx-switch-icon-button disabled > should suppress activation when disabled 67ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:193 > mx-switch-icon-button disabled > should be skipped by Tab when disabled 65ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:259 > mx-link-button > should restore its destination when re-enabled 51ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:269 > mx-link-button > should mark the native anchor aria-disabled when disabled 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:206 > mx-switch-button semantics > should expose the switch role on the internal button 52ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:210 > mx-switch-button semantics > should expose aria-checked false on a new switch 50ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:278 > mx-link-button > should remove the disabled anchor from the tab order 50ms
+ ✓ |browser (chromium)| tests/button/button.browser.test.ts:287 > mx-link-button > should suppress click propagation when disabled 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:214 > mx-switch-button semantics > should synchronize the checked property to aria-checked 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:222 > mx-switch-button semantics > should synchronize the checked attribute to aria-checked 69ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:231 > mx-switch-button semantics > should leave every checked observation unchanged by activation without a handler 66ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:241 > mx-switch-button semantics > should follow a change handler that sets checked 50ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:59 > mx-button-group host size state > should expose xsmall as a host custom state 60ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:206 > mx-switch-icon-button semantics > should expose the switch role on the internal button 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:210 > mx-switch-icon-button semantics > should expose aria-checked false on a new switch 49ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:59 > mx-button-group host size state > should expose medium as a host custom state 49ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:59 > mx-button-group host size state > should expose large as a host custom state 49ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:214 > mx-switch-icon-button semantics > should synchronize the checked property to aria-checked 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:222 > mx-switch-icon-button semantics > should synchronize the checked attribute to aria-checked 50ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:59 > mx-button-group host size state > should expose xlarge as a host custom state 51ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:68 > mx-button-group host size state > should expose no size custom state at the default size 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:231 > mx-switch-icon-button semantics > should leave every checked observation unchanged by activation without a handler 61ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:241 > mx-switch-icon-button semantics > should follow a change handler that sets checked 58ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:76 > mx-button-group host size state > should switch the host custom state when the size changes 60ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:88 > mx-button-group context forwarding > should forward the size to child buttons as a custom state 58ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:95 > mx-button-group context forwarding > should forward the color to child buttons as a custom state 49ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:102 > mx-button-group context forwarding > should forward the shape to child buttons as a custom state 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:260 > mx-switch-button accessible name > should take its accessible name from its label content 51ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:269 > mx-switch-button value > should contribute its value to the form data when checked 48ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:278 > mx-switch-button value > should contribute on when checked without a value 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:286 > mx-switch-button value > should omit its value from the form data when unchecked 50ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:109 > mx-button-group context forwarding > should forward disabled to the native child buttons 50ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:116 > mx-button-group context forwarding > should re-enable child buttons when the group clears disabled 50ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:125 > mx-button-group context forwarding > should forward the current context to a late-added child button 52ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:137 > mx-button-group press interaction > should shrink the neighbours of the pressed button 62ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:331 > mx-switch-button in a connected button group > should check the switch whose value matches the group value 67ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:342 > mx-switch-button in a connected button group > should uncheck the previous switch when the group value changes 50ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:150 > mx-button-group press interaction > should restore the neighbours on pointer release 66ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:166 > mx-connected-button-group slot bookkeeping > should mark the first and last children 67ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:354 > mx-switch-button in a connected button group > should check only the matching switch when a checked switch joins a group with a value 51ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:372 > mx-switch-button in a connected button group > should uncheck only the selected switch when the group value is removed 50ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:393 > mx-switch-button in a connected button group > should keep a checked switch checked when it joins a group with no value 49ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:408 > mx-switch-button in a connected button group > should move roving focus to the internal button 82ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:177 > mx-connected-button-group slot bookkeeping > should re-mark the edges when the children change 83ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:193 > mx-connected-button-group roving tabindex > should make only the first enabled item tabbable 67ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:203 > mx-connected-button-group roving tabindex > should move the tab stop to the next item on ArrowRight 85ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:421 > mx-switch-button focus > should focus the internal button on focus() 55ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:429 > mx-switch-button focus > should reach the internal button by Tab 61ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:421 > mx-switch-icon-button focus > should focus the internal button on focus() 53ms
+ ✓ |browser (chromium)| tests/button/SwitchCore.browser.test.ts:429 > mx-switch-icon-button focus > should reach the internal button by Tab 64ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:215 > mx-connected-button-group roving tabindex > should move the tab stop to the last item on End 83ms
+ ✓ |browser (chromium)| tests/button-group/button-group.browser.test.ts:228 > mx-connected-button-group selection > should check the child whose value matches the group value 56ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:61 > mx-checkbox control > should use a native checkbox control 88ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:67 > mx-checkbox icon > should render the check icon when checked 50ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:75 > mx-checkbox icon > should reveal the check glyph without relying on the animation 50ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:82 > mx-checkbox icon > should clear the check icon when unchecked again 69ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:93 > mx-checkbox indeterminate > should render the indeterminate icon when indeterminate 63ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:101 > mx-checkbox indeterminate > should synchronize indeterminate to the native control 49ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:109 > mx-checkbox indeterminate > should stay indeterminate in the host and the control after a click without a handler 52ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:121 > mx-checkbox indeterminate > should expose indeterminate as a host custom state 82ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:129 > mx-checkbox indeterminate > should clear the indeterminate custom state when reset 69ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:138 > mx-checkbox indeterminate > should take visual priority over checked 63ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-button class, not an own property 99ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-icon-button class, not an own property 48ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:147 > mx-checkbox indeterminate > should keep the indeterminate icon when checked changes while indeterminate 50ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:156 > mx-checkbox indeterminate > should restore the check icon when indeterminate is cleared while checked 50ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-link-button class, not an own property 52ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-switch-button class, not an own property 67ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:166 > mx-checkbox indeterminate > should restore the empty icon when indeterminate is cleared while unchecked 51ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:175 > mx-checkbox indeterminate > should reveal the indeterminate glyph without relying on the animation 49ms
+ ✓ |browser (chromium)| tests/checkbox/checkbox.browser.test.ts:182 > mx-checkbox indeterminate > should still contribute its value to the form data when indeterminate and checked 53ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-switch-icon-button class, not an own property 49ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-fab class, not an own property 56ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-list-button-item class, not an own property 60ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:59 > forwardFocus > should forward focus through the mx-list-link-item class, not an own property 50ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button 72ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled 48ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor 51ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-button on focus() 50ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-icon-button on focus() 50ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-link-button on focus() 269ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-button on focus() 48ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted 88ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-switch-icon-button on focus() 50ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-fab on focus() 50ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted 100ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted 100ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-list-button-item on focus() 51ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:70 > forwardFocus > should focus the .host of mx-list-link-item on focus() 50ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:90 > forwardFocus > should call a mx-button subclass's own focus() and reach the control through super 49ms
+ ✓ |browser (chromium)| tests/core/utils/useCore.browser.test.ts:90 > forwardFocus > should call a mx-list-button-item subclass's own focus() and reach the control through super 51ms
+ ✓ |browser (chromium)| tests/radio/radio.browser.test.ts:33 > mx-radio control > should use a native radio control 75ms
+ ✓ |browser (chromium)| tests/core/utils/polyfills.browser.test.ts:9 > polyfills > should neither append to the document nor compute a style when imported 72ms
+ ✓ |browser (chromium)| tests/radio/radio.browser.test.ts:46 > mx-radio grouping > should not deselect a same-named sibling when another is checked 58ms
+ ✓ |browser (chromium)| tests/radio/radio.browser.test.ts:57 > mx-radio grouping > should not deselect a same-named sibling on user activation 49ms
+ ✓ |browser (chromium)| tests/radio/radio.browser.test.ts:67 > mx-radio grouping > should submit every checked same-named radio in the form data 51ms
+ ✓ |browser (chromium)| tests/core/utils/polyfills.browser.test.ts:26 > polyfills > should set the host's has-<slot> state in every engine 63ms
+ ✓ |browser (chromium)| tests/button/split-button.browser.test.ts:23 > mx-split-button events > should expose a secondary action without exposing its internal click 67ms
+ ✓ |browser (chromium)| tests/button/split-button.browser.test.ts:37 > mx-split-button events > should emit a bubbling composed non-cancelable secondary action 62ms
+
+ Test Files  11 passed (11)
+      Tests  216 passed (216)
+   Start at  08:37:28
+   Duration  11.12s (tests 69%, import 23%, worker 8%, setup 1%)
+
+exit 0
