@@ -32,7 +32,9 @@ Structure, variants, sizing model, connected corner morphing, and the standard p
 
 - **Between-space (gap):** `2px` at every size ✅ (spec: 2dp at every size).
 - **Outer corners full, inner corners square:** child buttons render asymmetric radii — e.g. first button `20px 8px 8px 20px`, last `8px 20px 20px 8px` (S) — matching the "outer fully round, inner square" model ✅.
-- **Selection/press morph:** `::slotted(:active)` and `::slotted([checked])` reset the pressed/selected button's inner corners to the full container shape, and the morph does **not** affect adjacent buttons ✅ (matches "connected groups only affect the shape of the button being selected/activated").
+- **Selection morph:** a selected button (`::slotted(:state(checked))`) is a full pill at every size, in a round or a square group, whatever its position. Its inner corners take `md.comp.button-group.connected.<size>.selected.inner-corner.corner-size` (50%, drawn as half the button's height), and its outer corners take the group's `container.shape` (full) instead of the button's own toggle shape ✅.
+- **Press morph:** a pressed button (`::slotted(:active)`) takes `pressed.inner-corner.corner-size` on its inner corners (4dp for XS to M, 12dp for L, 16dp for XL), and its outer corners are unchanged. A selected button that is pressed takes the pressed inner corners until it is released (`repo:RF-56`).
+- Neither morph affects adjacent buttons ✅ (matches "connected groups only affect the shape of the button being selected/activated"). `--md-button-group-inner-corner-size` overrides the resting inner corners only.
 
 ### Standard group — press interaction (verified in source)
 

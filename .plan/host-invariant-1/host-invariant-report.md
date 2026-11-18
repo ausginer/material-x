@@ -1,8 +1,8 @@
-# Report: the `.host` invariant — items 1 to 7
+# Report: the `.host` invariant — items 1 to 8
 
-**Handoff:** [`host-invariant-handoff.md`](host-invariant-handoff.md), items 1 to 7. **Input:** `ac213194d` on `repo/host-invariant-1`. Its `packages/` tree is the same as at `e9236603e`. **Governing records:** `repo:RF-43`, `repo:RF-50`, `repo:RF-35`, `repo:RF-33`, `repo:RF-42`, and [`architecture.md`](../../.agents/docs/architecture.md) §Components.
+**Handoff:** [`host-invariant-handoff.md`](host-invariant-handoff.md), items 1 to 8. **Input:** `ac213194d` on `repo/host-invariant-1` for items 1 to 7, whose `packages/` tree is the same as at `e9236603e`. Item 8 is from `2cef95836`, which the architect added after the stop at `7667a2a5a`. **Governing records:** `repo:RF-43`, `repo:RF-50`, `repo:RF-56`, `repo:RF-35`, `repo:RF-33`, `repo:RF-42`, and [`architecture.md`](../../.agents/docs/architecture.md) §Components.
 
-**Status: stopped at one stop.** One visual baseline differs: `button-group-connected-selected` (item 1, property 8). Every other property holds. The baseline isn't changed, and the pull request isn't opened, so the gate (`verify`) hasn't run. See [The stop](#the-stop).
+**Status: waiting for the owner's acceptance of one visual change.** `button-group-connected-selected` changes (item 1, property 8, and item 8). Every other property holds. The baseline isn't recorded, and the pull request isn't opened, so the gate (`verify`) hasn't run. See [The stop](#the-stop).
 
 All readings below are local runs in the devcontainer: Chromium 158, Firefox 159 and WebKit 27.2, through Playwright. "Three engines" means these three.
 
@@ -103,27 +103,64 @@ The radio row the handoff names, _a radio clicked with no handler stays unchecke
 
 **Expected, not established:** a screen reader may announce the native toggle and then the restored state. No assistive technology was run, and nothing is observed.
 
+## Item 8 — the connected group's shapes (`RF-56`)
+
+**What holds,** for each button in an `mx-connected-button-group`, at every size:
+
+1. **Unselected, at rest:** unchanged. Outer corners are the button's container shape, and inner corners are `inner-corner.corner-size` or `--md-button-group-inner-corner-size`.
+2. **Selected:** a pill. The inner corners take `selected.inner-corner.corner-size`, and the outer corners take the group's `container.shape` instead of the button's own toggle shape. Outside a group, the switch's toggle shape is unchanged: nothing in `button/` changed, and the button and switch rows pass unchanged.
+3. **Pressed:** the inner corners take `pressed.inner-corner.corner-size`, and the outer corners are unchanged. A selected button that is pressed takes the pressed inner corners and keeps its full outer corners. Its pill returns on release.
+4. **Tokens from tproc.** `connected/tokens.ts` now selects every state of `md.comp.button-group.connected.<size>` and renders `selected` and `pressed` on the slotted button (`:host ::slotted(:state(checked))`, `:host ::slotted(:active)`). A token declared on the button resolves `--_shape-full` against the button's own height; declared on the group, it would resolve against the group. `main.css.ts` renders `default`, then `selected`, then `pressed`, so a press wins over a selection at equal specificity. The selected outer corner is appended as `outer-corner.corner-size`, a reference to `container.shape`. A 50% corner is drawn as `var(--_shape-full)` (`fixHalfCorner`), as the handoff defines _full_.
+5. **`--md-button-group-inner-corner-size`** sets the resting inner corners only, and the connected group's JSDoc says so.
+6. **Neighbours don't change.**
+7. **`button-group/spec-consistency.md`:** the _Selection/press morph_ bullet is replaced by a _Selection morph_ and a _Press morph_ bullet, with their tokens.
+
+**A tproc defect, fixed in scope.** tproc serialized every length as `px`, so the table's `50%` arrived as `50px`. `processToken.ts` now writes a `PERCENT` length as a percentage, and `tests/processToken.node.test.ts` adds a row for it. In Material's tables the `PERCENT` lengths are the connected group's `selected.inner-corner.corner-size`, the standard group's `pressed.item.width.multiplier` and five split-button corner tokens. Before the fix, material-x emitted none of them. Every material-x `.css.ts` was compiled before and after the fix, and only the connected group's sheet changed. tproc's node suite passes (72 rows).
+
+- **Removed:** `buttonGroupDefaultSelector` and the renderer's `onlyDefault` option. They have no caller left (CONTRIBUTING §8, §16).
+
+**Real input.** `tests/support/input-commands.node.ts` adds `pointerPress(x, y)` and `pointerRelease()`, after drag's commands: Playwright's mouse, or WebDriver actions for the local Safari engine. `userEvent` has no press that lasts across a read. The pressed rows read the corners while the pointer is down in all three engines. That stop isn't hit.
+
+**Rows** in `tests/button-group/button-group.spec.browser.test.ts`, for every size: a selected first, middle and last button is a pill; a pressed middle button's corners are the pressed size; a selected middle button while pressed has the pressed size; an unselected neighbour keeps its resting inner corners; with `--md-button-group-inner-corner-size` set, a selected button is a pill. The handoff's rows are all there. Added beyond them: a selected first button is a pill in a square group. Each row reads tproc's value through the contract and compares it with the computed radii. A _full_ value is compared with half the button's measured height. All 50 rows in the file pass in each of the three engines.
+
+**Witness** ([`checks/item8-witness-7667a2a5a.txt`](checks/item8-witness-7667a2a5a.txt)): against `7667a2a5a`'s source, 30 rows fail, 6 per size. These are the selected, pressed and override rows.
+
+- The override rows fail on the observation: 2px is drawn where the pill needs 16 to 68px.
+- The selected and pressed rows fail at the oracle first, because the group's package had no `selected` or `pressed` state.
+- A scratch probe recorded what `7667a2a5a` drew: a selected first button in a round small group had 12px corners, against 20px at the head.
+- The square-group row passes at `7667a2a5a` too, because a square switch's own selected shape is already round. It is coverage, not a witness.
+
 ## Full local run
 
 `browser`, `spec` and `node` projects, packages/material-x, at the final state:
 
-- Chromium: 18 files, 361 tests pass;
-- Firefox and WebKit: 35 files, 716 tests pass, and 1 is the expected failure `button.browser.test.ts` declares for Firefox (`it.fails`, `repo:RF-33`), which this unit doesn't change.
+- Chromium: 18 files, 401 tests pass;
+- Firefox and WebKit: 35 files, 796 tests pass, and 1 is the expected failure `button.browser.test.ts` declares for Firefox (`it.fails`, `repo:RF-33`), which this unit doesn't change.
 
 `aube exec just typecheck` passes. `aube exec just lint` passes on every changed `.ts` file. No linter is configured for `.tpl.html`, `.mdx` or `.md`, so lint didn't apply to them. `oxfmt` formatted every changed file.
 
 ## The stop
 
-**`button-group-connected-selected` differs** (item 1, property 8: _a visual baseline differs_).
+**`button-group-connected-selected` changes** (item 1, property 8: _a visual baseline differs_).
 
-Local rendering doesn't match the CI baselines, so the comparison was made in one environment. Every visual row fails locally against the committed baselines, including rows this unit doesn't touch. The `visual` project was recorded locally at `e9236603e`'s source, then run against that recording at `e9236603e` (control: 19 of 19 pass) and at the head (18 pass, 1 fails). The committed baselines were then restored.
+Local rendering doesn't match the CI baselines, so each comparison was made in one environment:
 
-- **The row:** _"should match a connected group with a selected button"_, with 6 pixels different, at the four corners of the selected button _Two_ ([`checks/item1-connected-selected-local-e9236603e.png`](checks/item1-connected-selected-local-e9236603e.png), [`…-local-head.png`](checks/item1-connected-selected-local-head.png), [`…-local-diff.png`](checks/item1-connected-selected-local-diff.png)).
-- **The switch rows** (`button-switch-variants`, `button-group-connected-sizes`) match.
-- **The cause:** `button-group/styles/connected/main.styles.css:15` gives `::slotted([checked])` the selected morph, so the selected button's inner corners take the full container shape. `button-group/spec-consistency.md:35` records this as the intended selection morph. At `e9236603e` a group's `value` set only the `checked` custom state on the switch, so `[checked]` never matched a switch selected through the group, and the morph never drew. Under R2 the group's `value` reaches `checked` (property 6), so the attribute is set and the morph draws.
-- **Inferred, not decided:** the new rendering is the one that `spec-consistency.md` describes. Keeping the old rendering would need the group path to leave `checked` unset, which is the split R2 removes.
+1. The `visual` project was recorded locally at `e9236603e`'s source.
+2. That recording was checked against `e9236603e` itself as a control: 19 of 19 pass.
+3. The head was compared with that recording.
+4. The committed baselines were restored afterwards.
 
-**For the owner:** accept the new `button-group-connected-selected` baseline through `RD-13`'s recording workflow, or rule otherwise. The pull request isn't opened, so the gate hasn't run. The report's _full gate_ line is open until it runs.
+- **At `7667a2a5a`** (items 1 to 7): 6 pixels differ. The selected button _Two_ took the button's own toggle shape, 12dp on every corner. The owner rejected it. Images: [`checks/item1-connected-selected-local-e9236603e.png`](checks/item1-connected-selected-local-e9236603e.png), [`…-local-head.png`](checks/item1-connected-selected-local-head.png), [`…-local-diff.png`](checks/item1-connected-selected-local-diff.png).
+- **At the head** (item 8): 110 pixels differ. _Two_ is a full pill, and _One_ and _Three_ keep their small inner corners. Images, for the owner to compare with Material's reference:
+  - before, at `e9236603e`: [`checks/item8-connected-selected-local-e9236603e.png`](checks/item8-connected-selected-local-e9236603e.png);
+  - after, at the head: [`checks/item8-connected-selected-local-head.png`](checks/item8-connected-selected-local-head.png);
+  - the diff: [`checks/item8-connected-selected-local-diff.png`](checks/item8-connected-selected-local-diff.png).
+
+  Both before images are recordings of `e9236603e` from separate runs, and their files differ byte for byte. Each passed its own run's control.
+
+- Every other visual row matches.
+
+**For the owner:** accept the item 8 image, after which the baseline is recorded through `RD-13`'s workflow, or rule otherwise. The pull request waits for that acceptance, and the report's _full gate_ line stays open until `verify` runs.
 
 ## Scratch work
 

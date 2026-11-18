@@ -1,0 +1,51 @@
+# Item 8 witness: tests/button-group/button-group.spec.browser.test.ts at the unit's head, run against
+# packages/material-x/src at 7667a2a5a. Local devcontainer, Chromium, spec project. ANSI codes stripped.
+# The selected and pressed rows fail at the oracle there: the group's token package had no selected or pressed
+# state. The override rows fail on the observation. The settled corners drawn at 7667a2a5a, read by a scratch
+# probe (removed), first button of a small group, height 40px:
+#   round, unselected:   20px 8px 8px 20px     (head: the same)
+#   round, selected:     12px on all corners   (head: 20px, a pill)
+#   square, unselected:  12px 8px 8px 12px     (head: the same)
+#   square, selected:    20px on all corners   (head: 20px; a square switch's own selected shape is already round,
+#                        so the square-group row passes at 7667a2a5a too and is coverage, not a witness)
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 30 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group xsmall visual contract > should render a selected first button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group xsmall visual contract > should render a selected middle button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group xsmall visual contract > should render a selected last button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group small visual contract > should render a selected first button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group small visual contract > should render a selected middle button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group small visual contract > should render a selected last button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group medium visual contract > should render a selected first button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group medium visual contract > should render a selected middle button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group medium visual contract > should render a selected last button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group large visual contract > should render a selected first button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group large visual contract > should render a selected middle button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group large visual contract > should render a selected last button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group xlarge visual contract > should render a selected first button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group xlarge visual contract > should render a selected middle button as a pill
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:164 > mx-connected-button-group xlarge visual contract > should render a selected last button as a pill
+Error: Missing state "selected" in token contract "button-group.connected.xsmall"
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:189 > mx-connected-button-group xsmall visual contract > should render the pressed inner corners on a pressed middle button
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:189 > mx-connected-button-group small visual contract > should render the pressed inner corners on a pressed middle button
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:189 > mx-connected-button-group medium visual contract > should render the pressed inner corners on a pressed middle button
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:189 > mx-connected-button-group large visual contract > should render the pressed inner corners on a pressed middle button
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:189 > mx-connected-button-group xlarge visual contract > should render the pressed inner corners on a pressed middle button
+Error: Missing state "pressed" in token contract "button-group.connected.xsmall"
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:212 > mx-connected-button-group xsmall visual contract > should render the pressed inner corners on a selected middle button while pressed
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:212 > mx-connected-button-group small visual contract > should render the pressed inner corners on a selected middle button while pressed
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:212 > mx-connected-button-group medium visual contract > should render the pressed inner corners on a selected middle button while pressed
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:212 > mx-connected-button-group large visual contract > should render the pressed inner corners on a selected middle button while pressed
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:212 > mx-connected-button-group xlarge visual contract > should render the pressed inner corners on a selected middle button while pressed
+Error: Missing state "pressed" in token contract "button-group.connected.xsmall"
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:252 > mx-connected-button-group xsmall visual contract > should render a selected button as a pill with the inner-corner override set
+AssertionError: expected [ 2, 2, 2, 2 ] to deeply equal [ 16, 16, 16, 16 ]
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:252 > mx-connected-button-group small visual contract > should render a selected button as a pill with the inner-corner override set
+AssertionError: expected [ 2, 2, 2, 2 ] to deeply equal [ 20, 20, 20, 20 ]
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:252 > mx-connected-button-group medium visual contract > should render a selected button as a pill with the inner-corner override set
+AssertionError: expected [ 2, 2, 2, 2 ] to deeply equal [ 28, 28, 28, 28 ]
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:252 > mx-connected-button-group large visual contract > should render a selected button as a pill with the inner-corner override set
+AssertionError: expected [ 2, 2, 2, 2 ] to deeply equal [ 48, 48, 48, 48 ]
+ FAIL  |spec (chromium)| tests/button-group/button-group.spec.browser.test.ts:252 > mx-connected-button-group xlarge visual contract > should render a selected button as a pill with the inner-corner override set
+AssertionError: expected [ 2, 2, 2, 2 ] to deeply equal [ 68, 68, 68, 68 ]
+      Tests  30 failed | 15 passed (45)
