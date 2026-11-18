@@ -147,7 +147,7 @@ export async function flattenToDir(
     await mkdir(target, { recursive: true });
     await cp(source, target, { recursive: true });
     for (const file of await readdir(source)) {
-      if (file.endsWith('.js')) {
+      if (file.endsWith('.mjs')) {
         const id = join(source, file);
         // oxlint-disable-next-line no-await-in-loop
         const code = await readFile(id, 'utf8');
