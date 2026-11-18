@@ -1,0 +1,155 @@
+# Read by the reviewer on 2026-11-18 in a scratch directory outside the repository, with slot b's aube 2.10.0.
+# The script follows the transcript. Each command shows its last three non-empty lines and its exit code.
+
+2.10.0 linux-x64 (2026-11-09)
+
+$ aube install
+aube 2.10.0 by jdx.dev · ✓ Already up to date
+exit=0
+$ aube install --frozen-lockfile --force
+dependencies:
++ @p/a@0.1.0
++ @p/b@0.1.0
+exit=0
+$ ls node_modules/@p
+a
+b
+
+## A. A peer-only edit: @p/a gains react ^19 as an optional peer
+$ aube install --frozen-lockfile
+dependencies:
++ @p/a@0.1.0
++ @p/b@0.1.0
+exit=0
+$ aube ci
+dependencies:
++ @p/a@0.1.0
++ @p/b@0.1.0
+exit=0
+$ ls node_modules/@p
+a
+b
+$ aube install
+aube 2.10.0 by jdx.dev · ✓ Already up to date
+exit=0
+$ git diff --stat package-lock.json
+$ ls node_modules/@p
+a
+b
+$ aube install --fix-lockfile
+aube 2.10.0 by jdx.dev · ✓ Already up to date
+exit=0
+$ git diff --stat package-lock.json
+ package-lock.json | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+$ ls node_modules/@p
+ls: cannot access 'node_modules/@p': No such file or directory
+$ aube install --frozen-lockfile --force
+dependencies:
++ @p/a@0.1.0
++ @p/b@0.1.0
+exit=0
+$ ls node_modules/@p
+a
+b
+
+## B. A dependency edit: @p/a depends on @p/b
+$ ls node_modules/@p
+a
+b
+$ aube install --frozen-lockfile
+  │ b@0.1.0
+  │ help: run without --frozen-lockfile to update the lockfile, or run `aube
+  │ install --no-frozen-lockfile` to regenerate it
+exit=1
+$ aube ci
+  │ b@0.1.0
+  │ help: run without --frozen-lockfile to update the lockfile, or run `aube
+  │ install --no-frozen-lockfile` to regenerate it
+exit=1
+$ aube install
+dependencies:
++ @p/b@0.1.0
+exit=0
+$ git diff --stat package-lock.json
+ package-lock.json | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+$ ls node_modules/@p
+ls: cannot access 'node_modules/@p': No such file or directory
+$ aube install --frozen-lockfile --force
+@p/a:
+dependencies:
++ @p/b@0.1.0
+exit=0
+$ ls node_modules/@p
+a
+b
+
+## C. The flag of aube add that saves a peer
+$ aube add --help | grep -A1 -- --save-peer
+      --save-peer                 Add as a peer dependency (written to
+                                  `peerDependencies` in package.json).
+
+# aube-manifest-edit-probe.sh
+#!/usr/bin/env bash
+# A two-package hoisted workspace with no registry dependency. It reads what aube
+# does after a hand edit of a workspace manifest: a peer-only edit, then a
+# dependency edit. Usage: aube-manifest-edit-probe.sh <empty-directory>
+set -uo pipefail
+P="${1:?}"
+mkdir -p "${P:?}/packages/a" "${P:?}/packages/b"
+cd "${P:?}" || exit 1
+git init -q .
+printf '%s\n' 'node-linker=hoisted' 'defaultLockfile=package-lock.json' 'savePrefix=' 'aubeNoAutoInstall=true' > .npmrc
+echo '{ "name": "probe-root", "private": true, "workspaces": ["packages/*"] }' > package.json
+echo '{ "name": "@p/a", "version": "0.1.0" }' > packages/a/package.json
+echo '{ "name": "@p/b", "version": "0.1.0" }' > packages/b/package.json
+
+run() {
+  echo "\$ $*"
+  "$@" > out.log 2>&1
+  local e=$?
+  grep -vE '^\s*$' out.log | tail -n 3
+  echo "exit=$e"
+}
+links() { echo "\$ ls node_modules/@p"; ls node_modules/@p 2>&1; }
+lockdiff() { echo "\$ git diff --stat package-lock.json"; git diff --stat package-lock.json; }
+
+aube --version | head -n 1
+run aube install
+run aube install --frozen-lockfile --force
+links
+git add -A && git commit -qm base
+
+echo
+echo '## A. A peer-only edit: @p/a gains react ^19 as an optional peer'
+echo '{ "name": "@p/a", "version": "0.1.0", "peerDependencies": { "react": "^19" }, "peerDependenciesMeta": { "react": { "optional": true } } }' > packages/a/package.json
+run aube install --frozen-lockfile
+run aube ci
+links
+run aube install
+lockdiff
+links
+run aube install --fix-lockfile
+lockdiff
+links
+run aube install --frozen-lockfile --force
+links
+
+echo
+echo '## B. A dependency edit: @p/a depends on @p/b'
+git checkout -q -- . && aube install --frozen-lockfile --force > /dev/null 2>&1
+links
+echo '{ "name": "@p/a", "version": "0.1.0", "dependencies": { "@p/b": "0.1.0" } }' > packages/a/package.json
+run aube install --frozen-lockfile
+run aube ci
+run aube install
+lockdiff
+links
+run aube install --frozen-lockfile --force
+links
+
+echo
+echo '## C. The flag of aube add that saves a peer'
+echo '$ aube add --help | grep -A1 -- --save-peer'
+aube add --help 2>&1 | grep -A1 -- '--save-peer'
