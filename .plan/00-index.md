@@ -1459,6 +1459,10 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, while ruling on `RF
   - **The required property holds at the CSS level. No test in the gate observes it** (reading F). A mismatch between a slot's `name`, the class beside `:has-slotted` and the derived state would break Firefox alone, as `RF-39`'s defect did.
   - **The owner's question:** does this entry close on the reading, as _not a defect_, or when the handoff's item 1 lands, with rows that pass in all three engines and fail in Firefox when the fallback is disabled? **The architect recommends the tests,** as the handoff does. The correction above holds under either answer.
   - **Separate:** the detection itself runs at import. That is `RF-59`.
+- **Dated 2026-11-18 by the architect: the rows hold, with one rule unobserved,** on the [feature proof](reviews/host-has-fallback-1/feature-proof-rf40-claude.md) of the handoff's items 1 and 2, which read the code at `90789d260`.
+  - **The coupling is witnessed:** when a slot's class disagrees with its `name`, the lead rows fail in Firefox alone (the review's mutation _3c_).
+  - **`list/styles/item/main.styles.css:184`,** the three-line leading video's size, has no row. The handoff's item 4 adds one.
+  - **It closes** when item 4 is in and the pull request's run on item 4's commit passes the rows in all three jobs, per the [handoff's disposition](host-has-fallback-1/host-has-fallback-handoff.md#closing-rf-40-and-rf-59).
 
 #### RF-41 — The screenshot comparator doesn't see a state layer at the tokens' opacities
 
@@ -1849,6 +1853,18 @@ Tier A, **open**. Registered on 2026-11-18 by the architect, on slot `c`'s [hand
 - **Routed** to `repo/host-has-fallback-1`'s unit as item 3, on the owner's agreement of 2026-11-18, relayed by the coordinator.
 - **Changed 2026-11-18.** Until then, the direction was _"detect once, on the first `useHasSlottedPolyfill` call, when a host exists"_, and the entry was routed _"to the owner to order. It isn't in `repo/host-has-fallback-1`'s unit, which is test-only."_ The direction changed because a lazy detection still forces a style computation and still needs a document. `CSS.supports()` can't replace it, because Firefox reports `:host:has()` as supported and doesn't match it.
 - **Amended 2026-11-18 by the architect,** on `reviewer-1` of the [feature proof](reviews/host-has-fallback-1/feature-proof-claude.md) at `f88437c6b`. The required property's second sentence said _"The detection gives the same answer as it does today."_ The decided repair has no detection, so that sentence couldn't be checked against the code. It now states what the detection's answer served: each component renders in every engine as it did. The handoff's item 3, witness 3, checks it. The first sentence doesn't change.
+
+#### RF-64 — The list item sets `--_support-row-size`, which no rule reads, and clamps its supporting text to two lines whatever the item's line count
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from the host-has fallback unit's `implementer-1`, which the [feature proof](reviews/host-has-fallback-1/feature-proof-rf40-claude.md) of its items 1 and 2 confirmed, relayed by the coordinator. `RF-63` is on `repo/traits-plugin-1`, so this is the next free number. **No row is disabled.**
+
+- **The code,** read by the architect at `90789d260`. `list/styles/item/main.styles.css:48` sets `--_support-row-size: calc(2 * var(--_supporting-text-line-height))` in the rule for an item with both `support` and `overline`. Nothing in `packages/` reads it.
+- **Since `ede90d958`** (_refactor(material-x): fix list-item styling_, 2026-05-17). That commit replaced `.support`'s `max-block-size: var(--_support-row-size, 0)` with `calc(2 * var(--_supporting-text-line-height))`, whatever the line count, and removed the declaration that set one line.
+- **Not established:** whether the two-line clamp is right for an item with `support` alone. Its container takes the two-line height, and wrapped supporting text would show two lines in it. Neither Material's tables nor a rendering was read for that case.
+- **Tier C,** as the dead declaration. If the reading shows that a two-line item should clamp its supporting text to one line, that is a rendering a consumer sees, and the entry is re-tiered by consequence.
+- **Required property:** the list item's supporting text is clamped to the line count that Material gives for the item's configuration, and no declaration remains that no rule reads.
+- **The architect's direction,** for the unit that takes it: read first. Read Material's list item tables through tproc, and render an item whose supporting text wraps, with `support` alone and with `support` and `overline`, in all three engines. The repair is decided from that reading.
+- **Routed** to the owner to order, through the work queue (`RD-22`). **It doesn't block** #59.
 
 ## Questions
 

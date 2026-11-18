@@ -94,7 +94,7 @@ Tier C. Proposed for registration and routed to the owner to order. **Not part o
 
 1. **The rows pass** in Chromium, Firefox and WebKit: `aube exec -- just test --project browser` locally for Chromium, and the pull request's `firefox` and `webkit` jobs. Locally, `MX_TEST_ENGINES=firefox,webkit` runs the other two in the devcontainer, where WebKit launched for this reading.
 2. **Firefox's rows test the fallback.** Temporarily make the polyfill skip the states, for example by removing its `toggleState` call. Before item 3 lands, forcing the detection to `true` does the same. Every new row fails in Firefox and passes in Chromium and WebKit. Save the output, and revert.
-3. **Chromium's rows test the rules.** Temporarily rename `class="lead"` on text-field's lead slot. The `lead` row fails in Chromium and in Firefox: the class path loses the rule, and the fallback's derived name no longer matches. Save the output, and revert.
+3. **The rows test the rules.** Temporarily rename `class="lead"` on text-field's lead slot. The `lead` row fails in every engine, because the slot loses its own rule, `.lead { grid-area: L; … }`. Save the output, and revert. (**Corrected 2026-11-18** on the feature proof's `reviewer-1`. This witness said that the row fails in Chromium and Firefox because _"the class path loses the rule, and the fallback's derived name no longer matches"_. Since item 3, every engine sets `has-lead` from the slot's `name`, and the host rule still applies in all three. The coupling that `RF-40` names is witnessed by the review's mutation _3c_ (see the disposition below).)
 4. `aube exec just typecheck` and `aube exec just lint` exit 0. Follow `.agents/docs/handoff.md` for the changed files.
 
 **Stop and return to the architect** if a row fails in one engine without either mutation. That would be the rendering difference `RF-40` asked about, and it is a finding of its own.
@@ -170,3 +170,48 @@ One commit. It can land before item 1, or without it.
   **If item 1 needs a change to one of them, it waits for #35 to merge,** then branches from or merges `main` (`RD-17` property 5). Adding a new helper file needs no wait. **#35 merged** at `377ca72df`, and this branch merged it in `b44c655d7`, so nothing waits for it now.
 
 - **Not `repo/declarations-check-1`** (`RF-54`). It removes the `@ts-expect-error` in `TextFieldCore.ts`, and this unit doesn't edit that file.
+
+## Disposition of the feature proof of items 1 and 2 at `3361b6b76`
+
+**Decided 2026-11-18 by the architect,** on the [feature proof](../reviews/host-has-fallback-1/feature-proof-rf40-claude.md), which read the code at `90789d260`, relayed by the coordinator. Items 1 and 2 hold, except for the pull request's `firefox` and `webkit` run identifiers, which are open.
+
+| Finding | Disposition |
+| --- | --- |
+| `reviewer-1`: the handoff and the report explain witness 3 by a mechanism that the rows don't observe | **Accepted, Tier C.** The architect corrected witness 3 above. The implementer corrects the report's sentence (item 4) |
+| `reviewer-2`: `getShadowElement`'s JSDoc and the report say that the rows find their elements by `part`, but `.notched-outline` and `.input` are found by class | **Accepted, Tier C. Remediated in this pull request** (item 4) |
+| `reviewer-3`: `RF-40` lists `list/styles/item/main.styles.css:184`, and no row observes it | **Accepted, Tier C. Remediated in this pull request** with a row (item 4). `RF-40` closes on tests, so every rule it lists gets one |
+| `implementer-1`: nothing reads `--_support-row-size` since `ede90d958`, and `.support` is clamped to two lines whatever the line count | **Accepted. Registered as `repo:RF-64`,** outside this unit. It is product CSS, and this unit changes no stylesheet. Item 1's _"doubled support row"_ has no rendered outcome, so the row for both slots is right to assert the three-line height alone |
+
+**The review's mutation _3c_ is the coupling's witness.** The review renamed the class to `leading` in the sheet and the template and kept the slot's `name`, `lead`. The lead rows then failed in Firefox alone. That is the mismatch `RF-40` names, between the class from which the build derives `has-leading` and the name from which the runtime sets `has-lead`. The review's [runs](../reviews/host-has-fallback-1/checks/feature-proof-rf40-runs.txt) §3c hold it, and the report cites them. The implementer doesn't repeat it.
+
+## Item 4. The feature proof's findings (one commit, then the record)
+
+**Required:**
+
+- **`reviewer-2`:** the JSDoc above `getShadowElement` in `tests/text-field/text-field.browser.test.ts` describes the lookups as they are written. The slots and the supporting rows are found by `part`. `.notched-outline` and `.input` are found by class, and no selector beside `:has-slotted` names either one.
+- **`reviewer-3`:** one row in `tests/list/list-item.browser.test.ts` for the rule at `:184`. A slotted leading video takes the large leading video's width and height when both `support` and `overline` have content, and the small size when only one of them does, or neither. The size returns once the content is removed. The values come from `list-item.default`'s tokens (`large.leading-video.*`, `small.leading-video.height`, `leading-video.width`), with item 1's rules: the outcome only, the real element, and no literal.
+- **Nothing else changes** under `src/` or in the stylesheets.
+
+**Witnesses:**
+
+1. The new row passes in Chromium, Firefox and WebKit locally.
+2. **It tests the fallback:** with the polyfill setting no state, as in witness 2, the new row fails in Firefox and passes in Chromium and WebKit. Save the output under `checks/`, and revert.
+3. The handoff loop on the two changed test files, and `aube exec just typecheck` in material-x.
+
+**Stop and return to the architect** if the new row fails in one engine without the mutation. That would be the rendering difference `RF-40` asked about.
+
+**The record,** in the report, in a commit after the pull request's run on item 4's commit:
+
+- witness 3 states the mechanism as observed, and cites the review's _3c_ as the coupling's witness;
+- the report's sentence on the lookups agrees with `reviewer-2`'s correction;
+- the new row and its witness;
+- the `firefox` and `webkit` run identifiers, and item 3's `visual` reading, all from the pull request's run on item 4's commit. That run reads the tree that merges. Run 44270214696, on `3361b6b76`, doesn't.
+
+**No new review.** The architect reads item 4's diff and the report.
+
+## Closing `RF-40` and `RF-59`
+
+The architect closes both on this branch, where `RF-59`'s entry is and where `RF-40`'s notes are, so the closures reach `main` with #59. Each closes when:
+
+- **`RF-59`:** item 3's last witness holds. In the pull request's run on item 4's commit, `visual` passes with no baseline changed, and `browser` passes in the `chromium`, `firefox` and `webkit` jobs. A changed baseline is item 3's stop.
+- **`RF-40`:** item 4 is in, its row and its Firefox witness hold, and the same run passes item 1's rows in all three jobs. The report records the run's identifiers. Every rule that `RF-40` lists is then witnessed in the gate.
