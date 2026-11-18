@@ -134,9 +134,13 @@
     "@ydinjs/tproc": "0.1.0"
   },
   "peerDependencies": {
+    "@types/react": "^19",
     "react": "^19"
   },
   "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    },
     "react": {
       "optional": true
     }
