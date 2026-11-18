@@ -1482,6 +1482,10 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, from the findings u
     - there is no `.host` in `mx-checkbox` and `mx-radio` (the root is `.input`), in the text fields (`.input`, and the shared `text-field-core.tpl.html`), or in the button groups, `mx-icon` and `mx-list` (a `<slot>`);
     - [`accessibility.md`](../.agents/docs/accessibility.md) §Button says that the switch variants use a native `<button>`. Their templates use `<input type="checkbox">`.
   - **Routed** to the owner as the next material-x product unit, not pull request #29. It doesn't block the findings unit.
+- **Planned 2026-11-18 by the architect** on `repo/host-invariant-1` from `e9236603e`, in the [host-invariant handoff](host-invariant-1/host-invariant-handoff.md), on the owner's authorization relayed by the coordinator. The handoff judges the audit's starting facts.
+  - **Ruled:** the switch's `.host` is a native `<button type="button" role="switch" part="impl">`, the shadow root's one top-level element, and the `<input>` and part `control` are removed (R1, R3). The switch stays a controlled component: activation fires `click`, `input` and `change` and changes no state, and `aria-checked`, `:state(checked)` and the form value follow `checked` alone (R2). The switches draw focus only through the button family's shared rules (R4).
+  - **Judged:** `mx-list-item` meets the invariant, since it takes no focus. `mx-fab` diverges: its shadow root doesn't delegate focus and no forward reaches `.host`.
+  - **Waiting on the owner:** the three exceptions E1 to E3 (native-input controls, slot-only components, the split button), whether `mx-fab`'s forward is in this unit, and whether R2's controlled model stands. The implementer starts after the architect records the answers here and in `architecture.md` §Components.
 
 #### RF-44 — `vite-traits-plugin` flattens only descriptor traits, though its documentation says it flattens class-based ones
 
