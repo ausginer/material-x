@@ -1052,6 +1052,26 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Isolated with the global virtual store everywhere** (`--enable-global-virtual-store` in CI). CI would resolve through a store-wide hidden hoist whose content depends on what that runner installed. Locally, every slot shares that directory.
 - **Isolated and project-local everywhere.** Typecheck fails in all eight packages until each undeclared import of a dependency is repaired, and the slots then gain nothing over hoisted.
 
+#### RD-20 — material-x supports the current stable release of each engine until its first release, and a browserslist is owed before that release
+
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, in answer to the question that `RF-43` left open: _"for now yes; for material-x's release we'll make a proper browserslist"_. The question was whether material-x states a browser floor. The architect recommended the current stable release of each engine (`RF-43`'s entry of 2026-11-18). Recorded by the architect on `repo/traits-plugin-1` at `68077cdef`. `RF-43` was closed on `main` at `377ca72df` (#35), which this branch doesn't contain yet. **This entry answers `RF-43`'s last bullet,** _"Still open, and the owner's: whether material-x states a browser floor"_. That bullet gets a dated pointer to this entry when this branch next merges `main`.
+
+**Properties.**
+
+1. **The floor until the first release.** `@ydinjs/material-x` supports the current stable release of Chromium, Firefox and Safari. A behaviour that fails only in an earlier release is outside what the package supports. The floor moves with each engine's stable release, and no version is pinned.
+2. **What source may use doesn't change.** `CONTRIBUTING.md` Part I's _"Use Baseline-2025 features"_ stays. Each Baseline 2025 feature is in each engine's current stable release, so the two rules agree. Invoker commands, which the switch buttons' `input` and `change` depend on, are Baseline since December 2025 (`RF-43`'s reading of MDN and web-features).
+3. **A browserslist is owed before material-x's first release.** The owner writes the query. The deadline is that release, not a merge. The release owes at least:
+   - a browserslist query in `packages/material-x` that states a minimum version of each engine, and replaces property 1, its `CONTRIBUTING.md` bullet and this entry's floor;
+   - a check of each platform feature the source relies on against that query. Invoker commands need Chromium 135, Firefox 144 and Safari 26.2. A lower minimum needs another activation path for the switch buttons, or the minimum is raised;
+   - the supported browsers stated for consumers in [`packages/material-x/README.md`](../packages/material-x/README.md);
+   - a decision on how Part I's Baseline-2025 rule relates to the query: it stays, it follows the query, or the query replaces it.
+4. **Where the floor is stated:** `CONTRIBUTING.md` Part I, _Language and platform_, until the browserslist replaces it.
+
+**Why.**
+
+- **A reviewer needs a floor to judge a dependency on a recent feature.** `RF-43`'s feature proof found that a switch fires `click` and never `input` or `change` in an engine without invoker commands. With no floor stated, that couldn't be read as a defect or as accepted behaviour.
+- **A moving floor costs no user yet.** The package is unreleased (`RF-51`: a defect in its published surface _"blocks its first release, not a user"_). A list of minimum versions is a promise to consumers, so it is made with the release.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
