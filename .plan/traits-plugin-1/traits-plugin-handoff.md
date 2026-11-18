@@ -117,6 +117,33 @@ A negative fixture for each retained case above.
 - the forward's trait, as parked, needs anything outside this subset;
 - the free-identifier analysis can't be made conservative without a dependency.
 
+## Item 2b. The feature proof's two code findings
+
+Decided by the architect on 2026-11-18, on the [feature proof](../reviews/traits-plugin-1/feature-proof-claude.md) of items 1 and 2 at `8a5365adc`, read at `5ecec6af3`. The proof holds, with three Tier C findings:
+
+- `reviewer-1` was a document error, and the architect narrowed the document. It is not in this item;
+- `reviewer-2` and `reviewer-3` are code changes, and they are this item.
+
+[`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md) already states the target, and its change record says that this item meets it. One commit. It doesn't wait for the owner's answer on item 3.
+
+**Required:**
+
+- **`reviewer-2`: any reference to `eval` retains the trait,** with `unsupported-trait-member`. Today the walker rejects only a call whose callee is the bare identifier `eval`. But `(eval)(src)` and `(eval as F)(src)` are direct calls too, and a copy then reads the consumer's scope. A class body is strict code, so no member can bind `eval`. So rejecting every reference is sound, and it is simpler than unwrapping callees. That rejects an indirect `(0, eval)(src)` too, which is accepted: no trait needs it.
+- **`reviewer-3`: the source-language check copies only:**
+  - between modules of the same language: JavaScript (`.js`, `.mjs`, `.cjs`), JSX, TypeScript (`.ts`, `.mts`, `.cts`) or TSX;
+  - from JavaScript without JSX into TypeScript without JSX.
+
+  Every other pair is retained with `trait-source-language`. Today a `.ts` trait copied into a `.tsx` consumer can emit `<T>x`, and the build fails where the contract promises a warning.
+
+**Rows,** each failing before the change and passing after it:
+
+- `(eval)(src)`, `(eval as F)(src)` and `(0, eval)(src)` in a member are each retained with `unsupported-trait-member`. The plain `eval(src)` row stays;
+- a `.ts` trait into a `.tsx` consumer is retained with `trait-source-language`. A `.ts` trait into a `.ts` consumer, and the built `.mjs` package into a `.ts` consumer, still flatten. The second is the existing package row.
+
+**Witnesses:** both rows, before and after, saved under `checks/`. The plugin's suite passes, and material-x's build prints no flattener warning and is byte-identical to the build at `17065ddf0`. Follow the verification owed below.
+
+**Stop and return to the architect** if any material-x or core trait is retained after the change.
+
 ## Item 3. The focus forward moves to the trait
 
 **Only on answer C, which the owner chose, and only while `RF-33`'s forward ships.** If `mx-button`'s _"should delegate focus to the native button through the shadow root alone"_ passes in Firefox, stop: the forward goes, and no trait is needed.

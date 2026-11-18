@@ -53,17 +53,21 @@ A supported trait is a module-scoped declaration initialized directly by a recog
 
 **A member's body** must keep its meaning when it is copied into another module:
 
-- **Its names are found by a conservative walker** (`src/free-references.ts`). The walker models an allowlist of node types and rejects any other, so a construct it doesn't account for retains the trait instead of being copied with a guessed meaning. `var`, function and class declarations are outside the allowlist, because they hoist past the blocks the walker scopes. `super`, direct `eval` and `import.meta` are outside it too, because they mean something else in the consumer.
+- **Its names are found by a conservative walker** (`src/free-references.ts`). The walker models an allowlist of node types and rejects any other, so a construct it doesn't account for retains the trait instead of being copied with a guessed meaning. `var`, function and class declarations are outside the allowlist, because they hoist past the blocks the walker scopes. `super` and `import.meta` are outside it too, because they mean something else in the consumer. So is any reference to `eval`, whatever wraps it: a direct `eval` reads the scope it is written in, and `(eval)(x)` and `(eval as F)(x)` are direct.
 - **It doesn't read a name that the transformer binds:** its parameter, its own name, or the class's name.
-- **Every other name it reads is either a module binding of the origin or a global.**
-  - A module binding is linked the way a descriptor converter is (below).
+- **Every other name it reads is either a linkable module binding of the origin or a global.**
+  - A linkable binding is a named or default import, or a `const`, `let` or `var` declaration whose name is an identifier. It is linked the way a descriptor converter is (below).
+  - A name that the origin binds in any other form is retained with `unsupported-trait-definition`: a function, class or enum declaration, a namespace, a destructured variable, or a namespace import. Descriptor converters are linked by the same rule.
   - A member that assigns a module binding is unsupported unless the trait is in the consumer module, because an imported binding can't be assigned.
   - A global keeps its name.
 - **The consumer must resolve those names the same way.** The site is retained when a member reads a global or a consumer-local binding, and the consumer class isn't module-scoped, the consumer module binds that global's name at top level, or the class's own name is one the member reads.
-- **The source language must match.** A member is copied as the origin's source text, so a TypeScript trait (`.ts`, `.tsx`, `.mts`, `.cts`) isn't copied into a JavaScript consumer, and the site is retained.
+- **The consumer's parser must read the member as the origin's does.** A member is copied as the origin's source text. It is copied when the origin and the consumer are in the same language, or when the origin is JavaScript without JSX (`.js`, `.mjs`, `.cjs`) and the consumer is TypeScript without JSX (`.ts`, `.mts`, `.cts`). Any other pair is retained. Two examples are TypeScript into JavaScript, whose parser rejects types, and TypeScript into TSX, whose parser rejects `<T>x` and `<T>(x) => x`.
+
+  **A known limit:** plain JavaScript has rare forms that TypeScript reads differently, such as `a < b > (c)`, which TypeScript parses as a call with a type argument. The plugin doesn't detect them.
 
 **Lowered members may reference imports and module-scoped bindings:**
 
+- the linkable forms are those named above;
 - a value that the origin imports through a package specifier is re-imported from the same specifier;
 - a value that it imports through a relative specifier is re-imported through the package name and subpath that the nearest `package.json` gives. When no package is found, the trait is unsupported;
 - existing exports are reused;
@@ -128,11 +132,11 @@ Diagnostics contain the source location, composition name, and stable reason cod
 | `impl-multiple-consumers` | more than one class consumes the intermediary |
 | `unsupported-trait-list` | the trait list isn't a statically resolvable readonly array or tuple, or it refers to itself |
 | `unsupported-trait` | a trait isn't a supported descriptor or method trait |
-| `unsupported-trait-definition` | a trait isn't module-scoped or a direct `trait(...)` call; or its brand, transformer or class is outside the subset; or a binding it needs can't be reached from the consumer |
-| `unsupported-trait-member` | a method trait's member is outside the subset; or its body uses a construct the walker doesn't model, `super`, direct `eval`, a name the transformer binds, or an assignment to an imported binding |
+| `unsupported-trait-definition` | a trait isn't module-scoped or a direct `trait(...)` call; or its brand, transformer or class is outside the subset; or a binding it needs isn't a linkable form, or can't be reached from the consumer |
+| `unsupported-trait-member` | a method trait's member is outside the subset; or its body uses a construct the walker doesn't model, `super`, `eval` in any form, a name the transformer binds, or an assignment to an imported binding |
 | `trait-accessor-half` | a later trait declares one half of an accessor that an earlier trait supplies |
 | `trait-binding-shadowed` | the consumer would resolve a name that a member reads to another binding |
-| `trait-source-language` | a TypeScript method trait would be copied into a JavaScript consumer |
+| `trait-source-language` | a method trait would be copied into a consumer whose language may read it differently |
 | `class-accessor-half` | the class declares one half of an accessor that a trait supplies |
 | `class-super-trait-member` | the class reads or writes `super.key` for a key that a trait supplies |
 | `class-computed-super` | the class uses a computed `super[key]` |
@@ -163,3 +167,4 @@ A change to the plugin is also checked by building `@ydinjs/material-x` with it:
 | --- | --- | --- |
 | 2026-11-18 | All but Purpose | **Narrowed to what the plugin implements** (`repo:RF-44`). The document described a generic class-transformer subset — fields, constructors, methods, accessors and safe static members, lowered through helpers and constructor and static stages — that no code flattened. It also placed the plugin in `.scripts/flattener` as a private `constructTraitFlattenerPlugin()`, said that it resolved imports to recognize them, and named an IR debug mode. **Kept, and met by the code at `49e26415d`** under the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 1: per-site transactions, a parse cache keyed by source, a diagnostic for a cyclic list, and the accessor and `super` eligibility rules. The pre-rename module names are no longer recognized |
 | 2026-11-18 | All but Purpose | **Widened to method traits** (`repo:RF-44`), on the owner's answer C, as the code at `242feffcb` implements them (the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2). **Added:** method traits in §Compatibility contract; their recognition, definition, member, scope and linking rules in §Eligibility; the layer rule for a trait's accessor half; the member node and `TRAIT_IR_VERSION` 2 in §Trait IR; member insertion in §Lowering; and the table of reason codes. **Changed:** `observedAttributes` is emitted only when the composition has a descriptor trait, and is otherwise inherited from the base. Before, the document said the field was always inserted, and that the plugin doesn't flatten a class-based trait |
+| 2026-11-18 | Eligibility, Plugin architecture | **Corrected** on the feature proof at `8a5365adc` (`reviewer-1` to `reviewer-3`). **Narrowed:** the linkable binding forms are named, and a member that reads a function, class, enum or namespace declaration, a destructured variable or a namespace import is retained. Before, the document said that every module binding is linked. **Changed, and met by the code once the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2b is in:** any reference to `eval` retains the trait, where the document said _direct `eval`_ and the code missed wrapped forms. The language rule copies only between the same languages and from JavaScript into TypeScript, where it said _"The source language must match"_ and checked TypeScript into JavaScript only. The JavaScript-into-TypeScript limit is stated |
