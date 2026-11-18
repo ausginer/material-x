@@ -1,0 +1,42 @@
+# Whether actions/cache saves a directory that holds no file. Read in dist/save-only/index.js at 55cc8345863c7cc4c66a329aec7e433d2d1c52a9 (v6.1.0),
+# the hash that verify.yml and the browser action pin. save/action.yml runs '../dist/save-only/index.js'.
+
+## resolvePaths globs the path inputs with implicitDescendants false and the other options at their defaults:
+function resolvePaths(patterns) {
+    return cacheUtils_awaiter(this, void 0, void 0, function* () {
+        var _a, e_1, _b, _c;
+        var _d;
+        const paths = [];
+        const workspace = (_d = process.env['GITHUB_WORKSPACE']) !== null && _d !== void 0 ? _d : process.cwd();
+        const globber = yield create(patterns.join('\n'), {
+            implicitDescendants: false
+        });
+## the glob option matchDirectories defaults to true:
+    const result = {
+        followSymbolicLinks: true,
+        implicitDescendants: true,
+        matchDirectories: true,
+        omitBrokenSymbolicLinks: true,
+## the globber yields a directory that matches the pattern, whether or not it has children:
+                // Directory
+                if (stats.isDirectory()) {
+                    // Matched
+                    if (match & MatchKind.Directory && options.matchDirectories) {
+                        yield yield __await(item.path);
+                    }
+                    // Descend?
+## saveCacheV1, and the same check in V2 (line 94698), fails only when no path matched, then tars the matched paths:
+        let cacheId = -1;
+        const cachePaths = yield resolvePaths(paths);
+        core_debug('Cache Paths:');
+        core_debug(`${JSON.stringify(cachePaths)}`);
+        if (cachePaths.length === 0) {
+            throw new Error(`Path Validation Error: Path(s) specified in the action for caching do(es) not exist, hence no cache is being saved.`);
+        }
+        const archiveFolder = yield createTempDirectory();
+        const archivePath = external_path_.join(archiveFolder, getCacheFileName(compressionMethod));
+        core_debug(`Archive Path: ${archivePath}`);
+
+# Reading: an existing empty directory matches its own path, so cachePaths is [the directory], and the entry is saved as a tar holding
+# that directory. So system-deps needs no marker file, and a test job's restore of that entry is a hit (cache-hit true) with an empty directory.
+# Not observed in a run: no image in this unit has had an engine's whole set installed.

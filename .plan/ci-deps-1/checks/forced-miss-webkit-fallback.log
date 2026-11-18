@@ -1,0 +1,47 @@
+# run 44259919530, job webkit 134650742824, step Run ./.github/actions/browser (excerpt)
+2026-11-18T07:35:17.8209448Z   HIT: 
+2026-11-18T07:35:17.8209832Z   DIR: /home/runner/work/_temp/system-deps
+2026-11-18T07:35:17.8210217Z ##[endgroup]
+2026-11-18T07:35:17.8277800Z ##[warning]webkit: the cache holds no archives for this key, so Playwright installs them from the mirror
+2026-11-18T07:35:18.1583692Z Installing dependencies...
+2026-11-18T07:35:18.1681014Z Switching to root user to install dependencies...
+2026-11-18T07:35:18.3794419Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [152 B]
+2026-11-18T07:35:18.4063194Z Get:5 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-11-18T07:35:18.4827231Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [794 kB]
+2026-11-18T07:35:18.4987074Z Hit:2 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble InRelease
+2026-11-18T07:35:18.5019516Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [723 kB]
+2026-11-18T07:35:18.5137147Z Get:3 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-11-18T07:35:18.5414282Z Get:8 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-11-18T07:35:18.5745693Z Get:4 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-11-18T07:35:18.9598870Z Get:16 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1196 kB]
+2026-11-18T07:35:19.4012230Z Get:17 http://security.ubuntu.com/ubuntu noble-security/main Translation-en [238 kB]
+2026-11-18T07:35:19.4936522Z Get:18 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1229 kB]
+2026-11-18T07:35:19.6315360Z Get:19 http://security.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+2026-11-18T07:35:19.7211623Z Get:20 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1788 kB]
+2026-11-18T07:35:19.8715872Z Get:21 http://security.ubuntu.com/ubuntu noble-security/restricted Translation-en [411 kB]
+2026-11-18T07:35:19.9648961Z Get:22 http://security.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.7 kB]
+2026-11-18T07:35:20.4153993Z Get:9 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1455 kB]
+2026-11-18T07:35:20.5449419Z Get:10 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [317 kB]
+2026-11-18T07:35:20.5667234Z Get:11 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1715 kB]
+2026-11-18T07:35:24.4798907Z Get:12 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [345 kB]
+2026-11-18T07:35:24.5830043Z Get:13 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1887 kB]
+2026-11-18T07:35:24.7184645Z Get:14 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [433 kB]
+2026-11-18T07:35:24.7807685Z Get:15 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.6 kB]
+2026-11-18T07:35:36.4289492Z Fetched 13.2 MB in 6s (2031 kB/s)
+2026-11-18T07:35:37.3262039Z Reading package lists...
+2026-11-18T07:35:37.3502708Z Reading package lists...
+2026-11-18T07:35:37.5342262Z Building dependency tree...
+2026-11-18T07:35:37.5348313Z Reading state information...
+2026-11-18T07:35:37.6790512Z libicu74 is already the newest version (74.2-1ubuntu3.1).
+2026-11-18T07:35:37.6791384Z libatomic1 is already the newest version (14.2.0-4ubuntu2~24.04.1).
+2026-11-18T07:35:37.6791825Z libatomic1 set to manually installed.
+2026-11-18T07:35:37.6792250Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-18T07:35:37.6792699Z libatk-bridge2.0-0t64 set to manually installed.
+2026-11-18T07:35:37.6793083Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-11-18T07:35:37.6793437Z libatk1.0-0t64 set to manually installed.
+[...]
+2026-11-18T07:41:15.4664959Z Get:18 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 ocl-icd-libopencl1 amd64 2.3.2-1build1 [38.5 kB]
+2026-11-18T07:41:16.1697151Z Get:19 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 libavutil58 amd64 7:6.1.1-3ubuntu5 [401 kB]
+2026-11-18T07:41:16.7129257Z Get:20 http://us-east-2.ec2.archive.ubuntu.com/ubuntu noble/universe amd64 libcodec2-1.2 amd64 1.2.0-2build1 [8998 kB]
+2026-11-18T07:43:12.3854603Z ##[error]The operation was canceled.
+2026-11-18T07:43:12.3858816Z ##[end-action id=__self.system;outcome=cancelled;conclusion=cancelled;duration_ms=474570]

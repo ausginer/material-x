@@ -1,0 +1,79 @@
+# Installs one engine's system packages and its browser on a Linux runner
+# (`repo:RD-21` property 2). The packages come from the archives that
+# `verify.yml`'s `system-deps` saved for this image, installed without the
+# network. A miss, a failed install or a failed check falls back to Playwright's
+# own install from the mirror, with a warning that says which happened.
+# Runs after `aube ci`, because Playwright comes from the lockfile.
+name: browser
+description: Installs an engine's system packages offline from the cache, and its browser.
+
+inputs:
+  engine:
+    description: chromium, firefox or webkit
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: key
+      shell: bash
+      env:
+        ENGINE: ${{ inputs.engine }}
+      run: '"$GITHUB_ACTION_PATH/key.sh" "$ENGINE"'
+    - id: restore
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.key.outputs.dir }}
+        key: ${{ steps.key.outputs.key }}
+    # The install names the archive files, so it doesn't depend on the versions
+    # in the runner's package lists, and it runs no `apt-get update`.
+    # `--no-download` makes a missing dependency a failure, not a fetch.
+    # Under `--no-download`, apt keeps only archives that are already in its
+    # archive cache under its own file names, and treats a file named elsewhere
+    # as a download. So the restored directory is the archive cache for this
+    # command; the fetch stored the archives there under those names. A failed
+    # install lists the archives it would fetch, with `--print-uris`, which
+    # fetches nothing. The action doesn't save the directory: apt leaves its
+    # lock and `partial/` in it.
+    # An entry that holds no archive is a complete set: the image already has
+    # every package, so the install is skipped and the check still runs.
+    - id: system
+      name: System packages
+      shell: bash
+      env:
+        ENGINE: ${{ inputs.engine }}
+        HIT: ${{ steps.restore.outputs.cache-hit }}
+        DIR: ${{ steps.key.outputs.dir }}
+      run: |
+        reason=''
+        install=(apt-get install -y --no-install-recommends -o "Dir::Cache::Archives=$DIR/")
+        if [ "$HIT" != 'true' ]; then
+          reason='the cache holds no archives for this key'
+        else
+          shopt -s nullglob
+          archives=("$DIR"/*.deb)
+          if [ "${#archives[@]}" -eq 0 ]; then
+            echo "$ENGINE: the cache entry holds no archive, so the image has the whole set"
+          else
+            mkdir -p "$DIR/partial"
+            if ! sudo DEBIAN_FRONTEND=noninteractive "${install[@]}" --no-download "${archives[@]}"; then
+              reason='the offline install failed'
+              sudo "${install[@]}" --print-uris "${archives[@]}" || true
+            fi
+          fi
+          if [ -z "$reason" ] && ! aube exec -- playwright install-deps --dry-run "$ENGINE"; then
+            reason='the check found missing packages'
+          fi
+        fi
+        if [ -n "$reason" ]; then
+          echo "::warning title=System packages::$ENGINE: $reason, so Playwright installs them from the mirror"
+          echo 'fallback=true' >> "$GITHUB_OUTPUT"
+          aube exec -- playwright install --with-deps "$ENGINE"
+        fi
+    # The fallback's command has already installed the browser.
+    - if: steps.system.outputs.fallback != 'true'
+      name: Browser
+      shell: bash
+      env:
+        ENGINE: ${{ inputs.engine }}
+      run: aube exec -- playwright install "$ENGINE"
