@@ -1,0 +1,12 @@
+# With the optional react peer declared and package-lock.json updated, after aube exec just build and the nx build of box-quad, drag, vite-custom-element-assets, vite-traits-plugin and size-limit-preset-rolldown.
+$ grep -n "\"react\"" packages/material-x/react.d.ts
+21:import { DetailedHTMLProps, HTMLAttributes } from "react";
+41:declare module "react" {
+
+$ find packages -type d \( -name node_modules -o -name src -o -name tests \) -prune -o -type f \( -name '*.d.ts' -o -name '*.d.mts' -o -name '*.d.cts' \) -print0 \
+  | sort -z \
+  | xargs -0 grep -nHE '(\bfrom|\bimport\(|\bimport)[[:space:]]*["'"'"']([A-Za-z]:[\\/]|/)'
+exit=123 (xargs exits 123 when grep exits 1: no line matched)
+
+# Declaration files searched:
+108
