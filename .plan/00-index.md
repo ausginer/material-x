@@ -1794,6 +1794,26 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONT
 - **Required property:** the two plugins meet the rule. Either `rolldown` is a peer whose range covers the `rolldown` of every Vite major in the `vite` peer range, or their public types name only Vite's types.
 - **Routed** to the owner of the two Vite plugins. **It doesn't block** anything.
 
+#### RF-57 — A transformer trait's class field shadows a subclass's accessor at runtime, and TypeScript doesn't report the override
+
+Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the architect, on the owner's request relayed by the coordinator, from the note in `RF-54`'s decision and its [probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt). `RF-56` is allocated on `repo/host-invariant-1`. **No row is disabled.**
+
+- **What was read** at `2544a24fd`:
+  - core's transformer `trait()` (`src/traits/primitives.ts`) types a trait's instance fields as `Omit<InstanceType<U>, keyof InstanceType<T>>`, which is a mapped type. So TypeScript doesn't apply TS2610 or TS2611 to them.
+  - A transformer whose subclass declares a class field `x`, with a subclass of the traited class overriding `x` with `get` and `set`, type-checks with no directive.
+  - At runtime the class field is an own property of every instance, so it shadows the subclass's accessor.
+- **What doesn't have the hazard:** attribute traits. The attribute `trait()` builds on the transformer trait but installs each field as a prototype accessor, so a subclass's accessor overrides it. `RF-54`'s mapped `Branded` doesn't create this hazard and doesn't widen it.
+- **Effect today:** none observable. In the repository, only the attribute `trait()` and core's own tests build transformer traits, and `@ydinjs/core` is unreleased. So the finding is Tier C.
+- **Why it is registered:** the owner may publish core's traits as a separate package. Other people would then write transformer traits with class fields, and the type contract would accept an override that the runtime ignores. **Once the transformer `trait()` is published outside the repository, this finding is Tier B**, because the types it publishes then mislead a correct integrator.
+- **Required property,** due before the transformer `trait()` is published outside the repository: an author of a transformer trait, or a consumer who overrides one of its fields, can't be misled. Either the types reject an accessor override of a field that the trait installs on the instance, or the transformer `trait()`'s published contract says what such a trait must do. That is: it installs its instance members on the prototype, as accessors and methods, not as class fields or constructor assignments, because its field types don't tell a property from an accessor.
+- **Repair direction,** recommended and not yet decided:
+  - **The contract is the minimum.** It goes in the transformer `trait()`'s JSDoc, and in the package's documentation when that package exists.
+  - **A type-level repair is unread.** It would keep the declaration kind of the trait's fields, for example by exposing the transformer's instance type instead of an `Omit` delta, without breaking `impl`'s composition. Nobody has read whether that is possible. A repair that changes `Trait`'s public shape is decided when this finding is scheduled.
+- **Not adopted:**
+  - **A runtime check on the transformer's result,** for own fields that shadow an accessor. Once the contract states the rule, a class field is incorrect use of it, and the trait doesn't corrupt state that it owns. So the check fails both conditions of `CONTRIBUTING.md`'s _Definition of success_ for a defensive check.
+  - **A custom lint rule.** That is the machinery that `RF-51`'s answer declined.
+- **Routed** to the owner. It isn't scheduled, and it blocks nothing.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
