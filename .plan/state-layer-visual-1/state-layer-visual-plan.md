@@ -1,6 +1,6 @@
 # State layers in the visual layer — plan
 
-**Status: proposed, for the owner.** No identifier is minted. Written by the architect on 2026-11-18 at `377ca72df` (`origin/main`), on `repo/state-layer-visual-1`, on the coordinator's task. It plans the repair of `repo:RF-41`. The decision below is proposed as the next free `RD-` number: `repo:RD-24` if `RD-22` (work queue) and `RD-23` (material-x size rows) are registered first. The main slot's architect registers it.
+**Status: decided by the owner on 2026-11-18, as relayed by the coordinator, and registered as `repo:RD-23`** by the main slot's architect, on this branch. The owner's answers are in [Owner's answers](#owners-answers). Written by the architect on 2026-11-18 at `377ca72df` (`origin/main`), on `repo/state-layer-visual-1`, on the coordinator's task. It plans the repair of `repo:RF-41`. Until it was registered, this line said that no identifier was minted and that the decision was proposed as `repo:RD-24` if `RD-22` and `RD-23` were registered first.
 
 Canonical entry: `RF-41` — the screenshot comparator doesn't see a state layer at the tokens' opacities ([`00-index.md`](../00-index.md)). Its required property: either the visual layer detects a state layer at the tokens' lowest opacity on the fixtures' surfaces, with no false failure in `RD-9`'s pinned environment, or [`test-architecture.md`](../../.agents/docs/test-architecture.md) states what the visual layer can't see and names the spec rows as the coverage of state layers.
 
@@ -50,6 +50,15 @@ Read by the architect at `377ca72df`:
 1. **Which branch of `RF-41`'s required property?** (a) The visual layer sees state layers: the comparator is tightened under properties 1–4, with the documentation as the fallback if the reading fails (property 5). (b) Only the documentation: the comparator stays at 0.1, and the focused baselines are re-recorded so they show the layer. **The architect recommends (a).** Its cost: one reading of 21 visual runs on the runner (7 thresholds, twice each and once with the mutation), and your review of every baseline that the chosen threshold shows to be stale, at least the three focused ones. Later, small color changes will also need your review, which is the purpose of a baseline.
 2. **The review load.** Under (a), every later change that moves a rendering by more than the new threshold proposes a baseline change for you to review. **The architect recommends accepting that.** The alternative is (b).
 
+## Owner's answers
+
+Given on 2026-11-18 and relayed by the coordinator, translated.
+
+1. **Branch (a):** the visual layer sees state layers. The comparator is tightened under properties 1 to 4, with property 5 as the fallback.
+2. **The review load:** accepted. _"Yes, let's."_
+
+**Registered** as `repo:RD-23`, the next free number: no branch registers `RD-23`. The decision is unchanged.
+
 ## Implementation
 
 After the owner's answer, and after the decision is registered:
@@ -63,5 +72,5 @@ After the owner's answer, and after the decision is registered:
 
 ## Proposed identifiers
 
-- The next free `RD-` number for this decision: `repo:RD-24` if `RD-22` and `RD-23` are registered first. The main slot's architect confirms it.
+- `repo:RD-23`, registered for this decision. Until it was registered, this item proposed `repo:RD-24` if `RD-22` and `RD-23` were registered first.
 - `RF-41` is closed by the implementing pull request. No new finding.

@@ -1052,6 +1052,23 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Isolated with the global virtual store everywhere** (`--enable-global-virtual-store` in CI). CI would resolve through a store-wide hidden hoist whose content depends on what that runner installed. Locally, every slot shares that directory.
 - **Isolated and project-local everywhere.** Typecheck fails in all eight packages until each undeclared import of a dependency is repaired, and the slots then gain nothing over hoisted.
 
+#### RD-23 — The visual project compares screenshots at a threshold that sees a state layer at the tokens' lowest opacity, chosen by a reading on GitHub's runner
+
+**Decided 2026-11-18 by the owner,** relayed by the coordinator, on the architect's [state-layer visual plan](state-layer-visual-1/state-layer-visual-plan.md) at `b76c7a012`, which answers `RF-41`. The owner chose branch (a): the visual layer sees state layers. He accepts the review load: _"Yes, let's"_. Recorded by the main slot's architect on `repo/state-layer-visual-1`. The plan proposed `RD-24` if `RD-22` and `RD-23` were registered first. `RD-22` is on `repo/work-queue-1`, and no branch registers `RD-23`, so this decision is `RD-23`. The material-x size plan on `repo/mx-size-1` proposes `RD-23` too, and that plan's decision takes the next free number when it is registered. **Unimplemented:** the plan's [Implementation](state-layer-visual-1/state-layer-visual-plan.md#implementation) implements it.
+
+**Properties:** the plan's [properties 1 to 6](state-layer-visual-1/state-layer-visual-plan.md#decision-proposed-as-the-next-free-rd-), as written at `b76c7a012`. In short:
+
+- one threshold for the visual project, in its browser configuration, with `includeAA` off and no mismatched pixel allowed, and no row overrides it (property 1);
+- the threshold is the largest swept value at which the three focused rows fail against their stale baselines, the three hovered rows fail with the hover layer's opacity set to 0, and two runs at one commit agree on every row (property 2);
+- the reading sweeps 0.1, 0.06, 0.045, 0.03, 0.02, 0.01 and 0 on GitHub's `ubuntu-24.04` runner in `RD-9`'s environment, twice at each and once with the mutation, outside the gate, and is saved (property 3);
+- each row that fails in both runs is re-recorded under `RD-13`, and the owner reviews each changed baseline (property 4);
+- if no value qualifies, the comparator stays at 0.1, and that is a stop for the owner before the unit takes `RF-41`'s documentation branch (property 5);
+- `test-architecture.md` §What screenshots prove states the rule that applies (property 6).
+
+**The review load is accepted.** Every later change that moves a rendering by more than the new threshold proposes a baseline change, and the owner reviews it. That is what a baseline is for.
+
+**Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: a row titled _hovered_ or _focused_ exists to show that state, and at 0.1 three of its baselines are wrong without anything failing. One setting, because `RD-9` pins the environment that the default threshold absorbs. The reading chooses the value, not the arithmetic. Not adopted: the documentation branch by default, per-row thresholds, fixtures with more contrast, and an allowance of mismatched pixels.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -1469,6 +1486,7 @@ Tier C, **open**. Registered on 2026-11-16 by the architect, from the [findings 
   - the visual layer detects a state layer at the tokens' lowest opacity on the fixtures' surfaces, with no false failure in `RD-9`'s pinned environment;
   - or `.agents/docs/test-architecture.md` states what the visual layer can't see, and names the spec rows as the coverage of state layers.
 - **Routed** to the owner, for a later unit. **It doesn't block the findings unit.** Item 7's check holds: the gate's `chromium` job matches every baseline, and no other baseline changes.
+- **Dated 2026-11-18 by the architect: decided by `RD-23`,** on the owner's choice of branch (a), relayed by the coordinator. The visual layer sees state layers, at a threshold that a reading on GitHub's runner chooses. The [state-layer visual plan](state-layer-visual-1/state-layer-visual-plan.md) on `repo/state-layer-visual-1` implements it, and that unit's pull request closes this entry.
 
 #### RF-42 — Under `safaridriver`, Tab doesn't reach buttons, checkboxes or radios, and Safari's Tab preference doesn't change that
 
