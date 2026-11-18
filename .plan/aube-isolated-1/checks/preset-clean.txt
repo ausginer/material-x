@@ -1,0 +1,29 @@
+# Slot b at 8bf346d94 with packages/size-limit-preset-rolldown/files.json added. Every package built first: aube exec just build, then the nx build of box-quad, drag, vite-custom-element-assets, vite-traits-plugin and size-limit-preset-rolldown.
+
+$ cd packages/size-limit-preset-rolldown && git status --ignored --porcelain . | grep -v node_modules   # before
+?? packages/size-limit-preset-rolldown/files.json
+!! packages/size-limit-preset-rolldown/index.d.ts
+!! packages/size-limit-preset-rolldown/index.js
+!! packages/size-limit-preset-rolldown/index.js.map
+
+$ aube exec just clean-build   # at the root
+ NX   7 tasks: 7 succeeded
+exit=0
+
+$ cd packages/size-limit-preset-rolldown && git status --ignored --porcelain . | grep -v node_modules   # after
+?? packages/size-limit-preset-rolldown/files.json
+
+$ diff before after
+2,4d1
+< !! packages/size-limit-preset-rolldown/index.d.ts
+< !! packages/size-limit-preset-rolldown/index.js
+< !! packages/size-limit-preset-rolldown/index.js.map
+
+$ git status --short | grep -E "^( D|D )"   # tracked files deleted by the clean
+(no output: none)
+
+$ aube exec just build
+exit=0
+$ aube exec just size
+ NX   3 tasks: 3 succeeded
+exit=0
