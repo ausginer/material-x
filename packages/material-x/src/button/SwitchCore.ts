@@ -65,15 +65,19 @@ export function useSwitchCore(
     },
   });
 
+  // The group's `value` controls `checked` only while it is set: it selects the
+  // switch with an equal `value`. A switch with no `value` is never selected.
+  // Removing the group's `value` clears the previous selection and leaves every
+  // other switch to the consumer. On join, `oldValue` is `null`.
   useContext(
     host,
     BUTTON_GROUP_CTX,
     VALUABLE_ATTRS,
     (_, oldValue, newValue) => {
-      if (oldValue === host.value) {
+      if (newValue != null) {
+        host.checked = newValue === host.value;
+      } else if (oldValue != null && oldValue === host.value) {
         host.checked = false;
-      } else if (newValue === host.value) {
-        host.checked = true;
       }
     },
   );

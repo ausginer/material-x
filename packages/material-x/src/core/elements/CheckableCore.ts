@@ -70,8 +70,8 @@ export function useCheckableCore(
       innards.setFormValue(value ? (host.value ?? 'on') : null);
     }),
     value(_, newValue) {
-      if (input.checked) {
-        innards.setFormValue(newValue);
+      if (host.checked) {
+        innards.setFormValue(newValue ?? 'on');
       }
     },
   });

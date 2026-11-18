@@ -1,8 +1,8 @@
-# Report: the `.host` invariant — items 1 to 8
+# Report: the `.host` invariant — items 1 to 12
 
-**Handoff:** [`host-invariant-handoff.md`](host-invariant-handoff.md), items 1 to 8. **Input:** `ac213194d` on `repo/host-invariant-1` for items 1 to 7, whose `packages/` tree is the same as at `e9236603e`. Item 8 is from `2cef95836`, which the architect added after the stop at `7667a2a5a`. **Governing records:** `repo:RF-43`, `repo:RF-50`, `repo:RF-56`, `repo:RF-35`, `repo:RF-33`, `repo:RF-42`, and [`architecture.md`](../../.agents/docs/architecture.md) §Components.
+**Handoff:** [`host-invariant-handoff.md`](host-invariant-handoff.md), items 1 to 12. Items 9 to 12 are the [disposition of the feature-proof review](host-invariant-handoff.md#disposition-of-the-feature-proof-review-at-5b1544100), from `b7e1386e3`. **Input:** `ac213194d` on `repo/host-invariant-1` for items 1 to 7, whose `packages/` tree is the same as at `e9236603e`. Item 8 is from `2cef95836`, which the architect added after the stop at `7667a2a5a`. **Governing records:** `repo:RF-43`, `repo:RF-50`, `repo:RF-56`, `repo:RF-35`, `repo:RF-33`, `repo:RF-42`, and [`architecture.md`](../../.agents/docs/architecture.md) §Components.
 
-**Status: complete, with the gate's `webkit` job not yet run.** Every property holds. The owner accepted the `button-group-connected-selected` change, and its baseline was recorded through `RD-13` (#36, merged as `8eb38b667`). Pull request #35's `verify` passes in every job except `webkit`, which the runner's package install cancelled twice before any test ran. See [The gate](#the-gate).
+**Status: complete, with the gate's `webkit` job not yet run.** Every property holds. The owner accepted the `button-group-connected-selected` change, and its baseline was recorded through `RD-13` (#36, merged as `8eb38b667`). Pull request #35's `verify` passes in every job except `webkit`, which the runner's package install cancelled twice before any test ran. See [The gate](#the-gate). Items 9 to 12 remediate the feature-proof review, and a targeted recheck of items 9 and 10 follows.
 
 All readings below are local runs in the devcontainer: Chromium 158, Firefox 159 and WebKit 27.2, through Playwright. "Three engines" means these three.
 
@@ -76,15 +76,21 @@ Item 4's rows are listed under items 1, 2 and 3. Added beyond the handoff's list
 
 [`checks/item6-size.txt`](checks/item6-size.txt): each entry bundled with its dependencies by esbuild, at `e9236603e` and at the head.
 
-| Entry                | Minified | Brotli | Gzip |
-| -------------------- | -------- | ------ | ---- |
-| `switch-button`      | −251     | −144   | −169 |
-| `switch-icon-button` | +34      | −161   | −163 |
-| `fab`                | +135     | +41    | +60  |
-| `checkbox`           | +80      | +19    | +22  |
-| `radio`              | +20      | +5     | +6   |
+Repeated for item 12 at the remediation commit, with the `button-group` entries added. Bytes, from `e9236603e` to the head:
 
-The switches lose `switch-control.css`, the `<input>` and `useCheckable`/`useValuable`. They gain the command wiring and the focus-layer declarations. In `switch-icon-button` the icon variants' focus-layer rules outweigh what was removed, measured minified. The FAB gains `delegatesFocus`, the `WeakMap` that `forwardFocus` uses, and the `focus()` method. The checkbox and the radio gain the state restore after `change`. These deltas are attributed by reading the diff, and no ablation was run for them. No change in size is a stop.
+| Entry                    | Minified | Brotli | Gzip |
+| ------------------------ | -------- | ------ | ---- |
+| `switch-button`          | −237     | −132   | −164 |
+| `switch-icon-button`     | +48      | −147   | −158 |
+| `fab`                    | +135     | +41    | +60  |
+| `checkbox`               | +86      | +20    | +23  |
+| `radio`                  | +26      | +7     | +7   |
+| `button-group`           | 0        | −1     | 0    |
+| `connected-button-group` | +533     | +70    | +78  |
+
+The before column reproduces the first reading for the five entries it shares. `fab` is the control row: items 9 to 12 don't reach it, and its head figures are the same as in the first reading.
+
+The switches lose `switch-control.css`, the `<input>` and `useCheckable`/`useValuable`. They gain the command wiring and the focus-layer declarations. In `switch-icon-button` the icon variants' focus-layer rules outweigh what was removed, measured minified. The FAB gains `delegatesFocus`, the `WeakMap` that `forwardFocus` uses, and the `focus()` method. The checkbox and the radio gain the state restore after `change`. The connected group gains item 8's `selected` and `pressed` blocks: three rules per size where it had one. The standard group's sheet doesn't change, and its 1-byte Brotli change is in its shared dependencies. Since the first reading, items 9 and 10 add 6 to 14 bytes minified to the switches, the checkbox and the radio (the group-value rule, and `?? 'on'` in the `value` callback). These deltas are attributed by reading the diff, and no ablation was run for them. No change in size is a stop.
 
 ## Item 7 — `mx-checkbox` and `mx-radio` strictly controlled
 
@@ -115,7 +121,7 @@ The radio row the handoff names, _a radio clicked with no handler stays unchecke
 6. **Neighbours don't change.**
 7. **`button-group/spec-consistency.md`:** the _Selection/press morph_ bullet is replaced by a _Selection morph_ and a _Press morph_ bullet, with their tokens.
 
-**A tproc defect, fixed in scope.** tproc serialized every length as `px`, so the table's `50%` arrived as `50px`. `processToken.ts` now writes a `PERCENT` length as a percentage, and `tests/processToken.node.test.ts` adds a row for it. In Material's tables the `PERCENT` lengths are the connected group's `selected.inner-corner.corner-size`, the standard group's `pressed.item.width.multiplier` and five split-button corner tokens. Before the fix, material-x emitted none of them. Every material-x `.css.ts` was compiled before and after the fix, and only the connected group's sheet changed. tproc's node suite passes (72 rows).
+**A tproc defect, fixed in scope.** tproc serialized every length as `px`, so the table's `50%` arrived as `50px`. `processToken.ts` now writes a `PERCENT` length as a percentage, and `tests/processToken.node.test.ts` adds a row for it. In Material's tables the `PERCENT` lengths are the connected group's `selected.inner-corner.corner-size`, the standard group's `pressed.item.width.multiplier` and six split-button tokens: five `trailing-button.inner-corner.selected.corner-size` and `xsmall.outer-corner.corner-size`. Before the fix, material-x emitted none of them. Every material-x `.css.ts` was compiled before and after the fix, and only the connected group's sheet changed. tproc's node suite passes (72 rows).
 
 - **Removed:** `buttonGroupDefaultSelector` and the renderer's `onlyDefault` option. They have no caller left (CONTRIBUTING §8, §16).
 
@@ -130,14 +136,38 @@ The radio row the handoff names, _a radio clicked with no handler stays unchecke
 - A scratch probe recorded what `7667a2a5a` drew: a selected first button in a round small group had 12px corners, against 20px at the head.
 - The square-group row passes at `7667a2a5a` too, because a square switch's own selected shape is already round. It is coverage, not a witness.
 
+## Item 9 — the group's `value` selects switches
+
+**What holds,** for `mx-switch-button` and `mx-switch-icon-button` in `mx-connected-button-group` and `mx-button-group`, which share `useSwitchCore`'s context effect:
+
+1. While the group has a `value`, a switch is checked exactly when its own `value` is set and equals the group's, on join and after every change to the group's `value`. The effect writes `checked = newValue === host.value` whenever the new group value isn't `null`.
+2. When the group's `value` is removed, only the switch that the previous value selected is unchecked: `oldValue != null && oldValue === host.value`.
+3. A switch that joins a group with no `value` keeps its `checked`. On join the effect's `oldValue` is `null`, so neither branch runs.
+4. `aria-checked`, `:state(checked)` and the form value follow `checked` through the existing `checked` callback.
+5. The context contract doesn't change.
+6. `connected-button-group.mdx` states properties 1 to 3 under _Selection model_. `button-group.mdx`'s _Deltas_ line now says that the standard group's `value` selects switches by the same rule.
+
+**Rows** in `tests/button/SwitchCore.browser.test.ts`: the review's probe A2 (a checked `a` joins a group with `value="b"`, and only `b` is checked), A3 (removing the group's `value` unchecks `a` and leaves the switch with no `value` unchecked, read through `checked`, `aria-checked` and `:state(checked)`), and A (a checked switch with no `value` joins a group with no `value` and stays checked).
+
+## Item 10 — the checkbox's and radio's form value
+
+`useCheckableCore`'s `value` callback now gates on the host's `checked` and writes `newValue ?? 'on'`, as `SwitchCore.ts` does. While unchecked, the form value stays absent, through the `checked` callback.
+
+**Rows** in `tests/core/elements/CheckableCore.browser.test.ts`, for `mx-checkbox` and `mx-radio`: a checked element whose `value` is removed submits `on`, and setting `value` again submits the new value.
+
+**Witness for items 9 and 10** ([`checks/items9-10-witness-2bef29ac0.txt`](checks/items9-10-witness-2bef29ac0.txt)): with `SwitchCore.ts` and `CheckableCore.ts` at `2bef29ac0`, 15 rows fail in the three engines. These are the three item 9 rows in each engine, and the `on` row for both elements in each engine. The _set again_ row passes at `2bef29ac0`, as expected: it is coverage, not a witness. `packages/` is the same at `2bef29ac0` and `b7e1386e3`.
+
+## Item 11 — the _States_ sections
+
+Each `Playground` story that the four _States_ sections link to now answers `change` through Storybook's `useArgs`: the switches and the checkbox toggle the `checked` arg, and the radio sets it. The arg control and the drawn state stay in agreement. The switch and checkbox pages now say that the handler _toggles_ `checked`, and the radio page keeps _sets_.
+
+**Observed** in the built docs site, in Chromium: one click on each `Playground` checks the element, and a second click unchecks the switches and the checkbox and leaves the radio checked. `aube exec just docs-smoke` passes 102 of 102 pages.
+
 ## Full local run
 
-`browser`, `spec` and `node` projects, packages/material-x, at the final state:
+`browser`, `spec` and `node` projects in the three engines, packages/material-x, at the remediation commit: 52 file runs, 1,213 tests pass, and 1 is the expected failure `button.browser.test.ts` declares for Firefox (`it.fails`, `repo:RF-33`), which this unit doesn't change.
 
-- Chromium: 18 files, 401 tests pass;
-- Firefox and WebKit: 35 files, 796 tests pass, and 1 is the expected failure `button.browser.test.ts` declares for Firefox (`it.fails`, `repo:RF-33`), which this unit doesn't change.
-
-`aube exec just typecheck` passes. `aube exec just lint` passes on every changed `.ts` file. No linter is configured for `.tpl.html`, `.mdx` or `.md`, so lint didn't apply to them. `oxfmt` formatted every changed file.
+`aube exec just typecheck` passes. `aube exec just lint` passes on every changed `.ts` and `.tsx` file. No linter is configured for `.tpl.html`, `.mdx` or `.md`, so lint didn't apply to them. `oxfmt` formatted every changed file.
 
 ## The gate
 

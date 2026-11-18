@@ -320,6 +320,14 @@ describe('mx-switch-button in a connected button group', () => {
     }));
   }
 
+  function observeSelection(element: SwitchElement) {
+    return {
+      checked: element.checked,
+      ariaChecked: getHost(element).ariaChecked,
+      state: element.matches(':state(checked)'),
+    };
+  }
+
   it('should check the switch whose value matches the group value', () => {
     const [group, switches] = createGroup();
 
@@ -341,6 +349,60 @@ describe('mx-switch-button in a connected button group', () => {
       { checked: true, ariaChecked: 'true', state: true, formValue: 'one' },
       { checked: false, ariaChecked: 'false', state: false, formValue: null },
     ]);
+  });
+
+  it('should check only the matching switch when a checked switch joins a group with a value', () => {
+    const group = document.createElement('mx-connected-button-group');
+    group.setAttribute('value', 'b');
+    const switches = ['a', 'b'].map((value) => {
+      const element = document.createElement(
+        'mx-switch-button',
+      ) as SwitchElement;
+      element.setAttribute('value', value);
+      return element;
+    });
+    switches[0]!.checked = true;
+
+    group.append(...switches);
+    document.body.append(group);
+
+    expect(switches.map(({ checked }) => checked)).toStrictEqual([false, true]);
+  });
+
+  it('should uncheck only the selected switch when the group value is removed', () => {
+    const group = document.createElement('mx-connected-button-group');
+    group.setAttribute('value', 'a');
+    const selected = document.createElement(
+      'mx-switch-button',
+    ) as SwitchElement;
+    selected.setAttribute('value', 'a');
+    const valueless = document.createElement(
+      'mx-switch-button',
+    ) as SwitchElement;
+    group.append(selected, valueless);
+    document.body.append(group);
+
+    group.removeAttribute('value');
+
+    expect([selected, valueless].map(observeSelection)).toStrictEqual([
+      { checked: false, ariaChecked: 'false', state: false },
+      { checked: false, ariaChecked: 'false', state: false },
+    ]);
+  });
+
+  it('should keep a checked switch checked when it joins a group with no value', () => {
+    const group = document.createElement('mx-connected-button-group');
+    const element = document.createElement('mx-switch-button') as SwitchElement;
+    element.checked = true;
+
+    group.append(element);
+    document.body.append(group);
+
+    expect(observeSelection(element)).toStrictEqual({
+      checked: true,
+      ariaChecked: 'true',
+      state: true,
+    });
   });
 
   it('should move roving focus to the internal button', async () => {

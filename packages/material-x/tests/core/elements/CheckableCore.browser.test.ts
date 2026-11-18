@@ -329,4 +329,33 @@ describe.each(CHECKABLE_TAGS)('%s form participation', (tag) => {
 
     expect([...new FormData(form).keys()]).not.toContain('choice');
   });
+
+  it('should contribute "on" when checked after its value is removed', () => {
+    const form = document.createElement('form');
+    const element = createCheckable(tag);
+    element.setAttribute('name', 'choice');
+    element.setAttribute('value', 'yes');
+    element.toggleAttribute('checked', true);
+    form.append(element);
+    document.body.append(form);
+
+    element.removeAttribute('value');
+
+    expect(new FormData(form).get('choice')).toBe('on');
+  });
+
+  it('should contribute a value set again after its removal when checked', () => {
+    const form = document.createElement('form');
+    const element = createCheckable(tag);
+    element.setAttribute('name', 'choice');
+    element.setAttribute('value', 'yes');
+    element.toggleAttribute('checked', true);
+    form.append(element);
+    document.body.append(form);
+    element.removeAttribute('value');
+
+    element.setAttribute('value', 'again');
+
+    expect(new FormData(form).get('choice')).toBe('again');
+  });
 });
