@@ -1,6 +1,6 @@
 # Report: the runners' system packages, fetched once and installed offline
 
-**Status: implemented, and the witnesses are read.** Witnesses 1, 2, 4 and 6 hold, and witness 5's run is read in a later commit. Witness 3 holds in four of five jobs. In `webkit`, the fallback ran on the slow mirror and the job was cancelled at its limit before its tests. That is a finding for the architect, and it is described below. The records' status in `00-index.md` doesn't change.
+**Status: implemented, and the witnesses are read.** Witnesses 1, 2, 4, 5 and 6 hold. Witness 3 holds in four of five jobs. In `webkit`, the fallback ran on the slow mirror and the job was cancelled at its limit before its tests. That is a finding for the architect, and it is described below. The records' status in `00-index.md` doesn't change.
 
 **Input:** the [handoff](ci-deps-handoff.md), items 1 and 1b, on `repo/ci-deps-1`. **Governing records:** `repo:RF-58` and `repo:RD-21`, with `RD-6` properties 2 and 8, `RD-12` property 11 and `RD-15` property 5 as `RD-21` amends them. **Pull request:** #38.
 
@@ -76,9 +76,9 @@ From runs 44258255489 and 44261296408, both hits:
 - **The browser action on a hit,** the offline install, the dry run and the browser download together: 21 to 41 s in the first run and 15 to 36 s in the second. The fast pool's `playwright install --with-deps` step took 19 to 41 s in the mirror reading, so the install takes about the fast pool's time on every pool.
 - **Wall time:** 555 s and 513 s, against the CI-speed unit's 518 s. `firefox` ends last in both runs, at 498 s and 473 s.
 
-## Witness 5. Reduced mode
+## Witness 5. Reduced mode: holds
 
-This file's commit carries `[noci]` and changes only this unit's record. The later commit records the reading of its run.
+`[noci]` on `f8a8f2ba6`, which changed only this unit's record. Run 44262721128: _"B: b3980fbc9… (run 44261296408)"_, _"mode: reduced, because [noci], and every path in the range is a record or Markdown"_. `records` succeeded, `system-deps` was skipped with `static`, `chromium`, `firefox`, `webkit`, `docs` and `measurements`, and `verify` succeeded. Wall time 75 s.
 
 ## Witness 6. The recording workflow: holds
 
