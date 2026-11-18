@@ -1874,6 +1874,19 @@ Tier A, **open**. Registered on 2026-11-18 by the architect, on the [work-queue 
   - **The import failure is observed.** From a LAN address over HTTP, importing the button group, `mx-button` or `mx-text-field` rejects with the `TypeError` in Chromium 158, Firefox 159 and WebKit 27.2, and no element is defined. `mx-checkbox` loads. From `localhost`, every entry loads.
   - **The reach is wider.** 9 of material-x's 20 exports import the context: every button through `ButtonCore.ts` or `SwitchCore.ts`, both button groups, and the text field through its icon button.
   - **The repair is planned** in the [context-token handoff](context-token-1/context-token-handoff.md) on `repo/context-token-1`: `createContext` derives its token from `Math.random()`. The required property stands. The handoff adds that the token stays a string and that creating one does no other work.
+- **Repaired 2026-11-18** on `repo/context-token-1` at `090febe06`, pull request #39. The [feature proof](reviews/context-token-1/feature-proof-claude.md) read the code at `ef8d5cf43` and holds, with no finding in the unit. Both files are on `repo/context-token-1`, and the [handoff's disposition](context-token-1/context-token-handoff.md#disposition-of-the-feature-proof-review-at-8f83af6a3) holds the ruling. **The entry stays open until #39 merges.** The architect then closes it, citing the merge commit: on this branch if it hasn't merged, and otherwise on the main slot's branch.
+- **The review's `reviewer-1`** is registered as `RF-62`.
+
+#### RF-62 — The checkbox's `WithLabel` story calls `crypto.randomUUID`, so it throws in a Storybook served over plain HTTP from a LAN address
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, from the context-token unit's [feature proof](reviews/context-token-1/feature-proof-claude.md), `reviewer-1` (code at `ef8d5cf43`), relayed by the coordinator. That review is on `repo/context-token-1`. `RF-61` is the last number allocated on any branch. **No row is disabled.**
+
+- **The code,** read at `377ca72df`: `material-x/src/checkbox/checkbox.stories.tsx:93`, in `WithLabel`, calls `crypto.randomUUID()` when the story renders, for the `id` that a `<label>`'s `htmlFor` names (`:102`–`:103`). The same file's playground story uses a constant id, `PLAYGROUND_ID` (`:70`). Once `RF-61`'s repair is in, this is the only `randomUUID` in `packages/*/src`.
+- **Inferred, not run:** over plain HTTP from a host other than `localhost`, `crypto.randomUUID` is undefined in all three engines (`RF-61`'s reading). So in a Storybook served that way, for example from a phone or another machine, the story throws when it renders. The deployed docs are served over HTTPS and aren't affected.
+- **Tier C:** stories aren't in the package's exports, so no consumer observes it, and no gate row renders a story over plain HTTP.
+- **Required property:** no story or docs code calls an API that the platform restricts to secure contexts, so every story renders over plain HTTP from any host. The review's alternative, a record stating that the docs need a secure context, isn't adopted: the case is the one `RF-61` calls ordinary, and a label's id needs only to be unique on the page.
+- **Not remediated in `RF-61`'s unit,** which changes `@ydinjs/core` alone and whose proof is complete ([disposition](context-token-1/context-token-handoff.md#disposition-of-the-feature-proof-review-at-8f83af6a3)).
+- **Routed** to the owner to order, through the work queue (`RD-22`). It is small enough to go with the next material-x unit.
 
 ## Questions
 
