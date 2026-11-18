@@ -275,3 +275,56 @@ Then the closure of `RF-43` is the architect's.
 - **No focus layer on `mx-fab` or the interactive list items.** Their tokens may define one. `RF-35` and `RF-43` name only the button family, the checkbox and the radio, so this unit doesn't add one. If the owner wants it, the architect registers a finding.
 - **The duplicate `.host:focus-visible` outline rule,** in `focus.styles.css:1` and `button/styles/default/main.styles.css:100`. The button family adopts both. It is a cleanup item and doesn't touch the invariant.
 - **The text fields.** The owner made them an exception to the controlled principle (`RF-50`), and their code already behaves that way.
+
+## Disposition of the feature-proof review at `5b1544100`
+
+**Decided 2026-11-18 by the architect,** on the [feature-proof review](../reviews/host-invariant-1/feature-proof-claude.md), which read the code at `2bef29ac0`, relayed by the coordinator. Items 1 to 5, 7 and 8 hold except where a finding below says otherwise. `RF-43` and `RF-50` hold each decision's reasons.
+
+| Finding | Disposition |
+| --- | --- |
+| `reviewer-1`: in a group, a switch's `checked` doesn't follow the group's `value` on join, and a `null` group value matches every switch with no `value` | **Accepted, Tier A. Remediated in this unit** (item 9). The architect rules what a missing `value` means. No owner decision is needed |
+| `reviewer-2`: a checked `mx-checkbox` or `mx-radio` submits nothing once its `value` is removed | **Accepted, Tier A. Owed by item 7,** whose last property this is. Remediated in this unit (item 10) |
+| `reviewer-3`: four _States_ sections say that the linked story's `change` handler sets `checked`, and the story has none | **Accepted, Tier B.** Remediated in this unit (item 11) |
+| `reviewer-4`: item 6 isn't repeated for the `button-group` entries after item 8 | **Accepted, Tier C.** Remediated in this unit (item 12) |
+| `reviewer-5`: the report counts five split-button PERCENT tokens, and the tables hold six | **Accepted, Tier C.** Remediated in this unit (item 12) |
+| The reviewer's note: the switch's activation depends on invoker commands, and no record states a browser floor | **Recorded in `RF-43`.** Not a defect. Whether material-x states a browser floor is a question for the owner, and it doesn't block the merge |
+
+### 9. The group's `value` selects switches, and a missing `value` selects none
+
+**The ruling.** Both groups document `value` as one selected value: _"Uses shared group `value` to represent the active segment"_ (`connected-button-group.mdx:82`). A `null` is no value, so it selects no segment, and it matches no switch. A switch with no `value` can't be the group's selection. R2 makes the group's `value` the controller of its switches' `checked`, and only while the group has a value. A group with no `value` leaves its switches' `checked` to the consumer, except to clear the selection that its previous value made.
+
+**Required properties,** for `mx-switch-button` and `mx-switch-icon-button` in `mx-connected-button-group` and in `mx-button-group`, which share the path:
+
+1. **While the group has a `value`,** after a switch joins and after every change to that `value`, the switch is checked exactly when its own `value` is set and equals the group's.
+2. **When the group's `value` is removed,** the switch that the previous value selected is unchecked. No other switch's `checked` changes.
+3. **A switch that joins a group with no `value`** keeps its `checked`.
+4. `aria-checked`, `:state(checked)` and the form value follow `checked` throughout (R2).
+5. **The context contract doesn't change.** The stop under _Order and stops_ still applies.
+6. **Documentation:** `connected-button-group.mdx` states properties 1 to 3 under its selection model. `button-group.mdx:112` says that the standard group has no segmented selection behaviour, but its `value` selects switches by the same path, and its `Switch` story uses it. It states the same rule.
+
+**Rows,** in `SwitchCore.browser.test.ts`, each with its witness failing at `2bef29ac0`:
+
+- the review's probe A2: a group with `value="b"` and a checked switch with `value="a"`. After the join, only `b` is checked;
+- probe A3: removing the group's `value` unchecks `a` and leaves a switch with no `value` unchecked;
+- probe A: a checked switch with no `value` that joins a group with no `value` stays checked.
+
+### 10. The checkbox's and radio's form value follows the host
+
+**Required:** while `mx-checkbox` or `mx-radio` is checked, its form value is `value ?? 'on'`, whatever the sequence of `value` changes. It derives from the host's `checked`, not the native input's, as `SwitchCore.ts` already does. While unchecked, it is absent.
+
+**Rows,** in `CheckableCore.browser.test.ts`: for each of the two elements, a checked element whose `value` is removed submits `on`, and setting `value` again submits the new value. **The witness:** the first row fails at `2bef29ac0`, as the review's probe C read.
+
+### 11. The _States_ sections describe a story that answers activation
+
+**Required:** in `switch-button.mdx`, `switch-icon-button.mdx`, `checkbox.mdx` and `radio.mdx`, each claim in _States_ about the linked story is true of that story. The linked story answers `change`, so activation in it changes what is drawn. The implementer either links the existing controlled story or makes `Playground` answer `change` through its `checked` arg.
+
+### 12. The record's two corrections
+
+- **Item 6 for the groups:** `checks/item6-size.txt` gains `button-group/button-group` and `button-group/connected-button-group`, minified and brotli, at `e9236603e` and at the head. The report's item 6 table lists them. A growth is reported with its cause, and it isn't a stop.
+- **The PERCENT count:** the report's item 8 says six split-button PERCENT tokens: five `trailing-button.inner-corner.selected.corner-size` and `xsmall.outer-corner.corner-size`. Its conclusion doesn't change.
+
+### After the remediation
+
+1. The implementer runs the handoff loop and the changed suites in `chromium`, `firefox` and `webkit`, and amends the report.
+2. **A targeted feature-proof recheck** reads the code diff from `2bef29ac0` to the head, excluding `.plan/`: items 9 and 10. It records at `.plan/reviews/host-invariant-1/feature-proof-recheck-claude.md`, and the architect decides its findings.
+3. `RF-43` and `RF-50` close on the recheck. The owner merges #35.
