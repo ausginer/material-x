@@ -1,5 +1,7 @@
 # Merge-base size reading — repair plan
 
+**Closed:** `RF-65` was closed on 2026-11-19 by the main slot's architect, on `repo/story-http-1` at `0900d5aee`, with witnesses 4 to 6 read after #72's merge ([index](../00-index.md)).
+
 **Status: accepted by the owner on 2026-11-19, with option (b) and the workflow artifact,** relayed by the coordinator: _"Yes, the artifact looks good. I could argue with the architect's conclusions or suggest fixes, like enabling the wiki and trying it, but why? If the artifact idea doesn't work out, we'll look again then."_ (translated). The main slot's architect recorded the choice the same day as an amendment of `RD-7` property 5 and its **Why**, and as a dated amendment of `RF-65` that makes the [Proposed record changes](#proposed-record-changes) ([`00-index.md`](../00-index.md)). The implementer implements [The repair, for (b) with the artifact](#the-repair-for-b-with-the-artifact) on this branch. Until the owner's answer, this line said _"proposed, and the owner chooses"_.
 
 Written by the architect on 2026-11-19, on the coordinator's task, on `repo/size-base-1`. It plans the repair of `repo:RF-65`. **No identifier is minted and no record is edited:** the main slot's architect owns `RF-65`'s entry, `RD-7` and the index, and [Proposed record changes](#proposed-record-changes) lists what this plan asks of them.

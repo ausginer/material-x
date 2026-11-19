@@ -1,0 +1,54 @@
+# RF-62: the built docs site from an origin that isn't a secure context, at 10eaa68cc (origin/main)
+# Run by the architect on 2026-11-19 in slot d, after `aube exec just docs-build` (22 s).
+
+## 1. A host-resolver rule makes Chromium's origin insecure while the server stays on loopback
+# Playwright's Chromium, a local server on 127.0.0.1, the same page by two URLs:
+{
+  "127.0.0.1": { "isSecureContext": true, "randomUUID": "function", "getRandomValues": "function" },
+  "mx-docs.test mapped to 127.0.0.1": { "isSecureContext": false, "randomUUID": "undefined", "getRandomValues": "function" }
+}
+# The second launch passed --host-resolver-rules=MAP mx-docs.test 127.0.0.1.
+
+## 2. `aube exec just docs-smoke` as it is (origin 127.0.0.1): exit 0
+102 of 102 pages passed at http://127.0.0.1:40783/material-x/ in 73.8 s
+
+## 3. The same check with only this change, reverted afterwards: exit 1
+diff --git a/.scripts/docs-smoke.ts b/.scripts/docs-smoke.ts
+index 8176b0ca7..4854e2ec0 100644
+--- a/.scripts/docs-smoke.ts
++++ b/.scripts/docs-smoke.ts
+@@ -144,7 +144,7 @@ const server = createServer((request, response) => {
+ await new Promise<void>((resolve) => {
+   server.listen(0, '127.0.0.1', resolve);
+ });
+-const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
++const origin = `http://mx-docs.test:${(server.address() as AddressInfo).port}`;
+ 
+ // Runs in each preview page before its scripts. Storybook publishes its channel
+ // by assigning `globalThis.__STORYBOOK_ADDONS_CHANNEL__`, so an accessor there
+@@ -264,7 +264,7 @@ async function check(browser: Browser, target: Target): Promise<string[]> {
+   return failures;
+ }
+ 
+-const browser = await chromium.launch();
++const browser = await chromium.launch({ args: ['--host-resolver-rules=MAP mx-docs.test 127.0.0.1'] });
+ let failed = 0;
+ try {
+   let next = 0;
+
+FAIL story checkbox--with-label
+  console error: TypeError: crypto.randomUUID is not a function
+    at Object.Z (http://mx-docs.test:40425/material-x/assets/checkbox.stories-BySFxuk0.js:1:6059)
+    at n$ (http://mx-docs.test:40425/material-x/assets/iframe-DW6vWIPL.js:1071:635)
+    at t (http://mx-docs.test:40425/material-x/assets/iframe-DW6vWIPL.js:8:630)
+    at http://mx-docs.test:40425/material-x/assets/iframe-DW6vWIPL.js:540:2978
+    at http://mx-docs.test:40425/material-x/assets/iframe-DW6vWIPL.js:540:3242
+    at os (http://mx-docs.test:40425/material-x/assets/react-18-Dt9PAaah.js:8:49191)
+101 of 102 pages passed at http://mx-docs.test:40425/material-x/ in 18.2 s
+
+## 4. The checkbox docs page, which embeds WithLabel through <Canvas>
+# iframe.html?id=checkbox--docs&viewMode=docs, read 4 s after `load` with Playwright:
+127.0.0.1:    isSecureContext true,  the "Label attached via ID" label rendered, htmlFor a UUID, no console error
+mx-docs.test: isSecureContext false, no such label, console error "TypeError: crypto.randomUUID is not a function"
+# docs-smoke passed this page in run 3: the error comes after the page's completion signal,
+# which docs-smoke's header states is outside its check. The story's own entry fails.

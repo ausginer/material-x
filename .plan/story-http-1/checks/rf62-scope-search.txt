@@ -1,0 +1,24 @@
+# RF-62: secure-context APIs in story and docs code, at 10eaa68cc (origin/main)
+# Searched by the architect on 2026-11-19. Storybook loads packages/*/src/**/*.@(mdx|stories.tsx)
+# (.storybook/main.ts) and .storybook/*; stories import only their package's src, .storybook/docs/*
+# and storybook/react packages. The search covers .storybook, packages/*/src (runtime code the
+# stories reach included), packages/*/docs and index.html.
+
+## The pattern (APIs that need a secure context, and their usual entry points)
+randomUUID|crypto\.subtle|\.subtle\b|clipboard|serviceWorker|mediaDevices|getUserMedia|navigator\.share|canShare|navigator\.storage|navigator\.locks|navigator\.credentials|geolocation|DeviceMotionEvent|DeviceOrientationEvent|\bNotification\b|PaymentRequest|navigator\.(usb|bluetooth|hid|serial|xr|wakeLock|keyboard|gpu|virtualKeyboard|contacts)|SharedArrayBuffer|isSecureContext|cookieStore|show(Open|Save)FilePicker|showDirectoryPicker|EyeDropper|IdleDetector|requestMIDIAccess|getDisplayMedia|BroadcastChannel|caches\.|CacheStorage|PushManager|Atomics\.wait
+
+## Hits
+packages/material-x/src/checkbox/checkbox.stories.tsx:93:  const id = crypto.randomUUID();
+
+## Story and MDX imports that leave their own directory (all inside the searched paths)
+from '../../../../.storybook/docs/ApiTables.tsx'
+from '../../../../.storybook/docs/DocCopy.ts'
+from '../../../../.storybook/docs/Source.tsx'
+from '../../../../.storybook/docs/SummaryOrWarning.tsx'
+from '../../../../.storybook/docs/ThemeToggleLink.tsx'
+from '../../../../.storybook/docs/cem.ts'
+from '../../../../.storybook/docs/paths.ts'
+
+## Third-party code the site ships, outside the required property
+typedoc's static/main.js (the API page) calls navigator.clipboard.writeText in its copy button, on click only:
+navigator.clipboard.writeText(e.previousElementSibling.innerText.trim()),e.text

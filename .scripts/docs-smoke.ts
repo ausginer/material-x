@@ -19,6 +19,13 @@
  * A page is observed from navigation until its `load` event or its completion
  * signal, whichever is later, and not after. An error the page raises only
  * after that is outside the check.
+ *
+ * The site is opened from an origin that isn't a secure context, and the first
+ * page fails the run unless it reports `isSecureContext === false`. The deployed
+ * site is served over HTTPS, but a Storybook that someone serves from another
+ * machine over plain HTTP is not a secure context, and an API that needs one is
+ * missing there. A browser treats loopback as secure, so the server stays on
+ * `127.0.0.1` and Chromium resolves the reserved name `mx-docs.test` to it.
  */
 import { readFile, stat } from 'node:fs/promises';
 import {
@@ -144,7 +151,8 @@ const server = createServer((request, response) => {
 await new Promise<void>((resolve) => {
   server.listen(0, '127.0.0.1', resolve);
 });
-const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+const HOST = 'mx-docs.test';
+const origin = `http://${HOST}:${(server.address() as AddressInfo).port}`;
 
 // Runs in each preview page before its scripts. Storybook publishes its channel
 // by assigning `globalThis.__STORYBOOK_ADDONS_CHANNEL__`, so an accessor there
@@ -260,11 +268,26 @@ async function check(browser: Browser, target: Target): Promise<string[]> {
 
   await settled;
   clearTimeout(timer);
+
+  if (target === targets[0]) {
+    const secure = await page
+      .evaluate(() => globalThis.isSecureContext)
+      .catch(() => null);
+
+    if (secure !== false) {
+      failures.push(
+        `secure context: isSecureContext is ${secure} at ${origin}, where it must be false`,
+      );
+    }
+  }
+
   await page.close();
   return failures;
 }
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({
+  args: [`--host-resolver-rules=MAP ${HOST} 127.0.0.1`],
+});
 let failed = 0;
 try {
   let next = 0;
