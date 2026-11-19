@@ -8,6 +8,8 @@
 
 **Amended again 2026-11-19 by Architect B, on the coordinator's task: proof 3's rulings, and a trimmed trait also loses the base's keys.** At `2bf0418ab`, proof 3 left two kinds of difference. [Proof 3](#the-proofs-before-the-pull-request) now names both as expected. Reading them with [P44](trait-decorators-plan.md#evidence) found a regression that the surface reading can't see: a subclass of IconButton or SwitchIconButton can't override `click()`, or any other method of the base, because the trimmed trait's `Omit` turns every member it inherits from its bound into a property. The change is in [Decided here](#decided-here) and [Core: layer (a)](#core-layer-a-traitscompositionts), and [the proposed `RD-26` amendment](#proposed-rd-26-amendment-property-4) is for the main slot's architect. Proof 4 records the owner's acceptance of the size rows.
 
+**Amended a third time 2026-11-19 by Architect B, on the coordinator's task: rulings on PR #76's feature proof.** Mx Reviewer's [feature proof](../reviews/traits-migration-1/feature-proof-claude.md) read `0c5705d87`. [Rulings on PR #76's feature proof](#rulings-on-pr-76s-feature-proof) gives a ruling on each finding and specifies the repairs. The plan's rows for `composition-shape`, `trait-field` and the static links are aligned with them. `RD-26`'s properties don't change.
+
 **Amended 2026-11-19 by the main slot's architect, on the coordinator's task: each trait is trimmed alone in the instance type, and a trait's `declare` member is a key in the types only** (`RD-26` property 4). The implementer found that P40's form dropped FocusForwarding's `#brand` in SwitchIconButton. [P43](trait-decorators-plan.md#evidence) reads both forms. The changed lines are in [Decided here](#decided-here), [Core: layer (a)](#core-layer-a-traitscompositionts) and proof 6.
 
 **Open questions: none.** Each choice the owner didn't make is decided below, with its reason.
@@ -209,7 +211,7 @@ export type ButtonProperties = Props<[...ButtonCoreTraits, typeof Nameable]>;
 | object | `{ ...(Base.k ?? {}), ...first, ..., ...own }`       |
 | simple | the last contributor's value, or the component's own |
 
-A trait's value is emitted as a link to the trait's static, `TraitClass.k`, through a synthetic export. It is not inlined, so the trait module stays the one source of the value.
+A trait's value is emitted as a link to a module-level constant, `__mxflat_<Class>_<key>_<hash>`, which the trait module's own build hoists and exports, and which the trait's static also reads. It is not inlined, so the trait module stays the one source of the value, and the component doesn't retain the trait class. _(Aligned with the implementation on 2026-11-19: the first text linked `TraitClass.k`, which retains the class.)_
 
 ### Diagnostics
 
@@ -217,11 +219,11 @@ Every **error** fails the build. Layer (a) has no runtime composition to fall ba
 
 | Code | Severity | When |
 | --- | --- | --- |
-| `composition-shape` | error | The composition isn't a module-scope `const X: Composed<B, [...]> = compose(B)` extended by exactly one class in the module. |
+| `composition-shape` | error | The composition isn't a module-scope `const X: Composed<B, [...]> = compose(B)` extended by exactly one class in the module, or the module has another value reference to `X`. A type position and a non-computed property key aren't value references. |
 | `trait-list` | error | A list element isn't `typeof T`, a tuple alias of those or a spread of one, or the expansion has a cycle. |
 | `trait-unresolved` | error | A trait can't be resolved to a class whose static block calls `trait(this)`, or, in built JavaScript, to a class with the generated `static [Symbol.hasInstance]` method. |
 | `trait-member` | error | A member is outside the copy subset: `super`, a computed key, a private name read by a member, `eval`, `import.meta`, a constructor, or a body the walker doesn't model. |
-| `trait-field` | error | An instance field with an initializer. `declare` fields and `#brand!` are allowed and not copied. |
+| `trait-field` | error | A public instance field that isn't `declare`, with an initializer or without one, such as `foo!: T`. Under define semantics both define an own property on each instance, so neither copying nor skipping keeps the trait's meaning. `declare` fields and ES-private fields without an initializer, such as `#brand!`, are allowed and not copied. |
 | `trait-binding-shadowed` | error | The component's module or class binds a name that a copied member reads. Kept from today. |
 | `trait-source-language` | error | The copy rule refuses a member. It names the member and the two languages. Kept from today, with the new rule. |
 | `trait-accessor-half` | error | A later trait's lone getter or setter over an earlier trait's pair. Copying would join halves from two traits. Kept from today. |
@@ -356,9 +358,95 @@ The paths are `origin/main`'s at `24c6672ce`. Commit 5 greps for `traits/primiti
   - Root `README.md`: the plugin's one-line description.
   - `AGENTS.md` and `work-queue.md` name the plugin only by name, and don't change.
 
+## Rulings on PR #76's feature proof
+
+Ruled 2026-11-19 by Architect B on Mx Reviewer's [feature proof](../reviews/traits-migration-1/feature-proof-claude.md) of `0c5705d87` (its record at `0ee9a222a`). **No owner decision is needed:** each repair makes the code do what `RD-26` already says, and no property changes. reviewer-1 and reviewer-2 block the merge. reviewer-3 to reviewer-5 and the wording are repaired in the same pass, because they touch the same files.
+
+| Id | Ruling | Blocks |
+| --- | --- | --- |
+| reviewer-1 | repair: the adapter reaches a built trait module, and recognizes the generated method exactly | yes |
+| reviewer-2 | repair: the base's declared kind is a contributor, as property 3 says | yes |
+| reviewer-3 | repair: count only value references to the constant; a type-only `typeof X` is allowed | no |
+| reviewer-4 | repair: tests through Vite's own build for each build kind, with reviewer-1's | no |
+| reviewer-5 | repair: the header comment | no |
+
+### reviewer-1 and reviewer-4: the deletion reaches a built trait module
+
+**Ruling: repair.** Property 8 doesn't distinguish a source trait module from a built one, and narrowing it would give up the owner's _"smaller size where `instanceof` is needed"_ for every published trait. `transformTraitModule` already handles the built form, the `method` install. Only the adapter's pre-filter keeps it out.
+
+**Required properties:**
+
+1. **The adapter's pre-filter admits a module whose text contains `Symbol.hasInstance`,** as well as `trait(` and `compose(`. It stays a substring test, and the parse decides.
+2. **A built trait class is recognized only by the exact generated install,** because once the filter opens, recognition is the only thing that keeps the deletion off another library's class. `hasInstanceBrand` today accepts any computed read of the parameter. It must accept only this:
+   - a static method, computed key `Symbol.hasInstance`, with one identifier parameter `p`;
+   - a body that is one `return` of `p != null && p[B] === true`;
+   - where `B` is a module-scope `const` initialized with `Symbol(<string literal>)` and exported from the module.
+
+   Anything else isn't a trait class: no member is deleted, nothing is hoisted, and as a component's trait it is `trait-unresolved`. A failed recognition leaves the module untouched, which is safe.
+
+3. **In an application build, each recognized trait class in a built module loses its instance members,** as a source trait does. The static method, the statics and the exports stay.
+4. **A library build and the dev server delete nothing,** in a source or a built trait module.
+
+**Tests, through Vite's own `build()` and `createServer()` with `viteTraitsPlugin()`,** with `configFile: false` and output not written. The current tests call `transformTraitModule` directly, so they can't see the adapter. These go in a new node test file:
+
+- **Fixture.** A built trait module produced in the test by a Vite library build of a source trait, with the plugin, so the fixture is the plugin's real output. It is a `.js` whose members carry a marker string, such as `linked-member`. Beside it, an entry that holds a component as the flattener emits it, with `impl(this, $linked)`, and that reads `instanceof` for the component, another element and `null`.
+- **(a) Application build** (no `build.lib`): the bundle has no `linked-member`, and running it gives `[true, false, false]`. It fails today: W1's case.
+- **(b) Library build** of the same entry: `linked-member` is present. It fails under the review's M5, `kind !== 'serve'`.
+- **(c) Dev server:** `transformRequest` of the built trait module keeps `linked-member`. It fails if serve deletes.
+- **(d) A look-alike in an application build:** a `.js` class with `static [Symbol.hasInstance](o) { return typeof o === 'object' && o !== null && o[kTag] === true; }`, where `kTag` isn't a `Symbol(...)` const, and an instance method with a marker. The marker survives. It fails if (1) lands without (2).
+- **(e) Source and built agree:** row (a) with the source trait in place of the built one gives the same bundle members and the same answers. It guards against the two paths drifting.
+
+Each row asserts on the bundle text or on the run, not on a helper's return.
+
+### reviewer-2: the base's declared kind is a contributor
+
+**Ruling: repair.** Property 3 says it, the plan's `static-kind-mismatch` and `statics.ts` rows say it, and the failure is a module that throws on load with no diagnostic. The plugin document's _"Two traits"_ (`trait-flattener-plugin.md`, its `static-kind-mismatch` row) narrowed it without a record, and is corrected. No composition in the tree reaches the case: `ControlledElement` declares no static of its own, and its chain ends at the global `HTMLElement`.
+
+**Required properties,** for every static key that some trait contributes:
+
+1. **The base's kind of the key** is that of the nearest declaration of `static key` in the base's class chain. It is read as a trait's is: the same declarations (oxc's isolated declarations of a `.ts`, or the `.d.ts` paired with a `.js`), and `kindOfType`.
+2. **The chain** starts at `compose`'s argument and follows each `extends` through the loader, as a trait reference is resolved. A global identifier, one bound nowhere in its module such as `HTMLElement`, ends the walk with no declaration. An absent value is empty, as the `?? []` and `?? {}` forms already assume.
+3. **A heritage the walk can't resolve,** such as a call or an import that doesn't load, before the key is found, is a `static-kind` error that names the base and the key. Declaring the key on the base stops the walk.
+4. **The base's declaration counts as the first contributor:**
+   - a different kind from a trait's is `static-kind-mismatch`, and the message names the base;
+   - a shape the classifier refuses, such as `CSSStyleSheet`, a class instance, is `static-kind` with `Base.key`.
+5. **The emitted forms don't change.**
+
+**Tests, as rows of `diagnostics.node.test.ts` and `flatten.node.test.ts`:**
+
+- a base with `static styles: CSSStyleSheet` and a trait with `static readonly styles: readonly string[]`: `static-kind`. Today it flattens, and the module throws on load (W2);
+- a base with `static styles: string` and the same trait: `static-kind-mismatch` naming the base. Today it flattens;
+- a base that declares nothing, whose parent in another module declares `static styles: string`: `static-kind-mismatch`. This is the chain walk;
+- a base with `static observedAttributes: readonly string[]` and a trait's array: it flattens, with `[...(Base.observedAttributes ?? []), …]`;
+- a base that extends `HTMLElement` and declares nothing: it flattens. This is `ControlledElement`'s case;
+- a base that extends `mixin(HTMLElement)` and declares nothing, with a trait's array: `static-kind` naming the base.
+
+### reviewer-3: `composition-shape` counts value references only
+
+**Ruling: repair.** The rule exists because the flattener removes the constant: another value reference would be left dangling. A non-computed property key isn't a reference. A type-only reference survives, because the declarations are emitted from the source and the type is erased from the JavaScript, so it is allowed. `RD-26` doesn't forbid it, and the plugin document's _"nothing else references"_ becomes _"no other value reference"_.
+
+**Required property:** besides the one `extends`, any value reference to the module-scope binding is `composition-shape`. Type positions, non-computed property keys and member names aren't value references. A shorthand property `{ FooBase }` and an export specifier are value references. A shadowed name may be refused, but must never be flattened over a live reference.
+
+**Tests (W3's cases):**
+
+- `export const names = { FooBase: 1 };` flattens;
+- `export type FooShape = InstanceType<typeof FooBase>;` flattens;
+- `console.log(FooBase)` and `export { FooBase }` each give `composition-shape`.
+
+### reviewer-5 and the wording
+
+- **`trait-module.ts`'s header:** the transform replaces `trait(this)` with the static `[Symbol.hasInstance]` method, and `trait` is never called with a brand. The pure-call text goes.
+- **The plan's rows** for the static links, `composition-shape` and `trait-field` are aligned above.
+- **The plugin document** (`.agents/docs/trait-flattener-plugin.md`): the `static-kind-mismatch` row says the base counts, and `composition-shape` says _"no other value reference"_. The transform section says that a built trait module is recognized by the exact generated method.
+- **The pull request's description** says that `viteTraitsPlugin()` now returns an array of two plugins, which changes the published signature. The coordinator routes this to whoever edits the description.
+
+### Records
+
+**No amendment of `RD-26`.** Properties 3 and 8 stand as written, and the repairs make the code meet them. When the repairs land, Mx Architect may add a dated line to `RD-26`'s implementation note: the feature proof found property 8 unmet for built trait modules and property 3 unmet for the base, both repaired, with the commit.
+
 ## Proposed RD-26 amendment, property 4
 
-For the main slot's architect, Mx Architect, from the second amendment of 2026-11-19. This plan doesn't edit records or the index. No owner decision is needed: the change restores what the old types allowed, and changes no rule the owner set.
+**Applied** to `RD-26` property 4 and `RF-57` at `125fa21dc`. For the main slot's architect, Mx Architect, from the second amendment of 2026-11-19. This plan doesn't edit records or the index. No owner decision is needed: the change restores what the old types allowed, and changes no rule the owner set.
 
 - **`RD-26` property 4, third bullet,** a sentence added after _"A key of the base's instance doesn't count."_:
 
