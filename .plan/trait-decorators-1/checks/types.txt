@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16 — .plan/trait-decorators-1/probes/types/run.sh, at 20817d665, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21 — .plan/trait-decorators-1/probes/types/run.sh, at dc5bc5853, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -173,6 +173,88 @@ p16-interface-accessors.ts(30,5): error TS2322: Type 'Readonly<{ from(value: str
     Type 'string | null' is not assignable to type 'boolean'.
       Type 'null' is not assignable to type 'boolean'.
 p16-interface-accessors.ts(37,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p17-sketch-as-is — Version 7.0.2
+p17-sketch-as-is.ts(9,37): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(9,37): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p17-sketch-as-is.ts(13,21): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(29,28): error TS2507: Type 'ControlledElement & ValuableTrait' is not a constructor function type.
+sketch/_example.ts(48,59): error TS2344: Type 'T' does not satisfy the constraint 'Trait<any>'.
+  Property '[Symbol.hasInstance]' is missing in type 'readonly Trait<any>[]' but required in type 'Trait<any>'.
+sketch/_example.ts(49,3): error TS2322: Type 'B' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+  Type 'Constructor<any>' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+    Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+      Type 'B' is not assignable to type 'InstanceType<B>'.
+        Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+exit 1
+=== p17-sketch-as-is — Version 6.0.3
+p17-sketch-as-is.ts(9,37): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(9,37): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p17-sketch-as-is.ts(13,21): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(29,28): error TS2507: Type 'ControlledElement & ValuableTrait' is not a constructor function type.
+sketch/_example.ts(48,59): error TS2344: Type 'T' does not satisfy the constraint 'Trait<any>'.
+  Property '[Symbol.hasInstance]' is missing in type 'readonly Trait<any>[]' but required in type 'Trait<any>'.
+sketch/_example.ts(49,3): error TS2322: Type 'B' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+  Type 'Constructor<any>' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+    Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+      Type 'B' is not assignable to type 'InstanceType<B>'.
+        Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+exit 1
+=== p18-sketch-fixed — Version 7.0.2
+p18-sketch-fixed.ts(18,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p18-sketch-fixed.ts(56,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p18-sketch-fixed.ts(68,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & DisableableTrait', but is overridden here in 'OwnField' as an instance property.
+p18-sketch-fixed.ts(83,7): error TS2322: Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>, Trait<DisableableTrait>]>'.
+  Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'new (...args: any[]) => ControlledElement & ValuableTrait & DisableableTrait'.
+    Type 'ControlledElement & ValuableTrait' is not assignable to type 'ControlledElement & ValuableTrait & DisableableTrait'.
+      Property 'disabled' is missing in type 'ControlledElement & ValuableTrait' but required in type 'DisableableTrait'.
+p18-sketch-fixed.ts(101,3): error TS2345: Argument of type 'typeof ValuableTrait' is not assignable to parameter of type 'Trait<any>'.
+  Types of property '[Symbol.hasInstance]' are incompatible.
+    Type '(value: any) => boolean' is not assignable to type '(o: unknown) => o is any'.
+      Signature '(value: any): boolean' must be a type predicate.
+exit 1
+=== p18-sketch-fixed — Version 6.0.3
+p18-sketch-fixed.ts(18,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p18-sketch-fixed.ts(56,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p18-sketch-fixed.ts(68,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & DisableableTrait', but is overridden here in 'OwnField' as an instance property.
+p18-sketch-fixed.ts(83,7): error TS2322: Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>, Trait<DisableableTrait>]>'.
+  Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'new (...args: any[]) => ControlledElement & ValuableTrait & DisableableTrait'.
+    Type 'ControlledElement & ValuableTrait' is not assignable to type 'ControlledElement & ValuableTrait & DisableableTrait'.
+      Property 'disabled' is missing in type 'ControlledElement & ValuableTrait' but required in type 'DisableableTrait'.
+p18-sketch-fixed.ts(101,3): error TS2345: Argument of type 'typeof ValuableTrait' is not assignable to parameter of type 'Trait<any>'.
+  Types of property '[Symbol.hasInstance]' are incompatible.
+    Type '(value: any) => boolean' is not assignable to type '(o: unknown) => o is any'.
+      Signature '(value: any): boolean' must be a type predicate.
+exit 1
+=== p19-sketch-groups — Version 7.0.2
+p19-sketch-groups.ts(102,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonCoreTrait', but is overridden here in 'SuperOwnField' as an instance property.
+p19-sketch-groups.ts(122,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ValuableTrait & DisableableTrait', but is overridden here in 'FormDOwnField' as an instance property.
+exit 2
+=== p19-sketch-groups — Version 6.0.3
+p19-sketch-groups.ts(102,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonCoreTrait', but is overridden here in 'SuperOwnField' as an instance property.
+p19-sketch-groups.ts(122,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ValuableTrait & DisableableTrait', but is overridden here in 'FormDOwnField' as an instance property.
+exit 2
+=== p20-rust-like — Version 7.0.2
+p20-rust-like.ts(18,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'Traited<[Labelled]>'.
+p20-rust-like.ts(62,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'Traited<[ButtonCore]>'.
+p20-rust-like.ts(74,16): error TS2416: Property 'held' in type 'HoldsWrong' is not assignable to the same property in base type 'ControlledElement & Holding<number>'.
+  Type 'string' is not assignable to type 'number'.
+p20-rust-like.ts(87,40): error TS2339: Property 'create' does not exist on type 'typeof Created'.
+p20-rust-like.ts(104,14): error TS2515: Non-abstract class 'SketchNoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+exit 2
+=== p20-rust-like — Version 6.0.3
+p20-rust-like.ts(18,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'Traited<[Labelled]>'.
+p20-rust-like.ts(62,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'Traited<[ButtonCore]>'.
+p20-rust-like.ts(74,16): error TS2416: Property 'held' in type 'HoldsWrong' is not assignable to the same property in base type 'ControlledElement & Holding<number>'.
+  Type 'string' is not assignable to type 'number'.
+p20-rust-like.ts(87,40): error TS2339: Property 'create' does not exist on type 'typeof Created'.
+p20-rust-like.ts(104,14): error TS2515: Non-abstract class 'SketchNoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+exit 2
+=== p21-class-instanceof — Version 7.0.2
+p21-class-instanceof.ts(27,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement'.
+exit 2
+=== p21-class-instanceof — Version 6.0.3
+p21-class-instanceof.ts(27,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement'.
 exit 2
 === p3-interface-only — Version 7.0.2
 exit 0

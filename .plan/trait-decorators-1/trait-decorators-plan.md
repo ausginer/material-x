@@ -9,6 +9,8 @@
 - Question 3 is reworded in plain words.
 - Question 6 carries the owner's answer.
 
+**Revised again on 2026-11-19,** at the owner's request, relayed by the coordinator. [The owner's sketch](#the-owners-sketch) is new. It reads the owner's own trait sketch with probes P17 to P22: what it takes to typecheck, groups of traits, whether `@trait` is needed, and Rust-like traits. A trait may now hold abstract members, item 8 is added to the flattener's work, and questions 7 and 8 are new.
+
 ## The verdict
 
 **A decorator can't carry the types, and that holds in every TypeScript the repository runs.** A class decorator doesn't change the type of the class it decorates. That is true for standard decorators and for `experimentalDecorators`, in TypeScript 7.0.2 (`tsc`) and 6.0.3 (`tsc6`) alike ([P1](#evidence)). So a form in which only `@traits(A, B)` names the traits doesn't typecheck.
@@ -60,7 +62,7 @@ export class FocusForwarding extends ControlledElement {
 - **The runtime brand stays.** `useRovingTabindex.ts:33`–`:35` and `button-group/utils.ts:14` test `instanceof Valuable`, `Checkable`, `Disableable` and `ButtonLike`. A flattened component's prototype chain doesn't hold the trait class, so the trait class needs a `Symbol.hasInstance` that reads a brand, and the flattened class installs that brand, as today. A static block that calls core's `trait(this, $brand)` does both: it is valid JavaScript with no transform, it survives a build, and it gives the flattener a named symbol binding to link. The trait object and its module then stay tree-shakeable, as the [flattener document](../../.agents/docs/trait-flattener-plugin.md) requires today.
 - **The type brand is optional.** A trait whose members the base already has, such as `FocusForwarding` or the empty `ButtonGroupLike`, is structurally `ControlledElement`. Then any element passes for it ([P9](#evidence) (a)), and `useFocusForwarding`'s host parameter checks nothing. A required ES-private field, `#brand!: true`, makes it nominal, and a merged or composed adopter still passes ([P9b](#evidence) (iii)). An optional one isn't a brand (iv). A computed `declare readonly [$brand]` fails `isolatedDeclarations` (TS9038, (i) and (ii)). The flattener doesn't copy that field.
 - **A trait's override of a base member must keep the base's exact signature** in the interface forms. In [P9](#evidence), a trait's `focus(): void` against `HTMLElement`'s `focus(options?)` failed with TS2320. Form D intersects the two instead.
-- **What a trait may contain** is today's method-trait subset widened to a class declaration: methods, accessors, the attribute declarations of [Attributes](#attributes), the brand block and the brand field. A constructor, a field, any other static member, `super` or a private name other than the brand field is a build error ([below](#what-every-class-form-asks-of-the-flattener)).
+- **What a trait may contain** is today's method-trait subset widened to a class declaration: methods, accessors, abstract members that a component must implement ([Rust-like traits](#rust-like-traits)), the attribute declarations of [Attributes](#attributes), the brand block and the brand field. A constructor, a field, any other static member, `super` or a private name other than the brand field is a build error ([below](#what-every-class-form-asks-of-the-flattener)).
 - **Framework props** come from a trait class through one helper type: the trait's non-method members that the base doesn't have, made optional ([P9](#evidence) (c)). It replaces today's `Props<typeof X>`, and `Interface<typeof X>` becomes the class name.
 
 ## Attributes
@@ -234,6 +236,125 @@ The owner's form as first stated: traits as classes, and only `@traits(…)` on 
 | Without the flattener | syntax error at parse | silent | works, slower | throws at construction, if `Traits` throws |
 | Flattener required | yes | yes | no | yes |
 
+## The owner's sketch
+
+The owner wrote a sketch of his own in his checkout, `packages/core/src/traits/_example.ts`, untracked. [`probes/types/sketch/_example.ts`](probes/types/sketch/_example.ts) is a byte-for-byte copy, and the probes read that copy unchanged. It has four parts:
+
+- `Trait<T>`, an interface that is only `[Symbol.hasInstance](o): o is T`;
+- `ValuableTrait`, a class that extends `HTMLElement`, marked `@trait`, with `static observedAttributes`, a static block that puts a brand on its prototype, and an explicit `get`/`set` `value`;
+- `Valuable: Trait<ValuableTrait>`, an object whose `hasInstance` reads the brand. Components import it, and `instanceof` uses it;
+- `impl(base, ...traits)`, typed `InstanceType<B> & TraitInstance<T>`, which returns `base`. The flattener removes the call.
+
+### Does it typecheck as a component base?
+
+**Not as written**, in either compiler ([P17](#evidence)). Three things fail:
+
+- **`TraitInstance<T>` over the rest tuple is `never`.** `T` is an array, and an array has no `Symbol.hasInstance`, so `T extends Trait<infer I>` is false. TypeScript reports the constraint in the sketch itself (TS2344), and `impl`'s return type is `never` ((c)).
+- **The return type is an instance type, and `extends` needs a constructor.** `class X extends impl(…)` fails with TS2507, _"Type 'never' is not a constructor function type"_. With `TraitInstance` fixed alone it would still fail, because `ControlledElement & ValuableTrait` isn't a constructor either ((e)). `return base` fails with TS2322 for the same reason.
+- **`isolatedDeclarations` rejects the call in the heritage clause** (TS9021), as it does form C's ([P4](#evidence)). No type fix changes that, because the rule is about syntax. A component is an exported class, so it always applies.
+
+These parts work as written: `node instanceof Valuable` narrows to `ValuableTrait` ((d)), `infer I` reads the class out of the type predicate, and `@trait` typed `ClassDecorator` is accepted under standard decorators.
+
+**The fewest fixes,** in [`sketch-fixed.ts`](probes/types/sketch-fixed.ts), each marked `fix`:
+
+1. map the rest tuple element by element and intersect: `TraitInstances<T>`, the recursion form D already uses;
+2. return a constructor: `Impl<B, T> = B & (new (...args: any[]) => InstanceType<B> & TraitInstances<T>)`;
+3. `return base as never`. The type is a claim that the flattener makes true;
+4. move the call out of the heritage clause into a constant annotated with `Impl<…>`, which `isolatedDeclarations` requires:
+
+```ts
+const ButtonBase: Impl<
+  typeof ControlledElement,
+  [typeof Valuable, typeof Disableable]
+> = impl(ControlledElement, Valuable, Disableable);
+export class Button extends ButtonBase {}
+```
+
+**With the fixes, the study's checks hold** ([P18](#evidence)), in both compilers:
+
+- two traits give their intersection, not `never` (d);
+- `this.disabled` resolves, and the language service shows `DisableableTrait.disabled` and goes to its getter and setter ([LSP](#evidence));
+- the component overrides a trait accessor with `override` (c);
+- `RF-57`'s case fails with TS2611 (e), and an own field over a trait accessor fails with TS2610 (f);
+- a class passed in place of its `Trait` object fails with TS2345 (j), because a class's `Symbol.hasInstance` isn't a type predicate;
+- two traits with one member of different types give `never` with no error (g), as in form D.
+
+**What the fixes can't repair: the call and its annotation are two lists.** An annotation that names a trait the call omits fails (TS2322, (h)). An annotation that omits a trait the call names passes in silence (i): the flattener adds members that the types don't know. Form A's two lists have the same one-sided check.
+
+**Which form it is.** With the fixes, the sketch is **form C** with two changes: the list holds `Trait` objects rather than classes, and `impl` has no runtime composition. The first change is neutral, because the types read the class out of the object. The second loses form C's one advantage, a flattener that stays optional: without the flattener the component silently lacks every trait member, as in form B. **The annotation that `isolatedDeclarations` forces is already form D's list,** in another place. Move it into the heritage clause and the call has nothing left to do:
+
+```ts
+export class Button extends Traits<[typeof Valuable, typeof Disableable]> {}
+```
+
+Form D accepts the sketch's `Trait` objects as `typeof` queries: the members resolve, and an own field still fails with TS2610 ([P19](#evidence) (f)). It also accepts the classes' instance types, `Traits<[ValuableTrait]>`, as [P12](#evidence) reads them, once a trait extends `ControlledElement` rather than `HTMLElement`, because form D's `Traits` constrains its arguments to `ControlledElement`.
+
+**A runtime gap, which the types don't show.** The sketch's static block brands `ValuableTrait.prototype`. A flattened component doesn't inherit from `ValuableTrait`, so `instanceof Valuable` is false for it ([P22](#evidence) §2), unless the flattener installs the brand on the component. To do that it has to recognize the block. A pattern such as `Object.defineProperty(this.prototype, $valuable, …)` is a guess. A call to one named core helper is a binding that the flattener resolves by its import, as the study's `trait(this, $brand)` is.
+
+### Groups of traits
+
+Four shapes were read ([P19](#evidence)):
+
+| Shape | Types | At runtime |
+| --- | --- | --- |
+| (a) **A value array spread into the call,** `impl(Base, ...BUTTON_CORE_TRAITS, Counted)`, with `[...typeof BUTTON_CORE_TRAITS, typeof Counted]` in the annotation | ok | `RF-63` returns as it is: an exported array built with a spread, which nothing reads after flattening |
+| (b) **A value array passed whole,** `[BUTTON_CORE_GROUP, Counted]`, with no spread. The types flatten nested tuples | ok | a literal array of identifiers. Whether a bundler drops it when unused isn't measured. That is `RF-63`'s open measurement |
+| (c) **A tuple type in the annotation,** `[...ButtonCoreTraits, typeof Counted]` | ok | erased, but the call still lists every trait as a value, so the group saves nothing |
+| (d) **A group as a trait of its own,** Rust's supertrait: `interface ButtonCoreTrait extends ValuableTrait, DisableableTrait {}` and one `Trait` object that checks both brands | ok, with TS2610 through the group (e) | the object stays, and `instanceof ButtonCore` works |
+
+**The flattener can't erase a value group.** The group is an exported binding of another module. In a library build, a consumer may import it, so the flattener can't delete it, and `RF-63`'s entry already says that a library build keeps exported lists by definition. The flattener can only stop reading it. So in the sketch's shape a group is either a value that stays, (a) and (b), or a type that the call repeats, (c).
+
+**In form D, a group is a tuple type and erases** ([P11](#evidence) (d), [P19](#evidence) (f)), with nothing repeated. A supertrait also works in form D, as an abstract trait class whose base is `Traits<[…]>` ([P20](#evidence) (f)). The flattener then expands it, as it expands a tuple alias. A supertrait earns its place only when a group needs its own `instanceof` or its own required members.
+
+**Recommended: tuple types under form D.** A supertrait class only where a group needs a brand or members of its own. If the owner keeps the sketch's call, (b) is the better of the value forms, but `RF-63` stays open until a bundler is measured on it.
+
+### Is `@trait` needed?
+
+**No.** The flattener can find a trait class without it:
+
+- **From the component.** Each list element resolves to a binding in some module. Whatever a list names is a trait, so the list is the marker. That is how today's flattener finds traits.
+- **From the `Trait<…>` annotation.** oxc-parser gives `const Valuable: Trait<ValuableTrait>` with its type argument, so the object leads to its class ([P22](#evidence) §1).
+- **From the brand block,** which oxc-parser also shows.
+
+**`@trait` also costs something.** A decorator can't change a type ([P1](#evidence)), and an unlowered decorator is a syntax error in Node ([P7](#evidence) §6). So the flattener would have to strip `@trait` from the trait's module in every build, core's included. The one thing it could add is a check, in the trait's own module, that the class keeps to the trait subset before any component uses it. A call to core's brand helper marks the class just as well, and it is valid JavaScript.
+
+**The class-and-object split isn't worth its cost.** The split asks for two names per trait. It also asks for an annotation, `Trait<ValuableTrait>`, that nothing ties to the class: `createHasInstance` takes only a symbol, so an object can claim any class with any brand. A class is already a typed `instanceof` target. `node instanceof Disableable` narrows to the class with no `Symbol.hasInstance` in its type ([P21](#evidence) (a)). A typed static `Symbol.hasInstance` is accepted under `isolatedDeclarations` with `override` ((b), (c)), but it isn't needed. At runtime, core's helper installs the class's `Symbol.hasInstance` and the prototype brand.
+
+**What the split gives can come from the flattener instead.** It is what the trait module can turn into after flattening. The flattener can lower each trait class in its own module to a brand object, `trait({ disabled: Bool }, $disableable)`, which is today's built shape. The owner's _"where to cut the class out and turn it into an interface"_ is that step. The author writes one class, and the output holds the object.
+
+**One rule follows for the flattener.** It installs only the prototype brand on the component, never the trait's static block as written. A copied block that also installs `Symbol.hasInstance` makes `instanceof Button` read the trait's brand. Then an unrelated element that carries the brand passes as a `Button` ([P22](#evidence) §2).
+
+### Rust-like traits
+
+A Rust trait has three parts:
+
+- **required members,** which every implementer must write;
+- **provided members,** which have a default body that an implementer may override;
+- **supertraits,** which a trait requires of its implementers.
+
+A trait holds no state. It is implemented in its own `impl Trait for Type` block, and a call that two traits could answer is an error until it is disambiguated.
+
+**Here, an abstract member of a trait class is a required member.** A concrete member is a provided one, and a trait list in a trait class is a supertrait. In form D, TypeScript takes most of it ([P20](#evidence)):
+
+- **Required members:** a component that omits one fails with TS2515 (a). That includes a member required through a supertrait (f), and the same holds in the sketch's shape (j). The implementation may carry `override` or not (b), (c).
+- **Provided members:** a component overrides one with `override` (d). A provided member may call a required one, which the component's own member answers at runtime.
+- **Generic traits** check the implementer's type (TS2416, (g)), and a generic bound, `T extends Labelled`, works (i).
+- **No state:** a field is already a build error in a trait, which matches Rust.
+- **No call to a default from its override:** Rust has none, and question 6's answer keeps `super.traitMember` a build error. The two agree.
+
+This doesn't contradict [Attributes](#attributes), where `abstract` is out. An attribute is supplied by the trait, so marking it `abstract` asks every component to supply it again. A required member is one the component must supply, so `abstract` is right for it. The flattener copies no abstract member, because the TypeScript transform erases it.
+
+**Where it stops:**
+
+- **Conflicts aren't reported.** Two traits with one member of different types intersect to `never` with no error ([P12](#evidence) (c), [P18](#evidence) (g)). Rust rejects the ambiguity. Here only the flattener can, because it sees both traits supply one key. Today the later trait wins in silence.
+- **A required member can be answered by another trait,** with no error (e). Rust wants it in the trait's own `impl`. This is harmless at runtime, because the later trait's member is copied.
+- **Associated functions don't reach the component.** A trait's static member isn't on the component's type (TS2339, (h)), because the static side is `ControlledElement`'s.
+- **No implementation outside the type.** Rust's `impl Trait for Type` can be written apart from `Type`. Here the list is in the component's heritage, and a type that someone else owns can't take a trait afterwards.
+- **Associated types** exist only as generic parameters, fixed by the component's list.
+- **Membership is structural** unless the trait has a brand field (question 4). Without one, any element with the same members passes for the trait in a bound.
+
+So far the gaps are only in reporting, never in what the code can express. The flattener can close the first: two traits that supply one key fail the build unless the component overrides the key itself, which is Rust's disambiguation. The rest are limits of TypeScript, and the repository needs none of them today.
+
 ## What every class form asks of the flattener
 
 **The emitted class is today's lowered shape:** a class that extends `ControlledElement`, with each trait's members in trait order before the class's own, a merged `static observedAttributes` when a trait declares attributes, and one static block that installs every brand on the prototype. So the runtime contract in [`trait-flattener-plugin.md`](../../.agents/docs/trait-flattener-plugin.md) §Compatibility contract carries over. What changes is the input, and whether flattening is optional.
@@ -254,6 +375,7 @@ The owner's form as first stated: traits as classes, and only `@traits(…)` on 
 5. **A trait whose code crosses packages needs the language rule widened.** Question 3 explains it. With attributes as tables, core's traits carry no code, and nothing crosses packages today. With explicit `get`/`set` attributes, every core trait would fail with `trait-source-language`.
 6. **The runtime-equivalence tests lose their reference.** They compare a composed class with the flattened one, and A, B and D have no composed class. A test-only reference that copies each trait class's prototype descriptors in order gives them one. That takes a few lines, and it doesn't ship.
 7. **Every build that loads material-x source has to install the plugin.** The shared Vite, Vitest and tsdown configurations do today. Form D's throwing `Traits` and form A's decorator make a configuration that misses it fail loudly. Form B gives no sign.
+8. **Supertraits and conflicts.** A trait class whose base is `Traits<[…]>` is expanded as a tuple alias is. Two traits that supply one key fail the build unless the component declares the key itself (question 8). An abstract member isn't copied.
 
 ## How the forms meet the open records
 
@@ -304,6 +426,9 @@ The owner's form as first stated: traits as classes, and only `@traits(…)` on 
 
    **Answered by the owner on 2026-11-19: not now** (_"пока нет"_), relayed by the coordinator. Inside a component, `super.key` for a key that a trait supplies stays a build error, under the reason code `class-super-trait-member`.
 
+7. **How are traits grouped?** [Groups of traits](#groups-of-traits) reads four shapes. **Recommended: tuple types under form D,** and a supertrait class only where a group needs its own brand or required members. In the sketch's call shape a group is either a value that stays, so `RF-63` returns, or a type that the call repeats.
+8. **Should two traits that supply one key fail the build?** TypeScript intersects them to `never` with no error, and today the later trait wins. **Recommended: yes, unless the component declares the key itself.** That is Rust's disambiguation, and no component in the tree combines two such traits today. The answer doesn't depend on the form.
+
 ## Proposed record changes
 
 For the main slot's architect. This study doesn't edit them.
@@ -316,9 +441,9 @@ For the main slot's architect. This study doesn't edit them.
 
 ## Evidence
 
-Every probe is under [`probes/`](probes/), and every transcript is under [`checks/`](checks/), read on 2026-11-19. P1 to P12 were read at `d1ea40e22`, and P13 to P16 at `20817d665`. That commit changed only this study, and every transcript was regenerated there.
+Every probe is under [`probes/`](probes/), and every transcript is under [`checks/`](checks/), read on 2026-11-19. P1 to P12 were read at `d1ea40e22`, P13 to P16 at `20817d665`, and P17 to P22 at `dc5bc5853`. Each of those commits changed only this study, and the type transcript was regenerated at each.
 
-- **The type probes, P1 to P6, P9 to P14 and P16** ([`probes/types/`](probes/types/), [transcript](checks/types.txt)). [`run.sh`](probes/types/run.sh) checks each probe alone with `tsc` (TypeScript 7.0.2) and `tsc6` (6.0.3), under a tsconfig that copies `tsconfig.base.json`'s checking options, `isolatedDeclarations` and `erasableSyntaxOnly` among them. It prints the declarations for the probes that compile. Each case states its expected result in a comment. **The two compilers agree on every line,** apart from the wording of one message in P9. In P13 (10), the explicit setter with the wrong converter, both report TS2345: TypeScript 7 at the value argument, and TypeScript 6 at the converter.
+- **The type probes, P1 to P6, P9 to P14, P16 and P17 to P21** ([`probes/types/`](probes/types/), [transcript](checks/types.txt)). [`run.sh`](probes/types/run.sh) checks each probe alone with `tsc` (TypeScript 7.0.2) and `tsc6` (6.0.3), under a tsconfig that copies `tsconfig.base.json`'s checking options, `isolatedDeclarations` and `erasableSyntaxOnly` among them. It prints the declarations for the probes that compile. Each case states its expected result in a comment. **The two compilers agree on every line,** apart from the wording of one message in P9. In P13 (10), the explicit setter with the wrong converter, both report TS2345: TypeScript 7 at the value argument, and TypeScript 6 at the converter.
   - P1: a decorator alone, also under `experimentalDecorators`.
   - P2: form A, and P2b: the typed decorator.
   - P3: form B with a group. P4: form C.
@@ -326,14 +451,17 @@ Every probe is under [`probes/`](probes/), and every transcript is under [`check
   - P9 and P9b: brands and the props helper. P10: today's form, read through core's built declarations.
   - P11 and P12: form D.
   - P13: attribute forms under form D. P14: read-only attributes and `readonly accessor`. P16: a static table with accessor signatures in a merged interface.
+  - P17: the owner's sketch as written, read through [`sketch/_example.ts`](probes/types/sketch/_example.ts), a byte-for-byte copy. Its `../attribute.ts` import resolves to [`attribute.ts`](probes/types/attribute.ts), which re-exports core's real `attribute.ts`. P18: the sketch with the fewest fixes, [`sketch-fixed.ts`](probes/types/sketch-fixed.ts). P19: groups in the sketch's shape and in form D. P20: required and provided members, in form D and in the sketch's shape. P21: a trait class as its own `instanceof` target.
 - **P7, the toolchain** ([`probes/toolchain/probe.ts`](probes/toolchain/probe.ts), [transcript](checks/toolchain.txt)). oxc-parser's view of forms A and D, oxc-transform's output for each decorator mode and for form D, oxc's isolated declarations, and Node's reading of a decorator.
 - **P15, each attribute form's JavaScript** ([`probes/toolchain/attribute-js.ts`](probes/toolchain/attribute-js.ts), [transcript](checks/attribute-js.txt)). oxc-transform's output for each form with no flattener, and whether Node 26.13 parses it (`node --check`).
+- **P22, the sketch through the toolchain** ([`probes/toolchain/sketch.ts`](probes/toolchain/sketch.ts), [transcript](checks/sketch.txt)). §1: what oxc-parser gives the flattener in the sketch, with no `@trait`. §2: the brand at runtime in Node, with plain classes in place of `HTMLElement`.
 - **P8, the flattener's machinery** ([`probes/toolchain/machinery.ts`](probes/toolchain/machinery.ts), [transcript](checks/machinery.txt)). It runs the plugin's own `analyzeModule` on form A, its `collectFreeReferences` on class-declaration traits, and a decorator strip with `RolldownMagicString`.
-- **The language service** ([transcript](checks/lsp.txt)): hover and go-to-definition on a trait member in forms A and D, through this harness's TypeScript language server. Its diagnostics match `tsc`'s.
+- **The language service** ([transcript](checks/lsp.txt)): hover and go-to-definition on a trait member in forms A and D, and in the sketch with its fixes, through this harness's TypeScript language server. Its diagnostics match `tsc`'s, apart from TS9021, which it didn't publish for the sketch's probe.
 
 **Not read:**
 
 - a runnable prototype of the flattener in any form. The owner asked for feasibility, and the machinery probe stops at the parts that carry over;
 - bundle sizes. Form D's output is today's lowered shape, so nothing is expected to change, but that isn't measured;
 - conflicting members in form C, and the own-field case in form C;
+- whether a bundler drops an unused literal group with no spread ([Groups of traits](#groups-of-traits) (b)). That is `RF-63`'s measurement;
 - browsers. No decorator reaches the output in a working build.

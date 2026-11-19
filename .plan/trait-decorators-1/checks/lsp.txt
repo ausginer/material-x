@@ -23,3 +23,20 @@ Form D, p11-type-argument.ts 29:17 (`this.disabled` in a class that extends
 Form A, p2-decorator-interface.ts 17:17 (`this.disabled` in a class merged
 with `interface Button extends Disableable, FocusForwarding`):
   hover:            (property) Disableable.disabled: boolean
+
+## The owner's sketch with the type fixes, 2026-11-19, on this revision's probes
+
+The owner's sketch shape, p18-sketch-fixed.ts (`this.disabled` in a class
+that extends the annotated constant `Impl<typeof ControlledElement,
+[typeof Valuable, typeof Disableable]>`):
+  hover:            (property) DisableableTrait.disabled: boolean
+  goToDefinition:   sketch-fixed.ts:79:7 and sketch-fixed.ts:83:7 (the trait's getter and setter)
+
+The server published the same TS2611, TS2610, TS2322 and TS2345 as tsc. It
+didn't publish TS9021 for this file.
+
+These reads were taken before a later edit removed one line, `export { Local }`,
+from p18-sketch-fixed.ts. Today `this.disabled` is at 34:17 and the errors are
+at the positions types.txt shows. A hover at 34:17 afterwards found no symbol,
+because the server hadn't reloaded the file, so the reads above stand at their
+earlier positions (35:17).
