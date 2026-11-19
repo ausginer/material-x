@@ -1,0 +1,34 @@
+# P29 — node .plan/trait-decorators-1/probes/toolchain/example4.ts, at 554cdf7dc, 2026-11-19
+== 1. node runs the owner's file unbuilt (type stripping)
+exit 1 SyntaxError: Invalid or unexpected token
+== 1b. tsc 7 and tsc 6 emit JavaScript under experimentalDecorators
+tsc exit 0 | __decorate: true | decorators kept: false
+tsc6 exit 0 | __decorate: true | decorators kept: false
+== 2. Vite 8 transformWithOxc, which reads the tsconfig that includes the file
+experimentalDecorators: true: decorators kept: false | helper import: @oxc-project/runtime/helpers/decorate
+experimentalDecorators: false: decorators kept: true | helper import: (none)
+resolve @oxc-project/runtime/helpers/decorate from the root → throws Error: Cannot find module '@oxc-project/runtime/helpers/decorate'
+Require stack:
+- package.json
+== 3. the owner's file, lowered, evaluated
+import → throws TypeError: Class extends value #<Object> is not a constructor or null
+== 4. the owner's file with only bound() returning a class
+instanceof Disableable (impl is hand-written): true
+instanceof Counted: true
+button.disabled: undefined | button.count: undefined
+button.check() → undefined
+IconButton.zero() → throws TypeError: owner.IconButton.zero is not a function
+after focus(): own property "disabled": true
+== 5. the fixed file unbuilt: its component is not flattened
+import fixed.ts → throws Error: compose() of a component is replaced by the flattener
+== 6. the fixed mechanism, with components as the flattener emits them
+a trait class extends its bound: ok
+compose(AnyElement), a supertrait base → returns the bound
+IconButton instanceof Disableable, Counted: true true
+SubButton instanceof Disableable: true
+ControlledElement instanceof Disableable: false
+{}, null, 1 instanceof Disableable: false false false
+impl(LabelledButton): instanceof LabelledButton, Disableable: true false
+impl(LabelledButton, Disableable): instanceof LabelledButton, Disableable: true true
+impl() with a class that is not a trait: no error, false
+compose(ControlledElement), a component base → throws Error: compose() of a component is replaced by the flattener

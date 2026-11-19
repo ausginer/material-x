@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21, P23–P25 — .plan/trait-decorators-1/probes/types/run.sh, at 28014c589, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28 — .plan/trait-decorators-1/probes/types/run.sh, at 554cdf7dc, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -395,6 +395,148 @@ p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of pro
     Type 'boolean' is not assignable to type 'string'.
 p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
 exit 2
+=== example4/traits/_example4 — Version 7.0.2
+exit 0
+=== example4/traits/_example4 — Version 6.0.3
+exit 0
+=== example4/traits/fixed — Version 7.0.2
+exit 0
+=== example4/traits/fixed — Version 6.0.3
+exit 0
+=== example4/p27-example4-as-is — Version 7.0.2
+example4/p27-example4-as-is.ts(23,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(26,3): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p27-example4-as-is.ts(26,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(29,7): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p27-example4-as-is.ts(29,7): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(45,28): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'StaticBase & Counted'.
+example4/p27-example4-as-is.ts(47,16): error TS2339: Property 'define' does not exist on type 'typeof FromStaticBase'.
+example4/p27-example4-as-is.ts(53,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(78,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'AbstractConstructor<ControlledElement & Counted>'.
+    Type 'HTMLElement & Counted' is not assignable to type 'ControlledElement & Counted'.
+      Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p27-example4-as-is.ts(87,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(90,17): error TS2339: Property 'disabled' does not exist on type 'FromUnannotated'.
+exit 1
+=== example4/p27-example4-as-is — Version 6.0.3
+example4/p27-example4-as-is.ts(23,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(26,3): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p27-example4-as-is.ts(26,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(29,7): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p27-example4-as-is.ts(29,7): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(45,28): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'StaticBase & Counted'.
+example4/p27-example4-as-is.ts(47,16): error TS2339: Property 'define' does not exist on type 'typeof FromStaticBase'.
+example4/p27-example4-as-is.ts(53,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(78,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'AbstractConstructor<ControlledElement & Counted>'.
+    Type 'HTMLElement & Counted' is not assignable to type 'ControlledElement & Counted'.
+      Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p27-example4-as-is.ts(87,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(90,17): error TS2339: Property 'disabled' does not exist on type 'FromUnannotated'.
+exit 1
+=== example4/p28-example4-fixed — Version 7.0.2
+example4/p28-example4-fixed.ts(24,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p28-example4-fixed.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p28-example4-fixed.ts(30,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p28-example4-fixed.ts(61,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Controlled]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & Controlled>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & Controlled'.
+      Type 'HTMLElement' is missing the following properties from type 'Controlled': reconnect, #internals, #controllers, attributeChangedCallback, and 9 more.
+example4/p28-example4-fixed.ts(61,51): error TS2344: Type '[typeof Controlled]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Controlled' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Controlled' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(63,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof Disableable]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & Disableable>'.
+    Type 'Model' is not assignable to type 'Model & Disableable'.
+      Type 'Model' is missing the following properties from type 'Disableable': disabled, ariaActiveDescendantElement, ariaAtomic, ariaAutoComplete, and 319 more.
+example4/p28-example4-fixed.ts(63,39): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(85,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Observing]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Omit<typeof Observing, "prototype" | unique symbol>'.
+example4/p28-example4-fixed.ts(85,50): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+example4/p28-example4-fixed.ts(92,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'typeof ControlledElement'.
+    Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(122,14): error TS2515: Non-abstract class 'WithoutLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+example4/p28-example4-fixed.ts(123,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof LabelledButton]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & LabelledButton>'.
+    Type 'Model' is not assignable to type 'Model & LabelledButton'.
+      Type 'Model' is missing the following properties from type 'LabelledButton': label, describe, ariaActiveDescendantElement, ariaAtomic, and 321 more.
+example4/p28-example4-fixed.ts(123,47): error TS2344: Type '[typeof LabelledButton]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof LabelledButton' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof LabelledButton' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(125,14): error TS2515: Non-abstract class 'FromLabelledOnModel' does not implement inherited abstract member label from class 'Model & LabelledButton'.
+exit 2
+=== example4/p28-example4-fixed — Version 6.0.3
+example4/p28-example4-fixed.ts(24,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p28-example4-fixed.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p28-example4-fixed.ts(30,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p28-example4-fixed.ts(61,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Controlled]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & Controlled>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & Controlled'.
+      Type 'HTMLElement' is missing the following properties from type 'Controlled': reconnect, #internals, #controllers, attributeChangedCallback, and 9 more.
+example4/p28-example4-fixed.ts(61,51): error TS2344: Type '[typeof Controlled]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Controlled' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Controlled' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(63,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof Disableable]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & Disableable>'.
+    Type 'Model' is not assignable to type 'Model & Disableable'.
+      Type 'Model' is missing the following properties from type 'Disableable': disabled, accessKey, accessKeyLabel, autocapitalize, and 319 more.
+example4/p28-example4-fixed.ts(63,39): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(85,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Observing]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Omit<typeof Observing, "prototype" | unique symbol>'.
+example4/p28-example4-fixed.ts(85,50): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+example4/p28-example4-fixed.ts(92,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'typeof ControlledElement'.
+    Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(122,14): error TS2515: Non-abstract class 'WithoutLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+example4/p28-example4-fixed.ts(123,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof LabelledButton]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & LabelledButton>'.
+    Type 'Model' is not assignable to type 'Model & LabelledButton'.
+      Type 'Model' is missing the following properties from type 'LabelledButton': label, describe, accessKey, accessKeyLabel, and 321 more.
+example4/p28-example4-fixed.ts(123,47): error TS2344: Type '[typeof LabelledButton]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof LabelledButton' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof LabelledButton' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(125,14): error TS2515: Non-abstract class 'FromLabelledOnModel' does not implement inherited abstract member label from class 'Model & LabelledButton'.
+exit 2
 === p1-decorator-only with experimentalDecorators — Version 7.0.2
 p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
   The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.
@@ -755,6 +897,104 @@ export declare class OwnField extends Traits<[Disableable]> {
 import { ControlledElement } from './element.ts';
 import { type Composed } from './layer-a.ts';
 import { Counted, Disableable, FocusForwarding } from './traits-a.ts';
+export type ButtonCoreTraits = readonly [
+    typeof Disableable,
+    typeof FocusForwarding
+];
+declare const IconButtonBase: Composed<typeof ControlledElement, [
+    ...ButtonCoreTraits,
+    typeof Counted
+]>;
+export declare class IconButton extends IconButtonBase {
+    static observedAttributes: readonly string[];
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export {};
+=== emitted example4/out/_example4/…/traits/_example4.d.ts
+import type { AbstractConstructor } from 'type-fest';
+import { ControlledElement } from '../element.ts';
+export declare function trait<T extends AbstractConstructor<unknown>>(ctr: T): T;
+export declare function impl({ prototype }: AbstractConstructor<unknown>, ...traits: ReadonlyArray<AbstractConstructor<unknown>>): void;
+type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? Omit<F, 'prototype'> & Statics<R> : unknown;
+type Instances<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? InstanceType<F> & Instances<R> : unknown;
+type Bound<I extends object, S extends object = {}> = AbstractConstructor<I> & S;
+export declare function bound<I extends object, S extends object = {}>(): Bound<I, S>;
+export type Composed<B extends AbstractConstructor<unknown>, T extends ReadonlyArray<AbstractConstructor<unknown>>> = AbstractConstructor<InstanceType<B> & Instances<T>> & Statics<T>;
+export declare function compose<const B extends AbstractConstructor<unknown>, const T extends ReadonlyArray<AbstractConstructor<unknown>>>(base: B): Composed<B, T>;
+export declare const AnyElement: Bound<HTMLElement>;
+export declare const ObservedElement: Bound<HTMLElement, {
+    readonly observedAttributes?: readonly string[];
+}>;
+export declare class Disableable extends AnyElement {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class FocusForwarding extends AnyElement {
+    focus(options?: FocusOptions): void;
+}
+export declare class Counted {
+    static zero(): number;
+    count: number;
+}
+export type ButtonCoreTraits = readonly [
+    typeof Disableable,
+    typeof FocusForwarding
+];
+declare const IconButtonBase: Composed<typeof ControlledElement, [
+    ...ButtonCoreTraits,
+    typeof Counted
+]>;
+export declare class IconButton extends IconButtonBase {
+    static observedAttributes: readonly string[];
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export {};
+=== emitted example4/out/fixed/…/traits/fixed.d.ts
+import type { AbstractConstructor } from 'type-fest';
+import { ControlledElement } from '../element.ts';
+export declare function trait(ctr: AbstractConstructor<unknown>): void;
+export declare function impl({ prototype }: AbstractConstructor<unknown>, ...traits: ReadonlyArray<AbstractConstructor<unknown>>): void;
+declare const $bound: unique symbol;
+type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? Omit<F, 'prototype' | typeof $bound> & Statics<R> : unknown;
+type Instances<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? InstanceType<F> & Instances<R> : unknown;
+export type Bound<I extends object, S extends object = {}> = AbstractConstructor<I> & S & {
+    readonly [$bound]: (instance: I, statics: S) => void;
+};
+export declare function bound<I extends object, S extends object = {}>(): Bound<I, S>;
+export type Applicable<B extends AbstractConstructor<unknown>> = AbstractConstructor<unknown> & {
+    readonly [$bound]?: (instance: InstanceType<B>, statics: B) => void;
+};
+export type Composed<B extends AbstractConstructor<unknown>, T extends ReadonlyArray<Applicable<B>>> = B & AbstractConstructor<InstanceType<B> & Instances<T>> & Statics<T>;
+export declare function compose<const B extends AbstractConstructor<unknown>, const T extends ReadonlyArray<Applicable<B>>>(base: B): Composed<B, T>;
+export declare const AnyElement: Bound<HTMLElement>;
+export declare const ObservedElement: Bound<HTMLElement, {
+    readonly observedAttributes?: readonly string[];
+}>;
+export declare class Disableable extends AnyElement {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class FocusForwarding extends AnyElement {
+    focus(options?: FocusOptions): void;
+}
+export declare class Counted {
+    static zero(): number;
+    count: number;
+}
 export type ButtonCoreTraits = readonly [
     typeof Disableable,
     typeof FocusForwarding

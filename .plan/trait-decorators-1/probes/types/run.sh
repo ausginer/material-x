@@ -23,6 +23,20 @@ for probe in p1-decorator-only p2-decorator-interface p2-typed-marker p6-member-
   done
   rm -f "${config}"
 done
+# The owner's _example4.ts and its fixed version, with core's real
+# ControlledElement, under example4/tsconfig.json (experimentalDecorators).
+for probe in traits/_example4 traits/fixed p27-example4-as-is p28-example4-fixed; do
+  name="${probe##*/}"
+  config="example4/.tsconfig.${name}.json"
+  printf '{"extends":"./tsconfig.json","files":["%s.ts"],"compilerOptions":{"outDir":"out/%s"}}\n' \
+    "${probe}" "${name}" > "${config}"
+  for tsc in tsc tsc6; do
+    echo "=== example4/${probe} — $("${bin}/${tsc}" -v)"
+    "${bin}/${tsc}" -p "${config}" --pretty false
+    echo "exit $?"
+  done
+  rm -f "${config}"
+done
 echo "=== p1-decorator-only with experimentalDecorators — $("${bin}/tsc" -v)"
 "${bin}/tsc" -p tsconfig.experimental.json --pretty false
 echo "exit $?"
@@ -30,4 +44,8 @@ for probe in p2-decorator-interface p3-interface-only p6-member-kinds p9-brand-p
   echo "=== emitted out/${probe}/${probe}.d.ts"
   cat "out/${probe}/${probe}.d.ts" 2>/dev/null || echo '(none)'
 done
-rm -rf "${here:?}/out" "${here:?}/out-exp"
+for name in _example4 fixed; do
+  echo "=== emitted example4/out/${name}/…/traits/${name}.d.ts"
+  cat "example4/out/${name}/.plan/trait-decorators-1/probes/types/example4/traits/${name}.d.ts" 2>/dev/null || echo '(none)'
+done
+rm -rf "${here:?}/out" "${here:?}/out-exp" "${here:?}/example4/out"

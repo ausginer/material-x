@@ -50,3 +50,26 @@ earlier positions (35:17).
 `IconButton.zero()` at 21:55, a trait's static member on the component:
   hover:            (method) zero(): number
   goToDefinition:   traits-a.ts:19:10 (Counted's `static zero()`)
+
+## The owner's refinement, fixed: example4/, 2026-11-19
+
+traits/fixed.ts, `this.disabled` at 154:17 in IconButton, which extends
+`Composed<typeof ControlledElement, [...ButtonCoreTraits, typeof Counted]>`:
+  hover:            (property) Disableable.disabled: boolean
+  goToDefinition:   fixed.ts:104:7 and fixed.ts:107:7 (the trait's getter and setter)
+
+`IconButton.zero()` at 154:55:
+  hover:            (method) zero(): number
+
+p28-example4-fixed.ts, `FromStaticBase.define()` at 47:16, the base's own
+static kept by `B &` (fix 4):
+  hover:            (method) StaticBase.define(): void
+
+The server published the same TS2610, TS2611, TS2322, TS2344 and TS2515 as tsc
+for p28-example4-fixed.ts.
+
+These reads on traits/fixed.ts were taken before oxfmt reformatted the file,
+which moved the reads three lines down: `this.disabled` is now at 157:17, and the
+getter and setter at 107:7 and 110:7. A hover afterwards found the server
+still on the earlier text, so the reads above stand at their earlier positions.
+p28-example4-fixed.ts didn't move.
