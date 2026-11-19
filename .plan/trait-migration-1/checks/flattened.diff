@@ -1,0 +1,1772 @@
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button/button.js b/packages/material-x/button/button.js
+index a841cb847..f088aa691 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button/button.js
++++ b/packages/material-x/button/button.js
+@@ -1,4 +1,4 @@
+-import { $buttonLike, BUTTON_ATTRS, useButtonCore } from "./ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19, useButtonCore } from "./ButtonCore.js";
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+ import { useFormActivation } from "../core/utils/events.js";
+ import tpl from "./button.tpl.html.js";
+@@ -6,12 +6,12 @@ import css from "./styles/elevated/main.css.js";
+ import css$1 from "./styles/outlined/main.css.js";
+ import css$2 from "./styles/text/main.css.js";
+ import css$3 from "./styles/tonal/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $nameable, NAMEABLE_ATTRS, useNameable } from "@ydinjs/core/traits/nameable.js";
+-import { $typeable, TYPEABLE_ATTRS, useTypeable } from "@ydinjs/core/traits/typeable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $nameable, NAMEABLE_ATTRS, __mxflat_Nameable_observedAttributes_67a1e6b9, useNameable } from "@ydinjs/core/traits/nameable.js";
++import { $typeable, TYPEABLE_ATTRS, __mxflat_Typeable_observedAttributes_d307d547, useTypeable } from "@ydinjs/core/traits/typeable.js";
+ // src/button/button.ts
+ /**
+ * @tag mx-button
+@@ -47,62 +47,54 @@ import { $typeable, TYPEABLE_ATTRS, useTypeable } from "@ydinjs/core/traits/type
+ * @event click - Fired when the button is activated.
+ */
+ class Button extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"name",
+-		"type"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Nameable_observedAttributes_67a1e6b9,
++		...__mxflat_Typeable_observedAttributes_d307d547
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "name"() {
++	get name() {
+ 		return attribute.get(this, "name", NAMEABLE_ATTRS.name);
+ 	}
+-	set "name"(value) {
++	set name(value) {
+ 		attribute.set(this, "name", value, NAMEABLE_ATTRS.name);
+ 	}
+-	get "type"() {
++	get type() {
+ 		return attribute.get(this, "type", TYPEABLE_ATTRS.type);
+ 	}
+-	set "type"(value) {
++	set type(value) {
+ 		attribute.set(this, "type", value, TYPEABLE_ATTRS.type);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$nameable]: { value: true },
+-			[$typeable]: { value: true },
+-			[$focusForwarding]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $nameable, $typeable, $focusForwarding);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button/icon-button.js b/packages/material-x/button/icon-button.js
+index 5cc84a892..1c8fd2c97 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button/icon-button.js
++++ b/packages/material-x/button/icon-button.js
+@@ -1,5 +1,5 @@
+-import { $buttonLike, BUTTON_ATTRS, useButtonCore } from "./ButtonCore.js";
+-import { $iconButtonLike, useIconButtonCore } from "./IconButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19, useButtonCore } from "./ButtonCore.js";
++import { $iconButtonLike, __mxflat_IconButtonLike_observedAttributes_05952666, useIconButtonCore } from "./IconButtonCore.js";
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+ import { useFormActivation } from "../core/utils/events.js";
+ import tpl from "./icon-button.tpl.html.js";
+@@ -8,11 +8,11 @@ import css$1 from "./styles/icon/main.css.js";
+ import css$2 from "./styles/outlined/main.css.js";
+ import css$3 from "./styles/text/main.css.js";
+ import css$4 from "./styles/tonal/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Str } from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $typeable, TYPEABLE_ATTRS } from "@ydinjs/core/traits/typeable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $typeable, TYPEABLE_ATTRS, __mxflat_Typeable_observedAttributes_d307d547 } from "@ydinjs/core/traits/typeable.js";
+ // src/button/icon-button.ts
+ /**
+ * @tag mx-icon-button
+@@ -44,62 +44,54 @@ import { $typeable, TYPEABLE_ATTRS } from "@ydinjs/core/traits/typeable.js";
+ * @event click - Fired when the button is activated.
+ */
+ class IconButton extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"width",
+-		"type"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_IconButtonLike_observedAttributes_05952666,
++		...__mxflat_Typeable_observedAttributes_d307d547
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "width"() {
++	get width() {
+ 		return attribute.get(this, "width", Str);
+ 	}
+-	set "width"(value) {
++	set width(value) {
+ 		attribute.set(this, "width", value, Str);
+ 	}
+-	get "type"() {
++	get type() {
+ 		return attribute.get(this, "type", TYPEABLE_ATTRS.type);
+ 	}
+-	set "type"(value) {
++	set type(value) {
+ 		attribute.set(this, "type", value, TYPEABLE_ATTRS.type);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$iconButtonLike]: { value: true },
+-			[$typeable]: { value: true },
+-			[$focusForwarding]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $iconButtonLike, $typeable, $focusForwarding);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button/link-button.js b/packages/material-x/button/link-button.js
+index 92ef023f0..dec674c87 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button/link-button.js
++++ b/packages/material-x/button/link-button.js
+@@ -1,16 +1,16 @@
+-import { $buttonLike, BUTTON_ATTRS, useButtonCore } from "./ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19, useButtonCore } from "./ButtonCore.js";
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+ import tpl from "./link-button.tpl.html.js";
+ import css from "./styles/elevated/main.css.js";
+ import css$1 from "./styles/outlined/main.css.js";
+ import css$2 from "./styles/text/main.css.js";
+ import css$3 from "./styles/tonal/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
+ import { $ } from "@ydinjs/core/utils/DOM.js";
+-import { $linkable, LINKABLE_ATTRS, useDisableableLinkable, useLinkable } from "@ydinjs/core/traits/linkable.js";
++import { $linkable, LINKABLE_ATTRS, __mxflat_Linkable_observedAttributes_1274d6eb, useDisableableLinkable, useLinkable } from "@ydinjs/core/traits/linkable.js";
+ // src/button/link-button.ts
+ /**
+ * @tag mx-link-button
+@@ -45,61 +45,53 @@ import { $linkable, LINKABLE_ATTRS, useDisableableLinkable, useLinkable } from "
+ * @event click - Fired when the link button is activated.
+ */
+ class LinkButton extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"href",
+-		"target"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Linkable_observedAttributes_1274d6eb
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "href"() {
++	get href() {
+ 		return attribute.get(this, "href", LINKABLE_ATTRS.href);
+ 	}
+-	set "href"(value) {
++	set href(value) {
+ 		attribute.set(this, "href", value, LINKABLE_ATTRS.href);
+ 	}
+-	get "target"() {
++	get target() {
+ 		return attribute.get(this, "target", LINKABLE_ATTRS.target);
+ 	}
+-	set "target"(value) {
++	set target(value) {
+ 		attribute.set(this, "target", value, LINKABLE_ATTRS.target);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$linkable]: { value: true },
+-			[$focusForwarding]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $linkable, $focusForwarding);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button/switch-button.js b/packages/material-x/button/switch-button.js
+index 27b34993e..8776bdd8b 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button/switch-button.js
++++ b/packages/material-x/button/switch-button.js
+@@ -1,4 +1,4 @@
+-import { $buttonLike, BUTTON_ATTRS } from "./ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19 } from "./ButtonCore.js";
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+ import css from "./styles/default/switch.css.js";
+ import css$1 from "./styles/elevated/main.css.js";
+@@ -10,12 +10,12 @@ import css$5 from "./styles/tonal/main.css.js";
+ import css$6 from "./styles/tonal/switch.css.js";
+ import tpl from "./switch-button.tpl.html.js";
+ import { useSwitchCore } from "./SwitchCore.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $checkable, CHECKABLE_ATTRS } from "@ydinjs/core/traits/checkable.js";
+-import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $checkable, CHECKABLE_ATTRS, __mxflat_Checkable_observedAttributes_cad06aa5 } from "@ydinjs/core/traits/checkable.js";
++import { $valuable, VALUABLE_ATTRS, __mxflat_Valuable_observedAttributes_624f2c17 } from "@ydinjs/core/traits/valuable.js";
+ // src/button/switch-button.ts
+ /**
+ * @tag mx-switch-button
+@@ -53,62 +53,54 @@ import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
+ * @event change - Fired after `input` when the switch is activated.
+ */
+ class SwitchButton extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"checked",
+-		"value"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Checkable_observedAttributes_cad06aa5,
++		...__mxflat_Valuable_observedAttributes_624f2c17
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "checked"() {
++	get checked() {
+ 		return attribute.get(this, "checked", CHECKABLE_ATTRS.checked);
+ 	}
+-	set "checked"(value) {
++	set checked(value) {
+ 		attribute.set(this, "checked", value, CHECKABLE_ATTRS.checked);
+ 	}
+-	get "value"() {
++	get value() {
+ 		return attribute.get(this, "value", VALUABLE_ATTRS.value);
+ 	}
+-	set "value"(value) {
++	set value(value) {
+ 		attribute.set(this, "value", value, VALUABLE_ATTRS.value);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$checkable]: { value: true },
+-			[$valuable]: { value: true },
+-			[$focusForwarding]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $checkable, $valuable, $focusForwarding);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button/switch-icon-button.js b/packages/material-x/button/switch-icon-button.js
+index c30ff5645..3bf978352 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button/switch-icon-button.js
++++ b/packages/material-x/button/switch-icon-button.js
+@@ -1,6 +1,6 @@
+-import { $buttonLike, BUTTON_ATTRS } from "./ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19 } from "./ButtonCore.js";
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+-import { $iconButtonLike, useIconButtonCore } from "./IconButtonCore.js";
++import { $iconButtonLike, __mxflat_IconButtonLike_observedAttributes_05952666, useIconButtonCore } from "./IconButtonCore.js";
+ import css from "./styles/default/switch.css.js";
+ import css$1 from "./styles/elevated/main.css.js";
+ import css$2 from "./styles/elevated/switch.css.js";
+@@ -13,12 +13,12 @@ import css$7 from "./styles/tonal/main.css.js";
+ import css$8 from "./styles/tonal/switch.css.js";
+ import tpl from "./switch-icon-button.tpl.html.js";
+ import { useSwitchCore } from "./SwitchCore.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Str } from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $checkable, CHECKABLE_ATTRS } from "@ydinjs/core/traits/checkable.js";
+-import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $checkable, CHECKABLE_ATTRS, __mxflat_Checkable_observedAttributes_cad06aa5 } from "@ydinjs/core/traits/checkable.js";
++import { $valuable, VALUABLE_ATTRS, __mxflat_Valuable_observedAttributes_624f2c17 } from "@ydinjs/core/traits/valuable.js";
+ // src/button/switch-icon-button.ts
+ /**
+ * @tag mx-switch-icon-button
+@@ -57,70 +57,61 @@ import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
+ * @event change - Fired after `input` when the switch is activated.
+ */
+ class SwitchIconButton extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"checked",
+-		"value",
+-		"width"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Checkable_observedAttributes_cad06aa5,
++		...__mxflat_Valuable_observedAttributes_624f2c17,
++		...__mxflat_IconButtonLike_observedAttributes_05952666
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "checked"() {
++	get checked() {
+ 		return attribute.get(this, "checked", CHECKABLE_ATTRS.checked);
+ 	}
+-	set "checked"(value) {
++	set checked(value) {
+ 		attribute.set(this, "checked", value, CHECKABLE_ATTRS.checked);
+ 	}
+-	get "value"() {
++	get value() {
+ 		return attribute.get(this, "value", VALUABLE_ATTRS.value);
+ 	}
+-	set "value"(value) {
++	set value(value) {
+ 		attribute.set(this, "value", value, VALUABLE_ATTRS.value);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+-	get "width"() {
++	get width() {
+ 		return attribute.get(this, "width", Str);
+ 	}
+-	set "width"(value) {
++	set width(value) {
+ 		attribute.set(this, "width", value, Str);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$checkable]: { value: true },
+-			[$valuable]: { value: true },
+-			[$focusForwarding]: { value: true },
+-			[$iconButtonLike]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $checkable, $valuable, $focusForwarding, $iconButtonLike);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button/split-button.js b/packages/material-x/button/split-button.js
+index 4812f4650..71493bf99 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button/split-button.js
++++ b/packages/material-x/button/split-button.js
+@@ -1,4 +1,4 @@
+-import { $buttonLike, BUTTON_ATTRS } from "./ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19 } from "./ButtonCore.js";
+ import "../button-group/connected-button-group.js";
+ import { notify } from "../core/utils/events.js";
+ import { useCore } from "../core/utils/useCore.js";
+@@ -7,16 +7,29 @@ import "./button.js";
+ import "./icon-button.js";
+ import tpl from "./split-button.tpl.html.js";
+ import css from "./styles/split/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Bool } from "@ydinjs/core/attribute.js";
+ import { transfer, useAttributes } from "@ydinjs/core/controllers/useAttributes.js";
+ import { ControlledElement, define, internals } from "@ydinjs/core/element.js";
+-import { trait } from "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
++import { AnyElement } from "@ydinjs/core/traits/attribute-traits.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
+ import { $, toggleState } from "@ydinjs/core/utils/DOM.js";
+ import { useEvents } from "@ydinjs/core/controllers/useEvents.js";
+ // src/button/split-button.ts
+ const $splitButtonLike = Symbol("SplitButtonLike");
+-const SplitButtonLike = /*@__PURE__*/ trait({ open: Bool }, $splitButtonLike);
++const __mxflat_SplitButtonLike_observedAttributes_7471c934 = ["open"];
++class SplitButtonLike extends AnyElement {
++	static observedAttributes = __mxflat_SplitButtonLike_observedAttributes_7471c934;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$splitButtonLike] === true;
++	}
++	get open() {
++		return attribute.get(this, "open", Bool);
++	}
++	set open(value) {
++		attribute.set(this, "open", value, Bool);
++	}
++}
+ /**
+ * @tag mx-split-button
+ *
+@@ -54,50 +67,44 @@ const SplitButtonLike = /*@__PURE__*/ trait({ open: Bool }, $splitButtonLike);
+ * @event secondaryaction - Fired when the trailing action is activated.
+ */
+ class SplitButton extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"open"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_SplitButtonLike_observedAttributes_7471c934
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "open"() {
++	get open() {
+ 		return attribute.get(this, "open", Bool);
+ 	}
+-	set "open"(value) {
++	set open(value) {
+ 		attribute.set(this, "open", value, Bool);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$splitButtonLike]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $splitButtonLike);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+@@ -116,6 +123,6 @@ class SplitButton extends ControlledElement {
+ 	}
+ }
+ define("mx-split-button", SplitButton);
+-export { SplitButtonLike, SplitButton as default };
++export { $splitButtonLike, SplitButtonLike, __mxflat_SplitButtonLike_observedAttributes_7471c934, SplitButton as default };
+ 
+ //# sourceMappingURL=split-button.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button-group/button-group.js b/packages/material-x/button-group/button-group.js
+index 3d9352515..f6e681df1 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button-group/button-group.js
++++ b/packages/material-x/button-group/button-group.js
+@@ -1,14 +1,14 @@
+-import { $buttonLike, BUTTON_ATTRS } from "../button/ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19 } from "../button/ButtonCore.js";
+ import { $buttonGroupLike, useButtonGroupCore } from "./ButtonGroupCore.js";
+ import tpl from "./button-group.tpl.html.js";
+ import css from "./styles/standard/main.css.js";
+ import { getTarget } from "./utils.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
+ import { useEvents } from "@ydinjs/core/controllers/useEvents.js";
+-import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
++import { $valuable, VALUABLE_ATTRS, __mxflat_Valuable_observedAttributes_624f2c17 } from "@ydinjs/core/traits/valuable.js";
+ import { useSlot } from "@ydinjs/core/controllers/useSlot.js";
+ // src/button-group/button-group.ts
+ const LEADING_PROP = "--ha";
+@@ -34,51 +34,44 @@ const TRAILING_PROP = "--hb";
+ * @cssprop --md-button-group-inner-corner-size - Overrides inner corner radius.
+ */
+ class ButtonGroup extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"value"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Valuable_observedAttributes_624f2c17
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "value"() {
++	get value() {
+ 		return attribute.get(this, "value", VALUABLE_ATTRS.value);
+ 	}
+-	set "value"(value) {
++	set value(value) {
+ 		attribute.set(this, "value", value, VALUABLE_ATTRS.value);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$buttonGroupLike]: { value: true },
+-			[$valuable]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $buttonGroupLike, $valuable);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/button-group/connected-button-group.js b/packages/material-x/button-group/connected-button-group.js
+index 15e6bd1e1..f3279b6ba 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/button-group/connected-button-group.js
++++ b/packages/material-x/button-group/connected-button-group.js
+@@ -1,12 +1,12 @@
+-import { $buttonLike, BUTTON_ATTRS } from "../button/ButtonCore.js";
++import { $buttonLike, BUTTON_ATTRS, __mxflat_ButtonLike_observedAttributes_e9387e19 } from "../button/ButtonCore.js";
+ import { $buttonGroupLike, useButtonGroupCore } from "./ButtonGroupCore.js";
+ import tpl from "./button-group.tpl.html.js";
+ import css from "./styles/connected/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $valuable, VALUABLE_ATTRS, __mxflat_Valuable_observedAttributes_624f2c17 } from "@ydinjs/core/traits/valuable.js";
+ import { useRovingTabindex } from "@ydinjs/core/controllers/useRovingTabindex.js";
+ import { useSlot } from "@ydinjs/core/controllers/useSlot.js";
+ // src/button-group/connected-button-group.ts
+@@ -34,51 +34,44 @@ import { useSlot } from "@ydinjs/core/controllers/useSlot.js";
+ * corners.
+ */
+ class ConnectedButtonGroup extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"color",
+-		"size",
+-		"shape",
+-		"disabled",
+-		"value"
+-	])];
+-	get "color"() {
++		...__mxflat_ButtonLike_observedAttributes_e9387e19,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Valuable_observedAttributes_624f2c17
++	];
++	get color() {
+ 		return attribute.get(this, "color", BUTTON_ATTRS.color);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, BUTTON_ATTRS.color);
+ 	}
+-	get "size"() {
++	get size() {
+ 		return attribute.get(this, "size", BUTTON_ATTRS.size);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, BUTTON_ATTRS.size);
+ 	}
+-	get "shape"() {
++	get shape() {
+ 		return attribute.get(this, "shape", BUTTON_ATTRS.shape);
+ 	}
+-	set "shape"(value) {
++	set shape(value) {
+ 		attribute.set(this, "shape", value, BUTTON_ATTRS.shape);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "value"() {
++	get value() {
+ 		return attribute.get(this, "value", VALUABLE_ATTRS.value);
+ 	}
+-	set "value"(value) {
++	set value(value) {
+ 		attribute.set(this, "value", value, VALUABLE_ATTRS.value);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$buttonLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$buttonGroupLike]: { value: true },
+-			[$valuable]: { value: true }
+-		});
++		impl(this, $buttonLike, $disableable, $buttonGroupLike, $valuable);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/checkbox/checkbox.js b/packages/material-x/checkbox/checkbox.js
+index 03777e48a..b503276e9 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/checkbox/checkbox.js
++++ b/packages/material-x/checkbox/checkbox.js
+@@ -2,21 +2,34 @@ import { useCheckableCore } from "../core/elements/CheckableCore.js";
+ import "../icon/icon.js";
+ import tpl from "./checkbox.tpl.html.js";
+ import css from "./styles/default/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Bool } from "@ydinjs/core/attribute.js";
+ import { useAttributes, via } from "@ydinjs/core/controllers/useAttributes.js";
+ import { ControlledElement, define, internals } from "@ydinjs/core/element.js";
+-import { trait } from "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
++import { AnyElement } from "@ydinjs/core/traits/attribute-traits.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
+ import { $, toggleState } from "@ydinjs/core/utils/DOM.js";
+ import { useEvents } from "@ydinjs/core/controllers/useEvents.js";
+-import { $nameable, NAMEABLE_ATTRS } from "@ydinjs/core/traits/nameable.js";
+-import { $checkable, CHECKABLE_ATTRS } from "@ydinjs/core/traits/checkable.js";
+-import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
++import { $nameable, NAMEABLE_ATTRS, __mxflat_Nameable_observedAttributes_67a1e6b9 } from "@ydinjs/core/traits/nameable.js";
++import { $checkable, CHECKABLE_ATTRS, __mxflat_Checkable_observedAttributes_cad06aa5 } from "@ydinjs/core/traits/checkable.js";
++import { $valuable, VALUABLE_ATTRS, __mxflat_Valuable_observedAttributes_624f2c17 } from "@ydinjs/core/traits/valuable.js";
+ // src/checkbox/checkbox.ts
+ const CHECKED_ICON = "check_small";
+ const INDETERMINATE_ICON = "check_indeterminate_small";
+ const $indeterminable = Symbol("Indeterminable");
+-const Indeterminable = /*@__PURE__*/ trait({ indeterminate: Bool }, $indeterminable);
++const __mxflat_Indeterminable_observedAttributes_0165b10b = ["indeterminate"];
++class Indeterminable extends AnyElement {
++	static observedAttributes = __mxflat_Indeterminable_observedAttributes_0165b10b;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$indeterminable] === true;
++	}
++	get indeterminate() {
++		return attribute.get(this, "indeterminate", Bool);
++	}
++	set indeterminate(value) {
++		attribute.set(this, "indeterminate", value, Bool);
++	}
++}
+ /**
+ * @tag mx-checkbox
+ *
+@@ -58,52 +71,46 @@ const Indeterminable = /*@__PURE__*/ trait({ indeterminate: Bool }, $indetermina
+ * @event input - Fired after `click` when the user activates the checkbox.
+ */
+ class Checkbox extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"checked",
+-		"value",
+-		"disabled",
+-		"name",
+-		"indeterminate"
+-	])];
+-	get "checked"() {
++		...__mxflat_Checkable_observedAttributes_cad06aa5,
++		...__mxflat_Valuable_observedAttributes_624f2c17,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Nameable_observedAttributes_67a1e6b9,
++		...__mxflat_Indeterminable_observedAttributes_0165b10b
++	];
++	get checked() {
+ 		return attribute.get(this, "checked", CHECKABLE_ATTRS.checked);
+ 	}
+-	set "checked"(value) {
++	set checked(value) {
+ 		attribute.set(this, "checked", value, CHECKABLE_ATTRS.checked);
+ 	}
+-	get "value"() {
++	get value() {
+ 		return attribute.get(this, "value", VALUABLE_ATTRS.value);
+ 	}
+-	set "value"(value) {
++	set value(value) {
+ 		attribute.set(this, "value", value, VALUABLE_ATTRS.value);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "name"() {
++	get name() {
+ 		return attribute.get(this, "name", NAMEABLE_ATTRS.name);
+ 	}
+-	set "name"(value) {
++	set name(value) {
+ 		attribute.set(this, "name", value, NAMEABLE_ATTRS.name);
+ 	}
+-	get "indeterminate"() {
++	get indeterminate() {
+ 		return attribute.get(this, "indeterminate", Bool);
+ 	}
+-	set "indeterminate"(value) {
++	set indeterminate(value) {
+ 		attribute.set(this, "indeterminate", value, Bool);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$checkable]: { value: true },
+-			[$valuable]: { value: true },
+-			[$disableable]: { value: true },
+-			[$nameable]: { value: true },
+-			[$indeterminable]: { value: true }
+-		});
++		impl(this, $checkable, $valuable, $disableable, $nameable, $indeterminable);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+@@ -127,6 +134,6 @@ class Checkbox extends ControlledElement {
+ 	}
+ }
+ define("mx-checkbox", Checkbox);
+-export { Indeterminable, Checkbox as default };
++export { $indeterminable, Indeterminable, __mxflat_Indeterminable_observedAttributes_0165b10b, Checkbox as default };
+ 
+ //# sourceMappingURL=checkbox.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/fab/fab.js b/packages/material-x/fab/fab.js
+index b9355efbf..352fdd14b 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/fab/fab.js
++++ b/packages/material-x/fab/fab.js
+@@ -10,21 +10,52 @@ import css$3 from "./styles/default/main.css.js";
+ import css$4 from "./styles/extended/main.css.js";
+ import css$5 from "./styles/size/main.css.js";
+ import css$6 from "./styles/tonal/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Bool, Str } from "@ydinjs/core/attribute.js";
+ import { useARIA } from "@ydinjs/core/controllers/useARIA.js";
+ import { useAttributes } from "@ydinjs/core/controllers/useAttributes.js";
+ import { ControlledElement, define, internals } from "@ydinjs/core/element.js";
+-import { trait } from "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS, useDisableable } from "@ydinjs/core/traits/disableable.js";
++import { AnyElement } from "@ydinjs/core/traits/attribute-traits.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58, useDisableable } from "@ydinjs/core/traits/disableable.js";
+ import { $, switchState, toggleState } from "@ydinjs/core/utils/DOM.js";
+ // src/fab/fab.ts
+-const $fabLike = Symbol("FABLike");
+-const FABLike = /*@__PURE__*/ trait({
+-	size: Str,
+-	color: Str,
+-	extended: Str,
+-	tonal: Bool
+-}, $fabLike);
++const $fABLike = Symbol("FABLike");
++const __mxflat_FABLike_observedAttributes_c99eb312 = [
++	"size",
++	"color",
++	"extended",
++	"tonal"
++];
++class FABLike extends AnyElement {
++	static observedAttributes = __mxflat_FABLike_observedAttributes_c99eb312;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$fABLike] === true;
++	}
++	get size() {
++		return attribute.get(this, "size", Str);
++	}
++	set size(value) {
++		attribute.set(this, "size", value, Str);
++	}
++	get color() {
++		return attribute.get(this, "color", Str);
++	}
++	set color(value) {
++		attribute.set(this, "color", value, Str);
++	}
++	get extended() {
++		return attribute.get(this, "extended", Str);
++	}
++	set extended(value) {
++		attribute.set(this, "extended", value, Str);
++	}
++	get tonal() {
++		return attribute.get(this, "tonal", Bool);
++	}
++	set tonal(value) {
++		attribute.set(this, "tonal", value, Bool);
++	}
++}
+ /**
+ * @tag mx-fab
+ *
+@@ -55,53 +86,46 @@ const FABLike = /*@__PURE__*/ trait({
+ * @event click - Fired when the FAB is activated.
+ */
+ class FAB extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"size",
+-		"color",
+-		"extended",
+-		"tonal",
+-		"disabled"
+-	])];
+-	get "size"() {
++		...__mxflat_FABLike_observedAttributes_c99eb312,
++		...__mxflat_Disableable_observedAttributes_e2af3a58
++	];
++	get size() {
+ 		return attribute.get(this, "size", Str);
+ 	}
+-	set "size"(value) {
++	set size(value) {
+ 		attribute.set(this, "size", value, Str);
+ 	}
+-	get "color"() {
++	get color() {
+ 		return attribute.get(this, "color", Str);
+ 	}
+-	set "color"(value) {
++	set color(value) {
+ 		attribute.set(this, "color", value, Str);
+ 	}
+-	get "extended"() {
++	get extended() {
+ 		return attribute.get(this, "extended", Str);
+ 	}
+-	set "extended"(value) {
++	set extended(value) {
+ 		attribute.set(this, "extended", value, Str);
+ 	}
+-	get "tonal"() {
++	get tonal() {
+ 		return attribute.get(this, "tonal", Bool);
+ 	}
+-	set "tonal"(value) {
++	set tonal(value) {
+ 		attribute.set(this, "tonal", value, Bool);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$fabLike]: { value: true },
+-			[$disableable]: { value: true },
+-			[$focusForwarding]: { value: true }
+-		});
++		impl(this, $fABLike, $disableable, $focusForwarding);
+ 	}
+ 	constructor() {
+ 		super();
+@@ -132,6 +156,6 @@ class FAB extends ControlledElement {
+ 	}
+ }
+ define("mx-fab", FAB);
+-export { FABLike, FAB as default };
++export { $fABLike, FABLike, __mxflat_FABLike_observedAttributes_c99eb312, FAB as default };
+ 
+ //# sourceMappingURL=fab.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/list/list.js b/packages/material-x/list/list.js
+index 68d96068a..1d466c977 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/list/list.js
++++ b/packages/material-x/list/list.js
+@@ -2,11 +2,11 @@ import { identity, parseMs } from "../core/utils/fns.js";
+ import { useCore } from "../core/utils/useCore.js";
+ import tpl from "./list.tpl.html.js";
+ import css from "./styles/default/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Bool } from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+ import { useCSSProps } from "@ydinjs/core/controllers/useCSSProps.js";
+-import { $reorderable, useReorderable } from "@ydinjs/core/traits/reorderable.js";
++import { $reorderable, __mxflat_Reorderable_observedAttributes_84ff49bd, useReorderable } from "@ydinjs/core/traits/reorderable.js";
+ // src/list/list.ts
+ const CSS_PROPS = {
+ 	easing: ["--fm", identity],
+@@ -36,15 +36,15 @@ const CSS_PROPS = {
+ * @cssprop --md-list-container-shape - Overrides the list container shape.
+ */
+ class List extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([...ControlledElement.observedAttributes ?? [], "reorderable"])];
+-	get "reorderable"() {
++	static observedAttributes = [...ControlledElement.observedAttributes ?? [], ...__mxflat_Reorderable_observedAttributes_84ff49bd];
++	get reorderable() {
+ 		return attribute.get(this, "reorderable", Bool);
+ 	}
+-	set "reorderable"(value) {
++	set reorderable(value) {
+ 		attribute.set(this, "reorderable", value, Bool);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, { [$reorderable]: { value: true } });
++		impl(this, $reorderable);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/list/list-item.js b/packages/material-x/list/list-item.js
+index 18ce6ebff..095682eeb 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/list/list-item.js
++++ b/packages/material-x/list/list-item.js
+@@ -1,7 +1,7 @@
+ import tpl from "./list-item.tpl.html.js";
+ import { useListItemCore } from "./ListItemCore.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+ // src/list/list-item.ts
+ /**
+ * @tag mx-list-item
+@@ -19,7 +19,7 @@ import "@ydinjs/core/traits/attributes.js";
+ */
+ class ListItem extends ControlledElement {
+ 	static {
+-		Object.defineProperties(this.prototype, {});
++		impl(this);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/list/list-button-item.js b/packages/material-x/list/list-button-item.js
+index a8c6b26aa..182c66385 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/list/list-button-item.js
++++ b/packages/material-x/list/list-button-item.js
+@@ -1,11 +1,11 @@
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+ import tpl from "./list-button-item.tpl.html.js";
+ import { useInteractiveListItemCore } from "./ListInteractiveItemCore.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $selectable, SELECTABLE_ATTRS, useSelectable } from "@ydinjs/core/traits/selectable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $selectable, SELECTABLE_ATTRS, __mxflat_Selectable_observedAttributes_a569caaf, useSelectable } from "@ydinjs/core/traits/selectable.js";
+ // src/list/list-button-item.ts
+ /**
+ * @tag mx-list-button-item
+@@ -27,32 +27,28 @@ import { $selectable, SELECTABLE_ATTRS, useSelectable } from "@ydinjs/core/trait
+ * @event click - Fired when the item is activated.
+ */
+ class ListButtonItem extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"disabled",
+-		"selected"
+-	])];
+-	get "disabled"() {
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Selectable_observedAttributes_a569caaf
++	];
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "selected"() {
++	get selected() {
+ 		return attribute.get(this, "selected", SELECTABLE_ATTRS.selected);
+ 	}
+-	set "selected"(value) {
++	set selected(value) {
+ 		attribute.set(this, "selected", value, SELECTABLE_ATTRS.selected);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$disableable]: { value: true },
+-			[$selectable]: { value: true },
+-			[$focusForwarding]: { value: true }
+-		});
++		impl(this, $disableable, $selectable, $focusForwarding);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/list/list-link-item.js b/packages/material-x/list/list-link-item.js
+index 5fcfa5739..6406377cc 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/list/list-link-item.js
++++ b/packages/material-x/list/list-link-item.js
+@@ -1,13 +1,13 @@
+ import { $focusForwarding, __mxflat_controls_7b84b960 as controls } from "../core/traits/focus-forwarding.js";
+ import tpl from "./list-link-item.tpl.html.js";
+ import { useInteractiveListItemCore } from "./ListInteractiveItemCore.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute, { Bool } from "@ydinjs/core/attribute.js";
+ import { useAttributes, via } from "@ydinjs/core/controllers/useAttributes.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $linkable, LINKABLE_ATTRS, useDisableableLinkable, useLinkable } from "@ydinjs/core/traits/linkable.js";
+-import { $selectable, SELECTABLE_ATTRS } from "@ydinjs/core/traits/selectable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $linkable, LINKABLE_ATTRS, __mxflat_Linkable_observedAttributes_1274d6eb, useDisableableLinkable, useLinkable } from "@ydinjs/core/traits/linkable.js";
++import { $selectable, SELECTABLE_ATTRS, __mxflat_Selectable_observedAttributes_a569caaf } from "@ydinjs/core/traits/selectable.js";
+ // src/list/list-link-item.ts
+ /**
+ * @tag mx-list-link-item
+@@ -31,47 +31,41 @@ import { $selectable, SELECTABLE_ATTRS } from "@ydinjs/core/traits/selectable.js
+ * @event click - Fired when the item is activated.
+ */
+ class ListLinkItem extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"disabled",
+-		"selected",
+-		"href",
+-		"target"
+-	])];
+-	get "disabled"() {
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Selectable_observedAttributes_a569caaf,
++		...__mxflat_Linkable_observedAttributes_1274d6eb
++	];
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "selected"() {
++	get selected() {
+ 		return attribute.get(this, "selected", SELECTABLE_ATTRS.selected);
+ 	}
+-	set "selected"(value) {
++	set selected(value) {
+ 		attribute.set(this, "selected", value, SELECTABLE_ATTRS.selected);
+ 	}
+ 	focus(options) {
+ 		controls.get(this).focus(options);
+ 	}
+-	get "href"() {
++	get href() {
+ 		return attribute.get(this, "href", LINKABLE_ATTRS.href);
+ 	}
+-	set "href"(value) {
++	set href(value) {
+ 		attribute.set(this, "href", value, LINKABLE_ATTRS.href);
+ 	}
+-	get "target"() {
++	get target() {
+ 		return attribute.get(this, "target", LINKABLE_ATTRS.target);
+ 	}
+-	set "target"(value) {
++	set target(value) {
+ 		attribute.set(this, "target", value, LINKABLE_ATTRS.target);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$disableable]: { value: true },
+-			[$selectable]: { value: true },
+-			[$focusForwarding]: { value: true },
+-			[$linkable]: { value: true }
+-		});
++		impl(this, $disableable, $selectable, $focusForwarding, $linkable);
+ 	}
+ 	constructor() {
+ 		super();
+diff --git a/.plan/trait-migration-1/baseline/build/material-x/radio/radio.js b/packages/material-x/radio/radio.js
+index 33c4850ec..3a9e93cd7 100644
+--- a/.plan/trait-migration-1/baseline/build/material-x/radio/radio.js
++++ b/packages/material-x/radio/radio.js
+@@ -2,13 +2,13 @@ import { useCheckableCore } from "../core/elements/CheckableCore.js";
+ import "../icon/icon.js";
+ import tpl from "./radio.tpl.html.js";
+ import css from "./styles/default/main.css.js";
++import { impl } from "@ydinjs/core/traits/composition.js";
+ import attribute from "@ydinjs/core/attribute.js";
+ import { ControlledElement, define } from "@ydinjs/core/element.js";
+-import "@ydinjs/core/traits/attributes.js";
+-import { $disableable, DISABLEABLE_ATTRS } from "@ydinjs/core/traits/disableable.js";
+-import { $nameable, NAMEABLE_ATTRS } from "@ydinjs/core/traits/nameable.js";
+-import { $checkable, CHECKABLE_ATTRS } from "@ydinjs/core/traits/checkable.js";
+-import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
++import { $disableable, DISABLEABLE_ATTRS, __mxflat_Disableable_observedAttributes_e2af3a58 } from "@ydinjs/core/traits/disableable.js";
++import { $nameable, NAMEABLE_ATTRS, __mxflat_Nameable_observedAttributes_67a1e6b9 } from "@ydinjs/core/traits/nameable.js";
++import { $checkable, CHECKABLE_ATTRS, __mxflat_Checkable_observedAttributes_cad06aa5 } from "@ydinjs/core/traits/checkable.js";
++import { $valuable, VALUABLE_ATTRS, __mxflat_Valuable_observedAttributes_624f2c17 } from "@ydinjs/core/traits/valuable.js";
+ // src/radio/radio.ts
+ /**
+ * @tag mx-radio
+@@ -48,44 +48,39 @@ import { $valuable, VALUABLE_ATTRS } from "@ydinjs/core/traits/valuable.js";
+ * @event input - Fired after `click` when the user activates an unchecked radio.
+ */
+ class Radio extends ControlledElement {
+-	static observedAttributes = [.../* @__PURE__ */ new Set([
++	static observedAttributes = [
+ 		...ControlledElement.observedAttributes ?? [],
+-		"checked",
+-		"value",
+-		"disabled",
+-		"name"
+-	])];
+-	get "checked"() {
++		...__mxflat_Checkable_observedAttributes_cad06aa5,
++		...__mxflat_Valuable_observedAttributes_624f2c17,
++		...__mxflat_Disableable_observedAttributes_e2af3a58,
++		...__mxflat_Nameable_observedAttributes_67a1e6b9
++	];
++	get checked() {
+ 		return attribute.get(this, "checked", CHECKABLE_ATTRS.checked);
+ 	}
+-	set "checked"(value) {
++	set checked(value) {
+ 		attribute.set(this, "checked", value, CHECKABLE_ATTRS.checked);
+ 	}
+-	get "value"() {
++	get value() {
+ 		return attribute.get(this, "value", VALUABLE_ATTRS.value);
+ 	}
+-	set "value"(value) {
++	set value(value) {
+ 		attribute.set(this, "value", value, VALUABLE_ATTRS.value);
+ 	}
+-	get "disabled"() {
++	get disabled() {
+ 		return attribute.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
+ 	}
+-	set "disabled"(value) {
++	set disabled(value) {
+ 		attribute.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
+ 	}
+-	get "name"() {
++	get name() {
+ 		return attribute.get(this, "name", NAMEABLE_ATTRS.name);
+ 	}
+-	set "name"(value) {
++	set name(value) {
+ 		attribute.set(this, "name", value, NAMEABLE_ATTRS.name);
+ 	}
+ 	static {
+-		Object.defineProperties(this.prototype, {
+-			[$checkable]: { value: true },
+-			[$valuable]: { value: true },
+-			[$disableable]: { value: true },
+-			[$nameable]: { value: true }
+-		});
++		impl(this, $checkable, $valuable, $disableable, $nameable);
+ 	}
+ 	static formAssociated = true;
+ 	constructor() {
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/checkable.js b/packages/core/traits/checkable.js
+index 604155672..fa774bb89 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/checkable.js
++++ b/packages/core/traits/checkable.js
+@@ -1,13 +1,25 @@
+-import { Bool } from "../attribute.js";
++import operator, { Bool } from "../attribute.js";
+ import { useAttributes, via } from "../controllers/useAttributes.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/checkable.ts
+-const $checkable = Symbol("Checkable");
+ const CHECKABLE_ATTRS = { checked: Bool };
+ /**
+ * Element trait that exposes a presence-based `checked` boolean field.
+ */
+-const Checkable = /*@__PURE__*/ trait(CHECKABLE_ATTRS, $checkable);
++const $checkable = Symbol("Checkable");
++const __mxflat_Checkable_observedAttributes_cad06aa5 = ["checked"];
++var Checkable = class extends AnyElement {
++	static observedAttributes = __mxflat_Checkable_observedAttributes_cad06aa5;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$checkable] === true;
++	}
++	get checked() {
++		return operator.get(this, "checked", CHECKABLE_ATTRS.checked);
++	}
++	set checked(value) {
++		operator.set(this, "checked", value, CHECKABLE_ATTRS.checked);
++	}
++};
+ /**
+ * Wires the `checked` attribute of `host` to the corresponding attribute on
+ * `target` via a transfer callback.
+@@ -23,6 +35,6 @@ function useCheckable(host, target) {
+ 		target.ariaChecked = String(value);
+ 	}) });
+ }
+-export { $checkable, $checkable as __mxflat_$checkable_90a5ac53, CHECKABLE_ATTRS, Checkable, useCheckable };
++export { $checkable, CHECKABLE_ATTRS, Checkable, __mxflat_Checkable_observedAttributes_cad06aa5, useCheckable };
+ 
+ //# sourceMappingURL=checkable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/disableable.js b/packages/core/traits/disableable.js
+index 4188f92a0..a0798c743 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/disableable.js
++++ b/packages/core/traits/disableable.js
+@@ -1,13 +1,25 @@
+-import { Bool } from "../attribute.js";
++import operator, { Bool } from "../attribute.js";
+ import { transfer, useAttributes } from "../controllers/useAttributes.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/disableable.ts
+-const $disableable = Symbol("Disableable");
+ const DISABLEABLE_ATTRS = { disabled: Bool };
+ /**
+ * Element trait that exposes a presence-based `disabled` boolean field.
+ */
+-const Disableable = /*@__PURE__*/ trait(DISABLEABLE_ATTRS, $disableable);
++const $disableable = Symbol("Disableable");
++const __mxflat_Disableable_observedAttributes_e2af3a58 = ["disabled"];
++var Disableable = class extends AnyElement {
++	static observedAttributes = __mxflat_Disableable_observedAttributes_e2af3a58;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$disableable] === true;
++	}
++	get disabled() {
++		return operator.get(this, "disabled", DISABLEABLE_ATTRS.disabled);
++	}
++	set disabled(value) {
++		operator.set(this, "disabled", value, DISABLEABLE_ATTRS.disabled);
++	}
++};
+ /**
+ * Wires the `disabled` attribute of `host` to the corresponding attribute on
+ * `target` via a transfer callback.
+@@ -15,6 +27,6 @@ const Disableable = /*@__PURE__*/ trait(DISABLEABLE_ATTRS, $disableable);
+ function useDisableable(host, target) {
+ 	useAttributes(host, { disabled: transfer(target, "disabled") });
+ }
+-export { $disableable, $disableable as __mxflat_$disableable_a4774ef4, DISABLEABLE_ATTRS, Disableable, useDisableable };
++export { $disableable, DISABLEABLE_ATTRS, Disableable, __mxflat_Disableable_observedAttributes_e2af3a58, useDisableable };
+ 
+ //# sourceMappingURL=disableable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/linkable.js b/packages/core/traits/linkable.js
+index 239b1fdd2..c464bd9bb 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/linkable.js
++++ b/packages/core/traits/linkable.js
+@@ -1,9 +1,8 @@
+ import operator, { Str } from "../attribute.js";
+ import { useAttributes } from "../controllers/useAttributes.js";
+ import { useEvents } from "../controllers/useEvents.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/linkable.ts
+-const $linkable = Symbol("Linkable");
+ const LINKABLE_ATTRS = {
+ 	href: Str,
+ 	target: Str
+@@ -11,7 +10,26 @@ const LINKABLE_ATTRS = {
+ /**
+ * Element trait that exposes `href` and `target` navigation fields.
+ */
+-const Linkable = /*@__PURE__*/ trait(LINKABLE_ATTRS, $linkable);
++const $linkable = Symbol("Linkable");
++const __mxflat_Linkable_observedAttributes_1274d6eb = ["href", "target"];
++var Linkable = class extends AnyElement {
++	static observedAttributes = __mxflat_Linkable_observedAttributes_1274d6eb;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$linkable] === true;
++	}
++	get href() {
++		return operator.get(this, "href", LINKABLE_ATTRS.href);
++	}
++	set href(value) {
++		operator.set(this, "href", value, LINKABLE_ATTRS.href);
++	}
++	get target() {
++		return operator.get(this, "target", LINKABLE_ATTRS.target);
++	}
++	set target(value) {
++		operator.set(this, "target", value, LINKABLE_ATTRS.target);
++	}
++};
+ /**
+ * Mirrors `href` and `target` from `host` to a shadow-DOM anchor.
+ *
+@@ -64,6 +82,6 @@ function useDisableableLinkable(host, target) {
+ 		}
+ 	} }, target);
+ }
+-export { $linkable, $linkable as __mxflat_$linkable_fe0f1416, LINKABLE_ATTRS, Linkable, useDisableableLinkable, useLinkable };
++export { $linkable, LINKABLE_ATTRS, Linkable, __mxflat_Linkable_observedAttributes_1274d6eb, useDisableableLinkable, useLinkable };
+ 
+ //# sourceMappingURL=linkable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/nameable.js b/packages/core/traits/nameable.js
+index 85bae7cf9..f62e8d4a8 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/nameable.js
++++ b/packages/core/traits/nameable.js
+@@ -1,13 +1,25 @@
+-import { Str } from "../attribute.js";
++import operator, { Str } from "../attribute.js";
+ import { transfer, useAttributes } from "../controllers/useAttributes.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/nameable.ts
+-const $nameable = Symbol("Nameable");
+ const NAMEABLE_ATTRS = { name: Str };
+ /**
+ * Element trait that exposes a string-backed nullable `name` field.
+ */
+-const Nameable = /*@__PURE__*/ trait(NAMEABLE_ATTRS, $nameable);
++const $nameable = Symbol("Nameable");
++const __mxflat_Nameable_observedAttributes_67a1e6b9 = ["name"];
++var Nameable = class extends AnyElement {
++	static observedAttributes = __mxflat_Nameable_observedAttributes_67a1e6b9;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$nameable] === true;
++	}
++	get name() {
++		return operator.get(this, "name", NAMEABLE_ATTRS.name);
++	}
++	set name(value) {
++		operator.set(this, "name", value, NAMEABLE_ATTRS.name);
++	}
++};
+ /**
+ * Wires the `name` attribute of `host` to the corresponding attribute on
+ * `target` via a transfer callback.
+@@ -15,6 +27,6 @@ const Nameable = /*@__PURE__*/ trait(NAMEABLE_ATTRS, $nameable);
+ function useNameable(host, target) {
+ 	useAttributes(host, { name: transfer(target, "name") });
+ }
+-export { $nameable, $nameable as __mxflat_$nameable_d7b7babf, NAMEABLE_ATTRS, Nameable, useNameable };
++export { $nameable, NAMEABLE_ATTRS, Nameable, __mxflat_Nameable_observedAttributes_67a1e6b9, useNameable };
+ 
+ //# sourceMappingURL=nameable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/reorderable.js b/packages/core/traits/reorderable.js
+index 528f42b26..9e9fd62b1 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/reorderable.js
++++ b/packages/core/traits/reorderable.js
+@@ -1,9 +1,9 @@
+-import { Bool } from "../attribute.js";
++import operator, { Bool } from "../attribute.js";
+ import { useEvents } from "../controllers/useEvents.js";
+ import { useSlot } from "../controllers/useSlot.js";
+ import { ControlledElement, internals, use } from "../element.js";
+ import { toggleState } from "../utils/DOM.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/reorderable.ts
+ const REORDER_EVENT_INIT = {
+ 	bubbles: true,
+@@ -34,12 +34,24 @@ var ReorderEvent = class extends Event {
+ 		this.to = to;
+ 	}
+ };
+-const $reorderable = Symbol("Reorderable");
+ /**
+ * Element trait that exposes a presence-based `reorderable` boolean field,
+ * indicating that the element's children can be dragged to reorder.
+ */
+-const Reorderable = /*@__PURE__*/ trait({ reorderable: Bool }, $reorderable);
++const $reorderable = Symbol("Reorderable");
++const __mxflat_Reorderable_observedAttributes_84ff49bd = ["reorderable"];
++var Reorderable = class extends AnyElement {
++	static observedAttributes = __mxflat_Reorderable_observedAttributes_84ff49bd;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$reorderable] === true;
++	}
++	get reorderable() {
++		return operator.get(this, "reorderable", Bool);
++	}
++	set reorderable(value) {
++		operator.set(this, "reorderable", value, Bool);
++	}
++};
+ const ORIGIN = {
+ 	x: 0,
+ 	y: 0
+@@ -701,6 +713,6 @@ function useReorderable(host, timing, slotSelector = "slot") {
+ function useReorderableItem(host, target = host) {
+ 	itemTargets.set(host, target);
+ }
+-export { $reorderable, $reorderable as __mxflat_$reorderable_a1c7da0f, ReorderEvent, Reorderable, useReorderable, useReorderableItem };
++export { $reorderable, ReorderEvent, Reorderable, __mxflat_Reorderable_observedAttributes_84ff49bd, useReorderable, useReorderableItem };
+ 
+ //# sourceMappingURL=reorderable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/selectable.js b/packages/core/traits/selectable.js
+index e60e4f897..065e438b0 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/selectable.js
++++ b/packages/core/traits/selectable.js
+@@ -1,19 +1,31 @@
+-import { Bool } from "../attribute.js";
++import operator, { Bool } from "../attribute.js";
+ import { transfer, useAttributes } from "../controllers/useAttributes.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/selectable.ts
+-const $selectable = Symbol("Selectable");
+ const SELECTABLE_ATTRS = { selected: Bool };
+ /**
+ * Element trait that exposes a presence-based `selected` boolean field.
+ */
+-const Selectable = /*@__PURE__*/ trait(SELECTABLE_ATTRS, $selectable);
++const $selectable = Symbol("Selectable");
++const __mxflat_Selectable_observedAttributes_a569caaf = ["selected"];
++var Selectable = class extends AnyElement {
++	static observedAttributes = __mxflat_Selectable_observedAttributes_a569caaf;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$selectable] === true;
++	}
++	get selected() {
++		return operator.get(this, "selected", SELECTABLE_ATTRS.selected);
++	}
++	set selected(value) {
++		operator.set(this, "selected", value, SELECTABLE_ATTRS.selected);
++	}
++};
+ /**
+ * Wires the `selected` attribute of `host` to `aria-selected` on `target`.
+ */
+ function useSelectable(host, target) {
+ 	useAttributes(host, { selected: transfer(target, "aria-selected", (value) => value == null ? "false" : "true") });
+ }
+-export { $selectable, $selectable as __mxflat_$selectable_5d5134e0, SELECTABLE_ATTRS, Selectable, useSelectable };
++export { $selectable, SELECTABLE_ATTRS, Selectable, __mxflat_Selectable_observedAttributes_a569caaf, useSelectable };
+ 
+ //# sourceMappingURL=selectable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/typeable.js b/packages/core/traits/typeable.js
+index 6ee4b9dd8..4cf67989f 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/typeable.js
++++ b/packages/core/traits/typeable.js
+@@ -1,13 +1,25 @@
+-import { Str } from "../attribute.js";
++import operator, { Str } from "../attribute.js";
+ import { transfer, useAttributes } from "../controllers/useAttributes.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/typeable.ts
+-const $typeable = Symbol("Typeable");
+ const TYPEABLE_ATTRS = { type: Str };
+ /**
+ * Element trait that exposes a string-backed nullable `type` field.
+ */
+-const Typeable = /*@__PURE__*/ trait(TYPEABLE_ATTRS, $typeable);
++const $typeable = Symbol("Typeable");
++const __mxflat_Typeable_observedAttributes_d307d547 = ["type"];
++var Typeable = class extends AnyElement {
++	static observedAttributes = __mxflat_Typeable_observedAttributes_d307d547;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$typeable] === true;
++	}
++	get type() {
++		return operator.get(this, "type", TYPEABLE_ATTRS.type);
++	}
++	set type(value) {
++		operator.set(this, "type", value, TYPEABLE_ATTRS.type);
++	}
++};
+ /**
+ * Wires the `type` attribute of `host` to the corresponding attribute on
+ * `target` via a transfer callback.
+@@ -15,6 +27,6 @@ const Typeable = /*@__PURE__*/ trait(TYPEABLE_ATTRS, $typeable);
+ function useTypeable(host, target) {
+ 	useAttributes(host, { type: transfer(target, "type") });
+ }
+-export { $typeable, $typeable as __mxflat_$typeable_5a0d1ab0, TYPEABLE_ATTRS, Typeable, useTypeable };
++export { $typeable, TYPEABLE_ATTRS, Typeable, __mxflat_Typeable_observedAttributes_d307d547, useTypeable };
+ 
+ //# sourceMappingURL=typeable.js.map
+\ No newline at end of file
+diff --git a/.plan/trait-migration-1/baseline/build/core/traits/valuable.js b/packages/core/traits/valuable.js
+index 422b7ca04..aca6f9d91 100644
+--- a/.plan/trait-migration-1/baseline/build/core/traits/valuable.js
++++ b/packages/core/traits/valuable.js
+@@ -1,13 +1,25 @@
+-import { Str } from "../attribute.js";
++import operator, { Str } from "../attribute.js";
+ import { transfer, useAttributes } from "../controllers/useAttributes.js";
+-import { trait } from "./attributes.js";
++import { AnyElement } from "./attribute-traits.js";
+ // src/traits/valuable.ts
+-const $valuable = Symbol("Valuable");
+ const VALUABLE_ATTRS = { value: Str };
+ /**
+ * Element trait that exposes a string-backed nullable `value` field.
+ */
+-const Valuable = /*@__PURE__*/ trait(VALUABLE_ATTRS, $valuable);
++const $valuable = Symbol("Valuable");
++const __mxflat_Valuable_observedAttributes_624f2c17 = ["value"];
++var Valuable = class extends AnyElement {
++	static observedAttributes = __mxflat_Valuable_observedAttributes_624f2c17;
++	static [Symbol.hasInstance](o) {
++		return o != null && o[$valuable] === true;
++	}
++	get value() {
++		return operator.get(this, "value", VALUABLE_ATTRS.value);
++	}
++	set value(value) {
++		operator.set(this, "value", value, VALUABLE_ATTRS.value);
++	}
++};
+ /**
+ * Wires the `value` attribute of `host` to the corresponding attribute on
+ * `target` via a transfer callback.
+@@ -15,6 +27,6 @@ const Valuable = /*@__PURE__*/ trait(VALUABLE_ATTRS, $valuable);
+ function useValuable(host, target) {
+ 	useAttributes(host, { value: transfer(target, "value") });
+ }
+-export { $valuable, $valuable as __mxflat_$valuable_e1d406a5, VALUABLE_ATTRS, Valuable, useValuable };
++export { $valuable, VALUABLE_ATTRS, Valuable, __mxflat_Valuable_observedAttributes_624f2c17, useValuable };
+ 
+ //# sourceMappingURL=valuable.js.map
+\ No newline at end of file

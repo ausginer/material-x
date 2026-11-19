@@ -1,0 +1,76 @@
+Named renames, 15:
+core/traits/attributes.js: removed
+core/traits/checkable.js type Checkable -> class Checkable
+core/traits/disableable.js type Disableable -> class Disableable
+core/traits/linkable.js type Linkable -> class Linkable
+core/traits/nameable.js type Nameable -> class Nameable
+core/traits/primitives.js: removed
+core/traits/reorderable.js type Reorderable -> class Reorderable
+core/traits/selectable.js type Selectable -> class Selectable
+core/traits/typeable.js type Typeable -> class Typeable
+core/traits/valuable.js type Valuable -> class Valuable
+material-x/button/split-button.js type SplitButtonLike -> class SplitButtonLike
+material-x/checkbox/checkbox.js type Indeterminable -> class Indeterminable
+material-x/fab/fab.js type FABLike -> class FABLike
+core/traits/attribute-traits.js: added
+core/traits/composition.js: added
+
+19 differences after the normalisation:
+
+core/traits/checkable.js class Checkable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/disableable.js class Disableable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/linkable.js class Linkable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/nameable.js class Nameable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/reorderable.js class Reorderable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/selectable.js class Selectable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/typeable.js class Typeable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+core/traits/valuable.js class Valuable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+material-x/button/button.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/button/icon-button.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/button/link-button.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/button/switch-button.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/button/switch-icon-button.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/button/split-button.js class SplitButtonLike (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+material-x/checkbox/checkbox.js class Indeterminable (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+material-x/fab/fab.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/fab/fab.js class FABLike (was type) static [$bound]
+    before: (absent)
+    after:  (instance: HTMLElement, statics: {}) => void
+material-x/list/list-button-item.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)
+material-x/list/list-link-item.js class default instance focus
+    before: (absent)
+    after:  ((options?: FocusOptions | undefined) => void) & ((options?: FocusOptions | undefined) => void)

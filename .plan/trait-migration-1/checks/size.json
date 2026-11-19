@@ -1,0 +1,100 @@
+{
+  "core": [
+    {
+      "name": "element",
+      "passed": true,
+      "size": 312,
+      "sizeLimit": 340
+    },
+    {
+      "name": "emitter",
+      "passed": true,
+      "size": 198,
+      "sizeLimit": 210
+    },
+    {
+      "name": "traits/reorderable",
+      "passed": true,
+      "size": 3114,
+      "sizeLimit": 3500
+    }
+  ],
+  "material-x": [
+    {
+      "name": "button/button",
+      "size": 4844
+    },
+    {
+      "name": "button/icon-button",
+      "size": 5109
+    },
+    {
+      "name": "button/link-button",
+      "size": 4808
+    },
+    {
+      "name": "button/switch-button",
+      "size": 5188
+    },
+    {
+      "name": "button/switch-icon-button",
+      "size": 5603
+    },
+    {
+      "name": "button/split-button",
+      "size": 7408
+    },
+    {
+      "name": "button-group/button-group",
+      "size": 3120
+    },
+    {
+      "name": "button-group/connected-button-group",
+      "size": 3884
+    },
+    {
+      "name": "checkbox/checkbox",
+      "size": 4021
+    },
+    {
+      "name": "fab/fab",
+      "size": 4234
+    },
+    {
+      "name": "icon/icon",
+      "size": 661
+    },
+    {
+      "name": "list/list",
+      "size": 3673
+    },
+    {
+      "name": "list/list-item",
+      "size": 2599
+    },
+    {
+      "name": "list/list-button-item",
+      "size": 4575
+    },
+    {
+      "name": "list/list-link-item",
+      "size": 4746
+    },
+    {
+      "name": "radio/radio",
+      "size": 3590
+    },
+    {
+      "name": "text-field/multiline-text-field",
+      "size": 4437
+    },
+    {
+      "name": "text-field/text-field",
+      "size": 8128
+    },
+    {
+      "name": "complete",
+      "size": 16949
+    }
+  ]
+}

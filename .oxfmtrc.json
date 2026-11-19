@@ -2,6 +2,7 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "ignorePatterns": [
     "packages/material-x/.data",
+    "packages/material-x/tests/__snapshots__",
     ".plan/free-drag.json",
     ".plan/sortable-basic.json",
     ".plan/sortable-with-animations.json",

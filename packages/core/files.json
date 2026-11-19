@@ -29,8 +29,6 @@
     "utils/runtime"
   ],
   "clean": {
-    "extras": [
-      "_virtual"
-    ]
+    "extras": ["_virtual"]
   }
 }
