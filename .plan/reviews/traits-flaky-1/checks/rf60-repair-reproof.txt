@@ -1,0 +1,72 @@
+# RF-60 repair, re-proved by the reviewer on 2026-11-19 at 446b21bd6 (repo/traits-flaky-1), in a detached scratch worktree,
+# local dev container, 12 processors. Vite 8.4.0-beta.1, Vitest 5.1.0. Scratch files were outside the commit and are deleted.
+#
+# ## 0. The committed tree
+#   CI=true aube exec -- vitest run --project node/vite-traits-plugin --coverage.enabled --reporter=default
+#   Test Files  8 passed (8)
+#   Tests  147 passed (147)
+#   packages/vite-traits-plugin: `aube exec just typecheck` exit 0; `aube exec just lint` on the three changed test files exit 0.
+#
+# ## 1. The reproduction, 1,000 repeats in one worker, coverage, 24 busy-loop processes (`node -e 'for(;;){}'`)
+#   RF60_REPEATS=1000 RF60_URL_LOG=<log> CI=true aube exec -- vitest run --project node/vite-traits-plugin \
+#     --coverage.enabled --reporter=default --reporter=./url-reporter.ts packages/vite-traits-plugin/tests/rf60-repro.node.test.ts
+# The scratch test and url-reporter.ts are taken verbatim from .plan/traits-flaky-1/checks/rf60-reproduction.txt.
+# "repaired": the scratch test's four imports replaced by the committed block's three (foo-composed and foo-flat by
+#   gen.url, the traits through gen.augmentedUrl), exactly as rf60-repair-proof.txt §2 shows them.
+# "file-URL traits": the scratch test unchanged, so checkable.ts and nameable.ts are imported by file URL concurrently
+#   with the consumers, against the committed helper.
+# The URL log is analysed per generated directory and file name: a file is "under two URL strings" when the log has
+# more than one distinct URL string for it.
+
+### repaired: RF60 repeats 1000, failures 0 (failure messages; two forms per repeat)
+  Tests  1 passed (1)
+{"logLines":6002,"directories":1000,"filesUnderTwoUrlStrings":0,"pairsByFile":{},"requestsByFile":{"augmented.ts":1000,"base.ts":1000,"checkable.ts":1000,"foo-composed.ts":1000,"foo-flat.ts":1000,"nameable.ts":1000}}
+
+### file-URL traits: RF60 repeats 1000, failures 46 (failure messages; two forms per repeat)
+  Tests  1 failed (1)
+{"logLines":5574,"directories":1000,"filesUnderTwoUrlStrings":572,"pairsByFile":{"nameable.ts":229,"checkable.ts":343},"requestsByFile":{"base.ts":1000,"checkable.ts":1343,"foo-composed.ts":1000,"foo-flat.ts":1000,"nameable.ts":1229}}
+### file-URL traits, the failures as printed
+  repeats with a failure: 26
+  27 Checkable.brand Symbol(Checkable): absent
+  21 Nameable.brand Symbol(Nameable): absent
+  messages with an "undefined" key: 0
+
+### repaired, the URL log of the first directory, in arrival order
+{"project":"node/vite-traits-plugin","url":"file://<worktree>/packages/vite-traits-plugin/tests/fixtures/gen-8gYmgD/foo-composed.ts","importer":"<worktree>/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":59}
+{"project":"node/vite-traits-plugin","url":"file://<worktree>/packages/vite-traits-plugin/tests/fixtures/gen-8gYmgD/foo-flat.ts","importer":"<worktree>/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":67}
+{"project":"node/vite-traits-plugin","url":"file://<worktree>/packages/vite-traits-plugin/tests/fixtures/gen-8gYmgD/augmented.ts","importer":"<worktree>/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":67}
+{"project":"node/vite-traits-plugin","url":"/@fs<worktree>/packages/core/traits/attributes.js","importer":"<worktree>/packages/vite-traits-plugin/tests/fixtures/gen-8gYmgD/foo-composed.ts","cached":false,"kind":"code","invalidate":false,"ms":5}
+{"project":"node/vite-traits-plugin","url":"/@fs<worktree>/packages/core/attribute.js","importer":"<worktree>/packages/vite-traits-plugin/tests/fixtures/gen-8gYmgD/foo-flat.ts","cached":false,"kind":"code","invalidate":false,"ms":1}
+{"project":"node/vite-traits-plugin","url":"/tests/fixtures/gen-8gYmgD/checkable.ts","importer":"<worktree>/packages/vite-traits-plugin/tests/fixtures/gen-8gYmgD/augmented.ts","cached":false,"kind":"code","invalidate":true,"ms":21}
+
+# ## 2. Step 1's message at the committed head. Each mutation edited tests/flatten.node.test.ts's first block, ran
+#   cd packages/vite-traits-plugin && aube exec just test tests/flatten.node.test.ts --reporter=default -t 'trait brands'
+# and was reverted (git checkout).
+# A: after flattenToDir, the generated nameable.ts is overwritten with the fixture unchanged (no synthetic export).
+# B: Nameable is taken from import(`${gen.url('nameable.ts')}?second`) instead of augmented.ts, a second evaluation.
+
+### A: Tests  1 failed | 2 passed | 5 skipped (8)
+AssertionError: flattened
+Own keys of each prototype on the chain:
+  Foo.prototype: "constructor", "checked", "name", "undefined", Symbol(Checkable)
+  Base.prototype: "constructor", "getAttribute", "setAttribute", "removeAttribute"
+Brands:
+  Checkable.brand Symbol(Checkable): present
+  Nameable.brand Symbol(Nameable): absent
+import __mxflat_attr from "@ydinjs/core/attribute.js";
+import { __mxflat_$checkable_90a5ac53 as __mxflat_lnk_6fda5f37 } from "./checkable.ts";
+import { CHECKABLE_ATTRS as __mxflat_lnk_195741f8 } from "./checkable.ts";
+  synthetic export lines in the printed nameable.ts: 0
+
+### B: Tests  1 failed | 2 passed | 5 skipped (8)
+AssertionError: composed
+Own keys of each prototype on the chain:
+  Foo.prototype: "constructor"
+  traited.prototype: "constructor", "name", Symbol(Nameable)
+  traited.prototype: "constructor", "checked", Symbol(Checkable)
+  Base.prototype: "constructor", "getAttribute", "setAttribute", "removeAttribute"
+Brands:
+  Checkable.brand Symbol(Checkable): present
+  Nameable.brand Symbol(Nameable): absent
+import __mxflat_attr from "@ydinjs/core/attribute.js";
+  synthetic export lines in the printed nameable.ts: 1

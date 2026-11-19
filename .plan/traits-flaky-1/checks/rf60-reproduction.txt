@@ -1,0 +1,218 @@
+# RF-60 step 2: the time-boxed reproduction. Candidate (B) is reproduced, and its cause is in Vite's module runner
+# as Vitest uses it, not in the flattener.
+# Run by the implementer on 2026-11-19 in the dev container (slot b, 12 processors), on repo/traits-flaky-1 after
+# merging origin/main at 10eaa68cc (merge e6817b169), with step 1's message in place and the imports still concurrent.
+# Vite 8.4.0-beta.1, Vitest 5.1.0, Node v26.13.1: the versions of the failing tree's lockfile.
+# The scratch files below weren't committed, and they were deleted after the runs.
+#
+# ## Result
+#
+# - The brand row's setup and assertion, 1,000 repeats in one worker beside 24 busy-loop processes, with coverage:
+#   8 repeats failed (16 failure messages, both forms in each). Every one is candidate (B). In each, the chain holds
+#   a Symbol(Checkable) or Symbol(Nameable) key that isn't the test's trait's brand, and no key is "undefined".
+#   3 failures lost Checkable's brand, 5 lost Nameable's. No failure showed (A).
+# - In every failing repeat, the trait whose brand was absent had been fetched from the project server twice, under
+#   two URL strings for the same file, and both answers carried `invalidate: true`:
+#     file:///…/tests/fixtures/gen-XXXX/nameable.ts   requested by the test's import(gen.url('nameable.ts'))
+#     /tests/fixtures/gen-XXXX/nameable.ts            requested by foo-flat.ts's or foo-composed's './nameable.ts'
+#   The runner deduplicates an in-flight request only by its URL string. The server answers `invalidate: true` while
+#   it holds no transform result for the module. So when both requests are in flight together, both are answered
+#   `invalidate: true`, and the runner can discard the module it already evaluated and evaluate the file again. Its
+#   second evaluation creates a second brand symbol (rf60-runner-reading.txt §3 has the code).
+# - Per trait and repeat, over the 1,000 repeats (2,000 trait fetches):
+#     one URL                               1,522, failed 0
+#     two URLs, one answer invalidate         186, failed 0
+#     two URLs, both answers invalidate       292, failed 8
+#   Both answers carrying `invalidate` is necessary in this reading, and not sufficient: whether the second
+#   evaluation happens depends on when the second answer arrives against the first evaluation.
+# - The architect's hook on server.environments.ssr.fetchModule recorded nothing because Vitest 5.1 doesn't call it:
+#   the worker's requests reach project._transformService.fetch (ModuleTransformService.fetch,
+#   node_modules/vitest/dist/chunks/index.Di8au7q4.js:907), which calls Vite's exported fetchModule directly
+#   (:1135). The reporter below wraps that method.
+#
+# ## The smallest reproduction: no flattener, no repository configuration
+#
+# Two generated files in a fresh directory: mod.ts creates a symbol, and user.ts re-exports it from './mod.ts'.
+# The test imports user.ts and mod.ts concurrently, by their file URLs, and compares the symbols.
+#     node/vite-traits-plugin project (root configuration):
+#       unloaded, no coverage                   1,000 repeats, second evaluations 1
+#       24 busy loops, no coverage              1,000 repeats, second evaluations 5
+#       24 busy loops, coverage                 1,000 repeats, second evaluations 2
+#     bare configuration `export default { test: { include: ['tests/rf60-minimal.node.test.ts'] } }`, unloaded,
+#     run from packages/vite-traits-plugin with -c, three runs:
+#                                               1,000 repeats each, second evaluations 1, 0, 0
+#   Every run's URL log shows mod.ts requested in some repeats as both file:///…/gen-XXXX/mod.ts and
+#   /tests/fixtures/gen-XXXX/mod.ts (41 to 195 repeats per run). Repeats where both answers carried `invalidate`:
+#   1, 136 and 146 in the three project runs, and 2, 0 and 1 in the bare runs.
+#   So the second evaluation needs only Vitest's module runner and two URL strings for one file in flight together.
+#
+# ## Commands, from the repository root
+#
+#   brand row:   RF60_REPEATS=1000 RF60_URL_LOG=<log> CI=true aube exec -- vitest run --project node/vite-traits-plugin \
+#                  --coverage.enabled --reporter=default --reporter=<url-reporter.ts> \
+#                  packages/vite-traits-plugin/tests/rf60-repro.node.test.ts
+#   minimal:     the same with tests/rf60-minimal.node.test.ts, with and without --coverage.enabled
+#   load:        24 × `node -e 'for(;;){}'`, twice the processors, for the run's duration
+#   Durations: the loaded brand-row run took 84 s.
+
+## Scratch reporter: url-reporter.ts
+// Scratch, not committed (RF-60 step 2): records every URL string that the
+// worker's imports send to the project server, through each project's
+// ModuleTransformService.fetch, with whether the answer says `invalidate`.
+import { appendFileSync } from 'node:fs';
+
+const log = process.env.RF60_URL_LOG!;
+
+export default class UrlReporter {
+  onInit(vitest: { projects: Array<{ name: string; _transformService: any }> }) {
+    for (const project of vitest.projects) {
+      const service = project._transformService;
+      const fetch = service.fetch.bind(service);
+      service.fetch = async (url: string, importer: string | undefined, ...rest: any[]) => {
+        const start = performance.now();
+        const result = await fetch(url, importer, ...rest);
+        if (url.includes('/gen-') || importer?.includes('/gen-')) {
+          const kind = 'externalize' in result ? 'externalize' : 'cache' in result ? 'cache' : 'code';
+          appendFileSync(
+            log,
+            `${JSON.stringify({ project: project.name, url, importer: importer ?? null, cached: rest[2]?.cached ?? null, kind, invalidate: result.invalidate ?? null, ms: Math.round(performance.now() - start) })}\n`,
+          );
+        }
+        return result;
+      };
+    }
+  }
+}
+
+## Scratch test: packages/vite-traits-plugin/tests/rf60-repro.node.test.ts
+// Scratch, not committed (RF-60 step 2): the brand row's setup and assertion,
+// repeated in one worker with the imports still concurrent.
+import { expect, it } from 'vitest';
+import { flattenToDir } from './helpers.ts';
+
+type BrandedTrait = (abstract new () => object) & { readonly brand: symbol };
+type Ctor = new () => object;
+
+const repeats = Number(process.env.RF60_REPEATS ?? 1000);
+
+it('repeats the brand row', { timeout: 3_600_000 }, async () => {
+  const failures: string[] = [];
+  for (let i = 0; i < repeats; i += 1) {
+    const gen = await flattenToDir('consumer.ts', {
+      augment: ['checkable.ts', 'nameable.ts'],
+      passthrough: ['base.ts'],
+    });
+    try {
+      const [composedMod, flatMod, checkableMod, nameableMod] =
+        (await Promise.all([
+          import(gen.url('foo-composed.ts')),
+          import(gen.url('foo-flat.ts')),
+          import(gen.url('checkable.ts')),
+          import(gen.url('nameable.ts')),
+        ])) as [
+          { default: Ctor },
+          { default: Ctor },
+          { Checkable: BrandedTrait },
+          { Nameable: BrandedTrait },
+        ];
+      const { Checkable } = checkableMod;
+      const { Nameable } = nameableMod;
+      for (const [label, C] of [
+        ['composed', composedMod.default],
+        ['flattened', flatMod.default],
+      ] as const) {
+        const instance = new C();
+        if (!(instance instanceof Checkable) || !(instance instanceof Nameable)) {
+          failures.push(`repeat ${i}, ${label}\n${gen.brandReport(instance, { Checkable, Nameable })}`);
+        }
+      }
+    } finally {
+      await gen.dispose();
+    }
+  }
+  console.log(`RF60 repeats ${repeats}, failures ${failures.length}`);
+  expect(failures).toEqual([]);
+});
+
+## Scratch test: packages/vite-traits-plugin/tests/rf60-minimal.node.test.ts
+// Scratch, not committed (RF-60 step 2): the smallest reproduction found. No
+// flattener: a module that creates a symbol, and a module that re-exports it by
+// a relative import, written to a fresh directory and imported concurrently
+// by their file URLs.
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { expect, it } from 'vitest';
+
+const repeats = Number(process.env.RF60_REPEATS ?? 1000);
+const root = fileURLToPath(new URL('./fixtures/', import.meta.url));
+
+it('evaluates a module once per directory', { timeout: 3_600_000 }, async () => {
+  let twice = 0;
+  for (let i = 0; i < repeats; i += 1) {
+    const dir = await mkdtemp(join(root, 'gen-'));
+    try {
+      await writeFile(join(dir, 'mod.ts'), "export const s: symbol = Symbol('s');\n");
+      await writeFile(join(dir, 'user.ts'), "export { s as viaUser } from './mod.ts';\n");
+      const [{ viaUser }, { s }] = (await Promise.all([
+        import(pathToFileURL(join(dir, 'user.ts')).href),
+        import(pathToFileURL(join(dir, 'mod.ts')).href),
+      ])) as [{ viaUser: symbol }, { s: symbol }];
+      if (viaUser !== s) twice += 1;
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  }
+  console.log(`RF60 minimal repeats ${repeats}, second evaluations ${twice}`);
+  expect(twice).toBe(0);
+});
+
+## The brand row under load: the first failure message, as Vitest printed it in the failures array
++   "repeat 73, composed
++ Own keys of each prototype on the chain:
++   Foo.prototype: \"constructor\"
++   traited.prototype: \"constructor\", \"name\", Symbol(Nameable)
++   traited.prototype: \"constructor\", \"checked\", Symbol(Checkable)
++   Base.prototype: \"constructor\", \"getAttribute\", \"setAttribute\", \"removeAttribute\"
++ Brands:
++   Checkable.brand Symbol(Checkable): absent
++   Nameable.brand Symbol(Nameable): present
++ ===== foo-flat.ts
++ import __mxflat_attr from \"@ydinjs/core/attribute.js\";
++ import { __mxflat_$checkable_90a5ac53 as __mxflat_lnk_6fda5f37 } from \"./checkable.ts\";
++ import { CHECKABLE_ATTRS as __mxflat_lnk_195741f8 } from \"./checkable.ts\";
++ import { __mxflat_$nameable_d7b7babf as __mxflat_lnk_7a4fb491 } from \"./nameable.ts\";
++ import { NAMEABLE_ATTRS as __mxflat_lnk_e184c421 } from \"./nameable.ts\";
++ import {
++   impl,
++   type TraitedConstructor,
++ } from '@ydinjs/core/traits/attributes.js';
++ import { Base } from './base.ts';
++ import { Checkable } from './checkable.ts';
++ import { Nameable } from './nameable.ts';
++
++
++
++ export default class Foo extends Base {
++   static observedAttributes = [...new Set([...(Base.observedAttributes ?? []), \"checked\", \"name\"])];
++   get \"checked\"() { return __mxflat_attr.get(this, \"checked\", __mxflat_lnk_195741f8.checked); }
++   set \"checked\"(value) { __mxflat_attr.set(this, \"checked\", value, __mxflat_lnk_195741f8.checked); }
++   get \"name\"() { return __mxflat_attr.get(this, \"name\", __mxflat_lnk_e184c421.name); }
++   set \"name\"(value) { __mxflat_attr.set(this, \"name\", value, __mxflat_lnk_e184c421.name); }
++   static {
++     Object.defineProperties(this.prototype, {
++       [__mxflat_lnk_6fda5f37]: { value: true },
++       [__mxflat_lnk_7a4fb491]: { value: true },
++     });
++   }
++
++   extra = 'here';
++ }
+
+## The brand row under load: the URL log of failing repeat 73 (gen-0iyJuD), in arrival order
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-0iyJuD/foo-flat.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":20}
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-0iyJuD/foo-composed.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":20}
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-0iyJuD/checkable.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":26}
+{"project":"node/vite-traits-plugin","url":"/tests/fixtures/gen-0iyJuD/checkable.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-0iyJuD/foo-flat.ts","cached":false,"kind":"code","invalidate":true,"ms":0}
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-0iyJuD/nameable.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":26}
+{"project":"node/vite-traits-plugin","url":"/tests/fixtures/gen-0iyJuD/base.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-0iyJuD/foo-composed.ts","cached":false,"kind":"code","invalidate":true,"ms":12}

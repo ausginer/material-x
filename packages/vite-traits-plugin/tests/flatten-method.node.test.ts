@@ -40,7 +40,7 @@ describe('method trait flattening runtime equivalence', () => {
     });
     forms = await loadForms(gen);
     subForms = await loadForms(gen, 'Sub');
-    ({ Forwarding } = (await import(gen.url('forwarding.ts'))) as {
+    ({ Forwarding } = (await import(gen.augmentedUrl)) as {
       Forwarding: abstract new () => object;
     });
   });

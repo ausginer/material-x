@@ -1,0 +1,84 @@
+# RF-60 repair: one URL string per generated file, under the step 3 ruling at 144e053a3. The implementer's proof.
+# Run on 2026-11-19 in the dev container (slot b, 12 processors), on repo/traits-flaky-1 at 144e053a3 with the repair
+# in the working tree. Vite 8.4.0-beta.1, Vitest 5.1.0, Node v26.13.1. Scratch files weren't committed, and are deleted.
+#
+# ## The repair
+#
+# flattenToDir writes one more generated module, augmented.ts, with `export * from './<name>';` for each augmented
+# trait module (`export {};` when there are none). Flattening.augmentedUrl is its file URL. No other module imports
+# augmented.ts, and its relative specifiers are sent as the same root-relative URL strings as the consumers' imports.
+# - flatten.node.test.ts, the brand row's block: the concurrent import(gen.url('checkable.ts')) and
+#   import(gen.url('nameable.ts')) become one import(gen.augmentedUrl), still in the Promise.all with the consumers.
+# - flatten-method.node.test.ts, the first block: import(gen.url('forwarding.ts')) becomes import(gen.augmentedUrl).
+# - flattenToDir's documentation states the rule and its reason, and Flattening.url's says it is for the consumers only.
+# Step 1's brandReport message is unchanged. No other test changes.
+#
+# ## 1. By reading: no file-URL import of a module that another module imports
+#
+# Every dynamic import( in packages/*/tests and .scripts whose specifier is built from gen., pathToFileURL, .href,
+# new URL or augmentedUrl, fixtures excluded:
+#   packages/material-x/tests/core/utils/polyfills.browser.test.ts:19:    await import(/* @vite-ignore */ url.href);
+#   packages/vite-traits-plugin/tests/flatten-composite.node.test.ts:33:      import(gen.url('foo-composed.ts')),
+#   packages/vite-traits-plugin/tests/flatten-composite.node.test.ts:34:      import(gen.url('foo-flat.ts')),
+#   packages/vite-traits-plugin/tests/flatten.node.test.ts:26:      import(gen.url('foo-composed.ts')),
+#   packages/vite-traits-plugin/tests/flatten.node.test.ts:27:      import(gen.url('foo-flat.ts')),
+#   packages/vite-traits-plugin/tests/flatten.node.test.ts:28:      import(gen.augmentedUrl),
+#   packages/vite-traits-plugin/tests/flatten.node.test.ts:117:      import(gen.url('foo-composed.ts')),
+#   packages/vite-traits-plugin/tests/flatten.node.test.ts:118:      import(gen.url('foo-flat.ts')),
+#   packages/vite-traits-plugin/tests/flatten-method.node.test.ts:20:    import(gen.url(`foo-composed${extension}`)),
+#   packages/vite-traits-plugin/tests/flatten-method.node.test.ts:21:    import(gen.url(`foo-flat${extension}`)),
+#   packages/vite-traits-plugin/tests/flatten-method.node.test.ts:43:    ({ Forwarding } = (await import(gen.augmentedUrl)) as {
+#   .scripts/package-files.ts:59:  const { default: files } = await import(filesUrl.href, {
+# - gen.url(...) names only foo-composed and foo-flat (with the consumer's extension). No generated module imports a
+#   consumer, so each is requested under its file URL only.
+# - gen.augmentedUrl names augmented.ts, which no module imports.
+# - polyfills.browser.test.ts imports src/core/utils/polyfills.ts with the query ?fresh-import on purpose, to get a
+#   fresh instance in the browser project. It is a different module by design, not a generated file, and the ruling's
+#   property 4 leaves it.
+# - .scripts/package-files.ts imports files.json natively in Node, outside Vitest's module runner.
+#
+# ## 2. The reproduction, rerun with the repair: 1,000 repeats in one worker, coverage, 24 busy-loop processes
+#
+#   RF60_REPEATS=1000 RF60_URL_LOG=<log> CI=true aube exec -- vitest run --project node/vite-traits-plugin \
+#     --coverage.enabled --reporter=default --reporter=<url-reporter.ts> packages/vite-traits-plugin/tests/rf60-repro.node.test.ts
+# The scratch test and the reporter are rf60-reproduction.txt's. The test's four imports become the repaired three:
+#       const [composedMod, flatMod, traitsMod] = (await Promise.all([
+#         import(gen.url('foo-composed.ts')),
+#         import(gen.url('foo-flat.ts')),
+#         import(gen.augmentedUrl),
+#       ])) as [ … ];
+#       const { Checkable, Nameable } = traitsMod;
+#
+#                                        before (rf60-reproduction.txt)   repaired           mutation (section 3)
+#   repeats failed                       8 of 1,000                       0 of 1,000         10 of 1,000
+#   files under two URL strings          478                              0                  525
+#     of them checkable.ts               277                              0                  303
+#     of them nameable.ts                201                              0                  222
+#   requests for checkable.ts            1277                             1000               1303
+#   requests for nameable.ts             1201                             1000               1222
+#   requests for augmented.ts            0                                1000               0
+# Repaired: each trait module is requested once per directory, as /tests/fixtures/gen-X/<name>, and no file in any
+# directory is requested under two URL strings. The run took 78 s and passed.
+# Mutation: all 10 failures are candidate (B) by step 1's message: 9 lost Checkable's brand and 1 Nameable's, and no
+# chain carries an "undefined" key.
+#
+# ## 3. Mutation: the file-URL trait imports restored
+#
+# a. The reproduction with the step 2 test text unchanged, which imports checkable.ts and nameable.ts by file URL
+#    concurrently with the consumers, under the same load and coverage, with the repaired helper: the third column
+#    above. The two URL strings come back for 525 files, and 10 of 1,000 repeats fail.
+# b. The committed flatten.node.test.ts with the brand row block's file-URL trait imports restored, run alone 20 times
+#    with coverage and no load, and the repaired file run the same way 20 times. Neither showed a file under two URL
+#    strings in 40 generated directories, and neither failed. A single run rarely overlaps the two requests, so this
+#    doesn't discriminate. That is why (a) uses the reproduction's 1,000 repeats under load. Reverted: the file
+#    matches the committed repair.
+#
+# ## The repaired run's URL log for its first directory, in arrival order
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/foo-composed.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":30}
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/augmented.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":56}
+{"project":"node/vite-traits-plugin","url":"file:///workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/foo-flat.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/rf60-repro.node.test.ts","cached":false,"kind":"code","invalidate":true,"ms":57}
+{"project":"node/vite-traits-plugin","url":"/@fs/workspaces/worktrees/b/packages/core/traits/attributes.js","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/foo-composed.ts","cached":false,"kind":"code","invalidate":false,"ms":19}
+{"project":"node/vite-traits-plugin","url":"/@fs/workspaces/worktrees/b/packages/core/attribute.js","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/foo-flat.ts","cached":false,"kind":"code","invalidate":false,"ms":1}
+{"project":"node/vite-traits-plugin","url":"/tests/fixtures/gen-8j9k5T/checkable.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/augmented.ts","cached":false,"kind":"code","invalidate":true,"ms":16}
+{"project":"node/vite-traits-plugin","url":"/tests/fixtures/gen-8j9k5T/base.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/foo-composed.ts","cached":false,"kind":"code","invalidate":true,"ms":11}
+{"project":"node/vite-traits-plugin","url":"/tests/fixtures/gen-8j9k5T/nameable.ts","importer":"/workspaces/worktrees/b/packages/vite-traits-plugin/tests/fixtures/gen-8j9k5T/augmented.ts","cached":false,"kind":"code","invalidate":true,"ms":5}

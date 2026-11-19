@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { flattenToDir, type Flattening } from './helpers.ts';
 
+type BrandedTrait = (abstract new () => object) & { readonly brand: symbol };
+
 type Ctor = new () => {
   checked: boolean;
   name: string | null;
@@ -12,30 +14,26 @@ describe('descriptor flattening runtime equivalence', () => {
   let gen: Flattening;
   let composed: Ctor;
   let flattened: Ctor;
-  let Checkable: abstract new () => object;
-  let Nameable: abstract new () => object;
+  let Checkable: BrandedTrait;
+  let Nameable: BrandedTrait;
 
   beforeAll(async () => {
     gen = await flattenToDir('consumer.ts', {
       augment: ['checkable.ts', 'nameable.ts'],
       passthrough: ['base.ts'],
     });
-    const [composedMod, flatMod, checkableMod, nameableMod] =
-      (await Promise.all([
-        import(gen.url('foo-composed.ts')),
-        import(gen.url('foo-flat.ts')),
-        import(gen.url('checkable.ts')),
-        import(gen.url('nameable.ts')),
-      ])) as [
-        { default: Ctor },
-        { default: Ctor },
-        { Checkable: abstract new () => object },
-        { Nameable: abstract new () => object },
-      ];
+    const [composedMod, flatMod, traitsMod] = (await Promise.all([
+      import(gen.url('foo-composed.ts')),
+      import(gen.url('foo-flat.ts')),
+      import(gen.augmentedUrl),
+    ])) as [
+      { default: Ctor },
+      { default: Ctor },
+      { Checkable: BrandedTrait; Nameable: BrandedTrait },
+    ];
     ({ default: composed } = composedMod);
     ({ default: flattened } = flatMod);
-    ({ Checkable } = checkableMod);
-    ({ Nameable } = nameableMod);
+    ({ Checkable, Nameable } = traitsMod);
   });
 
   afterAll(async () => {
@@ -80,8 +78,10 @@ describe('descriptor flattening runtime equivalence', () => {
   it('should preserve trait brands for instanceof', () => {
     for (const [label, Ctor] of cases()) {
       const instance = new Ctor();
-      expect(instance, label).toBeInstanceOf(Checkable);
-      expect(instance, label).toBeInstanceOf(Nameable);
+      // On a failure, the message names the cause (`repo:RF-60`).
+      const message = `${label}\n${gen.brandReport(instance, { Checkable, Nameable })}`;
+      expect(instance, message).toBeInstanceOf(Checkable);
+      expect(instance, message).toBeInstanceOf(Nameable);
     }
   });
 

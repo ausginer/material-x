@@ -1,0 +1,11 @@
+# RF-60: repetitions at 91fc5d662 (origin/main), dev container, 12 processors
+# Run by the architect on 2026-11-19 from the repository root, as CI's chromium job runs the node projects:
+#   CI=true aube exec -- vitest run --project node/vite-traits-plugin --coverage.enabled
+# Each run is the plugin's whole project (9 files, 147 tests).
+
+unloaded: 150 runs, failures 0
+loaded:   44 runs while 24 busy-loop Node processes ran (node -e 'for(;;){}', twice the processors), failures 0
+          (the loop stopped at its 520 s budget)
+
+First run's summary:
+      Tests  147 passed (147)

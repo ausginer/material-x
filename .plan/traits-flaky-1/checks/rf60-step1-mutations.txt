@@ -1,0 +1,172 @@
+# RF-60 step 1: the brand row's failure message tells candidate (A) from (B).
+# Run by the implementer on 2026-11-19 in the dev container (slot b), on repo/traits-flaky-1 after merging origin/main,
+# with step 1's message in place and the imports still concurrent. Each mutation was applied to
+# tests/flatten.node.test.ts's first describe block, run, and reverted.
+#   cd packages/vite-traits-plugin && aube exec just test tests/flatten.node.test.ts --reporter=default -t 'trait brands'
+# Unmutated, the file passes 8 of 8 and prints nothing extra.
+#
+# Mutation A: after flattenToDir and before the imports, the generated nameable.ts is overwritten with the fixture
+# unchanged, so it lacks its synthetic export __mxflat_$nameable_d7b7babf.
+# Read: the flattened form fails. Foo.prototype carries the key "undefined" and Symbol(Checkable). Nameable.brand is
+# absent. The printed nameable.ts has no __mxflat_$nameable_ export: in this output that name appears only in
+# foo-flat.ts's import. That is candidate (A).
+#
+# Mutation B: the test imports nameable.ts as `${gen.url('nameable.ts')}?second`, a second evaluation.
+# Read: the composed form fails first, because the test's Nameable is now the second evaluation's and neither form uses
+# it. (In CI's failure the composed form passed; there the flattened form held the other evaluation's symbol.) The chain
+# carries a Symbol(Nameable) key, and Nameable.brand Symbol(Nameable) is absent: a symbol with the same description that
+# isn't the test's brand. That is candidate (B).
+
+########## Mutation A
+ FAIL  |node| tests/flatten.node.test.ts:87 > descriptor flattening runtime equivalence > should preserve trait brands for instanceof
+AssertionError: flattened
+Own keys of each prototype on the chain:
+  Foo.prototype: "constructor", "checked", "name", "undefined", Symbol(Checkable)
+  Base.prototype: "constructor", "getAttribute", "setAttribute", "removeAttribute"
+Brands:
+  Checkable.brand Symbol(Checkable): present
+  Nameable.brand Symbol(Nameable): absent
+===== foo-flat.ts
+import __mxflat_attr from "@ydinjs/core/attribute.js";
+import { __mxflat_$checkable_90a5ac53 as __mxflat_lnk_6fda5f37 } from "./checkable.ts";
+import { CHECKABLE_ATTRS as __mxflat_lnk_195741f8 } from "./checkable.ts";
+import { __mxflat_$nameable_d7b7babf as __mxflat_lnk_7a4fb491 } from "./nameable.ts";
+import { NAMEABLE_ATTRS as __mxflat_lnk_e184c421 } from "./nameable.ts";
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+import { Nameable } from './nameable.ts';
+
+
+
+export default class Foo extends Base {
+  static observedAttributes = [...new Set([...(Base.observedAttributes ?? []), "checked", "name"])];
+  get "checked"() { return __mxflat_attr.get(this, "checked", __mxflat_lnk_195741f8.checked); }
+  set "checked"(value) { __mxflat_attr.set(this, "checked", value, __mxflat_lnk_195741f8.checked); }
+  get "name"() { return __mxflat_attr.get(this, "name", __mxflat_lnk_e184c421.name); }
+  set "name"(value) { __mxflat_attr.set(this, "name", value, __mxflat_lnk_e184c421.name); }
+  static {
+    Object.defineProperties(this.prototype, {
+      [__mxflat_lnk_6fda5f37]: { value: true },
+      [__mxflat_lnk_7a4fb491]: { value: true },
+    });
+  }
+
+  extra = 'here';
+}
+
+===== checkable.ts
+import { Bool, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+
+const $checkable: unique symbol = Symbol('Checkable');
+
+export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
+  checked: Bool,
+};
+
+export const Checkable: Trait<{ checked: boolean }, typeof $checkable> = trait(
+  CHECKABLE_ATTRS,
+  $checkable,
+);
+
+export { $checkable as __mxflat_$checkable_90a5ac53, $checkable };
+
+===== nameable.ts
+import { Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+
+const $nameable: unique symbol = Symbol('Nameable');
+
+export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
+  name: Str,
+};
+
+export const Nameable: Trait<{ name: string | null }, typeof $nameable> = trait(
+  NAMEABLE_ATTRS,
+  $nameable,
+);
+: expected Foo{ extra: 'here' } to be an instance of 
+ ❯ tests/flatten.node.test.ts:93:33
+
+########## Mutation B
+ FAIL  |node| tests/flatten.node.test.ts:82 > descriptor flattening runtime equivalence > should preserve trait brands for instanceof
+AssertionError: composed
+Own keys of each prototype on the chain:
+  Foo.prototype: "constructor"
+  traited.prototype: "constructor", "name", Symbol(Nameable)
+  traited.prototype: "constructor", "checked", Symbol(Checkable)
+  Base.prototype: "constructor", "getAttribute", "setAttribute", "removeAttribute"
+Brands:
+  Checkable.brand Symbol(Checkable): present
+  Nameable.brand Symbol(Nameable): absent
+===== foo-flat.ts
+import __mxflat_attr from "@ydinjs/core/attribute.js";
+import { __mxflat_$checkable_90a5ac53 as __mxflat_lnk_6fda5f37 } from "./checkable.ts";
+import { CHECKABLE_ATTRS as __mxflat_lnk_195741f8 } from "./checkable.ts";
+import { __mxflat_$nameable_d7b7babf as __mxflat_lnk_7a4fb491 } from "./nameable.ts";
+import { NAMEABLE_ATTRS as __mxflat_lnk_e184c421 } from "./nameable.ts";
+import {
+  impl,
+  type TraitedConstructor,
+} from '@ydinjs/core/traits/attributes.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+import { Nameable } from './nameable.ts';
+
+
+
+export default class Foo extends Base {
+  static observedAttributes = [...new Set([...(Base.observedAttributes ?? []), "checked", "name"])];
+  get "checked"() { return __mxflat_attr.get(this, "checked", __mxflat_lnk_195741f8.checked); }
+  set "checked"(value) { __mxflat_attr.set(this, "checked", value, __mxflat_lnk_195741f8.checked); }
+  get "name"() { return __mxflat_attr.get(this, "name", __mxflat_lnk_e184c421.name); }
+  set "name"(value) { __mxflat_attr.set(this, "name", value, __mxflat_lnk_e184c421.name); }
+  static {
+    Object.defineProperties(this.prototype, {
+      [__mxflat_lnk_6fda5f37]: { value: true },
+      [__mxflat_lnk_7a4fb491]: { value: true },
+    });
+  }
+
+  extra = 'here';
+}
+
+===== checkable.ts
+import { Bool, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+
+const $checkable: unique symbol = Symbol('Checkable');
+
+export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
+  checked: Bool,
+};
+
+export const Checkable: Trait<{ checked: boolean }, typeof $checkable> = trait(
+  CHECKABLE_ATTRS,
+  $checkable,
+);
+
+export { $checkable as __mxflat_$checkable_90a5ac53, $checkable };
+
+===== nameable.ts
+import { Str, type ConverterOf } from '@ydinjs/core/attribute.js';
+import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+
+const $nameable: unique symbol = Symbol('Nameable');
+
+export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
+  name: Str,
+};
+
+export const Nameable: Trait<{ name: string | null }, typeof $nameable> = trait(
+  NAMEABLE_ATTRS,
+  $nameable,
+);
+
+export { $nameable as __mxflat_$nameable_d7b7babf, $nameable };
+: expected Foo{ extra: 'here' } to be an instance of 
+ ❯ tests/flatten.node.test.ts:88:33
