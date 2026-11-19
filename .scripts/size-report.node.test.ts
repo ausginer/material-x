@@ -1,10 +1,15 @@
 /**
  * `.scripts/size-report.ts`: the size comment's Markdown and warnings from a
- * head reading, an optional base reading and the measurement rows' results.
+ * head reading, an optional base reading and the measurement rows' results, and
+ * the base that the command line states.
  */
-import { describe, expect, it } from 'vitest';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   parseVitestReport,
+  readBase,
   renderSizeReport,
   SIZE_REPORT_MARKER,
   sizeWarnings,
@@ -111,14 +116,42 @@ describe('renderSizeReport', () => {
     );
   });
 
-  it('should report the head alone and say so when there is no base reading', () => {
+  it('should report the head alone and say that none is stored for a missing base reading', () => {
+    const report = renderSizeReport({
+      head: reading(row('a', 100)),
+      base: 'missing',
+      measurements: [],
+    });
+
+    expect(report).toContain(
+      "**No base reading:** `main`'s run for the merge base stored no size reading",
+    );
+    expect(lineOf(report, 'a')).toBe('| drag | a | 100 | — |  | 1000 | 150 |');
+  });
+
+  it('should report the head alone and say that the lookup failed for a failed lookup', () => {
+    const report = renderSizeReport({
+      head: reading(row('a', 100)),
+      base: 'failed',
+      measurements: [],
+    });
+
+    expect(report).toContain(
+      "**No base reading:** the lookup of `main`'s stored reading for the merge base failed",
+    );
+    expect(report).not.toContain('stored no size reading');
+    expect(lineOf(report, 'a')).toBe('| drag | a | 100 | — |  | 1000 | 150 |');
+  });
+
+  it('should report the head alone and say nothing about a stored reading in a run that looks up no base', () => {
     const report = renderSizeReport({
       head: reading(row('a', 100)),
       base: null,
       measurements: [],
     });
 
-    expect(report).toContain('**No base reading:**');
+    expect(report).not.toContain('No base reading');
+    expect(report).not.toContain('stored');
     expect(lineOf(report, 'a')).toBe('| drag | a | 100 | — |  | 1000 | 150 |');
   });
 
@@ -215,5 +248,50 @@ describe('parseVitestReport', () => {
       { name: 'a passes', passed: true, message: null },
       { name: 'c fails', passed: false, message: 'AssertionError: no' },
     ]);
+  });
+});
+
+describe('readBase', () => {
+  let directory: string;
+
+  beforeAll(async () => {
+    directory = await mkdtemp(join(tmpdir(), 'size-report-'));
+  });
+
+  afterAll(async () => {
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  it('should give a missing reading when the lookup found none stored', async () => {
+    expect(await readBase(join(directory, 'absent.json'), true)).toBe(
+      'missing',
+    );
+  });
+
+  it('should give no base when the run looked none up', async () => {
+    expect(await readBase(undefined, false)).toBeNull();
+  });
+
+  it('should give a failed lookup when the base file is absent', async () => {
+    expect(await readBase(join(directory, 'absent.json'), false)).toBe(
+      'failed',
+    );
+  });
+
+  it('should give a failed lookup when the base file holds no reading', async () => {
+    const path = join(directory, 'not-a-reading.json');
+
+    await writeFile(path, '{"error":"not found"}');
+
+    expect(await readBase(path, false)).toBe('failed');
+  });
+
+  it('should give the reading that the base file holds', async () => {
+    const path = join(directory, 'reading.json');
+    const base = reading(row('a', 100));
+
+    await writeFile(path, JSON.stringify(base));
+
+    expect(await readBase(path, false)).toEqual(base);
   });
 });

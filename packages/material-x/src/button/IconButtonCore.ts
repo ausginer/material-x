@@ -10,6 +10,7 @@ import {
 import { Typeable } from '@ydinjs/core/traits/typeable.js';
 import { switchState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
+import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import {
   BUTTON_CORE_TRAITS,
   type ButtonColor,
@@ -51,7 +52,8 @@ export const ICON_BUTTON_CORE_TRAITS: readonly [
   ...typeof BUTTON_CORE_TRAITS,
   typeof IconButtonLike,
   typeof Typeable,
-] = [...BUTTON_CORE_TRAITS, IconButtonLike, Typeable];
+  typeof FocusForwarding,
+] = [...BUTTON_CORE_TRAITS, IconButtonLike, Typeable, FocusForwarding];
 
 export type IconButtonProperties = Omit<ButtonCoreProps, 'color'> &
   IconButtonLikeProps;

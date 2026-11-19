@@ -1,0 +1,12 @@
+# Run 44259919530, forced miss (16ece6f4b). Read from the GitHub Actions API (job steps) and each job's log.
+# image = the 'Version:' line of the log's 'Runner Image' group; provisioner = that of its 'Runner Image Provisioner' group; key = key.sh's first 'key=' line.
+# mirror = the most frequent *archive.ubuntu.com host in the log, '-' when none; archive_ubuntu_gets = 'Get:' lines from such a host; browser_action_s = the 'Run ./.github/actions/browser' step.
+job	job_id	conclusion	image	provisioner	key	mirror	archive_ubuntu_gets	need_to_get	install	dry_run	browser_action_s	job_s	warning
+system-deps (firefox)	134650624542	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0	-	0	-	-	-	-	12	none
+system-deps (webkit)	134650624663	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0	-	0	-	-	-	-	12	none
+system-deps (chromium)	134650624730	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	-	0	-	-	-	-	13	none
+chromium	134650742490	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	azure.archive.ubuntu.com	30	32.1 MB	4 upgraded, 9 newly installed	-	27	358	chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+measurements	134650742569	success	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	us-east-2.ec2.archive.ubuntu.com	22	32.1 MB	4 upgraded, 9 newly installed	-	436	503	chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+firefox	134650742579	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-firefox-playwright-1.65.0	azure.archive.ubuntu.com	57	48.8 MB	0 upgraded, 40 newly installed	-	21	477	firefox: the cache holds no archives for this key, so Playwright installs them from the mirror
+docs	134650742696	success	20261111.370.1	20261103.629	system-deps-ubuntu24-20261111-X64-chromium-playwright-1.65.0	azure.archive.ubuntu.com	30	32.1 MB	4 upgraded, 9 newly installed	-	28	106	chromium: the cache holds no archives for this key, so Playwright installs them from the mirror
+webkit	134650742824	cancelled	20261111.127.1	20261103.629	system-deps-ubuntu24-20261111-X64-webkit-playwright-1.65.0	us-east-2.ec2.archive.ubuntu.com	28	125 MB	4 upgraded, 181 newly installed	-	475	494	webkit: the cache holds no archives for this key, so Playwright installs them from the mirror

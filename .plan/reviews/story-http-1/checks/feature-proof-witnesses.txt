@@ -1,0 +1,122 @@
+# Feature proof of RF-62's repair: the reviewer's own runs
+# Run by the reviewer on 2026-11-19 at b04ece9ec, the branch's head, which
+# merges origin/main into d60eb77e8. `git diff --stat d60eb77e8 b04ece9ec` over
+# .scripts/docs-smoke.ts, packages/material-x/src/checkbox, .storybook,
+# Justfile and .github/actions is empty, and the merge changes no docs or
+# docs-smoke line of verify.yml. One new detached worktree outside the slots,
+# after `aube ci`. Runs were made one at a time. Each mutation was reverted with
+# `git checkout`, and `git status` was clean afterwards.
+
+## Witness 1: the search
+# $PATTERN is the line under "## The pattern" in rf62-scope-search.txt (559 characters).
+$ git grep -nE "$PATTERN" <commit> -- ':(glob).storybook/**' ':(glob)packages/*/src/**' ':(glob)packages/*/docs/**' index.html
+e02ee7a3a (the parent): exit 0
+e02ee7a3a:packages/material-x/src/checkbox/checkbox.stories.tsx:93:  const id = crypto.randomUUID();
+d6674ecfb (the repair): exit 1, no hit
+b04ece9ec (the head):   exit 1, no hit
+
+# Files each pathspec form covers, counted with `git grep -l -I -e '' <commit> -- <paths> | wc -l`:
+e02ee7a3a  glob: 309   plain (.storybook 'packages/*/src' 'packages/*/docs' index.html): 14   plain 'packages/*/src' alone: 0
+d6674ecfb  glob: 309   plain: 14   plain 'packages/*/src' alone: 0
+b04ece9ec  glob: 309   plain: 14   plain 'packages/*/src' alone: 0
+# `git ls-tree -r --name-only b04ece9ec | grep -cE '^(\.storybook/|packages/[^/]+/(src|docs)/|index\.html$)'` gives 309.
+# The plain pathspecs at the parent give exit 1, no hit: they miss line 93.
+
+## Witness 2: the gate from the mapped name
+$ aube exec just docs-build   # exit 0, 1m45s
+$ aube exec just docs-smoke   # exit 0
+102 of 102 pages passed at http://mx-docs.test:42945/material-x/ in 18.1 s
+
+## Witness 3: WithLabel's `crypto.randomUUID()` restored from e02ee7a3a
+# docs-build exit 0, then docs-smoke: exit 1
+FAIL story checkbox--with-label
+  console error: TypeError: crypto.randomUUID is not a function
+    at Object.Z (http://mx-docs.test:<port>/material-x/assets/checkbox.stories-BySFxuk0.js:1:6059)
+101 of 102 pages passed at http://mx-docs.test:33571/material-x/ in 18.4 s
+# After the restore, docs-build was run again before the id probe below.
+
+## Witness 4a: the launch's `args` set to [] (no host-resolver rule): exit 1
+FAIL lines: 102 (every target)
+FAIL index.html
+  request failed: http://mx-docs.test:37437/material-x/ (net::ERR_NAME_NOT_RESOLVED)
+  navigation: page.goto: net::ERR_NAME_NOT_RESOLVED at http://mx-docs.test:37437/material-x/
+  secure context: isSecureContext is null at http://mx-docs.test:37437, where it must be false
+0 of 102 pages passed at http://mx-docs.test:37437/material-x/ in 2.7 s
+
+## Witness 4b: `const HOST = '127.0.0.1';`: exit 1, and the assertion is the only failure
+FAIL index.html
+  secure context: isSecureContext is true at http://127.0.0.1:33083, where it must be false
+101 of 102 pages passed at http://127.0.0.1:33083/material-x/ in 18.0 s
+
+## The id in a rendered page (ids.mjs, below), from http://mx-docs.test:<port>
+# The script serves .docs at /material-x/ as docs-smoke does, launches the same
+# Chromium with the same --host-resolver-rules, opens each page, waits for its
+# mx-checkbox elements and 1.5 s more, and reads the DOM. It ran after .docs was
+# rebuilt from the restored tree; docs-smoke on that build: exit 0,
+# 102 of 102 pages passed at http://mx-docs.test:38121/material-x/ in 18.4 s
+checkbox--with-label {"secure":false,"randomUUID":"undefined","withLabel":1,"playground":0,"checkboxes":2,"labelFor":["mx-with-label-checkbox->mx-checkbox"],"duplicateIds":[]} errors: 0
+checkbox--docs {"secure":false,"randomUUID":"undefined","withLabel":1,"playground":0,"checkboxes":5,"labelFor":["mx-with-label-checkbox->mx-checkbox"],"duplicateIds":[]} errors: 0
+# label.control is the element that the label labels: the WithLabel id resolves to an mx-checkbox.
+# .docs/index.json lists four checkbox entries: checkbox--docs, checkbox--playground,
+# checkbox--checked, checkbox--with-label.
+
+## Gates on the two changed files, in the same tree
+$ aube exec oxfmt --check .scripts/docs-smoke.ts packages/material-x/src/checkbox/checkbox.stories.tsx   # exit 0
+$ aube exec oxlint .scripts/docs-smoke.ts                                                              # exit 0
+$ aube exec -- eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts .scripts/docs-smoke.ts  # exit 0
+$ (packages/material-x) aube exec just lint src/checkbox/checkbox.stories.tsx                          # exit 0
+$ (packages/material-x) aube exec just typecheck                                                       # exit 0
+$ aube exec -- tsc -p tsconfig.json --noEmit   # root; its include covers ./.scripts/**/*            # exit 0
+
+## CI
+# verify.yml's `docs` job at b04ece9ec: `aube ci`, ./.github/actions/browser with
+# engine chromium, `aube exec just docs-build`, `aube exec just docs-smoke`. The
+# Justfile's docs-smoke is `node .scripts/docs-smoke.ts`. No step or job sets a
+# proxy or a Playwright variable, and nothing else names a host-resolver rule.
+# No pull request exists for repo/story-http-1 yet, and verify.yml has no run on it.
+
+## ids.mjs
+// Counts the ids WithLabel and the playground use, in the story's canvas and
+// the checkbox docs page, served from a non-secure origin as docs-smoke does.
+import { createServer } from 'node:http';
+import { createRequire } from 'node:module';
+import { readFile, stat } from 'node:fs/promises';
+import { extname, join } from 'node:path';
+const tree = process.argv[2];
+const { chromium } = createRequire(join(tree, 'package.json'))('playwright');
+const docs = join(tree, '.docs');
+const base = '/material-x/';
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
+const server = createServer(async (req, res) => {
+  const p = new URL(req.url, 'http://x').pathname;
+  if (!p.startsWith(base)) return res.writeHead(404).end();
+  let f = join(docs, decodeURIComponent(p.slice(base.length)));
+  try { if ((await stat(f)).isDirectory()) f = join(f, 'index.html'); res.writeHead(200, { 'content-type': types[extname(f)] ?? 'application/octet-stream' }).end(await readFile(f)); }
+  catch { res.writeHead(404).end(); }
+});
+await new Promise((r) => server.listen(0, '127.0.0.1', r));
+const origin = `http://mx-docs.test:${server.address().port}`;
+const browser = await chromium.launch({ args: ['--host-resolver-rules=MAP mx-docs.test 127.0.0.1'] });
+for (const [id, mode] of [['checkbox--with-label', 'story'], ['checkbox--docs', 'docs']]) {
+  const page = await browser.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+  await page.route((u) => u.origin !== origin, (r) => r.fulfill({ status: 200, body: '' }));
+  await page.goto(`${origin}${base}iframe.html?id=${id}&viewMode=${mode}`, { waitUntil: 'load' });
+  await page.waitForFunction(() => document.querySelectorAll('mx-checkbox').length > 0, null, { timeout: 30000 });
+  await page.waitForTimeout(1500);
+  const r = await page.evaluate(() => ({
+    secure: isSecureContext,
+    randomUUID: typeof crypto.randomUUID,
+    withLabel: document.querySelectorAll('[id="mx-with-label-checkbox"]').length,
+    playground: document.querySelectorAll('[id="mx-playground-checkbox"]').length,
+    checkboxes: document.querySelectorAll('mx-checkbox').length,
+    labelFor: [...document.querySelectorAll('label[for]')].map((l) => `${l.htmlFor}->${l.control?.localName ?? 'none'}`),
+    duplicateIds: (() => { const c = {}; for (const e of document.querySelectorAll('[id]')) c[e.id] = (c[e.id] ?? 0) + 1; return Object.entries(c).filter(([, n]) => n > 1); })(),
+  }));
+  console.log(id, JSON.stringify(r), 'errors:', errors.length);
+  await page.close();
+}
+await browser.close();
+server.close();

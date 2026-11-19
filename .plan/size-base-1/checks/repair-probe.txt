@@ -1,0 +1,89 @@
+# A probe of RF-65's direction, not the repair
+# Run by the architect on 2026-11-19 in a fresh tree at a3ce6d8b3 after `aube ci`
+# only. The probe edits the tree below by script, then runs
+# `aube exec just size-reading <scratch>/w1-probe2.json`. Nothing here is
+# committed: the implementer writes the repair to the plan's properties, which
+# also cover the root `just size` and the instrument's error.
+
+## The probe's diff
+diff --git a/.scripts/size-reading.ts b/.scripts/size-reading.ts
+index b6922cf50..e932c7f61 100644
+--- a/.scripts/size-reading.ts
++++ b/.scripts/size-reading.ts
+@@ -74,7 +74,6 @@ function parseLastJSON(stdout: string, instrument: string): unknown {
+ async function readSizeLimit(name: string): Promise<SizeRow[]> {
+   const cwd = join(ROOT, 'packages', name);
+ 
+-  await run('aube', ['exec', 'just', 'build'], cwd);
+ 
+   // size-limit exits non-zero when a row is over its limit, and still prints it.
+   const { stdout } = await run(
+@@ -99,7 +98,6 @@ async function readSizeLimit(name: string): Promise<SizeRow[]> {
+ async function readDrag(): Promise<SizeRow[]> {
+   const cwd = join(ROOT, 'packages/drag');
+ 
+-  await run('aube', ['exec', 'just', 'build'], cwd);
+ 
+   // The gate exits non-zero on a violation, and still prints the reading.
+   const { stdout } = await run(
+@@ -125,6 +123,8 @@ if (output == null) {
+   throw new Error('usage: node .scripts/size-reading.ts <output.json>');
+ }
+ 
++await run('aube', ['exec', '--', 'nx', 'run-many', '-t', 'build', '--projects=box-quad,core,material-x,drag', '--skipNxCache'], ROOT);
++
+ const reading: SizeReading = {
+   rows: [
+     ...(await readSizeLimit('box-quad')),
+diff --git a/packages/box-quad/project.json b/packages/box-quad/project.json
+index 354c7035a..ec178e4c6 100644
+--- a/packages/box-quad/project.json
++++ b/packages/box-quad/project.json
+@@ -1,4 +1,7 @@
+ {
+   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+-  "name": "@ydinjs/box-quad"
++  "name": "@ydinjs/box-quad",
++  "implicitDependencies": [
++    "@ydinjs/vite-traits-plugin"
++  ]
+ }
+diff --git a/packages/drag/project.json b/packages/drag/project.json
+index 409b8a5bf..227256e59 100644
+--- a/packages/drag/project.json
++++ b/packages/drag/project.json
+@@ -1,12 +1,21 @@
+ {
+   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+   "name": "@ydinjs/drag",
++  "implicitDependencies": [
++    "@ydinjs/vite-traits-plugin"
++  ],
+   "targets": {
+     "lint": {
+-      "dependsOn": ["^build", "build"]
++      "dependsOn": [
++        "^build",
++        "build"
++      ]
+     },
+     "lint:fix": {
+-      "dependsOn": ["^build", "build"]
++      "dependsOn": [
++        "^build",
++        "build"
++      ]
+     }
+   }
+ }
+
+## The build graph after the probe (`-t build --projects=box-quad,drag`)
+@ydinjs/box-quad:build                     <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:build                         <- @ydinjs/vite-traits-plugin:build, @ydinjs/box-quad:build
+@ydinjs/vite-traits-plugin:build           <- (none)
+size-limit-preset-rolldown:build           <- (none)
+
+## Result
+size-reading: exit 0
+rows: 33 {"box-quad":1,"core":3,"material-x":19,"drag":10}
+cmp with fresh-tree-layers.txt step 2e's reading (every prerequisite built by hand first): byte-identical

@@ -1,0 +1,19 @@
+# RF-44 item 2b rows after the change: repo/traits-plugin-1 at 3eb1912f4 plus the item 2b diff in src/ and tests/
+# aube exec just test --reporter=verbose tests/analyze-method.node.test.ts (packages/vite-traits-plugin), the item 2b rows and their neighbours
+ ✓ |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls eval
+ ✓ |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls a parenthesized eval
+ ✓ |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls eval through a type assertion
+ ✓ |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls eval indirectly
+ ✓ |node| tests/analyze-method.node.test.ts:202 > analyzeModule and the names a method trait reads > should flatten a member that reads a global
+ ✓ |node| tests/analyze-method.node.test.ts:229 > analyzeModule and the names a method trait reads > should retain a TypeScript method trait in a JavaScript consumer
+ ✓ |node| tests/analyze-method.node.test.ts:236 > analyzeModule and the names a method trait reads > should retain a TypeScript method trait in a TSX consumer
+ Test Files  1 passed (1)
+      Tests  46 passed (46)
+# the whole suite: aube exec just test
+ Test Files  8 passed (8)
+      Tests  142 passed (142)
+# the built package (.mjs) into a .ts consumer, which still flattens: aube exec just test --reporter=verbose tests/flatten-method.node.test.ts
+ RUN  v5.1.0 /workspaces/worktrees/d/packages/vite-traits-plugin
+ ✓ |node| tests/flatten-method.node.test.ts:194 > method trait flattening of another package's built JavaScript > should flatten the composition
+ ✓ |node| tests/flatten-method.node.test.ts:198 > method trait flattening of another package's built JavaScript > should call the trait method
+ ✓ |node| tests/flatten-method.node.test.ts:204 > method trait flattening of another package's built JavaScript > should reach the package's private bindings and relative import

@@ -5026,6 +5026,21 @@ Tier C, **open**. Registered on 2026-11-17 by the architect, on the coordinator'
 
 **Dated 2026-11-17 by the architect,** at `4136c0eea`: this row passes in Playwright's WebKit in the gate, in both projects, twice ([inventory](../../../.plan/ci-speed-1/checks/webkit-inventory.txt)). WebKit does fail the same oracle message deterministically, but in another row, `sortable.browser.test.ts`'s _"should cancel and report when an anchor leaves before the release"_, at slot 1. That row removes an anchor from the list on purpose, and the [CI-speed handoff](../../../.plan/ci-speed-1/ci-speed-handoff.md)'s _Disposition of the stop at `4136c0eea`_ decides it there. Nothing about it is read as this finding's cause.
 
+#### DRF-53 — In CI's `measurements` job, the per-sample allocation row sometimes reads 28 to 83 bytes per move against its bound of 16, with the same code
+
+Tier C, **open**. Registered on 2026-11-18 by the architect, on the coordinator's report of the `measurements` comments, relayed by the coordinator. `DRF-52` is the last `DRF-` on any branch, so this is the next free number. **No row is disabled.** The row is a measurement (`repo:RD-7` property 1), so in CI it reports and never fails the run.
+
+- **The row:** `tests/hot-path.browser.test.ts:261`, `DRI-17` › _"should allocate per sample only the CSS string a lifted write needs"_. After 300 unsampled moves, it samples the heap at a 64-byte interval over 300 more. Then it bounds the bytes attributed to `kernel/` and `draggable.ts` per move at less than 16.
+- **Observed** in each pull request's size comment, which reports that pull request's latest run. The row passed on #37, #38, #39 and #61, and failed on #59, #66, #67 and #68. In the failures, `kernel/session.ts:handleEvent` holds 8,496 to 24,836 bytes over the 300 moves. In #68's run 44279774938 (job 134717402054), which the architect read, it is 24,836, or 82.79 per move. The `DRF-2` row beside it passed in all eight.
+- **The same code passes and fails.** #61's run 44275172650 at `6166ae132` passed it, and #59's run 44278340916 at `9ba55d78d` failed it. `packages/drag`, `packages/core` and `packages/box-quad` are identical at `7a4f82eb4` (#61's merge), at `a133bebee` (#59's) and at #68's head.
+- **The cause isn't established,** and nothing was read locally. Two candidates:
+  - when sampling starts, the kernel's handler isn't yet in its optimized tier, on a slower or busier runner. The row's own comment says that the warm-up exists for this;
+  - the sampler attributes to `handleEvent` an allocation made by inlined code.
+- **Why it matters.** A notification that fires with no change teaches readers to ignore the row. Locally, `just test` runs every row (`repo:RD-7` property 2), so the row can also fail a drag unit's local run with no change (`DRD-68` property 5).
+- **Required property:** the row's result depends only on the code. Either it reads within its bound in every run at a tree whose kernel allocates nothing per sample, or the record states the variance it measures and the row bounds only what it can measure.
+- **The architect's direction:** read first. Run the row repeatedly at one tree, locally and in the `measurements` job, and record `handleEvent`'s bytes in each run, with the warm-up as it is and lengthened. The repair is decided from that reading.
+- **Routed** to the owner to order, through the work queue (`repo:RD-22`). **It doesn't block** any pull request.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.

@@ -108,7 +108,7 @@ _test-builds: _package-builds
 
 # Check bundle-size budgets for all measured packages
 size:
-    nx run-many -t size --projects=box-quad,core,drag --skipNxCache
+    nx run-many -t size --projects=box-quad,core,drag,material-x --parallel=1 --skipNxCache
 
 # Write the rows that `size` measures, as JSON, to FILE (builds first)
 size-reading FILE:
@@ -126,6 +126,13 @@ size-report *ARGS:
 # Type-check all packages
 typecheck:
     nx run-many -t typecheck --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+
+# Type-check every built declaration file as a consumer reads it: with
+# `skipLibCheck` off and no ambient `types` (`repo:RF-51`). It builds every
+# package that writes declarations first, because it reads their builds.
+typecheck-declarations:
+    nx run-many -t build --projects=box-quad,core,drag,material-x,size-limit-preset-rolldown,tproc,vite-custom-element-assets,vite-traits-plugin --skipNxCache
+    tsc -p tsconfig.declarations.json
 
 # ---------------------------------------------------------------------------
 # Formatting

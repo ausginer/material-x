@@ -1,0 +1,82 @@
+# RF-59 item 3, feature proof: the reviewer's own runs. Read in slot e on 2026-11-18, at 0b6bc4d30 (repo/host-has-fallback-1, clean),
+# in the devcontainer. Nothing in the tree was changed; the built packages are the implementer's, at 07:40, and
+# packages/material-x/core/utils/polyfills.js carries no detection (no HOST_HAS_SUPPORTED, getComputedStyle or document.body).
+
+## 1. The browser project, all three engines (packages/material-x)
+$ MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test --project browser --project browser/firefox --project browser/webkit
+ Test Files  33 passed (33)
+      Tests  602 passed | 1 expected fail (603)
+exit 0
+
+## 2. typecheck and lint (packages/material-x)
+$ aube exec just typecheck              -> exit 0
+$ aube exec just lint src/core/utils/polyfills.ts tests/core/utils/polyfills.browser.test.ts -> exit 0
+$ aube exec just fmt-check              -> All matched files use the correct format.
+
+## 3. The head-import probe, re-run against slot e's build
+$ node .plan/host-has-fallback-1/checks/rf59-head-import-probe.mjs /workspaces/worktrees/e <scratch>
+# Row for row identical to .plan/host-has-fallback-1/checks/rf59-head-import-after.txt (diff of the non-comment lines).
+## chromium 158.0.8127.18
+hold=1500	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-bundle                    	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle                    	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+## firefox 159.0
+hold=1500	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-bundle                    	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle                    	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+## webkit 27.2
+hold=1500	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-bundle                    	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=1500	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src                        	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-src-async                  	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline                     	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	module-inline-async               	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import            	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-dynamic-import-list-item  	defined=true	upgraded=false	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle                    	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+hold=0	classic-bundle-defer              	defined=true	upgraded=true	errors=[]	bodyAtError=[]	pageerror=[]
+
+## 4. Every :state(has-*) selector shares its selector list with the :host:has() selector it stands for
+$ node state-pairing-probe.mjs list/styles/item/main.css.js text-field/styles/default/main.css.js
+# The probe's regex expects the compound form .<class>.has-slotted / .<class>:has-slotted; it reports the text field's
+# descendant form (.support .has-slotted, .counter .has-slotted) as UNPAIRED, though the counterpart is in the same list:
+list/styles/item/main.css.js state selectors 2 unpaired 0
+UNPAIRED text-field/styles/default/main.css.js support :: :host:has(.support .has-slotted),:host(:state(has-support)),:host:has(.counter .has-slotted),:host(:state(has-counter))
+UNPAIRED text-field/styles/default/main.css.js counter :: :host:has(.support .has-slotted),:host(:state(has-support)),:host:has(.counter .has-slotted),:host(:state(has-counter))
+text-field/styles/default/main.css.js state selectors 6 unpaired 2
+# The list item's rules, printed whole:
+:host:has(.support.has-slotted),:host(:state(has-support)),:host:has(.overline.has-slotted),:host(:state(has-overline))
+:host:has(.support.has-slotted):has(.overline.has-slotted) &,:host(:state(has-support):state(has-overline)) &
+:host:has(.support.has-slotted):has(.overline.has-slotted),:host(:state(has-support):state(has-overline))

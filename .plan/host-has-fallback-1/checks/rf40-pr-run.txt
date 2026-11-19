@@ -1,0 +1,61 @@
+PR #59, run 44276212222 on 4df80913f (the branch's f48143080 merged with origin/main at 7a4f82eb4): conclusion success.
+Read from each test job's log with `gh run view 44276212222 --job <id> --log`, colour codes removed: the version in the Runner Image group, the two changed test files, every visual file, and the test step's summary. CI uses Vitest's default reporter, which lists files and not rows.
+
+== chromium, job 134705238062
+Version: 20261111.370.1
+ ✓  browser/material-x (chromium)  tests/text-field/text-field.browser.test.ts (26 tests) 2475ms
+ ✓  browser/material-x (chromium)  tests/list/list-item.browser.test.ts (7 tests) 767ms
+ ✓  visual/material-x (chromium)  tests/button-group/button-group.visual.browser.test.ts (4 tests) 724ms
+ ✓  visual/material-x (chromium)  tests/button/button.visual.browser.test.ts (7 tests) 1234ms
+ ✓  visual/material-x (chromium)  tests/checkbox/checkbox.visual.browser.test.ts (4 tests) 676ms
+ ✓  visual/material-x (chromium)  tests/radio/radio.visual.browser.test.ts (4 tests) 644ms
+ Test Files  146 passed (146)
+      Tests  2164 passed | 12 skipped (2176)
+
+== firefox, job 134705238220
+Version: 20261111.370.1
+ ✓  browser/material-x/firefox (firefox)  tests/text-field/text-field.browser.test.ts (26 tests) 2469ms
+ ✓  browser/material-x/firefox (firefox)  tests/list/list-item.browser.test.ts (7 tests) 802ms
+ Test Files  105 passed (105)
+      Tests  1754 passed | 1 expected fail | 18 skipped (1773)
+
+== webkit, job 134705238152
+Version: 20261111.127.1
+ ✓  browser/material-x/webkit (webkit)  tests/text-field/text-field.browser.test.ts (26 tests) 2440ms
+ ✓  browser/material-x/webkit (webkit)  tests/list/list-item.browser.test.ts (7 tests) 693ms
+ Test Files  105 passed (105)
+      Tests  1755 passed | 18 skipped (1773)
+
+== jobs
+134704898546 scope success
+134705120279 system-deps (firefox) success
+134705120335 system-deps (chromium) success
+134705120348 system-deps (webkit) success
+134705120379 static success
+134705124161 records skipped
+134705238062 chromium success
+134705238151 docs success
+134705238152 webkit success
+134705238219 measurements success
+134705238220 firefox success
+134705947943 deploy skipped
+134709579040 verify success
+
+== chromium steps (the screenshot upload runs only on failure())
+  Set up job success
+  Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 success
+  Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 success
+  Install aube success
+  Run actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 success
+  Run aube ci success
+  Run ./.github/actions/browser success
+  Runner image and processor success
+  Run aube exec -- just test --coverage --tags-filter '!measurement' success
+  Run codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 success
+  Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 skipped
+  Post Run actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 success
+  Post Run actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 success
+  Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 success
+  Complete job success
+
+== git diff --name-only origin/main 4df80913f -- '*__screenshots__*' (origin/main at 7a4f82eb4): 0 files

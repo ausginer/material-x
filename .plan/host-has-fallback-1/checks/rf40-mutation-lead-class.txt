@@ -1,0 +1,238 @@
+Witness 3: text-field's lead slot has class="lead-renamed" instead of class="lead". Applied at c10d73f1d, then reverted.
+diff --git a/packages/material-x/src/text-field/text-field-core.tpl.html b/packages/material-x/src/text-field/text-field-core.tpl.html
+index bc7d85c25..e65fa9cd3 100644
+--- a/packages/material-x/src/text-field/text-field-core.tpl.html
++++ b/packages/material-x/src/text-field/text-field-core.tpl.html
+@@ -1,4 +1,4 @@
+-<slot name="lead" class="lead" part="lead"></slot>
++<slot name="lead" class="lead-renamed" part="lead"></slot>
+ <slot name="prefix" class="prefix" part="prefix"></slot>
+ <label id="label" for="field" class="label" part="label">
+   <slot name="label"></slot>
+
+$ MX_TEST_ENGINES=chromium,firefox,webkit aube exec -- just test --project 'browser*' --reporter=verbose -t 'slotted content' tests/text-field tests/list
+vitest run -c vitest.config.ts --project browser* --reporter=verbose -t slotted content tests/text-field tests/list
+
+ RUN  v5.1.0 /workspaces/worktrees/e/packages/material-x
+
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled
+ ↓ |browser (chromium)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted 146ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted 99ms
+ ✓ |browser (chromium)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted 100ms
+ × |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 161ms
+   → expected 12 to be 24 // Object.is equality
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:143 > mx-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 109ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:166 > mx-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:189 > mx-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while support has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while counter has content 100ms
+ × |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 89ms
+   → expected 12 to be 24 // Object.is equality
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:143 > mx-multiline-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 93ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:166 > mx-multiline-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:189 > mx-multiline-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while support has content 100ms
+ ✓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while counter has content 100ms
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:241 > mx-text-field > should restore slot label fallback after aria-labelledby removal
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:261 > mx-text-field > should restore support and counter fallback after aria-describedby removal
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:282 > mx-text-field > should remove fallback aria-describedby when related slots become empty
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:303 > mx-text-field > should update slot label fallback as label content is added and removed
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:327 > mx-text-field > should keep populated state in sync for value setter and input events
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:348 > mx-text-field > should expose the original native-like input event
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:375 > mx-text-field > should bridge change from the internal field to the host
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:241 > mx-multiline-text-field > should restore slot label fallback after aria-labelledby removal
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:261 > mx-multiline-text-field > should restore support and counter fallback after aria-describedby removal
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:282 > mx-multiline-text-field > should remove fallback aria-describedby when related slots become empty
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:303 > mx-multiline-text-field > should update slot label fallback as label content is added and removed
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:327 > mx-multiline-text-field > should keep populated state in sync for value setter and input events
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:348 > mx-multiline-text-field > should expose the original native-like input event
+ ↓ |browser (chromium)| tests/text-field/text-field.browser.test.ts:375 > mx-multiline-text-field > should bridge change from the internal field to the host
+ × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 207ms
+   → expected 12 to be 24 // Object.is equality
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:143 > mx-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 176ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:166 > mx-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 103ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:189 > mx-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 113ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while support has content 101ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while counter has content 100ms
+ × |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 152ms
+   → expected 12 to be 24 // Object.is equality
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:143 > mx-multiline-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 111ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:166 > mx-multiline-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 116ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:189 > mx-multiline-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 100ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while support has content 101ms
+ ✓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while counter has content 113ms
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:241 > mx-text-field > should restore slot label fallback after aria-labelledby removal
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:261 > mx-text-field > should restore support and counter fallback after aria-describedby removal
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:282 > mx-text-field > should remove fallback aria-describedby when related slots become empty
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:303 > mx-text-field > should update slot label fallback as label content is added and removed
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:327 > mx-text-field > should keep populated state in sync for value setter and input events
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:348 > mx-text-field > should expose the original native-like input event
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:375 > mx-text-field > should bridge change from the internal field to the host
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:241 > mx-multiline-text-field > should restore slot label fallback after aria-labelledby removal
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:261 > mx-multiline-text-field > should restore support and counter fallback after aria-describedby removal
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:282 > mx-multiline-text-field > should remove fallback aria-describedby when related slots become empty
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:303 > mx-multiline-text-field > should update slot label fallback as label content is added and removed
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:327 > mx-multiline-text-field > should keep populated state in sync for value setter and input events
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:348 > mx-multiline-text-field > should expose the original native-like input event
+ ↓ |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:375 > mx-multiline-text-field > should bridge change from the internal field to the host
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled
+ ↓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor
+ ✓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted 132ms
+ ✓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted 100ms
+ ✓ |browser/firefox (firefox)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted 99ms
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:29 > mx-list-button-item > should delegate focus to the native button
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:37 > mx-list-button-item > should leave focus where it was when the host is disabled
+ ↓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:51 > mx-list-link-item > should delegate focus to the native anchor
+ ✓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with support slotted 208ms
+ ✓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select two-line.container.height with overline slotted 93ms
+ ✓ |browser/webkit (webkit)| tests/list/list-item.browser.test.ts:91 > mx-list-item slotted content > should select three-line.container.height with support and overline slotted 114ms
+ × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 214ms
+   → expected 12 to be 24 // Object.is equality
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:143 > mx-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 101ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:166 > mx-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 96ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:189 > mx-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 112ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while support has content 97ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:213 > mx-text-field slotted content > should open the supporting row below the row gap while counter has content 97ms
+ × |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content 82ms
+   → expected 12 to be 24 // Object.is equality
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:143 > mx-multiline-text-field slotted content > should open the trail column with the icon padding and gap while trail has content 106ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:166 > mx-multiline-text-field slotted content > should open the prefix column with the prefix gap while prefix has content 96ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:189 > mx-multiline-text-field slotted content > should open the suffix column with the suffix gap while suffix has content 113ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while support has content 113ms
+ ✓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:213 > mx-multiline-text-field slotted content > should open the supporting row below the row gap while counter has content 97ms
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:241 > mx-text-field > should restore slot label fallback after aria-labelledby removal
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:261 > mx-text-field > should restore support and counter fallback after aria-describedby removal
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:282 > mx-text-field > should remove fallback aria-describedby when related slots become empty
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:303 > mx-text-field > should update slot label fallback as label content is added and removed
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:327 > mx-text-field > should keep populated state in sync for value setter and input events
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:348 > mx-text-field > should expose the original native-like input event
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:375 > mx-text-field > should bridge change from the internal field to the host
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:241 > mx-multiline-text-field > should restore slot label fallback after aria-labelledby removal
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:261 > mx-multiline-text-field > should restore support and counter fallback after aria-describedby removal
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:282 > mx-multiline-text-field > should remove fallback aria-describedby when related slots become empty
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:303 > mx-multiline-text-field > should update slot label fallback as label content is added and removed
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:327 > mx-multiline-text-field > should keep populated state in sync for value setter and input events
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:348 > mx-multiline-text-field > should expose the original native-like input event
+ ↓ |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:375 > mx-multiline-text-field > should bridge change from the internal field to the host
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content
+ FAIL  |browser (chromium)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content
+AssertionError: expected 12 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 12
+
+ ❯ tests/text-field/text-field.browser.test.ts:128:48
+    126|     await nextFrame();
+    127|
+    128|     expect(lead.getBoundingClientRect().width).toBe(
+       |                                                ^
+    129|       content.getBoundingClientRect().width,
+    130|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +4ms      74ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      49ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content
+ FAIL  |browser/firefox (firefox)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content
+AssertionError: expected 12 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 12
+
+ ❯ tests/text-field/text-field.browser.test.ts:128:48
+    126|     await nextFrame();
+    127|
+    128|     expect(lead.getBoundingClientRect().width).toBe(
+       |                                                ^
+    129|       content.getBoundingClientRect().width,
+    130|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +2ms     123ms  tests/support/browser-setup.ts:77:19
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +1ms      64ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-text-field slotted content > should open the lead column with the icon padding and gap while lead has content
+AssertionError: expected 12 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 12
+
+ ❯ tests/text-field/text-field.browser.test.ts:128:48
+    126|     await nextFrame();
+    127|
+    128|     expect(lead.getBoundingClientRect().width).toBe(
+       |                                                ^
+    129|       content.getBoundingClientRect().width,
+    130|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +6ms     116ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  |browser/webkit (webkit)| tests/text-field/text-field.browser.test.ts:120 > mx-multiline-text-field slotted content > should open the lead column with the icon padding and gap while lead has content
+AssertionError: expected 12 to be 24 // Object.is equality
+
+- Expected
++ Received
+
+- 24
++ 12
+
+ ❯ tests/text-field/text-field.browser.test.ts:128:48
+    126|     await nextFrame();
+    127|
+    128|     expect(lead.getBoundingClientRect().width).toBe(
+       |                                                ^
+    129|       content.getBoundingClientRect().width,
+    130|     );
+
+
+Trace:
+  step   locator         start  duration  location
+  hover  locator('div')   +0ms      45ms  tests/support/browser-setup.ts:77:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  6 failed | 39 passed | 51 skipped (96)
+   Start at  08:38:27
+   Duration  10.67s (tests 50%, import 26%, worker 23%, setup 2%)
+
+error: recipe `test` failed on line 56 with exit code 1
+exit 1

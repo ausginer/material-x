@@ -1,0 +1,15 @@
+# RF-44 item 2b rows before the change: repo/traits-plugin-1 at 3eb1912f4 with only tests/analyze-method.node.test.ts changed
+# aube exec just test tests/analyze-method.node.test.ts (packages/vite-traits-plugin)
+     × should retain a site whose trait class has a body that calls a parenthesized eval 4ms
+     × should retain a site whose trait class has a body that calls eval through a type assertion 1ms
+     × should retain a site whose trait class has a body that calls eval indirectly 1ms
+     × should retain a TypeScript method trait in a TSX consumer 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls a parenthesized eval
+ FAIL  |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls eval through a type assertion
+ FAIL  |node| tests/analyze-method.node.test.ts:129 > analyzeModule and a method trait > should retain a site whose trait class has a body that calls eval indirectly
+AssertionError: expected [] to deeply equal [ 'unsupported-trait-member' ]
+ FAIL  |node| tests/analyze-method.node.test.ts:236 > analyzeModule and the names a method trait reads > should retain a TypeScript method trait in a TSX consumer
+AssertionError: expected [] to deeply equal [ 'trait-source-language' ]
+ Test Files  1 failed (1)
+      Tests  4 failed | 42 passed (46)

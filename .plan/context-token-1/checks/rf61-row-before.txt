@@ -1,0 +1,14 @@
+# RF-61 item 1, witness 1: the new row before the repair. Read by the implementer in slot f on 2026-11-18, on
+# repo/context-token-1 at 9a514e235 with the row added and createContext unchanged, run in packages/core as
+#   MX_TEST_ENGINES=chromium,firefox,webkit aube exec just test --project 'browser*' \
+#     tests/controllers/useContext.browser.test.ts -t createContext --reporter=verbose
+# After the repair the whole file passes in the three engines: 45 tests, 15 per engine (witness 3).
+
+× |browser (chromium)| tests/controllers/useContext.browser.test.ts:102 > createContext > should create distinct string tokens where crypto.randomUUID is unavailable 53ms
+× |browser/firefox (firefox)| tests/controllers/useContext.browser.test.ts:102 > createContext > should create distinct string tokens where crypto.randomUUID is unavailable 35ms
+× |browser/webkit (webkit)| tests/controllers/useContext.browser.test.ts:102 > createContext > should create distinct string tokens where crypto.randomUUID is unavailable 42ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+TypeError: crypto.randomUUID is not a function
+TypeError: crypto.randomUUID is not a function
+TypeError: crypto.randomUUID is not a function. (In 'crypto.randomUUID()', 'crypto.randomUUID' is undefined)
+Tests  3 failed | 42 skipped (45)

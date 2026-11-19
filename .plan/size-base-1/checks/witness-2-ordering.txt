@@ -1,0 +1,16 @@
+# Witness 2: the ordering changes nothing measured
+# Run by the implementer on 2026-11-19 at 0021a710e, in the tree of the first
+# (uncounted) attempt of witness 1, after building every package:
+
+$ aube exec -- nx run-many -t build --all --skipNxCache
+exit 0
+$ aube exec just size-reading <scratch>/reading-allbuilt.json
+exit 0
+$ cmp reading2-0021a710e.json reading-allbuilt.json
+(no output, exit 0: byte-identical)
+$ sha256sum reading2-0021a710e.json reading-allbuilt.json
+67cc657e5e77c28d4868ac8316dacc1a36fc99c7b4cbc22973112b995751ea52  reading2-0021a710e.json
+67cc657e5e77c28d4868ac8316dacc1a36fc99c7b4cbc22973112b995751ea52  reading-allbuilt.json
+
+The rows are those of witness 1, and the same 33 as the architect's repair
+probe at a3ce6d8b3 (box-quad 1, core 3, material-x 19, drag 10).

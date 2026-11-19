@@ -68,7 +68,9 @@ jobs:
           path: ${{ steps.aube.outputs.store }}
           key: aube-${{ runner.os }}-${{ env.AUBE_VERSION }}-${{ hashFiles('package-lock.json') }}
       - run: aube ci
-      - run: aube exec -- playwright install --with-deps chromium
+      - uses: ./.github/actions/browser
+        with:
+          engine: chromium
       - name: Runner image, processor and Chromium
         run: |
           {
