@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33, P35 — .plan/trait-decorators-1/probes/types/run.sh, at 486d0147e, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33, P35, P38 — .plan/trait-decorators-1/probes/types/run.sh, at 6f00cd2c1, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -693,6 +693,89 @@ layer-a-only/p35-layer-a-only.ts(51,29): error TS2345: Argument of type 'number 
 layer-a-only/p35-layer-a-only.ts(108,54): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
 layer-a-only/p35-layer-a-only.ts(120,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
 exit 2
+=== layer-a-statics/names — Version 7.0.2
+exit 0
+=== layer-a-statics/names — Version 6.0.3
+exit 0
+=== layer-a-statics/statics — Version 7.0.2
+exit 0
+=== layer-a-statics/statics — Version 6.0.3
+exit 0
+=== layer-a-statics/p38-unannotated — Version 7.0.2
+layer-a-statics/p38-unannotated.ts(9,27): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(12,42): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(14,19): error TS9012: Property must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== layer-a-statics/p38-unannotated — Version 6.0.3
+layer-a-statics/p38-unannotated.ts(9,27): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(12,42): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(14,19): error TS9012: Property must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== layer-a-statics/p38-merge-types — Version 7.0.2
+layer-a-statics/p38-merge-types.ts(79,14): error TS2322: Type 'any' is not assignable to type 'never'.
+layer-a-statics/p38-merge-types.ts(79,49): error TS2339: Property 'delegates' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(80,46): error TS2339: Property 'extra' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(94,28): error TS2507: Type 'never' is not a constructor function type.
+exit 2
+=== layer-a-statics/p38-merge-types — Version 6.0.3
+layer-a-statics/p38-merge-types.ts(79,14): error TS2322: Type 'any' is not assignable to type 'never'.
+layer-a-statics/p38-merge-types.ts(79,49): error TS2339: Property 'delegates' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(80,46): error TS2339: Property 'extra' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(94,28): error TS2507: Type 'never' is not a constructor function type.
+exit 2
+=== emitted layer-a-statics/out/statics/…/layer-a-statics/statics.d.ts
+import type { AttributeNames } from './names.ts';
+type LocalNames = readonly string[];
+type Options = {
+    readonly delegates: boolean;
+    readonly mode: string;
+};
+export declare class Shapes {
+    static readonly arrayReadonly: readonly string[];
+    static readonly arrayGeneric: ReadonlyArray<string>;
+    static arrayMutable: string[];
+    static readonly arrayUnion: readonly ('a' | 'b')[];
+    static readonly tuple: readonly ['a', 'b'];
+    static readonly asConst: readonly ["a", "b"];
+    static readonly objectLiteral: {
+        readonly a: number;
+    };
+    static readonly objectReadonly: Readonly<{
+        a: number;
+    }>;
+    static readonly objectRecord: Readonly<Record<string, number>>;
+    static readonly objectNested: {
+        readonly inner: {
+            readonly a: number;
+        };
+    };
+    static readonly objectAsConst: {
+        readonly a: 1;
+    };
+    static readonly text: string;
+    static readonly flag: boolean;
+    static readonly count = 1;
+    static readonly literal = "a";
+    static readonly aliasLocal: LocalNames;
+    static readonly aliasLocalObject: Options;
+    static readonly aliasImported: AttributeNames;
+    static readonly arrayOrUndefined: readonly string[] | undefined;
+    static readonly arrayOrNull: readonly string[] | null;
+    static readonly arrayOptional?: readonly string[];
+    static readonly mixed: readonly string[] | string;
+    static zero(): number;
+    static get names(): readonly string[];
+    static readonly map: ReadonlyMap<string, number>;
+    static readonly set: ReadonlySet<string>;
+    static readonly date: Date;
+    static readonly callback: (value: string) => string;
+    static readonly typeQuery: typeof Shapes.arrayReadonly;
+}
+export {};
 === p1-decorator-only with experimentalDecorators — Version 7.0.2
 p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
   The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.

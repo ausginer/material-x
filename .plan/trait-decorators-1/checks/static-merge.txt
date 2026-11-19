@@ -1,0 +1,66 @@
+# P39 — node .plan/trait-decorators-1/probes/toolchain/static-merge.ts, at 6f00cd2c1, 2026-11-19, Node v26.13.1, Vite 8.4.0-beta.1, oxc-parser and oxc-transform 0.158.0, Playwright 1.65.0
+== 1. the kind of each static, read from declarations
+  arrayReadonly: readonly string[] → array
+  arrayGeneric: ReadonlyArray<string> → array
+  arrayMutable: string[] → array
+  arrayUnion: readonly ("a" | "b")[] → array
+  tuple: readonly ["a", "b"] → tuple: build error
+  asConst: readonly ["a", "b"] → tuple: build error
+  objectLiteral: { readonly a: number; } → object
+  objectReadonly: Readonly<{ a: number; }> → object
+  objectRecord: Readonly<Record<string, number>> → object
+  objectNested: { readonly inner: { readonly a: number; }; } → object
+  objectAsConst: { readonly a: 1; } → object
+  text: string → simple
+  flag: boolean → simple
+  count: 1 → simple
+  literal: "a" → simple
+  aliasLocal: LocalNames → resolve LocalNames in this module → array
+  aliasLocalObject: Options → resolve Options in this module → object
+  aliasImported: AttributeNames → resolve AttributeNames from ./names.ts → array
+  arrayOrUndefined: readonly string[] | undefined → array
+  arrayOrNull: readonly string[] | null → array
+  arrayOptional?: readonly string[] → array
+  mixed: readonly string[] | string → mixed union: build error
+  zero: (): number; → method
+  names: (): readonly string[]; → accessor
+  map: ReadonlyMap<string, number> → class instance: build error
+  set: ReadonlySet<string> → class instance: build error
+  date: Date → class instance: build error
+  callback: (value: string) => string → function: build error
+  typeQuery: typeof Shapes.arrayReadonly → unresolved typeof: build error
+== 2. the merge at runtime
+  concatenated: ["base","color","disabled","disabled","size","aria-label"]
+  with new Set: ["base","color","disabled","size","aria-label"]
+  spread object: {"a":1,"nested":{"y":2},"b":2} | nested is shallow, the base nested.x is lost: true
+  a frozen trait array, merged: frozen? false | the trait value unchanged: ["color","disabled"]
+  last simple value wins: closed
+== 3. duplicate observedAttributes in a browser
+  chromium 158.0.8127.18: observedAttributes read 1 time(s); callbacks ["disabled","color","disabled"]
+  firefox 159.0: observedAttributes read 1 time(s); callbacks ["disabled","color","disabled"]
+  webkit 27.2: observedAttributes read 1 time(s); callbacks ["disabled","color","disabled"]
+== 4. pairing built JavaScript with its declarations
+  core's built class ControlledElement: 12 in .js, 10 in .d.ts, paired 9
+    only in .js: ["property #internals","property #controllers","method #exec"]
+    only in .d.ts: ["property #private"]
+    method attributeChangedCallback(...args: Readonly<Parameters<NonNullable<ElementController["attrChanged"]>>>): void
+    method connectedCallback(): void
+    method disconnectedCallback(): void
+    method adoptedCallback(): void
+    method movedCallback(): void
+    method formAssociatedCallback(): void
+    method formDisabledCallback(): void
+    method formResetCallback(): void
+    method formStateRestoreCallback(): void
+  layer (a) class Disableable: 5 in .js, 6 in .d.ts, paired 4
+    only in .js: ["property #brand"]
+    only in .d.ts: ["property #private","property label"]
+    static property observedAttributes: readonly string[]
+    get disabled(): boolean
+    set disabled(value: boolean)
+    method focus(options?: FocusOptions): void
+== 5. JavaScript inserted into a .ts module, in a real Vite build
+  .js consumer, member inserted: emitted "\t\treturn a < b > c;" → m(1, 2, 3) = false
+  .ts consumer, member inserted before the type strip: emitted "\t\treturn a(c);" → m(1, 2, 3) = throws TypeError: a is not a function
+  .ts consumer, the flattener strips types first and returns moduleType 'js': emitted "\t\treturn a(c);" → m(1, 2, 3) = throws TypeError: a is not a function
+  .ts consumer, inserted by a normal-order plugin, after vite:oxc: emitted "\t\treturn a < b > c;" → m(1, 2, 3) = false
