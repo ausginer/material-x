@@ -1448,6 +1448,8 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 
 `RF-54`, `RF-57` and `RF-63` are closed on this date.
 
+`RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -2653,6 +2655,21 @@ Tier B, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-
   - the change is computed per row from those two files, and `.scripts/size-report.node.test.ts` checks a grown, a shrunk, an unchanged, an added and a removed row. Those rows passed in #74's `chromium` job.
 - **What reopens it:** a comment whose base or change disagrees with `main`'s stored reading for the merge base. The first pull request that changes a measured entry, expected to be `RF-63`'s, shows the non-zero change. The architect reads it then.
 - **The dated notes that `RF-65` caused are closed** in `RD-6`, `RD-7` and `RD-24`, on the same date.
+
+#### RF-66 — The flattener doesn't follow re-exports, so a trait or a component's base imported through a barrel module is refused
+
+Tier B, **open**. Registered on 2026-11-19 by the architect, from `verifier-3` of the [repair verification](reviews/traits-migration-1/repair-verification-claude.md) of PR #76 at `abc945b47`, and Architect B's [ruling](trait-decorators-1/trait-migration-plan.md#verifier-3-a-base-or-a-trait-through-a-re-export) at `ea5fefe46`, relayed by the coordinator. `RF-65` is the highest number on any branch on `origin`, so this is the next free number. **No row is disabled.**
+
+- **Observed** ([witnesses](reviews/traits-migration-1/checks/repair-verification-witnesses.txt), V-W5):
+  - K4: a base imported from a module that does `export { SBase } from './sbase.ts'` gives `static-kind`, _"the base's class chain can't be read to find its kind"_;
+  - K5: a trait imported through a re-export gives `trait-unresolved`, _"isn't a class whose static block calls trait(this)"_.
+- **Why.** `heritageClass` (`vite-traits-plugin/src/composition/annotation.ts:402`) follows one `import` to its module, and looks for the class only among that module's own classes. `export { X } from`, `export { X as Y } from` and `export * from` aren't followed. The base's walk uses it for each class in the chain, so a parent class reached through a re-export is refused too. A trait reference is resolved the same way.
+- **Its reach.** A base's walk runs for nearly every composition, because every attribute trait contributes `observedAttributes`, and the base's declared kind is a contributor (`RD-26` property 3). So a base from a barrel module refuses almost every component. A trait through a barrel was already refused at `0c5705d87`, but a base through one still built. It is refused since the repair of `reviewer-2`, which reads the base's declared kind.
+- **Nothing in the repository hits it.** material-x imports `ControlledElement` from `@ydinjs/core/element.js`, which declares it. The refusal is safe: it fails the build, never flattens wrongly.
+- **Tier B:** a valid composition is refused, with a message that names the class chain rather than the re-export. `@ydinjs/vite-traits-plugin` isn't published yet, so no user has met it.
+- **Required property:** a trait or a base reference resolves through named and star re-exports, including a renaming one, by following the module graph through the loader. This holds for each class in a base's chain too. An ambiguous star export, or a cycle, is `trait-unresolved`.
+- **Until then:** under the ruling, the plugin document states the limit before PR #76 merges. A trait or a component's base must be imported from the module that declares it, or the build is refused (`trait-unresolved`, or `static-kind` for a base).
+- **It must close before `@ydinjs/vite-traits-plugin` is first published.** It doesn't block PR #76.
 
 ## Questions
 
