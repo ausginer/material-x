@@ -206,7 +206,7 @@ function traceLanding(list: HTMLElement, item: HTMLElement) {
       cancelAnimationFrame(frame);
       clearInterval(timer);
 
-      const lastTimeline = frames.at(-1)?.[1] ?? null;
+      const end = pageState();
       return JSON.stringify({
         marks,
         lastMove,
@@ -217,10 +217,11 @@ function traceLanding(list: HTMLElement, item: HTMLElement) {
         afterGiveUp: {
           bound,
           framesArrived: frames.length > 0,
+          end,
           timelineAdvanced:
-            lastTimeline != null &&
-            now.timeline != null &&
-            lastTimeline > now.timeline,
+            end.timeline == null || now.timeline == null
+              ? null
+              : end.timeline > now.timeline,
           tornDown: marks
             .slice(marksBefore)
             .some(([name]) => name.startsWith('position ')),

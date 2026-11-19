@@ -42,6 +42,13 @@ On the owner's answer 2, the unskipped row _"should restore pre-existing inline 
 - It adds no output to a row that passes: in local Chromium and WebKit the file passes with no trace line. With the wait made unsatisfiable, the row fails with the trace in its message ([diagnostic-witness.txt](checks/diagnostic-witness.txt)).
 - It needs a feature proof, as the plan's step 3 says.
 
+**Superseded on 2026-11-19** by the plan's amendment of step 3 of that date, on `reviewer-1` of the [feature proof](../reviews/reorderable-safari-1/feature-proof-claude.md). The diagnostic described above ran its frame loop and 50 ms timer during every landing of the row, and those could prevent the stall the row exists to show. The amended diagnostic, in `cfed2376e`, schedules no callback of its own until the wait gives up:
+
+- Each poll of the wait records its time and `document.timeline.currentTime`, in `polls`. The wait's condition, timeout and interval don't change.
+- When the wait gives up, the trace reads the page and the animation (`atGiveUp`, `animation`). Then, and only then, it watches frames and a 50 ms timer for 1,000 ms, which the message states. `afterGiveUp` carries the bound, `framesArrived`, `timelineAdvanced`, `tornDown`, the frames and the timer's lateness. The row fails at about 2 s.
+- `timelineAdvanced` compares the timeline read when the wait gave up with the timeline read at the watch's end (`afterGiveUp.end`), not with the last frame. It is `null` when either read gives no time. This followed `reviewer-3` of the [narrowed feature proof](../reviews/reorderable-safari-1/feature-proof-amended-claude.md).
+- Its witness is [diagnostic-amended-witness.txt](checks/diagnostic-amended-witness.txt). In local Chromium and WebKit, the file passes 47 of 47 with no trace line. With the row's animations paused after the gesture, the row fails in both engines with the new trace.
+
 The scratch commits are reverted, by `076087860` (the workflow step) and `89bd1addd` (the instruments). After them, the tree matches `08f67c251`.
 
 ## Next
