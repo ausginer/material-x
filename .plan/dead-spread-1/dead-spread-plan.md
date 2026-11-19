@@ -25,7 +25,9 @@ The architect built material-x through nx at `359c87f8a`. Each of the 18 runtime
 
 The other entries don't change, apart from minifier names in two esbuild bundles.
 
-- **What the code is.** The dead lists are `SWITCH_CORE_TRAITS`, `ICON_BUTTON_CORE_TRAITS`, `SWITCH_ICON_BUTTON_CORE_TRAITS`, `BUTTON_GROUP_CORE_TRAITS` and `LIST_INTERACTIVE_ITEM_CORE_TRAITS`, and the base lists they spread. Each list keeps every trait it names. In `icon-button`, `switch-button`, `switch-icon-button` and `text-field`, that is the `trait(…)` calls of `ButtonLike`, `Disableable`, `Checkable`, `Valuable`, `IconButtonLike` and `FocusForwarding`, with `FocusForwarding`'s class layer. It is also core's descriptor trait function and generic trait runtime, which nothing else in those entries reaches. The flattened classes reach none of it.
+- **What the code is.** The dead lists are `SWITCH_CORE_TRAITS`, `ICON_BUTTON_CORE_TRAITS`, `SWITCH_ICON_BUTTON_CORE_TRAITS`, `BUTTON_GROUP_CORE_TRAITS` and `LIST_INTERACTIVE_ITEM_CORE_TRAITS`, and the base lists they spread. Each list keeps the `trait(…)` calls of the traits it names, and those keep core's descriptor trait function and generic trait runtime. In the four large entries nothing else reaches them, and the flattened classes reach none of it.
+  - In `icon-button`, `switch-icon-button` and `text-field`, both bundlers keep the calls of `ButtonLike`, `Disableable`, `Checkable`, `Valuable` and `FocusForwarding`, with `FocusForwarding`'s class layer.
+  - In `switch-button`, esbuild keeps the same five. Nothing in that entry spreads `SWITCH_CORE_TRAITS` itself, so rolldown reduces it to the spread of its imported base, `[...BUTTON_CORE_TRAITS]`, as in the mechanism's `moduleLiveDecl` case. That keeps `ButtonLike`'s and `Disableable`'s calls and the runtime.
   - `text-field` is affected because `text-field.ts` imports the icon button.
   - In `split-button` and the button groups, only the lists are dead. The trait runtime is live there: `split-button` exports `SplitButtonLike`, and `button-group/utils.ts:14` reads `instanceof ButtonLike`.
   - `checkbox` and `fab` keep the runtime for their exported traits, which is live.

@@ -83,10 +83,15 @@ rolldown button-group/connected-button-group  ({...E,...b});
 
 ## Which code each affected entry carries, read in the head bundles
 # icon-button (rolldown): G=[...W,be,xe,se] (SWITCH_CORE_TRAITS: BUTTON_CORE_TRAITS, Checkable, Valuable, FocusForwarding)
-#   and the bare [...W],[...G]; with them the trait(...) calls of ButtonLike, Disableable, Checkable, Valuable,
-#   FocusForwarding (its class layer) and IconButtonLike, the descriptor trait function and the generic trait runtime
-#   (primitives' trait, with its error string). None is reached by the flattened class.
-# switch-button, switch-icon-button: the same, through SWITCH_CORE_TRAITS and SWITCH_ICON_BUTTON_CORE_TRAITS.
+#   and the bare [...W],[...G]; with them the trait(...) calls of ButtonLike, Disableable, Checkable, Valuable and
+#   FocusForwarding (its class layer), the descriptor trait function and the generic trait runtime (primitives' trait,
+#   with its error string). None is reached by the flattened class. IconButtonLike's call isn't kept: nothing reads it.
+# Trait calls kept, found by the brand variable each call takes as its last argument, head -> variant:
+#   icon-button, switch-icon-button, text-field: ButtonLike Checkable Disableable FocusForwarding Valuable -> none,
+#     in both bundlers.
+#   switch-button: esbuild the same five -> none; rolldown ButtonLike Disableable -> none. Nothing in that entry
+#     spreads SWITCH_CORE_TRAITS itself, so rolldown reduces it to [...be], the spread of its imported base
+#     (be=[ButtonLike,Disableable]), as in rf63-mechanism.txt's moduleLiveDecl.
 # text-field: text-field.ts imports ../button/icon-button.ts, so it carries icon-button's dead lists, -968.
 # split-button: the dead lists (-154); the trait runtime is live, since the entry exports SplitButtonLike.
 # button-group, connected-button-group: [...BUTTON_CORE_TRAITS] (-44/-42); the trait runtime is live, since
