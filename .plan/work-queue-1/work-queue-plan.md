@@ -245,6 +245,8 @@ In this order, each step after the previous one is accepted:
 
 4. **Descriptions.** On the owner's request of 2026-11-19, an implementer writes the description of every open issue on the board, as [`work-queue.md`](../../.agents/docs/work-queue.md#issues) bounds it, from each issue's record entry on the branch that its `Record:` line names, or from the issue's title for an item with no entry. The implementer keeps each body's other lines and ends it with its own stamp. Then the coordinator reads each description against the bounds, and the implementer saves the readback in `.plan/work-queue-1/checks/`: `gh issue list --state open --limit 1000 --json number,title,body`.
 
+**Step 4 done on 2026-11-19** by the implementer: [readback](checks/step4-readback.txt), at `f8b46e347`. Every open issue's body opens with its description.
+
 **Not owed now:** a checking script. Property 3, the record split and the board's state are kept by the writers and the project's workflows, and checked by the readback. If the trial shows drift, a small check is the next step: open issues whose entry is closed on `main`, duplicate addresses, and items whose `Status` disagrees with the issue's state.
 
 ## Proposed identifiers
