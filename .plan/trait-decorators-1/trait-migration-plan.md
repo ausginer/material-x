@@ -2,6 +2,8 @@
 
 **Status: planned, not started.** Written by the architect on 2026-11-19, on the coordinator's task, on `repo/trait-decorators-1` at `5fbb8cec8`, with probes P40 and P41 added. It turns the [feasibility study](trait-decorators-plan.md) into the plan an implementer follows. It records the owner's decisions of 2026-11-19. **No identifier is minted and no record is edited.** [Proposed record changes](#proposed-record-changes) is for the main slot's architect.
 
+**Registered 2026-11-19 as [`RD-26`](../00-index.md) by the main slot's architect,** on `repo/traits-migration-1`, where this plan is implemented. The owner accepted the symbol brand on the same day. [Proposed record changes](#proposed-record-changes) are made, with one addition: `RF-63`'s closure reads the eight adopters' entries with esbuild as well as rolldown, because P41 measured rolldown only.
+
 **Open questions: none.** Each choice the owner didn't make is decided below, with its reason.
 
 ## The owner's decisions, 2026-11-19

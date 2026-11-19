@@ -1289,6 +1289,103 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 
 **Why.** The owner approved every request to open a pull request, so asking cost a round trip and decided nothing. Merging is where his decision lies, and it stays his.
 
+#### RD-26 — Traits are plain classes in two layers, a component names its traits in a `Composed` annotation, and the flattener is a required build step
+
+**Decided 2026-11-19 by the owner,** relayed by the coordinator, on Architect B's [feasibility study](trait-decorators-1/trait-decorators-plan.md) and [migration plan](trait-decorators-1/trait-migration-plan.md) at `250b55f96`. The plan's [owner's decisions](trait-decorators-1/trait-migration-plan.md#the-owners-decisions-2026-11-19) section lists his answers. Registered by the architect on `repo/traits-migration-1`, which merged `repo/trait-decorators-1` into `origin/main` at `24c6672ce` (`e49b67e24`, `RD-17`). `RD-25` is the highest number on any branch on `origin`, so this is the next free number. **Unimplemented:** the plan's [seven commits](trait-decorators-1/trait-migration-plan.md#commits) implement it on this branch, and its pull request opens after the plan's [proofs](trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request) hold.
+
+**It supersedes the `trait()`/`impl()` design:**
+
+- core's transformer `trait(transformer, brand)` and `impl(Base, [traits])` in `traits/primitives.ts`;
+- the descriptor `trait()` in `traits/attributes.ts`;
+- the flattener as an optional optimization, which retained with a warning whatever it couldn't prove safe ([`trait-flattener-plugin.md`](../.agents/docs/trait-flattener-plugin.md) §Purpose).
+
+No register entry held that design. It lived in the code, in that document and in `architecture.md` §Traits and attributes, and in `RF-44`'s rulings. This is a new entry and not an amendment, because it replaces the API and the plugin's purpose.
+
+**Properties:**
+
+1. **Layer (a), `@ydinjs/core/traits/composition.js`, knows nothing of elements.**
+   - A trait is a plain class. It extends a bound, `bound()`, which is `null` at runtime and types what the trait requires of its base.
+   - A trait brands itself with `trait(this)` in its static block.
+   - A component names its base and its traits once, in a constant's annotation: `const X: Composed<Base, [Traits…]> = compose(Base)`. Exactly one class in the module extends `X`.
+   - `compose` throws unless its argument is `null`, so a component that isn't flattened fails when its module is evaluated.
+2. **The flattener lowers each composition.**
+   - It replaces the constant with the base.
+   - It copies each trait's members in list order, before the component's own.
+   - It merges statics by property 3.
+   - It generates `static { impl(this, …brands) }`.
+   - Every case the copy can't carry is a build error. Layer (a) has no runtime composition to fall back on.
+3. **A static merges by the kind its declaration states,** read syntactically.
+   - An array concatenates, and an object spreads shallowly. The types say the same through `MergeStatics`.
+   - These shapes are build errors: a tuple, an `as const` array, a class instance, a function, a mixed union, `typeof`, and an alias that can't be resolved syntactically.
+   - Two contributors that give one key different kinds are a build error, and the base's declaration counts as a contributor.
+4. **The last trait wins any other shared key:** a method, a whole accessor pair or a simple static.
+   - The types agree: neither `never` nor an overload.
+   - The flattener warns at build time, in the Vite or tsdown console, with `trait-member-conflict`, naming both traits and the key. There is no runtime `console.warn`.
+   - The warning is silent when the component declares the key, and the component's declaration wins over every trait.
+5. **A member is copied across languages only when its text parses to the same tree in both,** apart from positions. The same file extension always copies.
+   - A `.js` module's static and member kinds come from the `.d.ts` that its package's `types` condition names.
+6. **Layer (b), `@ydinjs/core/traits/attribute-traits.js`, is optional sugar over layer (a).**
+   - `accessor name!: T`, with `attributes(this, { name: Converter })`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`.
+   - The plugin's layer (b) code is a part of its own, and nothing in layer (a)'s code imports it.
+7. **The brand install names symbols, not classes.**
+   - The generated block reads `impl(this, $a, $b)`.
+   - In the trait's own build, `trait(this)` becomes `/* @__PURE__ */ trait(this, $brand)`, where `$brand` is a module-level `Symbol` that the build exports.
+   - The author still writes `trait(this)`. `trait`'s second parameter is optional, so an unbuilt trait module still runs.
+8. **An application build deletes each trait class's copied instance members** from the trait module. An application build is Vite's `build` without `build.lib`. A library build keeps them, because another package copies from its `.js`.
+9. **The flattener is a required build step** for every module that composes traits.
+
+**The owner's earlier answers stay:**
+
+- the bound is `null`;
+- a trait brands itself with `trait(this)` in a static block;
+- `compose` throws unless `base === null`;
+- `impl` is always generated;
+- `super.traitMember` in a component is a build error;
+- `#brand!: true` goes where a trait's members already exist on its bound.
+
+**The owner's words,** translated. On property 4: _"Trait order was always meant to matter; object assignment inherits it anyway."_ On property 6: _"So nobody has to write get/set by hand; plus a slightly smaller size where `instanceof` is needed."_
+
+**Property 7 was proposed by Architect B, within the owner's answer "a generated `impl`", and accepted by the owner on 2026-11-19,** relayed by the coordinator: `impl(this, $a, $b)`, with `/* @__PURE__ */ trait(this, $brand)` in the trait's own build. The evidence is [P41](trait-decorators-1/trait-decorators-plan.md#evidence) ([transcript](trait-decorators-1/checks/brand-shaking.txt)), with rolldown 1.3.2, minified:
+
+- with `impl(this, Linked)`, the trait class and its members stay in every bundle: 1,988 B, 650 B brotli;
+- with `impl(this, $linked)` and the pure call, a bundle that never uses `instanceof Linked` drops the class: 1,486 B, 551 B brotli;
+- a bundle that uses `instanceof` keeps the class, and property 8 takes its members out: 1,890 B with them, 1,643 B without.
+
+That is the size the owner's _"where `instanceof` is needed"_ asks for. It also keeps today's size: today's flattened output links a module-level brand, and its trait objects are pure and dropped.
+
+**One branch and one pull request,** on the owner's decision 5:
+
+- the commits don't need to build in between;
+- there is no temporary old plugin path;
+- the migration is verified locally in full before the pull request opens.
+
+The plan holds the files, the diagnostics, the baseline and the proofs.
+
+**What it closes.** Each entry has a dated note of 2026-11-19, and the architect writes each closure on this branch after the plan's proofs hold, before the pull request opens:
+
+- `RF-54` closes when the migration merges;
+- `RF-57` closes when the migration merges, with one exception recorded;
+- `RF-63` closes when the migration merges.
+
+`RF-44`'s language rule takes the route back that its ruling named. `RF-60` doesn't change: its one-URL rule in `flattenToDir` carries over to the rewritten harness.
+
+**Why:**
+
+- **The annotation carries the types.** A decorator can't, in either compiler ([P1](trait-decorators-1/trait-decorators-plan.md#the-verdict)). The annotated constant typechecks under `isolatedDeclarations` in TypeScript 7.0.2 and 6.0.3, and the language service sees each member before any transform runs.
+- **Plain classes keep each member's declaration kind,** so TS2610 and TS2611 apply to traits (`RF-57`).
+- **Merging statics by declared kind** is what lets layer (a) know nothing of elements. `observedAttributes` is one more array.
+- **Last-wins is the order object assignment already gives.** The warning moves the conflict to the build, where the author sees it.
+- **A required flattener** removes the runtime composition and its retained-with-warning path. A composition the plugin can't carry is now an error, not a silent cost.
+
+**Not adopted:**
+
+- **a decorator that names the traits:** it can't change the class's type (P1);
+- **a merged interface beside the class** (the study's forms A and B): it is the boilerplate the owner wanted gone, and it repeats the list;
+- **`impl(this, Linked)`,** which names the trait class: every bundle keeps the class (P41);
+- **a shared key as a build error:** the owner chose last-wins;
+- **stripping types in the plugin before inserting JavaScript into a `.ts` module:** Vite re-reads the code by the module's id and ignores `moduleType` ([P39](trait-decorators-1/trait-decorators-plan.md#evidence) §5, `RF-44`'s note of 2026-11-19);
+- **deduplicating `observedAttributes`:** each engine calls back once per change despite duplicates (P39 §3).
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -1885,6 +1982,18 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
   - **One comment is still owed before the pull request opens,** the recheck's `recheck-3`, Tier C. The JSDoc of `TRAIT_SOURCE_LANGUAGE` still says that JavaScript is copied into TypeScript. The handoff's item 3b corrects it. It changes no output and doesn't bear on the required property.
   - **Item 3b is in** at `c3af883d7`. It changes only those two lines of `diagnostics.ts`. The architect read the diff: the reason is now _"a method trait's origin module has a different file extension from the consumer's"_, which agrees with `canCopySource`'s JSDoc and the document's reason table. The unit is complete. Its pull request waits for #38's merge and the merge of `main` into this branch.
 
+- **Dated 2026-11-19 by the architect: the language rule's route back is taken,** under `RD-26` property 5. This entry stays closed. Only the rule it recorded changes.
+  - **The new rule:** `canCopySource` becomes the parse-equivalence check, in the plugin's `composition/copy.ts`.
+    - The same extension copies.
+    - Any other pair copies when the member's text parses without error in both languages, and the two trees are equal apart from positions.
+  - **What the check refuses** ([P36](trait-decorators-1/trait-decorators-plan.md#evidence) §3, [transcript](trait-decorators-1/checks/portability.txt)):
+    - over real built JavaScript it refused none of 1,294 members: core's 44 and Vite's `dist` 1,250;
+    - it refuses `a < b > (c)` from `.js` into `.ts`, and `<string>x` from `.ts` into `.tsx` or `.mts`.
+  - **A refused copy is a build error** (`trait-source-language`), not a retention. Layer (a) has no runtime composition to fall back on.
+  - **The hazard that keeps the check:** Vite's TypeScript transform re-reads inserted code by the module's id, and it ignores `moduleType` ([P39](trait-decorators-1/trait-decorators-plan.md#evidence) §5, [transcript](trait-decorators-1/checks/static-merge.txt)).
+    - A built-JavaScript `a < b > (c)` inserted into a `.ts` module came out as `a(c)`. That happened both when it was inserted before `vite:oxc`, and when the plugin stripped types itself and returned `moduleType: 'js'`.
+    - So stripping types in the plugin isn't a route in Vite, though rolldown alone honours `moduleType: 'js'` (P36 §4).
+
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
 Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**
@@ -2166,6 +2275,15 @@ Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ belo
 
 **Routed** to the same handoff, which lands the repair before the check. The architect closes this finding from that unit's report and review.
 
+**Dated 2026-11-19 by the architect: the decided repair is in, and this entry closes with `RD-26`'s migration.**
+
+- **The repair is in.** #37 (`35bfc6209`) made `Branded` a mapped type and removed the directive at `TextFieldCore.ts:223`. It also put `just typecheck-declarations` in the gate (`verify.yml`). The status line above wasn't updated then, and the entry wasn't closed.
+- **The mechanism goes.** Under `RD-26`, `Branded` is deleted with `primitives.ts`.
+  - Layer (b)'s attributes are `accessor` declarations, lowered to `get`/`set` pairs, and never `declare` properties.
+  - So a subclass's accessor override typechecks with no directive and no mapped type. TextFieldCore's `value` is that case.
+  - In [P31](trait-decorators-1/trait-decorators-plan.md#evidence), the accessor override passes in both compilers. Case (d) shows that a `declare` member is this finding's TS2611.
+- **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs 3 and 7 hold on `repo/traits-migration-1`: the declaration surface, and `just typecheck-declarations`. The architect writes the closure on that branch before its pull request opens.
+
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
 
 Tier C, **open**. Registered on 2026-11-18 by the architect, from applying `CONTRIBUTING.md`'s rule on published dependencies to today's manifests ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) C). **No row is disabled.**
@@ -2222,6 +2340,18 @@ Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the 
   - **A runtime check on the transformer's result,** for own fields that shadow an accessor. Once the contract states the rule, a class field is incorrect use of it, and the trait doesn't corrupt state that it owns. So the check fails both conditions of `CONTRIBUTING.md`'s _Definition of success_ for a defensive check.
   - **A custom lint rule.** That is the machinery that `RF-51`'s answer declined.
 - **Routed** to the owner. It isn't scheduled, and it blocks nothing.
+
+**Dated 2026-11-19 by the architect: this entry closes with `RD-26`'s migration, with one exception recorded.**
+
+- **The transformer `trait()` this entry names is deleted** with `primitives.ts`.
+- **In layer (a), a trait is a plain class whose members keep their declaration kinds.** `MergeInstances` doesn't count the base's keys, so the intersection of traits that share no key of their own stays a plain intersection. [P40](trait-decorators-1/trait-decorators-plan.md#evidence) (b) shows the results in TypeScript 7.0.2 and 6.0.3 ([transcript](trait-decorators-1/checks/types.txt)):
+  - a subclass's accessor over a trait field fails with TS2611;
+  - a component's own field over a trait accessor fails with TS2610.
+- **A trait field with an initializer is a build error** (`trait-field`), so a trait can't install the own instance property that shadowed the accessor at runtime.
+- **The exception:** in a composition where two traits share a key, the earlier trait goes through `Omit`, a mapped type. Its other accessors then lose TS2610 (P40 (c)).
+  - That is the reverse case: a component's own field over a trait's accessor. A trait still can't install an instance field, so the exception doesn't bear on this entry's required property.
+  - The flattener's `trait-member-conflict` warning names every such pair. No composition in the repository shares a key today (the plan's proof 6).
+- **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs hold on `repo/traits-migration-1`. The architect writes the closure on that branch before its pull request opens, with this exception recorded.
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
 
@@ -2351,6 +2481,14 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item
   - or the record states which named bundler keeps them, by how many bytes, and why that is accepted.
 - **The architect's direction,** for the unit that takes it: measure before any change. Bundle the eight adopters' entries at the head with rolldown, at the repository's version, through `size-limit-preset-rolldown`, and with esbuild as W1 did. For each entry, record whether `Symbol("FocusForwarding")`'s `trait(…)` call and the spread lists survive, and the bytes. The architect then rules from that reading. The bundler set is rolldown and esbuild unless the owner names another.
 - **Routed** to the owner to order, through the work queue (`RD-22`). The owner accepted the growth for now. **It doesn't block** `RF-44`'s pull request.
+
+**Dated 2026-11-19 by the architect: this entry closes with `RD-26`'s migration, and the repair on hold isn't needed.**
+
+- **No shared list is left.** Under `RD-26`, each `*_TRAITS` value list becomes a tuple type, and each component's brand install is a generated literal, `impl(this, $a, $b)`. So a bundler has no runtime list to keep.
+- **A trait class that only brands drops** where nothing uses `instanceof`, because the trait's own build marks `trait()` pure. [P41](trait-decorators-1/trait-decorators-plan.md#evidence), with rolldown, gives 1,486 B against 1,988 B.
+- **The closure reads both named bundlers.** P41 measured rolldown only, and this entry names rolldown and esbuild. So the closure reads the eight `FocusForwarding` adopters' entries at the migration's last commit, with both bundlers, as this entry's direction states: whether the `trait()` call, a trait class or a list survives, and the bytes.
+  - If esbuild keeps a trait class, the closure records it under the required property's second branch: the bundler, the bytes and why that is accepted.
+- **It closes** on that reading, on `repo/traits-migration-1`, before its pull request opens. The architect writes the closure.
 
 #### RF-64 — The list item sets `--_support-row-size`, which no rule reads, and clamps its supporting text to two lines whatever the item's line count
 
