@@ -62,6 +62,15 @@ IconButton's and SwitchIconButton's `color` is unchanged, `"outlined" | "elevate
 
 [`size.md`](size.md) compares every row with commit 1's [`baseline/size.json`](../baseline/size.json). Eleven rows are outside 1% or 10 B, and each is a decrease, from 106 B to 271 B. The table gives the cause: at commit 1 those entries kept core's runtime trait factory, through an exported trait object or `repo:RF-63`'s dead spread of a shared list. That goes to the owner, as the plan says for any larger change.
 
+**Property 8's size, which no row sees.** size-limit's preset bundles the built output without the plugin, so its rows never delete a trait's members. Property 8's reading is an application build through the plugin, read at `ea5fefe46` with [`property8-size.ts`](property8-size.ts), as the repair verification's V-W2 reads it:
+
+| `connected-button-group`, application build, minified |  Bytes | Brotli |
+| ----------------------------------------------------- | -----: | -----: |
+| without the plugin                                    | 13,252 |  3,866 |
+| with the plugin                                       | 12,936 |  3,819 |
+
+The output is [`property8-size.txt`](property8-size.txt), and it equals V-W2's.
+
 ## 5. The flattened JavaScript: [`flattened.diff`](flattened.diff)
 
 `git diff --no-index` of commit 1's built tree against commit 7's, for each of material-x's 18 runtime entries and each of core's trait modules. The differences are the expected ones:
@@ -143,3 +152,21 @@ With the source restored, all 87 plugin tests pass. The `composition-shape` rows
 | material-x's tests, proof 1 among them in Chromium | 20 files, 427 tests, all passed |
 | proof 5, `flattened.diff` | regenerated against commit 1's built tree from `42e94d48c`: byte-identical. Every built tree in it is a library build, which keeps every member |
 | the size rows | every row of core and material-x byte-identical to [`size.json`](size.json). size-limit's preset bundles the built output without the plugin, so no row is an application build through it |
+
+## The repairs from the repair verification
+
+Architect B ruled Mx Reviewer's repair verification in the plan's [Rulings on the repair verification](../../trait-decorators-1/trait-migration-plan.md#rulings-on-the-repair-verification).
+
+- **verifier-1:** `countValueReferences` fails closed. Every node is walked, TypeScript or not. An identifier doesn't count only when it is reached through a type position (a `TYPE_FIELDS` field, a type node, any `TS…Type` or `TS…Keyword`), a type-only or `declare` declaration, or a non-computed property key or member name.
+- **verifier-2:** a brand is written again by any target: an assignment or update target, every name in a destructuring pattern with its defaults and rest, a `for…in` or `for…of` left side that isn't a declaration, or a second module-scope declaration.
+- **verifier-3:** deferred by the ruling. The plugin document states the limit: import a trait or a base from the module that declares it.
+- **Proof 4's gap:** the reading is recorded under proof 4.
+
+**Each new test fails without its repair.** Each source file was put back to its `ea5fefe46` state, which is `973caed7b`'s, alone. The new tests were run, and the file restored.
+
+| Reverted | Fails |
+| --- | --- |
+| N1: `annotation.ts`, the count that skips every TypeScript node | the value reference in a namespace body, in an enum initializer and in a parameter property's default (V5, V6, V7); 3 of 42 |
+| N2: `trait-module.ts`, the write check that reads only an identifier on the left of `=` and an update's argument | a brand that a destructuring (R4), a `for…of` (R5), or a second declaration assigns again; 3 of 13 |
+
+W3's rows and V1 to V4 keep their results. A `declare namespace` that names the composition only as a type flattens. With both files restored, all 95 plugin tests pass. **Proof 7, rerun at `7b04eb862`:** `just build` (no `trait-member-conflict`), `typecheck`, `typecheck-declarations`, `lint` and `fmt-check` pass.
