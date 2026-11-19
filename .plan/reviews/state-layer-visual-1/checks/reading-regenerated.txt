@@ -1,0 +1,87 @@
+# Run 44276375207's 21 artifacts, read by gh run download, tabulated from each job's result.json and environment.txt
+0.1 a: image=ubuntu24 20261111.370.1 | processor=AMD EPYC 9V74 80-Core Processor | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=19 failed=0
+0.06 a: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.045 a: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.03 a: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.02 a: image=ubuntu24 20261111.370.1 | processor=AMD EPYC 9V45 96-Core Processor | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.01 a: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=14 failed=5
+0 a: image=ubuntu24 20261111.370.1 | processor=AMD EPYC 9V74 80-Core Processor | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=14 failed=5
+0.1 b: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=19 failed=0
+0.06 b: image=ubuntu24 20261111.370.1 | processor=INTEL(R) XEON(R) PLATINUM 8573C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.045 b: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.03 b: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.02 b: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=15 failed=4
+0.01 b: image=ubuntu24 20261111.370.1 | processor=AMD EPYC 9V74 80-Core Processor | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=14 failed=5
+0 b: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=14 failed=5
+0.1 hover: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=19 failed=0
+0.06 hover: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=14 failed=5
+0.045 hover: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=12 failed=7
+0.03 hover: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=12 failed=7
+0.02 hover: image=ubuntu24 20261111.370.1 | processor=AMD EPYC 7763 64-Core Processor | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=12 failed=7
+0.01 hover: image=ubuntu24 20261111.370.1 | processor=AMD EPYC 7763 64-Core Processor | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=11 failed=8
+0 hover: image=ubuntu24 20261111.127.1 | processor=Intel(R) Xeon(R) 6975P-C | commit=e29c54651843fca3cc78234d36d8a939fb562029 | total=19 passed=11 failed=8
+
+### a
+| button-group: should match a connected group with a selected button | pass | pass | pass | pass | pass | pass | pass |
+| button-group: should match a disabled standard group | pass | FAIL 65 | FAIL 151 | FAIL 198 | FAIL 240 | FAIL 309 | FAIL 391 |
+| button-group: should match the connected size matrix | pass | pass | pass | pass | pass | pass | pass |
+| button-group: should match the standard size matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match buttons composed with a leading icon | pass | pass | pass | pass | pass | pass | pass |
+| button: should match enabled and disabled buttons | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the color variant matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the hovered elevated button | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the keyboard-focused button | pass | FAIL 2204 | FAIL 2278 | FAIL 2317 | FAIL 2362 | FAIL 2405 | FAIL 2519 |
+| button: should match the size and shape matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the switch variant matrix | pass | pass | pass | pass | pass | pass | pass |
+| checkbox: should match the disabled state matrix | pass | FAIL 2 | FAIL 3 | FAIL 3 | FAIL 4 | FAIL 11 | FAIL 14 |
+| checkbox: should match the hovered checkbox | pass | pass | pass | pass | pass | pass | pass |
+| checkbox: should match the keyboard-focused checkbox | pass | pass | pass | pass | pass | FAIL 1066 | FAIL 1194 |
+| checkbox: should match the selection state matrix | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the disabled state matrix | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the hovered radio | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the keyboard-focused radio | pass | FAIL 698 | FAIL 698 | FAIL 702 | FAIL 866 | FAIL 873 | FAIL 888 |
+| radio: should match the selection state matrix | pass | pass | pass | pass | pass | pass | pass |
+
+### b
+| button-group: should match a connected group with a selected button | pass | pass | pass | pass | pass | pass | pass |
+| button-group: should match a disabled standard group | pass | FAIL 65 | FAIL 151 | FAIL 198 | FAIL 240 | FAIL 309 | FAIL 391 |
+| button-group: should match the connected size matrix | pass | pass | pass | pass | pass | pass | pass |
+| button-group: should match the standard size matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match buttons composed with a leading icon | pass | pass | pass | pass | pass | pass | pass |
+| button: should match enabled and disabled buttons | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the color variant matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the hovered elevated button | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the keyboard-focused button | pass | FAIL 2204 | FAIL 2278 | FAIL 2317 | FAIL 2362 | FAIL 2405 | FAIL 2519 |
+| button: should match the size and shape matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the switch variant matrix | pass | pass | pass | pass | pass | pass | pass |
+| checkbox: should match the disabled state matrix | pass | FAIL 2 | FAIL 3 | FAIL 3 | FAIL 4 | FAIL 11 | FAIL 14 |
+| checkbox: should match the hovered checkbox | pass | pass | pass | pass | pass | pass | pass |
+| checkbox: should match the keyboard-focused checkbox | pass | pass | pass | pass | pass | FAIL 1066 | FAIL 1194 |
+| checkbox: should match the selection state matrix | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the disabled state matrix | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the hovered radio | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the keyboard-focused radio | pass | FAIL 698 | FAIL 698 | FAIL 702 | FAIL 866 | FAIL 873 | FAIL 888 |
+| radio: should match the selection state matrix | pass | pass | pass | pass | pass | pass | pass |
+
+### hover
+| button-group: should match a connected group with a selected button | pass | pass | pass | pass | pass | pass | pass |
+| button-group: should match a disabled standard group | pass | FAIL 65 | FAIL 151 | FAIL 198 | FAIL 240 | FAIL 309 | FAIL 391 |
+| button-group: should match the connected size matrix | pass | pass | pass | pass | pass | pass | pass |
+| button-group: should match the standard size matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match buttons composed with a leading icon | pass | pass | pass | pass | pass | pass | pass |
+| button: should match enabled and disabled buttons | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the color variant matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the hovered elevated button | pass | pass | FAIL 2211 | FAIL 2264 | FAIL 2285 | FAIL 2334 | FAIL 2453 |
+| button: should match the keyboard-focused button | pass | FAIL 2204 | FAIL 2278 | FAIL 2317 | FAIL 2362 | FAIL 2405 | FAIL 2519 |
+| button: should match the size and shape matrix | pass | pass | pass | pass | pass | pass | pass |
+| button: should match the switch variant matrix | pass | pass | pass | pass | pass | pass | pass |
+| checkbox: should match the disabled state matrix | pass | FAIL 2 | FAIL 3 | FAIL 3 | FAIL 4 | FAIL 11 | FAIL 14 |
+| checkbox: should match the hovered checkbox | pass | FAIL 890 | FAIL 890 | FAIL 890 | FAIL 1132 | FAIL 1132 | FAIL 1132 |
+| checkbox: should match the keyboard-focused checkbox | pass | pass | pass | pass | pass | FAIL 1066 | FAIL 1194 |
+| checkbox: should match the selection state matrix | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the disabled state matrix | pass | pass | pass | pass | pass | pass | pass |
+| radio: should match the hovered radio | pass | pass | FAIL 970 | FAIL 976 | FAIL 984 | FAIL 996 | FAIL 1080 |
+| radio: should match the keyboard-focused radio | pass | FAIL 698 | FAIL 698 | FAIL 702 | FAIL 866 | FAIL 873 | FAIL 888 |
+| radio: should match the selection state matrix | pass | pass | pass | pass | pass | pass | pass |
+a==b: true
+hover==a on unmutated rows: true

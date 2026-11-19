@@ -1,0 +1,56 @@
+# Pixels of the focused baselines before (0bd5a467b) and after (082c6086b) the re-recording, and of checkbox-hovered at b51d3a9a0
+## old checkbox-focused
+5,5 255,255,255,255
+20,36 237,237,236,255
+26,36 237,237,236,255
+36,36 237,237,236,255
+## old radio-focused
+5,5 255,255,255,255
+20,36 255,255,255,255
+26,36 255,255,255,255
+36,36 255,255,255,255
+## new checkbox-focused
+5,5 255,255,255,255
+20,36 232,232,231,255
+26,36 232,232,231,255
+36,36 232,232,231,255
+## new radio-focused
+5,5 255,255,255,255
+20,36 232,232,231,255
+26,36 232,232,231,255
+36,36 232,232,231,255
+## checkbox-hovered
+5,5 255,255,255,255
+20,36 237,237,236,255
+25,36 237,237,236,255
+50,36 237,237,236,255
+
+# Each new baseline against the reading's 0.01-a actual screenshot, and against the old baseline
+button-focused-chromium-linux.png new vs reading actual: 106x72 differing pixels 0, max channel delta 0
+button-focused-chromium-linux.png old vs new: 106x72 differing pixels 2670, max channel delta 24
+button-group-standard-disabled-chromium-linux.png new vs reading actual: 241x72 differing pixels 0, max channel delta 0
+button-group-standard-disabled-chromium-linux.png old vs new: 241x72 differing pixels 661, max channel delta 32
+checkbox-disabled-chromium-linux.png new vs reading actual: 184x72 differing pixels 0, max channel delta 0
+checkbox-disabled-chromium-linux.png old vs new: 184x72 differing pixels 81, max channel delta 37
+checkbox-focused-chromium-linux.png new vs reading actual: 72x72 differing pixels 0, max channel delta 0
+checkbox-focused-chromium-linux.png old vs new: 72x72 differing pixels 1299, max channel delta 5
+radio-focused-chromium-linux.png new vs reading actual: 72x72 differing pixels 0, max channel delta 0
+radio-focused-chromium-linux.png old vs new: 72x72 differing pixels 1298, max channel delta 24
+
+# @blazediff/core's diff (Vitest 5.1.0's pixelmatch comparator), includeAA false, on uniform 9x9 images of each colour pair
+no layer 255 -> focus 232    0.1:pass 0.06:FAIL 0.045:FAIL 0.03:FAIL 0.02:FAIL 0.01:FAIL 0:FAIL
+hover 237 -> focus 232       0.1:pass 0.06:pass 0.045:pass 0.03:pass 0.02:pass 0.01:FAIL 0:FAIL
+no layer 255 -> hover 237    0.1:pass 0.06:FAIL 0.045:FAIL 0.03:FAIL 0.02:FAIL 0.01:FAIL 0:FAIL
+
+# Red (counted) and yellow (antialiased, not counted) pixels in the 0.01-a and 0.02-a diff images
+## 0.02-a
+button-group-standard-disabled-diff-chromium-linux.png 241x72 red 240 yellow 205 redbbox 33,31,206,40
+button-focused-diff-chromium-linux.png 106x72 red 2362 yellow 114 redbbox 16,16,89,55
+checkbox-disabled-diff-chromium-linux.png 184x72 red 4 yellow 54 redbbox 89,35,154,36
+radio-focused-diff-chromium-linux.png 72x72 red 866 yellow 364 redbbox 16,17,54,55
+## 0.01-a
+button-group-standard-disabled-diff-chromium-linux.png 241x72 red 309 yellow 244 redbbox 33,31,206,40
+button-focused-diff-chromium-linux.png 106x72 red 2405 yellow 134 redbbox 16,16,89,55
+checkbox-disabled-diff-chromium-linux.png 184x72 red 11 yellow 60 redbbox 88,31,154,37
+checkbox-focused-diff-chromium-linux.png 72x72 red 1066 yellow 80 redbbox 16,17,54,55
+radio-focused-diff-chromium-linux.png 72x72 red 873 yellow 380 redbbox 16,17,54,55
