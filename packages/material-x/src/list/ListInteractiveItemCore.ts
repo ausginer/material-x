@@ -2,25 +2,25 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
-import type { Traited } from '@ydinjs/core/traits/attributes.js';
+import type { Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  Disableable,
+  type Disableable,
   useDisableable,
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
-import {
+import type {
   Selectable,
-  type SelectableProps,
+  SelectableProps,
 } from '@ydinjs/core/traits/selectable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useRipple } from '../core/animations/ripple/ripple.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
-  FocusForwarding,
+  type FocusForwarding,
   useFocusForwarding,
 } from '../core/traits/focus-forwarding.ts';
 import {
-  LIST_ITEM_CORE_TRAITS,
+  type ListItemCoreTraits,
   useListItemCore,
   type ListItemCoreCSSProperties,
   type ListItemCoreProperties,
@@ -35,16 +35,15 @@ export type ListInteractiveItemCoreCSSProperties = ListItemCoreCSSProperties &
     '--md-list-item-press-easing'?: string;
   }>;
 
-export const LIST_INTERACTIVE_ITEM_CORE_TRAITS: readonly [
-  ...typeof LIST_ITEM_CORE_TRAITS,
+export type ListInteractiveItemCoreTraits = readonly [
+  ...ListItemCoreTraits,
   typeof Disableable,
   typeof Selectable,
   typeof FocusForwarding,
-] = [...LIST_ITEM_CORE_TRAITS, Disableable, Selectable, FocusForwarding];
+];
 
-export type ListInteractiveItemCore = Traited<
-  ControlledElement,
-  typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS
+export type ListInteractiveItemCore = InstanceType<
+  Composed<typeof ControlledElement, ListInteractiveItemCoreTraits>
 >;
 
 export function useInteractiveListItemCore(

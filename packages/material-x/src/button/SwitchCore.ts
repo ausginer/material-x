@@ -2,22 +2,22 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
-import type { Traited } from '@ydinjs/core/traits/attributes.js';
-import {
+import type {
   Checkable,
-  type CheckableProps,
+  CheckableProps,
 } from '@ydinjs/core/traits/checkable.js';
+import type { Composed } from '@ydinjs/core/traits/composition.js';
 import {
   VALUABLE_ATTRS,
-  Valuable,
+  type Valuable,
   type ValuableProps,
 } from '@ydinjs/core/traits/valuable.js';
 import { toggleState } from '@ydinjs/core/utils/DOM.js';
 import { BUTTON_GROUP_CTX } from '../button-group/button-group-context.ts';
-import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
+import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import { notify, useClickActivation } from '../core/utils/events.ts';
 import { useContext } from '../core/utils/useContext.ts';
-import { BUTTON_CORE_TRAITS, useButtonCore } from './ButtonCore.ts';
+import { useButtonCore, type ButtonCoreTraits } from './ButtonCore.ts';
 
 export type SwitchProps = CheckableProps & ValuableProps;
 export type SwitchEvents = Readonly<{
@@ -25,14 +25,16 @@ export type SwitchEvents = Readonly<{
   input: Event;
 }>;
 
-export const SWITCH_CORE_TRAITS: readonly [
-  ...typeof BUTTON_CORE_TRAITS,
+export type SwitchCoreTraits = readonly [
+  ...ButtonCoreTraits,
   typeof Checkable,
   typeof Valuable,
   typeof FocusForwarding,
-] = [...BUTTON_CORE_TRAITS, Checkable, Valuable, FocusForwarding];
+];
 
-export type SwitchCore = Traited<ControlledElement, typeof SWITCH_CORE_TRAITS>;
+export type SwitchCore = InstanceType<
+  Composed<typeof ControlledElement, SwitchCoreTraits>
+>;
 
 /**
  * Sets up a switch whose `.host` is a `<button role="switch">`. The switch is

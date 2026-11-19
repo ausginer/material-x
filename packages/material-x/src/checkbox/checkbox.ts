@@ -8,17 +8,19 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  impl,
-  trait,
-  type Interface,
+  AnyElement,
+  attributes,
   type Props,
-  type Trait,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
+import {
+  compose,
+  trait,
+  type Composed,
+} from '@ydinjs/core/traits/composition.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
 import {
-  CHECKABLE_CORE_TRAITS,
+  type CheckableCoreTraits,
   useCheckableCore,
   type CheckableCoreProps,
 } from '../core/elements/CheckableCore.ts';
@@ -31,13 +33,14 @@ import defaultStyles from './styles/default/main.css.ts' with { type: 'css' };
 const CHECKED_ICON = 'check_small';
 const INDETERMINATE_ICON = 'check_indeterminate_small';
 
-const $indeterminable: unique symbol = Symbol('Indeterminable');
+export class Indeterminable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { indeterminate: Bool });
+  }
 
-export const Indeterminable: Trait<
-  { indeterminate: boolean },
-  typeof $indeterminable
-> = trait({ indeterminate: Bool }, $indeterminable);
-export type Indeterminable = Interface<typeof Indeterminable>;
+  accessor indeterminate!: boolean;
+}
 export type IndeterminatableProps = Props<typeof Indeterminable>;
 
 export type CheckboxProperties = CheckableCoreProps & IndeterminatableProps;
@@ -48,11 +51,10 @@ export type CheckboxEvents = Readonly<{
 
 export type CheckboxCSSProperties = EmptyObject;
 
-const CheckboxConstructor: TraitedConstructor<
-  ControlledElement,
+const CheckboxConstructor: Composed<
   ControlledElementConstructor,
-  [...typeof CHECKABLE_CORE_TRAITS, typeof Indeterminable]
-> = impl(ControlledElement, [...CHECKABLE_CORE_TRAITS, Indeterminable]);
+  [...CheckableCoreTraits, typeof Indeterminable]
+> = compose(ControlledElement);
 
 /**
  * @tag mx-checkbox

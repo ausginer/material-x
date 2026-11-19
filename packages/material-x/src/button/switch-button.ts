@@ -3,10 +3,7 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import type {
   ButtonColor,
   ButtonCoreProps,
@@ -22,7 +19,7 @@ import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' };
 import switchButtonTemplate from './switch-button.tpl.html' with { type: 'html' };
 import {
-  SWITCH_CORE_TRAITS,
+  type SwitchCoreTraits,
   useSwitchCore,
   type SwitchEvents,
   type SwitchProps,
@@ -38,11 +35,10 @@ export type SwitchButtonProperties = ButtonCoreProps &
 export type SwitchButtonEvents = SwitchEvents;
 export type SwitchButtonCSSProperties = ButtonSharedCSSProperties;
 
-const SwitchButtonConstructor: TraitedConstructor<
-  ControlledElement,
+const SwitchButtonConstructor: Composed<
   ControlledElementConstructor,
-  typeof SWITCH_CORE_TRAITS
-> = impl(ControlledElement, SWITCH_CORE_TRAITS);
+  SwitchCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-switch-button

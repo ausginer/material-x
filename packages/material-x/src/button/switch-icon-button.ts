@@ -3,12 +3,9 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
-import {
-  SWITCH_ICON_BUTTON_CORE_TRAITS,
+  type SwitchIconButtonCoreTraits,
   useIconButtonCore,
 } from './IconButtonCore.ts';
 import switchDefaultStyles from './styles/default/switch.css.ts' with { type: 'css' };
@@ -24,11 +21,10 @@ import switchTonalStyles from './styles/tonal/switch.css.ts' with { type: 'css' 
 import switchIconButtonTemplate from './switch-icon-button.tpl.html' with { type: 'html' };
 import { useSwitchCore } from './SwitchCore.ts';
 
-const SwitchIconButtonConstructor: TraitedConstructor<
-  ControlledElement,
+const SwitchIconButtonConstructor: Composed<
   ControlledElementConstructor,
-  typeof SWITCH_ICON_BUTTON_CORE_TRAITS
-> = impl(ControlledElement, SWITCH_ICON_BUTTON_CORE_TRAITS);
+  SwitchIconButtonCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-switch-icon-button

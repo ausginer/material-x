@@ -5,14 +5,11 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
-  BUTTON_GROUP_CORE_TRAITS,
+  type ButtonGroupCoreTraits,
   useButtonGroupCore,
   type ButtonGroupCoreCSSProperties,
   type ButtonGroupCoreEvents,
@@ -28,11 +25,10 @@ export type ButtonGroupCSSProperties = ButtonGroupCoreCSSProperties;
 const LEADING_PROP = '--_interaction-direction-leading';
 const TRAILING_PROP = '--_interaction-direction-trailing';
 
-const ButtonGroupConstructor: TraitedConstructor<
-  ControlledElement,
+const ButtonGroupConstructor: Composed<
   ControlledElementConstructor,
-  typeof BUTTON_GROUP_CORE_TRAITS
-> = impl(ControlledElement, BUTTON_GROUP_CORE_TRAITS);
+  ButtonGroupCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-button-group

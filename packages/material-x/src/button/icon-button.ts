@@ -3,15 +3,12 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import { useFormActivation } from '../core/utils/events.ts';
 import { useButtonCore } from './ButtonCore.ts';
 import iconButtonTemplate from './icon-button.tpl.html' with { type: 'html' };
 import {
-  ICON_BUTTON_CORE_TRAITS,
+  type IconButtonCoreTraits,
   useIconButtonCore,
 } from './IconButtonCore.ts';
 import mainElevatedStyles from './styles/elevated/main.css.ts' with { type: 'css' };
@@ -20,11 +17,10 @@ import mainOutlinedStyles from './styles/outlined/main.css.ts' with { type: 'css
 import mainTextStyles from './styles/text/main.css.ts' with { type: 'css' };
 import mainTonalStyles from './styles/tonal/main.css.ts' with { type: 'css' };
 
-const IconButtonConstructor: TraitedConstructor<
-  ControlledElement,
+const IconButtonConstructor: Composed<
   ControlledElementConstructor,
-  typeof ICON_BUTTON_CORE_TRAITS
-> = impl(ControlledElement, ICON_BUTTON_CORE_TRAITS);
+  IconButtonCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-icon-button

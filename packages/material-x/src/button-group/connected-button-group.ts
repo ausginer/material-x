@@ -5,15 +5,12 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
 import type { Checkable } from '@ydinjs/core/traits/checkable.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import type { ButtonLike } from '../button/ButtonCore.ts';
 import buttonGroupTemplate from './button-group.tpl.html' with { type: 'html' };
 import {
-  BUTTON_GROUP_CORE_TRAITS,
+  type ButtonGroupCoreTraits,
   useButtonGroupCore,
   type ButtonGroupCoreCSSProperties,
   type ButtonGroupCoreEvents,
@@ -25,11 +22,10 @@ export type ConnectedButtonGroupProperties = ButtonGroupCoreProps;
 export type ConnectedButtonGroupEvents = ButtonGroupCoreEvents;
 export type ConnectedButtonGroupCSSProperties = ButtonGroupCoreCSSProperties;
 
-const ConnectedButtonGroupConstructor: TraitedConstructor<
-  ControlledElement,
+const ConnectedButtonGroupConstructor: Composed<
   ControlledElementConstructor,
-  typeof BUTTON_GROUP_CORE_TRAITS
-> = impl(ControlledElement, BUTTON_GROUP_CORE_TRAITS);
+  ButtonGroupCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-connected-button-group

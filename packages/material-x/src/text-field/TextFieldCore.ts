@@ -14,20 +14,22 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  impl,
-  trait,
-  type Interface,
+  AnyElement,
+  attributes,
   type Props,
-  type Trait,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
 import {
-  Disableable,
+  compose,
+  trait,
+  type Composed,
+} from '@ydinjs/core/traits/composition.js';
+import {
+  type Disableable,
   useDisableable,
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
-import { Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
-import { Valuable, type ValuableProps } from '@ydinjs/core/traits/valuable.js';
+import { type Nameable, useNameable } from '@ydinjs/core/traits/nameable.js';
+import type { Valuable, ValuableProps } from '@ydinjs/core/traits/valuable.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import { useNotchedOutline } from '../core/animations/notched-outline/notched-outline.ts';
 import { notify } from '../core/utils/events.ts';
@@ -58,27 +60,23 @@ export type TextFieldInputMode =
 
 type InputElement = HTMLInputElement | HTMLTextAreaElement;
 
-const $textFieldLike: unique symbol = Symbol('TextFieldLike');
+export class TextFieldLike extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, {
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      type: Str as ConverterOf<TextFieldType>,
+      // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+      inputmode: Str as ConverterOf<TextFieldInputMode>,
+      outlined: Bool,
+    });
+  }
 
-export const TextFieldLike: Trait<
-  {
-    type: TextFieldType | null;
-    inputmode: TextFieldInputMode | null;
-    outlined: boolean;
-  },
-  typeof $textFieldLike
-> = trait(
-  {
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    type: Str as ConverterOf<TextFieldType>,
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
-    inputmode: Str as ConverterOf<TextFieldInputMode>,
-    outlined: Bool,
-  },
-  $textFieldLike,
-);
+  accessor type!: TextFieldType | null;
+  accessor inputmode!: TextFieldInputMode | null;
+  accessor outlined!: boolean;
+}
 
-export type TextFieldLike = Interface<typeof TextFieldLike>;
 export type TextFieldLikeProps = Props<typeof TextFieldLike>;
 
 export type TextFieldProperties = TextFieldLikeProps &
@@ -102,18 +100,17 @@ export type TextFieldCSSProperties = Readonly<{
   '--md-text-field-supporting-text-row-gap'?: string;
 }>;
 
-export const TEXT_FIELD_CORE_TRAITS: readonly [
+export type TextFieldCoreTraits = readonly [
   typeof TextFieldLike,
   typeof Disableable,
   typeof Valuable,
   typeof Nameable,
-] = [TextFieldLike, Disableable, Valuable, Nameable];
+];
 
-const TextFieldCoreConstructor: TraitedConstructor<
-  ControlledElement,
+const TextFieldCoreConstructor: Composed<
   ControlledElementConstructor,
-  typeof TEXT_FIELD_CORE_TRAITS
-> = impl(ControlledElement, TEXT_FIELD_CORE_TRAITS);
+  TextFieldCoreTraits
+> = compose(ControlledElement);
 
 const ARIA_PARAMS = {
   'aria-labelledby': ['label'],

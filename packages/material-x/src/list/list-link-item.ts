@@ -5,12 +5,9 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
-import {
-  Linkable,
+  type Linkable,
   useDisableableLinkable,
   useLinkable,
   type LinkableProps,
@@ -18,7 +15,7 @@ import {
 import type { EmptyObject, Simplify } from 'type-fest';
 import template from './list-link-item.tpl.html' with { type: 'html' };
 import {
-  LIST_INTERACTIVE_ITEM_CORE_TRAITS,
+  type ListInteractiveItemCoreTraits,
   useInteractiveListItemCore,
   type ListInteractiveItemCoreCSSProperties,
   type ListInteractiveItemCoreProperties,
@@ -30,11 +27,10 @@ export type ListLinkItemProperties = Simplify<
 export type ListLinkItemEvents = EmptyObject;
 export type ListLinkItemCSSProperties = ListInteractiveItemCoreCSSProperties;
 
-const ListLinkItemConstructor: TraitedConstructor<
-  ControlledElement,
+const ListLinkItemConstructor: Composed<
   ControlledElementConstructor,
-  [...typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS, typeof Linkable]
-> = impl(ControlledElement, [...LIST_INTERACTIVE_ITEM_CORE_TRAITS, Linkable]);
+  [...ListInteractiveItemCoreTraits, typeof Linkable]
+> = compose(ControlledElement);
 
 /**
  * @tag mx-list-link-item
