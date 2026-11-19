@@ -1,13 +1,16 @@
 /**
  * A trait module's own transform, and how a trait class is recognized.
  *
- * A trait class has a static block that calls `trait(this)`, with `trait`
- * imported from core's `composition` module. The transform:
+ * In source, a trait class has a static block that calls `trait(this)`, with
+ * `trait` imported from core's `composition` module. In built JavaScript it
+ * has the method this transform generates, recognized only in exactly that
+ * form. The transform:
  *
  * - hoists the brand into an exported module-level `Symbol` named after the
- *   class, and passes it to `trait`. The call isn't marked pure: a bundler
- *   drops a pure call whose result is unused, even in a class it keeps, and
- *   `instanceof` would then fail;
+ *   class, and replaces `trait(this)` with a static method,
+ *   `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`.
+ *   `trait` is never called with a brand. A bundle that never uses
+ *   `instanceof` drops the class, and one that uses it keeps the method;
  * - hoists each static field's value into an exported module-level constant,
  *   so a component links the value without retaining the trait class;
  * - exports, under build-only names, each private binding a member reads;
@@ -86,43 +89,132 @@ function traitStatement(
   return null;
 }
 
-/** The brand a generated `static [Symbol.hasInstance](o)` method reads. */
-function hasInstanceBrand(element: ClassElement): string | null {
+/** Whether `node` is the identifier `name`. */
+function isName(
+  node: Readonly<{ type: string; name?: unknown }>,
+  name: string,
+): boolean {
+  return node.type === 'Identifier' && node.name === name;
+}
+
+/** The module-scope names that some expression in the module assigns. */
+function assignedNames(program: Program): Set<string> {
+  const names = new Set<string>();
+  walk(program, (node) => {
+    const target =
+      node.type === 'AssignmentExpression'
+        ? node.left
+        : node.type === 'UpdateExpression'
+          ? node.argument
+          : null;
+    if (target?.type === 'Identifier') {
+      names.add(target.name);
+    }
+  });
+
+  return names;
+}
+
+/**
+ * The module's possible brands: each exported module-scope variable that is
+ * initialized with `Symbol(<string literal>)` and never assigned again. A
+ * bundler may emit the brand's `const` as `var`, as Vite's library build does.
+ */
+export function brandConstants(program: Program): ReadonlySet<string> {
+  const exported = collectExportedNames(program);
+  const assigned = assignedNames(program);
+  const brands = new Set<string>();
+  for (const [name, { declarator, statement }] of collectTopBindings(program)) {
+    const declaration =
+      statement.type === 'ExportNamedDeclaration'
+        ? statement.declaration
+        : statement;
+    const { init } = declarator;
+    const [description, ...rest] =
+      init?.type === 'CallExpression' ? init.arguments : [];
+    if (
+      declaration?.type === 'VariableDeclaration' &&
+      (declaration.kind === 'const' || !assigned.has(name)) &&
+      exported.has(name) &&
+      init?.type === 'CallExpression' &&
+      isName(init.callee, 'Symbol') &&
+      rest.length === 0 &&
+      description?.type === 'Literal' &&
+      typeof description.value === 'string'
+    ) {
+      brands.add(name);
+    }
+  }
+
+  return brands;
+}
+
+/**
+ * The brand that a generated `static [Symbol.hasInstance](p)` method reads,
+ * when the method is exactly the generated one: one identifier parameter, and
+ * a body of one `return p != null && p[B] === true`, where `B` is one of
+ * `brands`. Any other method makes no trait class, so the transform leaves
+ * another library's class alone.
+ */
+function hasInstanceBrand(
+  element: ClassElement,
+  brands: ReadonlySet<string>,
+): string | null {
   if (
     element.type !== 'MethodDefinition' ||
+    element.kind !== 'method' ||
     !element.static ||
     !element.computed ||
     element.key.type !== 'MemberExpression' ||
-    element.key.object.type !== 'Identifier' ||
-    element.key.object.name !== 'Symbol' ||
-    element.key.property.type !== 'Identifier' ||
-    element.key.property.name !== 'hasInstance'
+    element.key.computed ||
+    !isName(element.key.object, 'Symbol') ||
+    !isName(element.key.property, 'hasInstance')
   ) {
     return null;
   }
-  const [param] = element.value.params;
-  let brand: string | null = null;
-  if (param?.type === 'Identifier' && element.value.body) {
-    walk(element.value.body, (node) => {
-      if (
-        node.type === 'MemberExpression' &&
-        node.computed &&
-        node.object.type === 'Identifier' &&
-        node.object.name === param.name &&
-        node.property.type === 'Identifier'
-      ) {
-        brand = node.property.name;
-      }
-    });
+  const { params, body } = element.value;
+  const [param] = params;
+  const [statement] = body?.body ?? [];
+  if (
+    params.length !== 1 ||
+    param?.type !== 'Identifier' ||
+    body?.body.length !== 1 ||
+    statement?.type !== 'ReturnStatement'
+  ) {
+    return null;
+  }
+  const test = statement.argument;
+  if (test?.type !== 'LogicalExpression' || test.operator !== '&&') {
+    return null;
+  }
+  const { left, right } = test;
+  if (
+    left.type !== 'BinaryExpression' ||
+    left.operator !== '!=' ||
+    !isName(left.left, param.name) ||
+    left.right.type !== 'Literal' ||
+    left.right.value !== null ||
+    right.type !== 'BinaryExpression' ||
+    right.operator !== '===' ||
+    right.right.type !== 'Literal' ||
+    right.right.value !== true ||
+    right.left.type !== 'MemberExpression' ||
+    !right.left.computed ||
+    !isName(right.left.object, param.name) ||
+    right.left.property.type !== 'Identifier' ||
+    !brands.has(right.left.property.name)
+  ) {
+    return null;
   }
 
-  return brand;
+  return right.left.property.name;
 }
 
 /** How class `node` installs its brand, if it is a trait class. */
 export function findTraitInstall(
   node: Class,
   traitLocals: ReadonlySet<string>,
+  brands: ReadonlySet<string>,
 ): TraitInstall | null {
   for (const element of node.body.body) {
     if (element.type === 'StaticBlock') {
@@ -137,7 +229,7 @@ export function findTraitInstall(
         };
       }
     }
-    const brand = hasInstanceBrand(element);
+    const brand = hasInstanceBrand(element, brands);
     if (brand !== null && element.type === 'MethodDefinition') {
       return { kind: 'method', method: element, brand };
     }
@@ -206,13 +298,14 @@ export function traitLocalsOf(program: Program): ReadonlySet<string> {
 export function collectTraitClasses(
   program: Program,
   traitLocals: ReadonlySet<string>,
+  brands: ReadonlySet<string> = brandConstants(program),
 ): Map<string, TopClass & Readonly<{ trait: TraitInstall }>> {
   const traits = new Map<
     string,
     TopClass & Readonly<{ trait: TraitInstall }>
   >();
   for (const [name, top] of collectTopClasses(program)) {
-    const install = findTraitInstall(top.node, traitLocals);
+    const install = findTraitInstall(top.node, traitLocals, brands);
     if (install) {
       traits.set(name, { ...top, trait: install });
     }

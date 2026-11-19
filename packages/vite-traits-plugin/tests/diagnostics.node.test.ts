@@ -259,3 +259,102 @@ describe('the conflict warning', () => {
     expect(warnings).toEqual([]);
   });
 });
+
+describe("the base's declared static kind", () => {
+  const styled = traitClass(
+    'Styled',
+    "  static readonly styles: readonly string[] = ['a'];",
+  );
+
+  /** A component of `Styled` over the base `name`, after `classes`. */
+  const over = (name: string, classes: string): string =>
+    `${classes}${styled}const FooBase: Composed<typeof ${name}, [typeof Styled]> = compose(${name});\nexport class Foo extends FooBase {}\n`;
+
+  it('should fail the build for a base static of a class-instance type', async () => {
+    await expect(
+      run(
+        over(
+          'Sheeted',
+          'class Sheeted extends HTMLElement {\n  static styles: CSSStyleSheet = new CSSStyleSheet();\n}\n',
+        ),
+      ),
+    ).rejects.toMatchObject({ code: CODE.STATIC_KIND });
+  });
+
+  it("should fail the build, naming the base, for a base static of another kind than a trait's", async () => {
+    await expect(
+      run(
+        over(
+          'Texted',
+          "class Texted extends HTMLElement {\n  static styles: string = '';\n}\n",
+        ),
+      ),
+    ).rejects.toMatchObject({
+      code: CODE.STATIC_KIND_MISMATCH,
+      message: 'styles is simple in the base Texted and array in Styled',
+    });
+  });
+
+  it("should fail the build for a static of another kind on the base's parent in another module", async () => {
+    await expect(
+      run(
+        over(
+          'Child',
+          "import { Parent } from './virtual-parent.ts';\nclass Child extends Parent {}\n",
+        ),
+        {
+          'virtual-parent.ts':
+            "export class Parent extends HTMLElement {\n  static styles: string = '';\n}\n",
+        },
+      ),
+    ).rejects.toMatchObject({ code: CODE.STATIC_KIND_MISMATCH });
+  });
+
+  it("should fail the build for a base whose heritage can't be read", async () => {
+    await expect(
+      run(
+        over(
+          'Mixed',
+          'function mixin<T>(base: T): T {\n  return base;\n}\nclass Mixed extends mixin(HTMLElement) {}\n',
+        ),
+      ),
+    ).rejects.toMatchObject({ code: CODE.STATIC_KIND });
+  });
+});
+
+describe('composition-shape and value references', () => {
+  const base =
+    'const FooBase: Composed<typeof Base, [typeof Checkable]> = compose(Base);\nexport class Foo extends FooBase {}\n';
+
+  it('should flatten with the name as a property key', async () => {
+    const { code } = await run(`${base}export const names = { FooBase: 1 };\n`);
+
+    expect(code).toContain('export class Foo extends Base');
+  });
+
+  it('should flatten with the name in a type', async () => {
+    const { code } = await run(
+      `${base}export type FooShape = InstanceType<typeof FooBase>;\n`,
+    );
+
+    expect(code).toContain('export class Foo extends Base');
+  });
+
+  it('should fail the build for another value reference', async () => {
+    await expect(run(`${base}console.log(FooBase);\n`)).rejects.toMatchObject({
+      code: CODE.COMPOSITION_SHAPE,
+    });
+  });
+
+  it('should fail the build for a shorthand property', async () => {
+    await expect(
+      run(`${base}export const holder = { FooBase };\n`),
+    ).rejects.toMatchObject({ code: CODE.COMPOSITION_SHAPE });
+  });
+
+  it('should fail the build for an export specifier', async () => {
+    await expect(run(`${base}export { FooBase };\n`)).rejects.toMatchObject({
+      code: CODE.COMPOSITION_SHAPE,
+    });
+  });
+});

@@ -181,15 +181,30 @@ export function checkLayers(
   return warnings;
 }
 
-/** Each static key's kind, checked to agree across the traits. */
+/**
+ * Each static key's kind, checked to agree across the base and the traits. The
+ * base's declared kind, when it declares the key, is the first contributor.
+ *
+ * @param base - The base's name, and its declared kind of each key the traits
+ *   contribute, `null` where it declares none.
+ */
 export function staticKinds(
   traits: readonly TraitIR[],
+  base: Readonly<{
+    name: string;
+    kinds: ReadonlyMap<string, StaticKind | null>;
+  }>,
   pos: number,
 ): Map<string, StaticKind> {
   const kinds = new Map<
     string,
     Readonly<{ kind: StaticKind; trait: string }>
   >();
+  for (const [key, kind] of base.kinds) {
+    if (kind !== null) {
+      kinds.set(key, { kind, trait: `the base ${base.name}` });
+    }
+  }
   for (const trait of traits) {
     for (const value of trait.statics) {
       const earlier = kinds.get(value.key);
@@ -204,7 +219,15 @@ export function staticKinds(
     }
   }
 
-  return new Map([...kinds].map(([key, { kind }]) => [key, kind]));
+  return new Map(
+    [...kinds]
+      .filter(([key]) =>
+        traits.some((trait) =>
+          trait.statics.some((value) => value.key === key),
+        ),
+      )
+      .map(([key, { kind }]) => [key, kind]),
+  );
 }
 
 /** Whether `consumer` is declared at module scope. */

@@ -29,11 +29,11 @@ For each class whose static block calls `trait(this)`:
 - **Each private binding a member reads** is exported under a build-only name, `__mxflat_<name>_<hash>`, and under its own name, so a component in another module, or another package's build, can link the live binding.
 - **In an application build,** Vite's `build` without `build.lib`, each trait class's instance members are deleted, because nothing copies from that output. A library build keeps them, because another package copies from its `.js`. tsdown is always a library build, and the dev server is left alone.
 
-Each step leaves its result recognizable, so the transform of another package's built trait module changes only what is missing. In built JavaScript, the generated `static [Symbol.hasInstance]` method is what marks a trait class, and it names the brand.
+Each step leaves its result recognizable, so the transform of another package's built trait module changes only what is missing, and an application build deletes that module's instance members too. In built JavaScript, a trait class is recognized only by the exact generated method: one identifier parameter `p`, a body that is one `return p != null && p[B] === true`, and `B` an exported module-scope variable initialized with `Symbol(<string literal>)` and never assigned again. Any other `Symbol.hasInstance` method leaves its class untouched.
 
 ### A composition
 
-A composition is a module-scope `const X: Composed<B, [...]> = compose(B)`, not exported, that exactly one class in the module extends and nothing else references. `Composed` and `compose` are recognized by the specifier they are imported from, `…/composition`. A composition that a trait class extends is a supertrait's, and stays at runtime, where it returns the bound.
+A composition is a module-scope `const X: Composed<B, [...]> = compose(B)`, not exported, that exactly one class in the module extends, with no other value reference. A type position, such as `typeof X`, and a non-computed property key aren't value references; a shorthand property and an export specifier are. `Composed` and `compose` are recognized by the specifier they are imported from, `…/composition`. A composition that a trait class extends is a supertrait's, and stays at runtime, where it returns the bound.
 
 **The trait list** is read from the annotation's second type argument: a tuple of `typeof T` and of spreads, `...Alias`, of tuple aliases, local or imported, `readonly` or not. An imported alias is read from the other module's declarations. A supertrait's own list is expanded before the supertrait. A cycle is an error.
 
@@ -66,6 +66,8 @@ A member that assigns an imported binding, or reads the trait class's own name, 
 ### Statics merged by kind
 
 A static's kind is read syntactically from its declared type: the trait's TypeScript source, or the `.d.ts` that its package's `types` condition names for a `.js`. A field with no declared type, such as layer (b)'s generated `observedAttributes`, takes the kind of its literal value.
+
+The base's kind of a key that a trait contributes is read the same way, from the nearest `static key` declaration in its class chain: from `compose`'s argument through each `extends`. A global, such as `HTMLElement`, ends the chain with no declaration, and an absent value is empty. A heritage the walk can't read, such as a call, is `static-kind`.
 
 | Declared type | Kind | Emitted, contributors in order: base, traits, the component's own |
 | --- | --- | --- |
@@ -106,8 +108,8 @@ Every error fails the build, through the host's `error`, with the module and pos
 | `trait-binding-shadowed` | error | The component's module or class binds a name that a copied member reads, or the class isn't module-scoped. |
 | `trait-source-language` | error | The copy rule refuses a member. The message names the member and the two languages. |
 | `trait-accessor-half` | error | A later trait's lone getter or setter over an earlier trait's pair. |
-| `static-kind` | error | A static's declared kind is one that doesn't merge. |
-| `static-kind-mismatch` | error | Two traits give one static key different kinds. |
+| `static-kind` | error | A static's declared kind is one that doesn't merge, a trait's or the base's, or the base's class chain can't be read to find the key. |
+| `static-kind-mismatch` | error | Two contributors give one static key different kinds. The base's declaration, the nearest `static key` in its class chain, is the first contributor, and the message names the base. |
 | `class-accessor-half` | error | The component declares one half of a trait's accessor pair. |
 | `class-super-trait-member` | error | `super.k` in the component, for a key that a trait supplies. |
 | `class-computed-super` | error | `super[k]` in the component. |
@@ -156,3 +158,4 @@ A change to the plugin is also checked by building `@ydinjs/core` and `@ydinjs/m
 | 2026-11-18 | Eligibility, Plugin architecture | **Corrected** on the feature proof at `8a5365adc` (`reviewer-1` to `reviewer-3`). **Narrowed:** the linkable binding forms are named, and a member that reads a function, class, enum or namespace declaration, a destructured variable or a namespace import is retained. Before, the document said that every module binding is linked. **Changed, and met by the code once the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2b is in:** any reference to `eval` retains the trait, where the document said _direct `eval`_ and the code missed wrapped forms. The language rule copies only between the same languages and from JavaScript into TypeScript, where it said _"The source language must match"_ and checked TypeScript into JavaScript only. The JavaScript-into-TypeScript limit is stated |
 | 2026-11-18 | Eligibility, Verification, Plugin architecture | **Narrowed** on the item 2b recheck at `b72ee0b8b` (`recheck-1`, `recheck-2`), and met by the code once the [plan](../../.plan/traits-plugin-1/traits-plugin-handoff.md)'s item 2c is in. A member is copied only between files of the same extension. The rule said that a member is copied between the same languages, with `.ts`, `.mts` and `.cts` as one, and from JavaScript into TypeScript, with `a < b > (c)` as a known limit. The `.mts` and `.cts` parsers reject what `.ts` accepts, and the limit changed a member's meaning with no warning. The fixture for another package's built JavaScript becomes a negative one |
 | 2026-11-19 | All | **Rewritten from Purpose down for `RD-26`.** Traits are plain classes in two layers, and the plugin is a required compiler step: a composition it can't carry is a build error, where it used to be retained at runtime with a warning. Recognition reads the `Composed` annotation in place of `impl()` and the `trait()` factories; statics merge by declared kind; the copy rule is parse equivalence (`repo:RF-44`); a trait's own build lowers layer (b), hoists its brand into a static `[Symbol.hasInstance]` method and its statics into constants; and the IR is version 3 |
+| 2026-11-19 | Transform, Composition, Statics, Diagnostics | **Corrected** on PR #76's feature proof (`reviewer-1` to `reviewer-3`). An application build deletes the instance members of a built trait module too, recognized only by the exact generated method; the base's declared kind is the first contributor to a static, where the table said _"Two traits"_; and `composition-shape` counts only value references, where it said _"nothing else references"_ |

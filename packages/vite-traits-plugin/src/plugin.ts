@@ -8,6 +8,7 @@ import {
 import type { Plugin } from 'vite';
 import { importsAttributes, lowerAttributes } from './attributes/lower.ts';
 import {
+  baseStaticKind,
   findSites,
   resolveTraits,
   type Site,
@@ -37,7 +38,7 @@ import {
   FlattenerError,
   type FlattenerWarning,
 } from './diagnostics.ts';
-import type { TraitIR } from './ir.ts';
+import type { StaticKind, TraitIR } from './ir.ts';
 import { invalidateModule, parseModule, type ModuleLoader } from './syntax.ts';
 
 /** Only JavaScript and TypeScript modules are candidates. */
@@ -136,11 +137,19 @@ async function analyzeSite(
   checkMemberScope(ctx, site.consumer, traits, pos);
   const base = site.call.arguments[0]!;
   const superClass = site.consumer.superClass!;
+  const baseKinds = new Map<string, StaticKind | null>();
+  for (const key of new Set(
+    traits.flatMap((trait) => trait.statics.map((value) => value.key)),
+  )) {
+    // oxlint-disable-next-line no-await-in-loop
+    baseKinds.set(key, await baseStaticKind(r, ctx, site, key));
+  }
+  const baseSource = ctx.code.slice(base.start, base.end);
 
   return {
     traits,
-    kinds: staticKinds(traits, pos),
-    baseSource: ctx.code.slice(base.start, base.end),
+    kinds: staticKinds(traits, { name: baseSource, kinds: baseKinds }, pos),
+    baseSource,
     declarationSpan: [site.statement.start, site.statement.end],
     superClassSpan: [superClass.start, superClass.end],
     consumer: site.consumer,
@@ -271,7 +280,9 @@ export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
       const cleanId = id.split('?', 1)[0]!;
       if (
         !isCandidate(cleanId) ||
-        (!code.includes('trait(') && !code.includes('compose('))
+        (!code.includes('trait(') &&
+          !code.includes('compose(') &&
+          !code.includes('Symbol.hasInstance'))
       ) {
         return null;
       }

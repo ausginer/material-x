@@ -1,5 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { materialize, type Materialized } from './helpers.ts';
+import {
+  fixtureId,
+  materialize,
+  transform,
+  type Materialized,
+} from './helpers.ts';
 
 type Instance = {
   checked: boolean;
@@ -168,5 +173,40 @@ describe("flattening another package's built trait", () => {
       'package',
       { calls: 1, options: 2 },
     ]);
+  });
+});
+
+describe("flattening over the base's declared static", () => {
+  const header = `import { compose, trait, type Composed } from '@ydinjs/core/traits/composition.js';\n`;
+  const styled = `export class Styled {\n  static {\n    trait(this);\n  }\n\n  static readonly observedAttributes: readonly string[] = ['styled'];\n}\n`;
+
+  /** Flattens a component of `Styled` over the base `name`, after `classes`. */
+  const flatten = async (name: string, classes: string): Promise<string> => {
+    const id = fixtureId('virtual-base.ts');
+
+    return (
+      await transform(id, {
+        files: {
+          [id]: `${header}${classes}${styled}const FooBase: Composed<typeof ${name}, [typeof Styled]> = compose(${name});\nexport class Foo extends FooBase {}\n`,
+        },
+      })
+    ).code;
+  };
+
+  it("should spread a base's array static before the traits'", async () => {
+    expect(
+      await flatten(
+        'Observed',
+        'class Observed extends HTMLElement {\n  static observedAttributes: readonly string[] = [];\n}\n',
+      ),
+    ).toMatch(
+      /static observedAttributes = \[\.\.\.\(Observed\.observedAttributes \?\? \[\]\), \.\.\.__mxflat_Styled_observedAttributes_\w+\];/u,
+    );
+  });
+
+  it('should flatten over a base that declares nothing above a global', async () => {
+    expect(
+      await flatten('Plain', 'class Plain extends HTMLElement {}\n'),
+    ).toContain('export class Foo extends Plain');
   });
 });

@@ -7,18 +7,22 @@
 import type {
   CallExpression,
   Class,
+  Expression,
   Statement,
   TSType,
   TSTypeReference,
   VariableDeclarator,
 } from '@oxc-project/types';
 import { CODE, fail } from '../diagnostics.ts';
-import { unwrapTS, walk } from '../syntax.ts';
+import type { StaticKind } from '../ir.ts';
+import { unwrapTS, walk, type TopClass } from '../syntax.ts';
 import {
   declarationsOf,
   resolveAlias,
+  staticTypes,
   type DeclarationScope,
 } from './declarations.ts';
+import { kindOfType, kindOfValue } from './statics.ts';
 import {
   consumerSpecifier,
   findTrait,
@@ -77,6 +81,84 @@ function composedAnnotation(
     : null;
 }
 
+/** The TypeScript wrappers whose `expression` is a value. */
+const VALUE_WRAPPERS = new Set([
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSNonNullExpression',
+  'TSInstantiationExpression',
+  'TSTypeAssertion',
+]);
+
+/** The fields that hold only types, in any node. */
+const TYPE_FIELDS = new Set([
+  'typeAnnotation',
+  'typeArguments',
+  'typeParameters',
+  'returnType',
+  'superTypeArguments',
+  'implements',
+]);
+
+/**
+ * Counts each name's value references under `node`. A type position isn't a
+ * value reference, and neither is a non-computed property key, member name or
+ * label, nor an import. A shorthand property `{ X }` and an export specifier
+ * are.
+ */
+function countValueReferences(
+  node: unknown,
+  counts: Map<string, number>,
+): void {
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      countValueReferences(item, counts);
+    }
+    return;
+  }
+  if (!node || typeof node !== 'object') {
+    return;
+  }
+  const value = node as Readonly<Record<string, unknown>> & { type?: string };
+  const { type } = value;
+  if (type === 'Identifier') {
+    const name = value['name'] as string;
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+    return;
+  }
+  if (type?.startsWith('TS')) {
+    if (VALUE_WRAPPERS.has(type)) {
+      countValueReferences(value['expression'], counts);
+    }
+    return;
+  }
+  if (type === 'ImportDeclaration') {
+    return;
+  }
+  if (type === 'ExportSpecifier') {
+    countValueReferences(value['local'], counts);
+    return;
+  }
+  const keyed =
+    type === 'Property' ||
+    type === 'MethodDefinition' ||
+    type === 'PropertyDefinition' ||
+    type === 'AccessorProperty';
+  for (const [field, child] of Object.entries(value)) {
+    if (
+      TYPE_FIELDS.has(field) ||
+      field === 'label' ||
+      (keyed && field === 'key' && value['computed'] !== true) ||
+      (type === 'MemberExpression' &&
+        field === 'property' &&
+        value['computed'] !== true)
+    ) {
+      continue;
+    }
+    countValueReferences(child, counts);
+  }
+}
+
 /**
  * The module's compositions that a component extends. A composition that a
  * trait class extends, a supertrait's, stays at runtime, where it returns the
@@ -130,9 +212,6 @@ export function findSites(ctx: ModuleCtx): readonly Site[] {
         node.start,
       );
     }
-    if (node.type === 'Identifier') {
-      references.set(node.name, (references.get(node.name) ?? 0) + 1);
-    }
     if (
       (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') &&
       node.superClass?.type === 'Identifier'
@@ -143,6 +222,8 @@ export function findSites(ctx: ModuleCtx): readonly Site[] {
       ]);
     }
   });
+
+  countValueReferences(ctx.program, references);
 
   const sites: Site[] = [];
   for (const site of shaped.values()) {
@@ -155,7 +236,7 @@ export function findSites(ctx: ModuleCtx): readonly Site[] {
       );
     }
     const consumer = classes[0]!;
-    if (!findTraitInstall(consumer, ctx.traitLocals)) {
+    if (!findTraitInstall(consumer, ctx.traitLocals, ctx.brands)) {
       sites.push({ ...site, consumer });
     }
   }
@@ -315,4 +396,108 @@ export async function resolveTraits(
   await expandList(x, scope!, site.list);
 
   return x.out;
+}
+
+/** The class `name` names in module `ctx`, followed through one import. */
+async function heritageClass(
+  r: Resolver,
+  ctx: ModuleCtx,
+  name: string,
+): Promise<
+  Readonly<{ ctx: ModuleCtx; name: string; cls: TopClass }> | 'global' | null
+> {
+  const local = ctx.classes.get(name);
+  if (local) {
+    return { ctx, name, cls: local };
+  }
+  const imported = ctx.imports.get(name);
+  if (!imported) {
+    // A name the module binds otherwise isn't a class the walk can read; a
+    // name it binds nowhere is a global, such as `HTMLElement`.
+    return ctx.topLevel.has(name) ? null : 'global';
+  }
+  const id = await r.loader.resolve(imported.specifier, ctx.id);
+  if (!id) {
+    return null;
+  }
+  const origin = await loadCtx(r, id);
+  const className =
+    imported.imported === 'default'
+      ? [...origin.exported].find(([, names]) => names.includes('default'))?.[0]
+      : imported.imported;
+  const cls =
+    className === undefined ? undefined : origin.classes.get(className);
+
+  return cls && className !== undefined
+    ? { ctx: origin, name: className, cls }
+    : null;
+}
+
+/**
+ * The kind that the base declares for static `key`: that of the nearest
+ * `static key` declaration in its class chain, from `compose`'s argument
+ * through each `extends`. A chain that ends at a global, or at a class with no
+ * superclass, declares nothing, and `null` is returned: an absent value is
+ * empty. A heritage the walk can't read is a `static-kind` error.
+ */
+export async function baseStaticKind(
+  r: Resolver,
+  ctx: ModuleCtx,
+  site: Site,
+  key: string,
+): Promise<StaticKind | null> {
+  const base = site.call.arguments[0]!;
+  const where = `${ctx.code.slice(base.start, base.end)}.${key}`;
+  const refuse = (): never =>
+    fail(
+      CODE.STATIC_KIND,
+      `${where}: the base's class chain can't be read to find its kind`,
+      site.declarator.start,
+    );
+  let module = ctx;
+  let heritage = unwrapTS(base as Expression);
+  for (;;) {
+    if (heritage.type !== 'Identifier') {
+      return refuse();
+    }
+    // oxlint-disable-next-line no-await-in-loop
+    const found = await heritageClass(r, module, heritage.name);
+    if (found === 'global') {
+      return null;
+    }
+    if (!found) {
+      return refuse();
+    }
+    // oxlint-disable-next-line no-await-in-loop
+    const scope = await declarationsOf(r.loader, found.ctx.id, found.ctx.code);
+    const types = scope ? staticTypes(scope, found.name) : null;
+    const runtime = found.cls.node.body.body.find(
+      (element) =>
+        element.type === 'PropertyDefinition' &&
+        element.static &&
+        !element.computed &&
+        element.key.type === 'Identifier' &&
+        element.key.name === key,
+    );
+    const type = types?.get(key);
+    if (scope && type) {
+      // oxlint-disable-next-line no-await-in-loop
+      return (await kindOfType(r.loader, scope, type, where)) ?? null;
+    }
+    if (
+      runtime?.type === 'PropertyDefinition' &&
+      runtime.value &&
+      (types === null || types.has(key))
+    ) {
+      return kindOfValue(runtime.value, where);
+    }
+    if (types?.has(key)) {
+      return null;
+    }
+    if (!found.cls.node.superClass) {
+      return null;
+    }
+    module = found.ctx;
+    heritage = unwrapTS(found.cls.node.superClass);
+  }
 }

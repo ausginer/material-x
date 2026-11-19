@@ -43,6 +43,7 @@ import {
 } from './declarations.ts';
 import { kindOfType, kindOfValue } from './statics.ts';
 import {
+  brandConstants,
   brandName,
   findTraitInstall,
   isTraitBlock,
@@ -62,6 +63,8 @@ export type ModuleCtx = Readonly<{
   exported: ReadonlyMap<string, readonly string[]>;
   topLevel: ReadonlySet<string>;
   traitLocals: ReadonlySet<string>;
+  /** The exported `Symbol(<string>)` constants a built trait class can name. */
+  brands: ReadonlySet<string>;
 }>;
 
 /** Indexes a parsed module. */
@@ -80,6 +83,7 @@ export function moduleCtx(
     exported: collectExportedNames(program),
     topLevel: collectTopLevelNames(program),
     traitLocals: traitLocalsOf(program),
+    brands: brandConstants(program),
   };
 }
 
@@ -488,7 +492,9 @@ export function findTrait(
   name: string,
 ): Readonly<{ cls: TopClass; install: TraitInstall }> | null {
   const cls = ctx.classes.get(name);
-  const install = cls ? findTraitInstall(cls.node, ctx.traitLocals) : null;
+  const install = cls
+    ? findTraitInstall(cls.node, ctx.traitLocals, ctx.brands)
+    : null;
 
   return cls && install ? { cls, install } : null;
 }
