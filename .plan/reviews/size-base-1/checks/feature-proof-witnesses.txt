@@ -1,0 +1,124 @@
+# Feature proof of RF-65's repair: the reviewer's own runs
+# Run by the reviewer on 2026-11-19, one at a time, each in a new detached
+# worktree outside the slots (`git worktree add --detach <tree> <commit>`).
+# 910c5e4b3 differs from the repair 0021a710e only under .plan/
+# (`git diff --stat 0021a710e 910c5e4b3 -- . ':!.plan'` is empty).
+# <scratch> is the session's scratch directory. No `nx reset` was run.
+
+## Witness 1, at 910c5e4b3 (new tree)
+$ aube ci
+exit 0
+$ aube exec just size-reading <scratch>/reading-head.json
+exit 0 (1m01s)
+rows: 33 {"box-quad":1,"core":3,"material-x":19,"drag":10}
+sha256 67cc657e5e77c28d4868ac8316dacc1a36fc99c7b4cbc22973112b995751ea52
+
+## Witness 1, at f7dfee61f, the repair's parent (new tree)
+$ aube ci
+exit 0
+$ aube exec just size-reading <scratch>/reading-parent.json
+exit 1, no file written
+Error: aube exec just build failed in <scratch>/tree-parent/packages/box-quad:
+Cannot find module '<scratch>/tree-parent/node_modules/@ydinjs/vite-traits-plugin/index.js' imported from <scratch>/tree-parent/.scripts/tsdown-library.ts
+
+## Witness 2, in the witness-1 tree at 910c5e4b3
+$ aube exec -- nx run-many -t build --all --skipNxCache
+exit 0
+$ aube exec just size-reading <scratch>/reading-allbuilt.json
+exit 0
+$ cmp reading-head.json reading-allbuilt.json
+(no output, exit 0: byte-identical)
+sha256 67cc657e5e77c28d4868ac8316dacc1a36fc99c7b4cbc22973112b995751ea52
+
+## The concurrent read against the parent's sequential reader, same tree
+# f7dfee61f's .scripts/size-reading.ts (which builds each package with its own
+# `just build` and reads the four packages one after another) copied beside the
+# repaired script as a scratch file, run, and deleted. `git status` was clean.
+$ node .scripts/size-reading-seq.ts <scratch>/reading-seq.json
+exit 0
+$ cmp reading-head.json reading-seq.json
+(no output, exit 0: byte-identical)
+
+## Root `just size` in the same tree
+$ aube exec just size
+exit 0
+
+## Witness 3, in a third new tree at 910c5e4b3, after `aube ci` only
+# `--graph=<file>` builds nothing: packages/vite-traits-plugin/index.js was
+# still absent after both reads. Each line is a task and the tasks it depends on.
+
+### -t build --projects=box-quad,core,material-x,drag
+@ydinjs/box-quad:build                     <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/material-x:build                   <- @ydinjs/core:build, @ydinjs/tproc:build, @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:build                         <- @ydinjs/box-quad:build, @ydinjs/vite-traits-plugin:build
+@ydinjs/vite-traits-plugin:build           <- (none)
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+
+### -t size --projects=box-quad,core,drag,material-x --parallel=1
+@ydinjs/box-quad:size                      <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/core:size                          <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:size                          <- @ydinjs/box-quad:build, @ydinjs/vite-traits-plugin:build
+@ydinjs/material-x:size                    <- @ydinjs/core:build, @ydinjs/tproc:build, @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/vite-traits-plugin:build           <- (none)
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/box-quad:build                     <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+
+### Mutation: box-quad's implicitDependencies removed
+@ydinjs/box-quad:build                     <- size-limit-preset-rolldown:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/material-x:build                   <- @ydinjs/core:build, @ydinjs/tproc:build, @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:build                         <- @ydinjs/box-quad:build, @ydinjs/vite-traits-plugin:build
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/vite-traits-plugin:build           <- (none)
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+
+### Restored with `git checkout -- packages/box-quad/project.json`; `git status` clean
+@ydinjs/box-quad:build                     <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:build                         <- @ydinjs/box-quad:build, @ydinjs/vite-traits-plugin:build
+
+## The size-report tests, in the witness-1 tree
+$ aube exec -- vitest run .scripts/size-report.node.test.ts
+Test Files  1 passed (1)
+     Tests  13 passed (13)
+
+## The lookup by hand, read-only, as the step runs it (R=ausginer/material-x)
+$ gh api "repos/$R/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=<sha>" --jq '.workflow_runs[0].id // empty'
+$ gh run download <run> --repo $R --name size-reading --dir <scratch>/dl-<sha>
+91fc5d662  run 44448397868 (total_count 1)  no artifact matches any of the names or patterns provided
+bc7fe07d6  run 44445920372 (total_count 1)  no artifact matches any of the names or patterns provided
+275ad0f5c  run 43865448668 (total_count 1)  no valid artifacts found to download
+Each exits non-zero, which is the step's else branch.
+
+## Repository settings and the action pin, read-only
+$ gh api repos/ausginer/material-x/actions/permissions/artifact-and-log-retention
+{"days":90,"maximum_allowed_days":90}
+$ gh api repos/actions/upload-artifact/git/refs/tags/v7.0.2 --jq .object.sha
+cf430e030ddbb5b0abf93d22962f4752f3646cd9   (the pin in verify.yml and baselines.yml)
+action.yml at that commit: `archive` defaults to 'true', `overwrite` to 'false'.
+So the artifact is a zip that holds head-size.json at its root.
+
+## main's last 12 push runs of verify.yml: the measurements job
+44448397868 91fc5d662 success   44445920372 bc7fe07d6 success
+44278576687 a133bebee success   44275587946 7a4f82eb4 success
+44275239043 35bfc6209 success   44272429797 5b0e3e25b success
+44272332315 83c3de7c5 success   44252031299 377ca72df success
+44233935238 83a985b99 success   44096754639 e9236603e success
+44079743070 8cf9781fa success   44035423615 21392e738 success
+None was reduced, so each would have stored a reading under the repair.
+
+## PR #72, run 44451082302 at 910c5e4b3, job measurements (135315195219)
+Every job succeeded except `records` and `deploy`, which were skipped. From the measurements log:
+2026-11-19T03:25:55.7962126Z echo "merge base: $base"
+2026-11-19T03:25:55.8053858Z merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+2026-11-19T03:25:58.5481730Z no artifact matches any of the names or patterns provided
+2026-11-19T03:25:58.5521062Z ##[notice]main's run for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+The size comment on #72 opens with "**No base reading:** `main`'s run for the
+merge base stored no size reading, so only the head is reported." and lists 33
+rows.
