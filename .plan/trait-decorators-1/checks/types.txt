@@ -1,0 +1,1351 @@
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33, P35, P38, P40 — .plan/trait-decorators-1/probes/types/run.sh, at 5fbb8cec8, 2026-11-19
+=== p1-decorator-only — Version 7.0.2
+p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
+exit 2
+=== p1-decorator-only — Version 6.0.3
+p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
+exit 2
+=== p2-decorator-interface — Version 7.0.2
+p2-decorator-interface.ts(20,18): error TS2339: Property 'disabled' does not exist on type 'ControlledElement'.
+p2-decorator-interface.ts(38,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(41,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(57,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p2-decorator-interface.ts(64,18): error TS2320: Interface 'Clash' cannot simultaneously extend types 'NamedString' and 'NamedNumber'.
+  Named property 'name' of types 'NamedString' and 'NamedNumber' are not identical.
+exit 2
+=== p2-decorator-interface — Version 6.0.3
+p2-decorator-interface.ts(20,18): error TS2339: Property 'disabled' does not exist on type 'ControlledElement'.
+p2-decorator-interface.ts(38,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(41,16): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement'.
+p2-decorator-interface.ts(57,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p2-decorator-interface.ts(64,18): error TS2320: Interface 'Clash' cannot simultaneously extend types 'NamedString' and 'NamedNumber'.
+  Named property 'name' of types 'NamedString' and 'NamedNumber' are not identical.
+exit 2
+=== p2-typed-marker — Version 7.0.2
+p2-typed-marker.ts(30,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Missing' is not assignable to parameter of type 'abstract new (...args: any[]) => Disableable & FocusForwarding'.
+    Type 'Missing' is not assignable to type 'Disableable & FocusForwarding'.
+      Property 'disabled' is missing in type 'Missing' but required in type 'Disableable'.
+exit 2
+=== p2-typed-marker — Version 6.0.3
+p2-typed-marker.ts(30,2): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  Argument of type 'typeof Missing' is not assignable to parameter of type 'abstract new (...args: any[]) => Disableable & FocusForwarding'.
+    Type 'Missing' is not assignable to type 'Disableable & FocusForwarding'.
+      Property 'disabled' is missing in type 'Missing' but required in type 'Disableable'.
+exit 2
+=== p6-member-kinds — Version 7.0.2
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+p6-member-kinds.ts(20,16): error TS2611: 'value' is defined as a property in class 'FieldA', but is overridden here in 'SubFieldA' as an accessor.
+p6-member-kinds.ts(41,18): error TS2430: Interface 'Incompatible' incorrectly extends interface 'Disableable'.
+  Types of property 'disabled' are incompatible.
+    Type 'string' is not assignable to type 'boolean'.
+p6-member-kinds.ts(61,41): error TS2339: Property 'formAssociated' does not exist on type 'typeof Form'.
+exit 2
+=== p6-member-kinds — Version 6.0.3
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+p6-member-kinds.ts(20,16): error TS2611: 'value' is defined as a property in class 'FieldA', but is overridden here in 'SubFieldA' as an accessor.
+p6-member-kinds.ts(41,18): error TS2430: Interface 'Incompatible' incorrectly extends interface 'Disableable'.
+  Types of property 'disabled' are incompatible.
+    Type 'string' is not assignable to type 'boolean'.
+p6-member-kinds.ts(61,41): error TS2339: Property 'formAssociated' does not exist on type 'typeof Form'.
+exit 2
+=== p9-brand-props — Version 7.0.2
+p9-brand-props.ts(16,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9-brand-props.ts(21,17): error TS2741: Property '[$forwarding]' is missing in type 'ControlledElement' but required in type 'Forwarding'.
+p9-brand-props.ts(23,18): error TS2320: Interface 'Adopter' cannot simultaneously extend types 'ControlledElement' and 'Forwarding'.
+  Named property 'focus' of types 'ControlledElement' and 'Forwarding' are not identical.
+p9-brand-props.ts(44,42): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type 'TraitProps<Disableable>'.
+exit 1
+=== p9-brand-props — Version 6.0.3
+p9-brand-props.ts(16,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9-brand-props.ts(21,17): error TS2345: Argument of type 'ControlledElement' is not assignable to parameter of type 'Forwarding'.
+  Property '[$forwarding]' is missing in type 'ControlledElement' but required in type 'Forwarding'.
+p9-brand-props.ts(23,18): error TS2320: Interface 'Adopter' cannot simultaneously extend types 'ControlledElement' and 'Forwarding'.
+  Named property 'focus' of types 'ControlledElement' and 'Forwarding' are not identical.
+p9-brand-props.ts(44,42): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type 'TraitProps<Disableable>'.
+exit 1
+=== p9b-brand-forms — Version 7.0.2
+p9b-brand-forms.ts(7,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(13,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(26,14): error TS2741: Property '#brand' is missing in type 'ControlledElement' but required in type 'PrivateBrand'.
+exit 1
+=== p9b-brand-forms — Version 6.0.3
+p9b-brand-forms.ts(7,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(13,20): error TS9038: Computed property names on class or object literals cannot be inferred with --isolatedDeclarations.
+p9b-brand-forms.ts(26,14): error TS2345: Argument of type 'ControlledElement' is not assignable to parameter of type 'PrivateBrand'.
+  Property '#brand' is missing in type 'ControlledElement' but required in type 'PrivateBrand'.
+exit 1
+=== p10-today-own-field — Version 7.0.2
+exit 0
+=== p10-today-own-field — Version 6.0.3
+exit 0
+=== p11-type-argument — Version 7.0.2
+p11-type-argument.ts(49,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p11-type-argument.ts(78,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[typeof Disableable]>', but is overridden here in 'OwnField' as an instance property.
+exit 2
+=== p11-type-argument — Version 6.0.3
+p11-type-argument.ts(49,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p11-type-argument.ts(78,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[typeof Disableable]>', but is overridden here in 'OwnField' as an instance property.
+exit 2
+=== p12-instance-arguments — Version 7.0.2
+p12-instance-arguments.ts(33,39): error TS2344: Type '[HTMLElement]' does not satisfy the constraint 'readonly ControlledElement[]'.
+  Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+exit 2
+=== p12-instance-arguments — Version 6.0.3
+p12-instance-arguments.ts(33,39): error TS2344: Type '[HTMLElement]' does not satisfy the constraint 'readonly ControlledElement[]'.
+  Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+exit 2
+=== p13-attribute-forms — Version 7.0.2
+p13-attribute-forms.ts(53,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(61,5): error TS2353: Object literal may only specify known properties, and 'hidden2' does not exist in type 'AttributeTable<UnknownKey>'.
+p13-attribute-forms.ts(80,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Explicit]>', but is overridden here in 'FieldExplicit' as an instance property.
+p13-attribute-forms.ts(89,16): error TS2611: 'disabled' is defined as a property in class 'UsesDeclared', but is overridden here in 'SubDeclared' as an accessor.
+p13-attribute-forms.ts(101,14): error TS2515: Non-abstract class 'UsesAbstractPair' does not implement inherited abstract member disabled from class 'Traited<[AbstractPair]>'.
+p13-attribute-forms.ts(116,14): error TS2515: Non-abstract class 'UsesAbstractAuto' does not implement inherited abstract member disabled from class 'Traited<[AbstractAuto]>'.
+p13-attribute-forms.ts(138,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[PlainAuto]>', but is overridden here in 'FieldPlainAuto' as an instance property.
+p13-attribute-forms.ts(152,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Decorated]>', but is overridden here in 'FieldDecorated' as an instance property.
+p13-attribute-forms.ts(162,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p13-attribute-forms.ts(166,16): error TS2611: 'busy' is defined as a property in class 'UsesDeclaredReadonly', but is overridden here in 'SubDeclaredReadonly' as an accessor.
+p13-attribute-forms.ts(174,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(177,32): error TS2345: Argument of type 'boolean' is not assignable to parameter of type 'string'.
+exit 2
+=== p13-attribute-forms — Version 6.0.3
+p13-attribute-forms.ts(53,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(61,5): error TS2353: Object literal may only specify known properties, and 'hidden2' does not exist in type 'AttributeTable<UnknownKey>'.
+p13-attribute-forms.ts(80,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Explicit]>', but is overridden here in 'FieldExplicit' as an instance property.
+p13-attribute-forms.ts(89,16): error TS2611: 'disabled' is defined as a property in class 'UsesDeclared', but is overridden here in 'SubDeclared' as an accessor.
+p13-attribute-forms.ts(101,14): error TS2515: Non-abstract class 'UsesAbstractPair' does not implement inherited abstract member disabled from class 'Traited<[AbstractPair]>'.
+p13-attribute-forms.ts(116,14): error TS2515: Non-abstract class 'UsesAbstractAuto' does not implement inherited abstract member disabled from class 'Traited<[AbstractAuto]>'.
+p13-attribute-forms.ts(138,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[PlainAuto]>', but is overridden here in 'FieldPlainAuto' as an instance property.
+p13-attribute-forms.ts(152,12): error TS2610: 'disabled' is defined as an accessor in class 'Traited<[Decorated]>', but is overridden here in 'FieldDecorated' as an instance property.
+p13-attribute-forms.ts(162,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p13-attribute-forms.ts(166,16): error TS2611: 'busy' is defined as a property in class 'UsesDeclaredReadonly', but is overridden here in 'SubDeclaredReadonly' as an accessor.
+p13-attribute-forms.ts(174,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+p13-attribute-forms.ts(177,39): error TS2345: Argument of type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to parameter of type 'Readonly<{ from(value: string | null): boolean | null; to(value: boolean | null): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean | null'.
+      Type 'string' is not assignable to type 'boolean | null'.
+exit 2
+=== p14-read-only — Version 7.0.2
+p14-read-only.ts(29,32): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(32,12): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(35,21): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(55,3): error TS1206: Decorators are not valid here.
+p14-read-only.ts(67,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(76,14): error TS2515: Non-abstract class 'UsesTableGetter' does not implement inherited abstract member busy from class 'Traited<[TableGetter]>'.
+p14-read-only.ts(78,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(86,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p14-read-only — Version 6.0.3
+p14-read-only.ts(29,32): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(32,12): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(35,21): error TS1243: 'accessor' modifier cannot be used with 'readonly' modifier.
+p14-read-only.ts(55,3): error TS1206: Decorators are not valid here.
+p14-read-only.ts(67,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(76,14): error TS2515: Non-abstract class 'UsesTableGetter' does not implement inherited abstract member busy from class 'Traited<[TableGetter]>'.
+p14-read-only.ts(78,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+p14-read-only.ts(86,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p16-interface-accessors — Version 7.0.2
+p16-interface-accessors.ts(30,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p16-interface-accessors.ts(37,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p16-interface-accessors — Version 6.0.3
+p16-interface-accessors.ts(30,5): error TS2322: Type 'Readonly<{ from(value: string | null): string | null; to(value: string | null): string | null; }>' is not assignable to type 'Readonly<{ from(value: string | null): boolean; to(value: boolean): string | null; }>'.
+  The types returned by 'from(...)' are incompatible between these types.
+    Type 'string | null' is not assignable to type 'boolean'.
+      Type 'null' is not assignable to type 'boolean'.
+p16-interface-accessors.ts(37,10): error TS2540: Cannot assign to 'busy' because it is a read-only property.
+exit 2
+=== p17-sketch-as-is — Version 7.0.2
+p17-sketch-as-is.ts(9,37): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(9,37): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p17-sketch-as-is.ts(13,21): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(29,28): error TS2507: Type 'ControlledElement & ValuableTrait' is not a constructor function type.
+sketch/_example.ts(48,59): error TS2344: Type 'T' does not satisfy the constraint 'Trait<any>'.
+  Property '[Symbol.hasInstance]' is missing in type 'readonly Trait<any>[]' but required in type 'Trait<any>'.
+sketch/_example.ts(49,3): error TS2322: Type 'B' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+  Type 'Constructor<any>' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+    Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+      Type 'B' is not assignable to type 'InstanceType<B>'.
+        Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+exit 1
+=== p17-sketch-as-is — Version 6.0.3
+p17-sketch-as-is.ts(9,37): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(9,37): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p17-sketch-as-is.ts(13,21): error TS2507: Type 'never' is not a constructor function type.
+p17-sketch-as-is.ts(29,28): error TS2507: Type 'ControlledElement & ValuableTrait' is not a constructor function type.
+sketch/_example.ts(48,59): error TS2344: Type 'T' does not satisfy the constraint 'Trait<any>'.
+  Property '[Symbol.hasInstance]' is missing in type 'readonly Trait<any>[]' but required in type 'Trait<any>'.
+sketch/_example.ts(49,3): error TS2322: Type 'B' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+  Type 'Constructor<any>' is not assignable to type 'InstanceType<B> & TraitInstance<T>'.
+    Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+      Type 'B' is not assignable to type 'InstanceType<B>'.
+        Type 'Constructor<any>' is not assignable to type 'InstanceType<B>'.
+exit 1
+=== p18-sketch-fixed — Version 7.0.2
+p18-sketch-fixed.ts(18,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p18-sketch-fixed.ts(56,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p18-sketch-fixed.ts(68,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & DisableableTrait', but is overridden here in 'OwnField' as an instance property.
+p18-sketch-fixed.ts(83,7): error TS2322: Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>, Trait<DisableableTrait>]>'.
+  Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'new (...args: any[]) => ControlledElement & ValuableTrait & DisableableTrait'.
+    Type 'ControlledElement & ValuableTrait' is not assignable to type 'ControlledElement & ValuableTrait & DisableableTrait'.
+      Property 'disabled' is missing in type 'ControlledElement & ValuableTrait' but required in type 'DisableableTrait'.
+p18-sketch-fixed.ts(101,3): error TS2345: Argument of type 'typeof ValuableTrait' is not assignable to parameter of type 'Trait<any>'.
+  Types of property '[Symbol.hasInstance]' are incompatible.
+    Type '(value: any) => boolean' is not assignable to type '(o: unknown) => o is any'.
+      Signature '(value: any): boolean' must be a type predicate.
+exit 1
+=== p18-sketch-fixed — Version 6.0.3
+p18-sketch-fixed.ts(18,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p18-sketch-fixed.ts(56,16): error TS2611: 'count' is defined as a property in class 'Counter', but is overridden here in 'SubCounter' as an accessor.
+p18-sketch-fixed.ts(68,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & DisableableTrait', but is overridden here in 'OwnField' as an instance property.
+p18-sketch-fixed.ts(83,7): error TS2322: Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>, Trait<DisableableTrait>]>'.
+  Type 'Impl<typeof ControlledElement, [Trait<ValuableTrait>]>' is not assignable to type 'new (...args: any[]) => ControlledElement & ValuableTrait & DisableableTrait'.
+    Type 'ControlledElement & ValuableTrait' is not assignable to type 'ControlledElement & ValuableTrait & DisableableTrait'.
+      Property 'disabled' is missing in type 'ControlledElement & ValuableTrait' but required in type 'DisableableTrait'.
+p18-sketch-fixed.ts(101,3): error TS2345: Argument of type 'typeof ValuableTrait' is not assignable to parameter of type 'Trait<any>'.
+  Types of property '[Symbol.hasInstance]' are incompatible.
+    Type '(value: any) => boolean' is not assignable to type '(o: unknown) => o is any'.
+      Signature '(value: any): boolean' must be a type predicate.
+exit 1
+=== p19-sketch-groups — Version 7.0.2
+p19-sketch-groups.ts(102,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonCoreTrait', but is overridden here in 'SuperOwnField' as an instance property.
+p19-sketch-groups.ts(122,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ValuableTrait & DisableableTrait', but is overridden here in 'FormDOwnField' as an instance property.
+exit 2
+=== p19-sketch-groups — Version 6.0.3
+p19-sketch-groups.ts(102,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonCoreTrait', but is overridden here in 'SuperOwnField' as an instance property.
+p19-sketch-groups.ts(122,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ValuableTrait & DisableableTrait', but is overridden here in 'FormDOwnField' as an instance property.
+exit 2
+=== p20-rust-like — Version 7.0.2
+p20-rust-like.ts(18,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'Traited<[Labelled]>'.
+p20-rust-like.ts(62,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'Traited<[ButtonCore]>'.
+p20-rust-like.ts(74,16): error TS2416: Property 'held' in type 'HoldsWrong' is not assignable to the same property in base type 'ControlledElement & Holding<number>'.
+  Type 'string' is not assignable to type 'number'.
+p20-rust-like.ts(87,40): error TS2339: Property 'create' does not exist on type 'typeof Created'.
+p20-rust-like.ts(104,14): error TS2515: Non-abstract class 'SketchNoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+exit 2
+=== p20-rust-like — Version 6.0.3
+p20-rust-like.ts(18,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'Traited<[Labelled]>'.
+p20-rust-like.ts(62,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'Traited<[ButtonCore]>'.
+p20-rust-like.ts(74,16): error TS2416: Property 'held' in type 'HoldsWrong' is not assignable to the same property in base type 'ControlledElement & Holding<number>'.
+  Type 'string' is not assignable to type 'number'.
+p20-rust-like.ts(87,40): error TS2339: Property 'create' does not exist on type 'typeof Created'.
+p20-rust-like.ts(104,14): error TS2515: Non-abstract class 'SketchNoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+exit 2
+=== p21-class-instanceof — Version 7.0.2
+p21-class-instanceof.ts(27,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement'.
+exit 2
+=== p21-class-instanceof — Version 6.0.3
+p21-class-instanceof.ts(27,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement'.
+exit 2
+=== p23-layer-a-naming — Version 7.0.2
+p23-layer-a-naming.ts(34,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'I2' as an instance property.
+p23-layer-a-naming.ts(38,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable'.
+p23-layer-a-naming.ts(41,30): error TS2339: Property 'zero' does not exist on type 'typeof I1'.
+p23-layer-a-naming.ts(43,46): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(63,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'E2' as an instance property.
+p23-layer-a-naming.ts(70,30): error TS2339: Property 'zero' does not exist on type 'typeof E1'.
+p23-layer-a-naming.ts(72,37): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(81,16): error TS2611: 'count' is defined as a property in class 'E1', but is overridden here in 'E7' as an accessor.
+p23-layer-a-naming.ts(110,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'C2' as an instance property.
+p23-layer-a-naming.ts(115,16): error TS2611: 'count' is defined as a property in class 'C1', but is overridden here in 'C3' as an accessor.
+p23-layer-a-naming.ts(122,38): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(128,44): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+p23-layer-a-naming.ts(149,7): error TS2322: Type 'typeof Model' is not assignable to type 'Composed<typeof ControlledElement, [typeof Disableable]>'.
+  Type 'typeof Model' is not assignable to type 'typeof ControlledElement'.
+    Type 'Model' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals, ariaActiveDescendantElement, and 320 more.
+p23-layer-a-naming.ts(154,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== p23-layer-a-naming — Version 6.0.3
+p23-layer-a-naming.ts(34,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'I2' as an instance property.
+p23-layer-a-naming.ts(38,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable'.
+p23-layer-a-naming.ts(41,30): error TS2339: Property 'zero' does not exist on type 'typeof I1'.
+p23-layer-a-naming.ts(43,46): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(63,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'E2' as an instance property.
+p23-layer-a-naming.ts(70,30): error TS2339: Property 'zero' does not exist on type 'typeof E1'.
+p23-layer-a-naming.ts(72,37): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(81,16): error TS2611: 'count' is defined as a property in class 'E1', but is overridden here in 'E7' as an accessor.
+p23-layer-a-naming.ts(110,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'C2' as an instance property.
+p23-layer-a-naming.ts(115,16): error TS2611: 'count' is defined as a property in class 'C1', but is overridden here in 'C3' as an accessor.
+p23-layer-a-naming.ts(122,38): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(128,44): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+p23-layer-a-naming.ts(149,7): error TS2322: Type 'typeof Model' is not assignable to type 'Composed<typeof ControlledElement, [typeof Disableable]>'.
+  Type 'typeof Model' is not assignable to type 'typeof ControlledElement'.
+    Type 'Model' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals, accessKey, and 320 more.
+p23-layer-a-naming.ts(154,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== p24-layer-a-traits — Version 7.0.2
+p24-layer-a-traits.ts(24,17): error TS2339: Property 'hasAttribute' does not exist on type 'Unbound'.
+p24-layer-a-traits.ts(30,40): error TS2344: Type '[typeof Internal]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Internal' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Internal' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+p24-layer-a-traits.ts(53,20): error TS2741: Property '#brand' is missing in type 'HTMLDivElement' but required in type 'FocusForwarding'.
+p24-layer-a-traits.ts(84,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+p24-layer-a-traits.ts(113,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+exit 2
+=== p24-layer-a-traits — Version 6.0.3
+p24-layer-a-traits.ts(24,17): error TS2339: Property 'hasAttribute' does not exist on type 'Unbound'.
+p24-layer-a-traits.ts(30,40): error TS2344: Type '[typeof Internal]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Internal' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Internal' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+p24-layer-a-traits.ts(53,20): error TS2345: Argument of type 'HTMLDivElement' is not assignable to parameter of type 'FocusForwarding'.
+  Property '#brand' is missing in type 'HTMLDivElement' but required in type 'FocusForwarding'.
+p24-layer-a-traits.ts(84,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+p24-layer-a-traits.ts(113,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+exit 2
+=== p25-layer-a-form — Version 7.0.2
+exit 0
+=== p25-layer-a-form — Version 6.0.3
+exit 0
+=== p3-interface-only — Version 7.0.2
+exit 0
+=== p3-interface-only — Version 6.0.3
+exit 0
+=== p4-impl-class — Version 7.0.2
+p4-impl-class.ts(24,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p4-impl-class.ts(27,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+p4-impl-class.ts(49,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'Counter' as an accessor.
+exit 1
+=== p4-impl-class — Version 6.0.3
+p4-impl-class.ts(24,29): error TS9021: Extends clause can't contain an expression with --isolatedDeclarations.
+p4-impl-class.ts(27,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+p4-impl-class.ts(49,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'Counter' as an accessor.
+exit 1
+=== p5-attribute-accessor — Version 7.0.2
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+exit 2
+=== p5-attribute-accessor — Version 6.0.3
+p5-attribute-accessor.ts(26,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'ClassAccessorDecoratorTarget<Wrong, boolean>' is not assignable to parameter of type 'ClassAccessorDecoratorTarget<Wrong, string | null>'.
+    Type 'boolean' is not assignable to type 'string'.
+p5-attribute-accessor.ts(30,23): error TS2564: Property 'href' has no initializer and is not definitely assigned in the constructor.
+exit 2
+=== example4/traits/_example4 — Version 7.0.2
+exit 0
+=== example4/traits/_example4 — Version 6.0.3
+exit 0
+=== example4/traits/fixed — Version 7.0.2
+exit 0
+=== example4/traits/fixed — Version 6.0.3
+exit 0
+=== example4/p27-example4-as-is — Version 7.0.2
+example4/p27-example4-as-is.ts(23,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(26,3): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p27-example4-as-is.ts(26,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(29,7): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p27-example4-as-is.ts(29,7): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(45,28): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'StaticBase & Counted'.
+example4/p27-example4-as-is.ts(47,16): error TS2339: Property 'define' does not exist on type 'typeof FromStaticBase'.
+example4/p27-example4-as-is.ts(53,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(78,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'AbstractConstructor<ControlledElement & Counted>'.
+    Type 'HTMLElement & Counted' is not assignable to type 'ControlledElement & Counted'.
+      Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p27-example4-as-is.ts(87,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(90,17): error TS2339: Property 'disabled' does not exist on type 'FromUnannotated'.
+exit 1
+=== example4/p27-example4-as-is — Version 6.0.3
+example4/p27-example4-as-is.ts(23,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(26,3): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p27-example4-as-is.ts(26,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(29,7): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p27-example4-as-is.ts(29,7): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p27-example4-as-is.ts(45,28): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'StaticBase & Counted'.
+example4/p27-example4-as-is.ts(47,16): error TS2339: Property 'define' does not exist on type 'typeof FromStaticBase'.
+example4/p27-example4-as-is.ts(53,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(78,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'AbstractConstructor<ControlledElement & Counted>'.
+    Type 'HTMLElement & Counted' is not assignable to type 'ControlledElement & Counted'.
+      Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p27-example4-as-is.ts(87,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+example4/p27-example4-as-is.ts(90,17): error TS2339: Property 'disabled' does not exist on type 'FromUnannotated'.
+exit 1
+=== example4/p28-example4-fixed — Version 7.0.2
+example4/p28-example4-fixed.ts(24,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p28-example4-fixed.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p28-example4-fixed.ts(30,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p28-example4-fixed.ts(61,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Controlled]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & Controlled>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & Controlled'.
+      Type 'HTMLElement' is missing the following properties from type 'Controlled': reconnect, #internals, #controllers, attributeChangedCallback, and 9 more.
+example4/p28-example4-fixed.ts(61,51): error TS2344: Type '[typeof Controlled]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Controlled' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Controlled' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(63,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof Disableable]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & Disableable>'.
+    Type 'Model' is not assignable to type 'Model & Disableable'.
+      Type 'Model' is missing the following properties from type 'Disableable': disabled, ariaActiveDescendantElement, ariaAtomic, ariaAutoComplete, and 319 more.
+example4/p28-example4-fixed.ts(63,39): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(85,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Observing]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Omit<typeof Observing, "prototype" | unique symbol>'.
+example4/p28-example4-fixed.ts(85,50): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+example4/p28-example4-fixed.ts(92,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'typeof ControlledElement'.
+    Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(122,14): error TS2515: Non-abstract class 'WithoutLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+example4/p28-example4-fixed.ts(123,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof LabelledButton]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & LabelledButton>'.
+    Type 'Model' is not assignable to type 'Model & LabelledButton'.
+      Type 'Model' is missing the following properties from type 'LabelledButton': label, describe, ariaActiveDescendantElement, ariaAtomic, and 321 more.
+example4/p28-example4-fixed.ts(123,47): error TS2344: Type '[typeof LabelledButton]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof LabelledButton' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof LabelledButton' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(125,14): error TS2515: Non-abstract class 'FromLabelledOnModel' does not implement inherited abstract member label from class 'Model & LabelledButton'.
+exit 2
+=== example4/p28-example4-fixed — Version 6.0.3
+example4/p28-example4-fixed.ts(24,3): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement & Disableable & FocusForwarding & Counted'.
+example4/p28-example4-fixed.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnField' as an instance property.
+example4/p28-example4-fixed.ts(30,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Disableable & FocusForwarding & Counted', but is overridden here in 'OwnAccessor' as an accessor.
+example4/p28-example4-fixed.ts(61,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Controlled]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & Controlled>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & Controlled'.
+      Type 'HTMLElement' is missing the following properties from type 'Controlled': reconnect, #internals, #controllers, attributeChangedCallback, and 9 more.
+example4/p28-example4-fixed.ts(61,51): error TS2344: Type '[typeof Controlled]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Controlled' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Controlled' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(63,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof Disableable]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & Disableable>'.
+    Type 'Model' is not assignable to type 'Model & Disableable'.
+      Type 'Model' is missing the following properties from type 'Disableable': disabled, accessKey, accessKeyLabel, autocapitalize, and 319 more.
+example4/p28-example4-fixed.ts(63,39): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(85,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Observing]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Omit<typeof Observing, "prototype" | unique symbol>'.
+example4/p28-example4-fixed.ts(85,50): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+example4/p28-example4-fixed.ts(92,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'Composed<typeof ControlledElement, [typeof Counted]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof Counted]>' is not assignable to type 'typeof ControlledElement'.
+    Type 'HTMLElement & Counted' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+example4/p28-example4-fixed.ts(122,14): error TS2515: Non-abstract class 'WithoutLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+example4/p28-example4-fixed.ts(123,7): error TS2322: Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'Composed<typeof Model, [typeof LabelledButton]>'.
+  Type 'Composed<typeof Model, readonly Applicable<typeof Model>[]>' is not assignable to type 'AbstractConstructor<Model & LabelledButton>'.
+    Type 'Model' is not assignable to type 'Model & LabelledButton'.
+      Type 'Model' is missing the following properties from type 'LabelledButton': label, describe, accessKey, accessKeyLabel, and 321 more.
+example4/p28-example4-fixed.ts(123,47): error TS2344: Type '[typeof LabelledButton]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof LabelledButton' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof LabelledButton' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
+example4/p28-example4-fixed.ts(125,14): error TS2515: Non-abstract class 'FromLabelledOnModel' does not implement inherited abstract member label from class 'Model & LabelledButton'.
+exit 2
+=== layer-b/piirre — Version 7.0.2
+exit 0
+=== layer-b/piirre — Version 6.0.3
+exit 0
+=== layer-b/ydin — Version 7.0.2
+exit 0
+=== layer-b/ydin — Version 6.0.3
+exit 0
+=== layer-b/traits — Version 7.0.2
+exit 0
+=== layer-b/traits — Version 6.0.3
+exit 0
+=== layer-b/p31-layer-b-attributes — Version 7.0.2
+layer-b/p31-layer-b-attributes.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-b/p31-layer-b-attributes.ts(44,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+layer-b/p31-layer-b-attributes.ts(53,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<boolean>'.
+  Type 'ConverterOf<string>' is not assignable to type 'ConverterOf<boolean>'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'boolean'.
+        Type 'null' is not assignable to type 'boolean'.
+layer-b/p31-layer-b-attributes.ts(59,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<string>'.
+  Type 'ConverterOf<string>' is not assignable to type '{ readonly from: (value: string | null) => string; }'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+layer-b/p31-layer-b-attributes.ts(65,24): error TS2322: Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterFor<string | null>'.
+  Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterOf<string>'.
+    Types of property 'to' are incompatible.
+      Type '(value: "a" | "b" | null | undefined) => string | null' is not assignable to type '(value: string | null | undefined) => string | null'.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'string | null | undefined' is not assignable to type '"a" | "b" | null | undefined'.
+            Type 'string' is not assignable to type '"a" | "b" | null | undefined'.
+layer-b/p31-layer-b-attributes.ts(71,24): error TS2561: Object literal may only specify known properties, but 'disabld' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'. Did you mean to write 'disabled'?
+layer-b/p31-layer-b-attributes.ts(77,40): error TS2353: Object literal may only specify known properties, and 'toggle' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(84,40): error TS2353: Object literal may only specify known properties, and 'hidden' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(92,24): error TS2322: Type 'ConverterOf<boolean>' is not assignable to type 'never'.
+layer-b/p31-layer-b-attributes.ts(133,16): error TS2611: 'disabled' is defined as a property in class 'ControlledElement & Declared', but is overridden here in 'DeclaredOverride' as an accessor.
+layer-b/p31-layer-b-attributes.ts(172,22): error TS2345: Argument of type 'Readonly<{ href: ConverterOf<boolean>; }>' is not assignable to parameter of type '{ readonly href?: ConverterFor<string | null> | undefined; }'.
+  Types of property 'href' are incompatible.
+    Type 'ConverterOf<boolean>' is not assignable to type 'ConverterFor<string | null>'.
+      Type 'ConverterOf<boolean>' is not assignable to type 'ConverterOf<string>'.
+        The types returned by 'from(...)' are incompatible between these types.
+          Type 'boolean' is not assignable to type 'string'.
+exit 2
+=== layer-b/p31-layer-b-attributes — Version 6.0.3
+layer-b/p31-layer-b-attributes.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-b/p31-layer-b-attributes.ts(44,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+layer-b/p31-layer-b-attributes.ts(53,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<boolean>'.
+  Type 'ConverterOf<string>' is not assignable to type 'ConverterOf<boolean>'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'boolean'.
+        Type 'null' is not assignable to type 'boolean'.
+layer-b/p31-layer-b-attributes.ts(59,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<string>'.
+  Type 'ConverterOf<string>' is not assignable to type '{ readonly from: (value: string | null) => string; }'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+layer-b/p31-layer-b-attributes.ts(65,24): error TS2322: Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterFor<string | null>'.
+  Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterOf<string>'.
+    Types of property 'to' are incompatible.
+      Type '(value: "a" | "b" | null | undefined) => string | null' is not assignable to type '(value: string | null | undefined) => string | null'.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'string | null | undefined' is not assignable to type '"a" | "b" | null | undefined'.
+            Type 'string' is not assignable to type '"a" | "b" | null | undefined'.
+layer-b/p31-layer-b-attributes.ts(71,24): error TS2561: Object literal may only specify known properties, but 'disabld' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'. Did you mean to write 'disabled'?
+layer-b/p31-layer-b-attributes.ts(77,40): error TS2353: Object literal may only specify known properties, and 'toggle' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(84,40): error TS2353: Object literal may only specify known properties, and 'hidden' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(92,24): error TS2322: Type 'ConverterOf<boolean>' is not assignable to type 'never'.
+layer-b/p31-layer-b-attributes.ts(133,16): error TS2611: 'disabled' is defined as a property in class 'ControlledElement & Declared', but is overridden here in 'DeclaredOverride' as an accessor.
+layer-b/p31-layer-b-attributes.ts(172,22): error TS2345: Argument of type 'Readonly<{ href: ConverterOf<boolean>; }>' is not assignable to parameter of type '{ readonly href?: ConverterFor<string | null> | undefined; }'.
+  Types of property 'href' are incompatible.
+    Type 'ConverterOf<boolean>' is not assignable to type 'ConverterFor<string | null>'.
+      Type 'ConverterOf<boolean>' is not assignable to type 'ConverterOf<string>'.
+        The types returned by 'from(...)' are incompatible between these types.
+          Type 'boolean' is not assignable to type 'string'.
+exit 2
+=== layer-b/p32-layer-b-component — Version 7.0.2
+layer-b/p32-layer-b-component.ts(31,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable & FocusForwarding'.
+layer-b/p32-layer-b-component.ts(39,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ObservingBase & Disableable'.
+layer-b/p32-layer-b-component.ts(62,55): error TS2322: Type '"pink"' is not assignable to type 'ButtonColor | null | undefined'.
+layer-b/p32-layer-b-component.ts(63,54): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type '{ disabled?: boolean | undefined; }'.
+layer-b/p32-layer-b-component.ts(70,20): error TS2345: Argument of type 'Plain' is not assignable to parameter of type 'FocusForwarding'.
+  Property '#brand' is missing in type 'ControlledElement' but required in type 'FocusForwarding'.
+layer-b/p32-layer-b-component.ts(82,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof FocusForwarding]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & FocusForwarding>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & FocusForwarding'.
+      Type 'HTMLElement' is missing the following properties from type 'FocusForwarding': #brand, #internals, #controllers, attributeChangedCallback, and 9 more.
+layer-b/p32-layer-b-component.ts(82,51): error TS2344: Type '[typeof FocusForwarding]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof FocusForwarding' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof FocusForwarding' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+layer-b/p32-layer-b-component.ts(96,56): error TS2344: Type '[typeof NeedsStatics]' does not satisfy the constraint 'readonly Applicable<typeof ControlledElement>[]'.
+  Type 'typeof NeedsStatics' is not assignable to type 'Applicable<typeof ControlledElement>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: ControlledElement, statics: CustomElementStatics) => void' is not assignable to type '(instance: ControlledElement, statics: typeof ControlledElement) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type 'typeof ControlledElement' has no properties in common with type 'CustomElementStatics'.
+layer-b/p32-layer-b-component.ts(123,5): error TS2322: Type '"medium"' is not assignable to type '"large"'.
+exit 2
+=== layer-b/p32-layer-b-component — Version 6.0.3
+layer-b/p32-layer-b-component.ts(31,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable & FocusForwarding'.
+layer-b/p32-layer-b-component.ts(39,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ObservingBase & Disableable'.
+layer-b/p32-layer-b-component.ts(62,55): error TS2322: Type '"pink"' is not assignable to type 'ButtonColor | null | undefined'.
+layer-b/p32-layer-b-component.ts(63,54): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type '{ disabled?: boolean | undefined; }'.
+layer-b/p32-layer-b-component.ts(70,20): error TS2345: Argument of type 'Plain' is not assignable to parameter of type 'FocusForwarding'.
+  Property '#brand' is missing in type 'ControlledElement' but required in type 'FocusForwarding'.
+layer-b/p32-layer-b-component.ts(82,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof FocusForwarding]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & FocusForwarding>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & FocusForwarding'.
+      Type 'HTMLElement' is missing the following properties from type 'FocusForwarding': #brand, #internals, #controllers, attributeChangedCallback, and 9 more.
+layer-b/p32-layer-b-component.ts(82,51): error TS2344: Type '[typeof FocusForwarding]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof FocusForwarding' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof FocusForwarding' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+layer-b/p32-layer-b-component.ts(96,56): error TS2344: Type '[typeof NeedsStatics]' does not satisfy the constraint 'readonly Applicable<typeof ControlledElement>[]'.
+  Type 'typeof NeedsStatics' is not assignable to type 'Applicable<typeof ControlledElement>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: ControlledElement, statics: CustomElementStatics) => void' is not assignable to type '(instance: ControlledElement, statics: typeof ControlledElement) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type 'typeof ControlledElement' has no properties in common with type 'CustomElementStatics'.
+layer-b/p32-layer-b-component.ts(123,5): error TS2322: Type '"medium"' is not assignable to type '"large"'.
+exit 2
+=== layer-b/p33-layer-b-form — Version 7.0.2
+exit 0
+=== layer-b/p33-layer-b-form — Version 6.0.3
+exit 0
+=== layer-a-only/traits — Version 7.0.2
+exit 0
+=== layer-a-only/traits — Version 6.0.3
+exit 0
+=== layer-a-only/p35-layer-a-only — Version 7.0.2
+layer-a-only/p35-layer-a-only.ts(28,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-a-only/p35-layer-a-only.ts(40,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(43,32): error TS2345: Argument of type 'boolean' is not assignable to parameter of type 'string'.
+layer-a-only/p35-layer-a-only.ts(51,29): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(108,54): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+layer-a-only/p35-layer-a-only.ts(120,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+exit 2
+=== layer-a-only/p35-layer-a-only — Version 6.0.3
+layer-a-only/p35-layer-a-only.ts(28,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-a-only/p35-layer-a-only.ts(40,5): error TS2322: Type 'string | null' is not assignable to type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(43,32): error TS2345: Argument of type 'boolean' is not assignable to parameter of type 'string'.
+layer-a-only/p35-layer-a-only.ts(51,29): error TS2345: Argument of type 'number | null' is not assignable to parameter of type 'boolean'.
+  Type 'null' is not assignable to type 'boolean'.
+layer-a-only/p35-layer-a-only.ts(108,54): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+layer-a-only/p35-layer-a-only.ts(120,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+exit 2
+=== layer-a-statics/names — Version 7.0.2
+exit 0
+=== layer-a-statics/names — Version 6.0.3
+exit 0
+=== layer-a-statics/statics — Version 7.0.2
+exit 0
+=== layer-a-statics/statics — Version 6.0.3
+exit 0
+=== layer-a-statics/p38-unannotated — Version 7.0.2
+layer-a-statics/p38-unannotated.ts(9,27): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(12,42): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(14,19): error TS9012: Property must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== layer-a-statics/p38-unannotated — Version 6.0.3
+layer-a-statics/p38-unannotated.ts(9,27): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(12,42): error TS9017: Only const arrays can be inferred with --isolatedDeclarations.
+layer-a-statics/p38-unannotated.ts(14,19): error TS9012: Property must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== layer-a-statics/p38-merge-types — Version 7.0.2
+layer-a-statics/p38-merge-types.ts(79,14): error TS2322: Type 'any' is not assignable to type 'never'.
+layer-a-statics/p38-merge-types.ts(79,49): error TS2339: Property 'delegates' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(80,46): error TS2339: Property 'extra' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(94,28): error TS2507: Type 'never' is not a constructor function type.
+exit 2
+=== layer-a-statics/p38-merge-types — Version 6.0.3
+layer-a-statics/p38-merge-types.ts(79,14): error TS2322: Type 'any' is not assignable to type 'never'.
+layer-a-statics/p38-merge-types.ts(79,49): error TS2339: Property 'delegates' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(80,46): error TS2339: Property 'extra' does not exist on type 'never'.
+  The intersection '{ readonly delegates: boolean; } & { readonly delegates: string; readonly extra: number; }' was reduced to 'never' because property 'delegates' has conflicting types in some constituents.
+layer-a-statics/p38-merge-types.ts(94,28): error TS2507: Type 'never' is not a constructor function type.
+exit 2
+=== emitted layer-a-statics/out/statics/…/layer-a-statics/statics.d.ts
+import type { AttributeNames } from './names.ts';
+type LocalNames = readonly string[];
+type Options = {
+    readonly delegates: boolean;
+    readonly mode: string;
+};
+export declare class Shapes {
+    static readonly arrayReadonly: readonly string[];
+    static readonly arrayGeneric: ReadonlyArray<string>;
+    static arrayMutable: string[];
+    static readonly arrayUnion: readonly ('a' | 'b')[];
+    static readonly tuple: readonly ['a', 'b'];
+    static readonly asConst: readonly ["a", "b"];
+    static readonly objectLiteral: {
+        readonly a: number;
+    };
+    static readonly objectReadonly: Readonly<{
+        a: number;
+    }>;
+    static readonly objectRecord: Readonly<Record<string, number>>;
+    static readonly objectNested: {
+        readonly inner: {
+            readonly a: number;
+        };
+    };
+    static readonly objectAsConst: {
+        readonly a: 1;
+    };
+    static readonly text: string;
+    static readonly flag: boolean;
+    static readonly count = 1;
+    static readonly literal = "a";
+    static readonly aliasLocal: LocalNames;
+    static readonly aliasLocalObject: Options;
+    static readonly aliasImported: AttributeNames;
+    static readonly arrayOrUndefined: readonly string[] | undefined;
+    static readonly arrayOrNull: readonly string[] | null;
+    static readonly arrayOptional?: readonly string[];
+    static readonly mixed: readonly string[] | string;
+    static zero(): number;
+    static get names(): readonly string[];
+    static readonly map: ReadonlyMap<string, number>;
+    static readonly set: ReadonlySet<string>;
+    static readonly date: Date;
+    static readonly callback: (value: string) => string;
+    static readonly typeQuery: typeof Shapes.arrayReadonly;
+}
+export {};
+=== last-wins/composition — Version 7.0.2
+exit 0
+=== last-wins/composition — Version 6.0.3
+exit 0
+=== last-wins/p40-last-wins — Version 7.0.2
+last-wins/p40-last-wins.ts(99,14): error TS2322: Type '"small"' is not assignable to type '"large"'.
+last-wins/p40-last-wins.ts(107,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnField' as an instance property.
+last-wins/p40-last-wins.ts(110,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+last-wins/p40-last-wins.ts(117,12): error TS2610: 'color' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnFieldOverButtonLike' as an instance property.
+exit 2
+=== last-wins/p40-last-wins — Version 6.0.3
+last-wins/p40-last-wins.ts(99,14): error TS2322: Type '"small"' is not assignable to type '"large"'.
+last-wins/p40-last-wins.ts(107,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnField' as an instance property.
+last-wins/p40-last-wins.ts(110,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+last-wins/p40-last-wins.ts(117,12): error TS2610: 'color' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnFieldOverButtonLike' as an instance property.
+exit 2
+=== p1-decorator-only with experimentalDecorators — Version 7.0.2
+p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
+  The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.
+p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
+exit 2
+=== emitted out/p2-decorator-interface/p2-decorator-interface.d.ts
+import { ControlledElement } from './element.ts';
+import { Counted, Disableable, FocusForwarding, NamedNumber, NamedString } from './traits.ts';
+export interface Button extends Disableable, FocusForwarding {
+}
+export declare class Button extends ControlledElement {
+    check(): boolean;
+    readSuper(): boolean;
+}
+export interface Linkish extends Disableable {
+}
+export declare class Linkish extends ControlledElement {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export interface Linkish2 extends Disableable {
+}
+export declare class Linkish2 extends ControlledElement {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class SubButton extends Button {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export interface Counter extends Counted {
+}
+export declare class Counter extends ControlledElement {
+}
+export declare class SubCounter extends Counter {
+    get count(): number;
+    set count(_value: number);
+}
+export interface Clash extends NamedString, NamedNumber {
+}
+export declare class Clash extends ControlledElement {
+}
+export declare function useDisableable(host: Disableable): void;
+export declare function setUp(button: Button): void;
+export declare function isDisabled(element: Element): boolean;
+export declare class SubButton2 extends Button {
+    focus(options?: FocusOptions): void;
+}
+=== emitted out/p3-interface-only/p3-interface-only.d.ts
+import { ControlledElement } from './element.ts';
+import { Disableable, FocusForwarding } from './traits.ts';
+export declare class ButtonLike extends ControlledElement {
+    get color(): string | null;
+    set color(value: string | null);
+}
+/** A shared group, as BUTTON_CORE_TRAITS is today. */
+export interface ButtonCore extends ButtonLike, Disableable {
+}
+export declare function useButtonCore(host: ButtonCore): string | null;
+export interface IconButton extends ButtonCore, FocusForwarding {
+}
+export declare class IconButton extends ControlledElement {
+    connectedCallback(): void;
+}
+=== emitted out/p6-member-kinds/p6-member-kinds.d.ts
+import { ControlledElement } from './element.ts';
+import { Disableable } from './traits.ts';
+export declare class DeclaredValue extends ControlledElement {
+    value: string | null;
+}
+export interface FieldA extends DeclaredValue {
+}
+export declare class FieldA extends ControlledElement {
+}
+export declare class SubFieldA extends FieldA {
+    get value(): string | null;
+    set value(_value: string | null);
+}
+export declare class AccessorValue extends ControlledElement {
+    accessor value: string | null;
+}
+export interface FieldB extends AccessorValue {
+}
+export declare class FieldB extends ControlledElement {
+}
+export declare class SubFieldB extends FieldB {
+    get value(): string | null;
+    set value(_value: string | null);
+}
+export interface Incompatible extends Disableable {
+}
+export declare class Incompatible extends ControlledElement {
+    get disabled(): string;
+    set disabled(_value: string);
+}
+export interface OwnField extends Disableable {
+}
+export declare class OwnField extends ControlledElement {
+    disabled: boolean;
+}
+export declare class FormTrait extends ControlledElement {
+    static formAssociated: boolean;
+}
+export interface Form extends FormTrait {
+}
+export declare class Form extends ControlledElement {
+}
+export declare const associated: boolean;
+export declare abstract class Abstract extends ControlledElement {
+    get flag(): boolean;
+}
+export interface UsesAbstract extends Abstract {
+}
+export declare class UsesAbstract extends ControlledElement {
+}
+export declare function readFlag(element: Element): boolean;
+=== emitted out/p9-brand-props/p9-brand-props.d.ts
+(none)
+=== emitted out/p11-type-argument/p11-type-argument.d.ts
+import { ControlledElement } from './element.ts';
+import { Counted, Disableable, FocusForwarding } from './traits.ts';
+type Ctor = abstract new (...args: any[]) => object;
+type All<T extends readonly Ctor[]> = T extends readonly [
+    infer H extends Ctor,
+    ...infer R extends readonly Ctor[]
+] ? InstanceType<H> & All<R> : unknown;
+/** The instance type a trait list gives a host, for use* helpers. */
+export type Traited<T extends readonly Ctor[]> = ControlledElement & All<T>;
+/**
+ * The marker. At runtime it is ControlledElement, or a subclass whose
+ * constructor throws when the flattener didn't run.
+ */
+export declare const Traits: typeof ControlledElement & (new <const T extends readonly Ctor[]>() => Traited<T>);
+export declare class Button extends Traits<[
+    typeof Disableable,
+    typeof FocusForwarding
+]> {
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export declare class Linkish extends Traits<[typeof Disableable]> {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class Counter extends Traits<[typeof Counted]> {
+}
+export declare class SubCounter extends Counter {
+    get count(): number;
+    set count(_value: number);
+}
+export type ButtonCoreTraits = readonly [typeof Disableable];
+export type ButtonCore = Traited<ButtonCoreTraits>;
+export declare function useButtonCore(host: ButtonCore): boolean;
+export declare class IconButton extends Traits<[
+    ...ButtonCoreTraits,
+    typeof FocusForwarding
+]> {
+    connectedCallback(): void;
+}
+export declare const observed: readonly string[] | undefined;
+export declare class Bare extends Traits {
+}
+export declare class OwnField extends Traits<[typeof Disableable]> {
+    disabled: boolean;
+}
+export {};
+=== emitted out/p13-attribute-forms/p13-attribute-forms.d.ts
+import { ControlledElement } from './element.ts';
+import { Traits, type AttributeTable } from './marker.ts';
+export declare class Explicit extends ControlledElement {
+    static observedAttributes: readonly string[];
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class Declared extends ControlledElement {
+    static readonly attributes: AttributeTable<Declared>;
+    disabled: boolean;
+}
+export declare abstract class AbstractPair extends ControlledElement {
+    static readonly attributes: AttributeTable<AbstractPair>;
+    abstract get disabled(): boolean;
+    abstract set disabled(value: boolean);
+}
+export declare abstract class AbstractAuto extends ControlledElement {
+    static readonly attributes: AttributeTable<AbstractAuto>;
+    abstract accessor disabled: boolean;
+}
+export declare class PlainAuto extends ControlledElement {
+    static readonly attributes: AttributeTable<PlainAuto>;
+    accessor disabled: boolean;
+}
+export declare abstract class WrongConverter extends ControlledElement {
+    static readonly attributes: AttributeTable<WrongConverter>;
+    abstract accessor disabled: boolean;
+}
+export declare abstract class UnknownKey extends ControlledElement {
+    static readonly attributes: AttributeTable<UnknownKey>;
+    abstract accessor disabled: boolean;
+}
+export declare class UsesExplicit extends Traits<[Explicit]> {
+    enable(): void;
+}
+export declare class SubExplicit extends UsesExplicit {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldExplicit extends Traits<[Explicit]> {
+    disabled: boolean;
+}
+export declare class UsesDeclared extends Traits<[Declared]> {
+    enable(): void;
+}
+export declare class SubDeclared extends UsesDeclared {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldDeclared extends Traits<[Declared]> {
+    disabled: boolean;
+}
+export declare class UsesAbstractPair extends Traits<[AbstractPair]> {
+    enable(): void;
+}
+export declare class SubAbstractPair extends UsesAbstractPair {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldAbstractPair extends Traits<[AbstractPair]> {
+    disabled: boolean;
+}
+export declare class UsesAbstractAuto extends Traits<[AbstractAuto]> {
+    enable(): void;
+}
+export declare class SubAbstractAuto extends UsesAbstractAuto {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldAbstractAuto extends Traits<[AbstractAuto]> {
+    disabled: boolean;
+}
+export declare class SubPlainAuto extends Traits<[PlainAuto]> {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldPlainAuto extends Traits<[PlainAuto]> {
+    disabled: boolean;
+}
+export declare class Decorated extends ControlledElement {
+    accessor disabled: boolean;
+}
+export declare class SubDecorated extends Traits<[Decorated]> {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class FieldDecorated extends Traits<[Decorated]> {
+    disabled: boolean;
+}
+export declare class DeclaredReadonly extends ControlledElement {
+    static readonly attributes: AttributeTable<DeclaredReadonly>;
+    readonly busy: boolean;
+}
+export declare class UsesDeclaredReadonly extends Traits<[DeclaredReadonly]> {
+    set(): void;
+}
+export declare class SubDeclaredReadonly extends UsesDeclaredReadonly {
+    get busy(): boolean;
+}
+export declare class WrongExplicit extends ControlledElement {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+=== emitted out/p14-read-only/p14-read-only.d.ts
+import { ControlledElement } from './element.ts';
+import { Traits, type AttributeTable, type Converter } from './marker.ts';
+/** An accessor decorator, as in P5. */
+export declare function attrAccessor<T>(_converter: Converter<T>): <This extends HTMLElement>(target: ClassAccessorDecoratorTarget<This, T>, context: ClassAccessorDecoratorContext<This, T>) => void;
+/** A getter decorator. */
+export declare function attrGetter<T>(_converter: Converter<T>): <This extends HTMLElement>(target: (this: This) => T, context: ClassGetterDecoratorContext<This, T>) => void;
+export declare class ReadonlyAuto extends ControlledElement {
+    readonly accessor busy: boolean;
+}
+export declare class ReadonlyAutoBare extends ControlledElement {
+    readonly accessor busy: boolean;
+}
+export declare abstract class ReadonlyAutoAbstract extends ControlledElement {
+    abstract readonly accessor busy: boolean;
+}
+export declare class GetterOnly extends ControlledElement {
+    static observedAttributes: readonly string[];
+    get busy(): boolean;
+}
+export declare class DecoratedGetter extends ControlledElement {
+    get busy(): boolean;
+}
+export declare abstract class DecoratedAbstractGetter extends ControlledElement {
+    abstract get busy(): boolean;
+}
+export declare abstract class TableGetter extends ControlledElement {
+    static readonly attributes: AttributeTable<TableGetter>;
+    abstract get busy(): boolean;
+}
+export declare class UsesGetterOnly extends Traits<[GetterOnly]> {
+    set(): void;
+}
+export declare class SubGetterOnly extends UsesGetterOnly {
+    get busy(): boolean;
+    set busy(_value: boolean);
+}
+export declare class UsesTableGetter extends Traits<[TableGetter]> {
+    set(): void;
+}
+export declare class FieldTableGetter extends Traits<[TableGetter]> {
+    busy: boolean;
+}
+export declare class UsesDecoratedGetter extends Traits<[DecoratedGetter]> {
+    set(): void;
+}
+export declare class UsesReadonlyAuto extends Traits<[ReadonlyAuto]> {
+    set(): void;
+}
+export declare class SubReadonlyAuto extends UsesReadonlyAuto {
+    get busy(): boolean;
+}
+=== emitted out/p16-interface-accessors/p16-interface-accessors.d.ts
+import { ControlledElement } from './element.ts';
+import { Traits, type AttributeTable } from './marker.ts';
+export interface Disableable {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class Disableable extends ControlledElement {
+    static readonly attributes: AttributeTable<Disableable>;
+}
+/** A read-only attribute: a getter signature alone. */
+export interface Busy {
+    get busy(): boolean;
+}
+export declare class Busy extends ControlledElement {
+    static readonly attributes: AttributeTable<Busy>;
+}
+export interface Wrong {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class Wrong extends ControlledElement {
+    static readonly attributes: AttributeTable<Wrong>;
+}
+export declare class Component extends Traits<[Disableable, Busy]> {
+    enable(): void;
+}
+export declare class SubComponent extends Component {
+    get disabled(): boolean;
+    set disabled(_value: boolean);
+}
+export declare class OwnField extends Traits<[Disableable]> {
+    disabled: boolean;
+}
+=== emitted out/p25-layer-a-form/p25-layer-a-form.d.ts
+import { ControlledElement } from './element.ts';
+import { type Composed } from './layer-a.ts';
+import { Counted, Disableable, FocusForwarding } from './traits-a.ts';
+export type ButtonCoreTraits = readonly [
+    typeof Disableable,
+    typeof FocusForwarding
+];
+declare const IconButtonBase: Composed<typeof ControlledElement, [
+    ...ButtonCoreTraits,
+    typeof Counted
+]>;
+export declare class IconButton extends IconButtonBase {
+    static observedAttributes: readonly string[];
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export {};
+=== emitted example4/out/_example4/…/traits/_example4.d.ts
+import type { AbstractConstructor } from 'type-fest';
+import { ControlledElement } from '../element.ts';
+export declare function trait<T extends AbstractConstructor<unknown>>(ctr: T): T;
+export declare function impl({ prototype }: AbstractConstructor<unknown>, ...traits: ReadonlyArray<AbstractConstructor<unknown>>): void;
+type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? Omit<F, 'prototype'> & Statics<R> : unknown;
+type Instances<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? InstanceType<F> & Instances<R> : unknown;
+type Bound<I extends object, S extends object = {}> = AbstractConstructor<I> & S;
+export declare function bound<I extends object, S extends object = {}>(): Bound<I, S>;
+export type Composed<B extends AbstractConstructor<unknown>, T extends ReadonlyArray<AbstractConstructor<unknown>>> = AbstractConstructor<InstanceType<B> & Instances<T>> & Statics<T>;
+export declare function compose<const B extends AbstractConstructor<unknown>, const T extends ReadonlyArray<AbstractConstructor<unknown>>>(base: B): Composed<B, T>;
+export declare const AnyElement: Bound<HTMLElement>;
+export declare const ObservedElement: Bound<HTMLElement, {
+    readonly observedAttributes?: readonly string[];
+}>;
+export declare class Disableable extends AnyElement {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class FocusForwarding extends AnyElement {
+    focus(options?: FocusOptions): void;
+}
+export declare class Counted {
+    static zero(): number;
+    count: number;
+}
+export type ButtonCoreTraits = readonly [
+    typeof Disableable,
+    typeof FocusForwarding
+];
+declare const IconButtonBase: Composed<typeof ControlledElement, [
+    ...ButtonCoreTraits,
+    typeof Counted
+]>;
+export declare class IconButton extends IconButtonBase {
+    static observedAttributes: readonly string[];
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export {};
+=== emitted example4/out/fixed/…/traits/fixed.d.ts
+import type { AbstractConstructor } from 'type-fest';
+import { ControlledElement } from '../element.ts';
+export declare function trait(ctr: AbstractConstructor<unknown>): void;
+export declare function impl({ prototype }: AbstractConstructor<unknown>, ...traits: ReadonlyArray<AbstractConstructor<unknown>>): void;
+declare const $bound: unique symbol;
+type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? Omit<F, 'prototype' | typeof $bound> & Statics<R> : unknown;
+type Instances<T extends ReadonlyArray<AbstractConstructor<unknown>>> = T extends readonly [
+    infer F extends AbstractConstructor<unknown>,
+    ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>
+] ? InstanceType<F> & Instances<R> : unknown;
+export type Bound<I extends object, S extends object = {}> = AbstractConstructor<I> & S & {
+    readonly [$bound]: (instance: I, statics: S) => void;
+};
+export declare function bound<I extends object, S extends object = {}>(): Bound<I, S>;
+export type Applicable<B extends AbstractConstructor<unknown>> = AbstractConstructor<unknown> & {
+    readonly [$bound]?: (instance: InstanceType<B>, statics: B) => void;
+};
+export type Composed<B extends AbstractConstructor<unknown>, T extends ReadonlyArray<Applicable<B>>> = B & AbstractConstructor<InstanceType<B> & Instances<T>> & Statics<T>;
+export declare function compose<const B extends AbstractConstructor<unknown>, const T extends ReadonlyArray<Applicable<B>>>(base: B): Composed<B, T>;
+export declare const AnyElement: Bound<HTMLElement>;
+export declare const ObservedElement: Bound<HTMLElement, {
+    readonly observedAttributes?: readonly string[];
+}>;
+export declare class Disableable extends AnyElement {
+    get disabled(): boolean;
+    set disabled(value: boolean);
+}
+export declare class FocusForwarding extends AnyElement {
+    focus(options?: FocusOptions): void;
+}
+export declare class Counted {
+    static zero(): number;
+    count: number;
+}
+export type ButtonCoreTraits = readonly [
+    typeof Disableable,
+    typeof FocusForwarding
+];
+declare const IconButtonBase: Composed<typeof ControlledElement, [
+    ...ButtonCoreTraits,
+    typeof Counted
+]>;
+export declare class IconButton extends IconButtonBase {
+    static observedAttributes: readonly string[];
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export {};
+=== emitted layer-b/out/p33-layer-b-form/…/layer-b/ydin.d.ts
+import type { AbstractConstructor } from 'type-fest';
+import type { AttributePrimitive, ConverterOf } from '../../../../../packages/core/src/attribute.ts';
+import type { ControlledElement } from '../../../../../packages/core/src/element.ts';
+import { type Bound } from './piirre.ts';
+/** Any element: what an attribute trait requires of its base. */
+export declare const AnyElement: Bound<HTMLElement>;
+/** A ControlledElement: for a trait whose members need ydin's element. */
+export declare const Controlled: Bound<ControlledElement>;
+/** A trait's attribute members: not a method, and not an HTMLElement member. */
+type AttributeKeys<T> = {
+    [K in keyof T]-?: K extends keyof HTMLElement ? never : T[K] extends (...args: never[]) => unknown ? never : K;
+}[keyof T];
+/** The converter for a member of type M: it reads exactly M. */
+export type ConverterFor<M> = ConverterOf<NonNullable<M> & AttributePrimitive> & {
+    readonly from: (value: string | null) => M;
+};
+/**
+ * One converter per attribute member, checked against the member. A class with
+ * no attribute member accepts no entry: an empty mapped type would accept any.
+ */
+export type AttributeTable<T> = [AttributeKeys<T>] extends [never] ? Readonly<Record<string, never>> : {
+    readonly [K in AttributeKeys<T>]?: ConverterFor<T[K]>;
+};
+/**
+ * Declares a trait's attributes, from its static block. It does nothing at
+ * runtime: the flattener reads the table literal, in source or in built
+ * JavaScript, and emits the accessors and `observedAttributes`.
+ */
+export declare function attributes<T extends object>(_trait: AbstractConstructor<T>, _table: NoInfer<AttributeTable<T>>): void;
+type PropsOfList<T extends readonly unknown[]> = T extends readonly [
+    infer H,
+    ...infer R
+] ? Props<H> & PropsOfList<R> : {};
+/**
+ * Framework props: a trait's attribute members, optional. For a tuple of
+ * traits, the props of each.
+ */
+export type Props<T> = T extends readonly unknown[] ? PropsOfList<T> : T extends AbstractConstructor<infer I> ? {
+    [K in AttributeKeys<I>]?: I[K];
+} : never;
+export {};
+=== emitted layer-b/out/p33-layer-b-form/…/layer-b/traits.d.ts
+import { AnyElement, Controlled } from './ydin.ts';
+export declare class Disableable extends AnyElement {
+    accessor disabled: boolean;
+}
+export declare class Linkable extends AnyElement {
+    accessor href: string | null;
+    accessor target: string | null;
+}
+export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
+export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
+export declare class ButtonLike extends AnyElement {
+    accessor color: ButtonColor | null;
+    accessor size: ButtonSize | null;
+}
+/** Overrides a member its bound already has, so it carries a type brand. */
+export declare class FocusForwarding extends Controlled {
+    #private;
+    focus(options?: FocusOptions): void;
+}
+export declare function useFocusForwarding(host: FocusForwarding, control: HTMLElement): void;
+/** An empty trait: only its brands. */
+export declare class ButtonGroupLike extends Controlled {
+    #private;
+}
+=== emitted layer-b/out/p33-layer-b-form/…/layer-b/p33-layer-b-form.d.ts
+import { type ControlledElementConstructor } from '../../../../../packages/core/src/element.ts';
+import { type Composed } from './piirre.ts';
+import { ButtonLike, Disableable, FocusForwarding } from './traits.ts';
+import type { Props } from './ydin.ts';
+export type ButtonCoreTraits = readonly [typeof ButtonLike, typeof Disableable];
+declare const ButtonBase: Composed<ControlledElementConstructor, [
+    ...ButtonCoreTraits,
+    typeof FocusForwarding
+]>;
+export declare class Button extends ButtonBase {
+    static formAssociated: boolean;
+    static observedAttributes: readonly string[];
+    constructor();
+    get tonal(): boolean;
+}
+export type ButtonProperties = Props<ButtonCoreTraits>;
+export {};

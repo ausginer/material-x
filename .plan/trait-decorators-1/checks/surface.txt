@@ -1,0 +1,61 @@
+# P44 — the surface probe of proof 3, read through the built declarations of core and material-x at 2bf0418ab (slot f's build, clean at that commit), 2026-11-19, with the probe's tsconfig paths pointed at that build
+=== Version 7.0.2
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(44,12): error TS2416: Property 'focus' in type 'ElementWrong' is not assignable to the same property in base type 'HTMLElement'.
+  Type '(options: number) => void' is not assignable to type '(options?: FocusOptions | undefined) => void'.
+    Types of parameters 'options' and 'options' are incompatible.
+      Type 'FocusOptions | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(65,12): error TS2425: Class 'Host & Omit<First, "shared"> & Second' defines instance member property 'meth', but extended class 'PairBaseMethod' defines it as instance member function.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(75,12): error TS2425: Class 'IconButton' defines instance member property 'click', but extended class 'IconButtonClick' defines it as instance member function.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(80,12): error TS2425: Class 'SwitchIconButton' defines instance member property 'click', but extended class 'SwitchIconButtonClick' defines it as instance member function.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(115,12): error TS2610: 'acc' is defined as an accessor in class 'Host & Omit<First, "ATTRIBUTE_NODE" | "CDATA_SECTION_NODE" | "COMMENT_NODE" | "DOCUMENT_FRAGMENT_NODE" | "DOCUMENT_NODE" | "DOCUMENT_POSITION_CONTAINED_BY" | ... 322 more ... | "writingSuggestions"> & Second', but is overridden here in 'FixedBaseAccessor' as an instance property.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(126,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding', but is overridden here in 'FixedAdopterField' as an instance property.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(149,12): error TS2425: Class 'ControlledElement & Omit<Disableable, Restated<Disableable, ControlledElement>> & Omit<...>' defines instance member property 'focus', but extended class 'DroppingOverride' defines it as instance member function.
+exit 1
+=== Version 6.0.3
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(44,12): error TS2416: Property 'focus' in type 'ElementWrong' is not assignable to the same property in base type 'HTMLElement'.
+  Type '(options: number) => void' is not assignable to type '(options?: FocusOptions | undefined) => void'.
+    Types of parameters 'options' and 'options' are incompatible.
+      Type 'FocusOptions | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(65,12): error TS2425: Class 'Host & Omit<First, "shared"> & Second' defines instance member property 'meth', but extended class 'PairBaseMethod' defines it as instance member function.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(75,12): error TS2425: Class 'IconButton' defines instance member property 'click', but extended class 'IconButtonClick' defines it as instance member function.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(80,12): error TS2425: Class 'SwitchIconButton' defines instance member property 'click', but extended class 'SwitchIconButtonClick' defines it as instance member function.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(115,12): error TS2610: 'acc' is defined as an accessor in class 'Host & Omit<First, "accessKey" | "accessKeyLabel" | "autocapitalize" | "autocorrect" | "dir" | "draggable" | "hidden" | "inert" | "innerText" | "lang" | "offsetHeight" | ... 317 more ... | "shared"> & Second', but is overridden here in 'FixedBaseAccessor' as an instance property.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(126,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & FocusForwarding', but is overridden here in 'FixedAdopterField' as an instance property.
+.plan/trait-decorators-1/probes/types/surface/p44-surface.ts(149,12): error TS2425: Class 'ControlledElement & Omit<Disableable, Restated<Disableable, ControlledElement>> & Omit<...>' defines instance member property 'focus', but extended class 'DroppingOverride' defines it as instance member function.
+exit 2
+
+# P43 with the fix: a copy of last-wins/ in which trimmed.ts's Without is
+#   type Without<I, K extends PropertyKey, X> = [K] extends [never] ? I : Omit<I, K | (X & PropertyKey)>;
+# with X passed at its one use, and p43-shared-key.ts given two cases at its end:
+# SwitchClick and IconClick, each extending the probe's SwitchIconButton or IconButton with override click(): void { super.click(); }.
+# run-p43.sh on both copies at 2bf0418ab; diff of the unchanged copy's output (<) against the fixed copy's (>):
+13,14c13,14
+< p43-shared-key.ts(149,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnDisabledAlone' as an instance property.
+< p43-shared-key.ts(152,12): error TS2610: 'width' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnWidthAlone' as an instance property.
+---
+> p43-shared-key.ts(149,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "ATTRIBUTE_NODE" | "CDATA_SECTION_NODE" | "COMMENT_NODE" | "DOCUMENT_FRAGMENT_NODE" | "DOCUMENT_NODE" | ... 330 more ... | "writingSuggestions"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnDisabledAlone' as an instance property.
+> p43-shared-key.ts(152,12): error TS2610: 'width' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "ATTRIBUTE_NODE" | "CDATA_SECTION_NODE" | "COMMENT_NODE" | "DOCUMENT_FRAGMENT_NODE" | "DOCUMENT_NODE" | ... 330 more ... | "writingSuggestions"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnWidthAlone' as an instance property.
+18,21c18,19
+< p43-shared-key.ts(213,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverCount' as an accessor.
+< p43-shared-key.ts(219,16): error TS2611: 'color' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverColor' as an accessor.
+< p43-shared-key.ts(228,12): error TS2425: Class 'SwitchIconButton' defines instance member property 'click', but extended class 'SwitchClick' defines it as instance member function.
+< p43-shared-key.ts(233,12): error TS2425: Class 'IconButton' defines instance member property 'click', but extended class 'IconClick' defines it as instance member function.
+---
+> p43-shared-key.ts(213,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "ATTRIBUTE_NODE" | "CDATA_SECTION_NODE" | "COMMENT_NODE" | "DOCUMENT_FRAGMENT_NODE" | "DOCUMENT_NODE" | ... 330 more ... | "writingSuggestions"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverCount' as an accessor.
+> p43-shared-key.ts(219,16): error TS2611: 'color' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "ATTRIBUTE_NODE" | "CDATA_SECTION_NODE" | "COMMENT_NODE" | "DOCUMENT_FRAGMENT_NODE" | "DOCUMENT_NODE" | ... 330 more ... | "writingSuggestions"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverColor' as an accessor.
+31,32c29,30
+< p43-shared-key.ts(149,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnDisabledAlone' as an instance property.
+< p43-shared-key.ts(152,12): error TS2610: 'width' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnWidthAlone' as an instance property.
+---
+> p43-shared-key.ts(149,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "normalize" | "color" | "attributeChangedCallback" | "connectedCallback" | "disconnectedCallback" | ... 330 more ... | "focus"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnDisabledAlone' as an instance property.
+> p43-shared-key.ts(152,12): error TS2610: 'width' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "normalize" | "color" | "attributeChangedCallback" | "connectedCallback" | "disconnectedCallback" | ... 330 more ... | "focus"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnWidthAlone' as an instance property.
+36,39c34,35
+< p43-shared-key.ts(213,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverCount' as an accessor.
+< p43-shared-key.ts(219,16): error TS2611: 'color' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverColor' as an accessor.
+< p43-shared-key.ts(228,12): error TS2425: Class 'SwitchIconButton' defines instance member property 'click', but extended class 'SwitchClick' defines it as instance member function.
+< p43-shared-key.ts(233,12): error TS2425: Class 'IconButton' defines instance member property 'click', but extended class 'IconClick' defines it as instance member function.
+---
+> p43-shared-key.ts(213,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "normalize" | "color" | "attributeChangedCallback" | "connectedCallback" | "disconnectedCallback" | ... 330 more ... | "focus"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverCount' as an accessor.
+> p43-shared-key.ts(219,16): error TS2611: 'color' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "normalize" | "color" | "attributeChangedCallback" | "connectedCallback" | "disconnectedCallback" | ... 330 more ... | "focus"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverColor' as an accessor.

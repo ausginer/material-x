@@ -2,58 +2,58 @@ import { Str, type ConverterOf } from '@ydinjs/core/attribute.js';
 import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
-  trait,
-  type Interface,
+  AnyElement,
+  attributes,
   type Props,
-  type Trait,
-} from '@ydinjs/core/traits/attributes.js';
-import { Typeable } from '@ydinjs/core/traits/typeable.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
+import type { Typeable } from '@ydinjs/core/traits/typeable.js';
 import { switchState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
-import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
-import {
-  BUTTON_CORE_TRAITS,
-  type ButtonColor,
-  type ButtonCoreProps,
-  type ButtonLike,
-  type ButtonSharedCSSProperties,
+import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
+import type {
+  ButtonCoreTraits,
+  ButtonColor,
+  ButtonCoreProps,
+  ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
-import {
-  SWITCH_CORE_TRAITS,
-  type SwitchEvents,
-  type SwitchProps,
+import type {
+  SwitchCoreTraits,
+  SwitchEvents,
+  SwitchProps,
 } from './SwitchCore.ts';
 
 export type IconButtonWidth = 'wide' | 'narrow';
 export type IconButtonColor = Exclude<ButtonColor, 'text'> | 'standard';
 
-type IconButtonLikeDescriptor = {
-  width: IconButtonWidth | null;
-  color: IconButtonColor | null;
+/**
+ * The icon button's own attribute, `width`. ButtonLike's accessor reads and
+ * writes `color`; the member is declared here with the values both colors
+ * share, which is the type an icon button's `color` has.
+ */
+export class IconButtonLike extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { width: Str as ConverterOf<IconButtonWidth> });
+  }
+
+  accessor width!: IconButtonWidth | null;
+  declare color: Extract<IconButtonColor, ButtonColor> | null;
+}
+
+export type IconButtonLikeProps = Omit<
+  Props<typeof IconButtonLike>,
+  'color'
+> & {
+  color?: IconButtonColor | null;
 };
 
-const $iconButtonLike: unique symbol = Symbol('IconButtonLike');
-
-export const IconButtonLike: Trait<
-  IconButtonLikeDescriptor,
-  typeof $iconButtonLike
-> = trait(
-  { width: Str as ConverterOf<IconButtonWidth> },
-  $iconButtonLike,
-  // enforcing the `color` here to override `ButtonCore`'s color.
-) as Trait<IconButtonLikeDescriptor, typeof $iconButtonLike>;
-
-export type IconButtonLike = Omit<ButtonLike, 'color'> &
-  Interface<typeof IconButtonLike>;
-
-export type IconButtonLikeProps = Props<typeof IconButtonLike>;
-
-export const ICON_BUTTON_CORE_TRAITS: readonly [
-  ...typeof BUTTON_CORE_TRAITS,
+export type IconButtonCoreTraits = readonly [
+  ...ButtonCoreTraits,
   typeof IconButtonLike,
   typeof Typeable,
   typeof FocusForwarding,
-] = [...BUTTON_CORE_TRAITS, IconButtonLike, Typeable, FocusForwarding];
+];
 
 export type IconButtonProperties = Omit<ButtonCoreProps, 'color'> &
   IconButtonLikeProps;
@@ -64,10 +64,10 @@ export type SwitchIconButtonProperties = IconButtonProperties & SwitchProps;
 export type SwitchIconButtonEvents = SwitchEvents;
 export type SwitchIconButtonCSSProperties = ButtonSharedCSSProperties;
 
-export const SWITCH_ICON_BUTTON_CORE_TRAITS: readonly [
-  ...typeof SWITCH_CORE_TRAITS,
+export type SwitchIconButtonCoreTraits = readonly [
+  ...SwitchCoreTraits,
   typeof IconButtonLike,
-] = [...SWITCH_CORE_TRAITS, IconButtonLike];
+];
 
 export function useIconButtonCore(host: ControlledElement): void {
   useAttributes(host, {

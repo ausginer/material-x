@@ -5041,6 +5041,14 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, on the coordinator'
 - **The architect's direction:** read first. Run the row repeatedly at one tree, locally and in the `measurements` job, and record `handleEvent`'s bytes in each run, with the warm-up as it is and lengthened. The repair is decided from that reading.
 - **Routed** to the owner to order, through the work queue (`repo:RD-22`). **It doesn't block** any pull request.
 
+**Dated 2026-11-19 by the architect: the row failed once in a local full run, with no change to drag.** From the trait migration's [proofs record](../../../.plan/trait-migration-1/checks/proofs.md) §2, read on `repo/traits-migration-1` at `aa73be64e`, relayed by the coordinator.
+
+- **The failure:** in the root `just test` at the migration's last commit, the row read 23.69 bytes per move against its bound of 16. That full run had 2,117 tests, and this row was the only failure.
+- **The same code:** `packages/drag` and `packages/box-quad` are identical on that branch and on `main` at `24c6672ce`. drag doesn't use traits.
+- **Alone, at the same tree,** the file passed, 9 of 9.
+- **This is the first local failure the record holds.** The entry said that nothing had been read locally. Like the CI failures, this reading names no cause, and it didn't record `handleEvent`'s bytes, so it doesn't choose between the two candidates.
+- **The direction and the required property don't change.** The reading the direction asks for should record each function's bytes, in full runs and in runs of the file alone.
+
 ## Owner decisions
 
 None blocks the remediation. Each has a default the handoff builds. `DRO-6`, `DRO-9` and `DRO-10` are approved, and `DRO-7`, `DRO-8` and `DRO-12` are accepted. **What remains the owner's before merge** is in [`combined-review-assessment.md`](combined-review-assessment.md) §7: `DRO-10`'s excess, the reported costs that no approval covers, and whether to merge with the known failures that unchanged budgets leave.

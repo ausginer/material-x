@@ -3,14 +3,13 @@ import { useARIA } from '@ydinjs/core/controllers/useARIA.js';
 import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
-  trait,
-  type Interface,
+  AnyElement,
+  attributes,
   type Props,
-  type Trait,
-  type Traited,
-} from '@ydinjs/core/traits/attributes.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
+import { trait, type Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  Disableable,
+  type Disableable,
   DISABLEABLE_ATTRS,
   useDisableable,
   type DisableableProps,
@@ -46,26 +45,24 @@ export const BUTTON_ATTRS = {
 } as const;
 export type BUTTON_ATTRS = typeof BUTTON_ATTRS;
 
-const $buttonLike: unique symbol = Symbol('ButtonLike');
+export class ButtonLike extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, BUTTON_ATTRS);
+  }
 
-export const ButtonLike: Trait<
-  {
-    color: ButtonColor | null;
-    size: ButtonSize | null;
-    shape: ButtonShape | null;
-  },
-  typeof $buttonLike
-> = trait(BUTTON_ATTRS, $buttonLike);
+  accessor color!: ButtonColor | null;
+  accessor size!: ButtonSize | null;
+  accessor shape!: ButtonShape | null;
+}
 
-export type ButtonLike = Interface<typeof ButtonLike>;
 export type ButtonLikeProps = Props<typeof ButtonLike>;
 
-export const BUTTON_CORE_TRAITS: readonly [
-  typeof ButtonLike,
-  typeof Disableable,
-] = [ButtonLike, Disableable];
+export type ButtonCoreTraits = readonly [typeof ButtonLike, typeof Disableable];
 
-export type ButtonCore = Traited<ControlledElement, typeof BUTTON_CORE_TRAITS>;
+export type ButtonCore = InstanceType<
+  Composed<typeof ControlledElement, ButtonCoreTraits>
+>;
 
 export type ButtonCoreProps = ButtonLikeProps & DisableableProps;
 

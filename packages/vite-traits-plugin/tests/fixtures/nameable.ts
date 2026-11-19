@@ -1,13 +1,16 @@
-import { Str, type ConverterOf } from '@ydinjs/core/attribute.js';
-import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+import { Str } from '@ydinjs/core/attribute.js';
+import {
+  attributes,
+  AnyElement,
+} from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
 
-const $nameable: unique symbol = Symbol('Nameable');
+// A layer (b) trait whose table is inline.
+export class Nameable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { name: Str });
+  }
 
-export const NAMEABLE_ATTRS: Readonly<{ name: ConverterOf<string> }> = {
-  name: Str,
-};
-
-export const Nameable: Trait<{ name: string | null }, typeof $nameable> = trait(
-  NAMEABLE_ATTRS,
-  $nameable,
-);
+  accessor name!: string | null;
+}

@@ -1,9 +1,8 @@
 import { Str, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $valuable: unique symbol = Symbol('Valuable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const VALUABLE_ATTRS: Readonly<{ value: ConverterOf<string> }> = {
   value: Str,
@@ -12,13 +11,14 @@ export const VALUABLE_ATTRS: Readonly<{ value: ConverterOf<string> }> = {
 /**
  * Element trait that exposes a string-backed nullable `value` field.
  */
-export const Valuable: Trait<{ value: string | null }, typeof $valuable> =
-  trait(VALUABLE_ATTRS, $valuable);
+export class Valuable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, VALUABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Valuable}.
- */
-export type Valuable = Interface<typeof Valuable>;
+  accessor value!: string | null;
+}
 
 /**
  * Framework-facing props derived from {@link Valuable}.

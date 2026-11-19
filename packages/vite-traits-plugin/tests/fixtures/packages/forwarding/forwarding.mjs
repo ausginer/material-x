@@ -1,12 +1,13 @@
-import { trait } from '@ydinjs/core/traits/primitives.js';
+// oxlint-disable typescript/prefer-optional-chain, typescript/no-unsafe-member-access -- the brand install as the build emits it
 import { record } from './record.mjs';
 
-// The built JavaScript of another package's method trait: no types, and a
-// relative import that a consumer reaches through the package's name.
+// Another package's built JavaScript of a layer (a) trait, as its own build
+// emits it: no types, the brand installed as a static method, a relative import that a
+// consumer reaches through the package's name, and a private binding exported
+// under its build-only name.
 const $forwarding = Symbol('Forwarding');
 const targets = new WeakMap();
 
-// A private function binding that the member links, beside the private map.
 const targetOf = (host) => {
   let target = targets.get(host);
   if (!target) {
@@ -16,17 +17,24 @@ const targetOf = (host) => {
   return target;
 };
 
-export const Forwarding = trait(
-  (base) =>
-    class extends base {
-      focus(options) {
-        record(targetOf(this), options);
-        return 'package';
-      }
+class Forwarding {
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$forwarding] === true;
+  }
 
-      get target() {
-        return targetOf(this);
-      }
-    },
+  focus(options) {
+    record(targetOf(this), options);
+    return 'package';
+  }
+
+  get target() {
+    return targetOf(this);
+  }
+}
+
+export {
   $forwarding,
-);
+  Forwarding,
+  targetOf as __mxflat_targetOf_80ee63e5,
+  targetOf,
+};

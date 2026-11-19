@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { server } from 'vitest/browser';
 import { useShadowDOM } from '../../src/controllers/useShadowDOM.ts';
 import { ControlledElement, internals } from '../../src/element.ts';
-import { impl } from '../../src/traits/attributes.ts';
+import { compose, type Composed } from '../../src/traits/composition.ts';
 import {
-  Reorderable,
+  type Reorderable,
   ReorderEvent,
   useReorderable,
   useReorderableItem,
@@ -18,7 +18,12 @@ function createListTemplate(): HTMLTemplateElement {
   return template;
 }
 
-const ReorderableCore = impl(ControlledElement, [Reorderable] as const);
+const ReorderableCoreBase: Composed<
+  typeof ControlledElement,
+  [typeof Reorderable]
+> = compose(ControlledElement);
+
+class ReorderableCore extends ReorderableCoreBase {}
 
 function createList() {
   return host((h) => {

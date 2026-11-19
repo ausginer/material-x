@@ -1,9 +1,8 @@
 import { Bool, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $selectable: unique symbol = Symbol('Selectable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const SELECTABLE_ATTRS: Readonly<{ selected: ConverterOf<boolean> }> = {
   selected: Bool,
@@ -12,13 +11,14 @@ export const SELECTABLE_ATTRS: Readonly<{ selected: ConverterOf<boolean> }> = {
 /**
  * Element trait that exposes a presence-based `selected` boolean field.
  */
-export const Selectable: Trait<{ selected: boolean }, typeof $selectable> =
-  trait(SELECTABLE_ATTRS, $selectable);
+export class Selectable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, SELECTABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Selectable}.
- */
-export type Selectable = Interface<typeof Selectable>;
+  accessor selected!: boolean;
+}
 
 /**
  * Framework-facing props derived from {@link Selectable}.

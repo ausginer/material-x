@@ -1,8 +1,6 @@
 import type { ControlledElement } from '@ydinjs/core/element.js';
-import { trait, type Trait } from '@ydinjs/core/traits/primitives.js';
-import type { Constructor } from 'type-fest';
-
-const $focusForwarding: unique symbol = Symbol('FocusForwarding');
+import { Controlled } from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
 
 const controls = new WeakMap<HTMLElement, HTMLElement>();
 
@@ -17,23 +15,20 @@ const controls = new WeakMap<HTMLElement, HTMLElement>();
  * `focus()` is a method of the prototype, so a subclass overrides it and
  * reaches the control through `super.focus()`.
  */
-export const FocusForwarding: Trait<
-  {},
-  {},
-  typeof $focusForwarding,
-  ControlledElement
-> = trait(
-  (base: Constructor<ControlledElement>) =>
-    class extends base {
-      override focus(options?: FocusOptions): void {
-        controls.get(this)!.focus(options);
-      }
-    },
-  $focusForwarding,
-);
+export class FocusForwarding extends Controlled {
+  static {
+    trait(this);
+  }
 
-/** Branded instance interface of {@link FocusForwarding}. */
-export type FocusForwarding = Readonly<Record<typeof $focusForwarding, true>>;
+  // The field exists for its type: it makes the trait nominal, because its
+  // members are its bound's.
+  // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
+  readonly #brand!: true;
+
+  override focus(options?: FocusOptions): void {
+    controls.get(this)!.focus(options);
+  }
+}
 
 /** Registers `control` as the element that `host.focus()` focuses. */
 export function useFocusForwarding(

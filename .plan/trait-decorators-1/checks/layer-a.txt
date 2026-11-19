@@ -1,0 +1,12 @@
+# P26 — node .plan/trait-decorators-1/probes/toolchain/layer-a.ts, at 28014c589, 2026-11-19
+== p25-layer-a-form.ts: parse errors 0
+const IconButtonBase: Composed<typeof ControlledElement, [...ButtonCoreTraits, typeof Counted]> = compose(ControlledElement)
+class IconButton extends IconButtonBase 
+== traits-a.ts: parse errors 0
+class Counted extends (nothing) ; static block: trait(this)
+class Disableable extends AnyElement ; static block: trait(this)
+class Observing extends ObservedElement ; static block: trait(this)
+class FocusForwarding extends AnyElement ; static block: trait(this)
+class Internal extends AnyControlled ; static block: trait(this)
+class Labelled extends (nothing) ; static block: trait(this)
+class Model extends (nothing) 

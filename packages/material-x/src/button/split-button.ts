@@ -11,13 +11,15 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  impl,
-  trait,
-  type Interface,
+  AnyElement,
+  attributes,
   type Props,
-  type Trait,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
+import {
+  compose,
+  trait,
+  type Composed,
+} from '@ydinjs/core/traits/composition.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
 import type { Simplify } from 'type-fest';
 import '../button-group/connected-button-group.ts';
@@ -27,7 +29,7 @@ import '../icon/icon.ts';
 import './button.ts';
 import {
   BUTTON_ATTRS,
-  BUTTON_CORE_TRAITS,
+  type ButtonCoreTraits,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
 } from './ButtonCore.ts';
@@ -35,18 +37,15 @@ import './icon-button.ts';
 import splitButtonTemplate from './split-button.tpl.html' with { type: 'html' };
 import splitButtonStyles from './styles/split/main.css.ts' with { type: 'css' };
 
-type SplitButtonLikeDescriptor = {
-  open: boolean;
-};
+export class SplitButtonLike extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { open: Bool });
+  }
 
-const $splitButtonLike: unique symbol = Symbol('SplitButtonLike');
+  accessor open!: boolean;
+}
 
-export const SplitButtonLike: Trait<
-  SplitButtonLikeDescriptor,
-  typeof $splitButtonLike
-> = trait({ open: Bool }, $splitButtonLike);
-
-export type SplitButtonLike = Interface<typeof SplitButtonLike>;
 export type SplitButtonLikeProps = Props<typeof SplitButtonLike>;
 
 export type SplitButtonProperties = Simplify<
@@ -58,11 +57,10 @@ export type SplitButtonEvents = Readonly<{
 
 export type SplitButtonCSSProperties = ButtonSharedCSSProperties;
 
-const SplitButtonConstructor: TraitedConstructor<
-  ControlledElement,
+const SplitButtonConstructor: Composed<
   ControlledElementConstructor,
-  [...typeof BUTTON_CORE_TRAITS, typeof SplitButtonLike]
-> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, SplitButtonLike]);
+  [...ButtonCoreTraits, typeof SplitButtonLike]
+> = compose(ControlledElement);
 
 /**
  * @tag mx-split-button

@@ -3,22 +3,19 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
-import {
-  Nameable,
+  type Nameable,
   useNameable,
   type NameableProps,
 } from '@ydinjs/core/traits/nameable.js';
-import { Typeable, useTypeable } from '@ydinjs/core/traits/typeable.js';
+import { type Typeable, useTypeable } from '@ydinjs/core/traits/typeable.js';
 import type { EmptyObject } from 'type-fest';
-import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
+import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import { useFormActivation } from '../core/utils/events.ts';
 import buttonTemplate from './button.tpl.html' with { type: 'html' };
 import {
-  BUTTON_CORE_TRAITS,
+  type ButtonCoreTraits,
   useButtonCore,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
@@ -32,21 +29,15 @@ export type ButtonProperties = ButtonCoreProps & NameableProps;
 export type ButtonEvents = EmptyObject;
 export type ButtonCSSProperties = ButtonSharedCSSProperties;
 
-const ButtonConstructor: TraitedConstructor<
-  ControlledElement,
+const ButtonConstructor: Composed<
   ControlledElementConstructor,
   [
-    ...typeof BUTTON_CORE_TRAITS,
+    ...ButtonCoreTraits,
     typeof Nameable,
     typeof Typeable,
     typeof FocusForwarding,
   ]
-> = impl(ControlledElement, [
-  ...BUTTON_CORE_TRAITS,
-  Nameable,
-  Typeable,
-  FocusForwarding,
-]);
+> = compose(ControlledElement);
 /**
  * @tag mx-button
  *

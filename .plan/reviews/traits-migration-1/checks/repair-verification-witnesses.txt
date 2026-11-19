@@ -1,0 +1,170 @@
+# Verification of PR #76's repairs at abc945b47 (repair 973caed7b). Detached scratch worktree, outside the slots.
+# aube install; aube exec just build: succeeded. Plugin suite: 8 files, 87 tests, all passed.
+
+## V-W1. Application and library builds of real entries, Vite 8 build(), viteTraitsPlugin(), not minified
+import { build } from 'vite';
+import { viteTraitsPlugin } from '../packages/vite-traits-plugin/src/plugin.ts';
+for (const [entry, lib] of [['entry.js', false], ['entry3.js', false], ['entry3.js', true]] as const) {
+  const out: any = await build({
+    root: import.meta.dirname, logLevel: 'silent', configFile: false,
+    plugins: [viteTraitsPlugin()],
+    build: lib
+      ? { write: false, minify: false, lib: { entry, formats: ['es'] }, rollupOptions: { external: [] } }
+      : { write: false, minify: false, rollupOptions: { input: entry } },
+  });
+  const outputs = Array.isArray(out) ? out.flatMap((o: any) => o.output) : out.output;
+  const code = outputs.filter((c: any) => c.type === 'chunk').map((c: any) => c.code).join('\n');
+  console.log(`== ${entry} (${lib ? 'library' : 'application'} build)`);
+  for (const name of ['Valuable', 'Checkable', 'Disableable']) {
+    const m = new RegExp(`var ${name} = class[\\s\\S]*?\\n\\};`, 'u').exec(code);
+    console.log(`  ${name}: ${m ? m[0].split('\n').filter((l) => /^\t(get|set|static|[a-zA-Z]+\()/u.test(l)).map((l) => l.trim().replace(/\{.*$/u, '').trim()).join(' | ') : 'class not in bundle'}`);
+  }
+}
+== entry.js (application build)
+  Valuable: class not in bundle
+  Checkable: class not in bundle
+  Disableable: static observedAttributes = __mxflat_Disableable_observedAttributes_e2af3a58; | static [Symbol.hasInstance](o)
+== entry3.js (application build)
+  Valuable: static observedAttributes = __mxflat_Valuable_observedAttributes_624f2c17; | static [Symbol.hasInstance](o)
+  Checkable: static observedAttributes = __mxflat_Checkable_observedAttributes_cad06aa5; | static [Symbol.hasInstance](o)
+  Disableable: static observedAttributes = __mxflat_Disableable_observedAttributes_e2af3a58; | static [Symbol.hasInstance](o)
+== entry3.js (library build)
+  Valuable: static observedAttributes = __mxflat_Valuable_observedAttributes_624f2c17; | static [Symbol.hasInstance](o) | get value() | set value(value)
+  Checkable: static observedAttributes = __mxflat_Checkable_observedAttributes_cad06aa5; | static [Symbol.hasInstance](o) | get checked() | set checked(value)
+  Disableable: static observedAttributes = __mxflat_Disableable_observedAttributes_e2af3a58; | static [Symbol.hasInstance](o) | get disabled() | set disabled(value)
+
+## V-W2. Property 8's size on a real entry: application build of connected-button-group, minified, without and with the plugin
+import { brotliCompressSync } from 'node:zlib';
+import { build } from 'vite';
+import { viteTraitsPlugin } from '../packages/vite-traits-plugin/src/plugin.ts';
+for (const withPlugin of [false, true]) {
+  const out: any = await build({
+    root: import.meta.dirname, logLevel: 'silent', configFile: false,
+    plugins: withPlugin ? [viteTraitsPlugin()] : [],
+    build: { write: false, minify: true, rollupOptions: { input: 'entry3.js' } },
+  });
+  const code = out.output.filter((c: any) => c.type === 'chunk').map((c: any) => c.code).join('\n');
+  console.log(`connected-button-group, application build, minified, ${withPlugin ? 'with' : 'without'} the plugin: ${Buffer.byteLength(code)} B, ${brotliCompressSync(code).length} B brotli`);
+}
+connected-button-group, application build, minified, without the plugin: 13252 B, 3866 B brotli
+connected-button-group, application build, minified, with the plugin: 12936 B, 3819 B brotli
+
+## V-W3. size-limit's preset runs no plugin (node_modules/size-limit-preset-rolldown/index.js:38-41)
+		const bundle = await rolldown({
+			input: [...input],
+			platform: "neutral"
+		});
+
+## V-W4. Brand recognition (R) and composition-shape value references (V). Scratch test, removed after the run:
+import { it } from 'vitest';
+import { transformTraitModule } from '../src/composition/trait-module.ts';
+import { parseModule } from '../src/syntax.ts';
+import { fixtureId, transform } from './helpers.ts';
+
+const method = (b: string) => `  static [Symbol.hasInstance](o) {\n    return o != null && o[${b}] === true;\n  }`;
+const lib = (decl: string, extra = '') =>
+  `${decl}\nvar Linked = class {\n${method('$linked')}\n  get href() { return 'linked-member'; }\n};\n${extra}export { $linked, Linked };\n`;
+function recog(label: string, code: string) {
+  const out = transformTraitModule(code, parseModule('lib.js', code), true)?.toString() ?? code;
+  console.log(`${label}: ${out.includes('linked-member') ? 'members kept (not a trait)' : 'MEMBERS DELETED (recognized as a trait)'}`);
+}
+const HEADER = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+const FooBase: Composed<typeof Base, [typeof Checkable]> = compose(Base);
+export class Foo extends FooBase {}
+`;
+it('verify', async () => {
+  recog('R1 const brand', lib('const $linked = Symbol("Linked");'));
+  recog('R2 var brand, never assigned', lib('var $linked = Symbol("Linked");'));
+  recog('R3 var brand, assigned with =', lib('var $linked = Symbol("Linked");', '$linked = Symbol("Other");\n'));
+  recog('R4 let brand, assigned by destructuring', lib('let $linked = Symbol("Linked");', '[$linked] = [Symbol("Other")];\n'));
+  recog('R5 let brand, assigned by for-of', lib('let $linked = Symbol("Linked");', 'for ($linked of [Symbol("Other")]) {}\n'));
+  recog('R6 brand not exported', lib('const $linked = Symbol("Linked");').replace('export { $linked, Linked }', 'export { Linked }'));
+  recog('R7 brand Symbol.for', lib('const $linked = Symbol.for("Linked");'));
+  for (const [label, extra] of [
+    ['V1 property key', 'export const names = { FooBase: 1 };\n'],
+    ['V2 type query', 'export type FooShape = InstanceType<typeof FooBase>;\n'],
+    ['V3 console.log', 'console.log(FooBase);\n'],
+    ['V4 export specifier', 'export { FooBase };\n'],
+    ['V5 namespace body', 'export namespace N { export const b = FooBase; }\n'],
+    ['V6 enum initializer', 'export enum E { A = FooBase.length }\n'],
+    ['V7 parameter property default', 'export class P { constructor(public b = FooBase) {} }\n'],
+  ] as const) {
+    const id = fixtureId('virtual.ts');
+    try {
+      const { code } = await transform(id, { files: { [id]: `${HEADER}${extra}` } });
+      const left = code.includes('const FooBase') ? 'constant kept' : 'constant REMOVED';
+      const refs = (code.match(/FooBase/gu) ?? []).length;
+      console.log(`${label}: flattened, ${left}, FooBase still named ${refs}x`);
+      if (label.startsWith('V5')) console.log(code.split('\n').filter((l) => /FooBase|namespace/u.test(l)).map((l) => `    | ${l}`).join('\n'));
+    } catch (error) {
+      console.log(`${label}: ${(error as { code?: string }).code}`);
+    }
+  }
+});
+R1 const brand: MEMBERS DELETED (recognized as a trait)
+R2 var brand, never assigned: MEMBERS DELETED (recognized as a trait)
+R3 var brand, assigned with =: members kept (not a trait)
+R4 let brand, assigned by destructuring: MEMBERS DELETED (recognized as a trait)
+R5 let brand, assigned by for-of: MEMBERS DELETED (recognized as a trait)
+R6 brand not exported: members kept (not a trait)
+R7 brand Symbol.for: members kept (not a trait)
+V1 property key: flattened, constant REMOVED, FooBase still named 1x
+V2 type query: flattened, constant REMOVED, FooBase still named 1x
+V3 console.log: composition-shape
+V4 export specifier: composition-shape
+V5 namespace body: flattened, constant REMOVED, FooBase still named 1x
+    | export namespace N { export const b = FooBase; }
+V6 enum initializer: flattened, constant REMOVED, FooBase still named 1x
+V7 parameter property default: flattened, constant REMOVED, FooBase still named 1x
+
+## V-W5. The base's static kind (K1-K4), and trait resolution through a re-export (K5). Scratch test, removed after the run:
+import { it } from 'vitest';
+import { fixtureId, transform } from './helpers.ts';
+const HEADER = `import { compose, trait, type Composed } from '@ydinjs/core/traits/composition.js';
+import { AnyElement } from '@ydinjs/core/traits/attribute-traits.js';
+`;
+const LISTED = `export class Listed extends AnyElement {
+  static { trait(this); }
+  static readonly styles: readonly string[] = ['trait-sheet'];
+}
+`;
+it('kinds', async () => {
+  const files = (body: string) => ({
+    [fixtureId('virtual.ts')]: `${HEADER}${body}`,
+    [fixtureId('kbase.ts')]: 'export class KBase {\n  static styles: CSSStyleSheet = new CSSStyleSheet();\n}\n',
+    [fixtureId('sbase.ts')]: "export class SBase {\n  static styles: string = 'ab';\n}\n",
+    [fixtureId('reexport.ts')]: "export { SBase } from './sbase.ts';\n",
+    [fixtureId('child.ts')]: "import { SBase } from './sbase.ts';\nexport class Child extends SBase {}\n",
+    [fixtureId('barrel.ts')]: "export { Checkable } from './checkable.ts';\n",
+  });
+  for (const [label, base, imp] of [
+    ['K1 base CSSStyleSheet', 'KBase', './kbase.ts'],
+    ['K2 base string', 'SBase', './sbase.ts'],
+    ['K3 parent string, through extends in another module', 'Child', './child.ts'],
+    ['K4 base reached through a re-export', 'SBase', './reexport.ts'],
+  ] as const) {
+    const body = `import { ${base} } from '${imp}';\n${LISTED}const FooBase: Composed<typeof ${base}, [typeof Listed]> = compose(${base});\nexport class Foo extends FooBase {}\n`;
+    try { await transform(fixtureId('virtual.ts'), { files: files(body) }); console.log(`${label}: flattened`); }
+    catch (error) { console.log(`${label}: ${(error as { code?: string }).code} ${(error as Error).message}`); }
+  }
+  const t = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';\nimport { Base } from './base.ts';\nimport { Checkable } from './barrel.ts';\nconst FooBase: Composed<typeof Base, [typeof Checkable]> = compose(Base);\nexport class Foo extends FooBase {}\n`;
+  try { await transform(fixtureId('virtual.ts'), { files: { ...files(''), [fixtureId('virtual.ts')]: t } }); console.log('K5 trait reached through a re-export: flattened'); }
+  catch (error) { console.log(`K5 trait reached through a re-export: ${(error as { code?: string }).code} ${(error as Error).message}`); }
+});
+K1 base CSSStyleSheet: static-kind KBase.styles is declared as CSSStyleSheet, a class instance or an alias that can't be read, which doesn't merge
+K2 base string: static-kind-mismatch styles is simple in the base SBase and array in Listed
+K3 parent string, through extends in another module: static-kind-mismatch styles is simple in the base Child and array in Listed
+K4 base reached through a re-export: static-kind SBase.styles: the base's class chain can't be read to find its kind
+K5 trait reached through a re-export: trait-unresolved Checkable isn't a class whose static block calls trait(this)
+
+## V-W6. tsconfig.base.json: the repository forbids non-erasable TypeScript syntax
+29:    "erasableSyntaxOnly": true,
+
+## V-W7. My own mutations of the repaired source, with the review's mut.sh (checks/feature-proof-witnesses.txt, W4), each reverted before the next
+MV1 annotation.ts  a non-computed property key counts as a value reference      killed: "should flatten with the name as a property key" (diagnostics.node.test.ts:329)
+MV2 annotation.ts  the early return for TS nodes removed                          survived, 87 passed: TYPE_FIELDS still skips the alias's typeAnnotation, so the two guards overlap; the type row stays correct
+MV3 trait-module.ts a brand must be a const (no var/let)                          killed: vite.node.test.ts:125 (a), because Vite's library build emits `var $linked`
+MV4 annotation.ts  the base walk stops at the first class                         killed: 2 rows (parent in another module; heritage that can't be read)
+MV5 annotation.ts  an export specifier's local isn't counted                      survived, 87 passed: `export { FooBase }` is refused anyway, because an exported binding never becomes a site and its compose() call fails the shape walk

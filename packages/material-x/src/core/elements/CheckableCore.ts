@@ -2,25 +2,25 @@ import { Bool } from '@ydinjs/core/attribute.js';
 import { useAttributes, via } from '@ydinjs/core/controllers/useAttributes.js';
 import { useEvents } from '@ydinjs/core/controllers/useEvents.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
-import type { Traited } from '@ydinjs/core/traits/attributes.js';
 import {
-  Checkable,
+  type Checkable,
   useCheckable,
   type CheckableProps,
 } from '@ydinjs/core/traits/checkable.js';
+import type { Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  Disableable,
+  type Disableable,
   useDisableable,
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
 import {
-  Nameable,
+  type Nameable,
   useNameable,
   type NameableProps,
 } from '@ydinjs/core/traits/nameable.js';
 import {
   useValuable,
-  Valuable,
+  type Valuable,
   type ValuableProps,
 } from '@ydinjs/core/traits/valuable.js';
 import { $, toggleState } from '@ydinjs/core/utils/DOM.js';
@@ -34,16 +34,15 @@ export type CheckableCoreProps = CheckableProps &
   DisableableProps &
   NameableProps;
 
-export const CHECKABLE_CORE_TRAITS: readonly [
+export type CheckableCoreTraits = readonly [
   typeof Checkable,
   typeof Valuable,
   typeof Disableable,
   typeof Nameable,
-] = [Checkable, Valuable, Disableable, Nameable];
+];
 
-export type CheckableCore = Traited<
-  ControlledElement,
-  typeof CHECKABLE_CORE_TRAITS
+export type CheckableCore = InstanceType<
+  Composed<typeof ControlledElement, CheckableCoreTraits>
 >;
 
 // oxlint-disable-next-line max-params

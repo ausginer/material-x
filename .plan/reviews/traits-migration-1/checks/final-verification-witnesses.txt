@@ -1,0 +1,92 @@
+# Verification of verifier-1 and verifier-2's repairs at cc71507ba (repair 7b04eb862). Detached scratch worktree, outside the slots.
+# aube exec just build: exit 0. Plugin suite: 8 files, 95 tests, all passed.
+
+## F-W1. Each repaired file restored alone to 2ad5ce059 fails its new rows (suite run with the scratch probe file present, hence 96 tests)
+[annotation reverted]   Tests  3 failed | 93 passed (96): namespace body, enum initializer, parameter property's default (diagnostics.node.test.ts:373)
+[trait-module reverted] Tests  3 failed | 93 passed (96): destructuring (trait-module.node.test.ts:109), for-of (:118), declared twice (:127)
+
+## F-W2. Shapes, named and unnamed by the tests. Scratch test, removed after the run:
+import { it } from 'vitest';
+import { transformTraitModule } from '../src/composition/trait-module.ts';
+import { parseModule } from '../src/syntax.ts';
+import { fixtureId, transform } from './helpers.ts';
+
+const method = (b: string) => `  static [Symbol.hasInstance](o) {\n    return o != null && o[${b}] === true;\n  }`;
+const lib = (decl: string, extra = '') =>
+  `${decl}\nvar Linked = class {\n${method('$linked')}\n  get href() { return 'linked-member'; }\n};\n${extra}export { $linked, Linked };\n`;
+function recog(label: string, code: string) {
+  const out = transformTraitModule(code, parseModule('lib.js', code), true)?.toString() ?? code;
+  console.log(`${label}: ${out.includes('linked-member') ? 'members kept (not a trait)' : 'MEMBERS DELETED (recognized as a trait)'}`);
+}
+const HEADER = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+const FooBase: Composed<typeof Base, [typeof Checkable]> = compose(Base);
+export class Foo extends FooBase {}
+`;
+async function shape(label: string, extra: string, file = 'virtual.ts') {
+  const id = fixtureId(file);
+  try {
+    const { code } = await transform(id, { files: { [id]: `${HEADER}${extra}` } });
+    const left = code.includes('const FooBase') ? 'constant kept' : 'constant REMOVED';
+    console.log(`${label}: flattened, ${left}, FooBase still named ${(code.match(/FooBase/gu) ?? []).length}x`);
+  } catch (error) {
+    console.log(`${label}: ${(error as { code?: string }).code ?? (error as Error).message.slice(0, 120)}`);
+  }
+}
+it('final', async () => {
+  // earlier rows, rerun
+  recog('R1 const brand', lib('const $linked = Symbol("Linked");'));
+  recog('R2 var brand, never assigned', lib('var $linked = Symbol("Linked");'));
+  recog('R4 let brand, destructuring', lib('let $linked = Symbol("Linked");', '[$linked] = [Symbol("Other")];\n'));
+  recog('R5 let brand, for-of', lib('let $linked = Symbol("Linked");', 'for ($linked of [Symbol("Other")]) {}\n'));
+  // shapes the tests don't name
+  recog('R8 var brand, re-declared by a var inside a block', lib('var $linked = Symbol("Linked");', 'if (globalThis.x) { var $linked = Symbol("Other"); }\n'));
+  recog('R9 var brand, re-declared by for (var … of …)', lib('var $linked = Symbol("Linked");', 'for (var $linked of [Symbol("Other")]) {}\n'));
+  recog('R10 var brand, re-declared inside a labelled loop body', lib('var $linked = Symbol("Linked");', 'while (false) { var $linked; }\n'));
+  recog('R11 var brand, parenthesized assignment', lib('var $linked = Symbol("Linked");', '($linked) = Symbol("Other");\n'));
+  recog('R12 var brand, object pattern with default', lib('var $linked = Symbol("Linked");', '({ a: $linked = Symbol("Other") } = {});\n'));
+  await shape('V1 property key', 'export const names = { FooBase: 1 };\n');
+  await shape('V2 type query', 'export type FooShape = InstanceType<typeof FooBase>;\n');
+  await shape('V5 namespace body', 'export namespace N { export const b = FooBase; }\n');
+  await shape('V6 enum initializer', 'export enum E { A = FooBase.length }\n');
+  await shape('V7 parameter property default', 'export class P { constructor(public b = FooBase) {} }\n');
+  await shape('V9 declare namespace, type only', 'declare namespace N { const b: typeof FooBase; }\n');
+  await shape('V10 export =', 'export = FooBase;\n');
+  await shape('V11 import x =', 'import Alias = FooBase;\nexport const a = Alias;\n');
+  await shape('V12 decorator argument', 'function dec(_: unknown) { return (c: unknown) => c; }\n@dec(FooBase) export class D {}\n');
+  await shape('V13 angle-bracket assertion', 'export const a = <unknown>FooBase;\n');
+  await shape('V14 satisfies', 'export const a = FooBase satisfies unknown;\n');
+  await shape('V15 JSX element in .tsx', 'export const el = <FooBase />;\n', 'virtual.tsx');
+  await shape('V16 JSX member element in .tsx', 'export const el = <FooBase.Inner />;\n', 'virtual.tsx');
+  await shape('V17 direct eval of the name', "export const a = eval('FooBase');\n");
+});
+R1 const brand: MEMBERS DELETED (recognized as a trait)
+R2 var brand, never assigned: MEMBERS DELETED (recognized as a trait)
+R4 let brand, destructuring: members kept (not a trait)
+R5 let brand, for-of: members kept (not a trait)
+R8 var brand, re-declared by a var inside a block: MEMBERS DELETED (recognized as a trait)
+R9 var brand, re-declared by for (var … of …): MEMBERS DELETED (recognized as a trait)
+R10 var brand, re-declared inside a labelled loop body: MEMBERS DELETED (recognized as a trait)
+R11 var brand, parenthesized assignment: members kept (not a trait)
+R12 var brand, object pattern with default: members kept (not a trait)
+V1 property key: flattened, constant REMOVED, FooBase still named 1x
+V2 type query: flattened, constant REMOVED, FooBase still named 1x
+V5 namespace body: composition-shape
+V6 enum initializer: composition-shape
+V7 parameter property default: composition-shape
+V9 declare namespace, type only: flattened, constant REMOVED, FooBase still named 1x
+V10 export =: composition-shape
+V11 import x =: composition-shape
+V12 decorator argument: composition-shape
+V13 angle-bracket assertion: composition-shape
+V14 satisfies: composition-shape
+V15 JSX element in .tsx: flattened, constant REMOVED, FooBase still named 1x
+V16 JSX member element in .tsx: flattened, constant REMOVED, FooBase still named 1x
+V17 direct eval of the name: flattened, constant REMOVED, FooBase still named 1x
+
+## F-W3. oxc's node for <FooBase.Inner /> in .tsx: the name is a JSXIdentifier, not an Identifier
+{"type":"JSXMemberExpression","object":{"type":"JSXIdentifier","name":"FooBase"},"property":{"type":"JSXIdentifier","name":"Inner"}}
+
+## F-W4. No composition in the tree is in a .tsx module
+grep -rl 'compose(' --include=*.tsx packages (node_modules excluded): 0 files

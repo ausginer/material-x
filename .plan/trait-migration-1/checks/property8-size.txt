@@ -1,0 +1,2 @@
+connected-button-group, application build, minified, without the plugin: 13252 B, 3866 B brotli
+connected-button-group, application build, minified, with the plugin: 12936 B, 3819 B brotli

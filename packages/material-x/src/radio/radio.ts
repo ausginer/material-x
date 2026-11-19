@@ -3,13 +3,10 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import type { EmptyObject } from 'type-fest';
 import {
-  CHECKABLE_CORE_TRAITS,
+  type CheckableCoreTraits,
   useCheckableCore,
   type CheckableCoreProps,
 } from '../core/elements/CheckableCore.ts';
@@ -24,11 +21,10 @@ export type RadioEvents = {
 };
 export type RadioCSSProperties = EmptyObject;
 
-const RadioConstructor: TraitedConstructor<
-  ControlledElement,
+const RadioConstructor: Composed<
   ControlledElementConstructor,
-  typeof CHECKABLE_CORE_TRAITS
-> = impl(ControlledElement, CHECKABLE_CORE_TRAITS);
+  CheckableCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-radio

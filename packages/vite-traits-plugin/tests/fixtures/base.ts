@@ -1,6 +1,6 @@
 /**
- * Minimal DOM-free stand-in for `ControlledElement`: attribute storage plus the
- * `observedAttributes` static the descriptor trait merges against.
+ * A DOM-free stand-in for `ControlledElement`: attribute storage and the
+ * `observedAttributes` static that a component's merged list starts from.
  */
 export class Base {
   static observedAttributes: readonly string[] = ['data-base'];

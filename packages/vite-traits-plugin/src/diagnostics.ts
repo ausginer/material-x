@@ -1,76 +1,79 @@
 /**
- * Stable diagnostic reason codes for the trait flattener.
- *
- * Unsupported sites warn and retain the runtime composition; malformed plugin
- * configuration and internal invariant failures are build errors. Codes are
- * stable strings so tooling and fixtures can assert on them.
+ * The flattener's diagnostic codes. Every code but `trait-member-conflict` is
+ * an error that fails the build, because a composition has no runtime form to
+ * fall back on. Codes are stable strings, so fixtures and tools can assert on
+ * them.
  */
-export const REASON = {
-  /** The `impl` intermediary is exported, instantiated, or otherwise escapes. */
-  IMPL_ESCAPES: 'impl-escapes',
-  /** The `impl` intermediary is consumed by more than one class. */
-  IMPL_MULTIPLE_CONSUMERS: 'impl-multiple-consumers',
-  /** Trait list is not a statically resolvable readonly array/tuple. */
-  UNSUPPORTED_TRAIT_LIST: 'unsupported-trait-list',
-  /** A trait in the list could not be resolved to a supported definition. */
-  UNSUPPORTED_TRAIT: 'unsupported-trait',
-  /** A trait definition is not module-scoped or not a direct `trait(...)` call. */
-  UNSUPPORTED_TRAIT_DEFINITION: 'unsupported-trait-definition',
-  /** The class declares one half of an accessor pair for a trait's key. */
-  CLASS_ACCESSOR_HALF: 'class-accessor-half',
-  /** The class reads or writes `super.key` for a key a trait supplies. */
-  CLASS_SUPER_TRAIT_MEMBER: 'class-super-trait-member',
-  /** The class uses a computed `super[key]`, whose key can't be checked. */
-  CLASS_COMPUTED_SUPER: 'class-computed-super',
+export const CODE = {
   /**
-   * A method trait's member is outside the subset: a constructor, field,
-   * static or private member, decorator, computed key, or a body that uses
-   * `super`, `eval`, the transformer's parameter or a construct the
-   * free-identifier analysis doesn't model.
+   * A composition isn't a module-scope
+   * `const X: Composed<B, [...]> = compose(B)` extended by exactly one class.
    */
-  UNSUPPORTED_TRAIT_MEMBER: 'unsupported-trait-member',
-  /** A trait declares one half of an accessor that an earlier trait supplies. */
-  TRAIT_ACCESSOR_HALF: 'trait-accessor-half',
+  COMPOSITION_SHAPE: 'composition-shape',
   /**
-   * A name a method trait's member reads would resolve to another binding in
-   * the consumer: the consumer module or class binds it, or the class isn't
-   * module-scoped.
+   * A list element isn't `typeof T`, a tuple alias of those or a spread of
+   * one, or the expansion has a cycle.
    */
+  TRAIT_LIST: 'trait-list',
+  /** A trait isn't a class whose static block calls `trait(this)`. */
+  TRAIT_UNRESOLVED: 'trait-unresolved',
+  /** A trait's member is outside the subset that can be copied. */
+  TRAIT_MEMBER: 'trait-member',
+  /** A trait declares an instance field. */
+  TRAIT_FIELD: 'trait-field',
+  /** The component's module or class binds a name a copied member reads. */
   TRAIT_BINDING_SHADOWED: 'trait-binding-shadowed',
-  /**
-   * A method trait's origin module has a different file extension from the
-   * consumer's, so its source can't be copied unchanged.
-   */
+  /** A member's text means something else in the consumer's language. */
   TRAIT_SOURCE_LANGUAGE: 'trait-source-language',
+  /** A later trait's lone getter or setter over an earlier trait's pair. */
+  TRAIT_ACCESSOR_HALF: 'trait-accessor-half',
+  /** A static's declared kind can't be merged. */
+  STATIC_KIND: 'static-kind',
+  /** Two contributors give one static key different kinds. */
+  STATIC_KIND_MISMATCH: 'static-kind-mismatch',
+  /** The component declares one half of a trait's accessor pair. */
+  CLASS_ACCESSOR_HALF: 'class-accessor-half',
+  /** `super.k` in the component, for a key that a trait supplies. */
+  CLASS_SUPER_TRAIT_MEMBER: 'class-super-trait-member',
+  /** `super[k]` in the component. */
+  CLASS_COMPUTED_SUPER: 'class-computed-super',
+  /** Layer (b): the attribute table can't be read or doesn't match. */
+  ATTRIBUTE_TABLE: 'attribute-table',
+  /** Layer (b): an `accessor` line isn't `accessor name!: T`. */
+  ATTRIBUTE_ACCESSOR: 'attribute-accessor',
+  /** Two traits supply one key that doesn't merge; the last trait wins. */
+  TRAIT_MEMBER_CONFLICT: 'trait-member-conflict',
 } as const;
 
-export type Reason = (typeof REASON)[keyof typeof REASON];
+export type Code = (typeof CODE)[keyof typeof CODE];
 
-/**
- * A bailout raised during analysis. Carries the location and a stable reason so
- * the adapter can emit a single warning per composition and make no edits.
- */
-export class BailoutError extends Error {
-  readonly reason: Reason;
-  /** Composition name for the message, when known. */
-  readonly composition: string | undefined;
+/** A build error, with the offset in the module it reports. */
+export class FlattenerError extends Error {
+  readonly code: Code;
+  /** Offset in the module's source, when known. */
+  readonly pos: number | undefined;
 
-  constructor(reason: Reason, composition: string | undefined, detail: string) {
-    super(detail);
-    this.name = 'BailoutError';
-    this.reason = reason;
-    this.composition = composition;
+  constructor(code: Code, message: string, pos?: number) {
+    super(message);
+    this.name = 'FlattenerError';
+    this.code = code;
+    this.pos = pos;
   }
 }
 
-/**
- * Raises a {@link BailoutError}. Thin helper so call sites read as guard
- * clauses.
- */
-export function bail(
-  reason: Reason,
-  composition: string | undefined,
-  detail: string,
-): never {
-  throw new BailoutError(reason, composition, detail);
+/** Throws a {@link FlattenerError}. */
+export function fail(code: Code, message: string, pos?: number): never {
+  throw new FlattenerError(code, message, pos);
+}
+
+/** A build warning, with the offset in the module it reports. */
+export type FlattenerWarning = Readonly<{
+  code: typeof CODE.TRAIT_MEMBER_CONFLICT;
+  message: string;
+  pos: number;
+}>;
+
+/** The text a diagnostic prints. */
+export function diagnosticText(code: Code, message: string): string {
+  return `trait-flattener (${code}): ${message}`;
 }

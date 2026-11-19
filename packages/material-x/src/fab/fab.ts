@@ -8,15 +8,17 @@ import {
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
 import {
-  impl,
-  trait,
-  type Interface,
+  AnyElement,
+  attributes,
   type Props,
-  type Trait,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
 import {
-  Disableable,
+  compose,
+  trait,
+  type Composed,
+} from '@ydinjs/core/traits/composition.js';
+import {
+  type Disableable,
   useDisableable,
   type DisableableProps,
 } from '@ydinjs/core/traits/disableable.js';
@@ -27,7 +29,7 @@ import elevationStyles from '../core/styles/elevation/elevation.css.ts' with { t
 import '../core/styles/elevation/elevation.runtime.ts';
 import focusStyles from '../core/styles/focus/focus.css.ts' with { type: 'css' };
 import {
-  FocusForwarding,
+  type FocusForwarding,
   useFocusForwarding,
 } from '../core/traits/focus-forwarding.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -42,27 +44,23 @@ export type FABSize = 'medium' | 'large';
 export type FABColor = 'primary' | 'secondary';
 export type FABExtended = 'open' | 'closed';
 
-const $fabLike: unique symbol = Symbol('FABLike');
+export class FABLike extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, {
+      size: Str as ConverterOf<FABSize>,
+      color: Str as ConverterOf<FABColor>,
+      extended: Str as ConverterOf<FABExtended>,
+      tonal: Bool,
+    });
+  }
 
-export const FABLike: Trait<
-  {
-    size: FABSize | null;
-    color: FABColor | null;
-    extended: FABExtended | null;
-    tonal: boolean;
-  },
-  typeof $fabLike
-> = trait(
-  {
-    size: Str as ConverterOf<FABSize>,
-    color: Str as ConverterOf<FABColor>,
-    extended: Str as ConverterOf<FABExtended>,
-    tonal: Bool,
-  },
-  $fabLike,
-);
+  accessor size!: FABSize | null;
+  accessor color!: FABColor | null;
+  accessor extended!: FABExtended | null;
+  accessor tonal!: boolean;
+}
 
-export type FABLike = Interface<typeof FABLike>;
 export type FABLikeProps = Props<typeof FABLike>;
 
 export type FABProperties = Readonly<FABLikeProps & DisableableProps>;
@@ -78,11 +76,10 @@ export type FABCSSProperties = Readonly<{
   '--md-fab-hover-level'?: string;
 }>;
 
-const FABConstructor: TraitedConstructor<
-  ControlledElement,
+const FABConstructor: Composed<
   ControlledElementConstructor,
   [typeof FABLike, typeof Disableable, typeof FocusForwarding]
-> = impl(ControlledElement, [FABLike, Disableable, FocusForwarding]);
+> = compose(ControlledElement);
 
 /**
  * @tag mx-fab

@@ -1,146 +1,318 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import type { Plugin as RolldownPlugin, RolldownMagicString } from 'rolldown';
+import {
+  RolldownMagicString,
+  type Plugin as RolldownPlugin,
+  type PluginContext,
+} from 'rolldown';
 import type { Plugin } from 'vite';
+import { importsAttributes, lowerAttributes } from './attributes/lower.ts';
 import {
-  analyzeModule,
-  invalidateModule,
-  parseModule,
-  type ModuleLoader,
-} from './analyze.ts';
-import { annotatePureTraitCalls, augmentOrigin, lowerModule } from './lower.ts';
+  baseStaticKind,
+  findSites,
+  resolveTraits,
+  type Site,
+} from './composition/annotation.ts';
 import {
-  collectModuleSyntheticExports,
-  resolveFactoryLocals,
-  resolveGenericFactoryLocals,
-} from './normalize.ts';
+  lowerCompositions,
+  type AnalyzedComposition,
+} from './composition/lower.ts';
+import {
+  checkLanguages,
+  checkLayers,
+  checkMemberScope,
+  staticKinds,
+} from './composition/rules.ts';
+import {
+  moduleCtx,
+  normalizeTraitClass,
+  type ModuleCtx,
+  type Resolver,
+} from './composition/trait-class.ts';
+import {
+  isCompositionModule,
+  transformTraitModule,
+} from './composition/trait-module.ts';
+import {
+  diagnosticText,
+  FlattenerError,
+  type FlattenerWarning,
+} from './diagnostics.ts';
+import type { StaticKind, TraitIR } from './ir.ts';
+import { invalidateModule, parseModule, type ModuleLoader } from './syntax.ts';
 
-/** Only real TypeScript/JS source modules are candidates. */
+/** Only JavaScript and TypeScript modules are candidates. */
 const CANDIDATE = /\.[cm]?[jt]sx?$/u;
 
 /**
- * Builds the trait flattener plugin adapter.
- *
- * It runs `enforce: 'pre'` so it sees authored source before other transforms.
- * Each `impl` site is analyzed and lowered transactionally; a failed proof
- * warns and leaves the site unchanged.
+ * How the host builds. Only an application build deletes a trait's instance
+ * members, because nothing copies from its output; a library's output is what
+ * another package copies from, and the dev server serves source.
  */
-export function viteTraitsPlugin(): Plugin & RolldownPlugin {
-  // A `RolldownMagicString` is only understood by rolldown's native build
-  // pipeline. Vite's dev-server plugin container treats `code` as a plain
-  // string and forwards the object verbatim to the builtin native transforms,
-  // where Rust fails to convert it (`Object {}` -> `String`). So in `serve`
-  // emit a string + sourcemap; keep the zero-copy native path for `build`.
-  let serve = false;
+export type BuildKind = 'library' | 'application' | 'serve';
 
-  const emit = (magic: RolldownMagicString, id: string) =>
-    serve
-      ? {
-          code: magic.toString(),
-          map: magic
-            .generateMap({ source: id, includeContent: true, hires: true })
-            .toString(),
+type Emitted = Readonly<{ code: RolldownMagicString | string; map?: string }>;
+
+/**
+ * A transform's result. The dev server's plugin container passes `code` on to
+ * native transforms that read only a string, so it gets a string and a source
+ * map; a build keeps rolldown's native magic string.
+ */
+function emit(
+  magic: RolldownMagicString,
+  id: string,
+  kind: BuildKind,
+): Emitted {
+  return kind === 'serve'
+    ? {
+        code: magic.toString(),
+        map: magic
+          .generateMap({ source: id, includeContent: true, hires: true })
+          .toString(),
+      }
+    : { code: magic };
+}
+
+function isCandidate(id: string): boolean {
+  return CANDIDATE.test(id) && !id.includes('/node_modules/.vite/');
+}
+
+/** A module's text as the flattener reads it: with layer (b) lowered. */
+function lowered(id: string, code: string): string {
+  if (!code.includes('attributes(')) {
+    return code;
+  }
+  const program = parseModule(id, code);
+
+  return importsAttributes(program)
+    ? (lowerAttributes(code, program)?.toString() ?? code)
+    : code;
+}
+
+/** A loader through the host's resolver, and Node's for `@ydinjs/*` packages. */
+function hostLoader(context: PluginContext): ModuleLoader {
+  return {
+    resolve: async (specifier, importer) => {
+      const resolved = await context.resolve(specifier, importer, {
+        skipSelf: true,
+      });
+      if (resolved && !resolved.external) {
+        const onDisk = resolved.id.split('?', 1)[0]!;
+        if (onDisk.startsWith('/')) {
+          return onDisk;
         }
-      : { code: magic };
-
-  const plugin: Plugin & RolldownPlugin = {
-    name: 'trait-flattener',
-    configResolved(config) {
-      serve = config.command === 'serve';
+      }
+      // A workspace package is external to a consumer's build, so the bundler
+      // gives no file to read. Its built modules are on disk, and Node finds
+      // them.
+      if (specifier.startsWith('@ydinjs/')) {
+        try {
+          return fileURLToPath(import.meta.resolve(specifier));
+        } catch {
+          return null;
+        }
+      }
+      return null;
     },
+    load: async (id) => lowered(id, await readFile(id, 'utf8')),
+  };
+}
+
+/** Analyzes one composition into what lowering reads. */
+async function analyzeSite(
+  r: Resolver,
+  ctx: ModuleCtx,
+  site: Site,
+  warnings: FlattenerWarning[],
+): Promise<AnalyzedComposition> {
+  const pos = site.declarator.start;
+  const refs = await resolveTraits(r, ctx, site);
+  const traits: TraitIR[] = [];
+  for (const ref of refs) {
+    // oxlint-disable-next-line no-await-in-loop
+    traits.push(await normalizeTraitClass(r, ref));
+  }
+  checkLanguages(refs, traits, ctx.id, pos);
+  warnings.push(...checkLayers(site.consumer, traits, pos));
+  checkMemberScope(ctx, site.consumer, traits, pos);
+  const base = site.call.arguments[0]!;
+  const superClass = site.consumer.superClass!;
+  const baseKinds = new Map<string, StaticKind | null>();
+  for (const key of new Set(
+    traits.flatMap((trait) => trait.statics.map((value) => value.key)),
+  )) {
+    // oxlint-disable-next-line no-await-in-loop
+    baseKinds.set(key, await baseStaticKind(r, ctx, site, key));
+  }
+  const baseSource = ctx.code.slice(base.start, base.end);
+
+  return {
+    traits,
+    kinds: staticKinds(traits, { name: baseSource, kinds: baseKinds }, pos),
+    baseSource,
+    declarationSpan: [site.statement.start, site.statement.end],
+    superClassSpan: [superClass.start, superClass.end],
+    consumer: site.consumer,
+  };
+}
+
+/** What step 2 does to one module. */
+export type FlattenResult = Readonly<{
+  /** The edited module, or `null` when nothing changed. */
+  magic: RolldownMagicString | null;
+  warnings: readonly FlattenerWarning[];
+  /** Modules the analysis read, for watch tracking. */
+  dependencies: readonly string[];
+}>;
+
+/**
+ * Step 2 for one module, whose layer (b) is already lowered: its trait
+ * classes' transform, then the flattening of its compositions. Throws a
+ * {@link FlattenerError} for a build error.
+ *
+ * @param loader - Reads other modules, with layer (b) lowered.
+ */
+export async function flattenModule(
+  code: string,
+  id: string,
+  kind: BuildKind,
+  loader: ModuleLoader,
+): Promise<FlattenResult> {
+  const program = parseModule(id, code);
+  const ctx = moduleCtx(id, code, program);
+  const transformed = transformTraitModule(
+    code,
+    program,
+    kind === 'application',
+  );
+  const sites = findSites(ctx);
+  if (sites.length === 0) {
+    return { magic: transformed, warnings: [], dependencies: [] };
+  }
+
+  const magic = transformed ?? new RolldownMagicString(code);
+  const r: Resolver = {
+    consumerId: id,
+    loader,
+    ctxCache: new Map([[id, ctx]]),
+    rebaseCache: new Map(),
+    dependencies: new Set(),
+  };
+  const warnings: FlattenerWarning[] = [];
+  const compositions: AnalyzedComposition[] = [];
+  for (const site of sites) {
+    // oxlint-disable-next-line no-await-in-loop
+    compositions.push(await analyzeSite(r, ctx, site, warnings));
+  }
+  const implSpecifier = [...ctx.imports.values()].find(
+    ({ imported, specifier }) =>
+      imported === 'compose' && isCompositionModule(specifier),
+  )!.specifier;
+  lowerCompositions(magic, code, compositions, implSpecifier);
+
+  return { magic, warnings, dependencies: [...r.dependencies] };
+}
+
+/** A module's text as the flattener reads it: with layer (b) lowered. */
+export function lowerForAnalysis(id: string, code: string): string {
+  return lowered(id, code);
+}
+
+/**
+ * Builds the trait flattener: two `enforce: 'pre'` plugins, in this order.
+ *
+ * 1. `trait-attributes` lowers layer (b) in a trait's own module.
+ * 2. `trait-flattener` transforms each trait module, so that a component can
+ *    link its brand and statics, and then flattens each composition.
+ *
+ * The flattener reads every other module through a loader that applies step
+ * 1, so a trait from the same package is read already lowered. An error fails
+ * the build, and a conflict between two traits warns.
+ */
+export function viteTraitsPlugin(): Array<Plugin & RolldownPlugin> {
+  let kind: BuildKind = 'library';
+
+  const report = (
+    context: PluginContext,
+    id: string,
+    error: unknown,
+  ): never => {
+    if (error instanceof FlattenerError) {
+      return context.error({
+        message: diagnosticText(error.code, error.message),
+        id,
+        pos: error.pos,
+      });
+    }
+    throw error;
+  };
+
+  const attributes: Plugin & RolldownPlugin = {
+    name: 'trait-attributes',
+    configResolved(config) {
+      if (config.command === 'serve') {
+        kind = 'serve';
+      } else {
+        kind = config.build.lib ? 'library' : 'application';
+      }
+    },
+    transform(code, id) {
+      const cleanId = id.split('?', 1)[0]!;
+      if (!isCandidate(cleanId) || !code.includes('attributes(')) {
+        return null;
+      }
+      try {
+        const magic = lowerAttributes(code, parseModule(cleanId, code));
+
+        return magic ? emit(magic, cleanId, kind) : null;
+      } catch (error) {
+        return report(this, cleanId, error);
+      }
+    },
+  } satisfies Plugin;
+
+  const flattener: Plugin & RolldownPlugin = {
+    name: 'trait-flattener',
     watchChange(id) {
       invalidateModule(id);
     },
     async transform(code, id) {
       const cleanId = id.split('?', 1)[0]!;
       if (
-        !CANDIDATE.test(cleanId) ||
-        cleanId.includes('/node_modules/.vite/') ||
-        (!code.includes('impl(') && !code.includes('trait('))
+        !isCandidate(cleanId) ||
+        (!code.includes('trait(') &&
+          !code.includes('compose(') &&
+          !code.includes('Symbol.hasInstance'))
       ) {
         return null;
       }
-
-      const loader: ModuleLoader = {
-        resolve: async (specifier, importer) => {
-          const resolved = await this.resolve(specifier, importer, {
-            skipSelf: true,
-          });
-          if (resolved && !resolved.external) {
-            const onDisk = resolved.id.split('?', 1)[0]!;
-            if (onDisk.startsWith('/')) {
-              return onDisk;
-            }
-          }
-          // A workspace package (`@ydinjs/*`) is external to a consumer build,
-          // so the bundler hands back a bare/external id with nothing to read.
-          // Its built trait modules are still on disk, though, so resolve them
-          // through Node — this is what lets cross-package compositions flatten.
-          if (specifier.startsWith('@ydinjs/')) {
-            try {
-              return fileURLToPath(import.meta.resolve(specifier));
-            } catch {
-              return null;
-            }
-          }
-          return null;
-        },
-        load: (moduleId) => readFile(moduleId, 'utf8'),
-      };
-
-      const program = parseModule(cleanId, code);
-      const factoryLocals = resolveFactoryLocals(program);
-      // Both factories' calls are marked pure.
-      const traitLocals = factoryLocals.union(
-        resolveGenericFactoryLocals(program),
-      );
-
-      // Consumer responsibility: flatten eligible compositions. A flattened
-      // module still gets its `trait(...)` calls marked pure so the now-unused
-      // intermediary scaffolding can be tree-shaken downstream.
-      if (code.includes('impl(')) {
-        const { compositions, bailouts, dependencies } = await analyzeModule(
-          cleanId,
+      try {
+        const result = await flattenModule(
           code,
-          loader,
+          cleanId,
+          kind,
+          hostLoader(this),
         );
-        for (const dependency of dependencies) {
+        for (const dependency of result.dependencies) {
           this.addWatchFile(dependency);
         }
-        for (const bailout of bailouts) {
+        for (const warning of result.warnings) {
           this.warn({
-            message: `trait-flattener: retained runtime composition${
-              bailout.composition ? ` for ${bailout.composition}` : ''
-            } (${bailout.reason}): ${bailout.message}`,
+            message: diagnosticText(warning.code, warning.message),
             id: cleanId,
+            pos: warning.pos,
           });
         }
 
-        if (compositions.length > 0) {
-          // Return the native MagicString as `code`; the bundler derives the
-          // sourcemap from it natively.
-          const magic = lowerModule(code, compositions);
-          annotatePureTraitCalls(magic, program, traitLocals);
-          return emit(magic, cleanId);
-        }
+        return result.magic ? emit(result.magic, cleanId, kind) : null;
+      } catch (error) {
+        return report(this, cleanId, error);
       }
-
-      // Origin responsibility: expose the private bindings that brands,
-      // converters and method trait members read, so a flattened consumer in
-      // another module can link them, and mark `trait(...)` calls pure.
-      const synthetics = collectModuleSyntheticExports(
-        program,
-        cleanId,
-        factoryLocals,
-        code,
-      );
-      const augmented = augmentOrigin(code, synthetics, program, traitLocals);
-
-      return augmented ? emit(augmented, cleanId) : null;
     },
   } satisfies Plugin;
 
-  plugin.enforce = 'pre';
+  attributes.enforce = 'pre';
+  flattener.enforce = 'pre';
 
-  return plugin;
+  return [attributes, flattener];
 }

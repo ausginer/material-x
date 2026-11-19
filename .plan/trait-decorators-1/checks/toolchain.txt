@@ -1,0 +1,89 @@
+# P7 — node .plan/trait-decorators-1/probes/toolchain/probe.ts, at 20817d665, 2026-11-19
+== 1. parse: top-level statements, class decorators, interface heritage
+parse errors: 0
+interface Button extends [ 'Disableable', 'FocusForwarding' ]
+class Button decorator [223, 260): "@traits(Disableable, FocusForwarding)" callee traits args [ 'Disableable', 'FocusForwarding' ]
+  member AccessorProperty pressed decorators ["@attr(Bool)"]
+  member MethodDefinition check 
+== 2. transform, target esnext, standard decorators
+errors: []
+import { ControlledElement, traits } from "./element.ts";
+import { Disableable, FocusForwarding } from "./traits.ts";
+import { attr, Bool } from "./attr.ts";
+export @traits(Disableable, FocusForwarding) class Button extends ControlledElement {
+	@attr(Bool) accessor pressed;
+	check() {
+		return this.disabled;
+	}
+}
+
+== 3. transform, target es2022, standard decorators
+errors: []
+import { ControlledElement, traits } from "./element.ts";
+import { Disableable, FocusForwarding } from "./traits.ts";
+import { attr, Bool } from "./attr.ts";
+export @traits(Disableable, FocusForwarding) class Button extends ControlledElement {
+	@attr(Bool) accessor pressed;
+	check() {
+		return this.disabled;
+	}
+}
+
+== 4. transform, experimentalDecorators (legacy lowering)
+errors: []
+import { ControlledElement, traits } from "./element.ts";
+import { Disableable, FocusForwarding } from "./traits.ts";
+import { attr, Bool } from "./attr.ts";
+import _decorate from "@oxc-project/runtime/helpers/decorate";
+let Button = class Button extends ControlledElement {
+	#_pressed_accessor_storage;
+	get pressed() {
+		return this.#_pressed_accessor_storage;
+	}
+	set pressed(value) {
+		this.#_pressed_accessor_storage = value;
+	}
+	check() {
+		return this.disabled;
+	}
+};
+_decorate([attr(Bool)], Button.prototype, "pressed", null);
+Button = _decorate([traits(Disableable, FocusForwarding)], Button);
+export { Button };
+
+== 5. isolated declarations (what tsdown emits)
+errors: []
+import { ControlledElement } from "./element.ts";
+import { Disableable, FocusForwarding } from "./traits.ts";
+export interface Button extends Disableable, FocusForwarding {}
+export declare class Button extends ControlledElement {
+	accessor pressed: boolean;
+	check(): boolean;
+}
+
+== 7. Form D: parse the type-argument marker
+parse errors: 0
+class IconButton extends Traits superTypeArguments TSTypeParameterInstantiation [196, 267)
+  element TSRestType ButtonCoreTraits
+  element TSTypeQuery Disableable
+  element TSTypeQuery FocusForwarding
+== 8. Form D: transform, target esnext
+import { Traits } from "./element.ts";
+export class IconButton extends Traits {
+	focus(options) {
+		this.disabled = false;
+		super.focus(options);
+	}
+}
+
+== 9. Form D: isolated declarations (what tsdown emits)
+errors: []
+import { Traits } from "./element.ts";
+import type { Disableable, FocusForwarding } from "./traits.ts";
+import type { ButtonCoreTraits } from "./groups.ts";
+export declare class IconButton extends Traits<[...ButtonCoreTraits, typeof Disableable, typeof FocusForwarding]> {
+	override focus(options?: FocusOptions): void;
+}
+
+== 6. does Node v26.13.1 run a standard decorator?
+SyntaxError: Invalid or unexpected token

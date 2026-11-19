@@ -2,9 +2,8 @@ import attr, { Str, type ConverterOf } from '../attribute.ts';
 import { useAttributes } from '../controllers/useAttributes.ts';
 import { useEvents } from '../controllers/useEvents.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $linkable: unique symbol = Symbol('Linkable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const LINKABLE_ATTRS: Readonly<{
   href: ConverterOf<string>;
@@ -17,15 +16,15 @@ export const LINKABLE_ATTRS: Readonly<{
 /**
  * Element trait that exposes `href` and `target` navigation fields.
  */
-export const Linkable: Trait<
-  { href: string | null; target: string | null },
-  typeof $linkable
-> = trait(LINKABLE_ATTRS, $linkable);
+export class Linkable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, LINKABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Linkable}.
- */
-export type Linkable = Interface<typeof Linkable>;
+  accessor href!: string | null;
+  accessor target!: string | null;
+}
 
 /**
  * Framework-facing props derived from {@link Linkable}.

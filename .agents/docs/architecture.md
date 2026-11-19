@@ -4,7 +4,7 @@
 
 This repository is the `@ydinjs` Web Components system. Its packages are designed together: `@ydinjs/core` supplies the runtime primitives, `@ydinjs/tproc` resolves and emits Material Design tokens, and `@ydinjs/material-x` composes both into Material Design 3 Expressive components.
 
-The workspace also contains build-time packages: the public `@ydinjs/vite-traits-plugin` flattens safe trait compositions, and the private `@ydinjs/vite-custom-element-assets` package transforms component CSS and HTML assets.
+The workspace also contains build-time packages: the public `@ydinjs/vite-traits-plugin` is the required compiler step that flattens trait compositions, and the private `@ydinjs/vite-custom-element-assets` package transforms component CSS and HTML assets.
 
 ## Project layout
 
@@ -16,7 +16,7 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 │   │       ├── element.ts            # ControlledElement, define(), use()
 │   │       ├── attribute.ts          # Bool, Num, Str converters
 │   │       ├── controllers/          # lifecycle and platform behavior
-│   │       ├── traits/               # trait(), impl(), shared traits
+│   │       ├── traits/               # composition, attribute traits, shared traits
 │   │       └── utils/
 │   ├── tproc/                        # @ydinjs/tproc token processor
 │   │   ├── src/                      # token pipeline and DB source
@@ -43,10 +43,10 @@ The workspace also contains build-time packages: the public `@ydinjs/vite-traits
 
 ### Traits and attributes
 
-`@ydinjs/core/traits/attributes.js` provides trait composition instead of deep runtime inheritance:
+Traits are plain classes in two layers, instead of deep runtime inheritance. [`trait-flattener-plugin.md`](trait-flattener-plugin.md) describes how the build joins them.
 
-- `trait(descriptor)` creates a trait with attribute converters and accessors.
-- `impl(BaseClass, [Trait1, Trait2])` composes traits and derives `observedAttributes` and typed properties.
+- **Layer (a), `@ydinjs/core/traits/composition.js`,** knows nothing of elements. A trait extends a bound, `bound()`, and calls `trait(this)` in its static block. A component names its base and its traits in the annotation of a constant, `const XBase: Composed<typeof Base, [typeof A, typeof B]> = compose(Base)`, which one class extends. The build replaces the constant with the base, copies each trait's members in list order, merges statics by their declared kind and brands the class. A key two traits supply takes the later trait's member.
+- **Layer (b), `@ydinjs/core/traits/attribute-traits.js`,** is optional sugar for elements: `accessor name!: T` with `attributes(this, { name: Converter })`, lowered in the trait's own build to a getter and a setter and a static `observedAttributes`. It also exports the bounds `AnyElement` and `Controlled`, and `Props`.
 - Shared traits include `Disableable`, `Valuable`, `Checkable`, `Linkable`, `Nameable`, `Reorderable`, `Selectable`, and `Typeable`.
 
 `@ydinjs/core/attribute.js` supplies converters that bind HTML attributes to properties: `Bool`, `Num`, and `Str`.
@@ -94,7 +94,7 @@ The component package contains buttons, button groups, checkboxes, FABs, icons, 
 - **aube and NX** coordinate all `@ydinjs` packages: aube installs the `workspaces` and runs their binaries, and NX orchestrates their tasks.
 - **tsdown** builds each package's entrypoints into the package root, including declarations. Most packages list them in `files.json`. `vite-traits-plugin` and `size-limit-preset-rolldown` name their one entry in `tsdown.config.ts`, and their `files.json` feeds only the clean.
 - **Vite** runs development and browser-test transforms.
-- **`@ydinjs/vite-traits-plugin`** lowers safe `@ydinjs/core` trait compositions before the remaining transforms.
+- **`@ydinjs/vite-traits-plugin`** lowers layer (b) traits and flattens every `@ydinjs/core` trait composition before the remaining transforms. A build without it fails at `compose()`.
 - **`@ydinjs/vite-custom-element-assets`** compiles component CSS and HTML assets.
 
 When a `@ydinjs/core` change affects Material X, rebuild core before typechecking Material X because the latter resolves built core declarations. Run package recipes from the affected package directory; `packages/core`, `packages/tproc`, and `packages/material-x` each provide `build`, `fmt`, `lint-fix`, and `typecheck` recipes.
@@ -117,4 +117,4 @@ The placeholder and the lift hold until the verdict settles. A landing starts af
 - **Core capability:** add an `@ydinjs/core` controller or trait and export it through that package's `files.json`.
 - **Token capability:** add or adjust an `@ydinjs/tproc` token-processing primitive or upstream table source.
 - **Material component:** create a `packages/material-x/src/<component>/` implementation, consume core and tproc through their `@ydinjs/*` imports, add public entrypoints to `packages/material-x/files.json`, and add mirrored tests under `packages/material-x/tests/<component>/`.
-- **Build optimization:** add trait-lowering support in `@ydinjs/vite-traits-plugin`, keeping unsupported compositions safe at runtime.
+- **Trait lowering:** extend `@ydinjs/vite-traits-plugin`; a composition it can't carry is a build error.

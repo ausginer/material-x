@@ -5,7 +5,6 @@ import '../../../src/button/icon-button.ts';
 import '../../../src/button/link-button.ts';
 import '../../../src/button/switch-button.ts';
 import '../../../src/button/switch-icon-button.ts';
-import { FocusForwarding } from '../../../src/core/traits/focus-forwarding.ts';
 import '../../../src/fab/fab.ts';
 import ListButtonItem from '../../../src/list/list-button-item.ts';
 import '../../../src/list/list-link-item.ts';
@@ -73,9 +72,11 @@ describe('FocusForwarding', () => {
       const element = create(tag);
 
       expect(Object.hasOwn(element, 'focus')).toBe(false);
-      expect(Object.hasOwn(focusOwner(element), FocusForwarding.brand)).toBe(
-        true,
-      );
+      expect(
+        Object.getOwnPropertySymbols(focusOwner(element)).some(
+          (key) => key.description === 'FocusForwarding',
+        ),
+      ).toBe(true);
     },
   );
 

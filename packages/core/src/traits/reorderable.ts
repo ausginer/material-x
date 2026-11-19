@@ -3,7 +3,8 @@ import { useEvents } from '../controllers/useEvents.ts';
 import { useSlot } from '../controllers/useSlot.ts';
 import { ControlledElement, internals, use } from '../element.ts';
 import { toggleState } from '../utils/DOM.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 const REORDER_EVENT_INIT: Readonly<EventInit> = {
   bubbles: true,
@@ -37,19 +38,18 @@ export class ReorderEvent extends Event {
   }
 }
 
-const $reorderable: unique symbol = Symbol('Reorderable');
-
 /**
  * Element trait that exposes a presence-based `reorderable` boolean field,
  * indicating that the element's children can be dragged to reorder.
  */
-export const Reorderable: Trait<{ reorderable: boolean }, typeof $reorderable> =
-  trait({ reorderable: Bool }, $reorderable);
+export class Reorderable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, { reorderable: Bool });
+  }
 
-/**
- * Branded instance interface derived from {@link Reorderable}.
- */
-export type Reorderable = Interface<typeof Reorderable>;
+  accessor reorderable!: boolean;
+}
 
 /**
  * Framework-facing props derived from {@link Reorderable}.

@@ -1,0 +1,94 @@
+# Narrow verification of final-1 and final-2 at 7c0306417 (repair 9db2f67f5). Detached scratch worktree, outside the slots.
+# aube exec just build: exit 0. Plugin suite: 8 files, 100 tests, all passed (without the scratch probe file).
+
+## N-W1. Each repaired file restored alone to 4dea13f38
+[annotation reverted]   Tests 2 failed | 98 passed (100): JSX element, JSX member element (diagnostics.node.test.ts:396)
+[trait-module reverted] Tests 2 failed | 98 passed (100): var in a block (trait-module.node.test.ts:127), for-of's var (:136)
+
+## N-W2. Node interfaces in @oxc-project/types (the plugin's 0.158.0) that declare a string name, and their type tags
+interface IdentifierName  type: "Identifier"
+interface IdentifierReference  type: "Identifier"
+interface BindingIdentifier  type: "Identifier"
+interface LabelIdentifier  type: "Identifier"
+interface PrivateIdentifier  type: "PrivateIdentifier"
+interface JSXSpreadAttribute  type: "JSXSpreadAttribute"
+interface JSXIdentifier  type: "JSXIdentifier"
+interface TSConstructSignatureDeclaration  type: "TSConstructSignatureDeclaration"
+interface TSIndexSignatureName  type: "Identifier"
+Every type tag containing Ident or a JSX name:
+type: "Identifier"
+type: "JSXIdentifier"
+type: "JSXNamespacedName"
+type: "PrivateIdentifier"
+
+## N-W3. Shapes. Scratch test, removed after the run:
+import { it } from 'vitest';
+import { transformTraitModule } from '../src/composition/trait-module.ts';
+import { parseModule } from '../src/syntax.ts';
+import { fixtureId, transform } from './helpers.ts';
+
+const method = (b: string) => `  static [Symbol.hasInstance](o) {\n    return o != null && o[${b}] === true;\n  }`;
+const lib = (decl: string, extra = '') =>
+  `${decl}\nvar Linked = class {\n${method('$linked')}\n  get href() { return 'linked-member'; }\n};\n${extra}export { $linked, Linked };\n`;
+function recog(label: string, code: string) {
+  const out = transformTraitModule(code, parseModule('lib.js', code), true)?.toString() ?? code;
+  console.log(`${label}: ${out.includes('linked-member') ? 'members kept (not a trait)' : 'MEMBERS DELETED (recognized as a trait)'}`);
+}
+const HEADER = `import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
+import { Base } from './base.ts';
+import { Checkable } from './checkable.ts';
+const FooBase: Composed<typeof Base, [typeof Checkable]> = compose(Base);
+export class Foo extends FooBase {}
+`;
+async function shape(label: string, extra: string, file = 'virtual.tsx') {
+  const id = fixtureId(file);
+  try {
+    const { code } = await transform(id, { files: { [id]: `${HEADER}${extra}` } });
+    const left = code.includes('const FooBase') ? 'constant kept' : 'constant REMOVED';
+    console.log(`${label}: flattened, ${left}, FooBase still named ${(code.match(/FooBase/gu) ?? []).length}x`);
+  } catch (error) {
+    console.log(`${label}: ${(error as { code?: string }).code ?? (error as Error).message.slice(0, 120)}`);
+  }
+}
+it('narrow', async () => {
+  await shape('J0 control in .tsx', '');
+  await shape('J1 <FooBase />', 'export const el = <FooBase />;\n');
+  await shape('J2 <FooBase.Inner />', 'export const el = <FooBase.Inner />;\n');
+  await shape('J3 element with children, <FooBase></FooBase>', 'export const el = <FooBase></FooBase>;\n');
+  await shape('J4 attribute value {FooBase}', 'export const el = <div ref={FooBase} />;\n');
+  await shape('J5 spread attribute {...FooBase}', 'export const el = <div {...FooBase} />;\n');
+  await shape('J6 child expression {FooBase}', 'export const el = <div>{FooBase}</div>;\n');
+  await shape('J7 attribute named FooBase (not a reference)', 'export const el = <div FooBase="x" />;\n');
+  await shape('J8 member property named FooBase (not a reference)', 'const ns = { FooBase: 1 };\nexport const el = <ns.FooBase />;\n');
+  await shape('J9 namespaced name a:FooBase (not a reference)', 'export const el = <a:FooBase />;\n');
+  await shape('J10 a JSX fragment holding it', 'export const el = <>{FooBase}</>;\n');
+  await shape('J11 eval, stated out of reach', "export const a = eval('FooBase');\n", 'virtual.ts');
+  recog('N1 var in a block', lib('var $linked = Symbol("Linked");', 'if (globalThis.x) { var $linked = Symbol("Other"); }\n'));
+  recog('N2 for (var … of …)', lib('var $linked = Symbol("Linked");', 'for (var $linked of [Symbol("Other")]) {}\n'));
+  recog('N3 var without a write, in a loop body', lib('var $linked = Symbol("Linked");', 'while (false) { var $linked; }\n'));
+  recog('N4 var in a catch block', lib('var $linked = Symbol("Linked");', 'try {} catch { var $linked = Symbol("Other"); }\n'));
+  recog('N5 var in a labelled statement', lib('var $linked = Symbol("Linked");', 'outer: { var $linked = Symbol("Other"); }\n'));
+  recog('N6 var inside a function (its own scope: fails closed)', lib('var $linked = Symbol("Linked");', 'function f() { var $linked = 1; return $linked; }\n'));
+  recog('N7 let in a block (its own scope, no write)', lib('var $linked = Symbol("Linked");', '{ let $linked = Symbol("Other"); }\n'));
+  recog('N8 const brand, control', lib('const $linked = Symbol("Linked");'));
+});
+J0 control in .tsx: flattened, constant REMOVED, FooBase still named 0x
+J1 <FooBase />: composition-shape
+J2 <FooBase.Inner />: composition-shape
+J3 element with children, <FooBase></FooBase>: composition-shape
+J4 attribute value {FooBase}: composition-shape
+J5 spread attribute {...FooBase}: composition-shape
+J6 child expression {FooBase}: composition-shape
+J7 attribute named FooBase (not a reference): flattened, constant REMOVED, FooBase still named 1x
+J8 member property named FooBase (not a reference): flattened, constant REMOVED, FooBase still named 2x
+J9 namespaced name a:FooBase (not a reference): flattened, constant REMOVED, FooBase still named 1x
+J10 a JSX fragment holding it: composition-shape
+J11 eval, stated out of reach: flattened, constant REMOVED, FooBase still named 1x
+N1 var in a block: members kept (not a trait)
+N2 for (var … of …): members kept (not a trait)
+N3 var without a write, in a loop body: members kept (not a trait)
+N4 var in a catch block: members kept (not a trait)
+N5 var in a labelled statement: members kept (not a trait)
+N6 var inside a function (its own scope: fails closed): members kept (not a trait)
+N7 let in a block (its own scope, no write): MEMBERS DELETED (recognized as a trait)
+N8 const brand, control: MEMBERS DELETED (recognized as a trait)

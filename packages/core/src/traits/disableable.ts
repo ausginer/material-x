@@ -1,9 +1,8 @@
 import { Bool, type ConverterOf } from '../attribute.ts';
 import { transfer, useAttributes } from '../controllers/useAttributes.ts';
 import type { ControlledElement } from '../element.ts';
-import { trait, type Interface, type Props, type Trait } from './attributes.ts';
-
-const $disableable: unique symbol = Symbol('Disableable');
+import { AnyElement, attributes, type Props } from './attribute-traits.ts';
+import { trait } from './composition.ts';
 
 export const DISABLEABLE_ATTRS: Readonly<{ disabled: ConverterOf<boolean> }> = {
   disabled: Bool,
@@ -12,13 +11,14 @@ export const DISABLEABLE_ATTRS: Readonly<{ disabled: ConverterOf<boolean> }> = {
 /**
  * Element trait that exposes a presence-based `disabled` boolean field.
  */
-export const Disableable: Trait<{ disabled: boolean }, typeof $disableable> =
-  trait(DISABLEABLE_ATTRS, $disableable);
+export class Disableable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, DISABLEABLE_ATTRS);
+  }
 
-/**
- * Branded instance interface derived from {@link Disableable}.
- */
-export type Disableable = Interface<typeof Disableable>;
+  accessor disabled!: boolean;
+}
 
 /**
  * Framework-facing props derived from {@link Disableable}.

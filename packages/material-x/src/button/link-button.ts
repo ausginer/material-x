@@ -3,21 +3,18 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
-import {
-  Linkable,
+  type Linkable,
   useDisableableLinkable,
   useLinkable,
   type LinkableProps,
 } from '@ydinjs/core/traits/linkable.js';
 import { $ } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject, Simplify } from 'type-fest';
-import { FocusForwarding } from '../core/traits/focus-forwarding.ts';
+import type { FocusForwarding } from '../core/traits/focus-forwarding.ts';
 import {
-  BUTTON_CORE_TRAITS,
+  type ButtonCoreTraits,
   useButtonCore,
   type ButtonCoreProps,
   type ButtonSharedCSSProperties,
@@ -32,11 +29,10 @@ export type LinkButtonProps = Simplify<ButtonCoreProps & LinkableProps>;
 export type LinkButtonEvents = EmptyObject;
 export type LinkButtonCSSProperties = ButtonSharedCSSProperties;
 
-const LinkButtonConstructor: TraitedConstructor<
-  ControlledElement,
+const LinkButtonConstructor: Composed<
   ControlledElementConstructor,
-  [...typeof BUTTON_CORE_TRAITS, typeof Linkable, typeof FocusForwarding]
-> = impl(ControlledElement, [...BUTTON_CORE_TRAITS, Linkable, FocusForwarding]);
+  [...ButtonCoreTraits, typeof Linkable, typeof FocusForwarding]
+> = compose(ControlledElement);
 
 /**
  * @tag mx-link-button

@@ -1289,6 +1289,167 @@ Before this amendment, property 1 said _"The queue holds queue state only"_ and 
 
 **Why.** The owner approved every request to open a pull request, so asking cost a round trip and decided nothing. Merging is where his decision lies, and it stays his.
 
+#### RD-26 — Traits are plain classes in two layers, a component names its traits in a `Composed` annotation, and the flattener is a required build step
+
+**Decided 2026-11-19 by the owner,** relayed by the coordinator, on Architect B's [feasibility study](trait-decorators-1/trait-decorators-plan.md) and [migration plan](trait-decorators-1/trait-migration-plan.md) at `250b55f96`. The plan's [owner's decisions](trait-decorators-1/trait-migration-plan.md#the-owners-decisions-2026-11-19) section lists his answers. Registered by the architect on `repo/traits-migration-1`, which merged `repo/trait-decorators-1` into `origin/main` at `24c6672ce` (`e49b67e24`, `RD-17`). `RD-25` is the highest number on any branch on `origin`, so this is the next free number. **Unimplemented:** the plan's [seven commits](trait-decorators-1/trait-migration-plan.md#commits) implement it on this branch, and its pull request opens after the plan's [proofs](trait-decorators-1/trait-migration-plan.md#the-proofs-before-the-pull-request) hold.
+
+**It supersedes the `trait()`/`impl()` design:**
+
+- core's transformer `trait(transformer, brand)` and `impl(Base, [traits])` in `traits/primitives.ts`;
+- the descriptor `trait()` in `traits/attributes.ts`;
+- the flattener as an optional optimization, which retained with a warning whatever it couldn't prove safe ([`trait-flattener-plugin.md`](../.agents/docs/trait-flattener-plugin.md) §Purpose).
+
+No register entry held that design. It lived in the code, in that document and in `architecture.md` §Traits and attributes, and in `RF-44`'s rulings. This is a new entry and not an amendment, because it replaces the API and the plugin's purpose.
+
+**Properties:**
+
+1. **Layer (a), `@ydinjs/core/traits/composition.js`, knows nothing of elements.**
+   - A trait is a plain class. It extends a bound, `bound()`, which is `null` at runtime and types what the trait requires of its base.
+   - A trait brands itself with `trait(this)` in its static block.
+   - A component names its base and its traits once, in a constant's annotation: `const X: Composed<Base, [Traits…]> = compose(Base)`. Exactly one class in the module extends `X`.
+   - `compose` throws unless its argument is `null`, so a component that isn't flattened fails when its module is evaluated.
+2. **The flattener lowers each composition.**
+   - It replaces the constant with the base.
+   - It copies each trait's members in list order, before the component's own.
+   - It merges statics by property 3.
+   - It generates `static { impl(this, …brands) }`.
+   - Every case the copy can't carry is a build error. Layer (a) has no runtime composition to fall back on.
+3. **A static merges by the kind its declaration states,** read syntactically.
+   - An array concatenates, and an object spreads shallowly. The types say the same through `MergeStatics`.
+   - These shapes are build errors: a tuple, an `as const` array, a class instance, a function, a mixed union, `typeof`, and an alias that can't be resolved syntactically.
+   - Two contributors that give one key different kinds are a build error, and the base's declaration counts as a contributor.
+4. **The last trait wins any other shared key:** a method, a whole accessor pair or a simple static.
+   - The types agree: neither `never` nor an overload.
+   - **Each trait is trimmed alone in the instance type.** A trait loses only the keys that a later trait in the list declares, and a trait that loses none enters the intersection whole, with its declaration kinds and its ES-private members. A key of the base's instance doesn't count. A trait that is trimmed loses the base's instance keys as well, because the base supplies them unmapped. So a subclass's override of a base member keeps its kind check, and only the trimmed trait's own members lose theirs. _(Amended 2026-11-19 twice, below.)_
+   - **A trait's `declare` member is a key in the types only.** In the types it is shared like any member, and it wins when it comes later. The flattener copies nothing for it, and `trait-member-conflict` doesn't count it. _(Amended 2026-11-19, below.)_
+   - The flattener warns at build time, in the Vite or tsdown console, with `trait-member-conflict`, naming both traits and the key. There is no runtime `console.warn`.
+   - The warning is silent when the component declares the key, and the component's declaration wins over every trait.
+5. **A member is copied across languages only when its text parses to the same tree in both,** apart from positions. The same file extension always copies.
+   - A `.js` module's static and member kinds come from the `.d.ts` that its package's `types` condition names.
+6. **Layer (b), `@ydinjs/core/traits/attribute-traits.js`, is optional sugar over layer (a).**
+   - `accessor name!: T`, with `attributes(this, { name: Converter })`, is lowered in the trait's own build. It becomes a `get`/`set` pair and `static observedAttributes: readonly string[]`.
+   - The plugin's layer (b) code is a part of its own, and nothing in layer (a)'s code imports it.
+7. **The brand install names symbols, not classes.**
+   - The generated block reads `impl(this, $a, $b)`.
+   - In the trait's own build, `trait(this)` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class. One that uses it keeps the class, without its members where property 8 applies. _(Amended 2026-11-19, below.)_
+   - The author still writes `trait(this)`. `trait`'s second parameter is optional, so an unbuilt trait module still runs.
+8. **An application build deletes each trait class's copied instance members** from the trait module. An application build is Vite's `build` without `build.lib`. A library build keeps them, because another package copies from its `.js`.
+9. **The flattener is a required build step** for every module that composes traits.
+
+**The owner's earlier answers stay:**
+
+- the bound is `null`;
+- a trait brands itself with `trait(this)` in a static block;
+- `compose` throws unless `base === null`;
+- `impl` is always generated;
+- `super.traitMember` in a component is a build error;
+- `#brand!: true` goes where a trait's members already exist on its bound.
+
+**The owner's words,** translated. On property 4: _"Trait order was always meant to matter; object assignment inherits it anyway."_ On property 6: _"So nobody has to write get/set by hand; plus a slightly smaller size where `instanceof` is needed."_
+
+**Property 7 was proposed by Architect B, within the owner's answer "a generated `impl`", and accepted by the owner on 2026-11-19,** relayed by the coordinator: `impl(this, $a, $b)`, with `/* @__PURE__ */ trait(this, $brand)` in the trait's own build. The evidence is [P41](trait-decorators-1/trait-decorators-plan.md#evidence) ([transcript](trait-decorators-1/checks/brand-shaking.txt)), with rolldown 1.3.2, minified:
+
+- with `impl(this, Linked)`, the trait class and its members stay in every bundle: 1,988 B, 650 B brotli;
+- with `impl(this, $linked)` and the pure call, a bundle that never uses `instanceof Linked` drops the class: 1,486 B, 551 B brotli;
+- a bundle that uses `instanceof` keeps the class, and property 8 takes its members out: 1,890 B with them, 1,643 B without.
+
+That is the size the owner's _"where `instanceof` is needed"_ asks for. It also keeps today's size: today's flattened output links a module-level brand, and its trait objects are pure and dropped.
+
+**Amended 2026-11-19 by the architect, on Architect B's proposal in the [migration plan](trait-decorators-1/trait-migration-plan.md#proposed-rd-26-amendment) at `b53beff07`. The owner approved it the same day,** relayed by the coordinator: _keep `trait(this)` in source, and have the build emit the static method._ Property 7's second bullet now names the static `[Symbol.hasInstance]` method, which replaces the accepted `/* @__PURE__ */ trait(this, $brand)`.
+
+- **Why the pure call goes:** it breaks `instanceof`. The implementer found this in the migration's commit 3. rolldown and esbuild remove a pure call whose result is unused, even inside a class they keep, so the brand is never installed. P41 read only whether the class survived, and its bytes. Its figures for the pure-marked form with `instanceof` describe a bundle whose `instanceof` is false.
+- **The evidence is [P42](trait-decorators-1/trait-decorators-plan.md#evidence)** ([transcript](trait-decorators-1/checks/brand-install.txt)). It runs each bundle in Node 26.13, minified, with rolldown 1.3.2 and esbuild 0.28.1, from the trait's own build and from a rolldown library build of it.
+  - **The static method:** a bundle that never uses `instanceof` drops the class. With rolldown that bundle is 446 B, 213 B brotli. A bundle that uses `instanceof` keeps the class: `instanceof` is `true` for the trait's element and `false` for another element and for `null`. The library build keeps the install.
+  - **The pure call:** `instanceof` is `false` for every object in both bundlers, and the library build drops the install.
+  - **The unmarked call:** every trait class stays, with its members.
+  - **A static field of the same value:** holds all four of the plan's properties too. It is rejected because a toolchain that lowers class fields to assignment, such as `useDefineForClassFields: false`, makes it throw. `Function.prototype[Symbol.hasInstance]` isn't writable, so the assignment raises a `TypeError`.
+- **The owner's intended follow-up, not decided here:** after this pull request, an `@trait` decorator that the plugin compiles replaces `static { trait(this); }` in source. Trait sources are always built and tested through the plugin, as material-x's CSS is. That pass needs its own decision.
+
+**One branch and one pull request,** on the owner's decision 5:
+
+- the commits don't need to build in between;
+- there is no temporary old plugin path;
+- the migration is verified locally in full before the pull request opens.
+
+The plan holds the files, the diagnostics, the baseline and the proofs.
+
+**What it closes.** Each entry has a dated note of 2026-11-19, and the architect writes each closure on this branch after the plan's proofs hold, before the pull request opens:
+
+- `RF-54` closes when the migration merges;
+- `RF-57` closes when the migration merges, with one exception recorded;
+- `RF-63` closes when the migration merges.
+
+`RF-44`'s language rule takes the route back that its ruling named. `RF-60` doesn't change: its one-URL rule in `flattenToDir` carries over to the rewritten harness.
+
+**Why:**
+
+- **The annotation carries the types.** A decorator can't, in either compiler ([P1](trait-decorators-1/trait-decorators-plan.md#the-verdict)). The annotated constant typechecks under `isolatedDeclarations` in TypeScript 7.0.2 and 6.0.3, and the language service sees each member before any transform runs.
+- **Plain classes keep each member's declaration kind,** so TS2610 and TS2611 apply to traits (`RF-57`).
+- **Merging statics by declared kind** is what lets layer (a) know nothing of elements. `observedAttributes` is one more array.
+- **Last-wins is the order object assignment already gives.** The warning moves the conflict to the build, where the author sees it.
+- **A required flattener** removes the runtime composition and its retained-with-warning path. A composition the plugin can't carry is now an error, not a silent cost.
+
+**Not adopted:**
+
+- **a decorator that names the traits:** it can't change the class's type (P1);
+- **a merged interface beside the class** (the study's forms A and B): it is the boilerplate the owner wanted gone, and it repeats the list;
+- **`impl(this, Linked)`,** which names the trait class: every bundle keeps the class (P41);
+- **`/* @__PURE__ */ trait(this, $brand)` in the trait's own build,** which property 7 first named: a bundler removes the call, so `instanceof` is false (P42, amended 2026-11-19);
+- **a static `[Symbol.hasInstance]` field:** a toolchain that lowers class fields to assignment makes it throw (P42);
+- **a shared key as a build error:** the owner chose last-wins;
+- **stripping types in the plugin before inserting JavaScript into a `.ts` module:** Vite re-reads the code by the module's id and ignores `moduleType` ([P39](trait-decorators-1/trait-decorators-plan.md#evidence) §5, `RF-44`'s note of 2026-11-19);
+- **deduplicating `observedAttributes`:** each engine calls back once per change despite duplicates (P39 §3).
+
+**Amended 2026-11-19 by the architect: each trait is trimmed alone, and a trait's `declare` member is a key in the types only** (property 4's third and fourth bullets). On Mx Implementer's report from the migration's core commit, relayed by the coordinator. **No owner decision is needed.** Property 4's rule, the last trait wins in the types too, doesn't change, and neither do the runtime and the declaration surface. What changes is the form P40 recorded, which trims more than the rule asks.
+
+- **What broke.** P40's `MergeInstances` folds from the first trait, so a shared key sends all the earlier traits, merged, through `Omit`. Each of them loses its declaration kinds and its ES-private members.
+  - SwitchIconButton's list ends `…, FocusForwarding, IconButtonLike`, and IconButtonLike declares `color`, which ButtonLike also declares.
+  - So FocusForwarding lost `#brand`, and `useButtonCore(this, …)` failed with TS2345.
+  - IconButton lists FocusForwarding after IconButtonLike, so it wasn't affected.
+- **The rule now** is property 4's third bullet. [P43](trait-decorators-1/trait-decorators-plan.md#evidence)'s [`trimmed.ts`](trait-decorators-1/probes/types/last-wins/trimmed.ts) is one form that meets it: it reads the list from the last trait back and carries the later traits' keys. The implementer chooses the form.
+- **P43** ([probe](trait-decorators-1/probes/types/last-wins/p43-shared-key.ts), [transcript](trait-decorators-1/checks/shared-key.txt)), in TypeScript 7.0.2 and 6.0.3, which agree on every result and differ only in the order they print a union:
+  - (a) In SwitchIconButton's order, P40's form fails with TS2345 on `#brand`, and trimming each trait alone passes. `color` is `"outlined" | "elevated" | "tonal" | null`, so `'standard'` and `'text'` fail with TS2322.
+  - (b) IconButton's order passes in both forms.
+  - (c) After the shared key, an own field over Disableable's `disabled` or IconButtonLike's `width` still fails with TS2610. One over ButtonLike's `size` doesn't, because ButtonLike lost `color` and went through `Omit`. P40's form loses `disabled` too.
+  - (d) A nominal trait that loses a key loses its `#brand`, so passing the component where that trait is expected fails with TS2345.
+  - (e) With no shared key, ButtonLike's `color` keeps TS2610, as in P40 (b).
+  - (f) A trait that loses no key keeps TS2611 for its fields. IconButtonLike's `declare color` is a property, so a component's accessor over `color` fails with TS2611.
+- **What remains of the exception:** only a trait that loses a key goes through `Omit`. Its own other members lose TS2610 and TS2611, and its ES-private members go (P43 (c), (d)). Since the second amendment below, the base's members keep theirs (P44). `RF-57`'s note says so.
+- **A `declare` member** is allowed in a trait and isn't copied: the plan's `trait-field` row already says so. It states a type that the runtime member already has, from an earlier trait or the base, and nothing checks that. Its kind in the types is a property (P43 (f)). No type-only accessor exists: `declare accessor` is TS1243, and with an `abstract accessor` every component must implement the member (TS2515).
+- **The one composition this touches** is IconButtonLike's `declare color: Extract<IconButtonColor, ButtonColor> | null`, in IconButton and SwitchIconButton.
+  - **At runtime, `color` is ButtonLike's accessor,** today and after the migration. Today IconButtonLike's descriptor `trait()` installs only `width`, and `color` is only in its type. After the migration, IconButtonLike's `declare color` isn't copied. `observedAttributes` names `color` once, from ButtonLike.
+  - **The flattener doesn't warn,** because no two traits supply `color`.
+  - **In the types, `color` is `"outlined" | "elevated" | "tonal" | null`.** That is the baseline surface's type, the intersection of the two descriptors. The props keep `IconButtonColor`.
+  - **The cost:** in those two components, an own field over ButtonLike's `size` or `shape` isn't reported (no TS2610), and an accessor over `color` fails with TS2611. No component overrides either key today.
+- **The plan's proof 6** now reads: no composition in the tree has two traits that supply one key, so the build prints no `trait-member-conflict`. IconButtonLike's `declare color` over ButtonLike's `color` shares a key in the types only.
+- **Not adopted:**
+  - **dropping the `declare`:** `color` becomes `ButtonColor | null`, which differs from the baseline surface;
+  - **reordering SwitchIconButton's list:** `observedAttributes` and the prototype's member order change, which differs from the runtime baseline;
+  - **a copied `color` accessor in IconButtonLike:** two traits would supply `color`, and the flattener would warn;
+  - **an `abstract accessor color`:** every component would have to implement it (TS2515).
+
+**Amended again 2026-11-19 by the architect: a trimmed trait also loses the base's keys** (property 4's third bullet, its fourth sentence). On Architect B's proposal in the [migration plan](trait-decorators-1/trait-migration-plan.md#proposed-rd-26-amendment-property-4) at `f8eef5262`, relayed by the coordinator. **No owner decision is needed:** it restores what the old types allowed, and changes no rule the owner set.
+
+- **What broke at `2bf0418ab`.** Every trait carries its bound's members, so `Omit<Trait, K>` also mapped every member the trait inherits from `HTMLElement`, and a mapped type has only properties.
+  - A subclass of IconButton or SwitchIconButton got TS2425 on a legitimate `override click()`.
+  - An own field over a base accessor lost TS2610.
+  - The old types allowed the override and reported the field.
+- **The evidence is [P44](trait-decorators-1/trait-decorators-plan.md#evidence)** ([transcript](trait-decorators-1/checks/surface.txt)), read with TypeScript 7.0.2 and 6.0.3 on the built declarations at `2bf0418ab`.
+  - §3b: TS2425 on the built IconButton and SwitchIconButton, and none on Button, which trims no trait.
+  - §4: the trimmed trait without the base's keys, on the same pair and on Disableable with FocusForwarding.
+  - The transcript ends with P43's cases run with `Omit<Trait, K | keyof Base>`, and two `override click()` cases added. Every error is the same, on the same line, apart from the printed type, and the two TS2425 go.
+- **P43's `trimmed.ts` doesn't meet the bullet as it now reads:** its `Without` leaves the base's keys in. The form on the branch is the implementer's.
+
+**Dated 2026-11-19 by the architect: implemented on `repo/traits-migration-1`, and the proofs hold.** Read at `aa73be64e`, relayed by the coordinator. The _Unimplemented_ line above is answered, and the implementer opens the pull request next. The [proofs record](trait-migration-1/checks/proofs.md) holds the readings:
+
+- proofs 1 (the runtime baseline), 3 (the declaration surface, with its 19 expected differences), 5 (the flattened JavaScript), 6 (no flattener warning) and 7 (the repository's checks);
+- proof 4: eleven size rows smaller, which the owner accepted;
+- proof 2: 2,116 of 2,117 tests pass. The one failure is drag's per-sample allocation row, which the migration doesn't touch. It is recorded under `drag:DRF-53`.
+
+`RF-54`, `RF-57` and `RF-63` are closed on this date.
+
+`RF-66` was registered on the same date, from PR #76's repair verification. The flattener doesn't follow re-exports. It doesn't block the pull request, and it must close before `@ydinjs/vite-traits-plugin` is first published.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -1885,6 +2046,18 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
   - **One comment is still owed before the pull request opens,** the recheck's `recheck-3`, Tier C. The JSDoc of `TRAIT_SOURCE_LANGUAGE` still says that JavaScript is copied into TypeScript. The handoff's item 3b corrects it. It changes no output and doesn't bear on the required property.
   - **Item 3b is in** at `c3af883d7`. It changes only those two lines of `diagnostics.ts`. The architect read the diff: the reason is now _"a method trait's origin module has a different file extension from the consumer's"_, which agrees with `canCopySource`'s JSDoc and the document's reason table. The unit is complete. Its pull request waits for #38's merge and the merge of `main` into this branch.
 
+- **Dated 2026-11-19 by the architect: the language rule's route back is taken,** under `RD-26` property 5. This entry stays closed. Only the rule it recorded changes.
+  - **The new rule:** `canCopySource` becomes the parse-equivalence check, in the plugin's `composition/copy.ts`.
+    - The same extension copies.
+    - Any other pair copies when the member's text parses without error in both languages, and the two trees are equal apart from positions.
+  - **What the check refuses** ([P36](trait-decorators-1/trait-decorators-plan.md#evidence) §3, [transcript](trait-decorators-1/checks/portability.txt)):
+    - over real built JavaScript it refused none of 1,294 members: core's 44 and Vite's `dist` 1,250;
+    - it refuses `a < b > (c)` from `.js` into `.ts`, and `<string>x` from `.ts` into `.tsx` or `.mts`.
+  - **A refused copy is a build error** (`trait-source-language`), not a retention. Layer (a) has no runtime composition to fall back on.
+  - **The hazard that keeps the check:** Vite's TypeScript transform re-reads inserted code by the module's id, and it ignores `moduleType` ([P39](trait-decorators-1/trait-decorators-plan.md#evidence) §5, [transcript](trait-decorators-1/checks/static-merge.txt)).
+    - A built-JavaScript `a < b > (c)` inserted into a `.ts` module came out as `a(c)`. That happened both when it was inserted before `vite:oxc`, and when the plugin stripped types itself and returned `moduleType: 'js'`.
+    - So stripping types in the plugin isn't a route in Vite, though rolldown alone honours `moduleType: 'js'` (P36 §4).
+
 #### RF-45 — material-x has no size measurement, so no budget covers its entries
 
 Tier C, **open**. Registered on 2026-11-17 by the architect, from the [findings report](findings-1/findings-1-report.md) §9 (item 8, step 1), relayed by the coordinator. **No row is disabled.**
@@ -2140,7 +2313,7 @@ Tier C, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-
 
 #### RF-54 — material-x's published `TextFieldCore.d.ts` doesn't type-check: the `@ts-expect-error` on `value` isn't in the declaration
 
-Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ below). Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
+Tier C, **closed 2026-11-19** (below). Before closure: decided 2026-11-18 (see _Decided_ below), repaired in #37, and open. Registered on 2026-11-18 by the architect, while answering `RF-51`'s question about a standing check ([reading](aube-isolated-1/checks/rf51-declarations-typecheck.txt) B). **No row is disabled.**
 
 - **What was read:**
   - `src/text-field/TextFieldCore.ts:223` suppresses TS2611 on `override get value()` with `@ts-expect-error`, citing microsoft/TypeScript#54879;
@@ -2165,6 +2338,30 @@ Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ belo
   - **Excluding the file from the check.** That fails `RF-51`'s property.
 
 **Routed** to the same handoff, which lands the repair before the check. The architect closes this finding from that unit's report and review.
+
+**Dated 2026-11-19 by the architect: the decided repair is in, and this entry closes with `RD-26`'s migration.**
+
+- **The repair is in.** #37 (`35bfc6209`) made `Branded` a mapped type and removed the directive at `TextFieldCore.ts:223`. It also put `just typecheck-declarations` in the gate (`verify.yml`). The status line above wasn't updated then, and the entry wasn't closed.
+- **The mechanism goes.** Under `RD-26`, `Branded` is deleted with `primitives.ts`.
+  - Layer (b)'s attributes are `accessor` declarations, lowered to `get`/`set` pairs, and never `declare` properties.
+  - So a subclass's accessor override typechecks with no directive and no mapped type. TextFieldCore's `value` is that case.
+  - In [P31](trait-decorators-1/trait-decorators-plan.md#evidence), the accessor override passes in both compilers. Case (d) shows that a `declare` member is this finding's TS2611.
+- **One `declare` member stays,** under `RD-26` property 4's amendment of 2026-11-19: IconButtonLike's `declare color`, which keeps the baseline's type for `color` in IconButton and SwitchIconButton. There an accessor over `color` fails with TS2611 ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (f)). No declaration in the repository overrides it, so proofs 3 and 7 don't change. The closure records it.
+- **Proof 3's expected differences,** ruled by Architect B on 2026-11-19 at `f8eef5262`, on the reading at `2bf0418ab` ([P44](trait-decorators-1/trait-decorators-plan.md#evidence)), which the closure cites:
+  - `static [$bound]` on each trait class's static side: a type-only `unique symbol` that `composition.js` doesn't export, with no runtime value;
+  - `focus` on FocusForwarding's eight adopters, typed as `HTMLElement`'s `focus` intersected with FocusForwarding's override of the same signature. **Known limit:** a subclass's override with a wrong signature isn't reported against that intersection (no TS2416). The plan's proof 3 records why each repair costs more.
+- **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs 3 and 7 hold on `repo/traits-migration-1`: the declaration surface, and `just typecheck-declarations`. The architect writes the closure on that branch before its pull request opens.
+
+**Closed 2026-11-19 by the architect** on `repo/traits-migration-1` at `aa73be64e`, not yet merged, relayed by the coordinator. It rests on the migration's [proofs](trait-migration-1/checks/proofs.md). The required property holds: every published declaration file type-checks with `skipLibCheck` off.
+
+- **Proof 7:** `just typecheck-declarations` passed at `15d50a10e`, after the trimmed-trait fix. It builds every package that writes declarations, then type-checks them as a consumer. The architect read it in the proofs record and didn't run it again.
+- **The case this entry read is gone at the source.** `TextFieldCore.ts:220` and `:224` override `value` with `get` and `set` and no directive. Valuable declares `accessor value!: string | null` (`traits/valuable.ts:20`), which layer (b) lowers to a `get`/`set` pair. Neither `Branded` nor `primitives.ts` is left in any package's sources.
+- **Proof 3:** the surface differs from commit 1's only by 15 named renames and 19 differences, both of the two kinds the plan expects ([comparison](trait-migration-1/checks/surface-compare.txt)): `static [$bound]` on the 11 trait classes, and `focus` on the 8 `FocusForwarding` adopters. The reading after `15d50a10e` is byte-identical to the one before it.
+- **Recorded with it:**
+  - IconButtonLike's `declare color`: in IconButton and SwitchIconButton, an accessor over `color` fails with TS2611 ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (f)). No declaration in the repository overrides it.
+  - The `focus` limit: a subclass's `focus` override with a wrong signature isn't reported against the adopters' intersection (no TS2416).
+- **What reopens it:** a published declaration file that fails `just typecheck-declarations`, which is in the gate.
+- **No GitHub issue** names this entry.
 
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
 
@@ -2205,7 +2402,7 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-43`'s stop
 
 #### RF-57 — A transformer trait's class field shadows a subclass's accessor at runtime, and TypeScript doesn't report the override
 
-Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the architect, on the owner's request relayed by the coordinator, from the note in `RF-54`'s decision and its [probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt). `RF-56` is allocated on `repo/host-invariant-1`. **No row is disabled.**
+Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-11-18 by the architect, on the owner's request relayed by the coordinator, from the note in `RF-54`'s decision and its [probe](declarations-check-1/checks/rf54-transformer-trait-probe.txt). `RF-56` is allocated on `repo/host-invariant-1`. **No row is disabled.**
 
 - **What was read** at `2544a24fd`:
   - core's transformer `trait()` (`src/traits/primitives.ts`) types a trait's instance fields as `Omit<InstanceType<U>, keyof InstanceType<T>>`, which is a mapped type. So TypeScript doesn't apply TS2610 or TS2611 to them.
@@ -2222,6 +2419,32 @@ Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the 
   - **A runtime check on the transformer's result,** for own fields that shadow an accessor. Once the contract states the rule, a class field is incorrect use of it, and the trait doesn't corrupt state that it owns. So the check fails both conditions of `CONTRIBUTING.md`'s _Definition of success_ for a defensive check.
   - **A custom lint rule.** That is the machinery that `RF-51`'s answer declined.
 - **Routed** to the owner. It isn't scheduled, and it blocks nothing.
+
+**Dated 2026-11-19 by the architect: this entry closes with `RD-26`'s migration, with one exception recorded.**
+
+- **The transformer `trait()` this entry names is deleted** with `primitives.ts`.
+- **In layer (a), a trait is a plain class whose members keep their declaration kinds.** `MergeInstances` doesn't count the base's keys, so the intersection of traits that share no key of their own stays a plain intersection. [P40](trait-decorators-1/trait-decorators-plan.md#evidence) (b) shows the results in TypeScript 7.0.2 and 6.0.3 ([transcript](trait-decorators-1/checks/types.txt)):
+  - a subclass's accessor over a trait field fails with TS2611;
+  - a component's own field over a trait accessor fails with TS2610.
+- **A trait field with an initializer is a build error** (`trait-field`), so a trait can't install the own instance property that shadowed the accessor at runtime.
+- **The exception,** narrowed by `RD-26` property 4's amendment of 2026-11-19: in a composition where a later trait declares a key of an earlier trait, only that earlier trait goes through `Omit`, a mapped type. Its other members then lose TS2610 and TS2611, and its ES-private members go ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (c), (d)). Every other trait keeps its kinds.
+  - The case this entry needs is a component's own field over a trait's accessor. A trait still can't install an instance field, so the exception doesn't bear on this entry's required property.
+  - The flattener's `trait-member-conflict` warning names every pair that supplies one key. A `declare` member supplies nothing, so a key that a later trait only declares isn't warned about.
+  - One composition has such a key today: IconButtonLike's `declare color` over ButtonLike's `color`, in IconButton and SwitchIconButton. There ButtonLike's `size` and `shape` don't report an own field (P43 (c)).
+  - **The cost is the trimmed trait's own members only** (`RD-26` property 4, amended again 2026-11-19). At `2bf0418ab` it also reached the base's members: a subclass of IconButton or SwitchIconButton got TS2425 on `override click()`, and an own field over a base accessor lost TS2610 ([P44](trait-decorators-1/trait-decorators-plan.md#evidence)). The trimmed trait now loses the base's keys as well, which repairs both.
+- **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs hold on `repo/traits-migration-1`. The architect writes the closure on that branch before its pull request opens, with this exception recorded.
+
+**Closed 2026-11-19 by the architect** on `repo/traits-migration-1` at `aa73be64e`, not yet merged, relayed by the coordinator. It rests on the migration's [proofs](trait-migration-1/checks/proofs.md), all of which hold. The required property holds: the hazard can't be written, and the types report the overrides that this entry's case hid.
+
+- **The transformer `trait()` is gone.** `primitives.ts` is deleted, and no package's sources build a trait from a transformer.
+- **A trait can't install an instance field.** The flattener fails any instance field of a trait class with `trait-field`, except a `declare` field and a private field with no initializer, neither of which is copied (`vite-traits-plugin/src/composition/trait-class.ts:414`). That is stricter than the plan's row, which names a field with an initializer. `diagnostics.node.test.ts` reads it.
+- **The types keep the kinds.** core's `composition.declaration.test.ts` passes at `15d50a10e`, in core's 297 tests:
+  - TS2610 on an own field over a trait's accessor;
+  - TS2611 on an accessor over a trait's field;
+  - after a shared key, TS2610 on another trait's accessor and on a base accessor, the [P44](trait-decorators-1/trait-decorators-plan.md#evidence) §3 and §4 cases. The proofs record states that those two fail without the fix.
+- **The exception stays as recorded above:** only the trimmed trait's own members lose their kinds. A trait can't install an instance field, so the exception doesn't bear on this entry's property.
+- **What reopens it:** a trait form that installs an instance member the copy doesn't carry as an accessor or a method, or a type form that maps a trait that loses no key.
+- **GitHub:** issue #50. The migration's pull request closes it.
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
 
@@ -2337,7 +2560,7 @@ Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-
 
 #### RF-63 — A shared trait list built with a spread keeps a flattened method trait's dead class layer in an esbuild bundle, and other bundlers aren't measured
 
-Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item 3 measurement and the owner's answer on it, relayed by the coordinator. `RF-62` is on `repo/work-queue-1`, so this is the next free number. **No row is disabled.**
+Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-11-18 by the architect, from `RF-44`'s item 3 measurement and the owner's answer on it, relayed by the coordinator. `RF-62` is on `repo/work-queue-1`, so this is the next free number. **No row is disabled.**
 
 - **What was measured** ([W1](traits-plugin-1/checks/item3-witness.txt)), by the implementer, with esbuild 0.28.1 (`--bundle --minify --format=esm`), at `17065ddf0`. `icon-button`, `switch-button` and `switch-icon-button` grow by 84 minified bytes against the per-class form. The five other adopters grow by 19 or 20. Of the 84, 64 or 65 bytes are dead code:
   - `ICON_BUTTON_CORE_TRAITS` (`IconButtonCore.ts:56`) and `SWITCH_CORE_TRAITS` (`SwitchCore.ts:33`) are module-level arrays built with a spread, `[...BUTTON_CORE_TRAITS, …]`;
@@ -2351,6 +2574,29 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item
   - or the record states which named bundler keeps them, by how many bytes, and why that is accepted.
 - **The architect's direction,** for the unit that takes it: measure before any change. Bundle the eight adopters' entries at the head with rolldown, at the repository's version, through `size-limit-preset-rolldown`, and with esbuild as W1 did. For each entry, record whether `Symbol("FocusForwarding")`'s `trait(…)` call and the spread lists survive, and the bytes. The architect then rules from that reading. The bundler set is rolldown and esbuild unless the owner names another.
 - **Routed** to the owner to order, through the work queue (`RD-22`). The owner accepted the growth for now. **It doesn't block** `RF-44`'s pull request.
+
+**Dated 2026-11-19 by the architect: this entry closes with `RD-26`'s migration, and the repair on hold isn't needed.**
+
+- **No shared list is left.** Under `RD-26`, each `*_TRAITS` value list becomes a tuple type, and each component's brand install is a generated literal, `impl(this, $a, $b)`. So a bundler has no runtime list to keep.
+- **A trait class that only brands drops** where nothing uses `instanceof`, because the trait's own build installs the brand as a static `[Symbol.hasInstance]` method, which has no side effect (`RD-26` property 7, amended 2026-11-19). [P41](trait-decorators-1/trait-decorators-plan.md#evidence), with rolldown, gives 1,486 B against 1,988 B. [P42](trait-decorators-1/trait-decorators-plan.md#evidence) shows that the class drops with the static method in both bundlers.
+- **The closure reads both named bundlers.** P41 measured rolldown only, and this entry names rolldown and esbuild. So the closure reads the eight `FocusForwarding` adopters' entries at the migration's last commit, with both bundlers, as this entry's direction states: whether the brand install, a trait class or a list survives; `instanceof` in each bundle that keeps a trait class; and the bytes.
+  - If esbuild keeps a trait class, the closure records it under the required property's second branch: the bundler, the bytes and why that is accepted.
+- **Eleven size rows shrink at `2bf0418ab`,** outside proof 4's noise bound, because core's runtime trait factory left the bundles.
+  - Seven entries carried it because of this entry's defect: a module they import kept a dead spread of a shared trait list. One of them, `button/split-button`, also exports a trait object.
+  - Three carried it only because the entry exports a trait object: core's `traits/reorderable`, `fab/fab` and `checkbox/checkbox`.
+  - The eleventh row is `complete`, which holds all of them.
+  - The owner accepted all eleven on 2026-11-19, relayed by the coordinator: a decrease is always approved under his standing rule.
+  - Each row's cause is in [`size.md`](trait-migration-1/checks/size.md), and the plan's proof 4 records the acceptance. The closure cites them.
+- **It closes** on that reading, on `repo/traits-migration-1`, before its pull request opens. The architect writes the closure.
+
+**Closed 2026-11-19 by the architect** on `repo/traits-migration-1` at `aa73be64e`, not yet merged, relayed by the coordinator. It rests on the migration's [proofs](trait-migration-1/checks/proofs.md) and on the adopters' [reading](trait-migration-1/checks/rf63-adopters.txt) ([script](trait-migration-1/checks/rf63-adopters.ts)). The required property holds by its first branch, in both named bundlers.
+
+- **No list is left.** No package's sources build a trait list as a value: each list is a tuple type, and each brand install is a generated `impl(this, …)`.
+- **No adopter's bundle keeps a trait class.** All eight adopters' built entries were bundled, minified, with rolldown 1.3.2 and esbuild 0.28.1. Each of the 16 bundles keeps no trait class, so no `[Symbol.hasInstance]` method survives. esbuild drops them as rolldown does. The bytes per bundle are in the reading, from 14,655 B (`list-button-item`, rolldown) to 25,920 B (`switch-icon-button`, esbuild) minified.
+- **`instanceof` holds where a class is kept.** With `instanceof Disableable` added, each bundle keeps that one class. In Chromium, an adopter, a `div` and `null` read `true`, `false` and `false`, in all 16.
+- **The size rows:** the eleven decreases above, which the owner accepted.
+- **What reopens it:** a runtime trait list, or a bundle of an adopter that keeps a trait class it never tests with `instanceof`.
+- **GitHub:** issue #63. The migration's pull request closes it.
 
 #### RF-64 — The list item sets `--_support-row-size`, which no rule reads, and clamps its supporting text to two lines whatever the item's line count
 
@@ -2409,6 +2655,21 @@ Tier B, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-
   - the change is computed per row from those two files, and `.scripts/size-report.node.test.ts` checks a grown, a shrunk, an unchanged, an added and a removed row. Those rows passed in #74's `chromium` job.
 - **What reopens it:** a comment whose base or change disagrees with `main`'s stored reading for the merge base. The first pull request that changes a measured entry, expected to be `RF-63`'s, shows the non-zero change. The architect reads it then.
 - **The dated notes that `RF-65` caused are closed** in `RD-6`, `RD-7` and `RD-24`, on the same date.
+
+#### RF-66 — The flattener doesn't follow re-exports, so a trait or a component's base imported through a barrel module is refused
+
+Tier B, **open**. Registered on 2026-11-19 by the architect, from `verifier-3` of the [repair verification](reviews/traits-migration-1/repair-verification-claude.md) of PR #76 at `abc945b47`, and Architect B's [ruling](trait-decorators-1/trait-migration-plan.md#verifier-3-a-base-or-a-trait-through-a-re-export) at `ea5fefe46`, relayed by the coordinator. `RF-65` is the highest number on any branch on `origin`, so this is the next free number. **No row is disabled.**
+
+- **Observed** ([witnesses](reviews/traits-migration-1/checks/repair-verification-witnesses.txt), V-W5):
+  - K4: a base imported from a module that does `export { SBase } from './sbase.ts'` gives `static-kind`, _"the base's class chain can't be read to find its kind"_;
+  - K5: a trait imported through a re-export gives `trait-unresolved`, _"isn't a class whose static block calls trait(this)"_.
+- **Why.** `heritageClass` (`vite-traits-plugin/src/composition/annotation.ts:402`) follows one `import` to its module, and looks for the class only among that module's own classes. `export { X } from`, `export { X as Y } from` and `export * from` aren't followed. The base's walk uses it for each class in the chain, so a parent class reached through a re-export is refused too. A trait reference is resolved the same way.
+- **Its reach.** A base's walk runs for nearly every composition, because every attribute trait contributes `observedAttributes`, and the base's declared kind is a contributor (`RD-26` property 3). So a base from a barrel module refuses almost every component. A trait through a barrel was already refused at `0c5705d87`, but a base through one still built. It is refused since the repair of `reviewer-2`, which reads the base's declared kind.
+- **Nothing in the repository hits it.** material-x imports `ControlledElement` from `@ydinjs/core/element.js`, which declares it. The refusal is safe: it fails the build, never flattens wrongly.
+- **Tier B:** a valid composition is refused, with a message that names the class chain rather than the re-export. `@ydinjs/vite-traits-plugin` isn't published yet, so no user has met it.
+- **Required property:** a trait or a base reference resolves through named and star re-exports, including a renaming one, by following the module graph through the loader. This holds for each class in a base's chain too. An ambiguous star export, or a cycle, is `trait-unresolved`.
+- **Until then:** under the ruling, the plugin document states the limit before PR #76 merges. A trait or a component's base must be imported from the module that declares it, or the build is refused (`trait-unresolved`, or `static-kind` for a base).
+- **It must close before `@ydinjs/vite-traits-plugin` is first published.** It doesn't block PR #76.
 
 ## Questions
 

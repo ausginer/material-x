@@ -7,12 +7,9 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
-import {
-  Reorderable,
+  type Reorderable,
   useReorderable,
   type ReorderableProps,
   type ReorderEvent,
@@ -34,11 +31,10 @@ export type ListCSSProperties = Readonly<{
   '--md-list-container-shape'?: string;
 }>;
 
-const ListConstructor: TraitedConstructor<
-  ControlledElement,
+const ListConstructor: Composed<
   ControlledElementConstructor,
   [typeof Reorderable]
-> = impl(ControlledElement, [Reorderable]);
+> = compose(ControlledElement);
 
 /**
  * @tag mx-list

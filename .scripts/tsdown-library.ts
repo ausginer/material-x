@@ -50,5 +50,9 @@ export function dropEmptyChunksPlugin(): Rolldown.Plugin {
 }
 
 export function constructLibraryTsdownPlugins(): Rolldown.Plugin[] {
-  return [viteTraitsPlugin(), dropEmptyChunksPlugin(), classVarCleanupPlugin()];
+  return [
+    ...viteTraitsPlugin(),
+    dropEmptyChunksPlugin(),
+    classVarCleanupPlugin(),
+  ];
 }

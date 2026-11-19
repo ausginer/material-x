@@ -3,15 +3,12 @@ import {
   define,
   type ControlledElementConstructor,
 } from '@ydinjs/core/element.js';
-import {
-  impl,
-  type TraitedConstructor,
-} from '@ydinjs/core/traits/attributes.js';
+import { compose, type Composed } from '@ydinjs/core/traits/composition.js';
 import { useSelectable } from '@ydinjs/core/traits/selectable.js';
 import type { EmptyObject } from 'type-fest';
 import template from './list-button-item.tpl.html' with { type: 'html' };
 import {
-  LIST_INTERACTIVE_ITEM_CORE_TRAITS,
+  type ListInteractiveItemCoreTraits,
   useInteractiveListItemCore,
   type ListInteractiveItemCoreCSSProperties,
   type ListInteractiveItemCoreProperties,
@@ -21,11 +18,10 @@ export type ListButtonItemProperties = ListInteractiveItemCoreProperties;
 export type ListButtonItemEvents = EmptyObject;
 export type ListButtonItemCSSProperties = ListInteractiveItemCoreCSSProperties;
 
-const ListButtonItemConstructor: TraitedConstructor<
-  ControlledElement,
+const ListButtonItemConstructor: Composed<
   ControlledElementConstructor,
-  typeof LIST_INTERACTIVE_ITEM_CORE_TRAITS
-> = impl(ControlledElement, LIST_INTERACTIVE_ITEM_CORE_TRAITS);
+  ListInteractiveItemCoreTraits
+> = compose(ControlledElement);
 
 /**
  * @tag mx-list-button-item

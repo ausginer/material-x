@@ -1,0 +1,29 @@
+# P36 — node .plan/trait-decorators-1/probes/toolchain/portability.ts, at 486d0147e, 2026-11-19, Node v26.13.1, Vite 8.4.0-beta.1, oxc-parser 0.158.0, oxc-resolver 11.21.2, rolldown 1.3.2
+== 1. vite build with the real plugin: a consumer in another package
+A. consumer button.ts, conditions […defaults]: flattener warnings [trait-source-language] | Button extends ControlledElement directly: false | 2212 B min, 777 B brotli
+B. consumer button.js, conditions […defaults]: flattener warnings [] | Button extends ControlledElement directly: true | 1659 B min, 584 B brotli
+C. consumer button.ts, conditions [ydin-source, …defaults]: flattener warnings [] | Button extends ControlledElement directly: true | 1659 B min, 584 B brotli
+D. consumer button.js, conditions [ydin-source, …defaults]: flattener warnings [trait-source-language] | Button extends ControlledElement directly: false | 2212 B min, 777 B brotli
+== 2. which file the trait specifier resolves to
+oxc-resolver (rolldown's), conditions [import, default]: node_modules/@probe/traits/traits/disableable.js
+oxc-resolver (rolldown's), conditions [ydin-source, import, default]: node_modules/@probe/traits/src/traits/disableable.ts
+node import.meta.resolve (no flag): node_modules/@probe/traits/traits/disableable.js
+node import.meta.resolve --conditions=ydin-source: node_modules/@probe/traits/src/traits/disableable.ts
+== 3. the parse-equivalence check
+@probe/traits/traits/disableable.js: 2 members, js → ts agree: [ true, true ]
+@probe/traits/traits/focus-forwarding.js: 1 members, js → ts agree: [ true ]
+core's built JavaScript: 27 files, 44 class members, js → ts refused 0
+vite's dist: 12 files, 1250 class members, js → ts refused 0
+js → ts m(a, b, c) { return a < b > (c); }: refuse
+js → ts m(a, b) { return a < b; }: copy
+ts → tsx m(x: unknown) { return <string>x; }: refuse
+ts → mts m(x: unknown) { return <string>x; }: refuse
+ts → tsx m(x: unknown) { return x as string; }: copy
+ts → js m(x: unknown) { return x as string; }: refuse
+lines of the check in this probe (strip, tree, sameMeaning): 30
+== 4. flattening after the TypeScript transform
+the consumer as authored, button.ts: flattened 0, retained [trait-source-language]
+the consumer after the type transform, read as JavaScript: flattened 1, retained []
+a layer (a) composition after the type transform: "const ButtonBase = compose(ControlledElement);" | names Disableable: false
+rolldown, JavaScript returned for a .ts module, moduleType (unset): r = throws TypeError: 1 is not a function
+rolldown, JavaScript returned for a .ts module, moduleType js: r = false

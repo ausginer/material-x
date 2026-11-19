@@ -1,15 +1,13 @@
 import { useAttributes } from '@ydinjs/core/controllers/useAttributes.js';
 import { internals, type ControlledElement } from '@ydinjs/core/element.js';
 import {
-  trait,
-  type Interface,
+  Controlled,
   type Props,
-  type Trait,
-  type Traited,
-} from '@ydinjs/core/traits/attributes.js';
+} from '@ydinjs/core/traits/attribute-traits.js';
+import { trait, type Composed } from '@ydinjs/core/traits/composition.js';
 import { DISABLEABLE_ATTRS } from '@ydinjs/core/traits/disableable.js';
 import {
-  Valuable,
+  type Valuable,
   VALUABLE_ATTRS,
   type ValuableProps,
 } from '@ydinjs/core/traits/valuable.js';
@@ -17,7 +15,7 @@ import { switchState } from '@ydinjs/core/utils/DOM.js';
 import type { EmptyObject } from 'type-fest';
 import {
   BUTTON_ATTRS,
-  BUTTON_CORE_TRAITS,
+  type ButtonCoreTraits,
   type ButtonCoreProps,
 } from '../button/ButtonCore.ts';
 import { useCore } from '../core/utils/useCore.ts';
@@ -26,25 +24,27 @@ import {
   useButtonGroupProvider,
 } from './button-group-context.ts';
 
-const $buttonGroupLike: unique symbol = Symbol('ButtonGroupLike');
+export class ButtonGroupLike extends Controlled {
+  static {
+    trait(this);
+  }
 
-export const ButtonGroupLike: Trait<{}, typeof $buttonGroupLike> = trait(
-  {},
-  $buttonGroupLike,
-);
+  // The field exists for its type: it makes the trait nominal, because its
+  // members are its bound's.
+  // eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
+  readonly #brand!: true;
+}
 
-export type ButtonGroupLike = Interface<typeof ButtonGroupLike>;
 export type ButtonGroupLikeProps = Props<typeof ButtonGroupLike>;
 
-export const BUTTON_GROUP_CORE_TRAITS: readonly [
-  ...typeof BUTTON_CORE_TRAITS,
+export type ButtonGroupCoreTraits = readonly [
+  ...ButtonCoreTraits,
   typeof ButtonGroupLike,
   typeof Valuable,
-] = [...BUTTON_CORE_TRAITS, ButtonGroupLike, Valuable];
+];
 
-export type ButtonGroupCore = Traited<
-  ControlledElement,
-  typeof BUTTON_GROUP_CORE_TRAITS
+export type ButtonGroupCore = InstanceType<
+  Composed<typeof ControlledElement, ButtonGroupCoreTraits>
 >;
 export type ButtonGroupCoreEvents = EmptyObject;
 export type ButtonGroupCoreProps = ButtonCoreProps & ValuableProps;

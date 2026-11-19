@@ -1,0 +1,3152 @@
+[
+  {
+    "tag": "mx-button",
+    "className": "Button",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "name",
+      "type"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "name",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "type",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": true,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": true,
+      "Valuable": false,
+      "ButtonLike": true,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Button"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Button",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Typeable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-button-group",
+    "className": "ButtonGroup",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "value"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": true,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": true,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "ButtonGroup"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "ButtonGroup",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonGroupLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-checkbox",
+    "className": "Checkbox",
+    "observedAttributes": [
+      "checked",
+      "value",
+      "disabled",
+      "name",
+      "indeterminate"
+    ],
+    "reflection": [
+      {
+        "name": "checked",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "name",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "indeterminate",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": true,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": true,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": true,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Checkbox"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Checkbox",
+        "keys": [
+          {
+            "key": "checked",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "indeterminate",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Checkable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Indeterminable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-connected-button-group",
+    "className": "ConnectedButtonGroup",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "value"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": true,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": true,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "ConnectedButtonGroup"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "ConnectedButtonGroup",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonGroupLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-fab",
+    "className": "FAB",
+    "observedAttributes": [
+      "size",
+      "color",
+      "extended",
+      "tonal",
+      "disabled"
+    ],
+    "reflection": [
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "extended",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "tonal",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": true,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "FAB"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "FAB",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "extended",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FABLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "tonal",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-icon",
+    "className": "Icon",
+    "observedAttributes": [],
+    "reflection": [],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Icon"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Icon",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-icon-button",
+    "className": "IconButton",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "width",
+      "type"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "width",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "type",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": true,
+      "Valuable": false,
+      "ButtonLike": true,
+      "IconButtonLike": true,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "IconButton"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "IconButton",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:IconButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Typeable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "width",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-link-button",
+    "className": "LinkButton",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "href",
+      "target"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "href",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "target",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": true,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": true,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "LinkButton"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "LinkButton",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "href",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Linkable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "target",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-list",
+    "className": "List",
+    "observedAttributes": [
+      "reorderable"
+    ],
+    "reflection": [
+      {
+        "name": "reorderable",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": true,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "List"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "List",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "reorderable",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Reorderable",
+            "kind": "value",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-list-button-item",
+    "className": "ListButtonItem",
+    "observedAttributes": [
+      "disabled",
+      "selected"
+    ],
+    "reflection": [
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "selected",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": true,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "ListButtonItem"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "ListButtonItem",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "selected",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Selectable",
+            "kind": "value",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-list-item",
+    "className": "ListItem",
+    "observedAttributes": [],
+    "reflection": [],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": false,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "ListItem"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "ListItem",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-list-link-item",
+    "className": "ListLinkItem",
+    "observedAttributes": [
+      "disabled",
+      "selected",
+      "href",
+      "target"
+    ],
+    "reflection": [
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "selected",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "href",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "target",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": true,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": true,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "ListLinkItem"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "ListLinkItem",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "href",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "selected",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Linkable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Selectable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "target",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-multiline-text-field",
+    "className": "MultilineTextField",
+    "observedAttributes": [
+      "type",
+      "inputmode",
+      "outlined",
+      "disabled",
+      "value",
+      "name"
+    ],
+    "reflection": [
+      {
+        "name": "type",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "inputmode",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "outlined",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": null,
+          "true": null,
+          "false": null,
+          "\"x\"": null,
+          "null": null
+        },
+        "attribute": {
+          "null": "",
+          "\"\"": "",
+          "\"x\"": "",
+          "\"1\"": ""
+        }
+      },
+      {
+        "name": "name",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": true,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": true,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "MultilineTextField"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "MultilineTextField",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          }
+        ]
+      },
+      {
+        "constructor": "TextFieldCore",
+        "keys": [
+          {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "inputmode",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "isPopulated",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "outlined",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "setValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:TextFieldLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-radio",
+    "className": "Radio",
+    "observedAttributes": [
+      "checked",
+      "value",
+      "disabled",
+      "name"
+    ],
+    "reflection": [
+      {
+        "name": "checked",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "name",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": true,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": true,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "Radio"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "Radio",
+        "keys": [
+          {
+            "key": "checked",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Checkable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-split-button",
+    "className": "SplitButton",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "open"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "open",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": false,
+      "ButtonLike": true,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": true,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "SplitButton"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "SplitButton",
+        "keys": [
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "open",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:SplitButtonLike",
+            "kind": "value",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-switch-button",
+    "className": "SwitchButton",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "checked",
+      "value"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "checked",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": true,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": true,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "SwitchButton"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "SwitchButton",
+        "keys": [
+          {
+            "key": "checked",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Checkable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-switch-icon-button",
+    "className": "SwitchIconButton",
+    "observedAttributes": [
+      "color",
+      "size",
+      "shape",
+      "disabled",
+      "checked",
+      "value",
+      "width"
+    ],
+    "reflection": [
+      {
+        "name": "color",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "size",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "shape",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "checked",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "width",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": true,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": false,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": true,
+      "IconButtonLike": true,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": false,
+      "FocusForwarding": true
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "SwitchIconButton"
+      },
+      {
+        "key": "observedAttributes"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "SwitchIconButton",
+        "keys": [
+          {
+            "key": "checked",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "color",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "focus",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "shape",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "size",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:ButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Checkable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:FocusForwarding",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:IconButtonLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "width",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "mx-text-field",
+    "className": "TextField",
+    "observedAttributes": [
+      "type",
+      "inputmode",
+      "outlined",
+      "disabled",
+      "value",
+      "name"
+    ],
+    "reflection": [
+      {
+        "name": "type",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "inputmode",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      },
+      {
+        "name": "outlined",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "disabled",
+        "property": {
+          "1": "",
+          "true": "",
+          "false": null,
+          "\"x\"": "",
+          "null": null
+        },
+        "attribute": {
+          "null": false,
+          "\"\"": true,
+          "\"x\"": true,
+          "\"1\"": true
+        }
+      },
+      {
+        "name": "value",
+        "property": {
+          "1": null,
+          "true": null,
+          "false": null,
+          "\"x\"": null,
+          "null": null
+        },
+        "attribute": {
+          "null": "",
+          "\"\"": "",
+          "\"x\"": "",
+          "\"1\"": ""
+        }
+      },
+      {
+        "name": "name",
+        "property": {
+          "1": "1",
+          "true": "true",
+          "false": "false",
+          "\"x\"": "x",
+          "null": null
+        },
+        "attribute": {
+          "null": null,
+          "\"\"": "",
+          "\"x\"": "x",
+          "\"1\"": "1"
+        }
+      }
+    ],
+    "instanceOf": {
+      "Checkable": false,
+      "Disableable": true,
+      "Linkable": false,
+      "Nameable": true,
+      "Reorderable": false,
+      "Selectable": false,
+      "Typeable": false,
+      "Valuable": true,
+      "ButtonLike": false,
+      "IconButtonLike": false,
+      "FABLike": false,
+      "SplitButtonLike": false,
+      "ButtonGroupLike": false,
+      "Indeterminable": false,
+      "TextFieldLike": true,
+      "FocusForwarding": false
+    },
+    "statics": [
+      {
+        "key": "formAssociated",
+        "value": true
+      },
+      {
+        "key": "length",
+        "value": 0
+      },
+      {
+        "key": "name",
+        "value": "TextField"
+      },
+      {
+        "key": "prototype"
+      }
+    ],
+    "prototype": [
+      {
+        "constructor": "TextField",
+        "keys": [
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          }
+        ]
+      },
+      {
+        "constructor": "TextFieldCore",
+        "keys": [
+          {
+            "key": "checkValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "constructor",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "disabled",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "inputmode",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "isPopulated",
+            "kind": "get",
+            "enumerable": false
+          },
+          {
+            "key": "name",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "outlined",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "reportValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "setValidity",
+            "kind": "function",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Disableable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Nameable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:TextFieldLike",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "symbol:Valuable",
+            "kind": "value",
+            "enumerable": false
+          },
+          {
+            "key": "type",
+            "kind": "get+set",
+            "enumerable": false
+          },
+          {
+            "key": "value",
+            "kind": "get+set",
+            "enumerable": false
+          }
+        ]
+      }
+    ]
+  }
+]
