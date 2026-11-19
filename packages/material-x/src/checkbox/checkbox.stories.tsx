@@ -32,6 +32,7 @@ function ControlledCheckbox(props: JSX.IntrinsicElements['mx-checkbox']) {
 }
 
 const PLAYGROUND_ID = 'mx-playground-checkbox';
+const WITH_LABEL_ID = 'mx-with-label-checkbox';
 
 type PlaygroundArgs = Readonly<{
   label: string;
@@ -89,19 +90,15 @@ export const Checked = (): JSX.Element => (
   </>
 );
 
-export const WithLabel = (): JSX.Element => {
-  const id = crypto.randomUUID();
-
-  return (
-    <>
-      <label className={css['checkable-with-label']}>
-        <ControlledCheckbox />
-        Label wrapper
-      </label>
-      <div className={css['checkable-with-label']}>
-        <ControlledCheckbox id={id} />
-        <label htmlFor={id}>Label attached via ID</label>
-      </div>
-    </>
-  );
-};
+export const WithLabel = (): JSX.Element => (
+  <>
+    <label className={css['checkable-with-label']}>
+      <ControlledCheckbox />
+      Label wrapper
+    </label>
+    <div className={css['checkable-with-label']}>
+      <ControlledCheckbox id={WITH_LABEL_ID} />
+      <label htmlFor={WITH_LABEL_ID}>Label attached via ID</label>
+    </div>
+  </>
+);
