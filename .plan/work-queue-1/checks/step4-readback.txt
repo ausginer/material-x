@@ -1,0 +1,111 @@
+# Work-queue step 4: the open issues' bodies after the descriptions were written. Read by the implementer on 2026-11-19,
+# on repo/work-queue-1 at f8b46e347, with gh 2.104.0. Titles and labels were compared with the reading before the edits and didn't change.
+# Command: gh issue list --state open --limit 1000 --json number,title,body
+
+[
+  {
+    "body": "A trait-flattener test in the Vite traits plugin failed once in CI and passed when the run was repeated, with no code change, and the failure hasn't been reproduced. The work makes the test show what the plugin generated when it fails, finds the cause, and makes the test's result depend only on the code. Size: not known yet.\n\nRecord: `repo:RF-60`, registered on `repo/traits-plugin-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 43,
+    "title": "repo:RF-60 — A trait-flattener test fails at random in CI"
+  },
+  {
+    "body": "In Safari, some reorder tests in `@ydinjs/core` sometimes time out because the dragged item stays in the top layer long after it lands, and two of them are skipped in Safari for that reason. The work finds why the landing stalls and makes the tests pass in Safari in every run. Size: not known yet.\n\nRecord: `repo:RF-36`.\n\n— IMPLEMENTER\n",
+    "number": 44,
+    "title": "repo:RF-36 — In Safari, reorder tests sometimes time out after the drop"
+  },
+  {
+    "body": "CI doesn't measure the bundle size of material-x's components, so no size limit shows when a change makes them larger. The work gives each public entry of material-x a size reading in CI with a limit, or a stated way to measure it by hand for each change. Size: large.\n\nRecord: `repo:RF-45`.\n\n— IMPLEMENTER\n",
+    "number": 46,
+    "title": "repo:RF-45 — material-x has no bundle-size budget"
+  },
+  {
+    "body": "Running `just oxlint-migrate` overwrites the hand-edited `.oxlintrc.json`, so it silently drops the file's comments, ignore patterns and some of its rules and overrides. The work lets the recipe regenerate the oxlint rules from the ESLint configuration without losing the hand-written parts. Size: medium.\n\nRecord: `repo:RF-49`.\n\n— IMPLEMENTER\n",
+    "number": 47,
+    "title": "repo:RF-49 — The oxlint config can't be regenerated from the ESLint config"
+  },
+  {
+    "body": "The Vite traits plugin and the custom-element assets plugin each pin their own copy of `rolldown`, so a project that uses them can install a second copy, and the plugins' types can clash with the types of the project's Vite. The work makes both plugins use the project's own `rolldown`, or makes their public types name only Vite's types. Size: medium.\n\nRecord: `repo:RF-55`.\n\n— IMPLEMENTER\n",
+    "number": 48,
+    "title": "repo:RF-55 — The Vite plugins can install a second copy of rolldown"
+  },
+  {
+    "body": "After `aube add` or `aube remove`, the workspace's own `@ydinjs` packages disappear from `node_modules`, and `aube install` doesn't restore them. This step checks, in a worktree that no other session uses, whether aube 2.10.1 still drops the links. Size: small.\n\nRecord: `repo:RF-48`.\nStep: a reading of the defect on aube 2.10.1.\n\n— IMPLEMENTER\n",
+    "number": 49,
+    "title": "repo:RF-48 — `aube add` removes the workspace's own package links"
+  },
+  {
+    "body": "In `@ydinjs/core`, a class field declared by a transformer trait hides a subclass's getter and setter of the same name at runtime, and TypeScript doesn't report the override; no code in the repository is affected today. The work makes the types reject such an override, or documents that a transformer trait must define its members on the prototype. Size: large.\n\nRecord: `repo:RF-57`, registered on `repo/declarations-check-1` (#37), not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 50,
+    "title": "repo:RF-57 — A trait's class field can hide a subclass's getter and setter"
+  },
+  {
+    "body": "material-x doesn't state the minimum browser versions it supports. Before its first release, it needs a browserslist query with a minimum version of each browser, a check of the platform features it uses against that query, and the supported browsers listed in its README. Size: large.\n\nRecord: `repo:RD-20`, registered on `repo/traits-plugin-1`, not yet on `main`.\n\nQuestion: which browserslist query does material-x state? The owner writes it before material-x's first release. The entry's property 3 lists what the release owes with it.\n\n— IMPLEMENTER\n",
+    "number": 51,
+    "title": "repo:RD-20 — material-x needs a browserslist before its first release"
+  },
+  {
+    "body": "On a page served over plain HTTP from an address other than `localhost`, importing any material-x button, either button group or the text field fails, because `@ydinjs/core` creates its context tokens with an API that only secure pages have. The work makes context tokens work on every page, secure or not. Size: medium.\n\nRecord: `repo:RF-61`, registered on `repo/work-queue-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 52,
+    "title": "repo:RF-61 — material-x's buttons and text field fail to import on pages served over plain HTTP"
+  },
+  {
+    "body": "The language server that agents use for code navigation runs TypeScript 6, while the repository typechecks with TypeScript 7, and a postinstall script keeps the TypeScript 6 server working. The work moves agents' code navigation to TypeScript 7's language server, so that the script and the TypeScript 6 dependency can be removed. Size: not known yet.\n\nRecord: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "number": 53,
+    "title": "Agents' code navigation still runs on TypeScript 6"
+  },
+  {
+    "body": "The project has no landing page. The work builds one. Size: large.\n\nRecord: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "number": 54,
+    "title": "Build a landing page"
+  },
+  {
+    "body": "The packages need documentation and examples for the developers who use them. The work writes them, possibly split by package. Size: large.\n\nRecord: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "number": 55,
+    "title": "Write documentation and examples"
+  },
+  {
+    "body": "`@ydinjs/box-quad` has not been published to a registry yet. The work prepares the package and publishes its first release. Size: large.\n\nRecord: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "number": 56,
+    "title": "Release `@ydinjs/box-quad`"
+  },
+  {
+    "body": "`@ydinjs/drag` has not been published to a registry yet. The work prepares the package and publishes its first release. Size: large.\n\nRecord: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "number": 57,
+    "title": "Release `@ydinjs/drag`"
+  },
+  {
+    "body": "Some entries that are still open in the `.plan/` records have no issue, so the queue doesn't show all open work, and many of them may already be finished or obsolete. The work reads each of those entries, closes the ones that are done, and opens an issue for each one that is still owed. Size: medium.\n\nRecord: none yet. The unit that takes it plans it in .plan/.\n\n— IMPLEMENTER\n",
+    "number": 60,
+    "title": "Some open record entries have no issue"
+  },
+  {
+    "body": "In a Storybook served over plain HTTP from an address other than `localhost`, the checkbox's labelled story fails to render, because it calls an API that only secure pages have. The work makes every story render on such pages. Size: small.\n\nRecord: `repo:RF-62`, registered on `repo/work-queue-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 62,
+    "title": "repo:RF-62 — A checkbox story calls an API that plain HTTP pages lack"
+  },
+  {
+    "body": "In bundles of material-x built with esbuild, the icon button and the switch buttons keep shared trait lists and a trait that nothing uses after flattening, and nobody has checked whether rolldown keeps them too. The work measures those bundles with rolldown and esbuild, then removes the unused code or states which bundler keeps it and why that is accepted. Size: not known yet.\n\nRecord: `repo:RF-63`.\n\n— IMPLEMENTER\n",
+    "number": 63,
+    "title": "repo:RF-63 — Trait spread lists may leave dead code in material-x bundles"
+  },
+  {
+    "body": "The list item sets a CSS custom property that no rule reads, and it limits its supporting text to two lines whatever the item's number of lines. The work checks Material's list item specification and renders the item in all three browsers, then limits the supporting text to the number of lines Material gives and removes the unused property. Size: not known yet.\n\nRecord: `repo:RF-64`, registered on `repo/host-has-fallback-1` (#59), not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 64,
+    "title": "repo:RF-64 — The list item's support row size is set and never read"
+  },
+  {
+    "body": "When a switch's own value changes while its button group has a value, the group doesn't update the switch's checked state until the group's value next changes. The open question is whether material-x's properties should become reactive values that a group can observe, which needs a design for reactive values in `@ydinjs/core`. Size: large.\n\nRecord: `repo:RQ-2`, registered on `repo/work-queue-1`, not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 65,
+    "title": "repo:RQ-2 — Should a switch follow its group through a reactive value?"
+  },
+  {
+    "body": "Every pull request's size comment says that it has no base reading, because the size reading at the merge base needs a build of the Vite traits plugin that nothing ran there, so no comment shows how a change moved the sizes. The work makes the size reading build what it needs after a plain install, so the comments show the base and the difference. Size: medium.\n\nRecord: `repo:RF-65`, registered on `repo/mx-size-1` (#68), not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 69,
+    "title": "repo:RF-65 — Size reports never compare with the merge base"
+  },
+  {
+    "body": "In CI, drag's measurement of memory allocated per pointer move sometimes reads far above its bound and sometimes within it, with the same code, so its warning can't be trusted. The work runs the measurement repeatedly to find the cause, then makes its result depend only on the code. Size: not known yet.\n\nRecord: `drag:DRF-53`, registered on `repo/mx-size-1` (#68), not yet on `main`.\n\n— IMPLEMENTER\n",
+    "number": 70,
+    "title": "drag:DRF-53 — The hot-path allocation measurement passes and fails on the same code"
+  }
+]
