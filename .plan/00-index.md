@@ -1320,7 +1320,7 @@ No register entry held that design. It lived in the code, in that document and i
    - Two contributors that give one key different kinds are a build error, and the base's declaration counts as a contributor.
 4. **The last trait wins any other shared key:** a method, a whole accessor pair or a simple static.
    - The types agree: neither `never` nor an overload.
-   - **Each trait is trimmed alone in the instance type.** A trait loses only the keys that a later trait in the list declares, and a trait that loses none enters the intersection whole, with its declaration kinds and its ES-private members. A key of the base's instance doesn't count. _(Amended 2026-11-19, below.)_
+   - **Each trait is trimmed alone in the instance type.** A trait loses only the keys that a later trait in the list declares, and a trait that loses none enters the intersection whole, with its declaration kinds and its ES-private members. A key of the base's instance doesn't count. A trait that is trimmed loses the base's instance keys as well, because the base supplies them unmapped. So a subclass's override of a base member keeps its kind check, and only the trimmed trait's own members lose theirs. _(Amended 2026-11-19 twice, below.)_
    - **A trait's `declare` member is a key in the types only.** In the types it is shared like any member, and it wins when it comes later. The flattener copies nothing for it, and `trait-member-conflict` doesn't count it. _(Amended 2026-11-19, below.)_
    - The flattener warns at build time, in the Vite or tsdown console, with `trait-member-conflict`, naming both traits and the key. There is no runtime `console.warn`.
    - The warning is silent when the component declares the key, and the component's declaration wins over every trait.
@@ -1414,7 +1414,7 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - (d) A nominal trait that loses a key loses its `#brand`, so passing the component where that trait is expected fails with TS2345.
   - (e) With no shared key, ButtonLike's `color` keeps TS2610, as in P40 (b).
   - (f) A trait that loses no key keeps TS2611 for its fields. IconButtonLike's `declare color` is a property, so a component's accessor over `color` fails with TS2611.
-- **What remains of the exception:** only a trait that loses a key goes through `Omit`. Its other members lose TS2610 and TS2611, and its ES-private members go (P43 (c), (d)). `RF-57`'s note says so.
+- **What remains of the exception:** only a trait that loses a key goes through `Omit`. Its own other members lose TS2610 and TS2611, and its ES-private members go (P43 (c), (d)). Since the second amendment below, the base's members keep theirs (P44). `RF-57`'s note says so.
 - **A `declare` member** is allowed in a trait and isn't copied: the plan's `trait-field` row already says so. It states a type that the runtime member already has, from an earlier trait or the base, and nothing checks that. Its kind in the types is a property (P43 (f)). No type-only accessor exists: `declare accessor` is TS1243, and with an `abstract accessor` every component must implement the member (TS2515).
 - **The one composition this touches** is IconButtonLike's `declare color: Extract<IconButtonColor, ButtonColor> | null`, in IconButton and SwitchIconButton.
   - **At runtime, `color` is ButtonLike's accessor,** today and after the migration. Today IconButtonLike's descriptor `trait()` installs only `width`, and `color` is only in its type. After the migration, IconButtonLike's `declare color` isn't copied. `observedAttributes` names `color` once, from ButtonLike.
@@ -1427,6 +1427,18 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
   - **reordering SwitchIconButton's list:** `observedAttributes` and the prototype's member order change, which differs from the runtime baseline;
   - **a copied `color` accessor in IconButtonLike:** two traits would supply `color`, and the flattener would warn;
   - **an `abstract accessor color`:** every component would have to implement it (TS2515).
+
+**Amended again 2026-11-19 by the architect: a trimmed trait also loses the base's keys** (property 4's third bullet, its fourth sentence). On Architect B's proposal in the [migration plan](trait-decorators-1/trait-migration-plan.md#proposed-rd-26-amendment-property-4) at `f8eef5262`, relayed by the coordinator. **No owner decision is needed:** it restores what the old types allowed, and changes no rule the owner set.
+
+- **What broke at `2bf0418ab`.** Every trait carries its bound's members, so `Omit<Trait, K>` also mapped every member the trait inherits from `HTMLElement`, and a mapped type has only properties.
+  - A subclass of IconButton or SwitchIconButton got TS2425 on a legitimate `override click()`.
+  - An own field over a base accessor lost TS2610.
+  - The old types allowed the override and reported the field.
+- **The evidence is [P44](trait-decorators-1/trait-decorators-plan.md#evidence)** ([transcript](trait-decorators-1/checks/surface.txt)), read with TypeScript 7.0.2 and 6.0.3 on the built declarations at `2bf0418ab`.
+  - §3b: TS2425 on the built IconButton and SwitchIconButton, and none on Button, which trims no trait.
+  - §4: the trimmed trait without the base's keys, on the same pair and on Disableable with FocusForwarding.
+  - The transcript ends with P43's cases run with `Omit<Trait, K | keyof Base>`, and two `override click()` cases added. Every error is the same, on the same line, apart from the printed type, and the two TS2425 go.
+- **P43's `trimmed.ts` doesn't meet the bullet as it now reads:** its `Without` leaves the base's keys in. The form on the branch is the implementer's.
 
 ## Findings
 
@@ -2325,6 +2337,9 @@ Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ belo
   - So a subclass's accessor override typechecks with no directive and no mapped type. TextFieldCore's `value` is that case.
   - In [P31](trait-decorators-1/trait-decorators-plan.md#evidence), the accessor override passes in both compilers. Case (d) shows that a `declare` member is this finding's TS2611.
 - **One `declare` member stays,** under `RD-26` property 4's amendment of 2026-11-19: IconButtonLike's `declare color`, which keeps the baseline's type for `color` in IconButton and SwitchIconButton. There an accessor over `color` fails with TS2611 ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (f)). No declaration in the repository overrides it, so proofs 3 and 7 don't change. The closure records it.
+- **Proof 3's expected differences,** ruled by Architect B on 2026-11-19 at `f8eef5262`, on the reading at `2bf0418ab` ([P44](trait-decorators-1/trait-decorators-plan.md#evidence)), which the closure cites:
+  - `static [$bound]` on each trait class's static side: a type-only `unique symbol` that `composition.js` doesn't export, with no runtime value;
+  - `focus` on FocusForwarding's eight adopters, typed as `HTMLElement`'s `focus` intersected with FocusForwarding's override of the same signature. **Known limit:** a subclass's override with a wrong signature isn't reported against that intersection (no TS2416). The plan's proof 3 records why each repair costs more.
 - **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs 3 and 7 hold on `repo/traits-migration-1`: the declaration surface, and `just typecheck-declarations`. The architect writes the closure on that branch before its pull request opens.
 
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
@@ -2395,6 +2410,7 @@ Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the 
   - The case this entry needs is a component's own field over a trait's accessor. A trait still can't install an instance field, so the exception doesn't bear on this entry's required property.
   - The flattener's `trait-member-conflict` warning names every pair that supplies one key. A `declare` member supplies nothing, so a key that a later trait only declares isn't warned about.
   - One composition has such a key today: IconButtonLike's `declare color` over ButtonLike's `color`, in IconButton and SwitchIconButton. There ButtonLike's `size` and `shape` don't report an own field (P43 (c)).
+  - **The cost is the trimmed trait's own members only** (`RD-26` property 4, amended again 2026-11-19). At `2bf0418ab` it also reached the base's members: a subclass of IconButton or SwitchIconButton got TS2425 on `override click()`, and an own field over a base accessor lost TS2610 ([P44](trait-decorators-1/trait-decorators-plan.md#evidence)). The trimmed trait now loses the base's keys as well, which repairs both.
 - **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs hold on `repo/traits-migration-1`. The architect writes the closure on that branch before its pull request opens, with this exception recorded.
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
@@ -2532,6 +2548,12 @@ Tier C, **open**. Registered on 2026-11-18 by the architect, from `RF-44`'s item
 - **A trait class that only brands drops** where nothing uses `instanceof`, because the trait's own build installs the brand as a static `[Symbol.hasInstance]` method, which has no side effect (`RD-26` property 7, amended 2026-11-19). [P41](trait-decorators-1/trait-decorators-plan.md#evidence), with rolldown, gives 1,486 B against 1,988 B. [P42](trait-decorators-1/trait-decorators-plan.md#evidence) shows that the class drops with the static method in both bundlers.
 - **The closure reads both named bundlers.** P41 measured rolldown only, and this entry names rolldown and esbuild. So the closure reads the eight `FocusForwarding` adopters' entries at the migration's last commit, with both bundlers, as this entry's direction states: whether the brand install, a trait class or a list survives; `instanceof` in each bundle that keeps a trait class; and the bytes.
   - If esbuild keeps a trait class, the closure records it under the required property's second branch: the bundler, the bytes and why that is accepted.
+- **Eleven size rows shrink at `2bf0418ab`,** outside proof 4's noise bound, because core's runtime trait factory left the bundles.
+  - Seven entries carried it because of this entry's defect: a module they import kept a dead spread of a shared trait list. One of them, `button/split-button`, also exports a trait object.
+  - Three carried it only because the entry exports a trait object: core's `traits/reorderable`, `fab/fab` and `checkbox/checkbox`.
+  - The eleventh row is `complete`, which holds all of them.
+  - The owner accepted all eleven on 2026-11-19, relayed by the coordinator: a decrease is always approved under his standing rule.
+  - Each row's cause is in [`size.md`](trait-migration-1/checks/size.md), and the plan's proof 4 records the acceptance. The closure cites them.
 - **It closes** on that reading, on `repo/traits-migration-1`, before its pull request opens. The architect writes the closure.
 
 #### RF-64 — The list item sets `--_support-row-size`, which no rule reads, and clamps its supporting text to two lines whatever the item's line count
