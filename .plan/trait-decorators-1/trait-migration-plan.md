@@ -10,6 +10,8 @@
 
 **Amended a third time 2026-11-19 by Architect B, on the coordinator's task: rulings on PR #76's feature proof.** Mx Reviewer's [feature proof](../reviews/traits-migration-1/feature-proof-claude.md) read `0c5705d87`. [Rulings on PR #76's feature proof](#rulings-on-pr-76s-feature-proof) gives a ruling on each finding and specifies the repairs. The plan's rows for `composition-shape`, `trait-field` and the static links are aligned with them. `RD-26`'s properties don't change.
 
+**Amended a fourth time 2026-11-19 by Architect B, on the coordinator's task: rulings on the repair verification.** Mx Reviewer's [repair verification](../reviews/traits-migration-1/repair-verification-claude.md) read `abc945b47` and closed reviewer-1 to reviewer-5. [Rulings on the repair verification](#rulings-on-the-repair-verification) rules on its three findings and on proof 4's gap. Proof 4's text is changed to match.
+
 **Amended 2026-11-19 by the main slot's architect, on the coordinator's task: each trait is trimmed alone in the instance type, and a trait's `declare` member is a key in the types only** (`RD-26` property 4). The implementer found that P40's form dropped FocusForwarding's `#brand` in SwitchIconButton. [P43](trait-decorators-plan.md#evidence) reads both forms. The changed lines are in [Decided here](#decided-here), [Core: layer (a)](#core-layer-a-traitscompositionts) and proof 6.
 
 **Open questions: none.** Each choice the owner didn't make is decided below, with its reason.
@@ -321,6 +323,8 @@ At commit 7, each must hold. Each result is committed under `.plan/trait-migrati
 
 4. **Size is within noise.** `just size` in material-x and core: every row within 1% or 10 B of commit 1's reading, in brotli bytes, whichever is larger.
 
+   These rows bundle each entry's built `.js` with rolldown and no plugin, so they read what any consumer's bundler gets. They can't read property 8, which only this plugin applies. **Property 8's size is read once, on one entry,** in the proofs record: connected-button-group, minified, bundled by Vite's application build with the plugin and by the same build without it, in bytes and brotli bytes. No size row is added for it. `vite.node.test.ts` (a) guards the behavior, and a size row through the plugin would measure one application's configuration, not the package. _(Added 2026-11-19, from the repair verification.)_
+
    **The owner accepts the 11 rows outside the bound at `2bf0418ab`,** relayed by the coordinator on 2026-11-19: each is a decrease, and a decrease is always approved under his standing rule. The cause of each is in `.plan/trait-migration-1/checks/size.md`.
 
 5. **The flattened JavaScript, diffed per component.** `git diff --no-index` of commit 1's built tree against commit 7's, one file per component entry, is committed as `flattened.diff` and summarised in the pull request description. The expected differences:
@@ -443,6 +447,62 @@ Each row asserts on the bundle text or on the run, not on a helper's return.
 ### Records
 
 **No amendment of `RD-26`.** Properties 3 and 8 stand as written, and the repairs make the code meet them. When the repairs land, Mx Architect may add a dated line to `RD-26`'s implementation note: the feature proof found property 8 unmet for built trait modules and property 3 unmet for the base, both repaired, with the commit.
+
+## Rulings on the repair verification
+
+Ruled 2026-11-19 by Architect B on Mx Reviewer's [repair verification](../reviews/traits-migration-1/repair-verification-claude.md) of `abc945b47`, on `2ad5ce059`. **No owner decision is needed.**
+
+| Item | Ruling | Before the merge |
+| --- | --- | --- |
+| verifier-1 | repair: the reference count fails closed, and walks every TypeScript node that isn't type-only | **yes** |
+| verifier-2 | repair in the same pass: the brand's write check fails closed | no; a dated note if it slips |
+| verifier-3 | defer: following `export … from` for traits and bases, to a new finding, before the plugin's first publication | no; the plugin document states the limit |
+| proof 4's gap | a reading in the proofs record, not a size row | **yes**, as a record line |
+
+**One rule closes this class of finding.** Each round has found another syntax shape that a scan skipped. Both scans move to the same direction: an unrecognized shape refuses (verifier-1), or leaves the module untouched (verifier-2). A new shape can then cost a refusal, never a wrong module.
+
+### verifier-1: the reference count walks TypeScript nodes
+
+**Ruling: repair before the merge.** This pull request's own repair introduced it: `0c5705d87` refused these modules. It breaks the ruling's _"must never be flattened over a live reference"_. The repair is one function. `erasableSyntaxOnly` keeps this repository out of reach, but the plugin's users aren't bound by it.
+
+**Required property:** in `countValueReferences`, an identifier counts unless it is reached only through one of these:
+
+- a type position: a field in `TYPE_FIELDS`, or a node that is a type, such as `TSTypeAnnotation`, `TSTypeReference`, `TSTypeQuery`, any `TS…Type`, `TSTypeParameterDeclaration` or `TSTypeParameterInstantiation`;
+- a type-only declaration: `TSTypeAliasDeclaration`, `TSInterfaceDeclaration`, or any declaration with `declare: true`;
+- a non-computed property key or member name, as today.
+
+Every other node is walked, `TS` or not, so an unknown node type counts its identifiers. That covers a namespace body, an enum member's initializer, a parameter property and its default, `export =` and `import x = …`. Counting an enum member's or a namespace's own name can only refuse, which the rule allows.
+
+**Tests:** V5, V6 and V7 of the [witnesses](../reviews/traits-migration-1/checks/repair-verification-witnesses.txt) each give `composition-shape`. W3's and V1 to V4's rows keep their results. A row with `declare namespace N { const b: typeof FooBase }` flattens, because it is type-only.
+
+### verifier-2: the brand's write check
+
+**Ruling: repair in the same pass, not required for the merge.** Recognition still demands the generated method token for token, with an exported `Symbol("…")`, so no realistic class is reached. But the check claims _"never assigned again"_, and it costs a few lines.
+
+**Required property:** the name is assigned again when it occurs as any write target:
+
+- an assignment's left side, including every identifier inside an array or object pattern, a default or a rest element;
+- an update's argument;
+- the left side of `for…in` or `for…of` that isn't a declaration;
+- a second module-scope declaration of the name.
+
+**Tests:** R4 (`[$b] = …`) and R5 (`for ($b of …)`) leave the members alone.
+
+If it isn't in this pull request, Mx Architect adds a dated note to `RD-26`'s implementation note naming the gap. It closes with the change.
+
+### verifier-3: a base or a trait through a re-export
+
+**Ruling: defer, to a new finding that must close before the plugin is first published.** Following `export { X } from`, `export { X as Y } from` and `export * from` is a resolver feature for both trait and base references. A trait through a barrel was refused before this pull request. The refusal is safe, nothing in the tree reaches it, and the packages aren't published.
+
+**Before the merge, the plugin document states the limit:** a trait or a component's base must be imported from the module that declares it, not through a re-export, or the build is refused (`trait-unresolved`, or `static-kind` for a base).
+
+**The proposed finding,** for Mx Architect to register with the next free number, Tier B:
+
+> _The flattener doesn't follow re-exports._ A trait or a component's base imported through `export … from` is refused: `trait-unresolved` for a trait, `static-kind` for a base whose kind it must read. A base's walk runs for nearly every composition, because every attribute trait contributes `observedAttributes`, so a base from a barrel module refuses almost every component. Found by the repair verification of PR #76 (verifier-3, K4 and K5). **Required property:** a trait or a base reference resolves through named and star re-exports, following the module graph through the loader. An ambiguous star export or a cycle is `trait-unresolved`. **It must close before `@ydinjs/vite-traits-plugin` is first published.**
+
+### Proof 4's gap
+
+**Ruling: a reading in the proofs record before the merge; no size row.** Proof 4's text above now says what its rows measure. The repair verification's V-W2 is the reading: 13,252 B, 3,866 B brotli without the plugin, and 12,936 B, 3,819 B with it. The implementer records it in the proofs record's proof 4, citing V-W2, or reads it again at the merge head.
 
 ## Proposed RD-26 amendment, property 4
 
