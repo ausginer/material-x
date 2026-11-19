@@ -30,8 +30,8 @@ The last reading is the main reason for the split below. A record entry exists o
 
 **GitHub Issues, shown on one Projects board, are the repository's work queue. The `.plan/` records stay the only record.** An issue says what the item is. The board's `Status` field says where it is in the queue. Neither says why. These properties hold:
 
-1. **The queue holds queue state only.** That is the work item, its status, the slot and branch that hold it, and whether it is done. It doesn't hold a decision, a reason, evidence or a tier.
-2. **An issue names its record entry by qualified address, and copies nothing from it.** The title opens with the address and then says in plain words what the item is, so that a reader who doesn't know the identifiers understands it: for a finding, what goes wrong; for an owed decision, what is missing; for a task, what it delivers. For example: `repo:RF-59 — material-x fails when imported from <head>`. The entry's title isn't copied, because records retitle entries. When the entry is on an unmerged branch, the body names that branch or its pull request, because the link to `main`'s file resolves only after the merge.
+1. **The queue holds queue state and a description only.** That is the work item and a short description of it in plain words, its status, the slot and branch that hold it, and whether it is done. It doesn't hold a decision, a reason, evidence or a tier.
+2. **An issue names its record entry by qualified address, and copies no decision, reason, evidence or tier from it.** The title opens with the address and then says in plain words what the item is, so that a reader who doesn't know the identifiers understands it: for a finding, what goes wrong; for an owed decision, what is missing; for a task, what it delivers. For example: `repo:RF-59 — material-x fails when imported from <head>`. The entry's title isn't copied, because records retitle entries. When the entry is on an unmerged branch, the body names that branch or its pull request, because the link to `main`'s file resolves only after the merge. The body opens with a description of the item in at most three sentences: what goes wrong or is missing, what the work delivers, and its size. The description states no decision, reason, evidence, tier, order or identifier, and the record governs where the two differ ([Body form](#body-form)).
 3. **At most one open issue has a given address as its subject.** Before a writer creates an issue, it lists the open issues and filters their titles for the exact address locally. GitHub's search isn't used for this check, because `repo:` is a search qualifier and search splits `RF-59` at the hyphen. One entry can produce several issues in sequence, for example a reading and then a repair, but only one is open at a time.
 4. **The record holds no queue state.** A new entry doesn't state an order, a priority or a schedule. Phrases such as _"lowest priority"_, _"unscheduled"_ and _"not urgent"_ become the item's `Status`. A dated routing fact stays in the record, such as _"routed to the owner"_, and so does the architect's analysis of consequence and priority within a tier. Existing entries aren't rewritten, because the record is append-only.
 5. **What first appears on GitHub is copied into the record before anyone relies on it.** An owner's answer in an issue comment, or a workflow's failure report, is a source. The architect records it in the owning entry and cites the issue's URL. The record's copy rules. An issue is never the only place where a decision or a reason exists.
@@ -109,13 +109,17 @@ The queue has no milestones (property 14).
 ## Body form
 
 ```text
+<the description: at most three sentences, ending with the size>
+
 Record: `repo:RF-59`, registered on `repo/host-has-fallback-1`, not yet on `main`.
 Step: <only when the issue is one step of the entry, one sentence>
 
 — COORDINATOR
 ```
 
-For an item _Waiting on owner_, the question and its options follow the `Record:` line. For a roadmap item: `Record: none yet. The unit that takes it plans it in .plan/.` For `unregistered`: the observation in one or two sentences. Nothing else goes in the body. A short body is how property 2 is kept.
+For an item _Waiting on owner_, the question and its options follow the `Record:` line. For a roadmap item: `Record: none yet. The unit that takes it plans it in .plan/.` For `unregistered`: the description states the observation. Nothing else goes in the body. [`work-queue.md`](../../.agents/docs/work-queue.md#issues) states the description's bounds and its size words.
+
+**Amended 2026-11-19** on the owner's request ([Owner's answers](#owners-answers)). This section's form had no description, and for `unregistered` the body stated _"the observation in one or two sentences"_. It ended: _"Nothing else goes in the body. A short body is how property 2 is kept."_
 
 ## First population
 
@@ -192,6 +196,14 @@ The second question, whether the landing page and the documentation belong to a 
 - **The first population** had a _Milestone_ column: material-x for `RF-59`, `RF-40`, `RF-45`, `RD-20` and the material-x release, and box-quad and drag for their own releases. A release item moved to _Waiting on owner_ when its milestone's other items were closed.
 - **Step 3** created the milestones and a table view grouped by milestone, and its readback saved the milestones.
 
+**A later request,** made on 2026-11-19 and relayed by the coordinator the same day: the board shows only titles, and the owner often can't judge what an item is about or how large it is without opening the record. He asked that each issue carry a brief English description he can follow without knowing the identifiers. The architect set its bounds in `RD-22`'s amendment of that date and in [`work-queue.md`](../../.agents/docs/work-queue.md#issues). The owner asked that an implementer write the descriptions of the open issues: step 4 below.
+
+**What that request changed:**
+
+- **Property 1** said _"The queue holds queue state only"_.
+- **Property 2** said that an issue _"copies nothing from"_ its entry.
+- **[Body form](#body-form)** had no description, as its amendment quotes.
+
 ## Release scope without milestones
 
 **The gap.** Milestones did one thing that nothing else in this plan does: they said which items must close before a package's first release. `RD-20` is the case in the record: its browserslist is owed before material-x's first release, and the milestone was the queue's form of that deadline. Without milestones, release scope is stated only in record entries, and a release item doesn't show what it waits on. The rest needs no replacement. The order of the three releases is the release items' rank, like any other order. The table view grouped by milestone is dropped, and the board by `Status` is the one view.
@@ -230,6 +242,8 @@ In this order, each step after the previous one is accepted:
 - every body that an agent wrote ends with a stamp;
 - every open queue issue is on the board once, with a `Status` other than _Done_, and every closed item is _Done_;
 - the project has no custom field other than `Status`, and auto-add and the close-on-_Done_ workflow are off.
+
+4. **Descriptions.** On the owner's request of 2026-11-19, an implementer writes the description of every open issue on the board, as [`work-queue.md`](../../.agents/docs/work-queue.md#issues) bounds it, from each issue's record entry on the branch that its `Record:` line names, or from the issue's title for an item with no entry. The implementer keeps each body's other lines and ends it with its own stamp. Then the coordinator reads each description against the bounds, and the implementer saves the readback in `.plan/work-queue-1/checks/`: `gh issue list --state open --limit 1000 --json number,title,body`.
 
 **Not owed now:** a checking script. Property 3, the record split and the board's state are kept by the writers and the project's workflows, and checked by the readback. If the trial shows drift, a small check is the next step: open issues whose entry is closed on `main`, duplicate addresses, and items whose `Status` disagrees with the issue's state.
 
