@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { flattenToDir, type Flattening } from './helpers.ts';
 
+type BrandedTrait = (abstract new () => object) & { readonly brand: symbol };
+
 type Ctor = new () => {
   checked: boolean;
   name: string | null;
@@ -12,8 +14,8 @@ describe('descriptor flattening runtime equivalence', () => {
   let gen: Flattening;
   let composed: Ctor;
   let flattened: Ctor;
-  let Checkable: abstract new () => object;
-  let Nameable: abstract new () => object;
+  let Checkable: BrandedTrait;
+  let Nameable: BrandedTrait;
 
   beforeAll(async () => {
     gen = await flattenToDir('consumer.ts', {
@@ -29,8 +31,8 @@ describe('descriptor flattening runtime equivalence', () => {
       ])) as [
         { default: Ctor },
         { default: Ctor },
-        { Checkable: abstract new () => object },
-        { Nameable: abstract new () => object },
+        { Checkable: BrandedTrait },
+        { Nameable: BrandedTrait },
       ];
     ({ default: composed } = composedMod);
     ({ default: flattened } = flatMod);
@@ -80,8 +82,10 @@ describe('descriptor flattening runtime equivalence', () => {
   it('should preserve trait brands for instanceof', () => {
     for (const [label, Ctor] of cases()) {
       const instance = new Ctor();
-      expect(instance, label).toBeInstanceOf(Checkable);
-      expect(instance, label).toBeInstanceOf(Nameable);
+      // On a failure, the message names the cause (`repo:RF-60`).
+      const message = `${label}\n${gen.brandReport(instance, { Checkable, Nameable })}`;
+      expect(instance, message).toBeInstanceOf(Checkable);
+      expect(instance, message).toBeInstanceOf(Nameable);
     }
   });
 

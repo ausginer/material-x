@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import {
   cp,
   mkdir,
@@ -98,6 +99,16 @@ export interface Flattening {
   readonly bailouts: readonly string[];
   /** Absolute file URL for a generated module (e.g. `foo-flat.ts`). */
   url(file: string): string;
+  /**
+   * What a failed brand assertion needs to name its cause (`repo:RF-60`): the
+   * generated consumer and trait modules as written, the own keys of each
+   * prototype on `instance`'s chain, and whether each trait's brand is among
+   * them.
+   */
+  brandReport(
+    instance: object,
+    traits: Readonly<Record<string, { readonly brand: symbol }>>,
+  ): string;
   /** Removes the generated directory. */
   dispose(): Promise<void>;
 }
@@ -176,6 +187,43 @@ export async function flattenToDir(
     flat,
     bailouts: bailouts.map(({ reason }) => reason),
     url: (file) => pathToFileURL(join(genDir, file)).href,
+    brandReport: (instance, traits) => {
+      const keys: PropertyKey[] = [];
+      const chain: string[] = [];
+      for (
+        let proto: object | null = Object.getPrototypeOf(instance) as object;
+        proto && proto !== Object.prototype;
+        proto = Object.getPrototypeOf(proto) as object | null
+      ) {
+        const own = Reflect.ownKeys(proto);
+        keys.push(...own);
+        chain.push(
+          `  ${proto.constructor.name || '(anonymous)'}.prototype: ${own
+            .map((key) =>
+              typeof key === 'symbol' ? key.toString() : JSON.stringify(key),
+            )
+            .join(', ')}`,
+        );
+      }
+      const brands = Object.entries(traits).map(
+        ([name, { brand }]) =>
+          `  ${name}.brand ${brand.toString()}: ${keys.includes(brand) ? 'present' : 'absent'}`,
+      );
+      const files = [
+        `foo-flat${extname(consumerName)}`,
+        ...options.augment,
+      ].map(
+        (name) => `===== ${name}\n${readFileSync(join(genDir, name), 'utf8')}`,
+      );
+
+      return [
+        'Own keys of each prototype on the chain:',
+        ...chain,
+        'Brands:',
+        ...brands,
+        ...files,
+      ].join('\n');
+    },
     dispose: () => rm(genDir, { recursive: true, force: true }),
   };
 }
