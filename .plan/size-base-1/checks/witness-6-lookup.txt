@@ -1,0 +1,38 @@
+# Witness 6, by hand before the merge: the lookup finds no stored reading
+# Run by the implementer on 2026-11-19, read-only, with the commands of
+# `measurements`' "Sizes at the merge base" step and GITHUB_REPOSITORY and
+# RUNNER_TEMP set by hand. Nothing was written to GitHub.
+
+## The merge base of repo/size-base-1 with main: main's tip, whose push run predates the repair
+merge base: 91fc5d66201b052c5a1c88271102fda17fea75a2
+$ gh api "repos/$GITHUB_REPOSITORY/actions/workflows/verify.yml/runs?event=push&branch=main&head_sha=$base" --jq '.workflow_runs[0].id // empty'
+44448397868
+$ gh run download 44448397868 --repo "$GITHUB_REPOSITORY" --name size-reading --dir "$RUNNER_TEMP/base-reading"
+no valid artifacts found to download
+(the step's else branch)
+::notice title=Measurement::main's run for the merge base 91fc5d66201b052c5a1c88271102fda17fea75a2 stored no size reading
+step exit 0, and $RUNNER_TEMP/base-reading holds no file, so the report's
+--base reads nothing and renders "No base reading".
+
+## A commit with no push run on main (f7dfee61f, this branch's)
+run: none (the --jq answer is empty)
+::notice title=Measurement::main's run for the merge base f7dfee61fdaca8d818dbcfc01bed87c7b05e2d72 stored no size reading
+
+## The download's layout, on a run that has an artifact
+$ gh run download 44276375207 --repo ausginer/material-x --name reading-0.02-hover --dir <scratch>/layout
+The artifact's files land directly in --dir (environment.txt, result.json,
+attachments/), so a stored `head-size.json` lands at
+$RUNNER_TEMP/base-reading/head-size.json, the path the Report step reads.
+
+## Witnesses 4 to 6 after the merge
+4. The first full push run of verify.yml on main after the merge: its
+   `measurements` job has a "Store the reading" step, and the run lists an
+   artifact `size-reading` holding head-size.json. Compare it with the job
+   summary's table: `gh run download <run> --name size-reading`.
+5. The first pull request whose merge base is that commit or later: the
+   "Sizes at the merge base" step logs "base reading: run <id>", and the
+   comment shows a Base and a Change for every row.
+6. A pull request whose merge base predates the merge, such as one opened from
+   a branch not yet merged with it: the step logs the notice above, the comment
+   says "**No base reading:** `main`'s run for the merge base stored no size
+   reading", and `measurements` succeeds.

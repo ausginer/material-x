@@ -1,0 +1,44 @@
+# Witness 3: declared, not scheduled
+# Run by the implementer on 2026-11-19 at 0021a710e in an installed tree, with
+# `aube exec -- nx run-many … --graph=<file>`, which builds nothing. Each line
+# is a task and the tasks it depends on.
+
+## `-t build --projects=box-quad,core,material-x,drag`
+@ydinjs/box-quad:build                     <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/material-x:build                   <- @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, @ydinjs/tproc:build, size-limit-preset-rolldown:build, @ydinjs/core:build
+@ydinjs/drag:build                         <- @ydinjs/vite-traits-plugin:build, @ydinjs/box-quad:build
+@ydinjs/vite-traits-plugin:build           <- (none)
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+
+## `-t size --projects=box-quad,core,drag,material-x --parallel=1` (the root `just size`)
+@ydinjs/box-quad:size                      <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/core:size                          <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:size                          <- @ydinjs/vite-traits-plugin:build, @ydinjs/box-quad:build
+@ydinjs/material-x:size                    <- @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, @ydinjs/tproc:build, size-limit-preset-rolldown:build, @ydinjs/core:build
+@ydinjs/vite-traits-plugin:build           <- (none)
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/box-quad:build                     <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+
+vite-traits-plugin:build is a dependency of box-quad:build and drag:build, and
+each size task depends on its package's prerequisite builds, through
+nx.json's `size` default.
+
+## Mutation: box-quad's `implicitDependencies` removed, then restored
+## `-t build --projects=box-quad,core,material-x,drag`
+@ydinjs/box-quad:build                     <- size-limit-preset-rolldown:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/material-x:build                   <- @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, @ydinjs/tproc:build, size-limit-preset-rolldown:build, @ydinjs/core:build
+@ydinjs/drag:build                         <- @ydinjs/vite-traits-plugin:build, @ydinjs/box-quad:build
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/vite-traits-plugin:build           <- (none)
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+
+box-quad:build loses the edge to vite-traits-plugin:build. drag:build keeps
+it, by its own declaration. `git status` was clean after the restore.

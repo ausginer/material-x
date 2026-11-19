@@ -1,16 +1,20 @@
 /**
  * The pull request's size report: a head reading against an optional base
  * reading, as Markdown with a hidden marker, and the measurement rows' results.
+ * Without a base reading, the report says why: `main`'s run stored none for the
+ * merge base, the lookup failed, or the run looked up no base.
  * It reads files and writes text, and it calls no network. The workflow posts
  * the text as one comment, found again by the marker, or writes it to the job
  * summary.
  *
- * `node .scripts/size-report.ts --head <file> [--base <file>] [--tests <file>]
- * --out <file>`, where each reading is what `.scripts/size-reading.ts` writes and
- * `--tests` is Vitest's JSON report of the measurement rows. A base file that is
- * missing or holds no reading gives "no base reading". Every exceeded limit and
- * every failed measurement row is also printed to stdout as a GitHub Actions
- * warning annotation.
+ * `node .scripts/size-report.ts --head <file> [--base <file>] [--base-missing]
+ * [--tests <file>] --out <file>`, where each reading is what
+ * `.scripts/size-reading.ts` writes and `--tests` is Vitest's JSON report of the
+ * measurement rows. `--base-missing` states that `main`'s run stored no reading
+ * for the merge base. Otherwise a `--base` file that is absent or holds no
+ * reading is a failed lookup, and a run without `--base` looked up no base.
+ * Every exceeded limit and every failed measurement row is also printed to
+ * stdout as a GitHub Actions warning annotation.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -36,16 +40,29 @@ export type MeasurementResult = Readonly<{
   message: string | null;
 }>;
 
+/**
+ * The merge base's reading, or why there is none: `missing` when `main`'s run
+ * for the merge base stored none, `failed` when the lookup failed, and `null`
+ * in a run that looks up no base.
+ */
+export type BaseReading = SizeReading | 'missing' | 'failed' | null;
+
 export type SizeReportInput = Readonly<{
   head: SizeReading;
-  /** `null` when the base tree gave no reading. */
-  base: SizeReading | null;
+  base: BaseReading;
   /** `null` when the measurement rows did not report. */
   measurements: readonly MeasurementResult[] | null;
 }>;
 
 /** Identifies the comment, so that each run updates it instead of adding one. */
 export const SIZE_REPORT_MARKER = '<!-- mx-size-report -->';
+
+const NO_BASE_READING = {
+  missing:
+    "**No base reading:** `main`'s run for the merge base stored no size reading, so only the head is reported.",
+  failed:
+    "**No base reading:** the lookup of `main`'s stored reading for the merge base failed, so only the head is reported.",
+} as const;
 
 const key = (row: SizeRow): string => `${row.package}\u0000${row.row}`;
 
@@ -100,24 +117,36 @@ function sizeLine(
 /** The report as Markdown, starting with the hidden marker. */
 export function renderSizeReport(input: SizeReportInput): string {
   const { head, base, measurements } = input;
-  const baseRows = new Map(base?.rows.map((row) => [key(row), row]));
+  // `typeof null` is `'object'`: a run without a base compares with nothing.
+  const compared = typeof base === 'object' ? base : null;
+  const baseRows = new Map(compared?.rows.map((row) => [key(row), row]));
   const headKeys = new Set(head.rows.map(key));
   const lines = [SIZE_REPORT_MARKER, '## Sizes', ''];
 
+  let summary: string;
+
+  if (typeof base === 'string') {
+    summary = NO_BASE_READING[base];
+  } else if (base === null) {
+    summary =
+      'Brotli bytes at the head. gzip at the head, where the instrument reports it.';
+  } else {
+    summary =
+      'Brotli bytes at the head and at the merge base with the base branch. gzip at the head, where the instrument reports it.';
+  }
+
   lines.push(
-    base
-      ? 'Brotli bytes at the head and at the merge base with the base branch. gzip at the head, where the instrument reports it.'
-      : '**No base reading:** the merge base gave no machine-readable reading, so only the head is reported.',
+    summary,
     '',
     '| Package | Row | Brotli | Base | Change | Limit | gzip |',
     '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
   );
 
   for (const row of head.rows) {
-    lines.push(sizeLine(row, baseRows.get(key(row)), base !== null));
+    lines.push(sizeLine(row, baseRows.get(key(row)), compared !== null));
   }
 
-  for (const row of base?.rows ?? []) {
+  for (const row of compared?.rows ?? []) {
     if (!headKeys.has(key(row))) {
       lines.push(sizeLine(undefined, row, true));
     }
@@ -217,11 +246,35 @@ function isReading(value: unknown): value is SizeReading {
   );
 }
 
+/**
+ * The base that the command line states. A lookup that reported no stored
+ * reading is `missing`. A `--base` file that is absent or holds no reading is a
+ * failed lookup, whatever call failed. Without `--base`, the run looked up no
+ * base.
+ */
+export async function readBase(
+  path: string | undefined,
+  missing: boolean,
+): Promise<BaseReading> {
+  if (missing) {
+    return 'missing';
+  }
+
+  if (path == null) {
+    return null;
+  }
+
+  const reading = await readJSON(path);
+
+  return isReading(reading) ? reading : 'failed';
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { values } = parseArgs({
     options: {
       head: { type: 'string' },
       base: { type: 'string' },
+      'base-missing': { type: 'boolean' },
       tests: { type: 'string' },
       out: { type: 'string' },
     },
@@ -229,7 +282,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   if (values.head == null || values.out == null) {
     throw new Error(
-      'usage: node .scripts/size-report.ts --head <file> [--base <file>] [--tests <file>] --out <file>',
+      'usage: node .scripts/size-report.ts --head <file> [--base <file>] [--base-missing] [--tests <file>] --out <file>',
     );
   }
 
@@ -239,11 +292,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     throw new Error(`${values.head} holds no size reading`);
   }
 
-  const base = await readJSON(values.base);
   const tests = await readJSON(values.tests);
   const input: SizeReportInput = {
     head,
-    base: isReading(base) ? base : null,
+    base: await readBase(values.base, values['base-missing'] === true),
     measurements:
       tests === null ? null : parseVitestReport(tests as VitestReport),
   };

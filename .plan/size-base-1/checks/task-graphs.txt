@@ -1,0 +1,47 @@
+# What nx derives at a3ce6d8b3: the task graphs, read without building
+# Run by the architect on 2026-11-19 in a fresh tree after `aube ci`, with
+# `aube exec -- nx run-many ... --graph=<file>`. Each line is a task and the
+# tasks it depends on.
+
+## `-t build --projects=box-quad,core,drag,material-x,tproc`
+@ydinjs/box-quad:build                     <- size-limit-preset-rolldown:build
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+@ydinjs/drag:build                         <- @ydinjs/box-quad:build
+@ydinjs/material-x:build                   <- @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, @ydinjs/tproc:build, size-limit-preset-rolldown:build, @ydinjs/core:build
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/vite-traits-plugin:build           <- (none)
+@ydinjs/vite-custom-element-assets:build   <- (none)
+
+The only missing edges are box-quad:build <- vite-traits-plugin:build and
+drag:build <- vite-traits-plugin:build. Every other prerequisite the fresh-tree
+layers found is declared: core, tproc and material-x name the plugin in
+`implicitDependencies`, material-x names vite-custom-element-assets there, and
+tproc, core and size-limit-preset-rolldown come from package.json dependencies.
+
+## `-t size --projects=box-quad,core,drag,material-x --parallel=1` (the root `just size`)
+@ydinjs/box-quad:size                      <- (none)
+@ydinjs/core:size                          <- (none)
+@ydinjs/drag:size                          <- (none)
+@ydinjs/material-x:size                    <- @ydinjs/vite-custom-element-assets:build, @ydinjs/vite-traits-plugin:build, @ydinjs/tproc:build, size-limit-preset-rolldown:build, @ydinjs/core:build
+@ydinjs/vite-custom-element-assets:build   <- (none)
+@ydinjs/vite-traits-plugin:build           <- (none)
+@ydinjs/tproc:build                        <- @ydinjs/vite-traits-plugin:build
+size-limit-preset-rolldown:build           <- (none)
+@ydinjs/core:build                         <- @ydinjs/vite-traits-plugin:build, size-limit-preset-rolldown:build
+
+Only material-x's `size` declares `dependsOn: ["^build"]` (its project.json);
+nx.json's `targetDefaults` has no `size` key. In a fresh tree the root
+`just size` still exits 0, because nx ran the five builds that material-x:size
+needs before the three size tasks that declare nothing. Order observed with
+`--output-style=static`, in a third fresh tree:
+
+> nx run @ydinjs/vite-traits-plugin:build
+> nx run size-limit-preset-rolldown:build
+> nx run @ydinjs/core:build
+> nx run @ydinjs/tproc:build
+> nx run @ydinjs/vite-custom-element-assets:build
+> nx run @ydinjs/core:size
+> nx run @ydinjs/box-quad:size
+> nx run @ydinjs/material-x:size
+> nx run @ydinjs/drag:size
