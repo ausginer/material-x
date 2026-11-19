@@ -40,3 +40,13 @@ from p18-sketch-fixed.ts. Today `this.disabled` is at 34:17 and the errors are
 at the positions types.txt shows. A hover at 34:17 afterwards found no symbol,
 because the server hadn't reloaded the file, so the reads above stand at their
 earlier positions (35:17).
+
+## Layer (a): the recommended form, p25-layer-a-form.ts, 2026-11-19
+
+`this.disabled` at 21:17, in a class that extends the annotated constant
+`Composed<typeof ControlledElement, [...ButtonCoreTraits, typeof Counted]>`:
+  hover:            (property) Disableable.disabled: boolean
+
+`IconButton.zero()` at 21:55, a trait's static member on the component:
+  hover:            (method) zero(): number
+  goToDefinition:   traits-a.ts:19:10 (Counted's `static zero()`)

@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21 — .plan/trait-decorators-1/probes/types/run.sh, at dc5bc5853, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25 — .plan/trait-decorators-1/probes/types/run.sh, at 28014c589, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -256,6 +256,119 @@ exit 2
 === p21-class-instanceof — Version 6.0.3
 p21-class-instanceof.ts(27,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ControlledElement'.
 exit 2
+=== p23-layer-a-naming — Version 7.0.2
+p23-layer-a-naming.ts(34,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'I2' as an instance property.
+p23-layer-a-naming.ts(38,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable'.
+p23-layer-a-naming.ts(41,30): error TS2339: Property 'zero' does not exist on type 'typeof I1'.
+p23-layer-a-naming.ts(43,46): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(63,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'E2' as an instance property.
+p23-layer-a-naming.ts(70,30): error TS2339: Property 'zero' does not exist on type 'typeof E1'.
+p23-layer-a-naming.ts(72,37): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(81,16): error TS2611: 'count' is defined as a property in class 'E1', but is overridden here in 'E7' as an accessor.
+p23-layer-a-naming.ts(110,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'C2' as an instance property.
+p23-layer-a-naming.ts(115,16): error TS2611: 'count' is defined as a property in class 'C1', but is overridden here in 'C3' as an accessor.
+p23-layer-a-naming.ts(122,38): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(128,44): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+p23-layer-a-naming.ts(149,7): error TS2322: Type 'typeof Model' is not assignable to type 'Composed<typeof ControlledElement, [typeof Disableable]>'.
+  Type 'typeof Model' is not assignable to type 'typeof ControlledElement'.
+    Type 'Model' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals, ariaActiveDescendantElement, and 320 more.
+p23-layer-a-naming.ts(154,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== p23-layer-a-naming — Version 6.0.3
+p23-layer-a-naming.ts(34,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'I2' as an instance property.
+p23-layer-a-naming.ts(38,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable'.
+p23-layer-a-naming.ts(41,30): error TS2339: Property 'zero' does not exist on type 'typeof I1'.
+p23-layer-a-naming.ts(43,46): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(63,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'E2' as an instance property.
+p23-layer-a-naming.ts(70,30): error TS2339: Property 'zero' does not exist on type 'typeof E1'.
+p23-layer-a-naming.ts(72,37): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(81,16): error TS2611: 'count' is defined as a property in class 'E1', but is overridden here in 'E7' as an accessor.
+p23-layer-a-naming.ts(110,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable', but is overridden here in 'C2' as an instance property.
+p23-layer-a-naming.ts(115,16): error TS2611: 'count' is defined as a property in class 'C1', but is overridden here in 'C3' as an accessor.
+p23-layer-a-naming.ts(122,38): error TS2344: Type '[typeof Disableable]' does not satisfy the constraint 'readonly Applicable<typeof Model>[]'.
+  Type 'typeof Disableable' is not assignable to type 'Applicable<typeof Model>'.
+    Type 'typeof Disableable' is not assignable to type '{ readonly [$bound]?: ((instance: Model, statics: typeof Model) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: HTMLElement, statics: {}) => void' is not assignable to type '(instance: Model, statics: typeof Model) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 317 more.
+p23-layer-a-naming.ts(128,44): error TS2344: Type '[typeof Observing]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Observing' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: HTMLElement, statics: { readonly observedAttributes?: readonly string[] | undefined; }) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type '{ new (): HTMLElement; prototype: HTMLElement; }' has no properties in common with type '{ readonly observedAttributes?: readonly string[] | undefined; }'.
+p23-layer-a-naming.ts(149,7): error TS2322: Type 'typeof Model' is not assignable to type 'Composed<typeof ControlledElement, [typeof Disableable]>'.
+  Type 'typeof Model' is not assignable to type 'typeof ControlledElement'.
+    Type 'Model' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals, accessKey, and 320 more.
+p23-layer-a-naming.ts(154,7): error TS9010: Variable must have an explicit type annotation with --isolatedDeclarations.
+exit 1
+=== p24-layer-a-traits — Version 7.0.2
+p24-layer-a-traits.ts(24,17): error TS2339: Property 'hasAttribute' does not exist on type 'Unbound'.
+p24-layer-a-traits.ts(30,40): error TS2344: Type '[typeof Internal]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Internal' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Internal' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+p24-layer-a-traits.ts(53,20): error TS2741: Property '#brand' is missing in type 'HTMLDivElement' but required in type 'FocusForwarding'.
+p24-layer-a-traits.ts(84,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+p24-layer-a-traits.ts(113,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+exit 2
+=== p24-layer-a-traits — Version 6.0.3
+p24-layer-a-traits.ts(24,17): error TS2339: Property 'hasAttribute' does not exist on type 'Unbound'.
+p24-layer-a-traits.ts(30,40): error TS2344: Type '[typeof Internal]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof Internal' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof Internal' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, attributeChangedCallback, internals
+p24-layer-a-traits.ts(53,20): error TS2345: Argument of type 'HTMLDivElement' is not assignable to parameter of type 'FocusForwarding'.
+  Property '#brand' is missing in type 'HTMLDivElement' but required in type 'FocusForwarding'.
+p24-layer-a-traits.ts(84,14): error TS2515: Non-abstract class 'NoLabel' does not implement inherited abstract member label from class 'ControlledElement & Labelled'.
+p24-layer-a-traits.ts(113,14): error TS2515: Non-abstract class 'ButtonNoLabel' does not implement inherited abstract member label from class 'ControlledElement & LabelledButton'.
+exit 2
+=== p25-layer-a-form — Version 7.0.2
+exit 0
+=== p25-layer-a-form — Version 6.0.3
+exit 0
 === p3-interface-only — Version 7.0.2
 exit 0
 === p3-interface-only — Version 6.0.3
@@ -638,3 +751,21 @@ export declare class SubComponent extends Component {
 export declare class OwnField extends Traits<[Disableable]> {
     disabled: boolean;
 }
+=== emitted out/p25-layer-a-form/p25-layer-a-form.d.ts
+import { ControlledElement } from './element.ts';
+import { type Composed } from './layer-a.ts';
+import { Counted, Disableable, FocusForwarding } from './traits-a.ts';
+export type ButtonCoreTraits = readonly [
+    typeof Disableable,
+    typeof FocusForwarding
+];
+declare const IconButtonBase: Composed<typeof ControlledElement, [
+    ...ButtonCoreTraits,
+    typeof Counted
+]>;
+export declare class IconButton extends IconButtonBase {
+    static observedAttributes: readonly string[];
+    check(): boolean;
+    focus(options?: FocusOptions): void;
+}
+export {};

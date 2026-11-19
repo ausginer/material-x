@@ -6,7 +6,7 @@ set -u
 here="$(cd "$(dirname "$0")" && pwd)"
 bin="$(cd "${here:?}/../../../.." && pwd)/node_modules/.bin"
 cd "${here:?}"
-for probe in p1-decorator-only p2-decorator-interface p2-typed-marker p6-member-kinds p9-brand-props p9b-brand-forms p10-today-own-field p11-type-argument p12-instance-arguments p13-attribute-forms p14-read-only p16-interface-accessors p17-sketch-as-is p18-sketch-fixed p19-sketch-groups p20-rust-like p21-class-instanceof \
+for probe in p1-decorator-only p2-decorator-interface p2-typed-marker p6-member-kinds p9-brand-props p9b-brand-forms p10-today-own-field p11-type-argument p12-instance-arguments p13-attribute-forms p14-read-only p16-interface-accessors p17-sketch-as-is p18-sketch-fixed p19-sketch-groups p20-rust-like p21-class-instanceof p23-layer-a-naming p24-layer-a-traits p25-layer-a-form \
   p3-interface-only p4-impl-class p5-attribute-accessor; do
   config=".tsconfig.${probe}.json"
   # The sketch's probes import core's attribute.ts, outside this directory.
@@ -26,7 +26,7 @@ done
 echo "=== p1-decorator-only with experimentalDecorators — $("${bin}/tsc" -v)"
 "${bin}/tsc" -p tsconfig.experimental.json --pretty false
 echo "exit $?"
-for probe in p2-decorator-interface p3-interface-only p6-member-kinds p9-brand-props p11-type-argument p13-attribute-forms p14-read-only p16-interface-accessors; do
+for probe in p2-decorator-interface p3-interface-only p6-member-kinds p9-brand-props p11-type-argument p13-attribute-forms p14-read-only p16-interface-accessors p25-layer-a-form; do
   echo "=== emitted out/${probe}/${probe}.d.ts"
   cat "out/${probe}/${probe}.d.ts" 2>/dev/null || echo '(none)'
 done
