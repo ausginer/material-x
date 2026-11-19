@@ -1,0 +1,56 @@
+# RF-63: why the dead lists survive. The architect, 2026-11-19, slot e. Minimal graphs bundled with rolldown 1.3.2 (the
+# preset's options, minify) and esbuild 0.28.1 (bundle, minify, esm). Each entry imports `used` from b.js only, so every
+# list is dead. Output verbatim.
+
+## A spread-built list nothing reads
+# a.js and b.js per case; entry.js: import { used } from "./b.js"; console.log(used);
+numbers        a: export const A = [1, 2];              b: export const B = [...A, 3];
+  rolldown "console.log(1);"
+  esbuild  "var o=[1,2];var s=[...o,3],t=1;console.log(t);"
+pureCalls      a: X = /*@__PURE__*/ f(1); A = [X];      b: export const B = [...A];
+  rolldown "console.log(1);"
+  esbuild  "var s=r=>({x:r}),e=s(1),o=[e];var p=[...o],t=1;console.log(t);"
+importedIds    a: import { X }; export const A = [X];   b: export const B = [...A];
+  rolldown "console.log(1);"
+  esbuild  "var o={};var t=[o];var c=[...t],r=1;console.log(r);"
+bareStatement  a: export const A = [1];                 b: [...A];
+  rolldown "console.log(1);"
+  esbuild  "var o=[1];[...o];var r=1;console.log(r);"
+liveElsewhere  a: export const X = {}; A = [X];         b: export const B = [...A];  c: export const n = A.length; (entry reads n)
+  rolldown "const e=[{}];[...e];const t=e.length;console.log(t),console.log(1);"
+  esbuild  "var e={},o=[e];var s=[...o],t=1;var r=o.length;console.log(r);console.log(t);"
+
+## The shape material-x has: one list spread by two others (as BUTTON_CORE_TRAITS by SWITCH_CORE_TRAITS and
+## ICON_BUTTON_CORE_TRAITS, and SWITCH_CORE_TRAITS by SWITCH_ICON_BUTTON_CORE_TRAITS)
+source   a: export const A = [{}];  s: export const S = [...A, {}];  b: export const I = [...A, {}]; export const SI = [...S, {}];
+  rolldown consumer bundle "const e=[{}],t=[...e,{}];[...e],[...t],console.log(1);"
+  rolldown library build (preserveModules), b.js: "const I = [...A, {}];\nconst SI = [...S, {}];\n... export { I, SI, used };"
+emitted  b: [...A]; [...S];   (the bare statements tsdown emits once the declarations are unused)
+  rolldown consumer bundle "const e=[{}],t=[...e,{}];[...e],[...t],console.log(1);"
+
+## When the array's module stays in the bundle for another reason
+# a.js also exports f, which b.js calls, so a.js stays in the bundle.
+moduleLive      a: export const A = [];   export function f()   b: [...A]; export const used = f();
+  rolldown "const e=[];function t(){return 2}[...e];const n=t();console.log(n);"
+  esbuild  "var o=[];function r(){return 2}[...o];var t=r();console.log(t);"
+moduleLiveDecl  a: export const A = [{}]; export function f()   b: export const B = [...A, {}]; export const used = f();
+  rolldown "const e=[{}];function t(){return 2}[...e];const n=t();console.log(n);"
+  esbuild  "var o=[{}];function t(){return 2}var p=[...o,{}],r=t();console.log(r);"
+sameModule      b: const A = [{}]; export const B = [...A, {}]; export const used = f();
+  rolldown "function e(){return 2}const t=e();console.log(t);"
+  esbuild  "function o(){return 2}var r=[{}],s=[...r,{}],t=o();console.log(t);"
+
+## Reading
+# A spread calls the array's iterator, so a bundler removes a dead spread only where it can prove the call harmless.
+# esbuild kept every array spread in these graphs, even a spread of a local literal.
+# rolldown removed a dead spread of an array declared in the same module, and of an imported array whose module
+# nothing else keeps in the bundle (then the whole module goes). It kept the spread, and the array with it, when the
+# array is imported from a module that stays in the bundle: moduleLive, moduleLiveDecl, liveElsewhere, and the chain.
+# Each material-x list spreads a base list imported from a module its entry keeps anyway: ButtonCore.ts (useButtonCore,
+# BUTTON_ATTRS), SwitchCore.ts (useSwitchCore, or its own spread), ListItemCore.ts (useListItemCore). So rolldown keeps
+# every one of them.
+# material-x's own library build (tsdown, which is rolldown, unbundled) exports the lists between modules, so it keeps
+# their spreads and emits them as bare statements ([...BUTTON_CORE_TRAITS];) in the published modules. Every consumer's
+# bundler, and a browser loading the modules unbundled, starts from those statements.
+# An array literal of identifiers, with no spread, is removed by both bundlers when nothing reads it: the variant in
+# rf63-reading.txt has no surviving trait list in either bundler.

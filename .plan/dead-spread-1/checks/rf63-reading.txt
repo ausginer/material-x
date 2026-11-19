@@ -1,0 +1,182 @@
+# RF-63 reading: what rolldown and esbuild keep of material-x's spread trait lists. The architect, 2026-11-19, slot e,
+# repo/dead-spread-1 at 359c87f8a (origin/main, with #72).
+# Build: aube exec nx run material-x:build (material-x and the 5 tasks it depends on), no flattener warning.
+# Bundlers, at the repository's versions: rolldown 1.3.2 with size-limit-preset-rolldown's options (platform 'neutral',
+# format 'es', minify true), and esbuild 0.28.1 with W1's options (--bundle --minify --format=esm). Each runtime entry in
+# files.json bundled alone; brotli quality 11 and gzip level 9 through node:zlib. Bytes. Probe source at the end.
+# Variant: a scratch tree at 359c87f8a in which the five spread-built lists are written as full literals of their traits
+# (SWITCH_CORE_TRAITS, ICON_BUTTON_CORE_TRAITS, SWITCH_ICON_BUTTON_CORE_TRAITS, BUTTON_GROUP_CORE_TRAITS,
+# LIST_INTERACTIVE_ITEM_CORE_TRAITS), with the imports they then need. Not committed; removed after the reading.
+# Columns: ff = count of Symbol("FocusForwarding") (the brand, live in every adopter); rt = count of the generic trait
+# runtime's error string "Trait transformer must return", head -> variant.
+
+## Per entry, head and variant
+bundler   entry                                min    variant  Δmin  brotli  variant  Δbr   gzip  variant  Δgz   ff   rt
+rolldown  button/button                        17068  17068    +0    4828    4828     +0    5398  5398     +0    1→1  0→0
+rolldown  button/icon-button                   21064  20076    -988  5380    5096     -284  6027  5699     -328  1→1  1→0
+rolldown  button/link-button                   17090  17090    +0    4799    4799     +0    5384  5384     +0    1→1  0→0
+rolldown  button/switch-button                 21040  20253    -787  5411    5176     -235  6071  5802     -269  1→1  1→0
+rolldown  button/switch-icon-button            26733  25791    -942  5870    5557     -313  6584  6257     -327  1→1  1→0
+rolldown  button/split-button                  30942  30788    -154  7514    7440     -74   8402  8339     -63   1→1  1→1
+rolldown  button-group/button-group            10848  10804    -44   3308    3291     -17   3761  3743     -18   0→0  1→1
+rolldown  button-group/connected-button-group  13474  13432    -42   4024    4012     -12   4556  4536     -20   0→0  1→1
+rolldown  checkbox/checkbox                    12229  12229    +0    4144    4144     +0    4654  4654     +0    0→0  1→1
+rolldown  fab/fab                              16580  16580    +0    4351    4351     +0    4929  4929     +0    1→1  1→1
+rolldown  icon/icon                            1613   1613     +0    661     661      +0    830   830      +0    0→0  0→0
+rolldown  list/list                            9932   9932     +0    3664    3664     +0    4147  4147     +0    0→0  0→0
+rolldown  list/list-item                       9157   9157     +0    2585    2585     +0    2988  2988     +0    0→0  0→0
+rolldown  list/list-button-item                14703  14683    -20   4555    4567     +12   5160  5149     -11   1→1  0→0
+rolldown  list/list-link-item                  15434  15414    -20   4763    4705     -58   5380  5371     -9    1→1  0→0
+rolldown  radio/radio                          10005  10005    +0    3581    3581     +0    4021  4021     +0    0→0  0→0
+rolldown  text-field/multiline-text-field      16310  16310    +0    4434    4434     +0    4990  4990     +0    0→0  0→0
+rolldown  text-field/text-field                35121  34153    -968  8396    8101     -295  9367  9032     -335  1→1  1→0
+esbuild   button/button                        17416  17416    +0    4967    4984     +17   5557  5556     -1    1→1  0→0
+esbuild   button/icon-button                   21379  20430    -949  5518    5242     -276  6198  5860     -338  1→1  1→0
+esbuild   button/link-button                   17183  17183    +0    4854    4850     -4    5458  5458     +0    1→1  0→0
+esbuild   button/switch-button                 21200  20347    -853  5521    5271     -250  6183  5885     -298  1→1  1→0
+esbuild   button/switch-icon-button            26750  25884    -866  5912    5634     -278  6642  6333     -309  1→1  1→0
+esbuild   button/split-button                  30953  30823    -130  7635    7554     -81   8563  8492     -71   1→1  1→1
+esbuild   button-group/button-group            11087  11053    -34   3431    3418     -13   3916  3900     -16   0→0  1→1
+esbuild   button-group/connected-button-group  13753  13725    -28   4222    4216     -6    4758  4736     -22   0→0  1→1
+esbuild   checkbox/checkbox                    12337  12337    +0    4208    4208     +0    4717  4717     +0    0→0  1→1
+esbuild   fab/fab                              16655  16655    +0    4429    4432     +3    4988  4988     +0    1→1  1→1
+esbuild   icon/icon                            1632   1632     +0    671     671      +0    846   846      +0    0→0  0→0
+esbuild   list/list                            9902   9902     +0    3711    3711     +0    4180  4180     +0    0→0  0→0
+esbuild   list/list-item                       9136   9136     +0    2580    2578     -2    2995  2995     +0    0→0  0→0
+esbuild   list/list-button-item                14806  14788    -18   4663    4655     -8    5257  5246     -11   1→1  0→0
+esbuild   list/list-link-item                  15538  15520    -18   4825    4807     -18   5483  5471     -12   1→1  0→0
+esbuild   radio/radio                          10133  10133    +0    3640    3640     +0    4087  4087     +0    0→0  0→0
+esbuild   text-field/multiline-text-field      16309  16309    +0    4437    4437     +0    4998  4998     +0    0→0  0→0
+esbuild   text-field/text-field                35194  34285    -909  8509    8188     -321  9457  9121     -336  1→1  1→0
+
+## The complete graph (every runtime entry, as the size row `complete`), head -> variant
+rolldown  complete  min 90061 -> 89901 (-160)  brotli 17137 -> 17023 (-114)  gzip 19963 -> 19887 (-76)
+esbuild   complete  min 89928 -> 89787 (-141)  brotli 17375 -> 17319 (-56)  gzip 20309 -> 20244 (-65)
+
+## Bare spread statements in each bundle (a statement that only evaluates spreads), head and variant
+# Found with /(?:^|[;}\n])\s*((?:\[\.\.\.[\w$]+\][,;]?)+|\(\{\.\.\.[\w$]+(?:,\.\.\.[\w$]+)*\}\)[,;])/ over each bundle.
+# head
+rolldown button-group/button-group            ({...w,...b});  [...D];
+rolldown button-group/connected-button-group  ({...E,...b});  [...O];
+rolldown button/icon-button                   [...W],[...G];
+rolldown button/split-button                  [...H];  [...H],[...qe];
+rolldown button/switch-button                 [...be];
+rolldown button/switch-icon-button            [...G],[...Te];
+rolldown list/list-button-item                [...V];
+rolldown list/list-link-item                  [...V];
+rolldown text-field/text-field                [...J],[...we];
+esbuild  button-group/button-group            [...W];
+esbuild  button-group/connected-button-group  [...et];
+esbuild  button/icon-button                   [...D];[...Dt];
+esbuild  button/split-button                  [...P];  [...P];[...ue];
+esbuild  button/switch-icon-button            [...U];[...qt];
+esbuild  list/list-button-item                [...be];
+esbuild  list/list-link-item                  [...ge];
+esbuild  text-field/text-field                [...X];[...re];
+# (esbuild's switch-button keeps SWITCH_CORE_TRAITS as an unused declaration, var ...=[...W,...], not a bare statement.)
+# variant
+rolldown button-group/button-group            ({...C,...b});
+rolldown button-group/connected-button-group  ({...E,...b});
+# The variant's two survivors are BUTTON_CORE_ATTRS = { ...BUTTON_ATTRS, ...DISABLEABLE_ATTRS } (ButtonCore.ts:83), an
+# object spread that useButtonCore reads; the button groups import ButtonCore.ts without calling useButtonCore, and
+# rolldown keeps the spread. 14 minified bytes, rolldown only. Not a trait list.
+
+## Which code each affected entry carries, read in the head bundles
+# icon-button (rolldown): G=[...W,be,xe,se] (SWITCH_CORE_TRAITS: BUTTON_CORE_TRAITS, Checkable, Valuable, FocusForwarding)
+#   and the bare [...W],[...G]; with them the trait(...) calls of ButtonLike, Disableable, Checkable, Valuable,
+#   FocusForwarding (its class layer) and IconButtonLike, the descriptor trait function and the generic trait runtime
+#   (primitives' trait, with its error string). None is reached by the flattened class.
+# switch-button, switch-icon-button: the same, through SWITCH_CORE_TRAITS and SWITCH_ICON_BUTTON_CORE_TRAITS.
+# text-field: text-field.ts imports ../button/icon-button.ts, so it carries icon-button's dead lists, -968.
+# split-button: the dead lists (-154); the trait runtime is live, since the entry exports SplitButtonLike.
+# button-group, connected-button-group: [...BUTTON_CORE_TRAITS] (-44/-42); the trait runtime is live, since
+#   button-group/utils.ts:14 reads node instanceof ButtonLike.
+# list-button-item, list-link-item: [...LIST_ITEM_CORE_TRAITS], an empty list (-20 rolldown, -18 esbuild); the
+#   flattened classes don't reach FocusForwarding's trait(...) here.
+# checkbox, fab: rt stays 1 in both forms, live: the entries export Indeterminable and FABLike.
+# esbuild button/button and link-button change brotli by +17 and -4 at equal minified length. With every identifier of
+#   up to three characters masked, their head and variant bundles are equal, as list-item's and fab's are, so only
+#   the minifier's names differ.
+
+## The library build, head against variant (tsdown, unbundled): every file that differs
+# Every entry module (button/button.js, button/icon-button.js, ...) is byte-identical. Only internal modules change,
+# and only by dead code and the exports nothing imports any more:
+#   button/ButtonCore.js            - const BUTTON_CORE_TRAITS = [ButtonLike, Disableable]; and its export
+#   button/SwitchCore.js            - const SWITCH_CORE_TRAITS = [...BUTTON_CORE_TRAITS, Checkable, Valuable, FocusForwarding]
+#   button/IconButtonCore.js        - [...BUTTON_CORE_TRAITS]; [...SWITCH_CORE_TRAITS]; IconButtonLike's trait(...) call
+#   button-group/ButtonGroupCore.js - [...BUTTON_CORE_TRAITS]; ButtonGroupLike's trait(...) call
+#   list/ListInteractiveItemCore.js - [...LIST_ITEM_CORE_TRAITS];
+#   list/ListItemCore.js            - const LIST_ITEM_CORE_TRAITS = [];
+#   core/traits/focus-forwarding.js - FocusForwarding's trait(...) call and its class layer
+# None of these modules is in package.json's exports.
+
+## The type ties a literal list to its base
+# Variant: aube exec just typecheck in packages/material-x passes.
+# Mutation on the variant: BUTTON_CORE_TRAITS gains Typeable (value and annotation), and no other list changes.
+# The typecheck fails with TS2322 in every list that copies the base: ButtonGroupCore.ts(45), IconButtonCore.ts(59),
+# IconButtonCore.ts(73), SwitchCore.ts(35). Each list's annotation readonly [...typeof BUTTON_CORE_TRAITS, ...] is what
+# fails. Restored afterwards.
+
+## A lint rule sees a spread list
+# Scratch entry in the root eslint.config.ts, before the oxlint disables:
+#   'no-restricted-syntax': ['error', { selector:
+#     'VariableDeclarator[id.name=/_TRAITS$/] > ArrayExpression > SpreadElement', message: 'probe' }]
+# eslint on origin/main's SwitchCore.ts: "33:6 error probe no-restricted-syntax". On the variant's IconButtonCore.ts and
+# ListInteractiveItemCore.ts: no report from the rule. Restored afterwards.
+
+## Probe source (node probe.ts <repo-root> [out-dir]); the complete row used the same options on a module importing every entry
+```
+// RF-63 probe: bundles each material-x runtime entry with rolldown (the size
+// preset's options) and esbuild (W1's options), and reports bytes and markers.
+// Usage: node probe.ts <repo-root> [out-dir]
+import { brotliCompressSync, gzipSync, constants } from 'node:zlib';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { createRequire } from 'node:module';
+
+const root = process.argv[2]!;
+const outDir = process.argv[3];
+const pkg = join(root, 'packages/material-x');
+const require = createRequire(join(root, 'package.json'));
+const { rolldown } = await import(require.resolve('rolldown'));
+const esbuild = await import(require.resolve('esbuild'));
+const files = JSON.parse(await readFile(join(pkg, 'files.json'), 'utf8'));
+const entries: string[] = [...files.runtime];
+
+const markers: Record<string, RegExp> = {
+  ffSym: /Symbol\(["`]FocusForwarding["`]\)/g,
+  traitRt: /Trait transformer must return/g,
+  spread: /\[\.\.\.[\w$]+\]?/g,
+};
+
+async function viaRolldown(file: string): Promise<string> {
+  const bundle = await rolldown({ input: [file], platform: 'neutral', logLevel: 'silent' });
+  try {
+    const { output } = await bundle.generate({ format: 'es', minify: true });
+    return output.filter((c: any) => c.type === 'chunk').map((c: any) => c.code).join('');
+  } finally {
+    await bundle.close();
+  }
+}
+async function viaEsbuild(file: string): Promise<string> {
+  const r = await esbuild.build({ entryPoints: [file], bundle: true, minify: true, format: 'esm', write: false, logLevel: 'silent' });
+  return r.outputFiles.map((f: any) => f.text).join('');
+}
+const sizes = (code: string) => {
+  const b = Buffer.from(code);
+  return [b.length, brotliCompressSync(b, { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } }).length, gzipSync(b, { level: 9 }).length];
+};
+
+console.log(['bundler', 'entry', 'min', 'brotli', 'gzip', ...Object.keys(markers)].join('\t'));
+for (const [name, fn] of [['rolldown', viaRolldown], ['esbuild', viaEsbuild]] as const) {
+  for (const entry of entries) {
+    const code = await fn(join(pkg, `${entry}.js`));
+    const counts = Object.values(markers).map((re) => (code.match(re) ?? []).length);
+    console.log([name, entry, ...sizes(code), ...counts].join('\t'));
+    if (outDir) {
+      await mkdir(join(outDir, name), { recursive: true });
+      await writeFile(join(outDir, name, `${entry.replace('/', '_')}.js`), code);
+    }
+  }
+}
+```
