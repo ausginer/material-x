@@ -4,6 +4,8 @@
 
 **Registered 2026-11-19 as [`RD-26`](../00-index.md) by the main slot's architect,** on `repo/traits-migration-1`, where this plan is implemented. The owner accepted the symbol brand on the same day. [Proposed record changes](#proposed-record-changes) are made, with one addition: `RF-63`'s closure reads the eight adopters' entries with esbuild as well as rolldown, because P41 measured rolldown only.
 
+**Amended 2026-11-19 by Architect B, on the coordinator's task: the trait module's build installs the brand with a static `[Symbol.hasInstance]` method, not with a pure-marked `trait()` call.** The implementer found in commit 3 that rolldown removes a pure-marked call from a static block it keeps, so `instanceof` is false for every trait. Core's tsdown build already emitted an empty `static {}`. P41 read only whether the class survived and its bytes, never `instanceof`. [P42](trait-decorators-plan.md#evidence) runs each bundle with rolldown and esbuild. The first bullet of [Decided here](#decided-here) gives the form and its reasons, and [the proposed `RD-26` amendment](#proposed-rd-26-amendment) is for the main slot's architect.
+
 **Open questions: none.** Each choice the owner didn't make is decided below, with its reason.
 
 ## The owner's decisions, 2026-11-19
@@ -32,12 +34,28 @@ Relayed by the coordinator, translated:
 
 ## Decided here
 
-- **The generated block brands by symbol, not by class.** It reads `impl(this, $a, $b)`. In the trait's own build, the plugin turns `trait(this)` into `/* @__PURE__ */ trait(this, $brand)`, with `$brand` a module-level `Symbol`. [P41](trait-decorators-plan.md#evidence) bundled both shapes with rolldown:
-  - with `impl(this, Linked)`, the trait class and its members stay in every bundle: 1,988 B, 650 B brotli;
-  - with `impl(this, $linked)` and the pure call, a bundle that never uses `instanceof Linked` drops the class: 1,486 B, 551 B brotli;
-  - a bundle that uses `instanceof` keeps the class, and the deletion rule takes its members out: 1,890 B with members against 1,643 B without.
+- **The generated block brands by symbol, not by class.** It reads `impl(this, $a, $b)`. With `impl(this, Linked)`, the trait class and its members stay in every bundle: [P41](trait-decorators-plan.md#evidence) measured 1,988 B, 650 B brotli, against 1,486 B, 551 B with a symbol and a class that drops.
 
-  That is the owner's _"smaller size where `instanceof` is needed"_. It also keeps today's size: today's flattened output links a module-level brand, and its trait objects are pure and dropped. The author still writes `trait(this)`, and `trait`'s second parameter is optional, so an unbuilt module still runs.
+- **The trait module's build installs the brand as a static method.** It hoists `$brand`, a module-level `Symbol` that the module exports, and replaces the `trait(this)` statement with:
+
+  ```js
+  static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }
+  ```
+
+  It removes the static block when nothing else is left in it, and `trait`'s import when nothing else uses it. The author still writes `trait(this)`, and `trait`'s second parameter is optional, so an unbuilt module still runs.
+
+  **The required properties,** each read in [P42](trait-decorators-plan.md#evidence) with rolldown 1.3.2 and esbuild 0.28.1, minified, on the trait module as its own build leaves it and on a rolldown library build of it:
+  1. a bundle that never uses `instanceof Linked` drops the class;
+  2. a bundle that uses it keeps the class, and `new Link() instanceof Linked` is `true` while another element's instance and `null` give `false`;
+  3. the deletion rule then leaves the class without its members;
+  4. a library build keeps the brand install, so a consumer's bundle of core's built `.js` has it.
+
+  That is the owner's _"smaller size where `instanceof` is needed"_. Where an application's bundler doesn't run this plugin, property 3 doesn't apply, and a bundle that uses `instanceof` keeps the members.
+
+  **Why not the other forms** (P42):
+  - `/* @__PURE__ */ trait(this, $brand)`, the plan's first form, fails property 2 in both bundlers, and property 4: a bundler removes a pure call whose result is unused, even inside a class it keeps, and the static block is left empty. The library build is rolldown, as tsdown runs it.
+  - `trait(this, $brand)` without the mark fails property 1: the call is a side effect, so every trait class stays, with its members.
+  - A static field, `static [Symbol.hasInstance] = …`, whether `/* @__PURE__ */ branded($brand)` from core or the arrow written inline, holds all four in both bundlers. It is rejected for a hazard the method doesn't have: a toolchain that lowers class fields to assignment, such as `useDefineForClassFields: false` or Babel's `setPublicClassFields`, turns it into `Linked[Symbol.hasInstance] = …`. `Function.prototype[Symbol.hasInstance]` is read-only, so that assignment throws a `TypeError` in module code, when the module is evaluated. A method definition is never lowered that way. The method also needs no pure mark that some other tool could drop, and no helper on core's public surface. The method's bundles are within 7 B of the inline field's in each row, and within 6 B brotli.
 
 - **`MergeInstances` doesn't count the base's keys.** Every trait carries its bound's members, so two attribute traits share every `HTMLElement` key. The first version of the type treated that as a conflict, sent every pair through `Omit`, and lost the checks. Excluding the base's keys keeps TS2610 and TS2611 for every pair that shares no key of its own ([P40](trait-decorators-plan.md#evidence) (b)).
 
@@ -78,7 +96,7 @@ export type Composed<B, T>;        // B & AbstractConstructor<InstanceType<B> & 
 
 **What each runtime function does:**
 
-- **`trait(ctr, brand = Symbol(ctr.name))`** records the brand, and defines `Symbol.hasInstance` on `ctr`: an object is an instance when its `[brand]` is `true`.
+- **`trait(ctr, brand = Symbol(ctr.name))`** records the brand, and defines `Symbol.hasInstance` on `ctr`: an object is an instance when its `[brand]` is `true`. It runs only in an unbuilt module: a trait module's own build replaces the call with a static method that does the same ([Decided here](#decided-here)).
 - **`impl(target, ...brands)`** defines each brand on `target.prototype` as `{ value: true }`. Only the flattener writes it.
 - **`bound()`** returns `null`. `compose(base)` returns `base` when it is `null`, which is a supertrait's base, and throws otherwise.
 
@@ -119,8 +137,8 @@ export class Disableable extends AnyElement {
 // as its own build emits it
 export const $disableable = Symbol('Disableable');
 export class Disableable extends AnyElement {
-  static {
-    /* @__PURE__ */ trait(this, $disableable);
+  static [Symbol.hasInstance](o) {
+    return o != null && o[$disableable] === true;
   }
   static readonly observedAttributes: readonly string[] = ['disabled'];
   get disabled(): boolean {
@@ -168,13 +186,13 @@ export type ButtonProperties = Props<[...ButtonCoreTraits, typeof Nameable]>;
 | `ir.ts` | the trait IR, version 3 |
 | `free-references.ts` | carried unchanged |
 | `composition/annotation.ts` | Finds `const X: Composed<B, [...]> = compose(B)` and the one class that extends `X`. Resolves the list: `typeof T`, a tuple alias (local or imported), a spread of one, and a supertrait's own list, expanded. Detects cycles. |
-| `composition/trait-class.ts` | Normalizes a trait class: its brand, its methods and `get`/`set` pairs as copyable members, its statics. It skips `declare`, `abstract` and `#brand!` fields. |
+| `composition/trait-class.ts` | Normalizes a trait class: its brand, its methods and `get`/`set` pairs as copyable members, its statics. It skips `declare`, `abstract` and `#brand!` fields. It reads the brand from `trait(this)` in a source module, or from the generated `static [Symbol.hasInstance]` method in built JavaScript, which names the brand symbol. That method is the brand install: it is never copied, and never merged as a static. |
 | `composition/declarations.ts` | A module's declarations: oxc's isolated declarations of a `.ts` source, or the `.d.ts` that the package's `types` condition names for a `.js`. Members pair by binding name, so `var X = class …` pairs too. A static with no declaration falls back to its literal initializer in the `.js`, which is what layer (b)'s generated static gives. |
 | `composition/statics.ts` | The kind classifier ([P39](trait-decorators-plan.md#evidence) §1), alias resolution through the loader, the base's declared kind, and each key's merge plan |
 | `composition/copy.ts` | The copy rule: the same extension copies; any other pair copies when the member's text parses without error in both languages, with trees equal apart from positions ([P36](trait-decorators-plan.md#evidence) §3). It replaces `canCopySource`. |
 | `composition/rules.ts` | the component-side rules and the conflict warning |
 | `composition/lower.ts` | Emits the component: removes the `compose` constant, rewrites the base, inserts the members in trait order before the class's own, the merged statics and `static { impl(this, …brands) }`, and adds the imports that links need |
-| `composition/trait-module.ts` | The trait module's own transform: hoists the brand, marks `trait()` pure, adds synthetic exports for links, and, in an application build, deletes the instance members of each trait class |
+| `composition/trait-module.ts` | The trait module's own transform: hoists the brand, replaces `trait(this)` with the static `[Symbol.hasInstance]` method of [Decided here](#decided-here), adds synthetic exports for links, and, in an application build, deletes the instance members of each trait class |
 | `attributes/lower.ts` | Layer (b): `accessor` lines and `attributes(this, TABLE)` become `get`/`set` pairs through core's operator and `static observedAttributes: readonly string[]`. It follows a `const` table to its object literal, as today's descriptor normalization does. |
 
 **Merge emission for a static key**, with the contributors in order (base, traits, the component's own):
@@ -195,7 +213,7 @@ Every **error** fails the build. Layer (a) has no runtime composition to fall ba
 | --- | --- | --- |
 | `composition-shape` | error | The composition isn't a module-scope `const X: Composed<B, [...]> = compose(B)` extended by exactly one class in the module. |
 | `trait-list` | error | A list element isn't `typeof T`, a tuple alias of those or a spread of one, or the expansion has a cycle. |
-| `trait-unresolved` | error | A trait can't be resolved to a class whose static block calls `trait(this)`. |
+| `trait-unresolved` | error | A trait can't be resolved to a class whose static block calls `trait(this)`, or, in built JavaScript, to a class with the generated `static [Symbol.hasInstance]` method. |
 | `trait-member` | error | A member is outside the copy subset: `super`, a computed key, a private name read by a member, `eval`, `import.meta`, a constructor, or a body the walker doesn't model. |
 | `trait-field` | error | An instance field with an initializer. `declare` fields and `#brand!` are allowed and not copied. |
 | `trait-binding-shadowed` | error | The component's module or class binds a name that a copied member reads. Kept from today. |
@@ -231,6 +249,8 @@ On a new branch, `repo/traits-migration-1`, from `origin/main` at its head when 
    - the conflict row asserts the warning and the last trait's member;
    - the parse-equivalence rows are P36 §3's;
    - layer (b)'s lowering, and the trait module's brand hoist and member deletion;
+   - the brand install at runtime: a trait module as its own build emits it and a component as the flattener emits it are evaluated, and `instanceof` is read both ways, not only the emitted text;
+   - the brand install in bundles: P42's four properties, with rolldown and esbuild, on the plugin's own output;
    - the import-boundary test.
 
    The runtime-equivalence rows compare against hand-written expected classes. They no longer compare against a runtime composition.
@@ -288,6 +308,7 @@ At commit 7, each must hold. Each result is committed under `.plan/trait-migrati
 4. **Size is within noise.** `just size` in material-x and core: every row within 1% or 10 B of commit 1's reading, in brotli bytes, whichever is larger.
 5. **The flattened JavaScript, diffed per component.** `git diff --no-index` of commit 1's built tree against commit 7's, one file per component entry, is committed as `flattened.diff` and summarised in the pull request description. The expected differences:
    - the brand install becomes `impl(this, …)`;
+   - each trait module's `trait()` call becomes a static `[Symbol.hasInstance]` method;
    - `observedAttributes` loses its `new Set`;
    - a trait's static is linked rather than inlined.
 6. **No flattener warning.** Building core and material-x prints no `trait-member-conflict`. No composition in the tree shares a key between two traits today. A warning is a finding, not noise.
@@ -319,6 +340,20 @@ The paths are `origin/main`'s at `24c6672ce`. Commit 5 greps for `traits/primiti
   - `packages/core/README.md`: its trait sections and examples.
   - Root `README.md`: the plugin's one-line description.
   - `AGENTS.md` and `work-queue.md` name the plugin only by name, and don't change.
+
+## Proposed RD-26 amendment
+
+For the main slot's architect, Mx Architect, from the amendment of 2026-11-19. This plan doesn't edit records or the index.
+
+- **`RD-26` property 7, second bullet,** proposed wording:
+
+  > In the trait's own build, `trait(this)` becomes a static method, `static [Symbol.hasInstance](o) { return o != null && o[$brand] === true; }`, where `$brand` is a module-level `Symbol` that the build exports. A bundle that never uses `instanceof` drops the trait class, and one that uses it keeps the class, without its members where property 8 applies.
+
+- **A dated note under property 7's acceptance,** proposed wording:
+
+  > _Amended 2026-11-19 by the architect._ The accepted `/* @__PURE__ */ trait(this, $brand)` is replaced, because it breaks `instanceof`: rolldown and esbuild remove a pure call whose result is unused, even inside a class they keep, so the brand is never installed. P41 read only whether the class survived and its bytes. [P42](trait-decorators-plan.md#evidence) ([transcript](checks/brand-install.txt)) runs each bundle with rolldown 1.3.2 and esbuild 0.28.1: the static method drops an unused class, keeps a used one with `instanceof` correct, and survives a library build. A static field of the same value does too, and is rejected because a toolchain that lowers class fields to assignment makes it throw. The owner's goals for property 7 hold, so this is an architect's amendment and not a new decision. P41's figures for the pure-marked form with `instanceof` describe a broken bundle.
+
+- **`RF-63`'s dated note of 2026-11-19, second bullet:** _"because the trait's own build marks `trait()` pure"_ becomes _"because the trait's own build installs the brand as a static `[Symbol.hasInstance]` method, which has no side effect"_, with [P42](trait-decorators-plan.md#evidence) cited beside P41. The closure's reading at the last commit then also checks `instanceof` in each bundle that keeps a trait class.
 
 ## Proposed record changes
 
