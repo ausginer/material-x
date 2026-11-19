@@ -105,3 +105,41 @@ Rerun at `15d50a10e`:
 
 - The baseline test applies every converter sample to every observed attribute that has an accessor: a superset of the per-converter samples in the plan.
 - The built-JavaScript copy under `baseline/build/` holds every `.js` file except the `.css.js` and `.tpl.html.js` modules, which the migration doesn't touch.
+
+## The repairs from PR #76's feature proof
+
+Architect B ruled the five findings of Mx Reviewer's feature proof in the plan's [Rulings on PR #76's feature proof](../../trait-decorators-1/trait-migration-plan.md#rulings-on-pr-76s-feature-proof). Commit `973caed7b` repairs them:
+
+- **reviewer-1:** the adapter also admits a module whose text contains `Symbol.hasInstance`, so an application build deletes a built trait module's instance members. A built trait class is recognized only by the exact generated method.
+- **reviewer-2:** the base's declared kind of a static is its first contributor, read from the nearest `static key` in its class chain.
+- **reviewer-3:** `composition-shape` counts only value references.
+- **reviewer-4:** a new test file, `vite.node.test.ts`, drives Vite's own `build()` and `createServer()`.
+- **reviewer-5:** the header of `trait-module.ts`.
+
+**One reading the ruling didn't state.** A Vite library build emits the hoisted brand's `const` as `var`: `var $linked = Symbol("Linked")`. The ruling's fixture is such a build. So a brand is an exported module-scope variable initialized with `Symbol(<string literal>)`: a `const`, or a `var` or `let` that nothing in the module assigns again. tsdown's builds, core's among them, keep `const`.
+
+### Each new test fails without its repair
+
+Each mutation was applied to the repaired source, its tests run, and the source restored.
+
+| Mutation | Finding | Fails |
+| --- | --- | --- |
+| M1: the pre-filter without `Symbol.hasInstance` | reviewer-1 | (a) _"should delete a built trait's members in an application build"_; 1 of 5 |
+| M2: the filter open, recognition back to any computed read of the parameter | reviewer-1, reviewer-4 (d) | (d) _"should leave a look-alike class's members in an application build"_; 1 of 5 |
+| M3: deletion in every build but the dev server, the review's M5 | reviewer-4 (b) | (b) the library build, and (c), because the fixture's own library build then deletes too; 2 of 5 |
+| M4: deletion in every build but a library build | reviewer-4 (c) | (c) the dev server; 1 of 5 |
+| M5: the base's kinds not read | reviewer-2 | the four error rows of _"the base's declared static kind"_; 4 of 38 |
+
+With the source restored, all 87 plugin tests pass. The `composition-shape` rows for a property key and a type position failed before the repair, at `0c5705d87`, as W3 shows in the review's witnesses.
+
+### The reruns at `973caed7b`
+
+| Check | Result |
+| --- | --- |
+| `just build` | passed; no `trait-member-conflict` |
+| `just typecheck`, `typecheck-declarations`, `lint`, `fmt-check` | passed |
+| the plugin's tests | 8 files, 87 tests, all passed |
+| core's tests | 26 files, 297 tests, all passed |
+| material-x's tests, proof 1 among them in Chromium | 20 files, 427 tests, all passed |
+| proof 5, `flattened.diff` | regenerated against commit 1's built tree from `42e94d48c`: byte-identical. Every built tree in it is a library build, which keeps every member |
+| the size rows | every row of core and material-x byte-identical to [`size.json`](size.json). size-limit's preset bundles the built output without the plugin, so no row is an application build through it |
