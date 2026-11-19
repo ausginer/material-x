@@ -74,8 +74,15 @@ type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> =
     ? MergeStatics<Statics<R>, OwnStatics<L>>
     : {};
 
-/** `I` without the keys `K`, or `I` itself when `K` is empty. */
-type Without<I, K extends PropertyKey> = [K] extends [never] ? I : Omit<I, K>;
+/**
+ * `I` without the keys `K`, or `I` itself when `K` is empty. A trimmed trait
+ * also loses the base's keys `X`: they come from the base, with their
+ * declaration kinds, and a mapped type would turn its methods and accessors
+ * into properties.
+ */
+type Without<I, K extends PropertyKey, X> = [K] extends [never]
+  ? I
+  : Omit<I, K | (X & PropertyKey)>;
 
 /**
  * The traits' instance members, read from the last trait back. `Later` holds
@@ -98,7 +105,7 @@ type Instances<
   infer L extends AbstractConstructor<unknown>,
 ]
   ? Instances<R, X, Later | keyof InstanceType<L>> &
-      Without<InstanceType<L>, Exclude<keyof InstanceType<L> & Later, X>>
+      Without<InstanceType<L>, Exclude<keyof InstanceType<L> & Later, X>, X>
   : unknown;
 
 /**

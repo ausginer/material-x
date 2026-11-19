@@ -319,3 +319,56 @@ describe('Composed with a key that two traits share', () => {
     expectTypeOf<SizedLarge>().not.toExtend<Sized>();
   });
 });
+
+class Host extends HTMLElement {
+  get acc(): number {
+    return 0;
+  }
+
+  set acc(_value: number) {}
+
+  meth(): void {}
+}
+
+const AnyHost: Bound<Host> = bound();
+
+class First extends AnyHost {
+  static {
+    trait(this);
+  }
+
+  shared(): void {}
+}
+
+class Second extends AnyHost {
+  static {
+    trait(this);
+  }
+
+  shared(): string {
+    return '';
+  }
+}
+
+/** A composition that trims First: it loses `shared` to Second. */
+const PairBase: Composed<typeof Host, [typeof First, typeof Second]> =
+  compose(Host);
+
+describe('Composed with a trimmed trait', () => {
+  it('should accept an override of a base method', () => {
+    class Overrides extends PairBase {
+      override meth(): void {}
+    }
+
+    expectTypeOf<Overrides>().toExtend<Host>();
+  });
+
+  it("should report an own field over a base's accessor", () => {
+    class OwnField extends PairBase {
+      // @ts-expect-error: TS2610, `acc` is the base's accessor
+      override acc = 1;
+    }
+
+    expectTypeOf<OwnField>().toExtend<Host>();
+  });
+});
