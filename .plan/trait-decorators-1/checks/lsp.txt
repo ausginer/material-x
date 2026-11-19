@@ -73,3 +73,11 @@ which moved the reads three lines down: `this.disabled` is now at 157:17, and th
 getter and setter at 107:7 and 110:7. A hover afterwards found the server
 still on the earlier text, so the reads above stand at their earlier positions.
 p28-example4-fixed.ts didn't move.
+
+## Layer (b): the recommended form, layer-b/p33-layer-b-form.ts, 2026-11-19
+
+`this.color` at 33:17 in Button, which extends `Composed<ControlledElementConstructor,
+[...ButtonCoreTraits, typeof FocusForwarding]>`, where ButtonLike declares
+`accessor color!: ButtonColor | null`:
+  hover:            (property) ButtonLike.color: ButtonColor | null
+  goToDefinition:   traits.ts:40:12 (the trait's `accessor` line)

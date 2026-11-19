@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28 — .plan/trait-decorators-1/probes/types/run.sh, at 554cdf7dc; regenerated with fixed.ts's null bound at 85c644b85, unchanged, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33 — .plan/trait-decorators-1/probes/types/run.sh, at cc98563a3, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -537,6 +537,138 @@ example4/p28-example4-fixed.ts(123,47): error TS2344: Type '[typeof LabelledButt
             Type 'Model' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 318 more.
 example4/p28-example4-fixed.ts(125,14): error TS2515: Non-abstract class 'FromLabelledOnModel' does not implement inherited abstract member label from class 'Model & LabelledButton'.
 exit 2
+=== layer-b/piirre — Version 7.0.2
+exit 0
+=== layer-b/piirre — Version 6.0.3
+exit 0
+=== layer-b/ydin — Version 7.0.2
+exit 0
+=== layer-b/ydin — Version 6.0.3
+exit 0
+=== layer-b/traits — Version 7.0.2
+exit 0
+=== layer-b/traits — Version 6.0.3
+exit 0
+=== layer-b/p31-layer-b-attributes — Version 7.0.2
+layer-b/p31-layer-b-attributes.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-b/p31-layer-b-attributes.ts(44,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+layer-b/p31-layer-b-attributes.ts(53,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<boolean>'.
+  Type 'ConverterOf<string>' is not assignable to type 'ConverterOf<boolean>'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'boolean'.
+        Type 'null' is not assignable to type 'boolean'.
+layer-b/p31-layer-b-attributes.ts(59,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<string>'.
+  Type 'ConverterOf<string>' is not assignable to type '{ readonly from: (value: string | null) => string; }'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+layer-b/p31-layer-b-attributes.ts(65,24): error TS2322: Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterFor<string | null>'.
+  Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterOf<string>'.
+    Types of property 'to' are incompatible.
+      Type '(value: "a" | "b" | null | undefined) => string | null' is not assignable to type '(value: string | null | undefined) => string | null'.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'string | null | undefined' is not assignable to type '"a" | "b" | null | undefined'.
+            Type 'string' is not assignable to type '"a" | "b" | null | undefined'.
+layer-b/p31-layer-b-attributes.ts(71,24): error TS2561: Object literal may only specify known properties, but 'disabld' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'. Did you mean to write 'disabled'?
+layer-b/p31-layer-b-attributes.ts(77,40): error TS2353: Object literal may only specify known properties, and 'toggle' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(84,40): error TS2353: Object literal may only specify known properties, and 'hidden' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(92,24): error TS2322: Type 'ConverterOf<boolean>' is not assignable to type 'never'.
+layer-b/p31-layer-b-attributes.ts(133,16): error TS2611: 'disabled' is defined as a property in class 'ControlledElement & Declared', but is overridden here in 'DeclaredOverride' as an accessor.
+layer-b/p31-layer-b-attributes.ts(172,22): error TS2345: Argument of type 'Readonly<{ href: ConverterOf<boolean>; }>' is not assignable to parameter of type '{ readonly href?: ConverterFor<string | null> | undefined; }'.
+  Types of property 'href' are incompatible.
+    Type 'ConverterOf<boolean>' is not assignable to type 'ConverterFor<string | null>'.
+      Type 'ConverterOf<boolean>' is not assignable to type 'ConverterOf<string>'.
+        The types returned by 'from(...)' are incompatible between these types.
+          Type 'boolean' is not assignable to type 'string'.
+exit 2
+=== layer-b/p31-layer-b-attributes — Version 6.0.3
+layer-b/p31-layer-b-attributes.ts(27,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Disableable & Linkable & ButtonLike', but is overridden here in 'OwnField' as an instance property.
+layer-b/p31-layer-b-attributes.ts(44,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+layer-b/p31-layer-b-attributes.ts(53,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<boolean>'.
+  Type 'ConverterOf<string>' is not assignable to type 'ConverterOf<boolean>'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'boolean'.
+        Type 'null' is not assignable to type 'boolean'.
+layer-b/p31-layer-b-attributes.ts(59,24): error TS2322: Type 'ConverterOf<string>' is not assignable to type 'ConverterFor<string>'.
+  Type 'ConverterOf<string>' is not assignable to type '{ readonly from: (value: string | null) => string; }'.
+    The types returned by 'from(...)' are incompatible between these types.
+      Type 'string | null' is not assignable to type 'string'.
+        Type 'null' is not assignable to type 'string'.
+layer-b/p31-layer-b-attributes.ts(65,24): error TS2322: Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterFor<string | null>'.
+  Type 'ConverterOf<"a" | "b">' is not assignable to type 'ConverterOf<string>'.
+    Types of property 'to' are incompatible.
+      Type '(value: "a" | "b" | null | undefined) => string | null' is not assignable to type '(value: string | null | undefined) => string | null'.
+        Types of parameters 'value' and 'value' are incompatible.
+          Type 'string | null | undefined' is not assignable to type '"a" | "b" | null | undefined'.
+            Type 'string' is not assignable to type '"a" | "b" | null | undefined'.
+layer-b/p31-layer-b-attributes.ts(71,24): error TS2561: Object literal may only specify known properties, but 'disabld' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'. Did you mean to write 'disabled'?
+layer-b/p31-layer-b-attributes.ts(77,40): error TS2353: Object literal may only specify known properties, and 'toggle' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(84,40): error TS2353: Object literal may only specify known properties, and 'hidden' does not exist in type '{ readonly disabled?: ConverterFor<boolean> | undefined; }'.
+layer-b/p31-layer-b-attributes.ts(92,24): error TS2322: Type 'ConverterOf<boolean>' is not assignable to type 'never'.
+layer-b/p31-layer-b-attributes.ts(133,16): error TS2611: 'disabled' is defined as a property in class 'ControlledElement & Declared', but is overridden here in 'DeclaredOverride' as an accessor.
+layer-b/p31-layer-b-attributes.ts(172,22): error TS2345: Argument of type 'Readonly<{ href: ConverterOf<boolean>; }>' is not assignable to parameter of type '{ readonly href?: ConverterFor<string | null> | undefined; }'.
+  Types of property 'href' are incompatible.
+    Type 'ConverterOf<boolean>' is not assignable to type 'ConverterFor<string | null>'.
+      Type 'ConverterOf<boolean>' is not assignable to type 'ConverterOf<string>'.
+        The types returned by 'from(...)' are incompatible between these types.
+          Type 'boolean' is not assignable to type 'string'.
+exit 2
+=== layer-b/p32-layer-b-component — Version 7.0.2
+layer-b/p32-layer-b-component.ts(31,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable & FocusForwarding'.
+layer-b/p32-layer-b-component.ts(39,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ObservingBase & Disableable'.
+layer-b/p32-layer-b-component.ts(62,55): error TS2322: Type '"pink"' is not assignable to type 'ButtonColor | null | undefined'.
+layer-b/p32-layer-b-component.ts(63,54): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type '{ disabled?: boolean | undefined; }'.
+layer-b/p32-layer-b-component.ts(70,20): error TS2345: Argument of type 'Plain' is not assignable to parameter of type 'FocusForwarding'.
+  Property '#brand' is missing in type 'ControlledElement' but required in type 'FocusForwarding'.
+layer-b/p32-layer-b-component.ts(82,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof FocusForwarding]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & FocusForwarding>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & FocusForwarding'.
+      Type 'HTMLElement' is missing the following properties from type 'FocusForwarding': #brand, #internals, #controllers, attributeChangedCallback, and 9 more.
+layer-b/p32-layer-b-component.ts(82,51): error TS2344: Type '[typeof FocusForwarding]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof FocusForwarding' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof FocusForwarding' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+layer-b/p32-layer-b-component.ts(96,56): error TS2344: Type '[typeof NeedsStatics]' does not satisfy the constraint 'readonly Applicable<typeof ControlledElement>[]'.
+  Type 'typeof NeedsStatics' is not assignable to type 'Applicable<typeof ControlledElement>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: ControlledElement, statics: CustomElementStatics) => void' is not assignable to type '(instance: ControlledElement, statics: typeof ControlledElement) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type 'typeof ControlledElement' has no properties in common with type 'CustomElementStatics'.
+layer-b/p32-layer-b-component.ts(123,5): error TS2322: Type '"medium"' is not assignable to type '"large"'.
+exit 2
+=== layer-b/p32-layer-b-component — Version 6.0.3
+layer-b/p32-layer-b-component.ts(31,19): error TS4113: This member cannot have an 'override' modifier because it is not declared in the base class 'ControlledElement & Disableable & FocusForwarding'.
+layer-b/p32-layer-b-component.ts(39,10): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'ObservingBase & Disableable'.
+layer-b/p32-layer-b-component.ts(62,55): error TS2322: Type '"pink"' is not assignable to type 'ButtonColor | null | undefined'.
+layer-b/p32-layer-b-component.ts(63,54): error TS2353: Object literal may only specify known properties, and 'focus' does not exist in type '{ disabled?: boolean | undefined; }'.
+layer-b/p32-layer-b-component.ts(70,20): error TS2345: Argument of type 'Plain' is not assignable to parameter of type 'FocusForwarding'.
+  Property '#brand' is missing in type 'ControlledElement' but required in type 'FocusForwarding'.
+layer-b/p32-layer-b-component.ts(82,7): error TS2322: Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, [typeof FocusForwarding]>'.
+  Type 'Composed<{ new (): HTMLElement; prototype: HTMLElement; }, readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]>' is not assignable to type 'AbstractConstructor<HTMLElement & FocusForwarding>'.
+    Type 'HTMLElement' is not assignable to type 'HTMLElement & FocusForwarding'.
+      Type 'HTMLElement' is missing the following properties from type 'FocusForwarding': #brand, #internals, #controllers, attributeChangedCallback, and 9 more.
+layer-b/p32-layer-b-component.ts(82,51): error TS2344: Type '[typeof FocusForwarding]' does not satisfy the constraint 'readonly Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>[]'.
+  Type 'typeof FocusForwarding' is not assignable to type 'Applicable<{ new (): HTMLElement; prototype: HTMLElement; }>'.
+    Type 'typeof FocusForwarding' is not assignable to type '{ readonly [$bound]?: ((instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void) | undefined; }'.
+      Types of property '[$bound]' are incompatible.
+        Type '(instance: ControlledElement, statics: {}) => void' is not assignable to type '(instance: HTMLElement, statics: { new (): HTMLElement; prototype: HTMLElement; }) => void'.
+          Types of parameters 'instance' and 'instance' are incompatible.
+            Type 'HTMLElement' is missing the following properties from type 'ControlledElement': #internals, #controllers, attributeChangedCallback, connectedCallback, and 8 more.
+layer-b/p32-layer-b-component.ts(96,56): error TS2344: Type '[typeof NeedsStatics]' does not satisfy the constraint 'readonly Applicable<typeof ControlledElement>[]'.
+  Type 'typeof NeedsStatics' is not assignable to type 'Applicable<typeof ControlledElement>'.
+    Types of property '[$bound]' are incompatible.
+      Type '(instance: ControlledElement, statics: CustomElementStatics) => void' is not assignable to type '(instance: ControlledElement, statics: typeof ControlledElement) => void'.
+        Types of parameters 'statics' and 'statics' are incompatible.
+          Type 'typeof ControlledElement' has no properties in common with type 'CustomElementStatics'.
+layer-b/p32-layer-b-component.ts(123,5): error TS2322: Type '"medium"' is not assignable to type '"large"'.
+exit 2
+=== layer-b/p33-layer-b-form — Version 7.0.2
+exit 0
+=== layer-b/p33-layer-b-form — Version 6.0.3
+exit 0
 === p1-decorator-only with experimentalDecorators — Version 7.0.2
 p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
   The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.
@@ -1008,4 +1140,89 @@ export declare class IconButton extends IconButtonBase {
     check(): boolean;
     focus(options?: FocusOptions): void;
 }
+export {};
+=== emitted layer-b/out/p33-layer-b-form/…/layer-b/ydin.d.ts
+import type { AbstractConstructor } from 'type-fest';
+import type { AttributePrimitive, ConverterOf } from '../../../../../packages/core/src/attribute.ts';
+import type { ControlledElement } from '../../../../../packages/core/src/element.ts';
+import { type Bound } from './piirre.ts';
+/** Any element: what an attribute trait requires of its base. */
+export declare const AnyElement: Bound<HTMLElement>;
+/** A ControlledElement: for a trait whose members need ydin's element. */
+export declare const Controlled: Bound<ControlledElement>;
+/** A trait's attribute members: not a method, and not an HTMLElement member. */
+type AttributeKeys<T> = {
+    [K in keyof T]-?: K extends keyof HTMLElement ? never : T[K] extends (...args: never[]) => unknown ? never : K;
+}[keyof T];
+/** The converter for a member of type M: it reads exactly M. */
+export type ConverterFor<M> = ConverterOf<NonNullable<M> & AttributePrimitive> & {
+    readonly from: (value: string | null) => M;
+};
+/**
+ * One converter per attribute member, checked against the member. A class with
+ * no attribute member accepts no entry: an empty mapped type would accept any.
+ */
+export type AttributeTable<T> = [AttributeKeys<T>] extends [never] ? Readonly<Record<string, never>> : {
+    readonly [K in AttributeKeys<T>]?: ConverterFor<T[K]>;
+};
+/**
+ * Declares a trait's attributes, from its static block. It does nothing at
+ * runtime: the flattener reads the table literal, in source or in built
+ * JavaScript, and emits the accessors and `observedAttributes`.
+ */
+export declare function attributes<T extends object>(_trait: AbstractConstructor<T>, _table: NoInfer<AttributeTable<T>>): void;
+type PropsOfList<T extends readonly unknown[]> = T extends readonly [
+    infer H,
+    ...infer R
+] ? Props<H> & PropsOfList<R> : {};
+/**
+ * Framework props: a trait's attribute members, optional. For a tuple of
+ * traits, the props of each.
+ */
+export type Props<T> = T extends readonly unknown[] ? PropsOfList<T> : T extends AbstractConstructor<infer I> ? {
+    [K in AttributeKeys<I>]?: I[K];
+} : never;
+export {};
+=== emitted layer-b/out/p33-layer-b-form/…/layer-b/traits.d.ts
+import { AnyElement, Controlled } from './ydin.ts';
+export declare class Disableable extends AnyElement {
+    accessor disabled: boolean;
+}
+export declare class Linkable extends AnyElement {
+    accessor href: string | null;
+    accessor target: string | null;
+}
+export type ButtonColor = 'outlined' | 'elevated' | 'text' | 'tonal';
+export type ButtonSize = 'xsmall' | 'medium' | 'large' | 'xlarge';
+export declare class ButtonLike extends AnyElement {
+    accessor color: ButtonColor | null;
+    accessor size: ButtonSize | null;
+}
+/** Overrides a member its bound already has, so it carries a type brand. */
+export declare class FocusForwarding extends Controlled {
+    #private;
+    focus(options?: FocusOptions): void;
+}
+export declare function useFocusForwarding(host: FocusForwarding, control: HTMLElement): void;
+/** An empty trait: only its brands. */
+export declare class ButtonGroupLike extends Controlled {
+    #private;
+}
+=== emitted layer-b/out/p33-layer-b-form/…/layer-b/p33-layer-b-form.d.ts
+import { type ControlledElementConstructor } from '../../../../../packages/core/src/element.ts';
+import { type Composed } from './piirre.ts';
+import { ButtonLike, Disableable, FocusForwarding } from './traits.ts';
+import type { Props } from './ydin.ts';
+export type ButtonCoreTraits = readonly [typeof ButtonLike, typeof Disableable];
+declare const ButtonBase: Composed<ControlledElementConstructor, [
+    ...ButtonCoreTraits,
+    typeof FocusForwarding
+]>;
+export declare class Button extends ButtonBase {
+    static formAssociated: boolean;
+    static observedAttributes: readonly string[];
+    constructor();
+    get tonal(): boolean;
+}
+export type ButtonProperties = Props<ButtonCoreTraits>;
 export {};
