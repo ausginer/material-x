@@ -77,6 +77,19 @@ for probe in names statics p38-unannotated p38-merge-types; do
 done
 echo "=== emitted layer-a-statics/out/statics/…/layer-a-statics/statics.d.ts"
 cat "layer-a-statics/out/statics/.plan/trait-decorators-1/probes/types/layer-a-statics/statics.d.ts" 2>/dev/null || echo '(none)'
+# The owner's decisions: statics merged by kind, the last trait winning a
+# shared key, under last-wins/tsconfig.json.
+for probe in composition p40-last-wins; do
+  config="last-wins/.tsconfig.${probe}.json"
+  printf '{"extends":"./tsconfig.json","files":["%s.ts"],"compilerOptions":{"outDir":"out/%s"}}\n' \
+    "${probe}" "${probe}" > "${config}"
+  for tsc in tsc tsc6; do
+    echo "=== last-wins/${probe} — $("${bin}/${tsc}" -v)"
+    "${bin}/${tsc}" -p "${config}" --pretty false
+    echo "exit $?"
+  done
+  rm -f "${config}"
+done
 echo "=== p1-decorator-only with experimentalDecorators — $("${bin}/tsc" -v)"
 "${bin}/tsc" -p tsconfig.experimental.json --pretty false
 echo "exit $?"
@@ -92,4 +105,4 @@ for name in ydin traits p33-layer-b-form; do
   echo "=== emitted layer-b/out/p33-layer-b-form/…/layer-b/${name}.d.ts"
   cat "layer-b/out/p33-layer-b-form/.plan/trait-decorators-1/probes/types/layer-b/${name}.d.ts" 2>/dev/null || echo '(none)'
 done
-rm -rf "${here:?}/out" "${here:?}/out-exp" "${here:?}/example4/out" "${here:?}/layer-b/out" "${here:?}/layer-a-only/out" "${here:?}/layer-a-statics/out"
+rm -rf "${here:?}/out" "${here:?}/out-exp" "${here:?}/example4/out" "${here:?}/layer-b/out" "${here:?}/layer-a-only/out" "${here:?}/layer-a-statics/out" "${here:?}/last-wins/out"

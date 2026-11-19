@@ -1,4 +1,4 @@
-# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33, P35, P38 — .plan/trait-decorators-1/probes/types/run.sh, at 6f00cd2c1, 2026-11-19
+# P1–P6, P9–P14, P16, P17–P21, P23–P25, P27–P28, P31–P33, P35, P38, P40 — .plan/trait-decorators-1/probes/types/run.sh, at 5fbb8cec8, 2026-11-19
 === p1-decorator-only — Version 7.0.2
 p1-decorator-only.ts(8,17): error TS2339: Property 'disabled' does not exist on type 'Button'.
 exit 2
@@ -776,6 +776,22 @@ export declare class Shapes {
     static readonly typeQuery: typeof Shapes.arrayReadonly;
 }
 export {};
+=== last-wins/composition — Version 7.0.2
+exit 0
+=== last-wins/composition — Version 6.0.3
+exit 0
+=== last-wins/p40-last-wins — Version 7.0.2
+last-wins/p40-last-wins.ts(99,14): error TS2322: Type '"small"' is not assignable to type '"large"'.
+last-wins/p40-last-wins.ts(107,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnField' as an instance property.
+last-wins/p40-last-wins.ts(110,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+last-wins/p40-last-wins.ts(117,12): error TS2610: 'color' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnFieldOverButtonLike' as an instance property.
+exit 2
+=== last-wins/p40-last-wins — Version 6.0.3
+last-wins/p40-last-wins.ts(99,14): error TS2322: Type '"small"' is not assignable to type '"large"'.
+last-wins/p40-last-wins.ts(107,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnField' as an instance property.
+last-wins/p40-last-wins.ts(110,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'AccessorOverField' as an accessor.
+last-wins/p40-last-wins.ts(117,12): error TS2610: 'color' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable & Counted', but is overridden here in 'OwnFieldOverButtonLike' as an instance property.
+exit 2
 === p1-decorator-only with experimentalDecorators — Version 7.0.2
 p1-decorator-only.ts(5,1): error TS1238: Unable to resolve signature of class decorator when called as an expression.
   The runtime will invoke the decorator with 1 arguments, but the decorator expects 2.

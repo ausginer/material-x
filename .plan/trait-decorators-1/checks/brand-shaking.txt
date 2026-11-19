@@ -1,0 +1,7 @@
+# P41 — node .plan/trait-decorators-1/probes/toolchain/brand-shaking.ts, at 5fbb8cec8, 2026-11-19, Node v26.13.1, rolldown 1.3.2
+impl(this, Linked): the class is referenced, members kept: trait class kept: yes, with its members | 1988 B min, 650 B brotli
+impl(this, Linked), members deleted by the bundling build: trait class kept: yes, without members | 1741 B min, 643 B brotli
+impl(this, $linked), trait(this, $linked) in the static block: trait class kept: yes, with its members | 2009 B min, 658 B brotli
+impl(this, $linked), /* @__PURE__ */ trait(this, $linked): trait class kept: no | 1486 B min, 551 B brotli
+the same, and the application uses instanceof Linked: trait class kept: yes, with its members | 1890 B min, 610 B brotli
+the same with instanceof, members deleted by the bundling build: trait class kept: yes, without members | 1643 B min, 603 B brotli
