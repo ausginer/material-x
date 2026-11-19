@@ -57,7 +57,7 @@ Stop at the authorized boundary and report behavior, reviewed revision, verifica
 
 After each return, compare its records with the delegated task and phase goal. Inspect git and the changed sources; distinguish committed work, local edits, verification results and pending acceptance. Do not ask the owner to reconstruct information already in the repository, and do not carry old verification over new edits without checking its scope.
 
-Keep a short working summary: current unit, latest revision, active or blocked sessions and next dependency. Durable decisions and results stay in the owning `packages/<package>/.plan/` or repository [.plan/](../../.plan/) record. Use an existing record rather than creating another ledger or a transcript of messages.
+Keep a short working summary: current unit, latest revision, active or blocked sessions and next dependency. Its durable part is the work queue on GitHub ([work-queue.md](work-queue.md)): each unit's item, its `Status` and the comment that names its slot, branch and base. Durable decisions and results stay in the owning `packages/<package>/.plan/` or repository [.plan/](../../.plan/) record. Use an existing record rather than creating another ledger or a transcript of messages.
 
 Before a deliberate coordinator reset, a concise local resumption note may live in `.agents/codex/`, which root `.gitignore` excludes. It is a convenience, not the only copy of a finalized result. Do not require session IDs to reconstruct the work.
 

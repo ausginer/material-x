@@ -1,0 +1,101 @@
+# repo:RD-22 step 2, feature proof: the reviewer's mechanical checks. Read in slot c on 2026-11-18 at b30a9ff7e
+# (repo/work-queue-1, clean, equal to origin). Nothing in the tree was changed.
+
+## 1. Links and anchors in the changed documents (scratch script: GitHub-style heading slugs, code fences skipped)
+ok      .agents/docs/work-queue.md #waiting-on-the-owner
+ok      .agents/docs/work-queue.md agent-workflow.md#stacks
+ok      .agents/docs/work-queue.md #closing
+ok      .agents/docs/work-queue.md technical-english.md
+ok      .agents/docs/work-queue.md ../../AGENTS.md#before-you-change-anything-tracked
+ok      AGENTS.md .agents/docs/work-queue.md
+ok      AGENTS.md CONTRIBUTING.md
+ok      AGENTS.md .agents/docs/handoff.md
+ok      AGENTS.md .agents/docs/technical-english.md
+ok      AGENTS.md .agents/docs/coordinator.md
+ok      AGENTS.md .agents/docs/coordinator-setup.md
+ok      AGENTS.md .scripts/cl.sh
+ok      AGENTS.md CONTRIBUTING.md
+ok      AGENTS.md .agents/docs/
+ok      .agents/docs/handoff.md documentation.md
+ok      .agents/docs/handoff.md review-findings.md
+ok      .agents/docs/handoff.md coordinator-setup.md
+ok      .agents/docs/handoff.md agent-workflow.md#architecture-prototypes
+ok      .agents/docs/handoff.md work-queue.md
+ok      .agents/docs/handoff.md ../../AGENTS.md#before-you-change-anything-tracked
+ok      .agents/docs/coordinator.md coordinator-setup.md
+ok      .agents/docs/coordinator.md agent-workflow.md
+ok      .agents/docs/coordinator.md coordinator-setup.md
+ok      .agents/docs/coordinator.md work-queue.md
+ok      .agents/docs/coordinator.md ../../AGENTS.md
+ok      .agents/docs/coordinator.md ../../CONTRIBUTING.md
+ok      .agents/docs/coordinator.md architecture.md
+ok      .agents/docs/coordinator.md ../../.plan/00-index.md
+ok      .agents/docs/coordinator.md handoff.md
+ok      .agents/docs/coordinator.md review-findings.md
+ok      .agents/docs/coordinator.md ../../.claude/agents/
+ok      .agents/docs/coordinator.md agent-workflow.md#architecture-prototypes
+ok      .agents/docs/coordinator.md agent-workflow.md#parallel-units
+ok      .agents/docs/agent-workflow.md ../../.claude/agents/
+ok      .agents/docs/agent-workflow.md coordinator.md
+ok      .agents/docs/agent-workflow.md #architecture-prototypes
+ok      .agents/docs/agent-workflow.md coordinator-setup.md
+ok      .agents/docs/agent-workflow.md ../../.claude/agents/consolidator.md
+ok      .agents/docs/agent-workflow.md coordinator.md#route-one-bounded-task
+ok      .agents/docs/agent-workflow.md handoff.md
+ok      .agents/docs/agent-workflow.md work-queue.md
+ok      .agents/docs/agent-workflow.md ../../.plan/
+ok      .agents/docs/agent-workflow.md coordinator-setup.md#manual-relay
+ok      .agents/docs/agent-workflow.md coordinator-setup.md#slots
+ok      .agents/docs/agent-workflow.md ../../.plan/harness-1/checks/stack-procedure.txt
+ok      .agents/docs/agent-workflow.md handoff.md#record-the-handoff
+ok      .agents/docs/agent-workflow.md documentation.md
+ok      .agents/docs/agent-workflow.md review-findings.md
+ok      .agents/docs/agent-workflow.md ../../CONTRIBUTING.md#reading-one-entry-of-a-record
+ok      .agents/docs/agent-workflow.md ../../.plan/00-index.md
+ok      .agents/docs/agent-workflow.md handoff.md
+ok      .agents/docs/agent-workflow.md review-findings.md
+ok      .agents/docs/agent-workflow.md coordinator-setup.md
+ok      .agents/docs/agent-workflow.md ../../.claude/agents/consolidator.md
+ok      .agents/docs/agent-workflow.md review-findings.md
+ok      .agents/docs/agent-workflow.md handoff.md
+ok      .agents/docs/agent-workflow.md coordinator-setup.md
+ok      .agents/docs/documentation.md ../../.plan/00-index.md
+
+## 2. Formatting
+$ aube exec oxfmt --check <the seven changed files>
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 3ms on 7 files using 12 threads.
+$ git diff --check b30a9ff7e~1 b30a9ff7e
+(no output, exit 0)
+
+## 3. The plan's properties are unchanged since RD-22 cites them (a3e8dfbe5)
+$ git diff a3e8dfbe5 b30a9ff7e -- .plan/work-queue-1/work-queue-plan.md, changed lines, cut to 120 characters
+-**Status: accepted by the owner as a trial, 2026-11-18, as relayed by the coordinator. Not registered.** Nothing is wri
++**Status: accepted by the owner as a trial, 2026-11-18, as relayed by the coordinator. Registered** on this branch as `
+-| unregistered | The button group can fail on pages served over plain HTTP | `pkg:core`, `pkg:material-x`, `unregistere
++| `repo:RF-61` | material-x's buttons and text field fail to import on pages served over plain HTTP | `pkg:core`, `pkg:
+-**`createContext`, read by the architect at `377ca72df`.** `createContext` returns `crypto.randomUUID()` (`packages/cor
++**`createContext`, read by the architect at `377ca72df`.** `createContext` returns `crypto.randomUUID()` (`packages/cor
+-1. **Registration.** The main slot's architect registers `RD-22`, and `RF-61` when accepted, in [`00-index.md`](../00-i
++1. **Registration.** The main slot's architect registers `RD-22`, and `RF-61` when accepted, in [`00-index.md`](../00-i
+-Both are the next free numbers across all branches at the readings above. The main slot's architect confirms them when 
++Both are the next free numbers across all branches at the readings above. The main slot's architect confirms them when 
++**Confirmed and registered** on 2026-11-18. Across every branch on `origin`, the highest numbers were `RF-60` (`repo/tr
+
+## 4. Where the bare-@name rule is stated (reviewer-1)
+$ grep -rn "@name" AGENTS.md CLAUDE.md CONTRIBUTING.md .agents .claude
+.agents/docs/work-queue.md:106:- no bare `@name` unless it is meant to notify that account;
+
+## 5. Where work-queue.md is retrieved (reviewer-2)
+$ grep -rn "work-queue" AGENTS.md CLAUDE.md .agents .claude --include=*.md
+.agents/docs/handoff.md:82:**A pull request names its issue in its description:** `Closes #N` when it completes the work item, `Refs #N` when it only advances it. Never put a closing keyword in a comm
+AGENTS.md:13:- **Commit messages, pull request descriptions and everything written to GitHub carry no session link** — no `Claude-Session:` trailer and no `claude.ai/code/session_…` URL. A `Co-Aut
+.claude/agents/coordinator.md:11:**Start** by reading `.agents/docs/coordinator.md`, `.agents/docs/agent-workflow.md` and `.agents/docs/work-queue.md` in full. They own routing, the prompt format, the
+.claude/agents/coordinator.md:47:You maintain the work queue on GitHub as `work-queue.md` says. Those writes to GitHub are within your authority.
+.agents/docs/agent-workflow.md:60:Keep a short working summary: current unit, latest revision, active or blocked sessions and next dependency. Its durable part is the work queue on GitHub ([work-queue
+.agents/docs/documentation.md:189:| `.agents/docs/work-queue.md` | Operation — the rules for the work queue on GitHub |
+.agents/docs/documentation.md:190:| GitHub Issues and the `Work queue` board | The work queue — what is next and whom it waits on, never a reason (`work-queue.md`) |
+.agents/docs/documentation.md:217:| 2026-11-18 | §8 | **Added:** `work-queue.md`, and GitHub Issues with the `Work queue` board as the work queue, outside the four kinds of document. Record: `repo:RD
+.agents/docs/coordinator.md:5:Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.md](coordinator-setup.md) for the relay and launch procedure. Read [work-queue.md](work-que

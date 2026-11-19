@@ -79,4 +79,6 @@ For a runnable prototype in an assigned isolated worktree, follow [Architecture 
 
 **A finalized handoff is pushed, not only committed.** Once the unit's last commit is in, `git push` the current work branch to `origin`, and push nothing else; the next role needs the finished state, not the intermediate ones.
 
+**A pull request names its issue in its description:** `Closes #N` when it completes the work item, `Refs #N` when it only advances it. Never put a closing keyword in a commit message: a squash merge's message is made of the commit messages, so the keyword closes the issue when the commit reaches `main`. A role writes to the queue only this way, and [work-queue.md](work-queue.md) owns the rest.
+
 [`AGENTS.md`](../../AGENTS.md#before-you-change-anything-tracked) owns the restrictions on other refs, history rewrites and branch protection, and what to do when an operation is rejected. A push can be rejected for a protected branch, a non-fast-forward update or a missing upstream.

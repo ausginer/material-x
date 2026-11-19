@@ -8,9 +8,9 @@ Resident in every agent's context, so it carries only what applies before a role
 
 - **Tracked changes belong on a non-`main` branch.** Verify the branch first; if it is `main`, stop and ask. Do not create or switch branches implicitly unless asked.
 - **Do not amend, squash, rebase, rewrite or delete an existing commit** unless asked.
-- **Push the current work branch to `origin` once a unit of work is finalized** — after the last commit of the unit, not after each one. **Do not open a PR, force-push, push `main`, or rename, delete or otherwise move any other shared ref** unless asked.
-- **The owner merges pull requests.** Agents may create a PR when asked, but must leave it open for the owner. Do not merge it or enable auto-merge.
-- **Commit messages and pull request descriptions carry no session link** — no `Claude-Session:` trailer and no `claude.ai/code/session_…` URL. A `Co-Authored-By:` trailer is fine.
+- **Push the current work branch to `origin` once a unit of work is finalized** — after the last commit of the unit, not after each one. **Do not force-push, push `main`, or rename, delete or otherwise move any other shared ref** unless asked.
+- **An agent may open the branch's pull request without being asked,** once a unit is finalized and pushed and the branch has no open pull request. **The owner merges pull requests:** leave it open for the owner, and do not merge it or enable auto-merge.
+- **Commit messages, pull request descriptions and everything written to GitHub carry no session link** — no `Claude-Session:` trailer and no `claude.ai/code/session_…` URL. A `Co-Authored-By:` trailer is fine. **No bare `@name` either,** unless it is meant to notify that account: GitHub notifies the owner of every `@name` in a pull request, issue or comment, so a role, a placeholder or code goes in backticks. Everything written to GitHub, issues and comments included, is in English. Before reading an issue's text or writing to the work queue, read [`.agents/docs/work-queue.md`](.agents/docs/work-queue.md).
 - **Never bypass branch protection, rulesets or repository policy.** If an operation is rejected, report the blocker rather than force-pushing or changing rules around it.
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).

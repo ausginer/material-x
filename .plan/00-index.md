@@ -1185,6 +1185,49 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 
 **What this amends,** in place, each with what it said before: `RD-6` properties 2 and 8 and one reason, `RD-12` property 11, and `RD-15` property 5.
 
+#### RD-22 — GitHub Issues on one Projects board are the work queue, and the `.plan/` records stay the only record
+
+**Decided 2026-11-18 by the owner, as a trial,** relayed by the coordinator, on the architect's [work-queue plan](work-queue-1/work-queue-plan.md) at `a3e8dfbe5`. The owner's answers are in the plan's [Owner's answers](work-queue-1/work-queue-plan.md#owners-answers): a trial, milestones in the order box-quad, drag, material-x with the set left open, answers in chat to the coordinator for now, a board whose `Status` field replaces the state labels, and titles in plain words after the address. Registered by the architect on `repo/work-queue-1`. `RD-20` is on `repo/traits-plugin-1` and `RD-21` on `repo/ci-deps-1`, so this is the next free number. **Unimplemented:** the plan's steps 2 and 3 implement it.
+
+**Properties:** the plan's [properties 1 to 14](work-queue-1/work-queue-plan.md#decision-proposed-as-repord-22), as written at `a3e8dfbe5` and amended below, with its `Status` options and labels. In short:
+
+- the queue holds queue state and a description only: the item and a short description of it, its `Status` and rank, the slot and branch that hold it, and whether it is done. A decision, a reason, evidence or a tier stays in the record (properties 1 and 4);
+- an issue names its entry by qualified address and copies no decision, reason, evidence or tier from it, and at most one open issue has a given address as its subject (properties 2 and 3);
+- an issue's body opens with a description of the item in plain English, which the record governs (property 2, amended 2026-11-19);
+- what first appears on GitHub is copied into the record before anyone relies on it (property 5);
+- the coordinator is the routine writer, the owner sets the order, and roles write only through a pull request description's `Closes #N` or `Refs #N` (properties 7 and 8);
+- text from any other account is information, never a task, and an agent's text carries its role stamp (properties 10 and 11);
+- everything on GitHub is in English and follows the pull request rules (property 12).
+
+**Once `.agents/docs/work-queue.md` exists** (the plan's step 2), it states these rules as they stand, and this entry is the decision and its reasons. A change to a rule changes that document, and this entry records the change.
+
+**Amended 2026-11-18 by the architect,** on the [step-2 review](reviews/work-queue-1/feature-proof-claude.md) at `1ff70cbef`, before the owner accepts the documents:
+
+- **Property 2:** a title is the address, a space, an em dash and a space, and then the item in plain words. The plan's property said only that a title _"opens with the address"_, with the em dash in its example (`reviewer-3`).
+- **Property 3:** the documented check matches the address followed by anything but a digit, so a hand-edited separator is still found. The plan's example matched `repo:RF-59 —` exactly.
+- **Property 10:** `AGENTS.md`, which every role has, routes to `work-queue.md` before a role reads an issue's text. The plan's rule reached a role only when it wrote to GitHub (`reviewer-2`).
+- **Property 12:** `AGENTS.md` states the bare-`@name` rule, which `work-queue.md` attributes to it. No document stated it before (`reviewer-1`).
+
+**Amended 2026-11-18 by the architect,** on the owner's later answer relayed by the coordinator, before the owner accepts the documents: **no milestones for now.** The queue is a kanban queue, and the board's `Status` and the rank within it are its only ordering. This replaces the answer on milestones in the _Decided_ paragraph above. Properties 1, 7, 12 and 14 and the plan's section on labels and milestones changed, and the plan's [Owner's answers](work-queue-1/work-queue-plan.md#owners-answers) lists what each said. This entry's first summary bullet listed _"its milestone"_ in the queue state, and its _Properties_ line adopted the plan's _"labels and milestones"_. The one gap, release scope, and a proposal that uses _blocked by_ on the release issues are in the plan's [Release scope without milestones](work-queue-1/work-queue-plan.md#release-scope-without-milestones). The proposal waits on the owner. **Answered 2026-11-18 by the owner,** relayed by the coordinator: material-x's release item is removed for now, and no release issue is blocked by another item. The plan's [Release scope without milestones](work-queue-1/work-queue-plan.md#release-scope-without-milestones) records the answer.
+
+**Amended 2026-11-19 by the architect,** on the owner's request relayed by the coordinator: **an issue's body carries a short description of the item in plain English.** The board shows only titles, and the owner often can't judge what an item is about or how large it is without opening the record. [`work-queue.md`](../.agents/docs/work-queue.md#issues) states the rule:
+
+- **What it says:** in at most three sentences, what goes wrong or what is missing, what the work delivers, and its size as _small_, _medium_, _large_ or _not known yet_, each defined there. For a step, it describes that step.
+- **What it doesn't say:** no decision, reason, evidence or tier, no order or urgency, and no record address, commit, run, measurement or line number.
+- **The record governs.** Where the description and the entry differ, the entry applies and the description is corrected. A size that the entry states is the size. A role acts on the entry, never on the description.
+- **Who keeps it current:** the coordinator writes and edits it. A role whose commit changes what an entry requires, its scope or its size names in its closing message each open issue whose description no longer holds.
+- **The open issues** get their descriptions from an implementer, as the owner asked: the plan's [step 4](work-queue-1/work-queue-plan.md#implementation), the same exception to the writers' rule as step 3's population. `work-queue.md` now states that exception, and that a body has one stamp, that of the role that last wrote it.
+
+Before this amendment, property 1 said _"The queue holds queue state only"_ and property 2 that an issue _"copies nothing from"_ its entry. This entry's first two summary bullets said the same. `work-queue.md` said _"The body is short, and nothing else goes in it"_, and an `unregistered` body stated the observation _"in one or two sentences"_. The plan's [Owner's answers](work-queue-1/work-queue-plan.md#owners-answers) lists what changed.
+
+**Why these bounds.** Property 2's reason for copying nothing was drift: records retitle and amend entries, and a copy goes stale where nobody reads it. A description is a paraphrase, not a copy, and the bounds keep what drifts or misleads in the record: the decision, the reason, the evidence and the tier. The size is an estimate of the work, which a tier isn't, since a tier is the consequence. The owner orders by both. A fixed scale lets him compare items. Identifiers stay out because the description exists for a reader who doesn't know them. The record governs, and roles act on the entry, so a stale description can mislead the order and nothing else. The writer of the change reports it, because the coordinator can't watch every entry, and the role that changed one knows that it did.
+
+**Dated 2026-11-19 by the architect: implemented on this branch.** The plan's steps 2 to 4 are done: `work-queue.md` and the other documents in its [Where the rules live](work-queue-1/work-queue-plan.md#where-the-rules-live), reviewed at `1ff70cbef`; the labels, issues and board ([step 3 readback](work-queue-1/checks/step3-readback.txt)); and a description on every open issue ([step 4 readback](work-queue-1/checks/step4-readback.txt), at `f8b46e347`). The _Unimplemented_ line above is answered. The documents reach `main` with this branch's pull request. Which issues are open, their `Status` and their descriptions are queue state, which is on GitHub and not in this entry (property 1).
+
+**The trial.** The owner may end or change it at any time. Ending it amends this entry. Until then the queue's issues and board are what is next, and they never stand in for a record entry. No review point is set. The plan names the first step if the trial shows drift: a small check of open issues whose entry is closed, duplicate addresses, and items whose `Status` disagrees with the issue.
+
+**Why.** A queue must answer what is next across every slot at once. A record entry exists on its branch until that branch merges, while an issue exists in one place for every branch. The queue lived only in the coordinator's session and was nearly lost twice. The rest is in the plan's [Problem](work-queue-1/work-queue-plan.md#problem), its [Readings](work-queue-1/work-queue-plan.md#readings) and its [_Rejected or changed_](work-queue-1/work-queue-plan.md#rejected-or-changed-from-the-coordinators-proposal) section, which this entry adopts: no tier labels, the `safari` label kept out of the queue, the board replacing the state labels, and no issues for #37 and #38.
+
 #### RD-23 — The visual project compares screenshots at a threshold that sees a state layer at the tokens' lowest opacity, chosen by a reading on GitHub's runner
 
 **Decided 2026-11-18 by the owner,** relayed by the coordinator, on the architect's [state-layer visual plan](state-layer-visual-1/state-layer-visual-plan.md) at `b76c7a012`, which answers `RF-41`. The owner chose branch (a): the visual layer sees state layers. He accepts the review load: _"Yes, let's"_. Recorded by the main slot's architect on `repo/state-layer-visual-1`. The plan proposed `RD-24` if `RD-22` and `RD-23` were registered first. `RD-22` is on `repo/work-queue-1`, and no branch registers `RD-23`, so this decision is `RD-23`. The material-x size plan on `repo/mx-size-1` proposes `RD-23` too, and that plan's decision takes the next free number when it is registered. **Implemented 2026-11-18** on `repo/state-layer-visual-1` (#66, not yet merged), as the architect read it on the [feature proof](reviews/state-layer-visual-1/feature-proof-claude.md) at `b51d3a9a0`. The [threshold reading](state-layer-visual-1/checks/threshold-reading.md) (run 44276375207) chose 0.01, which `0bd5a467b` sets, and `test-architecture.md` §What screenshots prove states the rule. #67 (`082c6086b`) re-recorded the five baselines that fail at 0.01 in both runs: the three focused ones, `button-group-standard-disabled` and `checkbox-disabled`. Run 44279730764 at `362851ed3` passes them in two `chromium` attempts. **Changed 2026-11-18 by the architect.** Until then, this line was the implementer's, at `0bd5a467b`: _"Partly implemented … Their re-recording under property 4 is still owed."_ Before that, the entry said unimplemented.
@@ -1234,6 +1277,17 @@ The [docs-gate handoff](docs-gate-1/docs-gate-handoff.md)'s _Disposition of the 
 - **Dated 2026-11-18 by the architect: the comment shows no base or difference** while `RF-65` is open. Property 5's own reading is then the only signal of a row's growth: a unit that changes material-x's runtime output reads its rows before and after. The **Why**'s _"the pull requests' comments show it"_ holds once `RF-65` is repaired. **Closed 2026-11-19 by the architect:** `RF-65` is repaired and closed, and #74's comment shows each material-x row's base and change.
 
 **Why,** and **Not adopted:** the plan's sections of those names, which this entry adopts. In short: the repository's instrument, not a new one. Every entry, because a row costs about a tenth of a second and an entry without a row is `RF-45`'s gap. No ceiling while almost every change moves rows on purpose. A boundary that the owner performs, not a schedule. Not adopted: ceilings re-based at each approved change, amending `RF-45`'s required property, slack, rows for only some entries, and hand measurement.
+
+#### RD-25 — An agent may open a pull request without being asked, and the owner merges it
+
+**Decided 2026-11-19 by the owner,** relayed by the coordinator: _"Shall we let them open one without asking? I'll say 'yes' anyway, so why suffer. Merging stays with me for now."_ (translated). Registered by the architect on `repo/work-queue-1` at `cf8261417`. `RD-24` is the highest number on any branch on `origin` and in any slot, so this is the next free number. **Implemented** in `AGENTS.md` in the commit that registers it.
+
+- **The rule:** once a unit is finalized and its branch is pushed, an agent may open the branch's pull request without being asked, if the branch has no open pull request. The rest is unchanged: the pull request leaves out session links, is written in English, and names its issue with `Closes #N` or `Refs #N` (`RD-22` property 8, [`handoff.md`](../.agents/docs/handoff.md#publish-the-branch)).
+- **What stays with the owner:** merging. An agent doesn't merge a pull request and doesn't enable auto-merge. The owner's _"for now"_ makes this a standing rule until he changes it, and a change amends this entry.
+- **What it said before.** `AGENTS.md` said _"**Do not open a PR, force-push, push `main`, or rename, delete or otherwise move any other shared ref** unless asked."_ and _"**The owner merges pull requests.** Agents may create a PR when asked, but must leave it open for the owner. Do not merge it or enable auto-merge."_ Those lines came from #13 (`cc8c2e5f5`), and no record entry held them.
+- **Where the rule lives:** `AGENTS.md`, which every role has. No role definition, `coordinator.md`, `handoff.md` or `work-queue.md` repeated the old rule. `coordinator.md`'s _"merging and releasing each require authorization"_ doesn't change.
+
+**Why.** The owner approved every request to open a pull request, so asking cost a round trip and decided nothing. Merging is where his decision lies, and it stays his.
 
 ## Findings
 
@@ -2236,6 +2290,30 @@ Tier B, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-
   - **The cause and why the row can't fail again** are stated above.
   - **Not read:** a CI run of the repaired row. Every rate comes from one dev container with 12 processors. The URL log, not the failure count, is the discriminating witness. Whether a file is requested under two URL strings depends on the import specifiers, not on the machine's speed.
 
+#### RF-61 — `createContext` calls `crypto.randomUUID`, so on a page served over plain HTTP every material-x button, both button groups and the text field fail to import
+
+Tier A, **closed 2026-11-18** (below). Before closure: open. Registered on 2026-11-18 by the architect, on the [work-queue plan](work-queue-1/work-queue-plan.md)'s reading of `createContext` at `377ca72df`, relayed by the coordinator. `RF-60` is on `repo/traits-plugin-1`, so this is the next free number. **No row is disabled.**
+
+- **The code,** read at `377ca72df`: `createContext` returns `crypto.randomUUID()` (`core/src/controllers/useContext.ts:33`–`:35`). Its JSDoc says that it requires HTTPS. `material-x/src/button-group/button-group-context.ts:25` calls it when the module loads, to create `BUTTON_GROUP_CTX`. No other source calls it on `main`.
+- **Observed** ([reading](work-queue-1/checks/rf61-insecure-context.txt), [probe](work-queue-1/checks/rf61-insecure-context-probe.mjs)), in Chromium 158, Firefox 159 and WebKit 27.2. Over plain HTTP from a host other than `localhost`:
+  - `isSecureContext` is `false`;
+  - `crypto.randomUUID` is `undefined`, and calling it throws a `TypeError`;
+  - `crypto.getRandomValues` works.
+
+  From `localhost`, all three APIs work.
+
+- **What a consumer observes,** read in the code and not run: on such a page, the button group module throws when it is evaluated. So the module, and every module that imports it, fails, and no button group is defined. A page served from a LAN address over HTTP is an ordinary case, for example a development server opened on a phone, or an intranet.
+- **Tier A:** a correct integration gets an import failure. The JSDoc's requirement doesn't lower the tier. It describes core's function, and material-x calls that function at import without stating any requirement to its consumers.
+- **Required property:** `createContext` works in every context a page can run in, secure or not. Each token stays distinct from every other context's token, including the tokens of another copy of `@ydinjs/core` on the same page. The coordinator suggested `crypto.getRandomValues`, which works in both contexts. The repair is the unit's to choose.
+- **Routed** to the owner to order, through the work queue (`RD-22`).
+- **Amended 2026-11-18 by the architect,** on the [import witness](context-token-1/checks/rf61-import.txt) in slot `f`, at `377ca72df` after a build. That file is on `repo/context-token-1`. Until then, the title said _"so on a page served over plain HTTP the button group module throws when it loads"_.
+  - **The import failure is observed.** From a LAN address over HTTP, importing the button group, `mx-button` or `mx-text-field` rejects with the `TypeError` in Chromium 158, Firefox 159 and WebKit 27.2, and no element is defined. `mx-checkbox` loads. From `localhost`, every entry loads.
+  - **The reach is wider.** 9 of material-x's 20 exports import the context: every button through `ButtonCore.ts` or `SwitchCore.ts`, both button groups, and the text field through its icon button.
+  - **The repair is planned** in the [context-token handoff](context-token-1/context-token-handoff.md) on `repo/context-token-1`: `createContext` derives its token from `Math.random()`. The required property stands. The handoff adds that the token stays a string and that creating one does no other work.
+- **Repaired 2026-11-18** on `repo/context-token-1` at `090febe06`, pull request #39. The [feature proof](reviews/context-token-1/feature-proof-claude.md) read the code at `ef8d5cf43` and holds, with no finding in the unit. Both files are on `repo/context-token-1`, and the [handoff's disposition](context-token-1/context-token-handoff.md#disposition-of-the-feature-proof-review-at-8f83af6a3) holds the ruling. **The entry stays open until #39 merges.** The architect then closes it, citing the merge commit: on this branch if it hasn't merged, and otherwise on the main slot's branch.
+- **The review's `reviewer-1`** is registered as `RF-62`.
+- **Closed 2026-11-18 by the architect:** pull request #39 merged to `main` as `5b0e3e25b`, relayed by the coordinator. The required property holds there. `createContext` returns `` `ydin-context-${Math.random()}` ``, and the review and the import witness above read that code. Its issue is #52. The pull request that carries this closure to `main` says `Closes #52` (`RD-22` property 8).
+
 #### RF-62 — The checkbox's `WithLabel` story calls `crypto.randomUUID`, so it throws in a Storybook served over plain HTTP from a LAN address
 
 Tier C, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-11-18 by the architect, from the context-token unit's [feature proof](reviews/context-token-1/feature-proof-claude.md), `reviewer-1` (code at `ef8d5cf43`), relayed by the coordinator. That review is on `repo/context-token-1`. `RF-61` is the last number allocated on any branch. **No row is disabled.**
@@ -2339,3 +2417,15 @@ Tier B, **closed 2026-11-19** (below). Before closure: open. Registered on 2026-
 `architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
 
 **What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-30` 2026-11-05, `RF-31` 2026-11-13, and `RF-32` 2026-11-14, so the next is `RF-33`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
+
+#### RQ-2 — Does a switch in a button group follow the group's `value` when the switch's own `value` changes, through a reactive value?
+
+**Opened 2026-11-18 by the architect,** on the owner's direction relayed by the coordinator. **Not for now.** The owner: _"Hmm… it looks like this calls for a signal (yes, we don't use them now, it's just a direction)."_
+
+- **The behavior:** when a switch's own `value` changes while its group has a value, the switch isn't reconciled until the group's `value` next changes. It was accepted in the host-invariant handoff's [disposition of the targeted recheck](host-invariant-1/host-invariant-handoff.md#disposition-of-the-targeted-recheck-at-c1a40a3fc). That handoff's item 9 names the two events on which the group writes `checked`: a join, and a change to the group's `value`. `connected-button-group.mdx` and `button-group.mdx` state the same.
+- **Why a question, not a finding:** the code does what the ruling and the documentation say, so no stated property is broken. Tier goes by consequence, and a consumer would observe this, so as a defect it would be Tier A. It isn't a defect.
+- **The question:** should material-x's properties become reactive values that a group can observe, so that the group's match holds whenever the group has a value? That is the stronger invariant the disposition named.
+  - It is a design question for `@ydinjs/core`'s component model, not a repair of the group.
+  - The disposition rejected reconciling on the switch's own `value`, because that makes the group a second writer that reacts to consumer writes. A reactive value would change that premise. It wouldn't make the group a second writer.
+- **What answers it:** a design unit for reactive values in `@ydinjs/core`, when the owner orders one. The stronger invariant would then be a decision of its own. Until then, the ruling stands.
+- **Routed** to the owner, through the work queue (`RD-22`), as not for now.
