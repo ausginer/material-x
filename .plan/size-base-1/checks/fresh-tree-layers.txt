@@ -1,0 +1,41 @@
+# RF-65 in a fresh tree: which prerequisites the size reading lacks
+# Run by the architect on 2026-11-19 in the dev container (12 processors), in a
+# new `git worktree add --detach <tree> a3ce6d8b3` (origin/repo/mx-size-1), after
+# `aube ci` only. `<tree>` and `<scratch>` replace the scratch paths.
+
+## 1. Each package's `aube exec just build`, alone, in a second fresh tree
+fresh tree at a3ce6d8b3dc125914abad67cfa79d408130653e7, after aube ci only; each command run alone in this order
+build box-quad: exit 1 Cannot find module 'node_modules/@ydinjs/vite-traits-plugin/index.js'
+build core: exit 1 Cannot find module 'node_modules/@ydinjs/vite-traits-plugin/index.js'
+build tproc: exit 1 Cannot find module 'node_modules/@ydinjs/vite-traits-plugin/index.js'
+build drag: exit 1 Cannot find module 'node_modules/@ydinjs/vite-traits-plugin/index.js'
+build material-x: exit 1 Cannot find module 'node_modules/@ydinjs/vite-custom-element-assets/css/styles-import.js'
+build vite-traits-plugin: exit 0 
+build vite-custom-element-assets: exit 0 
+build size-limit-preset-rolldown: exit 0 
+
+## 2. `aube exec just size-reading <scratch>/out.json`, peeling one layer at a time
+# After each failure the architect built the missing package by hand
+# (`aube exec just build` in its directory) and ran the reading again.
+
+### 2a. Nothing built: exit 1
+6:Error: aube exec just build failed in <tree>/packages/box-quad:
+12:Cannot find module '<tree>/node_modules/@ydinjs/vite-traits-plugin/index.js' imported from <tree>/.scripts/tsdown-library.ts
+
+### 2b. After building vite-traits-plugin: exit 1
+# `aube exec -- size-limit --json`, run by hand in packages/box-quad, prints this
+# object as its reading; the stack trace after the first line is cut here:
+3:  return rows.map((row) => ({
+6:TypeError: rows.map is not a function
+{ "error": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '<tree>/node_modules/size-limit-preset-rolldown/index.js' imported from <tree>/node_modules/size-limit/load-plugins.js ..." }
+
+### 2c. After also building size-limit-preset-rolldown: exit 1
+6:Error: aube exec just build failed in <tree>/packages/material-x:
+13:Error [ERR_MODULE_NOT_FOUND]: Cannot find module '<tree>/node_modules/@ydinjs/vite-custom-element-assets/css/styles-import.js' imported from <tree>/.scripts/css/collect-props.ts
+
+### 2d. After also building vite-custom-element-assets: exit 1
+6:Error: aube exec just build failed in <tree>/packages/material-x:
+13:Error [ERR_MODULE_NOT_FOUND]: Cannot find module '<tree>/node_modules/@ydinjs/tproc/selector.js' imported from <tree>/packages/material-x/src/text-field/styles/utils.ts
+
+### 2e. After also building tproc: exit 0
+rows: 33 {"box-quad":1,"core":3,"material-x":19,"drag":10}
