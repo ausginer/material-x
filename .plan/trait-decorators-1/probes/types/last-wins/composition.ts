@@ -42,7 +42,7 @@ export type MergeStatics<A, B> = {
 
 type OwnStatics<C> = Omit<C, 'prototype' | typeof $bound>;
 
-type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> =
+export type Statics<T extends ReadonlyArray<AbstractConstructor<unknown>>> =
   T extends readonly [
     ...infer R extends ReadonlyArray<AbstractConstructor<unknown>>,
     infer L extends AbstractConstructor<unknown>,

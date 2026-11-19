@@ -1,0 +1,36 @@
+=== last-wins/trimmed — Version 7.0.2
+exit 0
+=== last-wins/trimmed — Version 6.0.3
+exit 0
+=== last-wins/p43-shared-key — Version 7.0.2
+p43-shared-key.ts(86,19): error TS2345: Argument of type 'this' is not assignable to parameter of type 'ControlledElement & ButtonLike & Disableable & FocusForwarding'.
+  Type 'SwitchIconButtonTogether' is not assignable to type 'ControlledElement & ButtonLike & Disableable & FocusForwarding'.
+    Property '#brand' is missing in type 'SwitchIconButtonTogether' but required in type 'FocusForwarding'.
+      Type 'this' is not assignable to type 'FocusForwarding'.
+        Property '#brand' is missing in type 'SwitchIconButtonTogether' but required in type 'FocusForwarding'.
+p43-shared-key.ts(107,5): error TS2322: Type '"standard"' is not assignable to type '"elevated" | "outlined" | "tonal" | null'.
+p43-shared-key.ts(110,5): error TS2322: Type '"text"' is not assignable to type '"elevated" | "outlined" | "tonal" | null'.
+p43-shared-key.ts(149,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnDisabledAlone' as an instance property.
+p43-shared-key.ts(152,12): error TS2610: 'width' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnWidthAlone' as an instance property.
+p43-shared-key.ts(183,14): error TS2345: Argument of type 'this' is not assignable to parameter of type 'Sized'.
+  Property '#brand' is missing in type 'SizedLarge' but required in type 'Sized'.
+p43-shared-key.ts(194,12): error TS2610: 'color' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable', but is overridden here in 'OwnColorNoShared' as an instance property.
+p43-shared-key.ts(213,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverCount' as an accessor.
+p43-shared-key.ts(219,16): error TS2611: 'color' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverColor' as an accessor.
+exit 2
+=== last-wins/p43-shared-key — Version 6.0.3
+p43-shared-key.ts(86,19): error TS2345: Argument of type 'this' is not assignable to parameter of type 'ControlledElement & ButtonLike & Disableable & FocusForwarding'.
+  Type 'SwitchIconButtonTogether' is not assignable to type 'ControlledElement & ButtonLike & Disableable & FocusForwarding'.
+    Property '#brand' is missing in type 'SwitchIconButtonTogether' but required in type 'FocusForwarding'.
+      Type 'this' is not assignable to type 'FocusForwarding'.
+        Property '#brand' is missing in type 'SwitchIconButtonTogether' but required in type 'FocusForwarding'.
+p43-shared-key.ts(107,5): error TS2322: Type '"standard"' is not assignable to type '"outlined" | "elevated" | "tonal" | null'.
+p43-shared-key.ts(110,5): error TS2322: Type '"text"' is not assignable to type '"outlined" | "elevated" | "tonal" | null'.
+p43-shared-key.ts(149,12): error TS2610: 'disabled' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnDisabledAlone' as an instance property.
+p43-shared-key.ts(152,12): error TS2610: 'width' is defined as an accessor in class 'ControlledElement & Omit<ButtonLike, "color"> & Disableable & IconButtonLike & FocusForwarding', but is overridden here in 'OwnWidthAlone' as an instance property.
+p43-shared-key.ts(183,14): error TS2345: Argument of type 'this' is not assignable to parameter of type 'Sized'.
+  Property '#brand' is missing in type 'SizedLarge' but required in type 'Sized'.
+p43-shared-key.ts(194,12): error TS2610: 'color' is defined as an accessor in class 'ControlledElement & ButtonLike & Disableable', but is overridden here in 'OwnColorNoShared' as an instance property.
+p43-shared-key.ts(213,16): error TS2611: 'count' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverCount' as an accessor.
+p43-shared-key.ts(219,16): error TS2611: 'color' is defined as a property in class 'ControlledElement & Omit<ButtonLike, "color"> & Counted & IconButtonLike', but is overridden here in 'AccessorOverColor' as an accessor.
+exit 2

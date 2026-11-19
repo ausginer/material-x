@@ -1320,6 +1320,8 @@ No register entry held that design. It lived in the code, in that document and i
    - Two contributors that give one key different kinds are a build error, and the base's declaration counts as a contributor.
 4. **The last trait wins any other shared key:** a method, a whole accessor pair or a simple static.
    - The types agree: neither `never` nor an overload.
+   - **Each trait is trimmed alone in the instance type.** A trait loses only the keys that a later trait in the list declares, and a trait that loses none enters the intersection whole, with its declaration kinds and its ES-private members. A key of the base's instance doesn't count. _(Amended 2026-11-19, below.)_
+   - **A trait's `declare` member is a key in the types only.** In the types it is shared like any member, and it wins when it comes later. The flattener copies nothing for it, and `trait-member-conflict` doesn't count it. _(Amended 2026-11-19, below.)_
    - The flattener warns at build time, in the Vite or tsdown console, with `trait-member-conflict`, naming both traits and the key. There is no runtime `console.warn`.
    - The warning is silent when the component declares the key, and the component's declaration wins over every trait.
 5. **A member is copied across languages only when its text parses to the same tree in both,** apart from positions. The same file extension always copies.
@@ -1385,6 +1387,34 @@ The plan holds the files, the diagnostics, the baseline and the proofs.
 - **a shared key as a build error:** the owner chose last-wins;
 - **stripping types in the plugin before inserting JavaScript into a `.ts` module:** Vite re-reads the code by the module's id and ignores `moduleType` ([P39](trait-decorators-1/trait-decorators-plan.md#evidence) §5, `RF-44`'s note of 2026-11-19);
 - **deduplicating `observedAttributes`:** each engine calls back once per change despite duplicates (P39 §3).
+
+**Amended 2026-11-19 by the architect: each trait is trimmed alone, and a trait's `declare` member is a key in the types only** (property 4's third and fourth bullets). On Mx Implementer's report from the migration's core commit, relayed by the coordinator. **No owner decision is needed.** Property 4's rule, the last trait wins in the types too, doesn't change, and neither do the runtime and the declaration surface. What changes is the form P40 recorded, which trims more than the rule asks.
+
+- **What broke.** P40's `MergeInstances` folds from the first trait, so a shared key sends all the earlier traits, merged, through `Omit`. Each of them loses its declaration kinds and its ES-private members.
+  - SwitchIconButton's list ends `…, FocusForwarding, IconButtonLike`, and IconButtonLike declares `color`, which ButtonLike also declares.
+  - So FocusForwarding lost `#brand`, and `useButtonCore(this, …)` failed with TS2345.
+  - IconButton lists FocusForwarding after IconButtonLike, so it wasn't affected.
+- **The rule now** is property 4's third bullet. [P43](trait-decorators-1/trait-decorators-plan.md#evidence)'s [`trimmed.ts`](trait-decorators-1/probes/types/last-wins/trimmed.ts) is one form that meets it: it reads the list from the last trait back and carries the later traits' keys. The implementer chooses the form.
+- **P43** ([probe](trait-decorators-1/probes/types/last-wins/p43-shared-key.ts), [transcript](trait-decorators-1/checks/shared-key.txt)), in TypeScript 7.0.2 and 6.0.3, which agree on every result and differ only in the order they print a union:
+  - (a) In SwitchIconButton's order, P40's form fails with TS2345 on `#brand`, and trimming each trait alone passes. `color` is `"outlined" | "elevated" | "tonal" | null`, so `'standard'` and `'text'` fail with TS2322.
+  - (b) IconButton's order passes in both forms.
+  - (c) After the shared key, an own field over Disableable's `disabled` or IconButtonLike's `width` still fails with TS2610. One over ButtonLike's `size` doesn't, because ButtonLike lost `color` and went through `Omit`. P40's form loses `disabled` too.
+  - (d) A nominal trait that loses a key loses its `#brand`, so passing the component where that trait is expected fails with TS2345.
+  - (e) With no shared key, ButtonLike's `color` keeps TS2610, as in P40 (b).
+  - (f) A trait that loses no key keeps TS2611 for its fields. IconButtonLike's `declare color` is a property, so a component's accessor over `color` fails with TS2611.
+- **What remains of the exception:** only a trait that loses a key goes through `Omit`. Its other members lose TS2610 and TS2611, and its ES-private members go (P43 (c), (d)). `RF-57`'s note says so.
+- **A `declare` member** is allowed in a trait and isn't copied: the plan's `trait-field` row already says so. It states a type that the runtime member already has, from an earlier trait or the base, and nothing checks that. Its kind in the types is a property (P43 (f)). No type-only accessor exists: `declare accessor` is TS1243, and with an `abstract accessor` every component must implement the member (TS2515).
+- **The one composition this touches** is IconButtonLike's `declare color: Extract<IconButtonColor, ButtonColor> | null`, in IconButton and SwitchIconButton.
+  - **At runtime, `color` is ButtonLike's accessor,** today and after the migration. Today IconButtonLike's descriptor `trait()` installs only `width`, and `color` is only in its type. After the migration, IconButtonLike's `declare color` isn't copied. `observedAttributes` names `color` once, from ButtonLike.
+  - **The flattener doesn't warn,** because no two traits supply `color`.
+  - **In the types, `color` is `"outlined" | "elevated" | "tonal" | null`.** That is the baseline surface's type, the intersection of the two descriptors. The props keep `IconButtonColor`.
+  - **The cost:** in those two components, an own field over ButtonLike's `size` or `shape` isn't reported (no TS2610), and an accessor over `color` fails with TS2611. No component overrides either key today.
+- **The plan's proof 6** now reads: no composition in the tree has two traits that supply one key, so the build prints no `trait-member-conflict`. IconButtonLike's `declare color` over ButtonLike's `color` shares a key in the types only.
+- **Not adopted:**
+  - **dropping the `declare`:** `color` becomes `ButtonColor | null`, which differs from the baseline surface;
+  - **reordering SwitchIconButton's list:** `observedAttributes` and the prototype's member order change, which differs from the runtime baseline;
+  - **a copied `color` accessor in IconButtonLike:** two traits would supply `color`, and the flattener would warn;
+  - **an `abstract accessor color`:** every component would have to implement it (TS2515).
 
 ## Findings
 
@@ -2282,6 +2312,7 @@ Tier C, **decided, unimplemented, open** (decided 2026-11-18; see _Decided_ belo
   - Layer (b)'s attributes are `accessor` declarations, lowered to `get`/`set` pairs, and never `declare` properties.
   - So a subclass's accessor override typechecks with no directive and no mapped type. TextFieldCore's `value` is that case.
   - In [P31](trait-decorators-1/trait-decorators-plan.md#evidence), the accessor override passes in both compilers. Case (d) shows that a `declare` member is this finding's TS2611.
+- **One `declare` member stays,** under `RD-26` property 4's amendment of 2026-11-19: IconButtonLike's `declare color`, which keeps the baseline's type for `color` in IconButton and SwitchIconButton. There an accessor over `color` fails with TS2611 ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (f)). No declaration in the repository overrides it, so proofs 3 and 7 don't change. The closure records it.
 - **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs 3 and 7 hold on `repo/traits-migration-1`: the declaration surface, and `just typecheck-declarations`. The architect writes the closure on that branch before its pull request opens.
 
 #### RF-55 — The two Vite plugins pin `rolldown` in `dependencies`, while their public types hand rolldown's `Plugin` to the consumer's Vite
@@ -2348,9 +2379,10 @@ Tier C, **open, lowest priority, unscheduled**. Registered on 2026-11-18 by the 
   - a subclass's accessor over a trait field fails with TS2611;
   - a component's own field over a trait accessor fails with TS2610.
 - **A trait field with an initializer is a build error** (`trait-field`), so a trait can't install the own instance property that shadowed the accessor at runtime.
-- **The exception:** in a composition where two traits share a key, the earlier trait goes through `Omit`, a mapped type. Its other accessors then lose TS2610 (P40 (c)).
-  - That is the reverse case: a component's own field over a trait's accessor. A trait still can't install an instance field, so the exception doesn't bear on this entry's required property.
-  - The flattener's `trait-member-conflict` warning names every such pair. No composition in the repository shares a key today (the plan's proof 6).
+- **The exception,** narrowed by `RD-26` property 4's amendment of 2026-11-19: in a composition where a later trait declares a key of an earlier trait, only that earlier trait goes through `Omit`, a mapped type. Its other members then lose TS2610 and TS2611, and its ES-private members go ([P43](trait-decorators-1/trait-decorators-plan.md#evidence) (c), (d)). Every other trait keeps its kinds.
+  - The case this entry needs is a component's own field over a trait's accessor. A trait still can't install an instance field, so the exception doesn't bear on this entry's required property.
+  - The flattener's `trait-member-conflict` warning names every pair that supplies one key. A `declare` member supplies nothing, so a key that a later trait only declares isn't warned about.
+  - One composition has such a key today: IconButtonLike's `declare color` over ButtonLike's `color`, in IconButton and SwitchIconButton. There ButtonLike's `size` and `shape` don't report an own field (P43 (c)).
 - **It closes** when the [migration plan](trait-decorators-1/trait-migration-plan.md)'s proofs hold on `repo/traits-migration-1`. The architect writes the closure on that branch before its pull request opens, with this exception recorded.
 
 #### RF-58 — Each gate job fetches its engine's system packages from the Ubuntu mirror, so a slow mirror times out jobs before any test runs
