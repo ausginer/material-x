@@ -1,13 +1,20 @@
 import { Bool, type ConverterOf } from '@ydinjs/core/attribute.js';
-import { trait, type Trait } from '@ydinjs/core/traits/attributes.js';
+import {
+  attributes,
+  AnyElement,
+} from '@ydinjs/core/traits/attribute-traits.js';
+import { trait } from '@ydinjs/core/traits/composition.js';
 
-const $checkable: unique symbol = Symbol('Checkable');
-
+// A layer (b) trait whose table is a module constant.
 export const CHECKABLE_ATTRS: Readonly<{ checked: ConverterOf<boolean> }> = {
   checked: Bool,
 };
 
-export const Checkable: Trait<{ checked: boolean }, typeof $checkable> = trait(
-  CHECKABLE_ATTRS,
-  $checkable,
-);
+export class Checkable extends AnyElement {
+  static {
+    trait(this);
+    attributes(this, CHECKABLE_ATTRS);
+  }
+
+  accessor checked!: boolean;
+}

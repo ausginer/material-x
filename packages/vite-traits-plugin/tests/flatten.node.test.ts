@@ -1,149 +1,172 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { flattenToDir, type Flattening } from './helpers.ts';
+import { materialize, type Materialized } from './helpers.ts';
 
-type BrandedTrait = (abstract new () => object) & { readonly brand: symbol };
-
-type Ctor = new () => {
+type Instance = {
   checked: boolean;
   name: string | null;
-  extra: string;
+  forwarded: number;
+  readonly target: { calls: number; options: unknown };
+  focus(options?: unknown): string;
   getAttribute(name: string): string | null;
 };
+type Ctor = (new () => Instance) & { observedAttributes: readonly string[] };
+type Module = { default: Ctor; Sub: Ctor };
 
-describe('descriptor flattening runtime equivalence', () => {
-  let gen: Flattening;
-  let composed: Ctor;
-  let flattened: Ctor;
-  let Checkable: BrandedTrait;
-  let Nameable: BrandedTrait;
+/** Each own key of each prototype on the chain below `Object.prototype`. */
+function shape(instance: object): string[] {
+  const keys: string[] = [];
+  for (
+    let proto = Object.getPrototypeOf(instance) as object | null;
+    proto && proto !== Object.prototype;
+    proto = Object.getPrototypeOf(proto) as object | null
+  ) {
+    for (const key of Reflect.ownKeys(proto)) {
+      const descriptor = Object.getOwnPropertyDescriptor(proto, key)!;
+      keys.push(
+        `${typeof key === 'symbol' ? `symbol:${key.description}` : key} ${
+          descriptor.get ? 'get' : ''
+        }${descriptor.set ? 'set' : ''}${'value' in descriptor ? typeof descriptor.value : ''} ${String(descriptor.enumerable)}`,
+      );
+    }
+  }
+
+  return keys;
+}
+
+describe('flattening', () => {
+  let gen: Materialized;
+  let flat: Module;
+  let expected: Module;
+  let traits: Record<string, abstract new () => object>;
 
   beforeAll(async () => {
-    gen = await flattenToDir('consumer.ts', {
-      augment: ['checkable.ts', 'nameable.ts'],
-      passthrough: ['base.ts'],
+    gen = await materialize({
+      transformed: [
+        'consumer.ts',
+        'checkable.ts',
+        'nameable.ts',
+        'forwarding.ts',
+      ],
+      verbatim: ['base.ts', 'lists.ts', 'consumer.expected.ts'],
+      exported: ['checkable.ts', 'nameable.ts', 'forwarding.ts'],
     });
-    const [composedMod, flatMod, traitsMod] = (await Promise.all([
-      import(gen.url('foo-composed.ts')),
-      import(gen.url('foo-flat.ts')),
-      import(gen.augmentedUrl),
-    ])) as [
-      { default: Ctor },
-      { default: Ctor },
-      { Checkable: BrandedTrait; Nameable: BrandedTrait },
-    ];
-    ({ default: composed } = composedMod);
-    ({ default: flattened } = flatMod);
-    ({ Checkable, Nameable } = traitsMod);
+    [flat, expected, traits] = (await Promise.all([
+      import(gen.url('consumer.ts')),
+      import(gen.url('consumer.expected.ts')),
+      import(gen.entryUrl),
+    ])) as [Module, Module, Record<string, abstract new () => object>];
   });
 
   afterAll(async () => {
     await gen.dispose();
   });
 
-  const cases = (): ReadonlyArray<readonly [string, Ctor]> => [
-    ['composed', composed],
-    ['flattened', flattened],
+  const both = (): ReadonlyArray<readonly [string, Module]> => [
+    ['flattened', flat],
+    ['expected', expected],
   ];
 
-  it('should default the boolean accessor to false', () => {
-    for (const [label, Ctor] of cases()) {
-      expect(new Ctor().checked, label).toBe(false);
-    }
+  it('should give the class the same prototype keys as the expected class', () => {
+    expect(shape(new flat.default())).toEqual(shape(new expected.default()));
   });
 
-  it('should round-trip the boolean accessor through the attribute', () => {
-    for (const [label, Ctor] of cases()) {
-      const instance = new Ctor();
-      instance.checked = true;
-      expect(instance.checked, label).toBe(true);
-      expect(instance.getAttribute('checked'), label).toBe('');
-    }
-  });
-
-  it('should round-trip the string accessor', () => {
-    for (const [label, Ctor] of cases()) {
-      const instance = new Ctor();
-      expect(instance.name, label).toBeNull();
-      instance.name = 'hi';
-      expect(instance.name, label).toBe('hi');
-    }
-  });
-
-  it('should keep the component instance field', () => {
-    for (const [label, Ctor] of cases()) {
-      expect(new Ctor().extra, label).toBe('here');
-    }
-  });
-
-  it('should preserve trait brands for instanceof', () => {
-    for (const [label, Ctor] of cases()) {
-      const instance = new Ctor();
-      // On a failure, the message names the cause (`repo:RF-60`).
-      const message = `${label}\n${gen.brandReport(instance, { Checkable, Nameable })}`;
-      expect(instance, message).toBeInstanceOf(Checkable);
-      expect(instance, message).toBeInstanceOf(Nameable);
-    }
-  });
-
-  it('should merge observedAttributes with the base', () => {
-    for (const [label, Ctor] of cases()) {
-      const observed = (Ctor as unknown as { observedAttributes: string[] })
-        .observedAttributes;
-      expect([...observed].sort(), label).toEqual([
-        'checked',
+  it("should merge observedAttributes with the base's", () => {
+    for (const [label, module] of both()) {
+      expect(module.default.observedAttributes, label).toEqual([
         'data-base',
+        'checked',
         'name',
       ]);
     }
   });
+
+  it('should read and write a boolean attribute', () => {
+    for (const [label, module] of both()) {
+      const instance = new module.default();
+      instance.checked = true;
+      expect(
+        [instance.checked, instance.getAttribute('checked')],
+        label,
+      ).toEqual([true, '']);
+    }
+  });
+
+  it('should read and write a string attribute', () => {
+    for (const [label, module] of both()) {
+      const instance = new module.default();
+      instance.name = 'x';
+      expect([instance.name, instance.getAttribute('name')], label).toEqual([
+        'x',
+        'x',
+      ]);
+    }
+  });
+
+  it("should read the trait module's private binding from the copied member", () => {
+    for (const [label, module] of both()) {
+      const instance = new module.default();
+      expect([instance.focus(1), instance.target], label).toEqual([
+        'trait',
+        { calls: 1, options: 1 },
+      ]);
+    }
+  });
+
+  it('should reach the copied member through super from a subclass', () => {
+    for (const [label, module] of both()) {
+      expect(new module.Sub().focus(), label).toBe('sub+trait');
+    }
+  });
+
+  it('should make the class an instance of each trait', () => {
+    const list = ['Checkable', 'Nameable', 'Forwarding'].map(
+      (name) => traits[name]!,
+    );
+    for (const [label, module] of both()) {
+      const instance = new module.default();
+      expect(
+        list.map((trait) => instance instanceof trait),
+        label,
+      ).toEqual([true, true, true]);
+    }
+  });
+
+  it('should not make a plain object an instance of a trait', () => {
+    expect(
+      {} instanceof (traits['Checkable'] as abstract new () => object),
+    ).toBe(false);
+  });
 });
 
-describe('flattening of a class that overrides a trait accessor pair', () => {
-  type OverrideCtor = new () => {
-    checked: string;
-    getAttribute(name: string): string | null;
+describe("flattening another package's built trait", () => {
+  let gen: Materialized;
+  let module: {
+    default: new () => { focus(options?: unknown): string; target: unknown };
   };
 
-  let gen: Flattening;
-  let composed: OverrideCtor;
-  let flattened: OverrideCtor;
-
   beforeAll(async () => {
-    gen = await flattenToDir('override-consumer.ts', {
-      augment: ['checkable.ts'],
-      passthrough: ['base.ts'],
+    gen = await materialize({
+      transformed: ['package-consumer.ts'],
+      verbatim: ['base.ts'],
+      packages: ['forwarding'],
+      exported: [],
     });
-    const [composedMod, flatMod] = (await Promise.all([
-      import(gen.url('foo-composed.ts')),
-      import(gen.url('foo-flat.ts')),
-    ])) as [{ default: OverrideCtor }, { default: OverrideCtor }];
-    ({ default: composed } = composedMod);
-    ({ default: flattened } = flatMod);
+    module = (await import(gen.url('package-consumer.ts'))) as typeof module;
   });
 
   afterAll(async () => {
     await gen.dispose();
   });
 
-  const cases = (): ReadonlyArray<readonly [string, OverrideCtor]> => [
-    ['composed', composed],
-    ['flattened', flattened],
-  ];
-
-  it("should read through the class's getter", () => {
-    for (const [label, Ctor] of cases()) {
-      expect(new Ctor().checked, label).toBe('unset');
-    }
+  it('should copy a JavaScript member that parses to the same tree in TypeScript', () => {
+    expect(gen.code['package-consumer.ts']).toContain("return 'package';");
   });
 
-  it("should write through the class's setter, not the trait's", () => {
-    for (const [label, Ctor] of cases()) {
-      const instance = new Ctor();
-      instance.checked = 'on';
-      expect(
-        [instance.checked, instance.getAttribute('checked')],
-        label,
-      ).toEqual(['set:on', null]);
-    }
+  it('should reach the private binding and the relative import through the package', () => {
+    const instance = new module.default();
+    expect([instance.focus(2), instance.target]).toEqual([
+      'package',
+      { calls: 1, options: 2 },
+    ]);
   });
 });
