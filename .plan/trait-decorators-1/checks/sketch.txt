@@ -1,0 +1,15 @@
+# P22 — node .plan/trait-decorators-1/probes/toolchain/sketch.ts, at dc5bc5853, 2026-11-19
+== 1. sketch/_example.ts through oxc-parser
+parse errors: 0
+class ValuableTrait: decorators [ 'trait' ]
+  static block: Object.defineProperty(this.prototype, $valuable, …)
+const Valuable: Trait<ValuableTrait>
+
+== 2. the brand at runtime
+new ValuableTrait() instanceof Valuable: true
+new Flattened() instanceof Valuable: false
+new FlattenedWithBlock() instanceof Valuable: true
+new Button() instanceof Disableable: true
+new Button() instanceof Button: true
+new Unrelated() instanceof Button: false
+new Unrelated() instanceof ButtonWithBlock: true (a wrong answer: Unrelated is not a ButtonWithBlock)

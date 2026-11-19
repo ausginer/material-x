@@ -1,0 +1,21 @@
+# P34 — node .plan/trait-decorators-1/probes/toolchain/layer-b.ts, at cc98563a3, 2026-11-19
+== 1. node on the trait module as written
+exit 1 SyntaxError: Unexpected identifier 'disabled'
+== 2. what the flattener reads in each trait class
+class Disableable extends AnyElement | trait(this): true | accessors: [disabled] | table: {disabled: Bool} | accessor without an entry: []
+class Linkable extends AnyElement | trait(this): true | accessors: [href, target] | table: {href: Str, target: Str} | accessor without an entry: []
+class ButtonLike extends AnyElement | trait(this): true | accessors: [color, size] | table: {color: Str as ConverterOf<ButtonColor>, size: Str as ConverterOf<ButtonSize>} | accessor without an entry: []
+class FocusForwarding extends Controlled | trait(this): true | accessors: [] | table: {} | accessor without an entry: []
+class ButtonGroupLike extends Controlled | trait(this): true | accessors: [] | table: {} | accessor without an entry: []
+== 3. the trait module as the flattener lowers it: accessor lines deleted
+the lowered trait module evaluates: ok
+Disableable.prototype has disabled: false
+== 4. a component as the flattener emits it
+ControlledElement.observedAttributes: undefined
+Button.observedAttributes: [ 'color', 'size', 'disabled', 'aria-label' ]
+SubButton.observedAttributes: [ 'color', 'size', 'disabled', 'aria-label' ]
+after disabled = true, color = "tonal": attributes {"disabled":"","color":"tonal"} | read back true tonal
+after disabled = false, color = null: attributes {"disabled":null,"color":null}
+instanceof ButtonLike, Disableable, FocusForwarding, ButtonGroupLike: true true true false
+a SubButton instanceof Disableable: true
+Button.formAssociated → true

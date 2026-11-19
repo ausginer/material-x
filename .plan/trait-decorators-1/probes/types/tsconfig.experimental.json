@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "experimentalDecorators": true, "outDir": "out-exp" },
+  "files": ["p1-decorator-only.ts"]
+}

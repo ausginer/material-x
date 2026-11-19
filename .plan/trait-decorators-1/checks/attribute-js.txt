@@ -1,0 +1,36 @@
+# P15 — node .plan/trait-decorators-1/probes/toolchain/attribute-js.ts, at 20817d665, 2026-11-19
+== explicit get/set — transform errors: 0; node v26.13.1 --check: parses
+export class Explicit extends ControlledElement {
+	static observedAttributes = ["disabled"];
+	get disabled() {
+		return attr.get(this, "disabled", Bool);
+	}
+	set disabled(value) {
+		attr.set(this, "disabled", value, Bool);
+	}
+}
+== table + declare — transform errors: 0; node v26.13.1 --check: parses
+export class Declared extends ControlledElement {
+	static attributes = { disabled: Bool };
+}
+== table + plain accessor — transform errors: 0; node v26.13.1 --check: SyntaxError: SyntaxError: Unexpected identifier 'disabled'
+export class PlainAuto extends ControlledElement {
+	static attributes = { disabled: Bool };
+	accessor disabled;
+}
+== getter alone — transform errors: 0; node v26.13.1 --check: parses
+export class GetterOnly extends ControlledElement {
+	get busy() {
+		return attr.get(this, "busy", Bool);
+	}
+}
+== @attr accessor — transform errors: 0; node v26.13.1 --check: SyntaxError: SyntaxError: Invalid or unexpected token
+export class Decorated extends ControlledElement {
+	@attr(Bool) accessor disabled;
+}
+== @attr getter — transform errors: 0; node v26.13.1 --check: SyntaxError: SyntaxError: Invalid or unexpected token
+export class DecoratedGetter extends ControlledElement {
+	@attr(Bool) get busy() {
+		return false;
+	}
+}

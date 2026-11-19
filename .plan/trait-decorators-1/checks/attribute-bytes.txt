@@ -1,0 +1,4 @@
+# P37 — node .plan/trait-decorators-1/probes/toolchain/attribute-bytes.ts, at 486d0147e, 2026-11-19, Node v26.13.1, rolldown 1.3.2
+layer (b): Button 1751 B min, 640 B brotli | LinkButton 1980 B min, 686 B brotli
+layer (a) alone: Button 2075 B min, 661 B brotli | LinkButton 2504 B min, 713 B brotli
+layer (a) alone, copied members deleted: Button 1751 B min, 640 B brotli | LinkButton 1980 B min, 686 B brotli
