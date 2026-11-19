@@ -81,15 +81,6 @@ function composedAnnotation(
     : null;
 }
 
-/** The TypeScript wrappers whose `expression` is a value. */
-const VALUE_WRAPPERS = new Set([
-  'TSAsExpression',
-  'TSSatisfiesExpression',
-  'TSNonNullExpression',
-  'TSInstantiationExpression',
-  'TSTypeAssertion',
-]);
-
 /** The fields that hold only types, in any node. */
 const TYPE_FIELDS = new Set([
   'typeAnnotation',
@@ -100,11 +91,41 @@ const TYPE_FIELDS = new Set([
   'implements',
 ]);
 
+/** Type nodes and type-only declarations, besides every `TS…Type`. */
+const TYPE_NODES = new Set([
+  'TSTypeAnnotation',
+  'TSTypeReference',
+  'TSTypeQuery',
+  'TSTypeLiteral',
+  'TSTypeOperator',
+  'TSTypePredicate',
+  'TSTypeParameterDeclaration',
+  'TSTypeParameterInstantiation',
+  'TSTypeAliasDeclaration',
+  'TSInterfaceDeclaration',
+]);
+
+/** Whether a node is a type, or a declaration that emits nothing. */
+function isTypeOnly(
+  node: Readonly<Record<string, unknown>> & { type?: string },
+): boolean {
+  const { type } = node;
+
+  return (
+    type !== undefined &&
+    (TYPE_NODES.has(type) ||
+      /^TS\w*(?:Type|Keyword)$/u.test(type) ||
+      node['declare'] === true)
+  );
+}
+
 /**
- * Counts each name's value references under `node`. A type position isn't a
- * value reference, and neither is a non-computed property key, member name or
- * label, nor an import. A shorthand property `{ X }` and an export specifier
- * are.
+ * Counts each name's value references under `node`. It fails closed: every
+ * node is walked, TypeScript or not, so a shape this function doesn't know
+ * counts its identifiers, which can only refuse a composition. Only these
+ * aren't counted: a type position, a type-only declaration, a `declare`
+ * declaration, a non-computed property key or member name, a label, and an
+ * import. A shorthand property `{ X }` and an export specifier are counted.
  */
 function countValueReferences(
   node: unknown,
@@ -126,13 +147,7 @@ function countValueReferences(
     counts.set(name, (counts.get(name) ?? 0) + 1);
     return;
   }
-  if (type?.startsWith('TS')) {
-    if (VALUE_WRAPPERS.has(type)) {
-      countValueReferences(value['expression'], counts);
-    }
-    return;
-  }
-  if (type === 'ImportDeclaration') {
+  if (isTypeOnly(value) || type === 'ImportDeclaration') {
     return;
   }
   if (type === 'ExportSpecifier') {

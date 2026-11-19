@@ -87,3 +87,49 @@ describe('transformTraitModule', () => {
     );
   });
 });
+
+describe('the brand of a built trait module', () => {
+  const method =
+    '  static [Symbol.hasInstance](o) {\n    return o != null && o[$linked] === true;\n  }';
+
+  /** A built trait module with `declaration` and `extra`, in an application build. */
+  const transformBuilt = (declaration: string, extra = ''): string =>
+    transformTrait(
+      'built.js',
+      `${declaration}\nvar Linked = class {\n${method}\n  get href() {\n    return 'linked-member';\n  }\n};\n${extra}export { $linked, Linked };\n`,
+      true,
+    );
+
+  it('should recognize a var brand that nothing assigns again', () => {
+    expect(transformBuilt('var $linked = Symbol("Linked");')).not.toContain(
+      'linked-member',
+    );
+  });
+
+  it('should not recognize a brand that a destructuring assigns again', () => {
+    expect(
+      transformBuilt(
+        'let $linked = Symbol("Linked");',
+        '[$linked] = [Symbol("Other")];\n',
+      ),
+    ).toContain('linked-member');
+  });
+
+  it('should not recognize a brand that a for-of assigns again', () => {
+    expect(
+      transformBuilt(
+        'let $linked = Symbol("Linked");',
+        'for ($linked of [Symbol("Other")]) {}\n',
+      ),
+    ).toContain('linked-member');
+  });
+
+  it('should not recognize a brand that the module declares twice', () => {
+    expect(
+      transformBuilt(
+        'var $linked = Symbol("Linked");',
+        'var $linked = Symbol("Other");\n',
+      ),
+    ).toContain('linked-member');
+  });
+});

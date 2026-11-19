@@ -97,20 +97,96 @@ function isName(
   return node.type === 'Identifier' && node.name === name;
 }
 
-/** The module-scope names that some expression in the module assigns. */
+/** Adds each identifier a write target binds or assigns to `into`. */
+function addTargetNames(target: unknown, into: Set<string>): void {
+  if (!target || typeof target !== 'object') {
+    return;
+  }
+  const node = target as Readonly<Record<string, unknown>> & { type?: string };
+  switch (node.type ?? '') {
+    case 'Identifier':
+      into.add(node['name'] as string);
+      return;
+    case 'ArrayPattern':
+      for (const element of (node['elements'] as unknown[] | undefined) ?? []) {
+        addTargetNames(element, into);
+      }
+      return;
+    case 'ObjectPattern':
+      for (const property of (node['properties'] as unknown[] | undefined) ??
+        []) {
+        const entry = property as Readonly<Record<string, unknown>> & {
+          type?: string;
+        };
+        addTargetNames(
+          entry.type === 'Property' ? entry['value'] : entry,
+          into,
+        );
+      }
+      return;
+    case 'AssignmentPattern':
+      addTargetNames(node['left'], into);
+      return;
+    case 'RestElement':
+      addTargetNames(node['argument'], into);
+      return;
+    default:
+      // A member expression writes a property, not a binding. A TypeScript
+      // wrapper around a target writes what it wraps.
+      if (node['expression']) {
+        addTargetNames(node['expression'], into);
+      }
+  }
+}
+
+/**
+ * The module-scope names that the module writes after declaring them: any
+ * assignment or update target, including each name in a destructuring
+ * pattern, the left side of a `for…in` or `for…of` that isn't a declaration,
+ * and a name that the module declares more than once.
+ */
 function assignedNames(program: Program): Set<string> {
   const names = new Set<string>();
   walk(program, (node) => {
-    const target =
-      node.type === 'AssignmentExpression'
-        ? node.left
-        : node.type === 'UpdateExpression'
-          ? node.argument
-          : null;
-    if (target?.type === 'Identifier') {
-      names.add(target.name);
+    if (node.type === 'AssignmentExpression') {
+      addTargetNames(node.left, names);
+    } else if (node.type === 'UpdateExpression') {
+      addTargetNames(node.argument, names);
+    } else if (
+      (node.type === 'ForInStatement' || node.type === 'ForOfStatement') &&
+      node.left.type !== 'VariableDeclaration'
+    ) {
+      addTargetNames(node.left, names);
     }
   });
+  const declared = new Set<string>();
+  for (const statement of program.body) {
+    const declaration =
+      statement.type === 'ExportNamedDeclaration' ||
+      statement.type === 'ExportDefaultDeclaration'
+        ? statement.declaration
+        : statement;
+    const ids: string[] = [];
+    if (declaration?.type === 'VariableDeclaration') {
+      for (const declarator of declaration.declarations) {
+        const local = new Set<string>();
+        addTargetNames(declarator.id, local);
+        ids.push(...local);
+      }
+    } else if (
+      (declaration?.type === 'FunctionDeclaration' ||
+        declaration?.type === 'ClassDeclaration') &&
+      declaration.id
+    ) {
+      ids.push(declaration.id.name);
+    }
+    for (const id of ids) {
+      if (declared.has(id)) {
+        names.add(id);
+      }
+      declared.add(id);
+    }
+  }
 
   return names;
 }

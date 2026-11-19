@@ -352,6 +352,30 @@ describe('composition-shape and value references', () => {
     ).rejects.toMatchObject({ code: CODE.COMPOSITION_SHAPE });
   });
 
+  it('should flatten with the name in a declared namespace', async () => {
+    const { code } = await run(
+      `${base}declare namespace N {\n  const b: typeof FooBase;\n}\n`,
+    );
+
+    expect(code).toContain('export class Foo extends Base');
+  });
+
+  it.each([
+    [
+      'a namespace body',
+      'export namespace N {\n  export const b = FooBase;\n}\n',
+    ],
+    ['an enum initializer', 'export enum E {\n  A = FooBase.length,\n}\n'],
+    [
+      "a parameter property's default",
+      'export class P {\n  constructor(public b = FooBase) {}\n}\n',
+    ],
+  ])('should fail the build for a value reference in %s', async (_, extra) => {
+    await expect(run(`${base}${extra}`)).rejects.toMatchObject({
+      code: CODE.COMPOSITION_SHAPE,
+    });
+  });
+
   it('should fail the build for an export specifier', async () => {
     await expect(run(`${base}export { FooBase };\n`)).rejects.toMatchObject({
       code: CODE.COMPOSITION_SHAPE,
