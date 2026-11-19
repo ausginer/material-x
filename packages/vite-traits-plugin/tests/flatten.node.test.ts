@@ -22,22 +22,18 @@ describe('descriptor flattening runtime equivalence', () => {
       augment: ['checkable.ts', 'nameable.ts'],
       passthrough: ['base.ts'],
     });
-    const [composedMod, flatMod, checkableMod, nameableMod] =
-      (await Promise.all([
-        import(gen.url('foo-composed.ts')),
-        import(gen.url('foo-flat.ts')),
-        import(gen.url('checkable.ts')),
-        import(gen.url('nameable.ts')),
-      ])) as [
-        { default: Ctor },
-        { default: Ctor },
-        { Checkable: BrandedTrait },
-        { Nameable: BrandedTrait },
-      ];
+    const [composedMod, flatMod, traitsMod] = (await Promise.all([
+      import(gen.url('foo-composed.ts')),
+      import(gen.url('foo-flat.ts')),
+      import(gen.augmentedUrl),
+    ])) as [
+      { default: Ctor },
+      { default: Ctor },
+      { Checkable: BrandedTrait; Nameable: BrandedTrait },
+    ];
     ({ default: composed } = composedMod);
     ({ default: flattened } = flatMod);
-    ({ Checkable } = checkableMod);
-    ({ Nameable } = nameableMod);
+    ({ Checkable, Nameable } = traitsMod);
   });
 
   afterAll(async () => {

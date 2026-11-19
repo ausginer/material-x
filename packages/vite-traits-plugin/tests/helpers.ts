@@ -91,14 +91,26 @@ function augmentSource(id: string, code: string): string {
   return appendSyntheticExports(code, synthetics)?.toString() ?? code;
 }
 
+/** The generated module that re-exports the `augment`ed trait modules. */
+const AUGMENTED_ENTRY = 'augmented.ts';
+
 /** A materialized flattening: both forms on disk, importable, then disposed. */
 export interface Flattening {
   /** The flattened consumer's source. */
   readonly flat: string;
   /** Reason codes of the consumer's retained sites. */
   readonly bailouts: readonly string[];
-  /** Absolute file URL for a generated module (e.g. `foo-flat.ts`). */
+  /**
+   * Absolute file URL for a generated module that no other module imports:
+   * `foo-composed` or `foo-flat`. A module that they import is reached through
+   * {@link augmentedUrl}, never by its own file URL (`repo:RF-60`).
+   */
   url(file: string): string;
+  /**
+   * File URL of a generated module that re-exports every `augment`ed trait
+   * module by its relative specifier, as the consumers import them.
+   */
+  readonly augmentedUrl: string;
   /**
    * What a failed brand assertion needs to name its cause (`repo:RF-60`): the
    * generated consumer and trait modules as written, the own keys of each
@@ -124,6 +136,13 @@ export interface Flattening {
  * Synthetic export names are hashed from each module's ORIGINAL fixture id, and
  * the flattened consumer keeps the original relative specifiers, so the two
  * agree without any id rewriting.
+ *
+ * A test imports by file URL only the consumers, which no other module
+ * imports, and reaches the trait modules through `augmented.ts`, which
+ * re-exports them by the consumers' relative specifiers. Vite's module runner
+ * can evaluate a file twice when it is requested under two URL strings at once,
+ * as a file URL and a relative import are, and a trait's second evaluation
+ * creates a second brand (`repo:RF-60`). One URL string per file prevents it.
  */
 export async function flattenToDir(
   consumerName: string,
@@ -176,6 +195,12 @@ export async function flattenToDir(
         await writeFile(join(genDir, name), await readFixture(name)),
     ),
     ...options.augment.map(augment),
+    writeFile(
+      join(genDir, AUGMENTED_ENTRY),
+      options.augment.length > 0
+        ? options.augment.map((name) => `export * from './${name}';\n`).join('')
+        : 'export {};\n',
+    ),
     writeFile(join(genDir, `foo-flat${extname(consumerName)}`), flat),
     writeFile(
       join(genDir, `foo-composed${extname(consumerName)}`),
@@ -187,6 +212,7 @@ export async function flattenToDir(
     flat,
     bailouts: bailouts.map(({ reason }) => reason),
     url: (file) => pathToFileURL(join(genDir, file)).href,
+    augmentedUrl: pathToFileURL(join(genDir, AUGMENTED_ENTRY)).href,
     brandReport: (instance, traits) => {
       const keys: PropertyKey[] = [];
       const chain: string[] = [];
