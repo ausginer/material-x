@@ -51,6 +51,16 @@ The required property says _every story renders over plain HTTP from any host_. 
 
 Save 2 to 4 in this record's `checks/`.
 
+## Implementation
+
+Implemented by the implementer on 2026-11-19 at `d6674ecfb`, on the coordinator's task, to properties 1 to 4.
+
+- **Property 1:** `WithLabel` takes its id from the constant `WITH_LABEL_ID`, `'mx-with-label-checkbox'`, beside `PLAYGROUND_ID`.
+- **Properties 2 and 3:** `.scripts/docs-smoke.ts` keeps its server on `127.0.0.1` and opens every page at `http://mx-docs.test:<port>`. Chromium launches with `--host-resolver-rules=MAP mx-docs.test 127.0.0.1`. The check of the first target, the manager's `index.html`, fails unless `isSecureContext` evaluates to `false`, and an evaluation that throws counts as not `false`.
+- **Property 4:** the module comment states the rule and why.
+
+[Witnesses 1 to 4](checks/rf62-repair-witnesses.txt): the search is empty at the repair and hits line 93 at its parent; 102 of 102 pages pass under the mapped name; with the story reverted, `checkbox--with-label` fails with the `randomUUID` error; without the rule every page fails to resolve, and with the origin on `127.0.0.1` the assertion alone fails the run. Witness 5 is the pull request's `docs` job.
+
 ## What the closure needs
 
 `RF-62` closes when the repair is merged to `main`, witnesses 1 to 4 are saved and a feature proof has read them, and the pull request's `docs` job passed (witness 5). The main architect records `RD-14` property 6's new origin as the decision's owner chooses: a dated note, or an amendment.

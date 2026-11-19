@@ -1,0 +1,43 @@
+# RF-62's repair: witnesses 1 to 4, at d6674ecfb
+# Run by the implementer on 2026-11-19 in slot d (repo/story-http-1), one at a
+# time. Each mutation was reverted with `git checkout` and the tree was clean
+# afterwards. `.docs` was rebuilt from the repair after the last mutation.
+
+## 1. The search is empty
+# The pattern of rf62-scope-search.txt, over the same paths. The paths need
+# `:(glob)`: a plain `packages/*/src` pathspec matches no file in `git grep`,
+# which would make an empty result vacuous. The parent shows the search hits.
+# $PATTERN is the line under "The pattern" in rf62-scope-search.txt.
+$ git grep -nE "$PATTERN" <commit> -- ':(glob).storybook/**' ':(glob)packages/*/src/**' ':(glob)packages/*/docs/**' index.html
+## e02ee7a3a (the parent): exit 0
+e02ee7a3a:packages/material-x/src/checkbox/checkbox.stories.tsx:93:  const id = crypto.randomUUID();
+## d6674ecfb (the repair): exit 1, no hit
+# 309 tracked files are under those paths at both commits.
+
+## 2. The gate passes from an insecure origin
+$ aube exec just docs-build    # exit 0
+$ aube exec just docs-smoke    # exit 0
+102 of 102 pages passed at http://mx-docs.test:42123/material-x/ in 22.0 s
+
+## 3. The gate sees the defect: WithLabel's `crypto.randomUUID()` restored
+# packages/material-x/src/checkbox/checkbox.stories.tsx taken from e02ee7a3a,
+# then docs-build (exit 0) and docs-smoke: exit 1
+FAIL story checkbox--with-label
+  console error: TypeError: crypto.randomUUID is not a function
+101 of 102 pages passed at http://mx-docs.test:44643/material-x/ in 22.4 s
+
+## 4a. The check proves its condition: the host-resolver rule removed
+# `args: [],` for the launch's rule. mx-docs.test doesn't resolve: exit 1.
+FAIL index.html
+  request failed: http://mx-docs.test:34721/material-x/ (net::ERR_NAME_NOT_RESOLVED)
+  navigation: page.goto: net::ERR_NAME_NOT_RESOLVED at http://mx-docs.test:34721/material-x/
+  secure context: isSecureContext is null at http://mx-docs.test:34721, where it must be false
+(every one of the 102 entries fails with net::ERR_NAME_NOT_RESOLVED)
+0 of 102 pages passed at http://mx-docs.test:34721/material-x/ in 3.0 s
+
+## 4b. The origin set back to 127.0.0.1
+# `const HOST = '127.0.0.1';`. Every page loads, and property 3's assertion is
+# the only failure: exit 1.
+FAIL index.html
+  secure context: isSecureContext is true at http://127.0.0.1:40619, where it must be false
+101 of 102 pages passed at http://127.0.0.1:40619/material-x/ in 21.0 s
